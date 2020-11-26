@@ -33,13 +33,14 @@ import {
   setDefaultApplicationPageSuccess,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { AppToaster } from "components/editorComponents/ToastComponent";
 import {
   DELETING_APPLICATION,
   DUPLICATING_APPLICATION,
 } from "constants/messages";
+import { Toaster } from "components/ads/Toast";
 import { APP_MODE } from "../reducers/entityReducers/appReducer";
 import { Organization } from "constants/orgConstants";
+import { Variant } from "components/ads/common";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -186,16 +187,20 @@ export function* updateApplicationSaga(
       request,
     );
     const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      if (request && request.name) {
-        AppToaster.show({
-          message: "Application name updated",
-          type: "success",
-        });
-        yield put({
-          type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
-        });
-      }
+    if (isValidResponse && request && request.name) {
+      Toaster.show({
+        text: "Application name updated",
+        variant: Variant.success,
+      });
+      yield put({
+        type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
+      });
+    }
+    if (isValidResponse && request.currentApp) {
+      yield put({
+        type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
+        payload: request.name,
+      });
     }
   } catch (error) {
     yield put({
@@ -211,7 +216,9 @@ export function* deleteApplicationSaga(
   action: ReduxAction<DeleteApplicationRequest>,
 ) {
   try {
-    AppToaster.show({ message: DELETING_APPLICATION });
+    Toaster.show({
+      text: DELETING_APPLICATION,
+    });
     const request: DeleteApplicationRequest = action.payload;
     const response: ApiResponse = yield call(
       ApplicationApi.deleteApplication,
@@ -238,7 +245,9 @@ export function* duplicateApplicationSaga(
   action: ReduxAction<DeleteApplicationRequest>,
 ) {
   try {
-    AppToaster.show({ message: DUPLICATING_APPLICATION });
+    Toaster.show({
+      text: DUPLICATING_APPLICATION,
+    });
     const request: DuplicateApplicationRequest = action.payload;
     const response: ApiResponse = yield call(
       ApplicationApi.duplicateApplication,

@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef } from "react";
+import React, { ReactElement, useRef, useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
@@ -137,9 +137,16 @@ type AppViewerHeaderProps = {
 
 const PageTabName: React.FunctionComponent<{ name: string }> = ({ name }) => {
   const tabNameRef = useRef<HTMLSpanElement>(null);
+  const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = <span ref={tabNameRef}>{name}</span>;
 
-  return isEllipsisActive(tabNameRef?.current) ? (
+  useEffect(() => {
+    if (isEllipsisActive(tabNameRef?.current)) {
+      setEllipsisActive(true);
+    }
+  }, [tabNameRef]);
+
+  return ellipsisActive ? (
     <TooltipComponent maxWidth={400} content={name}>
       {tabNameText}
     </TooltipComponent>

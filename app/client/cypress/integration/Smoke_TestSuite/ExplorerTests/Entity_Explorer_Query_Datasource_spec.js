@@ -23,6 +23,15 @@ describe("Entity explorer tests related to query and datasource", function() {
 
     cy.testSaveDatasource();
 
+    // checking that conflicting names are not allowed
+    cy.get(".t--edit-datasource-name").click();
+    cy.get(".t--edit-datasource-name input")
+      .clear()
+      .type("download", { force: true })
+      .blur();
+    cy.get(".Toastify").should("contain", "Invalid name");
+
+    // checking a valid name
     cy.get(".t--edit-datasource-name").click();
     cy.get(".t--edit-datasource-name input")
       .clear()

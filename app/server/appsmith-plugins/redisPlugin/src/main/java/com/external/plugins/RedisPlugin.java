@@ -17,6 +17,7 @@ import org.pf4j.PluginWrapper;
 import org.pf4j.util.StringUtils;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Protocol;
 import redis.clients.jedis.exceptions.JedisConnectionException;
@@ -43,36 +44,41 @@ public class RedisPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(Jedis jedis,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
-            String body = actionConfiguration.getBody();
-            if (StringUtils.isNullOrEmpty(body)) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        String.format("Body is null or empty [%s]", body)));
-            }
+            return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
+                String body = actionConfiguration.getBody();
+                if (StringUtils.isNullOrEmpty(body)) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                            String.format("Body is null or empty [%s]", body)));
+                }
 
-            // First value will be the redis command and others are arguments for that command
-            String[] bodySplitted = body.trim().split("\\s+");
+                // First value will be the redis command and others are arguments for that command
+                String[] bodySplitted = body.trim().split("\\s+");
 
-            Protocol.Command command;
-            try {
-                // Commands are in upper case
-                command = Protocol.Command.valueOf(bodySplitted[0].toUpperCase());
-            } catch (IllegalArgumentException exc) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        String.format("Not a valid Redis command:%s", bodySplitted[0])));
-            }
+                Protocol.Command command;
+                try {
+                    // Commands are in upper case
+                    command = Protocol.Command.valueOf(bodySplitted[0].toUpperCase());
+                } catch (IllegalArgumentException exc) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                            String.format("Not a valid Redis command:%s", bodySplitted[0])));
+                }
 
-            Object commandOutput;
-            if (bodySplitted.length > 1) {
-                commandOutput = jedis.sendCommand(command, Arrays.copyOfRange(bodySplitted, 1, bodySplitted.length));
-            } else {
-                commandOutput = jedis.sendCommand(command);
-            }
+                Object commandOutput;
+                if (bodySplitted.length > 1) {
+                    commandOutput = jedis.sendCommand(command, Arrays.copyOfRange(bodySplitted, 1, bodySplitted.length));
+                } else {
+                    commandOutput = jedis.sendCommand(command);
+                }
 
-            ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
-            actionExecutionResult.setBody(objectMapper.valueToTree(processCommandOutput(commandOutput)));
-            actionExecutionResult.setIsExecutionSuccess(true);
+                ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
+                actionExecutionResult.setBody(objectMapper.valueToTree(processCommandOutput(commandOutput)));
+                actionExecutionResult.setIsExecutionSuccess(true);
 
-            return Mono.just(actionExecutionResult);
+                System.out.println(Thread.currentThread().getName() + ": In the RedisPlugin, got action execution result: " + actionExecutionResult.toString());
+                return Mono.just(actionExecutionResult);
+            })
+                    .flatMap(obj -> obj)
+                    .subscribeOn(Schedulers.elastic());
         }
 
         // This will be updated as we encounter different outputs.
@@ -93,31 +99,43 @@ public class RedisPlugin extends BasePlugin {
 
         @Override
         public Mono<Jedis> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            if (datasourceConfiguration.getEndpoints().isEmpty()) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "No endpoint(s) configured"));
-            }
 
-            Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
-            Integer port = (int) (long) ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT);
-            Jedis jedis = new Jedis(endpoint.getHost(), port);
+            return (Mono<Jedis>) Mono.fromCallable(() -> {
+                if (datasourceConfiguration.getEndpoints().isEmpty()) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "No endpoint(s) configured"));
+                }
 
-            AuthenticationDTO auth = datasourceConfiguration.getAuthentication();
-            if (auth != null && AuthenticationDTO.Type.USERNAME_PASSWORD.equals(auth.getAuthType())) {
-                jedis.auth(auth.getUsername(), auth.getPassword());
-            }
+                Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
+                Integer port = (int) (long) ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT);
+                Jedis jedis = new Jedis(endpoint.getHost(), port);
 
-            return Mono.just(jedis);
+                AuthenticationDTO auth = datasourceConfiguration.getAuthentication();
+                if (auth != null && AuthenticationDTO.Type.USERNAME_PASSWORD.equals(auth.getAuthType())) {
+                    jedis.auth(auth.getUsername(), auth.getPassword());
+                }
+
+                return Mono.just(jedis);
+            })
+                    .flatMap(obj -> obj)
+                    .subscribeOn(Schedulers.elastic());
         }
 
         @Override
         public void datasourceDestroy(Jedis jedis) {
-            try {
-                if (jedis != null) {
-                    jedis.close();
+            // Schedule on elastic thread pool and subscribe immediately.
+            Mono.fromSupplier(() -> {
+                try {
+                    if (jedis != null) {
+                        jedis.close();
+                    }
+                } catch (JedisConnectionException exc) {
+                    System.out.println("Error closing Redis connection");
                 }
-            } catch (JedisConnectionException exc) {
-                log.error("Error closing Redis connection");
-            }
+
+                return Mono.empty();
+            })
+                    .subscribeOn(Schedulers.elastic())
+                    .subscribe();
         }
 
         @Override
@@ -168,13 +186,17 @@ public class RedisPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return datasourceCreate(datasourceConfiguration)
+
+            return Mono.fromCallable(() ->
+                    datasourceCreate(datasourceConfiguration)
                     .map(jedis -> {
                         verifyPing(jedis).block();
                         datasourceDestroy(jedis);
                         return new DatasourceTestResult();
                     })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage()))))
+                    .flatMap(obj -> obj)
+                    .subscribeOn(Schedulers.elastic());
         }
 
     }

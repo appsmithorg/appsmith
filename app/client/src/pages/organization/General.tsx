@@ -2,7 +2,7 @@ import React from "react";
 
 import { saveOrg } from "actions/orgActions";
 import { SaveOrgRequest } from "api/OrgApi";
-import { throttle } from "lodash";
+import { debounce } from "lodash";
 import TextInput, {
   emailValidator,
   notEmptyValidator,
@@ -13,7 +13,8 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "@blueprintjs/core";
-import { getOrgLoadingStates } from "selectors/organizationSelectors";
+import { getIsFetchingApplications } from "selectors/applicationSelectors";
+
 const InputLabelWrapper = styled.div`
   width: 200px;
   display: flex;
@@ -42,35 +43,37 @@ const Loader = styled.div`
 export function GeneralSettings() {
   const { orgId } = useParams<{ orgId: string }>();
   const dispatch = useDispatch();
-  const currentOrg = useSelector(getCurrentOrg);
+  const currentOrg = useSelector(getCurrentOrg).filter(
+    el => el.id === orgId,
+  )[0];
   function saveChanges(settings: SaveOrgRequest) {
     dispatch(saveOrg(settings));
   }
 
-  const throttleTimeout = 1000;
+  const timeout = 1000;
 
-  const onWorkspaceNameChange = throttle((newName: string) => {
+  const onWorkspaceNameChange = debounce((newName: string) => {
     saveChanges({
       id: orgId as string,
       name: newName,
     });
-  }, throttleTimeout);
+  }, timeout);
 
-  const onWebsiteChange = throttle((newWebsite: string) => {
+  const onWebsiteChange = debounce((newWebsite: string) => {
     saveChanges({
       id: orgId as string,
       website: newWebsite,
     });
-  }, throttleTimeout);
+  }, timeout);
 
-  const onEmailChange = throttle((newEmail: string) => {
+  const onEmailChange = debounce((newEmail: string) => {
     saveChanges({
       id: orgId as string,
       email: newEmail,
     });
-  }, throttleTimeout);
+  }, timeout);
 
-  const { isFetchingOrg } = useSelector(getOrgLoadingStates);
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
 
   return (
     <>
@@ -79,13 +82,15 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Organization Name</Text>
         </InputLabelWrapper>
-        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
-        {!isFetchingOrg && (
+        {isFetchingApplications && (
+          <Loader className={Classes.SKELETON}></Loader>
+        )}
+        {!isFetchingApplications && (
           <TextInput
             validator={notEmptyValidator}
-            placeholder="Workspace name"
+            placeholder="Organization Name"
             onChange={onWorkspaceNameChange}
-            defaultValue={currentOrg.name}
+            defaultValue={currentOrg && currentOrg.name}
             cypressSelector="t--org-name-input"
           ></TextInput>
         )}
@@ -95,12 +100,14 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Website</Text>
         </InputLabelWrapper>
-        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
-        {!isFetchingOrg && (
+        {isFetchingApplications && (
+          <Loader className={Classes.SKELETON}></Loader>
+        )}
+        {!isFetchingApplications && (
           <TextInput
             placeholder="Your website"
             onChange={onWebsiteChange}
-            defaultValue={currentOrg.website || ""}
+            defaultValue={(currentOrg && currentOrg.website) || ""}
             cypressSelector="t--org-website-input"
           ></TextInput>
         )}
@@ -110,13 +117,15 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Email</Text>
         </InputLabelWrapper>
-        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
-        {!isFetchingOrg && (
+        {isFetchingApplications && (
+          <Loader className={Classes.SKELETON}></Loader>
+        )}
+        {!isFetchingApplications && (
           <TextInput
             validator={emailValidator}
             placeholder="Email"
             onChange={onEmailChange}
-            defaultValue={currentOrg.email || ""}
+            defaultValue={(currentOrg && currentOrg.email) || ""}
             cypressSelector="t--org-email-input"
           ></TextInput>
         )}
