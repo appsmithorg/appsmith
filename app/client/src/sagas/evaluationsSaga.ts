@@ -1,4 +1,12 @@
-import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
+import {
+  all,
+  call,
+  fork,
+  put,
+  select,
+  take,
+  takeLatest,
+} from "redux-saga/effects";
 import { eventChannel, EventChannel } from "redux-saga";
 import {
   EvaluationReduxAction,
@@ -31,6 +39,10 @@ import { EXECUTION_PARAM_KEY } from "../constants/ActionConstants";
 
 let evaluationWorker: Worker;
 let workerChannel: EventChannel<any>;
+let evalQueue: Array<{
+  queued: Date;
+  action: EvaluationReduxAction<unknown | unknown[]>;
+}> = [];
 
 function* initEvaluationWorkers() {
   // If an old worker exists, terminate it
@@ -66,6 +78,7 @@ function* initEvaluationWorkers() {
     type: ReduxActionTypes.SET_EVALUATION_DEPENDENCIES,
     payload: dependencies,
   });
+  // yield call(processEvalQueue);
 }
 
 const evalErrorHandler = (errors: EvalError[]) => {
@@ -91,6 +104,22 @@ const evalErrorHandler = (errors: EvalError[]) => {
 function* postEvalActionDispatcher(actions: ReduxAction<unknown>[]) {
   for (const action of actions) {
     yield put(action);
+  }
+}
+
+function* processEvalQueue() {
+  if (evalQueue.length) {
+    const allPostEvalActions: EvaluationReduxAction<unknown | unknown[]>[] = [];
+    evalQueue.forEach(enqueuedAction => {
+      const postEvalActions = enqueuedAction.action.postEvalActions;
+      if (postEvalActions && postEvalActions.length) {
+        allPostEvalActions.push(...postEvalActions);
+      }
+    });
+    log.debug("Evaluating queue of actions");
+    log.debug(evalQueue);
+    evalQueue = [];
+    yield fork(evaluateTreeSaga, allPostEvalActions);
   }
 }
 
@@ -261,8 +290,9 @@ const EVALUATE_REDUX_ACTIONS = [
 ];
 
 function* evaluationChangeListenerSaga() {
-  yield call(initEvaluationWorkers);
+  yield fork(initEvaluationWorkers);
   while (true) {
+    yield fork(processEvalQueue);
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
       EVALUATE_REDUX_ACTIONS,
     );
@@ -281,10 +311,11 @@ function* evaluationChangeListenerSaga() {
         continue;
       }
     }
-    log.debug(`Evaluating`, { action });
-    yield call(evaluateTreeSaga, action.postEvalActions);
+    evalQueue.push({
+      queued: new Date(),
+      action,
+    });
   }
-  // TODO(hetu) need an action to stop listening and evaluate (exit app)
 }
 
 export default function* evaluationSagaListeners() {
