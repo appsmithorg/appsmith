@@ -213,13 +213,15 @@ export class DataTreeEvaluator {
         changeLocations.push(convertPathToString(d.path));
       }
     });
+
     const newSortOrder = this.getUpdatedSortOrder(
-      changeLocations,
+      [...changeLocations, ...Object.keys(newDependencyMap)],
       this.inverseDependencyMap,
     );
     console.log({
       differences,
       newSortOrder,
+      sortedDependencies: this.sortedDependencies,
       changeLocations,
       inverse: this.inverseDependencyMap,
       newDependencyMap,
