@@ -43,14 +43,6 @@ describe("Table Widget property pane feature validation", function() {
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
     cy.wait("@updateLayout");
-    /*
-    cy.get("[data-rbd-draggable-id='id']")
-      .scrollIntoView();
-    cy.get("[data-rbd-draggable-id='TestUpdated']")
-      .first()
-      .focus({ force: true })
-      .should("not.be.visible");
-      */
     cy.tableColumnDataValidation("id");
     cy.tableColumnDataValidation("email");
     cy.tableColumnDataValidation("userName");
@@ -62,7 +54,7 @@ describe("Table Widget property pane feature validation", function() {
       .should("not.be.visible");
   });
 
-  it("Edit column data in property pane validate text allignment and basic check for computed value", function() {
+  it("Edit column name and validate test for computed value based on column type selected", function() {
     cy.editColumn("id");
     cy.editColName("updatedId");
     cy.readTabledataPublish("1", "1").then(tabData => {
@@ -93,33 +85,15 @@ describe("Table Widget property pane feature validation", function() {
       cy.log("computed value of Date is " + tabData);
     });
 
-    cy.get(".t--draggable-tablewidget button").should("not.be.visible");
-    cy.changeColumnType("Button");
-    cy.get(".t--property-control-label .CodeMirror-line")
-      .first()
-      .click();
-    cy.get(".t--property-control-label .CodeMirror-line")
-      .type("{command}{A}{del}")
-      .type("Test", {
-        force: true,
-        parseSpecialCharSequences: false,
-      });
-    cy.get(".t--draggable-tablewidget button")
-      .first()
-      .should("be.visible")
-      .invoke("text")
-      .then(text => {
-        const someText = text;
-        expect(someText).to.equal("Test");
-      });
-
     cy.changeColumnType("Time");
     cy.updateComputedValue("{{moment()}}");
     cy.readTabledataPublish("1", "0").then(tabData => {
       expect(tabData).to.not.equal("2736212");
       cy.log("computed value of time is " + tabData);
     });
+  });
 
+  it("Test to validate text allignment", function() {
     cy.get(".t--icon-tab-CENTER")
       .first()
       .click({ force: true });
@@ -134,14 +108,14 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-start");
   });
 
-  it("Edit column data in property pane validate font", function() {
+  it("Test to validate text format", function() {
     cy.get(".t--button-tab-BOLD").click({ force: true });
     cy.readTabledataValidateCSS("1", "0", "font-weight", "500");
     cy.get(".t--button-tab-ITALIC").click({ force: true });
     cy.readTabledataValidateCSS("1", "0", "font-style", "italic");
   });
 
-  it("Edit column data in property pane validate vertical allignment", function() {
+  it("Test to validate vertical allignment", function() {
     cy.get(".t--icon-tab-TOP").click({ force: true });
     cy.readTabledataValidateCSS("1", "0", "align-items", "flex-start");
     cy.get(".t--icon-tab-CENTER")
@@ -154,7 +128,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("1", "0", "align-items", "flex-end");
   });
 
-  it("Edit column data in property pane validate text color and text background", function() {
+  it("Test to validate text color and text background", function() {
     cy.get(".t--property-control-textcolor input")
       .first()
       .click({ force: true });
@@ -186,20 +160,5 @@ describe("Table Widget property pane feature validation", function() {
       "background",
       "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
     );
-    /*
-    cy.get(".draggable-header ")
-      .contains("CustomColumn")
-      .should("not.be.visible");
-    cy.hideColumn("id");
-    cy.hideColumn("email");
-    cy.hideColumn("userName");
-    cy.get(".draggable-header ")
-      .contains("CustomColumn")
-      .should("be.visible");
-      */
-  });
-
-  afterEach(() => {
-    // put your clean up code if any
   });
 });
