@@ -9,7 +9,6 @@ import EditableText, {
 import { removeSpecialChars, isNameValid } from "utils/helpers";
 import { AppState } from "reducers";
 import { RestAction } from "entities/Action";
-import { Page } from "constants/ReduxActionConstants";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getExistingPageNames } from "sagas/selectors";
 

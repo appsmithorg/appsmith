@@ -1589,7 +1589,6 @@ const VALIDATORS: Record<ValidationType, Validator> = {
   [VALIDATION_TYPES.DEFAULT_SELECTED_ROW]: (
     value: string | string[],
     props: WidgetProps,
-    dataTree?: DataTree,
   ) => {
     let values = value;
 
