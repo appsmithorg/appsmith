@@ -1037,13 +1037,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   getPageView() {
-    const { tableData, hiddenColumns, filteredTableData } = this.props;
+    const { hiddenColumns, filteredTableData } = this.props;
     const computedSelectedRowIndices = Array.isArray(
       this.props.selectedRowIndices,
     )
       ? this.props.selectedRowIndices
       : [];
-    const tableColumns = this.getTableColumns(tableData);
+    const tableColumns = this.getTableColumns();
 
     const transformedData = this.transformData(
       filteredTableData || [],
