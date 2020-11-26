@@ -237,9 +237,10 @@ public class DatasourceServiceTest {
                     Connection connection1 = new Connection();
                     SSLDetails ssl = new SSLDetails();
                     ssl.setKeyFile(new UploadedFile());
-                    ssl.getKeyFile().setName("ssl_key_file_id");
+                    ssl.getKeyFile().setName("ssl_key_file_id2");
                     connection1.setSsl(ssl);
                     datasourceConfiguration1.setConnection(connection1);
+                    updates.setDatasourceConfiguration(datasourceConfiguration1);
                     return datasourceService.update(datasource1.getId(), updates);
                 });
 
@@ -249,7 +250,7 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
-                    assertThat(createdDatasource.getDatasourceConfiguration().getConnection().getSsl().getKeyFile().getName()).isEqualTo("ssl_key_file_id");
+                    assertThat(createdDatasource.getDatasourceConfiguration().getConnection().getSsl().getKeyFile().getName()).isEqualTo("ssl_key_file_id2");
                 })
                 .verifyComplete();
     }
