@@ -45,7 +45,7 @@ ctx.addEventListener("message", e => {
       const response = dataTreeEvaluator.evalTree;
       // We need to clean it to remove any possible functions inside the tree.
       // If functions exist, it will crash the web worker
-      const cleanDataTree = JSON.stringify(response);
+      const cleanDataTree = JSON.parse(JSON.stringify(response));
       ctx.postMessage({
         dataTree: cleanDataTree,
         dependencies: dataTreeEvaluator.dependencyMap,
@@ -62,7 +62,7 @@ ctx.addEventListener("message", e => {
       const response = dataTreeEvaluator.updateDataTree(unevalTree);
       // We need to clean it to remove any possible functions inside the tree.
       // If functions exist, it will crash the web worker
-      const cleanDataTree = JSON.stringify(response);
+      const cleanDataTree = JSON.parse(JSON.stringify(response));
       ctx.postMessage({
         dataTree: cleanDataTree,
         dependencies: dataTreeEvaluator.dependencyMap,
@@ -189,14 +189,19 @@ export class DataTreeEvaluator {
     // Add functions to the tree
     const withFunctions = addFunctions(unEvalTree);
     // Calculate diff
+    const diffCheckTimeStart = performance.now();
     const differences = diff(this.oldUnEvalTree, unEvalTree) || [];
+    const diffCheckTimeStop = performance.now();
     // Check if dependencies have changed
+    const CheckDependencyChangeStart = performance.now();
     const newDependencyMap = this.getUpdatedDynamicBindingDependencies(
       differences,
       this.oldUnEvalTree,
       withFunctions,
     );
+    const CheckDependencyChangeStop = performance.now();
 
+    const updateChangedDependenciesStart = performance.now();
     // If dependencies have changed, update sort order and inverse
     if (Object.keys(newDependencyMap).length) {
       this.dependencyMap = {
@@ -206,7 +211,9 @@ export class DataTreeEvaluator {
       this.sortedDependencies = this.sortDependencies(this.dependencyMap);
       this.inverseDependencyMap = this.getInverseDependencyTree();
     }
+    const updateChangedDependenciesStop = performance.now();
 
+    const getNeedsEvalPathsStart = performance.now();
     const changeLocations: Array<string> = [];
     differences.forEach(d => {
       if (d.path) {
@@ -222,6 +229,7 @@ export class DataTreeEvaluator {
       ],
       this.inverseDependencyMap,
     );
+    const getNeedsEvalPathsStop = performance.now();
     console.log({
       differences,
       newSortOrder,
@@ -233,16 +241,34 @@ export class DataTreeEvaluator {
     });
 
     // Evaluate
+    const evalStart = performance.now();
     const evaluatedTree = this.evaluateTree(
       withFunctions,
       this.sortedDependencies,
       newSortOrder,
     );
+    const evalStop = performance.now();
     // Validate Widgets
+    const validatateStart = performance.now();
     const validated = this.getValidatedTree(evaluatedTree);
+    const validatateStop = performance.now();
     // Remove functions
     this.evalTree = removeFunctionsFromDataTree(validated);
     this.oldUnEvalTree = unEvalTree;
+    console.log({
+      diffCheck: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),
+      checkDepChange: (
+        CheckDependencyChangeStop - CheckDependencyChangeStart
+      ).toFixed(2),
+      updateChangedDependencies: (
+        updateChangedDependenciesStop - updateChangedDependenciesStart
+      ).toFixed(2),
+      getNeedsEvalPaths: (
+        getNeedsEvalPathsStop - getNeedsEvalPathsStart
+      ).toFixed(2),
+      eval: (evalStop - evalStart).toFixed(2),
+      validate: (validatateStop - validatateStart).toFixed(2),
+    });
     return this.evalTree;
   }
 

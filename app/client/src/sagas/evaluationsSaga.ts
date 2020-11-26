@@ -66,12 +66,11 @@ function* initEvaluationWorkers() {
   const workerResponse = yield take(workerChannel);
   console.log({ workerResponse });
   const { errors, dataTree, dependencies } = workerResponse.data;
-  const parsedDataTree = JSON.parse(dataTree);
-  log.debug({ dataTree: parsedDataTree });
+  log.debug({ dataTree });
   evalErrorHandler(errors);
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: parsedDataTree,
+    payload: dataTree,
   });
   yield put({
     type: ReduxActionTypes.SET_EVALUATION_DEPENDENCIES,
@@ -126,33 +125,35 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
   const unevalTree = yield select(getUnevaluatedDataTree);
+  const mainEvalStart = performance.now();
   evaluationWorker.postMessage({
     action: EVAL_WORKER_ACTIONS.EVAL_TREE,
     unevalTree,
   });
   const workerResponse = yield take(workerChannel);
+  const mainEvalStop = performance.now();
+  console.log({ mainEval: (mainEvalStop - mainEvalStart).toFixed(2) });
   const { errors, dataTree, dependencies } = workerResponse.data;
-  const parsedDataTree = JSON.parse(dataTree);
-  log.debug({ dataTree: parsedDataTree });
+  log.debug({ dataTree });
   evalErrorHandler(errors);
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: parsedDataTree,
+    payload: dataTree,
   });
+  if (postEvalActions && postEvalActions.length) {
+    yield call(postEvalActionDispatcher, postEvalActions);
+  }
   // yield put({
   //   type: ReduxActionTypes.SET_UNEVALUATED_TREE,
   //   payload: unevalTree,
   // });
-  yield put({
+  put({
     type: ReduxActionTypes.SET_EVALUATION_DEPENDENCIES,
     payload: dependencies,
   });
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
-  if (postEvalActions && postEvalActions.length) {
-    yield call(postEvalActionDispatcher, postEvalActions);
-  }
 }
 
 export function* evaluateSingleValue(binding: string) {

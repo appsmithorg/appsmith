@@ -38,6 +38,7 @@ export enum PerformanceTransactionName {
   USER_ME_API = "USER_ME_API",
   SIGN_UP = "SIGN_UP",
   LOGIN_CLICK = "LOGIN_CLICK",
+  SET_EVALUATED = "SET_EVALUATED",
 }
 
 export enum PerformanceTagNames {
