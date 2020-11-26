@@ -21,6 +21,7 @@ import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.sql.Connection;
@@ -67,6 +68,8 @@ public class PostgresPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class PostgresPluginExecutor implements PluginExecutor<Connection> {
+
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         private static final String TABLES_QUERY =
                 "select a.attname                                                      as name,\n" +
@@ -228,7 +231,7 @@ public class PostgresPlugin extends BasePlugin {
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
 
         }
 
@@ -293,7 +296,7 @@ public class PostgresPlugin extends BasePlugin {
             })
                     .flatMap(obj -> obj)
                     .map(conn -> (Connection) conn)
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -522,7 +525,7 @@ public class PostgresPlugin extends BasePlugin {
                 return structure;
             })
                     .map(resultStructure -> (DatasourceStructure) resultStructure)
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
     }
 
