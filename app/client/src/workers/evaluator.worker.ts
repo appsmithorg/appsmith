@@ -198,7 +198,7 @@ export class DataTreeEvaluator {
     );
 
     // If dependencies have changed, update sort order and inverse
-    if (Object.keys(newDependencyMap)) {
+    if (Object.keys(newDependencyMap).length) {
       this.dependencyMap = {
         ...this.dependencyMap,
         ...newDependencyMap,
@@ -215,7 +215,11 @@ export class DataTreeEvaluator {
     });
 
     const newSortOrder = this.getUpdatedSortOrder(
-      [...changeLocations, ...Object.keys(newDependencyMap)],
+      [
+        ...changeLocations,
+        ...Object.keys(newDependencyMap),
+        ..._.flatten(Object.values(newDependencyMap)),
+      ],
       this.inverseDependencyMap,
     );
     console.log({
@@ -341,6 +345,7 @@ export class DataTreeEvaluator {
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, propertyPath: string) => {
+          debugger;
           if (changedSortOrder && !changedSortOrder.includes(propertyPath)) {
             const lastEvalValue = _.get(this.evalTree, propertyPath);
             return _.set(currentTree, propertyPath, lastEvalValue);
@@ -372,6 +377,7 @@ export class DataTreeEvaluator {
           }
           if (isWidget(entity)) {
             const widgetEntity: DataTreeWidget = entity as DataTreeWidget;
+            // TODO fix for nested properties
             const propertyName = propertyPath.split(".")[1];
             if (propertyName) {
               let parsedValue = this.validateAndParseWidgetProperty(
@@ -666,6 +672,7 @@ export class DataTreeEvaluator {
     if (isPathADynamicTrigger(widget, entityPropertyName)) {
       return unEvalPropertyValue;
     } else {
+      debugger;
       const parsedCache = this.getParsedValueCache(propertyPath);
       if (!equal(parsedCache.value, parsed)) {
         this.parsedValueCache.set(propertyPath, {
