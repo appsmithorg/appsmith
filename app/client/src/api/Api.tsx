@@ -4,7 +4,11 @@ import {
   API_REQUEST_HEADERS,
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
-import { AUTH_LOGIN_URL, PAGE_NOT_FOUND_URL } from "constants/routes";
+import {
+  AUTH_LOGIN_URL,
+  PAGE_NOT_FOUND_URL,
+  SERVER_ERROR_URL,
+} from "constants/routes";
 import history from "utils/history";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
 import { SERVER_API_TIMEOUT_ERROR } from "../constants/messages";
@@ -63,6 +67,16 @@ axiosInstance.interceptors.response.use(
       error.message &&
       error.message.match(timeoutErrorRegex)
     ) {
+      return Promise.reject({
+        ...error,
+        message: SERVER_API_TIMEOUT_ERROR,
+      });
+    }
+    if (error.response.status === 502) {
+      // Redirect to SERVER TIMEOUT page
+      history.replace({
+        pathname: SERVER_ERROR_URL,
+      });
       return Promise.reject({
         ...error,
         message: SERVER_API_TIMEOUT_ERROR,
