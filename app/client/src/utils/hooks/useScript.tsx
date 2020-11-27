@@ -1,17 +1,36 @@
 import { useState, useEffect } from "react";
 
-export enum ScriptStatuses {
+/**
+ * Status of script tag element returned from useScript
+ */
+export enum ScriptStatus {
   IDLE = "idle",
   LOADING = "loading",
   READY = "ready",
   ERROR = "error",
 }
 
-// Hook
-export function useScript(src: string, head = false): ScriptStatuses {
+/**
+ * Where should the script tag be added to?
+ * Defaults to body
+ */
+export enum AddScriptTo {
+  BODY = "body", // default
+  HEAD = "head",
+}
+
+/**
+ * Adds a script tag to the DOM and informs when done.
+ *
+ * @param src value of src in <script src={src}>
+ * @param where element under which the script should be added. Defaults to body.
+ *
+ * @returns Reactive variable `status`. (Check enum ScriptStatus for possible states)
+ */
+export function useScript(src: string, where = AddScriptTo.BODY): ScriptStatus {
   // Keep track of script status
-  const [status, setStatus] = useState<ScriptStatuses>(
-    src ? ScriptStatuses.LOADING : ScriptStatuses.IDLE,
+  const [status, setStatus] = useState<ScriptStatus>(
+    src ? ScriptStatus.LOADING : ScriptStatus.IDLE,
   );
 
   useEffect(
@@ -19,7 +38,7 @@ export function useScript(src: string, head = false): ScriptStatuses {
       // Allow falsy src value if waiting on other data needed for
       // constructing the script URL passed to this hook.
       if (!src) {
-        setStatus(ScriptStatuses.IDLE);
+        setStatus(ScriptStatus.IDLE);
         return;
       }
 
@@ -32,10 +51,10 @@ export function useScript(src: string, head = false): ScriptStatuses {
         script = document.createElement("script");
         script.src = src;
         script.async = true;
-        script.setAttribute("data-status", ScriptStatuses.LOADING);
-        if (head) {
-          const hd = document.getElementsByTagName("head")[0];
-          hd.insertBefore(script, hd.lastChild);
+        script.setAttribute("data-status", ScriptStatus.LOADING);
+        if (where === AddScriptTo.HEAD) {
+          // Add script to head
+          document.head.appendChild(script);
         } else {
           // Add script to document body
           document.body.appendChild(script);
@@ -46,7 +65,7 @@ export function useScript(src: string, head = false): ScriptStatuses {
         const setAttributeFromEvent = (event: any) => {
           script.setAttribute(
             "data-status",
-            event.type === "load" ? ScriptStatuses.READY : ScriptStatuses.ERROR,
+            event.type === "load" ? ScriptStatus.READY : ScriptStatus.ERROR,
           );
         };
 
@@ -62,7 +81,7 @@ export function useScript(src: string, head = false): ScriptStatuses {
       // event handlers to update the state for *this* hook instance.
       const setStateFromEvent = (event: any) => {
         setStatus(
-          event.type === "load" ? ScriptStatuses.READY : ScriptStatuses.ERROR,
+          event.type === "load" ? ScriptStatus.READY : ScriptStatus.ERROR,
         );
       };
 

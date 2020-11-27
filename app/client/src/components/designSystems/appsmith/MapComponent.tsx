@@ -4,7 +4,7 @@ import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 import { MarkerProps } from "widgets/MapWidget";
 import PickMyLocation from "./PickMyLocation";
 import styled from "styled-components";
-import { useScript, ScriptStatuses } from "utils/hooks/useScript";
+import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
 interface MapComponentProps {
   apiKey: string;
@@ -176,11 +176,11 @@ const MapComponent = (props: MapComponentProps) => {
   const zoom = Math.floor(props.zoomLevel / 5);
   const status = useScript(
     `https://maps.googleapis.com/maps/api/js?key=${props.apiKey}&v=3.exp&libraries=geometry,drawing,places`,
-    true,
+    AddScriptTo.HEAD,
   );
   return (
     <MapWrapper onMouseLeave={props.enableDrag}>
-      {status === ScriptStatuses.READY && (
+      {status === ScriptStatus.READY && (
         <MyMapComponent
           loadingElement={<MapContainerWrapper />}
           containerElement={<MapContainerWrapper />}

@@ -4,7 +4,7 @@ import styled from "styled-components";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 import StandaloneSearchBox from "react-google-maps/lib/components/places/StandaloneSearchBox";
 import { getAppsmithConfigs } from "configs";
-import { useScript, ScriptStatuses } from "utils/hooks/useScript";
+import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
 const StyledInput = styled.input`
   box-sizing: border-box;
@@ -19,11 +19,6 @@ const StyledInput = styled.input`
   background: #272821;
   color: ${props => props.theme.colors.textOnDarkBG};
 `;
-
-interface StandaloneSearchBoxProps {
-  onSearchBoxMounted: (ref: any) => void;
-  onPlacesChanged: () => void;
-}
 
 const { google } = getAppsmithConfigs();
 
@@ -78,16 +73,15 @@ interface MapScriptWrapperProps {
 const MapScriptWrapper = (props: MapScriptWrapperProps) => {
   const status = useScript(
     `https://maps.googleapis.com/maps/api/js?key=${google.apiKey}&v=3.exp&libraries=geometry,drawing,places`,
-    true,
+    AddScriptTo.HEAD,
   );
   const [title, setTitle] = useState("");
   return (
     <div data-standalone-searchbox="">
-      {status === ScriptStatuses.READY && (
+      {status === ScriptStatus.READY && (
         <StandaloneSearchBox
           ref={props.onSearchBoxMounted}
           onPlacesChanged={() => {
-            console.log("placed changed");
             props.onPlacesChanged();
             setTitle("");
           }}
