@@ -123,6 +123,8 @@
 //     );
 //   });
 // });
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 it("does nothing. needs implementing", () => {
   expect(1 + 1).toEqual(2);
 });
