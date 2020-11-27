@@ -114,6 +114,8 @@ public class MySqlPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class MySqlPluginExecutor implements PluginExecutor<Connection> {
+        private final Scheduler scheduler = Schedulers.boundedElastic();
+
         /**
          * 1. Parse the actual row objects returned by r2dbc driver for mysql statements.
          * 2. Return the row as a map {column_name -> column_value}.
@@ -211,7 +213,7 @@ public class MySqlPlugin extends BasePlugin {
                             result.setIsExecutionSuccess(false);
                             return Mono.just(result);
                         })
-                        .subscribeOn(Schedulers.boundedElastic());
+                        .subscribeOn(scheduler);
             }
             else {
                 return resultFlux
@@ -238,7 +240,7 @@ public class MySqlPlugin extends BasePlugin {
                             result.setIsExecutionSuccess(false);
                             return Mono.just(result);
                         })
-                        .subscribeOn(Schedulers.boundedElastic());
+                        .subscribeOn(scheduler);
             }
         }
 
@@ -289,22 +291,21 @@ public class MySqlPlugin extends BasePlugin {
                         log.debug("Error when creating datasource.", exception);
                         return Mono.error(Exceptions.propagate(exception));
                     })
-                    .subscribeOn(Schedulers.boundedElastic());
+                    .subscribeOn(scheduler);
         }
 
         @Override
         public void datasourceDestroy(Connection connection) {
+
             if (connection != null) {
                 Mono.from(connection.close())
                         .onErrorResume(exception -> {
                             log.debug("In datasourceDestroy function error mode.", exception);
                             return Mono.empty();
                         })
-                        .subscribeOn(Schedulers.boundedElastic())
+                        .subscribeOn(scheduler)
                         .subscribe();
             }
-
-            return;
         }
 
         @Override
@@ -358,7 +359,7 @@ public class MySqlPlugin extends BasePlugin {
                         log.warn("Error when testing MySQL datasource.", error);
                         return Mono.just(new DatasourceTestResult(error.getMessage()));
                     })
-                    .subscribeOn(Schedulers.boundedElastic());
+                    .subscribeOn(scheduler);
 
         }
 
@@ -541,7 +542,7 @@ public class MySqlPlugin extends BasePlugin {
 
                         return Mono.error(Exceptions.propagate(error));
                     })
-                    .subscribeOn(Schedulers.boundedElastic());
+                    .subscribeOn(scheduler);
         }
     }
 }

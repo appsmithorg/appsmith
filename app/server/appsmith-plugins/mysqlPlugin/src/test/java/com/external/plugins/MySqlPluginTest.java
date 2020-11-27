@@ -230,21 +230,6 @@ public class MySqlPluginTest {
         assertTrue(output.contains("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."));
     }
 
-    /* checking that the connection is being closed after the datasourceDestroy method is being called
-     * NOTE: this test case will fail in case of a SQL Exception
-     */
-    @Test
-    public void testDatasourceDestroy() {
-
-        Mono<Connection> connectionMono = pluginExecutor.datasourceCreate(dsConfig);
-
-        StepVerifier.create(connectionMono)
-                .assertNext(connection -> {
-                    pluginExecutor.datasourceDestroy(connection);
-                })
-                .verifyComplete();
-    }
-
     @Test
     public void testAliasColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
