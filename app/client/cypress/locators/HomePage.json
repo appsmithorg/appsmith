@@ -63,5 +63,5 @@
     "leftPanelContainer": "[data-cy=t--left-panel]",
     "themeText": "label div",
     "shareUserIcons": ".org-share-user-icons",
-    "toastMessage": ".t--toast-message-text"
+    "toastMessage": ".t--toast-action"
 }
