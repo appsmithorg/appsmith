@@ -179,12 +179,12 @@ public class MySqlPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
             String query = actionConfiguration.getBody().trim();
-            boolean isSelectQuery = getIsSelectQuery(query);
 
             if (query == null) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
             }
 
+            boolean isSelectQuery = getIsSelectQuery(query);
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
             Flux<Result> resultFlux = Flux.from(connection.createStatement(query).execute());
 
