@@ -10,6 +10,8 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -128,6 +130,23 @@ public class RestApiPlugin extends BasePlugin {
                 requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData());
             }
 
+            boolean isSendSessionEnabled = false;
+            for (Property property : datasourceConfiguration.getProperties()) {
+                if ("isSendSessionEnabled".equals(property.getKey())) {
+                    isSendSessionEnabled = "Y".equals(property.getValue());
+                }
+            }
+
+            isSendSessionEnabled = "Y".equals(CollectionUtils.isEmpty(datasourceConfiguration.getProperties())
+                    ? null : datasourceConfiguration.getProperties().get(0).getValue());
+
+            if (isSendSessionEnabled) {
+                final Algorithm algorithm = Algorithm.HMAC256(datasourceConfiguration.getProperties().get(1).getValue());
+                String token = JWT.create()
+                        .withIssuer("Appsmith")
+                        .sign(algorithm);
+                webClientBuilder.defaultHeader("X-APPSMITH-AUTH", token);
+            }//*/
 
             WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
