@@ -134,37 +134,38 @@ public class RestApiPlugin extends BasePlugin {
             }
 
             boolean isSendSessionEnabled = false;
-            for (Property property : datasourceConfiguration.getProperties()) {
-                if ("isSendSessionEnabled".equals(property.getKey())) {
-                    isSendSessionEnabled = "Y".equals(property.getValue());
+            if (!CollectionUtils.isEmpty(datasourceConfiguration.getProperties())) {
+                for (Property property : datasourceConfiguration.getProperties()) {
+                    if ("isSendSessionEnabled".equals(property.getKey())) {
+                        isSendSessionEnabled = "Y".equals(property.getValue());
+                    }
                 }
-            }
 
-            isSendSessionEnabled = "Y".equals(CollectionUtils.isEmpty(datasourceConfiguration.getProperties())
-                    ? null : datasourceConfiguration.getProperties().get(0).getValue());
-            final String secretKey = datasourceConfiguration.getProperties().get(1).getValue();
-/*
-            if (isSendSessionEnabled) {
-                final Algorithm algorithm = Algorithm.HMAC256(secretKey);
-                String token = JWT.create()
-                        .withIssuer("Appsmith Cloud")
-                        .withExpiresAt(new Date(Instant.now().plusSeconds(600).toEpochMilli()))
-                        .withSubject("email address here")
-                        .sign(algorithm);
-                webClientBuilder.defaultHeader("X-APPSMITH-AUTH", token);
-            }//*/
+                isSendSessionEnabled = "Y".equals(CollectionUtils.isEmpty(datasourceConfiguration.getProperties())
+                        ? null : datasourceConfiguration.getProperties().get(0).getValue());
+                final String secretKey = datasourceConfiguration.getProperties().get(1).getValue();
 
-            if (isSendSessionEnabled) {
-                final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-                final Instant now = Instant.now();
-                final String token = Jwts.builder()
-                        .setIssuer("Appsmith Cloud")
-                        .setIssuedAt(new Date(now.toEpochMilli()))
-                        .setExpiration(new Date(now.plusSeconds(600).toEpochMilli()))
-                        .setSubject("email address here")
-                        .signWith(key)
-                        .compact();
-                webClientBuilder.defaultHeader("X-APPSMITH-AUTH", token);
+                if (isSendSessionEnabled) {
+                    final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+                    final Instant now = Instant.now();
+                    final String token = Jwts.builder()
+                            .setIssuer("Appsmith")
+                            .setIssuedAt(new Date(now.toEpochMilli()))
+                            .setExpiration(new Date(now.plusSeconds(600).toEpochMilli()))
+                            .setSubject("email address here")
+                            .signWith(key)
+                            .compact();
+                    /* Verify this token.
+                    assert Jwts.parserBuilder()
+                            .setSigningKey(key)
+                            .build()
+                            .parseClaimsJws(token)
+                            .getBody()
+                            .getSubject()
+                            .equals("email address here");
+                    //*/
+                    webClientBuilder.defaultHeader("X-APPSMITH-AUTH", token);
+                }
             }
 
             WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
@@ -249,6 +250,7 @@ public class RestApiPlugin extends BasePlugin {
         /**
          * If the headers list of properties contains a `Content-Type` header, verify if the value of that header is a
          * valid media type.
+         *
          * @param headers List of header Property objects to look for Content-Type headers in.
          * @return An error message string if the Content-Type value is invalid, otherwise `null`.
          */
@@ -325,6 +327,7 @@ public class RestApiPlugin extends BasePlugin {
          * type. However, only `Map` and `List` top-levels are supported. Note that the map or list may contain
          * anything, like booleans or number or even more maps or lists. It's only that the top-level type should be a
          * map / list.
+         *
          * @param jsonString A string that confirms to JSON syntax. Shouldn't be null.
          * @return An object of type `Map`, `List`, if applicable, or `null`.
          */
@@ -425,7 +428,7 @@ public class RestApiPlugin extends BasePlugin {
         }
 
         private ActionExecutionRequest populateRequestFields(ActionConfiguration actionConfiguration,
-                                                            URI uri) {
+                                                             URI uri) {
 
             ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
 
