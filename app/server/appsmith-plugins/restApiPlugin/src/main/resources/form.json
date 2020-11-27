@@ -23,7 +23,7 @@
           "initialValue": "isSendSessionEnabled"
         },
         {
-          "label": "Send Authentication Information",
+          "label": "Send Appsmith signature header (X-APPSMITH-SIGNATURE)",
           "configProperty": "datasourceConfiguration.properties[0].value",
           "controlType": "DROP_DOWN",
           "isRequired": true,
