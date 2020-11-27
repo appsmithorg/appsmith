@@ -18,6 +18,7 @@ import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -63,6 +64,8 @@ public class DynamoPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class DynamoPluginExecutor implements PluginExecutor<DynamoDbClient> {
+
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(DynamoDbClient ddb,
@@ -121,7 +124,7 @@ public class DynamoPlugin extends BasePlugin {
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -152,7 +155,7 @@ public class DynamoPlugin extends BasePlugin {
                 return Mono.justOrEmpty(builder.build());
             })
                     .flatMap(obj -> obj)
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -198,7 +201,7 @@ public class DynamoPlugin extends BasePlugin {
                             ? new DatasourceTestResult()
                             : new DatasourceTestResult("Unable to create DynamoDB Client.")
                     )
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
 
     }
