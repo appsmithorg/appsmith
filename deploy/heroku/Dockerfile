@@ -8,16 +8,16 @@ COPY --from=appsmith/appsmith-editor /var/www/appsmith /var/www/appsmith
 RUN apk add --update nginx && \ 
 				rm -rf /var/cache/apk/* && \
 				mkdir -p /tmp/nginx/client-body && \
-				apk add gettext && apk add bash && \
-				rm /bin/sh && \
-				ln -s /bin/bash /bin/sh
-
-
+				apk --no-cache add gettext bash curl
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY default.conf.template /etc/nginx/conf.d/default.conf.template
-COPY bootstrap.sh .
+COPY bootstrap.sh /bootstrap.sh
+COPY integromat.sh /integromat.sh
+RUN chmod +x /integromat.sh
 
 EXPOSE 80
 
-ENTRYPOINT ["./bootstrap.sh"]
+ENTRYPOINT [ "/bin/sh -c" ]
+CMD ["/bootstrap.sh"]
+
