@@ -20,27 +20,31 @@ import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import io.r2dbc.spi.ConnectionFactoryOptions;
+import io.r2dbc.spi.Connection;
+import io.r2dbc.spi.ConnectionFactories;
+import io.r2dbc.spi.RowMetadata;
+import io.r2dbc.spi.Row;
+import io.r2dbc.spi.ColumnMetadata;
+import io.r2dbc.spi.Result;
+//TODO: remove them
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -113,126 +117,132 @@ public class PostgresPlugin extends BasePlugin {
                 "group by constraint_name, constraint_type, self_schema, self_table, definition, foreign_schema, foreign_table\n" +
                 "order by self_schema, self_table;";
 
+        /**
+         * 1. Parse the actual row objects returned by r2dbc driver for mysql statements.
+         * 2. Return the row as a map {column_name -> column_value}.
+         */
+        private Map<String, Object> getRow(Row row, RowMetadata meta) {
+            Iterator<ColumnMetadata> iterator = (Iterator<ColumnMetadata>) meta.getColumnMetadatas().iterator();
+            Map<String, Object> processedRow = new LinkedHashMap<>();
+
+            while(iterator.hasNext()) {
+                ColumnMetadata metaData = iterator.next();
+                String columnName = metaData.getName();
+                String typeName = metaData.getJavaType().toString();
+                Object columnValue = row.get(columnName);
+
+                if(java.time.LocalDate.class.toString().equalsIgnoreCase(typeName)
+                        && columnValue != null) {
+                    columnValue = DateTimeFormatter.ISO_DATE.format(row.get(columnName,
+                            LocalDate.class));
+                }
+                else if ((java.time.LocalDateTime.class.toString().equalsIgnoreCase(typeName))
+                        && columnValue != null) {
+                    columnValue = DateTimeFormatter.ISO_DATE_TIME.format(
+                            LocalDateTime.of(
+                                    row.get(columnName, LocalDateTime.class).toLocalDate(),
+                                    row.get(columnName, LocalDateTime.class).toLocalTime()
+                            )
+                    ) + "Z";
+                }
+                else if(java.time.LocalTime.class.toString().equalsIgnoreCase(typeName)
+                        && columnValue != null) {
+                    columnValue = DateTimeFormatter.ISO_TIME.format(row.get(columnName,
+                            LocalTime.class));
+                }
+                else if (java.time.Year.class.toString().equalsIgnoreCase(typeName)
+                        && columnValue != null) {
+                    columnValue = row.get(columnName, LocalDate.class).getYear();
+                }
+                else {
+                    columnValue = row.get(columnName);
+                }
+
+                processedRow.put(columnName, columnValue);
+            }
+
+            return processedRow;
+        }
+
+        /**
+         * 1. Check the type of sql query - i.e Select ... or Insert/Update/Drop
+         * 2. In case sql queries are chained together, then decide the type based on the last query. i.e In case of
+         *    query "select * from test; updated test ..." the type of query will be based on the update statement.
+         * 3. This is used because the output returned to client is based on the type of the query. In case of a
+         *    select query rows are returned, whereas, in case of any other query the number of updated rows is
+         *    returned.
+         */
+        private boolean getIsSelectQuery(String query) {
+            String[] queries = query.split(";");
+            return queries[queries.length - 1].trim().split(" ")[0].equalsIgnoreCase("select");
+        }
+
         @Override
         public Mono<ActionExecutionResult> execute(Connection connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
-            
-            return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
+            String query = actionConfiguration.getBody().trim();
+            boolean isSelectQuery = getIsSelectQuery(query);
 
-                try {
-                    if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
-                        log.info("Encountered stale connection in Postgres plugin. Reporting back.");
-                        throw new StaleConnectionException();
-                    }
-                } catch (SQLException error) {
-                    // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
-                    // here, this should never happen.
-                    log.error("Error checking validity of Postgres connection.", error);
-                }
+            if (query == null) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
+            }
 
-                String query = actionConfiguration.getBody();
+            final List<Map<String, Object>> rowsList = new ArrayList<>(50);
+            Flux<Result> resultFlux = Flux.from(connection.createStatement(query).execute());
 
-                if (query == null) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
-                }
-
-                List<Map<String, Object>> rowsList = new ArrayList<>(50);
-
-                Statement statement = null;
-                ResultSet resultSet = null;
-                try {
-                    statement = connection.createStatement();
-                    boolean isResultSet = statement.execute(query);
-
-                    if (isResultSet) {
-                        resultSet = statement.getResultSet();
-                        ResultSetMetaData metaData = resultSet.getMetaData();
-                        int colCount = metaData.getColumnCount();
-
-                        while (resultSet.next()) {
-                            // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
-                            Map<String, Object> row = new LinkedHashMap<>(colCount);
-
-                            for (int i = 1; i <= colCount; i++) {
-                                Object value;
-                                final String typeName = metaData.getColumnTypeName(i);
-
-                                if (resultSet.getObject(i) == null) {
-                                    value = null;
-
-                                } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                    value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
-
-                                } else if ("timestamp".equalsIgnoreCase(typeName)) {
-                                    value = DateTimeFormatter.ISO_DATE_TIME.format(
-                                            LocalDateTime.of(
-                                                    resultSet.getDate(i).toLocalDate(),
-                                                    resultSet.getTime(i).toLocalTime()
-                                            )
-                                    ) + "Z";
-
-                                } else if ("timestamptz".equalsIgnoreCase(typeName)) {
-                                    value = DateTimeFormatter.ISO_DATE_TIME.format(
-                                            resultSet.getObject(i, OffsetDateTime.class)
-                                    );
-
-                                } else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
-                                    value = resultSet.getString(i);
-
-                                } else if ("interval".equalsIgnoreCase(typeName)) {
-                                    value = resultSet.getObject(i).toString();
-
-                                } else {
-                                    value = resultSet.getObject(i);
-
-                                }
-
-                                row.put(metaData.getColumnName(i), value);
-                            }
-
-                            rowsList.add(row);
-                        }
-
-                    } else {
-                        rowsList.add(Map.of(
-                                "affectedRows",
-                                ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0))
-                        );
-
-                    }
-
-                } catch (SQLException e) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
-                } finally {
-                    if (resultSet != null) {
-                        try {
-                            resultSet.close();
-                        } catch (SQLException e) {
-                            log.warn("Error closing Postgres ResultSet", e);
-                        }
-                    }
-
-                    if (statement != null) {
-                        try {
-                            statement.close();
-                        } catch (SQLException e) {
-                            log.warn("Error closing Postgres Statement", e);
-                        }
-                    }
-
-                }
-
-                ActionExecutionResult result = new ActionExecutionResult();
-                result.setBody(objectMapper.valueToTree(rowsList));
-                result.setIsExecutionSuccess(true);
-                System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution result:"
-                                    + result.toString());
-                return Mono.just(result);
-            })
-                    .flatMap(obj -> obj)
-                    .subscribeOn(scheduler);
-
+            if(isSelectQuery) {
+                return resultFlux
+                        .flatMap(result -> {
+                            return result.map((row, meta) -> {
+                                rowsList.add(getRow(row, meta));
+                                return result;
+                            });
+                        })
+                        .collectList()
+                        .flatMap(execResult -> {
+                            ActionExecutionResult result = new ActionExecutionResult();
+                            result.setBody(objectMapper.valueToTree(rowsList));
+                            result.setIsExecutionSuccess(true);
+                            log.debug("In the MySqlPlugin, got action execution result: " + result.toString());
+                            return Mono.just(result);
+                        })
+                        .onErrorResume(exception -> {
+                            log.debug("In the action execution error mode.", exception);
+                            ActionExecutionResult result = new ActionExecutionResult();
+                            result.setBody(exception.getMessage());
+                            result.setIsExecutionSuccess(false);
+                            return Mono.just(result);
+                        })
+                        .subscribeOn(Schedulers.elastic());
+            }
+            else {
+                return resultFlux
+                        .flatMap(result -> result.getRowsUpdated())
+                        .collectList()
+                        .flatMap(list -> Mono.just(list.get(list.size() - 1)))
+                        .flatMap(rowsUpdated -> {
+                            rowsList.add(
+                                    Map.of(
+                                            "affectedRows",
+                                            ObjectUtils.defaultIfNull(rowsUpdated, 0)
+                                    )
+                            );
+                            ActionExecutionResult result = new ActionExecutionResult();
+                            result.setBody(objectMapper.valueToTree(rowsList));
+                            result.setIsExecutionSuccess(true);
+                            log.debug("In the MySqlPlugin, got action execution result: " + result.toString());
+                            return Mono.just(result);
+                        })
+                        .onErrorResume(exception -> {
+                            log.debug("In the action execution error mode.", exception);
+                            ActionExecutionResult result = new ActionExecutionResult();
+                            result.setBody(exception.getMessage());
+                            result.setIsExecutionSuccess(false);
+                            return Mono.just(result);
+                        })
+                        .subscribeOn(Schedulers.elastic());
+            }
         }
 
         @Override
