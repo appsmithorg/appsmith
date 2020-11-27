@@ -10,11 +10,11 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.bson.internal.Base64;
@@ -36,12 +36,15 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -139,14 +142,30 @@ public class RestApiPlugin extends BasePlugin {
 
             isSendSessionEnabled = "Y".equals(CollectionUtils.isEmpty(datasourceConfiguration.getProperties())
                     ? null : datasourceConfiguration.getProperties().get(0).getValue());
-
+            final String secretKey = datasourceConfiguration.getProperties().get(1).getValue();
+/*
             if (isSendSessionEnabled) {
-                final Algorithm algorithm = Algorithm.HMAC256(datasourceConfiguration.getProperties().get(1).getValue());
+                final Algorithm algorithm = Algorithm.HMAC256(secretKey);
                 String token = JWT.create()
-                        .withIssuer("Appsmith")
+                        .withIssuer("Appsmith Cloud")
+                        .withExpiresAt(new Date(Instant.now().plusSeconds(600).toEpochMilli()))
+                        .withSubject("email address here")
                         .sign(algorithm);
                 webClientBuilder.defaultHeader("X-APPSMITH-AUTH", token);
             }//*/
+
+            if (isSendSessionEnabled) {
+                final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+                final Instant now = Instant.now();
+                final String token = Jwts.builder()
+                        .setIssuer("Appsmith Cloud")
+                        .setIssuedAt(new Date(now.toEpochMilli()))
+                        .setExpiration(new Date(now.plusSeconds(600).toEpochMilli()))
+                        .setSubject("email address here")
+                        .signWith(key)
+                        .compact();
+                webClientBuilder.defaultHeader("X-APPSMITH-AUTH", token);
+            }
 
             WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
