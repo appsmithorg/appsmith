@@ -911,7 +911,6 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
-  // checking valid widget name
   cy.get(commonlocators.editWidgetName)
     .click({ force: true })
     .type(text)
@@ -920,15 +919,6 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
     .first()
     .trigger("mouseover", { force: true });
   cy.get(innercss).should("have.text", text);
-});
-
-Cypress.Commands.add("invalidWidgetText", () => {
-  // checking invalid widget name
-  cy.get(commonlocators.editWidgetName)
-    .click({ force: true })
-    .type("download")
-    .type("{enter}");
-  cy.get(commonlocators.toastmsg).contains("download is already being used.");
 });
 
 Cypress.Commands.add("EvaluateDataType", dataType => {
