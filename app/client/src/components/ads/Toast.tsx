@@ -47,7 +47,7 @@ export const StyledToastContainer = (props: ToastOptions) => {
 
 const ToastBody = styled.div<{
   variant?: Variant;
-  onUndo?: () => void;
+  isUndo?: boolean;
   dispatchableAction?: { type: ReduxActionType; payload: any };
 }>`
   width: 264px;
@@ -56,6 +56,7 @@ const ToastBody = styled.div<{
     ${props => props.theme.spaces[5]}px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 
   .${Classes.ICON} {
     cursor: auto;
@@ -83,9 +84,9 @@ const ToastBody = styled.div<{
   }
 
   ${props =>
-    props.onUndo || props.dispatchableAction
+    props.isUndo || props.dispatchableAction
       ? `
-    .${Classes.TEXT}:last-child {
+    .undo-section .${Classes.TEXT} {
       cursor: pointer;
       margin-left: ${props.theme.spaces[3]}px;
       color: ${props.theme.colors.toast.undo};
@@ -96,40 +97,49 @@ const ToastBody = styled.div<{
       : null}
 `;
 
+const FlexContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
   const dispatch = useDispatch();
 
   return (
     <ToastBody
       variant={props.variant || Variant.info}
-      onUndo={props.onUndo}
+      isUndo={props.onUndo ? true : false}
       dispatchableAction={props.dispatchableAction}
       className="t--toast-action"
     >
-      {props.variant === Variant.success ? (
-        <Icon name="success" size={IconSize.XXL} />
-      ) : props.variant === Variant.warning ? (
-        <Icon name="warning" size={IconSize.XXL} />
-      ) : null}
-      {props.variant === Variant.danger ? (
-        <Icon name="error" size={IconSize.XXL} />
-      ) : null}
-      <Text type={TextType.P1}>{props.text}</Text>
-      {props.onUndo || props.dispatchableAction ? (
-        <Text
-          type={TextType.H6}
-          onClick={() => {
-            if (props.dispatchableAction) {
-              dispatch(props.dispatchableAction);
-              props.undoAction && props.undoAction();
-            } else {
-              props.undoAction && props.undoAction();
-            }
-          }}
-        >
-          UNDO
-        </Text>
-      ) : null}
+      <FlexContainer>
+        {props.variant === Variant.success ? (
+          <Icon name="success" size={IconSize.XXL} />
+        ) : props.variant === Variant.warning ? (
+          <Icon name="warning" size={IconSize.XXL} />
+        ) : null}
+        {props.variant === Variant.danger ? (
+          <Icon name="error" size={IconSize.XXL} />
+        ) : null}
+        <Text type={TextType.P1}>{props.text}</Text>
+      </FlexContainer>
+      <div className="undo-section">
+        {props.onUndo || props.dispatchableAction ? (
+          <Text
+            type={TextType.H6}
+            onClick={() => {
+              if (props.dispatchableAction) {
+                dispatch(props.dispatchableAction);
+                props.undoAction && props.undoAction();
+              } else {
+                props.undoAction && props.undoAction();
+              }
+            }}
+          >
+            UNDO
+          </Text>
+        ) : null}
+      </div>
     </ToastBody>
   );
 };
