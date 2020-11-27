@@ -1,4 +1,4 @@
-import { all, spawn } from "redux-saga/effects";
+import { call, all, spawn } from "redux-saga/effects";
 import pageSagas from "sagas/PageSagas";
 import { fetchWidgetCardsSaga } from "./WidgetSidebarSagas";
 import { watchActionSagas } from "./ActionSagas";
@@ -20,29 +20,46 @@ import modalSagas from "./ModalSagas";
 import batchSagas from "./BatchSagas";
 import themeSagas from "./ThemeSaga";
 import evaluationsSaga from "./evaluationsSaga";
+import log from "loglevel";
+import * as sentry from "@sentry/react";
 
 export function* rootSaga() {
-  yield all([
-    spawn(initSagas),
-    spawn(pageSagas),
-    spawn(fetchWidgetCardsSaga),
-    spawn(watchActionSagas),
-    spawn(watchActionExecutionSagas),
-    spawn(widgetOperationSagas),
-    spawn(errorSagas),
-    spawn(watchDatasourcesSagas),
-    spawn(applicationSagas),
-    spawn(apiPaneSagas),
-    spawn(userSagas),
-    spawn(pluginSagas),
-    spawn(orgSagas),
-    spawn(importedCollectionsSagas),
-    spawn(providersSagas),
-    spawn(curlImportSagas),
-    spawn(queryPaneSagas),
-    spawn(modalSagas),
-    spawn(batchSagas),
-    spawn(themeSagas),
-    spawn(evaluationsSaga),
-  ]);
+  const sagas = [
+    initSagas,
+    pageSagas,
+    fetchWidgetCardsSaga,
+    watchActionSagas,
+    watchActionExecutionSagas,
+    widgetOperationSagas,
+    errorSagas,
+    watchDatasourcesSagas,
+    applicationSagas,
+    apiPaneSagas,
+    userSagas,
+    pluginSagas,
+    orgSagas,
+    importedCollectionsSagas,
+    providersSagas,
+    curlImportSagas,
+    queryPaneSagas,
+    modalSagas,
+    batchSagas,
+    themeSagas,
+    evaluationsSaga,
+  ];
+  yield all(
+    sagas.map(saga =>
+      spawn(function*() {
+        while (true) {
+          try {
+            yield call(saga);
+            break;
+          } catch (e) {
+            log.error(e);
+            sentry.captureException(e);
+          }
+        }
+      }),
+    ),
+  );
 }
