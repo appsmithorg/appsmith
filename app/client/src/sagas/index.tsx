@@ -21,6 +21,7 @@ import batchSagas from "./BatchSagas";
 import themeSagas from "./ThemeSaga";
 import evaluationsSaga from "./evaluationsSaga";
 import log from "loglevel";
+import * as sentry from "@sentry/react";
 
 export function* rootSaga() {
   const sagas = [
@@ -46,7 +47,6 @@ export function* rootSaga() {
     themeSagas,
     evaluationsSaga,
   ];
-  //TODO: add sentry log on saga crash
   yield all(
     sagas.map(saga =>
       spawn(function*() {
@@ -55,7 +55,8 @@ export function* rootSaga() {
             yield call(saga);
             break;
           } catch (e) {
-            log.debug(e);
+            log.error(e);
+            sentry.captureException(e);
           }
         }
       }),
