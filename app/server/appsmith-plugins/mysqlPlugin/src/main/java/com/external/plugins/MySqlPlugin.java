@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDate;
@@ -113,7 +114,6 @@ public class MySqlPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class MySqlPluginExecutor implements PluginExecutor<Connection> {
-
         /**
          * 1. Parse the actual row objects returned by r2dbc driver for mysql statements.
          * 2. Return the row as a map {column_name -> column_value}.
@@ -285,6 +285,10 @@ public class MySqlPlugin extends BasePlugin {
             ob = ob.option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
 
             return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
+                    .onErrorResume(exception -> {
+                        log.debug("Error when creating datasource.", exception);
+                        return Mono.error(Exceptions.propagate(exception));
+                    })
                     .subscribeOn(Schedulers.elastic());
         }
 

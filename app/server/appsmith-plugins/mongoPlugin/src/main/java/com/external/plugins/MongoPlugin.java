@@ -15,15 +15,9 @@ import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.mongodb.MongoCommandException;
-import com.mongodb.MongoTimeoutException;
-import com.mongodb.MongoClientURI;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
-import com.mongodb.reactivestreams.client.ClientSession;
-import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
-import com.mongodb.reactivestreams.client.Success;
-
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -35,8 +29,10 @@ import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -80,6 +76,8 @@ public class MongoPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class MongoPluginExecutor implements PluginExecutor<MongoClient> {
+
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         /**
          * For reference on creating the json queries for Mongo please head to
@@ -173,7 +171,8 @@ public class MongoPlugin extends BasePlugin {
                         }
 
                         return Mono.just(result);
-                    });
+                    })
+                    .subscribeOn(scheduler);
         }
 
         private String getDatabaseName(DatasourceConfiguration datasourceConfiguration) {
@@ -198,7 +197,8 @@ public class MongoPlugin extends BasePlugin {
              */
 
             try {
-                return Mono.just(MongoClients.create(buildClientURI(datasourceConfiguration)));
+                return Mono.just(MongoClients.create(buildClientURI(datasourceConfiguration)))
+                        .subscribeOn(scheduler);
             } catch (Exception e) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
             }
@@ -353,7 +353,8 @@ public class MongoPlugin extends BasePlugin {
                         }
 
                         return Mono.just(new DatasourceTestResult(error.getMessage()));
-                    });
+                    })
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -363,8 +364,8 @@ public class MongoPlugin extends BasePlugin {
             structure.setTables(tables);
             final MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
 
-            return Flux.from(database.listCollectionNames()).
-                    flatMap(collectionName -> {
+            return Flux.from(database.listCollectionNames())
+                    .flatMap(collectionName -> {
                         final ArrayList<DatasourceStructure.Column> columns = new ArrayList<>();
                         final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
                         tables.add(new DatasourceStructure.Table(
@@ -381,8 +382,8 @@ public class MongoPlugin extends BasePlugin {
                                 Mono.just(collectionName),
                                 Mono.from(database.getCollection(collectionName).find().limit(1).first())
                         );
-                    }).
-                    flatMap(tuple -> {
+                    })
+                    .flatMap(tuple -> {
                         final ArrayList<DatasourceStructure.Column> columns = tuple.getT1();
                         final ArrayList<DatasourceStructure.Template> templates = tuple.getT2();
                         String collectionName = tuple.getT3();
@@ -391,11 +392,10 @@ public class MongoPlugin extends BasePlugin {
                         generateTemplatesAndStructureForACollection(collectionName, document, columns, templates);
 
                         return Mono.just(structure);
-                    }).
-                    collectList().
-                    flatMap(documentList -> {
-                        return Mono.just(structure);
-                    });
+                    })
+                    .collectList()
+                    .thenReturn(structure)
+                    .subscribeOn(scheduler);
         }
 
         private static void generateTemplatesAndStructureForACollection(String collectionName,
