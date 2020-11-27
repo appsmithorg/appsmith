@@ -70,6 +70,10 @@ public class RestApiPlugin extends BasePlugin {
     @Extension
     public static class RestApiPluginExecutor implements PluginExecutor<Void> {
 
+        private final String IS_SEND_SESSION_ENABLED_KEY = "isSendSessionEnabled";
+        private final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
+        private final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
+
         @Override
         public Mono<ActionExecutionResult> execute(Void ignored,
                                                    DatasourceConfiguration datasourceConfiguration,
@@ -133,37 +137,24 @@ public class RestApiPlugin extends BasePlugin {
                 requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData());
             }
 
-            if (!CollectionUtils.isEmpty(datasourceConfiguration.getProperties())) {
-                boolean isSendSessionEnabled = false;
-                String secretKey = null;
+            String secretKey;
+            try {
+                secretKey = getSignatureKey(datasourceConfiguration);
+            } catch (AppsmithPluginException e) {
+                return Mono.error(e);
+            }
 
-                for (Property property : datasourceConfiguration.getProperties()) {
-                    if ("isSendSessionEnabled".equals(property.getKey())) {
-                        isSendSessionEnabled = "Y".equals(property.getValue());
-                    } else if ("sessionSignatureKey".equals(property.getKey())) {
-                        secretKey = property.getValue();
-                    }
-                }
+            if (secretKey != null) {
+                final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+                final Instant now = Instant.now();
+                final String token = Jwts.builder()
+                        .setIssuer("Appsmith")
+                        .setIssuedAt(new Date(now.toEpochMilli()))
+                        .setExpiration(new Date(now.plusSeconds(600).toEpochMilli()))
+                        .signWith(key)
+                        .compact();
 
-                if (isSendSessionEnabled) {
-                    if (StringUtils.isEmpty(secretKey) || secretKey.length() < 32) {
-                        return Mono.error(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Secret key is required when sending session details is switched on," +
-                                        " and should be at least 32 characters in length."
-                        ));
-                    }
-
-                    final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-                    final Instant now = Instant.now();
-                    final String token = Jwts.builder()
-                            .setIssuer("Appsmith")
-                            .setIssuedAt(new Date(now.toEpochMilli()))
-                            .setExpiration(new Date(now.plusSeconds(600).toEpochMilli()))
-                            .signWith(key)
-                            .compact();
-                    webClientBuilder.defaultHeader("X-APPSMITH-AUTH", token);
-                }
+                webClientBuilder.defaultHeader(SIGNATURE_HEADER_NAME, token);
             }
 
             WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
@@ -232,6 +223,34 @@ public class RestApiPlugin extends BasePlugin {
                         errorResult.setRequest(actionExecutionRequest);
                         return Mono.just(errorResult);
                     });
+        }
+
+        private String getSignatureKey(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+            if (!CollectionUtils.isEmpty(datasourceConfiguration.getProperties())) {
+                boolean isSendSessionEnabled = false;
+                String secretKey = null;
+
+                for (Property property : datasourceConfiguration.getProperties()) {
+                    if (IS_SEND_SESSION_ENABLED_KEY.equals(property.getKey())) {
+                        isSendSessionEnabled = "Y".equals(property.getValue());
+                    } else if (SESSION_SIGNATURE_KEY_KEY.equals(property.getKey())) {
+                        secretKey = property.getValue();
+                    }
+                }
+
+                if (isSendSessionEnabled) {
+                    if (StringUtils.isEmpty(secretKey) || secretKey.length() < 32) {
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Secret key is required when sending session details is switched on," +
+                                        " and should be at least 32 characters in length."
+                        );
+                    }
+                    return secretKey;
+                }
+            }
+
+            return null;
         }
 
         private String convertPropertyListToReqBody(List<Property> bodyFormData) {
@@ -389,6 +408,12 @@ public class RestApiPlugin extends BasePlugin {
                     invalids.add("Secret key is required when sending session is switched on" +
                             ", and should be at least 32 characters long.");
                 }
+            }
+
+            try {
+                getSignatureKey(datasourceConfiguration);
+            } catch (AppsmithPluginException e) {
+                invalids.add(e.getMessage());
             }
 
             return invalids;
