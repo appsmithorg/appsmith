@@ -1070,6 +1070,38 @@ Cypress.Commands.add("enterActionValue", value => {
     });
 });
 
+Cypress.Commands.add("enterNavigatePageName", value => {
+  cy.get("ul.tree")
+    .children()
+    .first()
+    .within(() => {
+      cy.get(".CodeMirror textarea")
+        .first()
+        .focus()
+        .type("{ctrl}{shift}{downarrow}")
+        .then($cm => {
+          if ($cm.val() !== "") {
+            cy.get(".CodeMirror textarea")
+              .first()
+              .clear({
+                force: true,
+              });
+          }
+          cy.get(".CodeMirror textarea")
+            .first()
+            .type(value, {
+              force: true,
+              parseSpecialCharSequences: false,
+            });
+          cy.wait(200);
+          cy.get(".CodeMirror textarea")
+            .first()
+            .should("have.value", value);
+        });
+      cy.root();
+    });
+});
+
 Cypress.Commands.add("ClearDate", () => {
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Clear")
