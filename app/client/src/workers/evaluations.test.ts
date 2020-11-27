@@ -1,28 +1,10 @@
 import { DataTreeEvaluator } from "./evaluation.worker";
 import { DataTree, ENTITY_TYPE } from "../entities/DataTree/dataTreeFactory";
-import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
-import { VALIDATION_TYPES } from "../constants/WidgetValidation";
+import WidgetFactory from "../utils/WidgetFactory";
+import WidgetBuilderRegistry from "../utils/WidgetRegistry";
 
-const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
-  TEXT_WIDGET: {
-    validations: {
-      text: VALIDATION_TYPES.TEXT,
-    },
-    derivedProperties: {},
-    defaultProperties: {},
-    metaProperties: {},
-    triggerProperties: {},
-  },
-  TABLE_WIDGET: {
-    validations: {
-      text: VALIDATION_TYPES.TABLE_DATA,
-    },
-    derivedProperties: {},
-    defaultProperties: {},
-    metaProperties: {},
-    triggerProperties: {},
-  },
-};
+WidgetBuilderRegistry.registerWidgetBuilders();
+const WIDGET_CONFIG_MAP = WidgetFactory.getWidgetTypeConfigMap();
 
 it("evaluates the tree", () => {
   const unEvalTree: DataTree = {
