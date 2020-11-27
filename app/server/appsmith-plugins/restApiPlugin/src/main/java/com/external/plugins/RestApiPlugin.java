@@ -133,37 +133,35 @@ public class RestApiPlugin extends BasePlugin {
                 requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData());
             }
 
-            boolean isSendSessionEnabled = false;
             if (!CollectionUtils.isEmpty(datasourceConfiguration.getProperties())) {
+                boolean isSendSessionEnabled = false;
+                String secretKey = null;
+
                 for (Property property : datasourceConfiguration.getProperties()) {
                     if ("isSendSessionEnabled".equals(property.getKey())) {
                         isSendSessionEnabled = "Y".equals(property.getValue());
+                    } else if ("sessionSignatureKey".equals(property.getKey())) {
+                        secretKey = property.getValue();
                     }
                 }
 
-                isSendSessionEnabled = "Y".equals(CollectionUtils.isEmpty(datasourceConfiguration.getProperties())
-                        ? null : datasourceConfiguration.getProperties().get(0).getValue());
-                final String secretKey = datasourceConfiguration.getProperties().get(1).getValue();
-
                 if (isSendSessionEnabled) {
+                    if (StringUtils.isEmpty(secretKey) || secretKey.length() < 32) {
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Secret key is required when sending session details is switched on," +
+                                        " and should be at least 32 characters in length."
+                        ));
+                    }
+
                     final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
                     final Instant now = Instant.now();
                     final String token = Jwts.builder()
                             .setIssuer("Appsmith")
                             .setIssuedAt(new Date(now.toEpochMilli()))
                             .setExpiration(new Date(now.plusSeconds(600).toEpochMilli()))
-                            .setSubject("email address here")
                             .signWith(key)
                             .compact();
-                    /* Verify this token.
-                    assert Jwts.parserBuilder()
-                            .setSigningKey(key)
-                            .build()
-                            .parseClaimsJws(token)
-                            .getBody()
-                            .getSubject()
-                            .equals("email address here");
-                    //*/
                     webClientBuilder.defaultHeader("X-APPSMITH-AUTH", token);
                 }
             }
@@ -373,6 +371,24 @@ public class RestApiPlugin extends BasePlugin {
             final String contentTypeError = verifyContentType(datasourceConfiguration.getHeaders());
             if (contentTypeError != null) {
                 invalids.add("Invalid Content-Type: " + contentTypeError);
+            }
+
+            if (!CollectionUtils.isEmpty(datasourceConfiguration.getProperties())) {
+                boolean isSendSessionEnabled = false;
+                String secretKey = null;
+
+                for (Property property : datasourceConfiguration.getProperties()) {
+                    if ("isSendSessionEnabled".equals(property.getKey())) {
+                        isSendSessionEnabled = "Y".equals(property.getValue());
+                    } else if ("sessionSignatureKey".equals(property.getKey())) {
+                        secretKey = property.getValue();
+                    }
+                }
+
+                if (isSendSessionEnabled && (StringUtils.isEmpty(secretKey) || secretKey.length() < 32)) {
+                    invalids.add("Secret key is required when sending session is switched on" +
+                            ", and should be at least 32 characters long.");
+                }
             }
 
             return invalids;
