@@ -238,7 +238,7 @@ public class MySqlPlugin extends BasePlugin {
                             result.setIsExecutionSuccess(false);
                             return Mono.just(result);
                         })
-                        .subscribeOn(Schedulers.elastic());
+                        .subscribeOn(Schedulers.boundedElastic());
             }
         }
 
