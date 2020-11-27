@@ -355,8 +355,8 @@ public class MySqlPlugin extends BasePlugin {
                     })
                     .then(Mono.just(new DatasourceTestResult()))
                     .onErrorResume(error -> {
-                        log.warn("Error when testing MySQL datasource.", error);
-                        return Mono.just(new DatasourceTestResult(error.getMessage()));
+                        log.error("Error when testing MySQL datasource.", error);
+                        return Mono.error(Exceptions.propagate(error));
                     })
                     .subscribeOn(scheduler);
 

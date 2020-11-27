@@ -1,12 +1,6 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.Property;
+import com.appsmith.external.models.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -174,6 +168,20 @@ public class MySqlPluginTest {
         StepVerifier.create(dsConnectionMono)
                 .assertNext(Assert::assertNotNull)
                 .verifyComplete();
+    }
+
+    @Test
+    public void testTestDatasource() {
+        /* Expect no error */
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .expectNextCount(1)
+                .verifyComplete();
+
+        /* Create bad datasource configuration and expect error */
+        dsConfig.getEndpoints().get(0).setHost("badHost");
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .expectError()
+                .verify();
     }
 
     @Test
