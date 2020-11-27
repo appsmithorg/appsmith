@@ -238,7 +238,7 @@ public class MySqlPlugin extends BasePlugin {
                             result.setIsExecutionSuccess(false);
                             return Mono.just(result);
                         })
-                        .subscribeOn(Schedulers.elastic());
+                        .subscribeOn(Schedulers.boundedElastic());
             }
         }
 
@@ -289,7 +289,7 @@ public class MySqlPlugin extends BasePlugin {
                         log.debug("Error when creating datasource.", exception);
                         return Mono.error(Exceptions.propagate(exception));
                     })
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(Schedulers.boundedElastic());
         }
 
         @Override
@@ -300,7 +300,7 @@ public class MySqlPlugin extends BasePlugin {
                             log.debug("In datasourceDestroy function error mode.", exception);
                             return Mono.empty();
                         })
-                        .subscribeOn(Schedulers.elastic())
+                        .subscribeOn(Schedulers.boundedElastic())
                         .subscribe();
             }
 
@@ -354,11 +354,12 @@ public class MySqlPlugin extends BasePlugin {
                         return Mono.from(connection.close());
                     })
                     .then(Mono.just(new DatasourceTestResult()))
-                    .subscribeOn(Schedulers.elastic())
                     .onErrorResume(error -> {
                         log.warn("Error when testing MySQL datasource.", error);
                         return Mono.just(new DatasourceTestResult(error.getMessage()));
-                    });
+                    })
+                    .subscribeOn(Schedulers.boundedElastic());
+
         }
 
         /**
@@ -525,7 +526,7 @@ public class MySqlPlugin extends BasePlugin {
                                 });
                     })
                     .collectList()
-                    .flatMap(list -> {
+                    .map(list -> {
                         /* Get templates for each table and put those in. */
                         getTemplates(tablesByName);
                         structure.setTables(new ArrayList<>(tablesByName.values()));
@@ -533,14 +534,14 @@ public class MySqlPlugin extends BasePlugin {
                             table.getKeys().sort(Comparator.naturalOrder());
                         }
 
-                        return Mono.just(structure);
+                        return structure;
                     })
                     .onErrorResume(error -> {
                         log.debug("In getStructure function error mode.", error);
 
                         return Mono.error(Exceptions.propagate(error));
                     })
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(Schedulers.boundedElastic());
         }
     }
 }
