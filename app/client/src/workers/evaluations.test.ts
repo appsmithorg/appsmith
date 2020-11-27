@@ -1,4 +1,4 @@
-import { DataTreeEvaluator } from "./evaluator.worker";
+import { DataTreeEvaluator } from "./evaluation.worker";
 import { DataTree, ENTITY_TYPE } from "../entities/DataTree/dataTreeFactory";
 import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { VALIDATION_TYPES } from "../constants/WidgetValidation";
