@@ -20,6 +20,7 @@ const initialState: ApplicationsReduxState = {
   deletingApplication: false,
   duplicatingApplication: false,
   userOrgs: [],
+  isSavingOrgInfo: false,
 };
 
 const applicationsReducer = createReducer(initialState, {
@@ -105,6 +106,16 @@ const applicationsReducer = createReducer(initialState, {
     currentApplication: action.payload,
     isFetchingApplication: false,
   }),
+  [ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ name: string }>,
+  ) => ({
+    ...state,
+    currentApplication: {
+      ...state.currentApplication,
+      name: action.payload,
+    },
+  }),
   [ReduxActionTypes.CREATE_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
     action: ReduxAction<CreateApplicationFormValues>,
@@ -154,6 +165,50 @@ const applicationsReducer = createReducer(initialState, {
       ...state,
       creatingApplication: updatedCreatingApplication,
       createApplicationError: ERROR_MESSAGE_CREATE_APPLICATION,
+    };
+  },
+  [ReduxActionTypes.SAVING_ORG_INFO]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      isSavingOrgInfo: true,
+    };
+  },
+  [ReduxActionTypes.SAVE_ORG_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{
+      id: string;
+      name?: string;
+      website?: string;
+      email?: string;
+    }>,
+  ) => {
+    const _organizations = state.userOrgs.map((org: Organization) => {
+      if (org.organization.id === action.payload.id) {
+        if (action.payload.name) {
+          org.organization.name = action.payload.name;
+        } else if (action.payload.email) {
+          org.organization.email = action.payload.email;
+        } else if (action.payload.website) {
+          org.organization.website = action.payload.website;
+        }
+
+        return {
+          ...org,
+        };
+      }
+      return org;
+    });
+
+    return {
+      ...state,
+      userOrgs: _organizations,
+      isSavingOrgInfo: false,
+    };
+  },
+  [ReduxActionTypes.SAVE_ORG_ERROR]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      isSavingOrgInfo: false,
     };
   },
   [ReduxActionTypes.SEARCH_APPLICATIONS]: (
@@ -241,6 +296,7 @@ export interface ApplicationsReduxState {
   duplicatingApplication: boolean;
   currentApplication?: ApplicationPayload;
   userOrgs: Organization[];
+  isSavingOrgInfo: boolean;
 }
 
 export interface Application {

@@ -62,7 +62,9 @@ export default function MemberSettings(props: PageProps) {
   } = useSelector(getOrgLoadingStates);
   const allUsers = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
-  const currentOrg = useSelector(getCurrentOrg);
+  const currentOrg = useSelector(getCurrentOrg).filter(
+    el => el.id === orgId,
+  )[0];
 
   const userTableData = allUsers.map(user => ({
     ...user,

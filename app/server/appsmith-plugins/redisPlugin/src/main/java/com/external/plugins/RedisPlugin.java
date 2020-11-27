@@ -17,6 +17,7 @@ import org.pf4j.PluginWrapper;
 import org.pf4j.util.StringUtils;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Protocol;
@@ -40,6 +41,9 @@ public class RedisPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class RedisPluginExecutor implements PluginExecutor<Jedis> {
+
+        private final Scheduler scheduler = Schedulers.boundedElastic();
+
         @Override
         public Mono<ActionExecutionResult> execute(Jedis jedis,
                                                    DatasourceConfiguration datasourceConfiguration,
@@ -78,7 +82,7 @@ public class RedisPlugin extends BasePlugin {
                 return Mono.just(actionExecutionResult);
             })
                     .flatMap(obj -> obj)
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
 
         // This will be updated as we encounter different outputs.
@@ -117,7 +121,7 @@ public class RedisPlugin extends BasePlugin {
                 return Mono.just(jedis);
             })
                     .flatMap(obj -> obj)
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -134,7 +138,7 @@ public class RedisPlugin extends BasePlugin {
 
                 return Mono.empty();
             })
-                    .subscribeOn(Schedulers.elastic())
+                    .subscribeOn(scheduler)
                     .subscribe();
         }
 
@@ -196,7 +200,7 @@ public class RedisPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage()))))
                     .flatMap(obj -> obj)
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
 
     }

@@ -47,7 +47,7 @@ const FILE_TYPE_OPTIONS = [
   { label: "SVG", value: "'image/svg+xml'", id: "image/svg+xml" },
 ];
 
-const FUNC_ARGS_REGEX = /((["][^"]*["])|(['][^']*['])|([\(].*[\)[=][>][{].*[}])|([^'",][^,"+]*[^'",]*))*/gi;
+const FUNC_ARGS_REGEX = /((["][^"]*["])|([\[].*[\]])|([\{].*[\}])|(['][^']*['])|([\(].*[\)[=][>][{].*[}])|([^'",][^,"+]*[^'",]*))*/gi;
 const ACTION_TRIGGER_REGEX = /^{{([\s\S]*?)\(([\s\S]*?)\)}}$/g;
 //Old Regex:: /\(\) => ([\s\S]*?)(\([\s\S]*?\))/g;
 const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => (({[\s\S]*?})|([\s\S]*?)(\([\s\S]*?\)))/g;
@@ -189,6 +189,40 @@ const enumTypeGetter = (
   return defaultValue;
 };
 
+const objectTypeSetter = (
+  obj: Object,
+  currentValue: string,
+  argNum: number,
+): string => {
+  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
+  let args: string[] = [];
+  if (matches.length) {
+    args = argsStringToArray(matches[0][2]);
+    args[argNum] = JSON.stringify(obj);
+  }
+  const result = currentValue.replace(
+    ACTION_TRIGGER_REGEX,
+    `{{$1(${args.join(",")})}}`,
+  );
+  return result;
+};
+
+const objectTypeGetter = (
+  value: string,
+  argNum: number,
+  defaultValue = undefined,
+): Object | undefined => {
+  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
+  if (matches.length) {
+    const args = argsStringToArray(matches[0][2]);
+    const arg = args[argNum];
+    if (arg) {
+      return JSON.parse(arg.trim());
+    }
+  }
+  return defaultValue;
+};
+
 type ActionCreatorProps = {
   value: string;
   isValid: boolean;
@@ -265,7 +299,7 @@ const views = {
       <ControlWrapper key={props.label} isAction={true}>
         <KeyValueComponent
           pairs={props.get(props.value, false) as DropdownOption[]}
-          addLabel={"QueryParam"}
+          addLabel={"Query Params"}
           updatePairs={(pageParams: DropdownOption[]) => props.set(pageParams)}
         />
       </ControlWrapper>
@@ -310,6 +344,7 @@ const FieldType = {
   ALERT_TYPE_SELECTOR_FIELD: "ALERT_TYPE_SELECTOR_FIELD",
   KEY_TEXT_FIELD: "KEY_TEXT_FIELD",
   VALUE_TEXT_FIELD: "VALUE_TEXT_FIELD",
+  QUERY_PARAMS_FIELD: "QUERY_PARAMS_FIELD",
   DOWNLOAD_DATA_FIELD: "DOWNLOAD_DATA_FIELD",
   DOWNLOAD_FILE_NAME_FIELD: "DOWNLOAD_FILE_NAME_FIELD",
   DOWNLOAD_FILE_TYPE_FIELD: "DOWNLOAD_FILE_TYPE_FIELD",
@@ -440,6 +475,15 @@ const fieldConfigs: FieldConfigs = {
     },
     setter: (option: any, currentValue: string) => {
       return textSetter(option, currentValue, 1);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.QUERY_PARAMS_FIELD]: {
+    getter: (value: any) => {
+      return textGetter(value, 1);
+    },
+    setter: (value: any, currentValue: string) => {
+      return textSetter(value, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
   },
@@ -603,6 +647,9 @@ function getFieldFromValue(
   if (value.indexOf("navigateTo") !== -1) {
     fields.push({
       field: FieldType.URL_FIELD,
+    });
+    fields.push({
+      field: FieldType.QUERY_PARAMS_FIELD,
     });
   }
 
@@ -783,6 +830,7 @@ function renderField(props: {
     case FieldType.URL_FIELD:
     case FieldType.KEY_TEXT_FIELD:
     case FieldType.VALUE_TEXT_FIELD:
+    case FieldType.QUERY_PARAMS_FIELD:
     case FieldType.DOWNLOAD_DATA_FIELD:
     case FieldType.DOWNLOAD_FILE_NAME_FIELD:
       let fieldLabel = "";
@@ -794,6 +842,8 @@ function renderField(props: {
         fieldLabel = "Key";
       } else if (fieldType === FieldType.VALUE_TEXT_FIELD) {
         fieldLabel = "Value";
+      } else if (fieldType === FieldType.QUERY_PARAMS_FIELD) {
+        fieldLabel = "Query Params";
       } else if (fieldType === FieldType.DOWNLOAD_DATA_FIELD) {
         fieldLabel = "Data to download";
       } else if (fieldType === FieldType.DOWNLOAD_FILE_NAME_FIELD) {

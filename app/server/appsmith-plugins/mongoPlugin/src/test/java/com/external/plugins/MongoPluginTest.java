@@ -9,24 +9,16 @@ import com.appsmith.external.models.Endpoint;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
-import com.mongodb.reactivestreams.client.ClientSession;
 import com.mongodb.reactivestreams.client.MongoCollection;
-import com.mongodb.reactivestreams.client.MongoDatabase;
-import com.mongodb.reactivestreams.client.Success;
-import org.reactivestreams.Publisher;
-import java.util.concurrent.TimeUnit;
-
-import org.json.JSONObject;
 import org.bson.Document;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
-import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
@@ -35,7 +27,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for MongoPlugin
@@ -103,15 +99,12 @@ public class MongoPluginTest {
 
     @Test
     public void testConnectToMongo() {
-        System.out.println(mongoContainer.getContainerIpAddress());
-        System.out.println(mongoContainer.getFirstMappedPort());
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        System.out.println(dsConfig);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         StepVerifier.create(dsConnectionMono)
                 .assertNext(obj -> {
-                    MongoClient client = (MongoClient) obj;
+                    MongoClient client = obj;
                     System.out.println(client);
                     assertNotNull(client);
                 })
@@ -123,11 +116,8 @@ public class MongoPluginTest {
      */
     @Test
     public void testDatasourceFail() {
-        System.out.println(mongoContainer.getContainerIpAddress());
-        System.out.println(mongoContainer.getFirstMappedPort());
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getEndpoints().get(0).setHost("badHost");
-        System.out.println(dsConfig);
 
         StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
                 .assertNext(datasourceTestResult -> {
@@ -194,6 +184,7 @@ public class MongoPluginTest {
 
     @Test
     public void testFindAndModify() {
+        System.out.println("Running test on " + Thread.currentThread().getName());
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
@@ -206,7 +197,10 @@ public class MongoPluginTest {
                 " },\n" +
                 "  update: { $set: { gender: \"F\" }}\n" +
                 "}");
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> {
+            System.out.println("Before execute, running on thread " + Thread.currentThread().getName());
+            return pluginExecutor.execute(conn, dsConfig, actionConfiguration);
+        });
 
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
