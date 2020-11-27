@@ -19,7 +19,7 @@ import {
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
 import WidgetFactory from "../utils/WidgetFactory";
-import Worker from "worker-loader!../workers/evaluator.worker";
+import Worker from "worker-loader!../workers/evaluation.worker";
 import {
   EVAL_WORKER_ACTIONS,
   EvalError,
