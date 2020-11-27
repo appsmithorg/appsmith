@@ -149,7 +149,7 @@ export function GeneralSettings() {
         )}
         {!isFetchingOrg && (
           <FilePicker
-            url={currentOrg.logoUrl}
+            url={currentOrg && currentOrg.logoUrl}
             fileUploader={FileUploader}
             onFileRemoved={DeleteLogo}
             logoUploadError={logoUploadError.message}
