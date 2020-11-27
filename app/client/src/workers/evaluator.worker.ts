@@ -371,9 +371,18 @@ export class DataTreeEvaluator {
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, propertyPath: string) => {
-          if (changedSortOrder && !changedSortOrder.includes(propertyPath)) {
-            const lastEvalValue = _.get(this.evalTree, propertyPath);
-            return _.set(currentTree, propertyPath, lastEvalValue);
+          if (changedSortOrder) {
+            const changedSinceLastEval = !changedSortOrder.includes(
+              propertyPath,
+            );
+            // TODO This is not a nice idea
+            const nestedPropertyChange = _.some(changedSortOrder, changedPath =>
+              changedPath.includes(propertyPath),
+            );
+            if (!changedSinceLastEval && !nestedPropertyChange) {
+              const lastEvalValue = _.get(this.evalTree, propertyPath);
+              return _.set(currentTree, propertyPath, lastEvalValue);
+            }
           }
           const entityName = propertyPath.split(".")[0];
           const entity: DataTreeEntity = currentTree[entityName];
@@ -1026,7 +1035,11 @@ const createDynamicValueString = (
 };
 
 function isWidget(entity: DataTreeEntity): boolean {
-  return "ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET;
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET
+  );
 }
 
 // We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
@@ -1047,7 +1060,7 @@ const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   Object.keys(withFunction).forEach(entityName => {
     const entity = withFunction[entityName];
     if (
-      entity &&
+      typeof entity === "object" &&
       "ENTITY_TYPE" in entity &&
       entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
     ) {
