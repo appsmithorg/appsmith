@@ -402,10 +402,23 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
       yield call(clearEvalPropertyCacheOfWidget, widgetName);
 
-      const finalWidgets = _.omit(
+      const finalWidgets: CanvasWidgetsReduxState = _.omit(
         widgets,
         otherWidgetsToDelete.map(widgets => widgets.widgetId),
       );
+
+      let lowestBottomRow = 0;
+      const childIds = finalWidgets[parentId].children || [];
+      // find lowest row
+      childIds.forEach(cId => {
+        const child = finalWidgets[cId];
+        if (child.bottomRow > lowestBottomRow) {
+          lowestBottomRow = child.bottomRow;
+        }
+      });
+      finalWidgets[parentId].bottomRow =
+        (lowestBottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+        GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
       yield put(updateAndSaveLayout(finalWidgets));
     }
