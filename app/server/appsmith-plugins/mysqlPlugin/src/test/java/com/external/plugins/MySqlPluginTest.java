@@ -182,6 +182,9 @@ public class MySqlPluginTest {
         StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
                 .expectError()
                 .verify();
+
+        /* Reset dsConfig */
+        createDatasourceConfiguration();
     }
 
     @Test
