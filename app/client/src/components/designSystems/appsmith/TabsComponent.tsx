@@ -127,6 +127,7 @@ const TabsComponent = (props: TabsComponentProps) => {
           {props.tabs &&
             props.tabs.map((tab, index) => (
               <StyledText
+                className={`t--tab-${tab.label}`}
                 onClick={(event: React.MouseEvent<HTMLDivElement>) => {
                   props.onTabChange(tab.widgetId);
                   event.stopPropagation();

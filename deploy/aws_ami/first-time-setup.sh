@@ -8,6 +8,43 @@ move_file() {
     mv -f "$template_file" "$full_path"
 }
 
+wait_for_containers_start() {
+    local timeout=$1
+
+    # The while loop is important because for-loops don't work for dynamic values
+    while [[ $timeout -gt 0 ]]; do
+        status_code="$(curl -s -o /dev/null -w "%{http_code}" http://localhost/api/v1 || true)"
+        if [[ status_code -eq 401 ]]; then
+            break
+        else
+            echo -ne "Waiting for all containers to start. This check will timeout in $timeout seconds...\r\c"
+        fi
+        ((timeout--))
+        sleep 1
+    done
+
+    echo ""
+}
+
+bye() {  # Prints a friendly good bye message and exits the script.
+    if [ "$?" -ne 0 ]; then
+        set +o errexit
+
+        curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
+            "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+            "event": "Installation Support",
+            "data": {
+                "os": "Ubuntu",
+                "platform" : "aws_ami"
+            }
+        }' > /dev/null
+        exit 0
+    fi
+}
+
+
 generate_random_string() {
     # Picked up the following method of generation from : https://gist.github.com/earthgecko/3089509
     LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 13 | head -n 1
@@ -40,6 +77,21 @@ user_encryption_password=$(generate_random_string)
 user_encryption_salt=$(generate_random_string)
 disable_telemetry="false"
 NGINX_SSL_CMNT="#"
+
+APPSMITH_INSTALLATION_ID=$(curl -s 'https://api64.ipify.org')
+
+trap bye EXIT
+
+curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+--header 'Content-Type: text/plain' \
+--data-raw '{
+  "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+  "event": "Installation Started",
+  "data": {
+    "os": "Ubuntu"
+    "platform": "aws_ami"
+   }
+}' > /dev/null
 
 # Step 1: Download the templates
 echo "Downloading the configuration templates..."
@@ -80,4 +132,39 @@ echo ""
 echo "Starting the Appsmith containers"
 docker-compose up --detach --remove-orphans
 
-echo -e "\nPeace out \U1F596\n"
+wait_for_containers_start 60
+if [[ $status_code -eq 401 ]]; then
+    echo "Installation is complete!"
+    echo "Creating default user"
+    while [ ! -f $install_dir/credential ]
+    do
+        echo -ne "Waiting to credential file to be created...\r\c"
+        sleep 2
+    done
+    line=$(head -n 1 ./credential)
+    IFS=':' read -r -a tokens <<< "$line"
+    default_user_name="${tokens[0]}"
+    default_user_password="${tokens[1]}"
+
+    curl -k -X POST 'http://localhost/api/v1/users' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "name" : "'"$default_user_name"'",
+        "email" : "'"$default_user_name"'",
+        "source" : "FORM",
+        "state" : "ACTIVATED",
+        "isEnabled" : "true",
+        "password": "'"$default_user_password"'"
+    }'
+
+    curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+      "event": "Installation Success",
+      "data": {
+          "os": "Ubuntu"
+          "platform": "aws_ami"
+       }
+    }' > /dev/null
+fi

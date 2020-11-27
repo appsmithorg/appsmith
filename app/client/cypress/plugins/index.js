@@ -61,10 +61,10 @@ module.exports = (on, config) => {
    * Fallback to .env variables for Cypress.env if procecss.env doesn't have it either
    * Note: Value in .env file has the lowest precedence, even lower than APPSMITH_* ENV vars.
    * Example:
-   * .env -> APPSMITH_BEST_POLITICIAN=trump
-   * process.env -> APPSMITH_BEST_POLITICIAN=
+   * .env -> APPSMITH_FOO=bar
+   * process.env -> APPSMITH_FOO=
    *
-   * Cypress.env("APPSMITH_BEST_POLITICIAN") // <empty>
+   * Cypress.env("APPSMITH_FOO") // <empty>
    */
   try {
     const parsedEnv = dotenv.parse(
