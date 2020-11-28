@@ -230,7 +230,7 @@ export class DataTreeEvaluator {
       this.inverseDependencyMap,
     );
     const getNeedsEvalPathsStop = performance.now();
-    console.log({
+    log.debug({
       differences,
       newSortOrder,
       sortedDependencies: this.sortedDependencies,
@@ -255,7 +255,7 @@ export class DataTreeEvaluator {
     // Remove functions
     this.evalTree = removeFunctionsFromDataTree(validated);
     this.oldUnEvalTree = unEvalTree;
-    console.log({
+    log.debug({
       diffCheck: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),
       checkDepChange: (
         CheckDependencyChangeStop - CheckDependencyChangeStart
