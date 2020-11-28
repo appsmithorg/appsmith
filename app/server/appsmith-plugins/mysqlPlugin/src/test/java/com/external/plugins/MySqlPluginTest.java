@@ -1,33 +1,28 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.Property;
+import com.appsmith.external.models.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+
+import io.r2dbc.spi.ConnectionFactoryOptions;
+import io.r2dbc.spi.Connection;
+import io.r2dbc.spi.ConnectionFactories;
+import io.r2dbc.spi.Batch;
 import lombok.extern.log4j.Log4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.MySQLR2DBCDatabaseContainer;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -71,69 +66,55 @@ public class MySqlPluginTest {
         database = mySQLContainer.getDatabaseName();
         createDatasourceConfiguration();
 
-        Properties properties = new Properties();
-        properties.putAll(Map.of(
-                "user", username,
-                "password", password
-        ));
+        ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
+        ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
 
-        try (Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://" + address + ":" + port + "/" + database,
-                properties
-        )) {
+        Mono.from(ConnectionFactories.get(ob.build()).create())
+                .map(connection -> {
+                    return connection.createBatch()
+                            .add("create table users (\n" +
+                                    "    id int primary key,\n" +
+                                    "    username varchar (250) unique not null,\n" +
+                                    "    password varchar (250) not null,\n" +
+                                    "    email varchar (250) unique not null,\n" +
+                                    "    spouse_dob date,\n" +
+                                    "    dob date not null,\n" +
+                                    "    yob year not null,\n" +
+                                    "    time1 time not null,\n" +
+                                    "    created_on timestamp not null,\n" +
+                                    "    updated_on datetime not null,\n" +
+                                    "    constraint unique index (username, email)\n" +
+                                    ")"
+                            )
+                            .add("create table possessions (\n" +
+                                    "    id int primary key,\n" +
+                                    "    title varchar (250) not null,\n" +
+                                    "    user_id int not null,\n" +
+                                    "    username varchar (250) not null,\n" +
+                                    "    email varchar (250) not null\n" +
+                                    ")"
+                            )
+                            .add("alter table possessions add foreign key (username, email) \n" +
+                                    "references users (username, email)"
+                            )
+                            .add("SET SESSION sql_mode = '';\n")
+                            .add("INSERT INTO users VALUES (" +
+                                    "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, '2018-12-31', 2018," +
+                                    " '18:32:45'," +
+                                    " '2018-11-30 20:45:15', '0000-00-00 00:00:00'" +
+                                    ")"
+                            )
+                            .add("INSERT INTO users VALUES (" +
+                                    "2, 'Jill', 'jack', 'jill@exemplars.com', NULL, '2019-12-31', 2019," +
+                                    " '15:45:30'," +
+                                    " '2019-11-30 23:59:59', '2019-11-30 23:59:59'" +
+                                    ")"
+                            );
+                })
+                .flatMap(batch -> Mono.from(batch.execute()))
+                .block();
 
-            try (Statement statement = connection.createStatement()) {
-                statement.execute("DROP TABLE IF EXISTS users");
-            }
-
-            try (Statement statement = connection.createStatement()) {
-                statement.execute("create table users (\n" +
-                        "    id int primary key,\n" +
-                        "    username varchar (250) unique not null,\n" +
-                        "    password varchar (250) not null,\n" +
-                        "    email varchar (250) unique not null,\n" +
-                        "    spouse_dob date,\n" +
-                        "    dob date not null,\n" +
-                        "    yob year not null,\n" +
-                        "    time1 time not null,\n" +
-                        "    created_on timestamp not null,\n" +
-                        "    updated_on datetime not null,\n" +
-                        "    constraint unique index (username, email)\n" +
-                        ")");
-
-                statement.execute("create table possessions (\n" +
-                        "    id int primary key,\n" +
-                        "    title varchar (250) not null,\n" +
-                        "    user_id int not null,\n" +
-                        "    username varchar (250) not null,\n" +
-                        "    email varchar (250) not null\n" +
-                        ")");
-
-                statement.execute("alter table possessions add foreign key (username, email) references users (username, email)");
-                statement.execute("SET SESSION sql_mode = '';\n");
-            }
-
-            try (Statement statement = connection.createStatement()) {
-                statement.execute(
-                        "INSERT INTO users VALUES (" +
-                                "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, '2018-12-31', 2018," +
-                                " '18:32:45'," +
-                                " '2018-11-30 20:45:15', '0000-00-00 00:00:00'" +
-                                ")");
-            }
-
-            try (Statement statement = connection.createStatement()) {
-                statement.execute(
-                        "INSERT INTO users VALUES (" +
-                                "2, 'Jill', 'jack', 'jill@exemplars.com', NULL, '2019-12-31', 2019," +
-                                " '15:45:30'," +
-                                " '2019-11-30 23:59:59', '2019-11-30 23:59:59'" +
-                                ")");
-            }
-
-        } catch (SQLException throwable) {
-            throwable.printStackTrace();
-        }
+        return;
     }
 
     private static DatasourceConfiguration createDatasourceConfiguration() {
@@ -190,6 +171,23 @@ public class MySqlPluginTest {
     }
 
     @Test
+    public void testTestDatasource() {
+        /* Expect no error */
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .expectNextCount(1)
+                .verifyComplete();
+
+        /* Create bad datasource configuration and expect error */
+        dsConfig.getEndpoints().get(0).setHost("badHost");
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .expectError()
+                .verify();
+
+        /* Reset dsConfig */
+        createDatasourceConfiguration();
+    }
+
+    @Test
     public void testExecute() {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
@@ -201,7 +199,6 @@ public class MySqlPluginTest {
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
-                    System.out.println(result);
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
@@ -238,30 +235,10 @@ public class MySqlPluginTest {
 
     @Test
     public void testValidateDatasourceInvalidEndpoint() {
-        String hostname = "jdbc://localhost";
+        String hostname = "r2dbc:mysql://localhost";
         dsConfig.getEndpoints().get(0).setHost(hostname);
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
         assertTrue(output.contains("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."));
-    }
-
-    /* checking that the connection is being closed after the datadourceDestroy method is being called
-    NOT : this test case will fail in case of a SQL Exception
-     */
-    @Test
-    public void testDatasourceDestroy() {
-
-        Mono<Connection> connectionMono = pluginExecutor.datasourceCreate(dsConfig);
-
-        StepVerifier.create(connectionMono)
-                .assertNext(connection -> {
-                    pluginExecutor.datasourceDestroy(connection);
-                    try {
-                        assertTrue(connection.isClosed());
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                })
-                .verifyComplete();
     }
 
     @Test
@@ -289,6 +266,8 @@ public class MySqlPluginTest {
                     );
                 })
                 .verifyComplete();
+
+        return;
     }
 
     @Test
