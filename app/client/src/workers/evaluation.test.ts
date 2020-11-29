@@ -1,6 +1,12 @@
 import { DataTreeEvaluator } from "./evaluation.worker";
-import { DataTree, ENTITY_TYPE } from "../entities/DataTree/dataTreeFactory";
+import {
+  DataTreeAction,
+  DataTreeWidget,
+  ENTITY_TYPE,
+} from "../entities/DataTree/dataTreeFactory";
 import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
+import { RenderModes, WidgetTypes } from "../constants/WidgetConstants";
+import { PluginType } from "../entities/Action";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -425,166 +431,160 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   },
 };
 
-it("evaluates the tree", () => {
-  const unEvalTree: DataTree = {
+const BASE_WIDGET: DataTreeWidget = {
+  widgetId: "randomID",
+  widgetName: "randomName",
+  bottomRow: 0,
+  isLoading: false,
+  leftColumn: 0,
+  parentColumnSpace: 0,
+  parentRowSpace: 0,
+  renderMode: RenderModes.CANVAS,
+  rightColumn: 0,
+  topRow: 0,
+  type: WidgetTypes.SKELETON_WIDGET,
+  parentId: "0",
+  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+};
+
+const BASE_ACTION: DataTreeAction = {
+  actionId: "randomId",
+  name: "randomName",
+  config: {
+    timeoutInMillisecond: 10,
+  },
+  dynamicBindingPathList: [],
+  isLoading: false,
+  pluginType: PluginType.API,
+  run: {},
+  data: {},
+  ENTITY_TYPE: ENTITY_TYPE.ACTION,
+};
+
+describe("DataTreeEvaluator", () => {
+  const unEvalTree = {
     Text1: {
-      name: "Text1",
-      type: "TEXT_WIDGET",
+      ...BASE_WIDGET,
+      widgetName: "Text1",
       text: "Label",
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-    },
-    Text3: {
-      name: "Text3",
-      type: "TEXT_WIDGET",
-      text: "{{Text1.text}}",
-      dynamicBindingPathList: [{ key: "text" }],
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-    },
-    Table1: {
-      name: "Table1",
-      tableData: "{{Api1.data}}",
-      type: "TABLE_WIDGET",
-      dynamicBindingPathList: [{ key: "tableData" }],
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-    },
-    Api1: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      data: [],
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      type: WidgetTypes.TEXT_WIDGET,
     },
     Text2: {
-      name: "Text2",
-      type: "TEXT_WIDGET",
+      ...BASE_WIDGET,
+      widgetName: "Text2",
       text: "{{Text1.text}}",
       dynamicBindingPathList: [{ key: "text" }],
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      type: WidgetTypes.TEXT_WIDGET,
     },
-    Text5: {
-      name: "Text5",
-      type: "TEXT_WIDGET",
-      text: "{{Text6.text}}",
+    Text3: {
+      ...BASE_WIDGET,
+      widgetName: "Text3",
+      text: "{{Text1.text}}",
       dynamicBindingPathList: [{ key: "text" }],
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      type: WidgetTypes.TEXT_WIDGET,
     },
-    Text6: {
-      name: "Text6",
-      type: "TEXT_WIDGET",
-      text: "Label 6",
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-    },
-    Text4: {
-      name: "Text4",
-      type: "TEXT_WIDGET",
-      text: "Label 4",
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    Dropdown1: {
+      ...BASE_WIDGET,
+      options: [
+        {
+          label: "test",
+          value: "valueTest",
+        },
+        {
+          label: "test2",
+          value: "valueTest2",
+        },
+      ],
+      type: WidgetTypes.DROP_DOWN_WIDGET,
     },
   };
   const evaluator = new DataTreeEvaluator(unEvalTree, WIDGET_CONFIG_MAP);
-  const evaluation = evaluator.evalTree;
-  const dependencyMap = evaluator.dependencyMap;
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  expect(evaluation.Text2.text).toBe("Label");
-  expect(dependencyMap).toStrictEqual({
-    "Text2.text": ["Text1.text"],
-    "Table1.tableData": ["Api1.data"],
-    "Table1.searchText": [],
-    "Table1.selectedRowIndex": [],
-    "Table1.selectedRowIndices": [],
-    "Text3.text": ["Text1.text"],
-    "Text5.text": ["Text6.text"],
+
+  it("Evaluates a binding in first run", () => {
+    const evaluation = evaluator.evalTree;
+    const dependencyMap = evaluator.dependencyMap;
+
+    expect(evaluation).toHaveProperty("Text2.text", "Label");
+    expect(evaluation).toHaveProperty("Text3.text", "Label");
+    expect(dependencyMap).toStrictEqual({
+      "Text2.text": ["Text1.text"],
+      "Text3.text": ["Text1.text"],
+      "Dropdown1.selectedOptionValue": [],
+      "Dropdown1.selectedOptionValueArr": [],
+    });
   });
 
-  const updatedUnEvalTree: DataTree = {
-    ...unEvalTree,
-    Text1: {
-      ...unEvalTree.Text1,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      text: "Label 1",
-    },
-  };
-
-  const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  expect(updatedEvalTree.Text2.text).toBe("Label 1");
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  expect(updatedEvalTree.Text3.text).toBe("Label 1");
-  expect(evaluator.dependencyMap).toStrictEqual({
-    "Text2.text": ["Text1.text"],
-    "Table1.tableData": ["Api1.data"],
-    "Text3.text": ["Text1.text"],
-    "Text5.text": ["Text6.text"],
-    "Table1.searchText": [],
-    "Table1.selectedRowIndex": [],
-    "Table1.selectedRowIndices": [],
+  it("Evaluates a value change in update run", () => {
+    const updatedUnEvalTree = {
+      ...unEvalTree,
+      Text1: {
+        ...unEvalTree.Text1,
+        text: "Hey there",
+      },
+    };
+    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
+    expect(updatedEvalTree).toHaveProperty("Text2.text", "Hey there");
+    expect(updatedEvalTree).toHaveProperty("Text3.text", "Hey there");
   });
 
-  const updatedUnEvalTree2: DataTree = {
-    ...updatedUnEvalTree,
-    Text1: {
-      ...unEvalTree.Text1,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      text: "{{Text4.text}}",
-      dynamicBindingPathList: [{ key: "text" }],
-    },
-    Text6: {
-      ...unEvalTree.Text6,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      text: "Value change 6",
-    },
-    Text2: {
-      ...unEvalTree.Text2,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      text: "{{Text3.text}}",
-    },
-  };
+  it("Evaluates a dependency change in update run", () => {
+    const updatedUnEvalTree = {
+      ...unEvalTree,
+      Text3: {
+        ...unEvalTree.Text3,
+        text: "Label 3",
+      },
+    };
+    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
+    const updatedDependencyMap = evaluator.dependencyMap;
+    expect(updatedEvalTree).toHaveProperty("Text2.text", "Label");
+    expect(updatedEvalTree).toHaveProperty("Text3.text", "Label 3");
+    expect(updatedDependencyMap).toStrictEqual({
+      "Text2.text": ["Text1.text"],
+      "Text3.text": [],
+      "Dropdown1.selectedOptionValue": [],
+      "Dropdown1.selectedOptionValueArr": [],
+    });
+  });
 
-  const updatedEvalTree2 = evaluator.updateDataTree(updatedUnEvalTree2);
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  expect(updatedEvalTree2.Text5.text).toBe("Value change 6");
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  expect(updatedEvalTree2.Text1.text).toBe("Label 4");
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  expect(updatedEvalTree2.Text2.text).toBe("Label 4");
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  expect(updatedEvalTree2.Text3.text).toBe("Label 4");
-  expect(evaluator.dependencyMap).toStrictEqual({
-    "Text1.text": ["Text4.text"],
-    "Text2.text": ["Text3.text"],
-    "Table1.tableData": ["Api1.data"],
-    "Text3.text": ["Text1.text"],
-    "Text5.text": ["Text6.text"],
-    "Table1.searchText": [],
-    "Table1.selectedRowIndex": [],
-    "Table1.selectedRowIndices": [],
+  it("Overrides with default value", () => {
+    const updatedUnEvalTree = {
+      ...unEvalTree,
+      Input1: {
+        ...BASE_WIDGET,
+        text: undefined,
+        defaultText: "Default value",
+        widgetName: "Input1",
+        type: WidgetTypes.INPUT_WIDGET,
+      },
+    };
+
+    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
+    expect(updatedEvalTree).toHaveProperty("Input1.text", "Default value");
+  });
+
+  it("Evaluates for value changes in nested diff paths", () => {
+    const updatedUnEvalTree = {
+      ...unEvalTree,
+      Dropdown1: {
+        ...BASE_WIDGET,
+        options: [
+          {
+            label: "newValue",
+            value: "valueTest",
+          },
+          {
+            label: "test2",
+            value: "valueTest2",
+          },
+        ],
+        type: WidgetTypes.DROP_DOWN_WIDGET,
+      },
+    };
+    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
+    expect(updatedEvalTree).toHaveProperty(
+      "Dropdown1.options.0.label",
+      "newValue",
+    );
   });
 });
-
-// it("overrides with default value", () => {});
-
-// it("check for value changes for nested diff paths", () => {});
