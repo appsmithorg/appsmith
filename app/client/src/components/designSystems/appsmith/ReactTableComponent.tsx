@@ -73,6 +73,7 @@ interface ReactTableComponentProps {
     };
   };
   columnSizeMap?: { [key: string]: number };
+  updateColumnSize: (columnSizeMap?: { [key: string]: number }) => void;
   updateColumnType: (columnTypeMap: {
     [key: string]: { type: string; format: string };
   }) => void;
@@ -247,9 +248,13 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
 
   const handleResizeColumn = (columnIndex: number, columnWidth: string) => {
     const width = Number(columnWidth.split("px")[0]);
-    updateColumnProperties(columnIndex, {
-      width: width,
-    });
+    const column = props.columns[columnIndex];
+    let columnSizeMap = props.columnSizeMap || {};
+    columnSizeMap = {
+      ...columnSizeMap,
+      [column.accessor]: width,
+    };
+    props.updateColumnSize(columnSizeMap);
   };
 
   const selectTableRow = (
@@ -265,15 +270,12 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     columnIndex: number,
     properties: Partial<ColumnProperties>,
   ) => {
-    const column = props.columns[columnIndex];
-    if (!column.isDerived) {
-      const primaryColumns = props.primaryColumns || [];
-      primaryColumns[columnIndex] = {
-        ...primaryColumns[columnIndex],
-        ...properties,
-      };
-      props.updatePrimaryColumnProperties([...primaryColumns]);
-    }
+    const primaryColumns = props.primaryColumns || [];
+    primaryColumns[columnIndex] = {
+      ...primaryColumns[columnIndex],
+      ...properties,
+    };
+    props.updatePrimaryColumnProperties([...primaryColumns]);
   };
 
   return (
