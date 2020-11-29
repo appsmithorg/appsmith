@@ -790,6 +790,10 @@ export const TableHeaderCell = (props: {
       <div
         {...column.getResizerProps()}
         className={`resizer ${column.isResizing ? "isResizing" : ""}`}
+        onClick={(e: React.MouseEvent<HTMLElement>) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
       />
     </div>
   );
