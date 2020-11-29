@@ -1689,7 +1689,6 @@ const VALIDATORS: Record<ValidationType, Validator> = {
         message: "",
       };
     }
-    console.log({ parsed });
     return { isValid, parsed, transformed: parsed };
   },
 };
