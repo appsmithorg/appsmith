@@ -150,6 +150,7 @@ export class DataTreeFactory {
         if (!(propertyName in widget)) {
           unInitializedDefaultProps[propertyName] = undefined;
         }
+        // TODO add dependency over here itself
       });
       dataTree[widget.widgetName] = {
         ...widget,
