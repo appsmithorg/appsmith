@@ -1476,6 +1476,60 @@ const VALIDATORS: Record<ValidationType, Validator> = {
       message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
     };
   },
+  [VALIDATION_TYPES.DEFAULT_DATE]: (
+    dateString: string,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
+    const today = moment()
+      .hour(0)
+      .minute(0)
+      .second(0)
+      .millisecond(0);
+    const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
+
+    const todayDateString = today.format(dateFormat);
+    if (dateString === undefined) {
+      return {
+        isValid: false,
+        parsed: "",
+        message:
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + props.dateFormat
+            ? props.dateFormat
+            : "",
+      };
+    }
+    const parsedCurrentDate = moment(dateString, dateFormat);
+    let isValid = parsedCurrentDate.isValid();
+    const parsedMinDate = moment(props.minDate, dateFormat);
+    const parsedMaxDate = moment(props.maxDate, dateFormat);
+
+    // checking for max/min date range
+    if (isValid) {
+      if (
+        parsedMinDate.isValid() &&
+        parsedCurrentDate.isBefore(parsedMinDate)
+      ) {
+        isValid = false;
+      }
+
+      if (
+        isValid &&
+        parsedMaxDate.isValid() &&
+        parsedCurrentDate.isAfter(parsedMaxDate)
+      ) {
+        isValid = false;
+      }
+    }
+
+    const parsed = isValid ? dateString : todayDateString;
+
+    return {
+      isValid,
+      parsed,
+      message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+    };
+  },
   [VALIDATION_TYPES.ACTION_SELECTOR]: (
     value: any,
     props: WidgetProps,
