@@ -287,7 +287,8 @@ public class DatasourceServiceTest {
                 .map(plugin -> {
                     datasource.setPluginId(plugin.getId());
                     return datasource;
-                }).flatMap(datasourceService::create)
+                })
+                .flatMap(datasourceService::create)
                 .flatMap(datasource1 -> {
                     Datasource updates = new Datasource();
                     DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();

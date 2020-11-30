@@ -56,15 +56,15 @@ public class MySqlPlugin extends BasePlugin {
     private static final String TIMESTAMP_COLUMN_TYPE_NAME = "timestamp";
 
     /**
-     Example output for COLUMNS_QUERY:
-     +------------+-----------+-------------+-------------+-------------+------------+----------------+
-     | table_name | column_id | column_name | column_type | is_nullable | COLUMN_KEY | EXTRA          |
-     +------------+-----------+-------------+-------------+-------------+------------+----------------+
-     | test       |         1 | id          | int         |           0 | PRI        | auto_increment |
-     | test       |         2 | firstname   | varchar     |           1 |            |                |
-     | test       |         3 | middlename  | varchar     |           1 |            |                |
-     | test       |         4 | lastname    | varchar     |           1 |            |                |
-     +------------+-----------+-------------+-------------+-------------+------------+----------------+
+     * Example output for COLUMNS_QUERY:
+     * +------------+-----------+-------------+-------------+-------------+------------+----------------+
+     * | table_name | column_id | column_name | column_type | is_nullable | COLUMN_KEY | EXTRA          |
+     * +------------+-----------+-------------+-------------+-------------+------------+----------------+
+     * | test       |         1 | id          | int         |           0 | PRI        | auto_increment |
+     * | test       |         2 | firstname   | varchar     |           1 |            |                |
+     * | test       |         3 | middlename  | varchar     |           1 |            |                |
+     * | test       |         4 | lastname    | varchar     |           1 |            |                |
+     * +------------+-----------+-------------+-------------+-------------+------------+----------------+
      */
     private static final String COLUMNS_QUERY = "select tab.table_name as table_name,\n" +
             "       col.ordinal_position as column_id,\n" +
@@ -83,12 +83,12 @@ public class MySqlPlugin extends BasePlugin {
             "         col.ordinal_position;";
 
     /**
-     Example output for KEYS_QUERY:
-     +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
-     | CONSTRAINT_NAME | self_schema | self_table | constraint_type | self_column | foreign_schema | foreign_table | foreign_column |
-     +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
-     | PRIMARY         | mytestdb    | test       | p               | id          | NULL           | NULL          | NULL           |
-     +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
+     * Example output for KEYS_QUERY:
+     * +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
+     * | CONSTRAINT_NAME | self_schema | self_table | constraint_type | self_column | foreign_schema | foreign_table | foreign_column |
+     * +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
+     * | PRIMARY         | mytestdb    | test       | p               | id          | NULL           | NULL          | NULL           |
+     * +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
      */
     private static final String KEYS_QUERY = "select i.constraint_name,\n" +
             "       i.TABLE_SCHEMA as self_schema,\n" +
@@ -124,18 +124,17 @@ public class MySqlPlugin extends BasePlugin {
             Iterator<ColumnMetadata> iterator = (Iterator<ColumnMetadata>) meta.getColumnMetadatas().iterator();
             Map<String, Object> processedRow = new LinkedHashMap<>();
 
-            while(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 ColumnMetadata metaData = iterator.next();
                 String columnName = metaData.getName();
                 String typeName = metaData.getJavaType().toString();
                 Object columnValue = row.get(columnName);
 
-                if(java.time.LocalDate.class.toString().equalsIgnoreCase(typeName)
+                if (java.time.LocalDate.class.toString().equalsIgnoreCase(typeName)
                         && columnValue != null) {
                     columnValue = DateTimeFormatter.ISO_DATE.format(row.get(columnName,
                             LocalDate.class));
-                }
-                else if ((java.time.LocalDateTime.class.toString().equalsIgnoreCase(typeName))
+                } else if ((java.time.LocalDateTime.class.toString().equalsIgnoreCase(typeName))
                         && columnValue != null) {
                     columnValue = DateTimeFormatter.ISO_DATE_TIME.format(
                             LocalDateTime.of(
@@ -143,17 +142,14 @@ public class MySqlPlugin extends BasePlugin {
                                     row.get(columnName, LocalDateTime.class).toLocalTime()
                             )
                     ) + "Z";
-                }
-                else if(java.time.LocalTime.class.toString().equalsIgnoreCase(typeName)
+                } else if (java.time.LocalTime.class.toString().equalsIgnoreCase(typeName)
                         && columnValue != null) {
                     columnValue = DateTimeFormatter.ISO_TIME.format(row.get(columnName,
                             LocalTime.class));
-                }
-                else if (java.time.Year.class.toString().equalsIgnoreCase(typeName)
+                } else if (java.time.Year.class.toString().equalsIgnoreCase(typeName)
                         && columnValue != null) {
                     columnValue = row.get(columnName, LocalDate.class).getYear();
-                }
-                else {
+                } else {
                     columnValue = row.get(columnName);
                 }
 
@@ -166,10 +162,10 @@ public class MySqlPlugin extends BasePlugin {
         /**
          * 1. Check the type of sql query - i.e Select ... or Insert/Update/Drop
          * 2. In case sql queries are chained together, then decide the type based on the last query. i.e In case of
-         *    query "select * from test; updated test ..." the type of query will be based on the update statement.
+         * query "select * from test; updated test ..." the type of query will be based on the update statement.
          * 3. This is used because the output returned to client is based on the type of the query. In case of a
-         *    select query rows are returned, whereas, in case of any other query the number of updated rows is
-         *    returned.
+         * select query rows are returned, whereas, in case of any other query the number of updated rows is
+         * returned.
          */
         private boolean getIsSelectQuery(String query) {
             String[] queries = query.split(";");
@@ -190,7 +186,7 @@ public class MySqlPlugin extends BasePlugin {
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
             Flux<Result> resultFlux = Flux.from(connection.createStatement(query).execute());
 
-            if(isSelectQuery) {
+            if (isSelectQuery) {
                 return resultFlux
                         .flatMap(result -> {
                             return result.map((row, meta) -> {
@@ -214,8 +210,7 @@ public class MySqlPlugin extends BasePlugin {
                             return Mono.just(result);
                         })
                         .subscribeOn(scheduler);
-            }
-            else {
+            } else {
                 return resultFlux
                         .flatMap(result -> result.getRowsUpdated())
                         .collectList()
@@ -246,59 +241,50 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return (Mono<Connection>) Mono.fromCallable(() -> {
-                try {
-                    Class.forName(JDBC_DRIVER);
-                } catch (ClassNotFoundException e) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading MySQL JDBC Driver class."));
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+
+            StringBuilder urlBuilder = new StringBuilder();
+            if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+                urlBuilder.append(datasourceConfiguration.getUrl());
+            } else {
+                urlBuilder.append("r2dbc:mysql://");
+                final List<String> hosts = new ArrayList<>();
+
+                for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                    hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L));
                 }
-              
-                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
-                com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
-              StringBuilder urlBuilder = new StringBuilder();
-              if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                  urlBuilder.append(datasourceConfiguration.getUrl());
-              } else {
-                  urlBuilder.append("r2dbc:mysql://");
-                  final List<String> hosts = new ArrayList<>();
+                urlBuilder.append(String.join(",", hosts)).append("/");
 
-                  for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                      hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L));
-                  }
+                if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
+                    urlBuilder.append(authentication.getDatabaseName());
+                }
 
-                  urlBuilder.append(String.join(",", hosts)).append("/");
-
-                  if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
-                      urlBuilder.append(authentication.getDatabaseName());
-                  }
-
-              }
-
-              urlBuilder.append("?zeroDateTimeBehavior=convertToNull");
-              final List<Property> dsProperties = datasourceConfiguration.getProperties();
-
-              if (dsProperties != null) {
-                  for (Property property : dsProperties) {
-                      if ("serverTimezone".equals(property.getKey()) && !StringUtils.isEmpty(property.getValue())) {
-                          urlBuilder.append("&serverTimezone=").append(property.getValue());
-                          break;
-                      }
-                  }
-              }
-
-              ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
-              ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
-              ob = ob.option(ConnectionFactoryOptions.USER, authentication.getUsername());
-              ob = ob.option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
-
-              return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
-                      .onErrorResume(exception -> {
-                          log.debug("Error when creating datasource.", exception);
-                          return Mono.error(Exceptions.propagate(exception));
-                      })
-                      .subscribeOn(scheduler);
             }
+
+            urlBuilder.append("?zeroDateTimeBehavior=convertToNull");
+            final List<Property> dsProperties = datasourceConfiguration.getProperties();
+
+            if (dsProperties != null) {
+                for (Property property : dsProperties) {
+                    if ("serverTimezone".equals(property.getKey()) && !StringUtils.isEmpty(property.getValue())) {
+                        urlBuilder.append("&serverTimezone=").append(property.getValue());
+                        break;
+                    }
+                }
+            }
+
+            ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
+            ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
+            ob = ob.option(ConnectionFactoryOptions.USER, authentication.getUsername());
+            ob = ob.option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
+
+            return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
+                    .onErrorResume(exception -> {
+                        log.debug("Error when creating datasource.", exception);
+                        return Mono.error(Exceptions.propagate(exception));
+                    })
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -528,11 +514,11 @@ public class MySqlPlugin extends BasePlugin {
                     .collectList()
                     .thenMany(Flux.from(connection.createStatement(KEYS_QUERY).execute()))
                     .flatMap(result -> {
-                                return result.map((row, meta) -> {
-                                    getKeyInfo(row, meta, tablesByName, keyRegistry);
+                        return result.map((row, meta) -> {
+                            getKeyInfo(row, meta, tablesByName, keyRegistry);
 
-                                    return result;
-                                });
+                            return result;
+                        });
                     })
                     .collectList()
                     .map(list -> {
