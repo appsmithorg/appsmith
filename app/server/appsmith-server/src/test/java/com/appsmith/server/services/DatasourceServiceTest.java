@@ -261,7 +261,7 @@ public class DatasourceServiceTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Datasource datasource = new Datasource();
-        datasource.setName("test db datasource");
+        datasource.setName("test db datasource1");
         datasource.setOrganizationId(orgId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Connection connection = new Connection();
