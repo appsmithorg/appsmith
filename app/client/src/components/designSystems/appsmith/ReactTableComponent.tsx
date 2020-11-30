@@ -12,7 +12,6 @@ import {
   ColumnProperties,
 } from "widgets/TableWidget";
 import { EventType } from "constants/ActionConstants";
-import produce from "immer";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -185,12 +184,12 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     const columnSizeMap = props.columnSizeMap
       ? {
           ...props.columnSizeMap,
+          [column.accessor]: width,
         }
-      : {};
-    const updatedColumnSizeMap = produce(columnSizeMap, draft => {
-      draft[column.accessor] = width;
-    });
-    props.updateColumnSize(updatedColumnSizeMap);
+      : {
+          [column.accessor]: width,
+        };
+    props.updateColumnSize(columnSizeMap);
   };
 
   const selectTableRow = (
