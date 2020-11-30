@@ -217,16 +217,25 @@ export class DataTreeEvaluator {
     const changeLocations: Array<string> = [];
     differences.forEach(d => {
       if (d.path) {
-        changeLocations.push(convertPathToString(d.path));
+        if (d.path.length > 1) {
+          changeLocations.push(convertPathToString(d.path));
+        } else {
+          /*
+            When we see a new widget has been added ( d.path.length === 1)
+            We want to add all the dependencies in the sorted order to make
+            sure all the bindings are evaluated.
+          */
+          this.sortedDependencies.forEach(dependency => {
+            if (d.path && dependency.split(".")[0] === d.path[0]) {
+              changeLocations.push(dependency);
+            }
+          });
+        }
       }
     });
 
     const newSortOrder = this.getUpdatedSortOrder(
-      [
-        ...changeLocations,
-        ...Object.keys(newDependencyMap),
-        ..._.flatten(Object.values(newDependencyMap)),
-      ],
+      changeLocations,
       this.inverseDependencyMap,
     );
     const getNeedsEvalPathsStop = performance.now();
@@ -361,22 +370,11 @@ export class DataTreeEvaluator {
   evaluateTree(
     unEvalTree: DataTree,
     sortedDependencies: Array<string>,
-    changedSortOrder?: Array<string>,
   ): DataTree {
     const tree = _.cloneDeep(unEvalTree);
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, propertyPath: string) => {
-          if (changedSortOrder) {
-            const changedSinceLastEval = changedSortOrder.includes(
-              propertyPath,
-            );
-            if (!changedSinceLastEval) {
-              const lastEvalValue = _.get(this.evalTree, propertyPath);
-              return _.set(currentTree, propertyPath, lastEvalValue);
-            }
-          }
-          console.log("Eval for", propertyPath);
           const entityName = propertyPath.split(".")[0];
           const entity: DataTreeEntity = currentTree[entityName];
           const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
