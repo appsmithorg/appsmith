@@ -48,6 +48,22 @@
               },
               {
                 "isVisible": true,
+                "label": "Label",
+                "defaultCheckedState": true,
+                "widgetName": "Checkbox1",
+                "type": "CHECKBOX_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 71.75,
+                "parentRowSpace": 38,
+                "leftColumn": 10,
+                "rightColumn": 13,
+                "topRow": 4,
+                "bottomRow": 5,
+                "parentId": "e3tq9qwta6",
+                "widgetId": "szjhneuog5"
+              },
+              {
+                "isVisible": true,
                 "widgetName": "FormButton1",
                 "text": "Submit",
                 "isDefaultClickDisabled": true,

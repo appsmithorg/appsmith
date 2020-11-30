@@ -79,5 +79,6 @@
   "onPause": ".t--property-control-onpause .t--open-dropdown-Select-Action",
   "changeZoomlevel": ".t--property-control-maxzoomlevel .bp3-button",
   "selectedZoomlevel": ".t--property-control-maxzoomlevel button span",
-  "imgWidget": "div[data-testid='styledImage']"
+  "imgWidget": "div[data-testid='styledImage']",
+  "selectTab": ".t--tab-Tab"
 }

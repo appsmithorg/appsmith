@@ -1,4 +1,5 @@
 import React from "react";
+import moment from "moment-timezone";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
@@ -13,13 +14,14 @@ import {
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
+import { DateRange } from "@blueprintjs/datetime";
 import withMeta, { WithMeta } from "./MetaHOC";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
-      defaultDate: VALIDATION_TYPES.DATE,
+      defaultDate: VALIDATION_TYPES.DEFAULT_DATE,
       timezone: VALIDATION_TYPES.TEXT,
       enableTimePicker: VALIDATION_TYPES.BOOLEAN,
       dateFormat: VALIDATION_TYPES.TEXT,
@@ -69,6 +71,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
         onDateSelected={this.onDateSelected}
         selectedDate={this.props.selectedDate}
         isLoading={this.props.isLoading}
+        minDate={this.props.minDate}
+        maxDate={this.props.maxDate}
       />
     );
   }
@@ -98,8 +102,8 @@ export interface DatePickerWidgetProps extends WidgetProps, WithMeta {
   datePickerType: DatePickerType;
   onDateSelected?: string;
   onDateRangeSelected?: string;
-  maxDate: Date;
-  minDate: Date;
+  maxDate: string;
+  minDate: string;
   isRequired?: boolean;
 }
 
