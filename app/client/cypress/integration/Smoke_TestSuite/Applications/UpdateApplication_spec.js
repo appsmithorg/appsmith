@@ -22,7 +22,7 @@ describe("Update Application", function() {
     cy.get(homePage.appMoreIcon)
       .first()
       .click({ force: true });
-    cy.get(homePage.applicationName).type(appname + "{enter}");
+    cy.get(homePage.applicationName).type(`${appname} updated` + "{enter}");
     cy.wait("@updateApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
