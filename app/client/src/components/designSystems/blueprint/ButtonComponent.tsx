@@ -10,7 +10,7 @@ import { ButtonStyle } from "widgets/ButtonWidget";
 import { Theme, darkenHover, darkenActive } from "constants/DefaultTheme";
 import _ from "lodash";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
-import useScript from "utils/hooks/useScript";
+import { useScript, ScriptStatus } from "utils/hooks/useScript";
 import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
@@ -179,7 +179,7 @@ const RecaptchaComponent = (
   return (
     <div
       onClick={(event: React.MouseEvent<HTMLElement>) => {
-        if (status === "ready") {
+        if (status === ScriptStatus.READY) {
           (window as any).grecaptcha.ready(() => {
             try {
               (window as any).grecaptcha
