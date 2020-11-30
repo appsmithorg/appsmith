@@ -1,16 +1,44 @@
 import { useState, useEffect } from "react";
 
-// Hook
-export default function useScript(src: string) {
-  // Keep track of script status ("idle", "loading", "ready", "error")
-  const [status, setStatus] = useState(src ? "loading" : "idle");
+/**
+ * Status of script tag element returned from useScript
+ */
+export enum ScriptStatus {
+  IDLE = "idle",
+  LOADING = "loading",
+  READY = "ready",
+  ERROR = "error",
+}
+
+/**
+ * Where should the script tag be added to?
+ * Defaults to body
+ */
+export enum AddScriptTo {
+  BODY = "body", // default
+  HEAD = "head",
+}
+
+/**
+ * Adds a script tag to the DOM and informs when done.
+ *
+ * @param src value of src in <script src={src}>
+ * @param where element under which the script should be added. Defaults to body.
+ *
+ * @returns Reactive variable `status`. (Check enum ScriptStatus for possible states)
+ */
+export function useScript(src: string, where = AddScriptTo.BODY): ScriptStatus {
+  // Keep track of script status
+  const [status, setStatus] = useState<ScriptStatus>(
+    src ? ScriptStatus.LOADING : ScriptStatus.IDLE,
+  );
 
   useEffect(
     () => {
       // Allow falsy src value if waiting on other data needed for
       // constructing the script URL passed to this hook.
       if (!src) {
-        setStatus("idle");
+        setStatus(ScriptStatus.IDLE);
         return;
       }
 
@@ -23,16 +51,21 @@ export default function useScript(src: string) {
         script = document.createElement("script");
         script.src = src;
         script.async = true;
-        script.setAttribute("data-status", "loading");
-        // Add script to document body
-        document.body.appendChild(script);
+        script.setAttribute("data-status", ScriptStatus.LOADING);
+        if (where === AddScriptTo.HEAD) {
+          // Add script to head
+          document.head.appendChild(script);
+        } else {
+          // Add script to document body
+          document.body.appendChild(script);
+        }
 
         // Store status in attribute on script
         // This can be read by other instances of this hook
         const setAttributeFromEvent = (event: any) => {
           script.setAttribute(
             "data-status",
-            event.type === "load" ? "ready" : "error",
+            event.type === "load" ? ScriptStatus.READY : ScriptStatus.ERROR,
           );
         };
 
@@ -47,7 +80,9 @@ export default function useScript(src: string) {
       // Note: Even if the script already exists we still need to add
       // event handlers to update the state for *this* hook instance.
       const setStateFromEvent = (event: any) => {
-        setStatus(event.type === "load" ? "ready" : "error");
+        setStatus(
+          event.type === "load" ? ScriptStatus.READY : ScriptStatus.ERROR,
+        );
       };
 
       // Add event listeners

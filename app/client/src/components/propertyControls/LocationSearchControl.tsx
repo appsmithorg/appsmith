@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 import StandaloneSearchBox from "react-google-maps/lib/components/places/StandaloneSearchBox";
 import { getAppsmithConfigs } from "configs";
+import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
 const StyledInput = styled.input`
   box-sizing: border-box;
@@ -19,20 +20,17 @@ const StyledInput = styled.input`
   color: ${props => props.theme.colors.textOnDarkBG};
 `;
 
-interface StandaloneSearchBoxProps {
-  onSearchBoxMounted: (ref: any) => void;
-  onPlacesChanged: () => void;
-}
-
 const { google } = getAppsmithConfigs();
 
 class LocationSearchControl extends BaseControl<ControlProps> {
   searchBox: any = null;
-  state: any = { title: "" };
 
-  handleChange = (ev: any) => {
-    const val = ev.target.value;
-    this.setState({ title: val });
+  clearLocation = () => {
+    this.updateProperty(this.props.propertyName, {
+      lat: -34.397,
+      long: 150.644,
+      title: "",
+    });
   };
 
   onLocationSelection = () => {
@@ -43,7 +41,6 @@ class LocationSearchControl extends BaseControl<ControlProps> {
     const long = location.lng();
     const value = { lat, long, title };
     this.updateProperty(this.props.propertyName, value);
-    this.setState({ title: title });
   };
 
   onSearchBoxMounted = (ref: SearchBox) => {
@@ -51,22 +48,13 @@ class LocationSearchControl extends BaseControl<ControlProps> {
   };
 
   render() {
-    // Todo: figure out why there's a race here.
-    if (!window.google) return null;
     return (
-      <div data-standalone-searchbox="">
-        <StandaloneSearchBox
-          ref={this.onSearchBoxMounted}
-          onPlacesChanged={this.onLocationSelection}
-        >
-          <StyledInput
-            type="text"
-            placeholder="Enter location"
-            value={this.state.title || this.props.propertyValue.title}
-            onChange={this.handleChange}
-          />
-        </StandaloneSearchBox>
-      </div>
+      <MapScriptWrapper
+        onSearchBoxMounted={this.onSearchBoxMounted}
+        onPlacesChanged={this.onLocationSelection}
+        propertyValue={this.props.propertyValue}
+        clearLocation={this.clearLocation}
+      />
     );
   }
 
@@ -74,5 +62,46 @@ class LocationSearchControl extends BaseControl<ControlProps> {
     return "LOCATION_SEARCH";
   }
 }
+
+interface MapScriptWrapperProps {
+  onSearchBoxMounted: (ref: SearchBox) => void;
+  onPlacesChanged: () => void;
+  clearLocation: () => void;
+  propertyValue: any;
+}
+
+const MapScriptWrapper = (props: MapScriptWrapperProps) => {
+  const status = useScript(
+    `https://maps.googleapis.com/maps/api/js?key=${google.apiKey}&v=3.exp&libraries=geometry,drawing,places`,
+    AddScriptTo.HEAD,
+  );
+  const [title, setTitle] = useState("");
+  return (
+    <div data-standalone-searchbox="">
+      {status === ScriptStatus.READY && (
+        <StandaloneSearchBox
+          ref={props.onSearchBoxMounted}
+          onPlacesChanged={() => {
+            props.onPlacesChanged();
+            setTitle("");
+          }}
+        >
+          <StyledInput
+            type="text"
+            placeholder="Enter location"
+            value={title || props.propertyValue.title}
+            onChange={ev => {
+              const val = ev.target.value;
+              if (val === "") {
+                props.clearLocation();
+              }
+              setTitle(val);
+            }}
+          />
+        </StandaloneSearchBox>
+      )}
+    </div>
+  );
+};
 
 export default LocationSearchControl;

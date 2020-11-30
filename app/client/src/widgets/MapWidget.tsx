@@ -38,6 +38,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       isVisible: VALIDATION_TYPES.BOOLEAN,
       enableSearch: VALIDATION_TYPES.BOOLEAN,
       enablePickLocation: VALIDATION_TYPES.BOOLEAN,
+      enableCreateMarker: VALIDATION_TYPES.BOOLEAN,
       allowZoom: VALIDATION_TYPES.BOOLEAN,
       zoomLevel: VALIDATION_TYPES.NUMBER,
       mapCenter: VALIDATION_TYPES.OBJECT,
@@ -86,19 +87,20 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
 
   onCreateMarker = (lat: number, long: number) => {
     this.disableDrag(true);
-    this.props.updateWidgetMetaProperty(
-      "selectedMarker",
-      {
-        lat,
-        long,
+    const marker = { lat, long, title: "" };
+
+    const markers = [];
+    (this.props.markers || []).forEach(m => {
+      markers.push(m);
+    });
+    markers.push(marker);
+    this.props.updateWidgetMetaProperty("markers", markers);
+    this.props.updateWidgetMetaProperty("selectedMarker", marker, {
+      dynamicString: this.props.onCreateMarker,
+      event: {
+        type: EventType.ON_CREATE_MARKER,
       },
-      {
-        dynamicString: this.props.onCreateMarker,
-        event: {
-          type: EventType.ON_CREATE_MARKER,
-        },
-      },
-    );
+    });
   };
 
   unselectMarker = () => {
@@ -148,7 +150,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             zoomLevel={this.props.zoomLevel}
             allowZoom={this.props.allowZoom}
             center={this.props.center || this.props.mapCenter || DefaultCenter}
-            enableCreateMarker
+            enableCreateMarker={this.props.enableCreateMarker}
             selectedMarker={this.props.selectedMarker}
             updateCenter={this.updateCenter}
             isDisabled={this.props.isDisabled}
