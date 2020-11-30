@@ -219,7 +219,7 @@ export class DataTreeEvaluator {
       if (d.path) {
         if (d.path.length > 1) {
           changeLocations.push(convertPathToString(d.path));
-        } else {
+        } else if (d.path.length === 1) {
           /*
             When we see a new widget has been added ( d.path.length === 1)
             We want to add all the dependencies in the sorted order to make
@@ -251,7 +251,11 @@ export class DataTreeEvaluator {
 
     // Evaluate
     const evalStart = performance.now();
-    const evaluatedTree = this.evaluateTree(withFunctions, newSortOrder);
+    const evaluatedTree = this.evaluateTree(
+      withFunctions,
+      this.sortedDependencies,
+      newSortOrder,
+    );
     const evalStop = performance.now();
     // Validate Widgets
     const validateStart = performance.now();
@@ -370,11 +374,18 @@ export class DataTreeEvaluator {
   evaluateTree(
     unEvalTree: DataTree,
     sortedDependencies: Array<string>,
+    changedDependencies?: Array<string>,
   ): DataTree {
     const tree = _.cloneDeep(unEvalTree);
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, propertyPath: string) => {
+          if (changedDependencies) {
+            if (!changedDependencies.includes(propertyPath)) {
+              const oldValue = _.get(this.evalTree, propertyPath);
+              return _.set(tree, propertyPath, oldValue);
+            }
+          }
           const entityName = propertyPath.split(".")[0];
           const entity: DataTreeEntity = currentTree[entityName];
           const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
