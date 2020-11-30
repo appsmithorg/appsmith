@@ -1,12 +1,6 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.Property;
+import com.appsmith.external.models.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -177,6 +171,23 @@ public class MySqlPluginTest {
     }
 
     @Test
+    public void testTestDatasource() {
+        /* Expect no error */
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .expectNextCount(1)
+                .verifyComplete();
+
+        /* Create bad datasource configuration and expect error */
+        dsConfig.getEndpoints().get(0).setHost("badHost");
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .expectError()
+                .verify();
+
+        /* Reset dsConfig */
+        createDatasourceConfiguration();
+    }
+
+    @Test
     public void testExecute() {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
@@ -228,21 +239,6 @@ public class MySqlPluginTest {
         dsConfig.getEndpoints().get(0).setHost(hostname);
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
         assertTrue(output.contains("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."));
-    }
-
-    /* checking that the connection is being closed after the datasourceDestroy method is being called
-     * NOTE: this test case will fail in case of a SQL Exception
-     */
-    @Test
-    public void testDatasourceDestroy() {
-
-        Mono<Connection> connectionMono = pluginExecutor.datasourceCreate(dsConfig);
-
-        StepVerifier.create(connectionMono)
-                .assertNext(connection -> {
-                    pluginExecutor.datasourceDestroy(connection);
-                })
-                .verifyComplete();
     }
 
     @Test

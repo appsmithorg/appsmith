@@ -107,6 +107,8 @@ public class MySqlPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class MySqlPluginExecutor implements PluginExecutor<Connection> {
+        private final Scheduler scheduler = Schedulers.boundedElastic();
+
         /**
          * 1. Parse the actual row objects returned by r2dbc driver for mysql statements.
          * 2. Return the row as a map {column_name -> column_value}.
@@ -172,12 +174,12 @@ public class MySqlPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
             String query = actionConfiguration.getBody().trim();
-            boolean isSelectQuery = getIsSelectQuery(query);
 
             if (query == null) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
             }
 
+            boolean isSelectQuery = getIsSelectQuery(query);
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
             Flux<Result> resultFlux = Flux.from(connection.createStatement(query).execute());
 
@@ -194,7 +196,7 @@ public class MySqlPlugin extends BasePlugin {
                             ActionExecutionResult result = new ActionExecutionResult();
                             result.setBody(objectMapper.valueToTree(rowsList));
                             result.setIsExecutionSuccess(true);
-                            log.debug("In the MySqlPlugin, got action execution result: " + result.toString());
+                            System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action execution result: " + result.toString());
                             return Mono.just(result);
                         })
                         .onErrorResume(exception -> {
@@ -205,7 +207,7 @@ public class MySqlPlugin extends BasePlugin {
                             result.setIsExecutionSuccess(false);
                             return Mono.just(result);
                         })
-                        .subscribeOn(Schedulers.elastic());
+                        .subscribeOn(scheduler);
             }
             else {
                 return resultFlux
@@ -223,6 +225,7 @@ public class MySqlPlugin extends BasePlugin {
                             result.setBody(objectMapper.valueToTree(rowsList));
                             result.setIsExecutionSuccess(true);
                             log.debug("In the MySqlPlugin, got action execution result: " + result.toString());
+                            System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action execution result: " + result.toString());
                             return Mono.just(result);
                         })
                         .onErrorResume(exception -> {
@@ -233,7 +236,7 @@ public class MySqlPlugin extends BasePlugin {
                             result.setIsExecutionSuccess(false);
                             return Mono.just(result);
                         })
-                        .subscribeOn(Schedulers.elastic());
+                        .subscribeOn(scheduler);
             }
         }
 
@@ -278,33 +281,24 @@ public class MySqlPlugin extends BasePlugin {
             ob = ob.option(ConnectionFactoryOptions.USER, authentication.getUsername());
             ob = ob.option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
 
-            try {
-                final boolean isSslEnabled = !SSLDetails.AuthType.NO_SSL
-                        .equals(configurationConnection.getSsl().getAuthType());
-                ob = ob.option(ConnectionFactoryOptions.SSL, isSslEnabled);
-            } catch (Exception e) {
-                //TODO: fix it.
-                e.printStackTrace();
-            }
-
-            //TODO: fix return exception.
             return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
                     .onErrorResume(exception -> {
                         log.debug("Error when creating datasource.", exception);
                         return Mono.error(Exceptions.propagate(exception));
                     })
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
 
         @Override
         public void datasourceDestroy(Connection connection) {
+
             if (connection != null) {
                 Mono.from(connection.close())
                         .onErrorResume(exception -> {
                             log.debug("In datasourceDestroy function error mode.", exception);
                             return Mono.empty();
                         })
-                        .subscribeOn(Schedulers.elastic())
+                        .subscribeOn(scheduler)
                         .subscribe();
             }
 
@@ -359,11 +353,11 @@ public class MySqlPlugin extends BasePlugin {
                         return Mono.from(connection.close());
                     })
                     .then(Mono.just(new DatasourceTestResult()))
-                    .subscribeOn(Schedulers.elastic())
                     .onErrorResume(error -> {
-                        log.warn("Error when testing MySQL datasource.", error);
-                        return Mono.just(new DatasourceTestResult(error.getMessage()));
-                    });
+                        log.error("Error when testing MySQL datasource.", error);
+                        return Mono.error(Exceptions.propagate(error));
+                    })
+                    .subscribeOn(scheduler);
         }
 
         /**
@@ -530,7 +524,7 @@ public class MySqlPlugin extends BasePlugin {
                                 });
                     })
                     .collectList()
-                    .flatMap(list -> {
+                    .map(list -> {
                         /* Get templates for each table and put those in. */
                         getTemplates(tablesByName);
                         structure.setTables(new ArrayList<>(tablesByName.values()));
@@ -538,14 +532,14 @@ public class MySqlPlugin extends BasePlugin {
                             table.getKeys().sort(Comparator.naturalOrder());
                         }
 
-                        return Mono.just(structure);
+                        return structure;
                     })
                     .onErrorResume(error -> {
                         log.debug("In getStructure function error mode.", error);
 
                         return Mono.error(Exceptions.propagate(error));
                     })
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
     }
 }
