@@ -44,6 +44,7 @@ import {
   isPathADynamicBinding,
   isPathADynamicTrigger,
 } from "../utils/DynamicBindingUtils";
+import { isEmptyString } from "utils/formhelpers";
 
 const ctx: Worker = self as any;
 
@@ -1686,5 +1687,60 @@ const VALIDATORS: Record<ValidationType, Validator> = {
       isValid: true,
       parsed: values,
     };
+  },
+  [VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ) => {
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+      value,
+      props,
+      dataTree,
+    );
+    if (!isValid) {
+      return {
+        isValid,
+        parsed,
+        transformed: parsed,
+        message: "",
+      };
+    }
+    const isValidProperty = (data: any) =>
+      isString(data) || isNumber(data) || isBoolean(data);
+    const isValidColumns = every(parsed, (datum: any) => {
+      const validatedResponse: {
+        isValid: boolean;
+        parsed: Record<string, unknown>;
+        message?: string;
+      } = VALIDATORS[VALIDATION_TYPES.OBJECT](datum, props, dataTree);
+      const isValidColumn = validatedResponse.isValid;
+      if (isValidColumn) {
+        for (const key in validatedResponse.parsed) {
+          const columnProperty = validatedResponse.parsed[key];
+          let isValidColumnProperty = true;
+          if (Array.isArray(columnProperty)) {
+            isValidColumnProperty = every(columnProperty, (data: any) => {
+              return isValidProperty(data);
+            });
+          } else if (!isObject(columnProperty)) {
+            isValidColumnProperty = isValidProperty(columnProperty);
+          }
+          if (!isValidColumnProperty) {
+            validatedResponse.parsed[key] = "";
+          }
+        }
+      }
+      return isValidColumn;
+    });
+    if (!isValidColumns) {
+      return {
+        isValid: isValidColumns,
+        parsed: [],
+        transformed: parsed,
+        message: "",
+      };
+    }
+    return { isValid, parsed, transformed: parsed };
   },
 };

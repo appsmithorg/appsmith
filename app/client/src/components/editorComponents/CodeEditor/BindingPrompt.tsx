@@ -2,18 +2,16 @@ import React, { useRef } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 
-const Wrapper = styled.span<{ visible: boolean; bottomOffset: number }>`
+const Wrapper = styled.span<{ bottomOffset: number }>`
   padding: 8px;
   font-size: 12px;
   color: ${Colors.GRAY_CHATEAU};
   border-radius: 2px;
   background-color: ${Colors.BLUE_CHARCOAL};
-  position: absolute;
-  bottom: ${props => -props.bottomOffset}px;
   width: 100%;
-  line-height: 13px;
-  visibility: ${props => (props.visible ? "visible" : "hidden")};
-  z-index: 1;
+  line-height: 16px;
+  display: inline-block;
+  width: 235px;
 `;
 
 const CurlyBraces = styled.span`
@@ -25,7 +23,6 @@ const CurlyBraces = styled.span`
 `;
 
 const BindingPrompt = (props: {
-  isOpen: boolean;
   promptMessage?: React.ReactNode | string;
 }): JSX.Element => {
   const promptRef = useRef<HTMLDivElement>(null);
@@ -40,7 +37,6 @@ const BindingPrompt = (props: {
     <Wrapper
       className="t--no-binding-prompt"
       ref={promptRef}
-      visible={props.isOpen}
       bottomOffset={bottomOffset}
     >
       {props.promptMessage ? (

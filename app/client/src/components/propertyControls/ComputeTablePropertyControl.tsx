@@ -87,16 +87,17 @@ class ComputeTablePropertyControl extends BaseControl<
       validationMessage,
       defaultValue,
     } = this.props;
+    const widgetId = this.props.widgetProperties.widgetName;
     const value =
       propertyValue &&
-      propertyValue.includes(
-        `{{${this.props.widgetProperties.widgetName}.tableData.map((currentRow) => `,
-      )
-        ? `{{${propertyValue.substring(
-            `{{${this.props.widgetProperties.widgetName}.tableData.map((currentRow) => `
-              .length,
-            propertyValue.length - 3,
-          )}}}`
+      propertyValue.includes(`{{${widgetId}.tableData.map((currentRow) => `)
+        ? this.getInputComputedValue(
+            `${propertyValue.substring(
+              `{{${widgetId}.tableData.map((currentRow) => `.length,
+              propertyValue.length - 3,
+            )}`,
+            widgetId,
+          )
         : propertyValue
         ? propertyValue
         : defaultValue;
@@ -124,6 +125,33 @@ class ComputeTablePropertyControl extends BaseControl<
     );
   }
 
+  getInputComputedValue = (value: string, tableId: string) => {
+    const regex = /(\(currentRow.[\w\d]*\))/g;
+    const args = [...value.matchAll(regex)];
+    let output = value;
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i][0];
+      const trimmedValue = "{{" + arg.substring(1, arg.length - 1) + "}}";
+      output = output.replace(arg, trimmedValue);
+    }
+    return output;
+  };
+
+  getComputedValue = (value: string, tableId: string) => {
+    const regex = /({{currentRow.[\w\d]*}})/g;
+    const args = [...value.matchAll(regex)];
+    let output = value;
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i][0];
+      const trimmedValue = "(" + arg.substring(2, arg.length - 2) + ")";
+      output = output.replace(arg, trimmedValue);
+    }
+    if (args.length) {
+      return `{{${tableId}.tableData.map((currentRow) => ${output})}}`;
+    }
+    return output;
+  };
+
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
     let value = "";
     if (typeof event !== "string") {
@@ -132,15 +160,11 @@ class ComputeTablePropertyControl extends BaseControl<
       value = event;
     }
     if (value && isDynamicValue(value)) {
-      const trimmedValue = value.substring(2, value.length - 2);
-      if (trimmedValue) {
-        this.updateProperty(
-          this.props.propertyName,
-          `{{${this.props.widgetProperties.widgetName}.tableData.map((currentRow) => ${trimmedValue})}}`,
-        );
-      } else {
-        this.updateProperty(this.props.propertyName, "");
-      }
+      const output = this.getComputedValue(
+        value,
+        this.props.widgetProperties.widgetName,
+      );
+      this.updateProperty(this.props.propertyName, output);
     } else {
       this.updateProperty(this.props.propertyName, value);
     }

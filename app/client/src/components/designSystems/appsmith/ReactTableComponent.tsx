@@ -4,7 +4,6 @@ import React, { useEffect } from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import Table from "components/designSystems/appsmith/Table";
 import { debounce } from "lodash";
-import { getMenuOptions } from "components/designSystems/appsmith/TableUtilities";
 import {
   ColumnTypes,
   CompactMode,
@@ -73,6 +72,7 @@ interface ReactTableComponentProps {
     };
   };
   columnSizeMap?: { [key: string]: number };
+  updateColumnSize: (columnSizeMap?: { [key: string]: number }) => void;
   updateColumnType: (columnTypeMap: {
     [key: string]: { type: string; format: string };
   }) => void;
@@ -149,10 +149,9 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
         header.parentElement.className = "th header-reorder";
         if (i !== dragged && dragged !== -1) {
           e.preventDefault();
-          let columnOrder = props.columnOrder;
-          if (columnOrder === undefined) {
-            columnOrder = props.columns.map(item => item.accessor);
-          }
+          const columnOrder = props.columnOrder
+            ? [...props.columnOrder]
+            : props.columns.map(item => item.accessor);
           const draggedColumn = props.columns[dragged].accessor;
           columnOrder.splice(dragged, 1);
           columnOrder.splice(i, 0, draggedColumn);
@@ -163,72 +162,6 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       };
     });
   });
-
-  const getColumnMenu = (columnIndex: number) => {
-    const column = props.columns[columnIndex];
-    const columnId = column.accessor;
-    const columnType = column.metaProperties?.type || "";
-    const format = column.metaProperties?.format || "";
-    const isColumnHidden = !!column.isHidden;
-    const inputFormat = column.metaProperties?.inputFormat || "";
-    const columnMenuOptions: ColumnMenuOptionProps[] = getMenuOptions({
-      columnAccessor: columnId,
-      isColumnHidden,
-      columnType,
-      format,
-      inputFormat,
-      hideColumn: hideColumn,
-      updateColumnType: updateColumnType,
-      handleUpdateCurrencySymbol: handleUpdateCurrencySymbol,
-      handleDateFormatUpdate: handleDateFormatUpdate,
-    });
-    return columnMenuOptions;
-  };
-
-  const hideColumn = (columnIndex: number, isColumnHidden: boolean) => {
-    const column = props.columns[columnIndex];
-    if (!column.isDerived) {
-      const primaryColumns = props.primaryColumns || [];
-      primaryColumns[columnIndex].isVisible = isColumnHidden;
-      props.updatePrimaryColumnProperties([...primaryColumns]);
-    }
-  };
-
-  const updateColumnType = (columnIndex: number, columnType: string) => {
-    updateColumnProperties(columnIndex, {
-      columnType: columnType,
-      inputFormat: undefined,
-      outputFormat: undefined,
-    });
-  };
-
-  const handleColumnNameUpdate = (columnIndex: number, columnName: string) => {
-    updateColumnProperties(columnIndex, {
-      label: columnName,
-    });
-  };
-
-  const handleUpdateCurrencySymbol = (
-    columnIndex: number,
-    currencySymbol: string,
-  ) => {
-    updateColumnProperties(columnIndex, {
-      columnType: "currency",
-      outputFormat: currencySymbol,
-    });
-  };
-
-  const handleDateFormatUpdate = (
-    columnIndex: number,
-    dateFormat: string,
-    dateInputFormat?: string,
-  ) => {
-    updateColumnProperties(columnIndex, {
-      columnType: "date",
-      outputFormat: dateFormat,
-      inputFormat: dateInputFormat,
-    });
-  };
 
   const sortTableColumn = (columnIndex: number, asc: boolean) => {
     if (columnIndex === -1) {
@@ -247,9 +180,16 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
 
   const handleResizeColumn = (columnIndex: number, columnWidth: string) => {
     const width = Number(columnWidth.split("px")[0]);
-    updateColumnProperties(columnIndex, {
-      width: width,
-    });
+    const column = props.columns[columnIndex];
+    const columnSizeMap = props.columnSizeMap
+      ? {
+          ...props.columnSizeMap,
+          [column.accessor]: width,
+        }
+      : {
+          [column.accessor]: width,
+        };
+    props.updateColumnSize(columnSizeMap);
   };
 
   const selectTableRow = (
@@ -258,21 +198,6 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   ) => {
     if (!isSelected || !!props.multiRowSelection) {
       props.onRowClick(row.original, row.index);
-    }
-  };
-
-  const updateColumnProperties = (
-    columnIndex: number,
-    properties: Partial<ColumnProperties>,
-  ) => {
-    const column = props.columns[columnIndex];
-    if (!column.isDerived) {
-      const primaryColumns = props.primaryColumns || [];
-      primaryColumns[columnIndex] = {
-        ...primaryColumns[columnIndex],
-        ...properties,
-      };
-      props.updatePrimaryColumnProperties([...primaryColumns]);
     }
   };
 
@@ -290,8 +215,6 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       updateHiddenColumns={props.updateHiddenColumns}
       data={props.tableData}
       editMode={props.editMode}
-      getColumnMenu={getColumnMenu}
-      handleColumnNameUpdate={handleColumnNameUpdate}
       handleResizeColumn={debounce(handleResizeColumn, 300)}
       sortTableColumn={sortTableColumn}
       selectTableRow={selectTableRow}

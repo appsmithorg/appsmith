@@ -126,10 +126,14 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
     if (columns.length === 0) {
       return <EmptyDataState />;
     }
-    const columnOrder: string[] = new Array(columns.length);
-    for (let i = 0; i < columns.length; i++) {
-      const item: Record<string, unknown> = columns[i];
-      columnOrder[item.index as number] = item.id as string;
+    let columnOrder: string[] = new Array(columns.length);
+    if (this.props.widgetProperties.columnOrder) {
+      columnOrder = this.props.widgetProperties.columnOrder;
+    } else {
+      for (let i = 0; i < columns.length; i++) {
+        const item: Record<string, unknown> = columns[i];
+        columnOrder[item.index as number] = item.id as string;
+      }
     }
     const reorderdColumns: Array<Record<string, any>> = reorderColumns(
       columns,
@@ -188,21 +192,22 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
     const column: ColumnProperties = columns[index];
     this.props.openNextPanel(column);
   };
-
+  //Used to reorder columns
   updateItems = (items: Array<Record<string, unknown>>) => {
     const indexedColumns: string[] = new Array(items.length);
     items.map((item: Record<string, unknown>, index) => {
       indexedColumns[index] = item.id as string;
     });
-    const columns: ColumnProperties[] = [...(this.props.propertyValue || [])];
-    const updatedColumns = columns.map((column: ColumnProperties) => {
-      const columnIndex = indexedColumns.indexOf(column.id);
-      return {
-        ...column,
-        index: columnIndex,
-      };
-    });
-    this.updateProperty(this.props.propertyName, updatedColumns);
+    this.updateProperty("columnOrder", indexedColumns);
+    // const columns: ColumnProperties[] = [...(this.props.propertyValue || [])];
+    // const updatedColumns = columns.map((column: ColumnProperties) => {
+    //   const columnIndex = indexedColumns.indexOf(column.id);
+    //   return {
+    //     ...column,
+    //     index: columnIndex,
+    //   };
+    // });
+    // this.updateProperty(this.props.propertyName, updatedColumns);
   };
 
   toggleVisibility = (index: number) => {

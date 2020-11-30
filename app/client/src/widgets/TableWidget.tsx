@@ -122,7 +122,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       label: VALIDATION_TYPES.TEXT,
       searchText: VALIDATION_TYPES.TEXT,
       defaultSearchText: VALIDATION_TYPES.TEXT,
-      primaryColumns: VALIDATION_TYPES.ARRAY,
+      primaryColumns: VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY,
       defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
     };
   }
@@ -614,23 +614,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
-    const { primaryColumns, sortedColumn } = this.props;
+    const {
+      primaryColumns,
+      sortedColumn,
+      columnOrder,
+      columnSizeMap,
+    } = this.props;
     let allColumns = [...(primaryColumns || [])];
     const sortColumn = sortedColumn?.column;
     const sortOrder = sortedColumn?.asc;
-    const columnOrder: string[] = new Array(allColumns.length);
-    for (let i = 0; i < allColumns.length; i++) {
-      const item: ColumnProperties = allColumns[i];
-      columnOrder[item.index] = item.id;
+    if (columnOrder) {
+      allColumns = reorderColumns(allColumns, columnOrder);
     }
-    allColumns = reorderColumns(allColumns, columnOrder);
     for (let index = 0; index < allColumns.length; index++) {
       const columnProperties = allColumns[index];
       const isHidden = !columnProperties.isVisible;
+      const accessor = columnProperties.id;
       const columnData = {
         Header: columnProperties.label,
-        accessor: columnProperties.id,
-        width: columnProperties.width,
+        accessor: accessor,
+        width: columnSizeMap?.[accessor] || columnProperties.width,
         minWidth: 60,
         draggable: true,
         isHidden: false,
@@ -971,6 +974,31 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         );
       }
     }
+    if (
+      JSON.stringify(this.props.primaryColumns) !==
+      JSON.stringify(prevProps.primaryColumns)
+    ) {
+      const filteredTableData = this.filterTableData();
+      this.props.updateWidgetMetaProperty(
+        "filteredTableData",
+        filteredTableData,
+      );
+      if (!this.props.multiRowSelection) {
+        this.props.updateWidgetMetaProperty(
+          "selectedRow",
+          this.getSelectedRow(filteredTableData),
+        );
+      } else {
+        this.props.updateWidgetMetaProperty(
+          "selectedRows",
+          filteredTableData.filter(
+            (item: Record<string, unknown>, i: number) => {
+              return this.props.selectedRowIndices.includes(i);
+            },
+          ),
+        );
+      }
+    }
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
       if (this.props.multiRowSelection) {
         const selectedRowIndices = this.props.selectedRowIndex
@@ -1097,6 +1125,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           hiddenColumns={hiddenColumns}
           columnActions={this.props.columnActions}
           columnOrder={this.props.columnOrder}
+          columnSizeMap={this.props.columnSizeMap}
           pageSize={pageSize}
           onCommandClick={this.onCommandClick}
           selectedRowIndex={
@@ -1116,6 +1145,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             columnProperties: ColumnProperties[],
           ) => {
             super.updateWidgetProperty("primaryColumns", columnProperties);
+          }}
+          updateColumnSize={(columnSizeMap: { [key: string]: number }) => {
+            super.updateWidgetProperty("columnSizeMap", columnSizeMap);
           }}
           updatePageNo={this.updatePageNumber}
           updateHiddenColumns={(hiddenColumns?: string[]) => {
