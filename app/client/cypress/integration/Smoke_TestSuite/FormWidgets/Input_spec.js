@@ -26,6 +26,7 @@ describe("Input Widget Functionality", function() {
       .should("not.contain", this.data.defaultdata);
 
     cy.addDsl(dsl);
+    cy.reload();
   });
 
   it("Input Widget Functionality", function() {
