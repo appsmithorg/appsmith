@@ -1,21 +1,17 @@
 import React, { useState } from "react";
 import {
-  Icon,
   InputGroup,
-  Tag,
   MenuItem,
   Classes,
   Button as BButton,
 } from "@blueprintjs/core";
 import {
-  MenuColumnWrapper,
   CellWrapper,
   ActionWrapper,
   SortIconWrapper,
-  MenuCategoryWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import { ColumnMenuOptionProps } from "components/designSystems/appsmith/ReactTableComponent";
+
 import {
   ReactTableColumnProps,
   ColumnTypes,
@@ -31,7 +27,6 @@ import { isString, isEmpty, findIndex } from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
-import TableColumnMenuPopup from "./TableColumnMenu";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
@@ -59,416 +54,6 @@ interface MenuOptionProps {
     dateInputFormat?: string,
   ) => void;
 }
-
-export const getMenuOptions = (props: MenuOptionProps) => {
-  const basicOptions: ColumnMenuOptionProps[] = [
-    {
-      content: "Rename a Column",
-      closeOnClick: true,
-      id: "rename_column",
-      editColumnName: true,
-    },
-    {
-      content: props.isColumnHidden ? "Show Column" : "Hide Column",
-      closeOnClick: true,
-      id: "hide_column",
-      onClick: (columnIndex: number) => {
-        props.hideColumn(columnIndex, props.isColumnHidden);
-      },
-    },
-  ];
-  if (props.columnAccessor && props.columnAccessor === "actions") {
-    return basicOptions;
-  }
-  const columnMenuOptions: ColumnMenuOptionProps[] = [
-    ...basicOptions,
-    {
-      content: "Select a Data Type",
-      id: "change_column_type",
-      category: true,
-    },
-    {
-      content: (
-        <MenuColumnWrapper selected={props.columnType === ColumnTypes.IMAGE}>
-          <Icon
-            icon="media"
-            iconSize={12}
-            color={
-              props.columnType === ColumnTypes.IMAGE
-                ? Colors.WHITE
-                : Colors.OXFORD_BLUE
-            }
-          />
-          <div className="title">Image</div>
-        </MenuColumnWrapper>
-      ),
-      closeOnClick: true,
-      isSelected: props.columnType === ColumnTypes.IMAGE,
-      onClick: (columnIndex: number, isSelected: boolean) => {
-        if (isSelected) {
-          props.updateColumnType(columnIndex, "");
-        } else {
-          props.updateColumnType(columnIndex, ColumnTypes.IMAGE);
-        }
-      },
-    },
-    {
-      content: (
-        <MenuColumnWrapper selected={props.columnType === ColumnTypes.VIDEO}>
-          <Icon
-            icon="video"
-            iconSize={12}
-            color={
-              props.columnType === ColumnTypes.VIDEO
-                ? Colors.WHITE
-                : Colors.OXFORD_BLUE
-            }
-          />
-          <div className="title">Video</div>
-        </MenuColumnWrapper>
-      ),
-      isSelected: props.columnType === ColumnTypes.VIDEO,
-      closeOnClick: true,
-      onClick: (columnIndex: number, isSelected: boolean) => {
-        if (isSelected) {
-          props.updateColumnType(columnIndex, "");
-        } else {
-          props.updateColumnType(columnIndex, ColumnTypes.VIDEO);
-        }
-      },
-    },
-    {
-      content: (
-        <MenuColumnWrapper selected={props.columnType === ColumnTypes.TEXT}>
-          <Icon
-            icon="label"
-            iconSize={12}
-            color={
-              props.columnType === ColumnTypes.TEXT
-                ? Colors.WHITE
-                : Colors.OXFORD_BLUE
-            }
-          />
-          <div className="title">Text</div>
-        </MenuColumnWrapper>
-      ),
-      closeOnClick: true,
-      isSelected: props.columnType === ColumnTypes.TEXT,
-      onClick: (columnIndex: number, isSelected: boolean) => {
-        if (isSelected) {
-          props.updateColumnType(columnIndex, "");
-        } else {
-          props.updateColumnType(columnIndex, ColumnTypes.TEXT);
-        }
-      },
-    },
-    {
-      content: (
-        <MenuColumnWrapper selected={props.columnType === ColumnTypes.CURRENCY}>
-          <Icon
-            icon="dollar"
-            iconSize={12}
-            color={
-              props.columnType === ColumnTypes.CURRENCY
-                ? Colors.WHITE
-                : Colors.OXFORD_BLUE
-            }
-          />
-          <div className="title">Currency</div>
-          <Icon
-            className="sub-menu"
-            icon="chevron-right"
-            iconSize={16}
-            color={
-              props.columnType === ColumnTypes.CURRENCY
-                ? Colors.WHITE
-                : Colors.OXFORD_BLUE
-            }
-          />
-        </MenuColumnWrapper>
-      ),
-      closeOnClick: false,
-      isSelected: props.columnType === ColumnTypes.CURRENCY,
-      options: [
-        {
-          content: "USD - $",
-          isSelected: props.format === "$",
-          closeOnClick: true,
-          onClick: (columnIndex: number) => {
-            props.handleUpdateCurrencySymbol(columnIndex, "$");
-          },
-        },
-        {
-          content: "INR - ₹",
-          isSelected: props.format === "₹",
-          closeOnClick: true,
-          onClick: (columnIndex: number) => {
-            props.handleUpdateCurrencySymbol(columnIndex, "₹");
-          },
-        },
-        {
-          content: "GBP - £",
-          isSelected: props.format === "£",
-          closeOnClick: true,
-          onClick: (columnIndex: number) => {
-            props.handleUpdateCurrencySymbol(columnIndex, "£");
-          },
-        },
-        {
-          content: "AUD - A$",
-          isSelected: props.format === "A$",
-          closeOnClick: true,
-          onClick: (columnIndex: number) => {
-            props.handleUpdateCurrencySymbol(columnIndex, "A$");
-          },
-        },
-        {
-          content: "EUR - €",
-          isSelected: props.format === "€",
-          closeOnClick: true,
-          onClick: (columnIndex: number) => {
-            props.handleUpdateCurrencySymbol(columnIndex, "€");
-          },
-        },
-        {
-          content: "SGD - S$",
-          isSelected: props.format === "S$",
-          closeOnClick: true,
-          onClick: (columnIndex: number) => {
-            props.handleUpdateCurrencySymbol(columnIndex, "S$");
-          },
-        },
-        {
-          content: "CAD - C$",
-          isSelected: props.format === "C$",
-          closeOnClick: true,
-          onClick: (columnIndex: number) => {
-            props.handleUpdateCurrencySymbol(columnIndex, "C$");
-          },
-        },
-      ],
-    },
-    {
-      content: (
-        <MenuColumnWrapper selected={props.columnType === ColumnTypes.DATE}>
-          <Icon
-            icon="calendar"
-            iconSize={12}
-            color={
-              props.columnType === ColumnTypes.DATE
-                ? Colors.WHITE
-                : Colors.OXFORD_BLUE
-            }
-          />
-          <div className="title">Date</div>
-          <Icon
-            className="sub-menu"
-            icon="chevron-right"
-            iconSize={16}
-            color={
-              props.columnType === ColumnTypes.DATE
-                ? Colors.WHITE
-                : Colors.OXFORD_BLUE
-            }
-          />
-        </MenuColumnWrapper>
-      ),
-      closeOnClick: false,
-      isSelected: props.columnType === ColumnTypes.DATE,
-      options: [
-        {
-          content: (
-            <MenuCategoryWrapper>
-              <div>Date Input Format</div>
-              {props.inputFormat && <Tag>Clear</Tag>}
-            </MenuCategoryWrapper>
-          ),
-          category: true,
-          closeOnClick: false,
-          onClick: (columnIndex: number) => {
-            props.updateColumnType(columnIndex, ColumnTypes.TEXT);
-          },
-          id: "date_input",
-        },
-        {
-          content: "UNIX timestamp (s)",
-          isSelected: props.inputFormat === "Epoch",
-          closeOnClick: false,
-          onClick: (columnIndex: number) => {
-            props.handleDateFormatUpdate(
-              columnIndex,
-              props.format || "",
-              "Epoch",
-            );
-          },
-        },
-        {
-          content: "UNIX timestamp (ms)",
-          isSelected: props.inputFormat === "Milliseconds",
-          closeOnClick: false,
-          onClick: (columnIndex: number) => {
-            props.handleDateFormatUpdate(
-              columnIndex,
-              props.format || "",
-              "Milliseconds",
-            );
-          },
-        },
-        {
-          content: "YYYY-MM-DD",
-          isSelected: props.inputFormat === "YYYY-MM-DD",
-          closeOnClick: false,
-          onClick: (columnIndex: number) => {
-            props.handleDateFormatUpdate(
-              columnIndex,
-              props.format || "",
-              "YYYY-MM-DD",
-            );
-          },
-        },
-        {
-          content: "YYYY-MM-DDTHH:mm:ss",
-          isSelected: props.inputFormat === "YYYY-MM-DDTHH:mm:ss",
-          closeOnClick: false,
-          onClick: (columnIndex: number) => {
-            props.handleDateFormatUpdate(
-              columnIndex,
-              props.format || "",
-              "YYYY-MM-DDTHH:mm:ss",
-            );
-          },
-        },
-        {
-          content: "YYYY-MM-DD hh:mm:ss",
-          isSelected: props.inputFormat === "YYYY-MM-DD hh:mm:ss",
-          closeOnClick: false,
-          onClick: (columnIndex: number) => {
-            props.handleDateFormatUpdate(
-              columnIndex,
-              props.format || "",
-              "YYYY-MM-DD hh:mm:ss",
-            );
-          },
-        },
-        {
-          content: (
-            <MenuCategoryWrapper>
-              <div>Date Output Format</div>
-            </MenuCategoryWrapper>
-          ),
-          closeOnClick: false,
-          category: true,
-          onClick: (columnIndex: number) => {
-            props.handleDateFormatUpdate(
-              columnIndex,
-              "",
-              props.inputFormat || "",
-            );
-          },
-        },
-        {
-          content: "Same as Input",
-          isSelected: props.format === "SAME_AS_INPUT",
-          closeOnClick: false,
-          onClick: (columnIndex: number) => {
-            props.handleDateFormatUpdate(
-              columnIndex,
-              "SAME_AS_INPUT",
-              props.inputFormat || "",
-            );
-          },
-        },
-        {
-          content: "DD-MM-YYYY HH:mm",
-          isSelected: props.format === "DD-MM-YYYY HH:mm",
-          closeOnClick: false,
-          onClick: (columnIndex: number) => {
-            props.handleDateFormatUpdate(
-              columnIndex,
-              "DD-MM-YYYY HH:mm",
-              props.inputFormat || "",
-            );
-          },
-        },
-        {
-          content: "DD-MM-YYYY",
-          isSelected: props.format === "DD-MM-YYYY",
-          closeOnClick: false,
-          onClick: (columnIndex: number) => {
-            props.handleDateFormatUpdate(
-              columnIndex,
-              "DD-MM-YYYY",
-              props.inputFormat || "",
-            );
-          },
-        },
-        {
-          content: "Do MMM YYYY",
-          isSelected: props.format === "Do MMM YYYY",
-          closeOnClick: false,
-          onClick: (columnIndex: number) => {
-            props.handleDateFormatUpdate(
-              columnIndex,
-              "Do MMM YYYY",
-              props.inputFormat || "",
-            );
-          },
-        },
-      ],
-    },
-    {
-      content: (
-        <MenuColumnWrapper selected={props.columnType === ColumnTypes.TIME}>
-          <Icon
-            icon="time"
-            iconSize={12}
-            color={
-              props.columnType === ColumnTypes.TIME
-                ? Colors.WHITE
-                : Colors.OXFORD_BLUE
-            }
-          />
-          <div className="title">Time</div>
-        </MenuColumnWrapper>
-      ),
-      closeOnClick: true,
-      isSelected: props.columnType === ColumnTypes.TIME,
-      onClick: (columnIndex: number, isSelected: boolean) => {
-        if (isSelected) {
-          props.updateColumnType(columnIndex, "");
-        } else {
-          props.updateColumnType(columnIndex, ColumnTypes.TIME);
-        }
-      },
-    },
-    {
-      content: (
-        <MenuColumnWrapper selected={props.columnType === ColumnTypes.NUMBER}>
-          <Icon
-            icon="numerical"
-            iconSize={12}
-            color={
-              props.columnType === ColumnTypes.NUMBER
-                ? Colors.WHITE
-                : Colors.OXFORD_BLUE
-            }
-          />
-          <div className="title">Number</div>
-        </MenuColumnWrapper>
-      ),
-      closeOnClick: true,
-      isSelected: props.columnType === ColumnTypes.NUMBER,
-      onClick: (columnIndex: number, isSelected: boolean) => {
-        if (isSelected) {
-          props.updateColumnType(columnIndex, "");
-        } else {
-          props.updateColumnType(columnIndex, ColumnTypes.NUMBER);
-        }
-      },
-    },
-  ];
-  return columnMenuOptions;
-};
 
 export const renderCell = (
   value: any,
@@ -714,19 +299,11 @@ export const TableHeaderCell = (props: {
   columnIndex: number;
   isHidden: boolean;
   isAscOrder?: boolean;
-  editMode: boolean;
-  handleColumnNameUpdate: (columnIndex: number, name: string) => void;
-  getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: (columnIndex: number, columnWidth: string) => void;
   column: any;
 }) => {
   const { column } = props;
-  const [renameColumn, toggleRenameColumn] = React.useState(false);
-  const handleSaveColumnName = (columnIndex: number, columName: string) => {
-    props.handleColumnNameUpdate(columnIndex, columName);
-    toggleRenameColumn(false);
-  };
   const handleSortColumn = () => {
     let columnIndex = props.columnIndex;
     if (props.isAscOrder === true) {
@@ -753,43 +330,24 @@ export const TableHeaderCell = (props: {
           <SortIcon height={16} width={16} />
         </SortIconWrapper>
       ) : null}
-      {renameColumn && (
-        <RenameColumn
-          value={props.columnName}
-          handleSave={handleSaveColumnName}
-          columnIndex={props.columnIndex}
-        />
-      )}
-      {!renameColumn && (
-        <div
-          className={
-            !props.isHidden
-              ? `draggable-header ${
-                  props.isAscOrder !== undefined ? "sorted" : ""
-                }`
-              : "hidden-header"
-          }
-        >
-          {column.render("Header")}
-        </div>
-      )}
-      {props.editMode && (
-        <div
-          className="column-menu"
-          onClick={(event: React.MouseEvent<HTMLElement>) => {
-            event.stopPropagation();
-          }}
-        >
-          <TableColumnMenuPopup
-            getColumnMenu={props.getColumnMenu}
-            columnIndex={props.columnIndex}
-            editColumnName={() => toggleRenameColumn(true)}
-          />
-        </div>
-      )}
+      <div
+        className={
+          !props.isHidden
+            ? `draggable-header ${
+                props.isAscOrder !== undefined ? "sorted" : ""
+              }`
+            : "hidden-header"
+        }
+      >
+        {column.render("Header")}
+      </div>
       <div
         {...column.getResizerProps()}
         className={`resizer ${column.isResizing ? "isResizing" : ""}`}
+        onClick={(e: React.MouseEvent<HTMLElement>) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
       />
     </div>
   );

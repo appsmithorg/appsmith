@@ -931,7 +931,6 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
-  // checking valid widget name
   cy.get(commonlocators.editWidgetName)
     .click({ force: true })
     .type(text)
@@ -1219,6 +1218,38 @@ Cypress.Commands.add("enterActionValue", value => {
       cy.get(".CodeMirror textarea")
         .last()
         .should("have.value", value);
+    });
+});
+
+Cypress.Commands.add("enterNavigatePageName", value => {
+  cy.get("ul.tree")
+    .children()
+    .first()
+    .within(() => {
+      cy.get(".CodeMirror textarea")
+        .first()
+        .focus()
+        .type("{ctrl}{shift}{downarrow}")
+        .then($cm => {
+          if ($cm.val() !== "") {
+            cy.get(".CodeMirror textarea")
+              .first()
+              .clear({
+                force: true,
+              });
+          }
+          cy.get(".CodeMirror textarea")
+            .first()
+            .type(value, {
+              force: true,
+              parseSpecialCharSequences: false,
+            });
+          cy.wait(200);
+          cy.get(".CodeMirror textarea")
+            .first()
+            .should("have.value", value);
+        });
+      cy.root();
     });
 });
 

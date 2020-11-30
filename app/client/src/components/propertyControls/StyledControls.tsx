@@ -11,7 +11,7 @@ import {
 } from "@blueprintjs/core";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { ContainerOrientation } from "constants/WidgetConstants";
-import { DateInput } from "@blueprintjs/datetime";
+import { DateInput, DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
 import { Skin, createGlobalStyle } from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
@@ -283,6 +283,14 @@ export const StyledInputGroup = styled(InputGroup)`
 `;
 
 export const StyledDatePicker = styled(DateInput)`
+  > input {
+    color: ${props => props.theme.colors.textOnDarkBG};
+    background: ${props => props.theme.colors.paneInputBG};
+    border: 1px solid green;
+  }
+`;
+
+export const StyledDateRangePicker = styled(DateRangeInput)`
   > input {
     color: ${props => props.theme.colors.textOnDarkBG};
     background: ${props => props.theme.colors.paneInputBG};

@@ -89,6 +89,10 @@ docker run -p 127.0.0.1:6379:6379 --name appsmith-redis redis
 
 When using this command, the value of `APPSMITH_REDIS_URI` should be set to `redis://localhost:6379`.
 
+## Seting up IntelliJ IDE
+
+To run the project from within the IDE, you will need to make use of the run configuration that is part of the repository. The run configuration uses the [EnvFile](https://plugins.jetbrains.com/plugin/7861-envfile) plugin to include environment variables in the path. Any and all tests can be run within the IDE by cloning this run configuration.
+
 ## Need Assistance
 - If you are unable to resolve any issue while doing the setup, please initiate a Github discussion or send an email to support@appsmith.com. We'll be happy to help you.
 - In case you notice any discrepancy, please raise an issue on Github and/or send an email to support@appsmith.com.

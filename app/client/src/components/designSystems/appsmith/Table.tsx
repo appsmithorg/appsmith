@@ -35,8 +35,6 @@ interface TableProps {
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
   data: Array<Record<string, unknown>>;
   editMode: boolean;
-  getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
-  handleColumnNameUpdate: (columnIndex: number, columnName: string) => void;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: (columnIndex: number, columnWidth: string) => void;
   selectTableRow: (
@@ -170,9 +168,6 @@ export const Table = (props: TableProps) => {
                       columnName={column.Header}
                       columnIndex={columnIndex}
                       isHidden={column.isHidden}
-                      editMode={props.editMode}
-                      handleColumnNameUpdate={props.handleColumnNameUpdate}
-                      getColumnMenu={props.getColumnMenu}
                       handleResizeColumn={props.handleResizeColumn}
                       sortTableColumn={props.sortTableColumn}
                       isAscOrder={column.isAscOrder}

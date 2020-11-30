@@ -44,6 +44,7 @@ import {
   isPathADynamicBinding,
   isPathADynamicTrigger,
 } from "../utils/DynamicBindingUtils";
+import { isEmptyString } from "utils/formhelpers";
 
 const ctx: Worker = self as any;
 
@@ -1455,6 +1456,59 @@ const VALIDATORS: Record<ValidationType, Validator> = {
       message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
     };
   },
+  [VALIDATION_TYPES.DEFAULT_DATE]: (
+    dateString: string,
+    props: WidgetProps,
+  ): ValidationResponse => {
+    const today = moment()
+      .hour(0)
+      .minute(0)
+      .second(0)
+      .millisecond(0);
+    const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
+
+    const todayDateString = today.format(dateFormat);
+    if (dateString === undefined) {
+      return {
+        isValid: false,
+        parsed: "",
+        message:
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + props.dateFormat
+            ? props.dateFormat
+            : "",
+      };
+    }
+    const parsedCurrentDate = moment(dateString, dateFormat);
+    let isValid = parsedCurrentDate.isValid();
+    const parsedMinDate = moment(props.minDate, dateFormat);
+    const parsedMaxDate = moment(props.maxDate, dateFormat);
+
+    // checking for max/min date range
+    if (isValid) {
+      if (
+        parsedMinDate.isValid() &&
+        parsedCurrentDate.isBefore(parsedMinDate)
+      ) {
+        isValid = false;
+      }
+
+      if (
+        isValid &&
+        parsedMaxDate.isValid() &&
+        parsedCurrentDate.isAfter(parsedMaxDate)
+      ) {
+        isValid = false;
+      }
+    }
+
+    const parsed = isValid ? dateString : todayDateString;
+
+    return {
+      isValid,
+      parsed,
+      message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+    };
+  },
   [VALIDATION_TYPES.ACTION_SELECTOR]: (value: any): ValidationResponse => {
     if (Array.isArray(value) && value.length) {
       return {
@@ -1633,5 +1687,60 @@ const VALIDATORS: Record<ValidationType, Validator> = {
       isValid: true,
       parsed: values,
     };
+  },
+  [VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ) => {
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+      value,
+      props,
+      dataTree,
+    );
+    if (!isValid) {
+      return {
+        isValid,
+        parsed,
+        transformed: parsed,
+        message: "",
+      };
+    }
+    const isValidProperty = (data: any) =>
+      isString(data) || isNumber(data) || isBoolean(data);
+    const isValidColumns = every(parsed, (datum: any) => {
+      const validatedResponse: {
+        isValid: boolean;
+        parsed: Record<string, unknown>;
+        message?: string;
+      } = VALIDATORS[VALIDATION_TYPES.OBJECT](datum, props, dataTree);
+      const isValidColumn = validatedResponse.isValid;
+      if (isValidColumn) {
+        for (const key in validatedResponse.parsed) {
+          const columnProperty = validatedResponse.parsed[key];
+          let isValidColumnProperty = true;
+          if (Array.isArray(columnProperty)) {
+            isValidColumnProperty = every(columnProperty, (data: any) => {
+              return isValidProperty(data);
+            });
+          } else if (!isObject(columnProperty)) {
+            isValidColumnProperty = isValidProperty(columnProperty);
+          }
+          if (!isValidColumnProperty) {
+            validatedResponse.parsed[key] = "";
+          }
+        }
+      }
+      return isValidColumn;
+    });
+    if (!isValidColumns) {
+      return {
+        isValid: isValidColumns,
+        parsed: [],
+        transformed: parsed,
+        message: "",
+      };
+    }
+    return { isValid, parsed, transformed: parsed };
   },
 };
