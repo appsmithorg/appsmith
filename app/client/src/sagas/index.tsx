@@ -1,4 +1,4 @@
-import { all, call, spawn } from "redux-saga/effects";
+import { call, all, spawn } from "redux-saga/effects";
 import pageSagas from "sagas/PageSagas";
 import { fetchWidgetCardsSaga } from "./WidgetSidebarSagas";
 import { watchActionSagas } from "./ActionSagas";
@@ -20,6 +20,8 @@ import modalSagas from "./ModalSagas";
 import batchSagas from "./BatchSagas";
 import themeSagas from "./ThemeSaga";
 import evaluationsSaga from "./evaluationsSaga";
+import log from "loglevel";
+import * as sentry from "@sentry/react";
 
 export function* rootSaga() {
   const sagas = [
@@ -53,7 +55,8 @@ export function* rootSaga() {
             yield call(saga);
             break;
           } catch (e) {
-            console.log(e);
+            log.error(e);
+            sentry.captureException(e);
           }
         }
       }),

@@ -67,6 +67,12 @@ case "${uname_out}" in
         proc_version="$(cat /proc/version)"
         case "$proc_version" in
         *icrosoft*)
+            # ignore to continue using host.docker.internal
+        ;;
+        *WSL*)
+            # ignore to continue using host.docker.internal
+        ;;
+        *)
             network_mode="host"
             client_proxy_pass=$default_linux_client_proxy
             # if no server was passed
