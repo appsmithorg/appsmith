@@ -698,6 +698,7 @@ export const TableHeaderCell = (props: {
     toggleRenameColumn(false);
   };
   const handleSortColumn = () => {
+    if (column.isResizing) return;
     let columnIndex = props.columnIndex;
     if (props.isAscOrder === true) {
       columnIndex = -1;

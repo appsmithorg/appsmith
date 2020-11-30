@@ -279,12 +279,12 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     const columnSizeMap = props.columnSizeMap
       ? {
           ...props.columnSizeMap,
+          [column.accessor]: width,
         }
-      : {};
-    const updatedColumnSizeMap = produce(columnSizeMap, draft => {
-      draft[column.accessor] = width;
-    });
-    props.handleResizeColumn(updatedColumnSizeMap);
+      : {
+          [column.accessor]: width,
+        };
+    props.handleResizeColumn(columnSizeMap);
   };
 
   const selectTableRow = (
