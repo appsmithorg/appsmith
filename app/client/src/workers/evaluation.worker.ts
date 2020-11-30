@@ -249,9 +249,9 @@ export class DataTreeEvaluator {
     );
     const evalStop = performance.now();
     // Validate Widgets
-    const validatateStart = performance.now();
+    const validateStart = performance.now();
     const validated = this.getValidatedTree(evaluatedTree);
-    const validatateStop = performance.now();
+    const validateStop = performance.now();
     // Remove functions
     this.evalTree = removeFunctionsFromDataTree(validated);
     this.oldUnEvalTree = unEvalTree;
@@ -267,7 +267,7 @@ export class DataTreeEvaluator {
         getNeedsEvalPathsStop - getNeedsEvalPathsStart
       ).toFixed(2),
       eval: (evalStop - evalStart).toFixed(2),
-      validate: (validatateStop - validatateStart).toFixed(2),
+      validate: (validateStop - validateStart).toFixed(2),
     });
     return this.evalTree;
   }
