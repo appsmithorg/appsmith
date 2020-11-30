@@ -1,13 +1,6 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.DatasourceTestResult;
-import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.Property;
+import com.appsmith.external.models.*;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
@@ -130,7 +123,7 @@ public class MySqlPlugin extends BasePlugin {
 
                 if(java.time.LocalDate.class.toString().equalsIgnoreCase(typeName)
                         && columnValue != null) {
-                    columnValue = DateTimeFormatter.ISO_DATE.format(row.get(columnName,
+                    columnValue = DateTimeFormatter.ISO_LOCAL_DATE.format(row.get(columnName,
                             LocalDate.class));
                 }
                 else if ((java.time.LocalDateTime.class.toString().equalsIgnoreCase(typeName))
@@ -144,7 +137,7 @@ public class MySqlPlugin extends BasePlugin {
                 }
                 else if(java.time.LocalTime.class.toString().equalsIgnoreCase(typeName)
                         && columnValue != null) {
-                    columnValue = DateTimeFormatter.ISO_TIME.format(row.get(columnName,
+                    columnValue = DateTimeFormatter.ISO_LOCAL_TIME.format(row.get(columnName,
                             LocalTime.class));
                 }
                 else if (java.time.Year.class.toString().equalsIgnoreCase(typeName)
@@ -206,6 +199,7 @@ public class MySqlPlugin extends BasePlugin {
                         })
                         .onErrorResume(exception -> {
                             log.debug("In the action execution error mode.", exception);
+                            exception.printStackTrace();
                             ActionExecutionResult result = new ActionExecutionResult();
                             result.setBody(exception.getMessage());
                             result.setIsExecutionSuccess(false);
@@ -233,6 +227,7 @@ public class MySqlPlugin extends BasePlugin {
                         })
                         .onErrorResume(exception -> {
                             log.debug("In the action execution error mode.", exception);
+                            exception.printStackTrace();
                             ActionExecutionResult result = new ActionExecutionResult();
                             result.setBody(exception.getMessage());
                             result.setIsExecutionSuccess(false);
@@ -246,7 +241,6 @@ public class MySqlPlugin extends BasePlugin {
         public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
             com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
-            Properties properties = new Properties();
 
             StringBuilder urlBuilder = new StringBuilder();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
@@ -284,6 +278,16 @@ public class MySqlPlugin extends BasePlugin {
             ob = ob.option(ConnectionFactoryOptions.USER, authentication.getUsername());
             ob = ob.option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
 
+            try {
+                final boolean isSslEnabled = !SSLDetails.AuthType.NO_SSL
+                        .equals(configurationConnection.getSsl().getAuthType());
+                ob = ob.option(ConnectionFactoryOptions.SSL, isSslEnabled);
+            } catch (Exception e) {
+                //TODO: fix it.
+                e.printStackTrace();
+            }
+
+            //TODO: fix return exception.
             return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
                     .onErrorResume(exception -> {
                         log.debug("Error when creating datasource.", exception);
@@ -349,6 +353,7 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            //TODO: check return on error stmt.
             return datasourceCreate(datasourceConfiguration)
                     .flatMap(connection -> {
                         return Mono.from(connection.close());
