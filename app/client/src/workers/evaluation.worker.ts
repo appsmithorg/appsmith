@@ -230,7 +230,7 @@ export class DataTreeEvaluator {
       this.inverseDependencyMap,
     );
     const getNeedsEvalPathsStop = performance.now();
-    log.debug({
+    console.log({
       differences,
       newSortOrder,
       sortedDependencies: this.sortedDependencies,
@@ -242,11 +242,7 @@ export class DataTreeEvaluator {
 
     // Evaluate
     const evalStart = performance.now();
-    const evaluatedTree = this.evaluateTree(
-      withFunctions,
-      this.sortedDependencies,
-      newSortOrder,
-    );
+    const evaluatedTree = this.evaluateTree(withFunctions, newSortOrder);
     const evalStop = performance.now();
     // Validate Widgets
     const validateStart = performance.now();
@@ -255,7 +251,7 @@ export class DataTreeEvaluator {
     // Remove functions
     this.evalTree = removeFunctionsFromDataTree(validated);
     this.oldUnEvalTree = unEvalTree;
-    log.debug({
+    console.log({
       diffCheck: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),
       checkDepChange: (
         CheckDependencyChangeStop - CheckDependencyChangeStart
@@ -372,18 +368,15 @@ export class DataTreeEvaluator {
       return sortedDependencies.reduce(
         (currentTree: DataTree, propertyPath: string) => {
           if (changedSortOrder) {
-            const changedSinceLastEval = !changedSortOrder.includes(
+            const changedSinceLastEval = changedSortOrder.includes(
               propertyPath,
             );
-            // TODO This is not a nice idea
-            const nestedPropertyChange = _.some(changedSortOrder, changedPath =>
-              changedPath.includes(propertyPath),
-            );
-            if (!changedSinceLastEval && !nestedPropertyChange) {
+            if (!changedSinceLastEval) {
               const lastEvalValue = _.get(this.evalTree, propertyPath);
               return _.set(currentTree, propertyPath, lastEvalValue);
             }
           }
+          console.log("Eval for", propertyPath);
           const entityName = propertyPath.split(".")[0];
           const entity: DataTreeEntity = currentTree[entityName];
           const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
@@ -841,7 +834,9 @@ export class DataTreeEvaluator {
     if (differences === undefined) {
       return {};
     }
+    const allKeysStart = performance.now();
     const allKeys = getAllPaths(dataTree);
+    const allKeysEnd = performance.now();
     const entityNameAndTypeMap: Record<string, string> = {};
     Object.keys(dataTree).forEach(entityName => {
       const entity = dataTree[entityName];
@@ -854,7 +849,7 @@ export class DataTreeEvaluator {
       entityNameAndTypeMap[entityName] = entityType;
     });
     const updatedDags: DependencyMap = {};
-
+    const diffCalcStart = performance.now();
     differences.forEach(difference => {
       if (!difference.path) {
         return;
@@ -906,10 +901,18 @@ export class DataTreeEvaluator {
         }
       }
     });
+    const diffCalcEnd = performance.now();
+    const subDepCalcStart = performance.now();
     Object.keys(updatedDags).forEach(key => {
       updatedDags[key] = _.flatten(
         updatedDags[key].map(path => calculateSubDependencies(path, allKeys)),
       );
+    });
+    const subDepCalcEnd = performance.now();
+    console.log({
+      allKeysTime: (allKeysEnd - allKeysStart).toFixed(2),
+      diffCalcDeps: (diffCalcEnd - diffCalcStart).toFixed(2),
+      subDepCalc: (subDepCalcEnd - subDepCalcStart).toFixed(2),
     });
 
     return updatedDags;
