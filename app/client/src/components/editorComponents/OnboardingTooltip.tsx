@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { RefObject, useEffect, useRef, useState } from "react";
 import { Position, Popover } from "@blueprintjs/core";
 import { useSelector } from "store";
 import { getCurrentStep } from "sagas/OnboardingSagas";
@@ -19,6 +19,7 @@ const OnboardingToolTip = (props: any) => {
   const [isOpen, setIsOpen] = useState(false);
   const currentStep = useSelector(getCurrentStep);
   const dispatch = useDispatch();
+  const popoverRef: RefObject<Popover> = useRef(null);
 
   useEffect(() => {
     if (props.step.includes(currentStep) && props.show) {
@@ -26,11 +27,15 @@ const OnboardingToolTip = (props: any) => {
     } else {
       setIsOpen(false);
     }
-  }, [props.step, props.show, currentStep]);
+    if (popoverRef.current) {
+      popoverRef.current.reposition();
+    }
+  }, [props.step, props.show, currentStep, popoverRef]);
 
   if (isOpen) {
     return (
       <Popover
+        ref={popoverRef}
         isOpen={true}
         autoFocus={false}
         enforceFocus={false}
