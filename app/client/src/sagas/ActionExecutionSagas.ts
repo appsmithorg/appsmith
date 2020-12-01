@@ -715,6 +715,7 @@ function* executePageLoadAction(pageAction: PageAction) {
         isPageLoad: true,
       }),
     );
+    yield take(ReduxActionTypes.SET_EVALUATED_TREE);
   }
 }
 
