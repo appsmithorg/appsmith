@@ -137,6 +137,7 @@ export class DataTreeFactory {
         }
       });
       Object.keys(derivedPropertyMap).forEach(propertyName => {
+        // TODO regex is too greedy
         derivedProps[propertyName] = derivedPropertyMap[propertyName].replace(
           /this./g,
           `${widget.widgetName}.`,
