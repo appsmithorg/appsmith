@@ -78,7 +78,7 @@ export interface ActionApiResponse {
 }
 
 export interface ActionResponse {
-  body: Record<string, unknown>;
+  body: unknown;
   headers: Record<string, string[]>;
   request?: ActionApiResponseReq;
   statusCode: string;
