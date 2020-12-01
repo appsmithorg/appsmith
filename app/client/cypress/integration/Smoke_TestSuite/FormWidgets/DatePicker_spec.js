@@ -63,6 +63,57 @@ describe("DatePicker Widget Functionality", function() {
     );
   });
 
+  it("Datepicker min/max date validation", function() {
+    cy.get(formWidgetsPage.defaultDate).click({ force: true });
+    cy.SetDateToToday();
+
+    cy.get(formWidgetsPage.minDate)
+      .first()
+      .click();
+    cy.wait(1000);
+    cy.setDate(-1, "ddd MMM DD YYYY");
+
+    cy.get(formWidgetsPage.maxDate)
+      .first()
+      .click();
+    cy.wait(1000);
+    cy.setDate(1, "ddd MMM DD YYYY");
+
+    cy.PublishtheApp();
+    cy.get(publishPage.datepickerWidget + " .bp3-input").click();
+
+    const minDate = Cypress.moment()
+      .add(2, "days")
+      .format("ddd MMM DD YYYY");
+    const maxDate = Cypress.moment()
+      .add(2, "days")
+      .format("ddd MMM DD YYYY");
+
+    cy.get(`.DayPicker-Day[aria-label=\"${minDate}\"]`).should(
+      "have.attr",
+      "aria-disabled",
+      "true",
+    );
+    cy.get(`.DayPicker-Day[aria-label=\"${maxDate}\"]`).should(
+      "have.attr",
+      "aria-disabled",
+      "true",
+    );
+  });
+
+  it("Datepicker default date validation", function() {
+    cy.get(formWidgetsPage.defaultDate).click();
+    cy.wait(1000);
+    cy.setDate(-2, "ddd MMM DD YYYY");
+    cy.get(formWidgetsPage.defaultDate).should(
+      "have.css",
+      "border",
+      "1px solid rgb(206, 66, 87)",
+    );
+
+    cy.PublishtheApp();
+  });
+
   // it("DatePicker-check Required field validation", function() {
   //   // Check the required checkbox
   //   cy.CheckWidgetProperties(commonlocators.requiredCheckbox);
