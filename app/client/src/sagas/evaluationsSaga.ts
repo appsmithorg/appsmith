@@ -291,6 +291,8 @@ const EVALUATE_REDUX_ACTIONS = [
 ];
 
 function* evaluationChangeListenerSaga() {
+  // Waiting for the first update layout
+  yield take(ReduxActionTypes.UPDATE_LAYOUT);
   yield fork(initEvaluationWorkers);
   while (true) {
     yield fork(processEvalQueue);

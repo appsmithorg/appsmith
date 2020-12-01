@@ -149,6 +149,7 @@ export class DataTreeEvaluator {
   inverseDependencyMap: DependencyMap = {};
   widgetConfigMap: WidgetTypeConfigMap = {};
   evalTree: DataTree = {};
+  allKeys: Record<string, true> = {};
   oldUnEvalTree: DataTree = {};
   errors: EvalError[] = [];
   parsedValueCache: Map<
@@ -309,7 +310,7 @@ export class DataTreeEvaluator {
 
   createDependencyTree(unEvalTree: DataTree): DependencyMap {
     let dependencyMap: DependencyMap = {};
-    const allKeys = getAllPaths(unEvalTree);
+    this.allKeys = getAllPaths(unEvalTree);
     Object.keys(unEvalTree).forEach(entityName => {
       const entity = unEvalTree[entityName];
       if (
@@ -327,7 +328,9 @@ export class DataTreeEvaluator {
     });
     Object.keys(dependencyMap).forEach(key => {
       dependencyMap[key] = _.flatten(
-        dependencyMap[key].map(path => calculateSubDependencies(path, allKeys)),
+        dependencyMap[key].map(path =>
+          calculateSubDependencies(path, this.allKeys),
+        ),
       );
     });
     return dependencyMap;
@@ -843,9 +846,6 @@ export class DataTreeEvaluator {
     if (differences === undefined) {
       return {};
     }
-    const allKeysStart = performance.now();
-    const allKeys = getAllPaths(dataTree);
-    const allKeysEnd = performance.now();
     debugger;
     const entityNameAndTypeMap: Record<string, string> = {};
     Object.keys(dataTree).forEach(entityName => {
@@ -861,6 +861,7 @@ export class DataTreeEvaluator {
     const updatedDags: DependencyMap = {};
     const diffCalcStart = performance.now();
     differences.forEach(difference => {
+      // TODO when stuff is removed, we need to handle it separately
       if (!difference.path) {
         return;
       }
@@ -884,6 +885,9 @@ export class DataTreeEvaluator {
           Object.keys(widgetBindings).forEach(path => {
             updatedDags[path] = widgetBindings[path];
           });
+        }
+        if (["N", "D"].includes(difference.kind)) {
+          this.allKeys = getAllPaths(dataTree);
         }
         if (difference.kind !== "A") {
           const rhsChange =
@@ -915,12 +919,13 @@ export class DataTreeEvaluator {
     const subDepCalcStart = performance.now();
     Object.keys(updatedDags).forEach(key => {
       updatedDags[key] = _.flatten(
-        updatedDags[key].map(path => calculateSubDependencies(path, allKeys)),
+        updatedDags[key].map(path =>
+          calculateSubDependencies(path, this.allKeys),
+        ),
       );
     });
     const subDepCalcEnd = performance.now();
     console.log({
-      allKeysTime: (allKeysEnd - allKeysStart).toFixed(2),
       diffCalcDeps: (diffCalcEnd - diffCalcStart).toFixed(2),
       subDepCalc: (subDepCalcEnd - subDepCalcStart).toFixed(2),
     });
