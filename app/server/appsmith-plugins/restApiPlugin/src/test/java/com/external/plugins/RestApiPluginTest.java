@@ -96,7 +96,7 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    String token = ((ObjectNode) result.getBody()).get("headers").get("X-Appsmith-Auth").asText();
+                    String token = ((ObjectNode) result.getBody()).get("headers").get("X-Appsmith-Signature").asText();
 
                     final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
                     assertEquals("Appsmith", Jwts.parserBuilder()
@@ -128,7 +128,7 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    String token = ((ObjectNode) result.getBody()).get("headers").get("X-Appsmith-Auth").asText();
+                    String token = ((ObjectNode) result.getBody()).get("headers").get("X-Appsmith-Signature").asText();
 
                     final SecretKey key = Keys.hmacShaKeyFor((secretKey + "-abc").getBytes(StandardCharsets.UTF_8));
                     final JwtParser parser = Jwts.parserBuilder().setSigningKey(key).build();

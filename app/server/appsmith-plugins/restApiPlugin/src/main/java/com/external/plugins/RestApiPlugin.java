@@ -258,10 +258,9 @@ public class RestApiPlugin extends BasePlugin {
                 return "";
             }
 
-            String reqBody = bodyFormData.stream()
+            return bodyFormData.stream()
                     .map(property -> property.getKey() + "=" + property.getValue())
                     .collect(Collectors.joining("&"));
-            return reqBody;
         }
 
         /**
