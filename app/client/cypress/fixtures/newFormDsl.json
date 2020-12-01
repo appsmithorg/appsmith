@@ -124,18 +124,7 @@
                 {
                   "isVisible": true,
                   "label": "",
-                  "options": [
-                    {
-                      "id": "1",
-                      "label": "Male",
-                      "value": "M"
-                    },
-                    {
-                      "id": "2",
-                      "label": "Female",
-                      "value": "F"
-                    }
-                  ],
+                  "options": "[\n{\n\"id\": \"1\",\n\"label\": \"Male\",\n\"value\": \"M\"\n},\n{\n\"id\": \"2\",\n\"label\": \"Female\",\n\"value\": \"F\"\n}\n]",
                   "defaultOptionValue": "1",
                   "widgetName": "RadioGroup1",
                   "type": "RADIO_GROUP_WIDGET",
