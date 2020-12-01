@@ -27,6 +27,8 @@ import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { Colors } from "constants/Colors";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import log from "loglevel";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
@@ -496,6 +498,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             placeholderText: "Enter default search text",
           },
           {
+            helpText: "Selects the default selected row",
+            propertyName: "defaultSelectedRow",
+            label: "Default Selected Row",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter row index",
+          },
+          {
             helpText:
               "Bind the Table.pageNo property in your API and call it onPageChange",
             propertyName: "serverSidePaginationEnabled",
@@ -653,7 +662,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           if (columnProperties.columnType === "button") {
             const buttonProps = {
               isSelected: !!props.row.isSelected,
-              onCommandClick: this.onCommandClick,
+              onCommandClick: (action: string, onComplete: () => void) =>
+                this.onCommandClick(rowIndex, action, onComplete),
               backgroundColor: cellProperties.buttonStyle || "#29CCA3",
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               columnActions: [
@@ -1204,14 +1214,28 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     super.updateWidgetProperty("hiddenColumns", hiddenColumns);
   };
 
-  onCommandClick = (action: string, onComplete: () => void) => {
-    super.executeAction({
-      dynamicString: action,
-      event: {
-        type: EventType.ON_CLICK,
-        callback: onComplete,
-      },
-    });
+  onCommandClick = (
+    rowIndex: number,
+    action: string,
+    onComplete: () => void,
+  ) => {
+    try {
+      const rowData = [this.props.filteredTableData[rowIndex]];
+      const { jsSnippets } = getDynamicBindings(action);
+      const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
+        return prev + `{{(currentRow) => { ${next} }}} `;
+      }, "");
+      super.executeAction({
+        dynamicString: modifiedAction,
+        event: {
+          type: EventType.ON_CLICK,
+          callback: onComplete,
+        },
+        responseData: rowData,
+      });
+    } catch (error) {
+      log.debug("Error parsing row action", error);
+    }
   };
 
   onItemSelect = (action: string) => {
