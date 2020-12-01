@@ -188,9 +188,9 @@ class FilePickerWidget extends BaseWidget<
         "uploadedFileUrls",
         this.props.uploadedFileUrlPaths,
       );
-    }
 
-    this.props.updateWidgetMetaProperty("isLoading", false);
+      this.props.updateWidgetMetaProperty("isLoading", false);
+    }
   };
 
   componentDidUpdate(prevProps: FilePickerWidgetProps) {
