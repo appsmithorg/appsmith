@@ -158,6 +158,11 @@ class FilePickerWidget extends BaseWidget<
     };
   }
 
+  /**
+   * this function is called when user selects the files and it do two things:
+   * 1. calls the action if any
+   * 2. set isLoading prop to true when calling the action
+   */
   onFilesSelected() {
     if (this.props.onFilesSelected) {
       this.executeAction({
@@ -167,9 +172,16 @@ class FilePickerWidget extends BaseWidget<
           callback: this.handleFileUploaded,
         },
       });
+
+      this.props.updateWidgetMetaProperty("isLoading", true);
     }
   }
 
+  /**
+   * sets uploadFilesUrl in meta propety and sets isLoading to false
+   *
+   * @param result
+   */
   handleFileUploaded = (result: ExecutionResult) => {
     if (result.success) {
       this.props.updateWidgetMetaProperty(
@@ -177,6 +189,8 @@ class FilePickerWidget extends BaseWidget<
         this.props.uploadedFileUrlPaths,
       );
     }
+
+    this.props.updateWidgetMetaProperty("isLoading", false);
   };
 
   componentDidUpdate(prevProps: FilePickerWidgetProps) {
