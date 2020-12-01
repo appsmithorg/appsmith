@@ -35,6 +35,7 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -123,11 +124,19 @@ public class RestApiPlugin extends BasePlugin {
 
             String requestBodyAsString = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
 
-            if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
-                    || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
+            if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
                 requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData());
             }
-
+            else if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)) {
+                try {
+                    requestBodyAsString =
+                            URLEncoder.encode(convertPropertyListToReqBody(actionConfiguration.getBodyFormData()),
+                                    StandardCharsets.UTF_8.toString());
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                    throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                }
+            }
 
             WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
@@ -205,6 +214,7 @@ public class RestApiPlugin extends BasePlugin {
             String reqBody = bodyFormData.stream()
                     .map(property -> property.getKey() + "=" + property.getValue())
                     .collect(Collectors.joining("&"));
+
             return reqBody;
         }
 
