@@ -140,7 +140,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     return;
   };
 
-  console.log({ ENV_CONFIG, APPSMITH_FEATURE_CONFIGS });
   // const sentry = getConfig(ENV_CONFIG.sentry, APPSMITH_FEATURE_CONFIGS.sentry);
   const sentryDSN = getConfig(
     ENV_CONFIG.sentry.dsn,
