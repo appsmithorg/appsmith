@@ -110,11 +110,6 @@ public class RestApiPlugin extends BasePlugin {
                         webClientBuilder, datasourceConfiguration.getHeaders());
             }
 
-            if (actionConfiguration.getHeaders() != null) {
-                reqContentType = addHeadersToRequestAndGetContentType(
-                        webClientBuilder, actionConfiguration.getHeaders());
-            }
-
             final String contentTypeError = verifyContentType(actionConfiguration.getHeaders());
             if (contentTypeError != null) {
                 errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage("Invalid value for Content-Type."));
