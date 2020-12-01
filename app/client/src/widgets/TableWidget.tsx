@@ -981,6 +981,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         );
       }
     }
+    if (tableDataModified) {
+      const columnKeys: string[] = getAllTableColumnKeys(
+        this.props.tableData,
+      ).sort((a: string, b: string) => {
+        return a > b ? 1 : a < b ? -1 : 0;
+      });
+      const primaryColumnKeys = (this.props.columns || [])
+        .filter((column: ColumnProperties) => {
+          return !column.isDerived;
+        })
+        .map((column: ColumnProperties) => {
+          return column.id;
+        })
+        .sort((a: string, b: string) => {
+          return a > b ? 1 : a < b ? -1 : 0;
+        });
+      if (JSON.stringify(columnKeys) !== JSON.stringify(primaryColumnKeys)) {
+        this.createTablePrimaryColumns();
+      }
+    }
     if (
       JSON.stringify(this.props.primaryColumns) !==
       JSON.stringify(prevProps.primaryColumns)
