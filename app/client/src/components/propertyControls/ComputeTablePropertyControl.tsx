@@ -87,17 +87,10 @@ class ComputeTablePropertyControl extends BaseControl<
       validationMessage,
       defaultValue,
     } = this.props;
-    const widgetId = this.props.widgetProperties.widgetName;
+    const tableId = this.props.widgetProperties.widgetName;
     const value =
-      propertyValue &&
-      propertyValue.includes(`{{${widgetId}.tableData.map((currentRow) => `)
-        ? this.getInputComputedValue(
-            `${propertyValue.substring(
-              `{{${widgetId}.tableData.map((currentRow) => `.length,
-              propertyValue.length - 3,
-            )}`,
-            widgetId,
-          )
+      propertyValue && isDynamicValue(propertyValue)
+        ? this.getInputComputedValue(propertyValue, tableId)
         : propertyValue
         ? propertyValue
         : defaultValue;
@@ -125,7 +118,11 @@ class ComputeTablePropertyControl extends BaseControl<
     );
   }
 
-  getInputComputedValue = (value: string, tableId: string) => {
+  getInputComputedValue = (propertyValue: string, tableId: string) => {
+    const value = `${propertyValue.substring(
+      `{{${tableId}.tableData.map((currentRow) => `.length,
+      propertyValue.length - 3,
+    )}`;
     const regex = /(\(currentRow.[\w\d]*\))/g;
     const args = [...value.matchAll(regex)];
     let output = value;

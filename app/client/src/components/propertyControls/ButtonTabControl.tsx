@@ -4,6 +4,7 @@ import { FlexWrapper } from "./StyledControls";
 import styled from "styled-components";
 import { ControlIcons, ControlIconName } from "icons/ControlIcons";
 import { Colors } from "constants/Colors";
+import produce from "immer";
 
 const ItemWrapper = styled.div<{ selected: boolean }>`
   width: 32px;
@@ -23,16 +24,19 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
   selectButton = (value: string) => {
     const { propertyValue, defaultValue } = this.props;
     const values = propertyValue?.length
-      ? propertyValue
+      ? [...propertyValue]
       : defaultValue?.length
-      ? defaultValue
+      ? [...defaultValue]
       : [];
     if (values.includes(value)) {
       values.splice(1, values.indexOf(value));
+      this.updateProperty(this.props.propertyName, values);
     } else {
-      values.push(value);
+      const updatedValues = produce(values, draft => {
+        draft.push(value);
+      });
+      this.updateProperty(this.props.propertyName, updatedValues);
     }
-    this.updateProperty(this.props.propertyName, values);
   };
   render() {
     const { propertyValue, options } = this.props;
