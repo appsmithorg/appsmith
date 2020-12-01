@@ -181,5 +181,12 @@
   "btoaInput": "{{btoa('A')",
   "defaultInputBinding": "{{Input2.text",
   "tabBinding": "{{Tabs1.selectedTab",
-  "pageloadBinding": "{{PageLoadApi.data.data[1].id}}{{Input1.text}}"
+  "pageloadBinding": "{{PageLoadApi.data.data[1].id}}{{Input1.text}}",
+  "currentRowEmail": "{{currentRow.email}}",
+  "currentRowOrderAmt": "{{currentRow.orderAmount}}",
+  "momentDate": "{{moment()}}",
+  "bindingAlign": "{{currentRow.userName.indexOf('Michael') > -1 ? 'LEFT' : 'RIGHT'}}",
+  "bindingSize": "{{currentRow.userName.indexOf('Michael') > -1 ? 'TOP' : 'BOTTOM'}}",
+  "bindingTextColor": "{{currentRow.userName.indexOf('Michael') > -1 ? 'GREEN' : 'RED'}}",
+  "bindingButton": "{{currentRow.userName.indexOf('Michael') > -1 ? 'Discount' : 'NoDiscount'}}"
 }

@@ -1097,6 +1097,31 @@ Cypress.Commands.add("testJsontext", (endp, value) => {
   cy.wait(200);
 });
 
+Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
+  cy.get(".CodeMirror textarea")
+    .last()
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then($cm => {
+    if ($cm.contents != "") {
+      cy.log("The field is empty");
+      cy.get(".CodeMirror textarea")
+        .last()
+        .clear({
+          force: true,
+        });
+    }
+    cy.get(".CodeMirror textarea")
+      .last()
+      .type(value, {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
+  });
+  cy.wait(200);
+});
+
 Cypress.Commands.add("tableDataHide", (endp, value) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
@@ -1215,9 +1240,6 @@ Cypress.Commands.add("enterActionValue", value => {
           parseSpecialCharSequences: false,
         });
       cy.wait(200);
-      cy.get(".CodeMirror textarea")
-        .last()
-        .should("have.value", value);
     });
 });
 
@@ -1378,6 +1400,13 @@ Cypress.Commands.add("dropdownDynamic", text => {
     .contains(text)
     .click({ force: true })
     .should("have.text", text);
+});
+
+Cypress.Commands.add("selectTextSize", text => {
+  cy.get("ul[class='bp3-menu']")
+    .first()
+    .contains(text)
+    .click({ force: true });
 });
 
 Cypress.Commands.add("getAlert", alertcss => {
