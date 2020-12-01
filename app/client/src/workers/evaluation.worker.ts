@@ -250,13 +250,14 @@ export class DataTreeEvaluator {
       updatedDependencyMap: this.dependencyMap,
     });
 
+    newSortOrder.forEach(propertyPath => {
+      const unEvalPropValue = _.get(unEvalTree, propertyPath);
+      _.set(this.evalTree, propertyPath, unEvalPropValue);
+    });
+
     // Evaluate
     const evalStart = performance.now();
-    const evaluatedTree = this.evaluateTree(
-      withFunctions,
-      this.sortedDependencies,
-      newSortOrder,
-    );
+    const evaluatedTree = this.evaluateTree(this.evalTree, newSortOrder);
     const evalStop = performance.now();
     // Validate Widgets
     const validateStart = performance.now();
@@ -375,20 +376,13 @@ export class DataTreeEvaluator {
   }
 
   evaluateTree(
-    unEvalTree: DataTree,
+    oldEvalTree: DataTree,
     sortedDependencies: Array<string>,
-    changedDependencies?: Array<string>,
   ): DataTree {
-    const tree = _.cloneDeep(unEvalTree);
+    const tree = _.cloneDeep(oldEvalTree);
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, propertyPath: string) => {
-          if (changedDependencies) {
-            if (!changedDependencies.includes(propertyPath)) {
-              const oldValue = _.get(this.evalTree, propertyPath);
-              return _.set(tree, propertyPath, oldValue);
-            }
-          }
           const entityName = propertyPath.split(".")[0];
           const entity: DataTreeEntity = currentTree[entityName];
           const unEvalPropertyValue = _.get(currentTree as any, propertyPath);

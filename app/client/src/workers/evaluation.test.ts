@@ -517,7 +517,10 @@ describe("DataTreeEvaluator", () => {
       "Text3.text": ["Text1.text"],
       "Dropdown1.selectedOptionValue": [],
       "Dropdown1.selectedOptionValueArr": [],
-      "Table1.tableData": [],
+      "Table1.tableData": ["Text1.text"],
+      "Table1.searchText": [],
+      "Table1.selectedRowIndex": [],
+      "Table1.selectedRowIndices": [],
     });
   });
 
@@ -551,7 +554,10 @@ describe("DataTreeEvaluator", () => {
       "Text3.text": [],
       "Dropdown1.selectedOptionValue": [],
       "Dropdown1.selectedOptionValueArr": [],
-      "Table1.tableData": [],
+      "Table1.tableData": ["Text1.text"],
+      "Table1.searchText": [],
+      "Table1.selectedRowIndex": [],
+      "Table1.selectedRowIndices": [],
     });
   });
 
