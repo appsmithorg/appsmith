@@ -3,7 +3,7 @@
     hosts: appsmith
     any_errors_fatal: true
     vars:
-        integromat_webhook_uri: https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa
+        analytics_webhook_uri: https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa
         ipify_url: https://api64.ipify.org
         
     tasks: 
@@ -21,7 +21,7 @@
 
             - name: Push installation started event to integromat
               uri:
-                url: "{{ integromat_webhook_uri }}"
+                url: "{{ analytics_webhook_uri }}"
                 method: POST
                 body: "{\"userId\":\"{{ app_installation_id.content }}\",\"event\":\"Installation Started\",\"data\":{\"os\":\"{{ os.stdout }}\", \"platform\": \"ansible\"}}"
                 body_format: json
@@ -44,7 +44,7 @@
                 name: domain_ssl
             - name: Push installation success event to integromat
               uri:
-                url: "{{ integromat_webhook_uri }}"
+                url: "{{ analytics_webhook_uri }}"
                 method: POST
                 body: "{\"userId\":\"{{ app_installation_id.content }}\",\"event\":\"Installation Success\",\"data\":{\"os\":\"{{ os.stdout }}\", \"platform\": \"ansible\"}}"
                 body_format: json
@@ -52,7 +52,7 @@
           rescue:
             - name: Push installation failed event to integromat
               uri:
-                url: "{{ integromat_webhook_uri }}"
+                url: "{{ analytics_webhook_uri }}"
                 method: POST
                 body: "{\"userId\":\"{{ app_installation_id.content }}\",\"event\":\"Installation Support\",\"data\":{\"os\":\"{{ os.stdout }}\", \"platform\": \"ansible\", \"email\": \"{{ user_email }}\"}}"
                 body_format: json
