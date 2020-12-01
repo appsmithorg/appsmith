@@ -47,7 +47,11 @@ import TabsWidget, {
   TabContainerWidgetProps,
   ProfiledTabsWidget,
 } from "widgets/TabsWidget";
-import { ModalWidgetProps, ProfiledModalWidget } from "widgets/ModalWidget";
+import {
+  ModalWidgetProps,
+  ProfiledModalWidget,
+  ModalWidget,
+} from "widgets/ModalWidget";
 import RichTextEditorWidget, {
   RichTextEditorWidgetProps,
   ProfiledRichTextEditorWidget,
@@ -293,6 +297,7 @@ export default class WidgetBuilderRegistry {
       BaseWidget.getTriggerPropertyMap(),
       BaseWidget.getDefaultPropertiesMap(),
       BaseWidget.getMetaPropertiesMap(),
+      ModalWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
       "RICH_TEXT_EDITOR_WIDGET",

@@ -25,7 +25,7 @@ const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   },
 };
 
-class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
+export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
       {
