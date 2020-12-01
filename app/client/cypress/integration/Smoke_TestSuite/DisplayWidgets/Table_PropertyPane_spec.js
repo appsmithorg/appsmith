@@ -40,7 +40,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
   });
 
-  it.skip("Update table json data and check the column names updated", function() {
+  it("Update table json data and check the column names updated", function() {
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
     cy.wait("@updateLayout");

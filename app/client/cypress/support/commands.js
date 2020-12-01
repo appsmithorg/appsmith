@@ -1024,6 +1024,29 @@ Cypress.Commands.add("testCodeMirror", value => {
 Cypress.Commands.add("updateComputedValue", value => {
   cy.get(".CodeMirror textarea")
     .first()
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then($cm => {
+    if ($cm.contents != "") {
+      cy.log("The field is empty");
+      cy.get(".CodeMirror textarea")
+        .first()
+        .clear({
+          force: true,
+        });
+    }
+    cy.get(".CodeMirror textarea")
+      .first()
+      .type(value, {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
+  });
+  cy.wait(1000);
+  /*
+  cy.get(".CodeMirror textarea")
+    .first()
     .focus()
     .type("{ctrl}{shift}{downarrow}")
     .then($cm => {
@@ -1043,6 +1066,7 @@ Cypress.Commands.add("updateComputedValue", value => {
         });
       cy.wait(2000);
     });
+    */
 });
 
 Cypress.Commands.add("testCodeMirrorLast", value => {
