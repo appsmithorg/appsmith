@@ -48,11 +48,8 @@ const onboardingReducer = createReducer(initialState, {
     action: ReduxAction<boolean>,
   ) => {
     return {
-      ...state,
+      ...initialState,
       inOnboarding: action.payload,
-      currentStep: -1,
-      showWelcomeScreen: false,
-      creatingDatabase: false,
     };
   },
   ADD_WIDGET_COMPLETE: (state: OnboardingState) => {
