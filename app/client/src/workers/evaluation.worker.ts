@@ -846,6 +846,7 @@ export class DataTreeEvaluator {
     const allKeysStart = performance.now();
     const allKeys = getAllPaths(dataTree);
     const allKeysEnd = performance.now();
+    debugger;
     const entityNameAndTypeMap: Record<string, string> = {};
     Object.keys(dataTree).forEach(entityName => {
       const entity = dataTree[entityName];
