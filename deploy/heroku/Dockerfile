@@ -13,8 +13,8 @@ RUN apk add --update nginx && \
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY default.conf.template /etc/nginx/conf.d/default.conf.template
 COPY bootstrap.sh /bootstrap.sh
-COPY integromat.sh /integromat.sh
-RUN chmod +x /integromat.sh
+COPY analytics.sh /analytics.sh
+RUN chmod +x /analytics.sh
 
 EXPOSE 80
 
