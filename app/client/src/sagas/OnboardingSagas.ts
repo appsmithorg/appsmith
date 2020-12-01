@@ -61,12 +61,6 @@ const OnboardingConfig = [
       title: "Say hello to your example database",
       description:
         "Go ahead, check it out. You can add the “+” icon to create a new query or connect to your own db.",
-      isVisible: (): boolean => {
-        return false;
-      },
-    },
-    isComplete: (): boolean => {
-      return false;
     },
   },
   {
@@ -81,12 +75,6 @@ const OnboardingConfig = [
       description:
         "Copy the example binding below and paste inside TableData input",
       snippet: "{{exampleQuery.data}}",
-      isVisible: (): boolean => {
-        return false;
-      },
-    },
-    isComplete: (): boolean => {
-      return false;
     },
   },
   {
@@ -101,12 +89,6 @@ const OnboardingConfig = [
       title: "This table is now connected to Example Query",
       description:
         "You can connect properties to variables on Appsmith with {{ }} bindings",
-      isVisible: (): boolean => {
-        return false;
-      },
-    },
-    isComplete: (): boolean => {
-      return false;
     },
   },
   {
@@ -120,18 +102,16 @@ const OnboardingConfig = [
       title: "You’re almost done! Just Hit Deploy",
       description:
         "Deploying your apps is a crucial step to building on appsmith.",
-      isVisible: (): boolean => {
-        return false;
-      },
-    },
-    isComplete: (): boolean => {
-      return false;
     },
   },
 ];
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
+export const inOnboarding = (state: AppState) =>
+  state.ui.onBoarding.inOnboarding;
+export const isAddWidgetComplete = (state: AppState) =>
+  state.ui.onBoarding.addedWidget;
 
 function* listenForWidgetAdditions() {
   while (true) {
@@ -142,6 +122,9 @@ function* listenForWidgetAdditions() {
       yield put({
         type: "SET_CURRENT_STEP",
         payload: 2,
+      });
+      yield put({
+        type: "ADD_WIDGET_COMPLETE",
       });
 
       return;
@@ -253,9 +236,9 @@ function* createOnboardingDatasource() {
 }
 
 function* proceedOnboardingSaga() {
-  const inOnboarding = yield select(getOnboardingState);
+  const isinOnboarding = yield select(inOnboarding);
 
-  if (inOnboarding) {
+  if (isinOnboarding) {
     yield put({
       type: "INCREMENT_STEP",
     });

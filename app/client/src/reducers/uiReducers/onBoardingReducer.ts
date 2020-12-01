@@ -6,6 +6,8 @@ const initialState: OnboardingState = {
   showWelcomeScreen: false,
   creatingDatabase: false,
   inOnboarding: false,
+  createdDBQuery: false,
+  addedWidget: false,
 };
 
 export interface OnboardingState {
@@ -13,6 +15,8 @@ export interface OnboardingState {
   showWelcomeScreen: boolean;
   creatingDatabase: boolean;
   inOnboarding: boolean;
+  createdDBQuery: boolean;
+  addedWidget: boolean;
 }
 
 const onboardingReducer = createReducer(initialState, {
@@ -23,7 +27,12 @@ const onboardingReducer = createReducer(initialState, {
     return { ...state, creatingDatabase: true };
   },
   CREATE_ONBOARDING_DBQUERY_SUCCESS: (state: OnboardingState) => {
-    return { ...state, creatingDatabase: false, showWelcomeScreen: false };
+    return {
+      ...state,
+      creatingDatabase: false,
+      showWelcomeScreen: false,
+      createdDBQuery: true,
+    };
   },
   CREATE_ONBOARDING_DBQUERY_ERROR: (state: OnboardingState) => {
     return { ...state, creatingDatabase: false };
@@ -38,19 +47,18 @@ const onboardingReducer = createReducer(initialState, {
     state: OnboardingState,
     action: ReduxAction<boolean>,
   ) => {
-    if (!action.payload) {
-      return {
-        ...state,
-        inOnboarding: action.payload,
-        currentStep: -1,
-        showWelcomeScreen: false,
-        creatingDatabase: false,
-      };
-    }
-
     return {
       ...state,
       inOnboarding: action.payload,
+      currentStep: -1,
+      showWelcomeScreen: false,
+      creatingDatabase: false,
+    };
+  },
+  ADD_WIDGET_COMPLETE: (state: OnboardingState) => {
+    return {
+      ...state,
+      addedWidget: true,
     };
   },
 });

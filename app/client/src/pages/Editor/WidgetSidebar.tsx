@@ -12,7 +12,7 @@ import { debounce } from "lodash";
 import produce from "immer";
 import { WIDGET_SIDEBAR_CAPTION } from "constants/messages";
 
-const MainWrapper = styled.div`
+export const MainWrapper = styled.div`
   text-transform: capitalize;
   padding: 0 10px 20px 10px;
   height: 100%;
@@ -37,7 +37,7 @@ const MainWrapper = styled.div`
   }
 `;
 
-const CardsWrapper = styled.div`
+export const CardsWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-gap: ${props => props.theme.spaces[1]}px;
@@ -45,7 +45,7 @@ const CardsWrapper = styled.div`
   align-items: stretch;
 `;
 
-const CloseIcon = styled(Icon)`
+export const CloseIcon = styled(Icon)`
   &&.${Classes.ICON} {
     cursor: pointer;
     display: flex;
@@ -57,12 +57,12 @@ const CloseIcon = styled(Icon)`
   }
 `;
 
-const Header = styled.div`
+export const Header = styled.div`
   display: grid;
   grid-template-columns: 7fr 1fr;
 `;
 
-const Info = styled.div`
+export const Info = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
