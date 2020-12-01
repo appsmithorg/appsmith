@@ -498,6 +498,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             placeholderText: "Enter default search text",
           },
           {
+            helpText: "Selects the default selected row",
+            propertyName: "defaultSelectedRow",
+            label: "Default Selected Row",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter row index",
+          },
+          {
             helpText:
               "Bind the Table.pageNo property in your API and call it onPageChange",
             propertyName: "serverSidePaginationEnabled",
