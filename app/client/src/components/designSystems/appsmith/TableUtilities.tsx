@@ -1,10 +1,5 @@
 import React, { useState } from "react";
-import {
-  InputGroup,
-  MenuItem,
-  Classes,
-  Button as BButton,
-} from "@blueprintjs/core";
+import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
 import {
   CellWrapper,
   ActionWrapper,
@@ -35,25 +30,6 @@ import moment from "moment";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
-
-interface MenuOptionProps {
-  columnAccessor?: string;
-  isColumnHidden: boolean;
-  columnType: string;
-  format?: string;
-  inputFormat?: string;
-  hideColumn: (columnIndex: number, isColumnHidden: boolean) => void;
-  updateColumnType: (columnIndex: number, columnType: string) => void;
-  handleUpdateCurrencySymbol: (
-    columnIndex: number,
-    currencySymbol: string,
-  ) => void;
-  handleDateFormatUpdate: (
-    columnIndex: number,
-    dateFormat: string,
-    dateInputFormat?: string,
-  ) => void;
-}
 
 export const renderCell = (
   value: any,
@@ -190,37 +166,6 @@ const TableAction = (props: {
         size="small"
       />
     </ActionWrapper>
-  );
-};
-
-const RenameColumn = (props: {
-  value: any;
-  columnIndex: number;
-  handleSave: (columnIndex: number, value: any) => void;
-}) => {
-  const [columnName, updateColumnName] = useState(props.value);
-  const onKeyPress = (key: string) => {
-    if (key === "Enter") {
-      props.handleSave(props.columnIndex, columnName);
-    }
-  };
-  const onColumnNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    updateColumnName(event.target.value);
-  };
-  const handleColumnNameUpdate = () => {
-    props.handleSave(props.columnIndex, columnName);
-  };
-  return (
-    <InputGroup
-      autoFocus
-      type="text"
-      className="input-group"
-      placeholder="Enter Column Name"
-      defaultValue={columnName}
-      onChange={onColumnNameChange}
-      onKeyPress={e => onKeyPress(e.key)}
-      onBlur={handleColumnNameUpdate}
-    />
   );
 };
 

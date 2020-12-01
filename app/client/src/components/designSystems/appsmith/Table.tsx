@@ -7,7 +7,6 @@ import {
   useRowSelect,
 } from "react-table";
 import { TableWrapper } from "./TableStyledWrappers";
-import { ColumnMenuOptionProps } from "./ReactTableComponent";
 import { ReactTableFilter } from "components/designSystems/appsmith/TableFilters";
 import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
