@@ -98,6 +98,12 @@ ctx.addEventListener("message", e => {
       ctx.postMessage(true);
       break;
     }
+    case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET: {
+      const { widgetName } = rest;
+      clearPropertyCacheOfWidget(widgetName);
+      ctx.postMessage(true);
+      break;
+    }
     case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
       const { widgetType, property, value, props } = rest;
       const result = validateWidgetProperty(widgetType, property, value, props);
@@ -555,6 +561,7 @@ const overwriteDefaultDependentProps = (
     `${entity.widgetName}.${defaultProperty}`,
   );
   const propertyCache = getParsedValueCache(propertyPath);
+
   if (
     propertyValue === undefined ||
     propertyCache.version < defaultPropertyCache.version
@@ -767,6 +774,19 @@ const getParsedValueCache = (propertyPath: string) =>
 
 const clearPropertyCache = (propertyPath: string) =>
   parsedValueCache.delete(propertyPath);
+
+/**
+ * delete all values of a particular widget
+ *
+ * @param propertyPath
+ */
+export const clearPropertyCacheOfWidget = (widgetName: string) => {
+  parsedValueCache.forEach((value, key) => {
+    const match = key.match(`${widgetName}.`);
+
+    if (match) return parsedValueCache.delete(key);
+  });
+};
 
 const dependencyCache: Map<string, any[]> = new Map();
 
