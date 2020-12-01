@@ -71,22 +71,22 @@ describe("DatePicker Widget Functionality", function() {
       .first()
       .click();
     cy.wait(1000);
-    cy.setDate(-2, "ddd MMM DD YYYY");
+    cy.setDate(-1, "ddd MMM DD YYYY");
 
     cy.get(formWidgetsPage.maxDate)
       .first()
       .click();
     cy.wait(1000);
-    cy.setDate(2, "ddd MMM DD YYYY");
+    cy.setDate(1, "ddd MMM DD YYYY");
 
     cy.PublishtheApp();
     cy.get(publishPage.datepickerWidget + " .bp3-input").click();
 
     const minDate = Cypress.moment()
-      .add(3, "days")
+      .add(2, "days")
       .format("ddd MMM DD YYYY");
     const maxDate = Cypress.moment()
-      .add(3, "days")
+      .add(2, "days")
       .format("ddd MMM DD YYYY");
 
     cy.get(`.DayPicker-Day[aria-label=\"${minDate}\"]`).should(
@@ -104,7 +104,7 @@ describe("DatePicker Widget Functionality", function() {
   it("Datepicker default date validation", function() {
     cy.get(formWidgetsPage.defaultDate).click();
     cy.wait(1000);
-    cy.setDate(-3, "ddd MMM DD YYYY");
+    cy.setDate(-2, "ddd MMM DD YYYY");
     cy.get(formWidgetsPage.defaultDate).should(
       "have.css",
       "border",
