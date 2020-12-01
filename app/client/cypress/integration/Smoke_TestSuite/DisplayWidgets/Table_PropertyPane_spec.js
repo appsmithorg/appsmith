@@ -40,7 +40,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
   });
 
-  it("Update table json data and check the column names updated", function() {
+  it.skip("Update table json data and check the column names updated", function() {
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
     cy.wait("@updateLayout");
@@ -69,7 +69,7 @@ describe("Table Widget property pane feature validation", function() {
     });
 
     cy.changeColumnType("Number");
-    cy.readTabledataPublish("1", "4").then(tabData => {
+    cy.readTabledataPublish("1", "5").then(tabData => {
       const tabValue = tabData;
       expect(tabData).to.not.equal("lindsay.ferguson@reqres.in");
       cy.updateComputedValue(testdata.currentRowOrderAmt);
@@ -87,7 +87,7 @@ describe("Table Widget property pane feature validation", function() {
     });
 
     cy.changeColumnType("Time");
-    cy.updateComputedValue(momentDate);
+    cy.updateComputedValue(testdata.momentDate);
     cy.readTabledataPublish("1", "0").then(tabData => {
       expect(tabData).to.not.equal("2736212");
       cy.log("computed value of time is " + tabData);
@@ -111,8 +111,8 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Test to validate text format", function() {
     cy.get(widgetsPage.bold).click({ force: true });
-    cy.readTabledataValidateCSS("1", "0", "font-weight", "500");
-    cy.get(widgetsPage.italic).click({ force: true });
+    cy.readTabledataValidateCSS("1", "0", "font-weight", "700");
+    cy.get(widgetsPage.italics).click({ force: true });
     cy.readTabledataValidateCSS("1", "0", "font-style", "italic");
   });
 

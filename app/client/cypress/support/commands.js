@@ -1175,10 +1175,10 @@ Cypress.Commands.add("addColumn", colId => {
   cy.get(widgetsPage.addColumn)
     .should("be.visible")
     .click({ force: true });
-  cy.get(widgetsPage.editCreatedColumn)
-    .should("be.visible")
-    .clear({ force: true });
-  cy.get(widgetsPage.editCreatedColumn).type(colId);
+  cy.get(widgetsPage.defaultColName).clear({
+    force: true,
+  });
+  cy.get(widgetsPage.defaultColName).type(colId);
 });
 
 Cypress.Commands.add("editColumn", colId => {
