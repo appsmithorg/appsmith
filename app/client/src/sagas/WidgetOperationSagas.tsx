@@ -85,7 +85,10 @@ import {
 import { forceOpenPropertyPane } from "actions/widgetActions";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { validateProperty } from "./evaluationsSaga";
+import {
+  validateProperty,
+  clearEvalPropertyCacheOfWidget,
+} from "./evaluationsSaga";
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -344,6 +347,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       const widgets = { ...stateWidgets };
       const stateWidget = yield select(getWidget, widgetId);
       const widget = { ...stateWidget };
+
       const stateParent: FlattenedWidgetProps = yield select(
         getWidget,
         parentId,
@@ -396,6 +400,8 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           if (widgetId) flushDeletedWidgets(widgetId);
         }, WIDGET_DELETE_UNDO_TIMEOUT);
       }
+
+      yield call(clearEvalPropertyCacheOfWidget, widgetName);
 
       const finalWidgets = _.omit(
         widgets,
