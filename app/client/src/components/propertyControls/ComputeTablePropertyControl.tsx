@@ -123,7 +123,7 @@ class ComputeTablePropertyControl extends BaseControl<
       `{{${tableId}.tableData.map((currentRow) => `.length,
       propertyValue.length - 3,
     )}`;
-    const regex = /(\(currentRow.[\w\d]*\))/g;
+    const regex = /(\(currentRow.[\w\d]([\s\S](?<!currentRow))*\))/g;
     const args = [...value.matchAll(regex)];
     let output = value;
     for (let i = 0; i < args.length; i++) {
@@ -135,7 +135,7 @@ class ComputeTablePropertyControl extends BaseControl<
   };
 
   getComputedValue = (value: string, tableId: string) => {
-    const regex = /({{currentRow.[\w\d]*}})/g;
+    const regex = /({{(currentRow.[\w\d])([^}])*}})/g;
     const args = [...value.matchAll(regex)];
     let output = value;
     for (let i = 0; i < args.length; i++) {
