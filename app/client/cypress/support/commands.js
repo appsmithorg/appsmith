@@ -897,7 +897,7 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
   cy.get(widgetsPage.textWidget + " " + commonlocators.editIcon).click();
   cy.testCodeMirror(ModalName);
   cy.get(widgetsPage.textAlign + " " + commonlocators.dropDownBtn).click();
-  cy.get(widgetsPage.textAlign + " .bp3-menu-item")
+  cy.get(widgetsPage.alignOpt)
     .contains("Center")
     .click();
   cy.assertPageSave();

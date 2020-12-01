@@ -49,5 +49,6 @@
     "chartWidget": ".t--widget-chartwidget",
     "addColumn": ".t--add-column-btn",
     "deleteColumn": ".t--delete-column-btn",
-    "editCreatedColumn": ".t--property-control-createdcolumns input"
+    "editCreatedColumn": ".t--property-control-createdcolumns input",
+    "alignOpt": ".select-popover-wrapper .single-select"
 }
