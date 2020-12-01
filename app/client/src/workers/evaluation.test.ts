@@ -497,6 +497,12 @@ describe("DataTreeEvaluator", () => {
       ],
       type: WidgetTypes.DROP_DOWN_WIDGET,
     },
+    Table1: {
+      ...BASE_WIDGET,
+      tableData: "{{Api1.data.map(datum => ({ ...datum, raw: Text1.text }) )}}",
+      dynamicBindingPathList: [{ key: "tableData" }],
+      type: WidgetTypes.TABLE_WIDGET,
+    },
   };
   const evaluator = new DataTreeEvaluator(unEvalTree, WIDGET_CONFIG_MAP);
 
@@ -511,6 +517,7 @@ describe("DataTreeEvaluator", () => {
       "Text3.text": ["Text1.text"],
       "Dropdown1.selectedOptionValue": [],
       "Dropdown1.selectedOptionValueArr": [],
+      "Table1.tableData": [],
     });
   });
 
@@ -544,6 +551,7 @@ describe("DataTreeEvaluator", () => {
       "Text3.text": [],
       "Dropdown1.selectedOptionValue": [],
       "Dropdown1.selectedOptionValueArr": [],
+      "Table1.tableData": [],
     });
   });
 
@@ -586,5 +594,23 @@ describe("DataTreeEvaluator", () => {
       "Dropdown1.options.0.label",
       "newValue",
     );
+  });
+
+  it("Adds an entity with a complicated binding", () => {
+    const updatedUnEvalTree = {
+      ...unEvalTree,
+      Api1: {
+        ...BASE_ACTION,
+        data: [
+          {
+            test: "Hey",
+          },
+          {
+            test: "Ho",
+          },
+        ],
+      },
+    };
+    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
   });
 });

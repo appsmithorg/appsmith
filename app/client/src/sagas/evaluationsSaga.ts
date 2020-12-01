@@ -43,7 +43,7 @@ let evalQueue: Array<{
   action: EvaluationReduxAction<unknown | unknown[]>;
 }> = [];
 
-function* initEvaluationWorkers() {
+function* initEvaluationWorkers(action: EvaluationReduxAction<any>) {
   // If an old worker exists, terminate it
   if (evaluationWorker) {
     evaluationWorker.terminate();
@@ -76,6 +76,9 @@ function* initEvaluationWorkers() {
     type: ReduxActionTypes.SET_EVALUATION_DEPENDENCIES,
     payload: dependencies,
   });
+  if (action && action.postEvalActions && action.postEvalActions.length) {
+    yield call(postEvalActionDispatcher, action.postEvalActions);
+  }
   // yield call(processEvalQueue);
 }
 
@@ -286,8 +289,11 @@ const EVALUATE_REDUX_ACTIONS = [
 
 function* evaluationChangeListenerSaga() {
   // Waiting for the first update layout
-  yield take(ReduxActionTypes.UPDATE_LAYOUT);
-  yield fork(initEvaluationWorkers);
+  const action = yield take([
+    ReduxActionTypes.FETCH_PAGE_SUCCESS,
+    ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
+  ]);
+  yield fork(initEvaluationWorkers, action);
   while (true) {
     yield fork(processEvalQueue);
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(

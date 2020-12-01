@@ -846,7 +846,6 @@ export class DataTreeEvaluator {
     if (differences === undefined) {
       return {};
     }
-    debugger;
     const entityNameAndTypeMap: Record<string, string> = {};
     Object.keys(dataTree).forEach(entityName => {
       const entity = dataTree[entityName];
@@ -858,7 +857,7 @@ export class DataTreeEvaluator {
       }
       entityNameAndTypeMap[entityName] = entityType;
     });
-    const updatedDags: DependencyMap = {};
+    let updatedDags: DependencyMap = {};
     const diffCalcStart = performance.now();
     differences.forEach(difference => {
       // TODO when stuff is removed, we need to handle it separately
@@ -870,10 +869,10 @@ export class DataTreeEvaluator {
       if (entityNameAndTypeMap[entityName] === "noop") {
         return;
       }
-      if (entityNameAndTypeMap[entityName] === ENTITY_TYPE.ACTION) {
-        // Handle for action
-        return;
-      }
+      // if (entityNameAndTypeMap[entityName] === ENTITY_TYPE.ACTION) {
+      //   // Handle for action
+      //   return;
+      // }
       if (entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET) {
         const entity: DataTreeWidget = dataTree[entityName] as DataTreeWidget;
         // New widget was added, add all bindings for this widget
@@ -886,10 +885,7 @@ export class DataTreeEvaluator {
             updatedDags[path] = widgetBindings[path];
           });
         }
-        if (["N", "D"].includes(difference.kind)) {
-          this.allKeys = getAllPaths(dataTree);
-        }
-        if (difference.kind !== "A") {
+        if (difference.kind === "E") {
           const rhsChange =
             "rhs" in difference &&
             typeof difference.rhs === "string" &&
@@ -913,6 +909,17 @@ export class DataTreeEvaluator {
           }
           return;
         }
+      }
+      if (["N", "D"].includes(difference.kind)) {
+        this.allKeys = getAllPaths(dataTree);
+        const newDepsMaybe: DependencyMap = this.getPossibleReferencesInOldBindings(
+          dataTree,
+          propertyPath,
+        );
+        updatedDags = {
+          ...updatedDags,
+          ...newDepsMaybe,
+        };
       }
     });
     const diffCalcEnd = performance.now();
@@ -949,6 +956,33 @@ export class DataTreeEvaluator {
       }
     });
     return inverseDag;
+  };
+
+  getPossibleReferencesInOldBindings = (
+    dataTree: DataTree,
+    propertyPath: string,
+  ) => {
+    const possibleRefs: DependencyMap = {};
+    Object.keys(dataTree).forEach(entityName => {
+      const entity = dataTree[entityName];
+      if (
+        typeof entity === "object" &&
+        "ENTITY_TYPE" in entity &&
+        (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION ||
+          entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET)
+      ) {
+        const depPaths = this.listEntityDependencies(entity, entityName);
+        Object.keys(depPaths).forEach(path => {
+          const values = depPaths[path];
+          values.forEach(value => {
+            if (value.includes(propertyPath)) {
+              possibleRefs[path] = values;
+            }
+          });
+        });
+      }
+    });
+    return possibleRefs;
   };
 
   clearErrors = () => {
