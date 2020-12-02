@@ -71,7 +71,7 @@ describe("Update Application", function() {
     cy.wait("@updateApplication").should(
       "have.nested.property",
       "response.body.data.name",
-      appname,
+      `${appname} updated`,
     );
     cy.get(homePage.toastMessage).should("contain", "Application name updated");
   });
