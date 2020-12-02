@@ -36,6 +36,7 @@ import {
   getIsSavingAppName,
 } from "selectors/applicationSelectors";
 import EditableTextWrapper from "components/ads/EditableTextWrapper";
+import Boxed from "components/editorComponents/Onboarding/Boxed";
 
 const HeaderWrapper = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
@@ -209,93 +210,103 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           />
         </Link>
       </HeaderSection>
-      <HeaderSection flex-direction={"row"}>
-        {currentApplication ? (
-          <EditableTextWrapper
-            variant="UNDERLINE"
-            defaultValue={currentApplication.name || ""}
-            editInteractionKind={EditInteractionKind.SINGLE}
-            hideEditIcon={true}
-            className="t--application-name"
-            fill={false}
-            savingState={
-              isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-            }
-            isNewApp={
-              applicationList.filter(el => el.id === applicationId).length > 0
-            }
-            onBlur={(value: string) =>
-              updateApplicationDispatch(applicationId || "", {
-                name: value,
-                currentApp: true,
-              })
+      <Boxed step={4}>
+        <HeaderSection flex-direction={"row"}>
+          {currentApplication ? (
+            <EditableTextWrapper
+              variant="UNDERLINE"
+              defaultValue={currentApplication.name || ""}
+              editInteractionKind={EditInteractionKind.SINGLE}
+              hideEditIcon={true}
+              className="t--application-name"
+              fill={false}
+              savingState={
+                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+              }
+              isNewApp={
+                applicationList.filter(el => el.id === applicationId).length > 0
+              }
+              onBlur={(value: string) =>
+                updateApplicationDispatch(applicationId || "", {
+                  name: value,
+                  currentApp: true,
+                })
+              }
+            />
+          ) : null}
+          {/* <PageName>{pageName}&nbsp;</PageName> */}
+        </HeaderSection>
+        <HeaderSection>
+          <SaveStatusContainer className={"t--save-status-container"}>
+            {saveStatusIcon}
+          </SaveStatusContainer>
+          <ShareButton
+            target="_blank"
+            href="https://mail.google.com/mail/u/0/?view=cm&fs=1&to=feedback@appsmith.com&tf=1"
+            text="Feedback"
+            intent="none"
+            outline
+            size="small"
+            className="t--application-feedback-btn"
+            icon={
+              <HeaderIcons.FEEDBACK
+                color={Colors.WHITE}
+                width={13}
+                height={13}
+              />
             }
           />
-        ) : null}
-        {/* <PageName>{pageName}&nbsp;</PageName> */}
-      </HeaderSection>
-      <HeaderSection>
-        <SaveStatusContainer className={"t--save-status-container"}>
-          {saveStatusIcon}
-        </SaveStatusContainer>
-        <ShareButton
-          target="_blank"
-          href="https://mail.google.com/mail/u/0/?view=cm&fs=1&to=feedback@appsmith.com&tf=1"
-          text="Feedback"
-          intent="none"
-          outline
-          size="small"
-          className="t--application-feedback-btn"
-          icon={
-            <HeaderIcons.FEEDBACK color={Colors.WHITE} width={13} height={13} />
-          }
-        />
-        <FormDialogComponent
-          trigger={
-            <ShareButton
-              text="Share"
-              intent="none"
-              outline
+          <FormDialogComponent
+            trigger={
+              <ShareButton
+                text="Share"
+                intent="none"
+                outline
+                size="small"
+                className="t--application-share-btn"
+                icon={
+                  <HeaderIcons.SHARE
+                    color={Colors.WHITE}
+                    width={13}
+                    height={13}
+                  />
+                }
+              />
+            }
+            canOutsideClickClose={true}
+            Form={AppInviteUsersForm}
+            orgId={orgId}
+            applicationId={applicationId}
+            title={
+              currentApplication ? currentApplication.name : "Share Application"
+            }
+          />
+          <DeploySection>
+            <DeployButton
+              onClick={handlePublish}
+              text="Deploy"
+              loading={isPublishing}
+              intent="primary"
+              filled
               size="small"
-              className="t--application-share-btn"
+              className="t--application-publish-btn"
               icon={
-                <HeaderIcons.SHARE
+                <HeaderIcons.DEPLOY
                   color={Colors.WHITE}
                   width={13}
                   height={13}
                 />
               }
             />
-          }
-          canOutsideClickClose={true}
-          Form={AppInviteUsersForm}
-          orgId={orgId}
-          applicationId={applicationId}
-          title={
-            currentApplication ? currentApplication.name : "Share Application"
-          }
-        />
-        <DeploySection>
-          <DeployButton
-            onClick={handlePublish}
-            text="Deploy"
-            loading={isPublishing}
-            intent="primary"
-            filled
-            size="small"
-            className="t--application-publish-btn"
-            icon={
-              <HeaderIcons.DEPLOY color={Colors.WHITE} width={13} height={13} />
-            }
-          />
-          <DeployLinkButtonDialog
-            trigger={
-              <DeployLinkButton icon="caret-down" filled intent="primary" />
-            }
-            link={getApplicationViewerPageURL(applicationId, pageId)}
-          />
-        </DeploySection>
-      </HeaderSection>
+            <DeployLinkButtonDialog
+              trigger={
+                <DeployLinkButton icon="caret-down" filled intent="primary" />
+              }
+              link={getApplicationViewerPageURL(applicationId, pageId)}
+            />
+          </DeploySection>
+        </HeaderSection>
+      </Boxed>
       <HelpModal page={"Editor"} />
     </HeaderWrapper>
   );

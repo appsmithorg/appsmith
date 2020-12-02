@@ -15,7 +15,7 @@ import {
   isPathADynamicProperty,
   isPathADynamicTrigger,
 } from "../../../utils/DynamicBindingUtils";
-import OnboardingToolTip from "components/editorComponents/OnboardingTooltip";
+import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { Position } from "@blueprintjs/core";
 
 type Props = {

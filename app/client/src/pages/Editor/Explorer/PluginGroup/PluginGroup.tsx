@@ -12,7 +12,7 @@ import ExplorerDatasourceEntity from "../Datasources/DatasourceEntity";
 import Entity from "../Entity";
 import EntityPlaceholder from "../Entity/Placeholder";
 import { ExplorerURLParams } from "../helpers";
-import OnboardingTooltip from "components/editorComponents/OnboardingTooltip";
+import OnboardingTooltip from "components/editorComponents/Onboarding/Tooltip";
 
 type ExplorerPluginGroupProps = {
   step: number;
