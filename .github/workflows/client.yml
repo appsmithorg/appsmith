@@ -56,35 +56,35 @@ jobs:
             ${{ runner.OS }}-node-
             ${{ runner.OS }}-
 
-    # Install all the dependencies
-    - name: Install dependencies
-      run: yarn install
-    
-    - name: Set the build environment based on the branch
-      id: vars
-      run: |
-        REACT_APP_ENVIRONMENT="DEVELOPMENT"  
-        if [ ${GITHUB_REF} == '/refs/heads/master' ]; then
-            REACT_APP_ENVIRONMENT="PRODUCTION"
-        elif [ ${GITHUB_REF} == '/refs/heads/release' ]; then
-            REACT_APP_ENVIRONMENT="STAGING"
-        fi
-        echo ::set-output name=REACT_APP_ENVIRONMENT::${REACT_APP_ENVIRONMENT}
+      # Install all the dependencies
+      - name: Install dependencies
+        run: yarn install
 
-    - name: Run the jest tests
-      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+      - name: Set the build environment based on the branch
+        id: vars
+        run: |
+          REACT_APP_ENVIRONMENT="DEVELOPMENT"  
+          if [ ${GITHUB_REF} == '/refs/heads/master' ]; then
+              REACT_APP_ENVIRONMENT="PRODUCTION"
+          elif [ ${GITHUB_REF} == '/refs/heads/release' ]; then
+              REACT_APP_ENVIRONMENT="STAGING"
+          fi
+          echo ::set-output name=REACT_APP_ENVIRONMENT::${REACT_APP_ENVIRONMENT}
 
-    # We burn React environment & the Segment analytics key into the build itself.
-    # This is to ensure that we don't need to configure it in each installation
-    - name: Create the bundle
-      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} yarn build
+      - name: Run the jest tests
+        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
 
-    # Upload the build artifact so that it can be used by the test & deploy job in the workflow
-    - name: Upload react build bundle
-      uses: actions/upload-artifact@v2
-      with:
-        name: build
-        path: app/client/build/
+      # We burn React environment & the Segment analytics key into the build itself.
+      # This is to ensure that we don't need to configure it in each installation
+      - name: Create the bundle
+        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} yarn build
+
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload react build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: app/client/build/
 
   ui-test:
     needs: build
@@ -141,97 +141,96 @@ jobs:
             ${{ runner.OS }}-node-
             ${{ runner.OS }}-
 
-    # Install all the dependencies
-    - name: Install dependencies
-      run: yarn install
-  
-    - name: Download the react build artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: build
-        path: app/client/build
-      
-    - name: Pull release server docker container and start it locally
-      if: github.ref == 'refs/heads/release'
-      shell: bash
-      run: |
-        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        
-        docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
-        --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
-        --env APPSMITH_REDIS_URL=redis://localhost:6379 \
-        --env APPSMITH_ENCRYPTION_PASSWORD=password \
-        --env APPSMITH_ENCRYPTION_SALT=salt \
-        --env APPSMITH_IS_SELF_HOSTED=false \
-        appsmith/appsmith-server-ee:release
+      # Install all the dependencies
+      - name: Install dependencies
+        run: yarn install
 
-    - name: Pull master server docker container and start it locally
-      if: github.ref == 'refs/heads/master'
-      shell: bash
-      run: |
-        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        
-        docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
-        --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
-        --env APPSMITH_REDIS_URL=redis://localhost:6379 \
-        --env APPSMITH_ENCRYPTION_PASSWORD=password \
-        --env APPSMITH_ENCRYPTION_SALT=salt \
-        --env APPSMITH_IS_SELF_HOSTED=false \
-        appsmith/appsmith-server-ee:nightly
+      - name: Download the react build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: app/client/build
 
-    - name: Installing Yarn serve
-      run: |
-        yarn global add serve
-        echo "$(yarn global bin)" >> $GITHUB_PATH 
+      - name: Pull release server docker container and start it locally
+        if: github.ref == 'refs/heads/release'
+        shell: bash
+        run: |
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
 
-    - name: Setting up the cypress tests
-      shell: bash
-      env:
-        APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
-        APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
-        CYPRESS_URL: ${{ secrets.CYPRESS_URL }}
-        CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
-        CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
-        CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
-        CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
-        CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
-        CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
-        APPSMITH_DISABLE_TELEMETRY: true
-        APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-        POSTGRES_PASSWORD: postgres
-      run: |
-        ./cypress/setup-test.sh
-        
-    - name: Run the cypress test
-      uses: cypress-io/github-action@v2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-        CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-        CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
-        CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
-        CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
-        CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
-        CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
-        CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
-        APPSMITH_DISABLE_TELEMETRY: true
-        APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-        COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
-      with:
-        browser: chrome
-        headless: true
-        record: true
-        install: false
-        parallel: true
-        group: 'Electrons on Github Action'
-        spec: 'cypress/integration/Smoke_TestSuite/*/*'
-        working-directory: app/client
-        # tag will be either "push" or "pull_request_target"
-        tag: ${{ github.event_name }}
-        env: 'NODE_ENV=development'
+          docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
+          --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
+          --env APPSMITH_REDIS_URL=redis://localhost:6379 \
+          --env APPSMITH_ENCRYPTION_PASSWORD=password \
+          --env APPSMITH_ENCRYPTION_SALT=salt \
+          --env APPSMITH_IS_SELF_HOSTED=false \
+          appsmith/appsmith-server-ee:release
 
+      - name: Pull master server docker container and start it locally
+        if: github.ref == 'refs/heads/master'
+        shell: bash
+        run: |
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
 
-      # Upload the screenshots as artifacts if there's a failure
+          docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
+          --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
+          --env APPSMITH_REDIS_URL=redis://localhost:6379 \
+          --env APPSMITH_ENCRYPTION_PASSWORD=password \
+          --env APPSMITH_ENCRYPTION_SALT=salt \
+          --env APPSMITH_IS_SELF_HOSTED=false \
+          appsmith/appsmith-server-ee:nightly
+
+      - name: Installing Yarn serve
+        run: |
+          yarn global add serve
+          echo "$(yarn global bin)" >> $GITHUB_PATH
+
+      - name: Setting up the cypress tests
+        shell: bash
+        env:
+          APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
+          APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
+          CYPRESS_URL: ${{ secrets.CYPRESS_URL }}
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          APPSMITH_DISABLE_TELEMETRY: true
+          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+          POSTGRES_PASSWORD: postgres
+        run: |
+          ./cypress/setup-test.sh
+
+      - name: Run the cypress test
+        uses: cypress-io/github-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          APPSMITH_DISABLE_TELEMETRY: true
+          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+        with:
+          browser: chrome
+          headless: true
+          record: true
+          install: false
+          parallel: true
+          group: "Electrons on Github Action"
+          spec: "cypress/integration/Smoke_TestSuite/*/*"
+          working-directory: app/client
+          # tag will be either "push" or "pull_request_target"
+          tag: ${{ github.event_name }}
+          env: "NODE_ENV=development"
+
+        # Upload the screenshots as artifacts if there's a failure
       - uses: actions/upload-artifact@v1
         if: failure()
         with:

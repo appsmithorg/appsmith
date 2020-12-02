@@ -34,36 +34,36 @@ jobs:
           restore-keys: |
             ${{ runner.OS }}-node-
             ${{ runner.OS }}-
-  
-      # Install all the dependencies
-    - name: Install dependencies
-      run: yarn install
 
-    - name: Set the build environment based on the branch
-      id: vars
-      run: |
-        REACT_APP_ENVIRONMENT="PRODUCTION"
-        echo ::set-output name=REACT_APP_ENVIRONMENT::${REACT_APP_ENVIRONMENT}
-    
-    - name: Create the bundle
-      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} yarn build
-      
-    - name: Get the version
-      id: get_version
-      run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
-      
-    # Build Docker image and push to Docker Hub
-    - name: Push production image to Docker Hub with commit tag
-      run: |
-        docker build -t appsmith/appsmith-editor-ee:${{steps.get_version.outputs.tag}}  .
-        
-        # Only build & tag with latest if the tag doesn't contain beta
-        if [[ ! ${{steps.get_version.outputs.tag}} == *"beta"* ]]; then 
-          docker build -t appsmith/appsmith-editor-ee:latest  .
-        fi
-        
-        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        docker push appsmith/appsmith-editor-ee
+      # Install all the dependencies
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Set the build environment based on the branch
+        id: vars
+        run: |
+          REACT_APP_ENVIRONMENT="PRODUCTION"
+          echo ::set-output name=REACT_APP_ENVIRONMENT::${REACT_APP_ENVIRONMENT}
+
+      - name: Create the bundle
+        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} yarn build
+
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+
+      # Build Docker image and push to Docker Hub
+      - name: Push production image to Docker Hub with commit tag
+        run: |
+          docker build -t appsmith/appsmith-editor-ee:${{steps.get_version.outputs.tag}}  .
+
+          # Only build & tag with latest if the tag doesn't contain beta
+          if [[ ! ${{steps.get_version.outputs.tag}} == *"beta"* ]]; then 
+            docker build -t appsmith/appsmith-editor-ee:latest  .
+          fi
+
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push appsmith/appsmith-editor-ee
 
   build-server:
     runs-on: ubuntu-latest
@@ -72,46 +72,46 @@ jobs:
         working-directory: app/server
 
     steps:
-    # Checkout the code
-    - uses: actions/checkout@v2
-    
-    # Setup Java
-    - name: Set up JDK 1.11
-      uses: actions/setup-java@v1
-      with:
-        java-version: 1.11
-    
-    # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
-    - name: Cache maven dependencies
-      uses: actions/cache@v2
-      env:
-        cache-name: cache-maven-dependencies
-      with:
-        # maven dependencies are stored in `~/.m2` on Linux/macOS
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-    
-    # Build the code
-    - name: Build without running any tests
-      run: mvn -B package -DskipTests
-    
-    - name: Get the version
-      id: get_version
-      run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
-    
-    # Build Docker image and push to Docker Hub
-    - name: Push image to Docker Hub
-      run: |
-        docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith/appsmith-server-ee:${{steps.get_version.outputs.tag}} .
+      # Checkout the code
+      - uses: actions/checkout@v2
 
-        # Only build & tag with latest if the tag doesn't contain beta
-        if [[ ! ${{steps.get_version.outputs.tag}} == *"beta"* ]]; then 
-          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith/appsmith-server-ee:latest .
-        fi
+      # Setup Java
+      - name: Set up JDK 1.11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.11
 
-        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        docker push appsmith/appsmith-server-ee
+      # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache maven dependencies
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-maven-dependencies
+        with:
+          # maven dependencies are stored in `~/.m2` on Linux/macOS
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # Build the code
+      - name: Build without running any tests
+        run: mvn -B package -DskipTests
+
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+
+      # Build Docker image and push to Docker Hub
+      - name: Push image to Docker Hub
+        run: |
+          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith/appsmith-server-ee:${{steps.get_version.outputs.tag}} .
+
+          # Only build & tag with latest if the tag doesn't contain beta
+          if [[ ! ${{steps.get_version.outputs.tag}} == *"beta"* ]]; then 
+            docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith/appsmith-server-ee:latest .
+          fi
+
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push appsmith/appsmith-server-ee
 
   create-release:
     needs:
