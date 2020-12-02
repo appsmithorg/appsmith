@@ -3,7 +3,11 @@ kind: ConfigMap
 metadata:
   name: nginx-config-template
 data:
-  nginx.conf.template: "
+  nginx.conf.template: |
+  upstream appsmith-internal-server {
+    server appsmith-internal-server:8080;
+  }
+
   server {
     listen 80;
     client_max_body_size 10m;
@@ -41,4 +45,16 @@ data:
     location /f {
        proxy_pass https://cdn.optimizely.com/;
     }
-}"
+
+    location /api {
+      proxy_pass http://appsmith-internal-server;
+    }
+
+    location /oauth2 {
+      proxy_pass http://appsmith-internal-server;
+    }
+      
+    location /login {
+      proxy_pass http://appsmith-internal-server;
+    }
+  }
