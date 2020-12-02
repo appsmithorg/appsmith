@@ -187,7 +187,7 @@ export const EditableText = (props: EditableTextProps) => {
       if (changeStarted) {
         onTextChanged && onTextChanged(finalVal);
       }
-      if (finalVal) {
+      if (finalVal && finalVal !== defaultValue) {
         onBlur(finalVal);
       }
       setIsEditing(false);
