@@ -42,7 +42,6 @@ const Content = styled.div<{
   ref: RefObject<HTMLDivElement>;
 }>`
   overflow-y: ${props => (props.scroll ? "visible" : "hidden")};
-  overflow-x: hidden;
   width: 100%;
   height: ${props => props.height}px;
 `;
