@@ -4,16 +4,16 @@ export const queryActionSettingsConfig = [
     id: 1,
     children: [
       {
-        label: "Run query on Page load",
+        label: "Run query on page load",
         configProperty: "executeOnLoad",
         controlType: "SWITCH",
-        info: "Will refresh data everytime page is reloaded",
+        info: "Will refresh data each time the page is loaded",
       },
       {
         label: "Request confirmation before running query",
         configProperty: "confirmBeforeExecute",
         controlType: "SWITCH",
-        info: "Ask confirmation from the user everytime before refreshing data",
+        info: "Ask confirmation from the user each time before refreshing data",
       },
       // {
       //   label: "Cache response",
@@ -27,7 +27,8 @@ export const queryActionSettingsConfig = [
       //   dataType: "NUMBER",
       // },
       {
-        label: "Query Timeout (in milliseconds)",
+        label: "Query timeout (in milliseconds)",
+        info: "Maximum time after which the query will return",
         configProperty: "actionConfiguration.timeoutInMillisecond",
         controlType: "INPUT_TEXT",
         dataType: "NUMBER",
@@ -42,16 +43,16 @@ export const apiActionSettingsConfig = [
     id: 1,
     children: [
       {
-        label: "Run api on Page load",
+        label: "Run API on Page load",
         configProperty: "executeOnLoad",
         controlType: "SWITCH",
-        info: "Will refresh data everytime page is reloaded",
+        info: "Will refresh data each time the page is loaded",
       },
       {
-        label: "Request confirmation before running api",
+        label: "Request confirmation before running API",
         configProperty: "confirmBeforeExecute",
         controlType: "SWITCH",
-        info: "Ask confirmation from the user everytime before refreshing data",
+        info: "Ask confirmation from the user each time before refreshing data",
       },
       // {
       //   label: "Cache response",
@@ -65,7 +66,8 @@ export const apiActionSettingsConfig = [
       //   dataType: "NUMBER",
       // },
       {
-        label: "Api Timeout (in milliseconds)",
+        label: "API timeout (in milliseconds)",
+        info: "Maximum time after which the API will return",
         configProperty: "actionConfiguration.timeoutInMillisecond",
         controlType: "INPUT_TEXT",
         dataType: "NUMBER",
