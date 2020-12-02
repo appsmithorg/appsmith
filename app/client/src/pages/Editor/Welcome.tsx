@@ -43,7 +43,7 @@ const NotNewUserText = styled.span`
   text-align: center;
 
   span {
-    color: blue;
+    color: #457ae6;
     cursor: pointer;
   }
 `;

@@ -1,25 +1,63 @@
 import React, { RefObject, useEffect, useRef, useState } from "react";
-import { Position, Popover } from "@blueprintjs/core";
+import { Position, Popover, Classes } from "@blueprintjs/core";
 import { useSelector } from "store";
-import { getCurrentStep } from "sagas/OnboardingSagas";
+import { getCurrentStep, getTooltipConfig } from "sagas/OnboardingSagas";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 
-const ToolTipContent = styled.div`
-  width: 280px;
-  display: flex;
-  justify-content: space-between;
+enum TooltipClassNames {
+  TITLE = "tooltip-title",
+  DESCRIPTION = "tooltip-description",
+  SKIP = "tooltip-skip",
+  ACTION = "tooltip-action",
+}
 
-  span {
+const Wrapper = styled.div`
+  width: 280px;
+  background-color: #457ae6;
+  color: white;
+  padding: 10px;
+
+  .${TooltipClassNames.TITLE} {
+    font-weight: 500;
+  }
+  .${TooltipClassNames.DESCRIPTION} {
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .${TooltipClassNames.SKIP} {
+    font-size: 10px;
+    opacity: 0.7;
+
+    span {
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
+  .${TooltipClassNames.ACTION} {
+    padding: 6px 10px;
     cursor: pointer;
+    color: white;
+    border: none;
+    font-size: 12px;
+    background-color: #2c59b4;
+  }
+`;
+
+const Container = styled.div`
+  div.${Classes.POPOVER_ARROW} {
+    display: block;
+  }
+  .bp3-popover-arrow-fill {
+    fill: #457ae6;
   }
 `;
 
 const OnboardingToolTip = (props: any) => {
   const [isOpen, setIsOpen] = useState(false);
   const currentStep = useSelector(getCurrentStep);
-  const dispatch = useDispatch();
   const popoverRef: RefObject<Popover> = useRef(null);
+  const tooltipConfig = useSelector(getTooltipConfig);
 
   useEffect(() => {
     if (props.step.includes(currentStep) && props.show) {
@@ -34,39 +72,64 @@ const OnboardingToolTip = (props: any) => {
 
   if (isOpen) {
     return (
-      <Popover
-        ref={popoverRef}
-        isOpen={true}
-        autoFocus={false}
-        enforceFocus={false}
-        boundary={"viewport"}
-        position={props.position || Position.BOTTOM}
-      >
-        {props.children}
-        <ToolTipContent>
-          <span
-            onClick={() => {
-              dispatch({
-                type: "END_ONBOARDING",
-              });
-            }}
-          >
-            Click here to end {currentStep}
-          </span>
-          {/* <Button
-            text={"Got it"}
-            onClick={() => {
-              dispatch({
-                type: "NEXT_ONBOARDING_STEP",
-              });
-            }}
-          /> */}
-        </ToolTipContent>
-      </Popover>
+      <Container>
+        <Popover
+          ref={popoverRef}
+          isOpen={true}
+          autoFocus={false}
+          enforceFocus={false}
+          boundary={"viewport"}
+          usePortal={false}
+          position={props.position || Position.BOTTOM}
+        >
+          {props.children}
+          <ToolTipContent details={tooltipConfig} />
+        </Popover>
+      </Container>
     );
   }
 
   return props.children;
+};
+
+const ToolTipContent = (props: any) => {
+  const dispatch = useDispatch();
+  const { title, description } = props.details;
+
+  const endOnboarding = () => {
+    dispatch({
+      type: "END_ONBOARDING",
+    });
+  };
+
+  return (
+    <Wrapper>
+      <div className={TooltipClassNames.TITLE}>{title}</div>
+      <div className={TooltipClassNames.DESCRIPTION}>{description}</div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <span className={TooltipClassNames.SKIP}>
+          Done? <span onClick={endOnboarding}>Click here to End</span>
+        </span>
+
+        <button
+          onClick={() =>
+            dispatch({
+              type: "NEXT_ONBOARDING_STEP",
+            })
+          }
+          className={TooltipClassNames.ACTION}
+        >
+          Got it!
+        </button>
+      </div>
+    </Wrapper>
+  );
 };
 
 export default OnboardingToolTip;

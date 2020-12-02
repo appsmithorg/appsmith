@@ -27,7 +27,7 @@ const OnboardingConfig = [
         },
       ];
     },
-    tip: {
+    tooltip: {
       title: "",
       description: "",
       // May not be required. Tooltip is shown when we are in that onboarding step
@@ -57,7 +57,7 @@ const OnboardingConfig = [
         },
       ];
     },
-    tip: {
+    tooltip: {
       title: "Say hello to your example database",
       description:
         "Go ahead, check it out. You can add the “+” icon to create a new query or connect to your own db.",
@@ -69,7 +69,7 @@ const OnboardingConfig = [
     setup: () => {
       return [];
     },
-    tip: {
+    tooltip: {
       title:
         "Wohoo! Your first widget. 🎉 Go ahead and connect this to a Query or API",
       description:
@@ -85,7 +85,7 @@ const OnboardingConfig = [
       // has a succesfull binding
       return [];
     },
-    tip: {
+    tooltip: {
       title: "This table is now connected to Example Query",
       description:
         "You can connect properties to variables on Appsmith with {{ }} bindings",
@@ -98,7 +98,7 @@ const OnboardingConfig = [
       // TODO: Listen for DEPLOY action.
       return [];
     },
-    tip: {
+    tooltip: {
       title: "You’re almost done! Just Hit Deploy",
       description:
         "Deploying your apps is a crucial step to building on appsmith.",
@@ -112,6 +112,14 @@ export const inOnboarding = (state: AppState) =>
   state.ui.onBoarding.inOnboarding;
 export const isAddWidgetComplete = (state: AppState) =>
   state.ui.onBoarding.addedWidget;
+export const getTooltipConfig = (state: AppState) => {
+  const currentStep = getCurrentStep(state);
+  if (currentStep >= 0) {
+    return OnboardingConfig[currentStep].tooltip;
+  }
+
+  return {};
+};
 
 function* listenForWidgetAdditions() {
   while (true) {
