@@ -282,8 +282,16 @@ export class DataTreeEvaluator {
     changes: Array<string>,
     inverseMap: DependencyMap,
   ): Array<string> {
+    // const inverseNodes = Object.keys(inverseMap);
     const sortOrder: Array<string> = [];
     const recCall = (changedNode: string) => {
+      // const similarNodes = inverseNodes.filter(node =>
+      //   node.includes(changedNode),
+      // );
+      // const dependantOnSimilarNodes = _.flatten(
+      //   similarNodes.map(node => inverseMap[node]),
+      // );
+      // const newNodes = [...inverseMap[changedNode], ...dependantOnSimilarNodes];
       const newNodes = inverseMap[changedNode];
       if (newNodes) {
         newNodes.forEach(newChangedNode => {
