@@ -36,6 +36,17 @@ const ResponseMetaInfo = styled.div`
   }
 `;
 
+const ResponseMetaWrapper = styled.div`
+  align-items: center;
+  padding: 6px 9px;
+  display: flex;
+  border-top: transparent 5px solid;
+
+  div:nth-child(1) {
+    flex: 1;
+  }
+`;
+
 const StatusCodeText = styled(BaseText)<{ code: string }>`
   color: ${props =>
     props.code.match(/2\d\d/) ? props.theme.colors.primaryOld : Colors.RED};
@@ -127,6 +138,7 @@ const FailedMessageContainer = styled.div`
 `;
 
 const TabbedViewWrapper = styled.div`
+  padding-top: 12px;
   height: calc(100% - 30px);
 `;
 
@@ -234,31 +246,31 @@ const ApiResponseView = (props: Props) => {
       {isRunning && (
         <LoadingOverlayScreen>Sending Request</LoadingOverlayScreen>
       )}
-      <FormRow>
-        <React.Fragment>
-          {response.statusCode && (
-            <StatusCodeText
-              accent="secondary"
-              code={response.statusCode.toString()}
-            >
-              Status: {response.statusCode}
-            </StatusCodeText>
-          )}
-          <ResponseMetaInfo>
-            {response.duration && (
-              <BaseText accent="secondary">
-                Time: {response.duration} ms
-              </BaseText>
-            )}
-            {response.size && (
-              <BaseText accent="secondary">
-                Size: {formatBytes(parseInt(response.size))}
-              </BaseText>
-            )}
-          </ResponseMetaInfo>
-        </React.Fragment>
-      </FormRow>
       <TabbedViewWrapper>
+        {response.statusCode && (
+          <ResponseMetaWrapper>
+            {response.statusCode && (
+              <StatusCodeText
+                accent="secondary"
+                code={response.statusCode.toString()}
+              >
+                Status: {response.statusCode}
+              </StatusCodeText>
+            )}
+            <ResponseMetaInfo>
+              {response.duration && (
+                <BaseText accent="secondary">
+                  Time: {response.duration} ms
+                </BaseText>
+              )}
+              {response.size && (
+                <BaseText accent="secondary">
+                  Size: {formatBytes(parseInt(response.size))}
+                </BaseText>
+              )}
+            </ResponseMetaInfo>
+          </ResponseMetaWrapper>
+        )}
         <BaseTabbedView
           overflow
           tabs={tabs}
