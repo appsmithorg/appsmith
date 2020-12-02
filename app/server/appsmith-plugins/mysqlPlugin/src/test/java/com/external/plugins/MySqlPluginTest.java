@@ -316,6 +316,97 @@ public class MySqlPluginTest {
                 .verifyComplete();
     }
 
+    /**
+     * 1. Add a test to check that mysql driver can interpret and read all the regular data types used in mysql.
+     * 2. List of the data types is taken is from https://dev.mysql.com/doc/refman/8.0/en/data-types.html
+     * 3. Data types tested here are: INTEGER, SMALLINT, TINYINT, MEDIUMINT, BIGINT, DECIMAL, FLOAT, DOUBLE, BIT,
+     *    DATE, DATETIME, TIMESTAMP, TIME, YEAR, CHAR, VARCHAR, BINARY, VARBINARY, TINYBLOB, BLOB, MEDIUMBLOB, LONGBLOB,
+     *    TINYTEXT, TEXT, MEDIUMTEXT, LONGTEXT, ENUM, SET, JSON, GEOMETRY, POINT    
+     */
+    @Test
+    public void testExecuteDataTypesExtensive() {
+        String query_create_table_numeric_types = "create table test_numeric_types (c_integer INTEGER, c_smallint " +
+                "SMALLINT, c_tinyint TINYINT, c_mediumint MEDIUMINT, c_bigint BIGINT, c_decimal DECIMAL, c_float " +
+                "FLOAT, c_double DOUBLE, c_bit BIT(10));";
+        String query_insert_into_table_numeric_types = "insert into test_numeric_types values (-1, 1, 1, 10, 2000, 1" +
+                ".02345, 0.1234, 1.0102344, b'0101010');";
+
+        String query_create_table_date_time_types = "create table test_date_time_types (c_date DATE, c_datetime " +
+                "DATETIME DEFAULT CURRENT_TIMESTAMP, c_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, c_time TIME, " +
+                "c_year YEAR);";
+        String query_insert_into_table_date_time_types = "insert into test_date_time_types values ('2020-12-01', " +
+                "'2020-12-01 20:20:20', '2020-12-01 20:20:20', '20:20:20', 2020);";
+
+        String query_create_table_data_types = "create table test_data_types (c_char CHAR(50), c_varchar VARCHAR(50)," +
+                " c_binary BINARY(20), c_varbinary VARBINARY(20), c_tinyblob TINYBLOB, c_blob BLOB, c_mediumblob " +
+                "MEDIUMBLOB, c_longblob LONGBLOB, c_tinytext TINYTEXT, c_text TEXT, c_mediumtext MEDIUMTEXT, " +
+                "c_longtext LONGTEXT, c_enum ENUM('ONE'), c_set SET('a'));";
+        String query_insert_data_types = "insert into test_data_types values ('test', 'test', 'a\\0\\t', 'a\\0\\t', " +
+                "'test', 'test', 'test', 'test',  'test', 'test', 'test', 'test', 'ONE', 'a');";
+
+        String query_create_table_json_data_type = "create table test_json_type (c_json JSON);";
+        String query_insert_json_data_type = "insert into test_json_type values ('{\"key1\": \"value1\", \"key2\": " +
+                "\"value2\"}');";
+
+        String query_create_table_geometry_types = "create table test_geometry_types (c_geometry GEOMETRY, c_point " +
+                "POINT);";
+        String query_insert_geometry_types = "insert into test_geometry_types values (ST_GeomFromText('POINT(1 1)'), " +
+                "ST_PointFromText('POINT(1 100)'));";
+
+        String query_select_from_test_numeric_types = "select * from test_numeric_types;";
+        String query_select_from_test_date_time_types = "select * from test_date_time_types;";
+        String query_select_from_test_json_data_type = "select * from test_json_type;";
+        String query_select_from_test_data_types = "select * from test_data_types;";
+        String query_select_from_test_geometry_types = "select * from test_geometry_types;";
+
+        ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
+        ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
+        Mono.from(ConnectionFactories.get(ob.build()).create())
+                .map(connection -> {
+                    return connection.createBatch()
+                            .add(query_create_table_numeric_types)
+                            .add(query_insert_into_table_numeric_types)
+                            .add(query_create_table_date_time_types)
+                            .add(query_insert_into_table_date_time_types)
+                            .add(query_create_table_json_data_type)
+                            .add(query_insert_json_data_type)
+                            .add(query_create_table_data_types)
+                            .add(query_insert_data_types)
+                            .add(query_create_table_geometry_types)
+                            .add(query_insert_geometry_types);
+                })
+                .flatMap(batch -> Mono.from(batch.execute()))
+                .block();
+
+        /* Test numeric types */
+        testExecute(query_select_from_test_numeric_types);
+        /* Test date time types */
+        testExecute(query_select_from_test_date_time_types);
+        /* Test data types */
+        testExecute(query_select_from_test_data_types);
+        /* Test data types */
+        testExecute(query_select_from_test_json_data_type);
+        /* Test data types */
+        testExecute(query_select_from_test_geometry_types);
+
+        return;
+    }
+
+    private void testExecute(String query) {
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(query);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                })
+                .verifyComplete();
+    }
+
     @Test
     public void testStructure() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
