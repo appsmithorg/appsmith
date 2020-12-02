@@ -387,13 +387,21 @@ export class DataTreeEvaluator {
   }
 
   evaluateTree(
-    oldEvalTree: DataTree,
+    oldUnevalTree: DataTree,
     sortedDependencies: Array<string>,
+    changes?: Array<string>,
   ): DataTree {
-    const tree = _.cloneDeep(oldEvalTree);
+    const tree = _.cloneDeep(oldUnevalTree);
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, propertyPath: string) => {
+          if (changes) {
+            if (!changes.includes(propertyPath)) {
+              const oldEvalPropValue = _.get(this.evalTree, propertyPath);
+              return _.set(tree, propertyPath, oldEvalPropValue);
+            }
+          }
+          console.log("evaluating", propertyPath);
           const entityName = propertyPath.split(".")[0];
           const entity: DataTreeEntity = currentTree[entityName];
           const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
