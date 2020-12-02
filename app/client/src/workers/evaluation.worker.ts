@@ -27,7 +27,7 @@ import unescapeJS from "unescape-js";
 import { WidgetType } from "../constants/WidgetConstants";
 import { WidgetProps } from "../widgets/BaseWidget";
 import { VALIDATORS } from "./validations";
-import { Diff, diff } from "deep-diff";
+import { Diff, diff, applyChange } from "deep-diff";
 
 const ctx: Worker = self as any;
 
@@ -118,6 +118,15 @@ ctx.addEventListener("message", e => {
         break;
       }
       dataTreeEvaluator.clearPropertyCache(propertyPath);
+      ctx.postMessage(true);
+      break;
+    }
+    case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET: {
+      const { widgetName } = rest;
+      if (!dataTreeEvaluator) {
+        break;
+      }
+      dataTreeEvaluator.clearPropertyCacheOfWidget(widgetName);
       ctx.postMessage(true);
       break;
     }
@@ -218,6 +227,8 @@ export class DataTreeEvaluator {
     const changeLocations: Array<string> = [];
     differences.forEach(d => {
       if (d.path) {
+        // Apply the changes into the oldEvalTree so that it can be evaluated
+        applyChange(this.evalTree, undefined, d);
         if (d.path.length > 1) {
           changeLocations.push(convertPathToString(d.path));
         } else if (d.path.length === 1) {
@@ -486,6 +497,16 @@ export class DataTreeEvaluator {
   clearPropertyCache(propertyPath: string) {
     this.parsedValueCache.delete(propertyPath);
   }
+
+  clearPropertyCacheOfWidget = (widgetName: string) => {
+    // TODO check if this loop mutating itself is safe
+    this.parsedValueCache.forEach((value, key) => {
+      const match = key.match(`${widgetName}.`);
+      if (match) {
+        this.parsedValueCache.delete(key);
+      }
+    });
+  };
 
   clearAllCaches() {
     this.parsedValueCache.clear();
