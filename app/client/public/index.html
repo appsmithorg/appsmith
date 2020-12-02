@@ -98,7 +98,7 @@
     }
     const LOG_LEVELS = ["debug", "error"];
     const CONFIG_LOG_LEVEL_INDEX = LOG_LEVELS.indexOf(parseConfig("__APPSMITH_CLIENT_LOG_LEVEL__"));
-    
+
     const APP_ID = parseConfig("__APPSMITH_INTERCOM_APP_ID__");
     const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__").length > 0;
     const DISABLE_TELEMETRY = parseConfig("__APPSMITH_DISABLE_TELEMETRY__").toLowerCase();
@@ -124,6 +124,9 @@
       segment: {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),
         ceKey: parseConfig("__APPSMITH_SEGMENT_CE_KEY__"),
+      },
+      fusioncharts: {
+        licenseKey: parseConfig("__APPSMITH_FUSIONCHARTS_LICENSE_KEY__")
       },
       optimizely: parseConfig("__APPSMITH_OPTIMIZELY_KEY__"),
       enableMixpanel: parseConfig("__APPSMITH_SEGMENT_KEY__").length > 0,
