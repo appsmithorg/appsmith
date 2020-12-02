@@ -186,7 +186,7 @@
   "currentRowOrderAmt": "{{currentRow.orderAmount}}",
   "momentDate": "{{moment()}}",
   "bindingAlign": "{{currentRow.userName.indexOf('Michael') > -1 ? 'LEFT' : 'RIGHT'}}",
-  "bindingSize": "{{currentRow.userName.indexOf('Michael') > -1 ? 'TOP' : 'BOTTOM'}}",
+  "bindingSize": "{{currentRow.userName.indexOf('Michael') > -1 ? 'PARAGRAGH' : 'HEADING1'}}",
   "bindingTextColor": "{{currentRow.userName.indexOf('Michael') > -1 ? 'GREEN' : 'RED'}}",
   "bindingButton": "{{currentRow.userName.indexOf('Michael') > -1 ? 'Discount' : 'NoDiscount'}}"
 }

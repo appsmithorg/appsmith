@@ -18,6 +18,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.toggleJsAndUpdate("tabledata", testdata.bindingAlign);
     cy.get(commonlocators.editPropCrossButton).click();
     cy.readTabledataValidateCSS("0", "0", "justify-content", "flex-start");
+    cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-end");
   });
 
   it("Table widget change text size and validate", function() {
@@ -40,7 +41,8 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", testdata.bindingSize);
     cy.get(commonlocators.editPropCrossButton).click();
-    cy.readTabledataValidateCSS("0", "0", "align-items", "flex-start");
+    cy.readTabledataValidateCSS("0", "0", "font-size", "14px");
+    cy.readTabledataValidateCSS("1", "0", "font-size", "24px");
   });
 
   it("Table widget toggle test for text color", function() {
@@ -54,6 +56,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "color", "rgb(0, 128, 0)");
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(255, 0, 0)");
   });
 
   it("Table widget toggle test for background color", function() {
@@ -71,6 +74,12 @@ describe("Table Widget property pane feature validation", function() {
       "0",
       "background",
       "rgb(0, 128, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+    );
+    cy.readTabledataValidateCSS(
+      "1",
+      "0",
+      "background",
+      "rgb(255, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
     );
   });
 });
