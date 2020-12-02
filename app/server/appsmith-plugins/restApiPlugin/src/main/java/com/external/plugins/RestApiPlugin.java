@@ -124,17 +124,12 @@ public class RestApiPlugin extends BasePlugin {
 
             String requestBodyAsString = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
 
-            if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
-                requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData());
-            }
-            else if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)) {
+            if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType) ||
+                    MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)) {
                 try {
-                    requestBodyAsString =
-                            URLEncoder.encode(convertPropertyListToReqBody(actionConfiguration.getBodyFormData()),
-                                    StandardCharsets.UTF_8.toString());
-                } catch (UnsupportedEncodingException e) {
+                    requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(), reqContentType);
+                } catch (Exception e) {
                     e.printStackTrace();
-                    throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                 }
             }
 
@@ -206,13 +201,26 @@ public class RestApiPlugin extends BasePlugin {
                     });
         }
 
-        private String convertPropertyListToReqBody(List<Property> bodyFormData) {
+        private String convertPropertyListToReqBody(List<Property> bodyFormData, String reqContentType) {
             if (bodyFormData == null || bodyFormData.isEmpty()) {
                 return "";
             }
 
             String reqBody = bodyFormData.stream()
-                    .map(property -> property.getKey() + "=" + property.getValue())
+                    .map(property -> {
+                        String key = property.getKey();
+                        String value = property.getValue();
+
+                        if(MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)) {
+                            try {
+                                value = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                                throw new UnsupportedOperationException(e);
+                            }
+                        }
+                        return key + "="+ value;
+                    })
                     .collect(Collectors.joining("&"));
 
             return reqBody;

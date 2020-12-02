@@ -72,7 +72,7 @@ public class RestApiPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     JsonNode data = ((ObjectNode) result.getBody()).get("form");
-                    assertEquals("{\"key=value&key1=value1\":\"\"}", data.toString());
+                    assertEquals("{\"key\":\"value\",\"key1\":\"value1\"}", data.toString());
                 })
                 .verifyComplete();
     }
