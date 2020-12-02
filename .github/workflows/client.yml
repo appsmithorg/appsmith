@@ -1,15 +1,15 @@
-name: Appsmith Client Workflow 
+name: Appsmith Client Workflow
 
 on:
   push:
-    branches: [ release, master ]
+    branches: [release, master]
     # Only trigger if files have changed in this specific path
     paths:
-      - 'app/client/**'
+      - "app/client/**"
   pull_request_target:
-    branches: [ release, master ]
+    branches: [release, master]
     paths:
-      - 'app/client/**'
+      - "app/client/**"
 # Change the working directory for all the jobs in this workflow
 defaults:
   run:
@@ -24,35 +24,35 @@ jobs:
         shell: bash
 
     steps:
-    # Checkout the code
-    - name: Checkout the merged commit from PR and base branch
-      if: ${{ github.event_name == 'pull_request_target' }}
-      uses: actions/checkout@v2
-      with:
-        ref: refs/pull/${{ github.event.pull_request.number }}/merge
+      # Checkout the code
+      - name: Checkout the merged commit from PR and base branch
+        if: ${{ github.event_name == 'pull_request_target' }}
+        uses: actions/checkout@v2
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
-    - name: Checkout the head commit of the branch
-      if: ${{ github.event_name == 'push' }}
-      uses: actions/checkout@v2
+      - name: Checkout the head commit of the branch
+        if: ${{ github.event_name == 'push' }}
+        uses: actions/checkout@v2
 
-    - name: Figure out the PR number
-      run: echo ${{ github.event.pull_request.number }}
+      - name: Figure out the PR number
+        run: echo ${{ github.event.pull_request.number }}
 
-    - name: Use Node.js 10.16.3
-      uses: actions/setup-node@v1
-      with:
-        node-version: '10.16.3'
+      - name: Use Node.js 10.16.3
+        uses: actions/setup-node@v1
+        with:
+          node-version: "10.16.3"
 
-    # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
-    - name: Cache npm dependencies
-      uses: actions/cache@v2
-      env:
-        cache-name: cache-yarn-dependencies
-      with:
-        # npm dependencies are stored in `~/.npm` on Linux/macOS
-        path: ~/.npm
-        key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
-        restore-keys: |
+      # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache npm dependencies
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-yarn-dependencies
+        with:
+          # npm dependencies are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
             ${{ runner.OS }}-node-
             ${{ runner.OS }}-
 
@@ -77,7 +77,7 @@ jobs:
     # We burn React environment & the Segment analytics key into the build itself.
     # This is to ensure that we don't need to configure it in each installation
     - name: Create the bundle
-      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} yarn build
+      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} yarn build
 
     # Upload the build artifact so that it can be used by the test & deploy job in the workflow
     - name: Upload react build bundle
@@ -108,36 +108,36 @@ jobs:
           - 6379:6379
       mongo:
         image: mongo
-        ports: 
+        ports:
           - 27017:27017
-      
+
     steps:
-    # Checkout the code
-    - name: Checkout the merged commit from PR and base branch
-      if: ${{ github.event_name == 'pull_request_target' }}
-      uses: actions/checkout@v2
-      with:
-        ref: refs/pull/${{ github.event.pull_request.number }}/merge
+      # Checkout the code
+      - name: Checkout the merged commit from PR and base branch
+        if: ${{ github.event_name == 'pull_request_target' }}
+        uses: actions/checkout@v2
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
-    - name: Checkout the head commit of the branch
-      if: ${{ github.event_name == 'push' }}
-      uses: actions/checkout@v2
+      - name: Checkout the head commit of the branch
+        if: ${{ github.event_name == 'push' }}
+        uses: actions/checkout@v2
 
-    - name: Use Node.js 10.16.3
-      uses: actions/setup-node@v1
-      with:
-        node-version: '10.16.3'
+      - name: Use Node.js 10.16.3
+        uses: actions/setup-node@v1
+        with:
+          node-version: "10.16.3"
 
-    # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
-    - name: Cache npm dependencies
-      uses: actions/cache@v2
-      env:
-        cache-name: cache-yarn-dependencies
-      with:
-        # maven dependencies are stored in `~/.m2` on Linux/macOS
-        path: ~/.npm
-        key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
-        restore-keys: |
+      # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache npm dependencies
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-yarn-dependencies
+        with:
+          # maven dependencies are stored in `~/.m2` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
             ${{ runner.OS }}-node-
             ${{ runner.OS }}-
 
@@ -230,12 +230,13 @@ jobs:
         tag: ${{ github.event_name }}
         env: 'NODE_ENV=development'
 
-    # Upload the screenshots as artifacts if there's a failure
-    - uses: actions/upload-artifact@v1
-      if: failure()
-      with:
-        name: cypress-screenshots-${{ matrix.job }}
-        path: app/client/cypress/screenshots/
+
+      # Upload the screenshots as artifacts if there's a failure
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: cypress-screenshots-${{ matrix.job }}
+          path: app/client/cypress/screenshots/
 
   package:
     needs: ui-test
@@ -247,43 +248,42 @@ jobs:
     if: always() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master')
 
     steps:
-    
-    # Checkout the code
-    - name: Checkout the merged commit from PR and base branch
-      if: ${{ github.event_name == 'pull_request_target' }}
-      uses: actions/checkout@v2
-      with:
-        ref: refs/pull/${{ github.event.pull_request.number }}/merge
+      # Checkout the code
+      - name: Checkout the merged commit from PR and base branch
+        if: ${{ github.event_name == 'pull_request_target' }}
+        uses: actions/checkout@v2
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
-    - name: Checkout the head commit of the branch
-      if: ${{ github.event_name == 'push' }}
-      uses: actions/checkout@v2
-  
-    - name: Download the react build artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: build
-        path: app/client/build
-    
-    # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
-    # first 11 characters. This can be used to build images for several branches
-    - name: Get the version to tag the Docker image
-      id: branch_name
-      run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+      - name: Checkout the head commit of the branch
+        if: ${{ github.event_name == 'push' }}
+        uses: actions/checkout@v2
 
-    # Build release Docker image and push to Docker Hub
-    - name: Push release image to Docker Hub
-      if: success() && github.ref == 'refs/heads/release' && github.event_name == 'push'
-      run: |
-        docker build -t appsmith/appsmith-editor-ee:${{steps.branch_name.outputs.tag}} .
-        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        docker push appsmith/appsmith-editor-ee
-    
-    # Build master Docker image and push to Docker Hub
-    - name: Push production image to Docker Hub with commit tag
-      if: success() && github.ref == 'refs/heads/master' && github.event_name == 'push'
-      run: |
-        docker build -t appsmith/appsmith-editor-ee:${GITHUB_SHA} .
-        docker build -t appsmith/appsmith-editor-ee:nightly .
-        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        docker push appsmith/appsmith-editor-ee
+      - name: Download the react build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: app/client/build
+
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      - name: Get the version to tag the Docker image
+        id: branch_name
+        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
+      # Build release Docker image and push to Docker Hub
+      - name: Push release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release' && github.event_name == 'push'
+        run: |
+          docker build -t appsmith/appsmith-editor-ee:${{steps.branch_name.outputs.tag}} .
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push appsmith/appsmith-editor-ee
+
+      # Build master Docker image and push to Docker Hub
+      - name: Push production image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master' && github.event_name == 'push'
+        run: |
+          docker build -t appsmith/appsmith-editor-ee:${GITHUB_SHA} .
+          docker build -t appsmith/appsmith-editor-ee:nightly .
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push appsmith/appsmith-editor-ee
