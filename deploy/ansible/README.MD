@@ -98,10 +98,7 @@ The command above will use the host information from the `inventory` file & feed
 
 When it's all done, provided all went well and no parameters were changed, you should be able to visit your app on browser using your `custom_domain` or by your `SERVER_HOST` (if you didn't provide value for `custom_domain` variable )
 
-{% hint style="success" %}
-- You can put your `inventory` file in other folder and then specify its path with the `-i` flag, for detail, check [Ansible Inventory documentation](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html)
-{% endhint %}
-  
+**Note**: You can put your `inventory` file in other folder and then specify its path with the `-i` flag, for detail, check [Ansible Inventory documentation](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html)  
 
 
 
