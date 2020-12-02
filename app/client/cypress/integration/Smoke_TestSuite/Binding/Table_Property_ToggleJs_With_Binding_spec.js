@@ -34,7 +34,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
   });
 
-  it("Table widget toggle test for vertical alignment", function() {
+  it("Table widget toggle test for text size", function() {
     cy.openPropertyPane("tablewidget");
     cy.editColumn("id");
     cy.get(widgetsPage.toggleTextSize).click({ force: true });
@@ -45,10 +45,23 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("1", "0", "font-size", "24px");
   });
 
-  it("Table widget toggle test for text color", function() {
+  it("Table widget toggle test for vertical Alignment", function() {
     cy.openPropertyPane("tablewidget");
     cy.editColumn("id");
     cy.get(widgetsPage.toggleTextSize).click({ force: true });
+    cy.wait(1000);
+    cy.get(widgetsPage.toggleVerticalAlig).click({ force: true });
+    cy.wait(1000);
+    cy.toggleJsAndUpdate("tabledata", testdata.bindingVerticalAlig);
+    cy.get(commonlocators.editPropCrossButton).click();
+    cy.readTabledataValidateCSS("0", "0", "align-items", "flex-start");
+    cy.readTabledataValidateCSS("1", "0", "align-items", "flex-end");
+  });
+
+  it("Table widget toggle test for text color", function() {
+    cy.openPropertyPane("tablewidget");
+    cy.editColumn("id");
+    cy.get(widgetsPage.toggleVerticalAlig).click({ force: true });
     cy.wait(1000);
     cy.get(widgetsPage.toggleJsColor).click({ force: true });
     cy.wait(1000);
