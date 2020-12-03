@@ -6,6 +6,7 @@ import {
 import { Action } from "entities/Action";
 import moment from "moment-timezone";
 import { WidgetProps } from "../widgets/BaseWidget";
+import convert from "xml-js";
 
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
@@ -126,6 +127,20 @@ export const extraLibraries: ExtraLibrary[] = [
     version: moment.version,
     docsURL: `https://momentjs.com/docs/`,
     displayName: "moment",
+  },
+  {
+    accessor: "xml2json",
+    lib: convert.xml2json,
+    version: "^1.6.11",
+    docsURL: "https://github.com/nashwaan/xml-js",
+    displayName: "xml2json",
+  },
+  {
+    accessor: "json2xml",
+    lib: convert.json2xml,
+    version: "^1.6.11",
+    docsURL: "https://github.com/nashwaan/xml-js",
+    displayName: "json2xml",
   },
 ];
 
