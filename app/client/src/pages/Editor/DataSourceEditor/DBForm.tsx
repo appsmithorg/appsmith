@@ -25,6 +25,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertArrayToSentence } from "utils/helpers";
 import BackButton from "./BackButton";
 import { PluginType } from "entities/Action";
+import Boxed from "components/editorComponents/Onboarding/Boxed";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -337,17 +338,19 @@ class DatasourceDBEditor extends React.Component<
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
           {viewMode && (
-            <ActionButton
-              className="t--edit-datasource"
-              text="EDIT"
-              accent="secondary"
-              onClick={() => {
-                this.props.setDatasourceEditorMode(
-                  this.props.datasourceId,
-                  false,
-                );
-              }}
-            />
+            <Boxed step={3}>
+              <ActionButton
+                className="t--edit-datasource"
+                text="EDIT"
+                accent="secondary"
+                onClick={() => {
+                  this.props.setDatasourceEditorMode(
+                    this.props.datasourceId,
+                    false,
+                  );
+                }}
+              />
+            </Boxed>
           )}
         </Header>
         {cloudHosting && pluginType === PluginType.DB && !viewMode && (

@@ -9,7 +9,7 @@ import {
 import { AppState } from "reducers";
 import { all, select, put, takeEvery, take } from "redux-saga/effects";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getPlugins } from "selectors/entitiesSelector";
+import { getDatasources, getPlugins } from "selectors/entitiesSelector";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getOnboardingState, setOnboardingState } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
@@ -21,6 +21,21 @@ import {
   createOnboardingActionSuccess,
 } from "actions/onboardingActions";
 import { changeDatasource } from "actions/datasourceActions";
+
+export const getCurrentStep = (state: AppState) =>
+  state.ui.onBoarding.currentStep;
+export const inOnboarding = (state: AppState) =>
+  state.ui.onBoarding.inOnboarding;
+export const isAddWidgetComplete = (state: AppState) =>
+  state.ui.onBoarding.addedWidget;
+export const getTooltipConfig = (state: AppState) => {
+  const currentStep = getCurrentStep(state);
+  if (currentStep >= 0) {
+    return OnboardingConfig[currentStep].tooltip;
+  }
+
+  return {};
+};
 
 const OnboardingConfig = [
   {
@@ -114,21 +129,6 @@ const OnboardingConfig = [
   },
 ];
 
-export const getCurrentStep = (state: AppState) =>
-  state.ui.onBoarding.currentStep;
-export const inOnboarding = (state: AppState) =>
-  state.ui.onBoarding.inOnboarding;
-export const isAddWidgetComplete = (state: AppState) =>
-  state.ui.onBoarding.addedWidget;
-export const getTooltipConfig = (state: AppState) => {
-  const currentStep = getCurrentStep(state);
-  if (currentStep >= 0) {
-    return OnboardingConfig[currentStep].tooltip;
-  }
-
-  return {};
-};
-
 function* listenForWidgetAdditions() {
   while (true) {
     yield take();
@@ -199,39 +199,49 @@ function* createOnboardingDatasource() {
     const postgresPlugin = plugins.find(
       (plugin: Plugin) => plugin.name === "PostgreSQL",
     );
-    const datasourceConfig = {
-      pluginId: postgresPlugin.id,
-      organizationId,
-      datasourceConfiguration: {
-        endpoints: [
-          {
-            host: "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
-            port: 5432,
-          },
-        ],
-        authentication: {
-          databaseName: "fakeapi",
-          username: "fakeapi",
-          password: "LimitedAccess123#",
-        },
-      },
-    };
-
-    const datasourceResponse: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
-      datasourceConfig,
+    const datasources: Datasource[] = yield select(getDatasources);
+    let onboardingDatasource = datasources.find(
+      datasource => datasource.name === "ExampleDatabase",
     );
-    yield validateResponse(datasourceResponse);
-    yield put({
-      type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
-      payload: datasourceResponse.data,
-    });
+
+    if (!onboardingDatasource) {
+      const datasourceConfig = {
+        pluginId: postgresPlugin.id,
+        name: "ExampleDatabase",
+        organizationId,
+        datasourceConfiguration: {
+          endpoints: [
+            {
+              host: "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
+              port: 5432,
+            },
+          ],
+          authentication: {
+            databaseName: "fakeapi",
+            username: "fakeapi",
+            password: "LimitedAccess123#",
+          },
+        },
+      };
+
+      const datasourceResponse: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
+        datasourceConfig,
+      );
+      yield validateResponse(datasourceResponse);
+      yield put({
+        type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
+        payload: datasourceResponse.data,
+      });
+
+      onboardingDatasource = datasourceResponse.data;
+    }
 
     const currentPageId = yield select(getCurrentPageId);
     const actionPayload = {
       name: "ExampleQuery",
       pageId: currentPageId,
       datasource: {
-        id: datasourceResponse.data.id,
+        id: onboardingDatasource.id,
       },
       actionConfiguration: {},
       eventData: {},
@@ -245,14 +255,14 @@ function* createOnboardingDatasource() {
     if (isValidResponse) {
       const newAction = {
         ...response.data,
-        datasource: datasourceResponse.data,
+        datasource: onboardingDatasource,
       };
       yield put(createOnboardingActionSuccess(newAction));
       yield put({
         type: ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_SUCCESS,
       });
 
-      yield put(changeDatasource(datasourceResponse.data));
+      yield put(changeDatasource(onboardingDatasource));
     } else {
       yield put({
         type: ReduxActionErrorTypes.CREATE_ONBOARDING_ACTION_ERROR,
