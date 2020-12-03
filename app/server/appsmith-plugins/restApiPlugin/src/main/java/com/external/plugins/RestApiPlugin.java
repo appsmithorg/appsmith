@@ -126,11 +126,7 @@ public class RestApiPlugin extends BasePlugin {
 
             if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType) ||
                     MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)) {
-                try {
                     requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(), reqContentType);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
             }
 
             WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
