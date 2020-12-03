@@ -70,6 +70,11 @@ const LoadingContainer = styled(Container)`
       stroke: #f3672a;
     }
   }
+
+  span {
+    font-size: 17px;
+    margin-top: 23px;
+  }
 `;
 
 const Welcome = () => {
@@ -83,6 +88,7 @@ const Welcome = () => {
       <Wrapper>
         <LoadingContainer>
           <Spinner />
+          <span>Creating Example Database</span>
         </LoadingContainer>
       </Wrapper>
     );
