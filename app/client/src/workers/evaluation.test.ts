@@ -551,7 +551,6 @@ describe("DataTreeEvaluator", () => {
     expect(updatedEvalTree).toHaveProperty("Text3.text", "Label 3");
     expect(updatedDependencyMap).toStrictEqual({
       "Text2.text": ["Text1.text"],
-      "Text3.text": [],
       "Dropdown1.selectedOptionValue": [],
       "Dropdown1.selectedOptionValueArr": [],
       "Table1.tableData": ["Text1.text"],
