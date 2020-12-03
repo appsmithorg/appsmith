@@ -1,3 +1,4 @@
+import React from "react";
 import { ControlProps } from "components/formControls/BaseControl";
 import { isHidden } from "components/formControls/utils";
 import { useSelector } from "react-redux";
@@ -16,10 +17,14 @@ const FormControl = (props: FormControlProps) => {
 
   if (hidden) return null;
 
-  return FormControlFactory.createControl(
-    props.config,
-    props.formName,
-    props?.multipleConfig,
+  return (
+    <div className={`t--form-control-${props.config.controlType}`}>
+      {FormControlFactory.createControl(
+        props.config,
+        props.formName,
+        props?.multipleConfig,
+      )}
+    </div>
   );
 };
 

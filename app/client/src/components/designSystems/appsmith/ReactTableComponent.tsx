@@ -11,6 +11,7 @@ import {
   ColumnProperties,
 } from "widgets/TableWidget";
 import { EventType } from "constants/ActionConstants";
+import produce from "immer";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -75,7 +76,6 @@ interface ReactTableComponentProps {
     [key: string]: { type: string; format: string };
   }) => void;
   updateColumnName: (columnNameMap: { [key: string]: string }) => void;
-  handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
