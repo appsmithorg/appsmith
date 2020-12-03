@@ -358,7 +358,7 @@ class CodeEditor extends Component<Props, State> {
         >
           <Popover
             position={Position.BOTTOM}
-            usePortal
+            usePortal={!!this.props.promptMessage}
             minimal
             isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
           >

@@ -1,5 +1,7 @@
 /// <reference types="Cypress" />
 
+require("cypress-file-upload");
+
 const loginPage = require("../locators/LoginPage.json");
 const homePage = require("../locators/HomePage.json");
 const pages = require("../locators/Pages.json");

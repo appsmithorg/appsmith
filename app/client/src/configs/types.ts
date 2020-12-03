@@ -35,6 +35,10 @@ export type AppsmithUIConfigs = {
     apiKey: string;
     ceKey: string;
   };
+  fusioncharts: {
+    enabled: boolean;
+    licenseKey: string;
+  };
   algolia: {
     enabled: boolean;
     apiId: string;

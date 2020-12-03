@@ -1,6 +1,6 @@
 import React from "react";
 
-import { saveOrg } from "actions/orgActions";
+import { deleteOrgLogo, saveOrg, uploadOrgLogo } from "actions/orgActions";
 import { SaveOrgRequest } from "api/OrgApi";
 import { debounce } from "lodash";
 import TextInput, {
@@ -8,11 +8,19 @@ import TextInput, {
   notEmptyValidator,
 } from "components/ads/TextInput";
 import { useSelector, useDispatch } from "react-redux";
-import { getCurrentOrg } from "selectors/organizationSelectors";
+import {
+  getCurrentError,
+  getCurrentOrg,
+} from "selectors/organizationSelectors";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "@blueprintjs/core";
+import { getOrgLoadingStates } from "selectors/organizationSelectors";
+import FilePicker, {
+  SetProgress,
+  UploadCallback,
+} from "components/ads/FilePicker";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 
 const InputLabelWrapper = styled.div`
@@ -36,7 +44,13 @@ export const SettingsHeading = styled(Text)`
 
 const Loader = styled.div`
   height: 38px;
-  width: 260px;
+  width: 320px;
+  border-radius: 0;
+`;
+
+const FilePickerLoader = styled.div`
+  height: 190px;
+  width: 333px;
   border-radius: 0;
 `;
 
@@ -73,6 +87,36 @@ export function GeneralSettings() {
     });
   }, timeout);
 
+  const { isFetchingOrg } = useSelector(getOrgLoadingStates);
+  const logoUploadError = useSelector(getCurrentError);
+
+  const FileUploader = (
+    file: File,
+    setProgress: SetProgress,
+    onUpload: UploadCallback,
+  ) => {
+    const progress = (progressEvent: ProgressEvent) => {
+      const uploadPercentage = Math.round(
+        (progressEvent.loaded / progressEvent.total) * 100,
+      );
+      if (uploadPercentage === 100) {
+        onUpload(currentOrg.logoUrl || "");
+      }
+      setProgress(uploadPercentage);
+    };
+
+    dispatch(
+      uploadOrgLogo({
+        id: orgId as string,
+        logo: file,
+        progress: progress,
+      }),
+    );
+  };
+
+  const DeleteLogo = () => {
+    dispatch(deleteOrgLogo(orgId));
+  };
   const isFetchingApplications = useSelector(getIsFetchingApplications);
 
   return (
@@ -93,6 +137,23 @@ export function GeneralSettings() {
             defaultValue={currentOrg && currentOrg.name}
             cypressSelector="t--org-name-input"
           ></TextInput>
+        )}
+      </SettingWrapper>
+
+      <SettingWrapper>
+        <InputLabelWrapper>
+          <Text type={TextType.H4}>Upload Logo</Text>
+        </InputLabelWrapper>
+        {isFetchingOrg && (
+          <FilePickerLoader className={Classes.SKELETON}></FilePickerLoader>
+        )}
+        {!isFetchingOrg && (
+          <FilePicker
+            url={currentOrg && currentOrg.logoUrl}
+            fileUploader={FileUploader}
+            onFileRemoved={DeleteLogo}
+            logoUploadError={logoUploadError.message}
+          />
         )}
       </SettingWrapper>
 

@@ -11,7 +11,6 @@ import { ReactTableFilter } from "components/designSystems/appsmith/TableFilters
 import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
-import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { ReactTableColumnProps } from "widgets/TableWidget";
 import { Colors } from "constants/Colors";
 import {
@@ -52,7 +51,6 @@ interface TableProps {
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
-  columnActions?: ColumnAction[];
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
 }
@@ -67,8 +65,6 @@ export const Table = (props: TableProps) => {
   const data = React.useMemo(() => props.data, [props.data]);
   const columnString = JSON.stringify({
     columns: props.columns,
-    actions: props.columnActions,
-    columnActions: props.columnActions,
     compactMode: props.compactMode,
   });
   // eslint-disable-next-line react-hooks/exhaustive-deps

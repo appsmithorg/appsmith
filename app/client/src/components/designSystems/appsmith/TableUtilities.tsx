@@ -508,7 +508,7 @@ export function getDefaultColumnProperties(
     columnType: ColumnTypes.TEXT,
     textColor: Colors.THUNDER,
     textSize: TextSizes.PARAGRAPH,
-    fontStyle: [FontStyleTypes.REGULAR],
+    fontStyle: FontStyleTypes.REGULAR,
     enableFilter: true,
     enableSort: true,
     isVisible: true,
@@ -516,7 +516,7 @@ export function getDefaultColumnProperties(
     label: accessor,
     computedValue: isDerived
       ? ""
-      : `{{${widgetName}.tableData.map((currentRow) => currentRow.${accessor})}}`,
+      : `{{${widgetName}.tableData.map((currentRow) => (currentRow.${accessor}))}}`,
   };
 }
 

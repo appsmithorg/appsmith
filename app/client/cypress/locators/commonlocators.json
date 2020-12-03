@@ -84,6 +84,10 @@
   "editColText": ".t--property-pane-edit-title span",
   "changeColType": ".t--property-control-columntype .bp3-button",
   "selectedColType": ".t--property-control-columntype button span",
+  "collapsesection": ".t--property-pane-section-collapse-general",
   "selectTab": ".t--tab-Tab",
-  "collapsesection": ".t--property-pane-section-collapse-general"
+  "filePickerButton": ".t--widget-filepickerwidget",
+  "filePickerInput": ".uppy-Dashboard-input",
+  "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",
+  "filePickerOnFilesSelected": ".t--property-control-onfilesselected"
 }

@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import {
   TableSizes,
   CellLayoutProperties,
@@ -277,19 +277,7 @@ const TEXT_SIZES = {
   BULLETPOINTS: "12px",
 };
 
-export const CellWrapper = styled.div<{
-  isHidden?: boolean;
-  cellProperties?: CellLayoutProperties;
-}>`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  opacity: ${props => (props.isHidden ? "0.6" : "1")};
+export const TableStyles = css<{ cellProperties?: CellLayoutProperties }>`
   font-weight: ${props =>
     props?.cellProperties?.fontStyle?.includes(FontStyleTypes.BOLD)
       ? "bold"
@@ -313,6 +301,22 @@ export const CellWrapper = styled.div<{
   font-size: ${props =>
     props?.cellProperties?.textSize &&
     TEXT_SIZES[props?.cellProperties?.textSize]};
+`;
+
+export const CellWrapper = styled.div<{
+  isHidden?: boolean;
+  cellProperties?: CellLayoutProperties;
+}>`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: ${props => (props.isHidden ? "0.6" : "1")};
+  ${TableStyles};
   padding: 0 10px;
   .image-cell {
     width: 40px;
