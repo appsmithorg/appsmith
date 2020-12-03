@@ -617,5 +617,26 @@ describe("DataTreeEvaluator", () => {
       },
     };
     const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
+    const updatedDependencyMap = evaluator.dependencyMap;
+    expect(updatedEvalTree).toHaveProperty("Table1.tableData", [
+      {
+        test: "Hey",
+        raw: "Label",
+      },
+      {
+        test: "Ho",
+        raw: "Label",
+      },
+    ]);
+    expect(updatedDependencyMap).toStrictEqual({
+      "Text2.text": ["Text1.text"],
+      "Text3.text": ["Text1.text"],
+      "Dropdown1.selectedOptionValue": [],
+      "Dropdown1.selectedOptionValueArr": [],
+      "Table1.tableData": ["Api1.data", "Text1.text"],
+      "Table1.searchText": [],
+      "Table1.selectedRowIndex": [],
+      "Table1.selectedRowIndices": [],
+    });
   });
 });
