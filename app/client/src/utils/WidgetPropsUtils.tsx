@@ -285,7 +285,7 @@ const tableWidgetPropertyPaneMigrations = (
                 : ColumnTypes.TEXT,
             textColor: Colors.THUNDER,
             textSize: TextSizes.PARAGRAPH,
-            fontStyle: [FontStyleTypes.REGULAR],
+            fontStyle: FontStyleTypes.REGULAR,
             enableFilter: true,
             enableSort: true,
             isVisible: hiddenColumns.includes(accessor) ? false : true,
@@ -327,6 +327,9 @@ const tableWidgetPropertyPaneMigrations = (
           updatedDerivedColumns,
         );
       }
+      children.cellTextSize = "PARAGRAPH";
+      children.cellHorizontalAlignment = "LEFT";
+      children.cellVerticalAlignment = "CENTER";
     }
     return children;
   });

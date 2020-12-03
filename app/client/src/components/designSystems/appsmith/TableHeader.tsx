@@ -9,7 +9,7 @@ import {
   CommonFunctionsMenuWrapper,
 } from "./TableStyledWrappers";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
-import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
+// import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
 import TableFilters, {
   ReactTableFilter,
 } from "components/designSystems/appsmith/TableFilters";
@@ -133,13 +133,13 @@ const TableHeader = (props: TableHeaderProps) => {
           columns={props.tableColumns}
           widgetName={props.widgetName}
         />
-        {props.editMode && (
+        {/* {props.editMode && (
           <TableColumnsVisibility
             columns={props.columns}
             hiddenColumns={props.hiddenColumns}
             updateHiddenColumns={props.updateHiddenColumns}
           />
-        )}
+        )} */}
         <TableCompactMode
           compactMode={props.compactMode}
           updateCompactMode={props.updateCompactMode}

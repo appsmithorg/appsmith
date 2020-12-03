@@ -18,7 +18,6 @@ import {
   BASE_WIDGET_VALIDATION,
   WidgetPropertyValidationType,
 } from "utils/WidgetValidation";
-import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
@@ -407,7 +406,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                           value: "ITALIC",
                         },
                       ],
-                      isJSConvertible: false,
+                      isJSConvertible: true,
                       customJSControl: "COMPUTE_VALUE",
                     },
                     {
@@ -526,6 +525,121 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         ],
       },
       {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "cellBackground",
+            label: "Cell Background",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            defaultColor: Colors.WHITE,
+          },
+          {
+            propertyName: "cellTextColor",
+            label: "Text Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            defaultColor: Colors.THUNDER,
+          },
+          {
+            propertyName: "cellTextSize",
+            label: "Text Size",
+            controlType: "DROP_DOWN",
+            isJSConvertible: true,
+            options: [
+              {
+                label: "Heading 1",
+                value: "HEADING1",
+                subText: "24px",
+                icon: "HEADING_ONE",
+              },
+              {
+                label: "Heading 2",
+                value: "HEADING2",
+                subText: "18px",
+                icon: "HEADING_TWO",
+              },
+              {
+                label: "Heading 3",
+                value: "HEADING3",
+                subText: "16px",
+                icon: "HEADING_THREE",
+              },
+              {
+                label: "Paragraph",
+                value: "PARAGRAPH",
+                subText: "14px",
+                icon: "PARAGRAPH",
+              },
+              {
+                label: "Bullet Points",
+                value: "BULLETPOINTS",
+                subText: "14px",
+                icon: "BULLETS",
+              },
+            ],
+          },
+          {
+            propertyName: "cellFontStyle",
+            label: "Font Style",
+            controlType: "BUTTON_TABS",
+            options: [
+              {
+                icon: "BOLD_FONT",
+                value: "BOLD",
+              },
+              {
+                icon: "ITALICS_FONT",
+                value: "ITALIC",
+              },
+            ],
+            isJSConvertible: true,
+          },
+          {
+            propertyName: "cellHorizontalAlignment",
+            label: "Text Align",
+            controlType: "ICON_TABS",
+            options: [
+              {
+                icon: "LEFT_ALIGN",
+                value: "LEFT",
+              },
+              {
+                icon: "CENTER_ALIGN",
+                value: "CENTER",
+              },
+              {
+                icon: "RIGHT_ALIGN",
+                value: "RIGHT",
+              },
+            ],
+            defaultValue: "LEFT",
+            isJSConvertible: true,
+          },
+          {
+            propertyName: "cellVerticalAlignment",
+            label: "Vertical Alignment",
+            controlType: "ICON_TABS",
+            options: [
+              {
+                icon: "VERTICAL_TOP",
+                value: "TOP",
+              },
+              {
+                icon: "VERTICAL_CENTER",
+                value: "CENTER",
+              },
+              {
+                icon: "VERTICAL_BOTTOM",
+                value: "BOTTOM",
+              },
+            ],
+            defaultValue: "LEFT",
+            isJSConvertible: true,
+          },
+        ],
+      },
+      {
         sectionName: "Actions",
         children: [
           {
@@ -584,36 +698,48 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
+  getPropertyValue = (value: any, index: number) => {
+    if (value && Array.isArray(value)) {
+      return value[index].toString().toUpperCase();
+    } else if (value) {
+      return value.toString().toUpperCase();
+    } else {
+      return value;
+    }
+  };
+
   getCellProperties = (
     columnProperties: ColumnProperties,
     rowIndex: number,
   ) => {
     const cellProperties: CellLayoutProperties = {
-      horizontalAlignment: Array.isArray(columnProperties.horizontalAlignment)
-        ? columnProperties.horizontalAlignment[rowIndex]
-        : columnProperties.horizontalAlignment,
-      verticalAlignment: Array.isArray(columnProperties.verticalAlignment)
-        ? columnProperties.verticalAlignment[rowIndex]
-        : columnProperties.verticalAlignment,
-      textSize: Array.isArray(columnProperties.textSize)
-        ? columnProperties.textSize[rowIndex]
-        : columnProperties.textSize,
-      fontStyle: columnProperties.fontStyle,
-      textColor: Array.isArray(columnProperties.textColor)
-        ? columnProperties.textColor[rowIndex]
-        : columnProperties.textColor,
-      cellBackground: Array.isArray(columnProperties.cellBackground)
-        ? columnProperties.cellBackground[rowIndex]
-        : columnProperties.cellBackground,
-      buttonStyle: Array.isArray(columnProperties.buttonStyle)
-        ? columnProperties.buttonStyle[rowIndex]
-        : columnProperties.buttonStyle,
-      buttonLabelColor: Array.isArray(columnProperties.buttonLabelColor)
-        ? columnProperties.buttonLabelColor[rowIndex]
-        : columnProperties.buttonLabelColor,
-      buttonLabel: Array.isArray(columnProperties.buttonLabel)
-        ? columnProperties.buttonLabel[rowIndex]
-        : columnProperties.buttonLabel,
+      horizontalAlignment: this.getPropertyValue(
+        columnProperties.horizontalAlignment,
+        rowIndex,
+      ),
+      verticalAlignment: this.getPropertyValue(
+        columnProperties.verticalAlignment,
+        rowIndex,
+      ),
+      cellBackground: this.getPropertyValue(
+        columnProperties.cellBackground,
+        rowIndex,
+      ),
+      buttonStyle: this.getPropertyValue(
+        columnProperties.buttonStyle,
+        rowIndex,
+      ),
+      buttonLabelColor: this.getPropertyValue(
+        columnProperties.buttonLabelColor,
+        rowIndex,
+      ),
+      buttonLabel: this.getPropertyValue(
+        columnProperties.buttonLabel,
+        rowIndex,
+      ),
+      textSize: this.getPropertyValue(columnProperties.textSize, rowIndex),
+      textColor: this.getPropertyValue(columnProperties.textColor, rowIndex),
+      fontStyle: this.getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
     };
     return cellProperties;
   };
@@ -1150,7 +1276,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           searchKey={this.props.searchText}
           editMode={this.props.renderMode === RenderModes.CANVAS}
           hiddenColumns={hiddenColumns}
-          columnActions={this.props.columnActions}
           columnOrder={this.props.columnOrder}
           columnSizeMap={this.props.columnSizeMap}
           pageSize={pageSize}
@@ -1398,7 +1523,7 @@ export interface CellLayoutProperties {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   textSize?: TextSize;
-  fontStyle?: Array<FontStyle>;
+  fontStyle?: string;
   textColor?: string;
   cellBackground?: string;
   buttonStyle?: string;
@@ -1438,7 +1563,7 @@ export interface ColumnProperties {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   textSize?: TextSize;
-  fontStyle?: Array<FontStyle>;
+  fontStyle?: string;
   textColor?: string;
   enableFilter?: boolean;
   enableSort?: boolean;
@@ -1468,7 +1593,6 @@ export interface TableWidgetProps extends WidgetProps, WithMeta {
   onSearchTextChanged: string;
   selectedRowIndex?: number;
   selectedRowIndices: number[];
-  columnActions?: ColumnAction[];
   serverSidePaginationEnabled?: boolean;
   multiRowSelection?: boolean;
   hiddenColumns?: string[];
@@ -1485,6 +1609,12 @@ export interface TableWidgetProps extends WidgetProps, WithMeta {
     column: string;
     asc: boolean;
   };
+  cellBackground?: string;
+  cellTextColor?: string;
+  cellTextSize?: TextSize;
+  cellFontStyle?: string;
+  cellHorizontalAlignment?: CellAlignment;
+  cellVerticalAlignment?: VerticalAlignment;
 }
 
 export default TableWidget;

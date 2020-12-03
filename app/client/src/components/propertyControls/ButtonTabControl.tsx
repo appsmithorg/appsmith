@@ -23,19 +23,19 @@ const ItemWrapper = styled.div<{ selected: boolean }>`
 class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
   selectButton = (value: string) => {
     const { propertyValue, defaultValue } = this.props;
-    const values = propertyValue?.length
-      ? [...propertyValue]
-      : defaultValue?.length
-      ? [...defaultValue]
+    const values: string[] = propertyValue
+      ? propertyValue.split(",")
+      : defaultValue
+      ? defaultValue.split(",")
       : [];
     if (values.includes(value)) {
-      values.splice(1, values.indexOf(value));
-      this.updateProperty(this.props.propertyName, values);
+      values.splice(values.indexOf(value), 1);
+      this.updateProperty(this.props.propertyName, values.join(","));
     } else {
-      const updatedValues = produce(values, draft => {
+      const updatedValues: string[] = produce(values, (draft: string[]) => {
         draft.push(value);
       });
-      this.updateProperty(this.props.propertyName, updatedValues);
+      this.updateProperty(this.props.propertyName, updatedValues.join(","));
     }
   };
   render() {
@@ -48,10 +48,7 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
           return (
             <ItemWrapper
               key={index}
-              selected={
-                Array.isArray(propertyValue) &&
-                propertyValue.includes(option.value)
-              }
+              selected={propertyValue && propertyValue.includes(option.value)}
               onClick={() => this.selectButton(option.value)}
               className={`t--button-tab-${option.value}`}
             >
