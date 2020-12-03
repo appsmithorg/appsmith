@@ -7,6 +7,7 @@ import BaseControl, { ControlProps, ControlData } from "./BaseControl";
 import TextField from "components/editorComponents/form/fields/TextField";
 import { ControlType } from "constants/PropertyControlConstants";
 import FormLabel from "components/editorComponents/FormLabel";
+import { Colors } from "constants/Colors";
 
 const FormRowWithLabel = styled.div`
   display: flex;
@@ -49,6 +50,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                   </div>
                   {index === props.fields.length - 1 ? (
                     <Icon
+                      className="t--add-field"
                       icon="plus"
                       iconSize={20}
                       onClick={() => props.fields.push({ key: "", value: "" })}
@@ -57,8 +59,10 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                     />
                   ) : (
                     <FormIcons.DELETE_ICON
+                      className="t--delete-field"
                       height={20}
                       width={20}
+                      color={Colors.CADET_BLUE}
                       onClick={() => props.fields.remove(index)}
                       style={{ alignSelf: "center" }}
                     />
