@@ -65,6 +65,23 @@ const PropertyControl = memo((props: Props) => {
         propertyName: propertyName,
         updatedValue: propertyValue,
       });
+      if (props.updateHook) {
+        const propertiesToUpdate: Array<{
+          propertyPath: string;
+          propertyValue: any;
+        }> = props.updateHook(widgetProperties, propertyName, propertyValue);
+        propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
+          dispatch(
+            updateWidgetPropertyRequest(
+              widgetProperties.widgetId,
+              propertyPath,
+              propertyValue,
+              RenderModes.CANVAS,
+              false,
+            ),
+          );
+        });
+      }
       dispatch(
         updateWidgetPropertyRequest(
           widgetProperties.widgetId,

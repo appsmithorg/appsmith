@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
-
 import React, { useEffect } from "react";
 import Table from "components/designSystems/appsmith/Table";
 import { debounce } from "lodash";
@@ -11,7 +9,6 @@ import {
   ColumnProperties,
 } from "widgets/TableWidget";
 import { EventType } from "constants/ActionConstants";
-import produce from "immer";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;

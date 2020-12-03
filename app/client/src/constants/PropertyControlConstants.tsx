@@ -29,6 +29,11 @@ export type PropertyPaneControlConfig = {
   dataTreePath?: string;
   children?: PropertyPaneConfig[];
   panelConfig?: PanelConfig;
+  updateHook?: (
+    props: any,
+    propertyName: string,
+    propertyValue: any,
+  ) => Array<{ propertyPath: string; propertyValue: any }>;
   hidden?: (props: any) => boolean;
 };
 

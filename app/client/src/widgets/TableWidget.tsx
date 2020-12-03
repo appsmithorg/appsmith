@@ -21,7 +21,7 @@ import {
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
-import { isNumber, isString, isUndefined, isEqual } from "lodash";
+import { isNumber, isString, isUndefined, isEqual, compact } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta, { WithMeta } from "./MetaHOC";
@@ -111,6 +111,37 @@ export enum OperatorTypes {
   AND = "AND",
 }
 
+const updateColumnStyles = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: any,
+): Array<{ propertyPath: string; propertyValue: any }> => {
+  // Figure out how propertyPaths will work when a nested property control is updating another property
+  if (props.primaryColumns) {
+    // The style being updated currently
+    const currentStyleName = propertyPath.split(".").pop(); // horizontalAlignment/textStyle
+    return compact(
+      props.primaryColumns.map((column: ColumnProperties, index: number) => {
+        // The property path for the property we intend to update
+        const propertyPath = `primaryColumns[${index}].${currentStyleName}`;
+        if (
+          props.dynamicBindingPathList?.findIndex(
+            item => item.key === propertyPath,
+          ) === -1 // if the property path is not a dynamic binding
+        ) {
+          return {
+            propertyPath,
+            propertyValue,
+          }; // Have the platform update the value of this property
+        }
+        return; // Return undefined
+      }),
+    );
+    // .filter(Boolean); // Remove all undefined entries
+  }
+  return [];
+};
+
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -141,10 +172,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             inputType: "ARRAY",
           },
           {
-            helpText: "Existing Columns",
+            helpText: "Columns",
             propertyName: "primaryColumns",
             controlType: "PRIMARY_COLUMNS",
-            label: "Existing Columns",
+            label: "Columns",
             panelConfig: {
               editableTitle: true,
               titlePropertyName: "label",
@@ -191,10 +222,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                           label: "Button",
                           value: "button",
                         },
-                        // {
-                        //   label: "Dropdown",
-                        //   value: "dropdown",
-                        // },
                       ],
                     },
                     {
@@ -533,19 +560,22 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             defaultColor: Colors.WHITE,
+            updateHook: updateColumnStyles,
           },
           {
-            propertyName: "cellTextColor",
+            propertyName: "textColor",
             label: "Text Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             defaultColor: Colors.THUNDER,
+            updateHook: updateColumnStyles,
           },
           {
-            propertyName: "cellTextSize",
+            propertyName: "textSize",
             label: "Text Size",
             controlType: "DROP_DOWN",
             isJSConvertible: true,
+            updateHook: updateColumnStyles,
             options: [
               {
                 label: "Heading 1",
@@ -580,9 +610,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             ],
           },
           {
-            propertyName: "cellFontStyle",
+            propertyName: "fontStyle",
             label: "Font Style",
             controlType: "BUTTON_TABS",
+            updateHook: updateColumnStyles,
             options: [
               {
                 icon: "BOLD_FONT",
@@ -596,9 +627,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             isJSConvertible: true,
           },
           {
-            propertyName: "cellHorizontalAlignment",
+            propertyName: "horizontalAlignment",
             label: "Text Align",
             controlType: "ICON_TABS",
+            updateHook: updateColumnStyles,
+
             options: [
               {
                 icon: "LEFT_ALIGN",
@@ -617,9 +650,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             isJSConvertible: true,
           },
           {
-            propertyName: "cellVerticalAlignment",
+            propertyName: "verticalAlignment",
             label: "Vertical Alignment",
             controlType: "ICON_TABS",
+            updateHook: updateColumnStyles,
             options: [
               {
                 icon: "VERTICAL_TOP",
