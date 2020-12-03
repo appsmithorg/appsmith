@@ -63,7 +63,7 @@ import {
 import { AppState } from "reducers";
 import { mapToPropList } from "utils/AppsmithUtils";
 import { validateResponse } from "sagas/ErrorSagas";
-import { ToastType, TypeOptions } from "react-toastify";
+import { TypeOptions } from "react-toastify";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 import { updateAppStore } from "actions/pageActions";
@@ -71,7 +71,7 @@ import { getAppStoreName } from "constants/AppConstants";
 import downloadjs from "downloadjs";
 import { getType, Types } from "utils/TypeHelpers";
 import { Toaster } from "components/ads/Toast";
-import { Variant, ToastVariant } from "components/ads/common";
+import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -294,7 +294,11 @@ export function* getActionParams(
   // Evaluate all values
   const values: any = yield all(
     dataTreeBindings.map((binding: string) => {
-      return call(evaluateDynamicBoundValueSaga, binding);
+      if (isDynamicValue(binding)) {
+        return call(evaluateDynamicBoundValueSaga, binding);
+      } else {
+        return binding;
+      }
     }),
   );
   // convert to object and transform non string values
