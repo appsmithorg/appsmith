@@ -45,6 +45,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("1", "0", "font-size", "24px");
   });
 
+  //To add another test for styling
   it("Table widget toggle test for vertical Alignment", function() {
     cy.openPropertyPane("tablewidget");
     cy.editColumn("id");
