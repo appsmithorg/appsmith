@@ -22,12 +22,13 @@ import {
   changeOrgUserRole,
   deleteOrgUser,
 } from "actions/orgActions";
-import Button, { Size, Variant } from "components/ads/Button";
+import Button, { Size } from "components/ads/Button";
 import TableDropdown from "components/ads/TableDropdown";
 import { TextType } from "components/ads/Text";
 import { SettingsHeading } from "./General";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
+import { Variant } from "components/ads/common";
 
 export type PageProps = RouteComponentProps<{
   orgId: string;
@@ -61,7 +62,9 @@ export default function MemberSettings(props: PageProps) {
   } = useSelector(getOrgLoadingStates);
   const allUsers = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
-  const currentOrg = useSelector(getCurrentOrg);
+  const currentOrg = useSelector(getCurrentOrg).filter(
+    el => el.id === orgId,
+  )[0];
 
   const userTableData = allUsers.map(user => ({
     ...user,

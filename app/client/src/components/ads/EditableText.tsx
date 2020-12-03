@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { EditableText as BlueprintEditableText } from "@blueprintjs/core";
+import {
+  EditableText as BlueprintEditableText,
+  Classes as BlueprintClasses,
+} from "@blueprintjs/core";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
 import Spinner from "./Spinner";
@@ -75,15 +78,17 @@ const TextContainer = styled.div<{
     display: none;
   }
 
-  &&& .bp3-editable-text-content,
-  &&& .bp3-editable-text-input {
+  &&&
+    .${BlueprintClasses.EDITABLE_TEXT_CONTENT},
+    &&&
+    .${BlueprintClasses.EDITABLE_TEXT_INPUT} {
     font-size: ${props => props.theme.typography.p1.fontSize}px;
     line-height: ${props => props.theme.typography.p1.lineHeight}px;
     letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
     font-weight: ${props => props.theme.typography.p1.fontWeight}px;
   }
 
-  &&& .bp3-editable-text-content {
+  &&& .${BlueprintClasses.EDITABLE_TEXT_CONTENT} {
     cursor: pointer;
     color: ${props => props.theme.colors.editableText.color};
     overflow: hidden;
@@ -91,7 +96,7 @@ const TextContainer = styled.div<{
     ${props => (props.isEditing ? "display: none" : "display: block")};
   }
 
-  &&& .bp3-editable-text-input {
+  &&& .${BlueprintClasses.EDITABLE_TEXT_INPUT} {
     border: none;
     outline: none;
     height: ${props => props.theme.spaces[13] + 3}px;
@@ -100,7 +105,7 @@ const TextContainer = styled.div<{
     border-radius: ${props => props.theme.spaces[0]}px;
   }
 
-  &&& .bp3-editable-text {
+  &&& .${BlueprintClasses.EDITABLE_TEXT} {
     overflow: hidden;
     height: ${props => props.theme.spaces[13] + 3}px;
     padding: ${props => props.theme.spaces[4]}px
@@ -180,7 +185,9 @@ export const EditableText = (props: EditableTextProps) => {
       } else if (changeStarted) {
         onTextChanged && onTextChanged(_value);
       }
-      onBlur(_value);
+      if (_value !== defaultValue) {
+        onBlur(_value);
+      }
       setIsEditing(false);
       setChangeStarted(false);
     },

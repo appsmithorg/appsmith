@@ -101,3 +101,16 @@ echo
 
 echo "### Reloading nginx..."
 sudo docker-compose exec nginx nginx -s reload
+
+APPSMITH_INSTALLATION_ID=$(curl -s 'https://api64.ipify.org')
+
+curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+      "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+      "event": "Configure SSL Successfully",
+      "data": {
+          "os": "Ubuntu",
+          "platform": "aws_ami"
+       }
+    }' > /dev/null

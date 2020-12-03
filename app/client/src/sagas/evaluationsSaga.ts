@@ -25,8 +25,6 @@ import {
   EvalError,
   EvalErrorTypes,
 } from "../utils/DynamicBindingUtils";
-import { ToastType } from "react-toastify";
-import { AppToaster } from "../components/editorComponents/ToastComponent";
 import log from "loglevel";
 import _ from "lodash";
 import { WidgetType } from "../constants/WidgetConstants";
@@ -34,6 +32,8 @@ import { WidgetProps } from "../widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "../utils/PerformanceTracker";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 
 let evaluationWorker: Worker;
@@ -59,15 +59,15 @@ const initEvaluationWorkers = () => {
 const evalErrorHandler = (errors: EvalError[]) => {
   errors.forEach(error => {
     if (error.type === EvalErrorTypes.DEPENDENCY_ERROR) {
-      AppToaster.show({
-        message: error.message,
-        type: ToastType.ERROR,
+      Toaster.show({
+        text: error.message,
+        variant: Variant.danger,
       });
     }
     if (error.type === EvalErrorTypes.EVAL_TREE_ERROR) {
-      AppToaster.show({
-        message: "Unexpected error occurred while evaluating the app",
-        type: ToastType.ERROR,
+      Toaster.show({
+        text: "Unexpected error occurred while evaluating the app",
+        variant: Variant.danger,
       });
       Sentry.captureException(error);
     }
@@ -159,6 +159,21 @@ export function* clearEvalPropertyCache(propertyPath: string) {
     evaluationWorker.postMessage({
       action: EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE,
       propertyPath,
+    });
+    yield take(workerChannel);
+  }
+}
+
+/**
+ * clears all cache keys of a widget
+ *
+ * @param widgetName
+ */
+export function* clearEvalPropertyCacheOfWidget(widgetName: string) {
+  if (evaluationWorker) {
+    evaluationWorker.postMessage({
+      action: EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET,
+      widgetName,
     });
     yield take(workerChannel);
   }

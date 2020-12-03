@@ -690,8 +690,24 @@ type ColorType = {
     light: ShadeColor;
     dark: ShadeColor;
   };
+  filePicker: {
+    bg: ShadeColor;
+    color: ShadeColor;
+    progress: ShadeColor;
+    shadow: {
+      from: string;
+      to: string;
+    };
+  };
   formFooter: {
     cancelBtn: ShadeColor;
+  };
+  toast: {
+    undo: string;
+    warningColor: string;
+    dangerColor: string;
+    textColor: string;
+    bg: ShadeColor;
   };
 };
 
@@ -831,7 +847,7 @@ export const dark: ColorType = {
       border: darkShades[2],
     },
     normal: {
-      bg: darkShades[0],
+      bg: lightShades[10],
       text: darkShades[9],
       border: darkShades[0],
     },
@@ -960,8 +976,24 @@ export const dark: ColorType = {
     light: darkShades[2],
     dark: darkShades[4],
   },
+  filePicker: {
+    bg: darkShades[1],
+    color: darkShades[7],
+    progress: darkShades[6],
+    shadow: {
+      from: "rgba(21, 17, 17, 0.0001)",
+      to: "rgba(9, 7, 7, 0.883386)",
+    },
+  },
   formFooter: {
     cancelBtn: darkShades[9],
+  },
+  toast: {
+    undo: "#CB4810",
+    warningColor: "#E0B30E",
+    dangerColor: "#E22C2C",
+    textColor: "#090707",
+    bg: darkShades[8],
   },
 };
 
@@ -1230,15 +1262,31 @@ export const light: ColorType = {
     light: lightShades[2],
     dark: lightShades[4],
   },
+  filePicker: {
+    bg: lightShades[2],
+    color: lightShades[7],
+    progress: lightShades[6],
+    shadow: {
+      from: "rgba(253, 253, 253, 0.0001)",
+      to: "rgba(250, 250, 250, 0.898847)",
+    },
+  },
   formFooter: {
     cancelBtn: lightShades[9],
+  },
+  toast: {
+    undo: "#F86A2B",
+    warningColor: "#DCAD00",
+    dangerColor: "#F22B2B",
+    textColor: "#F7F7F7",
+    bg: lightShades[10],
   },
 };
 
 export const theme: Theme = {
   radii: [0, 4, 8, 10, 20, 50],
   fontSizes: [0, 10, 12, 14, 16, 18, 24, 28, 32, 48, 64],
-  spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30, 36],
+  spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30, 36, 38, 40, 42, 44],
   fontWeights: [0, 400, 500, 700],
   typography: {
     h1: {

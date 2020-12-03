@@ -1,19 +1,28 @@
 import React from "react";
 
-import { saveOrg } from "actions/orgActions";
+import { deleteOrgLogo, saveOrg, uploadOrgLogo } from "actions/orgActions";
 import { SaveOrgRequest } from "api/OrgApi";
-import { throttle } from "lodash";
+import { debounce } from "lodash";
 import TextInput, {
   emailValidator,
   notEmptyValidator,
 } from "components/ads/TextInput";
 import { useSelector, useDispatch } from "react-redux";
-import { getCurrentOrg } from "selectors/organizationSelectors";
+import {
+  getCurrentError,
+  getCurrentOrg,
+} from "selectors/organizationSelectors";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "@blueprintjs/core";
 import { getOrgLoadingStates } from "selectors/organizationSelectors";
+import FilePicker, {
+  SetProgress,
+  UploadCallback,
+} from "components/ads/FilePicker";
+import { getIsFetchingApplications } from "selectors/applicationSelectors";
+
 const InputLabelWrapper = styled.div`
   width: 200px;
   display: flex;
@@ -35,42 +44,80 @@ export const SettingsHeading = styled(Text)`
 
 const Loader = styled.div`
   height: 38px;
-  width: 260px;
+  width: 320px;
+  border-radius: 0;
+`;
+
+const FilePickerLoader = styled.div`
+  height: 190px;
+  width: 333px;
   border-radius: 0;
 `;
 
 export function GeneralSettings() {
   const { orgId } = useParams<{ orgId: string }>();
   const dispatch = useDispatch();
-  const currentOrg = useSelector(getCurrentOrg);
+  const currentOrg = useSelector(getCurrentOrg).filter(
+    el => el.id === orgId,
+  )[0];
   function saveChanges(settings: SaveOrgRequest) {
     dispatch(saveOrg(settings));
   }
 
-  const throttleTimeout = 1000;
+  const timeout = 1000;
 
-  const onWorkspaceNameChange = throttle((newName: string) => {
+  const onWorkspaceNameChange = debounce((newName: string) => {
     saveChanges({
       id: orgId as string,
       name: newName,
     });
-  }, throttleTimeout);
+  }, timeout);
 
-  const onWebsiteChange = throttle((newWebsite: string) => {
+  const onWebsiteChange = debounce((newWebsite: string) => {
     saveChanges({
       id: orgId as string,
       website: newWebsite,
     });
-  }, throttleTimeout);
+  }, timeout);
 
-  const onEmailChange = throttle((newEmail: string) => {
+  const onEmailChange = debounce((newEmail: string) => {
     saveChanges({
       id: orgId as string,
       email: newEmail,
     });
-  }, throttleTimeout);
+  }, timeout);
 
   const { isFetchingOrg } = useSelector(getOrgLoadingStates);
+  const logoUploadError = useSelector(getCurrentError);
+
+  const FileUploader = (
+    file: File,
+    setProgress: SetProgress,
+    onUpload: UploadCallback,
+  ) => {
+    const progress = (progressEvent: ProgressEvent) => {
+      const uploadPercentage = Math.round(
+        (progressEvent.loaded / progressEvent.total) * 100,
+      );
+      if (uploadPercentage === 100) {
+        onUpload(currentOrg.logoUrl || "");
+      }
+      setProgress(uploadPercentage);
+    };
+
+    dispatch(
+      uploadOrgLogo({
+        id: orgId as string,
+        logo: file,
+        progress: progress,
+      }),
+    );
+  };
+
+  const DeleteLogo = () => {
+    dispatch(deleteOrgLogo(orgId));
+  };
+  const isFetchingApplications = useSelector(getIsFetchingApplications);
 
   return (
     <>
@@ -79,13 +126,15 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Organization Name</Text>
         </InputLabelWrapper>
-        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
-        {!isFetchingOrg && (
+        {isFetchingApplications && (
+          <Loader className={Classes.SKELETON}></Loader>
+        )}
+        {!isFetchingApplications && (
           <TextInput
             validator={notEmptyValidator}
-            placeholder="Workspace name"
+            placeholder="Organization Name"
             onChange={onWorkspaceNameChange}
-            defaultValue={currentOrg.name}
+            defaultValue={currentOrg && currentOrg.name}
             cypressSelector="t--org-name-input"
           ></TextInput>
         )}
@@ -93,14 +142,33 @@ export function GeneralSettings() {
 
       <SettingWrapper>
         <InputLabelWrapper>
+          <Text type={TextType.H4}>Upload Logo</Text>
+        </InputLabelWrapper>
+        {isFetchingOrg && (
+          <FilePickerLoader className={Classes.SKELETON}></FilePickerLoader>
+        )}
+        {!isFetchingOrg && (
+          <FilePicker
+            url={currentOrg && currentOrg.logoUrl}
+            fileUploader={FileUploader}
+            onFileRemoved={DeleteLogo}
+            logoUploadError={logoUploadError.message}
+          />
+        )}
+      </SettingWrapper>
+
+      <SettingWrapper>
+        <InputLabelWrapper>
           <Text type={TextType.H4}>Website</Text>
         </InputLabelWrapper>
-        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
-        {!isFetchingOrg && (
+        {isFetchingApplications && (
+          <Loader className={Classes.SKELETON}></Loader>
+        )}
+        {!isFetchingApplications && (
           <TextInput
             placeholder="Your website"
             onChange={onWebsiteChange}
-            defaultValue={currentOrg.website || ""}
+            defaultValue={(currentOrg && currentOrg.website) || ""}
             cypressSelector="t--org-website-input"
           ></TextInput>
         )}
@@ -110,13 +178,15 @@ export function GeneralSettings() {
         <InputLabelWrapper>
           <Text type={TextType.H4}>Email</Text>
         </InputLabelWrapper>
-        {isFetchingOrg && <Loader className={Classes.SKELETON}></Loader>}
-        {!isFetchingOrg && (
+        {isFetchingApplications && (
+          <Loader className={Classes.SKELETON}></Loader>
+        )}
+        {!isFetchingApplications && (
           <TextInput
             validator={emailValidator}
             placeholder="Email"
             onChange={onEmailChange}
-            defaultValue={currentOrg.email || ""}
+            defaultValue={(currentOrg && currentOrg.email) || ""}
             cypressSelector="t--org-email-input"
           ></TextInput>
         )}

@@ -22,8 +22,8 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
       .children()
       .contains("Navigate To")
       .click();
-    cy.enterActionValue(pageid);
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.enterNavigatePageName(pageid);
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait(300);
   });
 

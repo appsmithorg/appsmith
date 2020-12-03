@@ -9,6 +9,7 @@ import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "../designSystems/appsmith/DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import _ from "lodash";
+import * as Sentry from "@sentry/react";
 
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   padding: 0;
@@ -98,17 +99,46 @@ function TabControlComponent(props: RenderComponentProps) {
 }
 
 class TabControl extends BaseControl<ControlProps> {
+  componentDidMount() {
+    this.migrateTabData(this.props.propertyValue);
+  }
+
+  migrateTabData(
+    tabData: Array<{
+      id: string;
+      label: string;
+    }>,
+  ) {
+    // Added a migration script for older tab data that was strings
+    // deprecate after enough tabs have moved to the new format
+    if (_.isString(tabData)) {
+      try {
+        const parsedData: Array<{
+          sid: string;
+          label: string;
+        }> = JSON.parse(tabData);
+        this.updateProperty(this.props.propertyName, parsedData);
+        return parsedData;
+      } catch (error) {
+        Sentry.captureException({
+          message: "Tab Migration Failed",
+          oldData: this.props.propertyValue,
+        });
+      }
+    } else {
+      return this.props.propertyValue;
+    }
+  }
+
   updateItems = (items: Array<Record<string, unknown>>) => {
-    this.updateProperty(this.props.propertyName, JSON.stringify(items));
+    this.updateProperty(this.props.propertyName, items);
   };
 
   render() {
     const tabs: Array<{
       id: string;
       label: string;
-    }> = _.isString(this.props.propertyValue)
-      ? JSON.parse(this.props.propertyValue)
-      : this.props.propertyValue;
+    }> = _.isString(this.props.propertyValue) ? [] : this.props.propertyValue;
     return (
       <TabsWrapper>
         <DroppableComponent
@@ -131,31 +161,28 @@ class TabControl extends BaseControl<ControlProps> {
   }
 
   deleteOption = (index: number) => {
-    let tabs: Array<Record<string, unknown>> = _.isString(
-      this.props.propertyValue,
-    )
-      ? JSON.parse(this.props.propertyValue).slice()
-      : this.props.propertyValue.slice();
+    let tabs: Array<Record<string, unknown>> = this.props.propertyValue.slice();
     if (tabs.length === 1) return;
     delete tabs[index];
     tabs = tabs.filter(Boolean);
-    this.updateProperty(this.props.propertyName, JSON.stringify(tabs));
+    this.updateProperty(this.props.propertyName, tabs);
   };
 
   updateOption = (index: number, updatedLabel: string) => {
     const tabs: Array<{
       id: string;
       label: string;
-    }> = _.isString(this.props.propertyValue)
-      ? JSON.parse(this.props.propertyValue)
-      : this.props.propertyValue;
+    }> = this.props.propertyValue;
     const updatedTabs = tabs.map((tab, tabIndex) => {
       if (index === tabIndex) {
-        tab.label = updatedLabel;
+        return {
+          ...tab,
+          label: updatedLabel,
+        };
       }
       return tab;
     });
-    this.updateProperty(this.props.propertyName, JSON.stringify(updatedTabs));
+    this.updateProperty(this.props.propertyName, updatedTabs);
   };
 
   addOption = () => {
@@ -163,9 +190,7 @@ class TabControl extends BaseControl<ControlProps> {
       id: string;
       label: string;
       widgetId: string;
-    }> = _.isString(this.props.propertyValue)
-      ? JSON.parse(this.props.propertyValue)
-      : this.props.propertyValue;
+    }> = this.props.propertyValue;
     const newTabId = generateReactKey({ prefix: "tab" });
     const newTabLabel = getNextEntityName(
       "Tab ",
@@ -176,7 +201,7 @@ class TabControl extends BaseControl<ControlProps> {
       { id: newTabId, label: newTabLabel, widgetId: generateReactKey() },
     ];
 
-    this.updateProperty(this.props.propertyName, JSON.stringify(tabs));
+    this.updateProperty(this.props.propertyName, tabs);
   };
 
   static getControlType() {
