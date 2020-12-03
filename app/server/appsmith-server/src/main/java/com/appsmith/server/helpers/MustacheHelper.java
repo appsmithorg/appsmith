@@ -215,7 +215,6 @@ public class MustacheHelper {
     }
 
     public static <T> T renderFieldValues(T object, Map<String, String> context) {
-        final String className = object.getClass().getSimpleName();
         final BeanWrapper sourceBeanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(object);
 
         try {
