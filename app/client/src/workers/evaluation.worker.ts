@@ -27,7 +27,13 @@ import unescapeJS from "unescape-js";
 import { WidgetType } from "../constants/WidgetConstants";
 import { WidgetProps } from "../widgets/BaseWidget";
 import { VALIDATORS } from "./validations";
-import { Diff, diff, applyChange } from "deep-diff";
+import { applyChange, diff, Diff } from "deep-diff";
+import {
+  addDependantsOfNestedPropertyPaths,
+  convertPathToString,
+  DataTreeDiffEvent,
+  translateDiffEventToDataTreeDiffEvent,
+} from "./evaluationUtils";
 
 const ctx: Worker = self as any;
 
@@ -150,7 +156,7 @@ ctx.addEventListener("message", e => {
   }
 });
 
-type DependencyMap = Record<string, Array<string>>;
+export type DependencyMap = Record<string, Array<string>>;
 
 export class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -234,16 +240,22 @@ export class DataTreeEvaluator {
       }
     });
 
-    const newSortOrder = this.getUpdatedSortOrder(
+    const changePathsWithNestedDependants = addDependantsOfNestedPropertyPaths(
       changePaths,
+      this.inverseDependencyMap,
+    );
+
+    const newSortOrder = this.getUpdatedSortOrder(
+      changePathsWithNestedDependants,
       this.inverseDependencyMap,
     );
     const getNeedsEvalPathsStop = performance.now();
     console.log({
       differences,
       newSortOrder,
+      changePathsWithNestedDependants,
       sortedDependencies: this.sortedDependencies,
-      changeLocations: changePaths,
+      changePaths,
       inverse: this.inverseDependencyMap,
       updatedDependencyMap: this.dependencyMap,
     });
@@ -282,16 +294,8 @@ export class DataTreeEvaluator {
     changes: Array<string>,
     inverseMap: DependencyMap,
   ): Array<string> {
-    // const inverseNodes = Object.keys(inverseMap);
     const sortOrder: Array<string> = [];
     const recCall = (changedNode: string) => {
-      // const similarNodes = inverseNodes.filter(node =>
-      //   node.includes(changedNode),
-      // );
-      // const dependantOnSimilarNodes = _.flatten(
-      //   similarNodes.map(node => inverseMap[node]),
-      // );
-      // const newNodes = [...inverseMap[changedNode], ...dependantOnSimilarNodes];
       const newNodes = inverseMap[changedNode];
       if (newNodes) {
         newNodes.forEach(newChangedNode => {
@@ -478,6 +482,7 @@ export class DataTreeEvaluator {
       return [];
     }
   }
+
   getParsedValueCache(propertyPath: string) {
     return (
       this.parsedValueCache.get(propertyPath) || {
@@ -547,6 +552,7 @@ export class DataTreeEvaluator {
     }
     return undefined;
   }
+
   // Paths are expected to have "{name}.{path}" signature
   // Also returns any action triggers found after evaluating value
   evaluateDynamicBoundValue = (
@@ -869,23 +875,23 @@ export class DataTreeEvaluator {
     let didUpdateDependencyMap = false;
     const pathsToBeReEvaluated: Array<string> = [];
     differences.forEach(difference => {
-      // TODO when stuff is removed, we need to handle it separately
       if (!difference.path) {
         return;
       }
-      const propertyPath = convertPathToString(difference.path);
       const entityName = difference.path[0];
       if (entityNameAndTypeMap[entityName] === "noop") {
         return;
       }
-      switch (difference.kind) {
-        case "N": {
+      const dataTreeDiff = translateDiffEventToDataTreeDiffEvent(difference);
+      console.log({ dataTreeDiff, difference });
+      switch (dataTreeDiff.event) {
+        case DataTreeDiffEvent.NEW: {
           if (entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET) {
             const entity: DataTreeWidget = dataTree[
               entityName
             ] as DataTreeWidget;
             // New widget was added, add all bindings for this widget
-            if (propertyPath === entityName) {
+            if (dataTreeDiff.payload.propertyPath === entityName) {
               const widgetBindings = this.listEntityDependencies(
                 entity,
                 entityName,
@@ -902,7 +908,7 @@ export class DataTreeEvaluator {
           this.allKeys = getAllPaths(dataTree);
           const possibleReferencesInOldBindings: DependencyMap = this.getPossibleReferencesInOldBindings(
             dataTree,
-            propertyPath,
+            dataTreeDiff.payload.propertyPath,
           );
           if (Object.keys(possibleReferencesInOldBindings).length) {
             didUpdateDependencyMap = true;
@@ -913,13 +919,13 @@ export class DataTreeEvaluator {
           }
           break;
         }
-        case "D": {
+        case DataTreeDiffEvent.DELETE: {
           if (entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET) {
             const entity: DataTreeWidget = dataTree[
               entityName
             ] as DataTreeWidget;
             // widget was deleted, remove all bindings for this widget
-            if (propertyPath === entityName) {
+            if (dataTreeDiff.payload.propertyPath === entityName) {
               const widgetBindings = this.listEntityDependencies(
                 entity,
                 entityName,
@@ -934,12 +940,12 @@ export class DataTreeEvaluator {
           Object.keys(this.dependencyMap).forEach(dependencyPath => {
             didUpdateDependencyMap = true;
             // TODO delete via regex
-            if (dependencyPath.includes(propertyPath)) {
+            if (dependencyPath.includes(dataTreeDiff.payload.propertyPath)) {
               delete this.dependencyMap[dependencyPath];
             } else {
               const toRemove: Array<string> = [];
               this.dependencyMap[dependencyPath].forEach(dependantPath => {
-                if (dependantPath.includes(propertyPath)) {
+                if (dependantPath.includes(dataTreeDiff.payload.propertyPath)) {
                   pathsToBeReEvaluated.push(dependencyPath);
                   toRemove.push(dependantPath);
                 }
@@ -952,33 +958,26 @@ export class DataTreeEvaluator {
           });
           break;
         }
-        case "E": {
+
+        case DataTreeDiffEvent.EDIT: {
           if (entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET) {
-            const rhsChange =
-              typeof difference.rhs === "string" &&
-              isDynamicValue(difference.rhs);
-
-            const lhsChange =
-              typeof difference.lhs === "string" &&
-              isDynamicValue(difference.lhs);
-
-            if (rhsChange || lhsChange) {
-              didUpdateDependencyMap = true;
-              if ("rhs" in difference) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                const { jsSnippets } = getDynamicBindings(difference.rhs);
-                this.dependencyMap[propertyPath] = jsSnippets.filter(
-                  jsSnippet => !!jsSnippet,
-                );
+            didUpdateDependencyMap = true;
+            if (typeof dataTreeDiff.payload.value === "string") {
+              const { jsSnippets } = getDynamicBindings(
+                dataTreeDiff.payload.value,
+              );
+              const correctSnippets = jsSnippets.filter(
+                jsSnippet => !!jsSnippet,
+              );
+              if (correctSnippets.length) {
+                this.dependencyMap[
+                  dataTreeDiff.payload.propertyPath
+                ] = correctSnippets;
               } else {
-                delete this.dependencyMap[propertyPath];
+                delete this.dependencyMap[dataTreeDiff.payload.propertyPath];
               }
             }
           }
-          break;
-        }
-        case "A": {
           break;
         }
         default: {
@@ -1066,21 +1065,6 @@ export class DataTreeEvaluator {
     this.errors = [];
   };
 }
-
-const convertPathToString = (arrPath: Array<string | number>) => {
-  let string = "";
-  arrPath.forEach(segment => {
-    if (typeof segment === "string") {
-      if (string.length !== 0) {
-        string = string + ".";
-      }
-      string = string + segment;
-    } else {
-      string = string + "[" + segment + "]";
-    }
-  });
-  return string;
-};
 
 const getAllPaths = (
   tree: Record<string, any>,
