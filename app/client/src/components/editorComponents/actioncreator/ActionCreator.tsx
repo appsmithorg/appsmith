@@ -83,7 +83,7 @@ export const modalGetter = (value: string) => {
   return name;
 };
 
-const stringToJS = (string: string): string => {
+export const stringToJS = (string: string): string => {
   const { stringSegments, jsSnippets } = getDynamicBindings(string);
   const js = stringSegments
     .map((segment, index) => {
@@ -97,7 +97,7 @@ const stringToJS = (string: string): string => {
   return js;
 };
 
-const JSToString = (js: string): string => {
+export const JSToString = (js: string): string => {
   const segments = js.split(" + ");
   return segments
     .map(segment => {

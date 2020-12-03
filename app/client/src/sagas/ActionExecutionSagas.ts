@@ -81,6 +81,7 @@ import {
   getCurrentApplication,
 } from "selectors/applicationSelectors";
 import { evaluateDynamicTrigger, evaluateSingleValue } from "./evaluationsSaga";
+import { stringToJS } from "../components/editorComponents/actioncreator/ActionCreator";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -286,7 +287,12 @@ export function* getActionParams(
     // Replace binding with replaced bindings for evaluation
     dataTreeBindings = dataTreeBindings.map(key => {
       if (executionBindings.includes(key)) {
-        return replacedBindings[executionBindings.indexOf(key)];
+        const executionParam = replacedBindings[executionBindings.indexOf(key)];
+        if (_.isString(executionParam) && isDynamicValue(executionParam)) {
+          return stringToJS(executionParam);
+        } else {
+          return executionParam;
+        }
       }
       return key;
     });
@@ -294,11 +300,7 @@ export function* getActionParams(
   // Evaluate all values
   const values: any = yield all(
     dataTreeBindings.map((binding: string) => {
-      if (isDynamicValue(binding)) {
-        return call(evaluateDynamicBoundValueSaga, binding);
-      } else {
-        return binding;
-      }
+      return call(evaluateDynamicBoundValueSaga, binding);
     }),
   );
   // convert to object and transform non string values
