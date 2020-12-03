@@ -1,9 +1,11 @@
 import { isNull } from "lodash";
-import { createActionRequest } from "actions/actionActions";
 import { GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { Datasource } from "api/DatasourcesApi";
 import { Plugin } from "api/PluginApi";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "constants/ReduxActionConstants";
 import { AppState } from "reducers";
 import { all, select, put, takeEvery, take } from "redux-saga/effects";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -13,6 +15,12 @@ import { getOnboardingState, setOnboardingState } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
 import { getSelectedWidget, getWidgetsMeta } from "./selectors";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import ActionAPI, { ActionCreateUpdateResponse } from "api/ActionAPI";
+import {
+  createOnboardingActionInit,
+  createOnboardingActionSuccess,
+} from "actions/onboardingActions";
+import { changeDatasource } from "actions/datasourceActions";
 
 const OnboardingConfig = [
   {
@@ -197,14 +205,14 @@ function* createOnboardingDatasource() {
       datasourceConfiguration: {
         endpoints: [
           {
-            host: "postgres-test-db.cz8diybf9wdj.ap-south-1.rds.amazonaws.com",
+            host: "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
             port: 5432,
           },
         ],
         authentication: {
           databaseName: "fakeapi",
-          username: "postgres",
-          password: "Appsmith2019#",
+          username: "fakeapi",
+          password: "LimitedAccess123#",
         },
       },
     };
@@ -228,13 +236,29 @@ function* createOnboardingDatasource() {
       actionConfiguration: {},
       eventData: {},
     };
+    yield put(createOnboardingActionInit(actionPayload));
+    const response: ActionCreateUpdateResponse = yield ActionAPI.createAPI(
+      actionPayload,
+    );
 
-    yield put(createActionRequest(actionPayload));
-    yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      const newAction = {
+        ...response.data,
+        datasource: datasourceResponse.data,
+      };
+      yield put(createOnboardingActionSuccess(newAction));
+      yield put({
+        type: ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_SUCCESS,
+      });
 
-    yield put({
-      type: "CREATE_ONBOARDING_DBQUERY_SUCCESS",
-    });
+      yield put(changeDatasource(datasourceResponse.data));
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.CREATE_ONBOARDING_ACTION_ERROR,
+        payload: actionPayload,
+      });
+    }
   } catch (error) {
     yield put({
       type: "CREATE_ONBOARDING_DBQUERY_ERROR",

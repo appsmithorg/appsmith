@@ -122,6 +122,14 @@ const datasourcePaneReducer = createReducer(initialState, {
       expandDatasourceId: action.payload,
     };
   },
+  [ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_SUCCESS]: (
+    state: DatasourcePaneReduxState,
+  ) => {
+    return {
+      ...state,
+      newDatasource: "",
+    };
+  },
 });
 
 export default datasourcePaneReducer;

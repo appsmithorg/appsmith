@@ -60,7 +60,7 @@ const DBForm = styled.div`
   padding: 20px;
   margin-left: 10px;
   margin-right: 0px;
-  max-height: 93vh;
+  height: calc(100vh - ${props => props.theme.headerHeight});
   overflow: auto;
   .backBtn {
     padding-bottom: 1px;
@@ -350,7 +350,7 @@ class DatasourceDBEditor extends React.Component<
             />
           )}
         </Header>
-        {cloudHosting && pluginType === PluginType.DB && (
+        {cloudHosting && pluginType === PluginType.DB && !viewMode && (
           <CollapsibleWrapper>
             <CollapsibleHelp>
               <span>{`Whitelist the IP ${convertArrayToSentence(
