@@ -124,8 +124,8 @@ public class RestApiPlugin extends BasePlugin {
 
             String requestBodyAsString = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
 
-            if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType) ||
-                    MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)) {
+            if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
+                    || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
                     requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(), reqContentType);
             }
 
