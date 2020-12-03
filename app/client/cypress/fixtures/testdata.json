@@ -189,5 +189,6 @@
   "bindingSize": "{{currentRow.userName.indexOf('Michael') > -1 ? 'PARAGRAGH' : 'HEADING1'}}",
   "bindingVerticalAlig": "{{currentRow.userName.indexOf('Michael') > -1 ? 'TOP' : 'BOTTOM'}}",
   "bindingTextColor": "{{currentRow.userName.indexOf('Michael') > -1 ? 'GREEN' : 'RED'}}",
-  "bindingButton": "{{currentRow.userName.indexOf('Michael') > -1 ? 'Discount' : 'NoDiscount'}}"
+  "bindingButton": "{{currentRow.userName.indexOf('Michael') > -1 ? 'Discount' : 'NoDiscount'}}",
+  "bindingStyle": "{{currentRow.userName.indexOf('Michael') > -1 ? 'BOLD' : 'ITALIC'}}"
 }

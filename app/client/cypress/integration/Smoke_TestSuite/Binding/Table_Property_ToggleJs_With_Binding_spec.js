@@ -13,7 +13,9 @@ describe("Table Widget property pane feature validation", function() {
   it("Table widget toggle test for text alignment", function() {
     cy.openPropertyPane("tablewidget");
     cy.editColumn("id");
-    cy.get(widgetsPage.toggleTextAlign).click({ force: true });
+    cy.get(widgetsPage.toggleTextAlign)
+      .first()
+      .click({ force: true });
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", testdata.bindingAlign);
     cy.get(commonlocators.editPropCrossButton).click();
@@ -25,7 +27,9 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("0", "0", "font-size", "14px");
     cy.openPropertyPane("tablewidget");
     cy.editColumn("id");
-    cy.get(widgetsPage.toggleTextAlign).click({ force: true });
+    cy.get(widgetsPage.toggleTextAlign)
+      .first()
+      .click({ force: true });
     cy.wait(1000);
     cy.get(widgetsPage.textSize).click({ force: true });
     cy.wait(1000);
@@ -37,7 +41,9 @@ describe("Table Widget property pane feature validation", function() {
   it("Table widget toggle test for text size", function() {
     cy.openPropertyPane("tablewidget");
     cy.editColumn("id");
-    cy.get(widgetsPage.toggleTextSize).click({ force: true });
+    cy.get(widgetsPage.toggleTextSize)
+      .first()
+      .click({ force: true });
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", testdata.bindingSize);
     cy.get(commonlocators.editPropCrossButton).click();
@@ -45,13 +51,16 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("1", "0", "font-size", "24px");
   });
 
-  //To add another test for styling
   it("Table widget toggle test for vertical Alignment", function() {
     cy.openPropertyPane("tablewidget");
     cy.editColumn("id");
-    cy.get(widgetsPage.toggleTextSize).click({ force: true });
+    cy.get(widgetsPage.toggleTextSize)
+      .first()
+      .click({ force: true });
     cy.wait(1000);
-    cy.get(widgetsPage.toggleVerticalAlig).click({ force: true });
+    cy.get(widgetsPage.toggleVerticalAlig)
+      .first()
+      .click({ force: true });
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", testdata.bindingVerticalAlig);
     cy.get(commonlocators.editPropCrossButton).click();
@@ -59,12 +68,33 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("1", "0", "align-items", "flex-end");
   });
 
+  it("Table widget toggle test for style Alignment", function() {
+    cy.openPropertyPane("tablewidget");
+    cy.editColumn("id");
+    cy.get(widgetsPage.toggleVerticalAlig)
+      .first()
+      .click({ force: true });
+    cy.wait(1000);
+    cy.get(widgetsPage.toggleTextStyle)
+      .first()
+      .click({ force: true });
+    cy.wait(1000);
+    cy.toggleJsAndUpdate("tabledata", testdata.bindingStyle);
+    cy.get(commonlocators.editPropCrossButton).click();
+    cy.readTabledataValidateCSS("0", "0", "font-style", "normal");
+    cy.readTabledataValidateCSS("1", "0", "font-style", "italic");
+  });
+
   it("Table widget toggle test for text color", function() {
     cy.openPropertyPane("tablewidget");
     cy.editColumn("id");
-    cy.get(widgetsPage.toggleVerticalAlig).click({ force: true });
+    cy.get(widgetsPage.toggleVerticalAlig)
+      .first()
+      .click({ force: true });
     cy.wait(1000);
-    cy.get(widgetsPage.toggleJsColor).click({ force: true });
+    cy.get(widgetsPage.toggleJsColor)
+      .first()
+      .click({ force: true });
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", testdata.bindingTextColor);
     cy.get(commonlocators.editPropCrossButton).click();
@@ -76,9 +106,13 @@ describe("Table Widget property pane feature validation", function() {
   it("Table widget toggle test for background color", function() {
     cy.openPropertyPane("tablewidget");
     cy.editColumn("id");
-    cy.get(widgetsPage.toggleJsColor).click({ force: true });
+    cy.get(widgetsPage.toggleJsColor)
+      .first()
+      .click({ force: true });
     cy.wait(1000);
-    cy.get(widgetsPage.toggleJsBcgColor).click();
+    cy.get(widgetsPage.toggleJsBcgColor)
+      .first()
+      .click({ force: true });
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", testdata.bindingTextColor);
     cy.get(commonlocators.editPropCrossButton).click();

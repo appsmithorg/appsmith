@@ -66,6 +66,7 @@
   "backgroundColor": ".t--property-control-cellbackground input",
   "toggleJsBcgColor": ".t--property-control-cellbackground .t--js-toggle",
   "toggleTextAlign": ".t--property-control-textalign .t--js-toggle",
+  "toggleTextStyle": ".t--property-control-fontstyle .t--js-toggle",
   "textSize": ".t--property-control-textsize button",
   "toggleTextSize": ".t--property-control-textsize .t--js-toggle",
   "toggleVerticalAlig": ".t--property-control-verticalalignment .t--js-toggle",
