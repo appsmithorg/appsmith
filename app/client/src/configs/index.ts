@@ -20,6 +20,9 @@ type INJECTED_CONFIGS = {
     apiKey: string;
     ceKey: string;
   };
+  fusioncharts: {
+    licenseKey: string;
+  };
   optimizely: string;
   enableMixpanel: boolean;
   google: string;
@@ -73,6 +76,9 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     segment: {
       apiKey: process.env.REACT_APP_SEGMENT_KEY || "",
       ceKey: process.env.REACT_APP_SEGMENT_CE_KEY || "",
+    },
+    fusioncharts: {
+      licenseKey: process.env.REACT_APP_FUSIONCHARTS_LICENSE_KEY || "",
     },
     optimizely: process.env.REACT_APP_OPTIMIZELY_KEY || "",
     enableMixpanel: process.env.REACT_APP_SEGMENT_KEY
@@ -151,6 +157,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     ENV_CONFIG.segment.apiKey,
     APPSMITH_FEATURE_CONFIGS.segment.apiKey,
   );
+  const fusioncharts = getConfig(
+    ENV_CONFIG.fusioncharts.licenseKey,
+    APPSMITH_FEATURE_CONFIGS.fusioncharts.licenseKey,
+  );
   const google = getConfig(ENV_CONFIG.google, APPSMITH_FEATURE_CONFIGS.google);
 
   // As the following shows, the config variables can be set using a combination
@@ -216,6 +226,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       enabled: segment.enabled,
       apiKey: segment.value,
       ceKey: segmentCEKey.value,
+    },
+    fusioncharts: {
+      enabled: fusioncharts.enabled,
+      licenseKey: fusioncharts.value,
     },
     algolia: {
       enabled: true,
