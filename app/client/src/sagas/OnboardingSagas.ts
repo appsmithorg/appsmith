@@ -19,6 +19,7 @@ import ActionAPI, { ActionCreateUpdateResponse } from "api/ActionAPI";
 import {
   createOnboardingActionInit,
   createOnboardingActionSuccess,
+  showTooltip,
 } from "actions/onboardingActions";
 import { changeDatasource } from "actions/datasourceActions";
 
@@ -142,6 +143,7 @@ function* listenForWidgetAdditions() {
       yield put({
         type: "ADD_WIDGET_COMPLETE",
       });
+      yield put(showTooltip(2));
 
       return;
     }
@@ -167,6 +169,9 @@ function* listenForSuccessfullBinding() {
             type: "SET_CURRENT_STEP",
             payload: 3,
           });
+
+          // Show tooltip now
+          yield put(showTooltip(3));
 
           return;
         }
@@ -263,6 +268,8 @@ function* createOnboardingDatasource() {
       });
 
       yield put(changeDatasource(onboardingDatasource));
+
+      yield put(showTooltip(1));
     } else {
       yield put({
         type: ReduxActionErrorTypes.CREATE_ONBOARDING_ACTION_ERROR,

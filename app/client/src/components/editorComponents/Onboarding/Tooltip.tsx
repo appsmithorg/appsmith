@@ -1,9 +1,10 @@
 import React, { RefObject, useEffect, useRef, useState } from "react";
 import { Position, Popover, Classes } from "@blueprintjs/core";
 import { useSelector } from "store";
-import { getCurrentStep, getTooltipConfig } from "sagas/OnboardingSagas";
+import { getTooltipConfig } from "sagas/OnboardingSagas";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
+import { showTooltip } from "actions/onboardingActions";
 
 enum TooltipClassNames {
   TITLE = "tooltip-title",
@@ -55,12 +56,14 @@ const Container = styled.div`
 
 const OnboardingToolTip = (props: any) => {
   const [isOpen, setIsOpen] = useState(false);
-  const currentStep = useSelector(getCurrentStep);
+  const showingTooltip = useSelector(
+    state => state.ui.onBoarding.showingTooltip,
+  );
   const popoverRef: RefObject<Popover> = useRef(null);
   const tooltipConfig = useSelector(getTooltipConfig);
 
   useEffect(() => {
-    if (props.step.includes(currentStep) && props.show) {
+    if (props.step.includes(showingTooltip) && props.show) {
       setIsOpen(true);
     } else {
       setIsOpen(false);
@@ -68,7 +71,7 @@ const OnboardingToolTip = (props: any) => {
     if (popoverRef.current) {
       popoverRef.current.reposition();
     }
-  }, [props.step, props.show, currentStep, popoverRef]);
+  }, [props.step, props.show, showingTooltip, popoverRef]);
 
   if (isOpen) {
     return (
@@ -118,11 +121,7 @@ const ToolTipContent = (props: any) => {
         </span>
 
         <button
-          onClick={() =>
-            dispatch({
-              type: "NEXT_ONBOARDING_STEP",
-            })
-          }
+          onClick={() => dispatch(showTooltip(-1))}
           className={TooltipClassNames.ACTION}
         >
           Got it!

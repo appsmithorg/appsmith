@@ -14,3 +14,10 @@ export const createOnboardingActionSuccess = (payload: Action) => {
     payload,
   };
 };
+
+export const showTooltip = (payload: number) => {
+  return {
+    type: ReduxActionTypes.SHOW_ONBOARDING_TOOLTIP,
+    payload,
+  };
+};

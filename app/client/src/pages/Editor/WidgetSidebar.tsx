@@ -11,8 +11,9 @@ import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
 import produce from "immer";
 import { WIDGET_SIDEBAR_CAPTION } from "constants/messages";
+import Boxed from "components/editorComponents/Onboarding/Boxed";
 
-export const MainWrapper = styled.div`
+const MainWrapper = styled.div`
   text-transform: capitalize;
   padding: 0 10px 20px 10px;
   height: 100%;
@@ -37,7 +38,7 @@ export const MainWrapper = styled.div`
   }
 `;
 
-export const CardsWrapper = styled.div`
+const CardsWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-gap: ${props => props.theme.spaces[1]}px;
@@ -45,7 +46,7 @@ export const CardsWrapper = styled.div`
   align-items: stretch;
 `;
 
-export const CloseIcon = styled(Icon)`
+const CloseIcon = styled(Icon)`
   &&.${Classes.ICON} {
     cursor: pointer;
     display: flex;
@@ -57,12 +58,12 @@ export const CloseIcon = styled(Icon)`
   }
 `;
 
-export const Header = styled.div`
+const Header = styled.div`
   display: grid;
   grid-template-columns: 7fr 1fr;
 `;
 
-export const Info = styled.div`
+const Info = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -143,10 +144,18 @@ const WidgetSidebar = (props: IPanelProps) => {
         </Header>
         {groups.map((group: string) => (
           <React.Fragment key={group}>
-            <h5>{group}</h5>
+            <Boxed step={2}>
+              <h5>{group}</h5>
+            </Boxed>
             <CardsWrapper>
               {filteredCards[group].map((card: WidgetCardProps) => (
-                <WidgetCard details={card} key={card.key} />
+                <Boxed
+                  step={2}
+                  show={card.type === "TABLE_WIDGET"}
+                  key={card.key}
+                >
+                  <WidgetCard details={card} />
+                </Boxed>
               ))}
             </CardsWrapper>
           </React.Fragment>

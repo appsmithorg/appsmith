@@ -5,6 +5,8 @@ import { getCurrentStep, inOnboarding } from "sagas/OnboardingSagas";
 type BoxedProps = {
   // child nodes are not visible until this step is reached
   step: number;
+  // Any additional conditions to hide the children
+  show?: boolean;
   children: ReactNode;
 };
 
@@ -13,11 +15,15 @@ const Boxed: React.FC<BoxedProps> = (props: BoxedProps) => {
   const currentStep = useSelector(getCurrentStep);
   const onboarding = useSelector(inOnboarding);
 
-  if (onboarding && currentStep < props.step) {
+  if (onboarding && currentStep < props.step && !props.show) {
     return null;
   }
 
   return <>{props.children}</>;
+};
+
+Boxed.defaultProps = {
+  show: false,
 };
 
 export default Boxed;

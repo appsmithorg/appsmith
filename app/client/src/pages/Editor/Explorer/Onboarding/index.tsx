@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { IPanelProps } from "@blueprintjs/core";
 import { BUILDER_PAGE_URL } from "constants/routes";
-import WidgetSidebar from "./WidgetSidebar";
+import WidgetSidebar from "pages/Editor/WidgetSidebar";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import history from "utils/history";
