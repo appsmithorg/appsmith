@@ -10,12 +10,13 @@ import { ButtonStyle } from "widgets/ButtonWidget";
 import { Theme, darkenHover, darkenActive } from "constants/DefaultTheme";
 import _ from "lodash";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
-import useScript from "utils/hooks/useScript";
-import { AppToaster } from "components/editorComponents/ToastComponent";
+import { useScript, ScriptStatus } from "utils/hooks/useScript";
 import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
 } from "constants/messages";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 
 const getButtonColorStyles = (props: { theme: Theme } & ButtonStyleProps) => {
   if (props.filled) return props.theme.colors.textOnDarkBG;
@@ -166,9 +167,9 @@ const RecaptchaComponent = (
   } & RecaptchaProps,
 ) => {
   function handleError(event: React.MouseEvent<HTMLElement>, error: string) {
-    AppToaster.show({
-      message: error,
-      type: "error",
+    Toaster.show({
+      text: error,
+      variant: Variant.danger,
     });
     props.onClick && props.onClick(event);
   }
@@ -178,7 +179,7 @@ const RecaptchaComponent = (
   return (
     <div
       onClick={(event: React.MouseEvent<HTMLElement>) => {
-        if (status === "ready") {
+        if (status === ScriptStatus.READY) {
           (window as any).grecaptcha.ready(() => {
             try {
               (window as any).grecaptcha

@@ -147,7 +147,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isSaving: datasources.loading,
     isDeleting: datasources.isDeleting,
     isTesting: datasources.isTesting,
-    formConfig: formConfigs[datasourcePane.selectedPlugin] || [],
+    formConfig: formConfigs[pluginId] || [],
     loadingFormConfigs,
     newDatasource: datasourcePane.newDatasource,
     viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? true,

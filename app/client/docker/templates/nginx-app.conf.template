@@ -20,13 +20,13 @@ server {
     proxy_ssl_server_name on;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
     proxy_set_header Accept-Encoding "";
-
-    index index.html index.htm;
 
     sub_filter_once off;
     location / {
-        proxy_pass http://host.docker.internal:3000;
+        proxy_pass __APPSMITH_CLIENT_PROXY_PASS__;
         sub_filter __APPSMITH_SENTRY_DSN__ '${APPSMITH_SENTRY_DSN}';
         sub_filter __APPSMITH_SMART_LOOK_ID__ '${APPSMITH_SMART_LOOK_ID}';
         sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}';
@@ -49,7 +49,6 @@ server {
         sub_filter __APPSMITH_DISABLE_TELEMETRY__ '${APPSMITH_DISABLE_TELEMETRY}';
     }
 
-
     location /f {
        proxy_pass https://cdn.optimizely.com/;
     }
@@ -57,20 +56,19 @@ server {
     location /api {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
-        proxy_pass http://host.docker.internal:8080;
+        proxy_pass __APPSMITH_SERVER_PROXY_PASS__;
     }
 
     location /oauth2 {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
-
-        proxy_pass http://host.docker.internal:8080;
+        proxy_pass __APPSMITH_SERVER_PROXY_PASS__;
     }
 
     location /login {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host $host;
-
-        proxy_pass http://host.docker.internal:8080;
+        proxy_pass __APPSMITH_SERVER_PROXY_PASS__;
     }
 }
+
