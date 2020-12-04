@@ -81,7 +81,7 @@ describe("Entity explorer tests related to query and datasource", function() {
       200,
     );
 
-    cy.get(queryLocators.templateMenu).click();
+    // cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
