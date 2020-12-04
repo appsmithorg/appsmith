@@ -1,5 +1,8 @@
 import { GridDefaults } from "constants/WidgetConstants";
 import { JAVSCRIPT_KEYWORDS } from "constants/WidgetValidation";
+import lottie from "lottie-web";
+import confetti from "assets/lottie/confetti.json";
+
 export const snapToGrid = (
   columnWidth: number,
   rowHeight: number,
@@ -185,4 +188,35 @@ export const isNameValid = (
   }
 
   return true;
+};
+
+export const playOnboardingAnimation = () => {
+  const container: Element = document.getElementById("root") as Element;
+
+  const el = document.createElement("div");
+  Object.assign(el.style, {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    "z-index": 99,
+    width: "100%",
+    height: "100%",
+  });
+
+  container.appendChild(el);
+
+  const animObj = lottie.loadAnimation({
+    container: el,
+    animationData: confetti,
+    loop: false,
+  });
+  const duration = (animObj.totalFrames / animObj.frameRate) * 1000;
+
+  animObj.play();
+
+  setTimeout(() => {
+    container.removeChild(el);
+  }, duration);
 };

@@ -7,7 +7,7 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { AppState } from "reducers";
-import { all, select, put, takeEvery, take } from "redux-saga/effects";
+import { all, select, put, takeEvery, take, delay } from "redux-saga/effects";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getDatasources, getPlugins } from "selectors/entitiesSelector";
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -22,6 +22,7 @@ import {
   showTooltip,
 } from "actions/onboardingActions";
 import { changeDatasource } from "actions/datasourceActions";
+import { playOnboardingAnimation } from "utils/helpers";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -189,6 +190,8 @@ function* listenForSuccessfullBinding() {
 
           // Show tooltip now
           yield put(showTooltip(3));
+          yield delay(1000);
+          playOnboardingAnimation();
 
           return;
         }
