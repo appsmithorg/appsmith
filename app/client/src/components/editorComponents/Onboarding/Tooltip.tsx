@@ -1,16 +1,25 @@
-import React, { RefObject, useEffect, useRef, useState } from "react";
-import { Position, Popover, Classes } from "@blueprintjs/core";
+import React, {
+  MutableRefObject,
+  RefObject,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { Position, Popover, Classes, Icon } from "@blueprintjs/core";
 import { useSelector } from "store";
 import { getTooltipConfig } from "sagas/OnboardingSagas";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
+import useClipboard from "utils/hooks/useClipboard";
 import { showTooltip } from "actions/onboardingActions";
+import { Colors } from "constants/Colors";
 
 enum TooltipClassNames {
   TITLE = "tooltip-title",
   DESCRIPTION = "tooltip-description",
   SKIP = "tooltip-skip",
   ACTION = "tooltip-action",
+  SNIPPET = "tooltip-snippet",
 }
 
 const Wrapper = styled.div`
@@ -33,6 +42,40 @@ const Wrapper = styled.div`
     span {
       text-decoration: underline;
       cursor: pointer;
+    }
+  }
+  .${TooltipClassNames.SNIPPET} {
+    background-color: #2c59b4;
+    color: white;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 8px 0px;
+    position: relative;
+    cursor: pointer;
+
+    & > span {
+      padding: 6px;
+    }
+
+    & div.clipboard-message {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      z-index: 1;
+      &.success {
+        background: #2c59b4;
+      }
+      &.error {
+        background: ${Colors.RED};
+      }
+    }
+    .${Classes.ICON} {
+      opacity: 0.7;
     }
   }
   .${TooltipClassNames.ACTION} {
@@ -97,7 +140,13 @@ const OnboardingToolTip = (props: any) => {
 
 const ToolTipContent = (props: any) => {
   const dispatch = useDispatch();
-  const { title, description } = props.details;
+  const { title, description, snippet, action } = props.details;
+  const snippetRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
+  const write = useClipboard(snippetRef);
+
+  const copyBindingToClipboard = () => {
+    write(snippet);
+  };
 
   const endOnboarding = () => {
     dispatch({
@@ -109,6 +158,17 @@ const ToolTipContent = (props: any) => {
     <Wrapper>
       <div className={TooltipClassNames.TITLE}>{title}</div>
       <div className={TooltipClassNames.DESCRIPTION}>{description}</div>
+
+      {snippet && (
+        <div
+          className={TooltipClassNames.SNIPPET}
+          onClick={copyBindingToClipboard}
+          ref={snippetRef}
+        >
+          <span>{snippet}</span>
+          <Icon icon="duplicate" iconSize={14} color={Colors.WHITE} />
+        </div>
+      )}
       <div
         style={{
           display: "flex",
@@ -120,12 +180,14 @@ const ToolTipContent = (props: any) => {
           Done? <span onClick={endOnboarding}>Click here to End</span>
         </span>
 
-        <button
-          onClick={() => dispatch(showTooltip(-1))}
-          className={TooltipClassNames.ACTION}
-        >
-          Got it!
-        </button>
+        {action && (
+          <button
+            onClick={() => dispatch(showTooltip(-1))}
+            className={TooltipClassNames.ACTION}
+          >
+            {action.label}
+          </button>
+        )}
       </div>
     </Wrapper>
   );

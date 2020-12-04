@@ -85,6 +85,9 @@ const OnboardingConfig = [
       title: "Say hello to your example database",
       description:
         "Go ahead, check it out. You can add the “+” icon to create a new query or connect to your own db.",
+      action: {
+        label: "Got It!",
+      },
     },
   },
   {
@@ -98,7 +101,7 @@ const OnboardingConfig = [
         "Wohoo! Your first widget. 🎉 Go ahead and connect this to a Query or API",
       description:
         "Copy the example binding below and paste inside TableData input",
-      snippet: "{{exampleQuery.data}}",
+      snippet: "{{ExampleQuery.data}}",
     },
   },
   {
@@ -113,6 +116,9 @@ const OnboardingConfig = [
       title: "This table is now connected to Example Query",
       description:
         "You can connect properties to variables on Appsmith with {{ }} bindings",
+      action: {
+        label: "Next",
+      },
     },
   },
   {
