@@ -6,7 +6,6 @@ import {
   CompactMode,
   ReactTableColumnProps,
   ReactTableFilter,
-  ColumnProperties,
 } from "widgets/TableWidget";
 import { EventType } from "constants/ActionConstants";
 
@@ -44,7 +43,6 @@ interface ReactTableComponentProps {
   pageSize: number;
   tableData: Array<Record<string, unknown>>;
   columnOrder?: string[];
-  primaryColumns?: ColumnProperties[];
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
@@ -80,7 +78,6 @@ interface ReactTableComponentProps {
   columns: ReactTableColumnProps[];
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
-  updatePrimaryColumnProperties: (columnProperties: ColumnProperties[]) => void;
 }
 
 const ReactTableComponent = (props: ReactTableComponentProps) => {

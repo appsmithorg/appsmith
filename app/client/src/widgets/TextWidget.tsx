@@ -105,7 +105,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
 
   getPageView() {
     // const lines = this.getNumberOfLines();
-    console.log("props", this.props);
     return (
       <TextComponent
         widgetId={this.props.widgetId}

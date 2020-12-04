@@ -16,6 +16,7 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import {
   getDefaultColumnProperties,
   reorderColumns,
+  getTableStyles,
 } from "components/designSystems/appsmith/TableUtilities";
 import produce from "immer";
 
@@ -176,10 +177,12 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       this.props.widgetProperties.widgetName,
       true,
     );
+    const tableStyles = getTableStyles(this.props.widgetProperties);
     const column = {
       ...columnProps,
       buttonStyle: "#29CCA3",
       buttonLabelColor: "#FFFFFF",
+      ...tableStyles,
     };
     const updatedColumns: ColumnProperties[] = produce(columns, draft => {
       draft.push(column);
@@ -199,15 +202,6 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       indexedColumns[index] = item.id as string;
     });
     this.updateProperty("columnOrder", indexedColumns);
-    // const columns: ColumnProperties[] = [...(this.props.propertyValue || [])];
-    // const updatedColumns = columns.map((column: ColumnProperties) => {
-    //   const columnIndex = indexedColumns.indexOf(column.id);
-    //   return {
-    //     ...column,
-    //     index: columnIndex,
-    //   };
-    // });
-    // this.updateProperty(this.props.propertyName, updatedColumns);
   };
 
   toggleVisibility = (index: number) => {

@@ -125,17 +125,14 @@ class ComputeTablePropertyControl extends BaseControl<
       propertyValue.length - 3,
     )}`;
     const args = [...value.matchAll(regex)];
-    console.log({ propertyValue, value, args });
     if (!args.length) {
       return propertyValue;
     }
     let output = value;
-    console.log({ output, args });
     for (let i = 0; i < args.length; i++) {
       const arg = args[i][0];
       const trimmedValue = "{{" + arg.substring(1, arg.length - 1) + "}}";
       output = output.replace(arg, trimmedValue);
-      console.log({ output, arg, trimmedValue });
     }
     return output;
   };

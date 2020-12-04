@@ -49,7 +49,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { isString } from "lodash";
+import _ from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
