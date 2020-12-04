@@ -307,7 +307,7 @@ export class DataTreeEvaluator {
     changes: Array<string>,
     inverseMap: DependencyMap,
   ): Array<string> {
-    let sortOrder: Array<string> = [...changes];
+    const sortOrder: Array<string> = [...changes];
     let iterator = 0;
     while (iterator < sortOrder.length) {
       const newNodes = inverseMap[sortOrder[iterator]];
@@ -319,7 +319,7 @@ export class DataTreeEvaluator {
           if (!sortOrder.includes(toBeEvaluatedNode)) {
             sortOrder.push(toBeEvaluatedNode);
           }
-        })
+        });
       }
       iterator++;
     }
@@ -898,9 +898,10 @@ export class DataTreeEvaluator {
       switch (dataTreeDiff.event) {
         case DataTreeDiffEvent.NEW: {
           // If a new widget was added, add all the internal bindings for this widget to the global dependency map
-          if ((entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET) &&
-            (dataTreeDiff.payload.propertyPath === entityName)) {
-
+          if (
+            entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET &&
+            dataTreeDiff.payload.propertyPath === entityName
+          ) {
             const entity: DataTreeWidget = dataTree[
               entityName
             ] as DataTreeWidget;
@@ -916,7 +917,6 @@ export class DataTreeEvaluator {
                 ...widgetBindings,
               };
             }
-
           }
           // Either a new entity or a new property path has been added. Go through existing dynamic bindings and
           // find out if a new dependency has to be created because the property path used in the binding just became
@@ -938,10 +938,11 @@ export class DataTreeEvaluator {
           break;
         }
         case DataTreeDiffEvent.DELETE: {
-
           // If an existing widget was deleted, remove all the bindings from the global dependency map
-          if ((entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET) &&
-            (dataTreeDiff.payload.propertyPath === entityName)){
+          if (
+            entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET &&
+            dataTreeDiff.payload.propertyPath === entityName
+          ) {
             const entity: DataTreeWidget = dataTree[
               entityName
             ] as DataTreeWidget;
@@ -981,21 +982,20 @@ export class DataTreeEvaluator {
         }
 
         case DataTreeDiffEvent.EDIT: {
-
           // We only care about dependencies for a widget. This is because in case a dependency of an action changes,
           // that shouldn't trigger an evaluation.
           // Also for a widget, we only care if the difference is in dynamic bindings since static values do not need
           // an evaluation.
-          if ((entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET) &&
-            (typeof dataTreeDiff.payload.value === "string")){
+          if (
+            entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET &&
+            typeof dataTreeDiff.payload.value === "string"
+          ) {
             didUpdateDependencyMap = true;
 
             const { jsSnippets } = getDynamicBindings(
               dataTreeDiff.payload.value,
             );
-            const correctSnippets = jsSnippets.filter(
-              jsSnippet => !!jsSnippet,
-            );
+            const correctSnippets = jsSnippets.filter(jsSnippet => !!jsSnippet);
             // We found a new dynamic binding for this property path. We update the dependency map by overwriting the
             // depencies for this property path with the newly found dependencies
             if (correctSnippets.length) {
