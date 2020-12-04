@@ -127,6 +127,10 @@ const OnboardingToolTip = (props: any) => {
           boundary={"viewport"}
           usePortal={false}
           position={props.position || Position.BOTTOM}
+          modifiers={{
+            preventOverflow: { enabled: false },
+            hide: { enabled: false },
+          }}
         >
           {props.children}
           <ToolTipContent details={tooltipConfig} />

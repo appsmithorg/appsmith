@@ -10,11 +10,11 @@ import { AppState } from "reducers";
 import { all, select, put, takeEvery, take } from "redux-saga/effects";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getDatasources, getPlugins } from "selectors/entitiesSelector";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getOnboardingState, setOnboardingState } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
-import { getSelectedWidget, getWidgetsMeta } from "./selectors";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { getSelectedWidget } from "./selectors";
 import ActionAPI, { ActionCreateUpdateResponse } from "api/ActionAPI";
 import {
   createOnboardingActionInit,
@@ -162,13 +162,24 @@ function* listenForSuccessfullBinding() {
     let bindSuccessfull = true;
     const selectedWidget = yield select(getSelectedWidget);
     if (selectedWidget && selectedWidget.type === "TABLE_WIDGET") {
-      const widgetMeta = yield select(getWidgetsMeta);
+      const dataTree = yield select(getDataTree);
 
-      if (widgetMeta[selectedWidget.widgetId]) {
-        const tableData = widgetMeta[selectedWidget.widgetId].filteredTableData;
-        bindSuccessfull =
-          bindSuccessfull && isDynamicValue(selectedWidget.tableData);
-        bindSuccessfull = bindSuccessfull && Array.isArray(tableData);
+      if (dataTree[selectedWidget.widgetName]) {
+        const widgetProperties = dataTree[selectedWidget.widgetName];
+        const dynamicBindingPathList =
+          dataTree[selectedWidget.widgetName].dynamicBindingPathList;
+        const hasBinding = !!dynamicBindingPathList.length;
+
+        if (hasBinding) {
+          yield put(showTooltip(-1));
+        }
+
+        bindSuccessfull = bindSuccessfull && hasBinding;
+
+        if (widgetProperties.invalidProps) {
+          bindSuccessfull =
+            bindSuccessfull && !("tableData" in widgetProperties.invalidProps);
+        }
 
         if (bindSuccessfull) {
           yield put({
