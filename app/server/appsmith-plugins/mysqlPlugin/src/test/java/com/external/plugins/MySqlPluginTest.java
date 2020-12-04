@@ -22,12 +22,11 @@ import reactor.test.StepVerifier;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertArrayEquals;
 
 @Log4j
 public class MySqlPluginTest {
@@ -174,14 +173,18 @@ public class MySqlPluginTest {
     public void testTestDatasource() {
         /* Expect no error */
         StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
-                .expectNextCount(1)
+                .assertNext(datasourceTestResult -> {
+                    assertEquals(0, datasourceTestResult.getInvalids().size());
+                })
                 .verifyComplete();
 
         /* Create bad datasource configuration and expect error */
         dsConfig.getEndpoints().get(0).setHost("badHost");
         StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
-                .expectError()
-                .verify();
+                .assertNext(datasourceTestResult -> {
+                    assertNotEquals(0, datasourceTestResult.getInvalids().size());
+                })
+                .verifyComplete();
 
         /* Reset dsConfig */
         createDatasourceConfiguration();
