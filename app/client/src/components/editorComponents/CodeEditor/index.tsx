@@ -224,7 +224,10 @@ class CodeEditor extends Component<Props, State> {
       return;
     }
     const mode = cm.getModeAt(cm.getCursor());
-    if (mode && ["javascript", "application/json"].includes(mode.name)) {
+    if (
+      mode &&
+      [EditorModes.JAVASCRIPT, EditorModes.JSON].includes(mode.name)
+    ) {
       this.editor.setOption("matchBrackets", true);
     } else {
       this.editor.setOption("matchBrackets", false);
