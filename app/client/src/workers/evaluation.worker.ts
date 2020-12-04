@@ -290,29 +290,52 @@ export class DataTreeEvaluator {
     return this.evalTree;
   }
 
+  // getUpdatedSortOrder(
+  //   changes: Array<string>,
+  //   inverseMap: DependencyMap,
+  // ): Array<string> {
+  //   const sortOrder: Array<string> = [];
+  //   const recCall = (changedNode: string) => {
+  //     const newNodes = inverseMap[changedNode];
+  //     if (newNodes) {
+  //       newNodes.forEach(newChangedNode => {
+  //         if (!sortOrder.includes(newChangedNode)) {
+  //           sortOrder.push(newChangedNode);
+  //         }
+  //         recCall(newChangedNode);
+  //       });
+  //     }
+  //     return;
+  //   };
+  //   changes.forEach(changedNode => {
+  //     if (!sortOrder.includes(changedNode)) {
+  //       sortOrder.push(changedNode);
+  //     }
+  //     recCall(changedNode);
+  //   });
+  //   return sortOrder;
+  // }
+
   getUpdatedSortOrder(
     changes: Array<string>,
     inverseMap: DependencyMap,
   ): Array<string> {
-    const sortOrder: Array<string> = [];
-    const recCall = (changedNode: string) => {
-      const newNodes = inverseMap[changedNode];
+    let sortOrder: Array<string> = [...changes];
+    let iterator = 0;
+    while (iterator < sortOrder.length) {
+      const newNodes = inverseMap[sortOrder[iterator]];
+
+      // If we find more nodes that would be impacted by the evaluation of the node being investigated
+      // we add the same to the sort order.
       if (newNodes) {
-        newNodes.forEach(newChangedNode => {
-          if (!sortOrder.includes(newChangedNode)) {
-            sortOrder.push(newChangedNode);
+        newNodes.forEach(toBeEvaluatedNode => {
+          if (!sortOrder.includes(toBeEvaluatedNode)) {
+            sortOrder.push(toBeEvaluatedNode);
           }
-          recCall(newChangedNode);
-        });
+        })
       }
-      return;
-    };
-    changes.forEach(changedNode => {
-      if (!sortOrder.includes(changedNode)) {
-        sortOrder.push(changedNode);
-      }
-      recCall(changedNode);
-    });
+      iterator++;
+    }
     return sortOrder;
   }
 
