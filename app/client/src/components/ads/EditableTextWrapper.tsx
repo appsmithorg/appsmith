@@ -102,7 +102,7 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
           if (props.isInvalid) {
             setIsValid(Boolean(props.isInvalid(value)));
             return props.isInvalid(value);
-          } else if (value === "") {
+          } else if (value.trim() === "") {
             Toaster.show({
               text: "Application name can't be empty",
               variant: Variant.danger,
