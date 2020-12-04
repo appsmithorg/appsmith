@@ -503,6 +503,12 @@ describe("DataTreeEvaluator", () => {
       dynamicBindingPathList: [{ key: "tableData" }],
       type: WidgetTypes.TABLE_WIDGET,
     },
+    Text4: {
+      ...BASE_WIDGET,
+      text: "{{Table1.selectedRow.test}}",
+      dynamicBindingPathList: [{ key: "text" }],
+      type: WidgetTypes.TEXT_WIDGET,
+    },
   };
   const evaluator = new DataTreeEvaluator(unEvalTree, WIDGET_CONFIG_MAP);
 
@@ -521,6 +527,7 @@ describe("DataTreeEvaluator", () => {
       "Table1.searchText": [],
       "Table1.selectedRowIndex": [],
       "Table1.selectedRowIndices": [],
+      "Text4.text": [],
     });
   });
 
@@ -557,6 +564,7 @@ describe("DataTreeEvaluator", () => {
       "Table1.searchText": [],
       "Table1.selectedRowIndex": [],
       "Table1.selectedRowIndices": [],
+      "Text4.text": [],
     });
   });
 
@@ -637,6 +645,56 @@ describe("DataTreeEvaluator", () => {
       "Table1.searchText": [],
       "Table1.selectedRowIndex": [],
       "Table1.selectedRowIndices": [],
+      "Text4.text": [],
+    });
+  });
+
+  it("Selects a row", () => {
+    const updatedUnEvalTree = {
+      ...unEvalTree,
+      Table1: {
+        ...unEvalTree.Table1,
+        selectedRowIndex: 0,
+        selectedRow: {
+          test: "Hey",
+          raw: "Label",
+        },
+      },
+      Api1: {
+        ...BASE_ACTION,
+        data: [
+          {
+            test: "Hey",
+          },
+          {
+            test: "Ho",
+          },
+        ],
+      },
+    };
+    const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
+    const updatedDependencyMap = evaluator.dependencyMap;
+    expect(updatedEvalTree).toHaveProperty("Table1.tableData", [
+      {
+        test: "Hey",
+        raw: "Label",
+      },
+      {
+        test: "Ho",
+        raw: "Label",
+      },
+    ]);
+    expect(updatedEvalTree).toHaveProperty("Text4.text", "Hey");
+    expect(updatedDependencyMap).toStrictEqual({
+      "Text2.text": ["Text1.text"],
+      "Text3.text": ["Text1.text"],
+      "Dropdown1.selectedOptionValue": [],
+      "Dropdown1.selectedOptionValueArr": [],
+      "Table1.tableData": ["Api1.data", "Text1.text"],
+      "Table1.searchText": [],
+      "Table1.selectedRowIndex": [],
+      "Table1.selectedRowIndices": [],
+      "Text4.text": ["Table1.selectedRow.test"],
     });
   });
 });
