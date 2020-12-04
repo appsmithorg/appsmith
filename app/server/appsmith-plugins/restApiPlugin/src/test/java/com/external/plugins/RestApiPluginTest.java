@@ -13,11 +13,14 @@ import io.jsonwebtoken.security.SignatureException;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import javax.crypto.SecretKey;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import javax.crypto.SecretKey;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -55,6 +58,18 @@ public class RestApiPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testEncodingFunction() throws UnsupportedEncodingException {
+        String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
+                "application/x-www-form-urlencoded");
+        String expected_value = null;
+        try {
+            expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+            throw e;
+        }
+        assertEquals(expected_value, encoded_value);
+    }
 
     @Test
     public void testValidFormApiExecution() {
@@ -78,6 +93,28 @@ public class RestApiPluginTest {
     }
 
     @Test
+    public void testValidRawApiExecution() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://postman-echo.com/post");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(new Property("content-type", "text/plain;charset=UTF-8")));
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        String requestBody = "{\"key\":\"value\"}";
+        actionConfig.setBody(requestBody);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode data = ((ObjectNode) result.getBody()).get("data");
+                    assertEquals("\"{\\\"key\\\":\\\"value\\\"}\"", data.toString());
+                })
+                .verifyComplete();
+    }
+
     public void testValidSignature() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setUrl("http://httpbin.org/headers");
