@@ -1,6 +1,6 @@
 // TODO Abhinav, this is not passing
 // import { getPropertyControlTypes } from "./index";
-import { uniq } from "lodash";
+// import { uniq } from "lodash";
 // const types = getPropertyControlTypes();
 
 // it("Checks for uniqueness of control types", () => {

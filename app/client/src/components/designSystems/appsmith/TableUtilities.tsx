@@ -17,6 +17,7 @@ import {
   ColumnProperties,
   CellLayoutProperties,
   TextSizes,
+  TableWidgetProps,
 } from "widgets/TableWidget";
 import { isString, isEmpty, findIndex } from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
@@ -517,6 +518,17 @@ export function getDefaultColumnProperties(
     computedValue: isDerived
       ? ""
       : `{{${widgetName}.tableData.map((currentRow) => (currentRow.${accessor}))}}`,
+  };
+}
+
+export function getTableStyles(props: TableWidgetProps) {
+  return {
+    textColor: props.textColor,
+    textSize: props.textSize,
+    fontStyle: props.fontStyle,
+    cellBackground: props.cellBackground,
+    verticalAlignment: props.verticalAlignment,
+    horizontalAlignment: props.horizontalAlignment,
   };
 }
 

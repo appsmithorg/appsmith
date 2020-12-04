@@ -327,9 +327,9 @@ const tableWidgetPropertyPaneMigrations = (
           updatedDerivedColumns,
         );
       }
-      children.cellTextSize = "PARAGRAPH";
-      children.cellHorizontalAlignment = "LEFT";
-      children.cellVerticalAlignment = "CENTER";
+      children.textSize = "PARAGRAPH";
+      children.horizontalAlignment = "LEFT";
+      children.verticalAlignment = "CENTER";
     }
     return children;
   });

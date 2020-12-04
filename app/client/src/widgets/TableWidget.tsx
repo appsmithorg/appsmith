@@ -12,6 +12,7 @@ import {
   renderActions,
   sortTableFunction,
   reorderColumns,
+  getTableStyles,
 } from "components/designSystems/appsmith/TableUtilities";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
@@ -21,7 +22,7 @@ import {
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
-import { isNumber, isString, isUndefined, isEqual, compact } from "lodash";
+import { isNumber, isString, isUndefined, isEqual, compact, get } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta, { WithMeta } from "./MetaHOC";
@@ -116,7 +117,7 @@ const updateColumnStyles = (
   propertyPath: string,
   propertyValue: any,
 ): Array<{ propertyPath: string; propertyValue: any }> => {
-  // Figure out how propertyPaths will work when a nested property control is updating another property
+  // TODO: Figure out how propertyPaths will work when a nested property control is updating another property
   if (props.primaryColumns) {
     // The style being updated currently
     const currentStyleName = propertyPath.split(".").pop(); // horizontalAlignment/textStyle
@@ -125,7 +126,8 @@ const updateColumnStyles = (
         // The property path for the property we intend to update
         const propertyPath = `primaryColumns[${index}].${currentStyleName}`;
         if (
-          props.dynamicBindingPathList?.findIndex(
+          !props.dynamicBindingPathList ||
+          props.dynamicBindingPathList.findIndex(
             item => item.key === propertyPath,
           ) === -1 // if the property path is not a dynamic binding
         ) {
@@ -140,6 +142,102 @@ const updateColumnStyles = (
     // .filter(Boolean); // Remove all undefined entries
   }
   return [];
+};
+
+const updateColumnsHook = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: any,
+): Array<{ propertyPath: string; propertyValue: any }> => {
+  const propertiesToUpdate: Array<{
+    propertyPath: string;
+    propertyValue: any;
+  }> = [];
+  try {
+    const tableData = JSON.parse(propertyValue);
+    const columnKeys: string[] = getAllTableColumnKeys(tableData);
+    const primaryColumns: ColumnProperties[] = props.primaryColumns
+      ? [...props.primaryColumns]
+      : [];
+    const tableStyles = getTableStyles(props);
+    let existingColumnCount = 0;
+    const dynamicBindingPathList = props.dynamicBindingPathList
+      ? props.dynamicBindingPathList.map((item: { key: string }) => {
+          const value = item.key;
+          if (value.includes("primaryColumns")) {
+            const columnId = get(
+              { primaryColumns },
+              `${value.split(".")[0]}.id`,
+            );
+            return {
+              key: `primaryColumns.${columnId}.${value.split(".")[1]}`,
+            };
+          }
+          return item;
+        })
+      : [];
+    const existingColumns = primaryColumns.filter(
+      (column: ColumnProperties) => {
+        const columnKeyIndex = columnKeys.indexOf(column.id);
+        if (columnKeyIndex !== -1) {
+          columnKeys.splice(columnKeyIndex, 1);
+          existingColumnCount++;
+        }
+        return column.isDerived || columnKeyIndex !== -1;
+      },
+    );
+    for (let i = 0; i < columnKeys.length; i++) {
+      const column = getDefaultColumnProperties(
+        columnKeys[i],
+        0,
+        props.widgetName,
+      );
+      existingColumns.splice(existingColumnCount + i, 0, {
+        ...column,
+        ...tableStyles,
+      });
+    }
+    const columns = existingColumns.map(
+      (column: ColumnProperties, index: number) => {
+        return {
+          ...column,
+          index: index,
+        };
+      },
+    );
+    const updatedDynamicBindingPathList = compact(
+      dynamicBindingPathList.map((item: { key: string }) => {
+        const value = item.key;
+        if (value.includes("primaryColumns")) {
+          const columnId = value.split(".")[1];
+          const columnIndex = columns.findIndex(
+            (column: ColumnProperties) => column.id === columnId,
+          );
+          if (columnIndex !== -1) {
+            return {
+              key: `primaryColumns[${columnIndex}].${value.split(".")[2]}`,
+            };
+          }
+          return;
+        }
+        return item;
+      }),
+    );
+
+    propertiesToUpdate.push(
+      {
+        propertyPath: "primaryColumns",
+        propertyValue: columns,
+      },
+      {
+        propertyPath: "dynamicBindingPathList",
+        propertyValue: updatedDynamicBindingPathList,
+      },
+    );
+  } catch (err) {
+    console.log({ err });
+  }
+  return propertiesToUpdate;
 };
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
@@ -170,6 +268,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             controlType: "INPUT_TEXT",
             placeholderText: 'Enter [{ "col1": "val1" }]',
             inputType: "ARRAY",
+            updateHook: updateColumnsHook,
           },
           {
             helpText: "Columns",
@@ -1141,26 +1240,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         );
       }
     }
-    if (tableDataModified) {
-      const columnKeys: string[] = getAllTableColumnKeys(
-        this.props.tableData,
-      ).sort((a: string, b: string) => {
-        return a > b ? 1 : a < b ? -1 : 0;
-      });
-      const primaryColumnKeys = (this.props.columns || [])
-        .filter((column: ColumnProperties) => {
-          return !column.isDerived;
-        })
-        .map((column: ColumnProperties) => {
-          return column.id;
-        })
-        .sort((a: string, b: string) => {
-          return a > b ? 1 : a < b ? -1 : 0;
-        });
-      if (JSON.stringify(columnKeys) !== JSON.stringify(primaryColumnKeys)) {
-        this.createTablePrimaryColumns();
-      }
-    }
+    // if (tableDataModified) {
+    //   const columnKeys: string[] = getAllTableColumnKeys(
+    //     this.props.tableData,
+    //   ).sort((a: string, b: string) => {
+    //     return a > b ? 1 : a < b ? -1 : 0;
+    //   });
+    //   const primaryColumnKeys = (this.props.columns || [])
+    //     .filter((column: ColumnProperties) => {
+    //       return !column.isDerived;
+    //     })
+    //     .map((column: ColumnProperties) => {
+    //       return column.id;
+    //     })
+    //     .sort((a: string, b: string) => {
+    //       return a > b ? 1 : a < b ? -1 : 0;
+    //     });
+    //   if (JSON.stringify(columnKeys) !== JSON.stringify(primaryColumnKeys)) {
+    //     this.createTablePrimaryColumns();
+    //   }
+    // }
     if (
       JSON.stringify(this.props.primaryColumns) !==
       JSON.stringify(prevProps.primaryColumns)
@@ -1326,12 +1425,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           pageNo={pageNo}
           nextPageClick={this.handleNextPageClick}
           prevPageClick={this.handlePrevPageClick}
-          primaryColumns={this.props.primaryColumns}
-          updatePrimaryColumnProperties={(
-            columnProperties: ColumnProperties[],
-          ) => {
-            super.updateWidgetProperty("primaryColumns", columnProperties);
-          }}
           updateColumnSize={(columnSizeMap: { [key: string]: number }) => {
             super.updateWidgetProperty("columnSizeMap", columnSizeMap);
           }}
@@ -1644,11 +1737,11 @@ export interface TableWidgetProps extends WidgetProps, WithMeta {
     asc: boolean;
   };
   cellBackground?: string;
-  cellTextColor?: string;
-  cellTextSize?: TextSize;
-  cellFontStyle?: string;
-  cellHorizontalAlignment?: CellAlignment;
-  cellVerticalAlignment?: VerticalAlignment;
+  textColor?: string;
+  textSize?: TextSize;
+  fontStyle?: string;
+  horizontalAlignment?: CellAlignment;
+  verticalAlignment?: VerticalAlignment;
 }
 
 export default TableWidget;

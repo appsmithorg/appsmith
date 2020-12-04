@@ -44,7 +44,6 @@ import {
   isPathADynamicBinding,
   isPathADynamicTrigger,
 } from "../utils/DynamicBindingUtils";
-import { isEmptyString } from "utils/formhelpers";
 
 const ctx: Worker = self as any;
 
