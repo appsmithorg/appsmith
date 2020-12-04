@@ -117,7 +117,7 @@ function* processEvalQueue() {
       }
     });
     log.debug("Evaluating queue of actions");
-    log.debug(evalQueue);
+    // log.debug(evalQueue);
     evalQueue = [];
     yield fork(evaluateTreeSaga, allPostEvalActions);
   }
@@ -128,16 +128,16 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
   const unevalTree = yield select(getUnevaluatedDataTree);
-  const mainEvalStart = performance.now();
+  // const mainEvalStart = performance.now();
   evaluationWorker.postMessage({
     action: EVAL_WORKER_ACTIONS.EVAL_TREE,
     unevalTree,
   });
   const workerResponse = yield take(workerChannel);
-  const mainEvalStop = performance.now();
-  console.log({ mainEval: (mainEvalStop - mainEvalStart).toFixed(2) });
+  // const mainEvalStop = performance.now();
+  // console.log({ mainEval: (mainEvalStop - mainEvalStart).toFixed(2) });
   const { errors, dataTree, dependencies } = workerResponse.data;
-  log.debug({ dataTree });
+  // log.debug({ dataTree });
   evalErrorHandler(errors);
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
