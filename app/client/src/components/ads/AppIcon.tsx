@@ -43,7 +43,6 @@ import { ReactComponent as HeadphonesIcon } from "assets/icons/ads/app-icons/hea
 import { ReactComponent as HospitalIcon } from "assets/icons/ads/app-icons/hospital.svg";
 import { ReactComponent as JoystickIcon } from "assets/icons/ads/app-icons/joystick.svg";
 import { ReactComponent as LaptopIcon } from "assets/icons/ads/app-icons/laptop.svg";
-import { ReactComponent as LightningIcon } from "assets/icons/ads/app-icons/lightning.svg";
 import { ReactComponent as LineChartIcon } from "assets/icons/ads/app-icons/line-chart.svg";
 import { ReactComponent as LocationIcon } from "assets/icons/ads/app-icons/location.svg";
 import { ReactComponent as LotusIcon } from "assets/icons/ads/app-icons/lotus.svg";
@@ -59,7 +58,6 @@ import { ReactComponent as PieChartIcon } from "assets/icons/ads/app-icons/pie-c
 import { ReactComponent as PizzaIcon } from "assets/icons/ads/app-icons/pizza.svg";
 import { ReactComponent as PlantIcon } from "assets/icons/ads/app-icons/plant.svg";
 import { ReactComponent as RainyWeatherIcon } from "assets/icons/ads/app-icons/rainy-weather.svg";
-import { ReactComponent as RepeatIcon } from "assets/icons/ads/app-icons/repeat.svg";
 import { ReactComponent as RestaurantIcon } from "assets/icons/ads/app-icons/restaurant.svg";
 import { ReactComponent as RocketIcon } from "assets/icons/ads/app-icons/rocket.svg";
 import { ReactComponent as RoseIcon } from "assets/icons/ads/app-icons/rose.svg";
@@ -130,7 +128,6 @@ export const AppIconCollection = [
   "hospital",
   "joystick",
   "laptop",
-  "lightning",
   "line-chart",
   "location",
   "lotus",
@@ -146,7 +143,6 @@ export const AppIconCollection = [
   "pizza",
   "plant",
   "rainy-weather",
-  "repeat",
   "restaurant",
   "rocket",
   "rose",
@@ -361,8 +357,6 @@ const AppIcon = (props: AppIconProps) => {
     case "laptop":
       returnIcon = <LaptopIcon />;
       break;
-    case "lightning":
-      returnIcon = <LightningIcon />;
       break;
     case "line-chart":
       returnIcon = <LineChartIcon />;
@@ -408,9 +402,6 @@ const AppIcon = (props: AppIconProps) => {
       break;
     case "rainy-weather":
       returnIcon = <RainyWeatherIcon />;
-      break;
-    case "repeat":
-      returnIcon = <RepeatIcon />;
       break;
     case "restaurant":
       returnIcon = <RestaurantIcon />;

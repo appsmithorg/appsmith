@@ -261,9 +261,14 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const colorCode =
-      props.application?.color ||
-      getRandomPaletteColor(themeDetails.theme.colors.appCardColors);
+    let colorCode;
+    if (props.application.color) {
+      colorCode = props.application.color;
+    } else {
+      colorCode = getRandomPaletteColor(
+        themeDetails.theme.colors.appCardColors,
+      );
+    }
     setSelectedColor(colorCode);
   }, []);
   useEffect(() => {

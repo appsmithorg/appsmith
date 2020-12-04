@@ -258,7 +258,5 @@ export const retryPromise = (
 };
 
 export const getRandomPaletteColor = (colorPalette: string[]) => {
-  return colorPalette[
-    Math.floor(Math.random() * (colorPalette.length - 0 + 1))
-  ];
+  return colorPalette[Math.floor(Math.random() * colorPalette.length)];
 };
