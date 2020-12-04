@@ -387,6 +387,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
+        // The client does not know about this field. Hence the default value takes over. Set this to null to ensure
+        // the update doesn't lead to resetting of this field. 
+        action.setUserSetOnLoad(null);
+
         NewAction newAction = new NewAction();
         newAction.setUnpublishedAction(action);
 
