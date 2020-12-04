@@ -28,6 +28,12 @@ module.exports = (on, config) => {
     launchOptions.args = require("cypress-log-to-output").browserLaunchHandler(
       browser,
       launchOptions.args,
+      (type, event) => {
+        if (event.level === "error" || event.type === "error") {
+          return true;
+        }
+        return false;
+      },
     );
     if (browser.name === "chrome") {
       launchOptions.args.push("--disable-dev-shm-usage");
