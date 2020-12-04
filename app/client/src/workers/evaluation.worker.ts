@@ -210,7 +210,10 @@ export class DataTreeEvaluator {
     const diffCheckTimeStop = performance.now();
     // Check if dependencies have changed
     const CheckDependencyChangeStart = performance.now();
-    const pathsToBeReEvaluated = this.updateDynamicBindingDependencies(
+
+    // Find all the paths that have changed as part of the difference and update the
+    // global dependency map if an existing dynamic binding has now become legal
+    const pathsToBeReEvaluated = this.findFirstPathsToEvaluateAndUpdateDependencyMap(
       differences,
       this.oldUnEvalTree,
       withFunctions,
@@ -223,6 +226,8 @@ export class DataTreeEvaluator {
       if (d.path) {
         // Apply the changes into the oldEvalTree so that it can be evaluated
         applyChange(this.evalTree, undefined, d);
+
+        // If this is a property path change, simply add for evaluation
         if (d.path.length > 1) {
           changePaths.push(convertPathToString(d.path));
         } else if (d.path.length === 1) {
@@ -240,15 +245,23 @@ export class DataTreeEvaluator {
       }
     });
 
+    // If a nested property path has changed and someone (say x) is dependent on the parent of the said property,
+    // x must also be evaluated. For example, the following relationship exists in dependency map:
+    // <  "Input1.defaultText" : ["Table1.selectedRow.email"] >
+    // If Table1.selectedRow has changed, then Input1.defaultText must also be evaluated because Table1.selectedRow.email
+    // is a nested property of Table1.selectedRow
     const changePathsWithNestedDependants = addDependantsOfNestedPropertyPaths(
       changePaths,
       this.inverseDependencyMap,
     );
 
+    // Now that we have all the root nodes which have to be evaluated, recursively find all the other paths which
+    // would get impacted because they are dependent on the said root nodes and add them in order
     const newSortOrder = this.getUpdatedSortOrder(
       changePathsWithNestedDependants,
       this.inverseDependencyMap,
     );
+
     const getNeedsEvalPathsStop = performance.now();
     console.log({
       differences,
@@ -290,32 +303,6 @@ export class DataTreeEvaluator {
     return this.evalTree;
   }
 
-  // getUpdatedSortOrder(
-  //   changes: Array<string>,
-  //   inverseMap: DependencyMap,
-  // ): Array<string> {
-  //   const sortOrder: Array<string> = [];
-  //   const recCall = (changedNode: string) => {
-  //     const newNodes = inverseMap[changedNode];
-  //     if (newNodes) {
-  //       newNodes.forEach(newChangedNode => {
-  //         if (!sortOrder.includes(newChangedNode)) {
-  //           sortOrder.push(newChangedNode);
-  //         }
-  //         recCall(newChangedNode);
-  //       });
-  //     }
-  //     return;
-  //   };
-  //   changes.forEach(changedNode => {
-  //     if (!sortOrder.includes(changedNode)) {
-  //       sortOrder.push(changedNode);
-  //     }
-  //     recCall(changedNode);
-  //   });
-  //   return sortOrder;
-  // }
-
   getUpdatedSortOrder(
     changes: Array<string>,
     inverseMap: DependencyMap,
@@ -326,7 +313,7 @@ export class DataTreeEvaluator {
       const newNodes = inverseMap[sortOrder[iterator]];
 
       // If we find more nodes that would be impacted by the evaluation of the node being investigated
-      // we add the same to the sort order.
+      // we add these to the sort order.
       if (newNodes) {
         newNodes.forEach(toBeEvaluatedNode => {
           if (!sortOrder.includes(toBeEvaluatedNode)) {
@@ -875,7 +862,7 @@ export class DataTreeEvaluator {
     }, tree);
   };
 
-  updateDynamicBindingDependencies = (
+  findFirstPathsToEvaluateAndUpdateDependencyMap = (
     differences: Array<Diff<any, any>> | undefined,
     oldTree: DataTree,
     dataTree: DataTree,
@@ -905,34 +892,42 @@ export class DataTreeEvaluator {
       if (entityNameAndTypeMap[entityName] === "noop") {
         return;
       }
+      // Transform the diff library events to Appsmith evaluator events
       const dataTreeDiff = translateDiffEventToDataTreeDiffEvent(difference);
       console.log({ dataTreeDiff, difference });
       switch (dataTreeDiff.event) {
         case DataTreeDiffEvent.NEW: {
-          if (entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET) {
+          // If a new widget was added, add all the internal bindings for this widget to the global dependency map
+          if ((entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET) &&
+            (dataTreeDiff.payload.propertyPath === entityName)) {
+
             const entity: DataTreeWidget = dataTree[
               entityName
             ] as DataTreeWidget;
-            // New widget was added, add all bindings for this widget
-            if (dataTreeDiff.payload.propertyPath === entityName) {
-              const widgetBindings = this.listEntityDependencies(
-                entity,
-                entityName,
-              );
-              if (Object.keys(widgetBindings).length) {
-                didUpdateDependencyMap = true;
-                this.dependencyMap = {
-                  ...this.dependencyMap,
-                  ...widgetBindings,
-                };
-              }
+
+            const widgetBindings = this.listEntityDependencies(
+              entity,
+              entityName,
+            );
+            if (Object.keys(widgetBindings).length) {
+              didUpdateDependencyMap = true;
+              this.dependencyMap = {
+                ...this.dependencyMap,
+                ...widgetBindings,
+              };
             }
+
           }
+          // Either a new entity or a new property path has been added. Go through existing dynamic bindings and
+          // find out if a new dependency has to be created because the property path used in the binding just became
+          // eligible
           this.allKeys = getAllPaths(dataTree);
-          const possibleReferencesInOldBindings: DependencyMap = this.getPossibleReferencesInOldBindings(
+          const possibleReferencesInOldBindings: DependencyMap = this.getPropertyPathReferencesInExistingBindings(
             dataTree,
             dataTreeDiff.payload.propertyPath,
           );
+          // We have found some bindings which are related to the new property path and hence should be added to the
+          // global dependency map
           if (Object.keys(possibleReferencesInOldBindings).length) {
             didUpdateDependencyMap = true;
             this.dependencyMap = {
@@ -943,22 +938,25 @@ export class DataTreeEvaluator {
           break;
         }
         case DataTreeDiffEvent.DELETE: {
-          if (entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET) {
+
+          // If an existing widget was deleted, remove all the bindings from the global dependency map
+          if ((entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET) &&
+            (dataTreeDiff.payload.propertyPath === entityName)){
             const entity: DataTreeWidget = dataTree[
               entityName
             ] as DataTreeWidget;
-            // widget was deleted, remove all bindings for this widget
-            if (dataTreeDiff.payload.propertyPath === entityName) {
-              const widgetBindings = this.listEntityDependencies(
-                entity,
-                entityName,
-              );
-              Object.keys(widgetBindings).forEach(widgetDep => {
-                didUpdateDependencyMap = true;
-                delete this.dependencyMap[widgetDep];
-              });
-            }
+
+            const widgetBindings = this.listEntityDependencies(
+              entity,
+              entityName,
+            );
+            Object.keys(widgetBindings).forEach(widgetDep => {
+              didUpdateDependencyMap = true;
+              delete this.dependencyMap[widgetDep];
+            });
           }
+          // Either an existing entity or an existing property path has been deleted. Update the global dependency map
+          // by removing the bindings from the same.
           this.allKeys = getAllPaths(dataTree);
           Object.keys(this.dependencyMap).forEach(dependencyPath => {
             didUpdateDependencyMap = true;
@@ -983,22 +981,31 @@ export class DataTreeEvaluator {
         }
 
         case DataTreeDiffEvent.EDIT: {
-          if (entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET) {
+
+          // We only care about dependencies for a widget. This is because in case a dependency of an action changes,
+          // that shouldn't trigger an evaluation.
+          // Also for a widget, we only care if the difference is in dynamic bindings since static values do not need
+          // an evaluation.
+          if ((entityNameAndTypeMap[entityName] === ENTITY_TYPE.WIDGET) &&
+            (typeof dataTreeDiff.payload.value === "string")){
             didUpdateDependencyMap = true;
-            if (typeof dataTreeDiff.payload.value === "string") {
-              const { jsSnippets } = getDynamicBindings(
-                dataTreeDiff.payload.value,
-              );
-              const correctSnippets = jsSnippets.filter(
-                jsSnippet => !!jsSnippet,
-              );
-              if (correctSnippets.length) {
-                this.dependencyMap[
-                  dataTreeDiff.payload.propertyPath
-                ] = correctSnippets;
-              } else {
-                delete this.dependencyMap[dataTreeDiff.payload.propertyPath];
-              }
+
+            const { jsSnippets } = getDynamicBindings(
+              dataTreeDiff.payload.value,
+            );
+            const correctSnippets = jsSnippets.filter(
+              jsSnippet => !!jsSnippet,
+            );
+            // We found a new dynamic binding for this property path. We update the dependency map by overwriting the
+            // depencies for this property path with the newly found dependencies
+            if (correctSnippets.length) {
+              this.dependencyMap[
+                dataTreeDiff.payload.propertyPath
+              ] = correctSnippets;
+            } else {
+              // The dependency on this property path has been removed. Delete this property path from the global
+              // depency map
+              delete this.dependencyMap[dataTreeDiff.payload.propertyPath];
             }
           }
           break;
@@ -1015,6 +1022,7 @@ export class DataTreeEvaluator {
       Object.keys(this.dependencyMap).forEach(key => {
         this.dependencyMap[key] = _.flatten(
           this.dependencyMap[key].map(path =>
+            // TODO : Add comment on whats happening and may be refactor the name to accurately depict the function
             calculateSubDependencies(path, this.allKeys),
           ),
         );
@@ -1022,11 +1030,13 @@ export class DataTreeEvaluator {
     }
     const subDepCalcEnd = performance.now();
     const updateChangedDependenciesStart = performance.now();
-    // If dependencies have changed, update sort order and inverse
+    // If the global dependency map has changed, re-calculate the sort order for all entities and the
+    // global inverse dependency map
     if (didUpdateDependencyMap) {
       this.sortedDependencies = this.sortDependencies(this.dependencyMap);
       this.inverseDependencyMap = this.getInverseDependencyTree();
     }
+
     const updateChangedDependenciesStop = performance.now();
     console.log({
       diffCalcDeps: (diffCalcEnd - diffCalcStart).toFixed(2),
@@ -1035,6 +1045,7 @@ export class DataTreeEvaluator {
         updateChangedDependenciesStop - updateChangedDependenciesStart
       ).toFixed(2),
     });
+
     return pathsToBeReEvaluated;
   };
 
@@ -1056,7 +1067,7 @@ export class DataTreeEvaluator {
     return inverseDag;
   };
 
-  getPossibleReferencesInOldBindings = (
+  getPropertyPathReferencesInExistingBindings = (
     dataTree: DataTree,
     propertyPath: string,
   ) => {
