@@ -109,7 +109,7 @@ function* postEvalActionDispatcher(actions: ReduxAction<unknown>[]) {
 }
 
 function* processEvalQueue() {
-  if (evalQueue.length) {
+  while (evalQueue.length) {
     const allPostEvalActions: EvaluationReduxAction<unknown | unknown[]>[] = [];
     evalQueue.forEach(enqueuedAction => {
       const postEvalActions = enqueuedAction.action.postEvalActions;
@@ -120,7 +120,7 @@ function* processEvalQueue() {
     log.debug("Evaluating queue of actions");
     // log.debug(evalQueue);
     evalQueue = [];
-    yield fork(evaluateTreeSaga, allPostEvalActions);
+    yield call(evaluateTreeSaga, allPostEvalActions);
   }
 }
 
