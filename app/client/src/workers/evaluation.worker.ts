@@ -263,15 +263,16 @@ export class DataTreeEvaluator {
     );
 
     const getNeedsEvalPathsStop = performance.now();
-    // console.log({
-    //   differences,
-    //   newSortOrder,
-    //   changePathsWithNestedDependants,
-    //   sortedDependencies: this.sortedDependencies,
-    //   changePaths,
-    //   inverse: this.inverseDependencyMap,
-    //   updatedDependencyMap: this.dependencyMap,
-    // });
+    const loggingData = {
+      differences,
+      newSortOrder,
+      changePathsWithNestedDependants,
+      // sortedDependencies: this.sortedDependencies,
+      changePaths,
+      // inverse: this.inverseDependencyMap,
+      updatedDependencyMap: this.dependencyMap,
+    };
+    console.log(JSON.stringify(loggingData));
 
     newSortOrder.forEach(propertyPath => {
       const unEvalPropValue = _.get(unEvalTree, propertyPath);
