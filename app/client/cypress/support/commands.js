@@ -1079,7 +1079,7 @@ Cypress.Commands.add("testCodeMirrorLast", value => {
     .then($cm => {
       if ($cm.val() !== "") {
         cy.get(".CodeMirror textarea")
-          .first()
+          .last()
           .clear({
             force: true,
           });
@@ -1186,6 +1186,7 @@ Cypress.Commands.add("hideColumn", colId => {
   cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
     force: true,
   });
+  cy.wait(1000);
 });
 
 Cypress.Commands.add("showColumn", colId => {

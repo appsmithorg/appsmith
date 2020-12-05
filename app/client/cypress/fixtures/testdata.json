@@ -190,5 +190,7 @@
   "bindingVerticalAlig": "{{currentRow.userName.indexOf('Michael') > -1 ? 'TOP' : 'BOTTOM'}}",
   "bindingTextColor": "{{currentRow.userName.indexOf('Michael') > -1 ? 'GREEN' : 'RED'}}",
   "bindingButton": "{{currentRow.userName.indexOf('Michael') > -1 ? 'Discount' : 'NoDiscount'}}",
-  "bindingStyle": "{{currentRow.userName.indexOf('Michael') > -1 ? 'BOLD' : 'ITALIC'}}"
+  "bindingStyle": "{{currentRow.userName.indexOf('Michael') > -1 ? 'BOLD' : 'ITALIC'}}",
+  "bindingGenAlign": "{{currentRow.userName.indexOf('Michael') > -1 ? 'RIGHT' : 'LEFT'}}"
+
 }
