@@ -17,7 +17,10 @@ import {
   WidgetPropertyValidationType,
 } from "utils/WidgetValidation";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import {
+  DerivedPropertiesMap,
+  TriggerPropertiesMap,
+} from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
 import { isNumber, isString, isUndefined, isEqual } from "lodash";
@@ -121,6 +124,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       onPageChange: true,
       onSearchTextChanged: true,
       columnActions: true,
+    };
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {
+      selectedRow: `{{ _.get(this.filteredTableData, this.selectedRowIndex, _.mapValues(this.filteredTableData[0], () => undefined)) }}`,
+      selectedRows: `{{ this.filteredTableData.filter((item, i) => selectedRowIndices.includes(i) }); }}`,
     };
   }
 
@@ -345,40 +355,25 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
   };
 
-  getSelectedRow = (
-    filteredTableData: Array<Record<string, unknown>>,
-    selectedRowIndex?: number,
-  ) => {
-    if (selectedRowIndex === undefined || selectedRowIndex === -1) {
-      const columnKeys: string[] = getAllTableColumnKeys(this.props.tableData);
-      const selectedRow: { [key: string]: any } = {};
-      for (let i = 0; i < columnKeys.length; i++) {
-        selectedRow[columnKeys[i]] = undefined;
-      }
-      return selectedRow;
-    }
-    return filteredTableData[selectedRowIndex];
-  };
-
-  getSelectedRows = (
-    filteredTableData: Array<Record<string, unknown>>,
-    selectedRowIndices: Array<number>,
-  ) => {
-    return filteredTableData.filter(
-      (item: Record<string, unknown>, i: number) => {
-        return selectedRowIndices.includes(i);
-      },
-    );
-  };
+  // getSelectedRows = (
+  //   filteredTableData: Array<Record<string, unknown>>,
+  //   selectedRowIndices: Array<number>,
+  // ) => {
+  //   return filteredTableData.filter(
+  //     (item: Record<string, unknown>, i: number) => {
+  //       return selectedRowIndices.includes(i);
+  //     },
+  //   );
+  // };
 
   componentDidMount() {
     const filteredTableData = this.filterTableData();
     this.props.updateWidgetMetaProperty("filteredTableData", filteredTableData);
-    const { selectedRowIndex } = this.props;
-    this.props.updateWidgetMetaProperty(
-      "selectedRow",
-      this.getSelectedRow(filteredTableData, selectedRowIndex),
-    );
+    // const { selectedRowIndex } = this.props;
+    // this.props.updateWidgetMetaProperty(
+    //   "selectedRow",
+    //   this.getSelectedRow(filteredTableData, selectedRowIndex),
+    // );
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
@@ -412,10 +407,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           "selectedRowIndex",
           selectedRowIndex,
         );
-        this.props.updateWidgetMetaProperty(
-          "selectedRow",
-          this.getSelectedRow(filteredTableData, selectedRowIndex),
-        );
+        // this.props.updateWidgetMetaProperty(
+        //   "selectedRow",
+        //   this.getSelectedRow(filteredTableData, selectedRowIndex),
+        // );
       } else {
         const selectedRowIndices =
           this.props.selectedRowIndices && this.props.selectedRowIndices.length
@@ -427,10 +422,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           "selectedRowIndices",
           selectedRowIndices,
         );
-        this.props.updateWidgetMetaProperty(
-          "selectedRows",
-          this.getSelectedRows(filteredTableData, selectedRowIndices),
-        );
+        // this.props.updateWidgetMetaProperty(
+        //   "selectedRows",
+        //   this.getSelectedRows(filteredTableData, selectedRowIndices),
+        // );
       }
     }
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
@@ -443,23 +438,23 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           selectedRowIndices,
         );
         this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
-        const filteredTableData = this.filterTableData();
-        this.props.updateWidgetMetaProperty(
-          "selectedRows",
-          this.getSelectedRows(filteredTableData, selectedRowIndices),
-        );
-        this.props.updateWidgetMetaProperty(
-          "selectedRow",
-          this.getSelectedRow(filteredTableData),
-        );
+        // const filteredTableData = this.filterTableData();
+        // this.props.updateWidgetMetaProperty(
+        //   "selectedRows",
+        //   this.getSelectedRows(filteredTableData, selectedRowIndices),
+        // );
+        // this.props.updateWidgetMetaProperty(
+        //   "selectedRow",
+        //   this.getSelectedRow(filteredTableData),
+        // );
       } else {
-        const filteredTableData = this.filterTableData();
+        // const filteredTableData = this.filterTableData();
         this.props.updateWidgetMetaProperty("selectedRowIndices", []);
         this.props.updateWidgetMetaProperty("selectedRows", []);
-        this.props.updateWidgetMetaProperty(
-          "selectedRow",
-          this.getSelectedRow(filteredTableData),
-        );
+        // this.props.updateWidgetMetaProperty(
+        //   "selectedRow",
+        //   this.getSelectedRow(filteredTableData),
+        // );
       }
     }
     if (!isEqual(this.props.defaultSelectedRow, prevProps.defaultSelectedRow)) {
@@ -472,10 +467,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           "selectedRowIndex",
           selectedRowIndex,
         );
-        this.props.updateWidgetMetaProperty(
-          "selectedRow",
-          this.getSelectedRow(this.props.filteredTableData, selectedRowIndex),
-        );
+        // this.props.updateWidgetMetaProperty(
+        //   "selectedRow",
+        //   this.getSelectedRow(this.props.filteredTableData, selectedRowIndex),
+        // );
       } else {
         const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
           ? this.props.defaultSelectedRow
@@ -484,13 +479,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           "selectedRowIndices",
           selectedRowIndices,
         );
-        this.props.updateWidgetMetaProperty(
-          "selectedRows",
-          this.getSelectedRows(
-            this.props.filteredTableData,
-            selectedRowIndices,
-          ),
-        );
+        // this.props.updateWidgetMetaProperty(
+        //   "selectedRows",
+        //   this.getSelectedRows(
+        //     this.props.filteredTableData,
+        //     selectedRowIndices,
+        //   ),
+        // );
       }
     }
   }
@@ -727,10 +722,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         ? this.props.defaultSelectedRow
         : -1;
       this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
-      this.props.updateWidgetMetaProperty(
-        "selectedRow",
-        this.getSelectedRow(this.props.filteredTableData, selectedRowIndex),
-      );
+      // this.props.updateWidgetMetaProperty(
+      //   "selectedRow",
+      //   this.getSelectedRow(this.props.filteredTableData, selectedRowIndex),
+      // );
     } else {
       const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
         ? this.props.defaultSelectedRow
@@ -739,10 +734,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         "selectedRowIndices",
         selectedRowIndices,
       );
-      this.props.updateWidgetMetaProperty(
-        "selectedRows",
-        this.getSelectedRows(this.props.filteredTableData, selectedRowIndices),
-      );
+      // this.props.updateWidgetMetaProperty(
+      //   "selectedRows",
+      //   this.getSelectedRows(this.props.filteredTableData, selectedRowIndices),
+      // );
     }
   };
 
