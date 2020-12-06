@@ -65,10 +65,13 @@ ctx.addEventListener("message", e => {
       if (!dataTreeEvaluator) {
         break;
       }
+      console.log("uneval", JSON.stringify(unevalTree));
       const response = dataTreeEvaluator.updateDataTree(unevalTree);
       // We need to clean it to remove any possible functions inside the tree.
       // If functions exist, it will crash the web worker
-      const cleanDataTree = JSON.parse(JSON.stringify(response));
+      const stringEval = JSON.stringify(response);
+      console.log("eval", stringEval);
+      const cleanDataTree = JSON.parse(stringEval);
       ctx.postMessage({
         dataTree: cleanDataTree,
         dependencies: dataTreeEvaluator.dependencyMap,
