@@ -451,13 +451,10 @@ export class DataTreeEvaluator {
                   widgetEntity,
                 );
               }
-              console.log(parsedValue);
               return _.set(currentTree, propertyPath, parsedValue);
             }
-            console.log(evalPropertyValue);
             return _.set(currentTree, propertyPath, evalPropertyValue);
           } else {
-            console.log(evalPropertyValue);
             return _.set(currentTree, propertyPath, evalPropertyValue);
           }
         },
