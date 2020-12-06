@@ -148,19 +148,24 @@ const updateColumnsHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
-): Array<{ propertyPath: string; propertyValue: any }> => {
+): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
   const propertiesToUpdate: Array<{
     propertyPath: string;
     propertyValue: any;
   }> = [];
   try {
+    // Parse the json in the field
     const tableData = JSON.parse(propertyValue);
+    // Get all the column keys
     const columnKeys: string[] = getAllTableColumnKeys(tableData);
+    // Get all the primary columns
     const primaryColumns: ColumnProperties[] = props.primaryColumns
       ? [...props.primaryColumns]
       : [];
+    // Get all table level styles
     const tableStyles = getTableStyles(props);
     let existingColumnCount = 0;
+    // Use the columnId as identifier instead of index
     const dynamicBindingPathList = props.dynamicBindingPathList
       ? props.dynamicBindingPathList.map((item: { key: string }) => {
           const value = item.key;
@@ -176,13 +181,19 @@ const updateColumnsHook = (
           return item;
         })
       : [];
+    // Get all the existing columns which are either derived or exist in primary columns
     const existingColumns = primaryColumns.filter(
       (column: ColumnProperties) => {
+        // Index of the column.id in all table column keys
         const columnKeyIndex = columnKeys.indexOf(column.id);
-        if (columnKeyIndex !== -1) {
+        // If this column exists in the column keys of the table
+        if (columnKeyIndex > -1) {
+          // Remove this column from columnKeys
           columnKeys.splice(columnKeyIndex, 1);
+          // Leverage the fact that filter iterates to increment the count of existing columns
           existingColumnCount++;
         }
+        // Return true if this column is a derived column or the column is not found
         return column.isDerived || columnKeyIndex !== -1;
       },
     );
@@ -234,10 +245,17 @@ const updateColumnsHook = (
         propertyValue: updatedDynamicBindingPathList,
       },
     );
+    return propertiesToUpdate;
   } catch (err) {
-    console.log({ err });
+    // There was most likely, a parsing error
+    // Reset the primary columns, as new data is coming in
+    return [
+      {
+        propertyPath: "primaryColumns",
+        propertyValue: [],
+      },
+    ];
   }
-  return propertiesToUpdate;
 };
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
@@ -832,7 +850,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   getPropertyValue = (value: any, index: number) => {
-    if (value && Array.isArray(value)) {
+    if (value && Array.isArray(value) && value[index]) {
       return value[index].toString().toUpperCase();
     } else if (value) {
       return value.toString().toUpperCase();
@@ -1240,26 +1258,29 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         );
       }
     }
-    // if (tableDataModified) {
-    //   const columnKeys: string[] = getAllTableColumnKeys(
-    //     this.props.tableData,
-    //   ).sort((a: string, b: string) => {
-    //     return a > b ? 1 : a < b ? -1 : 0;
-    //   });
-    //   const primaryColumnKeys = (this.props.columns || [])
-    //     .filter((column: ColumnProperties) => {
-    //       return !column.isDerived;
-    //     })
-    //     .map((column: ColumnProperties) => {
-    //       return column.id;
-    //     })
-    //     .sort((a: string, b: string) => {
-    //       return a > b ? 1 : a < b ? -1 : 0;
-    //     });
-    //   if (JSON.stringify(columnKeys) !== JSON.stringify(primaryColumnKeys)) {
-    //     this.createTablePrimaryColumns();
-    //   }
-    // }
+    if (
+      tableDataModified &&
+      (!this.props.primaryColumns || this.props.primaryColumns.length === 0)
+    ) {
+      const columnKeys: string[] = getAllTableColumnKeys(
+        this.props.tableData,
+      ).sort((a: string, b: string) => {
+        return a > b ? 1 : a < b ? -1 : 0;
+      });
+      const primaryColumnKeys = (this.props.columns || [])
+        .filter((column: ColumnProperties) => {
+          return !column.isDerived;
+        })
+        .map((column: ColumnProperties) => {
+          return column.id;
+        })
+        .sort((a: string, b: string) => {
+          return a > b ? 1 : a < b ? -1 : 0;
+        });
+      if (JSON.stringify(columnKeys) !== JSON.stringify(primaryColumnKeys)) {
+        this.createTablePrimaryColumns();
+      }
+    }
     if (
       JSON.stringify(this.props.primaryColumns) !==
       JSON.stringify(prevProps.primaryColumns)
