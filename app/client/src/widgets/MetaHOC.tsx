@@ -90,6 +90,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
         if (updateWidgetMetaProperty) {
           const propertyValue = this.state[propertyName];
           clearEvalPropertyCache(`${widgetName}.${propertyName}`);
+          console.log("updateMeta", propertyName, propertyValue);
           updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
           this.updatedProperties.delete(propertyName);
         }
