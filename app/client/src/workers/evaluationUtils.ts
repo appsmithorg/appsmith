@@ -1,4 +1,3 @@
-import { DataTree } from "../entities/DataTree/dataTreeFactory";
 import { isDynamicValue } from "../utils/DynamicBindingUtils";
 import { Diff } from "deep-diff";
 import { DependencyMap } from "./evaluation.worker";
