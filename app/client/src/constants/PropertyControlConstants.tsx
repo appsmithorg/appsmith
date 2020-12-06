@@ -33,7 +33,7 @@ export type PropertyPaneControlConfig = {
     props: any,
     propertyName: string,
     propertyValue: any,
-  ) => Array<{ propertyPath: string; propertyValue: any }>;
+  ) => Array<{ propertyPath: string; propertyValue: any }> | undefined;
   hidden?: (props: any) => boolean;
 };
 

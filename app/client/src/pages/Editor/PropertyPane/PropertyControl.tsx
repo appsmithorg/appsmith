@@ -66,21 +66,29 @@ const PropertyControl = memo((props: Props) => {
         updatedValue: propertyValue,
       });
       if (props.updateHook) {
-        const propertiesToUpdate: Array<{
-          propertyPath: string;
-          propertyValue: any;
-        }> = props.updateHook(widgetProperties, propertyName, propertyValue);
-        propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
-          dispatch(
-            updateWidgetPropertyRequest(
-              widgetProperties.widgetId,
-              propertyPath,
-              propertyValue,
-              RenderModes.CANVAS,
-              false,
-            ),
-          );
-        });
+        const propertiesToUpdate:
+          | Array<{
+              propertyPath: string;
+              propertyValue: any;
+            }>
+          | undefined = props.updateHook(
+          widgetProperties,
+          propertyName,
+          propertyValue,
+        );
+        if (propertiesToUpdate) {
+          propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
+            dispatch(
+              updateWidgetPropertyRequest(
+                widgetProperties.widgetId,
+                propertyPath,
+                propertyValue,
+                RenderModes.CANVAS,
+                false,
+              ),
+            );
+          });
+        }
       }
       dispatch(
         updateWidgetPropertyRequest(

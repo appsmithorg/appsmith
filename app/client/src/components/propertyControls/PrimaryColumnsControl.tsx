@@ -19,6 +19,7 @@ import {
   getTableStyles,
 } from "components/designSystems/appsmith/TableUtilities";
 import produce from "immer";
+import { compact } from "lodash";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -68,6 +69,23 @@ type RenderComponentProps = {
   onEdit?: (index: number) => void;
   deleteOption: (index: number) => void;
   toggleVisibility?: (index: number) => void;
+};
+
+const removeDynamicPaths = (paths: Array<{ key: string }>, index: number) => {
+  if (!paths || paths.length === 0) return false;
+  const finalPaths = compact(
+    paths.map((path: { key: string }) => {
+      const pathStringStub = `primaryColumns[${index}]`;
+      if (path.key.indexOf(pathStringStub) === 0) {
+        return;
+      }
+      return path;
+    }),
+  );
+  if (finalPaths.length < paths.length) {
+    return finalPaths;
+  }
+  return false;
 };
 
 function ColumnControlComponent(props: RenderComponentProps) {
@@ -218,6 +236,27 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
   deleteOption = (index: number) => {
     const columns: ColumnProperties[] = this.props.propertyValue || [];
     const updatedColumns: ColumnProperties[] = [...columns];
+    const removeDynamicBindingPaths = removeDynamicPaths(
+      this.props.widgetProperties.dynamicBindingPathList,
+      index,
+    );
+    if (removeDynamicBindingPaths) {
+      this.updateProperty("dynamicBindingPathList", removeDynamicBindingPaths);
+    }
+    const removeDynamicTriggers = removeDynamicPaths(
+      this.props.widgetProperties.dynamicTriggers,
+      index,
+    );
+    if (removeDynamicTriggers) {
+      this.updateProperty("dynamicTriggers", removeDynamicTriggers);
+    }
+    const removeDynamicProperties = removeDynamicPaths(
+      this.props.widgetProperties.dynamicPropertyPathList,
+      index,
+    );
+    if (removeDynamicProperties) {
+      this.updateProperty("dynamicPropertyPathList", removeDynamicProperties);
+    }
     updatedColumns.splice(index, 1);
     this.updateProperty(this.props.propertyName, updatedColumns);
   };
