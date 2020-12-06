@@ -223,7 +223,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    debugger;
     const { isValid, transformed, parsed } = VALIDATORS.ARRAY(
       value,
       props,
