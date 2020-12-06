@@ -80,7 +80,7 @@ function* initEvaluationWorkers(action: EvaluationReduxAction<any>) {
   if (action && action.postEvalActions && action.postEvalActions.length) {
     yield call(postEvalActionDispatcher, action.postEvalActions);
   }
-  // yield call(processEvalQueue);
+  yield fork(processEvalQueue);
 }
 
 const evalErrorHandler = (errors: EvalError[]) => {
@@ -119,7 +119,7 @@ function* processEvalQueue() {
       }
     });
     log.debug("Evaluating queue of actions");
-    // log.debug(evalQueue);
+    log.debug(evalQueue);
     evalQueue = [];
     yield call(evaluateTreeSaga, allPostEvalActions);
   }
@@ -148,10 +148,6 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   if (postEvalActions && postEvalActions.length) {
     yield call(postEvalActionDispatcher, postEvalActions);
   }
-  // yield put({
-  //   type: ReduxActionTypes.SET_UNEVALUATED_TREE,
-  //   payload: unevalTree,
-  // });
   put({
     type: ReduxActionTypes.SET_EVALUATION_DEPENDENCIES,
     payload: dependencies,

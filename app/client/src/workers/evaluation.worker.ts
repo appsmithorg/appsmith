@@ -65,13 +65,10 @@ ctx.addEventListener("message", e => {
       if (!dataTreeEvaluator) {
         break;
       }
-      console.log("uneval", JSON.stringify(unevalTree));
       const response = dataTreeEvaluator.updateDataTree(unevalTree);
       // We need to clean it to remove any possible functions inside the tree.
       // If functions exist, it will crash the web worker
-      const stringEval = JSON.stringify(response);
-      console.log("eval", stringEval);
-      const cleanDataTree = JSON.parse(stringEval);
+      const cleanDataTree = JSON.parse(JSON.stringify(response));
       ctx.postMessage({
         dataTree: cleanDataTree,
         dependencies: dataTreeEvaluator.dependencyMap,
@@ -266,16 +263,16 @@ export class DataTreeEvaluator {
     );
 
     const getNeedsEvalPathsStop = performance.now();
-    const loggingData = {
+
+    console.log({
       differences,
       newSortOrder,
       changePathsWithNestedDependants,
-      // sortedDependencies: this.sortedDependencies,
+      sortedDependencies: this.sortedDependencies,
       changePaths,
-      // inverse: this.inverseDependencyMap,
+      inverse: this.inverseDependencyMap,
       updatedDependencyMap: this.dependencyMap,
-    };
-    console.log(JSON.stringify(loggingData));
+    });
 
     newSortOrder.forEach(propertyPath => {
       const unEvalPropValue = _.get(unEvalTree, propertyPath);
@@ -287,23 +284,23 @@ export class DataTreeEvaluator {
     const evaluatedTree = this.evaluateTree(this.evalTree, newSortOrder);
     const evalStop = performance.now();
     // Validate Widgets
-    const validateStart = performance.now();
-    const validated = this.getValidatedTree(evaluatedTree);
-    const validateStop = performance.now();
+    // const validateStart = performance.now();
+    // const validated = this.getValidatedTree(evaluatedTree);
+    // const validateStop = performance.now();
     // Remove functions
-    this.evalTree = removeFunctionsFromDataTree(validated);
+    this.evalTree = removeFunctionsFromDataTree(evaluatedTree);
     this.oldUnEvalTree = unEvalTree;
-    // console.log({
-    //   diffCheck: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),
-    //   checkDepChange: (
-    //     CheckDependencyChangeStop - CheckDependencyChangeStart
-    //   ).toFixed(2),
-    //   getNeedsEvalPaths: (
-    //     getNeedsEvalPathsStop - getNeedsEvalPathsStart
-    //   ).toFixed(2),
-    //   eval: (evalStop - evalStart).toFixed(2),
-    //   validate: (validateStop - validateStart).toFixed(2),
-    // });
+    console.log({
+      diffCheck: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),
+      checkDepChange: (
+        CheckDependencyChangeStop - CheckDependencyChangeStart
+      ).toFixed(2),
+      getNeedsEvalPaths: (
+        getNeedsEvalPathsStop - getNeedsEvalPathsStart
+      ).toFixed(2),
+      eval: (evalStop - evalStart).toFixed(2),
+      // validate: (validateStop - validateStart).toFixed(2),
+    });
     return this.evalTree;
   }
 
@@ -737,6 +734,9 @@ export class DataTreeEvaluator {
     if (!isValid) {
       _.set(widget, `invalidProps.${entityPropertyName}`, true);
       _.set(widget, `validationMessages.${entityPropertyName}`, message);
+    } else {
+      _.set(widget, `invalidProps.${entityPropertyName}`, false);
+      _.set(widget, `validationMessages.${entityPropertyName}`, "");
     }
 
     if (isPathADynamicTrigger(widget, entityPropertyName)) {
@@ -901,7 +901,7 @@ export class DataTreeEvaluator {
       }
       // Transform the diff library events to Appsmith evaluator events
       const dataTreeDiff = translateDiffEventToDataTreeDiffEvent(difference);
-      // console.log({ dataTreeDiff, difference });
+      console.log({ dataTreeDiff, difference });
       switch (dataTreeDiff.event) {
         case DataTreeDiffEvent.NEW: {
           // If a new widget was added, add all the internal bindings for this widget to the global dependency map
@@ -1045,13 +1045,13 @@ export class DataTreeEvaluator {
     }
 
     const updateChangedDependenciesStop = performance.now();
-    // console.log({
-    //   diffCalcDeps: (diffCalcEnd - diffCalcStart).toFixed(2),
-    //   subDepCalc: (subDepCalcEnd - subDepCalcStart).toFixed(2),
-    //   updateChangedDependencies: (
-    //     updateChangedDependenciesStop - updateChangedDependenciesStart
-    //   ).toFixed(2),
-    // });
+    console.log({
+      diffCalcDeps: (diffCalcEnd - diffCalcStart).toFixed(2),
+      subDepCalc: (subDepCalcEnd - subDepCalcStart).toFixed(2),
+      updateChangedDependencies: (
+        updateChangedDependenciesStop - updateChangedDependenciesStart
+      ).toFixed(2),
+    });
 
     return pathsToBeReEvaluated;
   };
