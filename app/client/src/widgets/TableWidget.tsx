@@ -355,25 +355,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
   };
 
-  // getSelectedRows = (
-  //   filteredTableData: Array<Record<string, unknown>>,
-  //   selectedRowIndices: Array<number>,
-  // ) => {
-  //   return filteredTableData.filter(
-  //     (item: Record<string, unknown>, i: number) => {
-  //       return selectedRowIndices.includes(i);
-  //     },
-  //   );
-  // };
-
   componentDidMount() {
     const filteredTableData = this.filterTableData();
     this.props.updateWidgetMetaProperty("filteredTableData", filteredTableData);
-    // const { selectedRowIndex } = this.props;
-    // this.props.updateWidgetMetaProperty(
-    //   "selectedRow",
-    //   this.getSelectedRow(filteredTableData, selectedRowIndex),
-    // );
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
@@ -407,10 +391,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           "selectedRowIndex",
           selectedRowIndex,
         );
-        // this.props.updateWidgetMetaProperty(
-        //   "selectedRow",
-        //   this.getSelectedRow(filteredTableData, selectedRowIndex),
-        // );
       } else {
         const selectedRowIndices = this.props.selectedRowIndices.length
           ? this.props.selectedRowIndices
@@ -421,10 +401,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           "selectedRowIndices",
           selectedRowIndices,
         );
-        // this.props.updateWidgetMetaProperty(
-        //   "selectedRows",
-        //   this.getSelectedRows(filteredTableData, selectedRowIndices),
-        // );
       }
     }
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
@@ -437,23 +413,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           selectedRowIndices,
         );
         this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
-        // const filteredTableData = this.filterTableData();
-        // this.props.updateWidgetMetaProperty(
-        //   "selectedRows",
-        //   this.getSelectedRows(filteredTableData, selectedRowIndices),
-        // );
-        // this.props.updateWidgetMetaProperty(
-        //   "selectedRow",
-        //   this.getSelectedRow(filteredTableData),
-        // );
       } else {
-        // const filteredTableData = this.filterTableData();
         this.props.updateWidgetMetaProperty("selectedRowIndices", []);
-        this.props.updateWidgetMetaProperty("selectedRows", []);
-        // this.props.updateWidgetMetaProperty(
-        //   "selectedRow",
-        //   this.getSelectedRow(filteredTableData),
-        // );
       }
     }
     if (!isEqual(this.props.defaultSelectedRow, prevProps.defaultSelectedRow)) {
@@ -466,10 +427,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           "selectedRowIndex",
           selectedRowIndex,
         );
-        // this.props.updateWidgetMetaProperty(
-        //   "selectedRow",
-        //   this.getSelectedRow(this.props.filteredTableData, selectedRowIndex),
-        // );
       } else {
         const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
           ? this.props.defaultSelectedRow
@@ -478,13 +435,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           "selectedRowIndices",
           selectedRowIndices,
         );
-        // this.props.updateWidgetMetaProperty(
-        //   "selectedRows",
-        //   this.getSelectedRows(
-        //     this.props.filteredTableData,
-        //     selectedRowIndices,
-        //   ),
-        // );
       }
     }
   }
@@ -662,26 +612,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         "selectedRowIndices",
         selectedRowIndices,
       );
-      this.props.updateWidgetMetaProperty(
-        "selectedRows",
-        this.props.filteredTableData.filter(
-          (item: Record<string, unknown>, i: number) => {
-            return selectedRowIndices.includes(i);
-          },
-        ),
-      );
     } else {
       this.props.updateWidgetMetaProperty("selectedRowIndex", index);
-      this.props.updateWidgetMetaProperty(
-        "selectedRow",
-        this.props.filteredTableData[index],
-        {
+      if (this.props.onRowSelected) {
+        super.executeAction({
           dynamicString: this.props.onRowSelected,
           event: {
             type: EventType.ON_ROW_SELECTED,
           },
-        },
-      );
+        });
+      }
     }
   };
 
@@ -721,10 +661,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         ? this.props.defaultSelectedRow
         : -1;
       this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
-      // this.props.updateWidgetMetaProperty(
-      //   "selectedRow",
-      //   this.getSelectedRow(this.props.filteredTableData, selectedRowIndex),
-      // );
     } else {
       const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
         ? this.props.defaultSelectedRow
@@ -733,10 +669,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         "selectedRowIndices",
         selectedRowIndices,
       );
-      // this.props.updateWidgetMetaProperty(
-      //   "selectedRows",
-      //   this.getSelectedRows(this.props.filteredTableData, selectedRowIndices),
-      // );
     }
   };
 
