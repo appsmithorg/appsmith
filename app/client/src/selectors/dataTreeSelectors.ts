@@ -33,9 +33,6 @@ export const getUnevaluatedDataTree = createSelector(
   },
 );
 
-export const getOldUnevaluatedDataTree = (state: AppState) =>
-  state.evaluations.tree.unevaluated;
-
 export const getEvaluationDependencies = (state: AppState) =>
   state.evaluations.dependencies;
 
@@ -44,8 +41,7 @@ export const getEvaluationDependencies = (state: AppState) =>
  *
  * @param state
  */
-export const getDataTree = (state: AppState) =>
-  state.evaluations.tree.evaluated;
+export const getDataTree = (state: AppState) => state.evaluations.tree;
 
 // For autocomplete. Use actions cached responses if
 // there isn't a response already
