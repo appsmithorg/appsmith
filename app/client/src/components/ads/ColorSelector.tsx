@@ -32,7 +32,7 @@ const ColorBox = styled.div<{ selected: string; color: string }>`
       ${props => props.theme.colors.colorSelector.shadow};
   }
 
-  &:last-child {
+  &:nth-child(9n) {
     margin-right: 0px;
   }
 
