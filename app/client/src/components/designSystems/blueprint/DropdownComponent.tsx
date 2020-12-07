@@ -216,7 +216,7 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
       .${Classes.INPUT_GHOST} {
         flex: 0 0 auto;
         margin: 0;
-        width: 1px;
+        width: 80px;
         height: 26px;
       }
     }
