@@ -118,11 +118,16 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         );
       }
     } else if (this.props.selectionType === "MULTI_SELECT") {
-      const isAlreadySelected = this.props.selectedOptionValueArr.includes(
-        selectedOption.value,
-      );
+      const isAlreadySelected =
+        Array.isArray(this.props.selectedOptionValueArr) &&
+        this.props.selectedOptionValueArr.includes(selectedOption.value);
 
-      let newSelectedValue = [...this.props.selectedOptionValueArr];
+      let newSelectedValue =
+        (Array.isArray(this.props.selectedOptionValueArr) && [
+          ...this.props.selectedOptionValueArr,
+        ]) ||
+        [];
+
       if (isAlreadySelected) {
         newSelectedValue = newSelectedValue.filter(
           v => v !== selectedOption.value,
