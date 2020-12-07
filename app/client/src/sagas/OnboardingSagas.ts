@@ -327,18 +327,14 @@ function* listenForDeploySaga() {
 
 function* initiateOnboarding() {
   const currentOnboardingState = yield getOnboardingState();
-  if (currentOnboardingState || isNull(currentOnboardingState)) {
-    const set = yield setOnboardingState(true);
-
-    if (set) {
-      yield put({
-        type: "SET_ONBOARDING_STATE",
-        payload: true,
-      });
-      yield put({
-        type: "NEXT_ONBOARDING_STEP",
-      });
-    }
+  if (currentOnboardingState) {
+    yield put({
+      type: "SET_ONBOARDING_STATE",
+      payload: true,
+    });
+    yield put({
+      type: "NEXT_ONBOARDING_STEP",
+    });
   }
 }
 

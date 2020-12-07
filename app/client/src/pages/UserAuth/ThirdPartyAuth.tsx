@@ -10,6 +10,7 @@ import { useLocation } from "react-router-dom";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { setOnboardingState } from "utils/storage";
 
 const ThirdPartyAuthWrapper = styled.div`
   display: flex;
@@ -93,6 +94,7 @@ const SocialLoginButton = (props: {
             : PerformanceTransactionName.LOGIN_CLICK,
           { name: props.name.toUpperCase() },
         );
+        setOnboardingState(true);
         AnalyticsUtil.logEvent(eventName, {
           loginMethod: props.name.toUpperCase(),
         });
