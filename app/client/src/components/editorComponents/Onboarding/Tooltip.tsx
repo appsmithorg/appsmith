@@ -199,7 +199,15 @@ const ToolTipContent = (props: any) => {
 
         {action && (
           <button
-            onClick={() => dispatch(showTooltip(-1))}
+            onClick={() => {
+              if (action.action) {
+                dispatch(action.action);
+                dispatch(showTooltip(action.action.payload));
+
+                return;
+              }
+              dispatch(showTooltip(-1));
+            }}
             className={TooltipClassNames.ACTION}
           >
             {action.label}

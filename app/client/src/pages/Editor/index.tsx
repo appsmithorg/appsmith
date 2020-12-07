@@ -194,6 +194,8 @@ class Editor extends Component<Props> {
       nextProps.isPublishing !== this.props.isPublishing ||
       nextProps.isEditorLoading !== this.props.isEditorLoading ||
       nextProps.errorPublishing !== this.props.errorPublishing ||
+      nextProps.showOnboardingCompletionDialog !==
+        this.props.showOnboardingCompletionDialog ||
       nextProps.isEditorInitializeError !==
         this.props.isEditorInitializeError ||
       nextState.isDialogOpen !== this.state.isDialogOpen ||
@@ -231,7 +233,10 @@ class Editor extends Component<Props> {
           </Helmet>
           <MainContainer />
           <Dialog
-            isOpen={this.state.isDialogOpen}
+            isOpen={
+              this.state.isDialogOpen &&
+              !this.props.showOnboardingCompletionDialog
+            }
             canOutsideClickClose={true}
             canEscapeKeyClose={true}
             title="Application Published"
@@ -273,6 +278,7 @@ const mapStateToProps = (state: AppState) => ({
   isEditorInitialized: getIsEditorInitialized(state),
   isEditorInitializeError: getIsEditorInitializeError(state),
   user: getCurrentUser(state),
+  showOnboardingCompletionDialog: state.ui.onBoarding.showCompletionDialog,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

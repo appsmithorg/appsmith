@@ -114,6 +114,10 @@ const OnboardingConfig = [
         "You can connect properties to variables on Appsmith with {{ }} bindings",
       action: {
         label: "Next",
+        action: {
+          type: "SET_CURRENT_STEP",
+          payload: 4,
+        },
       },
     },
   },
@@ -291,6 +295,9 @@ function* listenForWidgetUnselection() {
     yield take();
 
     yield take(ReduxActionTypes.HIDE_PROPERTY_PANE);
+    const currentStep = yield select(getCurrentStep);
+
+    if (currentStep >= 4) return;
 
     yield put({
       type: "SET_CURRENT_STEP",
@@ -307,11 +314,8 @@ function* listenForDeploySaga() {
   while (true) {
     yield take();
 
-    yield put({
-      type: "SET_CURRENT_STEP",
-      payload: -1,
-    });
     yield take(ReduxActionTypes.PUBLISH_APPLICATION_INIT);
+    yield put(showTooltip(-1));
     yield put({
       type: ReduxActionTypes.SHOW_ONBOARDING_COMPLETION_DIALOG,
       payload: true,
