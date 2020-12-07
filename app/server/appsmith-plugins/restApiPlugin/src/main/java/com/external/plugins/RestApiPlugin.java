@@ -38,6 +38,7 @@ import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -134,7 +135,7 @@ public class RestApiPlugin extends BasePlugin {
 
             if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
                     || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
-                requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData());
+                requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(), reqContentType);
             }
 
             String secretKey;
@@ -253,14 +254,29 @@ public class RestApiPlugin extends BasePlugin {
             return null;
         }
 
-        private String convertPropertyListToReqBody(List<Property> bodyFormData) {
+        public String convertPropertyListToReqBody(List<Property> bodyFormData, String reqContentType) {
             if (bodyFormData == null || bodyFormData.isEmpty()) {
                 return "";
             }
 
-            return bodyFormData.stream()
-                    .map(property -> property.getKey() + "=" + property.getValue())
+            String reqBody = bodyFormData.stream()
+                    .map(property -> {
+                        String key = property.getKey();
+                        String value = property.getValue();
+
+                        if(MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)) {
+                            try {
+                                value = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+                            } catch (UnsupportedEncodingException e) {
+                                throw new UnsupportedOperationException(e);
+                            }
+                        }
+
+                        return key + "="+ value;
+                    })
                     .collect(Collectors.joining("&"));
+
+            return reqBody;
         }
 
         /**

@@ -2,7 +2,7 @@
 name: "\U0001F41B Bug report"
 about: Create a bug report to help us improve appsmith
 title: "[Bug]"
-labels: Bug, High
+labels: Bug, Needs Triaging
 assignees: Nikhil-Nandagopal
 
 ---
