@@ -24,7 +24,7 @@ import {
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
-import ServerTimeout from "../common/ServerTimeout";
+
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const AppViewerBody = styled.section`

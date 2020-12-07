@@ -45,7 +45,6 @@ import {
   pasteWidget,
 } from "actions/widgetActions";
 import { isMac } from "utils/helpers";
-import ServerTimeout from "../common/ServerTimeout";
 
 type EditorProps = {
   currentApplicationId?: string;
