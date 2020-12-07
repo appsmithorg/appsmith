@@ -245,6 +245,9 @@ const applicationsReducer = createReducer(initialState, {
     action: ReduxAction<UpdateApplicationRequest>,
   ) => {
     let isSavingAppName = false;
+    if (action.payload.name) {
+      isSavingAppName = true;
+    }
     const _organizations = state.userOrgs.map(
       (org: Organization, index: number) => {
         const appIndex = org.applications.findIndex(
@@ -252,7 +255,6 @@ const applicationsReducer = createReducer(initialState, {
         );
         const { id, ...rest } = action.payload;
         if (appIndex !== -1) {
-          isSavingAppName = action.payload.name !== undefined;
           org.applications[appIndex] = {
             ...org.applications[appIndex],
             ...rest,
@@ -266,7 +268,7 @@ const applicationsReducer = createReducer(initialState, {
     return {
       ...state,
       userOrgs: _organizations,
-      isSavingAppName: true,
+      isSavingAppName: isSavingAppName,
     };
   },
   [ReduxActionTypes.UPDATE_APPLICATION_SUCCESS]: (

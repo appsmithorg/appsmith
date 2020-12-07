@@ -23,6 +23,7 @@ describe("Update Application", function() {
       .first()
       .click({ force: true });
     cy.get(homePage.applicationName).type(`${appname} updated` + "{enter}");
+    cy.get(homePage.toastMessage).should("contain", "Application name updated");
     cy.wait("@updateApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -47,6 +48,32 @@ describe("Update Application", function() {
           .invoke("attr", "name")
           .should("equal", iconname);
       });
+  });
+
+  it("Check for errors in updating application name", function() {
+    cy.get(commonlocators.homeIcon).click({ force: true });
+    cy.get(homePage.searchInput).type(appname);
+    cy.wait(2000);
+    cy.get(homePage.applicationCard)
+      .first()
+      .trigger("mouseover");
+    cy.get(homePage.appEditIcon)
+      .first()
+      .click({ force: true });
+    cy.get("#loading").should("not.exist");
+    cy.wait(2000);
+    cy.get(homePage.applicationName).type("  ");
+    cy.get(homePage.toastMessage).should(
+      "contain",
+      "Application name can't be empty",
+    );
+    cy.get(homePage.applicationName).type("  " + "{enter}");
+    cy.wait("@updateApplication").should(
+      "have.nested.property",
+      "response.body.data.name",
+      `${appname} updated`,
+    );
+    cy.get(homePage.toastMessage).should("contain", "Application name updated");
   });
 
   it("Updates the name of first application to very long name and checks whether update is reflected in the application card with a popover", function() {
