@@ -60,7 +60,11 @@ export function getResponseErrorMessage(response: ApiResponse) {
     : undefined;
 }
 
-type ErrorPayloadType = { code?: number | string; message?: string };
+type ErrorPayloadType = {
+  code?: number | string;
+  message?: string;
+  crash?: boolean;
+};
 let ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
 } = {};
@@ -95,32 +99,42 @@ export function* errorSaga(
 ) {
   const effects = [ErrorEffectTypes.LOG_ERROR];
   const {
-    payload: { show = true, crash = false },
+    type,
+    payload: { show = true, error },
   } = errorAction;
+  const message =
+    error && error.message ? error.message : ActionErrorDisplayMap[type](error);
 
   if (show) {
     effects.push(ErrorEffectTypes.SHOW_ALERT);
   }
-
-  if (crash) {
+  if (error.crash) {
     effects.push(ErrorEffectTypes.SAFE_CRASH);
   }
-
-  for (const effect in effects) {
+  console.log({ effects });
+  for (const effect of effects) {
     switch (effect) {
       case ErrorEffectTypes.LOG_ERROR: {
         logErrorSaga(errorAction);
         break;
       }
       case ErrorEffectTypes.SHOW_ALERT: {
-        showAlertAboutError(errorAction);
+        showAlertAboutError(message);
         break;
       }
       case ErrorEffectTypes.SAFE_CRASH: {
         yield call(crashAppSaga);
+        break;
       }
     }
   }
+  yield put({
+    type: ReduxActionTypes.REPORT_ERROR,
+    payload: {
+      source: errorAction.type,
+      message,
+    },
+  });
 }
 
 function logErrorSaga(action: ReduxAction<{ error: ErrorPayloadType }>) {
@@ -128,17 +142,8 @@ function logErrorSaga(action: ReduxAction<{ error: ErrorPayloadType }>) {
   log.error(action.payload.error);
 }
 
-function showAlertAboutError(action: ReduxAction<{ error: ErrorPayloadType }>) {
-  const {
-    type,
-    payload: { error },
-  } = action;
-  const message =
-    error && error.message ? error.message : ActionErrorDisplayMap[type](error);
-
-  if (error) {
-    Toaster.show({ text: message, variant: Variant.danger });
-  }
+function showAlertAboutError(message: string) {
+  Toaster.show({ text: message, variant: Variant.danger });
 }
 
 function* crashAppSaga() {

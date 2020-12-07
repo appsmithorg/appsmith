@@ -75,6 +75,8 @@ axiosInstance.interceptors.response.use(
     if (error.response.status === 502) {
       return Promise.reject({
         ...error,
+        show: true,
+        crash: true,
         message: SERVER_API_TIMEOUT_ERROR,
       });
     }

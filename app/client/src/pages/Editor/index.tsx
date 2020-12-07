@@ -14,7 +14,6 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
   getIsEditorInitialized,
-  getIsEditorInitializeError,
   getIsEditorLoading,
   getIsPublishingApplication,
   getPublishingError,
@@ -205,9 +204,6 @@ class Editor extends Component<Props> {
     });
   };
   public render() {
-    if (this.props.isEditorInitializeError) {
-      return <ServerTimeout />;
-    }
     if (!this.props.isEditorInitialized || !this.state.registered) {
       return (
         <CenteredWrapper style={{ height: "calc(100vh - 48px)" }}>
@@ -268,7 +264,6 @@ const mapStateToProps = (state: AppState) => ({
   isPublishing: getIsPublishingApplication(state),
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
-  isEditorInitializeError: getIsEditorInitializeError(state),
   user: getCurrentUser(state),
 });
 

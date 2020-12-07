@@ -10,10 +10,7 @@ import {
   getApplicationViewerPageURL,
 } from "constants/routes";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import {
-  getIsInitialized,
-  getIsInitializeError,
-} from "selectors/appViewSelectors";
+import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeAction } from "actions/widgetActions";
 import { ExecuteActionPayload } from "constants/ActionConstants";
 import { updateWidgetPropertyRequest } from "actions/controlActions";
@@ -79,10 +76,7 @@ class AppViewer extends Component<
   };
 
   public render() {
-    const { isInitialized, isInitializeError } = this.props;
-    if (isInitializeError) {
-      return <ServerTimeout />;
-    }
+    const { isInitialized } = this.props;
     return (
       <EditorContext.Provider
         value={{
@@ -109,7 +103,6 @@ class AppViewer extends Component<
 
 const mapStateToProps = (state: AppState) => ({
   isInitialized: getIsInitialized(state),
-  isInitializeError: getIsInitializeError(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

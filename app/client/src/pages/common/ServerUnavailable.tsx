@@ -6,8 +6,10 @@ import { APPLICATIONS_URL } from "constants/routes";
 import history from "utils/history";
 
 const Wrapper = styled.div`
+  height: calc(100vh - ${props => props.theme.headerHeight});
+  background-color: #fafafa;
   text-align: center;
-  margin-top: 5%;
+  padding-top: calc(${props => props.theme.headerHeight} + 50px);
   .bold-text {
     font-weight: ${props => props.theme.fontWeights[3]};
     font-size: 24px;
