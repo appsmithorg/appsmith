@@ -108,6 +108,7 @@ class DatePickerComponent extends React.Component<
         )}
         {this.props.datePickerType === "DATE_PICKER" ? (
           <DateInput
+            popoverProps={{ usePortal: false }}
             className={this.props.isLoading ? "bp3-skeleton" : ""}
             formatDate={this.formatDate}
             parseDate={this.parseDate}
