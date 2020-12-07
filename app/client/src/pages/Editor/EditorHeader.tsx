@@ -37,6 +37,8 @@ import {
 } from "selectors/applicationSelectors";
 import EditableTextWrapper from "components/ads/EditableTextWrapper";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
+import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
+import { Position } from "@blueprintjs/core";
 
 const HeaderWrapper = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
@@ -282,22 +284,24 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             }
           />
           <DeploySection>
-            <DeployButton
-              onClick={handlePublish}
-              text="Deploy"
-              loading={isPublishing}
-              intent="primary"
-              filled
-              size="small"
-              className="t--application-publish-btn"
-              icon={
-                <HeaderIcons.DEPLOY
-                  color={Colors.WHITE}
-                  width={13}
-                  height={13}
-                />
-              }
-            />
+            <OnboardingToolTip step={[4]} position={Position.BOTTOM_RIGHT}>
+              <DeployButton
+                onClick={handlePublish}
+                text="Deploy"
+                loading={isPublishing}
+                intent="primary"
+                filled
+                size="small"
+                className="t--application-publish-btn"
+                icon={
+                  <HeaderIcons.DEPLOY
+                    color={Colors.WHITE}
+                    width={13}
+                    height={13}
+                  />
+                }
+              />
+            </OnboardingToolTip>
             <DeployLinkButtonDialog
               trigger={
                 <DeployLinkButton icon="caret-down" filled intent="primary" />

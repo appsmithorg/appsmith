@@ -22,14 +22,15 @@ enum TooltipClassNames {
   SNIPPET = "tooltip-snippet",
 }
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ isFinalStep: boolean }>`
   width: 280px;
-  background-color: #457ae6;
+  background-color: ${props => (props.isFinalStep ? "#F86A2B" : "#457ae6")};
   color: white;
   padding: 10px;
 
   .${TooltipClassNames.TITLE} {
     font-weight: 500;
+    font-size: 14px;
   }
   .${TooltipClassNames.DESCRIPTION} {
     font-size: 12px;
@@ -88,13 +89,20 @@ const Wrapper = styled.div`
   }
 `;
 
-const Container = styled.div`
+const Container = styled.div<{ isFinalStep: boolean }>`
   div.${Classes.POPOVER_ARROW} {
     display: block;
   }
   .bp3-popover-arrow-fill {
-    fill: #457ae6;
+    fill: ${props => (props.isFinalStep ? "#F86A2B" : "#457ae6")};
   }
+`;
+
+const ActionWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
 `;
 
 const OnboardingToolTip = (props: any) => {
@@ -104,6 +112,7 @@ const OnboardingToolTip = (props: any) => {
   );
   const popoverRef: RefObject<Popover> = useRef(null);
   const tooltipConfig = useSelector(getTooltipConfig);
+  const { isFinalStep = false } = tooltipConfig;
 
   useEffect(() => {
     if (props.step.includes(showingTooltip) && props.show) {
@@ -118,7 +127,7 @@ const OnboardingToolTip = (props: any) => {
 
   if (isOpen) {
     return (
-      <Container>
+      <Container isFinalStep={isFinalStep}>
         <Popover
           ref={popoverRef}
           isOpen={true}
@@ -126,7 +135,7 @@ const OnboardingToolTip = (props: any) => {
           enforceFocus={false}
           boundary={"viewport"}
           usePortal={false}
-          position={props.position || Position.BOTTOM}
+          position={props.position || Position.TOP}
           modifiers={{
             preventOverflow: { enabled: false },
             hide: { enabled: false },
@@ -142,9 +151,19 @@ const OnboardingToolTip = (props: any) => {
   return props.children;
 };
 
+OnboardingToolTip.defaultProps = {
+  show: true,
+};
+
 const ToolTipContent = (props: any) => {
   const dispatch = useDispatch();
-  const { title, description, snippet, action } = props.details;
+  const {
+    title,
+    description,
+    snippet,
+    action,
+    isFinalStep = false,
+  } = props.details;
   const snippetRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const write = useClipboard(snippetRef);
 
@@ -159,7 +178,7 @@ const ToolTipContent = (props: any) => {
   };
 
   return (
-    <Wrapper>
+    <Wrapper isFinalStep={isFinalStep}>
       <div className={TooltipClassNames.TITLE}>{title}</div>
       <div className={TooltipClassNames.DESCRIPTION}>{description}</div>
 
@@ -173,13 +192,7 @@ const ToolTipContent = (props: any) => {
           <Icon icon="duplicate" iconSize={14} color={Colors.WHITE} />
         </div>
       )}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
+      <ActionWrapper>
         <span className={TooltipClassNames.SKIP}>
           Done? <span onClick={endOnboarding}>Click here to End</span>
         </span>
@@ -192,7 +205,7 @@ const ToolTipContent = (props: any) => {
             {action.label}
           </button>
         )}
-      </div>
+      </ActionWrapper>
     </Wrapper>
   );
 };

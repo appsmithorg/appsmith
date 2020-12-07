@@ -5,6 +5,7 @@ const initialState: OnboardingState = {
   currentStep: -1,
   showWelcomeScreen: false,
   creatingDatabase: false,
+  showCompletionDialog: false,
   inOnboarding: false,
   createdDBQuery: false,
   addedWidget: false,
@@ -15,6 +16,7 @@ export interface OnboardingState {
   currentStep: number;
   showWelcomeScreen: boolean;
   creatingDatabase: boolean;
+  showCompletionDialog: boolean;
   inOnboarding: boolean;
   createdDBQuery: boolean;
   addedWidget: boolean;
@@ -68,6 +70,15 @@ const onboardingReducer = createReducer(initialState, {
     return {
       ...state,
       showingTooltip: action.payload,
+    };
+  },
+  [ReduxActionTypes.SHOW_ONBOARDING_COMPLETION_DIALOG]: (
+    state: OnboardingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      showCompletionDialog: action.payload,
     };
   },
 });

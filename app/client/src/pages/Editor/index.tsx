@@ -47,10 +47,12 @@ import {
 } from "actions/widgetActions";
 import { isMac } from "utils/helpers";
 import ServerTimeout from "../common/ServerTimeout";
+import OnboardingCompletionDialog from "components/editorComponents/Onboarding/CompletionDialog";
 
 type EditorProps = {
   currentApplicationId?: string;
   currentPageId?: string;
+  showOnboardingCompletionDialog: boolean;
   initEditor: (applicationId: string, pageId: string) => void;
   isPublishing: boolean;
   isEditorLoading: boolean;
@@ -256,6 +258,7 @@ class Editor extends Component<Props> {
           </Dialog>
         </div>
         <ConfirmRunModal />
+        <OnboardingCompletionDialog />
       </DndProvider>
     );
   }

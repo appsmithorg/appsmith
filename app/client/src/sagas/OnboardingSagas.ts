@@ -30,7 +30,9 @@ export const inOnboarding = (state: AppState) =>
   state.ui.onBoarding.inOnboarding;
 export const isAddWidgetComplete = (state: AppState) =>
   state.ui.onBoarding.addedWidget;
-export const getTooltipConfig = (state: AppState) => {
+export const getTooltipConfig = (
+  state: AppState,
+): { isFinalStep?: boolean } => {
   const currentStep = getCurrentStep(state);
   if (currentStep >= 0) {
     return OnboardingConfig[currentStep].tooltip;
@@ -55,15 +57,6 @@ const OnboardingConfig = [
     tooltip: {
       title: "",
       description: "",
-      // May not be required. Tooltip is shown when we are in that onboarding step
-      isVisible: (): boolean => {
-        return false;
-      },
-    },
-    // May not be required. This step is complete when the current step count
-    // is greater than this step count.
-    isComplete: (): boolean => {
-      return false;
     },
   },
   {
@@ -109,9 +102,11 @@ const OnboardingConfig = [
     step: 3,
     name: "Successful binding",
     setup: () => {
-      // TODO: Should check whether the table widget's `tableData` prop
-      // has a succesfull binding
-      return [];
+      return [
+        {
+          type: "LISTEN_FOR_WIDGET_UNSELECTION",
+        },
+      ];
     },
     tooltip: {
       title: "This table is now connected to Example Query",
@@ -126,13 +121,17 @@ const OnboardingConfig = [
     step: 4,
     name: "Deploy",
     setup: () => {
-      // TODO: Listen for DEPLOY action.
-      return [];
+      return [
+        {
+          type: "LISTEN_FOR_DEPLOY",
+        },
+      ];
     },
     tooltip: {
       title: "You’re almost done! Just Hit Deploy",
       description:
         "Deploying your apps is a crucial step to building on appsmith.",
+      isFinalStep: true,
     },
   },
 ];
@@ -196,23 +195,6 @@ function* listenForSuccessfullBinding() {
           return;
         }
       }
-    }
-  }
-}
-
-function* initiateOnboarding() {
-  const currentOnboardingState = yield getOnboardingState();
-  if (currentOnboardingState || isNull(currentOnboardingState)) {
-    const set = yield setOnboardingState(true);
-
-    if (set) {
-      yield put({
-        type: "SET_ONBOARDING_STATE",
-        payload: true,
-      });
-      yield put({
-        type: "NEXT_ONBOARDING_STEP",
-      });
     }
   }
 }
@@ -304,6 +286,58 @@ function* createOnboardingDatasource() {
   }
 }
 
+function* listenForWidgetUnselection() {
+  while (true) {
+    yield take();
+
+    yield take(ReduxActionTypes.HIDE_PROPERTY_PANE);
+
+    yield put({
+      type: "SET_CURRENT_STEP",
+      payload: 4,
+    });
+
+    yield delay(1000);
+    yield put(showTooltip(4));
+    return;
+  }
+}
+
+function* listenForDeploySaga() {
+  while (true) {
+    yield take();
+
+    yield put({
+      type: "SET_CURRENT_STEP",
+      payload: -1,
+    });
+    yield take(ReduxActionTypes.PUBLISH_APPLICATION_INIT);
+    yield put({
+      type: ReduxActionTypes.SHOW_ONBOARDING_COMPLETION_DIALOG,
+      payload: true,
+    });
+
+    return;
+  }
+}
+
+function* initiateOnboarding() {
+  const currentOnboardingState = yield getOnboardingState();
+  if (currentOnboardingState || isNull(currentOnboardingState)) {
+    const set = yield setOnboardingState(true);
+
+    if (set) {
+      yield put({
+        type: "SET_ONBOARDING_STATE",
+        payload: true,
+      });
+      yield put({
+        type: "NEXT_ONBOARDING_STEP",
+      });
+    }
+  }
+}
+
 function* proceedOnboardingSaga() {
   const isinOnboarding = yield select(inOnboarding);
 
@@ -346,6 +380,8 @@ export default function* onboardingSagas() {
     takeEvery("END_ONBOARDING", skipOnboardingSaga),
     takeEvery("LISTEN_FOR_ADD_WIDGET", listenForWidgetAdditions),
     takeEvery("LISTEN_FOR_TABLE_WIDGET_BINDING", listenForSuccessfullBinding),
+    takeEvery("LISTEN_FOR_WIDGET_UNSELECTION", listenForWidgetUnselection),
     takeEvery("SET_CURRENT_STEP", setupOnboardingStep),
+    takeEvery("LISTEN_FOR_DEPLOY", listenForDeploySaga),
   ]);
 }
