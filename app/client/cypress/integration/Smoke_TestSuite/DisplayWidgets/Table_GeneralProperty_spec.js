@@ -92,6 +92,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("0", "0", "font-size", "14px");
   });
 
+  //Added test for bcg colour
   it("Test to validate text color and text background", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(widgetsPage.textColor)
