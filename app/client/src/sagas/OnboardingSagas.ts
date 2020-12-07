@@ -23,6 +23,7 @@ import {
 } from "actions/onboardingActions";
 import { changeDatasource } from "actions/datasourceActions";
 import { playOnboardingAnimation } from "utils/helpers";
+import { QueryAction } from "entities/Action";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -248,13 +249,16 @@ function* createOnboardingDatasource() {
     }
 
     const currentPageId = yield select(getCurrentPageId);
+    const queryactionConfiguration: Partial<QueryAction> = {
+      actionConfiguration: { body: "select * from public.users limit 10" },
+    };
     const actionPayload = {
       name: "ExampleQuery",
       pageId: currentPageId,
       datasource: {
         id: onboardingDatasource.id,
       },
-      actionConfiguration: {},
+      ...queryactionConfiguration,
       eventData: {},
     };
     yield put(createOnboardingActionInit(actionPayload));
@@ -296,8 +300,9 @@ function* listenForWidgetUnselection() {
 
     yield take(ReduxActionTypes.HIDE_PROPERTY_PANE);
     const currentStep = yield select(getCurrentStep);
+    const isinOnboarding = yield select(inOnboarding);
 
-    if (currentStep >= 4) return;
+    if (!isinOnboarding || currentStep !== 3) return;
 
     yield put({
       type: "SET_CURRENT_STEP",
