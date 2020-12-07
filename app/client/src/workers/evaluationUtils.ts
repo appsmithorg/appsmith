@@ -1,6 +1,11 @@
-import { isDynamicValue } from "../utils/DynamicBindingUtils";
+import {
+  isDynamicValue,
+  getEntityDynamicBindingPathList,
+} from "../utils/DynamicBindingUtils";
+import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { Diff } from "deep-diff";
 import { DependencyMap } from "./evaluation.worker";
+import _ from "lodash";
 
 export enum DataTreeDiffEvent {
   NEW = "NEW",
@@ -135,3 +140,52 @@ export const addDependantsOfNestedPropertyPaths = (
   });
   return [...withNestedPaths.values()];
 };
+
+// Todo: figure what we're going to do about multi-level dependencies and resulting circular dep and implemented a nested version.
+export const makeParentsDependOnChildren = (
+  dependencyMap: DependencyMap,
+  dataTree: DataTree,
+) => {
+  const flatValues = Array.from(
+    new Set<string>(_.flatten(Object.values(dependencyMap))),
+  );
+  flatValues
+    .filter(k => !k.includes("."))
+    .forEach(entityName => {
+      const entity = dataTree[entityName];
+      const children = getEntityDynamicBindingPathList(
+        entity as DataTreeWidget,
+      );
+
+      const existing = dependencyMap[entityName] || [];
+      existing.push(...children.map(child => `${entityName}.${child.key}`));
+      dependencyMap[entityName] = Array.from(new Set<string>(existing));
+    });
+};
+
+/**
+ *
+ * @param depMap
+ * @param child
+ */
+export const makeParentsDependOnChild = (
+  depMap: DependencyMap,
+  child: string,
+): DependencyMap => {
+  const result: DependencyMap = depMap;
+  let curKey = child;
+  const rgx = /^(.*)\..*$/;
+  let matches: Array<string> | null;
+  // Note: The `=` is intentional
+  // Stops looping when match is null
+  while ((matches = curKey.match(rgx)) !== null) {
+    const parentKey = matches[1];
+    // Todo: switch to set everywhere
+    result[parentKey] = result[parentKey] || [];
+    result[parentKey].push(curKey); //
+    curKey = parentKey;
+  }
+  return result;
+};
+
+export class CrashingError extends Error {}

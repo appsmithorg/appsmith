@@ -88,6 +88,7 @@ export enum EvalErrorTypes {
   EVAL_TREE_ERROR = "EVAL_TREE_ERROR",
   UNESCAPE_STRING_ERROR = "UNESCAPE_STRING_ERROR",
   EVAL_ERROR = "EVAL_ERROR",
+  UNKNOWN_ERROR = "UNKNOWN_ERROR",
 }
 
 export type EvalError = {

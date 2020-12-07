@@ -18,7 +18,7 @@ import {
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
-import WidgetFactory from "../utils/WidgetFactory";
+import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
   EVAL_WORKER_ACTIONS,
@@ -42,7 +42,7 @@ let evalQueue: Array<{
   queued: Date;
   action: EvaluationReduxAction<unknown | unknown[]>;
 }> = [];
-
+let widgetTypeConfigMap: WidgetTypeConfigMap | undefined;
 function* initEvaluationWorkers(action: EvaluationReduxAction<any>) {
   // If an old worker exists, terminate it
   if (evaluationWorker) {
@@ -56,10 +56,10 @@ function* initEvaluationWorkers(action: EvaluationReduxAction<any>) {
       evaluationWorker.removeEventListener("message", emitter);
     };
   });
-  const widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
+  widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const unevalTree = yield select(getUnevaluatedDataTree);
   evaluationWorker.postMessage({
-    action: EVAL_WORKER_ACTIONS.INIT_EVALUATOR,
+    action: EVAL_WORKER_ACTIONS.EVAL_TREE,
     unevalTree,
     widgetTypeConfigMap,
   });
@@ -132,6 +132,7 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   evaluationWorker.postMessage({
     action: EVAL_WORKER_ACTIONS.EVAL_TREE,
     unevalTree,
+    widgetTypeConfigMap,
   });
   const workerResponse = yield take(workerChannel);
   // const mainEvalStop = performance.now();

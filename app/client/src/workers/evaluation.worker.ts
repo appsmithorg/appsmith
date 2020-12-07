@@ -32,7 +32,9 @@ import {
   addDependantsOfNestedPropertyPaths,
   convertPathToString,
   DataTreeDiffEvent,
+  CrashingError,
   translateDiffEventToDataTreeDiffEvent,
+  makeParentsDependOnChildren,
 } from "./evaluationUtils";
 
 const ctx: Worker = self as any;
@@ -42,39 +44,45 @@ let dataTreeEvaluator: DataTreeEvaluator | undefined;
 ctx.addEventListener("message", e => {
   const { action, ...rest } = e.data;
   switch (action as EVAL_WORKER_ACTIONS) {
-    case EVAL_WORKER_ACTIONS.INIT_EVALUATOR: {
-      const { widgetTypeConfigMap, unevalTree } = rest;
-      dataTreeEvaluator = new DataTreeEvaluator(
-        unevalTree,
-        widgetTypeConfigMap,
-      );
-      const response = dataTreeEvaluator.evalTree;
-      // We need to clean it to remove any possible functions inside the tree.
-      // If functions exist, it will crash the web worker
-      const cleanDataTree = JSON.parse(JSON.stringify(response));
-      ctx.postMessage({
-        dataTree: cleanDataTree,
-        dependencies: dataTreeEvaluator.dependencyMap,
-        errors: dataTreeEvaluator.errors,
-      });
-      dataTreeEvaluator.clearErrors();
-      break;
-    }
     case EVAL_WORKER_ACTIONS.EVAL_TREE: {
       const { unevalTree } = rest;
-      if (!dataTreeEvaluator) {
-        break;
+      let dataTree: DataTree = unevalTree;
+      let errors: EvalError[] = [];
+      let dependencies: DependencyMap = {};
+      try {
+        if (!dataTreeEvaluator) {
+          const { widgetTypeConfigMap } = rest;
+          dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
+          dataTreeEvaluator.createFirstTree(unevalTree);
+          dataTree = dataTreeEvaluator.evalTree;
+        } else {
+          dataTree = dataTreeEvaluator.updateDataTree(unevalTree);
+        }
+
+        // We need to clean it to remove any possible functions inside the tree.
+        // If functions exist, it will crash the web worker
+        dataTree = JSON.parse(JSON.stringify(dataTree));
+        dependencies = dataTreeEvaluator.dependencyMap;
+        errors = dataTreeEvaluator.errors;
+        dataTreeEvaluator.clearErrors();
+      } catch (e) {
+        if (dataTreeEvaluator !== undefined) {
+          errors = dataTreeEvaluator.errors;
+        }
+        if (!(e instanceof CrashingError)) {
+          errors.push({
+            type: EvalErrorTypes.UNKNOWN_ERROR,
+            message: e.message,
+          });
+          console.error(e);
+        }
+        dataTreeEvaluator = undefined;
       }
-      const response = dataTreeEvaluator.updateDataTree(unevalTree);
-      // We need to clean it to remove any possible functions inside the tree.
-      // If functions exist, it will crash the web worker
-      const cleanDataTree = JSON.parse(JSON.stringify(response));
       ctx.postMessage({
-        dataTree: cleanDataTree,
-        dependencies: dataTreeEvaluator.dependencyMap,
-        errors: dataTreeEvaluator.errors,
+        dataTree,
+        dependencies,
+        errors,
       });
-      dataTreeEvaluator.clearErrors();
       break;
     }
     case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
@@ -175,9 +183,8 @@ export class DataTreeEvaluator {
     }
   > = new Map();
 
-  constructor(unEvalTree: DataTree, widgetConfigMap: WidgetTypeConfigMap) {
+  constructor(widgetConfigMap: WidgetTypeConfigMap) {
     this.widgetConfigMap = widgetConfigMap;
-    this.createFirstTree(unEvalTree);
   }
 
   createFirstTree(unEvalTree: DataTree) {
@@ -352,6 +359,7 @@ export class DataTreeEvaluator {
         ),
       );
     });
+    makeParentsDependOnChildren(dependencyMap, unEvalTree);
     return dependencyMap;
   }
 
@@ -490,6 +498,7 @@ export class DataTreeEvaluator {
         type: EvalErrorTypes.DEPENDENCY_ERROR,
         message: e.message,
       });
+      throw new CrashingError(e.message);
       return [];
     }
   }
@@ -1034,6 +1043,7 @@ export class DataTreeEvaluator {
           ),
         );
       });
+      makeParentsDependOnChildren(this.dependencyMap, dataTree);
     }
     const subDepCalcEnd = performance.now();
     const updateChangedDependenciesStart = performance.now();
