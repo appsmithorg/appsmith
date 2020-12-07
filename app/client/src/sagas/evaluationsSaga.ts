@@ -57,6 +57,7 @@ const initEvaluationWorkers = () => {
 };
 
 const evalErrorHandler = (errors: EvalError[]) => {
+  if (!errors) return;
   errors.forEach(error => {
     if (error.type === EvalErrorTypes.DEPENDENCY_ERROR) {
       Toaster.show({
