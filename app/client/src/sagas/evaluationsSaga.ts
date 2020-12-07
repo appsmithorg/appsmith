@@ -80,7 +80,7 @@ function* initEvaluationWorkers(action: EvaluationReduxAction<any>) {
   if (action && action.postEvalActions && action.postEvalActions.length) {
     yield call(postEvalActionDispatcher, action.postEvalActions);
   }
-  yield fork(processEvalQueue);
+  // yield fork(processEvalQueue);
 }
 
 const evalErrorHandler = (errors: EvalError[]) => {

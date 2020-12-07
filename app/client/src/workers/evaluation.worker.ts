@@ -521,6 +521,9 @@ export class DataTreeEvaluator {
     this.parsedValueCache.clear();
     this.clearErrors();
     this.dependencyMap = {};
+    this.allKeys = {};
+    this.inverseDependencyMap = {};
+    this.sortedDependencies = [];
     this.evalTree = {};
     this.oldUnEvalTree = {};
   }
