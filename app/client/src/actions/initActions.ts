@@ -29,3 +29,10 @@ export const initViewerError = (): ReduxAction<{ show: false }> => ({
     show: false,
   },
 });
+
+export const initAppsmithError = (): ReduxAction<{ show: boolean }> => ({
+  type: ReduxActionErrorTypes.INITIALIZE_APPSMITH_ERROR,
+  payload: {
+    show: false,
+  },
+});

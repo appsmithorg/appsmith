@@ -73,10 +73,6 @@ axiosInstance.interceptors.response.use(
       });
     }
     if (error.response.status === 502) {
-      // Redirect to SERVER TIMEOUT page
-      history.replace({
-        pathname: SERVER_ERROR_URL,
-      });
       return Promise.reject({
         ...error,
         message: SERVER_API_TIMEOUT_ERROR,
