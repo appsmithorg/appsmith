@@ -32,7 +32,6 @@ class TabsWidget extends BaseWidget<
     });
   };
 
-  // Tab1.selectedTab: ["Tab1.tabs", "Tab1.selectedTabWidgetId]
   static getDerivedPropertiesMap() {
     return {
       selectedTab: `{{_.find(this.tabs, { widgetId: this.selectedTabWidgetId }).label}}`,
