@@ -40,21 +40,6 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
   });
 
-  it("Update table json data and check the column names updated", function() {
-    cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
-    cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
-    cy.wait("@updateLayout");
-    cy.tableColumnDataValidation("id");
-    cy.tableColumnDataValidation("email");
-    cy.tableColumnDataValidation("userName");
-    cy.tableColumnDataValidation("productName");
-    cy.tableColumnDataValidation("orderAmount");
-    cy.tableColumnDataValidation("DERIVED1"); //To be updated later
-    cy.get(widgetsPage.tableCol)
-      .contains("TestUpdated")
-      .should("not.be.visible");
-  });
-
   it("Edit column name and validate test for computed value based on column type selected", function() {
     cy.editColumn("id");
     cy.editColName("updatedId");

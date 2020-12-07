@@ -24,7 +24,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
     cy.get(commonlocators.editPropCrossButton).click();
     cy.get(widgetsPage.tableBtn)
-      .first()
+      .last()
       .click();
     cy.wait(3000);
     cy.get(widgetsPage.toastAction).should("be.visible");
