@@ -102,6 +102,7 @@
     const APP_ID = parseConfig("__APPSMITH_INTERCOM_APP_ID__");
     const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__").length > 0;
     const DISABLE_TELEMETRY = parseConfig("__APPSMITH_DISABLE_TELEMETRY__").toLowerCase();
+    const MAIL_ENABLED = parseConfig("__APPSMITH_MAIL_ENABLED__").toLowerCase();
 
     // Initialize the Intercom library
     if (APP_ID.length && APP_ID[0] !== "%" && CLOUD_HOSTING) {
@@ -144,7 +145,7 @@
         releaseDate: parseConfig("__APPSMITH_VERSION_RELEASE_DATE__")
       },
       intercomAppID: APP_ID,
-      mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__").length > 0,
+      mailEnabled: MAIL_ENABLED && MAIL_ENABLED === "true",
       disableTelemetry: DISABLE_TELEMETRY === "" || DISABLE_TELEMETRY === 'true' ,
     };
 
