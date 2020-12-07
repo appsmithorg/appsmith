@@ -62,5 +62,6 @@
     "orgHeaderName": ".t--organization-header",
     "leftPanelContainer": "[data-cy=t--left-panel]",
     "themeText": "label div",
-    "shareUserIcons": ".org-share-user-icons" 
+    "shareUserIcons": ".org-share-user-icons",
+    "toastMessage": ".t--toast-action"
 }

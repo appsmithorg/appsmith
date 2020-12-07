@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { scrollbarDark } from "constants/DefaultTheme";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import AppIcon, { AppIconName, AppIconCollection } from "./AppIcon";
 import { Size } from "./Button";
@@ -16,9 +17,18 @@ const IconPalette = styled.div<{ fill?: boolean }>`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  padding: ${props => props.theme.spaces[4]}px
-    ${props => props.theme.spaces[5]}px;
+  padding: ${props => props.theme.spaces[4]}px 0px
+    ${props => props.theme.spaces[4]}px ${props => props.theme.spaces[5]}px;
   width: ${props => (props.fill ? "100%" : "234px")};
+  max-height: 90px;
+  overflow-y: auto;
+  &&::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.modal.scrollbar};
+  }
+  ${scrollbarDark};
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
 `;
 
 const IconBox = styled.div<{ selectedColor?: string }>`
@@ -50,6 +60,24 @@ const IconBox = styled.div<{ selectedColor?: string }>`
 `;
 
 const IconSelector = (props: IconSelectorProps) => {
+  const iconRef = useRef<HTMLDivElement>(null);
+  const [selected, setSelected] = useState<AppIconName>(firstSelectedIcon());
+
+  useEffect(() => {
+    if (props.selectedIcon && iconRef.current) {
+      setSelected(props.selectedIcon);
+    }
+  }, [props.selectedIcon]);
+
+  useEffect(() => {
+    if (selected && iconRef.current) {
+      setTimeout(() => {
+        if (iconRef.current)
+          iconRef.current.scrollIntoView({ behavior: "smooth" });
+      }, 0);
+    }
+  }, []);
+
   function firstSelectedIcon() {
     if (props.iconPalette && props.iconPalette[0]) {
       return props.iconPalette[0];
@@ -57,20 +85,13 @@ const IconSelector = (props: IconSelectorProps) => {
     return AppIconCollection[0];
   }
 
-  const [selected, setSelected] = useState<AppIconName>(firstSelectedIcon());
-
-  useEffect(() => {
-    if (props.selectedIcon) {
-      setSelected(props.selectedIcon);
-    }
-  }, [props.selectedIcon]);
-
   return (
     <IconPalette fill={props.fill} data-cy={props.cypressSelector}>
       {props.iconPalette &&
         props.iconPalette.map((iconName: AppIconName, index: number) => {
           return (
             <IconBox
+              {...(selected === iconName ? { ref: iconRef } : {})}
               key={index}
               selectedColor={selected === iconName ? props.selectedColor : ""}
               className={
