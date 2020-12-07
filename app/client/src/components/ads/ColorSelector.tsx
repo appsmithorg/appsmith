@@ -42,9 +42,9 @@ const ColorBox = styled.div<{ selected: string; color: string }>`
     content: "";
     position: absolute;
     left: ${props.theme.spaces[3] - 1}px;
-    top: ${props.theme.spaces[1] - 1}px
-    width: ${props.theme.spaces[2] - 1}px
-    height: ${props.theme.spaces[4] - 1}px
+    top: ${props.theme.spaces[1] - 1}px;
+    width: ${props.theme.spaces[2] - 1}px;
+    height: ${props.theme.spaces[4] - 1}px;
     border: 2px solid ${props.theme.colors.colorSelector.checkmark};
     border-width: 0 2px 2px 0;
     transform: rotate(45deg); 
