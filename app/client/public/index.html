@@ -106,7 +106,7 @@
     const CONFIG_LOG_LEVEL_INDEX = LOG_LEVELS.indexOf(parseConfig("__APPSMITH_CLIENT_LOG_LEVEL__"));
 
     const APP_ID = parseConfig("__APPSMITH_INTERCOM_APP_ID__");
-    const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
+    const CLOUD_HOSTING = !!parseConfig("__APPSMITH_CLOUD_HOSTING__");
     const DISABLE_TELEMETRY = parseConfig("__APPSMITH_DISABLE_TELEMETRY__").toLowerCase();
 
     // Initialize the Intercom library
