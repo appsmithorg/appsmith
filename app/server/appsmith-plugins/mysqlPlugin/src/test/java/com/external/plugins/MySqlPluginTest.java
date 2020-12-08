@@ -17,6 +17,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.MySQLR2DBCDatabaseContainer;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -215,17 +216,13 @@ public class MySqlPluginTest {
         actionConfiguration.setBody("show databases");
         Connection connection = pluginExecutor.datasourceCreate(dsConfig).block();
 
-        try {
-            Mono.from(connection.close())
-                    .then(pluginExecutor.execute(connection, dsConfig, actionConfiguration))
-                    .map(res -> res)
-                    .block();
-        } catch (Exception e) {
-            assert e instanceof StaleConnectionException;
-            return;
-        }
+        Flux<ActionExecutionResult> resultFlux = Mono.from(connection.close())
+                .thenMany(pluginExecutor.execute(connection, dsConfig, actionConfiguration))
+                .map(res -> res);
 
-        assert false;
+        StepVerifier.create(resultFlux)
+                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+                .verify();
     }
 
     @Test
