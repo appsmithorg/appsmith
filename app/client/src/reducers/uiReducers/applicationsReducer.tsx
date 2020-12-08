@@ -180,6 +180,7 @@ const applicationsReducer = createReducer(initialState, {
       name?: string;
       website?: string;
       email?: string;
+      logoUrl?: string;
     }>,
   ) => {
     const _organizations = state.userOrgs.map((org: Organization) => {
@@ -190,6 +191,8 @@ const applicationsReducer = createReducer(initialState, {
           org.organization.email = action.payload.email;
         } else if (action.payload.website) {
           org.organization.website = action.payload.website;
+        } else if (action.payload.logoUrl) {
+          org.organization.logoUrl = action.payload.logoUrl;
         }
 
         return {
