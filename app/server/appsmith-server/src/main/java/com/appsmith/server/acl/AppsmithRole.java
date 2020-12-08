@@ -19,11 +19,11 @@ import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 public enum AppsmithRole {
     APPLICATION_ADMIN("Application Administrator", "", Set.of(MANAGE_APPLICATIONS)),
     APPLICATION_VIEWER("Application Viewer", "",  Set.of(READ_APPLICATIONS)),
-    ORGANIZATION_ADMIN("Administrator", "Can edit, view applications and invite other user to organization",
+    ORGANIZATION_ADMIN("Administrator", "Can modify all organization settings including editing applications and inviting other users to the organization",
             Set.of(MANAGE_ORGANIZATIONS, ORGANIZATION_INVITE_USERS)),
-    ORGANIZATION_DEVELOPER("Developer", "Can edit and view applications",  Set.of(READ_ORGANIZATIONS,
+    ORGANIZATION_DEVELOPER("Developer", "Can edit and view applications along with inviting other users to the organization",  Set.of(READ_ORGANIZATIONS,
             ORGANIZATION_MANAGE_APPLICATIONS, ORGANIZATION_READ_APPLICATIONS, ORGANIZATION_PUBLISH_APPLICATIONS, ORGANIZATION_INVITE_USERS)),
-    ORGANIZATION_VIEWER("App Viewer", "Can view applications",  Set.of(READ_ORGANIZATIONS, ORGANIZATION_READ_APPLICATIONS));
+    ORGANIZATION_VIEWER("App Viewer", "Can only view applications",  Set.of(READ_ORGANIZATIONS, ORGANIZATION_READ_APPLICATIONS));
 
     private Set<AclPermission> permissions;
     private String name;
