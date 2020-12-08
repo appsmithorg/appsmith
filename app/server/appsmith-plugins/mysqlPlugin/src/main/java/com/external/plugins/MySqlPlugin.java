@@ -13,20 +13,18 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-
-import io.r2dbc.spi.ConnectionFactoryOptions;
+import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
-import io.r2dbc.spi.RowMetadata;
-import io.r2dbc.spi.Row;
-import io.r2dbc.spi.ColumnMetadata;
+import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Result;
+import io.r2dbc.spi.Row;
+import io.r2dbc.spi.RowMetadata;
 import io.r2dbc.spi.ValidationDepth;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.reactivestreams.Publisher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
@@ -47,7 +45,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -116,7 +113,7 @@ public class MySqlPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class MySqlPluginExecutor implements PluginExecutor<Connection> {
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         /**
          * 1. Parse the actual row objects returned by r2dbc driver for mysql statements.
