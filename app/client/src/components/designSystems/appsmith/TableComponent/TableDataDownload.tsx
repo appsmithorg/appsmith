@@ -2,9 +2,9 @@ import React from "react";
 import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
 import { ReactComponent as DownloadIcon } from "assets/icons/control/download-table.svg";
-import { ReactTableColumnProps } from "widgets/TableWidget";
-import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
-import TableActionIcon from "components/designSystems/appsmith/TableActionIcon";
+import { ReactTableColumnProps } from "components/designSystems/appsmith/TableComponent/Constants";
+import { TableIconWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
+import TableActionIcon from "components/designSystems/appsmith/TableComponent/TableActionIcon";
 import { isString } from "lodash";
 
 interface TableDataDownloadProps {

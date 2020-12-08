@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
-import Table from "components/designSystems/appsmith/Table";
+import Table from "components/designSystems/appsmith/TableComponent/Table";
 import { debounce } from "lodash";
 import {
   ColumnTypes,
   CompactMode,
   ReactTableColumnProps,
   ReactTableFilter,
-} from "widgets/TableWidget";
+} from "components/designSystems/appsmith/TableComponent/Constants";
 import { EventType } from "constants/ActionConstants";
 
 export interface ColumnMenuOptionProps {

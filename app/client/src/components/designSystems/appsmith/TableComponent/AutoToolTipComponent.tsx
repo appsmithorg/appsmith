@@ -1,7 +1,7 @@
 import React, { createRef, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
-import { CellWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
-import { CellLayoutProperties } from "widgets/TableWidget";
+import { CellWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
+import { CellLayoutProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 
 const AutoToolTipComponent = (props: {
   isHidden?: boolean;

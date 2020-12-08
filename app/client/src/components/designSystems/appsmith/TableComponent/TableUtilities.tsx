@@ -17,12 +17,13 @@ import {
   ColumnProperties,
   CellLayoutProperties,
   TextSizes,
-  TableWidgetProps,
-} from "widgets/TableWidget";
+  ConditionFunctions,
+  TableStyles,
+} from "components/designSystems/appsmith/TableComponent/Constants";
 import { isString, isEmpty, findIndex } from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
 import Button from "components/editorComponents/Button";
-import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
+import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
@@ -300,21 +301,6 @@ export const TableHeaderCell = (props: {
   );
 };
 
-export const getAllTableColumnKeys = (
-  tableData: Array<Record<string, unknown>>,
-) => {
-  const columnKeys: string[] = [];
-  for (let i = 0, tableRowCount = tableData.length; i < tableRowCount; i++) {
-    const row = tableData[i];
-    for (const key in row) {
-      if (!columnKeys.includes(key)) {
-        columnKeys.push(key);
-      }
-    }
-  }
-  return columnKeys;
-};
-
 export function sortTableFunction(
   filteredTableData: Array<Record<string, unknown>>,
   columns: ReactTableColumnProps[],
@@ -369,82 +355,6 @@ export function sortTableFunction(
     },
   );
 }
-
-export const ConditionFunctions: {
-  [key: string]: (a: any, b: any) => boolean;
-} = {
-  isExactly: (a: any, b: any) => {
-    return a === b;
-  },
-  empty: (a: any) => {
-    return a === "" || a === undefined || a === null;
-  },
-  notEmpty: (a: any) => {
-    return a !== "" && a !== undefined && a !== null;
-  },
-  notEqualTo: (a: any, b: any) => {
-    return a.toString() !== b.toString();
-  },
-  isEqualTo: (a: any, b: any) => {
-    return a.toString() === b.toString();
-  },
-  lessThan: (a: any, b: any) => {
-    const numericB = Number(b);
-    const numericA = Number(a);
-    return numericA < numericB;
-  },
-  lessThanEqualTo: (a: any, b: any) => {
-    const numericB = Number(b);
-    const numericA = Number(a);
-    return numericA <= numericB;
-  },
-  greaterThan: (a: any, b: any) => {
-    const numericB = Number(b);
-    const numericA = Number(a);
-    return numericA > numericB;
-  },
-  greaterThanEqualTo: (a: any, b: any) => {
-    const numericB = Number(b);
-    const numericA = Number(a);
-    return numericA >= numericB;
-  },
-  contains: (a: any, b: any) => {
-    if (isString(a) && isString(b)) {
-      return a.includes(b);
-    }
-    return false;
-  },
-  doesNotContain: (a: any, b: any) => {
-    if (isString(a) && isString(b)) {
-      return !a.includes(b);
-    }
-    return false;
-  },
-  startsWith: (a: any, b: any) => {
-    if (isString(a) && isString(b)) {
-      return a.indexOf(b) === 0;
-    }
-    return false;
-  },
-  endsWith: (a: any, b: any) => {
-    if (isString(a) && isString(b)) {
-      return a.length === a.indexOf(b) + b.length;
-    }
-    return false;
-  },
-  is: (a: any, b: any) => {
-    return moment(a).isSame(moment(b), "d");
-  },
-  isNot: (a: any, b: any) => {
-    return !moment(a).isSame(moment(b), "d");
-  },
-  isAfter: (a: any, b: any) => {
-    return !moment(a).isAfter(moment(b), "d");
-  },
-  isBefore: (a: any, b: any) => {
-    return !moment(a).isBefore(moment(b), "d");
-  },
-};
 
 export function compare(a: any, b: any, condition: Condition) {
   let result = true;
@@ -521,7 +431,7 @@ export function getDefaultColumnProperties(
   };
 }
 
-export function getTableStyles(props: TableWidgetProps) {
+export function getTableStyles(props: TableStyles) {
   return {
     textColor: props.textColor,
     textSize: props.textSize,

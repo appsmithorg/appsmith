@@ -7,19 +7,19 @@ import { Colors } from "constants/Colors";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import { Skin } from "constants/DefaultTheme";
-import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
+import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
 import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
 import {
   OperatorTypes,
   Condition,
   ColumnTypes,
   Operator,
-} from "widgets/TableWidget";
+} from "components/designSystems/appsmith/TableComponent/Constants";
 import {
   DropdownOption,
   ReactTableFilter,
-} from "components/designSystems/appsmith/TableFilters";
-import { RenderOptionWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
+} from "components/designSystems/appsmith/TableComponent/TableFilters";
+import { RenderOptionWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
 import { debounce } from "lodash";
 
 const StyledRemoveIcon = styled(

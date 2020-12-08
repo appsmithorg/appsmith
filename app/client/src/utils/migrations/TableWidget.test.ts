@@ -1,8 +1,8 @@
+import { WidgetProps } from "widgets/BaseWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { tableWidgetPropertyPaneMigrations } from "./TableWidget";
-import { WidgetTypes, RenderModes } from "constants/WidgetConstants";
-import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
 
-const input1 = {
+const input1: ContainerWidgetProps<WidgetProps> = {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1224,
@@ -11,10 +11,10 @@ const input1 = {
   widgetId: "0",
   topRow: 0,
   bottomRow: 1840,
-  containerStyle: "none" as ContainerStyle,
+  containerStyle: "none",
   snapRows: 33,
   parentRowSpace: 1,
-  type: WidgetTypes.CANVAS_WIDGET,
+  type: "CANVAS_WIDGET",
   canExtend: true,
   version: 7,
   minHeight: 1292,
@@ -23,7 +23,7 @@ const input1 = {
   leftColumn: 0,
   isLoading: false,
   parentId: "",
-  renderMode: RenderModes.CANVAS,
+  renderMode: "CANVAS",
   children: [
     {
       isVisible: true,
@@ -32,7 +32,7 @@ const input1 = {
       searchKey: "",
       tableData:
         '[\n  {\n    "id": 2381224,\n    "email": "michael.lawson@reqres.in",\n    "userName": "Michael Lawson",\n    "productName": "Chicken Sandwich",\n    "orderAmount": 4.99\n  },\n  {\n    "id": 2736212,\n    "email": "lindsay.ferguson@reqres.in",\n    "userName": "Lindsay Ferguson",\n    "productName": "Tuna Salad",\n    "orderAmount": 9.99\n  },\n  {\n    "id": 6788734,\n    "email": "tobias.funke@reqres.in",\n    "userName": "Tobias Funke",\n    "productName": "Beef steak",\n    "orderAmount": 19.99\n  }\n]',
-      type: WidgetTypes.TABLE_WIDGET,
+      type: "TABLE_WIDGET",
       isLoading: false,
       parentColumnSpace: 74,
       parentRowSpace: 40,
@@ -43,12 +43,12 @@ const input1 = {
       parentId: "0",
       widgetId: "fs785w9gcy",
       dynamicBindingPathList: [],
-      renderMode: RenderModes.CANVAS,
+      renderMode: "CANVAS",
     },
   ],
 };
 
-const input2 = {
+const input2: ContainerWidgetProps<WidgetProps> = {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1224,
@@ -57,10 +57,10 @@ const input2 = {
   widgetId: "0",
   topRow: 0,
   bottomRow: 1840,
-  containerStyle: "none" as ContainerStyle,
+  containerStyle: "none",
   snapRows: 33,
   parentRowSpace: 1,
-  type: WidgetTypes.CANVAS_WIDGET,
+  type: "CANVAS_WIDGET",
   canExtend: true,
   version: 7,
   minHeight: 1292,
@@ -69,7 +69,7 @@ const input2 = {
   leftColumn: 0,
   isLoading: false,
   parentId: "",
-  renderMode: RenderModes.CANVAS,
+  renderMode: "CANVAS",
   children: [
     {
       isVisible: true,
@@ -78,7 +78,7 @@ const input2 = {
       searchKey: "",
       tableData:
         '[\n  {\n    "id": 2381224,\n    "email": "michael.lawson@reqres.in",\n    "userName": "Michael Lawson",\n    "productName": "Chicken Sandwich",\n    "orderAmount": 4.99\n  },\n  {\n    "id": 2736212,\n    "email": "lindsay.ferguson@reqres.in",\n    "userName": "Lindsay Ferguson",\n    "productName": "Tuna Salad",\n    "orderAmount": 9.99\n  },\n  {\n    "id": 6788734,\n    "email": "tobias.funke@reqres.in",\n    "userName": "Tobias Funke",\n    "productName": "Beef steak",\n    "orderAmount": 19.99\n  }\n]',
-      type: WidgetTypes.TABLE_WIDGET,
+      type: "TABLE_WIDGET",
       isLoading: false,
       parentColumnSpace: 74,
       parentRowSpace: 40,
@@ -104,12 +104,12 @@ const input2 = {
           dynamicTrigger: "{{showAlert('Fail','error')}}",
         },
       ],
-      renderMode: RenderModes.CANVAS,
+      renderMode: "CANVAS",
     },
   ],
 };
 
-const input3 = {
+const input3: ContainerWidgetProps<WidgetProps> = {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1224,
@@ -118,10 +118,10 @@ const input3 = {
   widgetId: "0",
   topRow: 0,
   bottomRow: 1840,
-  containerStyle: "none" as ContainerStyle,
+  containerStyle: "none",
   snapRows: 33,
   parentRowSpace: 1,
-  type: WidgetTypes.CANVAS_WIDGET,
+  type: "CANVAS_WIDGET",
   canExtend: true,
   version: 7,
   minHeight: 1292,
@@ -130,7 +130,7 @@ const input3 = {
   leftColumn: 0,
   isLoading: false,
   parentId: "",
-  renderMode: RenderModes.CANVAS,
+  renderMode: "CANVAS",
   children: [
     {
       isVisible: true,
@@ -139,7 +139,7 @@ const input3 = {
       searchKey: "",
       tableData:
         '[\n  {\n    "id": 2381224,\n    "email": "michael.lawson@reqres.in",\n    "userName": "Michael Lawson",\n    "productName": "Chicken Sandwich",\n    "orderAmount": 4.99\n  },\n  {\n    "id": 2736212,\n    "email": "lindsay.ferguson@reqres.in",\n    "userName": "Lindsay Ferguson",\n    "productName": "Tuna Salad",\n    "orderAmount": 9.99\n  },\n  {\n    "id": 6788734,\n    "email": "tobias.funke@reqres.in",\n    "userName": "Tobias Funke",\n    "productName": "Beef steak",\n    "orderAmount": 19.99\n  }\n]',
-      type: WidgetTypes.TABLE_WIDGET,
+      type: "TABLE_WIDGET",
       isLoading: false,
       parentColumnSpace: 74,
       parentRowSpace: 40,
@@ -156,7 +156,7 @@ const input3 = {
       ],
       onRowSelected: "{{showAlert('test','success')}}",
       onSearchTextChanged: "{{showAlert('fail','error')}}",
-      renderMode: RenderModes.CANVAS,
+      renderMode: "CANVAS",
     },
   ],
 };
