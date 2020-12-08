@@ -51,7 +51,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeoutException;
 
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -102,6 +101,9 @@ public class ActionServiceTest {
 
     @Autowired
     DatasourceService datasourceService;
+
+    @Autowired
+    ActionCollectionService actionCollectionService;
 
     Application testApp = null;
 
@@ -782,6 +784,53 @@ public class ActionServiceTest {
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getStatusCode()).isEqualTo("200");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateShouldNotResetUserSetOnLoad() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource externalDatasource = new Datasource();
+        externalDatasource.setName("updateShouldNotResetUserSetOnLoad Database");
+        externalDatasource.setOrganizationId(orgId);
+        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        externalDatasource.setPluginId(installed_plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("some url here");
+        externalDatasource.setDatasourceConfiguration(datasourceConfiguration);
+        Datasource savedDs = datasourceService.create(externalDatasource).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("updateShouldNotResetUserSetOnLoad");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(savedDs);
+
+        Mono<ActionDTO> newActionMono = newActionService
+                .createAction(action)
+                .cache();
+
+        Mono<ActionDTO> setExecuteOnLoadMono = newActionMono
+                .flatMap(savedAction -> layoutActionService.setExecuteOnLoad(savedAction.getId(), true));
+
+        Mono<ActionDTO> updateActionMono = newActionMono
+                .flatMap(preUpdateAction -> {
+                    ActionDTO actionUpdate = action;
+                    actionUpdate.getActionConfiguration().setBody("New Body");
+                    return actionCollectionService.updateAction(preUpdateAction.getId(), actionUpdate);
+                });
+
+        StepVerifier
+                .create(setExecuteOnLoadMono.then(updateActionMono))
+                .assertNext(updatedAction -> {
+                    assertThat(updatedAction).isNotNull();
+                    assertThat(updatedAction.getActionConfiguration().getBody()).isEqualTo("New Body");
+                    assertThat(updatedAction.getUserSetOnLoad()).isTrue();
                 })
                 .verifyComplete();
     }

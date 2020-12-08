@@ -690,6 +690,15 @@ type ColorType = {
     light: ShadeColor;
     dark: ShadeColor;
   };
+  filePicker: {
+    bg: ShadeColor;
+    color: ShadeColor;
+    progress: ShadeColor;
+    shadow: {
+      from: string;
+      to: string;
+    };
+  };
   formFooter: {
     cancelBtn: ShadeColor;
   };
@@ -749,15 +758,22 @@ export const dark: ColorType = {
     iconColor: darkShades[9],
   },
   appCardColors: [
+    "#6C4CF1",
     "#4F70FD",
+    "#F56AF4",
+    "#B94CF1",
     "#54A9FB",
     "#5ED3DA",
-    "#F56AF4",
-    "#F36380",
-    "#FE9F44",
-    "#E9C951",
+    "#5EDA82",
     "#A8D76C",
-    "#6C4CF1",
+    "#E9C951",
+    "#FE9F44",
+    "#ED86A1",
+    "#EA6179",
+    "#C03C3C",
+    "#BC6DB2",
+    "#6C9DD0",
+    "#6CD0CF",
   ],
   text: {
     normal: darkShades[6],
@@ -838,7 +854,7 @@ export const dark: ColorType = {
       border: darkShades[2],
     },
     normal: {
-      bg: darkShades[0],
+      bg: lightShades[10],
       text: darkShades[9],
       border: darkShades[0],
     },
@@ -966,6 +982,15 @@ export const dark: ColorType = {
   loader: {
     light: darkShades[2],
     dark: darkShades[4],
+  },
+  filePicker: {
+    bg: darkShades[1],
+    color: darkShades[7],
+    progress: darkShades[6],
+    shadow: {
+      from: "rgba(21, 17, 17, 0.0001)",
+      to: "rgba(9, 7, 7, 0.883386)",
+    },
   },
   formFooter: {
     cancelBtn: darkShades[9],
@@ -1244,6 +1269,15 @@ export const light: ColorType = {
     light: lightShades[2],
     dark: lightShades[4],
   },
+  filePicker: {
+    bg: lightShades[2],
+    color: lightShades[7],
+    progress: lightShades[6],
+    shadow: {
+      from: "rgba(253, 253, 253, 0.0001)",
+      to: "rgba(250, 250, 250, 0.898847)",
+    },
+  },
   formFooter: {
     cancelBtn: lightShades[9],
   },
@@ -1259,7 +1293,7 @@ export const light: ColorType = {
 export const theme: Theme = {
   radii: [0, 4, 8, 10, 20, 50],
   fontSizes: [0, 10, 12, 14, 16, 18, 24, 28, 32, 48, 64],
-  spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30, 36],
+  spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30, 36, 38, 40, 42, 44],
   fontWeights: [0, 400, 500, 700],
   typography: {
     h1: {

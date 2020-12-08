@@ -58,3 +58,6 @@ export const getRolesForField = createSelector(getAllRoles, (roles?: any) => {
 export const getDefaultRole = createSelector(getRoles, (roles?: OrgRole[]) => {
   return roles?.find(role => role.isDefault);
 });
+export const getCurrentError = (state: AppState) => {
+  return state.ui.errors;
+};

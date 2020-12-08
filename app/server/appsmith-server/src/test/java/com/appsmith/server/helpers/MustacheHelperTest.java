@@ -20,6 +20,7 @@ import java.util.Set;
 
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeys;
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromFields;
+import static com.appsmith.server.helpers.MustacheHelper.render;
 import static com.appsmith.server.helpers.MustacheHelper.renderFieldValues;
 import static com.appsmith.server.helpers.MustacheHelper.tokenize;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -514,6 +515,107 @@ public class MustacheHelperTest {
 
         renderFieldValues(configuration, Map.of("true\n\t\t \"yes\\n\"\n\t\t \"no\\n\"", "{\"more\": \"json\"}"));
         assertThat(configuration.getBody()).isEqualTo("outside {\"more\": \"json\"} outside");
+    }
+
+    @Test
+    public void renderSingleKey() {
+        final String rendered = render(
+                "{{key1}}",
+                Map.of(
+                        "key1", "value1"
+                )
+        );
+        assertThat(rendered).isEqualTo("value1");
+    }
+
+    @Test
+    public void renderSingleKeyWithLeading() {
+        final String rendered = render(
+                "leading content {{key1}}",
+                Map.of(
+                        "key1", "value1"
+                )
+        );
+        assertThat(rendered).isEqualTo("leading content value1");
+    }
+
+    @Test
+    public void renderSingleKeyWithTailing() {
+        final String rendered = render(
+                "{{key1}} tailing content",
+                Map.of(
+                        "key1", "value1"
+                )
+        );
+        assertThat(rendered).isEqualTo("value1 tailing content");
+    }
+
+    @Test
+    public void renderSingleKeyWithLeadingAndTailing() {
+        final String rendered = render(
+                "leading content {{key1}} tailing content",
+                Map.of(
+                        "key1", "value1"
+                )
+        );
+        assertThat(rendered).isEqualTo("leading content value1 tailing content");
+    }
+
+    @Test
+    public void renderMustacheComment() {
+        final String rendered = render(
+                "leading content {{!key1}} tailing content",
+                Map.of(
+                        "!key1", "value1"
+                )
+        );
+        assertThat(rendered).isEqualTo("leading content value1 tailing content");
+    }
+
+    @Test
+    public void renderMustacheCondition() {
+        final String rendered = render(
+                "leading content {{#key1}} tailing content",
+                Map.of(
+                        "#key1", "value1"
+                )
+        );
+        assertThat(rendered).isEqualTo("leading content value1 tailing content");
+    }
+
+    @Test
+    public void renderMustacheSubSection() {
+        final String rendered = render(
+                "leading content {{>key1}} tailing content",
+                Map.of(
+                        ">key1", "value1"
+                )
+        );
+        assertThat(rendered).isEqualTo("leading content value1 tailing content");
+    }
+
+    @Test
+    public void renderMultipleKeys() {
+        final String rendered = render(
+                "leading {{key1}} and then {{key2}} tailing.",
+                Map.of(
+                        "key1", "value1",
+                        "key2", "value2"
+                )
+        );
+        assertThat(rendered).isEqualTo("leading value1 and then value2 tailing.");
+    }
+
+    @Test
+    public void renderMultipleKeysWithSpaces() {
+        final String rendered = render(
+                "leading {{ key1 }} and then {{ key2 }} tailing.",
+                Map.of(
+                        "key1", "value1",
+                        "key2", "value2"
+                )
+        );
+        assertThat(rendered).isEqualTo("leading value1 and then value2 tailing.");
     }
 
 }
