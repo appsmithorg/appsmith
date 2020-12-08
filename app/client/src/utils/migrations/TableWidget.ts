@@ -1,7 +1,7 @@
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetTypes } from "constants/WidgetConstants";
-import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableUtilities";
+import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
 import {
   ColumnProperties,
   CellAlignmentTypes,
@@ -9,7 +9,7 @@ import {
   ColumnTypes,
   TextSizes,
   FontStyleTypes,
-} from "widgets/TableWidget";
+} from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 

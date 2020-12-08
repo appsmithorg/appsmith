@@ -34,10 +34,8 @@ import ImageWidget, {
   ImageWidgetProps,
   ProfiledImageWidget,
 } from "widgets/ImageWidget";
-import TableWidget, {
-  TableWidgetProps,
-  ProfiledTableWidget,
-} from "widgets/TableWidget";
+import TableWidget, { ProfiledTableWidget } from "widgets/TableWidget";
+import { TableWidgetProps } from "widgets/TableWidget/TableWidgetConstants";
 import VideoWidget, {
   VideoWidgetProps,
   ProfiledVideoWidget,

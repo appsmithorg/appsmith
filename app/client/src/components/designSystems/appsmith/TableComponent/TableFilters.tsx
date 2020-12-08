@@ -9,16 +9,16 @@ import { IconWrapper } from "constants/IconConstants";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.svg";
-import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
+import { TableIconWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
 import Button from "components/editorComponents/Button";
-import CascadeFields from "components/designSystems/appsmith/CascadeFields";
-import TableActionIcon from "components/designSystems/appsmith/TableActionIcon";
+import CascadeFields from "components/designSystems/appsmith/TableComponent/CascadeFields";
+import TableActionIcon from "components/designSystems/appsmith/TableComponent/TableActionIcon";
 import {
   ReactTableColumnProps,
   Condition,
   Operator,
   OperatorTypes,
-} from "widgets/TableWidget";
+} from "components/designSystems/appsmith/TableComponent/Constants";
 import { TABLE_FILTER_COLUMN_TYPE_CALLOUT } from "constants/messages";
 
 const TableFilterOuterWrapper = styled.div`

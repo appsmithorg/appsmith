@@ -12,14 +12,14 @@ import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 // import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
 import TableFilters, {
   ReactTableFilter,
-} from "components/designSystems/appsmith/TableFilters";
+} from "components/designSystems/appsmith/TableComponent/TableFilters";
 import {
   ReactTableColumnProps,
   CompactMode,
   TableSizes,
-} from "widgets/TableWidget";
-import TableDataDownload from "components/designSystems/appsmith/TableDataDownload";
-import TableCompactMode from "components/designSystems/appsmith/TableCompactMode";
+} from "components/designSystems/appsmith/TableComponent/Constants";
+import TableDataDownload from "components/designSystems/appsmith/TableComponent/TableDataDownload";
+import TableCompactMode from "components/designSystems/appsmith/TableComponent/TableCompactMode";
 import { Colors } from "constants/Colors";
 import { EventType } from "constants/ActionConstants";
 

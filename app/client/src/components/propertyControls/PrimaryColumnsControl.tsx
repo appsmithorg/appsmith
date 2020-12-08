@@ -11,14 +11,14 @@ import {
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { DroppableComponent } from "components/designSystems/appsmith/DraggableListComponent";
-import { ColumnProperties } from "widgets/TableWidget";
+import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import EmptyDataState from "components/utils/EmptyDataState";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import {
   getDefaultColumnProperties,
   reorderColumns,
   getTableStyles,
-} from "components/designSystems/appsmith/TableUtilities";
+} from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import produce from "immer";
 import { compact } from "lodash";
 

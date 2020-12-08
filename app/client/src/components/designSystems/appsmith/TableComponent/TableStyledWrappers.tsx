@@ -3,7 +3,7 @@ import {
   TableSizes,
   CellLayoutProperties,
   FontStyleTypes,
-} from "widgets/TableWidget";
+} from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors, Color } from "constants/Colors";
 import { scrollbarLight } from "constants/DefaultTheme";
 
