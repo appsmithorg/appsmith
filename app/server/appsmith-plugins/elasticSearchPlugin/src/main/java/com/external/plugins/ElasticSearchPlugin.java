@@ -32,6 +32,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.function.Tuple2;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -55,11 +56,11 @@ public class ElasticSearchPlugin extends BasePlugin {
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
         @Override
-        public Mono<ActionExecutionResult> execute(RestClient client,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<Tuple2<ActionExecutionResult, RestClient>> execute(RestClient client,
+                                                                       DatasourceConfiguration datasourceConfiguration,
+                                                                       ActionConfiguration actionConfiguration) {
 
-            return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
+            return (Mono<Tuple2<ActionExecutionResult, RestClient>>) Mono.fromCallable(() -> {
                 final ActionExecutionResult result = new ActionExecutionResult();
 
                 String body = actionConfiguration.getBody();
@@ -104,7 +105,7 @@ public class ElasticSearchPlugin extends BasePlugin {
 
                 result.setIsExecutionSuccess(true);
                 System.out.println(Thread.currentThread().getName() + ": In the Elastic Search Plugin, got action execution result: " + result.toString());
-                return Mono.just(result);
+                return Mono.just(result).zipWith(Mono.just(client));
             })
                     .flatMap(obj -> obj)
                     .subscribeOn(scheduler);

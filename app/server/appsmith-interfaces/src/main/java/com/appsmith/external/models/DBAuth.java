@@ -2,6 +2,7 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.DocumentType;
 import com.appsmith.external.constants.AuthType;
+import com.appsmith.external.constants.FieldName;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +20,6 @@ import java.util.Set;
 @AllArgsConstructor
 @DocumentType(AuthType.DB_AUTH)
 public class DBAuth extends AuthenticationDTO {
-    private static final String PASSWORD = "password";
 
     public enum Type {
         SCRAM_SHA_1, SCRAM_SHA_256, MONGODB_CR, USERNAME_PASSWORD
@@ -37,24 +37,23 @@ public class DBAuth extends AuthenticationDTO {
     @Override
     public Map<String, String> getEncryptionFields() {
         if (this.password != null) {
-            return Map.of(PASSWORD, this.password);
+            return Map.of(FieldName.PASSWORD, this.password);
         }
         return Map.of();
     }
 
     @Override
     public void setEncryptionFields(Map<String, String> encryptedFields) {
-        if (encryptedFields != null && encryptedFields.containsKey(PASSWORD)) {
-            this.password = encryptedFields.get(PASSWORD);
+        if (encryptedFields != null && encryptedFields.containsKey(FieldName.PASSWORD)) {
+            this.password = encryptedFields.get(FieldName.PASSWORD);
         }
     }
 
     @Override
     public Set<String> getEmptyEncryptionFields() {
         if (this.password == null || this.password.isEmpty()) {
-            return Set.of(PASSWORD, null);
+            return Set.of(FieldName.PASSWORD, null);
         }
         return Set.of();
     }
-
 }

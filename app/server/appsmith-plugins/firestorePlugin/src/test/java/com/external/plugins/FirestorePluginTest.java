@@ -18,6 +18,7 @@ import org.testcontainers.containers.FirestoreEmulatorContainer;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.util.List;
 import java.util.Map;
@@ -72,13 +73,14 @@ public class FirestorePluginTest {
         actionConfiguration.setPath("initial/one");
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_DOCUMENT")));
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor
+        Mono<Tuple2<ActionExecutionResult, Firestore>> resultMono = pluginExecutor
                 .execute(firestoreConnection, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertTrue(((Map<String, Object>) result.getBody()).entrySet().stream().allMatch(entry -> {
+                    ActionExecutionResult result1 = result.getT1();
+                    assertTrue(result1.getIsExecutionSuccess());
+                    assertTrue(((Map<String, Object>) result1.getBody()).entrySet().stream().allMatch(entry -> {
                         Object value = entry.getValue();
                         switch (entry.getKey()) {
                             case "name":
@@ -101,13 +103,13 @@ public class FirestorePluginTest {
         actionConfiguration.setPath("initial");
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_COLLECTION")));
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor
+        Mono<Tuple2<ActionExecutionResult, Firestore>> resultMono = pluginExecutor
                 .execute(firestoreConnection, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertEquals(2, ((List) result.getBody()).size());
+                    assertTrue(result.getT1().getIsExecutionSuccess());
+                    assertEquals(2, ((List) result.getT1().getBody()).size());
                 })
                 .verifyComplete();
     }
@@ -123,12 +125,12 @@ public class FirestorePluginTest {
 
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "SET_DOCUMENT")));
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor
+        Mono<Tuple2<ActionExecutionResult, Firestore>> resultMono = pluginExecutor
                 .execute(firestoreConnection, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
+                    assertTrue(result.getT1().getIsExecutionSuccess());
                 })
                 .verifyComplete();
     }
@@ -144,12 +146,12 @@ public class FirestorePluginTest {
 
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "CREATE_DOCUMENT")));
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor
+        Mono<Tuple2<ActionExecutionResult, Firestore>> resultMono = pluginExecutor
                 .execute(firestoreConnection, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
+                    assertTrue(result.getT1().getIsExecutionSuccess());
                 })
                 .verifyComplete();
     }
@@ -164,12 +166,12 @@ public class FirestorePluginTest {
 
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "UPDATE_DOCUMENT")));
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor
+        Mono<Tuple2<ActionExecutionResult, Firestore>> resultMono = pluginExecutor
                 .execute(firestoreConnection, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
+                    assertTrue(result.getT1().getIsExecutionSuccess());
                     try {
                         final DocumentSnapshot documentSnapshot = firestoreConnection.document("changing/to-update").get().get();
                         assertTrue(documentSnapshot.exists());
@@ -188,12 +190,12 @@ public class FirestorePluginTest {
 
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "DELETE_DOCUMENT")));
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor
+        Mono<Tuple2<ActionExecutionResult, Firestore>> resultMono = pluginExecutor
                 .execute(firestoreConnection, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
+                    assertTrue(result.getT1().getIsExecutionSuccess());
                     try {
                         final DocumentSnapshot documentSnapshot = firestoreConnection.document("changing/to-delete").get().get();
                         assertFalse(documentSnapshot.exists());

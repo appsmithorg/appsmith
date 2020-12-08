@@ -10,9 +10,8 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.external.connections.Connection;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.bson.internal.Base64;
@@ -26,10 +25,6 @@ import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
@@ -44,37 +39,29 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-public class RestApiPlugin extends BasePlugin {
-    private static final int MAX_REDIRECTS = 5;
+public class OAuth2RestApiPlugin extends BasePlugin {
 
-    // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
-    // `WebClient` instance was loaded as an auto-wired bean.
-    public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies
-            .builder()
-            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
-            .build();
-
-    public RestApiPlugin(PluginWrapper wrapper) {
+    public OAuth2RestApiPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     @Slf4j
     @Extension
-    public static class RestApiPluginExecutor implements PluginExecutor<Object> {
+    public static class RestApiPluginExecutor implements PluginExecutor<Connection> {
 
         @Override
-        public Mono<Tuple2<ActionExecutionResult, Object>> execute(Object ignored,
-                                                                DatasourceConfiguration datasourceConfiguration,
-                                                                ActionConfiguration actionConfiguration) {
+        public Mono<Tuple2<ActionExecutionResult, Connection>> execute(Connection connection,
+                                                                       DatasourceConfiguration datasourceConfiguration,
+                                                                       ActionConfiguration actionConfiguration) {
 
+            // Error state for any issues with API call
             ActionExecutionResult errorResult = new ActionExecutionResult();
             errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
             errorResult.setIsExecutionSuccess(false);
 
+            // Clean url for API call
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
             String url = datasourceConfiguration.getUrl() + path;
             String reqContentType = "";
@@ -89,52 +76,40 @@ public class RestApiPlugin extends BasePlugin {
                 actionExecutionRequest.setUrl(url);
                 errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage(e));
                 errorResult.setRequest(actionExecutionRequest);
-                return Mono.just(errorResult).zipWith(Mono.just(ignored));
+                return Mono.just(errorResult).zipWith(Mono.just(connection));
             }
 
-            log.debug("Final URL is: " + uri.toString());
+            System.out.println("Final URL is: " + uri.toString());
 
             ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, uri);
-            log.debug("request is : {}", actionExecutionRequest);
+            System.out.println("request is : {}" + actionExecutionRequest);
 
             if (httpMethod == null) {
                 errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage("HTTPMethod must be set."));
                 errorResult.setRequest(actionExecutionRequest);
-                return Mono.just(errorResult).zipWith(Mono.just(ignored));
+                return Mono.just(errorResult).zipWith(Mono.just(connection));
             }
 
-            WebClient.Builder webClientBuilder = WebClient.builder();
-
             if (datasourceConfiguration.getHeaders() != null) {
-                reqContentType = addHeadersToRequestAndGetContentType(
-                        webClientBuilder, datasourceConfiguration.getHeaders());
+                connection.addRequestHeaders(datasourceConfiguration.getHeaders());
             }
 
             if (actionConfiguration.getHeaders() != null) {
-                reqContentType = addHeadersToRequestAndGetContentType(
-                        webClientBuilder, actionConfiguration.getHeaders());
+                connection.addRequestHeaders(actionConfiguration.getHeaders());
             }
 
             final String contentTypeError = verifyContentType(actionConfiguration.getHeaders());
             if (contentTypeError != null) {
                 errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage("Invalid value for Content-Type."));
                 errorResult.setRequest(actionExecutionRequest);
-                return Mono.just(errorResult).zipWith(Mono.just(ignored));
+                return Mono.just(errorResult).zipWith(Mono.just(connection));
             }
 
-            String requestBodyAsString = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+            connection.addRequestBody(actionConfiguration);
 
-            if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
-                    || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
-                requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData());
-            }
-
-
-            WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
-
-            return httpCall(client, httpMethod, uri, requestBodyAsString, 0, reqContentType)
+            return connection.execute(httpMethod, uri, 0)
                     .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
-                    .map(stringResponseEntity -> {
+                    .flatMap(stringResponseEntity -> {
                         HttpHeaders headers = stringResponseEntity.getHeaders();
                         // Find the media type of the response to parse the body as required.
                         MediaType contentType = headers.getContentType();
@@ -188,30 +163,20 @@ public class RestApiPlugin extends BasePlugin {
                                 result.setBody(bodyString.trim());
                             }
                         }
-
-                        return result;
+                        System.out.println("After response: " + result);
+                        return Mono.zip(Mono.just(result), Mono.just(connection));
                     })
                     .onErrorResume(e -> {
                         errorResult.setBody(Exceptions.unwrap(e).getMessage());
                         errorResult.setRequest(actionExecutionRequest);
-                        return Mono.just(errorResult);
-                    }).zipWith(Mono.just(ignored));
-        }
-
-        private String convertPropertyListToReqBody(List<Property> bodyFormData) {
-            if (bodyFormData == null || bodyFormData.isEmpty()) {
-                return "";
-            }
-
-            String reqBody = bodyFormData.stream()
-                    .map(property -> property.getKey() + "=" + property.getValue())
-                    .collect(Collectors.joining("&"));
-            return reqBody;
+                        return Mono.just(errorResult).zipWith(Mono.just(connection));
+                    });
         }
 
         /**
          * If the headers list of properties contains a `Content-Type` header, verify if the value of that header is a
          * valid media type.
+         *
          * @param headers List of header Property objects to look for Content-Type headers in.
          * @return An error message string if the Content-Type value is invalid, otherwise `null`.
          */
@@ -234,87 +199,13 @@ public class RestApiPlugin extends BasePlugin {
             return null;
         }
 
-        private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, String requestBodyAsString,
-                                              int iteration, String contentType) {
-            if (iteration == MAX_REDIRECTS) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Exceeded the HTTP redirect limits of " + MAX_REDIRECTS
-                ));
-            }
-
-            if (MediaType.APPLICATION_JSON_VALUE.equals(contentType)) {
-                try {
-                    objectFromJson(requestBodyAsString);
-                } catch (JsonSyntaxException e) {
-                    return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
-                            "Malformed JSON: " + e.getMessage()
-                    ));
-                }
-            }
-
-            return webClient
-                    .method(httpMethod)
-                    .uri(uri)
-                    .body(BodyInserters.fromObject(requestBodyAsString))
-                    .exchange()
-                    .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
-                    .flatMap(response -> {
-                        if (response.statusCode().is3xxRedirection()) {
-                            String redirectUrl = response.headers().header("Location").get(0);
-                            /**
-                             * TODO
-                             * In case the redirected URL is not absolute (complete), create the new URL using the relative path
-                             * This particular scenario is seen in the URL : https://rickandmortyapi.com/api/character
-                             * It redirects to partial URI : /api/character/
-                             * In this scenario we should convert the partial URI to complete URI
-                             */
-                            URI redirectUri = null;
-                            try {
-                                redirectUri = new URI(redirectUrl);
-                            } catch (URISyntaxException e) {
-                                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
-                            }
-                            return httpCall(webClient, httpMethod, redirectUri, requestBodyAsString, iteration + 1,
-                                    contentType);
-                        }
-                        return Mono.just(response);
-                    });
-        }
-
-        /**
-         * Given a JSON string, we infer the top-level type of the object it represents and then parse it into that
-         * type. However, only `Map` and `List` top-levels are supported. Note that the map or list may contain
-         * anything, like booleans or number or even more maps or lists. It's only that the top-level type should be a
-         * map / list.
-         * @param jsonString A string that confirms to JSON syntax. Shouldn't be null.
-         * @return An object of type `Map`, `List`, if applicable, or `null`.
-         */
-        private static Object objectFromJson(String jsonString) {
-            Class<?> type;
-            String trimmed = jsonString.trim();
-
-            if (trimmed.startsWith("{")) {
-                type = Map.class;
-            } else if (trimmed.startsWith("[")) {
-                type = List.class;
-            } else {
-                // The JSON body is likely a literal boolean or number or string. For our purposes here, we don't have
-                // to parse this JSON.
-                return null;
-            }
-
-            return new GsonBuilder().create().fromJson(jsonString, type);
+        @Override
+        public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            return Mono.just(Connection.createConnection(datasourceConfiguration));
         }
 
         @Override
-        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.just(new Object());
-        }
-
-        @Override
-        public void datasourceDestroy(Object connection) {
+        public void datasourceDestroy(Connection connection) {
             // REST API plugin doesn't have a datasource.
         }
 
@@ -346,23 +237,6 @@ public class RestApiPlugin extends BasePlugin {
             return Mono.just(new DatasourceTestResult());
         }
 
-        private String addHeadersToRequestAndGetContentType(WebClient.Builder webClientBuilder,
-                                                            List<Property> headers) {
-            String contentType = "";
-
-            for (Property header : headers) {
-                String key = header.getKey();
-                if (StringUtils.isNotEmpty(key)) {
-                    String value = header.getValue();
-                    webClientBuilder.defaultHeader(key, value);
-
-                    if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(key)) {
-                        contentType = value;
-                    }
-                }
-            }
-            return contentType;
-        }
 
         private String addHttpToUrlWhenPrefixNotPresent(String url) {
             if (url == null || url.toLowerCase().startsWith("http") || url.contains("://")) {
@@ -388,7 +262,7 @@ public class RestApiPlugin extends BasePlugin {
         }
 
         private ActionExecutionRequest populateRequestFields(ActionConfiguration actionConfiguration,
-                                                            URI uri) {
+                                                             URI uri) {
 
             ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
 
@@ -413,7 +287,6 @@ public class RestApiPlugin extends BasePlugin {
                 actionExecutionRequest.setUrl(uri.toString());
             }
 
-            log.debug("Got request in actionExecutionResult as: {}", actionExecutionRequest);
             return actionExecutionRequest;
         }
     }

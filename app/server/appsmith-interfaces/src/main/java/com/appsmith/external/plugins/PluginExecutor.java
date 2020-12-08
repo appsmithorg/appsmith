@@ -2,12 +2,14 @@ package com.appsmith.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import org.pf4j.ExtensionPoint;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.Set;
 
@@ -22,7 +24,7 @@ public interface PluginExecutor<C> extends ExtensionPoint {
      * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
      * @return ActionExecutionResult  : This object is returned to the user which contains the result values from the execution.
      */
-    Mono<ActionExecutionResult> execute(C connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration);
+    Mono<Tuple2<ActionExecutionResult, C>> execute(C connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration);
 
     /**
      * This function is responsible for creating the connection to the data source and returning the connection variable

@@ -5,15 +5,18 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.plugins.PluginExecutor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class MockPluginExecutor implements PluginExecutor {
+@Slf4j
+public class MockPluginExecutor implements PluginExecutor<Object> {
 
     @Override
-    public Mono<ActionExecutionResult> execute(Object connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+    public Mono<Tuple2<ActionExecutionResult, Object>> execute(Object connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
         if (actionConfiguration == null) {
             return Mono.error(new Exception("ActionConfiguration is null"));
         }
@@ -21,12 +24,13 @@ public class MockPluginExecutor implements PluginExecutor {
             return Mono.error(new Exception("DatasourceConfiguration is null"));
         }
         System.out.println("In the execute");
+        log.info("In the execute");
 
         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
         actionExecutionResult.setBody("");
         actionExecutionResult.setIsExecutionSuccess(true);
         actionExecutionResult.setStatusCode("200");
-        return Mono.just(actionExecutionResult);
+        return Mono.zip(Mono.just(actionExecutionResult), Mono.just(new Object()));
     }
 
     @Override

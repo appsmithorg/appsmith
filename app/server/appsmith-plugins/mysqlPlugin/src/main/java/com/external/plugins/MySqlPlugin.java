@@ -32,6 +32,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.function.Tuple2;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -173,9 +174,9 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<ActionExecutionResult> execute(Connection connection,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<Tuple2<ActionExecutionResult, Connection>> execute(Connection connection,
+                                                                       DatasourceConfiguration datasourceConfiguration,
+                                                                       ActionConfiguration actionConfiguration) {
             String query = actionConfiguration.getBody().trim();
 
             if (query == null) {
@@ -200,14 +201,14 @@ public class MySqlPlugin extends BasePlugin {
                             result.setBody(objectMapper.valueToTree(rowsList));
                             result.setIsExecutionSuccess(true);
                             System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action execution result: " + result.toString());
-                            return Mono.just(result);
+                            return Mono.just(result).zipWith(Mono.just(connection));
                         })
                         .onErrorResume(exception -> {
                             log.debug("In the action execution error mode.", exception);
                             ActionExecutionResult result = new ActionExecutionResult();
                             result.setBody(exception.getMessage());
                             result.setIsExecutionSuccess(false);
-                            return Mono.just(result);
+                            return Mono.just(result).zipWith(Mono.just(connection));
                         })
                         .subscribeOn(scheduler);
             } else {
@@ -226,14 +227,14 @@ public class MySqlPlugin extends BasePlugin {
                             result.setBody(objectMapper.valueToTree(rowsList));
                             result.setIsExecutionSuccess(true);
                             System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action execution result: " + result.toString());
-                            return Mono.just(result);
+                            return Mono.just(result).zipWith(Mono.just(connection));
                         })
                         .onErrorResume(exception -> {
                             log.debug("In the action execution error mode.", exception);
                             ActionExecutionResult result = new ActionExecutionResult();
                             result.setBody(exception.getMessage());
                             result.setIsExecutionSuccess(false);
-                            return Mono.just(result);
+                            return Mono.just(result).zipWith(Mono.just(connection));
                         })
                         .subscribeOn(scheduler);
             }

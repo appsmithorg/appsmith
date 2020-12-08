@@ -91,7 +91,6 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                         AuthenticationDTO authentication = datasource1.getDatasourceConfiguration().getAuthentication();
                         datasource1.getDatasourceConfiguration().setAuthentication(decryptSensitiveFields(authentication));
                     }
-
                     PluginExecutor<Object> pluginExecutor = objects.getT2();
 
                     if (isStale) {
@@ -114,7 +113,8 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                     }
 
                     Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource1.getDatasourceConfiguration());
-                    return connectionMono
+
+                    Mono<DatasourceContext> datasourceContextMono = connectionMono
                             .map(connection -> {
                                 // When a connection object exists and makes sense for the plugin, we put it in the
                                 // context. Example, DB plugins.
@@ -126,6 +126,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                                     // and we just return the context object as is.
                                     datasourceContext
                             );
+                    return datasourceContextMono;
                 });
     }
 
@@ -172,12 +173,13 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
 
     @Override
     public AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authentication) {
-        if (authentication != null) {
+        if (authentication != null && authentication.isEncrypted()) {
             Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
                     .collect(Collectors.toMap(
                             Map.Entry::getKey,
                             e -> encryptionService.decryptString(e.getValue())));
             authentication.setEncryptionFields(decryptedFields);
+            authentication.setEncrypted(false);
         }
         return authentication;
     }

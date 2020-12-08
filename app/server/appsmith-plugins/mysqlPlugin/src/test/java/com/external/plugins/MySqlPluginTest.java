@@ -24,6 +24,7 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.MySQLR2DBCDatabaseContainer;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -200,11 +201,11 @@ public class MySqlPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("show databases");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<Tuple2<ActionExecutionResult, Connection>> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    ActionExecutionResult result = obj.getT1();
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
@@ -256,12 +257,12 @@ public class MySqlPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
 
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+        Mono<Tuple2<ActionExecutionResult, Connection>> executeMono = dsConnectionMono
                 .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
-                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    final JsonNode node = ((ArrayNode) result.getT1().getBody()).get(0);
                     assertArrayEquals(
                             new String[]{
                                     "user_id"
@@ -285,16 +286,17 @@ public class MySqlPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
 
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+        Mono<Tuple2<ActionExecutionResult, Connection>> executeMono = dsConnectionMono
                 .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
+                    ActionExecutionResult result1 = result.getT1();
+                    assertNotNull(result1);
+                    assertTrue(result1.getIsExecutionSuccess());
+                    assertNotNull(result1.getBody());
 
-                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    final JsonNode node = ((ArrayNode) result1.getBody()).get(0);
                     assertEquals("2018-12-31", node.get("dob").asText());
                     assertEquals("2018", node.get("yob").asText());
                     assertTrue(node.get("time1").asText().matches("\\d{2}:\\d{2}:\\d{2}"));

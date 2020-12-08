@@ -26,6 +26,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.io.IOException;
 import java.net.URI;
@@ -51,15 +52,15 @@ public class RapidApiPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class RapidApiPluginExecutor implements PluginExecutor<Void> {
+    public static class RapidApiPluginExecutor implements PluginExecutor<Object> {
 
         private static final String RAPID_API_KEY_NAME = "X-RapidAPI-Key";
         private static final String RAPID_API_KEY_VALUE = System.getenv("APPSMITH_RAPID_API_KEY_VALUE");
 
         @Override
-        public Mono<ActionExecutionResult> execute(Void ignored,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<Tuple2<ActionExecutionResult, Object>> execute(Object ignored,
+                                                                DatasourceConfiguration datasourceConfiguration,
+                                                                ActionConfiguration actionConfiguration) {
 
             if (StringUtils.isEmpty(RAPID_API_KEY_VALUE)) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "RapidAPI Key value not set."));
@@ -219,7 +220,7 @@ public class RapidApiPlugin extends BasePlugin {
                         } else {
                             return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, actualException);
                         }
-                    });
+                    }).zipWith(Mono.empty());
         }
 
         private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, String requestBody, int iteration) {
@@ -257,12 +258,12 @@ public class RapidApiPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<Void> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.empty();
+        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            return Mono.just(new Object());
         }
 
         @Override
-        public void datasourceDestroy(Void connection) {
+        public void datasourceDestroy(Object connection) {
 
         }
 

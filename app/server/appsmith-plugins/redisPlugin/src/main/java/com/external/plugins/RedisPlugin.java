@@ -19,6 +19,7 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.function.Tuple2;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Protocol;
 import redis.clients.jedis.exceptions.JedisConnectionException;
@@ -45,10 +46,10 @@ public class RedisPlugin extends BasePlugin {
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
         @Override
-        public Mono<ActionExecutionResult> execute(Jedis jedis,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
-            return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
+        public Mono<Tuple2<ActionExecutionResult, Jedis>> execute(Jedis jedis,
+                                                                  DatasourceConfiguration datasourceConfiguration,
+                                                                  ActionConfiguration actionConfiguration) {
+            return (Mono<Tuple2<ActionExecutionResult, Jedis>>) Mono.fromCallable(() -> {
                 String body = actionConfiguration.getBody();
                 if (StringUtils.isNullOrEmpty(body)) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
@@ -79,7 +80,7 @@ public class RedisPlugin extends BasePlugin {
                 actionExecutionResult.setIsExecutionSuccess(true);
 
                 System.out.println(Thread.currentThread().getName() + ": In the RedisPlugin, got action execution result: " + actionExecutionResult.toString());
-                return Mono.just(actionExecutionResult);
+                return Mono.just(actionExecutionResult).zipWith(Mono.just(jedis));
             })
                     .flatMap(obj -> obj)
                     .subscribeOn(scheduler);

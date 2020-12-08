@@ -34,6 +34,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.function.Tuple2;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -91,9 +92,9 @@ public class MongoPlugin extends BasePlugin {
          * @return Result data from executing the action's query.
          */
         @Override
-        public Mono<ActionExecutionResult> execute(MongoClient mongoClient,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<Tuple2<ActionExecutionResult, MongoClient>> execute(MongoClient mongoClient,
+                                                                        DatasourceConfiguration datasourceConfiguration,
+                                                                        ActionConfiguration actionConfiguration) {
 
             if (mongoClient == null) {
                 log.info("Encountered null connection in MongoDB plugin. Reporting back.");
@@ -171,7 +172,7 @@ public class MongoPlugin extends BasePlugin {
                             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                         }
 
-                        return Mono.just(result);
+                        return Mono.just(result).zipWith(Mono.just(mongoClient));
                     })
                     .subscribeOn(scheduler);
         }

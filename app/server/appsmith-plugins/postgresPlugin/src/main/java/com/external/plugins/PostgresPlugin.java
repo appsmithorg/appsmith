@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.function.Tuple2;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -114,11 +115,11 @@ public class PostgresPlugin extends BasePlugin {
                 "order by self_schema, self_table;";
 
         @Override
-        public Mono<ActionExecutionResult> execute(Connection connection,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<Tuple2<ActionExecutionResult, Connection>> execute(Connection connection,
+                                                                       DatasourceConfiguration datasourceConfiguration,
+                                                                       ActionConfiguration actionConfiguration) {
             
-            return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
+            return (Mono<Tuple2<ActionExecutionResult, Connection>>) Mono.fromCallable(() -> {
 
                 try {
                     if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
@@ -228,7 +229,7 @@ public class PostgresPlugin extends BasePlugin {
                 result.setIsExecutionSuccess(true);
                 System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution result:"
                                     + result.toString());
-                return Mono.just(result);
+                return Mono.just(result).zipWith(Mono.just(connection));
             })
                     .flatMap(obj -> obj)
                     .subscribeOn(scheduler);

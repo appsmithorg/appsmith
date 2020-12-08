@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.springframework.http.HttpMethod;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.util.List;
 
@@ -36,13 +37,14 @@ public class RestApiPluginTest {
         String requestBody = "{\"key\":\"value\"}";
         actionConfig.setBody(requestBody);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<Tuple2<ActionExecutionResult, Object>> resultMono = pluginExecutor.execute(new Object(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    JsonNode data = ((ObjectNode) result.getBody()).get("data");
+                    ActionExecutionResult result1 = result.getT1();
+                    assertTrue(result1.getIsExecutionSuccess());
+                    assertNotNull(result1.getBody());
+                    JsonNode data = ((ObjectNode) result1.getBody()).get("data");
                     assertEquals(requestBody, data.toString());
                 })
                 .verifyComplete();
@@ -58,13 +60,14 @@ public class RestApiPluginTest {
         actionConfig.setHeaders(List.of(new Property("content-type", "application/x-www-form-urlencoded")));
         actionConfig.setHttpMethod(HttpMethod.POST);
         actionConfig.setBodyFormData(List.of(new Property("key", "value"), new Property("key1", "value1")));
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<Tuple2<ActionExecutionResult, Object>> resultMono = pluginExecutor.execute(new Object(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    JsonNode data = ((ObjectNode) result.getBody()).get("form");
+                    ActionExecutionResult result1 = result.getT1();
+                    assertTrue(result1.getIsExecutionSuccess());
+                    assertNotNull(result1.getBody());
+                    JsonNode data = ((ObjectNode) result1.getBody()).get("form");
                     assertEquals("{\"key\":\"value\",\"key1\":\"value1\"}", data.toString());
                 })
                 .verifyComplete();

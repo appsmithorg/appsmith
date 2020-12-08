@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -104,7 +105,7 @@ public class DynamoPluginTest {
         dsConfig.setEndpoints(List.of(endpoint));
     }
 
-    private Mono<ActionExecutionResult> execute(String action, String jsonActionConfiguration) {
+    private Mono<Tuple2<ActionExecutionResult, DynamoDbClient>> execute(String action, String jsonActionConfiguration) {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPath(action);
         actionConfiguration.setBody(jsonActionConfiguration);
@@ -119,11 +120,11 @@ public class DynamoPluginTest {
         StepVerifier.create(execute("ListTables", null))
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
+                    assertTrue(result.getT1().getIsExecutionSuccess());
+                    assertNotNull(result.getT1().getBody());
                     assertArrayEquals(
                             new String[]{"cities"},
-                            ((Map<String, List<String>>) result.getBody()).get("TableNames").toArray()
+                            ((Map<String, List<String>>) result.getT1().getBody()).get("TableNames").toArray()
                     );
                 })
                 .verifyComplete();
@@ -143,9 +144,9 @@ public class DynamoPluginTest {
         StepVerifier.create(execute("GetItem", body))
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    final Map<String, Map<String, Object>> item = ((Map<String, Map<String, Map<String, Object>>>) result.getBody()).get("Item");
+                    assertTrue(result.getT1().getIsExecutionSuccess());
+                    assertNotNull(result.getT1().getBody());
+                    final Map<String, Map<String, Object>> item = ((Map<String, Map<String, Map<String, Object>>>) result.getT1().getBody()).get("Item");
                     assertEquals("New Delhi", item.get("City").get("S"));
                 })
                 .verifyComplete();
@@ -168,9 +169,9 @@ public class DynamoPluginTest {
         StepVerifier.create(execute("PutItem", body))
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    assertNotNull(((Map<String, List<String>>) result.getBody()).get("Attributes"));
+                    assertTrue(result.getT1().getIsExecutionSuccess());
+                    assertNotNull(result.getT1().getBody());
+                    assertNotNull(((Map<String, List<String>>) result.getT1().getBody()).get("Attributes"));
                 })
                 .verifyComplete();
     }
@@ -196,9 +197,9 @@ public class DynamoPluginTest {
         StepVerifier.create(execute("UpdateItem", body))
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    final Map<String, Map<String, Object>> attributes = ((Map<String, Map<String, Map<String, Object>>>) result.getBody()).get("Attributes");
+                    assertTrue(result.getT1().getIsExecutionSuccess());
+                    assertNotNull(result.getT1().getBody());
+                    final Map<String, Map<String, Object>> attributes = ((Map<String, Map<String, Map<String, Object>>>) result.getT1().getBody()).get("Attributes");
                     assertEquals("Bengaluru", attributes.get("City").get("S"));
                 })
                 .verifyComplete();

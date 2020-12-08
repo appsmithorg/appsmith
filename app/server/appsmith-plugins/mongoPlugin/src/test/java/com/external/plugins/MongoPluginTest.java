@@ -20,6 +20,7 @@ import org.testcontainers.containers.GenericContainer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -140,11 +141,11 @@ public class MongoPluginTest {
                 "      limit: 10,\n" +
                 "    }");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<Tuple2<ActionExecutionResult, MongoClient>> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    ActionExecutionResult result = obj.getT1();
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
@@ -170,11 +171,11 @@ public class MongoPluginTest {
                 "        },\n" +
                 "      ],\n" +
                 "    }");
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<Tuple2<ActionExecutionResult, MongoClient>> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    ActionExecutionResult result = obj.getT1();
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
@@ -197,14 +198,14 @@ public class MongoPluginTest {
                 " },\n" +
                 "  update: { $set: { gender: \"F\" }}\n" +
                 "}");
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> {
+        Mono<Tuple2<ActionExecutionResult, MongoClient>> executeMono = dsConnectionMono.flatMap(conn -> {
             System.out.println("Before execute, running on thread " + Thread.currentThread().getName());
             return pluginExecutor.execute(conn, dsConfig, actionConfiguration);
         });
 
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    ActionExecutionResult result = obj.getT1();
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
@@ -228,11 +229,11 @@ public class MongoPluginTest {
                 "      limit: 1,\n" +
                 "    }");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<Tuple2<ActionExecutionResult, MongoClient>> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    ActionExecutionResult result = obj.getT1();
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());

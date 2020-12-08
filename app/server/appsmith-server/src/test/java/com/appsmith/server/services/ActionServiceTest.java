@@ -142,6 +142,7 @@ public class ActionServiceTest {
         datasource.setOrganizationId(orgId);
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
+
     }
 
     @After
@@ -196,7 +197,7 @@ public class ActionServiceTest {
         newPage.setName("Destination Page");
         newPage.setApplicationId(testApp.getId());
         PageDTO destinationPage = applicationPageService.createPage(newPage).block();
-        
+
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
         action.setPageId(testPage.getId());
@@ -508,7 +509,7 @@ public class ActionServiceTest {
                 })
                 .verifyComplete();
     }
-    
+
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteSecondaryStaleConnection() {
@@ -602,7 +603,7 @@ public class ActionServiceTest {
         action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
-        actionConfiguration.setBody("{{"+key+"}}");
+        actionConfiguration.setBody("{{" + key + "}}");
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
@@ -663,7 +664,7 @@ public class ActionServiceTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenThrow(new StaleConnectionException())
-                .thenReturn(Mono.just(mockResult));
+                .thenReturn(Mono.just(mockResult).zipWith(Mono.just(new Object())));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
 
@@ -704,7 +705,7 @@ public class ActionServiceTest {
 
     private Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration, ActionExecutionResult mockResult) {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.just(mockResult));
+        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.just(mockResult).zipWith(Mono.just(new Object())));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
         Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(executeActionDTO);

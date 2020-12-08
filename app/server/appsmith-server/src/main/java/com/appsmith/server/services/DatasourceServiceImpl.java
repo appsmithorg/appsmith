@@ -157,12 +157,13 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     private AuthenticationDTO encryptAuthenticationFields(AuthenticationDTO authentication) {
-        if (authentication != null) {
+        if (authentication != null && !authentication.isEncrypted()) {
             Map<String, String> encryptedFields = authentication.getEncryptionFields().entrySet().stream()
                     .collect(Collectors.toMap(
                             Map.Entry::getKey,
                             e -> encryptionService.encryptString(e.getValue())));
             authentication.setEncryptionFields(encryptedFields);
+            authentication.setEncrypted(true);
         }
         return authentication;
     }

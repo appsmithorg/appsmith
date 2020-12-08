@@ -18,6 +18,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 import redis.clients.jedis.Jedis;
 
 import java.util.Collections;
@@ -149,7 +150,7 @@ public class RedisPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = jedisMono
+        Mono<Tuple2<ActionExecutionResult, Jedis>> actionExecutionResultMono = jedisMono
                 .flatMap(jedis -> pluginExecutor.execute(jedis, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(actionExecutionResultMono)
@@ -165,7 +166,7 @@ public class RedisPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("LOL");
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = jedisMono
+        Mono<Tuple2<ActionExecutionResult, Jedis>> actionExecutionResultMono = jedisMono
                 .flatMap(jedis -> pluginExecutor.execute(jedis, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(actionExecutionResultMono)
@@ -181,11 +182,12 @@ public class RedisPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("PING");
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = jedisMono
+        Mono<Tuple2<ActionExecutionResult, Jedis>> actionExecutionResultMono = jedisMono
                 .flatMap(jedis -> pluginExecutor.execute(jedis, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(actionExecutionResultMono)
-                .assertNext(actionExecutionResult -> {
+                .assertNext(result -> {
+                    ActionExecutionResult actionExecutionResult = result.getT1();
                     Assert.assertNotNull(actionExecutionResult);
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
@@ -201,10 +203,11 @@ public class RedisPluginTest {
         // Getting a non-existent key
         ActionConfiguration getActionConfiguration = new ActionConfiguration();
         getActionConfiguration.setBody("GET key");
-        Mono<ActionExecutionResult> actionExecutionResultMono = jedisMono
+        Mono<Tuple2<ActionExecutionResult, Jedis>> actionExecutionResultMono = jedisMono
                 .flatMap(jedis -> pluginExecutor.execute(jedis, datasourceConfiguration, getActionConfiguration));
         StepVerifier.create(actionExecutionResultMono)
-                .assertNext(actionExecutionResult -> {
+                .assertNext(result -> {
+                    ActionExecutionResult actionExecutionResult = result.getT1();
                     Assert.assertNotNull(actionExecutionResult);
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
@@ -217,7 +220,8 @@ public class RedisPluginTest {
         actionExecutionResultMono = jedisMono
                 .flatMap(jedis -> pluginExecutor.execute(jedis, datasourceConfiguration, setActionConfiguration));
         StepVerifier.create(actionExecutionResultMono)
-                .assertNext(actionExecutionResult -> {
+                .assertNext(result -> {
+                    ActionExecutionResult actionExecutionResult = result.getT1();
                     Assert.assertNotNull(actionExecutionResult);
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
@@ -228,7 +232,8 @@ public class RedisPluginTest {
         actionExecutionResultMono = jedisMono
                 .flatMap(jedis -> pluginExecutor.execute(jedis, datasourceConfiguration, getActionConfiguration));
         StepVerifier.create(actionExecutionResultMono)
-                .assertNext(actionExecutionResult -> {
+                .assertNext(result -> {
+                    ActionExecutionResult actionExecutionResult = result.getT1();
                     Assert.assertNotNull(actionExecutionResult);
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);

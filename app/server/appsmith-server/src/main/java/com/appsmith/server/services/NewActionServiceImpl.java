@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
@@ -9,6 +10,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
+import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.pluginExceptions.StaleConnectionException;
@@ -44,6 +46,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.util.function.Tuple2;
 
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
@@ -405,7 +408,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         Mono<NewAction> analyticsUpdateMono = updatedActionMono
                 .flatMap(analyticsService::sendUpdateEvent);
 
-                // First Update the Action
+        // First Update the Action
         return savedUpdatedActionMono
                 // Now send the update event to analytics service
                 .then(analyticsUpdateMono)
@@ -431,38 +434,38 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         String actionId = executeActionDTO.getActionId();
         // 2. Fetch the action from the DB and check if it can be executed
         Mono<ActionDTO> actionMono = repository.findById(actionId, EXECUTE_ACTIONS)
-                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
-                    .flatMap(dbAction -> {
-                        ActionDTO action;
-                        if (TRUE.equals(executeActionDTO.getViewMode())) {
-                            action = dbAction.getPublishedAction();
-                            // If the action has not been published, return error
-                            if (action == null) {
-                                return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId));
-                            }
-                        } else {
-                            action = dbAction.getUnpublishedAction();
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
+                .flatMap(dbAction -> {
+                    ActionDTO action;
+                    if (TRUE.equals(executeActionDTO.getViewMode())) {
+                        action = dbAction.getPublishedAction();
+                        // If the action has not been published, return error
+                        if (action == null) {
+                            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId));
                         }
+                    } else {
+                        action = dbAction.getUnpublishedAction();
+                    }
 
-                        // Now check for erroneous situations which would deter the execution of the action :
+                    // Now check for erroneous situations which would deter the execution of the action :
 
-                        // Error out with in case of an invalid action
-                        if (Boolean.FALSE.equals(action.getIsValid())) {
-                            return Mono.error(new AppsmithException(
-                                    AppsmithError.INVALID_ACTION,
-                                    action.getName(),
-                                    actionId,
-                                    ArrayUtils.toString(action.getInvalids().toArray())
-                            ));
-                        }
+                    // Error out with in case of an invalid action
+                    if (Boolean.FALSE.equals(action.getIsValid())) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_ACTION,
+                                action.getName(),
+                                actionId,
+                                ArrayUtils.toString(action.getInvalids().toArray())
+                        ));
+                    }
 
-                        // Error out in case of JS Plugin (this is currently client side execution only)
-                        if (dbAction.getPluginType() == PluginType.JS) {
-                            return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                        }
-                        return Mono.just(action);
-                    })
-                    .cache();
+                    // Error out in case of JS Plugin (this is currently client side execution only)
+                    if (dbAction.getPluginType() == PluginType.JS) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
+                    return Mono.just(action);
+                })
+                .cache();
 
         // 3. Instantiate the implementation class based on the query type
 
@@ -532,12 +535,31 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             .flatMap(datasourceContextService::getDatasourceContext)
                             // Now that we have the context (connection details), execute the action.
                             .flatMap(
-                                    resourceContext -> pluginExecutor.execute(
+                                    resourceContext -> (Mono<Tuple2<ActionExecutionResult, Object>>) pluginExecutor.execute(
                                             resourceContext.getConnection(),
                                             datasourceConfiguration,
                                             actionConfiguration
                                     )
-                            );
+                            ).map(result -> {
+                                Object connection = result.getT2();
+                                if (connection instanceof UpdatableConnection) {
+                                    AuthenticationDTO auth = datasourceContextService.decryptSensitiveFields(datasource.getDatasourceConfiguration().getAuthentication());
+                                    datasource.getDatasourceConfiguration().setAuthentication(auth);
+
+                                    ((UpdatableConnection) connection).updateDatasource(datasource.getDatasourceConfiguration());
+
+                                    // For global datasource, update db document. This update takes care of encryption
+                                    if (datasource.getId() != null) {
+                                        datasourceService.update(datasource.getId(), datasource);
+                                    }
+
+                                    action.setDatasource(datasource);
+                                    updateUnpublishedAction(actionId, action).subscribe();
+
+                                }
+                                return result.getT1();
+
+                            });
 
                     return executionMono
                             .onErrorResume(StaleConnectionException.class, error -> {
@@ -676,7 +698,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     /**
      * Given a list of names of actions and pageId, find all the actions matching this criteria of names and pageId
      *
-     * @param names Set of Action names. The returned list of actions will be a subset of the actioned named in this set.
+     * @param names  Set of Action names. The returned list of actions will be a subset of the actioned named in this set.
      * @param pageId Id of the Page within which to look for Actions.
      * @return A Flux of Actions that are identified to be executed on page-load.
      */

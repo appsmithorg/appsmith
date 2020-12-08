@@ -1357,4 +1357,22 @@ public class DatabaseChangelog {
             }
         });
     }
+
+    @ChangeSet(order = "045", id = "install-oauth2rest-plugin", author = "")
+    public void oauth2restplugin(MongoTemplate mongoTemplate) {
+        Plugin plugin1 = new Plugin();
+        plugin1.setName("OAuth2 REST Plugin");
+        plugin1.setType(PluginType.API);
+        plugin1.setPackageName("oauth2restapi-plugin");
+        plugin1.setUiComponent("ApiEditorForm");
+        plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/RestAPI.png");
+        plugin1.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin1);
+        } catch (DuplicateKeyException e) {
+            log.warn("oauth2rest-plugin already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+    }
 }

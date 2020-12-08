@@ -24,5 +24,6 @@
         <module>redisPlugin</module>
         <module>mssqlPlugin</module>
         <module>firestorePlugin</module>
+        <module>oAuth2RestApiPlugin</module>
     </modules>
 </project>

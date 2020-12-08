@@ -16,6 +16,7 @@ import org.springframework.http.HttpMethod;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -69,7 +70,7 @@ public class ElasticSearchPluginTest {
         dsConfig.setEndpoints(List.of(new Endpoint(host, port.longValue())));
     }
 
-    private Mono<ActionExecutionResult> execute(HttpMethod method, String path, String body) {
+    private Mono<Tuple2<ActionExecutionResult, RestClient>> execute(HttpMethod method, String path, String body) {
         final ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(method);
         actionConfiguration.setPath(path);
@@ -84,10 +85,11 @@ public class ElasticSearchPluginTest {
     public void testGet() {
         StepVerifier.create(execute(HttpMethod.GET, "/planets/doc/id1", null))
                 .assertNext(result -> {
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    final Map<String, Object> resultBody = (Map) result.getBody();
+                    ActionExecutionResult result1 = result.getT1();
+                    assertNotNull(result1);
+                    assertTrue(result1.getIsExecutionSuccess());
+                    assertNotNull(result1.getBody());
+                    final Map<String, Object> resultBody = (Map) result1.getBody();
                     assertEquals("Mercury", ((Map<String, String>) resultBody.get("_source")).get("name"));
                 })
                 .verifyComplete();
@@ -109,10 +111,11 @@ public class ElasticSearchPluginTest {
                 "}";
         StepVerifier.create(execute(HttpMethod.GET, "/planets/_mget", contentJson))
                 .assertNext(result -> {
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    final List<Map> docs = ((Map<String, List<Map>>) result.getBody()).get("docs");
+                    ActionExecutionResult result1 = result.getT1();
+                    assertNotNull(result1);
+                    assertTrue(result1.getIsExecutionSuccess());
+                    assertNotNull(result1.getBody());
+                    final List<Map> docs = ((Map<String, List<Map>>) result1.getBody()).get("docs");
                     assertEquals(2, docs.size());
                 })
                 .verifyComplete();
@@ -123,10 +126,11 @@ public class ElasticSearchPluginTest {
         final String contentJson = "{\"name\": \"Pluto\"}";
         StepVerifier.create(execute(HttpMethod.PUT, "/planets/doc/id9", contentJson))
                 .assertNext(result -> {
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    final Map<String, Object> resultBody = (Map) result.getBody();
+                    ActionExecutionResult result1 = result.getT1();
+                    assertNotNull(result1);
+                    assertTrue(result1.getIsExecutionSuccess());
+                    assertNotNull(result1.getBody());
+                    final Map<String, Object> resultBody = (Map) result1.getBody();
                     assertEquals("created", resultBody.get("result"));
                     assertEquals("id9", resultBody.get("_id"));
                 })
@@ -138,10 +142,11 @@ public class ElasticSearchPluginTest {
         final String contentJson = "{\"name\": \"New Venus\"}";
         StepVerifier.create(execute(HttpMethod.PUT, "/planets/doc/id2", contentJson))
                 .assertNext(result -> {
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    final Map<String, Object> resultBody = (Map) result.getBody();
+                    ActionExecutionResult result1 = result.getT1();
+                    assertNotNull(result1);
+                    assertTrue(result1.getIsExecutionSuccess());
+                    assertNotNull(result1.getBody());
+                    final Map<String, Object> resultBody = (Map) result1.getBody();
                     assertEquals("updated", resultBody.get("result"));
                     assertEquals("id2", resultBody.get("_id"));
                 })
@@ -152,10 +157,11 @@ public class ElasticSearchPluginTest {
     public void testDelete() {
         StepVerifier.create(execute(HttpMethod.DELETE, "/planets/doc/id3", null))
                 .assertNext(result -> {
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    final Map<String, Object> resultBody = (Map) result.getBody();
+                    ActionExecutionResult result1 = result.getT1();
+                    assertNotNull(result1);
+                    assertTrue(result1.getIsExecutionSuccess());
+                    assertNotNull(result1.getBody());
+                    final Map<String, Object> resultBody = (Map) result1.getBody();
                     assertEquals("deleted", resultBody.get("result"));
                     assertEquals("id3", resultBody.get("_id"));
                 })
@@ -176,10 +182,11 @@ public class ElasticSearchPluginTest {
 
         StepVerifier.create(execute(HttpMethod.POST, "/_bulk", contentJson))
                 .assertNext(result -> {
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    final Map<String, Object> resultBody = (Map) result.getBody();
+                    ActionExecutionResult result1 = result.getT1();
+                    assertNotNull(result1);
+                    assertTrue(result1.getIsExecutionSuccess());
+                    assertNotNull(result1.getBody());
+                    final Map<String, Object> resultBody = (Map) result1.getBody();
                     assertFalse((Boolean) resultBody.get("errors"));
                     assertEquals(4, ((List) resultBody.get("items")).size());
                 })
@@ -199,10 +206,11 @@ public class ElasticSearchPluginTest {
 
         StepVerifier.create(execute(HttpMethod.POST, "/_bulk", contentJson))
                 .assertNext(result -> {
-                    assertNotNull(result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    final Map<String, Object> resultBody = (Map) result.getBody();
+                    ActionExecutionResult result1 = result.getT1();
+                    assertNotNull(result1);
+                    assertTrue(result1.getIsExecutionSuccess());
+                    assertNotNull(result1.getBody());
+                    final Map<String, Object> resultBody = (Map) result1.getBody();
                     assertFalse((Boolean) resultBody.get("errors"));
                     assertEquals(4, ((List) resultBody.get("items")).size());
                 })

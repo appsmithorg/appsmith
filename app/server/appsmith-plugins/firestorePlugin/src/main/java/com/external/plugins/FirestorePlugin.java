@@ -32,6 +32,7 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.function.Tuple2;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -70,9 +71,9 @@ public class FirestorePlugin extends BasePlugin {
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
         @Override
-        public Mono<ActionExecutionResult> execute(Firestore connection,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<Tuple2<ActionExecutionResult, Firestore>> execute(Firestore connection,
+                                                                      DatasourceConfiguration datasourceConfiguration,
+                                                                      ActionConfiguration actionConfiguration) {
 
             final String path = actionConfiguration.getPath();
 
@@ -135,6 +136,7 @@ public class FirestorePlugin extends BasePlugin {
                             return handleCollectionLevelMethod(connection, path, method, properties);
                         }
                     })
+                    .zipWith(Mono.just(connection))
                     .subscribeOn(scheduler);
         }
 
