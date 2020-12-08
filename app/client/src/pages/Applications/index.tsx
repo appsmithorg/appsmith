@@ -532,7 +532,6 @@ const ApplicationsSection = (props: any) => {
     organizationsListComponent = updatedOrgs.map(
       (organizationObject: any, index: number) => {
         const { organization, applications, userRoles } = organizationObject;
-        const userProfiles = userRoles && userRoles.splice(5);
         const hasManageOrgPermissions = isPermitted(
           organization.userPermissions,
           PERMISSION_TYPE.MANAGE_ORGANIZATION,
@@ -617,17 +616,23 @@ const ApplicationsSection = (props: any) => {
                 !isFetchingApplications && (
                   <OrgShareUsers>
                     <UserImageContainer>
-                      {userRoles.map((el: UserRoles) => (
+                      {userRoles.map((el: UserRoles, index: number) => {
+                        if (index <= 4) {
+                          return (
+                            <ProfileImage
+                              className="org-share-user-icons"
+                              userName={el.name ? el.name : el.username}
+                              key={el.username}
+                            />
+                          );
+                        } else {
+                          return null;
+                        }
+                      })}
+                      {userRoles.length > 5 ? (
                         <ProfileImage
                           className="org-share-user-icons"
-                          userName={el.name ? el.name : el.username}
-                          key={el.username}
-                        />
-                      ))}
-                      {userProfiles && userProfiles.length > 0 ? (
-                        <ProfileImage
-                          className="org-share-user-icons"
-                          commonName={`+${userProfiles.length}`}
+                          commonName={`+${userRoles.length - 5}`}
                         />
                       ) : null}
                     </UserImageContainer>
