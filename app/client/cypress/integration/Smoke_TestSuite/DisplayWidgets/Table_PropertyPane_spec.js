@@ -43,7 +43,7 @@ describe("Table Widget property pane feature validation", function() {
   it("Edit column name and validate test for computed value based on column type selected", function() {
     cy.editColumn("id");
     cy.editColName("updatedId");
-    cy.readTabledataPublish("1", "1").then(tabData => {
+    cy.readTabledataPublish("1", "2").then(tabData => {
       const tabValue = tabData;
       expect(tabData).to.not.equal("2736212");
       cy.updateComputedValue(testdata.currentRowEmail);
