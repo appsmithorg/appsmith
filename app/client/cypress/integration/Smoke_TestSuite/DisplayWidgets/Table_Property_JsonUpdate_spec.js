@@ -28,8 +28,7 @@ describe("Table Widget property pane feature validation", function() {
   });
 
   it("Update table json data and check the column names updated", function() {
-    cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
-    cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
+    cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
     cy.wait("@updateLayout");
     cy.tableColumnDataValidation("id");
     cy.tableColumnDataValidation("email");
