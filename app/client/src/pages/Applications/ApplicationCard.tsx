@@ -20,6 +20,7 @@ import {
 import {
   getInitialsAndColorCode,
   getApplicationIcon,
+  getRandomPaletteColor,
 } from "utils/AppsmithUtils";
 import { omit } from "lodash";
 import Text, { TextType } from "components/ads/Text";
@@ -251,18 +252,25 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     themeDetails.theme.colors.appCardColors,
   );
   let initials = initialsAndColorCode[0];
-  const colorCode = props.application?.color || initialsAndColorCode[1];
 
   const [showOverlay, setShowOverlay] = useState(false);
-  const [selectedColor, setSelectedColor] = useState<string>(colorCode);
+  const [selectedColor, setSelectedColor] = useState<string>("");
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let colorCode;
+    if (props.application.color) {
+      colorCode = props.application.color;
+    } else {
+      colorCode = getRandomPaletteColor(
+        themeDetails.theme.colors.appCardColors,
+      );
+    }
     setSelectedColor(colorCode);
-  }, [colorCode]);
+  }, []);
   useEffect(() => {
     if (props.share) {
       moreActionItems.push({
@@ -470,7 +478,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           }
           key={props.application.id}
           hasReadPermission={hasReadPermission}
-          backgroundColor={colorCode}
+          backgroundColor={selectedColor}
         >
           <AppIcon size={Size.large} name={appIcon} />
           {/* <Initials>{initials}</Initials> */}
