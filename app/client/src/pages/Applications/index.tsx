@@ -63,7 +63,6 @@ import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import Spinner from "components/ads/Spinner";
 import ProfileImage from "pages/common/ProfileImage";
-import { Toaster } from "components/ads/Toast";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -465,9 +464,6 @@ const ApplicationsSection = (props: any) => {
   const Form: any = OrgInviteUsersForm;
 
   const OrgNameChange = (newName: string, orgId: string) => {
-    Toaster.show({
-      text: "Updating organization name...",
-    });
     dispatch(
       saveOrg({
         id: orgId as string,

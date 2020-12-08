@@ -81,7 +81,7 @@ const boxStyles = (
 const StyledInput = styled.input<
   TextInputProps & { inputStyle: boxReturnType; isValid: boolean }
 >`
-  width: ${props => (props.fill ? "100%" : "260px")};
+  width: ${props => (props.fill ? "100%" : "320px")};
   border-radius: 0;
   outline: 0;
   box-shadow: none;

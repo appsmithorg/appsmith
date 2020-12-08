@@ -57,6 +57,7 @@ const initEvaluationWorkers = () => {
 };
 
 const evalErrorHandler = (errors: EvalError[]) => {
+  if (!errors) return;
   errors.forEach(error => {
     if (error.type === EvalErrorTypes.DEPENDENCY_ERROR) {
       Toaster.show({
@@ -159,6 +160,21 @@ export function* clearEvalPropertyCache(propertyPath: string) {
     evaluationWorker.postMessage({
       action: EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE,
       propertyPath,
+    });
+    yield take(workerChannel);
+  }
+}
+
+/**
+ * clears all cache keys of a widget
+ *
+ * @param widgetName
+ */
+export function* clearEvalPropertyCacheOfWidget(widgetName: string) {
+  if (evaluationWorker) {
+    evaluationWorker.postMessage({
+      action: EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET,
+      widgetName,
     });
     yield take(workerChannel);
   }
