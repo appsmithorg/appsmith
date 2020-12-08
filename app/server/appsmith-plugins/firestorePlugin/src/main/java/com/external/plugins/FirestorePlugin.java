@@ -67,7 +67,7 @@ public class FirestorePlugin extends BasePlugin {
     @Extension
     public static class FirestorePluginExecutor implements PluginExecutor<Firestore> {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(Firestore connection,
