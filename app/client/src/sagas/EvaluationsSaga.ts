@@ -73,7 +73,7 @@ function* initEvaluationWorkers(action: EvaluationReduxAction<any>) {
     payload: dataTree,
   });
   yield put({
-    type: ReduxActionTypes.SET_EVALUATION_DEPENDENCIES,
+    type: ReduxActionTypes.SET_EVALUATION_DEPENDENCY_MAP,
     payload: dependencies,
   });
   if (action && action.postEvalActions && action.postEvalActions.length) {
@@ -147,8 +147,8 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   if (postEvalActions && postEvalActions.length) {
     yield call(postEvalActionDispatcher, postEvalActions);
   }
-  put({
-    type: ReduxActionTypes.SET_EVALUATION_DEPENDENCIES,
+  yield put({
+    type: ReduxActionTypes.SET_EVALUATION_DEPENDENCY_MAP,
     payload: dependencies,
   });
   PerformanceTracker.stopAsyncTracking(

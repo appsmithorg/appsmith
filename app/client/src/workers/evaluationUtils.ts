@@ -1,6 +1,5 @@
-import { isDynamicValue } from "../utils/DynamicBindingUtils";
+import { DependencyMap, isDynamicValue } from "../utils/DynamicBindingUtils";
 import { Diff } from "deep-diff";
-import { DependencyMap } from "./evaluation.worker";
 
 export enum DataTreeDiffEvent {
   NEW = "NEW",

@@ -49,7 +49,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { isString } from "lodash";
+import _ from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
@@ -88,7 +88,7 @@ import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import {
   validateProperty,
   clearEvalPropertyCacheOfWidget,
-} from "./evaluationsSaga";
+} from "./EvaluationsSaga";
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";

@@ -7,7 +7,7 @@ import { Action } from "entities/Action";
 import moment from "moment-timezone";
 import { WidgetProps } from "../widgets/BaseWidget";
 
-type StringTuple = [string, string];
+export type DependencyMap = Record<string, Array<string>>;
 
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);

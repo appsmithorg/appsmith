@@ -19,7 +19,7 @@ import queryPaneSagas from "./QueryPaneSagas";
 import modalSagas from "./ModalSagas";
 import batchSagas from "./BatchSagas";
 import themeSagas from "./ThemeSaga";
-import evaluationsSaga from "./evaluationsSaga";
+import evaluationsSaga from "./EvaluationsSaga";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
 
