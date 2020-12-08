@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.appsmith.external.models.*;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -198,7 +199,6 @@ public class MySqlPluginTest {
         actionConfiguration.setBody("show databases");
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
-
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
@@ -207,6 +207,25 @@ public class MySqlPluginTest {
                     assertNotNull(result.getBody());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testStaleConnectionCheck() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("show databases");
+        Connection connection = pluginExecutor.datasourceCreate(dsConfig).block();
+
+        try {
+            Mono.from(connection.close())
+                    .then(pluginExecutor.execute(connection, dsConfig, actionConfiguration))
+                    .map(res -> res)
+                    .block();
+        } catch (Exception e) {
+            assert e instanceof StaleConnectionException;
+            return;
+        }
+
+        assert false;
     }
 
     @Test
