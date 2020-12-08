@@ -89,7 +89,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait(1000);
-    cy.readTabledataValidateCSS("0", "0", "font-size", "14px");
+    cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
   });
 
   //Added test for bcg colour
