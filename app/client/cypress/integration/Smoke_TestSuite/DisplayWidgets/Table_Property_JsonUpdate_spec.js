@@ -25,12 +25,13 @@ describe("Table Widget property pane feature validation", function() {
     cy.hideColumn("productName");
     cy.hideColumn("orderAmount");
     cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.closePropertyPane();
   });
 
   it("Update table json data and check the column names updated", function() {
     cy.openPropertyPane("tablewidget");
-    cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
+    cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
+    cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
     cy.wait("@updateLayout");
     cy.tableColumnDataValidation("id");
     cy.tableColumnDataValidation("email");
