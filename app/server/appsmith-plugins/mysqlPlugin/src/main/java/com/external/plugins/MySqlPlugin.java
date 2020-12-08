@@ -191,8 +191,8 @@ public class MySqlPlugin extends BasePlugin {
 
             boolean isSelectOrShowQuery = getIsSelectOrShowQuery(query);
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
-            Flux<Result> resultFlux = Flux.from(connection.validate(ValidationDepth.REMOTE))
-                                        .flatMap(isValid -> {
+            Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
+                                        .flatMapMany(isValid -> {
                                             if(isValid) {
                                                 return connection.createStatement(query).execute();
                                             }
