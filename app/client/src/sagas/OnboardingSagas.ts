@@ -79,7 +79,7 @@ const OnboardingConfig = [
     tooltip: {
       title: "Say hello to your example database",
       description:
-        "Go ahead, check it out. You can add the “+” icon to create a new query or connect to your own db.",
+        "Go ahead, check it out. You can also create a new query or connect to your own db as well.",
       action: {
         label: "Got It!",
       },
@@ -204,6 +204,12 @@ function* listenForSuccessfullBinding() {
   }
 }
 
+function* hideDatabaseTooltip() {
+  yield take([ReduxActionTypes.QUERY_PANE_CHANGE]);
+
+  yield put(showTooltip(-1));
+}
+
 function* createOnboardingDatasource() {
   try {
     const organizationId = yield select(getCurrentOrgId);
@@ -280,6 +286,9 @@ function* createOnboardingDatasource() {
       yield put(changeDatasource(onboardingDatasource));
 
       yield put(showTooltip(1));
+
+      // Need to hide this tooltip based on some events
+      yield hideDatabaseTooltip();
     } else {
       yield put({
         type: ReduxActionErrorTypes.CREATE_ONBOARDING_ACTION_ERROR,

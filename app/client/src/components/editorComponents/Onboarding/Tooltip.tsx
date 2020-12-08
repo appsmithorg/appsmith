@@ -11,7 +11,7 @@ import { getTooltipConfig } from "sagas/OnboardingSagas";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import useClipboard from "utils/hooks/useClipboard";
-import { showTooltip } from "actions/onboardingActions";
+import { endOnboarding, showTooltip } from "actions/onboardingActions";
 import { Colors } from "constants/Colors";
 
 enum TooltipClassNames {
@@ -171,10 +171,8 @@ const ToolTipContent = (props: any) => {
     write(snippet);
   };
 
-  const endOnboarding = () => {
-    dispatch({
-      type: "END_ONBOARDING",
-    });
+  const finishOnboarding = () => {
+    dispatch(endOnboarding());
   };
 
   return (
@@ -194,7 +192,7 @@ const ToolTipContent = (props: any) => {
       )}
       <ActionWrapper>
         <span className={TooltipClassNames.SKIP}>
-          Done? <span onClick={endOnboarding}>Click here to End</span>
+          Done? <span onClick={finishOnboarding}>Click here to End</span>
         </span>
 
         {action && (

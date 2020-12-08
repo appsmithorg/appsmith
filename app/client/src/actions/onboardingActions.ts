@@ -21,3 +21,9 @@ export const showTooltip = (payload: number) => {
     payload,
   };
 };
+
+export const endOnboarding = () => {
+  return {
+    type: ReduxActionTypes.END_ONBOARDING,
+  };
+};

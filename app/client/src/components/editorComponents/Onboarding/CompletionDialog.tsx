@@ -14,6 +14,7 @@ import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import history from "utils/history";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { endOnboarding } from "actions/onboardingActions";
 
 const StyledDialog = styled(Dialog)`
   && {
@@ -101,9 +102,7 @@ const CompletionDialog = () => {
       type: ReduxActionTypes.SHOW_ONBOARDING_COMPLETION_DIALOG,
       payload: false,
     });
-    dispatch({
-      type: "END_ONBOARDING",
-    });
+    dispatch(endOnboarding());
   };
 
   return (

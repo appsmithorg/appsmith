@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Spinner from "components/ads/Spinner";
 import { Classes } from "components/ads/common";
 import { AppState } from "reducers";
+import { endOnboarding } from "actions/onboardingActions";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -122,13 +123,7 @@ const Welcome = () => {
           </StyledButton>
           <NotNewUserText>
             Not your first time with Appsmith?{" "}
-            <span
-              onClick={() => {
-                dispatch({
-                  type: "END_ONBOARDING",
-                });
-              }}
-            >
+            <span onClick={() => dispatch(endOnboarding())}>
               Skip this tutorial
             </span>
           </NotNewUserText>
