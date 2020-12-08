@@ -86,6 +86,7 @@
   "selectedColType": ".t--property-control-columntype button span",
   "collapsesection": ".t--property-pane-section-collapse-general",
   "selectTab": ".t--tab-Tab",
+  "entityName": ".t--entity-name",
   "filePickerButton": ".t--widget-filepickerwidget",
   "filePickerInput": ".uppy-Dashboard-input",
   "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",
