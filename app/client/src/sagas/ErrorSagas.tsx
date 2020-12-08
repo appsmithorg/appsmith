@@ -11,7 +11,6 @@ import { ERROR_401, ERROR_500, ERROR_0 } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import log from "loglevel";
-import { axiosConnectionAbortedCode } from "../api/Api";
 
 export function* callAPI(apiCall: any, requestPayload: any) {
   try {
@@ -61,7 +60,11 @@ export function getResponseErrorMessage(response: ApiResponse) {
     : undefined;
 }
 
-type ErrorPayloadType = { code?: number | string; message?: string };
+type ErrorPayloadType = {
+  code?: number | string;
+  message?: string;
+  crash?: boolean;
+};
 let ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
 } = {};
@@ -81,33 +84,70 @@ ActionErrorDisplayMap = {
     DEFAULT_ACTION_ERROR("saving the page"),
 };
 
+enum ErrorEffectTypes {
+  SHOW_ALERT = "SHOW_ALERT",
+  SAFE_CRASH = "SAFE_CRASH",
+  LOG_ERROR = "LOG_ERROR",
+}
+
 export function* errorSaga(
-  errorAction: ReduxAction<{ error: ErrorPayloadType; show?: boolean }>,
+  errorAction: ReduxAction<{
+    error: ErrorPayloadType;
+    show?: boolean;
+    crash?: boolean;
+  }>,
 ) {
-  // Just a pass through for now.
-  // Add procedures to customize errors here
-  log.debug(`Error in action ${errorAction.type}`);
-  log.error(errorAction.payload.error);
-  // Show a toast when the error occurs
+  const effects = [ErrorEffectTypes.LOG_ERROR];
   const {
     type,
-    payload: { error, show = true },
+    payload: { show = true, error },
   } = errorAction;
-
   const message =
     error && error.message ? error.message : ActionErrorDisplayMap[type](error);
 
-  if (show && error) {
-    // TODO Make different error channels.
-    Toaster.show({ text: message, variant: Variant.danger });
+  if (show) {
+    effects.push(ErrorEffectTypes.SHOW_ALERT);
   }
-
+  if (error.crash) {
+    effects.push(ErrorEffectTypes.SAFE_CRASH);
+  }
+  for (const effect of effects) {
+    switch (effect) {
+      case ErrorEffectTypes.LOG_ERROR: {
+        logErrorSaga(errorAction);
+        break;
+      }
+      case ErrorEffectTypes.SHOW_ALERT: {
+        showAlertAboutError(message);
+        break;
+      }
+      case ErrorEffectTypes.SAFE_CRASH: {
+        yield call(crashAppSaga);
+        break;
+      }
+    }
+  }
   yield put({
     type: ReduxActionTypes.REPORT_ERROR,
     payload: {
-      message: errorAction.payload.error,
       source: errorAction.type,
+      message,
     },
+  });
+}
+
+function logErrorSaga(action: ReduxAction<{ error: ErrorPayloadType }>) {
+  log.debug(`Error in action ${action.type}`);
+  log.error(action.payload.error);
+}
+
+function showAlertAboutError(message: string) {
+  Toaster.show({ text: message, variant: Variant.danger });
+}
+
+function* crashAppSaga() {
+  yield put({
+    type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
   });
 }
 
