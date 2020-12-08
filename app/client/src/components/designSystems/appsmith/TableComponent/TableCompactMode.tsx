@@ -8,8 +8,11 @@ import {
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ReactComponent as CompactIcon } from "assets/icons/control/compact.svg";
-import { CompactMode, CompactModeTypes } from "widgets/TableWidget";
-import TableActionIcon from "components/designSystems/appsmith/TableActionIcon";
+import {
+  CompactMode,
+  CompactModeTypes,
+} from "components/designSystems/appsmith/TableComponent/Constants";
+import TableActionIcon from "components/designSystems/appsmith/TableComponent/TableActionIcon";
 
 const DropDownWrapper = styled.div`
   display: flex;

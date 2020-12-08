@@ -8,7 +8,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { ColumnProperties } from "widgets/TableWidget";
+import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
 

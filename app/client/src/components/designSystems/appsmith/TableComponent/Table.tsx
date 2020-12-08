@@ -7,17 +7,18 @@ import {
   useRowSelect,
 } from "react-table";
 import { TableWrapper } from "./TableStyledWrappers";
-import { ReactTableFilter } from "components/designSystems/appsmith/TableFilters";
+import { ReactTableFilter } from "components/designSystems/appsmith/TableComponent/TableFilters";
 import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
-import { ReactTableColumnProps } from "widgets/TableWidget";
-import { Colors } from "constants/Colors";
 import {
+  ReactTableColumnProps,
   TABLE_SIZES,
   CompactMode,
   CompactModeTypes,
-} from "widgets/TableWidget";
+} from "components/designSystems/appsmith/TableComponent/Constants";
+import { Colors } from "constants/Colors";
+
 import { EventType } from "constants/ActionConstants";
 
 interface TableProps {
