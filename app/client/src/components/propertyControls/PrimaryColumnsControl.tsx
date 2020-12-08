@@ -6,6 +6,7 @@ import {
   StyledEditIcon,
   StyledDeleteIcon,
   StyledVisibleIcon,
+  StyledHiddenIcon,
   StyledPropertyPaneButton,
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
@@ -64,6 +65,7 @@ type RenderComponentProps = {
   item: {
     label: string;
     isDerived?: boolean;
+    isVisible?: boolean;
   };
   updateOption: (index: number, value: string) => void;
   onEdit?: (index: number) => void;
@@ -125,8 +127,17 @@ function ColumnControlComponent(props: RenderComponentProps) {
             deleteOption && deleteOption(index);
           }}
         />
-      ) : (
+      ) : item.isVisible ? (
         <StyledVisibleIcon
+          className="t--show-column-btn"
+          height={20}
+          width={20}
+          onClick={() => {
+            toggleVisibility && toggleVisibility(index);
+          }}
+        />
+      ) : (
+        <StyledHiddenIcon
           className="t--show-column-btn"
           height={20}
           width={20}

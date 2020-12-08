@@ -242,7 +242,7 @@ const tabsWidgetTabsPropertyMigration = (
   return currentDSL;
 };
 
-const tableWidgetPropertyPaneMigrations = (
+export const tableWidgetPropertyPaneMigrations = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
@@ -330,6 +330,8 @@ const tableWidgetPropertyPaneMigrations = (
       children.textSize = "PARAGRAPH";
       children.horizontalAlignment = "LEFT";
       children.verticalAlignment = "CENTER";
+    } else if (children.children && children.children.length > 0) {
+      children = tableWidgetPropertyPaneMigrations(children);
     }
     return children;
   });
