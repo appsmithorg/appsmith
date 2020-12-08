@@ -1,4 +1,4 @@
-import { tableWidgetPropertyPaneMigrations } from "./WidgetPropsUtils";
+import { tableWidgetPropertyPaneMigrations } from "./TableWidget";
 import { WidgetTypes, RenderModes } from "constants/WidgetConstants";
 import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
 
