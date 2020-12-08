@@ -382,7 +382,7 @@ export const FlexWrapper = styled.div`
 `;
 
 export const StyledVisibleIcon = styled(
-  ControlIcons.HIDE_COLUMN as AnyStyledComponent,
+  ControlIcons.SHOW_COLUMN as AnyStyledComponent,
 )`
   padding: 0;
   position: absolute;
@@ -393,6 +393,26 @@ export const StyledVisibleIcon = styled(
     width: 24px;
     height: 24px;
     top: -2px;
+    position: relative;
+    path {
+      fill: ${props => props.theme.colors.paneSectionLabel};
+    }
+  }
+`;
+
+export const StyledHiddenIcon = styled(
+  ControlIcons.HIDE_COLUMN as AnyStyledComponent,
+)`
+  padding: 0;
+  position: absolute;
+  margin-left: 15px;
+  cursor: pointer;
+  right: 16px;
+  svg {
+    width: 14px;
+    top: 3px;
+    height: 14px;
+    left: 3px;
     position: relative;
     path {
       fill: ${props => props.theme.colors.paneSectionLabel};
