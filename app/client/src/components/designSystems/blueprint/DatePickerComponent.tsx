@@ -10,6 +10,8 @@ import { DatePickerType } from "widgets/DatePickerWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { TimePrecision } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
+import { connect } from "react-redux";
+import { AppState } from "reducers";
 
 const StyledControlGroup = styled(ControlGroup)`
   &&& {
@@ -108,6 +110,7 @@ class DatePickerComponent extends React.Component<
         )}
         {this.props.datePickerType === "DATE_PICKER" ? (
           <DateInput
+            popoverProps={{ usePortal: !this.props.isDragged }}
             className={this.props.isLoading ? "bp3-skeleton" : ""}
             formatDate={this.formatDate}
             parseDate={this.parseDate}
@@ -189,10 +192,19 @@ interface DatePickerComponentProps extends ComponentProps {
   isDisabled: boolean;
   onDateSelected: (selectedDate: string) => void;
   isLoading: boolean;
+  isDragged?: boolean;
 }
 
 interface DatePickerComponentState {
   selectedDate?: string;
 }
 
-export default DatePickerComponent;
+const mapStateToProps = (state: AppState, props: DatePickerComponentProps) => {
+  const isDragging = state.ui.widgetDragResize.isDragging;
+  const selectedWidget = state.ui.widgetDragResize.selectedWidget;
+  const isDragged = isDragging && selectedWidget === props.widgetId;
+
+  return { isDragged };
+};
+
+export default connect(mapStateToProps)(DatePickerComponent);
