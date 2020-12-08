@@ -258,3 +258,7 @@ export const retryPromise = (
       });
   });
 };
+
+export const getRandomPaletteColor = (colorPalette: string[]) => {
+  return colorPalette[Math.floor(Math.random() * colorPalette.length)];
+};

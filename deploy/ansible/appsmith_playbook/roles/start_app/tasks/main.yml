@@ -1,0 +1,6 @@
+---
+    - name: Start Appsmith
+      shell: docker-compose up --build -d
+      args:
+        chdir: "{{ install_dir}}/"
+      notify: "Start Appsmith with docker-compose"
