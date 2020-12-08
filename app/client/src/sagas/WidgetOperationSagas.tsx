@@ -49,7 +49,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _ from "lodash";
+import _, { isString } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
@@ -1009,6 +1009,36 @@ function* pasteWidgetSaga() {
         }
       }
 
+      // Update the table widget column properties
+      if (widget.type === WidgetTypes.TABLE_WIDGET) {
+        try {
+          const oldWidgetName = widget.widgetName;
+          const newWidgetName = getNextWidgetName(widgets, widget.type);
+          // If the primaryColumns of the table exist
+          if (widget.primaryColumns && Array.isArray(widget.primaryColumns)) {
+            // Map all the primaryColumns of the widget
+            widget.primaryColumns = widget.primaryColumns.map(column => {
+              // For each property in the column
+              for (const [key, value] of Object.entries(column)) {
+                // Replace reference of previous widget with the new widgetName
+                // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
+                column[key] = isString(value)
+                  ? value.replace(`${oldWidgetName}.`, `${newWidgetName}.`)
+                  : value;
+              }
+              return column;
+            });
+          }
+          // Use the new widget name we used to replace the column properties above.
+          widget.widgetName = newWidgetName;
+        } catch (error) {
+          log.debug("Error updating table widget properties", error);
+        }
+      } else {
+        // Generate a new unique widget name
+        widget.widgetName = getNextWidgetName(widgets, widget.type);
+      }
+
       // If it is the copied widget, update position properties
       if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
         newWidgetId = widget.widgetId;
@@ -1061,8 +1091,7 @@ function* pasteWidgetSaga() {
         )?.widgetId;
         if (newParentId) widget.parentId = newParentId;
       }
-      // Generate a new unique widget name
-      widget.widgetName = getNextWidgetName(widgets, widget.type);
+
       // Add the new widget to the canvas widgets
       widgets[widget.widgetId] = widget;
     });
