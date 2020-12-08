@@ -65,7 +65,7 @@ public class DynamoPlugin extends BasePlugin {
     @Extension
     public static class DynamoPluginExecutor implements PluginExecutor<DynamoDbClient> {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(DynamoDbClient ddb,
