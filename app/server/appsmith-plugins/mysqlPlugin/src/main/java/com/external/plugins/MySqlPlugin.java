@@ -240,16 +240,6 @@ public class MySqlPlugin extends BasePlugin {
                                 "execution result: " + result.toString());
                         return Mono.just(result);
                     })
-                    .onErrorResume(exception -> {
-                        log.debug("In the action execution error mode.", exception);
-                        if(exception instanceof StaleConnectionException) {
-                            throw new StaleConnectionException();
-                        }
-                        ActionExecutionResult result = new ActionExecutionResult();
-                        result.setBody(exception.getMessage());
-                        result.setIsExecutionSuccess(false);
-                        return Mono.just(result);
-                    })
                     .subscribeOn(scheduler);
 
         }
