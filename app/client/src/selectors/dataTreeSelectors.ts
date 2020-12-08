@@ -33,8 +33,11 @@ export const getUnevaluatedDataTree = createSelector(
   },
 );
 
-export const getEvaluationDependencies = (state: AppState) =>
-  state.evaluations.dependencies;
+export const getEvaluationDependencyMap = (state: AppState) =>
+  state.evaluations.dependencies.dependencyMap;
+
+export const getEvaluationInverseDependencyMap = (state: AppState) =>
+  state.evaluations.dependencies.inverseDependencyMap;
 
 /**
  * returns evaluation tree object

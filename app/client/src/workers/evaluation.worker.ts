@@ -7,6 +7,7 @@ import {
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import {
+  DependencyMap,
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
@@ -34,6 +35,18 @@ import {
   DataTreeDiffEvent,
   translateDiffEventToDataTreeDiffEvent,
 } from "./evaluationUtils";
+import { put, select } from "redux-saga/effects";
+import {
+  getDataTree,
+  getEvaluationInverseDependencyMap,
+} from "../selectors/dataTreeSelectors";
+import { ActionData } from "../reducers/entityReducers/actionsReducer";
+import {
+  getActionsForCurrentPage,
+  getCanvasWidgets,
+} from "../selectors/entitiesSelector";
+import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
+import { ReduxActionTypes } from "../constants/ReduxActionConstants";
 
 const ctx: Worker = self as any;
 
@@ -54,7 +67,10 @@ ctx.addEventListener("message", e => {
       const cleanDataTree = JSON.parse(JSON.stringify(response));
       ctx.postMessage({
         dataTree: cleanDataTree,
-        dependencies: dataTreeEvaluator.dependencyMap,
+        dependencies: {
+          dependencyMap: dataTreeEvaluator.dependencyMap,
+          inverseDependencyMap: dataTreeEvaluator.inverseDependencyMap,
+        },
         errors: dataTreeEvaluator.errors,
       });
       dataTreeEvaluator.clearErrors();
@@ -71,7 +87,10 @@ ctx.addEventListener("message", e => {
       const cleanDataTree = JSON.parse(JSON.stringify(response));
       ctx.postMessage({
         dataTree: cleanDataTree,
-        dependencies: dataTreeEvaluator.dependencyMap,
+        dependencies: {
+          dependencyMap: dataTreeEvaluator.dependencyMap,
+          inverseDependencyMap: dataTreeEvaluator.inverseDependencyMap,
+        },
         errors: dataTreeEvaluator.errors,
       });
       dataTreeEvaluator.clearErrors();
@@ -155,8 +174,6 @@ ctx.addEventListener("message", e => {
     }
   }
 });
-
-export type DependencyMap = Record<string, Array<string>>;
 
 export class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -283,12 +300,13 @@ export class DataTreeEvaluator {
     const evalStart = performance.now();
     const evaluatedTree = this.evaluateTree(this.evalTree, newSortOrder);
     const evalStop = performance.now();
-    // Validate Widgets
-    // const validateStart = performance.now();
-    // const validated = this.getValidatedTree(evaluatedTree);
-    // const validateStop = performance.now();
+
+    // Set widgets loading
+    const loadingStart = performance.now();
+    const loadingSetTree = this.updateWidgetLoadingStateSaga(evaluatedTree);
+    const loadingStop = performance.now();
     // Remove functions
-    this.evalTree = removeFunctionsFromDataTree(evaluatedTree);
+    this.evalTree = removeFunctionsFromDataTree(loadingSetTree);
     this.oldUnEvalTree = unEvalTree;
     console.log({
       diffCheck: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),
@@ -299,7 +317,7 @@ export class DataTreeEvaluator {
         getNeedsEvalPathsStop - getNeedsEvalPathsStart
       ).toFixed(2),
       eval: (evalStop - evalStart).toFixed(2),
-      // validate: (validateStop - validateStart).toFixed(2),
+      setLoading: (loadingStop - loadingStart).toFixed(2),
     });
     return this.evalTree;
   }
@@ -1102,6 +1120,40 @@ export class DataTreeEvaluator {
     return possibleRefs;
   };
 
+  updateWidgetLoadingStateSaga(dataTree: DataTree) {
+    const entityDependencyMap = createEntityDependencyMap(
+      this.inverseDependencyMap,
+    );
+    const isLoadingActions: string[] = [];
+    const widgetNames: string[] = [];
+
+    Object.entries(dataTree).forEach(([entityName, entity]) => {
+      if (isWidget(entity)) {
+        widgetNames.push(entityName);
+      } else if (
+        isAction(entity) &&
+        "isLoading" in entity &&
+        entity.isLoading
+      ) {
+        isLoadingActions.push(entityName);
+      }
+    });
+    const loadingEntities = getEntityDependencies(
+      isLoadingActions,
+      entityDependencyMap,
+    );
+
+    widgetNames.forEach(widgetName => {
+      _.set(
+        dataTree,
+        [widgetName, "isLoading"],
+        loadingEntities.has(widgetName),
+      );
+    });
+
+    return dataTree;
+  }
+
   clearErrors = () => {
     this.errors = [];
   };
@@ -1155,6 +1207,49 @@ const calculateSubDependencies = (
   return _.uniq(subDeps);
 };
 
+const getEntityDependencies = (
+  entityNames: string[],
+  dependencyMap: DependencyMap,
+): Set<string> => {
+  const dependantsEntities: Set<string> = new Set();
+  entityNames.forEach(entityName => {
+    if (entityName in dependencyMap) {
+      dependencyMap[entityName].forEach(dependency => {
+        const dependantEntityName = dependency.split(".")[0];
+        dependantsEntities.add(dependantEntityName);
+        const childDependencies = getEntityDependencies(
+          Array.from(dependantsEntities),
+          dependencyMap,
+        );
+        childDependencies.forEach(entityName => {
+          dependantsEntities.add(entityName);
+        });
+      });
+    }
+  });
+  return dependantsEntities;
+};
+
+const createEntityDependencyMap = (dependencyMap: DependencyMap) => {
+  const entityDepMap: DependencyMap = {};
+  Object.entries(dependencyMap).forEach(([dependant, dependencies]) => {
+    const entityDependant = dependant.split(".")[0];
+    const existing = entityDepMap[entityDependant] || [];
+    entityDepMap[entityDependant] = existing.concat(
+      dependencies
+        .map(dep => {
+          const value = dep.split(".")[0];
+          if (value !== entityDependant) {
+            return value;
+          }
+          return undefined;
+        })
+        .filter(value => typeof value === "string") as string[],
+    );
+  });
+  return entityDepMap;
+};
+
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 const isDynamicValue = (value: string): boolean => DATA_BIND_REGEX.test(value);
 
@@ -1193,6 +1288,14 @@ function isWidget(entity: DataTreeEntity): boolean {
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
     entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET
+  );
+}
+
+function isAction(entity: DataTreeEntity): boolean {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
   );
 }
 
