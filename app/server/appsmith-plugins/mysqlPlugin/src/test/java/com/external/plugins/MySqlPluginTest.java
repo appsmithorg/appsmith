@@ -217,8 +217,7 @@ public class MySqlPluginTest {
         Connection connection = pluginExecutor.datasourceCreate(dsConfig).block();
 
         Flux<ActionExecutionResult> resultFlux = Mono.from(connection.close())
-                .thenMany(pluginExecutor.execute(connection, dsConfig, actionConfiguration))
-                .map(res -> res);
+                .thenMany(pluginExecutor.execute(connection, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultFlux)
                 .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
