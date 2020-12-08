@@ -21,6 +21,7 @@ import io.r2dbc.spi.RowMetadata;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Result;
+import io.r2dbc.spi.ValidationDepth;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
