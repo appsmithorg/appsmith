@@ -111,7 +111,6 @@ export function* errorSaga(
   if (error.crash) {
     effects.push(ErrorEffectTypes.SAFE_CRASH);
   }
-  console.log({ effects });
   for (const effect of effects) {
     switch (effect) {
       case ErrorEffectTypes.LOG_ERROR: {
