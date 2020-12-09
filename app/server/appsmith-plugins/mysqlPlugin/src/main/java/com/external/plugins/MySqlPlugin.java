@@ -199,16 +199,12 @@ public class MySqlPlugin extends BasePlugin {
 
             if(isSelectOrShowQuery) {
                 resultMono = resultFlux
-                        .flatMap(result -> {
-                            return result.map((row, meta) -> {
-                                rowsList.add(getRow(row, meta));
-                                return result;
-                            });
-                        })
+                        .flatMap(result -> result.map((row, meta) -> {
+                            rowsList.add(getRow(row, meta));
+                            return result;
+                        }))
                         .collectList()
-                        .flatMap(execResult -> {
-                            return Mono.just(rowsList);
-                        });
+                        .flatMap(execResult -> Mono.just(rowsList));
             }
             else {
                 resultMono = resultFlux
@@ -233,7 +229,7 @@ public class MySqlPlugin extends BasePlugin {
                         result.setIsExecutionSuccess(true);
                         System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action " +
                                 "execution result: " + result.toString());
-                        return Mono.just(result).zipWith(Mono.just(connection));;
+                        return Mono.just(result).zipWith(Mono.just(connection));
                     })
                     .subscribeOn(scheduler);
 

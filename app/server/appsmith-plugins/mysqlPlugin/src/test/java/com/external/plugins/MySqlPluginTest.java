@@ -224,7 +224,7 @@ public class MySqlPluginTest {
         actionConfiguration.setBody("show databases");
         Connection connection = pluginExecutor.datasourceCreate(dsConfig).block();
 
-        Flux<ActionExecutionResult> resultFlux = Mono.from(connection.close())
+        Flux<Tuple2<ActionExecutionResult, Connection>> resultFlux = Mono.from(connection.close())
                 .thenMany(pluginExecutor.execute(connection, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultFlux)
