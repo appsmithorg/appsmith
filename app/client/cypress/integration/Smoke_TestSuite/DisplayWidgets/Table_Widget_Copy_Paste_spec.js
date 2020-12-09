@@ -18,13 +18,12 @@ describe("Test Suite to validate copy/paste table Widget", function() {
 
     cy.openPropertyPane("tablewidget");
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
-
-    cy.get("body").click();
     cy.get("body").type(`{${modifierKey}}c`);
     cy.wait(500);
     cy.get(commonlocators.toastBody)
       .first()
       .contains("Copied");
+    cy.get("body").click();
     cy.get("body").type(`{${modifierKey}}v`, { force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",

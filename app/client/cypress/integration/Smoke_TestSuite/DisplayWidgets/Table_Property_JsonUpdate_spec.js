@@ -31,7 +31,7 @@ describe("Table Widget property pane feature validation", function() {
   it("Update table json data and check the column names updated", function() {
     cy.openPropertyPane("tablewidget");
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
-    cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
+    cy.testJsontext("tabledata", JSON.stringify(this.data.TableInputUpdate));
     cy.wait("@updateLayout");
     cy.tableColumnDataValidation("id");
     cy.tableColumnDataValidation("email");
@@ -39,8 +39,6 @@ describe("Table Widget property pane feature validation", function() {
     cy.tableColumnDataValidation("productName");
     cy.tableColumnDataValidation("orderAmount");
     cy.tableColumnDataValidation("DERIVED1"); //To be updated later
-    cy.get(widgetsPage.tableCol)
-      .contains("TestUpdated")
-      .should("not.be.visible");
+    cy.get(".draggable-header:contains('TestUpdated')").should("be.visible");
   });
 });
