@@ -122,13 +122,13 @@ public class PostgresPlugin extends BasePlugin {
 
                 try {
                     if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
-                        log.info("Encountered stale connection in Postgres plugin. Reporting back.");
+                        System.out.println("Encountered stale connection in Postgres plugin. Reporting back.");
                         throw new StaleConnectionException();
                     }
                 } catch (SQLException error) {
                     // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
                     // here, this should never happen.
-                    log.error("Error checking validity of Postgres connection.", error);
+                    System.out.println("Error checking validity of Postgres connection." + error);
                 }
 
                 String query = actionConfiguration.getBody();
@@ -209,7 +209,7 @@ public class PostgresPlugin extends BasePlugin {
                         try {
                             resultSet.close();
                         } catch (SQLException e) {
-                            log.warn("Error closing Postgres ResultSet", e);
+                            System.out.println("Error closing Postgres ResultSet" + e.getMessage());
                         }
                     }
 
@@ -217,7 +217,7 @@ public class PostgresPlugin extends BasePlugin {
                         try {
                             statement.close();
                         } catch (SQLException e) {
-                            log.warn("Error closing Postgres Statement", e);
+                            System.out.println("Error closing Postgres Statement" + e.getMessage());
                         }
                     }
 
@@ -305,7 +305,7 @@ public class PostgresPlugin extends BasePlugin {
                     connection.close();
                 }
             } catch (SQLException e) {
-                log.error("Error closing Postgres Connection.", e);
+                System.out.println("Error closing Postgres Connection." + e.getMessage());
             }
         }
 
@@ -360,7 +360,7 @@ public class PostgresPlugin extends BasePlugin {
                                 connection.close();
                             }
                         } catch (SQLException e) {
-                            log.warn("Error closing Postgres connection that was made for testing.", e);
+                            System.out.println(Thread.currentThread().getName() + ": Error closing Postgres connection that was made for testing." + e.getMessage());
                         }
 
                         return new DatasourceTestResult();
@@ -373,13 +373,13 @@ public class PostgresPlugin extends BasePlugin {
 
             try {
                 if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
-                    log.info("Encountered stale connection in Postgres plugin. Reporting back.");
+                    System.out.println(Thread.currentThread().getName() + ": Encountered stale connection in Postgres plugin. Reporting back.");
                     throw new StaleConnectionException();
                 }
-            } catch (SQLException error) {
+            } catch (SQLException e) {
                 // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
                 // here, this should never happen.
-                log.error("Error checking validity of Postgres connection.", error);
+                System.out.println(Thread.currentThread().getName() + ": Error checking validity of Postgres connection." + e.getMessage());
             }
 
             final DatasourceStructure structure = new DatasourceStructure();
