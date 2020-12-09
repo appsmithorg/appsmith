@@ -270,7 +270,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       );
     }
     setSelectedColor(colorCode);
-  }, []);
+  }, [props.application.color]);
   useEffect(() => {
     if (props.share) {
       moreActionItems.push({

@@ -64,6 +64,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -1265,6 +1266,146 @@ public class DatabaseChangelog {
         }
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
+
+    @ChangeSet(order = "044", id = "ensure-app-icons-and-colors", author = "")
+    public void ensureAppIconsAndColors(MongoTemplate mongoTemplate) {
+        final String iconFieldName = fieldName(QApplication.application.icon);
+        final String colorFieldName = fieldName(QApplication.application.color);
+
+        final org.springframework.data.mongodb.core.query.Query query = query(new Criteria().orOperator(
+                where(iconFieldName).exists(false),
+                where(colorFieldName).exists(false)
+        ));
+
+        // We are only getting the icon and color fields, rest will be null (or default values) in the
+        // resulting Application objects.
+        query.fields().include("_id").include(iconFieldName).include(colorFieldName);
+
+        final List<String> iconPool = List.of(
+                "bag",
+                "product",
+                "book",
+                "camera",
+                "file",
+                "chat",
+                "calender",
+                "flight",
+                "frame",
+                "globe",
+                "shopper",
+                "heart",
+                "alien",
+                "bar-graph",
+                "basketball",
+                "bicycle",
+                "bird",
+                "bitcoin",
+                "burger",
+                "bus",
+                "call",
+                "car",
+                "card",
+                "cat",
+                "chinese-remnibi",
+                "cloud",
+                "coding",
+                "couples",
+                "cricket",
+                "diamond",
+                "dog",
+                "dollar",
+                "earth",
+                "email",
+                "euros",
+                "family",
+                "flag",
+                "football",
+                "hat",
+                "headphones",
+                "hospital",
+                "joystick",
+                "laptop",
+                "line-chart",
+                "location",
+                "lotus",
+                "love",
+                "medal",
+                "medical",
+                "money",
+                "moon",
+                "mug",
+                "music",
+                "pants",
+                "pie-chart",
+                "pizza",
+                "plant",
+                "rainy-weather",
+                "restaurant",
+                "rocket",
+                "rose",
+                "rupee",
+                "saturn",
+                "server",
+                "shake-hands",
+                "shirt",
+                "shop",
+                "single-person",
+                "smartphone",
+                "snowy-weather",
+                "stars",
+                "steam-bowl",
+                "sunflower",
+                "system",
+                "team",
+                "tree",
+                "uk-pounds",
+                "website",
+                "yen",
+                "airplane"
+        );
+        final List<String> colorPool = List.of(
+                "#6C4CF1",
+                "#4F70FD",
+                "#F56AF4",
+                "#B94CF1",
+                "#54A9FB",
+                "#5ED3DA",
+                "#5EDA82",
+                "#A8D76C",
+                "#E9C951",
+                "#FE9F44",
+                "#ED86A1",
+                "#EA6179",
+                "#C03C3C",
+                "#BC6DB2",
+                "#6C9DD0",
+                "#6CD0CF"
+        );
+
+        final Random iconRands = new Random();
+        final Random colorRands = new Random();
+
+        final int iconPoolSize = iconPool.size();
+        final int colorPoolSize = colorPool.size();
+
+        for (final Application app : mongoTemplate.find(query, Application.class)) {
+            if (app.getIcon() == null) {
+                mongoTemplate.updateFirst(
+                        query(where(fieldName(QApplication.application.id)).is(app.getId())),
+                        update(iconFieldName, iconPool.get(iconRands.nextInt(iconPoolSize))),
+                        Application.class
+                );
+            }
+
+            if (app.getColor() == null) {
+                mongoTemplate.updateFirst(
+                        query(where(fieldName(QApplication.application.id)).is(app.getId())),
+                        update(colorFieldName, colorPool.get(colorRands.nextInt(colorPoolSize))),
+                        Application.class
+                );
+            }
+        }
     }
 
 }
