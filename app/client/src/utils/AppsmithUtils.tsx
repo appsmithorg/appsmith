@@ -46,7 +46,23 @@ export const appInitializer = () => {
   FeatureFlag.initialize(appsmithConfigs.featureFlag);
 
   if (appsmithConfigs.sentry.enabled) {
-    Sentry.init(appsmithConfigs.sentry);
+    Sentry.init({
+      ...appsmithConfigs.sentry,
+      beforeBreadcrumb(breadcrumb, hint) {
+        if (breadcrumb.category === "console") {
+          return null;
+        }
+        if (breadcrumb.category === "redux.action") {
+          if (
+            breadcrumb.data &&
+            breadcrumb.data.type === "SET_EVALUATED_TREE"
+          ) {
+            breadcrumb.data = undefined;
+          }
+        }
+        return breadcrumb;
+      },
+    });
   }
 
   if (appsmithConfigs.smartLook.enabled) {
