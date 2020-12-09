@@ -35,18 +35,6 @@ import {
   DataTreeDiffEvent,
   translateDiffEventToDataTreeDiffEvent,
 } from "./evaluationUtils";
-import { put, select } from "redux-saga/effects";
-import {
-  getDataTree,
-  getEvaluationInverseDependencyMap,
-} from "../selectors/dataTreeSelectors";
-import { ActionData } from "../reducers/entityReducers/actionsReducer";
-import {
-  getActionsForCurrentPage,
-  getCanvasWidgets,
-} from "../selectors/entitiesSelector";
-import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
-import { ReduxActionTypes } from "../constants/ReduxActionConstants";
 
 const ctx: Worker = self as any;
 
@@ -1022,14 +1010,14 @@ export class DataTreeEvaluator {
             );
             const correctSnippets = jsSnippets.filter(jsSnippet => !!jsSnippet);
             // We found a new dynamic binding for this property path. We update the dependency map by overwriting the
-            // depencies for this property path with the newly found dependencies
+            // dependencies for this property path with the newly found dependencies
             if (correctSnippets.length) {
               this.dependencyMap[
                 dataTreeDiff.payload.propertyPath
               ] = correctSnippets;
             } else {
               // The dependency on this property path has been removed. Delete this property path from the global
-              // depency map
+              // dependency map
               delete this.dependencyMap[dataTreeDiff.payload.propertyPath];
             }
           }
