@@ -13,7 +13,6 @@ import io.jsonwebtoken.security.SignatureException;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -106,13 +105,14 @@ public class RestApiPluginTest {
         String requestBody = "{\"key\":\"value\"}";
         actionConfig.setBody(requestBody);
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<Tuple2<ActionExecutionResult, Object>> resultMono = pluginExecutor.execute(new Object(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    JsonNode data = ((ObjectNode) result.getBody()).get("data");
+                    ActionExecutionResult result1 = result.getT1();
+                    assertTrue(result1.getIsExecutionSuccess());
+                    assertNotNull(result1.getBody());
+                    JsonNode data = ((ObjectNode) result1.getBody()).get("data");
                     assertEquals("\"{\\\"key\\\":\\\"value\\\"}\"", data.toString());
                 })
                 .verifyComplete();
@@ -130,13 +130,14 @@ public class RestApiPluginTest {
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<Tuple2<ActionExecutionResult, Object>> resultMono = pluginExecutor.execute(new Object(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    String token = ((ObjectNode) result.getBody()).get("headers").get("X-Appsmith-Signature").asText();
+                    ActionExecutionResult result1 = result.getT1();
+                    assertTrue(result1.getIsExecutionSuccess());
+                    assertNotNull(result1.getBody());
+                    String token = ((ObjectNode) result1.getBody()).get("headers").get("X-Appsmith-Signature").asText();
 
                     final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
                     assertEquals("Appsmith", Jwts.parserBuilder()
@@ -162,13 +163,14 @@ public class RestApiPluginTest {
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+        Mono<Tuple2<ActionExecutionResult, Object>> resultMono = pluginExecutor.execute(new Object() , dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    String token = ((ObjectNode) result.getBody()).get("headers").get("X-Appsmith-Signature").asText();
+                    ActionExecutionResult result1 = result.getT1();
+                    assertTrue(result1.getIsExecutionSuccess());
+                    assertNotNull(result1.getBody());
+                    String token = ((ObjectNode) result1.getBody()).get("headers").get("X-Appsmith-Signature").asText();
 
                     final SecretKey key = Keys.hmacShaKeyFor((secretKey + "-abc").getBytes(StandardCharsets.UTF_8));
                     final JwtParser parser = Jwts.parserBuilder().setSigningKey(key).build();

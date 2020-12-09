@@ -408,10 +408,10 @@ public class MySqlPluginTest {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody(query);
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<Tuple2<ActionExecutionResult, Connection>> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    ActionExecutionResult result = obj.getT1();
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
