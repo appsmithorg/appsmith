@@ -18,4 +18,17 @@ describe("Datasource form related tests", function() {
     cy.testDatasource();
     cy.get(".t--save-datasource").should("not.be.disabled");
   });
+
+  it("Check if saved api as a datasource does not fail on cloning", function() {
+    cy.NavigateToAPI_Panel();
+    cy.get('.t--entity-name:contains("Testapi")')
+      .first({ force: true })
+      .click();
+
+    cy.get('.t--entity-name:contains("Testapi")')
+      .parent()
+      .trigger("mouseover")
+      .find(".entity-context-menu")
+      .click({ force: true });
+  });
 });
