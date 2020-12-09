@@ -103,6 +103,22 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "SWITCH",
             isJSConvertible: true,
           },
+          {
+            id: "6.1.6",
+            propertyName: "minDate",
+            label: "Min Date",
+            helpText: "Defines the min date for this widget",
+            controlType: "DATE_PICKER",
+            isJSConvertible: true,
+          },
+          {
+            id: "6.1.7",
+            propertyName: "maxDate",
+            label: "Max Date",
+            helpText: "Defines the max date for this widget",
+            controlType: "DATE_PICKER",
+            isJSConvertible: true,
+          },
         ],
       },
       {

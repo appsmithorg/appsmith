@@ -20,8 +20,8 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
       .children()
       .contains("Navigate To")
       .click();
-    cy.enterActionValue(testdata.externalPage);
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.enterNavigatePageName(testdata.externalPage);
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait(300);
   });
 

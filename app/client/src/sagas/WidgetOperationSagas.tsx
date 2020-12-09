@@ -85,7 +85,10 @@ import {
 import { forceOpenPropertyPane } from "actions/widgetActions";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { validateProperty } from "./evaluationsSaga";
+import {
+  validateProperty,
+  clearEvalPropertyCacheOfWidget,
+} from "./evaluationsSaga";
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -343,6 +346,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       const widgets = { ...stateWidgets };
       const stateWidget = yield select(getWidget, widgetId);
       const widget = { ...stateWidget };
+
       const stateParent: FlattenedWidgetProps = yield select(
         getWidget,
         parentId,
@@ -396,6 +400,8 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         }, WIDGET_DELETE_UNDO_TIMEOUT);
       }
 
+      yield call(clearEvalPropertyCacheOfWidget, widgetName);
+
       const finalWidgets = _.omit(
         widgets,
         otherWidgetsToDelete.map(widgets => widgets.widgetId),
@@ -448,10 +454,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
           const parent = { ...widgets[widget.parentId] };
           if (parent.tabs) {
             try {
-              const tabs = _.isString(parent.tabs)
-                ? JSON.parse(parent.tabs)
-                : parent.tabs;
-              tabs.push({
+              parent.tabs.push({
                 id: widget.tabId,
                 widgetId: widget.widgetId,
                 label: widget.tabName || widget.widgetName,
@@ -460,7 +463,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
                 ...widgets,
                 [widget.parentId]: {
                   ...widgets[widget.parentId],
-                  tabs: JSON.stringify(tabs),
+                  tabs: parent.tabs,
                 },
               };
             } catch (error) {
@@ -982,16 +985,12 @@ function* pasteWidgetSaga() {
       // Update the tabs for the tabs widget.
       if (widget.tabs && widget.type === WidgetTypes.TABS_WIDGET) {
         try {
-          const tabs = isString(widget.tabs)
-            ? JSON.parse(widget.tabs)
-            : widget.tabs;
+          const tabs = widget.tabs;
           if (Array.isArray(tabs)) {
-            widget.tabs = JSON.stringify(
-              tabs.map(tab => {
-                tab.widgetId = widgetIdMap[tab.widgetId];
-                return tab;
-              }),
-            );
+            widget.tabs = tabs.map(tab => {
+              tab.widgetId = widgetIdMap[tab.widgetId];
+              return tab;
+            });
           }
         } catch (error) {
           log.debug("Error updating tabs", error);

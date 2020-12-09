@@ -20,6 +20,7 @@ import {
 import {
   getInitialsAndColorCode,
   getApplicationIcon,
+  getRandomPaletteColor,
 } from "utils/AppsmithUtils";
 import { omit } from "lodash";
 import Text, { TextType } from "components/ads/Text";
@@ -218,9 +219,8 @@ type ApplicationCardProps = {
   application: ApplicationPayload;
   duplicate?: (applicationId: string) => void;
   share?: (applicationId: string) => void;
-  delete?: (applicationId: string, orgId: string) => void;
+  delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
-  orgId: string;
 };
 
 const EditButton = styled(Button)`
@@ -252,19 +252,25 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     themeDetails.theme.colors.appCardColors,
   );
   let initials = initialsAndColorCode[0];
-  const colorCode = props.application?.color || initialsAndColorCode[1];
 
   const [showOverlay, setShowOverlay] = useState(false);
-  const [selectedColor, setSelectedColor] = useState<string>(colorCode);
+  const [selectedColor, setSelectedColor] = useState<string>("");
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
-  const menuIconRef = createRef<HTMLSpanElement>();
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let colorCode;
+    if (props.application.color) {
+      colorCode = props.application.color;
+    } else {
+      colorCode = getRandomPaletteColor(
+        themeDetails.theme.colors.appCardColors,
+      );
+    }
     setSelectedColor(colorCode);
-  }, [colorCode]);
+  }, []);
   useEffect(() => {
     if (props.share) {
       moreActionItems.push({
@@ -318,7 +324,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   };
   const deleteApp = () => {
     setShowOverlay(false);
-    props.delete && props.delete(props.application.id, props.orgId);
+    props.delete && props.delete(props.application.id);
   };
   const askForConfirmation = () => {
     const updatedActionItems = [...moreActionItems];
@@ -370,11 +376,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         position={Position.RIGHT_TOP}
         target={
           <MoreOptionsContainer>
-            <Icon
-              name="context-menu"
-              ref={menuIconRef}
-              size={IconSize.XXXL}
-            ></Icon>
+            <Icon name="context-menu" size={IconSize.XXXL}></Icon>
           </MoreOptionsContainer>
         }
         className="more"
@@ -476,7 +478,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           }
           key={props.application.id}
           hasReadPermission={hasReadPermission}
-          backgroundColor={colorCode}
+          backgroundColor={selectedColor}
         >
           <AppIcon size={Size.large} name={appIcon} />
           {/* <Initials>{initials}</Initials> */}

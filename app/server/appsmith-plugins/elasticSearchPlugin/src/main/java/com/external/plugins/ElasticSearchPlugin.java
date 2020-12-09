@@ -30,6 +30,7 @@ import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
@@ -50,6 +51,8 @@ public class ElasticSearchPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class ElasticSearchPluginExecutor implements PluginExecutor<RestClient> {
+
+        private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(RestClient client,
@@ -104,7 +107,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
 
         private static boolean isBulkQuery(String path) {
@@ -163,7 +166,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                 return Mono.just(clientBuilder.build());
             })
                     .flatMap(obj -> obj)
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -238,7 +241,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                         return new DatasourceTestResult();
                     })
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
     }
 }

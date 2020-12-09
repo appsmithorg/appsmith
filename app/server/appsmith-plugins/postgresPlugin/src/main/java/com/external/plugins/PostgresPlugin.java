@@ -21,6 +21,7 @@ import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.sql.Connection;
@@ -67,6 +68,8 @@ public class PostgresPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class PostgresPluginExecutor implements PluginExecutor<Connection> {
+
+        private final Scheduler scheduler = Schedulers.elastic();
 
         private static final String TABLES_QUERY =
                 "select a.attname                                                      as name,\n" +
@@ -228,7 +231,7 @@ public class PostgresPlugin extends BasePlugin {
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
 
         }
 
@@ -280,7 +283,7 @@ public class PostgresPlugin extends BasePlugin {
 
             return Mono.fromCallable(() -> {
                 try {
-                    System.out.println(Thread.currentThread().getName() + ": Connecting to db");
+                    System.out.println(Thread.currentThread().getName() + ": Connecting to Postgres db");
                     Connection connection = DriverManager.getConnection(url, properties);
                     connection.setReadOnly(
                             configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
@@ -293,7 +296,7 @@ public class PostgresPlugin extends BasePlugin {
             })
                     .flatMap(obj -> obj)
                     .map(conn -> (Connection) conn)
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -387,7 +390,6 @@ public class PostgresPlugin extends BasePlugin {
 
                 // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
 
-                System.out.println(Thread.currentThread().getName() + ": Getting Db structure");
                 try (Statement statement = connection.createStatement()) {
 
                     // Get tables and fill up their columns.
@@ -519,10 +521,11 @@ public class PostgresPlugin extends BasePlugin {
                 for (DatasourceStructure.Table table : structure.getTables()) {
                     table.getKeys().sort(Comparator.naturalOrder());
                 }
+                System.out.println(Thread.currentThread().getName() + ": Got the structure of postgres db");
                 return structure;
             })
                     .map(resultStructure -> (DatasourceStructure) resultStructure)
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
     }
 

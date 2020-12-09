@@ -22,11 +22,12 @@ import OrgApi, {
   DeleteOrgUserRequest,
   ChangeUserRoleRequest,
   FetchAllRolesRequest,
+  SaveOrgLogo,
 } from "api/OrgApi";
 import { ApiResponse } from "api/ApiResponses";
-import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { getCurrentOrg } from "selectors/organizationSelectors";
 
 export function* fetchRolesSaga() {
   try {
@@ -172,30 +173,23 @@ export function* fetchAllRolesSaga(action: ReduxAction<FetchAllRolesRequest>) {
 
 export function* saveOrgSaga(action: ReduxAction<SaveOrgRequest>) {
   try {
+    yield put({
+      type: ReduxActionTypes.SAVING_ORG_INFO,
+    });
     const request: SaveOrgRequest = action.payload;
     const response: ApiResponse = yield call(OrgApi.saveOrg, request);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const currentOrg = yield select(getCurrentOrg);
-      if (currentOrg && currentOrg.id === request.id) {
-        const updatedOrg = {
-          ...currentOrg,
-          ...request,
-        };
-        yield put({
-          type: ReduxActionTypes.SET_CURRENT_ORG,
-          payload: updatedOrg,
-        });
-      }
       yield put({
         type: ReduxActionTypes.SAVE_ORG_SUCCESS,
+        payload: request,
       });
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_ORG_ERROR,
       payload: {
-        error,
+        error: error.message,
       },
     });
   }
@@ -237,6 +231,60 @@ export function* createOrgSaga(
   }
 }
 
+export function* uploadOrgLogoSaga(action: ReduxAction<SaveOrgLogo>) {
+  try {
+    const request = action.payload;
+    const response: ApiResponse = yield call(OrgApi.saveOrgLogo, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      const currentOrg = yield select(getCurrentOrg);
+      if (currentOrg && currentOrg.id === request.id) {
+        const updatedOrg = {
+          ...currentOrg,
+          logoUrl: response.data.logoUrl,
+        };
+        yield put({
+          type: ReduxActionTypes.SET_CURRENT_ORG,
+          payload: updatedOrg,
+        });
+        Toaster.show({
+          text: "Logo uploaded successfully",
+          variant: Variant.success,
+        });
+      }
+    }
+  } catch (error) {
+    console.log("Error occured while uploading the logo", error);
+  }
+}
+
+export function* deleteOrgLogoSaga(action: ReduxAction<{ id: string }>) {
+  try {
+    const request = action.payload;
+    const response: ApiResponse = yield call(OrgApi.deleteOrgLogo, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      const currentOrg = yield select(getCurrentOrg);
+      if (currentOrg && currentOrg.id === request.id) {
+        const updatedOrg = {
+          ...currentOrg,
+          logoUrl: response.data.logoUrl,
+        };
+        yield put({
+          type: ReduxActionTypes.SET_CURRENT_ORG,
+          payload: updatedOrg,
+        });
+        Toaster.show({
+          text: "Logo removed successfully",
+          variant: Variant.success,
+        });
+      }
+    }
+  } catch (error) {
+    console.log("Error occured while removing the logo", error);
+  }
+}
+
 export default function* orgSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_ORG_ROLES_INIT, fetchRolesSaga),
@@ -250,5 +298,7 @@ export default function* orgSagas() {
       ReduxActionTypes.CHANGE_ORG_USER_ROLE_INIT,
       changeOrgUserRoleSaga,
     ),
+    takeLatest(ReduxActionTypes.UPLOAD_ORG_LOGO, uploadOrgLogoSaga),
+    takeLatest(ReduxActionTypes.REMOVE_ORG_LOGO, deleteOrgLogoSaga),
   ]);
 }

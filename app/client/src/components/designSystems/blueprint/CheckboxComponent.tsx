@@ -4,23 +4,36 @@ import { ComponentProps } from "components/designSystems/appsmith/BaseComponent"
 import { Checkbox, Classes } from "@blueprintjs/core";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 
-const CheckboxContainer = styled.div`
+const CheckboxContainer = styled.div<{ isValid: boolean }>`
   && {
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: flex-start;
     align-items: center;
+
+    .bp3-control-indicator {
+      border: ${props =>
+        !props.isValid
+          ? `1px solid ${props.theme.colors.error} !important`
+          : `1px solid transparent`};
+    }
+
     label {
       margin: 0;
+      color: ${props =>
+        !props.isValid ? `${props.theme.colors.error}` : `inherit`};
     }
   }
   ${BlueprintControlTransform}
 `;
 class CheckboxComponent extends React.Component<CheckboxComponentProps> {
   render() {
+    console.log({ props: this.props });
     return (
-      <CheckboxContainer>
+      <CheckboxContainer
+        isValid={!(this.props.isRequired && !this.props.isChecked)}
+      >
         <Checkbox
           label={this.props.label}
           className={
@@ -44,6 +57,7 @@ export interface CheckboxComponentProps extends ComponentProps {
   isChecked: boolean;
   onCheckChange: (isChecked: boolean) => void;
   isLoading: boolean;
+  isRequired?: boolean;
 }
 
 export default CheckboxComponent;

@@ -20,6 +20,7 @@ import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.sql.Connection;
@@ -59,6 +60,8 @@ public class MssqlPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class MssqlPluginExecutor implements PluginExecutor<Connection> {
+
+        private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(Connection connection,
@@ -177,7 +180,7 @@ public class MssqlPlugin extends BasePlugin {
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -252,7 +255,7 @@ public class MssqlPlugin extends BasePlugin {
                 }
             })
                     .flatMap(obj -> obj)
-                    .subscribeOn(Schedulers.elastic());
+                    .subscribeOn(scheduler);
         }
 
         @Override

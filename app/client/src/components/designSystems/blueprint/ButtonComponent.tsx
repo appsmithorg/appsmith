@@ -10,7 +10,7 @@ import { ButtonStyle } from "widgets/ButtonWidget";
 import { Theme, darkenHover, darkenActive } from "constants/DefaultTheme";
 import _ from "lodash";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
-import useScript from "utils/hooks/useScript";
+import { useScript, ScriptStatus } from "utils/hooks/useScript";
 import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
@@ -65,6 +65,12 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
     }
     && .bp3-button-text {
       max-width: 99%;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+
       max-height: 100%;
       overflow: hidden;
     }
@@ -179,7 +185,7 @@ const RecaptchaComponent = (
   return (
     <div
       onClick={(event: React.MouseEvent<HTMLElement>) => {
-        if (status === "ready") {
+        if (status === ScriptStatus.READY) {
           (window as any).grecaptcha.ready(() => {
             try {
               (window as any).grecaptcha

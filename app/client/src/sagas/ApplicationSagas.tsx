@@ -187,14 +187,19 @@ export function* updateApplicationSaga(
       request,
     );
     const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
+    if (isValidResponse && request && request.name) {
+      Toaster.show({
+        text: "Application name updated",
+        variant: Variant.success,
+      });
       yield put({
         type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
-        payload: response.data,
       });
-      Toaster.show({
-        text: "Application updated",
-        variant: Variant.success,
+    }
+    if (isValidResponse && request.currentApp) {
+      yield put({
+        type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
+        payload: request.name,
       });
     }
   } catch (error) {
@@ -203,10 +208,6 @@ export function* updateApplicationSaga(
       payload: {
         error,
       },
-    });
-    Toaster.show({
-      text: error,
-      variant: Variant.danger,
     });
   }
 }

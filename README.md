@@ -1,11 +1,16 @@
 <p align="center">
     <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/appsmith_logo_primary.png" alt="Appsmith.com logo" width="400"/>
+    <br>
+    <i>Appsmith is a JavaScript-based visual development platform to build internal tools.</i>
+  <br>
+</p>
+
+<p align="center">
+    <a href="https://app.appsmith.com/signup"><strong>Try Online Sandbox</strong></a>
 </p>
 
 <p align="center">
   <a href="https://docs.appsmith.com/">Documentation</a>
-  ·
-  <a href="https://github.com/appsmithorg/appsmith/releases/latest">Latest Release</a>
   ·
   <a href="https://discord.gg/rBTTVJp">Discord</a>
   <br>
@@ -16,8 +21,9 @@
 <div>    
 Appsmith is a JavaScript-based visual development platform to build and launch internal tools quickly. Drag-and-drop pre-built widgets, and connect them using JavaScript to create interactive pages. Connect UI to your APIs and Databases to build complex workflows in minutes.<br/><br/>
 
+**UI Components**: Table, Chart, Form, Map, Image, Video, and many more.<br/>
 **API Support**: REST APIs<br/>
-**Database Support**: PostgreSQL, MongoDB, MySQL, Redshift, Elastic Search, DynamoDB, Redis, & MSFT SQL Server<br/>
+**Database Support**: PostgreSQL, MongoDB, MySQL, Redshift, Elastic Search, DynamoDB, Redis, and MSFT SQL Server<br/>
 **Hosting**: Cloud-hosted & On-premise
 
 Already familiar with Appsmith? [Quickly start building on your own](#%EF%B8%8F-quickstart).
@@ -33,7 +39,7 @@ Already familiar with Appsmith? [Quickly start building on your own](#%EF%B8%8F-
 ## 🏭 Features
 
 * **5-minute setup**: Deploy Appsmith on your server, or use our cloud version to start building in 5 minutes. [Quick Start](#%EF%B8%8F-quickstart)
-* **Frontend as a service**: Drag-and-drop to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Write JavaScript anywhere to transform data, and dynamically control widget-properties.
+* **Frontend as a service**: Drag-and-drop from pre-built UI widgets like table, form, and image, to build sophisticated **dashboards** and **workflows, without writing HTML/CSS**. Write JavaScript anywhere to transform data, and dynamically control widget-properties.
 * **Database CRUD**: Query & update your database directly by connecting it to the UI. Connect to **PostgreSQL, MongoDB, MySQL & more!**
 * **Trigger APIs**: Connect to REST APIs to build custom apps.
 * **Security**: DB Credentials are AES 256 encrypted and no data is stored by appsmith. Deploy behind your private VPC for additional security!

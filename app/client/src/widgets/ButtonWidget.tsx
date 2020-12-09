@@ -91,7 +91,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         widgetName={this.props.widgetName}
         text={this.props.text}
         disabled={this.props.isDisabled}
-        onClick={this.onButtonClickBound}
+        onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
         isLoading={this.props.isLoading || this.state.isLoading}
         type={this.props.buttonType || ButtonType.BUTTON}
         googleRecaptchaKey={this.props.googleRecaptchaKey}

@@ -152,3 +152,38 @@ The next step is to configure your app so that it can be access by your custom d
 
 At this point, you should be able to browse to the cloud server, by entering the your custom domain directly into your browser’s address bar. You should be able to see your webapp home page now
 ![Login Page](./images/login-page.png)
+
+## Step 7: Find Application Credentials
+There are two options for obtaining your application credentials:
+
+### Option 1: Find Credentials By Checking The System Log On The AWS Cloud Console (EC2)
+
+{% hint style="warning" %}  
+IMPORTANT: The application password is only available in the system log for the first 24 hours after you first start the instance. We strongly recommend that you note it down immediately on the first boot and save it in a safe place, as you will be unable to access the instance console without it. We also recommend that you change it as soon as possible for security reasons.  
+{% endhint %}
+
+- Go to your EC2 instances dashboard on AWS
+- Select the instance
+- From the “Actions” drop-down menu, select the “Get System Log” menu item.
+![Select System Log](./images/select-system-log.png)
+
+- Review the system log until you find the application password. You will also find the default username.
+![View System log](./images/system-log.png)
+
+
+### Option 2: Find Credentials By Connecting To Your Application Through SSH
+
+The application credentials are stored in a standalone file. To obtain the credentials at any time, follow these instructions:
+
+- Connect to the application through SSH.
+- Run the following command to see your application credentials:
+- ```
+  sudo cat /home/ubuntu/appsmith/credential
+  ```
+
+
+
+
+
+
+

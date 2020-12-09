@@ -135,6 +135,9 @@ const User = styled.div`
 const UserInfo = styled.div`
   display: inline-flex;
   align-items: center;
+  div:first-child {
+    cursor: default;
+  }
 `;
 
 const UserRole = styled.div`
@@ -240,14 +243,15 @@ const OrgInviteUsersForm = (props: any) => {
     fetchAllRoles,
     valid,
     fetchCurrentOrg,
-    currentOrg,
     isApplicationInvite,
     isLoading,
   } = props;
 
   const currentPath = useLocation().pathname;
   const pathRegex = /(?:\/org\/)\w+(?:\/settings)/;
-
+  const currentOrg = useSelector(getCurrentOrg).filter(
+    el => el.id === props.orgId,
+  )[0];
   const userOrgPermissions = currentOrg?.userPermissions ?? [];
   const canManage = isPermitted(
     userOrgPermissions,
@@ -415,7 +419,6 @@ export default connect(
     return {
       roles: getRolesForField(state),
       allUsers: getAllUsers(state),
-      currentOrg: getCurrentOrg(state),
       isLoading: state.ui.orgs.loadingStates.isFetchAllUsers,
     };
   },

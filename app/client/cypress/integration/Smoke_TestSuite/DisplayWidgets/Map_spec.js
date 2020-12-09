@@ -110,12 +110,21 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
       cy.get(publishPage.backToEditor).click();
     });
 
-    it("Map-Initial location should persist after reopen", function() {
+    it("Map-Initial location should work", function() {
       cy.openPropertyPane("mapwidget");
+
       cy.get(viewWidgetsPage.mapinitialloc).should(
         "have.value",
         this.data.country,
       );
+
+      /**
+       * Clearing initial location used to reset it, this check makes sure it actually clears
+       */
+      cy.get(viewWidgetsPage.mapinitialloc)
+        .click({ force: true })
+        .clear()
+        .should("have.value", "");
     });
 
     it("Map-Check Visible field Validation", function() {

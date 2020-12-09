@@ -109,7 +109,7 @@ class FormButtonWidget extends BaseWidget<
         widgetName={this.props.widgetName}
         text={this.props.text}
         disabled={disabled}
-        onClick={this.onButtonClickBound}
+        onClick={!disabled ? this.onButtonClickBound : undefined}
         isLoading={this.props.isLoading || this.state.isLoading}
         type={this.props.buttonType || ButtonType.BUTTON}
         googleRecaptchaKey={this.props.googleRecaptchaKey}

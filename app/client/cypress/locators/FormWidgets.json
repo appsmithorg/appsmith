@@ -7,6 +7,8 @@
     "nextDayBtn": ".DayPicker-Day[aria-selected='true'] + div.DayPicker-Day",
     "datepickerWidget": ".t--draggable-datepickerwidget",
     "defaultDate": ".t--property-control-defaultdate input",
+    "minDate": ".t--property-control-mindate input",
+    "maxDate": ".t--property-control-maxdate input",
     "filepickerWidget": ".t--draggable-filepickerwidget",
     "formWidget": ".t--draggable-formwidget",
     "richTextEditorWidget": ".t--draggable-richtexteditorwidget",
