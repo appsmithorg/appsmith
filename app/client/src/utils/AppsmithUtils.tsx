@@ -49,7 +49,7 @@ export const appInitializer = () => {
     Sentry.init({
       ...appsmithConfigs.sentry,
       beforeBreadcrumb(breadcrumb, hint) {
-        if (breadcrumb.category === "console") {
+        if (breadcrumb.category === "console" && breadcrumb.level !== "error") {
           return null;
         }
         if (breadcrumb.category === "redux.action") {
