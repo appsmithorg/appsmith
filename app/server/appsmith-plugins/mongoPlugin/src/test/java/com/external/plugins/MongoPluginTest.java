@@ -106,7 +106,6 @@ public class MongoPluginTest {
         StepVerifier.create(dsConnectionMono)
                 .assertNext(obj -> {
                     MongoClient client = obj;
-                    System.out.println(client);
                     assertNotNull(client);
                 })
                 .verifyComplete();
@@ -185,7 +184,6 @@ public class MongoPluginTest {
 
     @Test
     public void testFindAndModify() {
-        System.out.println("Running test on " + Thread.currentThread().getName());
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
@@ -198,10 +196,8 @@ public class MongoPluginTest {
                 " },\n" +
                 "  update: { $set: { gender: \"F\" }}\n" +
                 "}");
-        Mono<Tuple2<ActionExecutionResult, MongoClient>> executeMono = dsConnectionMono.flatMap(conn -> {
-            System.out.println("Before execute, running on thread " + Thread.currentThread().getName());
-            return pluginExecutor.execute(conn, dsConfig, actionConfiguration);
-        });
+
+        Mono<Tuple2<ActionExecutionResult, MongoClient>> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {

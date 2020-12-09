@@ -43,7 +43,7 @@ public class RedisPlugin extends BasePlugin {
     @Extension
     public static class RedisPluginExecutor implements PluginExecutor<Jedis> {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
         public Mono<Tuple2<ActionExecutionResult, Jedis>> execute(Jedis jedis,

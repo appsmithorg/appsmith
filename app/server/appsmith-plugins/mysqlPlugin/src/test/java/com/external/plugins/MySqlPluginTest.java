@@ -7,6 +7,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -22,6 +23,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.MySQLR2DBCDatabaseContainer;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -214,6 +216,20 @@ public class MySqlPluginTest {
                     assertNotNull(result.getBody());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testStaleConnectionCheck() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("show databases");
+        Connection connection = pluginExecutor.datasourceCreate(dsConfig).block();
+
+        Flux<ActionExecutionResult> resultFlux = Mono.from(connection.close())
+                .thenMany(pluginExecutor.execute(connection, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultFlux)
+                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+                .verify();
     }
 
     @Test

@@ -62,7 +62,7 @@ public class MssqlPlugin extends BasePlugin {
     @Extension
     public static class MssqlPluginExecutor implements PluginExecutor<Connection> {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
         public Mono<Tuple2<ActionExecutionResult, Connection>> execute(Connection connection,
