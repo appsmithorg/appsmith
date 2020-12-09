@@ -154,6 +154,38 @@ const updateColumnsHook = (
   }
 };
 
+// const updateDerivedColumnsHook = (
+//   props: TableWidgetProps,
+//   propertyPath: string,
+//   propertyValue: any,
+// ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+//   if (props && propertyValue && props[propertyPath]) {
+//     // Get old list of derviedcolumns
+//     const oldDerivedColumns = props[propertyPath].derivedColumns || [];
+//     // Get new list from the primarycolumns
+//     const newDerivedColumns = propertyValue.filter(
+//       (column: ColumnProperties) => column.isDerived,
+//     );
+//     // check if there is a difference in the two
+//     const difference: ColumnProperties[] = xorWith(
+//       oldDerivedColumns,
+//       newDerivedColumns,
+//       (a: ColumnProperties, b: ColumnProperties) => a.id === b.id,
+//     );
+
+//     // If there is a difference, update the derivedColumns with the ones we have in the primaryColumns
+//     if (difference.length > 0) {
+//       return [
+//         {
+//           propertyPath: "derivedColumns",
+//           propertyValue: newDerivedColumns,
+//         },
+//       ];
+//     }
+//   }
+//   return;
+// };
+
 export default [
   {
     sectionName: "General",
@@ -173,6 +205,7 @@ export default [
         propertyName: "primaryColumns",
         controlType: "PRIMARY_COLUMNS",
         label: "Columns",
+        // updateHook: updateDerivedColumnsHook,
         panelConfig: {
           editableTitle: true,
           titlePropertyName: "label",

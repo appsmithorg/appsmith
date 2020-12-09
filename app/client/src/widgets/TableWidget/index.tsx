@@ -59,6 +59,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: VALIDATION_TYPES.TEXT,
       defaultSearchText: VALIDATION_TYPES.TEXT,
       primaryColumns: VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY,
+      derviedColumns: VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY,
       defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
     };
   }
@@ -450,7 +451,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("filteredTableData", filteredTableData);
     this.props.updateWidgetMetaProperty("selectedRow", selectedRow);
     setTimeout(() => {
-      if (!this.props.primaryColumns) {
+      if (
+        !this.props.primaryColumns ||
+        this.props.primaryColumns.length === 0
+      ) {
         this.createTablePrimaryColumns();
       }
     }, 0);
@@ -507,10 +511,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         );
       }
     }
-    if (
-      tableDataModified &&
-      (!this.props.primaryColumns || this.props.primaryColumns.length === 0)
-    ) {
+    // console.log(
+    //   "Table Data:",
+    //   { tableDataModified },
+    //   this.props.primaryColumns,
+    //   this.props.filteredTableData,
+    // );
+    if (tableDataModified) {
       const columnKeys: string[] = getAllTableColumnKeys(
         this.props.tableData,
       ).sort((a: string, b: string) => {
