@@ -396,11 +396,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         NewAction newAction = new NewAction();
         newAction.setUnpublishedAction(action);
-
         Mono<NewAction> updatedActionMono = repository.findById(id, MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .map(dbAction -> {
                     copyNewFieldValuesIntoOldObject(action, dbAction.getUnpublishedAction());
+                    log.debug("Where are we? {}", dbAction);
                     return dbAction;
                 })
                 .cache();

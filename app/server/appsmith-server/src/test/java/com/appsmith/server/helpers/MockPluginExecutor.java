@@ -30,13 +30,13 @@ public class MockPluginExecutor implements PluginExecutor<Object> {
         actionExecutionResult.setBody("");
         actionExecutionResult.setIsExecutionSuccess(true);
         actionExecutionResult.setStatusCode("200");
-        return Mono.zip(Mono.just(actionExecutionResult), Mono.just(new Object()));
+        return Mono.zip(Mono.just(actionExecutionResult), Mono.just(new MockUpdatableConnection()));
     }
 
     @Override
     public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
         System.out.println("In the datasourceCreate");
-        return Mono.empty();
+        return Mono.just(new Object());
     }
 
     @Override

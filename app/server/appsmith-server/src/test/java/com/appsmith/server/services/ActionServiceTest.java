@@ -3,8 +3,10 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.pluginExceptions.StaleConnectionException;
@@ -14,6 +16,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -25,6 +28,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
+import com.appsmith.server.helpers.MockUpdatableConnection;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -45,6 +49,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.time.Duration;
 import java.util.List;
@@ -773,18 +778,69 @@ public class ActionServiceTest {
 
         Mono<ActionExecutionResult> resultMono = newActionService.createAction(action)
                 .flatMap(savedAction -> {
+                    action.setId(savedAction.getId());
                     ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
                     executeActionDTO.setActionId(savedAction.getId());
                     executeActionDTO.setViewMode(false);
                     return newActionService.executeAction(executeActionDTO);
                 });
 
-
         StepVerifier
                 .create(resultMono)
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getStatusCode()).isEqualTo("200");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdatableConnectionExecuteAction() {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource externalDatasource = new Datasource();
+        externalDatasource.setName("Updatable Datasource");
+        externalDatasource.setOrganizationId(orgId);
+        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        externalDatasource.setPluginId(installed_plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("some url here");
+        OAuth2 auth = new OAuth2();
+        auth.setClientId("sample-auth");
+        datasourceConfiguration.setAuthentication(auth);
+        externalDatasource.setDatasourceConfiguration(datasourceConfiguration);
+        Datasource savedDs = datasourceService.create(externalDatasource).block();
+
+
+        ActionDTO action = new ActionDTO();
+        action.setName("actionWithUpdatableDatasource");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(savedDs);
+
+        Mono<Tuple2<ActionExecutionResult, Datasource>> tuple2Mono = newActionService.createAction(action)
+                .flatMap(savedAction -> {
+                    action.setId(savedAction.getId());
+                    ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+                    executeActionDTO.setActionId(savedAction.getId());
+                    executeActionDTO.setViewMode(false);
+                    return newActionService.executeAction(executeActionDTO);
+                })
+                .flatMap(x -> Mono.just(x).zipWith(datasourceService.findById((savedDs.getId()))));
+
+        StepVerifier
+                .create(tuple2Mono)
+                .assertNext(resultTuple -> {
+                    ActionExecutionResult result = resultTuple.getT1();
+                    Datasource datasource = resultTuple.getT2();
+                    assertThat(result).isNotNull();
+                    assertThat(result.getStatusCode()).isEqualTo("200");
+                    OAuth2 oauth = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
+                    assertThat(oauth.getClientId()).isEqualTo("mock-auth");
                 })
                 .verifyComplete();
     }
