@@ -52,6 +52,9 @@ export const appInitializer = () => {
         if (breadcrumb.category === "console" && breadcrumb.level !== "error") {
           return null;
         }
+        if (breadcrumb.category === "sentry.transaction") {
+          return null;
+        }
         if (breadcrumb.category === "redux.action") {
           if (
             breadcrumb.data &&
