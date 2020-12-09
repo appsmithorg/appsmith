@@ -52,7 +52,7 @@ public class ElasticSearchPlugin extends BasePlugin {
     @Extension
     public static class ElasticSearchPluginExecutor implements PluginExecutor<RestClient> {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(RestClient client,

@@ -77,7 +77,7 @@ public class MongoPlugin extends BasePlugin {
     @Extension
     public static class MongoPluginExecutor implements PluginExecutor<MongoClient> {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         /**
          * For reference on creating the json queries for Mongo please head to
