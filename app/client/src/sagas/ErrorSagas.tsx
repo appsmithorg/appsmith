@@ -108,7 +108,7 @@ export function* errorSaga(
   if (show) {
     effects.push(ErrorEffectTypes.SHOW_ALERT);
   }
-  if (error.crash) {
+  if (error && error.crash) {
     effects.push(ErrorEffectTypes.SAFE_CRASH);
   }
   for (const effect of effects) {
