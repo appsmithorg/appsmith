@@ -87,7 +87,7 @@ export function* errorSaga(
   // Just a pass through for now.
   // Add procedures to customize errors here
   log.debug(`Error in action ${errorAction.type}`);
-  log.error(errorAction.payload.error);
+  if (errorAction.payload) log.error(errorAction.payload.error);
   // Show a toast when the error occurs
   const {
     type,
@@ -105,7 +105,7 @@ export function* errorSaga(
   yield put({
     type: ReduxActionTypes.REPORT_ERROR,
     payload: {
-      message: errorAction.payload.error,
+      message: errorAction.payload ? errorAction.payload.error : undefined,
       source: errorAction.type,
     },
   });
