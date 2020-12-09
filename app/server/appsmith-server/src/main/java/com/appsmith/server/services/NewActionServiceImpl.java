@@ -544,8 +544,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                             datasourceConfiguration,
                                             actionConfiguration
                                     )
-                            ).map(result -> {
+                            ).flatMap(result -> {
                                 Object connection = result.getT2();
+                                Mono<Datasource> datasourceMono1 = Mono.just(datasource);
+                                // TODO check if update was done
                                 if (connection instanceof UpdatableConnection) {
                                     AuthenticationDTO auth = datasourceContextService.decryptSensitiveFields(datasource.getDatasourceConfiguration().getAuthentication());
                                     datasource.getDatasourceConfiguration().setAuthentication(auth);
@@ -554,14 +556,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                                     // For global datasource, update db document. This update takes care of encryption
                                     if (datasource.getId() != null) {
-                                        datasourceService.update(datasource.getId(), datasource);
+                                        datasourceMono1 = datasourceService.update(datasource.getId(), datasource);
+                                    } else {
+                                        action.setDatasource(datasource);
+                                        datasourceMono1 = updateUnpublishedAction(actionId, action).then(Mono.just(datasource));
                                     }
 
-                                    action.setDatasource(datasource);
-                                    updateUnpublishedAction(actionId, action).subscribe();
-
                                 }
-                                return result.getT1();
+                                return datasourceMono1.thenReturn(result.getT1());
 
                             });
 
