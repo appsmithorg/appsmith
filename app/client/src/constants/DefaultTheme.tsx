@@ -427,6 +427,27 @@ export const largeButton = css`
   letter-spacing: ${props => props.theme.typography.btnLarge.letterSpacing}px;
 `;
 
+export const appColors = [
+  "#6C4CF1",
+  "#4F70FD",
+  "#F56AF4",
+  "#B94CF1",
+  "#54A9FB",
+  "#5ED3DA",
+  "#5EDA82",
+  "#A8D76C",
+  "#E9C951",
+  "#FE9F44",
+  "#ED86A1",
+  "#EA6179",
+  "#C03C3C",
+  "#BC6DB2",
+  "#6C9DD0",
+  "#6CD0CF",
+] as const;
+
+export type AppColorCode = typeof appColors[number];
+
 const darkShades = [
   "#1A191C",
   "#232324",
@@ -481,7 +502,6 @@ type ColorType = {
     hoverBorder: ShadeColor;
     iconColor: ShadeColor;
   };
-  appCardColors: string[];
   text: {
     normal: ShadeColor;
     heading: ShadeColor;
@@ -757,24 +777,6 @@ export const dark: ColorType = {
     hoverBorder: darkShades[4],
     iconColor: darkShades[9],
   },
-  appCardColors: [
-    "#6C4CF1",
-    "#4F70FD",
-    "#F56AF4",
-    "#B94CF1",
-    "#54A9FB",
-    "#5ED3DA",
-    "#5EDA82",
-    "#A8D76C",
-    "#E9C951",
-    "#FE9F44",
-    "#ED86A1",
-    "#EA6179",
-    "#C03C3C",
-    "#BC6DB2",
-    "#6C9DD0",
-    "#6CD0CF",
-  ],
   text: {
     normal: darkShades[6],
     heading: darkShades[7],
@@ -1050,17 +1052,6 @@ export const light: ColorType = {
     hoverBorder: lightShades[2],
     iconColor: lightShades[11],
   },
-  appCardColors: [
-    "#4266FD",
-    "#69B5FF",
-    "#5CE7EF",
-    "#61DF48",
-    "#FF6786",
-    "#FFAD5E",
-    "#FCD43E",
-    "#B0E968",
-    "#9177FF",
-  ],
   text: {
     normal: lightShades[8],
     heading: lightShades[9],
@@ -1435,6 +1426,7 @@ export const theme: Theme = {
     cmBacground: Colors.BLUE_CHARCOAL,
     lightningborder: Colors.ALABASTER,
     formButtonColor: Colors.WHITE,
+    appCardColors: appColors,
   },
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: {
