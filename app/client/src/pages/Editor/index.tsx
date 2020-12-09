@@ -131,17 +131,6 @@ class Editor extends Component<Props> {
         />
         <Hotkey
           global={true}
-          combo="del"
-          label="Delete Widget"
-          group="Canvas"
-          onKeyDown={(e: any) => {
-            this.props.deleteSelectedWidget();
-          }}
-          preventDefault
-          stopPropagation
-        />
-        <Hotkey
-          global={true}
           combo="mod + x"
           label="Cut Widget"
           group="Canvas"
