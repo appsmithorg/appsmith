@@ -10,21 +10,21 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-
-import io.r2dbc.spi.ConnectionFactoryOptions;
+import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
-import io.r2dbc.spi.RowMetadata;
-import io.r2dbc.spi.Row;
-import io.r2dbc.spi.ColumnMetadata;
+import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Result;
+import io.r2dbc.spi.Row;
+import io.r2dbc.spi.RowMetadata;
+import io.r2dbc.spi.ValidationDepth;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.reactivestreams.Publisher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
@@ -45,7 +45,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -114,7 +113,7 @@ public class MySqlPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class MySqlPluginExecutor implements PluginExecutor<Connection> {
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         /**
          * 1. Parse the actual row objects returned by r2dbc driver for mysql statements.
@@ -171,9 +170,10 @@ public class MySqlPlugin extends BasePlugin {
          *    select query rows are returned, whereas, in case of any other query the number of updated rows is
          *    returned.
          */
-        private boolean getIsSelectQuery(String query) {
+        private boolean getIsSelectOrShowQuery(String query) {
             String[] queries = query.split(";");
-            return queries[queries.length - 1].trim().split(" ")[0].equalsIgnoreCase("select");
+            return (queries[queries.length - 1].trim().split(" ")[0].equalsIgnoreCase("select")
+                    || queries[queries.length - 1].trim().split(" ")[0].equalsIgnoreCase("show"));
         }
 
         @Override
@@ -186,12 +186,21 @@ public class MySqlPlugin extends BasePlugin {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
             }
 
-            boolean isSelectQuery = getIsSelectQuery(query);
+            boolean isSelectOrShowQuery = getIsSelectOrShowQuery(query);
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
-            Flux<Result> resultFlux = Flux.from(connection.createStatement(query).execute());
+            Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
+                                        .flatMapMany(isValid -> {
+                                            if(isValid) {
+                                                return connection.createStatement(query).execute();
+                                            }
+                                            else {
+                                                return Flux.error(new StaleConnectionException());
+                                            }
+                                        });
+            Mono<List<Map<String, Object>>> resultMono = null;
 
-            if(isSelectQuery) {
-                return resultFlux
+            if(isSelectOrShowQuery) {
+                resultMono = resultFlux
                         .flatMap(result -> {
                             return result.map((row, meta) -> {
                                 rowsList.add(getRow(row, meta));
@@ -200,23 +209,11 @@ public class MySqlPlugin extends BasePlugin {
                         })
                         .collectList()
                         .flatMap(execResult -> {
-                            ActionExecutionResult result = new ActionExecutionResult();
-                            result.setBody(objectMapper.valueToTree(rowsList));
-                            result.setIsExecutionSuccess(true);
-                            System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action execution result: " + result.toString());
-                            return Mono.just(result);
-                        })
-                        .onErrorResume(exception -> {
-                            log.debug("In the action execution error mode.", exception);
-                            ActionExecutionResult result = new ActionExecutionResult();
-                            result.setBody(exception.getMessage());
-                            result.setIsExecutionSuccess(false);
-                            return Mono.just(result);
-                        })
-                        .subscribeOn(scheduler);
+                            return Mono.just(rowsList);
+                        });
             }
             else {
-                return resultFlux
+                resultMono = resultFlux
                         .flatMap(result -> result.getRowsUpdated())
                         .collectList()
                         .flatMap(list -> Mono.just(list.get(list.size() - 1)))
@@ -227,21 +224,21 @@ public class MySqlPlugin extends BasePlugin {
                                             ObjectUtils.defaultIfNull(rowsUpdated, 0)
                                     )
                             );
-                            ActionExecutionResult result = new ActionExecutionResult();
-                            result.setBody(objectMapper.valueToTree(rowsList));
-                            result.setIsExecutionSuccess(true);
-                            System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action execution result: " + result.toString());
-                            return Mono.just(result);
-                        })
-                        .onErrorResume(exception -> {
-                            log.debug("In the action execution error mode.", exception);
-                            ActionExecutionResult result = new ActionExecutionResult();
-                            result.setBody(exception.getMessage());
-                            result.setIsExecutionSuccess(false);
-                            return Mono.just(result);
-                        })
-                        .subscribeOn(scheduler);
+                            return Mono.just(rowsList);
+                        });
             }
+
+            return resultMono
+                    .flatMap(res -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setBody(objectMapper.valueToTree(rowsList));
+                        result.setIsExecutionSuccess(true);
+                        System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action " +
+                                "execution result: " + result.toString());
+                        return Mono.just(result);
+                    })
+                    .subscribeOn(scheduler);
+
         }
 
         @Override

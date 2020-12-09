@@ -32,11 +32,6 @@ export const getIsInitialized = createSelector(
   (view: AppViewReduxState) => view.initialized,
 );
 
-export const getIsInitializeError = createSelector(
-  getAppViewState,
-  (view: AppViewReduxState) => view.initializeError,
-);
-
 export const getCurrentDSLPageId = createSelector(
   getPageListState,
   (pageList: PageListReduxState) => pageList.currentPageId,

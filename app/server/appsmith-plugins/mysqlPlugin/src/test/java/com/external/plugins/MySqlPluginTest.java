@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.appsmith.external.models.*;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -16,6 +17,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.MySQLR2DBCDatabaseContainer;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -198,7 +200,6 @@ public class MySqlPluginTest {
         actionConfiguration.setBody("show databases");
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
-
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
@@ -207,6 +208,20 @@ public class MySqlPluginTest {
                     assertNotNull(result.getBody());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testStaleConnectionCheck() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("show databases");
+        Connection connection = pluginExecutor.datasourceCreate(dsConfig).block();
+
+        Flux<ActionExecutionResult> resultFlux = Mono.from(connection.close())
+                .thenMany(pluginExecutor.execute(connection, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultFlux)
+                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+                .verify();
     }
 
     @Test
