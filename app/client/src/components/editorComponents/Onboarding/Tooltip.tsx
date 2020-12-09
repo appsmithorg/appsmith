@@ -139,6 +139,7 @@ const OnboardingToolTip = (props: any) => {
           modifiers={{
             preventOverflow: { enabled: false },
             hide: { enabled: false },
+            flip: { enabled: false },
           }}
         >
           {props.children}

@@ -126,9 +126,10 @@ const CompletionDialog = () => {
               <DescriptionItem>
                 👉 Connecting widgets to queries using {"{{}}"} bindings
               </DescriptionItem>
+              <DescriptionItem>👉 Deploying your application</DescriptionItem>
             </DescriptionList>
 
-            <StyledButton onClick={onClose}>Continue on my Own</StyledButton>
+            <StyledButton onClick={onClose}>Continue on my own</StyledButton>
           </DescriptionWrapper>
           <QuickLinksWrapper>
             <QuickLinksTitle>Quick Links:</QuickLinksTitle>
@@ -140,7 +141,7 @@ const CompletionDialog = () => {
               <IconWrapper color="#716E6E" width={14} height={17}>
                 <BookIcon />
               </IconWrapper>
-              <span className="text">Read our Documentation</span>
+              <span className="text">Read our documentation</span>
             </QuickLinksItem>
             <FormDialogComponent
               trigger={
@@ -168,7 +169,7 @@ const CompletionDialog = () => {
               }}
             >
               <Icon icon="plus" color="#716E6E" iconSize={15} />
-              <span className="text">Connect your Database</span>
+              <span className="text">Connect your database</span>
             </QuickLinksItem>
           </QuickLinksWrapper>
         </ContentWrapper>

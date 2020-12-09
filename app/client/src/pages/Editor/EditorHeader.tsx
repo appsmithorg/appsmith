@@ -39,6 +39,7 @@ import EditableTextWrapper from "components/ads/EditableTextWrapper";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { Position } from "@blueprintjs/core";
+import { inOnboarding } from "sagas/OnboardingSagas";
 
 const HeaderWrapper = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
@@ -137,6 +138,7 @@ type EditorHeaderProps = {
   applicationId?: string;
   currentApplication?: ApplicationPayload;
   isSaving: boolean;
+  isInOnboarding: boolean;
   publishApplication: (appId: string) => void;
 };
 
@@ -151,6 +153,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     applicationId,
     pageName,
     publishApplication,
+    isInOnboarding,
   } = props;
 
   const dispatch = useDispatch();
@@ -226,6 +229,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
                 isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
               }
               isNewApp={
+                !isInOnboarding &&
                 applicationList.filter(el => el.id === applicationId).length > 0
               }
               onBlur={(value: string) =>
@@ -324,6 +328,7 @@ const mapStateToProps = (state: AppState) => ({
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),
+  isInOnboarding: inOnboarding(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
