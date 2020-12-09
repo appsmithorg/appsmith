@@ -1,8 +1,12 @@
+import { AppIconName } from "components/ads/AppIcon";
+import { AppColorCode } from "constants/DefaultTheme";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
 export type CreateApplicationFormValues = {
   applicationName: string;
   orgId: string;
+  colorCode?: AppColorCode;
+  appName?: AppIconName;
 };
 
 export const CREATE_APPLICATION_FORM_NAME_FIELD = "applicationName";
