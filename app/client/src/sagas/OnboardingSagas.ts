@@ -328,7 +328,7 @@ function* listenForDeploySaga() {
   while (true) {
     yield take();
 
-    yield take(ReduxActionTypes.PUBLISH_APPLICATION_INIT);
+    yield take(ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS);
     yield put(showTooltip(-1));
     yield put({
       type: ReduxActionTypes.SHOW_ONBOARDING_COMPLETION_DIALOG,

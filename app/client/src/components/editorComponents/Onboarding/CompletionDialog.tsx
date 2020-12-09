@@ -8,7 +8,7 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
 import styled from "styled-components";
-import { ReactComponent as BookIcon } from "assets/icons/ads/book.svg";
+import { ReactComponent as BookIcon } from "assets/icons/ads/app-icons/book.svg";
 import { FormDialogComponent } from "../form/FormDialogComponent";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getCurrentApplication } from "selectors/applicationSelectors";

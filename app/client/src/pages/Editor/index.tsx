@@ -228,10 +228,7 @@ class Editor extends Component<Props> {
           </Helmet>
           <MainContainer />
           <Dialog
-            isOpen={
-              this.state.isDialogOpen &&
-              !this.props.showOnboardingCompletionDialog
-            }
+            isOpen={this.state.isDialogOpen}
             canOutsideClickClose={true}
             canEscapeKeyClose={true}
             title="Application Published"
@@ -258,7 +255,7 @@ class Editor extends Component<Props> {
           </Dialog>
         </div>
         <ConfirmRunModal />
-        <OnboardingCompletionDialog />
+        {!this.state.isDialogOpen && <OnboardingCompletionDialog />}
       </DndProvider>
     );
   }
