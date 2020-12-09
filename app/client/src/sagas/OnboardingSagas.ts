@@ -1,4 +1,3 @@
-import { isNull } from "lodash";
 import { GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { Datasource } from "api/DatasourcesApi";
 import { Plugin } from "api/PluginApi";
@@ -15,7 +14,10 @@ import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getOnboardingState, setOnboardingState } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
 import { getSelectedWidget } from "./selectors";
-import ActionAPI, { ActionCreateUpdateResponse } from "api/ActionAPI";
+import ActionAPI, {
+  ActionApiResponse,
+  ActionCreateUpdateResponse,
+} from "api/ActionAPI";
 import {
   createOnboardingActionInit,
   createOnboardingActionSuccess,
@@ -24,6 +26,7 @@ import {
 import { changeDatasource } from "actions/datasourceActions";
 import { playOnboardingAnimation } from "utils/helpers";
 import { QueryAction } from "entities/Action";
+import { getActionTimeout } from "./ActionExecutionSagas";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -283,6 +286,26 @@ function* createOnboardingDatasource() {
         type: ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_SUCCESS,
       });
 
+      // Run query
+      const timeout = yield select(getActionTimeout, newAction.id);
+      const executeActionResponse: ActionApiResponse = yield ActionAPI.executeAction(
+        {
+          actionId: newAction.id,
+          viewMode: false,
+        },
+        timeout,
+      );
+      yield validateResponse(response);
+      const payload = {
+        ...executeActionResponse.data,
+        ...executeActionResponse.clientMeta,
+      };
+      yield put({
+        type: ReduxActionTypes.RUN_ACTION_SUCCESS,
+        payload: { [newAction.id]: payload },
+      });
+
+      // Navigate to that datasource page
       yield put(changeDatasource(onboardingDatasource));
 
       yield put(showTooltip(1));
