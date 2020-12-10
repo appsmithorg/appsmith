@@ -13,7 +13,7 @@ export default {
   decorators: [withKnobs, withDesign],
 };
 
-const defaultValue = light.appCardColors;
+const defaultValue = theme.colors.appCardColors;
 
 export const ColorPickerStory = () => (
   <StoryWrapper>

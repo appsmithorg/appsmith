@@ -78,7 +78,7 @@ public class RedisPlugin extends BasePlugin {
                 actionExecutionResult.setBody(objectMapper.valueToTree(processCommandOutput(commandOutput)));
                 actionExecutionResult.setIsExecutionSuccess(true);
 
-                System.out.println(Thread.currentThread().getName() + ": In the RedisPlugin, got action execution result: " + actionExecutionResult.toString());
+                System.out.println(Thread.currentThread().getName() + ": In the RedisPlugin, got action execution result");
                 return Mono.just(actionExecutionResult);
             })
                     .flatMap(obj -> obj)
