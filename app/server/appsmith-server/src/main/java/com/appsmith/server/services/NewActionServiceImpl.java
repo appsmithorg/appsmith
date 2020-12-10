@@ -400,7 +400,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .map(dbAction -> {
                     copyNewFieldValuesIntoOldObject(action, dbAction.getUnpublishedAction());
-                    log.debug("Where are we? {}", dbAction);
                     return dbAction;
                 })
                 .cache();
@@ -472,7 +471,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .cache();
 
         // 3. Instantiate the implementation class based on the query type
-
         Mono<Datasource> datasourceMono = actionMono
                 .flatMap(action -> {
                     // Global datasource requires us to fetch the datasource from DB.
@@ -547,17 +545,19 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             ).flatMap(result -> {
                                 Object connection = result.getT2();
                                 Mono<Datasource> datasourceMono1 = Mono.just(datasource);
-                                // TODO check if update was done
-                                if (connection instanceof UpdatableConnection) {
+
+                                // Only need to update db if this plugin created a connection that needed to update datasource configuration
+                                if (connection instanceof UpdatableConnection && ((UpdatableConnection) connection).isUpdated()) {
                                     AuthenticationDTO auth = datasourceContextService.decryptSensitiveFields(datasource.getDatasourceConfiguration().getAuthentication());
                                     datasource.getDatasourceConfiguration().setAuthentication(auth);
 
                                     ((UpdatableConnection) connection).updateDatasource(datasource.getDatasourceConfiguration());
 
-                                    // For global datasource, update db document. This update takes care of encryption
+                                    // For global datasource, update datasource document. This update takes care of encryption
                                     if (datasource.getId() != null) {
                                         datasourceMono1 = datasourceService.update(datasource.getId(), datasource);
                                     } else {
+                                        // For embedded datasource, update action document.
                                         action.setDatasource(datasource);
                                         datasourceMono1 = updateUnpublishedAction(actionId, action).then(Mono.just(datasource));
                                     }

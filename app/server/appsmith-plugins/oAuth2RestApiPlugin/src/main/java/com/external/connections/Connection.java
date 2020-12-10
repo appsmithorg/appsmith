@@ -45,6 +45,7 @@ public class Connection implements UpdatableConnection {
     private ClientRegistration clientRegistration;
     private String requestContentType;
     private String requestBody;
+    private boolean updated;
 
     private static final int MAX_REDIRECTS = 5;
     private static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies
@@ -53,6 +54,7 @@ public class Connection implements UpdatableConnection {
             .build();
 
     private Connection() {
+        this.updated = false;
     }
 
     OAuth2AccessToken getToken() {
@@ -61,6 +63,7 @@ public class Connection implements UpdatableConnection {
 
     OAuth2AccessToken setToken(OAuth2AccessToken token) {
         this.token = token;
+        this.updated = true;
         return this.token;
     }
 
@@ -214,5 +217,10 @@ public class Connection implements UpdatableConnection {
         OAuth2 auth = (OAuth2) datasourceConfiguration.getAuthentication();
         auth.setToken(this.token.getTokenValue());
         auth.setExpiresAt(this.token.getExpiresAt());
+    }
+
+    @Override
+    public boolean isUpdated() {
+        return updated;
     }
 }
