@@ -109,6 +109,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
           updateOption(index, event.target.value);
         }}
         defaultValue={item.label}
+        value={item.label}
       />
       <StyledEditIcon
         className="t--edit-column-btn"
