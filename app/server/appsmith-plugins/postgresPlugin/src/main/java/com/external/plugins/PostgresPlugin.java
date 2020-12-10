@@ -54,10 +54,6 @@ public class PostgresPlugin extends BasePlugin {
         super(wrapper);
     }
 
-    /**
-     * Postgres plugin receives the query as json of the following format :
-     */
-
     @Extension
     public static class PostgresPluginExecutor implements PluginExecutor<HikariDataSource> {
 
@@ -112,7 +108,15 @@ public class PostgresPlugin extends BasePlugin {
             
             return Mono.fromCallable(() -> {
 
-                Connection connectionFromPool = getConnectionFromConnectionPool(connection);
+                Connection connectionFromPool;
+
+                try {
+                    connectionFromPool = getConnectionFromConnectionPool(connection);
+                } catch (StaleConnectionException e) {
+                    return Mono.error(e);
+                } catch (SQLException e) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                }
 
                 String query = actionConfiguration.getBody();
                 if (query == null) {
@@ -200,6 +204,14 @@ public class PostgresPlugin extends BasePlugin {
                             statement.close();
                         } catch (SQLException e) {
                             System.out.println("Error closing Postgres Statement" + e.getMessage());
+                        }
+                    }
+
+                    if (connectionFromPool != null) {
+                        try {
+                            connectionFromPool.close();
+                        } catch (SQLException e) {
+                            System.out.println("Error closing Postgres connection" + e.getMessage());
                         }
                     }
 
@@ -306,10 +318,16 @@ public class PostgresPlugin extends BasePlugin {
 
             return Mono.fromSupplier(() -> {
 
-                Connection connectionFromPool = getConnectionFromConnectionPool(connection);
+                Connection connectionFromPool;
+                try {
+                    connectionFromPool = getConnectionFromConnectionPool(connection);
+                } catch (StaleConnectionException e) {
+                    return Mono.error(e);
+                } catch (SQLException e) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                }
 
                 // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
-
                 try (Statement statement = connectionFromPool.createStatement()) {
 
                     // Get tables and fill up their columns.
@@ -508,25 +526,18 @@ public class PostgresPlugin extends BasePlugin {
 
     /**
      * First checks if the connection pool is still valid. If yes, we fetch a connection from the pool and return
+     * In case a connection is not available in the pool, SQL Exception is thrown
      * @param connectionPool
      * @return SQL Connection
      */
-    private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool) {
+    private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool) throws SQLException {
+
         if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
             System.out.println(Thread.currentThread().getName() + ": Encountered stale connection pool in Postgres plugin. Reporting back.");
             throw new StaleConnectionException();
         }
 
-        Connection connectionFromPool;
-        try {
-            connectionFromPool = connectionPool.getConnection();
-            return connectionFromPool;
-        } catch (SQLException e) {
-            // This exception is only thrown when the connection pool is closed. Throw a stale connection exception to re-create the connection
-            // pool
-            System.out.println(Thread.currentThread().getName() + ": Encountered stale connection pool in Postgres plugin. Reporting back.");
-            throw new StaleConnectionException();
-        }
+        return connectionPool.getConnection();
     }
 
 }
