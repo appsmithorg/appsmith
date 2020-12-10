@@ -20,7 +20,7 @@ import {
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
-import { isNumber, isString, isUndefined, isEqual } from "lodash";
+import { isNumber, isString, isUndefined, isEqual, compact } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta from "../MetaHOC";
@@ -418,9 +418,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   createTablePrimaryColumns = () => {
-    const { tableData } = this.props;
+    const { tableData, derivedColumns, dynamicBindingPathList } = this.props;
     if (tableData) {
-      const tableColumns: ColumnProperties[] = [];
+      let tableColumns: ColumnProperties[] = [];
       const columnKeys: string[] = getAllTableColumnKeys(tableData);
       for (let index = 0; index < columnKeys.length; index++) {
         const i = columnKeys[index];
@@ -428,7 +428,63 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           getDefaultColumnProperties(i, index, this.props.widgetName),
         );
       }
+      //Get existing derived column paths
+      const derivedColumnsPaths =
+        derivedColumns?.map(
+          (column: ColumnProperties) => `primaryColumns[${column.index}]`,
+        ) || [];
+      //update index property of all columns in new derived columns
+      const updatedDerivedColumns =
+        derivedColumns?.map((column: ColumnProperties, index: number) => {
+          return {
+            ...column,
+            index: index + tableColumns.length,
+          };
+        }) || [];
+      //add derived columns to primary columns
+      tableColumns = tableColumns.concat(updatedDerivedColumns);
+      //update dynamic bindings pathlist
+      const updatedDynamicBindingPathList = compact(
+        dynamicBindingPathList?.map((item: { key: string }) => {
+          //if binding is for column than update it
+          if (item.key.includes("primaryColumns")) {
+            const columnPath = item.key.split(".")[0];
+            //if derived column paths contain the column path than update the index of column
+            if (derivedColumnsPaths.includes(columnPath)) {
+              //Using column id of existing derived column
+              const columnId = derivedColumns.find(
+                (column: ColumnProperties) => {
+                  return `primaryColumns[${column.index}]` === columnPath;
+                },
+              )?.id;
+              if (columnId) {
+                //Get column index of new derived columns
+                const column = updatedDerivedColumns.find(
+                  (column: ColumnProperties) => {
+                    return column.id === columnId;
+                  },
+                );
+                if (column) {
+                  return {
+                    key: `primaryColumns[${column.index}].${
+                      item.key.split(".")[1]
+                    }`,
+                  };
+                }
+              }
+            }
+            return;
+          }
+          return item;
+        }),
+      );
+      super.updateWidgetProperty(
+        "dynamicBindingPathList",
+        updatedDynamicBindingPathList,
+      );
       super.updateWidgetProperty("primaryColumns", tableColumns);
+      super.updateWidgetProperty("columnOrder", undefined);
+      super.updateWidgetProperty("derivedColumns", updatedDerivedColumns);
     }
   };
   getSelectedRows = (
