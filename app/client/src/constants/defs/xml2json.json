@@ -2,10 +2,10 @@
   "!name": "xml-js",
   "xml2json": {
     "!doc": "converts xml string to json object",
-    "!type": "fn(xml: string, options: object) -> object"
+    "!type": "fn(xml: string, options?: object) -> object"
   },
   "json2xml": {
     "!doc": "converts json string to xml object",
-    "!type": "fn(json: string, options: object) -> object"
+    "!type": "fn(json: string, options?: object) -> object"
   }
 }
