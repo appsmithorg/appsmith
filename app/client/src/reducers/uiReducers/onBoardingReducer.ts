@@ -52,7 +52,7 @@ const onboardingReducer = createReducer(initialState, {
   ) => {
     return { ...state, currentStep: action.payload };
   },
-  SET_ONBOARDING_STATE: (
+  [ReduxActionTypes.SET_ONBOARDING_STATE]: (
     state: OnboardingState,
     action: ReduxAction<boolean>,
   ) => {

@@ -23,6 +23,7 @@ import {
   createOnboardingActionSuccess,
   setCurrentStep,
   showTooltip,
+  setOnboardingState as setOnboardingReduxState,
 } from "actions/onboardingActions";
 import { changeDatasource } from "actions/datasourceActions";
 import { playOnboardingAnimation } from "utils/helpers";
@@ -261,10 +262,7 @@ function* listenForDeploySaga() {
 function* initiateOnboarding() {
   const currentOnboardingState = yield getOnboardingState();
   if (currentOnboardingState) {
-    yield put({
-      type: "SET_ONBOARDING_STATE",
-      payload: true,
-    });
+    yield put(setOnboardingReduxState(true));
     yield put({
       type: "NEXT_ONBOARDING_STEP",
     });
@@ -298,10 +296,7 @@ function* skipOnboardingSaga() {
   const set = yield setOnboardingState(false);
 
   if (set) {
-    yield put({
-      type: "SET_ONBOARDING_STATE",
-      payload: false,
-    });
+    yield put(setOnboardingReduxState(false));
   }
 }
 

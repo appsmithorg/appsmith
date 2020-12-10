@@ -87,6 +87,9 @@ const SocialLoginButton = (props: {
         let eventName: EventName = "LOGIN_CLICK";
         if (props.type === "SIGNUP") {
           eventName = "SIGNUP_CLICK";
+
+          // Set onboarding flag on signup
+          setOnboardingState(true);
         }
         PerformanceTracker.startTracking(
           eventName === "SIGNUP_CLICK"
@@ -94,7 +97,6 @@ const SocialLoginButton = (props: {
             : PerformanceTransactionName.LOGIN_CLICK,
           { name: props.name.toUpperCase() },
         );
-        setOnboardingState(true);
         AnalyticsUtil.logEvent(eventName, {
           loginMethod: props.name.toUpperCase(),
         });

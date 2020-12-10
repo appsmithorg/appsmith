@@ -34,3 +34,10 @@ export const setCurrentStep = (payload: number) => {
     payload,
   };
 };
+
+export const setOnboardingState = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_ONBOARDING_STATE,
+    payload,
+  };
+};
