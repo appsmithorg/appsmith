@@ -310,7 +310,7 @@ export default function* onboardingSagas() {
     takeEvery(ReduxActionTypes.CREATE_APPLICATION_SUCCESS, initiateOnboarding),
     takeEvery("CREATE_ONBOARDING_DBQUERY_INIT", createOnboardingDatasource),
     takeEvery("NEXT_ONBOARDING_STEP", proceedOnboardingSaga),
-    takeEvery("END_ONBOARDING", skipOnboardingSaga),
+    takeEvery(ReduxActionTypes.END_ONBOARDING, skipOnboardingSaga),
     takeEvery("LISTEN_FOR_ADD_WIDGET", listenForWidgetAdditions),
     takeEvery("LISTEN_FOR_TABLE_WIDGET_BINDING", listenForSuccessfullBinding),
     takeEvery("LISTEN_FOR_WIDGET_UNSELECTION", listenForWidgetUnselection),

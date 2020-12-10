@@ -125,7 +125,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
         "id" in datasource &&
         datasource.id
       ) {
-        const end = datasource.datasourceConfiguration.url?.length ?? 0;
+        const end = datasource.datasourceConfiguration.url.length;
         editorInstance.markText(
           { ch: 0, line: 0 },
           { ch: end, line: 0 },
