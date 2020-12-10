@@ -1,10 +1,11 @@
+import { OnboardingStep } from "constants/OnboardingConstants";
 import React, { ReactNode } from "react";
 import { useSelector } from "react-redux";
 import { getCurrentStep, inOnboarding } from "sagas/OnboardingSagas";
 
 type BoxedProps = {
   // child nodes are not visible until this step is reached
-  step: number;
+  step: OnboardingStep;
   // Any additional conditions to hide the children
   show?: boolean;
   children: ReactNode;

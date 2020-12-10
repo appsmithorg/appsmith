@@ -13,6 +13,7 @@ import Entity from "../Entity";
 import EntityPlaceholder from "../Entity/Placeholder";
 import { ExplorerURLParams } from "../helpers";
 import OnboardingTooltip from "components/editorComponents/Onboarding/Tooltip";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 type ExplorerPluginGroupProps = {
   step: number;
@@ -86,7 +87,7 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
           {props.datasources.map((datasource: Datasource, index: number) => {
             return (
               <OnboardingTooltip
-                step={[1]}
+                step={[OnboardingStep.EXAMPLE_DATABASE]}
                 key={datasource.id}
                 show={index === 0}
               >

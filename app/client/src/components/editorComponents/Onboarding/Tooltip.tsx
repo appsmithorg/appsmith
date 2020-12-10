@@ -1,5 +1,6 @@
 import React, {
   MutableRefObject,
+  ReactNode,
   RefObject,
   useEffect,
   useRef,
@@ -13,6 +14,10 @@ import styled from "styled-components";
 import useClipboard from "utils/hooks/useClipboard";
 import { endOnboarding, showTooltip } from "actions/onboardingActions";
 import { Colors } from "constants/Colors";
+import {
+  OnboardingStep,
+  OnboardingTooltip,
+} from "constants/OnboardingConstants";
 
 enum TooltipClassNames {
   TITLE = "tooltip-title",
@@ -105,7 +110,16 @@ const ActionWrapper = styled.div`
   margin-top: 10px;
 `;
 
-const OnboardingToolTip = (props: any) => {
+type OnboardingToolTipProps = {
+  step: OnboardingStep[];
+  children: ReactNode;
+  show?: boolean;
+  position?: Position;
+};
+
+const OnboardingToolTip: React.FC<OnboardingToolTipProps> = (
+  props: OnboardingToolTipProps,
+) => {
   const [isOpen, setIsOpen] = useState(false);
   const showingTooltip = useSelector(
     state => state.ui.onBoarding.showingTooltip,
@@ -149,14 +163,18 @@ const OnboardingToolTip = (props: any) => {
     );
   }
 
-  return props.children;
+  return <>{props.children}</>;
 };
 
 OnboardingToolTip.defaultProps = {
   show: true,
 };
 
-const ToolTipContent = (props: any) => {
+type ToolTipContentProps = {
+  details: OnboardingTooltip;
+};
+
+const ToolTipContent = (props: ToolTipContentProps) => {
   const dispatch = useDispatch();
   const {
     title,
@@ -169,7 +187,7 @@ const ToolTipContent = (props: any) => {
   const write = useClipboard(snippetRef);
 
   const copyBindingToClipboard = () => {
-    write(snippet);
+    snippet && write(snippet);
   };
 
   const finishOnboarding = () => {

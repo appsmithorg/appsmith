@@ -12,6 +12,7 @@ import { debounce } from "lodash";
 import produce from "immer";
 import { WIDGET_SIDEBAR_CAPTION } from "constants/messages";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
@@ -144,13 +145,13 @@ const WidgetSidebar = (props: IPanelProps) => {
         </Header>
         {groups.map((group: string) => (
           <React.Fragment key={group}>
-            <Boxed step={2}>
+            <Boxed step={OnboardingStep.ADD_WIDGET}>
               <h5>{group}</h5>
             </Boxed>
             <CardsWrapper>
               {filteredCards[group].map((card: WidgetCardProps) => (
                 <Boxed
-                  step={2}
+                  step={OnboardingStep.ADD_WIDGET}
                   show={card.type === "TABLE_WIDGET"}
                   key={card.key}
                 >

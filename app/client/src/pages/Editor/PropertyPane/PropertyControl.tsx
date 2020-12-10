@@ -17,6 +17,7 @@ import {
 } from "../../../utils/DynamicBindingUtils";
 import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { Position } from "@blueprintjs/core";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 type Props = {
   widgetProperties: WidgetProps;
@@ -116,7 +117,10 @@ const PropertyControl = (props: Props) => {
             )}
           </ControlPropertyLabelContainer>
           <OnboardingToolTip
-            step={[2, 3]}
+            step={[
+              OnboardingStep.ADD_WIDGET,
+              OnboardingStep.SUCCESSFUL_BINDING,
+            ]}
             show={propertyName === "tableData"}
             position={Position.LEFT_TOP}
           >

@@ -26,6 +26,7 @@ import { convertArrayToSentence } from "utils/helpers";
 import BackButton from "./BackButton";
 import { PluginType } from "entities/Action";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -338,7 +339,7 @@ class DatasourceDBEditor extends React.Component<
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
           {viewMode && (
-            <Boxed step={3}>
+            <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
               <ActionButton
                 className="t--edit-datasource"
                 text="EDIT"

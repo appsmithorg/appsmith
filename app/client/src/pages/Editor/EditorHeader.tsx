@@ -40,6 +40,7 @@ import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { Position } from "@blueprintjs/core";
 import { inOnboarding } from "sagas/OnboardingSagas";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 const HeaderWrapper = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
@@ -215,7 +216,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           />
         </Link>
       </HeaderSection>
-      <Boxed step={4}>
+      <Boxed step={OnboardingStep.DEPLOY}>
         <HeaderSection flex-direction={"row"}>
           {currentApplication ? (
             <EditableTextWrapper
@@ -288,7 +289,10 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             }
           />
           <DeploySection>
-            <OnboardingToolTip step={[4]} position={Position.BOTTOM_RIGHT}>
+            <OnboardingToolTip
+              step={[OnboardingStep.DEPLOY]}
+              position={Position.BOTTOM_RIGHT}
+            >
               <DeployButton
                 onClick={handlePublish}
                 text="Deploy"

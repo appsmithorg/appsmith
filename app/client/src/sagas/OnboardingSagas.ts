@@ -28,6 +28,10 @@ import { changeDatasource } from "actions/datasourceActions";
 import { playOnboardingAnimation } from "utils/helpers";
 import { QueryAction } from "entities/Action";
 import { getActionTimeout } from "./ActionExecutionSagas";
+import {
+  OnboardingConfig,
+  OnboardingStep,
+} from "constants/OnboardingConstants";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -35,112 +39,14 @@ export const inOnboarding = (state: AppState) =>
   state.ui.onBoarding.inOnboarding;
 export const isAddWidgetComplete = (state: AppState) =>
   state.ui.onBoarding.addedWidget;
-export const getTooltipConfig = (
-  state: AppState,
-): { isFinalStep?: boolean } => {
+export const getTooltipConfig = (state: AppState) => {
   const currentStep = getCurrentStep(state);
   if (currentStep >= 0) {
     return OnboardingConfig[currentStep].tooltip;
   }
 
-  return {};
+  return OnboardingConfig[OnboardingStep.NONE].tooltip;
 };
-
-const OnboardingConfig = [
-  {
-    step: 0,
-    name: "Welcome",
-    setup: () => {
-      // To setup the state if any
-      // Return action that needs to be dispatched
-      return [
-        {
-          type: "SHOW_WELCOME",
-        },
-      ];
-    },
-    tooltip: {
-      title: "",
-      description: "",
-    },
-  },
-  {
-    step: 1,
-    name: "Example Database",
-    setup: () => {
-      return [
-        {
-          type: "CREATE_ONBOARDING_DBQUERY_INIT",
-        },
-        {
-          type: "LISTEN_FOR_ADD_WIDGET",
-        },
-        {
-          type: "LISTEN_FOR_TABLE_WIDGET_BINDING",
-        },
-      ];
-    },
-    tooltip: {
-      title: "Say hello to your example database",
-      description:
-        "Go ahead, check it out. You can also create a new query or connect to your own db as well.",
-      action: {
-        label: "Got It!",
-      },
-    },
-  },
-  {
-    step: 2,
-    name: "Add widget",
-    setup: () => {
-      return [];
-    },
-    tooltip: {
-      title:
-        "Wohoo! Your first widget. 🎉 Go ahead and connect this to a Query or API",
-      description:
-        "Copy the example binding below and paste inside TableData input",
-      snippet: "{{ExampleQuery.data}}",
-    },
-  },
-  {
-    step: 3,
-    name: "Successful binding",
-    setup: () => {
-      return [
-        {
-          type: "LISTEN_FOR_WIDGET_UNSELECTION",
-        },
-      ];
-    },
-    tooltip: {
-      title: "This table is now connected to Example Query",
-      description:
-        "You can connect properties to variables on Appsmith with {{ }} bindings",
-      action: {
-        label: "Next",
-        action: setCurrentStep(4),
-      },
-    },
-  },
-  {
-    step: 4,
-    name: "Deploy",
-    setup: () => {
-      return [
-        {
-          type: "LISTEN_FOR_DEPLOY",
-        },
-      ];
-    },
-    tooltip: {
-      title: "You’re almost done! Just Hit Deploy",
-      description:
-        "Deploying your apps is a crucial step to building on appsmith.",
-      isFinalStep: true,
-    },
-  },
-];
 
 function* listenForWidgetAdditions() {
   while (true) {
@@ -148,11 +54,11 @@ function* listenForWidgetAdditions() {
     const { payload } = yield take("WIDGET_ADD_CHILD");
 
     if (payload.type === "TABLE_WIDGET") {
-      yield put(setCurrentStep(2));
+      yield put(setCurrentStep(OnboardingStep.ADD_WIDGET));
       yield put({
         type: "ADD_WIDGET_COMPLETE",
       });
-      yield put(showTooltip(2));
+      yield put(showTooltip(OnboardingStep.ADD_WIDGET));
 
       return;
     }
@@ -174,7 +80,7 @@ function* listenForSuccessfullBinding() {
         const hasBinding = !!dynamicBindingPathList.length;
 
         if (hasBinding) {
-          yield put(showTooltip(-1));
+          yield put(showTooltip(OnboardingStep.NONE));
         }
 
         bindSuccessfull = bindSuccessfull && hasBinding;
@@ -185,10 +91,10 @@ function* listenForSuccessfullBinding() {
         }
 
         if (bindSuccessfull) {
-          yield put(setCurrentStep(3));
+          yield put(setCurrentStep(OnboardingStep.SUCCESSFUL_BINDING));
 
           // Show tooltip now
-          yield put(showTooltip(3));
+          yield put(showTooltip(OnboardingStep.SUCCESSFUL_BINDING));
           yield delay(1000);
           playOnboardingAnimation();
 
@@ -202,7 +108,7 @@ function* listenForSuccessfullBinding() {
 function* hideDatabaseTooltip() {
   yield take([ReduxActionTypes.QUERY_PANE_CHANGE]);
 
-  yield put(showTooltip(-1));
+  yield put(showTooltip(OnboardingStep.NONE));
 }
 
 function* createOnboardingDatasource() {
@@ -300,7 +206,7 @@ function* createOnboardingDatasource() {
       // Navigate to that datasource page
       yield put(changeDatasource(onboardingDatasource));
 
-      yield put(showTooltip(1));
+      yield put(showTooltip(OnboardingStep.EXAMPLE_DATABASE));
 
       // Need to hide this tooltip based on some events
       yield hideDatabaseTooltip();
@@ -326,12 +232,13 @@ function* listenForWidgetUnselection() {
     const currentStep = yield select(getCurrentStep);
     const isinOnboarding = yield select(inOnboarding);
 
-    if (!isinOnboarding || currentStep !== 3) return;
+    if (!isinOnboarding || currentStep !== OnboardingStep.SUCCESSFUL_BINDING)
+      return;
 
-    yield put(setCurrentStep(4));
+    yield put(setCurrentStep(OnboardingStep.DEPLOY));
 
     yield delay(1000);
-    yield put(showTooltip(4));
+    yield put(showTooltip(OnboardingStep.DEPLOY));
     return;
   }
 }
@@ -341,7 +248,7 @@ function* listenForDeploySaga() {
     yield take();
 
     yield take(ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS);
-    yield put(showTooltip(-1));
+    yield put(showTooltip(OnboardingStep.NONE));
     yield put({
       type: ReduxActionTypes.SHOW_ONBOARDING_COMPLETION_DIALOG,
       payload: true,
@@ -377,7 +284,7 @@ function* proceedOnboardingSaga() {
 }
 
 function* setupOnboardingStep() {
-  const currentStep = yield select(getCurrentStep);
+  const currentStep: OnboardingStep = yield select(getCurrentStep);
   const currentConfig = OnboardingConfig[currentStep];
   let actions = currentConfig.setup();
 

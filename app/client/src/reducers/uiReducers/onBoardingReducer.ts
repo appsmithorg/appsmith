@@ -1,19 +1,20 @@
+import { OnboardingStep } from "constants/OnboardingConstants";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { createReducer } from "utils/AppsmithUtils";
 
 const initialState: OnboardingState = {
-  currentStep: -1,
+  currentStep: OnboardingStep.NONE,
   showWelcomeScreen: false,
   creatingDatabase: false,
   showCompletionDialog: false,
   inOnboarding: false,
   createdDBQuery: false,
   addedWidget: false,
-  showingTooltip: -1,
+  showingTooltip: OnboardingStep.NONE,
 };
 
 export interface OnboardingState {
-  currentStep: number;
+  currentStep: OnboardingStep;
   showWelcomeScreen: boolean;
   creatingDatabase: boolean;
   showCompletionDialog: boolean;
@@ -21,7 +22,7 @@ export interface OnboardingState {
   createdDBQuery: boolean;
   addedWidget: boolean;
   // Tooltip is shown when the step matches this value
-  showingTooltip: number;
+  showingTooltip: OnboardingStep;
 }
 
 const onboardingReducer = createReducer(initialState, {
