@@ -2,6 +2,7 @@
 name: Appsmith Server Workflow
 
 on:
+  workflow_dispatch:
   push:
     branches: [ release, master ]
     # Only trigger if files have changed in this specific path
