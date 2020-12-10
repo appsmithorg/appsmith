@@ -195,7 +195,8 @@ public class PostgresPlugin extends BasePlugin {
                         try {
                             resultSet.close();
                         } catch (SQLException e) {
-                            System.out.println("Error closing Postgres ResultSet" + e.getMessage());
+                            System.out.println(Thread.currentThread().getName() +
+                                    ": Execute Error closing Postgres ResultSet" + e.getMessage());
                         }
                     }
 
@@ -203,15 +204,18 @@ public class PostgresPlugin extends BasePlugin {
                         try {
                             statement.close();
                         } catch (SQLException e) {
-                            System.out.println("Error closing Postgres Statement" + e.getMessage());
+                            System.out.println(Thread.currentThread().getName() +
+                                    ": Execute Error closing Postgres Statement" + e.getMessage());
                         }
                     }
 
                     if (connectionFromPool != null) {
                         try {
+                            // Return the connetion back to the pool
                             connectionFromPool.close();
                         } catch (SQLException e) {
-                            System.out.println("Error closing Postgres connection" + e.getMessage());
+                            System.out.println(Thread.currentThread().getName() +
+                                    ": Execute Error returning Postgres connection to pool" + e.getMessage());
                         }
                     }
 
@@ -453,6 +457,17 @@ public class PostgresPlugin extends BasePlugin {
 
                 } catch (SQLException throwable) {
                     return Mono.error(throwable);
+                } finally {
+
+                    if (connectionFromPool != null) {
+                        try {
+                            // Return the connection back to the pool
+                            connectionFromPool.close();
+                        } catch (SQLException e) {
+                            System.out.println(Thread.currentThread().getName() +
+                                    ": Error returning Postgres connection to pool during get structure" + e.getMessage());
+                        }
+                    }
                 }
 
                 structure.setTables(new ArrayList<>(tablesByName.values()));
@@ -533,7 +548,8 @@ public class PostgresPlugin extends BasePlugin {
     private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool) throws SQLException {
 
         if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
-            System.out.println(Thread.currentThread().getName() + ": Encountered stale connection pool in Postgres plugin. Reporting back.");
+            System.out.println(Thread.currentThread().getName() +
+                    ": Encountered stale connection pool in Postgres plugin. Reporting back.");
             throw new StaleConnectionException();
         }
 
