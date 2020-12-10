@@ -9,6 +9,7 @@ import {
   EventType,
   ExecuteActionPayload,
   ExecuteActionPayloadEvent,
+  EXECUTION_PARAM_KEY,
   PageAction,
 } from "constants/ActionConstants";
 import * as log from "loglevel";
@@ -247,7 +248,6 @@ export function* evaluateDynamicBoundValueSaga(
 }
 
 const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
-export const EXECUTION_PARAM_KEY = "executionParams";
 
 export function* getActionParams(
   bindings: string[] | undefined,

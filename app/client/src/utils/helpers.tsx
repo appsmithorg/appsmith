@@ -3,7 +3,7 @@ import {
   DATA_TREE_KEYWORDS,
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
-// import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
+import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
 export const snapToGrid = (
   columnWidth: number,
   rowHeight: number,
@@ -187,7 +187,7 @@ export const isNameValid = (
   return !(
     name in JAVASCRIPT_KEYWORDS ||
     name in DATA_TREE_KEYWORDS ||
-    // name in GLOBAL_FUNCTIONS ||
+    name in GLOBAL_FUNCTIONS ||
     name in invalidNames
   );
 };

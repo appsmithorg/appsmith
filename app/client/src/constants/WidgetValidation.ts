@@ -1,6 +1,6 @@
 import { WidgetProps } from "widgets/BaseWidget";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { EXECUTION_PARAM_KEY } from "../sagas/ActionExecutionSagas";
+import { EXECUTION_PARAM_KEY } from "./ActionConstants";
 
 // Always add a validator function in ./Validators for these types
 export const VALIDATION_TYPES = {
