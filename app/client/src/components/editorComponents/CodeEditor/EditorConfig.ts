@@ -8,6 +8,7 @@ export enum EditorModes {
   JSON = "application/json",
   JSON_WITH_BINDING = "json-js",
   SQL_WITH_BINDING = "sql-js",
+  JAVASCRIPT = "javascript",
 }
 
 export enum EditorTheme {

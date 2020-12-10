@@ -108,7 +108,7 @@ export function* errorSaga(
   if (show) {
     effects.push(ErrorEffectTypes.SHOW_ALERT);
   }
-  if (error.crash) {
+  if (error && error.crash) {
     effects.push(ErrorEffectTypes.SAFE_CRASH);
   }
   for (const effect of effects) {
@@ -138,7 +138,7 @@ export function* errorSaga(
 
 function logErrorSaga(action: ReduxAction<{ error: ErrorPayloadType }>) {
   log.debug(`Error in action ${action.type}`);
-  log.error(action.payload.error);
+  if (action.payload) log.error(action.payload.error);
 }
 
 function showAlertAboutError(message: string) {
