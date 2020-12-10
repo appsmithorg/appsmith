@@ -1,7 +1,5 @@
 /// <reference types="Cypress" />
 
-const homePage = require("../../../locators/HomePage.json");
-
 describe("Create new org and an app within the same", function() {
   let orgid;
   let appid;
