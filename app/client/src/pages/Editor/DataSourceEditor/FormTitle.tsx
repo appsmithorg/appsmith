@@ -120,7 +120,7 @@ const FormTitle = (props: FormTitleProps) => {
         onTextChanged={handleDatasourceNameChange}
         placeholder="Datasource Name"
         editInteractionKind={EditInteractionKind.SINGLE}
-        isEditingDefault={props.focusOnMount}
+        isEditingDefault={props.focusOnMount && !hideEditIcon}
         updating={saveStatus.isSaving}
       />
       {saveStatus.isSaving && <Spinner size={16} />}

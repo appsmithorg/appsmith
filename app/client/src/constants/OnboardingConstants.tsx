@@ -80,7 +80,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
     tooltip: {
       title:
-        "Wohoo! Your first widget. 🎉 Go ahead and connect this to a Query or API",
+        "Wohoo! Your first widget. 🎉 Go ahead and connect this to a Query",
       description:
         "Copy the example binding below and paste inside TableData input",
       snippet: "{{ExampleQuery.data}}",

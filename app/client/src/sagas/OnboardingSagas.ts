@@ -264,7 +264,7 @@ function* initiateOnboarding() {
   if (currentOnboardingState) {
     yield put(setOnboardingReduxState(true));
     yield put({
-      type: "NEXT_ONBOARDING_STEP",
+      type: ReduxActionTypes.NEXT_ONBOARDING_STEP,
     });
   }
 }
@@ -304,7 +304,7 @@ export default function* onboardingSagas() {
   yield all([
     takeEvery(ReduxActionTypes.CREATE_APPLICATION_SUCCESS, initiateOnboarding),
     takeEvery("CREATE_ONBOARDING_DBQUERY_INIT", createOnboardingDatasource),
-    takeEvery("NEXT_ONBOARDING_STEP", proceedOnboardingSaga),
+    takeEvery(ReduxActionTypes.NEXT_ONBOARDING_STEP, proceedOnboardingSaga),
     takeEvery(ReduxActionTypes.END_ONBOARDING, skipOnboardingSaga),
     takeEvery("LISTEN_FOR_ADD_WIDGET", listenForWidgetAdditions),
     takeEvery("LISTEN_FOR_TABLE_WIDGET_BINDING", listenForSuccessfullBinding),
