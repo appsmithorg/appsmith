@@ -75,7 +75,7 @@ jobs:
 
     # Build release Docker image and push to Docker Hub
     - name: Push release image to Docker Hub
-      if: ${{ success() && github.ref == 'refs/heads/release' && secrets.DOCKER_HUB_ACCESS_TOKEN != "" }}
+      if: ${{ success() && github.ref == 'refs/heads/release' }}
       run: |
         docker build  --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith/appsmith-server:${{steps.vars.outputs.tag}} .
         # echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -85,7 +85,7 @@ jobs:
 
     # Build master Docker image and push to Docker Hub
     - name: Push master image to Docker Hub with commit tag
-      if: ${{ success() && github.ref == 'refs/heads/master' && secrets.DOCKER_HUB_ACCESS_TOKEN != "" }}
+      if: ${{ success() && github.ref == 'refs/heads/master' }}
       run: |
         docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith/appsmith-server:${GITHUB_SHA} .
         docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith/appsmith-server:nightly .
