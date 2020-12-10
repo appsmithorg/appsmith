@@ -1,11 +1,11 @@
 {
   "!name": "xml-js",
   "xml2json": {
-    "!doc": "converts xml string to json string",
-    "!type": "fn(xml: string, options: object) -> string"
+    "!doc": "converts xml string to json object",
+    "!type": "fn(xml: string, options: object) -> object"
   },
   "json2xml": {
-    "!doc": "converts json string to xml string",
-    "!type": "fn(json: string, options: object) -> string"
+    "!doc": "converts json string to xml object",
+    "!type": "fn(json: string, options: object) -> object"
   }
 }
