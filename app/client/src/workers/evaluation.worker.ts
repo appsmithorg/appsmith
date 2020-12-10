@@ -16,6 +16,7 @@ import {
   getEntityDynamicBindingPathList,
   getWidgetDynamicTriggerPathList,
   isPathADynamicTrigger,
+  unsafeFunctionForEval,
 } from "../utils/DynamicBindingUtils";
 import _ from "lodash";
 import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
@@ -664,6 +665,13 @@ export class DataTreeEvaluator {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore: No types available
           self[library.accessor] = library.lib;
+        });
+
+        ///// Remove all unsafe functions
+        unsafeFunctionForEval.forEach(func => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore: No types available
+          self[func] = undefined;
         });
 
         const evalResult = eval(script);
