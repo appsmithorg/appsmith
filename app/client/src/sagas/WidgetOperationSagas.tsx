@@ -824,7 +824,13 @@ function* createWidgetCopy() {
 
 function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   const selectedWidget = yield select(getSelectedWidget);
-  if (!selectedWidget) return;
+  if (!selectedWidget) {
+    Toaster.show({
+      text: `Please select a widget to copy`,
+      variant: Variant.info,
+    });
+    return;
+  }
 
   const saveResult = yield createWidgetCopy();
 
@@ -1080,7 +1086,13 @@ function* pasteWidgetSaga() {
 
 function* cutWidgetSaga() {
   const selectedWidget = yield select(getSelectedWidget);
-  if (!selectedWidget) return;
+  if (!selectedWidget) {
+    Toaster.show({
+      text: `Please select a widget to cut`,
+      variant: Variant.info,
+    });
+    return;
+  }
 
   const saveResult = yield createWidgetCopy();
 
