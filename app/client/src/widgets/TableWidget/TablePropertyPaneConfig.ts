@@ -1,4 +1,4 @@
-import { compact, get } from "lodash";
+import { compact, get, xorWith } from "lodash";
 import { Colors } from "constants/Colors";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
@@ -17,24 +17,58 @@ const updateColumnStyles = (
   if (props.primaryColumns) {
     // The style being updated currently
     const currentStyleName = propertyPath.split(".").pop(); // horizontalAlignment/textStyle
-    return compact(
-      props.primaryColumns.map((column: ColumnProperties, index: number) => {
-        // The property path for the property we intend to update
-        const propertyPath = `primaryColumns[${index}].${currentStyleName}`;
-        if (
-          !props.dynamicBindingPathList ||
-          props.dynamicBindingPathList.findIndex(
-            item => item.key === propertyPath,
-          ) === -1 // if the property path is not a dynamic binding
-        ) {
-          return {
-            propertyPath,
-            propertyValue,
-          }; // Have the platform update the value of this property
-        }
-        return; // Return undefined
-      }),
-    );
+    const derivedColumns = props.derivedColumns || [];
+    let updatedDerivedColumns = [...props.derivedColumns];
+    if (currentStyleName) {
+      let updates = compact(
+        props.primaryColumns.map((column: ColumnProperties, index: number) => {
+          // The property path for the property we intend to update
+          const propertyPath = `primaryColumns[${index}].${currentStyleName}`;
+          if (
+            !props.dynamicBindingPathList ||
+            props.dynamicBindingPathList.findIndex(
+              item => item.key === propertyPath,
+            ) === -1 // if the property path is not a dynamic binding
+          ) {
+            //if column is derived, update derivedColumns
+            if (column.isDerived) {
+              updatedDerivedColumns = updatedDerivedColumns.map(
+                (derivedColumn: ColumnProperties) => {
+                  if (column.id === derivedColumn.id) {
+                    derivedColumn = {
+                      ...column,
+                      [currentStyleName]: propertyValue,
+                    };
+                  }
+                  return derivedColumn;
+                },
+              );
+            }
+            return {
+              propertyPath,
+              propertyValue,
+            }; // Have the platform update the value of this property
+          }
+          return; // Return undefined
+        }),
+      );
+      //if updatedDerivedColumns has changes update the property
+      const difference = xorWith(
+        derivedColumns,
+        updatedDerivedColumns,
+        (a, b) => JSON.stringify(a) !== JSON.stringify(b),
+      );
+      if (difference) {
+        updates = [
+          ...updates,
+          {
+            propertyPath: "derivedColumns",
+            propertyValue: updatedDerivedColumns,
+          },
+        ];
+      }
+      return updates;
+    }
     // .filter(Boolean); // Remove all undefined entries
   }
   return [];
@@ -154,37 +188,70 @@ const updateColumnsHook = (
   }
 };
 
-// const updateDerivedColumnsHook = (
-//   props: TableWidgetProps,
-//   propertyPath: string,
-//   propertyValue: any,
-// ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-//   if (props && propertyValue && props[propertyPath]) {
-//     // Get old list of derviedcolumns
-//     const oldDerivedColumns = props[propertyPath].derivedColumns || [];
-//     // Get new list from the primarycolumns
-//     const newDerivedColumns = propertyValue.filter(
-//       (column: ColumnProperties) => column.isDerived,
-//     );
-//     // check if there is a difference in the two
-//     const difference: ColumnProperties[] = xorWith(
-//       oldDerivedColumns,
-//       newDerivedColumns,
-//       (a: ColumnProperties, b: ColumnProperties) => a.id === b.id,
-//     );
+const updateDerivedColumnHook = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: any,
+): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+  const derivedColumns = props.derivedColumns || [];
+  const propertyPathSplitted = propertyPath.split(".");
+  // The column property being updated currently
+  const columnProperty = propertyPathSplitted.pop();
+  if (columnProperty && propertyPathSplitted[0]) {
+    //Get column id from primaryColumns based on propertyPath of column
+    const columnId = get(props, propertyPathSplitted[0])?.id;
+    const updatedDerivedColumns = derivedColumns.map(
+      (column: ColumnProperties) => {
+        if (column.id === columnId) {
+          column = {
+            ...column,
+            [columnProperty]: propertyValue,
+          };
+        }
+        return column;
+      },
+    );
+    return [
+      {
+        propertyPath: "derivedColumns",
+        propertyValue: updatedDerivedColumns,
+      },
+    ];
+  }
+  return [];
+};
 
-//     // If there is a difference, update the derivedColumns with the ones we have in the primaryColumns
-//     if (difference.length > 0) {
-//       return [
-//         {
-//           propertyPath: "derivedColumns",
-//           propertyValue: newDerivedColumns,
-//         },
-//       ];
-//     }
-//   }
-//   return;
-// };
+const updateDerivedColumnsHook = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: any,
+): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+  if (props && propertyValue && props[propertyPath]) {
+    // Get old list of derviedcolumns
+    const oldDerivedColumns = props[propertyPath].derivedColumns || [];
+    // Get new list from the primarycolumns
+    const newDerivedColumns = propertyValue.filter(
+      (column: ColumnProperties) => column.isDerived,
+    );
+    // check if there is a difference in the two
+    const difference: ColumnProperties[] = xorWith(
+      oldDerivedColumns,
+      newDerivedColumns,
+      (a: ColumnProperties, b: ColumnProperties) => a.id === b.id,
+    );
+
+    // If there is a difference, update the derivedColumns with the ones we have in the primaryColumns
+    if (difference.length > 0) {
+      return [
+        {
+          propertyPath: "derivedColumns",
+          propertyValue: newDerivedColumns,
+        },
+      ];
+    }
+  }
+  return;
+};
 
 export default [
   {
@@ -205,7 +272,7 @@ export default [
         propertyName: "primaryColumns",
         controlType: "PRIMARY_COLUMNS",
         label: "Columns",
-        // updateHook: updateDerivedColumnsHook,
+        updateHook: updateDerivedColumnsHook,
         panelConfig: {
           editableTitle: true,
           titlePropertyName: "label",
@@ -253,6 +320,7 @@ export default [
                       value: "button",
                     },
                   ],
+                  updateHook: updateDerivedColumnHook,
                 },
                 {
                   propertyName: "outputFormat",
@@ -289,6 +357,7 @@ export default [
                     },
                   ],
                   customJSControl: "COMPUTE_VALUE",
+                  updateHook: updateDerivedColumnHook,
                   hidden: (props: ColumnProperties) => {
                     return props.columnType !== "currency";
                   },
@@ -321,6 +390,7 @@ export default [
                   ],
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
+                  updateHook: updateDerivedColumnHook,
                   hidden: (props: ColumnProperties) => {
                     return props.columnType !== "date";
                   },
@@ -365,6 +435,7 @@ export default [
                       value: "Do MMM YYYY",
                     },
                   ],
+                  updateHook: updateDerivedColumnHook,
                   hidden: (props: ColumnProperties) => {
                     return props.columnType !== "date";
                   },
@@ -373,6 +444,7 @@ export default [
                   propertyName: "computedValue",
                   label: "Computed Value",
                   controlType: "COMPUTE_VALUE",
+                  updateHook: updateDerivedColumnHook,
                   hidden: (props: ColumnProperties) => {
                     return props.columnType === "button";
                   },
@@ -409,6 +481,7 @@ export default [
                   defaultValue: "LEFT",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
+                  updateHook: updateDerivedColumnHook,
                 },
                 {
                   propertyName: "textSize",
@@ -448,6 +521,7 @@ export default [
                       icon: "BULLETS",
                     },
                   ],
+                  updateHook: updateDerivedColumnHook,
                 },
                 {
                   propertyName: "fontStyle",
@@ -465,6 +539,7 @@ export default [
                   ],
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
+                  updateHook: updateDerivedColumnHook,
                 },
                 {
                   propertyName: "verticalAlignment",
@@ -487,6 +562,7 @@ export default [
                   defaultValue: "LEFT",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
+                  updateHook: updateDerivedColumnHook,
                 },
                 {
                   propertyName: "textColor",
@@ -495,6 +571,7 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   defaultColor: Colors.THUNDER,
+                  updateHook: updateDerivedColumnHook,
                 },
                 {
                   propertyName: "cellBackground",
@@ -503,6 +580,7 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   defaultColor: Colors.WHITE,
+                  updateHook: updateDerivedColumnHook,
                 },
               ],
             },
@@ -517,6 +595,7 @@ export default [
                   label: "Label",
                   controlType: "COMPUTE_VALUE",
                   defaultValue: "Action",
+                  updateHook: updateDerivedColumnHook,
                 },
                 {
                   propertyName: "buttonStyle",
@@ -526,6 +605,7 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   defaultColor: Colors.GREEN,
+                  updateHook: updateDerivedColumnHook,
                 },
                 {
                   propertyName: "buttonLabelColor",
@@ -534,6 +614,7 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   defaultColor: Colors.WHITE,
+                  updateHook: updateDerivedColumnHook,
                 },
                 {
                   helpText: "Triggers an action when the button is clicked",
@@ -541,6 +622,7 @@ export default [
                   label: "onClick",
                   controlType: "ACTION_SELECTOR",
                   isJSConvertible: true,
+                  updateHook: updateDerivedColumnHook,
                 },
               ],
             },
