@@ -52,7 +52,7 @@ public class ElasticSearchPlugin extends BasePlugin {
     @Extension
     public static class ElasticSearchPluginExecutor implements PluginExecutor<RestClient> {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(RestClient client,
@@ -103,7 +103,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                 }
 
                 result.setIsExecutionSuccess(true);
-                System.out.println(Thread.currentThread().getName() + ": In the Elastic Search Plugin, got action execution result: " + result.toString());
+                System.out.println(Thread.currentThread().getName() + ": In the Elastic Search Plugin, got action execution result");
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)

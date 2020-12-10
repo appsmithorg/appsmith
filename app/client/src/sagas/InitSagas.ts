@@ -32,7 +32,6 @@ import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { getAppStore } from "constants/AppConstants";
 import { getDefaultPageId } from "./selectors";
 import { populatePageDSLsSaga } from "./PageSagas";
-import { initEditorError, initViewerError } from "../actions/initActions";
 
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
@@ -65,7 +64,9 @@ function* initializeEditorSaga(
     });
 
     if (resultOfPrimaryCalls.failure) {
-      yield put(initEditorError());
+      yield put({
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+      });
       return;
     }
 
@@ -83,7 +84,9 @@ function* initializeEditorSaga(
     });
 
     if (resultOfSecondaryCalls.failure) {
-      yield put(initEditorError());
+      yield put({
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+      });
       return;
     }
 
@@ -103,7 +106,9 @@ function* initializeEditorSaga(
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });
   } catch (e) {
-    yield put(initEditorError());
+    yield put({
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+    });
     return;
   }
 
@@ -137,7 +142,9 @@ export function* initializeAppViewerSaga(
   });
 
   if (resultOfPrimaryCalls.failure) {
-    yield put(initViewerError());
+    yield put({
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+    });
     return;
   }
 
@@ -153,7 +160,9 @@ export function* initializeAppViewerSaga(
       failure: take(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR),
     });
     if (resultOfFetchPage.failure) {
-      yield put(initViewerError());
+      yield put({
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+      });
       return;
     }
 
