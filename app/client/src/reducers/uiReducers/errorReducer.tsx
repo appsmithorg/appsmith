@@ -5,27 +5,39 @@ import {
   ReduxActionErrorPayload,
 } from "constants/ReduxActionConstants";
 
-const initialState: ErrorReduxState = { sourceAction: "", message: "" };
+const initialState: ErrorReduxState = {
+  safeCrash: false,
+  currentError: { sourceAction: "", message: "" },
+};
 
 const errorReducer = createReducer(initialState, {
+  [ReduxActionTypes.SAFE_CRASH_APPSMITH]: (state: ErrorReduxState) => ({
+    ...state,
+    safeCrash: true,
+  }),
   [ReduxActionTypes.REPORT_ERROR]: (
     state: ErrorReduxState,
     action: ReduxAction<ReduxActionErrorPayload>,
   ) => {
     return {
-      sourceAction: action.payload.source,
-      message: action.payload.message,
+      ...state,
+      currentError: {
+        sourceAction: action.payload.source,
+        message: action.payload.message,
+      },
     };
   },
   [ReduxActionTypes.FLUSH_ERRORS]: () => {
-    return {};
+    return initialState;
   },
 });
 
 export interface ErrorReduxState {
-  // Expiration?
-  sourceAction?: string;
-  message?: string;
+  safeCrash: boolean;
+  currentError: {
+    sourceAction?: string;
+    message?: string;
+  };
 }
 
 export default errorReducer;

@@ -71,43 +71,47 @@ class AppRouter extends React.Component<any, any> {
   }
 
   render() {
-    const { currentTheme } = this.props;
+    const { currentTheme, safeCrash } = this.props;
     // This is needed for the theme switch.
     changeAppBackground(currentTheme);
     return (
       <Router history={history}>
         <Suspense fallback={loadingIndicator}>
           <AppHeader />
-          <Switch>
-            <SentryRoute exact path={BASE_URL} component={LandingScreen} />
-            <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
-            <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
-            <SentryRoute path={ORG_URL} component={OrganizationLoader} />
-            <SentryRoute exact path={USERS_URL} component={Users} />
-            <SentryRoute path={USER_AUTH_URL} component={UserAuth} />
-            <SentryRoute
-              exact
-              path={APPLICATIONS_URL}
-              component={ApplicationListLoader}
-            />
-            <SentryRoute path={BUILDER_URL} component={EditorLoader} />
-            <SentryRoute
-              path={getApplicationViewerPageURL()}
-              component={AppViewerLoader}
-            />
-            <SentryRoute path={APP_VIEW_URL} component={AppViewerLoader} />
-            <SentryRoute
-              exact
-              path={PAGE_NOT_FOUND_URL}
-              component={PageNotFound}
-            />
-            <SentryRoute
-              exact
-              path={SERVER_ERROR_URL}
-              component={ServerUnavailable}
-            />
-            <SentryRoute component={PageNotFound} />
-          </Switch>
+          {safeCrash ? (
+            <ServerUnavailable />
+          ) : (
+            <Switch>
+              <SentryRoute exact path={BASE_URL} component={LandingScreen} />
+              <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
+              <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
+              <SentryRoute path={ORG_URL} component={OrganizationLoader} />
+              <SentryRoute exact path={USERS_URL} component={Users} />
+              <SentryRoute path={USER_AUTH_URL} component={UserAuth} />
+              <SentryRoute
+                exact
+                path={APPLICATIONS_URL}
+                component={ApplicationListLoader}
+              />
+              <SentryRoute path={BUILDER_URL} component={EditorLoader} />
+              <SentryRoute
+                path={getApplicationViewerPageURL()}
+                component={AppViewerLoader}
+              />
+              <SentryRoute path={APP_VIEW_URL} component={AppViewerLoader} />
+              <SentryRoute
+                exact
+                path={PAGE_NOT_FOUND_URL}
+                component={PageNotFound}
+              />
+              <SentryRoute
+                exact
+                path={SERVER_ERROR_URL}
+                component={ServerUnavailable}
+              />
+              <SentryRoute component={PageNotFound} />
+            </Switch>
+          )}
         </Suspense>
       </Router>
     );
@@ -115,6 +119,7 @@ class AppRouter extends React.Component<any, any> {
 }
 const mapStateToProps = (state: AppState) => ({
   currentTheme: getThemeDetails(state).theme,
+  safeCrash: state.ui.errors.safeCrash,
 });
 const mapDispatchToProps = (dispatch: any) => ({
   setTheme: (mode: ThemeMode) => {
