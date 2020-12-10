@@ -113,7 +113,12 @@ const CompletionDialog = () => {
       onClose={onClose}
     >
       <ApplicationPublishedWrapper>
-        <Title>🙌 You’re Awesome!</Title>
+        <Title>
+          <span role="img" aria-label="raising hands">
+            🙌
+          </span>{" "}
+          You’re Awesome!
+        </Title>
         <ContentWrapper>
           <DescriptionWrapper>
             <DescriptionTitle>
@@ -121,12 +126,30 @@ const CompletionDialog = () => {
               learnt -
             </DescriptionTitle>
             <DescriptionList>
-              <DescriptionItem>👉 Querying a database</DescriptionItem>
-              <DescriptionItem>👉 Building UI using widgets.</DescriptionItem>
               <DescriptionItem>
-                👉 Connecting widgets to queries using {"{{}}"} bindings
+                <span role="img" aria-label="pointing right">
+                  👉
+                </span>{" "}
+                Querying a database
               </DescriptionItem>
-              <DescriptionItem>👉 Deploying your application</DescriptionItem>
+              <DescriptionItem>
+                <span role="img" aria-label="pointing right">
+                  👉
+                </span>{" "}
+                Building UI using widgets.
+              </DescriptionItem>
+              <DescriptionItem>
+                <span role="img" aria-label="pointing right">
+                  👉
+                </span>{" "}
+                Connecting widgets to queries using {"{{}}"} bindings
+              </DescriptionItem>
+              <DescriptionItem>
+                <span role="img" aria-label="pointing right">
+                  👉
+                </span>{" "}
+                Deploying your application
+              </DescriptionItem>
             </DescriptionList>
 
             <StyledButton onClick={onClose}>Continue on my own</StyledButton>

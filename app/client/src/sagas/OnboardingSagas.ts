@@ -21,6 +21,7 @@ import ActionAPI, {
 import {
   createOnboardingActionInit,
   createOnboardingActionSuccess,
+  setCurrentStep,
   showTooltip,
 } from "actions/onboardingActions";
 import { changeDatasource } from "actions/datasourceActions";
@@ -118,10 +119,7 @@ const OnboardingConfig = [
         "You can connect properties to variables on Appsmith with {{ }} bindings",
       action: {
         label: "Next",
-        action: {
-          type: "SET_CURRENT_STEP",
-          payload: 4,
-        },
+        action: setCurrentStep(4),
       },
     },
   },
@@ -150,10 +148,7 @@ function* listenForWidgetAdditions() {
     const { payload } = yield take("WIDGET_ADD_CHILD");
 
     if (payload.type === "TABLE_WIDGET") {
-      yield put({
-        type: "SET_CURRENT_STEP",
-        payload: 2,
-      });
+      yield put(setCurrentStep(2));
       yield put({
         type: "ADD_WIDGET_COMPLETE",
       });
@@ -190,10 +185,7 @@ function* listenForSuccessfullBinding() {
         }
 
         if (bindSuccessfull) {
-          yield put({
-            type: "SET_CURRENT_STEP",
-            payload: 3,
-          });
+          yield put(setCurrentStep(3));
 
           // Show tooltip now
           yield put(showTooltip(3));
@@ -336,10 +328,7 @@ function* listenForWidgetUnselection() {
 
     if (!isinOnboarding || currentStep !== 3) return;
 
-    yield put({
-      type: "SET_CURRENT_STEP",
-      payload: 4,
-    });
+    yield put(setCurrentStep(4));
 
     yield delay(1000);
     yield put(showTooltip(4));
@@ -418,7 +407,7 @@ export default function* onboardingSagas() {
     takeEvery("LISTEN_FOR_ADD_WIDGET", listenForWidgetAdditions),
     takeEvery("LISTEN_FOR_TABLE_WIDGET_BINDING", listenForSuccessfullBinding),
     takeEvery("LISTEN_FOR_WIDGET_UNSELECTION", listenForWidgetUnselection),
-    takeEvery("SET_CURRENT_STEP", setupOnboardingStep),
+    takeEvery(ReduxActionTypes.SET_CURRENT_STEP, setupOnboardingStep),
     takeEvery("LISTEN_FOR_DEPLOY", listenForDeploySaga),
   ]);
 }

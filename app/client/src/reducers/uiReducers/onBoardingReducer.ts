@@ -45,7 +45,10 @@ const onboardingReducer = createReducer(initialState, {
   INCREMENT_STEP: (state: OnboardingState) => {
     return { ...state, currentStep: state.currentStep + 1 };
   },
-  SET_CURRENT_STEP: (state: OnboardingState, action: ReduxAction<number>) => {
+  [ReduxActionTypes.SET_CURRENT_STEP]: (
+    state: OnboardingState,
+    action: ReduxAction<number>,
+  ) => {
     return { ...state, currentStep: action.payload };
   },
   SET_ONBOARDING_STATE: (

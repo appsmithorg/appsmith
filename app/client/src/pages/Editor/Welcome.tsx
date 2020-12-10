@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Spinner from "components/ads/Spinner";
 import { Classes } from "components/ads/common";
 import { AppState } from "reducers";
-import { endOnboarding } from "actions/onboardingActions";
+import { endOnboarding, setCurrentStep } from "actions/onboardingActions";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -99,7 +99,12 @@ const Welcome = () => {
     <Wrapper>
       <Container>
         <div>
-          <WelcomeText>👋 Welcome</WelcomeText>
+          <WelcomeText>
+            <span role="img" aria-label="hello">
+              👋
+            </span>{" "}
+            Welcome
+          </WelcomeText>
           <Description>
             Appsmith helps you build quality internal tools, fast!
           </Description>
@@ -113,10 +118,7 @@ const Welcome = () => {
         >
           <StyledButton
             onClick={() => {
-              dispatch({
-                type: "SET_CURRENT_STEP",
-                payload: 1,
-              });
+              dispatch(setCurrentStep(1));
             }}
           >
             Explore Appsmith

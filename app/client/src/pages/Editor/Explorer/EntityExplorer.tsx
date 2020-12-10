@@ -40,7 +40,7 @@ const StyledDivider = styled(Divider)`
 `;
 
 const EntityExplorer = (props: IPanelProps) => {
-  const { applicationId, pageId } = useParams<ExplorerURLParams>();
+  const { applicationId } = useParams<ExplorerURLParams>();
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
   );

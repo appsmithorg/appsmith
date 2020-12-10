@@ -27,3 +27,10 @@ export const endOnboarding = () => {
     type: ReduxActionTypes.END_ONBOARDING,
   };
 };
+
+export const setCurrentStep = (payload: number) => {
+  return {
+    type: ReduxActionTypes.SET_CURRENT_STEP,
+    payload,
+  };
+};
