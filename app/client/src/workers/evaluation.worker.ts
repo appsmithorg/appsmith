@@ -39,6 +39,7 @@ import {
   EvalError,
   EvalErrorTypes,
   extraLibraries,
+  unsafeFunctionForEval,
   getEntityDynamicBindingPathList,
   getWidgetDynamicTriggerPathList,
   isPathADynamicBinding,
@@ -971,6 +972,13 @@ const evaluate = (
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore: No types available
         self[library.accessor] = library.lib;
+      });
+
+      ///// Remove all unsafe functions
+      unsafeFunctionForEval.forEach(func => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
+        self[func] = undefined;
       });
 
       const evalResult = eval(script);

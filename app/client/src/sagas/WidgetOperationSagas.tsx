@@ -810,11 +810,30 @@ function* updateCanvasSize(
   }
 }
 
-function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
+function* createWidgetCopy() {
   const selectedWidget = yield select(getSelectedWidget);
   if (!selectedWidget) return;
   const widgets = yield select(getWidgets);
   const widgetsToStore = getAllWidgetsInTree(selectedWidget.widgetId, widgets);
+  const saveResult = yield saveCopiedWidgets(
+    JSON.stringify({ widgetId: selectedWidget.widgetId, list: widgetsToStore }),
+  );
+
+  return saveResult;
+}
+
+function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
+  const selectedWidget = yield select(getSelectedWidget);
+  if (!selectedWidget) {
+    Toaster.show({
+      text: `Please select a widget to copy`,
+      variant: Variant.info,
+    });
+    return;
+  }
+
+  const saveResult = yield createWidgetCopy();
+
   const eventName = action.payload.isShortcut
     ? "WIDGET_COPY_VIA_SHORTCUT"
     : "WIDGET_COPY";
@@ -822,9 +841,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
     widgetName: selectedWidget.widgetName,
     widgetType: selectedWidget.type,
   });
-  const saveResult = yield saveCopiedWidgets(
-    JSON.stringify({ widgetId: selectedWidget.widgetId, list: widgetsToStore }),
-  );
+
   if (saveResult) {
     Toaster.show({
       text: `Copied ${selectedWidget.widgetName}`,
@@ -1068,12 +1085,30 @@ function* pasteWidgetSaga() {
 }
 
 function* cutWidgetSaga() {
-  yield put({
-    type: ReduxActionTypes.COPY_SELECTED_WIDGET_INIT,
-    payload: {
-      isShortcut: true, // We only have shortcut based "cut" operation today.
-    },
+  const selectedWidget = yield select(getSelectedWidget);
+  if (!selectedWidget) {
+    Toaster.show({
+      text: `Please select a widget to cut`,
+      variant: Variant.info,
+    });
+    return;
+  }
+
+  const saveResult = yield createWidgetCopy();
+
+  const eventName = "WIDGET_CUT_VIA_SHORTCUT"; // cut only supported through a shortcut
+  AnalyticsUtil.logEvent(eventName, {
+    widgetName: selectedWidget.widgetName,
+    widgetType: selectedWidget.type,
   });
+
+  if (saveResult) {
+    Toaster.show({
+      text: `Cut ${selectedWidget.widgetName}`,
+      variant: Variant.success,
+    });
+  }
+
   yield put({
     type: ReduxActionTypes.WIDGET_DELETE,
     payload: {

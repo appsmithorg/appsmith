@@ -22,6 +22,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/modes";
 import {
   EditorConfig,
+  EditorModes,
   EditorSize,
   EditorTheme,
   EditorThemes,
@@ -140,6 +141,7 @@ class CodeEditor extends Component<Props, State> {
       this.editor.on("change", this.onChangeTigger);
       this.editor.on("keyup", this.handleAutocompleteHide);
       this.editor.on("focus", this.handleEditorFocus);
+      this.editor.on("cursorActivity", this.handleCursorMovement);
       this.editor.on("focus", this.onFocusTrigger);
       this.editor.on("blur", this.handleEditorBlur);
       if (this.props.height) {
@@ -216,16 +218,27 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
+  handleCursorMovement = (cm: CodeMirror.Editor) => {
+    // ignore if disabled
+    if (!this.props.input.onChange || this.props.disabled) {
+      return;
+    }
+    const mode = cm.getModeAt(cm.getCursor());
+    if (
+      mode &&
+      [EditorModes.JAVASCRIPT, EditorModes.JSON].includes(mode.name)
+    ) {
+      this.editor.setOption("matchBrackets", true);
+    } else {
+      this.editor.setOption("matchBrackets", false);
+    }
+  };
+
   handleEditorFocus = () => {
     this.setState({ isFocused: true });
     this.editor.refresh();
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", true);
-    }
-
-    // Highlight matching brackets only when focused and not in readonly mode
-    if (this.props.input.onChange && !this.props.disabled) {
-      this.editor.setOption("matchBrackets", true);
     }
   };
 

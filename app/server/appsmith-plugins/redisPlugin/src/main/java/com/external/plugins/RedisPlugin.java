@@ -42,7 +42,7 @@ public class RedisPlugin extends BasePlugin {
     @Extension
     public static class RedisPluginExecutor implements PluginExecutor<Jedis> {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(Jedis jedis,
@@ -78,7 +78,7 @@ public class RedisPlugin extends BasePlugin {
                 actionExecutionResult.setBody(objectMapper.valueToTree(processCommandOutput(commandOutput)));
                 actionExecutionResult.setIsExecutionSuccess(true);
 
-                System.out.println(Thread.currentThread().getName() + ": In the RedisPlugin, got action execution result: " + actionExecutionResult.toString());
+                System.out.println(Thread.currentThread().getName() + ": In the RedisPlugin, got action execution result");
                 return Mono.just(actionExecutionResult);
             })
                     .flatMap(obj -> obj)
