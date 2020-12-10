@@ -185,6 +185,7 @@
   "currentRowEmail": "{{currentRow.email}}",
   "currentRowOrderAmt": "{{currentRow.orderAmount}}",
   "momentDate": "{{moment()}}",
+  "defaultRowIndexBinding": "{{Table1.selectedRowIndex",
   "bindingAlign": "{{currentRow.userName.indexOf('Michael') > -1 ? 'LEFT' : 'RIGHT'}}",
   "bindingSize": "{{currentRow.userName.indexOf('Michael') > -1 ? 'PARAGRAGH' : 'HEADING1'}}",
   "bindingVerticalAlig": "{{currentRow.userName.indexOf('Michael') > -1 ? 'TOP' : 'BOTTOM'}}",
@@ -192,5 +193,4 @@
   "bindingButton": "{{currentRow.userName.indexOf('Michael') > -1 ? 'Discount' : 'NoDiscount'}}",
   "bindingStyle": "{{currentRow.userName.indexOf('Michael') > -1 ? 'BOLD' : 'ITALIC'}}",
   "bindingGenAlign": "{{currentRow.userName.indexOf('Michael') > -1 ? 'RIGHT' : 'LEFT'}}"
-
 }

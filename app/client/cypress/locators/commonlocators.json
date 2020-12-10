@@ -86,6 +86,8 @@
   "selectedColType": ".t--property-control-columntype button span",
   "collapsesection": ".t--property-pane-section-collapse-general",
   "selectTab": ".t--tab-Tab",
+  "deflautSelectedRow": ".t--property-control-defaultselectedrow textarea",
+  "defaultSearchText": ".t--property-control-defaultsearchtext textarea",
   "entityName": ".t--entity-name",
   "filePickerButton": ".t--widget-filepickerwidget",
   "filePickerInput": ".uppy-Dashboard-input",
