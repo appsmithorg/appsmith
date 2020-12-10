@@ -15,7 +15,6 @@ import {
   getDynamicBindings,
   getEntityDynamicBindingPathList,
   getWidgetDynamicTriggerPathList,
-  isPathADynamicBinding,
   isPathADynamicTrigger,
 } from "../utils/DynamicBindingUtils";
 import _ from "lodash";
