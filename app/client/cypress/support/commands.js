@@ -1204,6 +1204,7 @@ Cypress.Commands.add("showColumn", colId => {
 });
 
 Cypress.Commands.add("addColumn", colId => {
+  cy.get(widgetsPage.addColumn).scrollIntoView();
   cy.get(widgetsPage.addColumn)
     .should("be.visible")
     .click({ force: true });
@@ -1349,8 +1350,8 @@ Cypress.Commands.add("Deletepage", Pagename => {
   cy.get(".t--page-sidebar-" + Pagename + "");
   cy.get(
     ".t--page-sidebar-" +
-      Pagename +
-      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
+    Pagename +
+    ">.t--page-sidebar-menu-actions>.bp3-popover-target",
   ).click({ force: true });
   cy.get(pages.Menuaction).click({ force: true });
   cy.get(pages.Delete).click({ force: true });
