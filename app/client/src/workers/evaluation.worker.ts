@@ -32,6 +32,7 @@ import { applyChange, diff, Diff } from "deep-diff";
 import {
   addDependantsOfNestedPropertyPaths,
   convertPathToString,
+  CrashingError,
   DataTreeDiffEvent,
   translateDiffEventToDataTreeDiffEvent,
 } from "./evaluationUtils";
@@ -43,45 +44,44 @@ let dataTreeEvaluator: DataTreeEvaluator | undefined;
 ctx.addEventListener("message", e => {
   const { action, ...rest } = e.data;
   switch (action as EVAL_WORKER_ACTIONS) {
-    case EVAL_WORKER_ACTIONS.INIT_EVALUATOR: {
-      const { widgetTypeConfigMap, unevalTree } = rest;
-      dataTreeEvaluator = new DataTreeEvaluator(
-        unevalTree,
-        widgetTypeConfigMap,
-      );
-      const response = dataTreeEvaluator.evalTree;
-      // We need to clean it to remove any possible functions inside the tree.
-      // If functions exist, it will crash the web worker
-      const cleanDataTree = JSON.parse(JSON.stringify(response));
-      ctx.postMessage({
-        dataTree: cleanDataTree,
-        dependencies: {
-          dependencyMap: dataTreeEvaluator.dependencyMap,
-          inverseDependencyMap: dataTreeEvaluator.inverseDependencyMap,
-        },
-        errors: dataTreeEvaluator.errors,
-      });
-      dataTreeEvaluator.clearErrors();
-      break;
-    }
     case EVAL_WORKER_ACTIONS.EVAL_TREE: {
-      const { unevalTree } = rest;
-      if (!dataTreeEvaluator) {
-        break;
+      const { widgetTypeConfigMap, unevalTree } = rest;
+      let dataTree: DataTree = unevalTree;
+      let errors: EvalError[] = [];
+      let dependencies: DependencyMap = {};
+      try {
+        if (!dataTreeEvaluator) {
+          dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
+          dataTreeEvaluator.createFirstTree(unevalTree);
+          dataTree = dataTreeEvaluator.evalTree;
+        } else {
+          dataTree = dataTreeEvaluator.updateDataTree(unevalTree);
+        }
+
+        // We need to clean it to remove any possible functions inside the tree.
+        // If functions exist, it will crash the web worker
+        dataTree = JSON.parse(JSON.stringify(dataTree));
+        dependencies = dataTreeEvaluator.dependencyMap;
+        errors = dataTreeEvaluator.errors;
+        dataTreeEvaluator.clearErrors();
+      } catch (e) {
+        if (dataTreeEvaluator !== undefined) {
+          errors = dataTreeEvaluator.errors;
+        }
+        if (!(e instanceof CrashingError)) {
+          errors.push({
+            type: EvalErrorTypes.UNKNOWN_ERROR,
+            message: e.message,
+          });
+          console.error(e);
+        }
+        dataTreeEvaluator = undefined;
       }
-      const response = dataTreeEvaluator.updateDataTree(unevalTree);
-      // We need to clean it to remove any possible functions inside the tree.
-      // If functions exist, it will crash the web worker
-      const cleanDataTree = JSON.parse(JSON.stringify(response));
       ctx.postMessage({
-        dataTree: cleanDataTree,
-        dependencies: {
-          dependencyMap: dataTreeEvaluator.dependencyMap,
-          inverseDependencyMap: dataTreeEvaluator.inverseDependencyMap,
-        },
-        errors: dataTreeEvaluator.errors,
+        dataTree,
+        dependencies,
+        errors,
       });
-      dataTreeEvaluator.clearErrors();
       break;
     }
     case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
@@ -118,10 +118,7 @@ ctx.addEventListener("message", e => {
       break;
     }
     case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
-      if (!dataTreeEvaluator) {
-        break;
-      }
-      dataTreeEvaluator.clearAllCaches();
+      dataTreeEvaluator = undefined;
       ctx.postMessage(true);
       break;
     }
@@ -180,9 +177,8 @@ export class DataTreeEvaluator {
     }
   > = new Map();
 
-  constructor(unEvalTree: DataTree, widgetConfigMap: WidgetTypeConfigMap) {
+  constructor(widgetConfigMap: WidgetTypeConfigMap) {
     this.widgetConfigMap = widgetConfigMap;
-    this.createFirstTree(unEvalTree);
   }
 
   createFirstTree(unEvalTree: DataTree) {
@@ -293,8 +289,18 @@ export class DataTreeEvaluator {
     const loadingStart = performance.now();
     const loadingSetTree = this.updateWidgetLoadingStateSaga(evaluatedTree);
     const loadingStop = performance.now();
+
+    const validateStart = performance.now();
+    // Validate and parse updated widgets
+    const updatedWidgets = new Set(
+      newSortOrder.map(path => path.split(".")[0]),
+    );
+
+    const validatedTree = this.getValidatedTree(loadingSetTree, updatedWidgets);
+    const validateEnd = performance.now();
+
     // Remove functions
-    this.evalTree = removeFunctionsFromDataTree(loadingSetTree);
+    this.evalTree = removeFunctionsFromDataTree(validatedTree);
     this.oldUnEvalTree = unEvalTree;
     console.log({
       diffCheck: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),
@@ -306,6 +312,7 @@ export class DataTreeEvaluator {
       ).toFixed(2),
       eval: (evalStop - evalStart).toFixed(2),
       setLoading: (loadingStop - loadingStart).toFixed(2),
+      validate: (validateEnd - validateStart).toFixed(2),
     });
     return this.evalTree;
   }
@@ -496,7 +503,7 @@ export class DataTreeEvaluator {
         type: EvalErrorTypes.DEPENDENCY_ERROR,
         message: e.message,
       });
-      return [];
+      throw new CrashingError(e.message);
     }
   }
 
@@ -802,76 +809,59 @@ export class DataTreeEvaluator {
     }
   };
 
-  getValidatedTree = (tree: any) => {
+  getValidatedTree = (tree: DataTree, only?: Set<string>) => {
     return Object.keys(tree).reduce((tree, entityKey: string) => {
-      const entity = tree[entityKey];
-      if (entity && entity.type) {
-        const parsedEntity = { ...entity };
-        Object.keys(entity).forEach((property: string) => {
-          const hasEvaluatedValue = _.has(
+      if (only && only.size) {
+        if (!only.has(entityKey)) {
+          return tree;
+        }
+      }
+      const entity = tree[entityKey] as DataTreeWidget;
+      if (!isWidget(entity)) {
+        return tree;
+      }
+      const parsedEntity = { ...entity };
+      Object.keys(entity).forEach((property: string) => {
+        const validationProperties = this.widgetConfigMap[entity.type]
+          .validations;
+
+        if (property in validationProperties) {
+          const value = _.get(entity, property);
+          // Pass it through parse
+          const {
+            parsed,
+            isValid,
+            message,
+            transformed,
+          } = this.validateWidgetProperty(
+            entity.type,
+            property,
+            value,
+            entity,
+            tree,
+          );
+          parsedEntity[property] = parsed;
+          const evaluatedValue = isValid
+            ? parsed
+            : _.isUndefined(transformed)
+            ? value
+            : transformed;
+          const safeEvaluatedValue = removeFunctions(evaluatedValue);
+          _.set(
             parsedEntity,
             `evaluatedValues.${property}`,
+            safeEvaluatedValue,
           );
-          const hasValidation = _.has(parsedEntity, `invalidProps.${property}`);
-          const isSpecialField = [
-            "dynamicBindingPathList",
-            "dynamicTriggerPathList",
-            "dynamicPropertyPathList",
-            "evaluatedValues",
-            "invalidProps",
-            "validationMessages",
-          ].includes(property);
-          const isDynamicField =
-            isPathADynamicBinding(parsedEntity, property) ||
-            isPathADynamicTrigger(parsedEntity, property);
-
-          if (
-            !isSpecialField &&
-            !isDynamicField &&
-            (!hasValidation || !hasEvaluatedValue)
-          ) {
-            const value = entity[property];
-            // Pass it through parse
-            const {
-              parsed,
-              isValid,
-              message,
-              transformed,
-            } = this.validateWidgetProperty(
-              entity.type,
-              property,
-              value,
-              entity,
-              tree,
-            );
-            parsedEntity[property] = parsed;
-            if (!hasEvaluatedValue) {
-              const evaluatedValue = isValid
-                ? parsed
-                : _.isUndefined(transformed)
-                ? value
-                : transformed;
-              const safeEvaluatedValue = removeFunctions(evaluatedValue);
-              _.set(
-                parsedEntity,
-                `evaluatedValues.${property}`,
-                safeEvaluatedValue,
-              );
-            }
-
-            const hasValidation = _.has(
-              parsedEntity,
-              `invalidProps.${property}`,
-            );
-            if (!hasValidation && !isValid) {
-              _.set(parsedEntity, `invalidProps.${property}`, true);
-              _.set(parsedEntity, `validationMessages.${property}`, message);
-            }
+          if (!isValid) {
+            _.set(parsedEntity, `invalidProps.${property}`, true);
+            _.set(parsedEntity, `validationMessages.${property}`, message);
+          } else {
+            _.set(parsedEntity, `invalidProps.${property}`, false);
+            _.set(parsedEntity, `validationMessages.${property}`, "");
           }
-        });
-        return { ...tree, [entityKey]: parsedEntity };
-      }
-      return tree;
+        }
+      });
+      return { ...tree, [entityKey]: parsedEntity };
     }, tree);
   };
 

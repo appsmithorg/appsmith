@@ -134,3 +134,5 @@ export const addDependantsOfNestedPropertyPaths = (
   });
   return [...withNestedPaths.values()];
 };
+
+export class CrashingError extends Error {}
