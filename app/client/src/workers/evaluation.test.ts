@@ -510,8 +510,8 @@ describe("DataTreeEvaluator", () => {
       type: WidgetTypes.TEXT_WIDGET,
     },
   };
-  const evaluator = new DataTreeEvaluator(unEvalTree, WIDGET_CONFIG_MAP);
-
+  const evaluator = new DataTreeEvaluator(WIDGET_CONFIG_MAP);
+  evaluator.createFirstTree(unEvalTree);
   it("Evaluates a binding in first run", () => {
     const evaluation = evaluator.evalTree;
     const dependencyMap = evaluator.dependencyMap;

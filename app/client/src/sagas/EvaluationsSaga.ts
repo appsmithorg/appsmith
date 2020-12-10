@@ -18,7 +18,7 @@ import {
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
-import WidgetFactory from "../utils/WidgetFactory";
+import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
   EVAL_WORKER_ACTIONS,
@@ -43,6 +43,7 @@ let evalQueue: Array<{
   queued: Date;
   action: EvaluationReduxAction<unknown | unknown[]>;
 }> = [];
+let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 function* initEvaluationWorkers(action: EvaluationReduxAction<any>) {
   // If an old worker exists, terminate it
@@ -57,15 +58,14 @@ function* initEvaluationWorkers(action: EvaluationReduxAction<any>) {
       evaluationWorker.removeEventListener("message", emitter);
     };
   });
-  const widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
+  widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const unevalTree = yield select(getUnevaluatedDataTree);
   evaluationWorker.postMessage({
-    action: EVAL_WORKER_ACTIONS.INIT_EVALUATOR,
+    action: EVAL_WORKER_ACTIONS.EVAL_TREE,
     unevalTree,
     widgetTypeConfigMap,
   });
   const workerResponse = yield take(workerChannel);
-  console.log({ workerResponse });
   const { errors, dataTree, dependencies } = workerResponse.data;
   log.debug({ dataTree });
   evalErrorHandler(errors);
@@ -134,12 +134,13 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   evaluationWorker.postMessage({
     action: EVAL_WORKER_ACTIONS.EVAL_TREE,
     unevalTree,
+    widgetTypeConfigMap,
   });
   const workerResponse = yield take(workerChannel);
   // const mainEvalStop = performance.now();
   // console.log({ mainEval: (mainEvalStop - mainEvalStart).toFixed(2) });
   const { errors, dataTree, dependencies } = workerResponse.data;
-  // log.debug({ dataTree });
+  log.debug({ dataTree });
   evalErrorHandler(errors);
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
@@ -197,6 +198,7 @@ export function* evaluateDynamicTrigger(
 }
 
 export function* clearEvalCache() {
+  console.log("Cleared cache");
   if (evaluationWorker) {
     evaluationWorker.postMessage({
       action: EVAL_WORKER_ACTIONS.CLEAR_CACHE,
@@ -273,7 +275,7 @@ const EVALUATE_REDUX_ACTIONS = [
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-  ReduxActionTypes.SET_URL_DATA,
+  // ReduxActionTypes.SET_URL_DATA,
   ReduxActionTypes.UPDATE_APP_STORE,
   // Widgets
   ReduxActionTypes.UPDATE_LAYOUT,
