@@ -79,7 +79,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       };
     }
     if ("id" in datasource && datasource.id) {
-      const datasourceUrl = datasource.datasourceConfiguration?.url ?? "";
+      const datasourceUrl = datasource.datasourceConfiguration.url;
       if (value.includes(datasourceUrl)) {
         return {
           datasourceUrl,
@@ -155,11 +155,10 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
               completeSingle: false,
               hint: () => {
                 const list = datasourceList
-                  .filter(
-                    datasource =>
-                      datasource.datasourceConfiguration.url?.includes(
-                        parsed.datasourceUrl,
-                      ) ?? false,
+                  .filter(datasource =>
+                    datasource.datasourceConfiguration.url.includes(
+                      parsed.datasourceUrl,
+                    ),
                   )
                   .map(datasource => ({
                     text: datasource.datasourceConfiguration.url,

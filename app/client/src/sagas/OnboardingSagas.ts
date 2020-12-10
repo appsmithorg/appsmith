@@ -124,7 +124,7 @@ function* createOnboardingDatasource() {
     );
 
     if (!onboardingDatasource) {
-      const datasourceConfig = {
+      const datasourceConfig: any = {
         pluginId: postgresPlugin.id,
         name: "ExampleDatabase",
         organizationId,
