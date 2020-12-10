@@ -1,4 +1,4 @@
-import React, { Component, Fragment, useState } from "react";
+import React, { Component, Fragment, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { connect, useSelector, useDispatch } from "react-redux";
 import { AppState } from "reducers";
@@ -65,6 +65,7 @@ import Spinner from "components/ads/Spinner";
 import ProfileImage from "pages/common/ProfileImage";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { AppIconCollection } from "components/ads/AppIcon";
+import { useHistory } from "react-router-dom";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -340,6 +341,7 @@ const ApplicationAddCardWrapper = styled(Card)`
 `;
 
 function LeftPane() {
+  const menuRef = useRef<HTMLAnchorElement>(null);
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const NewWorkspaceTrigger = (
@@ -359,6 +361,19 @@ function LeftPane() {
     userOrgs = loadingUserOrgs as any;
   }
 
+  const urlHash = decodeURI(
+    window.location.hash.substring(1, window.location.hash.length),
+  );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (menuRef && menuRef.current) {
+        menuRef.current.click();
+      }
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [fetchedUserOrgs]);
+
   return (
     <LeftPaneWrapper>
       <LeftPaneSection
@@ -375,6 +390,7 @@ function LeftPane() {
           {userOrgs &&
             userOrgs.map((org: any) => (
               <MenuItem
+                {...(urlHash === org.organization.name ? { ref: menuRef } : {})}
                 className={
                   isFetchingApplications ? BlueprintClasses.SKELETON : ""
                 }
