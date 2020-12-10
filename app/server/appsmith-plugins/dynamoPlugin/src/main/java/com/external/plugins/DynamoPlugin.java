@@ -65,7 +65,7 @@ public class DynamoPlugin extends BasePlugin {
     @Extension
     public static class DynamoPluginExecutor implements PluginExecutor<DynamoDbClient> {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(DynamoDbClient ddb,
@@ -120,7 +120,7 @@ public class DynamoPlugin extends BasePlugin {
                 }
 
                 result.setIsExecutionSuccess(true);
-                System.out.println(Thread.currentThread().getName() + ": In the DynamoPlugin, got action execution result: " + result.toString());
+                System.out.println(Thread.currentThread().getName() + ": In the DynamoPlugin, got action execution result");
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)

@@ -67,7 +67,7 @@ public class FirestorePlugin extends BasePlugin {
     @Extension
     public static class FirestorePluginExecutor implements PluginExecutor<Firestore> {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(Firestore connection,
@@ -212,9 +212,7 @@ public class FirestorePlugin extends BasePlugin {
                         result.setIsExecutionSuccess(true);
                         System.out.println(
                                 Thread.currentThread().getName()
-                                        + ": In the Firestore Plugin, got action execution result: "
-                                        + result.toString()
-                        );
+                                        + ": In the Firestore Plugin, got action execution result");
                         return Mono.just(result);
                     });
         }

@@ -43,9 +43,6 @@ const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
 export const getIsEditorInitialized = (state: AppState) =>
   state.ui.editor.initialized;
 
-export const getIsEditorInitializeError = (state: AppState): boolean =>
-  state.ui.editor.initializationError;
-
 export const getIsEditorLoading = (state: AppState) =>
   state.ui.editor.loadingStates.loading;
 
