@@ -7,8 +7,6 @@ import { Action } from "entities/Action";
 import moment from "moment-timezone";
 import { WidgetProps } from "../widgets/BaseWidget";
 
-type StringTuple = [string, string];
-
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
   const withBindings = string.replace(DATA_BIND_REGEX_GLOBAL, "{{ }}");
@@ -233,4 +231,9 @@ export const isPathADynamicProperty = (
   return false;
 };
 
-export const unsafeFunctionForEval = ["setTimeout", "fetch", "setInterval", "Promise"];
+export const unsafeFunctionForEval = [
+  "setTimeout",
+  "fetch",
+  "setInterval",
+  "Promise",
+];
