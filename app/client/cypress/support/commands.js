@@ -1109,6 +1109,10 @@ Cypress.Commands.add("testJsontext", (endp, value) => {
       cy.log("The field is empty");
       cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
         .first()
+        .click({ force: true })
+        .type("{command}{A}{del}",{ force: true });
+      cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+        .first()
         .clear({
           force: true,
         });
@@ -1350,8 +1354,8 @@ Cypress.Commands.add("Deletepage", Pagename => {
   cy.get(".t--page-sidebar-" + Pagename + "");
   cy.get(
     ".t--page-sidebar-" +
-    Pagename +
-    ">.t--page-sidebar-menu-actions>.bp3-popover-target",
+      Pagename +
+      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
   ).click({ force: true });
   cy.get(pages.Menuaction).click({ force: true });
   cy.get(pages.Delete).click({ force: true });
