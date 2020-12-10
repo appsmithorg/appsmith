@@ -1170,13 +1170,18 @@ Cypress.Commands.add("tableColumnDataValidation", columnName => {
 });
 
 Cypress.Commands.add("tableColumnPopertyUpdate", (colId, newColName) => {
-  cy.get("[data-rbd-draggable-id='" + colId + "'] input").click({
-    force: true,
-  });
+  cy.get("[data-rbd-draggable-id='" + colId + "'] input")
+    .should("be.visible")
+    .click({
+      force: true,
+    });
   cy.get("[data-rbd-draggable-id='" + colId + "'] input").clear({
     force: true,
   });
-  cy.get("[data-rbd-draggable-id='" + colId + "'] input").type(newColName);
+  cy.get("[data-rbd-draggable-id='" + colId + "'] input").type(newColName, {
+    force: true,
+    delay: 700,
+  });
   cy.get(".draggable-header ")
     .contains(newColName)
     .should("be.visible");
@@ -1205,7 +1210,7 @@ Cypress.Commands.add("addColumn", colId => {
   cy.get(widgetsPage.defaultColName).clear({
     force: true,
   });
-  cy.get(widgetsPage.defaultColName).type(colId);
+  cy.get(widgetsPage.defaultColName).type(colId, { force: true, delay: 700 });
 });
 
 Cypress.Commands.add("editColumn", colId => {
