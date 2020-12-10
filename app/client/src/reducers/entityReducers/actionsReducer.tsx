@@ -58,10 +58,15 @@ const actionsReducer = createReducer(initialState, {
       const payloadActionMap = _.keyBy(action.payload, "id");
       return state.map((stateAction: ActionData) => {
         if (stateAction.config.pageId === action.payload[0].pageId) {
+          const config = _.merge(
+            {},
+            stateAction.config,
+            payloadActionMap[stateAction.config.id],
+          );
           return {
             data: stateAction.data,
             isLoading: false,
-            config: payloadActionMap[stateAction.config.id],
+            config: config,
           };
         }
         return stateAction;
