@@ -63,6 +63,7 @@ class DatePickerComponent extends React.Component<
     super(props);
     this.state = {
       selectedDate: props.selectedDate,
+      isPopoverOpen: false,
     };
   }
 
@@ -77,6 +78,8 @@ class DatePickerComponent extends React.Component<
       this.setState({ selectedDate: this.props.selectedDate });
     }
   }
+
+  togglePopover = (flag: boolean) => this.setState({ isPopoverOpen: flag });
 
   render() {
     const now = moment();
@@ -108,6 +111,11 @@ class DatePickerComponent extends React.Component<
         )}
         {this.props.datePickerType === "DATE_PICKER" ? (
           <DateInput
+            inputProps={{
+              onBlur: () => this.togglePopover(false),
+              onFocus: () => this.togglePopover(true),
+            }}
+            popoverProps={{ isOpen: this.state.isPopoverOpen }}
             className={this.props.isLoading ? "bp3-skeleton" : ""}
             formatDate={this.formatDate}
             parseDate={this.parseDate}
@@ -193,6 +201,7 @@ interface DatePickerComponentProps extends ComponentProps {
 
 interface DatePickerComponentState {
   selectedDate?: string;
+  isPopoverOpen: boolean;
 }
 
 export default DatePickerComponent;
