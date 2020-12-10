@@ -616,19 +616,15 @@ const ApplicationsSection = (props: any) => {
                 !isFetchingApplications && (
                   <OrgShareUsers>
                     <UserImageContainer>
-                      {userRoles.map((el: UserRoles, index: number) => {
-                        if (index <= 4) {
-                          return (
-                            <ProfileImage
-                              className="org-share-user-icons"
-                              userName={el.name ? el.name : el.username}
-                              key={el.username}
-                            />
-                          );
-                        } else {
-                          return null;
-                        }
-                      })}
+                      {userRoles
+                        .slice(0, 5)
+                        .map((el: UserRoles, index: number) => (
+                          <ProfileImage
+                            className="org-share-user-icons"
+                            userName={el.name ? el.name : el.username}
+                            key={el.username}
+                          />
+                        ))}
                       {userRoles.length > 5 ? (
                         <ProfileImage
                           className="org-share-user-icons"
