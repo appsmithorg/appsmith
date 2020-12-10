@@ -2,7 +2,7 @@ const homePage = require("../../../locators/HomePage.json");
 
 
 describe("Shared user icon  ", function()  {
-    it(" Shared user icon  ", function() 
+    it(" User Icon is disaplyed to user ", function() 
     {
         // Navigate to home Page 
         //Click on Share Icon 
