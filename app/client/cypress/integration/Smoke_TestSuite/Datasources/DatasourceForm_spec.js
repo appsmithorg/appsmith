@@ -19,6 +19,7 @@ describe("Datasource form related tests", function() {
     cy.get(".t--save-datasource").should("not.be.disabled");
   });
 
+  // wip
   it("Check if saved api as a datasource does not fail on cloning", function() {
     cy.NavigateToAPI_Panel();
     cy.get('.t--entity-name:contains("Testapi")')
