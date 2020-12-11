@@ -233,7 +233,11 @@ export class DataTreeEvaluator {
           // We will add all parents of this change to this sort order
           for (let i = 0; i < d.path.length; i++) {
             const indexToSlice = d.path.length - i;
-            changePaths.add(convertPathToString(d.path.slice(0, indexToSlice)));
+            if (indexToSlice > 1) {
+              changePaths.add(
+                convertPathToString(d.path.slice(0, indexToSlice)),
+              );
+            }
           }
         } else if (d.path.length === 1) {
           /*
