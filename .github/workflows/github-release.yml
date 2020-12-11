@@ -93,13 +93,13 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Get the version number
-        id: get_version
+        id: get_version_number
         run: echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
 
       # Build the code
       - name: Build without running any tests
         run: |
-          mvn versions:set -DnewVersion=${{ steps.vars.outputs.version }} -DgenerateBackupPoms=false -DprocessAllModules=true
+          mvn versions:set -DnewVersion=${{ steps.get_version_number.outputs.version }} -DgenerateBackupPoms=false -DprocessAllModules=true
           mvn -B package -DskipTests
 
       - name: Get the version tag
