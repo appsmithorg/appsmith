@@ -10,23 +10,8 @@ describe("Table Widget property pane feature validation", function() {
     cy.addDsl(dsl);
   });
 
-  it("Check collapse section feature in property pane", function() {
-    cy.openPropertyPane("tablewidget");
-    cy.get(widgetsPage.centerAlign)
-      .first()
-      .click({ force: true });
-    cy.readTabledataValidateCSS("1", "0", "justify-content", "center");
-    cy.get(widgetsPage.rightAlign)
-      .first()
-      .click({ force: true });
-    cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-end");
-    cy.get(widgetsPage.leftAlign)
-      .first()
-      .click({ force: true });
-    cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-start");
-  });
-
   it("Test to validate text allignment", function() {
+    cy.openPropertyPane("tablewidget");
     cy.get(widgetsPage.centerAlign)
       .first()
       .click({ force: true });
