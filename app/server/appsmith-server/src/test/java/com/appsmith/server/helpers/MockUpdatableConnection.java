@@ -1,6 +1,5 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
@@ -13,5 +12,10 @@ public class MockUpdatableConnection implements UpdatableConnection {
             auth.setClientId("mock-auth");
             datasourceConfiguration.setAuthentication(auth);
         }
+    }
+
+    @Override
+    public boolean isUpdated() {
+        return true;
     }
 }

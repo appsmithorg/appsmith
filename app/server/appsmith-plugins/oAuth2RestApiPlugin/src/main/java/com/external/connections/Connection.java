@@ -91,6 +91,7 @@ public class Connection implements UpdatableConnection {
                 .withRegistrationId("test")
                 .clientId(authentication.getClientId())
                 .clientSecret(authentication.getClientSecret())
+                .scope(authentication.getScope())
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .tokenUri(authentication.getAccessTokenUrl())
                 .build();

@@ -36,7 +36,7 @@ public class MockPluginExecutor implements PluginExecutor<Object> {
     @Override
     public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
         System.out.println("In the datasourceCreate");
-        return Mono.just(new Object());
+        return Mono.just(new MockUpdatableConnection());
     }
 
     @Override

@@ -2,6 +2,7 @@
   "form": [
     {
       "sectionName": "General",
+      "id": 1,
       "children": [
         {
           "label": "URL",
@@ -14,6 +15,41 @@
           "label": "Headers",
           "configProperty": "datasourceConfiguration.headers",
           "controlType": "KEY_VAL_INPUT"
+        }
+      ]
+    },
+    {
+      "sectionName": "Authentication",
+      "id": 2,
+      "children": [
+        {
+          "label": "Client Id",
+          "configProperty": "datasourceConfiguration.authentication.clientId",
+          "controlType": "INPUT_TEXT",
+          "isRequired": true,
+          "placeholderText": "Client Id"
+        },
+        {
+          "label": "Client Secret",
+          "configProperty": "datasourceConfiguration.authentication.clientSecret",
+          "dataType": "PASSWORD",
+          "isRequired": true,
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "Client Secret",
+          "encrypted": true
+        },
+        {
+          "label": "URL",
+          "configProperty": "datasourceConfiguration.authentication.tokenUrl",
+          "controlType": "INPUT_TEXT",
+          "isRequired": true,
+          "placeholderText": "https://example.com/oauth"
+        },
+        {
+          "label": "Scope",
+          "configProperty": "datasourceConfiguration.authentication.scope",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "Scope"
         }
       ]
     }

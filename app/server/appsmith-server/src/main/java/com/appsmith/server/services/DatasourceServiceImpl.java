@@ -156,7 +156,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .flatMap(this::validateAndSaveDatasourceToRepository);
     }
 
-    private AuthenticationDTO encryptAuthenticationFields(AuthenticationDTO authentication) {
+    public AuthenticationDTO encryptAuthenticationFields(AuthenticationDTO authentication) {
         if (authentication != null && !authentication.isEncrypted()) {
             Map<String, String> encryptedFields = authentication.getEncryptionFields().entrySet().stream()
                     .collect(Collectors.toMap(

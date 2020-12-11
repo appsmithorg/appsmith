@@ -253,8 +253,22 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         Mono<Datasource> datasourceMono;
         if (action.getDatasource().getId() == null) {
+            if (action.getDatasource() != null &&
+                    action.getDatasource().getDatasourceConfiguration() != null &&
+                    action.getDatasource().getDatasourceConfiguration().getAuthentication() != null) {
+                action.getDatasource()
+                        .getDatasourceConfiguration()
+                        .setAuthentication(datasourceService.encryptAuthenticationFields(action
+                                .getDatasource()
+                                .getDatasourceConfiguration()
+                                .getAuthentication()
+                        ));
+            }
+
             datasourceMono = Mono.just(action.getDatasource())
                     .flatMap(datasourceService::validateDatasource);
+
+
         } else {
             //Data source already exists. Find the same.
             datasourceMono = datasourceService.findById(action.getDatasource().getId(), MANAGE_DATASOURCES)
@@ -394,8 +408,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // the update doesn't lead to resetting of this field. 
         action.setUserSetOnLoad(null);
 
-        NewAction newAction = new NewAction();
-        newAction.setUnpublishedAction(action);
+
+
+//        NewAction newAction = new NewAction();
+//        newAction.setUnpublishedAction(action);
         Mono<NewAction> updatedActionMono = repository.findById(id, MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .map(dbAction -> {
@@ -479,6 +495,18 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
                                         FieldName.DATASOURCE,
                                         action.getDatasource().getId())));
+                    } else {
+                        // Embedded datasources should have encrypted fields at this point
+                        if (action.getDatasource().getDatasourceConfiguration() != null &&
+                                action.getDatasource().getDatasourceConfiguration().getAuthentication() != null) {
+                            action.getDatasource()
+                                    .getDatasourceConfiguration()
+                                    .setAuthentication(datasourceContextService.decryptSensitiveFields(action
+                                            .getDatasource()
+                                            .getDatasourceConfiguration()
+                                            .getAuthentication()
+                                    ));
+                        }
                     }
                     // This is a nested datasource. Return as is.
                     return Mono.just(action.getDatasource());
