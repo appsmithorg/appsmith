@@ -253,11 +253,13 @@ const updateDerivedColumnsHook = (
     const newDerivedColumns = propertyValue.filter(
       (column: ColumnProperties) => column.isDerived,
     );
+
     // check if there is a difference in the two
     const difference: ColumnProperties[] = xorWith(
       oldDerivedColumns,
       newDerivedColumns,
-      (a: ColumnProperties, b: ColumnProperties) => a.id === b.id,
+      (a: ColumnProperties, b: ColumnProperties) =>
+        a.id === b.id && a.label === b.label,
     );
 
     if (difference.length > 0) {
@@ -309,7 +311,7 @@ export default [
         controlType: "INPUT_TEXT",
         placeholderText: 'Enter [{ "col1": "val1" }]',
         inputType: "ARRAY",
-        updateHook: updateColumnsHook,
+        // updateHook: updateColumnsHook,
       },
       {
         helpText: "Columns",
@@ -714,7 +716,6 @@ export default [
         propertyName: "cellBackground",
         label: "Cell Background",
         controlType: "COLOR_PICKER",
-        isJSConvertible: true,
         defaultColor: Colors.WHITE,
         updateHook: updateColumnStyles,
       },
@@ -722,7 +723,6 @@ export default [
         propertyName: "textColor",
         label: "Text Color",
         controlType: "COLOR_PICKER",
-        isJSConvertible: true,
         defaultColor: Colors.THUNDER,
         updateHook: updateColumnStyles,
       },
@@ -730,7 +730,6 @@ export default [
         propertyName: "textSize",
         label: "Text Size",
         controlType: "DROP_DOWN",
-        isJSConvertible: true,
         updateHook: updateColumnStyles,
         options: [
           {
@@ -780,7 +779,6 @@ export default [
             value: "ITALIC",
           },
         ],
-        isJSConvertible: true,
       },
       {
         propertyName: "horizontalAlignment",
@@ -803,7 +801,6 @@ export default [
           },
         ],
         defaultValue: "LEFT",
-        isJSConvertible: true,
       },
       {
         propertyName: "verticalAlignment",
@@ -825,7 +822,6 @@ export default [
           },
         ],
         defaultValue: "LEFT",
-        isJSConvertible: true,
       },
     ],
   },

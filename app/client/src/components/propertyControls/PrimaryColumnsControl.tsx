@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
   StyledInputGroup,
@@ -20,7 +20,7 @@ import {
   getTableStyles,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import produce from "immer";
-import { compact } from "lodash";
+import { compact, debounce } from "lodash";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -109,6 +109,7 @@ const getOriginalColumnIndex = (
 };
 
 function ColumnControlComponent(props: RenderComponentProps) {
+  const [value, setValue] = useState(props.item.label);
   const {
     updateOption,
     onEdit,
@@ -117,6 +118,11 @@ function ColumnControlComponent(props: RenderComponentProps) {
     toggleVisibility,
     index,
   } = props;
+  const debouncedUpdate = debounce(updateOption, 500);
+  const onChange = (index: number, value: string) => {
+    setValue(value);
+    debouncedUpdate(index, value);
+  };
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
@@ -124,9 +130,9 @@ function ColumnControlComponent(props: RenderComponentProps) {
         type="text"
         placeholder="Column Title"
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          updateOption(index, event.target.value);
+          onChange(index, event.target.value);
         }}
-        value={item.label}
+        value={value}
       />
       <StyledEditIcon
         className="t--edit-column-btn"
@@ -262,10 +268,16 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
 
   toggleVisibility = (index: number) => {
     const columns: ColumnProperties[] = this.props.propertyValue || [];
+    const originalColumnIndex = getOriginalColumnIndex(
+      columns,
+      index,
+      this.props.widgetProperties.columnOrder,
+    );
     const updatedColumns: ColumnProperties[] = produce(
       columns,
       (draft: ColumnProperties[]) => {
-        draft[index].isVisible = !draft[index].isVisible;
+        draft[originalColumnIndex].isVisible = !draft[originalColumnIndex]
+          .isVisible;
       },
     );
     this.updateProperty(this.props.propertyName, updatedColumns);
@@ -306,10 +318,15 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
 
   updateOption = (index: number, updatedLabel: string) => {
     const columns: ColumnProperties[] = this.props.propertyValue || [];
+    const originalColumnIndex = getOriginalColumnIndex(
+      columns,
+      index,
+      this.props.widgetProperties.columnOrder,
+    );
     const updatedColumns: ColumnProperties[] = produce(
       columns,
       (draft: ColumnProperties[]) => {
-        draft[index].label = updatedLabel;
+        draft[originalColumnIndex].label = updatedLabel;
       },
     );
 
