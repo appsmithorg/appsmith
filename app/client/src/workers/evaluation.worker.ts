@@ -222,7 +222,7 @@ export class DataTreeEvaluator {
     const CheckDependencyChangeStop = performance.now();
 
     const getNeedsEvalPathsStart = performance.now();
-    const changePaths: Array<string> = [...pathsToBeReEvaluated];
+    const changePaths: Set<string> = new Set(pathsToBeReEvaluated);
     differences.forEach(d => {
       if (d.path) {
         // Apply the changes into the oldEvalTree so that it can be evaluated
@@ -230,7 +230,11 @@ export class DataTreeEvaluator {
 
         // If this is a property path change, simply add for evaluation
         if (d.path.length > 1) {
-          changePaths.push(convertPathToString(d.path));
+          // We will add all parents of this change to this sort order
+          for (let i = 0; i < d.path.length; i++) {
+            const indexToSlice = d.path.length - i;
+            changePaths.add(convertPathToString(d.path.slice(0, indexToSlice)));
+          }
         } else if (d.path.length === 1) {
           /*
             When we see a new widget has been added or or delete an old widget ( d.path.length === 1)
@@ -239,7 +243,7 @@ export class DataTreeEvaluator {
           */
           this.sortedDependencies.forEach(dependency => {
             if (d.path && dependency.split(".")[0] === d.path[0]) {
-              changePaths.push(dependency);
+              changePaths.add(dependency);
             }
           });
         }
@@ -252,7 +256,7 @@ export class DataTreeEvaluator {
     // If Table1.selectedRow has changed, then Input1.defaultText must also be evaluated because Table1.selectedRow.email
     // is a nested property of Table1.selectedRow
     const changePathsWithNestedDependants = addDependantsOfNestedPropertyPaths(
-      changePaths,
+      Array.from(changePaths),
       this.inverseDependencyMap,
     );
 
@@ -275,6 +279,8 @@ export class DataTreeEvaluator {
       updatedDependencyMap: this.dependencyMap,
     });
 
+    // We are setting all values from our uneval tree to the old eval tree we have
+    // this way we can get away with just evaluating the sort order and nothing else
     newSortOrder.forEach(propertyPath => {
       const unEvalPropValue = _.get(unEvalTree, propertyPath);
       _.set(this.evalTree, propertyPath, unEvalPropValue);
