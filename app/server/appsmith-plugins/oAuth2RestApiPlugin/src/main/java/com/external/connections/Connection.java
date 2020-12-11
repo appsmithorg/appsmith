@@ -136,7 +136,6 @@ public class Connection implements UpdatableConnection {
         }
     }
 
-    // TODO testConnection and executeConnection
     public Mono<ClientResponse> execute(HttpMethod httpMethod, URI uri,
                                         int iteration) {
         if (iteration == MAX_REDIRECTS) {
