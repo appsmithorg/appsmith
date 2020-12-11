@@ -73,6 +73,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
         isLoading={this.props.isLoading}
         minDate={this.props.minDate}
         maxDate={this.props.maxDate}
+        disableDrag={this.disableDrag.bind(this)}
       />
     );
   }

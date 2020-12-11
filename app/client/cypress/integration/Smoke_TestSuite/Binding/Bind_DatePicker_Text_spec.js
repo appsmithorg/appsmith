@@ -141,6 +141,9 @@ describe("Binding the Datepicker and Text Widget", function() {
      * checking if on deselecting the date triggers the message or not.
      * It should not trigger any message on deselection
      */
+    cy.get(formWidgetsPage.datepickerWidget)
+      .first()
+      .click();
     cy.get(formWidgetsPage.datepickerFooter)
       .contains("Clear")
       .click();

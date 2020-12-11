@@ -59,6 +59,8 @@ class DatePickerComponent extends React.Component<
   DatePickerComponentProps,
   DatePickerComponentState
 > {
+  private isFocused = false;
+
   constructor(props: DatePickerComponentProps) {
     super(props);
     this.state = {
@@ -79,7 +81,17 @@ class DatePickerComponent extends React.Component<
     }
   }
 
-  togglePopover = (flag: boolean) => this.setState({ isPopoverOpen: flag });
+  togglePopover = async (flag: boolean) => {
+    if (flag) {
+      await new Promise(resolve => {
+        setTimeout(() => resolve(), 200); // time window to click and drag
+      });
+    }
+    if (this.isFocused) {
+      this.setState({ isPopoverOpen: flag });
+      this.props.disableDrag?.(flag);
+    }
+  };
 
   render() {
     const now = moment();
@@ -112,10 +124,20 @@ class DatePickerComponent extends React.Component<
         {this.props.datePickerType === "DATE_PICKER" ? (
           <DateInput
             inputProps={{
-              onBlur: () => this.togglePopover(false),
-              onFocus: () => this.togglePopover(true),
+              onFocus: () => {
+                this.togglePopover(true);
+                this.isFocused = true;
+              },
+              onBlur: () => {
+                this.isFocused = false;
+              },
             }}
-            popoverProps={{ isOpen: this.state.isPopoverOpen }}
+            popoverProps={{
+              isOpen: this.state.isPopoverOpen,
+              onInteraction: next => {
+                this.togglePopover(next);
+              },
+            }}
             className={this.props.isLoading ? "bp3-skeleton" : ""}
             formatDate={this.formatDate}
             parseDate={this.parseDate}
@@ -173,6 +195,8 @@ class DatePickerComponent extends React.Component<
    * @param selectedDate
    */
   onDateSelected = (selectedDate: Date) => {
+    this.setState({ isPopoverOpen: false });
+
     const { onDateSelected } = this.props;
 
     const date = selectedDate ? this.formatDate(selectedDate) : "";
@@ -197,6 +221,7 @@ interface DatePickerComponentProps extends ComponentProps {
   isDisabled: boolean;
   onDateSelected: (selectedDate: string) => void;
   isLoading: boolean;
+  disableDrag?: (toggleDisableDrag: boolean) => void;
 }
 
 interface DatePickerComponentState {
