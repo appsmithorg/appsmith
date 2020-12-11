@@ -204,7 +204,10 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
       selectedRowIndex: "defaultSelectedRow",
       selectedRowIndices: "defaultSelectedRow",
     },
-    derivedProperties: {},
+    derivedProperties: {
+      selectedRow: `{{ _.get(this.filteredTableData, this.selectedRowIndex, _.mapValues(this.filteredTableData[0], () => undefined)) }}`,
+      selectedRows: `{{ this.filteredTableData.filter((item, i) => selectedRowIndices.includes(i) }); }}`,
+    },
     triggerProperties: {
       onRowSelected: true,
       onPageChange: true,
