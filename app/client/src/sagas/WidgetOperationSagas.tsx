@@ -329,6 +329,11 @@ const getAllWidgetsInTree = (
   return widgetList;
 };
 
+/**
+ * Note: Mutates finalWidgets[parentId].bottomRow for CANVAS_WIDGET
+ * @param finalWidgets
+ * @param parentId
+ */
 const resizeCanvasToLowestWidget = (
   finalWidgets: CanvasWidgetsReduxState,
   parentId: string,
