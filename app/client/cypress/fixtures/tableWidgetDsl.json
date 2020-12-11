@@ -68,6 +68,26 @@
                 "parentId": "tyiwk4xuq0",
                 "widgetId": "5up3r2iuvs",
                 "dynamicBindingPathList": []
+              },
+              {
+                "widgetName": "RunButton",
+                "rightColumn": 14,
+                "onClick": "",
+                "isDefaultClickDisabled": true,
+                "widgetId": "3p92qmlzfl",
+                "buttonStyle": "PRIMARY_BUTTON",
+                "topRow": 3,
+                "bottomRow": 4,
+                "parentRowSpace": 38,
+                "isVisible": true,
+                "type": "BUTTON_WIDGET",
+                "dynamicBindingPathList": [],
+                "parentId": "hjiybwqair",
+                "isLoading": false,
+                "parentColumnSpace": 34.6875,
+                "leftColumn": 11,
+                "text": "Run",
+                "isDisabled": false
               }
             ],
             "widgetId": "tyiwk4xuq0",
