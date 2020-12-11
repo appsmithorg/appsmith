@@ -716,7 +716,6 @@ export default [
         propertyName: "cellBackground",
         label: "Cell Background",
         controlType: "COLOR_PICKER",
-        isJSConvertible: true,
         defaultColor: Colors.WHITE,
         updateHook: updateColumnStyles,
       },
@@ -724,7 +723,6 @@ export default [
         propertyName: "textColor",
         label: "Text Color",
         controlType: "COLOR_PICKER",
-        isJSConvertible: true,
         defaultColor: Colors.THUNDER,
         updateHook: updateColumnStyles,
       },
@@ -732,7 +730,6 @@ export default [
         propertyName: "textSize",
         label: "Text Size",
         controlType: "DROP_DOWN",
-        isJSConvertible: true,
         updateHook: updateColumnStyles,
         options: [
           {
@@ -782,7 +779,6 @@ export default [
             value: "ITALIC",
           },
         ],
-        isJSConvertible: true,
       },
       {
         propertyName: "horizontalAlignment",
@@ -805,7 +801,6 @@ export default [
           },
         ],
         defaultValue: "LEFT",
-        isJSConvertible: true,
       },
       {
         propertyName: "verticalAlignment",
@@ -827,7 +822,6 @@ export default [
           },
         ],
         defaultValue: "LEFT",
-        isJSConvertible: true,
       },
     ],
   },
