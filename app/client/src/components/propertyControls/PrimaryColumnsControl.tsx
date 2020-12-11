@@ -90,6 +90,24 @@ const removeDynamicPaths = (paths: Array<{ key: string }>, index: number) => {
   return false;
 };
 
+const getOriginalColumnIndex = (
+  columns: ColumnProperties[],
+  index: number,
+  columnOrder?: string[],
+) => {
+  let originalColumnIndex = index;
+  if (columnOrder) {
+    const columnId = columnOrder ? columnOrder[index] : "";
+    originalColumnIndex = columns.findIndex(
+      (column: ColumnProperties) => column.id === columnId,
+    );
+    if (originalColumnIndex === -1) {
+      originalColumnIndex = index;
+    }
+  }
+  return originalColumnIndex;
+};
+
 function ColumnControlComponent(props: RenderComponentProps) {
   const {
     updateOption,
@@ -224,20 +242,12 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
   };
 
   onEdit = (index: number) => {
-    let originalColumnIndex = index;
     const columns = this.props.propertyValue || [];
-    if (this.props.widgetProperties.columnOrder) {
-      const columnId = this.props.widgetProperties.columnOrder
-        ? this.props.widgetProperties.columnOrder[index]
-        : "";
-      originalColumnIndex = columns.findIndex(
-        (column: ColumnProperties) => column.id === columnId,
-      );
-      if (originalColumnIndex === -1) {
-        originalColumnIndex = index;
-      }
-    }
-
+    const originalColumnIndex = getOriginalColumnIndex(
+      columns,
+      index,
+      this.props.widgetProperties.columnOrder,
+    );
     const column: ColumnProperties = columns[originalColumnIndex];
     this.props.openNextPanel(column);
   };
@@ -264,28 +274,33 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
   deleteOption = (index: number) => {
     const columns: ColumnProperties[] = this.props.propertyValue || [];
     const updatedColumns: ColumnProperties[] = [...columns];
+    const originalColumnIndex = getOriginalColumnIndex(
+      columns,
+      index,
+      this.props.widgetProperties.columnOrder,
+    );
     const removeDynamicBindingPaths = removeDynamicPaths(
       this.props.widgetProperties.dynamicBindingPathList,
-      index,
+      originalColumnIndex,
     );
     if (removeDynamicBindingPaths) {
       this.updateProperty("dynamicBindingPathList", removeDynamicBindingPaths);
     }
     const removeDynamicTriggers = removeDynamicPaths(
       this.props.widgetProperties.dynamicTriggers,
-      index,
+      originalColumnIndex,
     );
     if (removeDynamicTriggers) {
       this.updateProperty("dynamicTriggers", removeDynamicTriggers);
     }
     const removeDynamicProperties = removeDynamicPaths(
       this.props.widgetProperties.dynamicPropertyPathList,
-      index,
+      originalColumnIndex,
     );
     if (removeDynamicProperties) {
       this.updateProperty("dynamicPropertyPathList", removeDynamicProperties);
     }
-    updatedColumns.splice(index, 1);
+    updatedColumns.splice(originalColumnIndex, 1);
     this.updateProperty(this.props.propertyName, updatedColumns);
   };
 
