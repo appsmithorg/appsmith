@@ -90,6 +90,24 @@ const removeDynamicPaths = (paths: Array<{ key: string }>, index: number) => {
   return false;
 };
 
+const getOriginalColumnIndex = (
+  columns: ColumnProperties[],
+  index: number,
+  columnOrder?: string[],
+) => {
+  let originalColumnIndex = index;
+  if (columnOrder) {
+    const columnId = columnOrder ? columnOrder[index] : "";
+    originalColumnIndex = columns.findIndex(
+      (column: ColumnProperties) => column.id === columnId,
+    );
+    if (originalColumnIndex === -1) {
+      originalColumnIndex = index;
+    }
+  }
+  return originalColumnIndex;
+};
+
 function ColumnControlComponent(props: RenderComponentProps) {
   const {
     updateOption,
@@ -108,7 +126,6 @@ function ColumnControlComponent(props: RenderComponentProps) {
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           updateOption(index, event.target.value);
         }}
-        defaultValue={item.label}
         value={item.label}
       />
       <StyledEditIcon
@@ -153,11 +170,15 @@ function ColumnControlComponent(props: RenderComponentProps) {
 
 class PrimaryColumnsControl extends BaseControl<ControlProps> {
   render() {
+    // Get columns from widget properties
     const columns = this.props.propertyValue || [];
+    // If there are no columns, show empty state
     if (columns.length === 0) {
       return <EmptyDataState />;
     }
+    // Get an empty array of length of columns
     let columnOrder: string[] = new Array(columns.length);
+
     if (this.props.widgetProperties.columnOrder) {
       columnOrder = this.props.widgetProperties.columnOrder;
     } else {
@@ -222,7 +243,12 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
 
   onEdit = (index: number) => {
     const columns = this.props.propertyValue || [];
-    const column: ColumnProperties = columns[index];
+    const originalColumnIndex = getOriginalColumnIndex(
+      columns,
+      index,
+      this.props.widgetProperties.columnOrder,
+    );
+    const column: ColumnProperties = columns[originalColumnIndex];
     this.props.openNextPanel(column);
   };
   //Used to reorder columns
@@ -248,28 +274,33 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
   deleteOption = (index: number) => {
     const columns: ColumnProperties[] = this.props.propertyValue || [];
     const updatedColumns: ColumnProperties[] = [...columns];
+    const originalColumnIndex = getOriginalColumnIndex(
+      columns,
+      index,
+      this.props.widgetProperties.columnOrder,
+    );
     const removeDynamicBindingPaths = removeDynamicPaths(
       this.props.widgetProperties.dynamicBindingPathList,
-      index,
+      originalColumnIndex,
     );
     if (removeDynamicBindingPaths) {
       this.updateProperty("dynamicBindingPathList", removeDynamicBindingPaths);
     }
     const removeDynamicTriggers = removeDynamicPaths(
       this.props.widgetProperties.dynamicTriggers,
-      index,
+      originalColumnIndex,
     );
     if (removeDynamicTriggers) {
       this.updateProperty("dynamicTriggers", removeDynamicTriggers);
     }
     const removeDynamicProperties = removeDynamicPaths(
       this.props.widgetProperties.dynamicPropertyPathList,
-      index,
+      originalColumnIndex,
     );
     if (removeDynamicProperties) {
       this.updateProperty("dynamicPropertyPathList", removeDynamicProperties);
     }
-    updatedColumns.splice(index, 1);
+    updatedColumns.splice(originalColumnIndex, 1);
     this.updateProperty(this.props.propertyName, updatedColumns);
   };
 
