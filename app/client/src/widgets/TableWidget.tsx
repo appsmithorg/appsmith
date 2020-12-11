@@ -417,11 +417,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           this.getSelectedRow(filteredTableData, selectedRowIndex),
         );
       } else {
-        const selectedRowIndices = this.props.selectedRowIndices.length
-          ? this.props.selectedRowIndices
-          : Array.isArray(this.props.defaultSelectedRow)
-          ? this.props.defaultSelectedRow
-          : [];
+        const selectedRowIndices =
+          this.props.selectedRowIndices && this.props.selectedRowIndices.length
+            ? this.props.selectedRowIndices
+            : Array.isArray(this.props.defaultSelectedRow)
+            ? this.props.defaultSelectedRow
+            : [];
         this.props.updateWidgetMetaProperty(
           "selectedRowIndices",
           selectedRowIndices,
