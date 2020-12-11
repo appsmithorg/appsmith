@@ -99,8 +99,8 @@ jobs:
       # Build the code
       - name: Build without running any tests
         run: |
-          mvn versions:set -DnewVersion=${{ steps.get_version_number.outputs.version }} -DgenerateBackupPoms=false -DprocessAllModules=true
-          mvn -B package -DskipTests
+          mvn --batch-mode versions:set -DnewVersion=${{ steps.get_version_number.outputs.version }} -DgenerateBackupPoms=false -DprocessAllModules=true
+          mvn --batch-mode package -DskipTests
 
       - name: Get the version tag
         id: get_version
