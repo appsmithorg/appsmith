@@ -249,14 +249,12 @@ jobs:
 
   package:
     needs: ui-test
-    # Only run if the ui-test step is successful
-    if: success()
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: app/client
     # Run this job only if all the previous steps are a success and the reference if the release or master branch
-    if: always() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master')
+    if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master')
 
     steps:
       # Checkout the code
