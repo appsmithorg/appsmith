@@ -1526,11 +1526,11 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
   );
 });
 
-Cypress.Commands.add("dragAndDropToCanvas", widgetType => {
+Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.get(selector)
     .trigger("mousedown", { button: 0 }, { force: true })
-    .trigger("mousemove", 300, -300, { force: true });
+    .trigger("mousemove", x, y, { force: true });
   cy.get(explorer.dropHere)
     .click()
     .trigger("mouseup", { force: true });
