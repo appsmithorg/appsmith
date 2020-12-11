@@ -78,7 +78,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             return emailRegex.test(this.text);
           }
           else if (this.inputType === "NUMBER") {
-            return !isNaN(this.text)
+            if (parsedRegex) {
+              return !isNaN(this.text) && parsedRegex.test(this.text);
+            }
+
+            return !isNaN(this.text);
           }
           else if (this.isRequired) {
             if(this.text && this.text.length) {
