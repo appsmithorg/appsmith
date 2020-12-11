@@ -53,7 +53,9 @@ jobs:
           cache-name: cache-yarn-dependencies
         with:
           # Node dependencies are stored in `./node_modules` on Linux/macOS
-          path: '**/node_modules'
+          path: |
+            '**/node_modules'
+            '~/.npm'
           key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.OS }}-node-
@@ -91,6 +93,8 @@ jobs:
 
   ui-test:
     needs: build
+    # Only run if the build step is successful
+    if: success()
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -138,11 +142,14 @@ jobs:
           cache-name: cache-yarn-dependencies
         with:
           # Node dependencies are stored in `./node_modules` on Linux/macOS
-          path: '**/node_modules'
+          path: |
+            '**/node_modules'
+            '~/.npm'
           key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.OS }}-node-
             ${{ runner.OS }}-
+
 
       # Install all the dependencies
       - name: Install dependencies
@@ -242,6 +249,8 @@ jobs:
 
   package:
     needs: ui-test
+    # Only run if the ui-test step is successful
+    if: success()
     runs-on: ubuntu-latest
     defaults:
       run:
