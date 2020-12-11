@@ -87,6 +87,8 @@ class DatePickerComponent extends React.Component<
         setTimeout(() => resolve(), 200); // time window to click and drag
       });
     }
+
+    // a caveat here is we handle closing the picker on select within the on date selected method
     if (this.isFocused) {
       this.setState({ isPopoverOpen: flag });
       this.props.disableDrag?.(flag);
