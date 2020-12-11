@@ -100,12 +100,7 @@ const PropertyControl = memo((props: Props) => {
         ),
       );
     },
-    [
-      dispatch,
-      widgetProperties.widgetId,
-      widgetProperties.type,
-      widgetProperties.widgetName,
-    ],
+    [dispatch, widgetProperties],
   );
 
   const openPanel = useCallback(
