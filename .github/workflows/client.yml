@@ -6,10 +6,15 @@ on:
     # Only trigger if files have changed in this specific path
     paths:
       - "app/client/**"
+    paths-ignore:
+      - "app/client/cypress/manual_TestSuite/**"
   pull_request_target:
     branches: [release, master]
     paths:
       - "app/client/**"
+    paths-ignore:
+      - "app/client/cypress/manual_TestSuite/**"
+
 # Change the working directory for all the jobs in this workflow
 defaults:
   run:
@@ -49,8 +54,8 @@ jobs:
         env:
           cache-name: cache-yarn-dependencies
         with:
-          # npm dependencies are stored in `~/.npm` on Linux/macOS
-          path: ~/.npm
+          # Node dependencies are stored in `./node_modules` on Linux/macOS
+          path: '**/node_modules'
           key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.OS }}-node-
@@ -134,8 +139,8 @@ jobs:
         env:
           cache-name: cache-yarn-dependencies
         with:
-          # maven dependencies are stored in `~/.m2` on Linux/macOS
-          path: ~/.npm
+          # Node dependencies are stored in `./node_modules` on Linux/macOS
+          path: '**/node_modules'
           key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.OS }}-node-
