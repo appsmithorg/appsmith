@@ -524,7 +524,7 @@ echo "Installing Appsmith to '$install_dir'."
 mkdir -p "$install_dir"
 echo ""
 
-if confirm y "Is this a fresh installation?"; then
+if confirm y "Would you like to initialize the default database?"; then
     echo "Appsmith needs to create a MongoDB instance."
     mongo_host="mongo"
     mongo_database="appsmith"
@@ -536,7 +536,7 @@ if confirm y "Is this a fresh installation?"; then
     # Since the mongo was automatically setup, this must be the first time installation. Generate encryption credentials for this scenario
     auto_generate_encryption="true"
 else
-    echo 'You are trying to connect to an existing appsmith installation. Abort if you want to install appsmith fresh'
+    echo 'You are trying to connect to an existing appsmith database. Abort if you want to install appsmith using the default database'
     read -rp 'Enter your existing appsmith mongo db host: ' mongo_host
     read -rp 'Enter your existing appsmith mongo root user: ' mongo_root_user
     read -srp 'Enter your existing appsmith mongo password: ' mongo_root_password

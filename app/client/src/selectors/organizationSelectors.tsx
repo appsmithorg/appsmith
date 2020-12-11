@@ -59,5 +59,5 @@ export const getDefaultRole = createSelector(getRoles, (roles?: OrgRole[]) => {
   return roles?.find(role => role.isDefault);
 });
 export const getCurrentError = (state: AppState) => {
-  return state.ui.errors;
+  return state.ui.errors.currentError;
 };
