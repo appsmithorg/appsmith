@@ -84,8 +84,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return {
       selectedRow:
         "{{(()=> { \
-        const selectedRowIndex = this.selectedRowIndex || -1;\
+        const selectedRowIndex = this.selectedRowIndex === undefined || Number.isNaN(parseInt(this.selectedRowIndex)) ? -1 : parseInt(this.selectedRowIndex);\
         const filteredTableData = this.filteredTableData || []; \
+        if(selectedRowIndex === -1) { const emptyRow = filteredTableData[0]; Object.keys(emptyRow).forEach((key) => { emptyRow[key] = ''; }); return emptyRow; } \
         return filteredTableData[selectedRowIndex];\
       })()}}",
       selectedRows:

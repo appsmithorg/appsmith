@@ -253,11 +253,13 @@ const updateDerivedColumnsHook = (
     const newDerivedColumns = propertyValue.filter(
       (column: ColumnProperties) => column.isDerived,
     );
+
     // check if there is a difference in the two
     const difference: ColumnProperties[] = xorWith(
       oldDerivedColumns,
       newDerivedColumns,
-      (a: ColumnProperties, b: ColumnProperties) => a.id === b.id,
+      (a: ColumnProperties, b: ColumnProperties) =>
+        a.id === b.id && a.label === b.label,
     );
 
     if (difference.length > 0) {
@@ -309,7 +311,7 @@ export default [
         controlType: "INPUT_TEXT",
         placeholderText: 'Enter [{ "col1": "val1" }]',
         inputType: "ARRAY",
-        updateHook: updateColumnsHook,
+        // updateHook: updateColumnsHook,
       },
       {
         helpText: "Columns",
