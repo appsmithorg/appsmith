@@ -108,7 +108,6 @@ function ColumnControlComponent(props: RenderComponentProps) {
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           updateOption(index, event.target.value);
         }}
-        defaultValue={item.label}
         value={item.label}
       />
       <StyledEditIcon
@@ -153,11 +152,15 @@ function ColumnControlComponent(props: RenderComponentProps) {
 
 class PrimaryColumnsControl extends BaseControl<ControlProps> {
   render() {
+    // Get columns from widget properties
     const columns = this.props.propertyValue || [];
+    // If there are no columns, show empty state
     if (columns.length === 0) {
       return <EmptyDataState />;
     }
+    // Get an empty array of length of columns
     let columnOrder: string[] = new Array(columns.length);
+
     if (this.props.widgetProperties.columnOrder) {
       columnOrder = this.props.widgetProperties.columnOrder;
     } else {
@@ -221,8 +224,21 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
   };
 
   onEdit = (index: number) => {
+    let originalColumnIndex = index;
     const columns = this.props.propertyValue || [];
-    const column: ColumnProperties = columns[index];
+    if (this.props.widgetProperties.columnOrder) {
+      const columnId = this.props.widgetProperties.columnOrder
+        ? this.props.widgetProperties.columnOrder[index]
+        : "";
+      originalColumnIndex = columns.findIndex(
+        (column: ColumnProperties) => column.id === columnId,
+      );
+      if (originalColumnIndex === -1) {
+        originalColumnIndex = index;
+      }
+    }
+
+    const column: ColumnProperties = columns[originalColumnIndex];
     this.props.openNextPanel(column);
   };
   //Used to reorder columns
