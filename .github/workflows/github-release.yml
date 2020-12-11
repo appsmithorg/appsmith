@@ -63,7 +63,7 @@ jobs:
           fi
 
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push appsmith/appsmith-editor
+          echo docker push appsmith/appsmith-editor
 
   build-server:
     runs-on: ubuntu-latest
@@ -92,11 +92,17 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Get the version number
+        id: get_version
+        run: echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
+
       # Build the code
       - name: Build without running any tests
-        run: mvn -B package -DskipTests
+        run: |
+          mvn versions:set -DnewVersion=${{ steps.vars.outputs.version }} -DgenerateBackupPoms=false -DprocessAllModules=true
+          mvn -B package -DskipTests
 
-      - name: Get the version
+      - name: Get the version tag
         id: get_version
         run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
 
@@ -111,7 +117,7 @@ jobs:
           fi
 
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push appsmith/appsmith-server
+          echo docker push appsmith/appsmith-server
 
   create-release:
     needs:
