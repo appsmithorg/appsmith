@@ -70,11 +70,10 @@ jobs:
         run: |
           REACT_APP_ENVIRONMENT="DEVELOPMENT"  
           if [ ${GITHUB_REF} == '/refs/heads/master' ]; then
-              REACT_APP_ENVIRONMENT="PRODUCTION"
+              echo ::set-output name=REACT_APP_ENVIRONMENT::"PRODUCTION"
           elif [ ${GITHUB_REF} == '/refs/heads/release' ]; then
-              REACT_APP_ENVIRONMENT="STAGING"
+              echo ::set-output name=REACT_APP_ENVIRONMENT::"STAGING"
           fi
-          echo ::set-output name=REACT_APP_ENVIRONMENT::${REACT_APP_ENVIRONMENT}
 
       - name: Run the jest tests
         run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
