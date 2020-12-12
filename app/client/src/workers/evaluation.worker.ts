@@ -36,6 +36,7 @@ import {
   DataTreeDiffEvent,
   translateDiffEventToDataTreeDiffEvent,
 } from "./evaluationUtils";
+import * as path from "path";
 
 const ctx: Worker = self as any;
 
@@ -230,15 +231,18 @@ export class DataTreeEvaluator {
 
         // If this is a property path change, simply add for evaluation
         if (d.path.length > 1) {
-          // We will add all parents of this change to this sort order
-          for (let i = 0; i < d.path.length; i++) {
-            const indexToSlice = d.path.length - i;
-            if (indexToSlice > 1) {
-              changePaths.add(
-                convertPathToString(d.path.slice(0, indexToSlice)),
-              );
-            }
-          }
+          changePaths.add(convertPathToString(d.path));
+
+          // @Hetu : I have commented out the code here. Undo this if incorrect.
+          // // We will add all parents of this change to this sort order
+          // for (let i = 0; i < d.path.length; i++) {
+          //   const indexToSlice = d.path.length - i;
+          //   if (indexToSlice > 1) {
+          //     changePaths.add(
+          //       convertPathToString(d.path.slice(0, indexToSlice)),
+          //     );
+          //   }
+          // }
         } else if (d.path.length === 1) {
           /*
             When we see a new widget has been added or or delete an old widget ( d.path.length === 1)
@@ -266,7 +270,7 @@ export class DataTreeEvaluator {
 
     // Now that we have all the root nodes which have to be evaluated, recursively find all the other paths which
     // would get impacted because they are dependent on the said root nodes and add them in order
-    const newSortOrder = this.getUpdatedSortOrder(
+    const newSortOrder = this.getCompleteSortOrder(
       changePathsWithNestedDependants,
       this.inverseDependencyMap,
     );
@@ -327,7 +331,58 @@ export class DataTreeEvaluator {
     return this.evalTree;
   }
 
-  getUpdatedSortOrder(
+  getCompleteSortOrder(
+    changes: Array<string>,
+    inverseMap: DependencyMap,
+  ): Array<string> {
+    let finalSortOrder: Array<string> = [];
+    let computeSortOrder = true;
+    // Initialize parents with the current sent of property paths that need to be evaluated
+    let parents = changes;
+    let subSortOrderArray: Array<string>;
+    while (computeSortOrder) {
+      // Get all the nodes that would be impacted by the evaluation of the nodes in parents array in sorted order
+      subSortOrderArray = this.getEvaluationSortOrder(parents, inverseMap);
+      // Add all the sorted nodes in the final list
+      finalSortOrder = [...subSortOrderArray];
+      parents = this.getImmediateParentsOfPropertyPaths(subSortOrderArray);
+      // If we find parents of the property paths in the sorted array, we should contine finding all the nodes dependent
+      // on the parents
+      if (parents.length > 0) {
+        computeSortOrder = true;
+      } else {
+        computeSortOrder = false;
+      }
+    }
+
+    return finalSortOrder;
+  }
+
+  //@Hetu : Please re-write if required. The idea here is to find Table1.selectedRow if the property path is
+  // Table1.selectedRow.email. This needs to happen for all property paths in the array
+  getImmediateParentsOfPropertyPaths(
+    propertyPaths: Array<string>,
+  ): Array<string> {
+    const parents: Array<string> = [];
+
+    propertyPaths.forEach(path => {
+      let lastDot = 0;
+      let i = 0;
+      for (; i < path.length; i++) {
+        if (path[i] === ".") {
+          lastDot = i;
+        }
+      }
+      if (lastDot != 0) {
+        // Calculate and push the immediate parent of the path
+        parents.push(path.substr(0, i - 1));
+      }
+    });
+
+    return parents;
+  }
+
+  getEvaluationSortOrder(
     changes: Array<string>,
     inverseMap: DependencyMap,
   ): Array<string> {
