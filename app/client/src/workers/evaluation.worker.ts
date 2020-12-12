@@ -366,17 +366,14 @@ export class DataTreeEvaluator {
     const parents: Array<string> = [];
 
     propertyPaths.forEach(path => {
-      let lastDot = 0;
-      let i = 0;
-      for (; i < path.length; i++) {
-        if (path[i] === ".") {
-          lastDot = i;
-        }
+      const parentProperty = path.substr(0, path.lastIndexOf("."));
+
+      if (parentProperty.length === path.length) {
+        // We have reached the top of the path. No parent exists
+        return;
       }
-      if (lastDot != 0) {
-        // Calculate and push the immediate parent of the path
-        parents.push(path.substr(0, i - 1));
-      }
+
+      parents.push(parentProperty);
     });
 
     return parents;
