@@ -77,7 +77,6 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
   });
 
-  //Added test for bcg colour
   it("Test to validate text color and text background", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(widgetsPage.textColor)
@@ -87,11 +86,9 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(5000);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(41, 204, 163)");
-    cy.get(widgetsPage.toggleJsColor).click();
-    cy.testCodeMirrorLast("purple");
+    cy.get(widgetsPage.textColor).type("purple",{ force : true });
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
-    cy.get(widgetsPage.toggleJsColor).click();
     cy.get(widgetsPage.backgroundColor)
       .first()
       .click({ force: true });
@@ -103,8 +100,7 @@ describe("Table Widget property pane feature validation", function() {
       "background",
       "rgb(41, 204, 163) none repeat scroll 0% 0% / auto padding-box border-box",
     );
-    cy.get(widgetsPage.toggleJsBcgColor).click();
-    cy.testCodeMirrorLast("purple");
+    cy.get(widgetsPage.backgroundColor).type("purple",{force : true });
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
       "1",

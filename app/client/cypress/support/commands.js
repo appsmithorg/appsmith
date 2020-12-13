@@ -388,6 +388,20 @@ Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
   ).should("not.be.visible");
 });
 
+//div[@data-rbd-draggable-id='updatedAt']//*[local-name()="svg"]
+
+Cypress.Commands.add("cloumnDragAndDrop", (source, destination) => {
+  cy.xpath("//div[@data-rbd-draggable-id='" + source + "']//*[local-name()='svg']")
+    .first()
+    .trigger('dragstart');
+  cy.xpath("//div[@data-rbd-draggable-id='" + destination + "']//*[local-name()='svg']")
+    .first()
+    .trigger('drop');
+  cy.xpath("//div[@data-rbd-draggable-id='" + source + "']//*[local-name()='svg']")
+    .first()
+    .trigger('dragend');
+});
+
 Cypress.Commands.add("GlobalSearchEntity", apiname1 => {
   cy.get(commonlocators.entityExplorersearch).should("be.visible");
   cy.get(commonlocators.entityExplorersearch)
