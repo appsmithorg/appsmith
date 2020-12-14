@@ -534,11 +534,19 @@ function dependencySortedEvaluateDataTree(
                 widgetEntity,
               );
             }
-            return _.set(currentTree, propertyPath, parsedValue);
+            return _.set(currentTree, propertyPath, _.cloneDeep(parsedValue));
           }
-          return _.set(currentTree, propertyPath, evalPropertyValue);
+          return _.set(
+            currentTree,
+            propertyPath,
+            _.cloneDeep(evalPropertyValue),
+          );
         } else {
-          return _.set(currentTree, propertyPath, evalPropertyValue);
+          return _.set(
+            currentTree,
+            propertyPath,
+            _.cloneDeep(evalPropertyValue),
+          );
         }
       },
       tree,
@@ -614,7 +622,7 @@ const getValidatedTree = (tree: any) => {
             entity,
             tree,
           );
-          parsedEntity[property] = parsed;
+          parsedEntity[property] = _.cloneDeep(parsed);
           if (!hasEvaluatedValue) {
             const evaluatedValue = isValid
               ? parsed
