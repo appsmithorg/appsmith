@@ -23,7 +23,6 @@ describe("Onboarding", function() {
       201,
     );
     cy.get("#loading").should("not.exist");
-    cy.wait(1000);
 
     //Onboarding
     cy.contains(".t--create-database", "Explore Appsmith").click();
@@ -32,9 +31,10 @@ describe("Onboarding", function() {
 
     // Add widget
     cy.get(".t--add-widget").click();
-    cy.dragAndDropToCanvas("tablewidget", { x: 300, y: -300 });
+    cy.dragAndDropToCanvas("tablewidget", { x: 30, y: -30 });
 
     cy.get(onboarding.tooltipSnippet).click({ force: true });
+    cy.wait(1000);
     cy.testJsontext("tabledata", "{{ExampleQuery.data}}");
     cy.closePropertyPane();
     cy.get(explorer.closeWidgets).click();
@@ -46,5 +46,9 @@ describe("Onboarding", function() {
 
     cy.get(homePage.closeBtn).click();
     cy.get(".t--continue-on-my-own").click();
+  });
+
+  after(() => {
+    indexedDB.deleteDatabase("Appsmith");
   });
 });
