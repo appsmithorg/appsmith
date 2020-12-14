@@ -1,4 +1,4 @@
-const dsl = require("app/client/cypress/fixtures/xmlParser.json");
+const dsl = require("../../../fixtures/xmlParser.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 
 describe("xml2json text", function() {
