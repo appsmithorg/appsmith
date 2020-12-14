@@ -41,16 +41,8 @@ describe("API Panel Test Functionality", function() {
       "{{MultiApi.run(undefined, undefined, { endpoint: EndpointInput.text",
     );
     cy.PublishtheApp();
-    cy.get(publishPage.inputWidget)
-      .click({ force: true })
-      .type("todos");
-
-    // Waiting for input to get for evaluation
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
 
     cy.get(publishPage.buttonWidget).click();
-    cy.wait("@postExecute");
 
     cy.readTabledataPublish("0", "2").then(cellData => {
       expect(cellData).to.be.equal("delectus aut autem");
