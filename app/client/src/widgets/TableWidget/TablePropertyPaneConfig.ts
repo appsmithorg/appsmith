@@ -1,4 +1,4 @@
-import { compact, get, xor, xorWith } from "lodash";
+import { compact, get, isString, xor, xorWith } from "lodash";
 import { Colors } from "constants/Colors";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
@@ -7,6 +7,7 @@ import {
   getDefaultColumnProperties,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import { TableWidgetProps } from "./TableWidgetConstants";
+import log from "loglevel";
 
 const updateColumnStyles = (
   props: TableWidgetProps,
@@ -17,8 +18,21 @@ const updateColumnStyles = (
   if (props.primaryColumns) {
     // The style being updated currently
     const currentStyleName = propertyPath.split(".").pop(); // horizontalAlignment/textStyle
-    const derivedColumns = props.derivedColumns || [];
-    let updatedDerivedColumns = [...props.derivedColumns];
+    let derivedColumns = [];
+    if (props.derivedColumns) {
+      if (isString(props.derivedColumns)) {
+        // why is this a string in the first place?
+        try {
+          derivedColumns = JSON.parse(props.derivedColumns);
+        } catch (e) {
+          log.debug("Error parsing derived columns", e);
+        }
+      } else {
+        derivedColumns = props.derivedColumns;
+      }
+    }
+    // const derivedColumns = props.derivedColumns || [];
+    let updatedDerivedColumns = [...derivedColumns];
     if (currentStyleName) {
       let updates = compact(
         props.primaryColumns.map((column: ColumnProperties, index: number) => {
@@ -30,7 +44,7 @@ const updateColumnStyles = (
               item => item.key === propertyPath,
             ) === -1 // if the property path is not a dynamic binding
           ) {
-            //if column is derived, update derivedColumns
+            // if column is derived, update derivedColumns
             if (column.isDerived) {
               updatedDerivedColumns = updatedDerivedColumns.map(
                 (derivedColumn: ColumnProperties) => {
@@ -52,7 +66,7 @@ const updateColumnStyles = (
           return; // Return undefined
         }),
       );
-      //if updatedDerivedColumns has changes update the property
+      // if updatedDerivedColumns has changes update the property
       const difference = xorWith(
         derivedColumns,
         updatedDerivedColumns,
@@ -239,11 +253,13 @@ const updateDerivedColumnsHook = (
     const newDerivedColumns = propertyValue.filter(
       (column: ColumnProperties) => column.isDerived,
     );
+
     // check if there is a difference in the two
     const difference: ColumnProperties[] = xorWith(
       oldDerivedColumns,
       newDerivedColumns,
-      (a: ColumnProperties, b: ColumnProperties) => a.id === b.id,
+      (a: ColumnProperties, b: ColumnProperties) =>
+        a.id === b.id && a.label === b.label,
     );
 
     if (difference.length > 0) {
@@ -295,7 +311,7 @@ export default [
         controlType: "INPUT_TEXT",
         placeholderText: 'Enter [{ "col1": "val1" }]',
         inputType: "ARRAY",
-        updateHook: updateColumnsHook,
+        // updateHook: updateColumnsHook,
       },
       {
         helpText: "Columns",
@@ -700,7 +716,6 @@ export default [
         propertyName: "cellBackground",
         label: "Cell Background",
         controlType: "COLOR_PICKER",
-        isJSConvertible: true,
         defaultColor: Colors.WHITE,
         updateHook: updateColumnStyles,
       },
@@ -708,7 +723,6 @@ export default [
         propertyName: "textColor",
         label: "Text Color",
         controlType: "COLOR_PICKER",
-        isJSConvertible: true,
         defaultColor: Colors.THUNDER,
         updateHook: updateColumnStyles,
       },
@@ -716,7 +730,6 @@ export default [
         propertyName: "textSize",
         label: "Text Size",
         controlType: "DROP_DOWN",
-        isJSConvertible: true,
         updateHook: updateColumnStyles,
         options: [
           {
@@ -766,7 +779,6 @@ export default [
             value: "ITALIC",
           },
         ],
-        isJSConvertible: true,
       },
       {
         propertyName: "horizontalAlignment",
@@ -789,7 +801,6 @@ export default [
           },
         ],
         defaultValue: "LEFT",
-        isJSConvertible: true,
       },
       {
         propertyName: "verticalAlignment",
@@ -811,7 +822,6 @@ export default [
           },
         ],
         defaultValue: "LEFT",
-        isJSConvertible: true,
       },
     ],
   },
