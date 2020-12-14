@@ -70,8 +70,8 @@ jobs:
         APPSMITH_ENCRYPTION_SALT: "salt"
         APPSMITH_IS_SELF_HOSTED: false
       run: |
-        mvn versions:set -DnewVersion=${{ steps.vars.outputs.tag }} -DgenerateBackupPoms=false -DprocessAllModules=true
-        mvn -B package
+        mvn --batch-mode versions:set -DnewVersion=${{ steps.vars.outputs.tag }} -DgenerateBackupPoms=false -DprocessAllModules=true
+        mvn --batch-mode package
 
     # Build release Docker image and push to Docker Hub
     - name: Push release image to Docker Hub

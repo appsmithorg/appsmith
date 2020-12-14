@@ -82,8 +82,8 @@ jobs:
             docker build -t appsmith/appsmith-editor:latest .
           fi
 
-          echo 'echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin'
-          echo 'docker push appsmith/appsmith-editor'
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push appsmith/appsmith-editor
 
   build-server:
     needs:
@@ -132,8 +132,8 @@ jobs:
             docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith/appsmith-server:latest .
           fi
 
-          echo 'echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin'
-          echo 'docker push appsmith/appsmith-server'
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push appsmith/appsmith-server
 
   create-release:
     needs:
