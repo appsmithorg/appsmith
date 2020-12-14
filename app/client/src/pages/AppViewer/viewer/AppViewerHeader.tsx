@@ -33,6 +33,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
+import useDocumentTitle from "utils/hooks/useDocumentTitle";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   background: ${Colors.BALTIC_SEA};
@@ -163,6 +164,8 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const canEdit = isPermitted(userPermissions, permissionRequired);
   const queryParams = new URLSearchParams(useLocation().search);
   const hideHeader = !!queryParams.get("embed");
+  useDocumentTitle(currentApplicationDetails?.name);
+
   if (hideHeader) return null;
   // Mark default page as first page
   const appPages = pages;
