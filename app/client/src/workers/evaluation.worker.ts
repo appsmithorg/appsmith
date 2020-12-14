@@ -355,7 +355,8 @@ export class DataTreeEvaluator {
       }
     }
 
-    return finalSortOrder;
+    const uniqueKeysInSortOrder = [...new Set(finalSortOrder)];
+    return Array.from(uniqueKeysInSortOrder);
   }
 
   //@Hetu : Please re-write if required. The idea here is to find Table1.selectedRow if the property path is
@@ -363,19 +364,20 @@ export class DataTreeEvaluator {
   getImmediateParentsOfPropertyPaths(
     propertyPaths: Array<string>,
   ): Array<string> {
-    const parents: Array<string> = [];
+    // Use a set to ensure that we dont have duplicates
+    const parents: Set<string> = new Set();
 
     propertyPaths.forEach(path => {
       const parentProperty = path.substr(0, path.lastIndexOf("."));
 
       if (parentProperty.length != 0) {
-        parents.push(parentProperty);
+        parents.add(parentProperty);
       } else {
         // We have reached the top of the path. No parent exists
       }
     });
 
-    return parents;
+    return Array.from(parents);
   }
 
   getEvaluationSortOrder(
