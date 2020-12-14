@@ -12,8 +12,6 @@ import {
   BUILDER_URL,
   getApplicationViewerPageURL,
   ORG_URL,
-  PAGE_NOT_FOUND_URL,
-  SERVER_ERROR_URL,
   SIGN_UP_URL,
   USER_AUTH_URL,
   USERS_URL,
