@@ -31,6 +31,7 @@ type EditableTextProps = {
   hideEditIcon?: boolean;
   minimal?: boolean;
   onBlur?: (value?: string) => void;
+  beforeUnmount?: (value?: string) => void;
 };
 
 const EditPen = styled.img`
@@ -91,7 +92,7 @@ export const EditableText = (props: EditableTextProps) => {
   const [isEditing, setIsEditing] = useState(!!props.isEditingDefault);
   const [value, _setValue] = useState(props.defaultValue);
   const inputValRef = useRef("");
-  const { onTextChanged } = props;
+  const { beforeUnmount } = props;
 
   const setValue = useCallback(_value => {
     inputValRef.current = _value;
@@ -107,11 +108,14 @@ export const EditableText = (props: EditableTextProps) => {
     if (props.forceDefault === true) setValue(props.defaultValue);
   }, [props.forceDefault, props.defaultValue, setValue]);
 
+  // in some cases onTextChange is not fired
+  // for example when the modal is closed on clicking the overlay
   useEffect(() => {
     return () => {
-      onTextChanged(inputValRef.current);
+      if (typeof beforeUnmount === "function")
+        beforeUnmount(inputValRef.current);
     };
-  }, [onTextChanged]);
+  }, [beforeUnmount]);
 
   const edit = (e: any) => {
     setIsEditing(true);
@@ -122,7 +126,7 @@ export const EditableText = (props: EditableTextProps) => {
     props.onBlur && props.onBlur();
     const isInvalid = props.isInvalid ? props.isInvalid(_value) : false;
     if (!isInvalid) {
-      onTextChanged(_value);
+      props.onTextChanged(_value);
       setIsEditing(false);
     } else {
       Toaster.show({
