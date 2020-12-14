@@ -48,8 +48,65 @@ import {
 
 const ctx: Worker = self as any;
 
+type EvaluatedValuesMap = Record<string, any>;
 let ERRORS: EvalError[] = [];
 let WIDGET_TYPE_CONFIG_MAP: WidgetTypeConfigMap = {};
+const EVALUATED_VALUES = new (class {
+  _data: { [key in ENTITY_TYPE]?: EvaluatedValuesMap } = {};
+
+  // Todo: refactor
+  set(entity: DataTreeEntity, property: string, value: any) {
+    if (!entity || !("ENTITY_TYPE" in entity)) {
+      console.error("Invalid entity", entity, property, value);
+      return;
+    }
+
+    const existing = this._data[entity.ENTITY_TYPE] || {};
+    let name = "";
+
+    if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
+      name = entity.name;
+    } else if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
+      name = entity.widgetName;
+    } else {
+      console.error("ENTITY_TYPE not recognised", entity, property, value);
+      return;
+    }
+
+    if (!existing[name]) {
+      existing[name] = {};
+    }
+    existing[name][property] = value;
+    this._data[entity.ENTITY_TYPE] = existing;
+  }
+
+  has(entity: DataTreeEntity, property: string): boolean {
+    if (!entity || !("ENTITY_TYPE" in entity)) {
+      console.error("Invalid entity", entity, property);
+      return false;
+    }
+
+    const existing = this._data[entity.ENTITY_TYPE] || {};
+
+    if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
+      return entity.name in existing && property in existing[entity.name];
+    } else if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
+      return (
+        entity.widgetName in existing && property in existing[entity.widgetName]
+      );
+    }
+    console.error("ENTITY_TYPE not recognised", entity, property);
+    return false;
+  }
+
+  getAll() {
+    return this._data;
+  }
+
+  clear() {
+    this._data = {};
+  }
+})();
 
 ctx.addEventListener("message", e => {
   const { action, ...rest } = e.data;
@@ -61,9 +118,17 @@ ctx.addEventListener("message", e => {
       const response = getEvaluatedDataTree(dataTree);
       // We need to clean it to remove any possible functions inside the tree.
       // If functions exist, it will crash the web worker
+
+      console.log("everything", response, EVALUATED_VALUES.getAll());
       const cleanDataTree = JSON.stringify(response);
-      ctx.postMessage({ dataTree: cleanDataTree, errors: ERRORS });
+      const cleanEvaluatedValues = JSON.stringify(EVALUATED_VALUES.getAll());
+      ctx.postMessage({
+        dataTree: cleanDataTree,
+        evaluatedValues: cleanEvaluatedValues,
+        errors: ERRORS,
+      });
       ERRORS = [];
+      EVALUATED_VALUES.clear();
       break;
     }
     case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
@@ -470,6 +535,7 @@ function dependencySortedEvaluateDataTree(
   try {
     return sortedDependencies.reduce(
       (currentTree: DataTree, propertyPath: string) => {
+        console.log("see treee", currentTree, propertyPath);
         const entityName = propertyPath.split(".")[0];
         const entity: DataTreeEntity = currentTree[entityName];
         const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
@@ -534,6 +600,8 @@ function dependencySortedEvaluateDataTree(
                 widgetEntity,
               );
             }
+            // Todo: (piyush) figure how to decouple this.
+            // I feel a lot of things run on this assumption.
             return _.set(currentTree, propertyPath, parsedValue);
           }
           return _.set(currentTree, propertyPath, evalPropertyValue);
@@ -578,10 +646,7 @@ const getValidatedTree = (tree: any) => {
     if (entity && entity.type) {
       const parsedEntity = { ...entity };
       Object.keys(entity).forEach((property: string) => {
-        const hasEvaluatedValue = _.has(
-          parsedEntity,
-          `evaluatedValues.${property}`,
-        );
+        const hasEvaluatedValue = EVALUATED_VALUES.has(parsedEntity, property);
         const hasValidation = _.has(parsedEntity, `invalidProps.${property}`);
         const isSpecialField = [
           "dynamicBindingPathList",
@@ -614,6 +679,7 @@ const getValidatedTree = (tree: any) => {
             entity,
             tree,
           );
+          // Todo: (piyush) see if we can refactor this out.
           parsedEntity[property] = parsed;
           if (!hasEvaluatedValue) {
             const evaluatedValue = isValid
@@ -622,11 +688,7 @@ const getValidatedTree = (tree: any) => {
               ? value
               : transformed;
             const safeEvaluatedValue = removeFunctions(evaluatedValue);
-            _.set(
-              parsedEntity,
-              `evaluatedValues.${property}`,
-              safeEvaluatedValue,
-            );
+            EVALUATED_VALUES.set(parsedEntity, property, safeEvaluatedValue);
           }
 
           const hasValidation = _.has(parsedEntity, `invalidProps.${property}`);
@@ -828,7 +890,7 @@ function validateAndParseWidgetProperty(
     ? evalPropertyValue
     : transformed;
   const safeEvaluatedValue = removeFunctions(evaluatedValue);
-  _.set(widget, `evaluatedValues.${entityPropertyName}`, safeEvaluatedValue);
+  EVALUATED_VALUES.set(widget, entityPropertyName, safeEvaluatedValue);
   if (!isValid) {
     _.set(widget, `invalidProps.${entityPropertyName}`, true);
     _.set(widget, `validationMessages.${entityPropertyName}`, message);

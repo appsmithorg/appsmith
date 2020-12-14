@@ -94,9 +94,13 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
     widgetTypeConfigMap,
   });
   const workerResponse = yield take(workerChannel);
-  const { errors, dataTree } = workerResponse.data;
+  const { errors, dataTree, evaluatedValues } = workerResponse.data;
   const parsedDataTree = JSON.parse(dataTree);
-  log.debug({ dataTree: parsedDataTree });
+  const parsedEvaluatedValues = JSON.parse(evaluatedValues);
+  log.debug({
+    dataTree: parsedDataTree,
+    evaluatedValues: parsedEvaluatedValues,
+  });
   evalErrorHandler(errors);
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
