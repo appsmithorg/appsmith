@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   EditableText as BlueprintEditableText,
   Classes,
@@ -89,7 +89,13 @@ const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
 
 export const EditableText = (props: EditableTextProps) => {
   const [isEditing, setIsEditing] = useState(!!props.isEditingDefault);
-  const [value, setValue] = useState(props.defaultValue);
+  const [value, _setValue] = useState(props.defaultValue);
+  const inputValRef = useRef("");
+
+  const setValue = useCallback(_value => {
+    inputValRef.current = _value;
+    _setValue(_value);
+  }, []);
 
   useEffect(() => {
     setValue(props.defaultValue);
@@ -99,6 +105,12 @@ export const EditableText = (props: EditableTextProps) => {
   useEffect(() => {
     if (props.forceDefault === true) setValue(props.defaultValue);
   }, [props.forceDefault, props.defaultValue]);
+
+  useEffect(() => {
+    return () => {
+      props.onTextChanged(inputValRef.current);
+    };
+  }, []);
 
   const edit = (e: any) => {
     setIsEditing(true);
