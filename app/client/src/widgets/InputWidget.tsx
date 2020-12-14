@@ -58,6 +58,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             * Example /appsmith/i will be split into ["/appsmith/gi", "/", "appsmith", "gi"]
             */
             const regexParts = this.regex.match(/(\\/?)(.+)\\1([a-z]*)/i);
+
             if (!regexParts) {
               parsedRegex = new RegExp(this.regex);
             } else {
@@ -79,7 +80,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           }
           else if (this.inputType === "NUMBER") {
             if (parsedRegex) {
-              return !isNaN(this.text) && parsedRegex.test(this.text);
+              return parsedRegex.test(this.text);
             }
 
             return !isNaN(this.text);
