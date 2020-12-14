@@ -37,7 +37,9 @@ const DBQueryGroup = (props: any) => {
   return (
     <>
       <Wrapper>
-        <AddWidget onClick={props.showWidgetsSidebar}>Add Widget</AddWidget>
+        <AddWidget className="t--add-widget" onClick={props.showWidgetsSidebar}>
+          Add Widget
+        </AddWidget>
       </Wrapper>
       {getPluginGroups(
         currentPage,

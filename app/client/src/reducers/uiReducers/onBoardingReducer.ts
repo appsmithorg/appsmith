@@ -26,7 +26,7 @@ export interface OnboardingState {
 }
 
 const onboardingReducer = createReducer(initialState, {
-  SHOW_WELCOME: (state: OnboardingState) => {
+  [ReduxActionTypes.SHOW_WELCOME]: (state: OnboardingState) => {
     return { ...state, showWelcomeScreen: true };
   },
   CREATE_ONBOARDING_DBQUERY_INIT: (state: OnboardingState) => {

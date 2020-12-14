@@ -117,6 +117,7 @@ const Welcome = () => {
           }}
         >
           <StyledButton
+            className="t--create-database"
             onClick={() => {
               dispatch(setCurrentStep(1));
             }}

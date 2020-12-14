@@ -1,5 +1,5 @@
 import { setCurrentStep } from "actions/onboardingActions";
-import { ReduxAction } from "./ReduxActionConstants";
+import { ReduxAction, ReduxActionTypes } from "./ReduxActionConstants";
 
 export enum OnboardingStep {
   NONE = -1,
@@ -42,7 +42,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       // Return action that needs to be dispatched
       return [
         {
-          type: "SHOW_WELCOME",
+          type: ReduxActionTypes.SHOW_WELCOME,
         },
       ];
     },

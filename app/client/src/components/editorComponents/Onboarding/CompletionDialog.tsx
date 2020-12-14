@@ -152,7 +152,9 @@ const CompletionDialog = () => {
               </DescriptionItem>
             </DescriptionList>
 
-            <StyledButton onClick={onClose}>Continue on my own</StyledButton>
+            <StyledButton className="t--continue-on-my-own" onClick={onClose}>
+              Continue on my own
+            </StyledButton>
           </DescriptionWrapper>
           <QuickLinksWrapper>
             <QuickLinksTitle>Quick Links:</QuickLinksTitle>

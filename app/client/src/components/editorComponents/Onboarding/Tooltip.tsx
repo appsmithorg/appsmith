@@ -141,7 +141,7 @@ const OnboardingToolTip: React.FC<OnboardingToolTipProps> = (
 
   if (isOpen) {
     return (
-      <Container isFinalStep={isFinalStep}>
+      <Container className="t--onboarding-tooltip" isFinalStep={isFinalStep}>
         <Popover
           ref={popoverRef}
           isOpen={true}

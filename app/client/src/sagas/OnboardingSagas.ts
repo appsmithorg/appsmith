@@ -69,6 +69,7 @@ function* listenForWidgetAdditions() {
 function* listenForSuccessfullBinding() {
   while (true) {
     yield take();
+
     let bindSuccessfull = true;
     const selectedWidget = yield select(getSelectedWidget);
     if (selectedWidget && selectedWidget.type === "TABLE_WIDGET") {
