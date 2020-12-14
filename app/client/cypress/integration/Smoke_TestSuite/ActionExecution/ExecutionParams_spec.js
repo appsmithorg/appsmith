@@ -7,7 +7,7 @@ describe("API Panel Test Functionality", function() {
   });
   it("Will pass static values in params", function() {
     cy.NavigateToAPI_Panel();
-    cy.CreateAPI("MultiApi");
+    cy.CreateAPI("StaticParams");
     cy.enterDatasourceAndPath(
       "https://jsonplaceholder.typicode.com/",
       "{{this.params.endpoint}}",
@@ -15,7 +15,7 @@ describe("API Panel Test Functionality", function() {
     cy.WaitAutoSave();
 
     cy.SearchEntityandOpen("Table1");
-    cy.testJsontext("tabledata", "{{MultiApi.data");
+    cy.testJsontext("tabledata", "{{StaticParams.data");
 
     cy.SearchEntityandOpen("RunButton");
     cy.get(".t--property-control-onclick")
@@ -24,7 +24,7 @@ describe("API Panel Test Functionality", function() {
 
     cy.testJsontext(
       "onclick",
-      "{{MultiApi.run(undefined, undefined, { endpoint: 'users",
+      "{{StaticParams.run(undefined, undefined, { endpoint: 'users",
     );
     cy.PublishtheApp();
     cy.get(publishPage.buttonWidget).click();
@@ -35,11 +35,19 @@ describe("API Panel Test Functionality", function() {
   });
 
   it("Will pass dynamic values in params", function() {
+    cy.NavigateToAPI_Panel();
+    cy.CreateAPI("DynamicParams");
+    cy.enterDatasourceAndPath(
+      "https://jsonplaceholder.typicode.com/",
+      "{{this.params.endpoint || 'posts'}}",
+    );
+
     cy.SearchEntityandOpen("RunButton");
     cy.testJsontext(
       "onclick",
-      "{{MultiApi.run(undefined, undefined, { endpoint: EndpointInput.text",
+      "{{DynamicParams.run(undefined, undefined, { endpoint: EndpointInput.text",
     );
+
     cy.PublishtheApp();
 
     cy.get(publishPage.buttonWidget).click();
