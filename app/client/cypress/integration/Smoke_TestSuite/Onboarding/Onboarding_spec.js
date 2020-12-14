@@ -4,7 +4,7 @@ const homePage = require("../../../locators/HomePage.json");
 const loginPage = require("../../../locators/LoginPage.json");
 
 describe("Onboarding", function() {
-  it("Sign Up", function() {
+  it("Onboarding flow", function() {
     cy.LogOut();
 
     cy.visit("/user/signup");
@@ -24,9 +24,8 @@ describe("Onboarding", function() {
     );
     cy.get("#loading").should("not.exist");
     cy.wait(1000);
-  });
 
-  it("Onboarding flow", function() {
+    //Onboarding
     cy.contains(".t--create-database", "Explore Appsmith").click();
 
     cy.get(onboarding.tooltipAction).click();
