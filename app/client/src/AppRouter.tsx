@@ -72,6 +72,9 @@ class AppRouter extends React.Component<any, any> {
 
   render() {
     const { currentTheme, safeCrash } = this.props;
+
+    console.log({ safeCrash });
+
     // This is needed for the theme switch.
     changeAppBackground(currentTheme);
     return (
@@ -79,7 +82,18 @@ class AppRouter extends React.Component<any, any> {
         <Suspense fallback={loadingIndicator}>
           <AppHeader />
           {safeCrash ? (
-            <ServerUnavailable />
+            <Switch>
+              <SentryRoute
+                exact
+                path={PAGE_NOT_FOUND_URL}
+                component={PageNotFound}
+              />
+              <SentryRoute
+                exact
+                path={SERVER_ERROR_URL}
+                component={ServerUnavailable}
+              />
+            </Switch>
           ) : (
             <Switch>
               <SentryRoute exact path={BASE_URL} component={LandingScreen} />
