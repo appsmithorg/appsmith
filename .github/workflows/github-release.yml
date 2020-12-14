@@ -1,5 +1,10 @@
 name: Appsmith Github Release Workflow
 
+# This workflow builds Docker images for server and client, and then pushes them to Docher Hub.
+# The docker-tag with which this push happens in the release tag (e.g., v1.2.3 etc.).
+# In addition to the above tag, unless the git-tag matches `*beta*`, we also push to the `latest` docker-tag.
+# This workflow does NOT run tests.
+
 on:
   push:
     # Only trigger if a tag has been created and pushed to this branch
@@ -119,7 +124,10 @@ jobs:
       # Build the code
       - name: Build without running any tests
         run: |
-          mvn --batch-mode versions:set -DnewVersion=${{ needs.prelude.outputs.version }} -DgenerateBackupPoms=false -DprocessAllModules=true
+          mvn --batch-mode versions:set \
+            -DnewVersion=${{ needs.prelude.outputs.version }} \
+            -DgenerateBackupPoms=false \
+            -DprocessAllModules=true
           mvn --batch-mode package -DskipTests
 
       # Build Docker image and push to Docker Hub
