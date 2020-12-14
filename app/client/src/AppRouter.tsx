@@ -119,16 +119,6 @@ class AppRouter extends React.Component<any, any> {
                 component={AppViewerLoader}
               />
               <SentryRoute path={APP_VIEW_URL} component={AppViewerLoader} />
-              <SentryRoute
-                exact
-                path={PAGE_NOT_FOUND_URL}
-                component={PageNotFound}
-              />
-              <SentryRoute
-                exact
-                path={SERVER_ERROR_URL}
-                component={ServerUnavailable}
-              />
               <SentryRoute component={PageNotFound} />
             </Switch>
           )}
