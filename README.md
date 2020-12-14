@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/appsmith_logo_primary.png" alt="Appsmith.com logo" width="400"/>
+    <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/appsmith_logo_white.png" alt="Appsmith.com logo" width="400"/>
     <br>
     <i>Appsmith is a JavaScript-based visual development platform to build internal tools.</i>
   <br>

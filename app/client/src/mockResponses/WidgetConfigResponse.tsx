@@ -203,8 +203,9 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               const tabs = [...widget.tabs];
 
               const newTabs = tabs.map((tab: any) => {
-                tab.widgetId = generateReactKey();
-                return tab;
+                const newTab = { ...tab };
+                newTab.widgetId = generateReactKey();
+                return newTab;
               });
               const updatePropertyMap = [
                 {
