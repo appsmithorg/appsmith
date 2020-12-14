@@ -58,6 +58,28 @@ describe("Update Organization", function() {
     );
   });
 
+  it("Upload logo / delete logo and validate", function() {
+    const fixturePath = "appsmithlogo.png";
+    cy.xpath(homePage.uploadLogo).attachFile(fixturePath);
+    cy.wait("@updateLogo").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.xpath(homePage.membersTab).click({ force: true });
+    cy.xpath(homePage.generalTab).click({ force: true });
+    cy.get(homePage.removeLogo)
+      .last()
+      .should("be.hidden")
+      .invoke("show")
+      .click({ force: true });
+    cy.wait("@deleteLogo").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  });
+
   it("Open the org general settings and update org website. The update should reflect in the org.", function() {
     cy.get(homePage.orgWebsiteInput).clear();
     cy.get(homePage.orgWebsiteInput).type("demowebsite");

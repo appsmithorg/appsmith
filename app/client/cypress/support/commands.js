@@ -1726,6 +1726,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("PUT", "/api/v1/organizations/*").as("updateOrganization");
   cy.route("GET", "/api/v1/pages/view/application/*").as("viewApp");
+  cy.route("POST", "/api/v1/organizations/*/logo").as("updateLogo");
+  cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
 });
 
 Cypress.Commands.add("alertValidate", text => {
