@@ -90,13 +90,13 @@ const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
 
 export const EditableText = (props: EditableTextProps) => {
   const [isEditing, setIsEditing] = useState(!!props.isEditingDefault);
-  const [value, _setValue] = useState(props.defaultValue);
+  const [value, setStateValue] = useState(props.defaultValue);
   const inputValRef = useRef("");
   const { beforeUnmount } = props;
 
   const setValue = useCallback(_value => {
     inputValRef.current = _value;
-    _setValue(_value);
+    setStateValue(_value);
   }, []);
 
   useEffect(() => {
