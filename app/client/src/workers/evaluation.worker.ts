@@ -290,8 +290,12 @@ export class DataTreeEvaluator {
     // We are setting all values from our uneval tree to the old eval tree we have
     // this way we can get away with just evaluating the sort order and nothing else
     newSortOrder.forEach(propertyPath => {
-      const unEvalPropValue = _.get(unEvalTree, propertyPath);
-      _.set(this.evalTree, propertyPath, unEvalPropValue);
+      const lastIndexOfDot = propertyPath.lastIndexOf(".");
+      // Only do this for property paths and not the entity themselves
+      if (lastIndexOfDot !== -1) {
+        const unEvalPropValue = _.get(unEvalTree, propertyPath);
+        _.set(this.evalTree, propertyPath, unEvalPropValue);
+      }
     });
 
     // Evaluate
