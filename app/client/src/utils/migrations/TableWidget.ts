@@ -101,6 +101,7 @@ export const tableWidgetPropertyPaneMigrations = (
       children.textSize = "PARAGRAPH";
       children.horizontalAlignment = "LEFT";
       children.verticalAlignment = "CENTER";
+      children.derivedColumns = updatedDerivedColumns;
     } else if (children.children && children.children.length > 0) {
       children = tableWidgetPropertyPaneMigrations(children);
     }
