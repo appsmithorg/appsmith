@@ -52,6 +52,7 @@
     "downloadjs": "^1.4.7",
     "eslint": "^7.11.0",
     "fast-deep-equal": "^3.1.1",
+    "fast-xml-parser": "^3.17.5",
     "flow-bin": "^0.91.0",
     "fuse.js": "^3.4.5",
     "fusioncharts": "^3.15.0-sr.1",
@@ -118,8 +119,7 @@
     "typescript": "^3.9.2",
     "unescape-js": "^1.1.4",
     "url-search-params-polyfill": "^8.0.0",
-    "worker-loader": "^3.0.2",
-    "xml-js": "^1.6.11"
+    "worker-loader": "^3.0.2"
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",

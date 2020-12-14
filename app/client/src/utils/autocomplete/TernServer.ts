@@ -6,7 +6,7 @@ import ecma from "tern/defs/ecmascript.json";
 import lodash from "constants/defs/lodash.json";
 import base64 from "constants/defs/base64-js.json";
 import moment from "constants/defs/moment.json";
-import xmlJs from "constants/defs/xml2json.json";
+import xmlJs from "constants/defs/xmlParser.json";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 import {

@@ -1,0 +1,13 @@
+{
+  "!name": "xmlParser",
+  "xmlParser": {
+    "parse": {
+      "!doc": "converts xml string to json object",
+      "!type": "fn(xml: string, options?: object) -> object"
+    },
+    "validate": {
+      "!doc": "validate xml data",
+      "!type": "fn(xml: string) -> bool"
+    }
+  }
+}
