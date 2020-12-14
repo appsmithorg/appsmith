@@ -50,6 +50,10 @@ public class PostgresPlugin extends BasePlugin {
 
     private static final String DATE_COLUMN_TYPE_NAME = "date";
 
+    private static final int MINIMUM_POOL_SIZE = 1;
+
+    private static final int MAXIMUM_POOL_SIZE = 5;
+
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -111,7 +115,7 @@ public class PostgresPlugin extends BasePlugin {
                 Connection connectionFromPool;
 
                 try {
-                    connectionFromPool = getConnectionFromConnectionPool(connection);
+                    connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
                 } catch (StaleConnectionException e) {
                     return Mono.error(e);
                 } catch (SQLException e) {
@@ -324,7 +328,7 @@ public class PostgresPlugin extends BasePlugin {
 
                 Connection connectionFromPool;
                 try {
-                    connectionFromPool = getConnectionFromConnectionPool(connection);
+                    connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
                 } catch (StaleConnectionException e) {
                     return Mono.error(e);
                 } catch (SQLException e) {
@@ -495,6 +499,8 @@ public class PostgresPlugin extends BasePlugin {
 
         // Set SSL property
         com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
+        config.setMinimumIdle(MINIMUM_POOL_SIZE);
+        config.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
 
         final boolean isSslEnabled = configurationConnection != null
                 && configurationConnection.getSsl() != null
@@ -545,7 +551,7 @@ public class PostgresPlugin extends BasePlugin {
      * @param connectionPool
      * @return SQL Connection
      */
-    private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool) throws SQLException {
+    private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool, DatasourceConfiguration datasourceConfiguration) throws SQLException {
 
         if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
             System.out.println(Thread.currentThread().getName() +
@@ -553,7 +559,25 @@ public class PostgresPlugin extends BasePlugin {
             throw new StaleConnectionException();
         }
 
-        return connectionPool.getConnection();
+        Connection connection = connectionPool.getConnection();
+
+        com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
+        if (configurationConnection == null) {
+            return connection;
+        }
+
+        switch (configurationConnection.getMode()) {
+            case READ_WRITE: {
+                connection.setReadOnly(false);
+                break;
+            }
+            case READ_ONLY: {
+                connection.setReadOnly(true);
+                break;
+            }
+        }
+
+        return connection;
     }
 
 }

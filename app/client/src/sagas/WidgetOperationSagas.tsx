@@ -329,6 +329,36 @@ const getAllWidgetsInTree = (
   return widgetList;
 };
 
+/**
+ * Note: Mutates finalWidgets[parentId].bottomRow for CANVAS_WIDGET
+ * @param finalWidgets
+ * @param parentId
+ */
+const resizeCanvasToLowestWidget = (
+  finalWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+) => {
+  if (
+    !finalWidgets[parentId] ||
+    finalWidgets[parentId].type !== WidgetTypes.CANVAS_WIDGET
+  ) {
+    return;
+  }
+
+  let lowestBottomRow = 0;
+  const childIds = finalWidgets[parentId].children || [];
+  // find lowest row
+  childIds.forEach(cId => {
+    const child = finalWidgets[cId];
+    if (child.bottomRow > lowestBottomRow) {
+      lowestBottomRow = child.bottomRow;
+    }
+  });
+  finalWidgets[parentId].bottomRow =
+    (lowestBottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+};
+
 export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
     let { widgetId, parentId } = deleteAction.payload;
@@ -402,10 +432,13 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
       yield call(clearEvalPropertyCacheOfWidget, widgetName);
 
-      const finalWidgets = _.omit(
+      const finalWidgets: CanvasWidgetsReduxState = _.omit(
         widgets,
         otherWidgetsToDelete.map(widgets => widgets.widgetId),
       );
+
+      // Note: mutates finalWidgets
+      resizeCanvasToLowestWidget(finalWidgets, parentId);
 
       yield put(updateAndSaveLayout(finalWidgets));
     }
