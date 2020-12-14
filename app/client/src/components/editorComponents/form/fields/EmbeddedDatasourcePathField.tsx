@@ -231,9 +231,25 @@ const mapStateToProps = (
   state: AppState,
   ownProps: { pluginId: string },
 ): ReduxStateProps => {
+  const datasourceFromAction = apiFormValueSelector(state, "datasource");
+  let datasourceMerged = datasourceFromAction;
+  // Todo: fix this properly later in #2164
+  if (datasourceFromAction && "id" in datasourceFromAction) {
+    const datasourceFromDataSourceList = state.entities.datasources.list.find(
+      d => d.id === datasourceFromAction.id,
+    );
+    if (datasourceFromDataSourceList) {
+      datasourceMerged = _.merge(
+        {},
+        datasourceFromAction,
+        datasourceFromDataSourceList,
+      );
+    }
+  }
+
   return {
     orgId: state.ui.orgs.currentOrg.id,
-    datasource: apiFormValueSelector(state, "datasource"),
+    datasource: datasourceMerged,
     datasourceList: state.entities.datasources.list.filter(
       d => d.pluginId === ownProps.pluginId && d.isValid,
     ),
