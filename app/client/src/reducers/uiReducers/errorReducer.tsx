@@ -7,13 +7,18 @@ import {
 
 const initialState: ErrorReduxState = {
   safeCrash: false,
+  safeCrashCode: undefined,
   currentError: { sourceAction: "", message: "" },
 };
 
 const errorReducer = createReducer(initialState, {
-  [ReduxActionTypes.SAFE_CRASH_APPSMITH]: (state: ErrorReduxState) => ({
+  [ReduxActionTypes.SAFE_CRASH_APPSMITH]: (
+    state: ErrorReduxState,
+    action: ReduxAction<ReduxActionErrorPayload>,
+  ) => ({
     ...state,
     safeCrash: true,
+    safeCrashCode: action.payload.code,
   }),
   [ReduxActionTypes.REPORT_ERROR]: (
     state: ErrorReduxState,
@@ -34,6 +39,7 @@ const errorReducer = createReducer(initialState, {
 
 export interface ErrorReduxState {
   safeCrash: boolean;
+  safeCrashCode?: number | string;
   currentError: {
     sourceAction?: string;
     message?: string;

@@ -67,6 +67,7 @@ axiosInstance.interceptors.response.use(
       return Promise.reject({
         ...error,
         message: SERVER_API_TIMEOUT_ERROR,
+        code: error.code,
       });
     }
     if (error.response.status === API_STATUS_CODES.SERVER_ERROR) {
@@ -101,10 +102,6 @@ axiosInstance.interceptors.response.use(
           errorData.status === API_STATUS_CODES.RESOURCE_NOT_FOUND &&
           errorData.error.code === 4028
         ) {
-          history.replace({
-            pathname: PAGE_NOT_FOUND_URL,
-            search: `redirectTo=${currentUrl}`,
-          });
           return Promise.reject({
             code: API_STATUS_CODES.RESOURCE_NOT_FOUND,
             message: "Resource Not Found",

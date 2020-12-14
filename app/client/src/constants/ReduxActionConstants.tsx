@@ -430,6 +430,7 @@ export interface ReduxActionWithPromise<T> extends ReduxAction<T> {
 export interface ReduxActionErrorPayload {
   message: string;
   source?: string;
+  code?: number;
 }
 
 export interface UpdateCanvasPayload {

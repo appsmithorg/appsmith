@@ -18,6 +18,8 @@ import {
   USER_AUTH_URL,
   USERS_URL,
 } from "constants/routes";
+import { axiosConnectionAbortedCode } from "api/Api";
+import { API_STATUS_CODES } from "constants/ApiConstants";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
 import EditorLoader from "pages/Editor/loader";
@@ -27,6 +29,7 @@ import UserAuth from "pages/UserAuth";
 import Users from "pages/users";
 import PageNotFound from "pages/common/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
+import ServerTimeout from "pages/common/ServerTimeout";
 import ServerUnavailable from "pages/common/ServerUnavailable";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { ThemeMode } from "reducers/uiReducers/themeReducer";
@@ -54,6 +57,22 @@ function changeAppBackground(currentTheme: any) {
   }
 }
 
+/**
+ * renders error page based on error code
+ *
+ * @param safeCrashCode
+ */
+const renderErrorPage = (safeCrashCode: number | string) => {
+  switch (safeCrashCode) {
+    case API_STATUS_CODES.RESOURCE_NOT_FOUND:
+      return <PageNotFound />;
+    case API_STATUS_CODES.SERVER_ERROR:
+      return <ServerUnavailable />;
+    case axiosConnectionAbortedCode:
+      return <ServerTimeout />;
+  }
+};
+
 class AppRouter extends React.Component<any, any> {
   unlisten: any;
 
@@ -71,27 +90,16 @@ class AppRouter extends React.Component<any, any> {
   }
 
   render() {
-    const { currentTheme, safeCrash } = this.props;
+    const { currentTheme, safeCrash, safeCrashCode } = this.props;
 
     // This is needed for the theme switch.
     changeAppBackground(currentTheme);
     return (
       <Router history={history}>
         <Suspense fallback={loadingIndicator}>
-          <AppHeader />
+          {!safeCrash && <AppHeader />}
           {safeCrash ? (
-            <Switch>
-              <SentryRoute
-                exact
-                path={PAGE_NOT_FOUND_URL}
-                component={PageNotFound}
-              />
-              <SentryRoute
-                exact
-                path={SERVER_ERROR_URL}
-                component={ServerUnavailable}
-              />
-            </Switch>
+            renderErrorPage(safeCrashCode)
           ) : (
             <Switch>
               <SentryRoute exact path={BASE_URL} component={LandingScreen} />
@@ -132,6 +140,7 @@ class AppRouter extends React.Component<any, any> {
 const mapStateToProps = (state: AppState) => ({
   currentTheme: getThemeDetails(state).theme,
   safeCrash: state.ui.errors.safeCrash,
+  safeCrashCode: state.ui.errors.safeCrashCode,
 });
 const mapDispatchToProps = (dispatch: any) => ({
   setTheme: (mode: ThemeMode) => {

@@ -45,7 +45,9 @@ class PageNotFound extends React.PureComponent<RouteComponentProps> {
               iconAlignment="right"
               size="small"
               className="button-position"
-              onClick={() => this.props.history.push(APPLICATIONS_URL)}
+              onClick={() => {
+                window.location.href = APPLICATIONS_URL;
+              }}
             />
           </div>
         </Wrapper>
