@@ -1,15 +1,21 @@
-import localforage from "localforage";
 const onboarding = require("../../../locators/Onboarding.json");
 const explorer = require("../../../locators/explorerlocators.json");
 const homePage = require("../../../locators/HomePage.json");
+const loginPage = require("../../../locators/LoginPage.json");
 
 describe("Onboarding", function() {
-  before(() => {
-    cy.then(() => {
-      const store = localforage.createInstance({
-        name: "Appsmith",
-      });
-      return store.setItem("OnboardingState", true);
+  it("Sign Up", function() {
+    cy.LogOut();
+
+    cy.visit("/user/signup");
+    cy.get("input[name='email']").type(Cypress.env("USERNAME"));
+    cy.get(loginPage.password).type(Cypress.env("PASSWORD"));
+    cy.get(loginPage.submitBtn).click();
+
+    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+
+    cy.generateUUID().then(uid => {
+      cy.CreateApp(uid);
     });
   });
 
