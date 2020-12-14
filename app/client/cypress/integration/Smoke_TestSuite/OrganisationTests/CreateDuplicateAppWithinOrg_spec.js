@@ -15,7 +15,6 @@ describe("Create new org and an app within the same", function() {
       cy.NavigateToHome();
 
       cy.CreateApp(appid);
-      cy.UpdateAppName(appid);
     });
   });
 });

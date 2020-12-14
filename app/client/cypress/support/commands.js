@@ -241,9 +241,7 @@ Cypress.Commands.add("CreateApp", appname => {
   );
   cy.get("#loading").should("not.exist");
   cy.wait(1000);
-});
 
-Cypress.Commands.add("UpdateAppName", appname => {
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",

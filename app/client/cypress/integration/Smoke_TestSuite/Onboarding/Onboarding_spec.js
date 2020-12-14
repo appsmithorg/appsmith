@@ -14,9 +14,16 @@ describe("Onboarding", function() {
 
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
 
-    cy.generateUUID().then(uid => {
-      cy.CreateApp(uid);
-    });
+    cy.get(homePage.createNew)
+      .first()
+      .click({ force: true });
+    cy.wait("@createNewApplication").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    cy.get("#loading").should("not.exist");
+    cy.wait(1000);
   });
 
   it("Onboarding flow", function() {
