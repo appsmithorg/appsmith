@@ -63,7 +63,7 @@ jobs:
       - name: Set the build environment based on the branch
         id: vars
         run: |
-          REACT_APP_ENVIRONMENT="DEVELOPMENT"  
+          REACT_APP_ENVIRONMENT="DEVELOPMENT"
           if [ ${GITHUB_REF} == '/refs/heads/master' ]; then
               REACT_APP_ENVIRONMENT="PRODUCTION"
           elif [ ${GITHUB_REF} == '/refs/heads/release' ]; then
@@ -77,7 +77,13 @@ jobs:
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
       - name: Create the bundle
-        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} yarn build
+        run: |
+          REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
+          REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
+          REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+          REACT_APP_VERSION_ID=${{ needs.prelude.outputs.version }} \
+          REACT_APP_VERSION_RELEASE_DATE=$(date +%Y-%m-%d) \
+          yarn build
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
