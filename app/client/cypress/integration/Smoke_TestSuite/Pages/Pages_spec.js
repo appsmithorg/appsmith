@@ -26,4 +26,11 @@ describe("Pages", function() {
       expect($x).contain(veryLongPageName);
     });
   });
+
+  it("Checks if 404 is showing correct route", () => {
+    cy.visit("/route-that-does-exit");
+    cy.get(".bold-text").should($x => {
+      expect($x).contain("Page not found");
+    });
+  });
 });
