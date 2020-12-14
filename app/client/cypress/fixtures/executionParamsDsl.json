@@ -70,7 +70,7 @@
                 "dynamicBindingPathList": []
               },
               {
-                "widgetName": "RunButton",
+                "widgetName": "StaticButton",
                 "rightColumn": 14,
                 "onClick": "",
                 "isDefaultClickDisabled": true,
@@ -86,7 +86,27 @@
                 "isLoading": false,
                 "parentColumnSpace": 71.75,
                 "leftColumn": 11,
-                "text": "Run",
+                "text": "Run Static",
+                "isDisabled": false
+              },
+              {
+                "widgetName": "DynamicButton",
+                "rightColumn": 14,
+                "onClick": "",
+                "isDefaultClickDisabled": true,
+                "widgetId": "asdasdlnud",
+                "buttonStyle": "PRIMARY_BUTTON",
+                "topRow": 4,
+                "bottomRow": 5,
+                "parentRowSpace": 38,
+                "isVisible": true,
+                "type": "BUTTON_WIDGET",
+                "dynamicBindingPathList": [],
+                "parentId": "8muuok24ny",
+                "isLoading": false,
+                "parentColumnSpace": 71.75,
+                "leftColumn": 11,
+                "text": "Run Dynamic",
                 "isDisabled": false
               },
               {
