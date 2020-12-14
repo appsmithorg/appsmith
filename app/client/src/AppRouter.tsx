@@ -73,8 +73,6 @@ class AppRouter extends React.Component<any, any> {
   render() {
     const { currentTheme, safeCrash } = this.props;
 
-    console.log({ safeCrash });
-
     // This is needed for the theme switch.
     changeAppBackground(currentTheme);
     return (
