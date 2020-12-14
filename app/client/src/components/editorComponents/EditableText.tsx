@@ -110,7 +110,7 @@ export const EditableText = (props: EditableTextProps) => {
     return () => {
       props.onTextChanged(inputValRef.current);
     };
-  });
+  }, [props.onTextChanged]);
 
   const edit = (e: any) => {
     setIsEditing(true);
