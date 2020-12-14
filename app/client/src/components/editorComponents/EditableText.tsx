@@ -100,17 +100,17 @@ export const EditableText = (props: EditableTextProps) => {
   useEffect(() => {
     setValue(props.defaultValue);
     setIsEditing(!!props.isEditingDefault);
-  }, [props.defaultValue, props.isEditingDefault]);
+  }, [props.defaultValue, props.isEditingDefault, setValue]);
 
   useEffect(() => {
     if (props.forceDefault === true) setValue(props.defaultValue);
-  }, [props.forceDefault, props.defaultValue]);
+  }, [props.forceDefault, props.defaultValue, setValue]);
 
   useEffect(() => {
     return () => {
       props.onTextChanged(inputValRef.current);
     };
-  }, []);
+  });
 
   const edit = (e: any) => {
     setIsEditing(true);
