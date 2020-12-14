@@ -34,8 +34,19 @@ describe("Onboarding", function() {
     cy.dragAndDropToCanvas("tablewidget", { x: 30, y: -30 });
 
     cy.get(onboarding.tooltipSnippet).click({ force: true });
-    cy.wait(1000);
-    cy.testJsontext("tabledata", "{{ExampleQuery.data}}");
+
+    cy.get(".t--property-control-tabledata" + " .CodeMirror textarea")
+      .first()
+      .focus({ force: true })
+      .type("{uparrow}", { force: true })
+      .type("{ctrl}{shift}{downarrow}", { force: true });
+    cy.focused().then(() => {
+      cy.get(".t--property-control-tabledata" + " .CodeMirror")
+        .first()
+        .then(editor => {
+          editor[0].CodeMirror.setValue("{{ExampleQuery.data}}");
+        });
+    });
     cy.closePropertyPane();
     cy.get(explorer.closeWidgets).click();
 
@@ -49,6 +60,8 @@ describe("Onboarding", function() {
   });
 
   after(() => {
+    localStorage.removeItem("OnboardingState");
     indexedDB.deleteDatabase("Appsmith");
+    cy.log("Cleared");
   });
 });
