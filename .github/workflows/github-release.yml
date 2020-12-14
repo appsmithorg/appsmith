@@ -83,7 +83,7 @@ jobs:
           fi
 
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push appsmith/appsmith-editor
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/appsmith-editor
 
   build-server:
     needs:
@@ -133,7 +133,7 @@ jobs:
           fi
 
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push appsmith/appsmith-server
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/appsmith-server
 
   create-release:
     needs:
