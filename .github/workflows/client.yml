@@ -1,15 +1,20 @@
 name: Appsmith Client Workflow
 
 on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+
   push:
     branches: [release, master]
     # Only trigger if files have changed in this specific path
     paths:
       - "app/client/**"
+
   pull_request_target:
     branches: [release, master]
     paths:
       - "app/client/**"
+
 # Change the working directory for all the jobs in this workflow
 defaults:
   run:
