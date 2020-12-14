@@ -1,4 +1,4 @@
-const dsl = require("../../../fixtures/tableWidgetDsl.json");
+const dsl = require("../../../fixtures/executionParamsDsl.json");
 const publishPage = require("../../../locators/publishWidgetspage.json");
 
 describe("API Panel Test Functionality", function() {
