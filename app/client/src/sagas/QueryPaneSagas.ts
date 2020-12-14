@@ -183,7 +183,7 @@ function* handleNameChangeSuccessSaga(
   const { actionId } = action.payload;
   const actionObj = yield select(getAction, actionId);
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
-  if (actionObj.pluginType === QUERY_CONSTANT) {
+  if (actionObj && actionObj.pluginType === QUERY_CONSTANT) {
     const params = getQueryParams();
     if (params.editName) {
       params.editName = "false";

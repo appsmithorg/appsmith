@@ -411,7 +411,7 @@ function* handleApiNameChangeSuccessSaga(
   const { actionId } = action.payload;
   const actionObj = yield select(getAction, actionId);
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
-  if (actionObj.pluginType === PLUGIN_TYPE_API) {
+  if (actionObj && actionObj.pluginType === PLUGIN_TYPE_API) {
     const params = getQueryParams();
     if (params.editName) {
       params.editName = "false";
