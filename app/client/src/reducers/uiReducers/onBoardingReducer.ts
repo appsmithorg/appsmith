@@ -1,5 +1,9 @@
 import { OnboardingStep } from "constants/OnboardingConstants";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+  ReduxActionErrorTypes,
+} from "constants/ReduxActionConstants";
 import { createReducer } from "utils/AppsmithUtils";
 
 const initialState: OnboardingState = {
@@ -29,10 +33,14 @@ const onboardingReducer = createReducer(initialState, {
   [ReduxActionTypes.SHOW_WELCOME]: (state: OnboardingState) => {
     return { ...state, showWelcomeScreen: true };
   },
-  CREATE_ONBOARDING_DBQUERY_INIT: (state: OnboardingState) => {
+  [ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_INIT]: (
+    state: OnboardingState,
+  ) => {
     return { ...state, creatingDatabase: true };
   },
-  CREATE_ONBOARDING_DBQUERY_SUCCESS: (state: OnboardingState) => {
+  [ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_SUCCESS]: (
+    state: OnboardingState,
+  ) => {
     return {
       ...state,
       creatingDatabase: false,
@@ -40,10 +48,12 @@ const onboardingReducer = createReducer(initialState, {
       createdDBQuery: true,
     };
   },
-  CREATE_ONBOARDING_DBQUERY_ERROR: (state: OnboardingState) => {
+  [ReduxActionErrorTypes.CREATE_ONBOARDING_DBQUERY_ERROR]: (
+    state: OnboardingState,
+  ) => {
     return { ...state, creatingDatabase: false };
   },
-  INCREMENT_STEP: (state: OnboardingState) => {
+  [ReduxActionTypes.INCREMENT_STEP]: (state: OnboardingState) => {
     return { ...state, currentStep: state.currentStep + 1 };
   },
   [ReduxActionTypes.SET_CURRENT_STEP]: (
@@ -61,7 +71,7 @@ const onboardingReducer = createReducer(initialState, {
       inOnboarding: action.payload,
     };
   },
-  ADD_WIDGET_COMPLETE: (state: OnboardingState) => {
+  [ReduxActionTypes.ADD_WIDGET_COMPLETE]: (state: OnboardingState) => {
     return {
       ...state,
       addedWidget: true,

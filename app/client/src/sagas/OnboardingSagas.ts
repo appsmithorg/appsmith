@@ -57,7 +57,7 @@ function* listenForWidgetAdditions() {
     if (payload.type === "TABLE_WIDGET") {
       yield put(setCurrentStep(OnboardingStep.ADD_WIDGET));
       yield put({
-        type: "ADD_WIDGET_COMPLETE",
+        type: ReduxActionTypes.ADD_WIDGET_COMPLETE,
       });
       yield put(showTooltip(OnboardingStep.ADD_WIDGET));
 
@@ -220,7 +220,7 @@ function* createOnboardingDatasource() {
     }
   } catch (error) {
     yield put({
-      type: "CREATE_ONBOARDING_DBQUERY_ERROR",
+      type: ReduxActionErrorTypes.CREATE_ONBOARDING_DBQUERY_ERROR,
       payload: { error },
     });
   }
@@ -275,7 +275,7 @@ function* proceedOnboardingSaga() {
 
   if (isinOnboarding) {
     yield put({
-      type: "INCREMENT_STEP",
+      type: ReduxActionTypes.INCREMENT_STEP,
     });
 
     yield setupOnboardingStep();
@@ -304,13 +304,22 @@ function* skipOnboardingSaga() {
 export default function* onboardingSagas() {
   yield all([
     takeEvery(ReduxActionTypes.CREATE_APPLICATION_SUCCESS, initiateOnboarding),
-    takeEvery("CREATE_ONBOARDING_DBQUERY_INIT", createOnboardingDatasource),
+    takeEvery(
+      ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_INIT,
+      createOnboardingDatasource,
+    ),
     takeEvery(ReduxActionTypes.NEXT_ONBOARDING_STEP, proceedOnboardingSaga),
     takeEvery(ReduxActionTypes.END_ONBOARDING, skipOnboardingSaga),
-    takeEvery("LISTEN_FOR_ADD_WIDGET", listenForWidgetAdditions),
-    takeEvery("LISTEN_FOR_TABLE_WIDGET_BINDING", listenForSuccessfullBinding),
-    takeEvery("LISTEN_FOR_WIDGET_UNSELECTION", listenForWidgetUnselection),
+    takeEvery(ReduxActionTypes.LISTEN_FOR_ADD_WIDGET, listenForWidgetAdditions),
+    takeEvery(
+      ReduxActionTypes.LISTEN_FOR_TABLE_WIDGET_BINDING,
+      listenForSuccessfullBinding,
+    ),
+    takeEvery(
+      ReduxActionTypes.LISTEN_FOR_WIDGET_UNSELECTION,
+      listenForWidgetUnselection,
+    ),
     takeEvery(ReduxActionTypes.SET_CURRENT_STEP, setupOnboardingStep),
-    takeEvery("LISTEN_FOR_DEPLOY", listenForDeploySaga),
+    takeEvery(ReduxActionTypes.LISTEN_FOR_DEPLOY, listenForDeploySaga),
   ]);
 }

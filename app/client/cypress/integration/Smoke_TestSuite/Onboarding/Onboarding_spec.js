@@ -20,7 +20,7 @@ describe("Onboarding", function() {
 
     // Add widget
     cy.get(".t--add-widget").click();
-    cy.dragAndDropToCanvas("tablewidget");
+    cy.dragAndDropToCanvas("tablewidget", { x: 300, y: -300 });
 
     cy.get(onboarding.tooltipSnippet).click({ force: true });
     cy.testJsontext("tabledata", "{{ExampleQuery.data}}");

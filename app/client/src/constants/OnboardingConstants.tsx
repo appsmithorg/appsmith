@@ -55,13 +55,13 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     setup: () => {
       return [
         {
-          type: "CREATE_ONBOARDING_DBQUERY_INIT",
+          type: ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_INIT,
         },
         {
-          type: "LISTEN_FOR_ADD_WIDGET",
+          type: ReduxActionTypes.LISTEN_FOR_ADD_WIDGET,
         },
         {
-          type: "LISTEN_FOR_TABLE_WIDGET_BINDING",
+          type: ReduxActionTypes.LISTEN_FOR_TABLE_WIDGET_BINDING,
         },
       ];
     },
@@ -90,7 +90,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     setup: () => {
       return [
         {
-          type: "LISTEN_FOR_WIDGET_UNSELECTION",
+          type: ReduxActionTypes.LISTEN_FOR_WIDGET_UNSELECTION,
         },
       ];
     },
@@ -108,7 +108,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     setup: () => {
       return [
         {
-          type: "LISTEN_FOR_DEPLOY",
+          type: ReduxActionTypes.LISTEN_FOR_DEPLOY,
         },
       ];
     },
