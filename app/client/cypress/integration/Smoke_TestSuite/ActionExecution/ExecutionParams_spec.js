@@ -5,7 +5,7 @@ describe("API Panel Test Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Will load an api on load", function() {
+  it("Will pass static values in params", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("MultiApi");
     cy.enterDatasourceAndPath(
@@ -26,25 +26,33 @@ describe("API Panel Test Functionality", function() {
       "onclick",
       "{{MultiApi.run(undefined, undefined, { endpoint: 'users",
     );
+    cy.PublishtheApp();
     cy.get(publishPage.buttonWidget).click();
-    cy.pause();
+    cy.readTabledataPublish("1", "1").then(cellData => {
+      expect(cellData).to.be.equal("Ervin Howell");
+    });
+    cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  // it("Will not crash the app for failure", function() {
-  //   cy.SearchEntityandOpen("PageLoadApi");
-  //   cy.get("li:contains('Settings')").click({ force: true });
-  //   cy.get("[data-cy='actionConfiguration.timeoutInMillisecond']")
-  //     .find(".bp3-input")
-  //     .type("{backspace}{backspace}{backspace}");
-  //
-  //   cy.NavigateToAPI_Panel();
-  //   cy.CreateAPI("NormalApi");
-  //   cy.enterDatasourceAndPath("https://reqres.in/api/", "users");
-  //   cy.WaitAutoSave();
-  //
-  //   cy.reload();
-  //   cy.wait("@postExecute");
-  //   cy.RunAPI();
-  //   cy.ResponseStatusCheck("200 OK");
-  // });
+  it("Will pass dynamic values in params", function() {
+    cy.SearchEntityandOpen("RunButton");
+    cy.testJsontext(
+      "onclick",
+      "{{MultiApi.run(undefined, undefined, { endpoint: EndpointInput.text",
+    );
+    cy.PublishtheApp();
+    cy.get(publishPage.inputWidget)
+      .click({ force: true })
+      .type("todos");
+
+    // Waiting for input to get for evaluation
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(200);
+
+    cy.get(publishPage.buttonWidget).click();
+
+    cy.readTabledataPublish("0", "2").then(cellData => {
+      expect(cellData).to.be.equal("delectus aut autem");
+    });
+  });
 });
