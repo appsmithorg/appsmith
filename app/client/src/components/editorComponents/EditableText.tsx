@@ -91,6 +91,7 @@ export const EditableText = (props: EditableTextProps) => {
   const [isEditing, setIsEditing] = useState(!!props.isEditingDefault);
   const [value, _setValue] = useState(props.defaultValue);
   const inputValRef = useRef("");
+  const { onTextChanged } = props;
 
   const setValue = useCallback(_value => {
     inputValRef.current = _value;
@@ -108,9 +109,9 @@ export const EditableText = (props: EditableTextProps) => {
 
   useEffect(() => {
     return () => {
-      props.onTextChanged(inputValRef.current);
+      onTextChanged(inputValRef.current);
     };
-  }, [props.onTextChanged]);
+  }, [onTextChanged]);
 
   const edit = (e: any) => {
     setIsEditing(true);
@@ -121,7 +122,7 @@ export const EditableText = (props: EditableTextProps) => {
     props.onBlur && props.onBlur();
     const isInvalid = props.isInvalid ? props.isInvalid(_value) : false;
     if (!isInvalid) {
-      props.onTextChanged(_value);
+      onTextChanged(_value);
       setIsEditing(false);
     } else {
       Toaster.show({
