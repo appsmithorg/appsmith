@@ -511,6 +511,8 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
         },
       });
 
+      yield put(fetchActionsForPage(response.data.id));
+
       history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
     }
   } catch (error) {
