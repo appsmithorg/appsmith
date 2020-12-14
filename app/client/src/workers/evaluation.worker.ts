@@ -344,7 +344,7 @@ export class DataTreeEvaluator {
       // Get all the nodes that would be impacted by the evaluation of the nodes in parents array in sorted order
       subSortOrderArray = this.getEvaluationSortOrder(parents, inverseMap);
       // Add all the sorted nodes in the final list
-      finalSortOrder = [...subSortOrderArray];
+      finalSortOrder = [...finalSortOrder, ...subSortOrderArray];
       parents = this.getImmediateParentsOfPropertyPaths(subSortOrderArray);
       // If we find parents of the property paths in the sorted array, we should contine finding all the nodes dependent
       // on the parents
@@ -368,12 +368,11 @@ export class DataTreeEvaluator {
     propertyPaths.forEach(path => {
       const parentProperty = path.substr(0, path.lastIndexOf("."));
 
-      if (parentProperty.length === path.length) {
+      if (parentProperty.length != 0) {
+        parents.push(parentProperty);
+      } else {
         // We have reached the top of the path. No parent exists
-        return;
       }
-
-      parents.push(parentProperty);
     });
 
     return parents;
