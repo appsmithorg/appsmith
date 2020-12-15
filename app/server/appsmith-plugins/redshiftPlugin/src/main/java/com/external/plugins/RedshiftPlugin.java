@@ -20,6 +20,7 @@ import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -30,17 +31,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -84,33 +77,54 @@ public class RedshiftPlugin extends BasePlugin {
                         "  and pg_catalog.pg_table_is_visible(a.attrelid)\n" +
                         "order by c.relname, a.attnum;";
 
-        public static final String KEYS_QUERY =
-                "select c.conname                                         as constraint_name,\n" +
-                        "       c.contype                                         as constraint_type,\n" +
-                        "       sch.nspname                                       as self_schema,\n" +
-                        "       tbl.relname                                       as self_table,\n" +
-                        "       array_agg(col.attname order by u.attposition)     as self_columns,\n" +
-                        "       f_sch.nspname                                     as foreign_schema,\n" +
-                        "       f_tbl.relname                                     as foreign_table,\n" +
-                        "       array_agg(f_col.attname order by f_u.attposition) as foreign_columns,\n" +
-                        "       pg_get_constraintdef(c.oid)                       as definition\n" +
-                        "from pg_constraint c\n" +
-                        "         left join lateral unnest(c.conkey) with ordinality as u(attnum, attposition) on true\n" +
-                        "         left join lateral unnest(c.confkey) with ordinality as f_u(attnum, attposition)\n" +
-                        "                   on f_u.attposition = u.attposition\n" +
-                        "         join pg_class tbl on tbl.oid = c.conrelid\n" +
-                        "         join pg_namespace sch on sch.oid = tbl.relnamespace\n" +
-                        "         left join pg_attribute col on (col.attrelid = tbl.oid and col.attnum = u.attnum)\n" +
-                        "         left join pg_class f_tbl on f_tbl.oid = c.confrelid\n" +
-                        "         left join pg_namespace f_sch on f_sch.oid = f_tbl.relnamespace\n" +
-                        "         left join pg_attribute f_col on (f_col.attrelid = f_tbl.oid and f_col.attnum = f_u.attnum)\n" +
-                        "group by constraint_name, constraint_type, self_schema, self_table, definition, foreign_schema, foreign_table\n" +
-                        "order by self_schema, self_table;";
+        public static final String KEYS_QUERY_PRIMARY_KEY = "select tco.constraint_schema as self_schema,\n" +
+                "       tco.constraint_name,\n" +
+                "       kcu.column_name as self_column,\n" +
+                "       kcu.table_name as self_table,\n" +
+                "       'p' as constraint_type\n" +
+                "from information_schema.table_constraints tco\n" +
+                "join information_schema.key_column_usage kcu \n" +
+                "     on kcu.constraint_name = tco.constraint_name\n" +
+                "     and kcu.constraint_schema = tco.constraint_schema\n" +
+                "     and kcu.constraint_name = tco.constraint_name\n" +
+                "where tco.constraint_type = 'PRIMARY KEY'\n" +
+                "order by tco.constraint_schema,\n" +
+                "         tco.constraint_name,\n" +
+                "         kcu.ordinal_position;";
+
+        public static final String KEYS_QUERY_FOREIGN_KEY = "select kcu.table_schema as self_schema,\n" +
+                "\t   kcu.table_name as self_table,\n" +
+                "       rel_kcu.table_schema as foreign_schema,\n" +
+                "       rel_kcu.table_name as foreign_table,\n" +
+                "       kcu.column_name as self_column,\n" +
+                "       rel_kcu.column_name as foreign_column,\n" +
+                "       kcu.constraint_name,\n" +
+                "       'f' as constraint_type\n" +
+                "from information_schema.table_constraints tco\n" +
+                "left join information_schema.key_column_usage kcu\n" +
+                "          on tco.constraint_schema = kcu.constraint_schema\n" +
+                "          and tco.constraint_name = kcu.constraint_name\n" +
+                "left join information_schema.referential_constraints rco\n" +
+                "          on tco.constraint_schema = rco.constraint_schema\n" +
+                "          and tco.constraint_name = rco.constraint_name\n" +
+                "left join information_schema.key_column_usage rel_kcu\n" +
+                "          on rco.unique_constraint_schema = rel_kcu.constraint_schema\n" +
+                "          and rco.unique_constraint_name = rel_kcu.constraint_name\n" +
+                "          and kcu.ordinal_position = rel_kcu.ordinal_position\n" +
+                "where tco.constraint_type = 'FOREIGN KEY'\n" +
+                "order by kcu.table_schema,\n" +
+                "         kcu.table_name,\n" +
+                "         kcu.ordinal_position;\n";
 
         @Override
         public Mono<ActionExecutionResult> execute(Connection connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
+
+            //TODO: remove it.
+            System.out.println("devtest: tables_query: " + TABLES_QUERY);
+            System.out.println("devtest: keys_query_p: " + KEYS_QUERY_PRIMARY_KEY);
+            System.out.println("devtest: keys_query_p: " + KEYS_QUERY_FOREIGN_KEY);
 
             return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
 
@@ -171,18 +185,19 @@ public class RedshiftPlugin extends BasePlugin {
                                             resultSet.getObject(i, OffsetDateTime.class)
                                     );
 
-                                } else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
+                                }
+                                else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
                                     value = resultSet.getString(i);
-
-                                } else if ("interval".equalsIgnoreCase(typeName)) {
-                                    value = resultSet.getObject(i).toString();
-
                                 } else {
                                     value = resultSet.getObject(i);
-
                                 }
 
                                 row.put(metaData.getColumnName(i), value);
+                                //TODO: remove it.
+                                System.out.println("-----------------------");
+                                System.out.println("devtest: type: " + typeName);
+                                System.out.println("devtest: row: " + row);
+                                System.out.println("-----------------------");
                             }
 
                             rowsList.add(row);
@@ -366,8 +381,150 @@ public class RedshiftPlugin extends BasePlugin {
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
         }
 
+        private void getTablesInfo(ResultSet columnsResultSet, Map<String, DatasourceStructure.Table> tablesByName) throws SQLException {
+            //TODO: remove it.
+            System.out.println("devtest: getTablesInfo start");
+
+            while (columnsResultSet.next()) {
+                final char kind = columnsResultSet.getString("kind").charAt(0);
+                final String schemaName = columnsResultSet.getString("schema_name");
+                final String tableName = columnsResultSet.getString("table_name");
+                final String fullTableName = schemaName + "." + tableName;
+                if (!tablesByName.containsKey(fullTableName)) {
+                    tablesByName.put(fullTableName, new DatasourceStructure.Table(
+                            kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
+                            fullTableName,
+                            new ArrayList<>(),
+                            new ArrayList<>(),
+                            new ArrayList<>()
+                    ));
+                }
+                final DatasourceStructure.Table table = tablesByName.get(fullTableName);
+                table.getColumns().add(new DatasourceStructure.Column(
+                        columnsResultSet.getString("name"),
+                        columnsResultSet.getString("column_type"),
+                        columnsResultSet.getString("default_expr")
+                ));
+            }
+        }
+
+        private void getKeysInfo(ResultSet constraintsResultSet, Map<String, DatasourceStructure.Table> tablesByName,
+                                 Map<String, DatasourceStructure.Key> keyRegistry) throws SQLException {
+            //TODO: remove it.
+            System.out.println("devtest: getKeysInfo start");
+
+            while (constraintsResultSet.next()) {
+                final String constraintName = constraintsResultSet.getString("constraint_name");
+                final char constraintType = constraintsResultSet.getString("constraint_type").charAt(0);
+                final String selfSchema = constraintsResultSet.getString("self_schema");
+                final String tableName = constraintsResultSet.getString("self_table");
+                final String fullTableName = selfSchema + "." + tableName;
+
+                if (!tablesByName.containsKey(fullTableName)) {
+                    /* do nothing */
+                    return;
+                }
+
+                final DatasourceStructure.Table table = tablesByName.get(fullTableName);
+                final String keyFullName = tableName + "." + constraintName;
+
+                if (constraintType == 'p') {
+                    if (!keyRegistry.containsKey(keyFullName)) {
+                        final DatasourceStructure.PrimaryKey key = new DatasourceStructure.PrimaryKey(
+                                constraintName,
+                                new ArrayList<>()
+                        );
+                        keyRegistry.put(keyFullName, key);
+                        table.getKeys().add(key);
+                    }
+                    ((DatasourceStructure.PrimaryKey) keyRegistry.get(keyFullName)).getColumnNames()
+                            .add(constraintsResultSet.getString("self_column"));
+                } else if (constraintType == 'f') {
+                    final String foreignSchema = constraintsResultSet.getString("foreign_schema");
+                    final String prefix = (foreignSchema.equalsIgnoreCase(selfSchema) ? "" : foreignSchema + ".")
+                            + constraintsResultSet.getString("foreign_table") + ".";
+
+                    if (!keyRegistry.containsKey(keyFullName)) {
+                        final DatasourceStructure.ForeignKey key = new DatasourceStructure.ForeignKey(
+                                constraintName,
+                                new ArrayList<>(),
+                                new ArrayList<>()
+                        );
+                        keyRegistry.put(keyFullName, key);
+                        table.getKeys().add(key);
+                    }
+
+                    ((DatasourceStructure.ForeignKey) keyRegistry.get(keyFullName)).getFromColumns()
+                            .add(constraintsResultSet.getString("self_column"));
+                    ((DatasourceStructure.ForeignKey) keyRegistry.get(keyFullName)).getToColumns()
+                            .add(prefix + constraintsResultSet.getString("foreign_column"));
+                }
+            }
+        }
+
+        private void getTemplates(Map<String, DatasourceStructure.Table> tablesByName) {
+            //TODO: remove it.
+            System.out.println("devtest: getTemplates start");
+
+            for (DatasourceStructure.Table table : tablesByName.values()) {
+                final List<DatasourceStructure.Column> columnsWithoutDefault = table.getColumns()
+                        .stream()
+                        .filter(column -> column.getDefaultValue() == null)
+                        .collect(Collectors.toList());
+
+                final List<String> columnNames = new ArrayList<>();
+                final List<String> columnValues = new ArrayList<>();
+                final StringBuilder setFragments = new StringBuilder();
+
+                for (DatasourceStructure.Column column : columnsWithoutDefault) {
+                    final String name = column.getName();
+                    final String type = column.getType();
+                    String value;
+
+                    if (type == null) {
+                        value = "null";
+                    } else if ("text".equals(type) || "varchar".equals(type)) {
+                        value = "''";
+                    } else if (type.startsWith("int")) {
+                        value = "1";
+                    } else if ("date".equals(type)) {
+                        value = "'2019-07-01'";
+                    } else if ("time".equals(type)) {
+                        value = "'18:32:45'";
+                    } else if ("timetz".equals(type)) {
+                        value = "'04:05:06 PST'";
+                    } else if ("timestamp".equals(type)) {
+                        value = "TIMESTAMP '2019-07-01 10:00:00'";
+                    } else if ("timestamptz".equals(type)) {
+                        value = "TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET'";
+                    } else {
+                        value = "''";
+                    }
+
+                    columnNames.add("\"" + name + "\"");
+                    columnValues.add(value);
+                    setFragments.append("\n    \"").append(name).append("\" = ").append(value);
+                }
+
+                final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
+                table.getTemplates().addAll(List.of(
+                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
+                        new DatasourceStructure.Template("INSERT", "INSERT INTO " + quotedTableName
+                                + " (" + String.join(", ", columnNames) + ")\n"
+                                + "  VALUES (" + String.join(", ", columnValues) + ");"),
+                        new DatasourceStructure.Template("UPDATE", "UPDATE " + quotedTableName + " SET"
+                                + setFragments.toString() + "\n"
+                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                        new DatasourceStructure.Template("DELETE", "DELETE FROM " + quotedTableName
+                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
+                ));
+            }
+        }
+
         @Override
         public Mono<DatasourceStructure> getStructure(Connection connection, DatasourceConfiguration datasourceConfiguration) {
+            //TODO: remove it.
+            System.out.println("devtest: getStructure start");
 
             try {
                 if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
@@ -382,136 +539,34 @@ public class RedshiftPlugin extends BasePlugin {
 
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
+            final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
             return Mono.fromSupplier(() -> {
-
                 // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
-
                 System.out.println(Thread.currentThread().getName() + ": Getting Db structure");
                 try (Statement statement = connection.createStatement()) {
 
                     // Get tables and fill up their columns.
                     try (ResultSet columnsResultSet = statement.executeQuery(TABLES_QUERY)) {
-                        while (columnsResultSet.next()) {
-                            final char kind = columnsResultSet.getString("kind").charAt(0);
-                            final String schemaName = columnsResultSet.getString("schema_name");
-                            final String tableName = columnsResultSet.getString("table_name");
-                            final String fullTableName = schemaName + "." + tableName;
-                            if (!tablesByName.containsKey(fullTableName)) {
-                                tablesByName.put(fullTableName, new DatasourceStructure.Table(
-                                        kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
-                                        fullTableName,
-                                        new ArrayList<>(),
-                                        new ArrayList<>(),
-                                        new ArrayList<>()
-                                ));
-                            }
-                            final DatasourceStructure.Table table = tablesByName.get(fullTableName);
-                            table.getColumns().add(new DatasourceStructure.Column(
-                                    columnsResultSet.getString("name"),
-                                    columnsResultSet.getString("column_type"),
-                                    columnsResultSet.getString("default_expr")
-                            ));
-                        }
+                        getTablesInfo(columnsResultSet, tablesByName);
                     }
 
                     // Get tables' constraints and fill those up.
-                    try (ResultSet constraintsResultSet = statement.executeQuery(KEYS_QUERY)) {
-                        while (constraintsResultSet.next()) {
-                            final String constraintName = constraintsResultSet.getString("constraint_name");
-                            final char constraintType = constraintsResultSet.getString("constraint_type").charAt(0);
-                            final String selfSchema = constraintsResultSet.getString("self_schema");
-                            final String tableName = constraintsResultSet.getString("self_table");
-                            final String fullTableName = selfSchema + "." + tableName;
-                            if (!tablesByName.containsKey(fullTableName)) {
-                                continue;
-                            }
-
-                            final DatasourceStructure.Table table = tablesByName.get(fullTableName);
-
-                            if (constraintType == 'p') {
-                                final DatasourceStructure.PrimaryKey key = new DatasourceStructure.PrimaryKey(
-                                        constraintName,
-                                        List.of((String[]) constraintsResultSet.getArray("self_columns").getArray())
-                                );
-                                table.getKeys().add(key);
-
-                            } else if (constraintType == 'f') {
-                                final String foreignSchema = constraintsResultSet.getString("foreign_schema");
-                                final String prefix = (foreignSchema.equalsIgnoreCase(selfSchema) ? "" : foreignSchema + ".")
-                                        + constraintsResultSet.getString("foreign_table")
-                                        + ".";
-
-                                final DatasourceStructure.ForeignKey key = new DatasourceStructure.ForeignKey(
-                                        constraintName,
-                                        List.of((String[]) constraintsResultSet.getArray("self_columns").getArray()),
-                                        Stream.of((String[]) constraintsResultSet.getArray("foreign_columns").getArray())
-                                                .map(name -> prefix + name)
-                                                .collect(Collectors.toList())
-                                );
-
-                                table.getKeys().add(key);
-
-                            }
-                        }
+                    try (ResultSet constraintsResultSet = statement.executeQuery(KEYS_QUERY_PRIMARY_KEY)) {
+                        getKeysInfo(constraintsResultSet, tablesByName, keyRegistry);
                     }
 
-                    // Get/compute templates for each table and put those in.
-                    for (DatasourceStructure.Table table : tablesByName.values()) {
-                        final List<DatasourceStructure.Column> columnsWithoutDefault = table.getColumns()
-                                .stream()
-                                .filter(column -> column.getDefaultValue() == null)
-                                .collect(Collectors.toList());
-
-                        final List<String> columnNames = new ArrayList<>();
-                        final List<String> columnValues = new ArrayList<>();
-                        final StringBuilder setFragments = new StringBuilder();
-
-                        for (DatasourceStructure.Column column : columnsWithoutDefault) {
-                            final String name = column.getName();
-                            final String type = column.getType();
-                            String value;
-
-                            if (type == null) {
-                                value = "null";
-                            } else if ("text".equals(type) || "varchar".equals(type)) {
-                                value = "''";
-                            } else if (type.startsWith("int")) {
-                                value = "1";
-                            } else if ("date".equals(type)) {
-                                value = "'2019-07-01'";
-                            } else if ("time".equals(type)) {
-                                value = "'18:32:45'";
-                            } else if ("timetz".equals(type)) {
-                                value = "'04:05:06 PST'";
-                            } else if ("timestamp".equals(type)) {
-                                value = "TIMESTAMP '2019-07-01 10:00:00'";
-                            } else if ("timestamptz".equals(type)) {
-                                value = "TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET'";
-                            } else {
-                                value = "''";
-                            }
-
-                            columnNames.add("\"" + name + "\"");
-                            columnValues.add(value);
-                            setFragments.append("\n    \"").append(name).append("\" = ").append(value);
-                        }
-
-                        final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
-                        table.getTemplates().addAll(List.of(
-                                new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
-                                new DatasourceStructure.Template("INSERT", "INSERT INTO " + quotedTableName
-                                        + " (" + String.join(", ", columnNames) + ")\n"
-                                        + "  VALUES (" + String.join(", ", columnValues) + ");"),
-                                new DatasourceStructure.Template("UPDATE", "UPDATE " + quotedTableName + " SET"
-                                        + setFragments.toString() + "\n"
-                                        + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
-                                new DatasourceStructure.Template("DELETE", "DELETE FROM " + quotedTableName
-                                        + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
-                        ));
+                    try (ResultSet constraintsResultSet = statement.executeQuery(KEYS_QUERY_FOREIGN_KEY)) {
+                        getKeysInfo(constraintsResultSet, tablesByName, keyRegistry);
                     }
+
+                    // Get templates for each table and put those in.
+                    getTemplates(tablesByName);
 
                 } catch (SQLException throwable) {
+                    //TODO: remove it.
+                    throwable.printStackTrace();
+
                     return Mono.error(throwable);
                 }
 
