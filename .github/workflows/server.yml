@@ -60,7 +60,13 @@ jobs:
     # first 11 characters. This can be used to build images for several branches
     - name: Get the version to tag the Docker image
       id: vars
-      run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+      run: |
+        # Since this is an unreleased build, we set the version to incremented version number with a
+        # `-SNAPSHOT` suffix.
+        latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head)"
+        next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+        echo ::set-output name=version::$next_version-SNAPSHOT
+        echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
 
     # Build and test the code
     - name: Build and test
@@ -72,7 +78,7 @@ jobs:
         APPSMITH_IS_SELF_HOSTED: false
       run: |
         mvn --batch-mode versions:set \
-          -DnewVersion=${{ needs.prelude.outputs.version }} \
+          -DnewVersion=${{ steps.vars.outputs.version }} \
           -DgenerateBackupPoms=false \
           -DprocessAllModules=true
         mvn --batch-mode package
