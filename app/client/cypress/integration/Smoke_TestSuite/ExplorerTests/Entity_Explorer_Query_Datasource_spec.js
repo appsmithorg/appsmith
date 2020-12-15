@@ -52,6 +52,7 @@ describe("Entity explorer tests related to query and datasource", function() {
       200,
     );
 
+    /* eslint-disable */
     cy.wait(2000);
     cy.go("back");
 
