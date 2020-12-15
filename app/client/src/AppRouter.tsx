@@ -26,7 +26,6 @@ import Users from "pages/users";
 import ErrorPage from "pages/common/ErrorPage";
 import PageNotFound from "pages/common/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
-
 import { getThemeDetails } from "selectors/themeSelectors";
 import { ThemeMode } from "reducers/uiReducers/themeReducer";
 import { AppState } from "reducers";
