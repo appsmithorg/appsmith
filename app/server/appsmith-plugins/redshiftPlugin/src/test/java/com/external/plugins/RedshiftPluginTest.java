@@ -58,7 +58,6 @@ import static org.junit.Assert.assertTrue;
 @Slf4j
 public class RedshiftPluginTest {
     RedshiftPlugin.RedshiftPluginExecutor pluginExecutor = new RedshiftPlugin.RedshiftPluginExecutor();
-    RedshiftPlugin.RedshiftPluginExecutor mockPluginExecutor = mock(RedshiftPlugin.RedshiftPluginExecutor.class);
 
     private static String address;
     private static Integer port;
@@ -73,15 +72,6 @@ public class RedshiftPluginTest {
         username = "username";
         password = "password";
         dbName = "dbName";
-
-        //TODO: remove it.
-        /*address = "redshift-cluster-1.cchikskpf5ok.us-east-2.redshift.amazonaws.com";
-        port = 5439;
-        username = "test";
-        password = "Passw0rd";
-        dbName = "dev";*/
-
-        return;
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -145,55 +135,7 @@ public class RedshiftPluginTest {
     }
 
     @Test
-    public void testAliasColumnNames() throws SQLException {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Connection mockConnection = mock(Connection.class);
-        when(mockConnection.isClosed()).thenReturn(false);
-        when(mockConnection.isValid(Mockito.anyInt())).thenReturn(true);
-
-        Statement mockStatement = mock(Statement.class);
-        when(mockConnection.createStatement()).thenReturn(mockStatement);
-        when(mockStatement.execute(Mockito.any())).thenReturn(true);
-        doNothing().when(mockStatement).close();
-
-        ResultSet mockResultSet = mock(ResultSet.class);
-        when(mockStatement.getResultSet()).thenReturn(mockResultSet);
-        when(mockResultSet.getObject(Mockito.anyInt())).thenReturn(1);
-        when(mockResultSet.next()).thenReturn(true).thenReturn(false);
-        doNothing().when(mockResultSet).close();
-
-        ResultSetMetaData mockResultSetMetaData = mock(ResultSetMetaData.class);
-        when(mockResultSet.getMetaData()).thenReturn(mockResultSetMetaData);
-
-        when(mockResultSetMetaData.getColumnCount()).thenReturn(1);
-        when(mockResultSetMetaData.getColumnTypeName(Mockito.anyInt())).thenReturn("int4");
-        when(mockResultSetMetaData.getColumnName(Mockito.anyInt())).thenReturn("user_id");
-
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
-        Mono<Connection> dsConnectionMono = Mono.just(mockConnection);
-        Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
-
-        StepVerifier.create(executeMono)
-                .assertNext(result -> {
-                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
-                    assertArrayEquals(
-                            new String[]{
-                                    "user_id"
-                            },
-                            new ObjectMapper()
-                                    .convertValue(node, LinkedHashMap.class)
-                                    .keySet()
-                                    .toArray()
-                    );
-                })
-                .verifyComplete();
-    }
-
-    @Test
     public void testExecute() throws SQLException {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Connection mockConnection = mock(Connection.class);
         when(mockConnection.isClosed()).thenReturn(false);
         when(mockConnection.isValid(Mockito.anyInt())).thenReturn(true);
@@ -226,6 +168,7 @@ public class RedshiftPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Connection> dsConnectionMono = Mono.just(mockConnection);
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
                 .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
@@ -243,8 +186,6 @@ public class RedshiftPluginTest {
                     assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
                     assertEquals("2018-11-30T19:45:15Z", node.get("created_on_tz").asText());
                     assertTrue(node.get("spouse_dob").isNull());
-
-                    // Check the order of the columns.
                     assertArrayEquals(
                             new String[]{
                                     "id",
@@ -267,9 +208,65 @@ public class RedshiftPluginTest {
                 .verifyComplete();
     }
 
-    public void testStructure() {
+    @Test
+    public void testStructure() throws SQLException {
+        Connection mockConnection = mock(Connection.class);
+        when(mockConnection.isClosed()).thenReturn(false);
+        when(mockConnection.isValid(Mockito.anyInt())).thenReturn(true);
+
+        Statement mockStatement = mock(Statement.class);
+        when(mockConnection.createStatement()).thenReturn(mockStatement);
+        when(mockStatement.execute(Mockito.any())).thenReturn(true);
+        doNothing().when(mockStatement).close();
+
+        ResultSet mockResultSet = mock(ResultSet.class);
+        when(mockStatement.executeQuery(Mockito.anyString())).thenReturn(mockResultSet, mockResultSet, mockResultSet);
+        when(mockResultSet.next())
+                .thenReturn(true, true, true, true, true, true, true, true, false)
+                .thenReturn(true, true, false)
+                .thenReturn(true, false);
+        when(mockResultSet.getString("kind")).thenReturn("r", "r", "r", "r", "r", "r", "r", "r");
+        when(mockResultSet.getString("schema_name")).thenReturn("public", "public", "public", "public", "public",
+                "public", "public", "public");
+        when(mockResultSet.getString("table_name")).thenReturn("campus", "campus", "possessions", "possessions",
+                "possessions", "users", "users", "users");
+        when(mockResultSet.getString("name")).thenReturn("id", "name", "id", "title", "user_id", "id", "username",
+                "password");
+        when(mockResultSet.getString("column_type")).thenReturn("timestamptz", "timestamptz", "int4", "varchar",
+                "int4", "int4", "varchar", "varchar");
+        when(mockResultSet.getString("default_expr")).thenReturn("now()", "now()", null, null, null, "\"identity\"" +
+                "(101507, 0, '1,1'::text)", null, null);
+        when(mockResultSet.getString("constraint_name"))
+                .thenReturn("possessions_pkey", "users_pkey")
+                .thenReturn("user_fk");
+        when(mockResultSet.getString("constraint_type"))
+                .thenReturn("p", "p")
+                .thenReturn("f");
+        when(mockResultSet.getString("self_schema"))
+                .thenReturn("public", "public")
+                .thenReturn("public");
+        when(mockResultSet.getString("self_table"))
+                .thenReturn("possessions", "users")
+                .thenReturn("possessions");
+        when(mockResultSet.getString("self_column"))
+                .thenReturn("id", "id")
+                .thenReturn("user_id");
+        when(mockResultSet.getString("foreign_schema")).thenReturn("public");
+        when(mockResultSet.getString("foreign_table")).thenReturn("users");
+        when(mockResultSet.getString("foreign_column")).thenReturn("id");
+
+        doNothing().when(mockResultSet).close();
+
+        ResultSetMetaData mockResultSetMetaData = mock(ResultSetMetaData.class);
+        when(mockResultSet.getMetaData()).thenReturn(mockResultSetMetaData);
+
+        when(mockResultSetMetaData.getColumnCount()).thenReturn(6);
+        when(mockResultSetMetaData.getColumnTypeName(Mockito.anyInt())).thenReturn("int4");
+        when(mockResultSetMetaData.getColumnName(Mockito.anyInt())).thenReturn("user_id");
+
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<DatasourceStructure> structureMono = pluginExecutor.datasourceCreate(dsConfig)
+        Mono<Connection> dsConnectionMono = Mono.just(mockConnection);
+        Mono<DatasourceStructure> structureMono = dsConnectionMono
                 .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
 
         StepVerifier.create(structureMono)
@@ -294,7 +291,6 @@ public class RedshiftPluginTest {
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    //TODO: check
                                     new DatasourceStructure.Column("id", "int4", null),
                                     new DatasourceStructure.Column("title", "varchar", null),
                                     new DatasourceStructure.Column("user_id", "int4", null),
@@ -338,14 +334,7 @@ public class RedshiftPluginTest {
                                     new DatasourceStructure.Column("id", "int4", "\"identity\"(101507, " +
                                             "0, '1,1'::text)"),
                                     new DatasourceStructure.Column("username", "varchar", null),
-                                    new DatasourceStructure.Column("password", "varchar", null),
-                                    new DatasourceStructure.Column("email", "varchar", null),
-                                    new DatasourceStructure.Column("spouse_dob", "date", null),
-                                    new DatasourceStructure.Column("dob", "date", null),
-                                    new DatasourceStructure.Column("time1", "time", null),
-                                    new DatasourceStructure.Column("time_tz", "timetz", null),
-                                    new DatasourceStructure.Column("created_on", "timestamp", null),
-                                    new DatasourceStructure.Column("created_on_tz", "timestamptz", null),
+                                    new DatasourceStructure.Column("password", "varchar", null)
                             },
                             usersTable.getColumns().toArray()
                     );
@@ -360,18 +349,11 @@ public class RedshiftPluginTest {
                     assertArrayEquals(
                             new DatasourceStructure.Template[]{
                                     new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"users\" LIMIT 10;"),
-                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"users\" (\"username\", \"password\", \"email\", \"spouse_dob\", \"dob\", \"time1\", \"time_tz\", \"created_on\", \"created_on_tz\")\n" +
-                                            "  VALUES ('', '', '', '2019-07-01', '2019-07-01', '18:32:45', '04:05:06 PST', TIMESTAMP '2019-07-01 10:00:00', TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET');"),
+                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"users\" (\"username\", \"password\")\n" +
+                                            "  VALUES ('', '');"),
                                     new DatasourceStructure.Template("UPDATE", "UPDATE public.\"users\" SET\n" +
                                             "    \"username\" = ''\n" +
                                             "    \"password\" = ''\n" +
-                                            "    \"email\" = ''\n" +
-                                            "    \"spouse_dob\" = '2019-07-01'\n" +
-                                            "    \"dob\" = '2019-07-01'\n" +
-                                            "    \"time1\" = '18:32:45'\n" +
-                                            "    \"time_tz\" = '04:05:06 PST'\n" +
-                                            "    \"created_on\" = TIMESTAMP '2019-07-01 10:00:00'\n" +
-                                            "    \"created_on_tz\" = TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET'\n" +
                                             "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
                                     new DatasourceStructure.Template("DELETE", "DELETE FROM public.\"users\"\n" +
                                             "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
@@ -381,121 +363,4 @@ public class RedshiftPluginTest {
                 })
                 .verifyComplete();
     }
-
-    //TODO: mock it.
-    /*@Test
-    public void testStructure() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<DatasourceStructure> structureMono = pluginExecutor.datasourceCreate(dsConfig)
-                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
-
-        StepVerifier.create(structureMono)
-                .assertNext(structure -> {
-                    assertNotNull(structure);
-                    assertEquals(3, structure.getTables().size());
-
-                    final DatasourceStructure.Table campusTable = structure.getTables().get(0);
-                    assertEquals("public.campus", campusTable.getName());
-                    assertEquals(DatasourceStructure.TableType.TABLE, campusTable.getType());
-                    assertArrayEquals(
-                            new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "timestamptz", "now()"),
-                                    new DatasourceStructure.Column("name", "timestamptz", "now()")
-                            },
-                            campusTable.getColumns().toArray()
-                    );
-                    assertEquals(campusTable.getKeys().size(), 0);
-
-                    final DatasourceStructure.Table possessionsTable = structure.getTables().get(1);
-                    assertEquals("public.possessions", possessionsTable.getName());
-                    assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
-                    assertArrayEquals(
-                            new DatasourceStructure.Column[]{
-                                    //TODO: check
-                                    new DatasourceStructure.Column("id", "int4", null),
-                                    new DatasourceStructure.Column("title", "varchar", null),
-                                    new DatasourceStructure.Column("user_id", "int4", null),
-                            },
-                            possessionsTable.getColumns().toArray()
-                    );
-
-                    final DatasourceStructure.PrimaryKey possessionsPrimaryKey = new DatasourceStructure.PrimaryKey("possessions_pkey", new ArrayList<>());
-                    possessionsPrimaryKey.getColumnNames().add("id");
-                    final DatasourceStructure.ForeignKey possessionsUserForeignKey = new DatasourceStructure.ForeignKey(
-                            "user_fk",
-                            List.of("user_id"),
-                            List.of("users.id")
-                    );
-                    assertArrayEquals(
-                            new DatasourceStructure.Key[]{possessionsPrimaryKey, possessionsUserForeignKey},
-                            possessionsTable.getKeys().toArray()
-                    );
-
-                    assertArrayEquals(
-                            new DatasourceStructure.Template[]{
-                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"possessions\" LIMIT 10;"),
-                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"possessions\" " +
-                                            "(\"id\", \"title\", \"user_id\")\n  VALUES (1, '', 1);"),
-                                    new DatasourceStructure.Template("UPDATE", "UPDATE public.\"possessions\" SET\n" +
-                                            "    \"id\" = 1\n" +
-                                            "    \"title\" = ''\n" +
-                                            "    \"user_id\" = 1\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
-                                    new DatasourceStructure.Template("DELETE", "DELETE FROM public.\"possessions\"\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
-                            },
-                            possessionsTable.getTemplates().toArray()
-                    );
-
-                    final DatasourceStructure.Table usersTable = structure.getTables().get(2);
-                    assertEquals("public.users", usersTable.getName());
-                    assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
-                    assertArrayEquals(
-                            new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "int4", "\"identity\"(101507, " +
-                                            "0, '1,1'::text)"),
-                                    new DatasourceStructure.Column("username", "varchar", null),
-                                    new DatasourceStructure.Column("password", "varchar", null),
-                                    new DatasourceStructure.Column("email", "varchar", null),
-                                    new DatasourceStructure.Column("spouse_dob", "date", null),
-                                    new DatasourceStructure.Column("dob", "date", null),
-                                    new DatasourceStructure.Column("time1", "time", null),
-                                    new DatasourceStructure.Column("time_tz", "timetz", null),
-                                    new DatasourceStructure.Column("created_on", "timestamp", null),
-                                    new DatasourceStructure.Column("created_on_tz", "timestamptz", null),
-                            },
-                            usersTable.getColumns().toArray()
-                    );
-
-                    final DatasourceStructure.PrimaryKey usersPrimaryKey = new DatasourceStructure.PrimaryKey("users_pkey", new ArrayList<>());
-                    usersPrimaryKey.getColumnNames().add("id");
-                    assertArrayEquals(
-                            new DatasourceStructure.Key[]{usersPrimaryKey},
-                            usersTable.getKeys().toArray()
-                    );
-
-                    assertArrayEquals(
-                            new DatasourceStructure.Template[]{
-                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"users\" LIMIT 10;"),
-                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"users\" (\"username\", \"password\", \"email\", \"spouse_dob\", \"dob\", \"time1\", \"time_tz\", \"created_on\", \"created_on_tz\")\n" +
-                                            "  VALUES ('', '', '', '2019-07-01', '2019-07-01', '18:32:45', '04:05:06 PST', TIMESTAMP '2019-07-01 10:00:00', TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET');"),
-                                    new DatasourceStructure.Template("UPDATE", "UPDATE public.\"users\" SET\n" +
-                                            "    \"username\" = ''\n" +
-                                            "    \"password\" = ''\n" +
-                                            "    \"email\" = ''\n" +
-                                            "    \"spouse_dob\" = '2019-07-01'\n" +
-                                            "    \"dob\" = '2019-07-01'\n" +
-                                            "    \"time1\" = '18:32:45'\n" +
-                                            "    \"time_tz\" = '04:05:06 PST'\n" +
-                                            "    \"created_on\" = TIMESTAMP '2019-07-01 10:00:00'\n" +
-                                            "    \"created_on_tz\" = TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET'\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
-                                    new DatasourceStructure.Template("DELETE", "DELETE FROM public.\"users\"\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
-                            },
-                            usersTable.getTemplates().toArray()
-                    );
-                })
-                .verifyComplete();
-    }*/
 }

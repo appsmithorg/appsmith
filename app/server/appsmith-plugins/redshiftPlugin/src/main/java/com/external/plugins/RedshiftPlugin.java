@@ -77,7 +77,7 @@ public class RedshiftPlugin extends BasePlugin {
                         "  and pg_catalog.pg_table_is_visible(a.attrelid)\n" +
                         "order by c.relname, a.attnum;";
 
-        public static final String KEYS_QUERY_PRIMARY_KEY = "select tco.constraint_schema as self_schema,\n" +
+        private static final String KEYS_QUERY_PRIMARY_KEY = "select tco.constraint_schema as self_schema,\n" +
                 "       tco.constraint_name,\n" +
                 "       kcu.column_name as self_column,\n" +
                 "       kcu.table_name as self_table,\n" +
@@ -92,7 +92,7 @@ public class RedshiftPlugin extends BasePlugin {
                 "         tco.constraint_name,\n" +
                 "         kcu.ordinal_position;";
 
-        public static final String KEYS_QUERY_FOREIGN_KEY = "select kcu.table_schema as self_schema,\n" +
+        private static final String KEYS_QUERY_FOREIGN_KEY = "select kcu.table_schema as self_schema,\n" +
                 "\t   kcu.table_name as self_table,\n" +
                 "       rel_kcu.table_schema as foreign_schema,\n" +
                 "       rel_kcu.table_name as foreign_table,\n" +
@@ -545,16 +545,17 @@ public class RedshiftPlugin extends BasePlugin {
                 System.out.println(Thread.currentThread().getName() + ": Getting Db structure");
                 try (Statement statement = connection.createStatement()) {
 
-                    // Get tables and fill up their columns.
+                    // Get tables' schema and fill up their columns.
                     try (ResultSet columnsResultSet = statement.executeQuery(TABLES_QUERY)) {
                         getTablesInfo(columnsResultSet, tablesByName);
                     }
 
-                    // Get tables' constraints and fill those up.
+                    // Get tables' primary key constraints and fill those up.
                     try (ResultSet constraintsResultSet = statement.executeQuery(KEYS_QUERY_PRIMARY_KEY)) {
                         getKeysInfo(constraintsResultSet, tablesByName, keyRegistry);
                     }
 
+                    // Get tables' foreign key constraints and fill those up.
                     try (ResultSet constraintsResultSet = statement.executeQuery(KEYS_QUERY_FOREIGN_KEY)) {
                         getKeysInfo(constraintsResultSet, tablesByName, keyRegistry);
                     }
