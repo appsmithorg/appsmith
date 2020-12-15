@@ -265,7 +265,6 @@ export const retryPromise = (
         setTimeout(() => {
           if (retriesLeft === 1) {
             reject(error);
-            history.replace(SERVER_ERROR_URL);
             return;
           }
 
