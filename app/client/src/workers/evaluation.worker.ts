@@ -62,8 +62,17 @@ ctx.addEventListener("message", e => {
       const response = getEvaluatedDataTree(dataTree);
       // We need to clean it to remove any possible functions inside the tree.
       // If functions exist, it will crash the web worker
-      const cleanDataTree = JSON.stringify(response);
-      ctx.postMessage({ dataTree: cleanDataTree, errors: ERRORS });
+      try {
+        const cleanDataTree = JSON.stringify(response);
+        ctx.postMessage({ dataTree: cleanDataTree, errors: ERRORS });
+      } catch (e) {
+        ERRORS.push({
+          type: EvalErrorTypes.DEPENDENCY_ERROR,
+          message: e.message,
+        });
+        const cleanDataTree = JSON.stringify(getValidatedTree(dataTree));
+        ctx.postMessage({ dataTree: cleanDataTree, errors: ERRORS });
+      }
       ERRORS = [];
       break;
     }
@@ -289,7 +298,7 @@ const createDependencyTree = (
   dependencyTree: Array<[string, string]>;
   dependencyMap: DynamicDependencyMap;
 } => {
-  const dependencyMap: DynamicDependencyMap = {};
+  let dependencyMap: DynamicDependencyMap = {};
   const allKeys = getAllPaths(dataTree);
   Object.keys(dataTree).forEach(entityKey => {
     const entity = dataTree[entityKey];
@@ -337,6 +346,7 @@ const createDependencyTree = (
       dependencyMap[key].map(path => calculateSubDependencies(path, allKeys)),
     );
   });
+  dependencyMap = makeParentsDependOnChildren(dependencyMap);
   const dependencyTree: Array<[string, string]> = [];
   Object.keys(dependencyMap).forEach((key: string) => {
     if (dependencyMap[key].length) {
@@ -1753,4 +1763,38 @@ const VALIDATORS: Record<ValidationType, Validator> = {
       parsed: values,
     };
   },
+};
+
+export const makeParentsDependOnChildren = (
+  depMap: DynamicDependencyMap,
+): DynamicDependencyMap => {
+  //return depMap;
+  // Make all parents depend on child
+  Object.keys(depMap).forEach(key => {
+    depMap = makeParentsDependOnChild(depMap, key);
+    depMap[key].forEach(path => {
+      depMap = makeParentsDependOnChild(depMap, path);
+    });
+  });
+  return depMap;
+};
+export const makeParentsDependOnChild = (
+  depMap: DynamicDependencyMap,
+  child: string,
+): DynamicDependencyMap => {
+  const result: DynamicDependencyMap = depMap;
+  let curKey = child;
+  const rgx = /^(.*)\..*$/;
+  let matches: Array<string> | null;
+  // Note: The `=` is intentional
+  // Stops looping when match is null
+  while ((matches = curKey.match(rgx)) !== null) {
+    const parentKey = matches[1];
+    // Todo: switch everything to set.
+    const existing = new Set(result[parentKey] || []);
+    existing.add(curKey);
+    result[parentKey] = Array.from(existing);
+    curKey = parentKey;
+  }
+  return result;
 };
