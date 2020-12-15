@@ -11,7 +11,7 @@ describe("xml2json text", function() {
       .first()
       .should(
         "have.text",
-        `{ "note": { "to": "Tove", "from": "Jani", "heading": "Reminder", "body": "Don\'t forget me this weekend!"}`,
+        `{  "note": {    "to": "Tove",    "from": "Jani",    "heading": "Reminder",    "body": "Don't forget me this weekend!"  }}`,
       );
   });
 });

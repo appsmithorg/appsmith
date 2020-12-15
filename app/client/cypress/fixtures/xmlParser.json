@@ -21,7 +21,7 @@
     "children": [
       {
         "isVisible": true,
-        "text": "{{xmlParser.parse(Input1.text}}",
+        "text": "{{xmlParser.parse(Input1.text) }}",
         "textStyle": "LABEL",
         "textAlign": "LEFT",
         "widgetName": "Text1",
