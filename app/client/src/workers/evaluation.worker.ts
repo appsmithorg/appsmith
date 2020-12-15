@@ -233,23 +233,17 @@ export class DataTreeEvaluator {
         if (d.path.length > 1) {
           const propertyPath = convertPathToString(d.path);
           changePaths.add(propertyPath);
-          // Also, if this is an array update, trim the array index and add it to the change paths for evaluation
+
+          // If this is an array update, trim the array index and add it to the change paths for evaluation
+          // This is because sometimes inside an object of array time, if only a particular entry changes, the
+          // difference comes as propertyPath[0].fieldChanged. Another entity could depend on propertyPath and not
+          // propertyPath[0]. The said entity must be evaluated.
+          // To do this, we are trimming the array index
           if (propertyPath.lastIndexOf("[") > 0) {
             changePaths.add(
               propertyPath.substr(0, propertyPath.lastIndexOf("[")),
             );
           }
-
-          // @Hetu : I have commented out the code here. Undo this if incorrect.
-          // // We will add all parents of this change to this sort order
-          // for (let i = 0; i < d.path.length; i++) {
-          //   const indexToSlice = d.path.length - i;
-          //   if (indexToSlice > 1) {
-          //     changePaths.add(
-          //       convertPathToString(d.path.slice(0, indexToSlice)),
-          //     );
-          //   }
-          // }
         } else if (d.path.length === 1) {
           /*
             When we see a new widget has been added or or delete an old widget ( d.path.length === 1)
@@ -357,6 +351,7 @@ export class DataTreeEvaluator {
 
       // Add all the sorted nodes in the final list
       finalSortOrder = [...finalSortOrder, ...subSortOrderArray];
+
       parents = this.getImmediateParentsOfPropertyPaths(subSortOrderArray);
       // If we find parents of the property paths in the sorted array, we should continue finding all the nodes dependent
       // on the parents
@@ -367,6 +362,8 @@ export class DataTreeEvaluator {
       }
     }
 
+    // Remove duplicates from this list. Since we explicitly walk down the tree and implicitly (by fetching parents) walk
+    // up the tree, there are bound to be many duplicates.
     const uniqueKeysInSortOrder = [...new Set(finalSortOrder)];
 
     return Array.from(uniqueKeysInSortOrder);
