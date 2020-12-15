@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import styled from "styled-components";
 import { useLocation } from "react-router-dom";
 import TagListField from "components/editorComponents/form/fields/TagListField";
@@ -31,14 +31,15 @@ import {
 import { getAppsmithConfigs } from "configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import Button, { Variant, Size } from "components/ads/Button";
+import Button, { Size } from "components/ads/Button";
 import Text, { TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
-import { Classes } from "components/ads/common";
+import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import { getThemeDetails } from "selectors/themeSelectors";
-import { ProfileImage } from "pages/common/ProfileDropdown";
+import { scrollbarDark } from "constants/DefaultTheme";
+import ProfileImage from "pages/common/ProfileImage";
 
 const OrgInviteTitle = styled.div`
   padding: 10px 0px;
@@ -114,6 +115,12 @@ const StyledInviteFieldGroup = styled.div`
 
 const UserList = styled.div`
   margin-top: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+  &&::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.modal.scrollbar};
+  }
+  ${scrollbarDark};
 `;
 
 const User = styled.div`
@@ -128,6 +135,9 @@ const User = styled.div`
 const UserInfo = styled.div`
   display: inline-flex;
   align-items: center;
+  div:first-child {
+    cursor: default;
+  }
 `;
 
 const UserRole = styled.div`
@@ -204,12 +214,23 @@ const validate = (values: any) => {
     errors["role"] = INVITE_USERS_VALIDATION_ROLE_EMPTY;
   }
 
+  if (values.users && values.users.length > 0) {
+    const _users = values.users.split(",").filter(Boolean);
+
+    _users.forEach((user: string) => {
+      if (!isEmail(user)) {
+        errors["users"] = INVITE_USERS_VALIDATION_EMAIL_LIST;
+      }
+    });
+  }
   return errors;
 };
 
 const { mailEnabled } = getAppsmithConfigs();
 
 const OrgInviteUsersForm = (props: any) => {
+  const [emailError, setEmailError] = useState("");
+
   const {
     handleSubmit,
     allUsers,
@@ -222,14 +243,15 @@ const OrgInviteUsersForm = (props: any) => {
     fetchAllRoles,
     valid,
     fetchCurrentOrg,
-    currentOrg,
     isApplicationInvite,
     isLoading,
   } = props;
 
   const currentPath = useLocation().pathname;
   const pathRegex = /(?:\/org\/)\w+(?:\/settings)/;
-
+  const currentOrg = useSelector(getCurrentOrg).filter(
+    el => el.id === props.orgId,
+  )[0];
   const userOrgPermissions = currentOrg?.userPermissions ?? [];
   const canManage = isPermitted(
     userOrgPermissions,
@@ -262,7 +284,6 @@ const OrgInviteUsersForm = (props: any) => {
           );
           return {
             ...user,
-            imageBackground: details[1],
             initials: details[0],
           };
         },
@@ -296,6 +317,7 @@ const OrgInviteUsersForm = (props: any) => {
               label="Emails"
               intent="success"
               data-cy="t--invite-email-input"
+              customError={(err: string) => setEmailError(err)}
             />
             <SelectField
               name="role"
@@ -339,18 +361,13 @@ const OrgInviteUsersForm = (props: any) => {
                   username: string;
                   name: string;
                   roleName: string;
-                  imageBackground: string;
                   initials: string;
                 }) => {
                   return (
                     <Fragment key={user.username}>
                       <User>
                         <UserInfo>
-                          <ProfileImage backgroundColor={user.imageBackground}>
-                            <Text type={TextType.H6} highlight>
-                              {user.initials}
-                            </Text>
-                          </ProfileImage>
+                          <ProfileImage userName={user.initials} />
                           <UserName>
                             <Text type={TextType.H5}>{user.name}</Text>
                             <Text type={TextType.P2}>{user.username}</Text>
@@ -377,8 +394,8 @@ const OrgInviteUsersForm = (props: any) => {
               fill
             />
           )}
-          {submitFailed && error && (
-            <Callout text={error} variant={Variant.danger} fill />
+          {((submitFailed && error) || emailError) && (
+            <Callout text={error || emailError} variant={Variant.danger} fill />
           )}
         </ErrorBox>
         {!pathRegex.test(currentPath) && canManage && (
@@ -402,7 +419,6 @@ export default connect(
     return {
       roles: getRolesForField(state),
       allUsers: getAllUsers(state),
-      currentOrg: getCurrentOrg(state),
       isLoading: state.ui.orgs.loadingStates.isFetchAllUsers,
     };
   },

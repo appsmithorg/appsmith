@@ -13,7 +13,7 @@
     "parentRowSpace": 1,
     "type": "CANVAS_WIDGET",
     "canExtend": true,
-    "dynamicBindings": {},
+    "dynamicBindingPathList": [],
     "version": 4,
     "minHeight": 1292,
     "parentColumnSpace": 1,
@@ -28,7 +28,7 @@
         "isLoading": false,
         "parentColumnSpace": 75.25,
         "parentRowSpace": 38,
-        "dynamicBindings": {},
+        "dynamicBindingPathList": [],
         "leftColumn": 0,
         "rightColumn": 14,
         "topRow": 0,
@@ -161,7 +161,7 @@
                 "bottomRow": 1,
                 "parentId": "cwamdbv44c",
                 "widgetId": "x893ud3zjh",
-                "dynamicBindings": {}
+                "dynamicBindingPathList": []
               },
               {
                 "isVisible": true,

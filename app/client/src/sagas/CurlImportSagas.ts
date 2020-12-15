@@ -8,7 +8,6 @@ import { validateResponse } from "sagas/ErrorSagas";
 import CurlImportApi, { CurlImportRequest } from "api/ImportApi";
 import { ApiResponse } from "api/ApiResponses";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
 import { CURL_IMPORT_SUCCESS } from "constants/messages";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -17,6 +16,8 @@ import { getCurrentOrgId } from "selectors/organizationSelectors";
 import transformCurlImport from "transformers/CurlImportTransformer";
 import { API_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   const { type, pageId, name } = action.payload;
@@ -41,9 +42,9 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
         importSource: CURL,
       });
 
-      AppToaster.show({
-        message: CURL_IMPORT_SUCCESS,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: CURL_IMPORT_SUCCESS,
+        variant: Variant.success,
       });
       yield put({
         type: ReduxActionTypes.SUBMIT_CURL_FORM_SUCCESS,

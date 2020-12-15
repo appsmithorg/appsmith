@@ -113,6 +113,7 @@ const WidgetsEditor = () => {
     node = <Canvas dsl={widgets} />;
   }
   log.debug("Canvas rendered");
+  PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>

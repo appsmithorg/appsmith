@@ -11,9 +11,9 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
+import { Datasource } from "api/DatasourcesApi";
 import ActionAPI, { ActionCreateUpdateResponse, Property } from "api/ActionAPI";
 import _ from "lodash";
-import { AppToaster } from "components/editorComponents/ToastComponent";
 import { GenericApiResponse } from "api/ApiResponses";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
@@ -42,7 +42,6 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { ToastType } from "react-toastify";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { Action, RestAction } from "entities/Action";
@@ -50,8 +49,10 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getCurrentPageNameByActionId,
+  getDatasource,
   getPageNameByPageId,
 } from "selectors/entitiesSelector";
+import { getDataSources } from "selectors/editorSelectors";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
@@ -60,6 +61,8 @@ import {
   QUERIES_EDITOR_ID_URL,
   API_EDITOR_ID_URL,
 } from "constants/routes";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -71,9 +74,9 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      AppToaster.show({
-        message: `${actionPayload.payload.name} Action created`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${actionPayload.payload.name} Action created`,
+        variant: Variant.success,
       });
 
       const pageName = yield select(
@@ -87,7 +90,19 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
         pageName: pageName,
         ...actionPayload.payload.eventData,
       });
-      yield put(createActionSuccess(response.data));
+
+      let newAction = response.data;
+
+      if (newAction.datasource.id) {
+        const datasource = yield select(getDatasource, newAction.datasource.id);
+
+        newAction = {
+          ...newAction,
+          datasource,
+        };
+      }
+
+      yield put(createActionSuccess(newAction));
     }
   } catch (error) {
     yield put({
@@ -234,10 +249,26 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
           pageName: pageName,
         });
       }
+
+      let updatedAction = response.data;
+
+      if (updatedAction.datasource.id) {
+        const datasource = yield select(
+          getDatasource,
+          updatedAction.datasource.id,
+        );
+
+        updatedAction = {
+          ...updatedAction,
+          datasource,
+        };
+      }
+
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.UPDATE_ACTION_API,
       );
-      yield put(updateActionSuccess({ data: response.data }));
+
+      yield put(updateActionSuccess({ data: updatedAction }));
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(
@@ -267,9 +298,9 @@ export function* deleteActionSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      AppToaster.show({
-        message: `${response.data.name} Action deleted`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${response.data.name} Action deleted`,
+        variant: Variant.success,
       });
       if (isApi) {
         const pageName = yield select(getCurrentPageNameByActionId, id);
@@ -325,9 +356,9 @@ function* moveActionSaga(
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      AppToaster.show({
-        message: `${response.data.name} Action moved`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${response.data.name} Action moved`,
+        variant: Variant.success,
       });
     }
     const pageName = yield select(getPageNameByPageId, response.data.pageId);
@@ -338,9 +369,9 @@ function* moveActionSaga(
     });
     yield put(moveActionSuccess(response.data));
   } catch (e) {
-    AppToaster.show({
-      message: `Error while moving action ${actionObject.name}`,
-      type: ToastType.ERROR,
+    Toaster.show({
+      text: `Error while moving action ${actionObject.name}`,
+      variant: Variant.danger,
     });
     yield put(
       moveActionError({
@@ -365,12 +396,13 @@ function* copyActionSaga(
       pageId: action.payload.destinationPageId,
     };
     const response = yield ActionAPI.createAPI(copyAction);
+    const datasources = yield select(getDataSources);
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      AppToaster.show({
-        message: `${actionObject.name} Action copied`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${actionObject.name} Action copied`,
+        variant: Variant.success,
       });
     }
 
@@ -380,11 +412,23 @@ function* copyActionSaga(
       pageName: pageName,
       apiID: response.data.id,
     });
-    yield put(copyActionSuccess(response.data));
+
+    // checking if there is existing datasource to be added to the action payload
+    const existingDatasource = datasources.find(
+      (d: Datasource) => d.id === response.data.datasource.id,
+    );
+
+    let payload = response.data;
+
+    if (existingDatasource) {
+      payload = { ...payload, datasource: existingDatasource };
+    }
+
+    yield put(copyActionSuccess(payload));
   } catch (e) {
-    AppToaster.show({
-      message: `Error while copying action ${actionObject.name}`,
-      type: ToastType.ERROR,
+    Toaster.show({
+      text: `Error while copying action ${actionObject.name}`,
+      variant: Variant.danger,
     });
     yield put(copyActionError(action.payload));
   }
@@ -464,9 +508,9 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
         oldName: api.config.name,
       },
     });
-    AppToaster.show({
-      message: `Unable to update Action name`,
-      type: ToastType.ERROR,
+    Toaster.show({
+      text: `Unable to update Action name`,
+      variant: Variant.danger,
     });
     console.error(e);
   }

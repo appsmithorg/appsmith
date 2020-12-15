@@ -141,6 +141,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
           />
         ) : (
           <AddDatasource
+            className="t--add-datasource"
             onClick={() => {
               history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
             }}

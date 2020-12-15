@@ -49,6 +49,7 @@ const AddDatasourceSecurely = (props: AddDatasourceSecurelyProps) => {
           That’s a promise.
         </Content>
         <ActionButton
+          className="t--add-datasource"
           icon={"plus"}
           text="New Datasource"
           filled

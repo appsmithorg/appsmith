@@ -23,6 +23,8 @@ import {
 } from "actions/metaActions";
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
+import log from "loglevel";
+
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const AppViewerBody = styled.section`
@@ -36,6 +38,7 @@ const AppViewerBody = styled.section`
 export type AppViewerProps = {
   initializeAppViewer: (applicationId: string, pageId?: string) => void;
   isInitialized: boolean;
+  isInitializeError: boolean;
   executeAction: (actionPayload: ExecuteActionPayload) => void;
   updateWidgetProperty: (
     widgetId: string,
@@ -62,7 +65,7 @@ class AppViewer extends Component<
       this.setState({ registered: true });
     });
     const { applicationId, pageId } = this.props.match.params;
-    console.log({ applicationId, pageId });
+    log.debug({ applicationId, pageId });
     if (applicationId) {
       this.props.initializeAppViewer(applicationId, pageId);
     }

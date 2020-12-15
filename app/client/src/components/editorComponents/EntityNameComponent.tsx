@@ -75,7 +75,7 @@ export function validateEntityName(name: string, allNames?: string[]) {
 }
 
 interface EntityNameProps {
-  onBlur: Function;
+  onBlur: (event?: any) => void;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   value: string;
   isValid: boolean;

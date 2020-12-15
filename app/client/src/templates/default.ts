@@ -10,7 +10,7 @@ export default {
   type: "CANVAS_WIDGET",
   detachFromLayout: true,
   minHeight: 1292,
-  dynamicBindings: {},
+  dynamicBindingPathList: {},
   parentColumnSpace: 1,
   leftColumn: 0,
   children: [],

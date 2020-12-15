@@ -1,8 +1,8 @@
 import { PropertyPaneConfigsResponse } from "api/ConfigsApi";
 
 const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore: No types available
   config: {
     CONTAINER_WIDGET: [
       {
@@ -101,6 +101,22 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             label: "Disabled",
             helpText: "Disables input to this widget",
             controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            id: "6.1.6",
+            propertyName: "minDate",
+            label: "Min Date",
+            helpText: "Defines the min date for this widget",
+            controlType: "DATE_PICKER",
+            isJSConvertible: true,
+          },
+          {
+            id: "6.1.7",
+            propertyName: "maxDate",
+            label: "Max Date",
+            helpText: "Defines the max date for this widget",
+            controlType: "DATE_PICKER",
             isJSConvertible: true,
           },
         ],
@@ -204,6 +220,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             placeholderText: "Enter default search text",
           },
           {
+            id: "7.1.7",
+            helpText: "Selects the default selected row",
+            propertyName: "defaultSelectedRow",
+            label: "Default Selected Row",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter row index",
+          },
+          {
             id: "7.1.3",
             helpText:
               "Bind the Table.pageNo property in your API and call it onPageChange",
@@ -292,6 +316,36 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             propertyName: "isVisible",
             label: "Visible",
             controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            id: "3.1.4",
+            helpText: "Controls the max zoom of the widget",
+            propertyName: "maxZoomLevel",
+            label: "Max Zoom Level",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "1x (No Zoom)",
+                value: 1,
+              },
+              {
+                label: "2x",
+                value: 2,
+              },
+              {
+                label: "4x",
+                value: 4,
+              },
+              {
+                label: "8x",
+                value: 8,
+              },
+              {
+                label: "16x",
+                value: 16,
+              },
+            ],
             isJSConvertible: true,
           },
         ],

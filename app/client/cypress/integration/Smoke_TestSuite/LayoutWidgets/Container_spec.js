@@ -1,6 +1,6 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const widgetsPage = require("../../../locators/Widgets.json");
-const dsl = require("../../../fixtures/layoutdsl.json");
+const dsl = require("../../../fixtures/containerdsl.json");
 
 describe("Container Widget Functionality", function() {
   before(() => {

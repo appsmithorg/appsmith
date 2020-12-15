@@ -8,8 +8,6 @@ import { ReactComponent as StorageIcon } from "assets/icons/menu/storage.svg";
 import { storeAsDatasource } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
 
-type Props = {};
-
 const StyledMenu = styled(Menu)`
   &&&&.bp3-menu {
     padding: 8px;
@@ -38,11 +36,12 @@ const TooltipStyles = createGlobalStyle`
  }
 `;
 
-const StoreAsDatasource = (props: Props) => {
+const StoreAsDatasource = () => {
   const dispatch = useDispatch();
   const MenuContainer = (
     <StyledMenu>
       <StyledMenuItem
+        textClassName="t--store-as-datasource"
         icon={
           <IconWrapper
             width={theme.fontSizes[4]}
@@ -67,6 +66,7 @@ const StoreAsDatasource = (props: Props) => {
         portalClassName="helper-tooltip"
       >
         <div
+          className="t--store-as-datasource-menu"
           onMouseDown={e => {
             e.stopPropagation();
           }}

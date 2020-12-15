@@ -41,7 +41,7 @@ public class CurlImporterServiceTest {
     PluginManager pluginManager;
 
     @MockBean
-    PluginExecutor pluginExecutor;
+    PluginExecutor<Object> pluginExecutor;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -635,6 +635,20 @@ public class CurlImporterServiceTest {
                 action,
                 new Property("payment_intent", "pi_Aabcxyz01aDfoo"),
                 new Property("amount", "1000")
+        );
+    }
+
+    @Test
+    public void dontEatBackslashesInSingleQuotes() throws AppsmithException {
+        ActionDTO action = curlImporterService.curlToAction("curl http://httpbin.org/post -d 'a\\n'");
+        assertMethod(action, HttpMethod.POST);
+        assertUrl(action, "http://httpbin.org");
+        assertPath(action, "/post");
+        assertHeaders(action, new Property("Content-Type", "application/x-www-form-urlencoded"));
+        assertEmptyBody(action);
+        assertBodyFormData(
+                action,
+                new Property("a\\n", "")
         );
     }
 

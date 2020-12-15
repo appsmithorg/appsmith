@@ -1,0 +1,61 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1224,
+    "snapColumns": 16,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1280,
+    "containerStyle": "none",
+    "snapRows": 33,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "dynamicBindingPathList": [],
+    "version": 6,
+    "minHeight": 1292,
+    "parentColumnSpace": 1,
+    "leftColumn": 0,
+    "children": [
+      {
+        "isVisible": true,
+        "backgroundColor": "#FFFFFF",
+        "widgetName": "Container1",
+        "containerStyle": "card",
+        "children": [
+          {
+            "isVisible": true,
+            "widgetName": "Canvas1",
+            "containerStyle": "none",
+            "canExtend": false,
+            "detachFromLayout": true,
+            "children": [],
+            "minHeight": 400,
+            "type": "CANVAS_WIDGET",
+            "isLoading": false,
+            "parentColumnSpace": 1,
+            "parentRowSpace": 1,
+            "leftColumn": 0,
+            "rightColumn": 592,
+            "topRow": 0,
+            "bottomRow": 400,
+            "parentId": "76mznwu5lq",
+            "widgetId": "tik1oqc468"
+          }
+        ],
+        "type": "CONTAINER_WIDGET",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 3,
+        "rightColumn": 11,
+        "topRow": 16,
+        "bottomRow": 26,
+        "parentId": "0",
+        "widgetId": "76mznwu5lq"
+      }
+    ]
+  }
+}

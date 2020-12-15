@@ -1,8 +1,5 @@
 import React, { Fragment } from "react";
 import { CommonComponentProps, Classes } from "components/ads/common";
-import { getInitialsAndColorCode } from "utils/AppsmithUtils";
-import { useSelector } from "react-redux";
-import { getThemeDetails } from "selectors/themeSelectors";
 import Text, { TextType } from "components/ads/Text";
 import styled, { createGlobalStyle } from "styled-components";
 import { Position } from "@blueprintjs/core";
@@ -15,22 +12,12 @@ import {
   DropdownOnSelectActions,
 } from "./CustomizedDropdown/dropdownHelpers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import ProfileImage from "./ProfileImage";
 
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
   userName?: string;
 };
-
-export const ProfileImage = styled.div<{ backgroundColor?: string }>`
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  border-radius: 50%;
-  justify-content: center;
-  cursor: pointer;
-  background-color: ${props => props.backgroundColor};
-`;
 
 const ProfileMenuStyle = createGlobalStyle`
   .bp3-popover {
@@ -67,20 +54,8 @@ const UserInformation = styled.div`
 `;
 
 export default function ProfileDropdown(props: TagProps) {
-  const themeDetails = useSelector(getThemeDetails);
+  const Profile = <ProfileImage userName={props.userName} />;
 
-  const initialsAndColorCode = getInitialsAndColorCode(
-    props.userName,
-    themeDetails.theme.colors.appCardColors,
-  );
-
-  const Profile = (
-    <ProfileImage backgroundColor={initialsAndColorCode[1]}>
-      <Text type={TextType.H6} highlight>
-        {initialsAndColorCode[0]}
-      </Text>
-    </ProfileImage>
-  );
   return (
     <Fragment>
       <ProfileMenuStyle />

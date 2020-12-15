@@ -2,15 +2,13 @@ import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import {
   REQUEST_TIMEOUT_MS,
   API_REQUEST_HEADERS,
+  API_STATUS_CODES,
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
-import {
-  AUTH_LOGIN_URL,
-  PAGE_NOT_FOUND_URL,
-  SERVER_ERROR_URL,
-} from "constants/routes";
+import { AUTH_LOGIN_URL, PAGE_NOT_FOUND_URL } from "constants/routes";
 import history from "utils/history";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
+import { SERVER_API_TIMEOUT_ERROR } from "../constants/messages";
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {
@@ -22,8 +20,10 @@ export const apiRequestConfig = {
 
 const axiosInstance: AxiosInstance = axios.create();
 
+export const axiosConnectionAbortedCode = "ECONNABORTED";
 const executeActionRegex = /actions\/execute/;
-const currentUserRegex = /\/me$/;
+const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
+
 axiosInstance.interceptors.request.use((config: any) => {
   return { ...config, timer: performance.now() };
 });
@@ -50,19 +50,31 @@ axiosInstance.interceptors.response.use(
     return response.data;
   },
   function(error: any) {
+    // Return if the call was cancelled via cancel token
     if (axios.isCancel(error)) {
       return;
     }
-    if (error.code === "ECONNABORTED") {
-      if (error.config && error.config.url.match(currentUserRegex)) {
-        history.replace({ pathname: SERVER_ERROR_URL });
-      }
-      return Promise.reject({
-        message: "Please check your internet connection",
-      });
-    }
+    // Return modified response if action execution failed
     if (error.config && error.config.url.match(executeActionRegex)) {
       return makeExecuteActionResponse(error.response);
+    }
+    // Return error if any timeout happened in other api calls
+    if (
+      error.code === axiosConnectionAbortedCode &&
+      error.message &&
+      error.message.match(timeoutErrorRegex)
+    ) {
+      return Promise.reject({
+        ...error,
+        message: SERVER_API_TIMEOUT_ERROR,
+      });
+    }
+    if (error.response.status === API_STATUS_CODES.SERVER_ERROR) {
+      return Promise.reject({
+        ...error,
+        crash: true,
+        message: SERVER_API_TIMEOUT_ERROR,
+      });
     }
     if (error.response) {
       // The request was made and the server responded with a status code
@@ -72,26 +84,29 @@ axiosInstance.interceptors.response.use(
       // console.log(error.response.headers);
       if (!is404orAuthPath()) {
         const currentUrl = `${window.location.href}`;
-        if (error.response.status === 401) {
+        if (error.response.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED) {
           // Redirect to login and set a redirect url.
           history.replace({
             pathname: AUTH_LOGIN_URL,
             search: `redirectTo=${currentUrl}`,
           });
           return Promise.reject({
-            code: 401,
+            code: API_STATUS_CODES.REQUEST_NOT_AUTHORISED,
             message: "Unauthorized. Redirecting to login page...",
             show: false,
           });
         }
         const errorData = error.response.data.responseMeta;
-        if (errorData.status === 404 && errorData.error.code === 4028) {
+        if (
+          errorData.status === API_STATUS_CODES.RESOURCE_NOT_FOUND &&
+          errorData.error.code === 4028
+        ) {
           history.replace({
             pathname: PAGE_NOT_FOUND_URL,
             search: `redirectTo=${currentUrl}`,
           });
           return Promise.reject({
-            code: 404,
+            code: API_STATUS_CODES.RESOURCE_NOT_FOUND,
             message: "Resource Not Found",
             show: false,
           });

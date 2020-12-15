@@ -300,15 +300,11 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                                     params.put("inviteUrl", originHeader);
                                     params.put("user_role_name", userRole.getRoleName());
 
-                                    Mono<String> emailMono = emailSender.sendMail(user.getEmail(),
+                                    Mono<Boolean> emailMono = emailSender.sendMail(user.getEmail(),
                                         "Appsmith: Your Role has been changed",
                                         UPDATE_ROLE_EXISTING_USER_TEMPLATE, params);
                                     return emailMono
-                                           .thenReturn(addedOrganization)
-                                           .onErrorResume(error -> {
-                                                log.error("Unable to send role change email to {}. Cause: ", user.getEmail(), error);
-                                            return Mono.just(addedOrganization);
-                                            });
+                                           .thenReturn(addedOrganization);
                                 });
                             } else {
                                 // If the roleName was not present, then it implies that the user is being removed from the org.

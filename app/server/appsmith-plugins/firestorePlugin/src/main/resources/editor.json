@@ -1,0 +1,192 @@
+{
+  "editor": [
+    {
+      "sectionName": "",
+      "id": 1,
+      "children": [
+        {
+          "label": "Method Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "method"
+        },
+        {
+          "label": "Method",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "GET_DOCUMENT",
+          "options": [
+            {
+              "label": "Get Single Document",
+              "value": "GET_DOCUMENT"
+            },
+            {
+              "label": "Get Documents in Collection",
+              "value": "GET_COLLECTION"
+            },
+            {
+              "label": "Set Document",
+              "value": "SET_DOCUMENT"
+            },
+            {
+              "label": "Create Document",
+              "value": "CREATE_DOCUMENT"
+            },
+            {
+              "label": "Update Document",
+              "value": "UPDATE_DOCUMENT"
+            },
+            {
+              "label": "Delete Document",
+              "value": "DELETE_DOCUMENT"
+            }
+          ]
+        },
+        {
+          "label": "Document/Collection Path",
+          "configProperty": "actionConfiguration.path",
+          "controlType": "INPUT_TEXT",
+          "isRequired": true,
+          "initialValue": ""
+        },
+        {
+          "label": "Order By Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "orderBy"
+        },
+        {
+          "label": "Order By",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+          "controlType": "INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET_COLLECTION"
+          },
+          "initialValue": ""
+        },
+        {
+          "label": "Limit Documents Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "limit"
+        },
+        {
+          "label": "Limit Documents",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+          "controlType": "INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET_COLLECTION"
+          },
+          "initialValue": "10"
+        },
+        {
+          "sectionName": "Query",
+          "id": 2,
+          "children": [
+            {
+              "label": "Field Path Key",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
+              "controlType": "INPUT_TEXT",
+              "hidden": true,
+              "initialValue": "fieldPath"
+            },
+            {
+              "label": "Where Condition: Field Path (leave emtpy to not apply any conditions)",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
+              "controlType": "INPUT_TEXT",
+              "hidden": {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_EQUALS",
+                "value": "GET_COLLECTION"
+              },
+              "initialValue": ""
+            },
+            {
+              "label": "Operator Key",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].key",
+              "controlType": "INPUT_TEXT",
+              "hidden": true,
+              "initialValue": "operator"
+            },
+            {
+              "label": "Where Condition: Operator",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
+              "controlType": "DROP_DOWN",
+              "hidden": {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_EQUALS",
+                "value": "GET_COLLECTION"
+              },
+              "initialValue": "EQ",
+              "options": [
+                {
+                  "label": "<",
+                  "value": "LT"
+                },
+                {
+                  "label": "<=",
+                  "value": "LTE"
+                },
+                {
+                  "label": "==",
+                  "value": "EQ"
+                },
+                {
+                  "label": ">=",
+                  "value": "GTE"
+                },
+                {
+                  "label": ">",
+                  "value": "GT"
+                },
+                {
+                  "label": "array-contains",
+                  "value": "ARRAY_CONTAINS"
+                },
+                {
+                  "label": "in",
+                  "value": "IN"
+                },
+                {
+                  "label": "array-contains-any",
+                  "value": "ARRAY_CONTAINS_ANY"
+                }
+              ]
+            },
+            {
+              "label": "Value Key",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].key",
+              "controlType": "INPUT_TEXT",
+              "hidden": true,
+              "initialValue": "fieldValue"
+            },
+            {
+              "label": "Where Condition: Value",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
+              "controlType": "INPUT_TEXT",
+              "hidden": {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_EQUALS",
+                "value": "GET_COLLECTION"
+              },
+              "initialValue": ""
+            }
+          ]
+        },
+        {
+          "label": "Body",
+          "configProperty": "actionConfiguration.body",
+          "controlType": "QUERY_DYNAMIC_TEXT"
+        }
+      ]
+    }
+  ]
+}

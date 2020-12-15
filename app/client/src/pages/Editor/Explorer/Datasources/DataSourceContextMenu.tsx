@@ -12,6 +12,7 @@ import { initExplorerEntityNameEdit } from "actions/explorerActions";
 
 export const DataSourceContextMenu = (props: {
   datasourceId: string;
+  entityId: string;
   className?: string;
 }) => {
   const dispatch = useDispatch();
@@ -19,8 +20,8 @@ export const DataSourceContextMenu = (props: {
     dispatch(deleteDatasource({ id: props.datasourceId }));
   }, [dispatch, props.datasourceId]);
   const editDatasourceName = useCallback(
-    () => dispatch(initExplorerEntityNameEdit(props.datasourceId)),
-    [dispatch, props.datasourceId],
+    () => dispatch(initExplorerEntityNameEdit(props.entityId)),
+    [dispatch, props.entityId],
   );
   const dispatchRefresh = useCallback(() => {
     dispatch(refreshDatasourceStructure(props.datasourceId));

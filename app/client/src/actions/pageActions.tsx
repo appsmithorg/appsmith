@@ -2,6 +2,7 @@ import { FetchPageRequest, SavePageResponse } from "api/PageApi";
 import { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import {
+  EvaluationReduxAction,
   ReduxAction,
   ReduxActionTypes,
   UpdateCanvasPayload,
@@ -46,9 +47,13 @@ export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
   },
 });
 
-export const fetchPageSuccess = () => {
+export const fetchPageSuccess = (
+  postEvalActions: ReduxAction<unknown>[],
+): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_SUCCESS,
+    payload: {},
+    postEvalActions,
   };
 };
 
@@ -60,9 +65,11 @@ export type FetchPublishedPageSuccessPayload = {
 
 export const fetchPublishedPageSuccess = (
   payload: FetchPublishedPageSuccessPayload,
-) => ({
+  postEvalActions: ReduxAction<unknown>[],
+): EvaluationReduxAction<FetchPublishedPageSuccessPayload> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
   payload,
+  postEvalActions,
 });
 
 export const updateCurrentPage = (id: string) => ({

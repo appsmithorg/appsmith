@@ -1,0 +1,77 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: imago
+  namespace: default
+spec:
+  schedule: "0 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            k8s-app: imago
+        spec:
+          restartPolicy: Never
+          serviceAccount: imago
+          serviceAccountName: imago
+          containers:
+            - name: imago
+              image: philpep/imago
+              imagePullPolicy: Always
+              args: ["--update"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: imago
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: imago
+rules:
+  - apiGroups:
+      - ""
+      - apps
+    resources:
+    - pods
+    - replicasets
+    - statefulsets
+    verbs:
+    - list
+  - apiGroups:
+      - ""
+      - batch
+    resources:
+    - cronjobs
+    verbs:
+    - get
+    - list
+    - update
+  - apiGroups:
+      - ""
+      - apps
+    resources:
+      - daemonsets
+      - deployments
+      - statefulsets
+    verbs:
+      - get
+      - list
+      - update
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: imago
+roleRef:
+  kind: ClusterRole
+  name: imago
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: imago
+    namespace: default

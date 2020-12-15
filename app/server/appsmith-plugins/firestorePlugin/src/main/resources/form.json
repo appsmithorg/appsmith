@@ -1,0 +1,32 @@
+{
+  "form": [
+    {
+      "sectionName": "Details",
+      "id": 1,
+      "children": [
+        {
+          "label": "Database URL",
+          "configProperty": "datasourceConfiguration.url",
+          "controlType": "INPUT_TEXT",
+          "isRequired": true,
+          "placeholder": "https://your-project-id.firebaseio.com"
+        },
+        {
+          "label": "Project Id",
+          "configProperty": "datasourceConfiguration.authentication.username",
+          "controlType": "INPUT_TEXT",
+          "isRequired": true,
+          "initialValue": ""
+        },
+        {
+          "label": "Service Account Credentials",
+          "configProperty": "datasourceConfiguration.authentication.password",
+          "controlType": "INPUT_TEXT",
+          "dataType": "PASSWORD",
+          "isRequired": true,
+          "initialValue": ""
+        }
+      ]
+    }
+  ]
+}

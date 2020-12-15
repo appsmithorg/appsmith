@@ -33,6 +33,10 @@ import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
+import {
+  WidgetDynamicPathListProps,
+  WidgetEvaluatedProps,
+} from "../utils/DynamicBindingUtils";
 
 /***
  * BaseWidget
@@ -110,8 +114,9 @@ abstract class BaseWidget<
   updateWidgetProperty(propertyName: string, propertyValue: any): void {
     const { updateWidgetProperty } = this.context;
     const { widgetId } = this.props;
-    updateWidgetProperty &&
+    if (updateWidgetProperty && widgetId) {
       updateWidgetProperty(widgetId, propertyName, propertyValue);
+    }
   }
 
   resetChildrenMetaProperty(widgetId: string) {
@@ -355,14 +360,11 @@ export interface WidgetDataProps
     WidgetPositionProps,
     WidgetDisplayProps {}
 
-export interface WidgetProps extends WidgetDataProps {
+export interface WidgetProps
+  extends WidgetDataProps,
+    WidgetDynamicPathListProps,
+    WidgetEvaluatedProps {
   key?: string;
-  dynamicBindings?: Record<string, true>;
-  dynamicTriggers?: Record<string, true>;
-  dynamicProperties?: Record<string, true>;
-  invalidProps?: Record<string, boolean>;
-  validationMessages?: Record<string, string>;
-  evaluatedValues?: Record<string, any>;
   isDefaultClickDisabled?: boolean;
   [key: string]: any;
 }

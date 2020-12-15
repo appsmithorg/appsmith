@@ -146,6 +146,7 @@ public class SecurityConfig {
                 .pathMatchers("/public/**", "/oauth2/**").permitAll()
                 .anyExchange()
                 .authenticated()
+                .and().httpBasic()
                 .and().formLogin()
                 .loginPage(Url.LOGIN_URL)
                 .authenticationEntryPoint(authenticationEntryPoint)

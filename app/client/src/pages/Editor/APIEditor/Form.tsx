@@ -133,7 +133,7 @@ interface APIFormProps {
   paginationType: PaginationType;
   appName: string;
   httpMethodFromForm: string;
-  actionConfigurationBody: object | string;
+  actionConfigurationBody: Record<string, unknown> | string;
   actionConfigurationHeaders?: any;
   actionName: string;
   apiId: string;
@@ -201,11 +201,13 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             name="actionConfiguration.httpMethod"
             className="t--apiFormHttpMethod"
             options={HTTP_METHOD_OPTIONS}
+            isSearchable={false}
           />
           <DatasourceWrapper className="t--dataSourceField">
             <EmbeddedDatasourcePathField
               name="actionConfiguration.path"
               pluginId={pluginId}
+              placeholder="https://mock-api.appsmith.com/users"
             />
           </DatasourceWrapper>
         </FormRow>
@@ -272,6 +274,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                   <SettingsWrapper>
                     <ActionSettings
                       actionSettingsConfig={apiActionSettingsConfig}
+                      formName={API_EDITOR_FORM_NAME}
                     />
                   </SettingsWrapper>
                 ),

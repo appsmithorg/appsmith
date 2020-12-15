@@ -1,8 +1,5 @@
 package com.appsmith.server.helpers;
 
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.BeanWrapper;
@@ -10,9 +7,6 @@ import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.util.StringUtils;
 
 import java.beans.PropertyDescriptor;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -221,7 +215,6 @@ public class MustacheHelper {
     }
 
     public static <T> T renderFieldValues(T object, Map<String, String> context) {
-        final String className = object.getClass().getSimpleName();
         final BeanWrapper sourceBeanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(object);
 
         try {
@@ -262,7 +255,7 @@ public class MustacheHelper {
                 } else if (value instanceof String) {
                     sourceBeanWrapper.setPropertyValue(
                             name,
-                            render((String) value, className + "." + name, context)
+                            render((String) value, context)
                     );
 
                 }
@@ -281,12 +274,18 @@ public class MustacheHelper {
      * @param keyValueMap : This is the map of keys with values.
      * @return It finally returns the string in which all the keys in template have been replaced with values.
      */
-    private static String render(String template, String name, Map<String, String> keyValueMap) {
-        MustacheFactory mf = new DefaultMustacheFactory();
-        Mustache mustache = mf.compile(new StringReader(template), name);
-        Writer writer = new StringWriter();
-        mustache.execute(writer, keyValueMap);
-        return StringEscapeUtils.unescapeHtml4(writer.toString());
+    public static String render(String template, Map<String, String> keyValueMap) {
+        final StringBuilder rendered = new StringBuilder();
+
+        for (String token : tokenize(template)) {
+            if (token.startsWith("{{") && token.endsWith("}}")) {
+                rendered.append(keyValueMap.get(token.substring(2, token.length() - 2).trim()));
+            } else {
+                rendered.append(token);
+            }
+        }
+
+        return StringEscapeUtils.unescapeHtml4(rendered.toString());
     }
 
 }

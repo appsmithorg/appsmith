@@ -1,6 +1,6 @@
 {
     "NoApiMsg": "p:contains('No APIs yet.')",
-    "NoQueryMsg": "p:contains('No Queries yet.')",
+    "NoQueryMsg": "p:contains('No DB Queries yet.')",
     "NoWidgetsMsg": "p:contains('No widgets yet.')",
     "AddPage": ".pages .t--entity-add-btn",
     "addEntityAPI": ".apis .t--entity-add-btn",
@@ -24,5 +24,6 @@
     "entity":".t--entity-name",
     "addWidget":".widgets .t--entity-add-btn",
     "dropHere":".appsmith_widget_0",
-    "closeWidgets":".t--close-widgets-sidebar"
+    "closeWidgets":".t--close-widgets-sidebar",
+    "addDBQueryEntity": ".dbqueries .t--entity-add-btn"
 }

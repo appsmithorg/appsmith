@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "constants/DefaultTheme";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-
 const ItemWrapper = styled.div`
   padding-right: 16px;
   margin: 8px 0 0 0;
@@ -21,15 +20,15 @@ type RenderComponentProps = {
 };
 
 interface DroppableComponentProps {
-  items: object[];
+  items: Array<Record<string, unknown>>;
   renderComponent: (props: RenderComponentProps) => JSX.Element;
   deleteOption: (index: number) => void;
   updateOption: (index: number, value: string) => void;
-  updateItems: (items: object[]) => void;
+  updateItems: (items: Array<Record<string, unknown>>) => void;
 }
 
 interface DroppableComponentState {
-  items: object[];
+  items: Array<Record<string, unknown>>;
 }
 
 export class DroppableComponent extends React.Component<
@@ -64,7 +63,7 @@ export class DroppableComponent extends React.Component<
     ) {
       return;
     }
-    const tabs: object[] = this.state.items;
+    const tabs: Array<Record<string, unknown>> = this.state.items;
     const sourceTab = tabs[source.index];
     const destinationTab = tabs[destination.index];
     const updatedTabs = tabs.map((tab, index) => {

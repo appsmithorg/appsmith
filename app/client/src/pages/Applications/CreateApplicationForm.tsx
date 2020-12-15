@@ -16,11 +16,15 @@ import FormMessage from "components/editorComponents/form/FormMessage";
 
 type Props = InjectedFormProps<
   CreateApplicationFormValues,
-  { onCancel: () => void; orgId: string; initialValues: {} }
+  {
+    onCancel: () => void;
+    orgId: string;
+    initialValues: Record<string, unknown>;
+  }
 > & {
   onCancel: () => void;
   orgId: string;
-  initialValues: {};
+  initialValues: Record<string, unknown>;
 };
 
 const validate = (values: CreateApplicationFormValues) => {
@@ -73,7 +77,11 @@ const mapStateToProps = (state: AppState, props: Props): any => {
 export default connect(mapStateToProps)(
   reduxForm<
     CreateApplicationFormValues,
-    { onCancel: () => void; orgId: string; initialValues: {} }
+    {
+      onCancel: () => void;
+      orgId: string;
+      initialValues: Record<string, unknown>;
+    }
   >({
     validate,
     form: CREATE_APPLICATION_FORM_NAME,

@@ -7,11 +7,11 @@
           "sectionName": null,
           "children": [
             {
-              "label": "Host Address",
+              "label": "Host URL",
               "configProperty": "datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
-              "validationMessage": "Please enter a valid host",
-              "validationRegex": "^((?![/:]).)*$"
+              "validationMessage": "Please enter a valid host URL",
+              "validationRegex": "^(http|https)://"
             },
             {
               "label": "Port",

@@ -39,6 +39,11 @@ import {
   EvalError,
   EvalErrorTypes,
   extraLibraries,
+  unsafeFunctionForEval,
+  getEntityDynamicBindingPathList,
+  getWidgetDynamicTriggerPathList,
+  isPathADynamicBinding,
+  isPathADynamicTrigger,
 } from "../utils/DynamicBindingUtils";
 
 const ctx: Worker = self as any;
@@ -63,8 +68,7 @@ ctx.addEventListener("message", e => {
     }
     case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
       const { binding, dataTree } = rest;
-      const evalTree = getEvaluatedDataTree(dataTree);
-      const withFunctions = addFunctions(evalTree);
+      const withFunctions = addFunctions(dataTree);
       const value = getDynamicValue(binding, withFunctions, false);
       ctx.postMessage({ value, errors: ERRORS });
       ERRORS = [];
@@ -92,6 +96,12 @@ ctx.addEventListener("message", e => {
     case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE: {
       const { propertyPath } = rest;
       clearPropertyCache(propertyPath);
+      ctx.postMessage(true);
+      break;
+    }
+    case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET: {
+      const { widgetName } = rest;
+      clearPropertyCacheOfWidget(widgetName);
       ctx.postMessage(true);
       break;
     }
@@ -280,45 +290,40 @@ const createDependencyTree = (
   Object.keys(dataTree).forEach(entityKey => {
     const entity = dataTree[entityKey];
     if (entity && "ENTITY_TYPE" in entity) {
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
-        // Set default property dependency
-        const defaultProperties =
-          WIDGET_TYPE_CONFIG_MAP[entity.type].defaultProperties;
-        Object.keys(defaultProperties).forEach(property => {
-          dependencyMap[`${entityKey}.${property}`] = [
-            `${entityKey}.${defaultProperties[property]}`,
-          ];
-        });
-        if (entity.dynamicBindings) {
-          Object.keys(entity.dynamicBindings).forEach(propertyName => {
-            // using unescape to remove new lines from bindings which interfere with our regex extraction
-            const unevalPropValue = _.get(entity, propertyName);
+      if (
+        entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET ||
+        entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
+      ) {
+        const dynamicBindingPathList = getEntityDynamicBindingPathList(entity);
+        if (dynamicBindingPathList.length) {
+          dynamicBindingPathList.forEach(dynamicPath => {
+            const propertyPath = dynamicPath.key;
+            const unevalPropValue = _.get(entity, propertyPath);
             const { jsSnippets } = getDynamicBindings(unevalPropValue);
             const existingDeps =
-              dependencyMap[`${entityKey}.${propertyName}`] || [];
-            dependencyMap[`${entityKey}.${propertyName}`] = existingDeps.concat(
+              dependencyMap[`${entityKey}.${propertyPath}`] || [];
+            dependencyMap[`${entityKey}.${propertyPath}`] = existingDeps.concat(
               jsSnippets.filter(jsSnippet => !!jsSnippet),
             );
           });
         }
-        if (entity.dynamicTriggers) {
-          Object.keys(entity.dynamicTriggers).forEach(prop => {
-            dependencyMap[`${entityKey}.${prop}`] = [];
+        if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
+          // Set default property dependency
+          const defaultProperties =
+            WIDGET_TYPE_CONFIG_MAP[entity.type].defaultProperties;
+          Object.keys(defaultProperties).forEach(property => {
+            dependencyMap[`${entityKey}.${property}`] = [
+              `${entityKey}.${defaultProperties[property]}`,
+            ];
           });
-        }
-      }
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
-        if (entity.dynamicBindingPathList.length) {
-          entity.dynamicBindingPathList.forEach(prop => {
-            // using unescape to remove new lines from bindings which interfere with our regex extraction
-            const unevalPropValue = _.get(entity, prop.key);
-            const { jsSnippets } = getDynamicBindings(unevalPropValue);
-            const existingDeps =
-              dependencyMap[`${entityKey}.${prop.key}`] || [];
-            dependencyMap[`${entityKey}.${prop.key}`] = existingDeps.concat(
-              jsSnippets.filter(jsSnippet => !!jsSnippet),
-            );
-          });
+          const dynamicTriggerPathList = getWidgetDynamicTriggerPathList(
+            entity,
+          );
+          if (dynamicTriggerPathList.length) {
+            dynamicTriggerPathList.forEach(dynamicPath => {
+              dependencyMap[`${entityKey}.${dynamicPath.key}`] = [];
+            });
+          }
         }
       }
     }
@@ -557,6 +562,7 @@ const overwriteDefaultDependentProps = (
     `${entity.widgetName}.${defaultProperty}`,
   );
   const propertyCache = getParsedValueCache(propertyPath);
+
   if (
     propertyValue === undefined ||
     propertyCache.version < defaultPropertyCache.version
@@ -578,16 +584,16 @@ const getValidatedTree = (tree: any) => {
         );
         const hasValidation = _.has(parsedEntity, `invalidProps.${property}`);
         const isSpecialField = [
-          "dynamicBindings",
-          "dynamicTriggers",
-          "dynamicProperties",
+          "dynamicBindingPathList",
+          "dynamicTriggerPathList",
+          "dynamicPropertyPathList",
           "evaluatedValues",
           "invalidProps",
           "validationMessages",
         ].includes(property);
         const isDynamicField =
-          _.has(parsedEntity, `dynamicBindings.${property}`) ||
-          _.has(parsedEntity, `dynamicTriggers.${property}`);
+          isPathADynamicBinding(parsedEntity, property) ||
+          isPathADynamicTrigger(parsedEntity, property);
 
         if (
           !isSpecialField &&
@@ -770,6 +776,19 @@ const getParsedValueCache = (propertyPath: string) =>
 const clearPropertyCache = (propertyPath: string) =>
   parsedValueCache.delete(propertyPath);
 
+/**
+ * delete all values of a particular widget
+ *
+ * @param propertyPath
+ */
+export const clearPropertyCacheOfWidget = (widgetName: string) => {
+  parsedValueCache.forEach((value, key) => {
+    const match = key.match(`${widgetName}.`);
+
+    if (match) return parsedValueCache.delete(key);
+  });
+};
+
 const dependencyCache: Map<string, any[]> = new Map();
 
 function isWidget(entity: DataTreeEntity): boolean {
@@ -785,9 +804,9 @@ function validateAndParseWidgetProperty(
   currentDependencyValues: Array<string>,
   cachedDependencyValues?: Array<string>,
 ): any {
-  const propertyName = propertyPath.split(".")[1];
+  const entityPropertyName = _.drop(propertyPath.split(".")).join(".");
   let valueToValidate = evalPropertyValue;
-  if (widget.dynamicTriggers && propertyName in widget.dynamicTriggers) {
+  if (isPathADynamicTrigger(widget, propertyPath)) {
     const { triggers } = getDynamicValue(
       unEvalPropertyValue,
       currentTree,
@@ -798,7 +817,7 @@ function validateAndParseWidgetProperty(
   }
   const { parsed, isValid, message, transformed } = validateWidgetProperty(
     widget.type,
-    propertyName,
+    entityPropertyName,
     valueToValidate,
     widget,
     currentTree,
@@ -809,13 +828,13 @@ function validateAndParseWidgetProperty(
     ? evalPropertyValue
     : transformed;
   const safeEvaluatedValue = removeFunctions(evaluatedValue);
-  _.set(widget, `evaluatedValues.${propertyName}`, safeEvaluatedValue);
+  _.set(widget, `evaluatedValues.${entityPropertyName}`, safeEvaluatedValue);
   if (!isValid) {
-    _.set(widget, `invalidProps.${propertyName}`, true);
-    _.set(widget, `validationMessages.${propertyName}`, message);
+    _.set(widget, `invalidProps.${entityPropertyName}`, true);
+    _.set(widget, `validationMessages.${entityPropertyName}`, message);
   }
 
-  if (widget.dynamicTriggers && propertyName in widget.dynamicTriggers) {
+  if (isPathADynamicTrigger(widget, entityPropertyName)) {
     return unEvalPropertyValue;
   } else {
     const parsedCache = getParsedValueCache(propertyPath);
@@ -873,7 +892,7 @@ type EvalResult = {
 const evaluateDynamicBoundValue = (
   data: DataTree,
   path: string,
-  callbackData?: any,
+  callbackData?: Array<any>,
 ): EvalResult => {
   try {
     const unescapedJS = unescapeJS(path).replace(/(\r\n|\n|\r)/gm, "");
@@ -893,7 +912,7 @@ const evaluateDynamicBoundValue = (
 const evaluate = (
   js: string,
   data: DataTree,
-  callbackData: any,
+  callbackData?: Array<any>,
 ): EvalResult => {
   const scriptToEvaluate = `
         function closedFunction () {
@@ -905,7 +924,7 @@ const evaluate = (
   const scriptWithCallback = `
          function callback (script) {
             const userFunction = script;
-            const result = userFunction(CALLBACK_DATA);
+            const result = userFunction.apply(self, CALLBACK_DATA);
             return { result, triggers: self.triggers };
          }
          callback(${js});
@@ -943,16 +962,23 @@ const evaluate = (
 
       // Set it to self
       Object.keys(GLOBAL_DATA).forEach(key => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
         self[key] = GLOBAL_DATA[key];
       });
 
       ///// Adding extra libraries separately
       extraLibraries.forEach(library => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
         self[library.accessor] = library.lib;
+      });
+
+      ///// Remove all unsafe functions
+      unsafeFunctionForEval.forEach(func => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
+        self[func] = undefined;
       });
 
       const evalResult = eval(script);
@@ -960,8 +986,8 @@ const evaluate = (
       // Remove it from self
       // This is needed so that next eval can have a clean sheet
       Object.keys(GLOBAL_DATA).forEach(key => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
         delete self[key];
       });
 
@@ -1009,7 +1035,7 @@ const getDynamicValue = (
   dynamicBinding: string,
   data: DataTree,
   returnTriggers: boolean,
-  callBackData?: any,
+  callBackData?: Array<any>,
 ) => {
   // Get the {{binding}} bound values
   const { stringSegments, jsSnippets } = getDynamicBindings(dynamicBinding);
@@ -1418,31 +1444,34 @@ const VALIDATORS: Record<ValidationType, Validator> = {
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
       };
     }
+    try {
+      const isValidOption = (option: { label: any; value: any }) =>
+        _.isObject(option) &&
+        _.isString(option.label) &&
+        _.isString(option.value) &&
+        !_.isEmpty(option.label) &&
+        !_.isEmpty(option.value);
 
-    const isValidOption = (option: { label: any; value: any }) =>
-      _.isString(option.label) &&
-      _.isString(option.value) &&
-      !_.isEmpty(option.label) &&
-      !_.isEmpty(option.value);
+      const hasOptions = every(parsed, isValidOption);
+      const validOptions = parsed.filter(isValidOption);
+      const uniqValidOptions = _.uniqBy(validOptions, "value");
 
-    const hasOptions = every(parsed, (datum: { label: any; value: any }) => {
-      if (isObject(datum)) {
-        return isValidOption(datum);
-      } else {
-        return false;
+      if (!hasOptions || uniqValidOptions.length !== validOptions.length) {
+        return {
+          isValid: false,
+          parsed: uniqValidOptions,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
+        };
       }
-    });
-    const validOptions = parsed.filter(isValidOption);
-    const uniqValidOptions = _.uniqBy(validOptions, "value");
-
-    if (!hasOptions || uniqValidOptions.length !== validOptions.length) {
+      return { isValid, parsed };
+    } catch (e) {
+      console.error(e);
       return {
         isValid: false,
-        parsed: uniqValidOptions,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
+        parsed: [],
+        transformed: parsed,
       };
     }
-    return { isValid, parsed };
   },
   [VALIDATION_TYPES.DATE]: (
     dateString: string,
@@ -1473,6 +1502,60 @@ const VALIDATORS: Record<ValidationType, Validator> = {
       isValid,
       parsed,
       message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
+    };
+  },
+  [VALIDATION_TYPES.DEFAULT_DATE]: (
+    dateString: string,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
+    const today = moment()
+      .hour(0)
+      .minute(0)
+      .second(0)
+      .millisecond(0);
+    const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
+
+    const todayDateString = today.format(dateFormat);
+    if (dateString === undefined) {
+      return {
+        isValid: false,
+        parsed: "",
+        message:
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + props.dateFormat
+            ? props.dateFormat
+            : "",
+      };
+    }
+    const parsedCurrentDate = moment(dateString, dateFormat);
+    let isValid = parsedCurrentDate.isValid();
+    const parsedMinDate = moment(props.minDate, dateFormat);
+    const parsedMaxDate = moment(props.maxDate, dateFormat);
+
+    // checking for max/min date range
+    if (isValid) {
+      if (
+        parsedMinDate.isValid() &&
+        parsedCurrentDate.isBefore(parsedMinDate)
+      ) {
+        isValid = false;
+      }
+
+      if (
+        isValid &&
+        parsedMaxDate.isValid() &&
+        parsedCurrentDate.isAfter(parsedMaxDate)
+      ) {
+        isValid = false;
+      }
+    }
+
+    const parsed = isValid ? dateString : todayDateString;
+
+    return {
+      isValid,
+      parsed,
+      message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
     };
   },
   [VALIDATION_TYPES.ACTION_SELECTOR]: (
@@ -1606,6 +1689,55 @@ const VALIDATORS: Record<ValidationType, Validator> = {
       values = _.uniq(values);
     }
 
+    return {
+      isValid: true,
+      parsed: values,
+    };
+  },
+  [VALIDATION_TYPES.DEFAULT_SELECTED_ROW]: (
+    value: string | string[],
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ) => {
+    let values = value;
+
+    if (props) {
+      if (props.multiRowSelection) {
+        if (typeof value === "string") {
+          try {
+            values = JSON.parse(value);
+            if (!Array.isArray(values)) {
+              throw new Error();
+            }
+          } catch {
+            values = value.length ? value.split(",") : [];
+            if (values.length > 0) {
+              let numbericValues = values.map(value => {
+                return isNumber(value.trim()) ? -1 : Number(value.trim());
+              });
+              numbericValues = _.uniq(numbericValues);
+              return {
+                isValid: true,
+                parsed: numbericValues,
+              };
+            }
+          }
+        }
+      } else {
+        try {
+          const parsed = toNumber(value);
+          return {
+            isValid: true,
+            parsed: parsed,
+          };
+        } catch (e) {
+          return {
+            isValid: true,
+            parsed: -1,
+          };
+        }
+      }
+    }
     return {
       isValid: true,
       parsed: values,

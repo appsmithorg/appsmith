@@ -23,5 +23,6 @@
         <module>dynamoPlugin</module>
         <module>redisPlugin</module>
         <module>mssqlPlugin</module>
+        <module>firestorePlugin</module>
     </modules>
 </project>

@@ -1,0 +1,30 @@
+name: Potential Duplicate Issues
+on:
+  issues:
+    types: [opened, edited]
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bubkoo/potential-duplicates@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Label to set, when potential duplicates are detected.
+          label: potential-duplicate
+          # Get issues with state to compare. Supported state: 'all', 'closed', 'open'.
+          state: open
+          # If similarity is higher than this threshold([0,1]), issue will be marked as duplicate.
+          threshold: 0.8
+          # Reactions to be add to comment when potential duplicates are detected.
+          # Available reactions: "-1", "+1", "confused", "laugh", "heart", "hooray", "rocket", "eyes"
+          reactions: 'confused'
+          # Comment to post when potential duplicates are detected.
+          comment: >
+            We have found issues that are potential duplicates:  
+            {{#issues}}
+              - [#{{ number }}] {{ title }} ({{ accuracy }}%)
+            {{/issues}}  
+
+            If any of the issues listed above are a duplicate, please consider closing this issue & upvoting the original one.  
+
+            Alternatively, if neither of the listed issues addresses your feature/bug, keep this issue open.

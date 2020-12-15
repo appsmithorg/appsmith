@@ -10,7 +10,7 @@ export type ExecutionResult = {
 export type ExecuteActionPayload = {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
-  responseData?: any;
+  responseData?: Array<any>;
 };
 
 export enum EventType {
@@ -72,3 +72,4 @@ export interface ExecuteErrorPayload {
 // Group 2 = path (/nested/path)
 // Group 3 = params (?param=123&param2=12)
 export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/\S*?)(\?\S*)?$/;
+export const EXECUTION_PARAM_KEY = "executionParams";

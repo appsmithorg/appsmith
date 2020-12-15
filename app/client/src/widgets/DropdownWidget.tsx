@@ -24,7 +24,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       selectionType: VALIDATION_TYPES.TEXT,
       isRequired: VALIDATION_TYPES.BOOLEAN,
       // onOptionChange: VALIDATION_TYPES.ACTION_SELECTOR,
-      selectedOptionValueArr: VALIDATION_TYPES.ARRAY,
       selectedOptionValues: VALIDATION_TYPES.ARRAY,
       defaultOptionValue: VALIDATION_TYPES.DEFAULT_OPTION_VALUE,
     };
@@ -62,22 +61,24 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     };
   }
 
+  getSelectedOptionValueArr(): string[] {
+    return Array.isArray(this.props.selectedOptionValueArr)
+      ? this.props.selectedOptionValueArr
+      : [];
+  }
+
   getPageView() {
     const options = this.props.options || [];
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
-    const computedSelectedIndexArr = Array.isArray(
-      this.props.selectedOptionValueArr,
-    )
-      ? this.props.selectedOptionValueArr
-          .map((opt: string) =>
-            _.findIndex(this.props.options, {
-              value: opt,
-            }),
-          )
-          .filter((i: number) => i > -1)
-      : [];
+    const computedSelectedIndexArr = this.getSelectedOptionValueArr()
+      .map((opt: string) =>
+        _.findIndex(this.props.options, {
+          value: opt,
+        }),
+      )
+      .filter((i: number) => i > -1);
     const { componentWidth, componentHeight } = this.getComponentDimensions();
     return (
       <DropDownComponent
@@ -119,11 +120,12 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         );
       }
     } else if (this.props.selectionType === "MULTI_SELECT") {
-      const isAlreadySelected = this.props.selectedOptionValueArr.includes(
+      const selectedOptionValueArr = this.getSelectedOptionValueArr();
+      const isAlreadySelected = selectedOptionValueArr.includes(
         selectedOption.value,
       );
 
-      let newSelectedValue = [...this.props.selectedOptionValueArr];
+      let newSelectedValue = [...selectedOptionValueArr];
       if (isAlreadySelected) {
         newSelectedValue = newSelectedValue.filter(
           v => v !== selectedOption.value,
@@ -145,7 +147,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   };
 
   onOptionRemoved = (removedIndex: number) => {
-    const newSelectedValue = this.props.selectedOptionValueArr.filter(
+    const newSelectedValue = this.getSelectedOptionValueArr().filter(
       (v: string) =>
         _.findIndex(this.props.options, { value: v }) !== removedIndex,
     );

@@ -22,13 +22,11 @@ if (env === "PRODUCTION" || env === "STAGING") {
     new SentryWebpackPlugin({
       include: "build",
       ignore: ["node_modules", "webpack.config.js"],
-      setCommits: {
-        auto: true
-      },
+      release: process.env.REACT_APP_SENTRY_RELEASE,
       deploy: {
         env: process.env.REACT_APP_SENTRY_ENVIRONMENT
       }
-    }),
+    })
   );
 }
 

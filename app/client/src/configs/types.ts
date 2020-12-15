@@ -35,6 +35,11 @@ export type AppsmithUIConfigs = {
   segment: {
     enabled: boolean;
     apiKey: string;
+    ceKey: string;
+  };
+  fusioncharts: {
+    enabled: boolean;
+    licenseKey: string;
   };
   algolia: {
     enabled: boolean;
@@ -64,4 +69,6 @@ export type AppsmithUIConfigs = {
   };
   intercomAppID: string;
   mailEnabled: boolean;
+
+  disableTelemetry: boolean;
 };

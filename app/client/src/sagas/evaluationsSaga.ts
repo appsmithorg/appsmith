@@ -9,11 +9,15 @@ import {
 } from "redux-saga/effects";
 import { eventChannel, EventChannel } from "redux-saga";
 import {
+  EvaluationReduxAction,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
+import {
+  getDataTree,
+  getUnevaluatedDataTree,
+} from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
@@ -21,18 +25,27 @@ import {
   EvalError,
   EvalErrorTypes,
 } from "../utils/DynamicBindingUtils";
-import { ToastType } from "react-toastify";
-import { AppToaster } from "../components/editorComponents/ToastComponent";
 import log from "loglevel";
 import _ from "lodash";
 import { WidgetType } from "../constants/WidgetConstants";
 import { WidgetProps } from "../widgets/BaseWidget";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "../utils/PerformanceTracker";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
+import * as Sentry from "@sentry/react";
+import { EXECUTION_PARAM_KEY } from "../constants/ActionConstants";
 
 let evaluationWorker: Worker;
 let workerChannel: EventChannel<any>;
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 const initEvaluationWorkers = () => {
+  // If an old worker exists, terminate it
+  if (evaluationWorker) {
+    evaluationWorker.terminate();
+  }
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   evaluationWorker = new Worker();
   workerChannel = eventChannel(emitter => {
@@ -45,18 +58,35 @@ const initEvaluationWorkers = () => {
 };
 
 const evalErrorHandler = (errors: EvalError[]) => {
+  if (!errors) return;
   errors.forEach(error => {
     if (error.type === EvalErrorTypes.DEPENDENCY_ERROR) {
-      AppToaster.show({
-        message: error.message,
-        type: ToastType.ERROR,
+      Toaster.show({
+        text: error.message,
+        variant: Variant.danger,
       });
+    }
+    if (error.type === EvalErrorTypes.EVAL_TREE_ERROR) {
+      Toaster.show({
+        text: "Unexpected error occurred while evaluating the app",
+        variant: Variant.danger,
+      });
+      Sentry.captureException(error);
     }
     log.debug(error);
   });
 };
 
-function* evaluateTreeSaga() {
+function* postEvalActionDispatcher(actions: ReduxAction<unknown>[]) {
+  for (const action of actions) {
+    yield put(action);
+  }
+}
+
+function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.DATA_TREE_EVALUATION,
+  );
   const unEvalTree = yield select(getUnevaluatedDataTree);
   log.debug({ unEvalTree });
   evaluationWorker.postMessage({
@@ -73,14 +103,24 @@ function* evaluateTreeSaga() {
     type: ReduxActionTypes.SET_EVALUATED_TREE,
     payload: parsedDataTree,
   });
+  PerformanceTracker.stopAsyncTracking(
+    PerformanceTransactionName.DATA_TREE_EVALUATION,
+  );
+  if (postEvalActions && postEvalActions.length) {
+    yield call(postEvalActionDispatcher, postEvalActions);
+  }
 }
 
-export function* evaluateSingleValue(binding: string) {
+export function* evaluateSingleValue(
+  binding: string,
+  executionParams: Record<string, any> = {},
+) {
   if (evaluationWorker) {
-    const unEvalTree = yield select(getUnevaluatedDataTree);
+    const dataTree = yield select(getDataTree);
+    dataTree[EXECUTION_PARAM_KEY] = executionParams;
     evaluationWorker.postMessage({
       action: EVAL_WORKER_ACTIONS.EVAL_SINGLE,
-      dataTree: unEvalTree,
+      dataTree,
       binding,
     });
     const workerResponse = yield take(workerChannel);
@@ -92,7 +132,7 @@ export function* evaluateSingleValue(binding: string) {
 
 export function* evaluateDynamicTrigger(
   dynamicTrigger: string,
-  callbackData: any,
+  callbackData?: Array<any>,
 ) {
   if (evaluationWorker) {
     const unEvalTree = yield select(getUnevaluatedDataTree);
@@ -125,6 +165,21 @@ export function* clearEvalPropertyCache(propertyPath: string) {
     evaluationWorker.postMessage({
       action: EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE,
       propertyPath,
+    });
+    yield take(workerChannel);
+  }
+}
+
+/**
+ * clears all cache keys of a widget
+ *
+ * @param widgetName
+ */
+export function* clearEvalPropertyCacheOfWidget(widgetName: string) {
+  if (evaluationWorker) {
+    evaluationWorker.postMessage({
+      action: EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET,
+      widgetName,
     });
     yield take(workerChannel);
   }
@@ -190,14 +245,19 @@ const EVALUATE_REDUX_ACTIONS = [
 
 function* evaluationChangeListenerSaga() {
   initEvaluationWorkers();
-  yield call(evaluateTreeSaga);
+  yield fork(evaluateTreeSaga);
   while (true) {
-    const action: ReduxAction<any> = yield take(EVALUATE_REDUX_ACTIONS);
+    const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
+      EVALUATE_REDUX_ACTIONS,
+    );
     // When batching success action happens, we need to only evaluate
     // if the batch had any action we need to evaluate properties for
-    if (action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS) {
+    if (
+      action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&
+      Array.isArray(action.payload)
+    ) {
       const batchedActionTypes = action.payload.map(
-        (batchedAction: ReduxAction<any>) => batchedAction.type,
+        (batchedAction: ReduxAction<unknown>) => batchedAction.type,
       );
       if (
         _.intersection(EVALUATE_REDUX_ACTIONS, batchedActionTypes).length === 0
@@ -206,7 +266,7 @@ function* evaluationChangeListenerSaga() {
       }
     }
     log.debug(`Evaluating`, { action });
-    yield fork(evaluateTreeSaga);
+    yield fork(evaluateTreeSaga, action.postEvalActions);
   }
   // TODO(hetu) need an action to stop listening and evaluate (exit app)
 }

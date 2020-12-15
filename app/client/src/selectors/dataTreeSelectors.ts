@@ -3,7 +3,6 @@ import { getActionsForCurrentPage, getAppData } from "./entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DataTree, DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import { getWidgets, getWidgetsMeta } from "sagas/selectors";
-import * as log from "loglevel";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
 import PerformanceTracker, {
@@ -34,6 +33,11 @@ export const getUnevaluatedDataTree = createSelector(
   },
 );
 
+/**
+ * returns evaluation tree object
+ *
+ * @param state
+ */
 export const getDataTree = (state: AppState) => state.evaluations.tree;
 
 // For autocomplete. Use actions cached responses if

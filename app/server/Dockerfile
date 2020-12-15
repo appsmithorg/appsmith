@@ -10,6 +10,8 @@ EXPOSE 8080
 
 ARG JAR_FILE=./appsmith-server/target/server-1.0-SNAPSHOT.jar
 ARG PLUGIN_JARS=./appsmith-plugins/*/target/*.jar
+ARG APPSMITH_SEGMENT_CE_KEY
+ENV APPSMITH_SEGMENT_CE_KEY=${APPSMITH_SEGMENT_CE_KEY}
 
 #Create the plugins directory
 RUN mkdir -p /plugins

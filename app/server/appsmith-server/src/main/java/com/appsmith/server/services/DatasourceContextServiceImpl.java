@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -38,7 +38,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.encryptionService = encryptionService;
-        this.datasourceContextMap = new HashMap<>();
+        this.datasourceContextMap = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -54,7 +54,11 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
         if (datasourceId == null) {
             log.debug("This is a dry run or an embedded datasource. The datasource context would not exist in this scenario");
 
-        } else if (datasourceContextMap.get(datasourceId) != null && !isStale) {
+        } else if (datasourceContextMap.get(datasourceId) != null
+                // The following condition happens when there's a timout in the middle of destroying a connection and
+                // the reactive flow interrupts, resulting in the destroy operation not completing.
+                && datasourceContextMap.get(datasourceId).getConnection() != null
+                && !isStale) {
             log.debug("resource context exists. Returning the same.");
             return Mono.just(datasourceContextMap.get(datasourceId));
         }

@@ -26,6 +26,7 @@ type TagListFieldProps = {
   type: string;
   label: string;
   intent: Intent;
+  customError: (err: string) => void;
 };
 
 const TagListField = (props: TagListFieldProps) => {

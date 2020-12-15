@@ -187,6 +187,19 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
+    public Flux<NewAction> findUnpublishedActionsByNameInAndPageId(Set<String> names, String pageId, AclPermission permission) {
+        List<Criteria> criteriaList = new ArrayList<>();
+        if (names != null) {
+            Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)+"."+fieldName(QNewAction.newAction.unpublishedAction.name)).in(names);
+            criteriaList.add(namesCriteria);
+        }
+        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)+"."+fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
+        criteriaList.add(pageCriteria);
+
+        return queryAll(criteriaList, permission);
+    }
+
+    @Override
     public Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
 
         Criteria applicationCriteria = where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);

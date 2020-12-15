@@ -11,6 +11,10 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { PropertyControlPropsType } from "components/propertyControls";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import FIELD_EXPECTED_VALUE from "constants/FieldExpectedValue";
+import {
+  isPathADynamicProperty,
+  isPathADynamicTrigger,
+} from "../../../utils/DynamicBindingUtils";
 
 type Props = {
   widgetProperties: WidgetProps;
@@ -66,10 +70,7 @@ const PropertyControl = (props: Props) => {
         propertyName
       ] as any,
     };
-    if (
-      widgetProperties.dynamicTriggers &&
-      widgetProperties.dynamicTriggers[propertyName]
-    ) {
+    if (isPathADynamicTrigger(widgetProperties, propertyName)) {
       config.isValid = true;
       config.validationMessage = "";
       delete config.dataTreePath;
@@ -77,10 +78,9 @@ const PropertyControl = (props: Props) => {
       delete config.expected;
     }
 
-    const isDynamic: boolean = _.get(
+    const isDynamic: boolean = isPathADynamicProperty(
       widgetProperties,
-      ["dynamicProperties", propertyName],
-      false,
+      propertyName,
     );
     const isConvertible = !!propertyConfig.isJSConvertible;
     const className = propertyConfig.label

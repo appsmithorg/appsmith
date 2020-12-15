@@ -4,7 +4,6 @@ import { WidgetProps } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ContainerWidget, { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ContainerComponentProps } from "components/designSystems/appsmith/ContainerComponent";
-import shallowEqual from "shallowequal";
 import * as Sentry from "@sentry/react";
 import withMeta from "./MetaHOC";
 
@@ -38,7 +37,7 @@ class FormWidget extends ContainerWidget {
   updateFormData() {
     if (this.props.children) {
       const formData = this.getFormData(this.props.children[0]);
-      if (!shallowEqual(formData, this.props.data)) {
+      if (!_.isEqual(formData, this.props.data)) {
         this.props.updateWidgetMetaProperty("data", formData);
       }
     }

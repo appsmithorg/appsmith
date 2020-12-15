@@ -22,11 +22,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -79,37 +82,44 @@ public class LayoutActionServiceImpl implements LayoutActionService {
             return Mono.just(layout);
         }
 
-        Set<String> widgetNames = new HashSet<>();
-        extractAllWidgetNamesFromDSL(dsl, widgetNames);
-        layout.setWidgetNames(widgetNames);
-
-        // Extract all the mustache keys in the DSL to get the dynamic bindings used in the DSL.
-        final Set<String> dynamicBindings = MustacheHelper.extractMustacheKeysFromFields(dsl);
-        Set<String> dynamicBindingNames = new HashSet<>();
-        if (!CollectionUtils.isEmpty(dynamicBindings)) {
-            for (String mustacheKey : dynamicBindings) {
-                // Extract all the words in the dynamic bindings
-                extractWordsAndAddToSet(dynamicBindingNames, mustacheKey);
+        return Mono.fromSupplier(() -> {
+            Set<String> widgetNames = new HashSet<>();
+            Set<String> dynamicBindings = new HashSet<>();
+            try {
+                extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, dynamicBindings);
+            } catch (Throwable t) {
+                throw Exceptions.propagate(t);
             }
-        }
+            layout.setWidgetNames(widgetNames);
 
-        Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = findOnLoadActionsInPage(dynamicBindingNames, pageId);
-
-        // fetch the unpublished page and layout id combination
-        return newPageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES, false)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
-                        FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId)))
-                .zipWith(onLoadActionsMono)
+            // dynamicBindingNames is a set of all words extracted from mustaches which would also contain the names
+            // of the actions being used to read data from into the widget fields
+            Set<String> dynamicBindingNames = new HashSet<>();
+            if (!CollectionUtils.isEmpty(dynamicBindings)) {
+                for (String mustacheKey : dynamicBindings) {
+                    // Extract all the words in the dynamic bindings
+                    extractWordsAndAddToSet(dynamicBindingNames, mustacheKey);
+                }
+            }
+            return dynamicBindingNames;
+        })
+                .flatMap(dynamicBindingNames -> {
+                    // Update these actions to be executed on load, unless the user has touched the executeOnLoad setting for this
+                    Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = findAndUpdateOnLoadActionsInPage((Set<String>) dynamicBindingNames, pageId);
+                    return onLoadActionsMono;
+                })
+                .zipWith(
+                        // Update the list of actions to be executed on load in the layout as well
+                        newPageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES, false)
+                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                        FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId))))
                 .map(tuple -> {
-                    PageDTO page = tuple.getT1();
-                    List<HashSet<DslActionDTO>> onLoadActions = tuple.getT2();
-
+                    PageDTO page = tuple.getT2();
+                    List<HashSet<DslActionDTO>> onLoadActions = tuple.getT1();
                     List<Layout> layoutList = page.getLayouts();
-
                     //Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the layoutId here.
                     for (Layout storedLayout : layoutList) {
                         if (storedLayout.getId().equals(layoutId)) {
-
                             //Update
                             layout.setLayoutOnLoadActions(onLoadActions);
                             BeanUtils.copyProperties(layout, storedLayout);
@@ -133,11 +143,11 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 });
     }
 
-    public Mono<List<HashSet<DslActionDTO>>> findOnLoadActionsInPage(Set<String> dynamicBindingNames, String pageId) {
-        return findOnLoadActionsInPage(new ArrayList<>(), dynamicBindingNames, pageId);
+    public Mono<List<HashSet<DslActionDTO>>> findAndUpdateOnLoadActionsInPage(Set<String> dynamicBindingNames, String pageId) {
+        return findAndUpdateOnLoadActionsInPage(new ArrayList<>(), dynamicBindingNames, pageId);
     }
 
-    private Mono<List<HashSet<DslActionDTO>>> findOnLoadActionsInPage(List<HashSet<DslActionDTO>> onLoadActions, Set<String> dynamicBindingNames, String pageId) {
+    private Mono<List<HashSet<DslActionDTO>>> findAndUpdateOnLoadActionsInPage(List<HashSet<DslActionDTO>> onLoadActions, Set<String> dynamicBindingNames, String pageId) {
         if (dynamicBindingNames == null || dynamicBindingNames.isEmpty()) {
             return Mono.just(onLoadActions);
         }
@@ -160,25 +170,28 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         actionDTO.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
                     }
 
-                    // If the executeOnLoad field isn't true, set it to true at this point
-                    if (!Boolean.TRUE.equals(action.getExecuteOnLoad())) {
+                    // If the executeOnLoad field isn't true and the user hasn't explicitly set it so, set it to true at this point
+                    if (!Boolean.TRUE.equals(action.getUserSetOnLoad()) && !Boolean.TRUE.equals(action.getExecuteOnLoad())) {
                         action.setExecuteOnLoad(true);
 
                         return newActionService.updateUnpublishedAction(newAction.getId(), action)
                                 .thenReturn(actionDTO);
                     }
-                    return Mono.just(actionDTO);
-
+                    // For all others, only pick ones where the execution on load was already set by the user
+                    if (Boolean.TRUE.equals(action.getExecuteOnLoad())) {
+                        return Mono.just(actionDTO);
+                    } else {
+                        return Mono.empty();
+                    }
                 })
                 .collect(toSet())
                 .flatMap(actions -> {
                     HashSet<DslActionDTO> onLoadSet = new HashSet<>(actions);
-
                     // If the resultant set of actions is empty, don't add it to the array list.
                     if (!onLoadSet.isEmpty()) {
                         onLoadActions.add(0, onLoadSet);
                     }
-                    return findOnLoadActionsInPage(onLoadActions, bindingNames, pageId);
+                    return findAndUpdateOnLoadActionsInPage(onLoadActions, bindingNames, pageId);
                 });
     }
 
@@ -221,31 +234,31 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .flatMap(savedAction ->
                         // fetch the unpublished source page
                         newPageService
-                        .findPageById(oldPageId, MANAGE_PAGES, false)
-                        .flatMap(page -> {
-                            if (page.getLayouts() == null) {
-                                return Mono.empty();
-                            }
+                                .findPageById(oldPageId, MANAGE_PAGES, false)
+                                .flatMap(page -> {
+                                    if (page.getLayouts() == null) {
+                                        return Mono.empty();
+                                    }
 
-                            // 2. Run updateLayout on the old page
-                            return Flux.fromIterable(page.getLayouts())
-                                    .flatMap(layout -> updateLayout(oldPageId, layout.getId(), layout))
-                                    .collect(toSet());
-                        })
-                        // fetch the unpublished destination page
-                        .then(newPageService.findPageById(actionMoveDTO.getDestinationPageId(), MANAGE_PAGES, false))
-                        .flatMap(page -> {
-                            if (page.getLayouts() == null) {
-                                return Mono.empty();
-                            }
+                                    // 2. Run updateLayout on the old page
+                                    return Flux.fromIterable(page.getLayouts())
+                                            .flatMap(layout -> updateLayout(oldPageId, layout.getId(), layout))
+                                            .collect(toSet());
+                                })
+                                // fetch the unpublished destination page
+                                .then(newPageService.findPageById(actionMoveDTO.getDestinationPageId(), MANAGE_PAGES, false))
+                                .flatMap(page -> {
+                                    if (page.getLayouts() == null) {
+                                        return Mono.empty();
+                                    }
 
-                            // 3. Run updateLayout on the new page.
-                            return Flux.fromIterable(page.getLayouts())
-                                    .flatMap(layout -> updateLayout(actionMoveDTO.getDestinationPageId(), layout.getId(), layout))
-                                    .collect(toSet());
-                        })
-                        // 4. Return the saved action.
-                        .thenReturn(savedAction));
+                                    // 3. Run updateLayout on the new page.
+                                    return Flux.fromIterable(page.getLayouts())
+                                            .flatMap(layout -> updateLayout(actionMoveDTO.getDestinationPageId(), layout.getId(), layout))
+                                            .collect(toSet());
+                                })
+                                // 4. Return the saved action.
+                                .thenReturn(savedAction));
     }
 
     @Override
@@ -395,21 +408,64 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
     /**
      * Walks the DSL and extracts all the widget names from it.
+     * A widget is expected to have a few properties defining its own behaviour, with any mustache bindings present
+     * in them aggregated in the field dynamicBindingsPathList.
+     * A widget may also have other widgets as children, each of which will follow the same structure
+     * Refer to FieldName.DEFAULT_PAGE_LAYOUT for a template
      *
      * @param dsl
      * @param widgetNames
+     * @param dynamicBindings
      */
-    private void extractAllWidgetNamesFromDSL(JSONObject dsl, Set<String> widgetNames) {
+    private void extractAllWidgetNamesAndDynamicBindingsFromDSL(JSONObject dsl, Set<String> widgetNames, Set<String> dynamicBindings) throws AppsmithException {
         if (dsl.get(FieldName.WIDGET_NAME) == null) {
-            //This isnt a valid widget configuration. No need to traverse this.
+            // This isnt a valid widget configuration. No need to traverse this.
             return;
         }
 
         String widgetName = dsl.getAsString(FieldName.WIDGET_NAME);
-
-        //Since we are parsing this widget in this, add it.
+        // Since we are parsing this widget in this, add it.
         widgetNames.add(widgetName);
 
+        // Start by picking all fields where we expect to find dynamic bindings for this particular widget
+        ArrayList<Object> dynamicallyBoundedPathList = (ArrayList<Object>) dsl.get(FieldName.DYNAMIC_BINDING_PATH_LIST);
+
+        // Widgets will not have FieldName.DYNAMIC_BINDING_PATH_LIST if there are no bindings in that widget.
+        // Hence we skip over the extraction of the bindings from that widget.
+        if(dynamicallyBoundedPathList != null) {
+            // Each of these might have nested structures, so we iterate through them to find the leaf node for each
+            for (Object x : dynamicallyBoundedPathList) {
+                final String fieldPath = String.valueOf(((Map) x).get(FieldName.KEY));
+                String[] fields = fieldPath.split("[].\\[]");
+                // For nested fields, the parent dsl to search in would shift by one level every iteration
+                Object parent = dsl;
+                Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
+                // This loop will end at either a leaf node, or the last identified JSON field (by throwing an exception)
+                // Valid forms of the fieldPath for this search could be:
+                // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
+                while (fieldsIterator.hasNext()) {
+                    String nextKey = fieldsIterator.next();
+                    if (parent instanceof JSONObject) {
+                        parent = ((JSONObject) parent).get(nextKey);
+                    } else if (parent instanceof List) {
+                        if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
+                            parent = ((List) parent).get(Integer.parseInt(nextKey));
+                        } else {
+                            throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, nextKey);
+                        }
+                    }
+                    if (parent == null) {
+                        log.error("Unable to find dynamically bound key {} for the widget with id {}", nextKey, dsl.get(FieldName.WIDGET_ID));
+                        break;
+                    }
+                }
+                if(parent != null) {
+                    dynamicBindings.addAll(MustacheHelper.extractMustacheKeysFromFields(parent));
+                }
+            }
+        }
+
+        // Fetch the children of the current node in the DSL and recursively iterate over them to extract bindings
         ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
         if (children != null) {
             for (int i = 0; i < children.size(); i++) {
@@ -418,7 +474,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 // If the children tag exists and there are entries within it
                 if (!CollectionUtils.isEmpty(data)) {
                     object.putAll(data);
-                    extractAllWidgetNamesFromDSL(object, widgetNames);
+                    extractAllWidgetNamesAndDynamicBindingsFromDSL(object, widgetNames, dynamicBindings);
                 }
             }
         }
@@ -507,7 +563,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .updateUnpublishedAction(id, action)
                 .cache();
 
-                // First update the action
+        // First update the action
         return updateUnpublishedAction
                 // Now update the page layout for any on load changes that may have occured.
                 .flatMap(savedAction -> updatePageLayoutsGivenAction(savedAction.getPageId()))

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Classes, TagInput } from "@blueprintjs/core";
 import { Intent } from "constants/DefaultTheme";
+import { WrappedFieldMetaProps } from "redux-form";
+import { INVITE_USERS_VALIDATION_EMAIL_LIST } from "constants/messages";
+import { isEmail } from "utils/formhelpers";
 const TagInputWrapper = styled.div<{ intent?: Intent }>`
   margin-right: 8px;
 
@@ -48,6 +51,7 @@ type TagInputProps = {
   /** Intent of the tags, which defines their color */
   intent?: Intent;
   hasError?: boolean;
+  customError: (values: any) => void;
 };
 
 /**
@@ -71,10 +75,25 @@ const TagInputComponent = (props: TagInputProps) => {
     }
   }, [_values, values]);
 
+  const validateEmail = (newValues: string[]) => {
+    if (newValues && newValues.length > 0) {
+      let error = "";
+      newValues.forEach((user: any) => {
+        if (!isEmail(user)) {
+          error = INVITE_USERS_VALIDATION_EMAIL_LIST;
+        }
+      });
+      props.customError(error);
+    } else {
+      props.customError("");
+    }
+  };
+
   const commitValues = (newValues: string[]) => {
     setValues(newValues);
     props.input.onChange &&
       props.input.onChange(newValues.filter(Boolean).join(","));
+    validateEmail(newValues);
   };
 
   const onTagsChange = (values: React.ReactNode[]) => {

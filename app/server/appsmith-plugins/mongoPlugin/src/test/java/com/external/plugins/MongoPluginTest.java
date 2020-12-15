@@ -9,13 +9,15 @@ import com.appsmith.external.models.Endpoint;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
+import com.mongodb.reactivestreams.client.MongoClient;
+import com.mongodb.reactivestreams.client.MongoClients;
+import com.mongodb.reactivestreams.client.MongoCollection;
 import org.bson.Document;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -27,12 +29,14 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for MongoPlugin
  */
+
 public class MongoPluginTest {
 
     MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor();
@@ -51,23 +55,30 @@ public class MongoPluginTest {
     public static void setUp() {
         address = mongoContainer.getContainerIpAddress();
         port = mongoContainer.getFirstMappedPort();
+        String uri = "mongodb://" + address + ":" + Integer.toString(port);
+        final MongoClient mongoClient = MongoClients.create(uri);
 
-        final MongoClient mongoClient = new MongoClient(address, port);
-        if (!mongoClient.getDatabase("test").listCollectionNames().iterator().hasNext()) {
-            final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection("users");
-            usersCollection.insertMany(List.of(
-                    new Document(Map.of(
-                            "name", "Cierra Vega",
-                            "gender", "F",
-                            "age", 20,
-                            "luckyNumber", 987654321L,
-                            "dob", LocalDate.of(2018, 12, 31),
-                            "netWorth", new BigDecimal("123456.789012")
-                    )),
-                    new Document(Map.of("name", "Alden Cantrell", "gender", "M", "age", 30)),
-                    new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
-            ));
-        }
+        Flux.from(mongoClient.getDatabase("test").listCollectionNames()).collectList().
+        flatMap(collectionNamesList -> {
+            final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection(
+                    "users");
+            if(collectionNamesList.size() == 0) {
+                Mono.from(usersCollection.insertMany(List.of(
+                        new Document(Map.of(
+                                "name", "Cierra Vega",
+                                "gender", "F",
+                                "age", 20,
+                                "luckyNumber", 987654321L,
+                                "dob", LocalDate.of(2018, 12, 31),
+                                "netWorth", new BigDecimal("123456.789012")
+                        )),
+                        new Document(Map.of("name", "Alden Cantrell", "gender", "M", "age", 30)),
+                        new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
+                ))).block();
+            }
+
+            return Mono.just(usersCollection);
+        }).block();
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -88,17 +99,29 @@ public class MongoPluginTest {
 
     @Test
     public void testConnectToMongo() {
-        System.out.println(mongoContainer.getContainerIpAddress());
-        System.out.println(mongoContainer.getFirstMappedPort());
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        System.out.println(dsConfig);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         StepVerifier.create(dsConnectionMono)
                 .assertNext(obj -> {
-                    MongoClient client = (MongoClient) obj;
-                    System.out.println(client);
+                    MongoClient client = obj;
                     assertNotNull(client);
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * 1. Test "testDatasource" method in MongoPluginExecutor class.
+     */
+    @Test
+    public void testDatasourceFail() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getEndpoints().get(0).setHost("badHost");
+
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertFalse(datasourceTestResult.isSuccess());
                 })
                 .verifyComplete();
     }
@@ -311,5 +334,4 @@ public class MongoPluginTest {
                 })
                 .verifyComplete();
     }
-
 }

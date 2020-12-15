@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { createReducer } from "utils/AppsmithUtils";
 import {
   ReduxAction,

@@ -57,7 +57,7 @@ export interface ExecuteActionResponse extends ApiResponse {
 
 export interface ActionApiResponseReq {
   headers: Record<string, string[]>;
-  body: object | null;
+  body: Record<string, unknown> | null;
   httpMethod: HttpMethod | "";
   url: string;
 }
@@ -65,7 +65,7 @@ export interface ActionApiResponseReq {
 export interface ActionApiResponse {
   responseMeta: ResponseMeta;
   data: {
-    body: object;
+    body: Record<string, unknown>;
     headers: Record<string, string[]>;
     statusCode: string;
     isExecutionSuccess: boolean;
@@ -78,7 +78,7 @@ export interface ActionApiResponse {
 }
 
 export interface ActionResponse {
-  body: object;
+  body: Record<string, unknown>;
   headers: Record<string, string[]>;
   request?: ActionApiResponseReq;
   statusCode: string;

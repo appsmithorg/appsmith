@@ -1,0 +1,5 @@
+{
+    "ignoredFiles": [
+        "app/server/appsmith-server/src/test/resources/*"
+    ]
+}

@@ -22,15 +22,16 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
       .children()
       .contains("Navigate To")
       .click();
-    cy.enterActionValue(pageid);
-    cy.get(commonlocators.editPropCrossButton).click();
+    cy.enterNavigatePageName(pageid);
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait(300);
   });
 
   it("Create MyPage and valdiate if its successfully created", function() {
     cy.Createpage(pageid);
     cy.addDsl(dsl2);
-    cy.get(explorer.entity).contains(pageid);
+    cy.wait(500);
+    cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
   });
 
   it("Validate NavigateTo Page functionality ", function() {

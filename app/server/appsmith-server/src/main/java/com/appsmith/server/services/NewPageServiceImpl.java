@@ -60,7 +60,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
             } else {
                 // We are trying to fetch published page but it doesnt exist because the page hasn't been published yet
-                return Mono.empty();
+                page = new PageDTO();
             }
         } else {
             if (newPage.getUnpublishedPage() != null) {
@@ -78,7 +78,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         }
 
         // We shouldn't reach here.
-        return Mono.empty();
+        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
 
     }
 
@@ -155,7 +155,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     @Override
     public Mono<ApplicationPagesDTO> findNamesByApplicationIdAndViewMode(String applicationId, Boolean view) {
         Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + "by application id", applicationId)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .cache();
 
         Mono<List<PageNameIdDTO>> pagesListMono = applicationMono
@@ -196,8 +196,9 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
     private Flux<PageNameIdDTO> findNamesByApplication(Application application, Boolean viewMode) {
         List<ApplicationPage> pages = application.getPages();
+
         return findByApplicationId(application.getId(), AclPermission.READ_PAGES, viewMode)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + "by application name", application.getName())))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + " by application id", application.getId())))
                 .map(page -> {
                     PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
                     pageNameIdDTO.setId(page.getId());

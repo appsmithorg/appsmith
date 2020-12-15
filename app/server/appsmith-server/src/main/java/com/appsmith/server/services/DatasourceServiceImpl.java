@@ -200,19 +200,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())));
 
         return checkPluginInstallationAndThenReturnOrganizationMono
-                .then(pluginMono)
-                .flatMap(plugin -> {
-                    if (PluginType.DB.equals(plugin.getType())
-                            && datasource.getDatasourceConfiguration() != null
-                            && datasource.getDatasourceConfiguration().getEndpoints() != null) {
-                        for (final Endpoint endpoint : datasource.getDatasourceConfiguration().getEndpoints()) {
-                            if (endpoint.getHost().contains("/") || endpoint.getHost().contains(":")) {
-                                invalids.add("Host value cannot contain `/` or `:` characters. Found `" + endpoint.getHost() + "`.");
-                            }
-                        }
-                    }
-                    return pluginExecutorMono;
-                })
+                .then(pluginExecutorMono)
                 .flatMap(pluginExecutor -> {
                     DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     if (datasourceConfiguration != null && !pluginExecutor.isDatasourceValid(datasourceConfiguration)) {

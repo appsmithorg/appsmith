@@ -50,7 +50,10 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
   const [active, setActive] = useState(false);
 
   const lightningMenu = (
-    <Wrapper className="t--template-menu-trigger">
+    <Wrapper
+      className={`t--template-menu-trigger ${EntityClassNames.CONTEXT_MENU}`}
+      onClick={() => setActive(!active)}
+    >
       <IconWrapper {...iconProps}>
         <LightningIcon />
       </IconWrapper>
@@ -58,48 +61,48 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
     </Wrapper>
   );
 
-  if (dbStructure.templates)
-    templateMenu = (
-      <Popover
-        canEscapeKeyClose={true}
-        onOpened={() => setActive(true)}
-        onClosed={() => {
-          setActive(false);
-        }}
-        className={`${EntityClassNames.CONTEXT_MENU} t--structure-template-menu`}
-        minimal
-        position={Position.RIGHT_TOP}
-        boundary={"viewport"}
-      >
-        {lightningMenu}
-        <QueryTemplates
-          datasourceId={props.datasourceId}
-          templates={dbStructure.templates}
-        />
-      </Popover>
-    );
+  if (dbStructure.templates) templateMenu = lightningMenu;
   const columnsAndKeys = dbStructure.columns.concat(dbStructure.keys);
 
   return (
-    <StyledEntity
-      entityId={"DatasourceStructure"}
-      className={"datasourceStructure"}
-      name={dbStructure.name}
-      icon={datasourceTableIcon}
-      step={props.step}
-      active={active}
-      contextMenu={templateMenu}
+    <Popover
+      canEscapeKeyClose={true}
+      isOpen={active}
+      className={`t--structure-template-menu`}
+      minimal
+      position={Position.RIGHT_TOP}
+      boundary={"viewport"}
+      onInteraction={(nextOpenState: boolean) => {
+        if (!nextOpenState) {
+          setActive(false);
+        }
+      }}
     >
-      {columnsAndKeys.map((field, index) => {
-        return (
-          <DatasourceField
-            key={`${field.name}${index}`}
-            step={props.step + 1}
-            field={field}
-          />
-        );
-      })}
-    </StyledEntity>
+      <StyledEntity
+        entityId={"DatasourceStructure"}
+        className={`datasourceStructure`}
+        name={dbStructure.name}
+        icon={datasourceTableIcon}
+        step={props.step}
+        active={active}
+        contextMenu={templateMenu}
+        action={() => setActive(!active)}
+      >
+        {columnsAndKeys.map((field, index) => {
+          return (
+            <DatasourceField
+              key={`${field.name}${index}`}
+              step={props.step + 1}
+              field={field}
+            />
+          );
+        })}
+      </StyledEntity>
+      <QueryTemplates
+        datasourceId={props.datasourceId}
+        templates={dbStructure.templates}
+      />
+    </Popover>
   );
 };
 

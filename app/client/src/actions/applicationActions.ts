@@ -1,5 +1,4 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { EditorModes } from "../components/editorComponents/CodeEditor/EditorConfig";
 import { APP_MODE } from "../reducers/entityReducers/appReducer";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 
@@ -13,12 +12,6 @@ export const setDefaultApplicationPageSuccess = (
       pageId,
       applicationId,
     },
-  };
-};
-
-export const fetchApplications = () => {
-  return {
-    type: ReduxActionTypes.FETCH_APPLICATION_LIST_INIT,
   };
 };
 
@@ -68,5 +61,11 @@ export const duplicateApplication = (applicationId: string) => {
     payload: {
       applicationId,
     },
+  };
+};
+
+export const getAllApplications = () => {
+  return {
+    type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
   };
 };

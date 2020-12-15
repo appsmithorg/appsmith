@@ -1,10 +1,4 @@
-import React, {
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  RefObject,
-  useRef,
-} from "react";
+import React, { useContext, useEffect, RefObject, useRef } from "react";
 import styled from "styled-components";
 import { useDragLayer, XYCoord } from "react-dnd";
 import DropZone from "./Dropzone";
@@ -45,7 +39,7 @@ type DragLayerProps = {
   parentColumnWidth: number;
   visible: boolean;
   occupiedSpaces?: OccupiedSpace[];
-  onBoundsUpdate: Function;
+  onBoundsUpdate: (rect: DOMRect) => void;
   isOver: boolean;
   parentRows?: number;
   parentCols?: number;
@@ -116,7 +110,7 @@ const DragLayerComponent = (props: DragLayerProps) => {
       : widget.rightColumn - widget.leftColumn;
     widgetHeight = widget.rows ? widget.rows : widget.bottomRow - widget.topRow;
   }
-  useLayoutEffect(() => {
+  useEffect(() => {
     const el = dropTargetMask.current;
     if (el) {
       const rect = el.getBoundingClientRect();

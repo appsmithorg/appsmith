@@ -32,6 +32,7 @@ const Menu = (props: MenuProps) => {
       className={props.className}
       portalClassName={props.className}
       data-cy={props.cypressSelector}
+      disabled={props.disabled}
     >
       {props.target}
       <MenuWrapper>

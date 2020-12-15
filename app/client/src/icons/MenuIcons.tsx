@@ -20,6 +20,8 @@ import { Icon } from "@blueprintjs/core";
 /* eslint-disable react/display-name */
 
 export const MenuIcons: {
+  //TODO(abhinav): Fix this type to JSXElementConstructor<IconProps>
+  // eslint-disable-next-line @typescript-eslint/ban-types
   [id: string]: Function;
 } = {
   WIDGETS_ICON: (props: IconProps) => (

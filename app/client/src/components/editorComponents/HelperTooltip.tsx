@@ -55,6 +55,8 @@ const IconContainer = styled.div`
 
 interface Props {
   description?: string;
+  // TODO(Hetu): Fix the banned type here
+  // eslint-disable-next-line @typescript-eslint/ban-types
   rightIcon: Function;
 }
 

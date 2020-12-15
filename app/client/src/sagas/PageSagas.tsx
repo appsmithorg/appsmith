@@ -1,6 +1,7 @@
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { AppState } from "reducers";
 import {
+  Page,
   PageListPayload,
   ReduxAction,
   ReduxActionErrorTypes,
@@ -46,16 +47,15 @@ import {
 } from "redux-saga/effects";
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
-
+import { isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import {
   getAllPageIds,
   getEditorConfigs,
-  getExistingActionNames,
   getExistingPageNames,
-  getExistingWidgetNames,
   getWidgets,
 } from "./selectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import { validateResponse } from "./ErrorSagas";
 import { executePageLoadActions } from "actions/widgetActions";
 import { ApiResponse } from "api/ApiResponses";
@@ -116,6 +116,16 @@ export function* fetchPageListSaga(
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_LIST_API,
       );
+    } else {
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.FETCH_PAGE_LIST_API,
+      );
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
+        payload: {
+          error: response.responseMeta.error,
+        },
+      });
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(
@@ -173,18 +183,18 @@ export function* fetchPageSaga(
       // set current page
       yield put(updateCurrentPage(id));
       // dispatch fetch page success
-      yield put(fetchPageSuccess());
-      // Execute page load actions
-      yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
+      yield put(
+        fetchPageSuccess([
+          // Execute page load actions after evaluation of fetch page
+          executePageLoadActions(canvasWidgetsPayload.pageActions),
+        ]),
+      );
 
-      // Add this to the page DSLs for entity explorer
       yield put({
-        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
-        payload: {
-          pageId: id,
-          dsl: extractCurrentDSL(fetchPageResponse),
-        },
+        type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
+        payload: extractCurrentDSL(fetchPageResponse),
       });
+
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
       );
@@ -237,17 +247,19 @@ export function* fetchPublishedPageSaga(
       yield put(updateCurrentPage(pageId));
       // dispatch fetch page success
       yield put(
-        fetchPublishedPageSuccess({
-          dsl: response.data.layouts[0].dsl,
-          pageId: request.pageId,
-          pageWidgetId: canvasWidgetsPayload.pageWidgetId,
-        }),
+        fetchPublishedPageSuccess(
+          {
+            dsl: response.data.layouts[0].dsl,
+            pageId: request.pageId,
+            pageWidgetId: canvasWidgetsPayload.pageWidgetId,
+          },
+          // Execute page load actions post published page eval
+          [executePageLoadActions(canvasWidgetsPayload.pageActions)],
+        ),
       );
-      // Execute page load actions
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_API,
       );
-      yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(
@@ -297,6 +309,12 @@ function* savePageSaga() {
         dsl: savePageRequest.dsl,
       },
     });
+
+    yield put({
+      type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
+      payload: savePageRequest.dsl,
+    });
+
     const savePageResponse: SavePageResponse = yield call(
       PageApi.savePage,
       savePageRequest,
@@ -380,10 +398,12 @@ export function* createPageSaga(
           layoutId: response.data.layouts[0].id,
         },
       });
+      // Add this to the page DSLs for entity explorer
       yield put({
-        type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
+        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
           pageId: response.data.id,
+          dsl: extractCurrentDSL(response),
         },
       });
       history.push(
@@ -441,6 +461,14 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
       if (isValidResponse) {
         yield put(deletePageSuccess());
       }
+      // Remove this page from page DSLs
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
+        payload: {
+          pageId: request.id,
+          dsl: undefined,
+        },
+      });
       const currentPageId = yield select(
         (state: AppState) => state.entities.pageList.currentPageId,
       );
@@ -474,12 +502,15 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
           response.data.layouts[0].id,
         ),
       );
+      // Add this to the page DSLs for entity explorer
       yield put({
-        type: ReduxActionTypes.FETCH_PAGE_DSL_INIT,
+        type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
           pageId: response.data.id,
+          dsl: extractCurrentDSL(response),
         },
       });
+
       history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
     }
   } catch (error) {
@@ -492,21 +523,32 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
   }
 }
 
+/**
+ * this saga do two things
+ *
+ * 1. Checks if the name of page is conflicting with any used name
+ * 2. dispatches a action which triggers a request to update the name
+ *
+ * @param action
+ */
 export function* updateWidgetNameSaga(
   action: ReduxAction<{ id: string; newName: string }>,
 ) {
   try {
     const { widgetName } = yield select(getWidgetName, action.payload.id);
     const layoutId = yield select(getCurrentLayoutId);
+    const evalTree = yield select(getDataTree);
     const pageId = yield select(getCurrentPageId);
-    const existingWidgetNames = yield select(getExistingWidgetNames);
-    const existingActionNames = yield select(getExistingActionNames);
     const existingPageNames = yield select(getExistingPageNames);
-    const hasWidgetNameConflict =
-      existingWidgetNames.indexOf(action.payload.newName) > -1 ||
-      existingActionNames.indexOf(action.payload.newName) > -1 ||
-      existingPageNames.indexOf(action.payload.newName) > -1;
-    if (!hasWidgetNameConflict) {
+
+    // check if name is not conflicting with any
+    // existing entity/api/queries/reserved words
+    if (
+      isNameValid(action.payload.newName, {
+        ...evalTree,
+        ...existingPageNames,
+      })
+    ) {
       const request: UpdateWidgetNameRequest = {
         newName: action.payload.newName,
         oldName: widgetName,
@@ -584,6 +626,57 @@ export function* setDataUrl() {
     hash: window.location.hash,
   };
   yield put(setUrlData(urlData));
+}
+
+function* fetchPageDSLSaga(pageId: string) {
+  try {
+    const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
+      id: pageId,
+    });
+    const isValidResponse = yield validateResponse(fetchPageResponse);
+    if (isValidResponse) {
+      return {
+        pageId: pageId,
+        dsl: extractCurrentDSL(fetchPageResponse),
+      };
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionTypes.FETCH_PAGE_DSL_ERROR,
+      payload: {
+        pageId: pageId,
+        error,
+        show: false,
+      },
+    });
+  }
+}
+
+export function* populatePageDSLsSaga() {
+  try {
+    yield put({
+      type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
+    });
+    const pageIds: string[] = yield select((state: AppState) =>
+      state.entities.pageList.pages.map((page: Page) => page.pageId),
+    );
+    const pageDSLs = yield all(
+      pageIds.map((pageId: string) => {
+        return call(fetchPageDSLSaga, pageId);
+      }),
+    );
+    yield put({
+      type: ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
+      payload: pageDSLs,
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.POPULATE_PAGEDSLS_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
 }
 
 export default function* pageSagas() {

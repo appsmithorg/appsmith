@@ -18,8 +18,9 @@ import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { DEFAULT_API_ACTION } from "constants/ApiEditorConstants";
 import { ApiActionConfig, PluginType } from "entities/Action";
-import { AppToaster } from "components/editorComponents/ToastComponent";
 import { renderDatasourceSection } from "./DatasourceSection";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 const ConnectedText = styled.div`
   color: ${Colors.GREEN};
@@ -107,9 +108,9 @@ const Connected = () => {
     };
 
     if (!datasource?.datasourceConfiguration?.url) {
-      AppToaster.show({
-        message: "Unable to create API. Try adding a url to the datasource",
-        type: "error",
+      Toaster.show({
+        text: "Unable to create API. Try adding a url to the datasource",
+        variant: Variant.danger,
       });
 
       return;

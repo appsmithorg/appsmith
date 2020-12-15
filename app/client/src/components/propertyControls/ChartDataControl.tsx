@@ -167,6 +167,13 @@ class ChartDataControl extends BaseControl<ControlProps> {
     return validations;
   };
 
+  getEvaluatedValue = () => {
+    if (Array.isArray(this.props.evaluatedValue)) {
+      return this.props.evaluatedValue;
+    }
+    return [];
+  };
+
   componentDidMount() {
     this.migrateChartData(this.props.propertyValue);
   }
@@ -209,6 +216,9 @@ class ChartDataControl extends BaseControl<ControlProps> {
       isValid,
       chartData.length,
     );
+
+    const evaluatedValue = this.getEvaluatedValue();
+
     return (
       <React.Fragment>
         {chartData.map((data, index) => {
@@ -222,7 +232,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
               updateOption={this.updateOption}
               isValid={validations[index].isValid}
               validationMessage={validations[index].validationMessage}
-              evaluated={this.props.evaluatedValue[index]}
+              evaluated={evaluatedValue[index]}
             />
           );
         })}

@@ -11,9 +11,10 @@ type TooltipProps = CommonComponentProps & {
   position?: Position;
   children: JSX.Element;
   variant?: Variant;
+  maxWidth?: number;
 };
 
-const TooltipWrapper = styled.div<{ variant?: Variant }>`
+const TooltipWrapper = styled.div<{ variant?: Variant; maxWidth?: number }>`
   .${Classes.TOOLTIP} .${Classes.POPOVER_CONTENT} {
     padding: 10px 12px;
     border-radius: 0px;
@@ -27,7 +28,8 @@ const TooltipWrapper = styled.div<{ variant?: Variant }>`
   }
   .${Classes.TOOLTIP} {
     box-shadow: 0px 12px 20px rgba(0, 0, 0, 0.35);
-  }
+    max-width: ${props => (props.maxWidth ? `${props.maxWidth}px` : null)};
+
   .${Classes.TOOLTIP}
     .${CsClasses.BP3_POPOVER_ARROW_BORDER},
     &&&&
@@ -42,7 +44,11 @@ const TooltipWrapper = styled.div<{ variant?: Variant }>`
 
 const TooltipComponent = (props: TooltipProps) => {
   return (
-    <TooltipWrapper variant={props.variant} data-cy={props.cypressSelector}>
+    <TooltipWrapper
+      variant={props.variant}
+      data-cy={props.cypressSelector}
+      maxWidth={props.maxWidth}
+    >
       <Tooltip
         content={props.content}
         position={props.position}

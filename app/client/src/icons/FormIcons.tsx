@@ -1,4 +1,4 @@
-import React from "react";
+import React, { CSSProperties, JSXElementConstructor } from "react";
 import { Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { IconProps, IconWrapper } from "constants/IconConstants";
@@ -10,7 +10,7 @@ import { ReactComponent as LockIcon } from "assets/icons/form/lock.svg";
 /* eslint-disable react/display-name */
 
 export const FormIcons: {
-  [id: string]: Function;
+  [id: string]: JSXElementConstructor<IconProps & { style?: CSSProperties }>;
 } = {
   INFO_ICON: (props: IconProps) => (
     <IconWrapper {...props}>

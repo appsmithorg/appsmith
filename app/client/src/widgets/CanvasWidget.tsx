@@ -24,13 +24,14 @@ class CanvasWidget extends ContainerWidget {
   }
 
   renderAsDropTarget() {
+    const canvasProps = this.getCanvasProps();
     return (
       <DropTargetComponent
-        {...this.getCanvasProps()}
+        {...canvasProps}
         {...this.getSnapSpaces()}
         minHeight={this.props.minHeight || 380}
       >
-        {this.renderAsContainerComponent(this.props)}
+        {this.renderAsContainerComponent(canvasProps)}
       </DropTargetComponent>
     );
   }

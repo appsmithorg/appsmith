@@ -13,7 +13,7 @@
     "parentRowSpace": 1,
     "type": "CANVAS_WIDGET",
     "canExtend": true,
-    "dynamicBindings": {},
+    "dynamicBindingPathList": [],
     "version": 3,
     "minHeight": 1292,
     "parentColumnSpace": 1,
@@ -32,7 +32,7 @@
         "parentRowSpace": 38,
         "isVisible": true,
         "type": "CONTAINER_WIDGET",
-        "dynamicBindings": {},
+        "dynamicBindingPathList": [],
         "isLoading": false,
         "shouldScrollContents": true,
         "parentColumnSpace": 75.25,
@@ -69,16 +69,16 @@
                 "isVisible": true,
                 "label": "Test Input Label",
                 "type": "INPUT_WIDGET",
-                "dynamicBindings": {
-                  "isValid": true
-                },
+                "dynamicBindingPathList": [],
                 "parentId": "iw4o07jvik",
                 "isLoading": false,
                 "parentColumnSpace": 34.6875,
                 "leftColumn": 6,
-                "dynamicTriggers": {
-                  "onTextChanged": true
-                },
+                "dynamicTriggerPathList": [
+                  {
+                    "key": "onTextChange"
+                  }
+                ],
                 "inputType": "",
                 "placeholderText": "",
                 "defaultText": ""
@@ -87,13 +87,13 @@
                 "widgetName": "TestTextBox",
                 "rightColumn": 5,
                 "widgetId": "4d8d2eh4xg",
-                "dynamicProperties": {},
+                "dynamicPropertyPathList": [],
                 "topRow": 2,
                 "bottomRow": 3,
                 "parentRowSpace": 38,
                 "isVisible": true,
                 "type": "TEXT_WIDGET",
-                "dynamicBindings": {},
+                "dynamicBindingPathList": [],
                 "shouldScroll": true,
                 "parentId": "hjiybwqair",
                 "isLoading": false,
@@ -114,14 +114,14 @@
                 "parentRowSpace": 38,
                 "isVisible": true,
                 "type": "BUTTON_WIDGET",
-                "dynamicBindings": {},
+                "dynamicBindingPathList": [],
                 "parentId": "hjiybwqair",
                 "isLoading": false,
                 "parentColumnSpace": 34.6875,
                 "leftColumn": 10,
-                "dynamicTriggers": {
-                  "onClick": true
-                },
+                "dynamicTriggerPathList": [{
+                  "key": "onClick"
+                }],
                 "text": "Test Button Text",
                 "isDisabled": false
               }
@@ -143,7 +143,7 @@
         "parentRowSpace": 38,
         "isVisible": true,
         "type": "CONTAINER_WIDGET",
-        "dynamicBindings": {},
+        "dynamicBindingPathList": [],
         "isLoading": false,
         "parentColumnSpace": 75.25,
         "leftColumn": 0,
@@ -178,16 +178,17 @@
                 "isVisible": true,
                 "label": "Data",
                 "type": "TABLE_WIDGET",
-                "dynamicBindings": {
-                  "tableData": true,
-                  "selectedRow": true
-                },
+                "dynamicBindingPathList": [
+                  {
+                    "key": "tableData"
+                  }
+                ],
                 "isLoading": false,
                 "parentColumnSpace": 71.75,
                 "leftColumn": 1,
-                "dynamicTriggers": {
-                  "onRowSelected": true
-                },
+                "dynamicTriggerPathList": [{
+                  "key": "onRowSelected"
+                }],
                 "onRowSelected": "{{navigateTo()}}",
                 "selectedRow": "{{Table1.tableData[Table1.selectedRowIndex]}}"
               }
@@ -208,7 +209,7 @@
         "parentRowSpace": 38,
         "isVisible": true,
         "type": "CONTAINER_WIDGET",
-        "dynamicBindings": {},
+        "dynamicBindingPathList": [],
         "isLoading": false,
         "parentColumnSpace": 75.25,
         "leftColumn": 8,
@@ -247,7 +248,7 @@
         "canOutsideClickClose": true,
         "type": "MODAL_WIDGET",
         "canEscapeKeyClose": true,
-        "dynamicBindings": {},
+        "dynamicBindingPathList": [],
         "parentId": "0",
         "shouldScrollContents": true,
         "blueprint": {

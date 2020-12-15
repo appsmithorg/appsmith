@@ -98,7 +98,7 @@ const Header = styled.div`
 
 interface ReduxStateProps {
   actions: ActionDataState;
-  initialValues: {};
+  initialValues: Record<string, unknown>;
   isImportingCurl: boolean;
 }
 
@@ -138,6 +138,7 @@ class CurlImportForm extends React.Component<Props> {
                   name="curl"
                   component="textarea"
                   className="textAreaStyles"
+                  placeholder="curl -X GET https://mock-api.appsmith.com/users"
                 />
                 <Field type="hidden" name="pageId" component="input" />
                 <Field type="hidden" name="name" component="input" />

@@ -290,7 +290,7 @@ const HelpFooter = styled.div`
 `;
 
 const HelpBody = styled.div`
-  padding-top: 60px;
+  padding-top: 68px;
   flex: 5;
 `;
 
@@ -343,8 +343,8 @@ class DocumentationSearch extends React.Component<Props, State> {
     };
   }
   onSearchValueChange = (event: SyntheticEvent<HTMLInputElement, Event>) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: No types available
     const value = event.target.value;
     if (value === "" && this.state.showResults) {
       this.setState({

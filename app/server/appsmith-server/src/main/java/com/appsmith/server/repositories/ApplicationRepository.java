@@ -13,4 +13,5 @@ public interface ApplicationRepository extends BaseRepository<Application, Strin
 
     Flux<Application> findByOrganizationId(String organizationId);
 
+    Flux<Application> findByClonedFromApplicationId(String clonedFromApplicationId);
 }

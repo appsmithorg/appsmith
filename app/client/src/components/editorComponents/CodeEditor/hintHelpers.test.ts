@@ -4,8 +4,8 @@ import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEdito
 describe("hint helpers", () => {
   describe("binding hint helper", () => {
     it("is initialized correctly", () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: No types available
       const helper = bindingHint(MockCodemirrorEditor, {});
       expect(MockCodemirrorEditor.setOption).toBeCalled();
       expect(helper).toHaveProperty("showHint");
@@ -58,11 +58,11 @@ describe("hint helpers", () => {
 
       // Test
       cases.forEach(() => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
         const helper = bindingHint(MockCodemirrorEditor, {});
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
         helper.showHint(MockCodemirrorEditor);
       });
 

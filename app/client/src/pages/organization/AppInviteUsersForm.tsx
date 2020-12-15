@@ -1,15 +1,14 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { getCurrentOrg } from "selectors/organizationSelectors";
+import { getCurrentAppOrg } from "selectors/organizationSelectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "../Applications/permissionHelpers";
-import { getDefaultPageId } from "sagas/SagaUtils";
 import { getApplicationViewerPageURL } from "constants/routes";
 import OrgInviteUsersForm from "./OrgInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -41,11 +40,12 @@ const AppInviteUsersForm = (props: any) => {
     changeAppViewAccess,
     applicationId,
     fetchCurrentOrg,
-    currentOrg,
     currentUser,
+    defaultPageId,
   } = props;
 
-  const userOrgPermissions = currentOrg?.userPermissions ?? [];
+  const currentOrg = useSelector(getCurrentAppOrg);
+  const userOrgPermissions = currentOrg.userPermissions ?? [];
   const userAppPermissions = currentApplicationDetails?.userPermissions ?? [];
   const canInviteToOrg = isPermitted(
     userOrgPermissions,
@@ -57,7 +57,6 @@ const AppInviteUsersForm = (props: any) => {
   );
 
   const getViewApplicationURL = () => {
-    const defaultPageId = getDefaultPageId(currentApplicationDetails.pages);
     const appViewEndPoint = getApplicationViewerPageURL(
       applicationId,
       defaultPageId,
@@ -112,9 +111,9 @@ const AppInviteUsersForm = (props: any) => {
 export default connect(
   (state: AppState) => {
     return {
-      currentOrg: getCurrentOrg(state),
       currentUser: getCurrentUser(state),
       currentApplicationDetails: state.ui.applications.currentApplication,
+      defaultPageId: state.entities.pageList.defaultPageId,
       isFetchingApplication: state.ui.applications.isFetchingApplication,
       isChangingViewAccess: state.ui.applications.isChangingViewAccess,
     };

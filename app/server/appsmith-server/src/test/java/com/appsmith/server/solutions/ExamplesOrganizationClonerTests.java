@@ -30,6 +30,7 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
 import org.junit.Before;
@@ -160,7 +161,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
+                    assertThat(data.organization.getName()).isEqualTo("api_user's apps");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).isEmpty();
@@ -209,7 +210,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
+                    assertThat(data.organization.getName()).isEqualTo("api_user's apps");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(1);
@@ -268,7 +269,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
+                    assertThat(data.organization.getName()).isEqualTo("api_user's apps");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(2);
@@ -323,7 +324,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
+                    assertThat(data.organization.getName()).isEqualTo("api_user's apps");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).isEmpty();
@@ -374,7 +375,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
+                    assertThat(data.organization.getName()).isEqualTo("api_user's apps");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.datasources).hasSize(2);
@@ -458,7 +459,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
+                    assertThat(data.organization.getName()).isEqualTo("api_user's apps");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(2);
@@ -529,8 +530,16 @@ public class ExamplesOrganizationClonerTests {
                                 newPage.setLayouts(new ArrayList<>());
                                 final Layout layout = new Layout();
                                 layout.setId(new ObjectId().toString());
-                                layout.setDsl(new JSONObject(Map.of("text", "draft {{ newPageAction.data }}")));
-                                layout.setPublishedDsl(new JSONObject(Map.of("text", "published {{ newPageAction.data }}")));
+                                JSONObject dsl = new JSONObject();
+                                dsl.put("widgetName", "testWidget");
+                                JSONArray temp = new JSONArray();
+                                temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+                                dsl.put("dynamicBindingPathList", temp);
+                                dsl.put("testField", "draft {{ newPageAction.data }}");
+                                layout.setDsl(dsl);
+                                JSONObject publishedDsl = new JSONObject(dsl);
+                                publishedDsl.put("testField", "published {{ newPageAction.data }}");
+                                layout.setPublishedDsl(publishedDsl);
                                 final DslActionDTO actionDTO = new DslActionDTO();
                                 final HashSet<DslActionDTO> dslActionDTOS = new HashSet<>(List.of(actionDTO));
                                 layout.setLayoutOnLoadActions(List.of(dslActionDTOS));
@@ -610,7 +619,7 @@ public class ExamplesOrganizationClonerTests {
                 .assertNext(data -> {
                     assertThat(data.organization).isNotNull();
                     assertThat(data.organization.getId()).isNotNull();
-                    assertThat(data.organization.getName()).isEqualTo("api_user's Personal Organization");
+                    assertThat(data.organization.getName()).isEqualTo("api_user's apps");
                     assertThat(data.organization.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(2);

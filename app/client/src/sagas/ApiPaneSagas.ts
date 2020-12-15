@@ -3,6 +3,7 @@
  * */
 import { get, omit } from "lodash";
 import { all, select, put, takeEvery, call, take } from "redux-saga/effects";
+import * as Sentry from "@sentry/react";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -53,6 +54,8 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { EventLocation } from "utils/AnalyticsUtil";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -164,8 +167,8 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   // // Typescript says Element does not have blur function but it does;
   // document.activeElement &&
   //   "blur" in document.activeElement &&
-  //   // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-  //   // @ts-ignore
+  //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //   // @ts-ignore: No types available
   //   document.activeElement.blur();
   PerformanceTracker.startTracking(PerformanceTransactionName.CHANGE_API_SAGA);
   const { id } = actionPayload.payload;
@@ -411,6 +414,20 @@ function* handleApiNameChangeSuccessSaga(
   const { actionId } = action.payload;
   const actionObj = yield select(getAction, actionId);
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
+  if (!actionObj) {
+    // Error case, log to sentry
+    Toaster.show({
+      text: "Error occured while renaming API",
+      variant: Variant.danger,
+    });
+
+    Sentry.captureException(new Error("Error occured while renaming API"), {
+      extra: {
+        actionId: actionId,
+      },
+    });
+    return;
+  }
   if (actionObj.pluginType === PLUGIN_TYPE_API) {
     const params = getQueryParams();
     if (params.editName) {

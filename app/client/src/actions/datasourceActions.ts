@@ -1,13 +1,6 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { CreateDatasourceConfig, Datasource } from "api/DatasourcesApi";
 
-export const createDatasource = (payload: CreateDatasourceConfig) => {
-  return {
-    type: ReduxActionTypes.CREATE_DATASOURCE_INIT,
-    payload,
-  };
-};
-
 export const createDatasourceFromForm = (payload: CreateDatasourceConfig) => {
   return {
     type: ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
@@ -105,15 +98,6 @@ export const selectPlugin = (pluginId: string) => {
   };
 };
 
-export const storeDatastoreRefs = (refsList: {}) => {
-  return {
-    type: ReduxActionTypes.STORE_DATASOURCE_REFS,
-    payload: {
-      refsList,
-    },
-  };
-};
-
 export const initDatasourcePane = (
   pluginType: string,
   urlId?: string,
@@ -131,7 +115,6 @@ export const storeAsDatasource = () => {
 };
 
 export default {
-  createDatasource,
   fetchDatasources,
   initDatasourcePane,
   selectPlugin,

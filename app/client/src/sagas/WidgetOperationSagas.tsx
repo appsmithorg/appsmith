@@ -37,10 +37,17 @@ import { convertToString, getNextEntityName } from "utils/AppsmithUtils";
 import {
   SetWidgetDynamicPropertyPayload,
   updateWidgetProperty,
-  updateWidgetPropertyRequest,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
+import {
+  DynamicPath,
+  getEntityDynamicBindingPathList,
+  getWidgetDynamicPropertyPathList,
+  getWidgetDynamicTriggerPathList,
+  isDynamicValue,
+  isPathADynamicBinding,
+  isPathADynamicTrigger,
+} from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import _, { isString } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
@@ -65,7 +72,6 @@ import {
   getDeletedWidgets,
   getCopiedWidgets,
 } from "utils/storage";
-import { AppToaster } from "components/editorComponents/ToastComponent";
 import { generateReactKey } from "utils/generators";
 import { flashElementById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -79,7 +85,13 @@ import {
 import { forceOpenPropertyPane } from "actions/widgetActions";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { validateProperty } from "./evaluationsSaga";
+import {
+  validateProperty,
+  clearEvalPropertyCacheOfWidget,
+} from "./evaluationsSaga";
+import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 function getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -89,10 +101,12 @@ function getChildWidgetProps(
   const { leftColumn, topRow, newWidgetId, props, type } = params;
   let { rows, columns, parentColumnSpace, parentRowSpace, widgetName } = params;
   let minHeight = undefined;
-  const defaultConfig: any = WidgetConfigResponse.config[type];
+  const { blueprint = undefined, ...restDefaultConfig } = {
+    ...(WidgetConfigResponse as any).config[type],
+  };
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
-    widgetName = getNextEntityName(defaultConfig.widgetName, widgetNames);
+    widgetName = getNextEntityName(restDefaultConfig.widgetName, widgetNames);
   }
   if (type === WidgetTypes.CANVAS_WIDGET) {
     columns =
@@ -104,7 +118,13 @@ function getChildWidgetProps(
     if (props) props.children = [];
   }
 
-  const widgetProps = { ...defaultConfig, ...props, columns, rows, minHeight };
+  const widgetProps = {
+    ...restDefaultConfig,
+    ...props,
+    columns,
+    rows,
+    minHeight,
+  };
   const widget = generateWidgetProps(
     parent,
     type,
@@ -127,41 +147,80 @@ function* generateChildWidgets(
   parent: FlattenedWidgetProps,
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
+  propsBlueprint?: WidgetBlueprint,
 ): any {
+  // Get the props for the widget
   const widget = yield getChildWidgetProps(parent, params, widgets);
+
+  // Add the widget to the canvasWidgets
+  // We need this in here as widgets will be used to get the current widget
   widgets[widget.widgetId] = widget;
-  if (widget.blueprint && widget.blueprint.view) {
+
+  // Get the default config for the widget from WidgetConfigResponse
+  const defaultConfig = {
+    ...(WidgetConfigResponse as any).config[widget.type],
+  };
+
+  // If blueprint is provided in the params, use that
+  // else use the blueprint available in WidgetConfigResponse
+  // else there is no blueprint for this widget
+  const blueprint =
+    propsBlueprint || { ...defaultConfig.blueprint } || undefined;
+
+  // If there is a blueprint.view
+  // We need to generate the children based on the view
+  if (blueprint && blueprint.view) {
+    // Get the list of children props in WidgetAddChild format
     const childWidgetList: WidgetAddChild[] = yield call(
       buildWidgetBlueprint,
-      widget.blueprint,
+      blueprint,
       widget.widgetId,
     );
+    // For each child props
     const childPropsList: GeneratedWidgetPayload[] = yield all(
       childWidgetList.map((props: WidgetAddChild) => {
-        return generateChildWidgets(widget, props, widgets);
+        // Generate full widget props
+        // Notice that we're passing the blueprint if it exists.
+        return generateChildWidgets(
+          widget,
+          props,
+          widgets,
+          props.props?.blueprint,
+        );
       }),
     );
+    // Start children array from scratch
     widget.children = [];
     childPropsList.forEach((props: GeneratedWidgetPayload) => {
+      // Push the widgetIds of the children generated above into the widget.children array
       widget.children.push(props.widgetId);
+      // Add the list of widgets generated into the canvasWidgets
       widgets = props.widgets;
     });
   }
 
+  // Finally, add the widget to the canvasWidgets
+  // This is different from above, as this is the final widget props with
+  // a fully populated widget.children property
   widgets[widget.widgetId] = widget;
-  if (
-    widget.blueprint &&
-    widget.blueprint.operations &&
-    widget.blueprint.operations.length > 0
-  ) {
+
+  // Some widgets need to run a few operations like modifying props or adding an action
+  // these operations can be performed on the parent of the widget we're adding
+  // therefore, we pass all widgets to executeWidgetBlueprintOperations
+  // blueprint.operations contain the set of operations to perform to update the canvasWidgets
+  if (blueprint && blueprint.operations && blueprint.operations.length > 0) {
+    // Finalize the canvasWidgets with everything that needs to be updated
     widgets = yield call(
       executeWidgetBlueprintOperations,
-      widget.blueprint.operations,
+      blueprint.operations,
       widgets,
       widget.widgetId,
     );
   }
+  // Add the parentId prop to this widget
   widget.parentId = parent.widgetId;
+  // Remove the blueprint from the widget (if any)
+  // as blueprints are not useful beyont this point.
   delete widget.blueprint;
   return { widgetId: widget.widgetId, widgets };
 }
@@ -169,7 +228,7 @@ function* generateChildWidgets(
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
     const start = performance.now();
-    AppToaster.clear();
+    Toaster.clear();
     const { widgetId } = addChildAction.payload;
 
     // Get the current parent widget whose child will be the new widget.
@@ -270,6 +329,36 @@ const getAllWidgetsInTree = (
   return widgetList;
 };
 
+/**
+ * Note: Mutates finalWidgets[parentId].bottomRow for CANVAS_WIDGET
+ * @param finalWidgets
+ * @param parentId
+ */
+const resizeCanvasToLowestWidget = (
+  finalWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+) => {
+  if (
+    !finalWidgets[parentId] ||
+    finalWidgets[parentId].type !== WidgetTypes.CANVAS_WIDGET
+  ) {
+    return;
+  }
+
+  let lowestBottomRow = 0;
+  const childIds = finalWidgets[parentId].children || [];
+  // find lowest row
+  childIds.forEach(cId => {
+    const child = finalWidgets[cId];
+    if (child.bottomRow > lowestBottomRow) {
+      lowestBottomRow = child.bottomRow;
+    }
+  });
+  finalWidgets[parentId].bottomRow =
+    (lowestBottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+};
+
 export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
     let { widgetId, parentId } = deleteAction.payload;
@@ -287,6 +376,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       const widgets = { ...stateWidgets };
       const stateWidget = yield select(getWidget, widgetId);
       const widget = { ...stateWidget };
+
       const stateParent: FlattenedWidgetProps = yield select(
         getWidget,
         parentId,
@@ -324,18 +414,14 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         widgetName = widget.tabName;
       }
       if (saveStatus && !disallowUndo) {
-        AppToaster.show({
-          message: `${widgetName} deleted`,
-          autoClose: WIDGET_DELETE_UNDO_TIMEOUT - 2000,
-          type: "success",
+        Toaster.show({
+          text: `${widgetName} deleted`,
           hideProgressBar: false,
-          action: {
-            text: "UNDO",
-            dispatchableAction: {
-              type: ReduxActionTypes.UNDO_DELETE_WIDGET,
-              payload: {
-                widgetId,
-              },
+          variant: Variant.success,
+          dispatchableAction: {
+            type: ReduxActionTypes.UNDO_DELETE_WIDGET,
+            payload: {
+              widgetId,
             },
           },
         });
@@ -344,10 +430,15 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         }, WIDGET_DELETE_UNDO_TIMEOUT);
       }
 
-      const finalWidgets = _.omit(
+      yield call(clearEvalPropertyCacheOfWidget, widgetName);
+
+      const finalWidgets: CanvasWidgetsReduxState = _.omit(
         widgets,
         otherWidgetsToDelete.map(widgets => widgets.widgetId),
       );
+
+      // Note: mutates finalWidgets
+      resizeCanvasToLowestWidget(finalWidgets, parentId);
 
       yield put(updateAndSaveLayout(finalWidgets));
     }
@@ -396,10 +487,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
           const parent = { ...widgets[widget.parentId] };
           if (parent.tabs) {
             try {
-              const tabs = _.isString(parent.tabs)
-                ? JSON.parse(parent.tabs)
-                : parent.tabs;
-              tabs.push({
+              parent.tabs.push({
                 id: widget.tabId,
                 widgetId: widget.widgetId,
                 label: widget.tabName || widget.widgetName,
@@ -408,7 +496,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
                 ...widgets,
                 [widget.parentId]: {
                   ...widgets[widget.parentId],
-                  tabs: JSON.stringify(tabs),
+                  tabs: parent.tabs,
                 },
               };
             } catch (error) {
@@ -450,7 +538,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
 
 export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
   try {
-    AppToaster.clear();
+    Toaster.clear();
     const start = performance.now();
     const {
       widgetId,
@@ -514,7 +602,7 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
-    AppToaster.clear();
+    Toaster.clear();
     const start = performance.now();
     const {
       widgetId,
@@ -546,25 +634,33 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
 
 function* updateDynamicTriggers(
   widget: WidgetProps,
-  propertyName: string,
+  propertyPath: string,
   propertyValue: string,
 ) {
   // TODO WIDGETFACTORY
   const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
     widget.type,
   );
-  if (propertyName in triggerProperties) {
-    let dynamicTriggers: Record<string, true> = widget.dynamicTriggers
-      ? { ...widget.dynamicTriggers }
-      : {};
-    if (propertyValue && !(propertyName in dynamicTriggers)) {
-      dynamicTriggers[propertyName] = true;
+  if (propertyPath in triggerProperties) {
+    let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
+      widget,
+    );
+    if (propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
+      dynamicTriggerPathList.push({
+        key: propertyPath,
+      });
     }
-    if (!propertyValue && propertyName in dynamicTriggers) {
-      dynamicTriggers = _.omit(dynamicTriggers, propertyName);
+    if (!propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
+      dynamicTriggerPathList = _.reject(dynamicTriggerPathList, {
+        key: propertyValue,
+      });
     }
     yield put(
-      updateWidgetProperty(widget.widgetId, "dynamicTriggers", dynamicTriggers),
+      updateWidgetProperty(
+        widget.widgetId,
+        "dynamicTriggerPathList",
+        dynamicTriggerPathList,
+      ),
     );
     return true;
   }
@@ -582,16 +678,25 @@ function* updateDynamicBindings(
     stringProp = JSON.stringify(propertyValue);
   }
   const isDynamic = isDynamicValue(stringProp);
-  let dynamicBindings: Record<string, boolean> =
-    { ...widget.dynamicBindings } || {};
-  if (!isDynamic && propertyName in dynamicBindings) {
-    dynamicBindings = _.omit(dynamicBindings, propertyName);
+  let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
+    widget,
+  );
+  if (!isDynamic && isPathADynamicBinding(widget, propertyName)) {
+    dynamicBindingPathList = _.reject(dynamicBindingPathList, {
+      key: propertyName,
+    });
   }
-  if (isDynamic && !(propertyName in dynamicBindings)) {
-    dynamicBindings[propertyName] = true;
+  if (isDynamic && !isPathADynamicBinding(widget, propertyName)) {
+    dynamicBindingPathList.push({
+      key: propertyName,
+    });
   }
   yield put(
-    updateWidgetProperty(widget.widgetId, "dynamicBindings", dynamicBindings),
+    updateWidgetProperty(
+      widget.widgetId,
+      "dynamicBindingPathList",
+      dynamicBindingPathList,
+    ),
   );
 }
 
@@ -601,6 +706,10 @@ function* updateWidgetPropertySaga(
   const {
     payload: { propertyValue, propertyName, widgetId },
   } = updateAction;
+  if (!widgetId) {
+    // Handling the case where sometimes widget id is not passed through here
+    return;
+  }
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
   const widget = { ...stateWidget };
 
@@ -609,8 +718,9 @@ function* updateWidgetPropertySaga(
     propertyName,
     propertyValue,
   );
-  if (!dynamicTriggersUpdated)
+  if (!dynamicTriggersUpdated) {
     yield updateDynamicBindings(widget, propertyName, propertyValue);
+  }
 
   yield put(updateWidgetProperty(widgetId, propertyName, propertyValue));
   const stateWidgets = yield select(getWidgets);
@@ -624,16 +734,18 @@ function* setWidgetDynamicPropertySaga(
   const { isDynamic, propertyName, widgetId } = action.payload;
   const widget: WidgetProps = yield select(getWidget, widgetId);
   // const tree = yield select(evaluateDataTree);
-  const propertyValue = widget[propertyName];
-  const dynamicProperties: Record<string, true> = {
-    ...widget.dynamicProperties,
-  };
+  const propertyValue = _.get(widget, propertyName);
+  let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
   if (isDynamic) {
-    dynamicProperties[propertyName] = true;
+    dynamicPropertyPathList.push({
+      key: propertyName,
+    });
     const value = convertToString(propertyValue);
     yield put(updateWidgetProperty(widgetId, propertyName, value));
   } else {
-    delete dynamicProperties[propertyName];
+    dynamicPropertyPathList = _.reject(dynamicPropertyPathList, {
+      key: propertyName,
+    });
     const { parsed } = yield call(
       validateProperty,
       widget.type,
@@ -644,7 +756,11 @@ function* setWidgetDynamicPropertySaga(
     yield put(updateWidgetProperty(widgetId, propertyName, parsed));
   }
   yield put(
-    updateWidgetProperty(widgetId, "dynamicProperties", dynamicProperties),
+    updateWidgetProperty(
+      widgetId,
+      "dynamicPropertyPathList",
+      dynamicPropertyPathList,
+    ),
   );
 }
 
@@ -727,11 +843,30 @@ function* updateCanvasSize(
   }
 }
 
-function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
+function* createWidgetCopy() {
   const selectedWidget = yield select(getSelectedWidget);
   if (!selectedWidget) return;
   const widgets = yield select(getWidgets);
   const widgetsToStore = getAllWidgetsInTree(selectedWidget.widgetId, widgets);
+  const saveResult = yield saveCopiedWidgets(
+    JSON.stringify({ widgetId: selectedWidget.widgetId, list: widgetsToStore }),
+  );
+
+  return saveResult;
+}
+
+function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
+  const selectedWidget = yield select(getSelectedWidget);
+  if (!selectedWidget) {
+    Toaster.show({
+      text: `Please select a widget to copy`,
+      variant: Variant.info,
+    });
+    return;
+  }
+
+  const saveResult = yield createWidgetCopy();
+
   const eventName = action.payload.isShortcut
     ? "WIDGET_COPY_VIA_SHORTCUT"
     : "WIDGET_COPY";
@@ -739,13 +874,11 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
     widgetName: selectedWidget.widgetName,
     widgetType: selectedWidget.type,
   });
-  const saveResult = yield saveCopiedWidgets(
-    JSON.stringify({ widgetId: selectedWidget.widgetId, list: widgetsToStore }),
-  );
+
   if (saveResult) {
-    AppToaster.show({
-      message: `Copied ${selectedWidget.widgetName}`,
-      type: "success",
+    Toaster.show({
+      text: `Copied ${selectedWidget.widgetName}`,
+      variant: Variant.success,
     });
   }
 }
@@ -847,17 +980,11 @@ function* pasteWidgetSaga() {
       } else {
         // If the widget in which to paste the new widget is a tabs widget
         // Find the currently selected tab canvas widget
-        const { selectedTabId } = yield select(
+        const { selectedTabWidgetId } = yield select(
           getWidgetMetaProps,
           parentWidget.widgetId,
         );
-        const tabs = _.isString(parentWidget.tabs)
-          ? JSON.parse(parentWidget.tabs)
-          : parentWidget.tabs;
-        const childWidgetId =
-          tabs.find((tab: any) => tab.id === selectedTabId)?.widgetId ||
-          parentWidget.children[0];
-        childWidget = widgets[childWidgetId];
+        if (selectedTabWidgetId) childWidget = widgets[selectedTabWidgetId];
       }
       // If the finally selected parent in which to paste the widget
       // is a CANVAS_WIDGET, use its widgetId as the new widget's parent Id
@@ -908,16 +1035,12 @@ function* pasteWidgetSaga() {
       // Update the tabs for the tabs widget.
       if (widget.tabs && widget.type === WidgetTypes.TABS_WIDGET) {
         try {
-          const tabs = isString(widget.tabs)
-            ? JSON.parse(widget.tabs)
-            : widget.tabs;
+          const tabs = widget.tabs;
           if (Array.isArray(tabs)) {
-            widget.tabs = JSON.stringify(
-              tabs.map(tab => {
-                tab.widgetId = widgetIdMap[tab.widgetId];
-                return tab;
-              }),
-            );
+            widget.tabs = tabs.map(tab => {
+              tab.widgetId = widgetIdMap[tab.widgetId];
+              return tab;
+            });
           }
         } catch (error) {
           log.debug("Error updating tabs", error);
@@ -995,12 +1118,30 @@ function* pasteWidgetSaga() {
 }
 
 function* cutWidgetSaga() {
-  yield put({
-    type: ReduxActionTypes.COPY_SELECTED_WIDGET_INIT,
-    payload: {
-      isShortcut: true, // We only have shortcut based "cut" operation today.
-    },
+  const selectedWidget = yield select(getSelectedWidget);
+  if (!selectedWidget) {
+    Toaster.show({
+      text: `Please select a widget to cut`,
+      variant: Variant.info,
+    });
+    return;
+  }
+
+  const saveResult = yield createWidgetCopy();
+
+  const eventName = "WIDGET_CUT_VIA_SHORTCUT"; // cut only supported through a shortcut
+  AnalyticsUtil.logEvent(eventName, {
+    widgetName: selectedWidget.widgetName,
+    widgetType: selectedWidget.type,
   });
+
+  if (saveResult) {
+    Toaster.show({
+      text: `Cut ${selectedWidget.widgetName}`,
+      variant: Variant.success,
+    });
+  }
+
   yield put({
     type: ReduxActionTypes.WIDGET_DELETE,
     payload: {
@@ -1036,9 +1177,7 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       isLoading: false,
       props: {
         tableData: `{{${queryName}.data}}`,
-        dynamicBindings: {
-          tableData: true,
-        },
+        dynamicBindingPathList: [{ key: "tableData" }],
       },
     };
     const {
@@ -1079,10 +1218,44 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
     });
     yield put(forceOpenPropertyPane(newWidget.newWidgetId));
   } catch (error) {
-    AppToaster.show({
-      message: "Failed to add the widget",
-      type: "error",
+    Toaster.show({
+      text: "Failed to add the widget",
+      variant: Variant.danger,
     });
+  }
+}
+
+// The following is computed to be used in the entity explorer
+// Every time a widget is selected, we need to expand widget entities
+// in the entity explorer so that the selected widget is visible
+function* selectedWidgetAncestorySaga(
+  action: ReduxAction<{ widgetId: string }>,
+) {
+  try {
+    const canvasWidgets = yield select(getWidgets);
+    const widgetIdsExpandList = [];
+    const selectedWidget = action.payload.widgetId;
+
+    // Make sure that the selected widget exists in canvasWidgets
+    let widgetId = canvasWidgets[selectedWidget]
+      ? canvasWidgets[selectedWidget].parentId
+      : undefined;
+    // If there is a parentId for the selectedWidget
+    if (widgetId) {
+      // Keep including the parent until we reach the main container
+      while (widgetId !== MAIN_CONTAINER_WIDGET_ID) {
+        widgetIdsExpandList.push(widgetId);
+        if (canvasWidgets[widgetId] && canvasWidgets[widgetId].parentId)
+          widgetId = canvasWidgets[widgetId].parentId;
+        else break;
+      }
+    }
+    yield put({
+      type: ReduxActionTypes.SET_SELECTED_WIDGET_ANCESTORY,
+      payload: widgetIdsExpandList,
+    });
+  } catch (error) {
+    log.debug("Could not compute selected widget's ancestory", error);
   }
 }
 
@@ -1114,5 +1287,6 @@ export default function* widgetOperationSagas() {
     takeEvery(ReduxActionTypes.UNDO_DELETE_WIDGET, undoDeleteSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
+    takeLatest(ReduxActionTypes.SELECT_WIDGET, selectedWidgetAncestorySaga),
   ]);
 }

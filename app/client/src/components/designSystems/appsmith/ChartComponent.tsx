@@ -1,14 +1,23 @@
-import React from "react";
-import { ChartType, ChartData, ChartDataPoint } from "widgets/ChartWidget";
-import styled from "styled-components";
-import { invisible } from "constants/DefaultTheme";
 import _ from "lodash";
+import React from "react";
+import styled from "styled-components";
+
+import { invisible } from "constants/DefaultTheme";
+import { getAppsmithConfigs } from "configs";
+import { ChartType, ChartData, ChartDataPoint } from "widgets/ChartWidget";
+
 const FusionCharts = require("fusioncharts");
 const Charts = require("fusioncharts/fusioncharts.charts");
 const FusionTheme = require("fusioncharts/themes/fusioncharts.theme.fusion");
+
+const { fusioncharts } = getAppsmithConfigs();
 Charts(FusionCharts);
 FusionTheme(FusionCharts);
-FusionCharts.options.creditLabel = false;
+
+FusionCharts.options.license({
+  key: fusioncharts.licenseKey,
+  creditLabel: false,
+});
 
 export interface ChartComponentProps {
   chartType: ChartType;
@@ -148,10 +157,10 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   getChartDataset = (chartData: ChartData[]) => {
     const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
     return chartData.map((item: ChartData) => {
-      const seriesChartData: object[] = this.getSeriesChartData(
-        item.data,
-        categories,
-      );
+      const seriesChartData: Array<Record<
+        string,
+        unknown
+      >> = this.getSeriesChartData(item.data, categories);
       return {
         seriesName: item.seriesName,
         data: seriesChartData,
@@ -231,7 +240,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   componentDidMount() {
     this.createGraph();
     FusionCharts.ready(() => {
-      /* Component could be unmounted before FusionCharts is ready, 
+      /* Component could be unmounted before FusionCharts is ready,
       this check ensure we don't render on unmounted component */
       if (this.chartInstance) {
         this.chartInstance.render();

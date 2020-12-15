@@ -10,8 +10,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 export const bindingHint: HintHelper = (editor, data) => {
   const ternServer = new TernServer(data);
   editor.setOption("extraKeys", {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: No types available
     ...editor.options.extraKeys,
     [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: (cm: CodeMirror.Editor) =>
       ternServer.complete(cm),
@@ -66,8 +66,8 @@ export const bindingHint: HintHelper = (editor, data) => {
         AnalyticsUtil.logEvent("AUTO_COMPELTE_SHOW", {});
         ternServer.complete(editor);
       } else {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
         editor.closeHint();
       }
     },

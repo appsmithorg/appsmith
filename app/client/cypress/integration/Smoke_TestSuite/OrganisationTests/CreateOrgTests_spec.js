@@ -29,7 +29,9 @@ describe("Create new org and share with a user", function() {
     cy.wait(2000);
     cy.get(homePage.appsContainer).contains(orgid);
     cy.xpath(homePage.ShareBtn).should("not.exist");
-    cy.get(homePage.applicationCard).trigger("mouseover");
+    cy.get(homePage.applicationCard)
+      .first()
+      .trigger("mouseover");
     cy.get(homePage.appEditIcon).should("not.exist");
     cy.launchApp(appid);
     cy.LogOut();
@@ -62,7 +64,9 @@ describe("Create new org and share with a user", function() {
     cy.xpath(homePage.ShareBtn)
       .first()
       .should("be.visible");
-    cy.get(homePage.applicationCard).trigger("mouseover");
+    cy.get(homePage.applicationCard)
+      .first()
+      .trigger("mouseover");
     cy.get(homePage.appEditIcon)
       .first()
       .click({ force: true });

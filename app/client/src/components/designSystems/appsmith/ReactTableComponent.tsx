@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-types */
+
 import React, { useEffect } from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import Table from "components/designSystems/appsmith/Table";
@@ -9,6 +11,8 @@ import {
   ReactTableColumnProps,
   ReactTableFilter,
 } from "widgets/TableWidget";
+import { EventType } from "constants/ActionConstants";
+import produce from "immer";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -42,16 +46,16 @@ interface ReactTableComponentProps {
   width: number;
   height: number;
   pageSize: number;
-  tableData: object[];
+  tableData: Array<Record<string, unknown>>;
   columnOrder?: string[];
   disableDrag: (disable: boolean) => void;
-  onRowClick: (rowData: object, rowIndex: number) => void;
+  onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
-  updatePageNo: Function;
+  updatePageNo: (pageNo: number, event?: EventType) => void;
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
   sortTableColumn: (column: string, asc: boolean) => void;
-  nextPageClick: Function;
-  prevPageClick: Function;
+  nextPageClick: () => void;
+  prevPageClick: () => void;
   pageNo: number;
   serverSidePaginationEnabled: boolean;
   columnActions?: ColumnAction[];
@@ -68,10 +72,12 @@ interface ReactTableComponentProps {
     };
   };
   columnSizeMap?: { [key: string]: number };
-  updateColumnType: Function;
-  updateColumnName: Function;
-  handleResizeColumn: Function;
-  handleReorderColumn: Function;
+  updateColumnType: (columnTypeMap: {
+    [key: string]: { type: string; format: string };
+  }) => void;
+  updateColumnName: (columnNameMap: { [key: string]: string }) => void;
+  handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
+  handleReorderColumn: (columnOrder: string[]) => void;
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
@@ -141,10 +147,9 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
         header.parentElement.className = "th header-reorder";
         if (i !== dragged && dragged !== -1) {
           e.preventDefault();
-          let columnOrder = props.columnOrder;
-          if (columnOrder === undefined) {
-            columnOrder = props.columns.map(item => item.accessor);
-          }
+          const columnOrder = props.columnOrder
+            ? [...props.columnOrder]
+            : props.columns.map(item => item.accessor);
           const draggedColumn = props.columns[dragged].accessor;
           columnOrder.splice(dragged, 1);
           columnOrder.splice(i, 0, draggedColumn);
@@ -270,14 +275,20 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
 
   const handleResizeColumn = (columnIndex: number, columnWidth: string) => {
     const column = props.columns[columnIndex];
-    const columnSizeMap = props.columnSizeMap || {};
     const width = Number(columnWidth.split("px")[0]);
-    columnSizeMap[column.accessor] = width;
+    const columnSizeMap = props.columnSizeMap
+      ? {
+          ...props.columnSizeMap,
+          [column.accessor]: width,
+        }
+      : {
+          [column.accessor]: width,
+        };
     props.handleResizeColumn(columnSizeMap);
   };
 
   const selectTableRow = (
-    row: { original: object; index: number },
+    row: { original: Record<string, unknown>; index: number },
     isSelected: boolean,
   ) => {
     if (!isSelected || !!props.multiRowSelection) {

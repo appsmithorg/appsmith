@@ -1,10 +1,10 @@
 import React from "react";
 import Icon, { IconSize, IconCollection } from "components/ads/Icon";
-import Button, { Size, Category, Variant } from "components/ads/Button";
+import Button, { Size, Category } from "components/ads/Button";
 import { withKnobs, select, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import AppIcon, { AppIconCollection } from "components/ads/AppIcon";
-import { StoryWrapper } from "components/ads/common";
+import { StoryWrapper, Variant } from "components/ads/common";
 
 export default {
   title: "Icon",

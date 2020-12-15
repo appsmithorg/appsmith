@@ -1,18 +1,23 @@
 import React, { useCallback } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { noop } from "lodash";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
+import { AppState } from "reducers";
 
 export const WidgetContextMenu = (props: {
   widgetId: string;
-  parentId: string;
+  pageId: string;
   className?: string;
 }) => {
-  const { parentId, widgetId } = props;
+  const { widgetId } = props;
+  const parentId = useSelector((state: AppState) => {
+    // console.log(state.ui.pageWidgets[props.pageId], props.widgetId);
+    return state.ui.pageWidgets[props.pageId][props.widgetId].parentId;
+  });
   const dispatch = useDispatch();
   const dispatchDelete = useCallback(() => {
     dispatch({

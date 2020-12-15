@@ -2,12 +2,14 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -17,8 +19,10 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -35,13 +39,16 @@ public class ElasticSearchPluginTest {
                     .withEnv("discovery.type", "single-node");
 
     private static final DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+    private static String host;
+    private static Integer port;
 
     @BeforeClass
     public static void setUp() throws IOException {
-        final Integer port = container.getMappedPort(9200);
+        port = container.getMappedPort(9200);
+        host = "http://" + container.getContainerIpAddress();
 
         final RestClient client = RestClient.builder(
-                new HttpHost("localhost", port, "http")
+                new HttpHost(container.getContainerIpAddress(), port, "http")
         ).build();
 
         Request request;
@@ -60,7 +67,7 @@ public class ElasticSearchPluginTest {
 
         client.close();
 
-        dsConfig.setEndpoints(List.of(new Endpoint("localhost", port.longValue())));
+        dsConfig.setEndpoints(List.of(new Endpoint(host, port.longValue())));
     }
 
     private Mono<ActionExecutionResult> execute(HttpMethod method, String path, String body) {
@@ -203,4 +210,81 @@ public class ElasticSearchPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void itShouldValidateDatasourceWithNoEndpoints() {
+        DatasourceConfiguration invalidDatasourceConfiguration = new DatasourceConfiguration();
+
+        Assert.assertEquals(Set.of("No endpoint provided. Please provide a host:port where ElasticSearch is reachable."),
+                pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithEmptyPort() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost(host);
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        Assert.assertEquals(Set.of("Missing port for endpoint"),
+                pluginExecutor.validateDatasource(datasourceConfiguration));
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithEmptyHost() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Endpoint endpoint = new Endpoint();
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        Assert.assertEquals(Set.of("Missing host for endpoint"),
+                pluginExecutor.validateDatasource(datasourceConfiguration));
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithMissingEndpoint() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+
+        Endpoint endpoint = new Endpoint();
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        Assert.assertEquals(Set.of("Missing port for endpoint", "Missing host for endpoint"),
+                pluginExecutor.validateDatasource(datasourceConfiguration));
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithEndpointNoProtocol() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("localhost");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        Assert.assertEquals(Set.of("Invalid host provided. It should be of the form http(s)://your-es-url.com"),
+                pluginExecutor.validateDatasource(datasourceConfiguration)
+        );
+    }
+
+    @Test
+    public void itShouldTestDatasourceWithInvalidEndpoint() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("localhost");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
+                .assertNext(result -> {
+                    assertFalse(result.getInvalids().isEmpty());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void itShouldTestDatasource() {
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .assertNext(result -> {
+                    assertTrue(result.getInvalids().isEmpty());
+                })
+                .verifyComplete();
+    }
 }

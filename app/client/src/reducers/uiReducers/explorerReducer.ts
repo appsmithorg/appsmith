@@ -27,6 +27,23 @@ const setEntityUpdateSuccess = () => {
   return {};
 };
 
+const setUpdatingDatasourceEntity = (
+  state: ExplorerReduxState,
+  action: ReduxAction<{ id: string }>,
+) => {
+  const pathParts = window.location.pathname.split("/");
+  const pageId = pathParts[pathParts.indexOf("pages") + 1];
+
+  if (!state.updatingEntity?.includes(action.payload.id)) {
+    return {
+      updatingEntity: `${action.payload.id}-${pageId}`,
+      updateEntityError: undefined,
+    };
+  }
+
+  return state;
+};
+
 const explorerReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_PAGE_INIT]: setUpdatingEntity,
   [ReduxActionTypes.FETCH_PAGE_ERROR]: setEntityUpdateError,
@@ -48,19 +65,19 @@ const explorerReducer = createReducer(initialState, {
   [ReduxActionErrorTypes.DELETE_ACTION_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.DELETE_ACTION_SUCCESS]: setEntityUpdateSuccess,
 
-  [ReduxActionTypes.DELETE_DATASOURCE_INIT]: setUpdatingEntity,
+  [ReduxActionTypes.DELETE_DATASOURCE_INIT]: setUpdatingDatasourceEntity,
   [ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.DELETE_DATASOURCE_SUCCESS]: setEntityUpdateSuccess,
 
-  [ReduxActionTypes.UPDATE_DATASOURCE_INIT]: setUpdatingEntity,
+  [ReduxActionTypes.UPDATE_DATASOURCE_INIT]: setUpdatingDatasourceEntity,
   [ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS]: setEntityUpdateSuccess,
 
-  [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT]: setUpdatingEntity,
+  [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT]: setUpdatingDatasourceEntity,
   [ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS]: setEntityUpdateSuccess,
 
-  [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT]: setUpdatingEntity,
+  [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT]: setUpdatingDatasourceEntity,
   [ReduxActionErrorTypes.REFRESH_DATASOURCE_STRUCTURE_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_SUCCESS]: setEntityUpdateSuccess,
 

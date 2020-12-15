@@ -9,6 +9,7 @@ import {
   EventType,
   ExecuteActionPayload,
   ExecuteActionPayloadEvent,
+  EXECUTION_PARAM_KEY,
   PageAction,
 } from "constants/ActionConstants";
 import * as log from "loglevel";
@@ -27,7 +28,6 @@ import {
   ActionDescription,
   RunActionPayload,
 } from "entities/DataTree/dataTreeFactory";
-import { AppToaster } from "components/editorComponents/ToastComponent";
 import { executeAction, executeActionError } from "actions/widgetActions";
 import {
   getCurrentApplicationId,
@@ -64,13 +64,15 @@ import {
 import { AppState } from "reducers";
 import { mapToPropList } from "utils/AppsmithUtils";
 import { validateResponse } from "sagas/ErrorSagas";
-import { ToastType } from "react-toastify";
+import { TypeOptions } from "react-toastify";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 import { updateAppStore } from "actions/pageActions";
 import { getAppStoreName } from "constants/AppConstants";
 import downloadjs from "downloadjs";
 import { getType, Types } from "utils/TypeHelpers";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -146,9 +148,9 @@ async function downloadSaga(
   try {
     const { data, name, type } = action;
     if (!name) {
-      AppToaster.show({
-        message: "Download failed. File name was not provided",
-        type: "error",
+      Toaster.show({
+        text: "Download failed. File name was not provided",
+        variant: Variant.danger,
       });
 
       if (event.callback) event.callback({ success: false });
@@ -163,12 +165,50 @@ async function downloadSaga(
     }
     if (event.callback) event.callback({ success: true });
   } catch (err) {
-    AppToaster.show({
-      message: `Download failed. ${err}`,
-      type: "error",
+    Toaster.show({
+      text: `Download failed. ${err}`,
+      variant: Variant.danger,
     });
     if (event.callback) event.callback({ success: false });
   }
+}
+
+function* showAlertSaga(
+  payload: { message: string; style?: TypeOptions },
+  event: ExecuteActionPayloadEvent,
+) {
+  if (typeof payload.message !== "string") {
+    console.error("Toast message needs to be a string");
+    if (event.callback) event.callback({ success: false });
+    return;
+  }
+  let variant;
+  switch (payload.style) {
+    case "info":
+      variant = Variant.info;
+      break;
+    case "success":
+      variant = Variant.success;
+      break;
+    case "warning":
+      variant = Variant.warning;
+      break;
+    case "error":
+      variant = Variant.danger;
+      break;
+  }
+  if (payload.style && !variant) {
+    console.error(
+      "Toast type needs to be a one of " + Object.values(Variant).join(", "),
+    );
+    if (event.callback) event.callback({ success: false });
+    return;
+  }
+  Toaster.show({
+    text: payload.message,
+    variant: variant,
+  });
+  if (event.callback) event.callback({ success: true });
 }
 
 export const getActionTimeout = (
@@ -200,62 +240,35 @@ const isErrorResponse = (response: ActionApiResponse) => {
   return !response.data.isExecutionSuccess;
 };
 
-export function* evaluateDynamicBoundValueSaga(path: string): any {
-  return yield call(evaluateSingleValue, `{{${path}}}`);
+export function* evaluateDynamicBoundValueSaga(
+  valueToEvaluate: string,
+  params?: Record<string, unknown>,
+): any {
+  return yield call(evaluateSingleValue, `{{${valueToEvaluate}}}`, params);
 }
 
-const EXECUTION_PARAM_PATH = "this.params";
-const getExecutionParamPath = (key: string) => `${EXECUTION_PARAM_PATH}.${key}`;
+const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
 
 export function* getActionParams(
   bindings: string[] | undefined,
   executionParams?: Record<string, any>,
 ) {
   if (_.isNil(bindings)) return [];
-  let dataTreeBindings = bindings;
+  const evaluatedExecutionParams = yield evaluateDynamicBoundValueSaga(
+    JSON.stringify(executionParams),
+  );
 
-  if (executionParams && Object.keys(executionParams).length) {
-    // List of params in the path format
-    const executionParamsPathList = Object.keys(executionParams).map(
-      getExecutionParamPath,
-    );
-    const paramSearchRegex = new RegExp(executionParamsPathList.join("|"), "g");
-    // Bindings with references to execution params
-    const executionBindings = bindings.filter(binding =>
-      paramSearchRegex.test(binding),
-    );
+  const bindingsForExecutionParams = bindings.map(binding =>
+    binding.replace(EXECUTION_PARAM_REFERENCE_REGEX, EXECUTION_PARAM_KEY),
+  );
 
-    // Replace references with values
-    const replacedBindings = executionBindings.map(binding => {
-      let replaced = binding;
-      const matches = binding.match(paramSearchRegex);
-      if (matches && matches.length) {
-        matches.forEach(match => {
-          // we add one for substring index to account for '.'
-          const paramKey = match.substring(EXECUTION_PARAM_PATH.length + 1);
-          let paramValue = executionParams[paramKey];
-          if (paramValue) {
-            if (typeof paramValue === "object") {
-              paramValue = JSON.stringify(paramValue);
-            }
-            replaced = replaced.replace(match, paramValue);
-          }
-        });
-      }
-      return replaced;
-    });
-    // Replace binding with replaced bindings for evaluation
-    dataTreeBindings = dataTreeBindings.map(key => {
-      if (executionBindings.includes(key)) {
-        return replacedBindings[executionBindings.indexOf(key)];
-      }
-      return key;
-    });
-  }
-  // Evaluate all values
   const values: any = yield all(
-    dataTreeBindings.map((binding: string) => {
-      return call(evaluateDynamicBoundValueSaga, binding);
+    bindingsForExecutionParams.map((binding: string) => {
+      return call(
+        evaluateDynamicBoundValueSaga,
+        binding,
+        evaluatedExecutionParams,
+      );
     }),
   );
   // convert to object and transform non string values
@@ -359,7 +372,7 @@ export function* executeActionSaga(
               ...event,
               type: EventType.ON_ERROR,
             },
-            responseData: payload,
+            responseData: [payload.body, params],
           }),
         );
       } else {
@@ -367,10 +380,9 @@ export function* executeActionSaga(
           event.callback({ success: false });
         }
       }
-      AppToaster.show({
-        message:
-          api.name + " failed to execute. Please check it's configuration",
-        type: "error",
+      Toaster.show({
+        text: api.name + " failed to execute. Please check it's configuration",
+        variant: Variant.danger,
       });
     } else {
       PerformanceTracker.stopAsyncTracking(
@@ -386,7 +398,7 @@ export function* executeActionSaga(
               ...event,
               type: EventType.ON_SUCCESS,
             },
-            responseData: payload,
+            responseData: [payload.body, params],
           }),
         );
       } else {
@@ -403,9 +415,9 @@ export function* executeActionSaga(
         error,
       }),
     );
-    AppToaster.show({
-      message: "Action execution failed",
-      type: "error",
+    Toaster.show({
+      text: "Action execution failed",
+      variant: Variant.danger,
     });
     if (onError) {
       yield put(
@@ -415,7 +427,7 @@ export function* executeActionSaga(
             ...event,
             type: EventType.ON_ERROR,
           },
-          responseData: {},
+          responseData: [],
         }),
       );
     } else {
@@ -439,11 +451,7 @@ function* executeActionTriggers(
         yield call(navigateActionSaga, trigger.payload, event);
         break;
       case "SHOW_ALERT":
-        AppToaster.show({
-          message: trigger.payload.message,
-          type: trigger.payload.style,
-        });
-        if (event.callback) event.callback({ success: true });
+        yield call(showAlertSaga, trigger.payload, event);
         break;
       case "SHOW_MODAL_BY_NAME":
         yield put(trigger);
@@ -575,14 +583,14 @@ function* runActionSaga(
         payload: { [actionId]: payload },
       });
       if (payload.isExecutionSuccess) {
-        AppToaster.show({
-          message: "Action ran successfully",
-          type: ToastType.SUCCESS,
+        Toaster.show({
+          text: "Action ran successfully",
+          variant: Variant.success,
         });
       } else {
-        AppToaster.show({
-          message: "Action returned an error response",
-          type: ToastType.WARNING,
+        Toaster.show({
+          text: "Action returned an error response",
+          variant: Variant.warning,
         });
       }
     } else {
@@ -681,6 +689,7 @@ function* executePageLoadAction(pageAction: PageAction) {
         isPageLoad: true,
       }),
     );
+    yield take(ReduxActionTypes.SET_EVALUATED_TREE);
   }
 }
 
@@ -703,9 +712,9 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     );
   } catch (e) {
     log.error(e);
-    AppToaster.show({
-      message: "Failed to load onPageLoad actions",
-      type: ToastType.ERROR,
+    Toaster.show({
+      text: "Failed to load onPageLoad actions",
+      variant: Variant.danger,
     });
   }
 }

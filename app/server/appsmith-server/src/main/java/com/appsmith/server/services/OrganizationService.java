@@ -20,7 +20,7 @@ public interface OrganizationService extends CrudService<Organization, String> {
 
     Mono<String> getNextUniqueSlug(String initialSlug);
 
-    Mono<Organization> createPersonal(Organization organization, User user);
+    Mono<Organization> createDefault(Organization organization, User user);
 
     Mono<Organization> create(Organization organization, User user);
 
@@ -37,4 +37,6 @@ public interface OrganizationService extends CrudService<Organization, String> {
     Mono<List<UserRole>> getOrganizationMembers(String orgId);
 
     Mono<Organization> uploadLogo(String organizationId, Part filePart);
+
+    Mono<Organization> deleteLogo(String organizationId);
 }

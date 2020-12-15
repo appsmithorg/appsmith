@@ -15,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import redis.clients.jedis.Jedis;
@@ -25,7 +26,7 @@ import java.util.Set;
 @Slf4j
 public class RedisPluginTest {
     @ClassRule
-    public static final GenericContainer redis = new GenericContainer("redis:5.0.3-alpine")
+    public static final GenericContainer redis = new GenericContainer(DockerImageName.parse("redis:5.0.3-alpine"))
             .withExposedPorts(6379);
     private static String host;
     private static Integer port;
@@ -65,7 +66,8 @@ public class RedisPluginTest {
     public void itShouldValidateDatasourceWithNoEndpoints() {
         DatasourceConfiguration invalidDatasourceConfiguration = new DatasourceConfiguration();
 
-        Assert.assertEquals(pluginExecutor.validateDatasource(invalidDatasourceConfiguration), Set.of("Missing endpoint(s)"));
+        Assert.assertEquals(Set.of("Missing endpoint(s)"),
+                pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
     @Test
@@ -75,7 +77,19 @@ public class RedisPluginTest {
         Endpoint endpoint = new Endpoint();
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        Assert.assertEquals(pluginExecutor.validateDatasource(invalidDatasourceConfiguration), Set.of("Missing host for endpoint"));
+        Assert.assertEquals(Set.of("Missing port for endpoint", "Missing host for endpoint"),
+                pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithEmptyPort() {
+        DatasourceConfiguration invalidDatasourceConfiguration = new DatasourceConfiguration();
+
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("test-host");
+        invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        Assert.assertEquals(pluginExecutor.validateDatasource(invalidDatasourceConfiguration), Set.of("Missing port for endpoint"));
     }
 
     @Test
@@ -91,8 +105,9 @@ public class RedisPluginTest {
         invalidDatasourceConfiguration.setAuthentication(invalidAuth);
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        Assert.assertEquals(pluginExecutor.validateDatasource(invalidDatasourceConfiguration),
-                Set.of("Missing username for authentication.", "Missing password for authentication.")
+        Assert.assertEquals(
+                Set.of("Missing port for endpoint", "Missing username for authentication.", "Missing password for authentication."),
+                pluginExecutor.validateDatasource(invalidDatasourceConfiguration)
         );
     }
 
@@ -107,7 +122,7 @@ public class RedisPluginTest {
 
         Endpoint endpoint = new Endpoint();
         endpoint.setHost("test-host");
-
+        endpoint.setPort(Long.valueOf(port));
         datasourceConfiguration.setAuthentication(auth);
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
@@ -174,7 +189,7 @@ public class RedisPluginTest {
                     Assert.assertNotNull(actionExecutionResult);
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    Assert.assertEquals(node.get("result").asText(), "PONG");
+                    Assert.assertEquals("PONG", node.get("result").asText());
                 }).verifyComplete();
     }
 
@@ -193,7 +208,7 @@ public class RedisPluginTest {
                     Assert.assertNotNull(actionExecutionResult);
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    Assert.assertEquals(node.get("result").asText(), "null");
+                    Assert.assertEquals("null", node.get("result").asText());
                 }).verifyComplete();
 
         // Setting a key
@@ -206,7 +221,7 @@ public class RedisPluginTest {
                     Assert.assertNotNull(actionExecutionResult);
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    Assert.assertEquals(node.get("result").asText(), "OK");
+                    Assert.assertEquals("OK", node.get("result").asText());
                 }).verifyComplete();
 
         // Getting the key
@@ -217,7 +232,7 @@ public class RedisPluginTest {
                     Assert.assertNotNull(actionExecutionResult);
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    Assert.assertEquals(node.get("result").asText(), "value");
+                    Assert.assertEquals("value", node.get("result").asText());
                 }).verifyComplete();
     }
 }

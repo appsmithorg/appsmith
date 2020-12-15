@@ -31,6 +31,7 @@ const FIELD_VALUES: Record<
     exportPDF: "boolean",
     exportExcel: "boolean",
     exportCsv: "boolean",
+    defaultSelectedRow: "string",
     // onRowSelected: "Function Call",
     // onPageChange: "Function Call",
   },
@@ -43,6 +44,7 @@ const FIELD_VALUES: Record<
     image: "string",
     defaultImage: "string",
     isVisible: "boolean",
+    maxZoomLevel: "number",
   },
   RADIO_GROUP_WIDGET: {
     options: "Array<{ label: string, value: string }>",

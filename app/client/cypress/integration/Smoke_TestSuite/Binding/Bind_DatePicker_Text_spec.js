@@ -117,6 +117,36 @@ describe("Binding the Datepicker and Text Widget", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
+  it("Checks if on deselection of date triggers the onDateSelected action or not.", function() {
+    /**
+     * bind datepicker to show a message "Hello" on date selected
+     */
+    cy.openPropertyPane("datepickerwidget");
+    cy.get(commonlocators.onDateSelectedField).click();
+    cy.get(commonlocators.singleSelectMenuItem)
+      .contains("Show Message")
+      .click({ force: true });
+    cy.getAlert(commonlocators.optionchangetextDatePicker);
+
+    /**
+     * checking if on selecting the date triggers the message
+     */
+    cy.get(formWidgetsPage.datepickerWidget)
+      .first()
+      .click();
+    cy.SetDateToToday();
+    cy.get(commonlocators.toastmsg).contains("hello");
+
+    /**
+     * checking if on deselecting the date triggers the message or not.
+     * It should not trigger any message on deselection
+     */
+    cy.get(formWidgetsPage.datepickerFooter)
+      .contains("Clear")
+      .click();
+    cy.get(commonlocators.toastmsg).should("not.exist");
+  });
+
   afterEach(() => {
     // put your clean up code if any
   });

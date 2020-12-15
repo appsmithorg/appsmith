@@ -11,7 +11,7 @@ version: "3.7"
 
 services:
   nginx:
-    image: appsmith/appsmith-editor
+    image: index.docker.io/appsmith/appsmith-editor
     env_file: ./docker.env
     ports:
       - "80:80"
@@ -38,7 +38,7 @@ services:
       - appsmith
 
   appsmith-internal-server:
-    image: appsmith/appsmith-server:latest
+    image: index.docker.io/appsmith/appsmith-server
     env_file:
       - ./docker.env
       - ./encryption.env

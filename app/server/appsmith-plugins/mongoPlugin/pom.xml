@@ -44,11 +44,6 @@
             <version>1.18.8</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>3.11.1</version>
-        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>

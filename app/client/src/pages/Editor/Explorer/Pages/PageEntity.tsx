@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import { Page } from "constants/ReduxActionConstants";
 import Entity, { EntityClassNames } from "../Entity";
 import { useParams } from "react-router";
@@ -9,22 +9,26 @@ import { updatePage } from "actions/pageActions";
 import PageContextMenu from "./PageContextMenu";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { WidgetProps } from "widgets/BaseWidget";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 import { homePageIcon, pageIcon } from "../ExplorerIcons";
-import { getActionGroups } from "../Actions/helpers";
+import { getPluginGroups } from "../Actions/helpers";
 import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
 import { resolveAsSpaceChar } from "utils/helpers";
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
+import { Datasource } from "api/DatasourcesApi";
+import { Plugin } from "api/PluginApi";
 
 type ExplorerPageEntityProps = {
   page: Page;
-  widgets?: WidgetProps;
+  widgets?: CanvasStructure;
   actions: any[];
+  datasources: Datasource[];
+  plugins: Plugin[];
   step: number;
   searchKeyword?: string;
-  showWidgetsSidebar: () => void;
+  showWidgetsSidebar: (pageId: string) => void;
 };
-export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
+export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
   const params = useParams<ExplorerURLParams>();
 
   const currentPageId = useSelector((state: AppState) => {
@@ -51,8 +55,10 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
 
   const icon = props.page.isDefault ? homePageIcon : pageIcon;
 
-  let addWidgetsFn;
-  if (isCurrentPage) addWidgetsFn = props.showWidgetsSidebar;
+  const addWidgetsFn = useCallback(
+    () => props.showWidgetsSidebar(props.page.pageId),
+    [props.page.pageId],
+  );
 
   return (
     <Entity
@@ -76,16 +82,21 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
         addWidgetsFn={addWidgetsFn}
       />
 
-      {getActionGroups(
+      {getPluginGroups(
         props.page,
         props.step + 1,
         props.actions as DataTreeAction[],
+        props.datasources,
+        props.plugins,
         props.searchKeyword,
       )}
     </Entity>
   );
-};
+});
 
 ExplorerPageEntity.displayName = "ExplorerPageEntity";
+(ExplorerPageEntity as any).whyDidYouRender = {
+  logOnDifferentValues: false,
+};
 
 export default ExplorerPageEntity;

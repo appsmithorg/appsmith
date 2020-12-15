@@ -1,6 +1,8 @@
 import Api from "./Api";
 import { ApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
+import { AppColorCode } from "constants/DefaultTheme";
+import { AppIconName } from "components/ads/AppIcon";
 
 export interface PublishApplicationRequest {
   applicationId: string;
@@ -12,7 +14,7 @@ export interface ChangeAppViewAccessRequest {
 }
 
 export interface PublishApplicationResponse extends ApiResponse {
-  data: {};
+  data: unknown;
 }
 
 export interface ApplicationPagePayload {
@@ -44,6 +46,8 @@ export interface CreateApplicationResponse extends ApiResponse {
 export interface CreateApplicationRequest {
   name: string;
   orgId: string;
+  color?: AppColorCode;
+  icon?: AppIconName;
 }
 
 export interface SetDefaultPageRequest {
@@ -67,6 +71,7 @@ export type UpdateApplicationPayload = {
   icon?: string;
   color?: string;
   name?: string;
+  currentApp?: boolean;
 };
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {
@@ -83,12 +88,19 @@ export interface ApplicationObject {
   userPermissions: string[];
 }
 
+export interface UserRoles {
+  name: string;
+  roleName: string;
+  username: string;
+}
+
 export interface OrganizationApplicationObject {
   applications: Array<ApplicationObject>;
   organization: {
     id: string;
     name: string;
   };
+  userRoles: Array<UserRoles>;
 }
 export interface FetchUsersApplicationsOrgsResponse extends ApiResponse {
   data: {
@@ -141,7 +153,7 @@ class ApplicationApi extends Api {
     return Api.post(
       ApplicationApi.baseURL +
         ApplicationApi.createApplicationPath(request.orgId),
-      { name: request.name },
+      { name: request.name, color: request.color, icon: request.icon },
     );
   }
 

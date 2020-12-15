@@ -458,10 +458,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     final String templateOrganizationId = tuple.getT2();
 
                     if (!StringUtils.hasText(templateOrganizationId)) {
-                        // Since template organization is not configured, we create an empty personal organization.
+                        // Since template organization is not configured, we create an empty default organization.
                         final User savedUser = tuple.getT1();
-                        log.debug("Creating blank personal organization for user '{}'.", savedUser.getEmail());
-                        return organizationService.createPersonal(new Organization(), savedUser);
+                        log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
+                        return organizationService.createDefault(new Organization(), savedUser);
                     }
 
                     return Mono.empty();
@@ -472,10 +472,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     /**
      * This function creates a new user in the system. Primarily used by new users signing up for the first time on the
-     * platform. This flow also ensures that a personal workspace name is created for the user. The new user is then
-     * given admin permissions to the personal workspace.
+     * platform. This flow also ensures that a default organization name is created for the user. The new user is then
+     * given admin permissions to the default organization.
      * <p>
-     * For new user invite flow, please {@link UserService#inviteUser(InviteUsersDTO, String)}
+     * For new user invite flow, please {@link UserService#inviteUsers(InviteUsersDTO, String)}
      *
      * @param user User object representing the user to be created/enabled.
      * @return Publishes the user object, after having been saved.
@@ -568,7 +568,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * @return Publishes the invited users, after being saved with the new organization ID.
      */
     @Override
-    public Flux<User> inviteUser(InviteUsersDTO inviteUsersDTO, String originHeader) {
+    public Flux<User> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader) {
 
         if (originHeader == null || originHeader.isBlank()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
@@ -633,16 +633,12 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                                 log.debug("Going to send email to user {} informing that the user has been added to new organization {}",
                                         existingUser.getEmail(), organization.getName());
                                 params.put("inviteUrl", originHeader);
-                                Mono<String> emailMono = emailSender.sendMail(existingUser.getEmail(),
+                                Mono<Boolean> emailMono = emailSender.sendMail(existingUser.getEmail(),
                                         "Appsmith: You have been added to a new organization",
                                         USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE, params);
 
                                 return emailMono
-                                        .thenReturn(existingUser)
-                                        .onErrorResume(error -> {
-                                            log.error("Unable to send invite user email to {}. Cause: ", existingUser.getEmail(), error);
-                                            return Mono.just(existingUser);
-                                        });
+                                        .thenReturn(existingUser);
                             })
                             .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, params));
                 })
@@ -694,7 +690,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         // user was invited.
         newUser.setInviteToken(UUID.randomUUID().toString());
 
-        // Call user service's userCreate function so that the personal organization, etc are also created along with assigning basic permissions.
+        // Call user service's userCreate function so that the default organization, etc are also created along with assigning basic permissions.
         return userCreate(newUser)
                 .flatMap(createdUser -> {
                     log.debug("Going to send email for invite user to {}", createdUser.getEmail());
@@ -705,15 +701,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     );
 
                     params.put("inviteUrl", inviteUrl);
-                    Mono<String> emailMono = emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, params);
+                    Mono<Boolean> emailMono = emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, params);
 
                     // We have sent out the emails. Just send back the saved user.
                     return emailMono
-                            .thenReturn(createdUser)
-                            .onErrorResume(error -> {
-                                log.error("Unable to send invite user email to {}. Cause: ", createdUser.getEmail(), error);
-                                return Mono.just(createdUser);
-                            });
+                            .thenReturn(createdUser);
                 });
     }
 

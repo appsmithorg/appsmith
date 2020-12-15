@@ -5,8 +5,6 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { WidgetProps } from "widgets/BaseWidget";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import moment from "moment";
 
 const initialState: EditorReduxState = {
@@ -63,18 +61,6 @@ const editorReducer = createReducer(initialState, {
       isPageSwitching: false,
     },
   }),
-  [ReduxActionErrorTypes.INITIALIZE_EDITOR_ERROR]: (
-    state: EditorReduxState,
-  ) => {
-    return {
-      ...state,
-      loadingStates: {
-        ...state.loadingStates,
-        loading: false,
-        loadingError: true,
-      },
-    };
-  },
   [ReduxActionTypes.PUBLISH_APPLICATION_INIT]: (state: EditorReduxState) => {
     state.loadingStates.publishing = true;
     state.loadingStates.publishingError = false;
@@ -178,7 +164,6 @@ const editorReducer = createReducer(initialState, {
 
 export interface EditorReduxState {
   initialized: boolean;
-  dsl?: ContainerWidgetProps<WidgetProps>;
   pageWidgetId?: string;
   currentLayoutId?: string;
   currentPageName?: string;

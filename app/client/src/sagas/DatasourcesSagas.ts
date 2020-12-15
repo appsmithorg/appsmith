@@ -8,7 +8,7 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import { change, initialize, getFormValues } from "redux-form";
-import _ from "lodash";
+import _, { merge } from "lodash";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -27,11 +27,11 @@ import {
 } from "selectors/entitiesSelector";
 import {
   selectPlugin,
-  createDatasource,
   changeDatasource,
   setDatsourceEditorMode,
   expandDatasourceEntity,
   fetchDatasourceStructure,
+  createDatasourceFromForm,
 } from "actions/datasourceActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { GenericApiResponse } from "api/ApiResponses";
@@ -42,6 +42,7 @@ import DatasourcesApi, {
 import PluginApi, { DatasourceForm } from "api/PluginApi";
 
 import {
+  API_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_URL,
 } from "constants/routes";
@@ -49,12 +50,13 @@ import history from "utils/history";
 import { API_EDITOR_FORM_NAME, DATASOURCE_DB_FORM } from "constants/forms";
 import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { AppToaster } from "components/editorComponents/ToastComponent";
-import { ToastType } from "react-toastify";
 import { getFormData } from "selectors/formSelectors";
-import { changeApi } from "actions/apiPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { AppState } from "reducers";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
+import { getConfigInitialValues } from "components/formControls/utils";
+import { setActionProperty } from "actions/actionActions";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -75,37 +77,6 @@ function* fetchDatasourcesSaga() {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
-      payload: { error },
-    });
-  }
-}
-
-function* createDatasourceSaga(
-  actionPayload: ReduxAction<CreateDatasourceConfig>,
-) {
-  try {
-    const organizationId = yield select(getCurrentOrgId);
-    const response: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
-      {
-        ...actionPayload.payload,
-        organizationId,
-      },
-    );
-    const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
-        dataSourceName: actionPayload.payload.name,
-        appName: actionPayload.payload.appName,
-      });
-      yield put({
-        type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
-        payload: response.data,
-      });
-      yield put(change(API_EDITOR_FORM_NAME, "datasource", response.data));
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.CREATE_DATASOURCE_ERROR,
       payload: { error },
     });
   }
@@ -133,9 +104,9 @@ export function* deleteDatasourceSaga(
         history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
       }
 
-      AppToaster.show({
-        message: `${response.data.name} datasource deleted`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${response.data.name} datasource deleted`,
+        variant: Variant.success,
       });
 
       yield put({
@@ -150,6 +121,10 @@ export function* deleteDatasourceSaga(
       });
     }
   } catch (error) {
+    Toaster.show({
+      text: error.message,
+      variant: Variant.danger,
+    });
     yield put({
       type: ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR,
       payload: { error, id: actionPayload.payload.id, show: false },
@@ -170,9 +145,9 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
         datasourceName: response.data.name,
       });
-      AppToaster.show({
-        message: `${response.data.name} Datasource updated`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${response.data.name} Datasource updated`,
+        variant: Variant.success,
       });
 
       const state = yield select();
@@ -266,9 +241,9 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     if (isValidResponse) {
       const responseData = response.data;
       if (responseData.invalids && responseData.invalids.length) {
-        AppToaster.show({
-          message: responseData.invalids[0],
-          type: ToastType.ERROR,
+        Toaster.show({
+          text: responseData.invalids[0],
+          variant: Variant.danger,
         });
         yield put({
           type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
@@ -278,9 +253,9 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         AnalyticsUtil.logEvent("TEST_DATA_SOURCE_SUCCESS", {
           datasource: payload.name,
         });
-        AppToaster.show({
-          message: `${payload.name} is valid`,
-          type: ToastType.SUCCESS,
+        Toaster.show({
+          text: `${payload.name} is valid`,
+          variant: Variant.success,
         });
         yield put({
           type: ReduxActionTypes.TEST_DATASOURCE_SUCCESS,
@@ -302,35 +277,6 @@ function* createDatasourceFromFormSaga(
   try {
     let formConfig;
     const organizationId = yield select(getCurrentOrgId);
-    const initialValues = {};
-    const parseConfig = (section: any): any => {
-      return _.map(section.children, (subSection: any) => {
-        if ("children" in subSection) {
-          return parseConfig(subSection);
-        }
-
-        if (subSection.initialValue) {
-          if (subSection.controlType === "KEYVALUE_ARRAY") {
-            subSection.initialValue.forEach(
-              (initialValue: string | number, index: number) => {
-                const configProperty = subSection.configProperty.replace(
-                  "*",
-                  index,
-                );
-
-                _.set(initialValues, configProperty, initialValue);
-              },
-            );
-          } else {
-            _.set(
-              initialValues,
-              subSection.configProperty,
-              subSection.initialValue,
-            );
-          }
-        }
-      });
-    };
     formConfig = yield select(getPluginForm, actionPayload.payload.pluginId);
 
     if (!formConfig) {
@@ -349,14 +295,9 @@ function* createDatasourceFromFormSaga(
       formConfig = yield select(getPluginForm, actionPayload.payload.pluginId);
     }
 
-    formConfig.forEach((section: any) => {
-      parseConfig(section);
-    });
+    const initialValues = yield call(getConfigInitialValues, formConfig);
 
-    const payload = {
-      ...initialValues,
-      ...actionPayload.payload,
-    };
+    const payload = merge(initialValues, actionPayload.payload);
 
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
       {
@@ -385,9 +326,9 @@ function* createDatasourceFromFormSaga(
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, response.data.id),
       );
-      AppToaster.show({
-        message: `${response.data.name} Datasource created`,
-        type: ToastType.SUCCESS,
+      Toaster.show({
+        text: `${response.data.name} Datasource created`,
+        variant: Variant.success,
       });
     }
   } catch (error) {
@@ -472,11 +413,25 @@ function* storeAsDatasourceSaga() {
 
   history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
 
-  yield put(createDatasource(datasource));
+  yield put(createDatasourceFromForm(datasource));
   const createDatasourceSuccessAction = yield take(
     ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
   );
   const createdDatasource = createDatasourceSuccessAction.payload;
+
+  // Update action to have this datasource
+  yield put(
+    setActionProperty({
+      actionId: values.id,
+      propertyName: "datasource",
+      value: createdDatasource,
+    }),
+  );
+
+  // Set datasource page to edit mode
+  yield put(
+    setDatsourceEditorMode({ id: createdDatasource.id, viewMode: false }),
+  );
 
   yield put({
     type: ReduxActionTypes.STORE_AS_DATASOURCE_UPDATE,
@@ -500,9 +455,13 @@ function* updateDatasourceSuccessSaga(action: ReduxAction<Datasource>) {
     actionRouteInfo &&
     updatedDatasource.id === actionRouteInfo.datasourceId
   ) {
-    const { apiId } = actionRouteInfo;
-
-    yield put(changeApi(apiId));
+    history.push(
+      API_EDITOR_ID_URL(
+        actionRouteInfo.applicationId,
+        actionRouteInfo.pageId,
+        actionRouteInfo.apiId,
+      ),
+    );
   }
 
   yield put({
@@ -566,7 +525,6 @@ function* refreshDatasourceStrucuture(action: ReduxAction<{ id: string }>) {
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
-    takeEvery(ReduxActionTypes.CREATE_DATASOURCE_INIT, createDatasourceSaga),
     takeEvery(
       ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
       createDatasourceFromFormSaga,

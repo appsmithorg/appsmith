@@ -427,6 +427,27 @@ export const largeButton = css`
   letter-spacing: ${props => props.theme.typography.btnLarge.letterSpacing}px;
 `;
 
+export const appColors = [
+  "#6C4CF1",
+  "#4F70FD",
+  "#F56AF4",
+  "#B94CF1",
+  "#54A9FB",
+  "#5ED3DA",
+  "#5EDA82",
+  "#A8D76C",
+  "#E9C951",
+  "#FE9F44",
+  "#ED86A1",
+  "#EA6179",
+  "#C03C3C",
+  "#BC6DB2",
+  "#6C9DD0",
+  "#6CD0CF",
+] as const;
+
+export type AppColorCode = typeof appColors[number];
+
 const darkShades = [
   "#1A191C",
   "#232324",
@@ -481,7 +502,6 @@ type ColorType = {
     hoverBorder: ShadeColor;
     iconColor: ShadeColor;
   };
-  appCardColors: string[];
   text: {
     normal: ShadeColor;
     heading: ShadeColor;
@@ -657,6 +677,7 @@ type ColorType = {
       desc: ShadeColor;
     };
     manageUser: ShadeColor;
+    scrollbar: ShadeColor;
   };
   tagInput: {
     bg: ShadeColor;
@@ -688,6 +709,25 @@ type ColorType = {
   loader: {
     light: ShadeColor;
     dark: ShadeColor;
+  };
+  filePicker: {
+    bg: ShadeColor;
+    color: ShadeColor;
+    progress: ShadeColor;
+    shadow: {
+      from: string;
+      to: string;
+    };
+  };
+  formFooter: {
+    cancelBtn: ShadeColor;
+  };
+  toast: {
+    undo: string;
+    warningColor: string;
+    dangerColor: string;
+    textColor: string;
+    bg: ShadeColor;
   };
 };
 
@@ -737,17 +777,6 @@ export const dark: ColorType = {
     hoverBorder: darkShades[4],
     iconColor: darkShades[9],
   },
-  appCardColors: [
-    "#4F70FD",
-    "#54A9FB",
-    "#5ED3DA",
-    "#F56AF4",
-    "#F36380",
-    "#FE9F44",
-    "#E9C951",
-    "#A8D76C",
-    "#6C4CF1",
-  ],
   text: {
     normal: darkShades[6],
     heading: darkShades[7],
@@ -827,7 +856,7 @@ export const dark: ColorType = {
       border: darkShades[2],
     },
     normal: {
-      bg: darkShades[0],
+      bg: lightShades[10],
       text: darkShades[9],
       border: darkShades[0],
     },
@@ -923,6 +952,7 @@ export const dark: ColorType = {
       desc: darkShades[6],
     },
     manageUser: darkShades[6],
+    scrollbar: darkShades[5],
   },
   tagInput: {
     bg: darkShades[0],
@@ -954,6 +984,25 @@ export const dark: ColorType = {
   loader: {
     light: darkShades[2],
     dark: darkShades[4],
+  },
+  filePicker: {
+    bg: darkShades[1],
+    color: darkShades[7],
+    progress: darkShades[6],
+    shadow: {
+      from: "rgba(21, 17, 17, 0.0001)",
+      to: "rgba(9, 7, 7, 0.883386)",
+    },
+  },
+  formFooter: {
+    cancelBtn: darkShades[9],
+  },
+  toast: {
+    undo: "#CB4810",
+    warningColor: "#E0B30E",
+    dangerColor: "#E22C2C",
+    textColor: "#090707",
+    bg: darkShades[8],
   },
 };
 
@@ -1003,17 +1052,6 @@ export const light: ColorType = {
     hoverBorder: lightShades[2],
     iconColor: lightShades[11],
   },
-  appCardColors: [
-    "#4266FD",
-    "#69B5FF",
-    "#5CE7EF",
-    "#61DF48",
-    "#FF6786",
-    "#FFAD5E",
-    "#FCD43E",
-    "#B0E968",
-    "#9177FF",
-  ],
   text: {
     normal: lightShades[8],
     heading: lightShades[9],
@@ -1189,6 +1227,7 @@ export const light: ColorType = {
       desc: lightShades[7],
     },
     manageUser: lightShades[6],
+    scrollbar: lightShades[5],
   },
   tagInput: {
     bg: lightShades[2],
@@ -1221,12 +1260,31 @@ export const light: ColorType = {
     light: lightShades[2],
     dark: lightShades[4],
   },
+  filePicker: {
+    bg: lightShades[2],
+    color: lightShades[7],
+    progress: lightShades[6],
+    shadow: {
+      from: "rgba(253, 253, 253, 0.0001)",
+      to: "rgba(250, 250, 250, 0.898847)",
+    },
+  },
+  formFooter: {
+    cancelBtn: lightShades[9],
+  },
+  toast: {
+    undo: "#F86A2B",
+    warningColor: "#DCAD00",
+    dangerColor: "#F22B2B",
+    textColor: "#F7F7F7",
+    bg: lightShades[10],
+  },
 };
 
 export const theme: Theme = {
   radii: [0, 4, 8, 10, 20, 50],
   fontSizes: [0, 10, 12, 14, 16, 18, 24, 28, 32, 48, 64],
-  spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30, 36],
+  spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30, 36, 38, 40, 42, 44],
   fontWeights: [0, 400, 500, 700],
   typography: {
     h1: {
@@ -1367,6 +1425,8 @@ export const theme: Theme = {
     bindingText: Colors.BINDING_COLOR_LT,
     cmBacground: Colors.BLUE_CHARCOAL,
     lightningborder: Colors.ALABASTER,
+    formButtonColor: Colors.WHITE,
+    appCardColors: appColors,
   },
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: {
@@ -1457,10 +1517,12 @@ export const theme: Theme = {
     shadow: "0px 4px 8px rgba(9, 30, 66, 0.25)",
   },
   shadows: [
-    "0px 2px 4px rgba(67, 70, 74, 0.14)",
-    `0px 2px 4px ${Colors.MYSTIC}`,
+    /* 0. tab */
     `inset -1px 0px 0px ${Colors.ATHENS_GRAY}, inset 1px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 4px 0px ${Colors.GREEN}`,
-    `inset -1px 0px 0px ${Colors.ATHENS_GRAY}, inset 1px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 1px 0px ${Colors.ATHENS_GRAY}`,
+    /* 1. first tab */
+    `inset -1px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 4px 0px ${Colors.GREEN}`,
+    /* 2. container */
+    `0 1px 1px 0 rgba(60,75,100,.14) ,0 2px 1px -1px rgba(60,75,100,.12), 0 1px 3px 0 rgba(60,75,100,.2)`,
   ],
   widgets: {
     tableWidget: {

@@ -23,7 +23,6 @@ import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
-import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Query;
 import com.appsmith.server.domains.Role;
@@ -65,6 +64,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -89,6 +89,9 @@ public class DatabaseChangelog {
      * from an index with the fields `"organizationId", "name"`. If an index exists with the first ordering and we try
      * to **ensure** an index with the same name but the second ordering of fields, errors will show up and bad things
      * WILL happen.
+     *
+     * Also, please check out the following blog on how to best create indexes :
+     * https://emptysqua.re/blog/optimizing-mongodb-compound-indexes/
      */
     private static Index makeIndex(String... fields) {
         if (fields.length == 1) {
@@ -1057,20 +1060,40 @@ public class DatabaseChangelog {
         installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
     }
 
-    @ChangeSet(order = "032", id = "createNewPageIndex", author = "")
-    public void addNewPageIndex(MongoTemplate mongoTemplate) {
+    @ChangeSet(order = "037", id = "createNewPageIndexAfterDroppingNewPage", author = "")
+    public void addNewPageIndexAfterDroppingNewPage(MongoTemplate mongoTemplate) {
         Index createdAtIndex = makeIndex("createdAt");
+
+        // Drop existing NewPage class
+        mongoTemplate.dropCollection(NewPage.class);
+
+        // Now add an index
         ensureIndexes(mongoTemplate, NewPage.class,
                 createdAtIndex
         );
     }
 
-    @ChangeSet(order = "033", id = "migrate-page", author = "")
+    @ChangeSet(order = "038", id = "createNewActionIndexAfterDroppingNewAction", author = "")
+    public void addNewActionIndexAfterDroppingNewAction(MongoTemplate mongoTemplate) {
+        Index createdAtIndex = makeIndex("createdAt");
+
+        // Drop existing NewAction class
+        mongoTemplate.dropCollection(NewAction.class);
+
+        // Now add an index
+        ensureIndexes(mongoTemplate, NewAction.class,
+                createdAtIndex
+        );
+    }
+
+    @ChangeSet(order = "039", id = "migrate-page-and-actions", author = "")
     public void migratePage(MongoTemplate mongoTemplate) {
         final List<Page> pages = mongoTemplate.find(
                 query(where("deletedAt").is(null)),
                 Page.class
         );
+
+        List<NewPage> toBeInsertedPages = new ArrayList<>();
 
         for (Page oldPage : pages) {
             PageDTO unpublishedPage = new PageDTO();
@@ -1114,29 +1137,22 @@ public class DatabaseChangelog {
             newPage.setUpdatedAt(oldPage.getUpdatedAt());
             newPage.setPolicies(oldPage.getPolicies());
 
-            mongoTemplate.insert(newPage, "newPage");
+            toBeInsertedPages.add(newPage);
         }
+        mongoTemplate.insertAll(toBeInsertedPages);
 
-    }
+        // Migrate Actions now
 
-    // Removed order 34 whose operation has been optimized and has been moved to order 33.
+        Map<String, String> pageIdApplicationIdMap = pages
+                .stream()
+                .collect(Collectors.toMap(Page::getId, Page::getApplicationId));
 
-    @ChangeSet(order = "035", id = "createNewActionIndex", author = "")
-    public void addNewActionIndex(MongoTemplate mongoTemplate) {
-        Index createdAtIndex = makeIndex("createdAt");
-
-
-        ensureIndexes(mongoTemplate, NewAction.class,
-                createdAtIndex
-        );
-    }
-
-    @ChangeSet(order = "036", id = "migrate-action", author = "")
-    public void migrateAction(MongoTemplate mongoTemplate) {
         final List<Action> actions = mongoTemplate.find(
                 query(where("deletedAt").is(null)),
                 Action.class
         );
+
+        List<NewAction> toBeInsertedActions = new ArrayList<>();
 
         for (Action oldAction : actions) {
             ActionDTO unpublishedAction = copyActionToDTO(oldAction);
@@ -1157,16 +1173,15 @@ public class DatabaseChangelog {
             newAction.setPublishedAction(publishedAction);
 
             // Now set the application id for this action
+            String applicationId = pageIdApplicationIdMap.get(oldAction.getPageId());
 
-            // Find the page
-            final NewPage page = mongoTemplate.findOne(
-                    query(where(fieldName(QNewPage.newPage.id)).is(oldAction.getPageId())),
-                    NewPage.class
-            );
+            if (applicationId != null) {
+                newAction.setApplicationId(applicationId);
+            }
 
-            // Set the applicationId in the new action
-            if (page != null) {
-                newAction.setApplicationId(page.getApplicationId());
+            // Set the pluginId for the action
+            if (oldAction.getDatasource() != null) {
+                newAction.setPluginId(oldAction.getDatasource().getPluginId());
             }
 
             //Set the base domain fields
@@ -1175,7 +1190,222 @@ public class DatabaseChangelog {
             newAction.setUpdatedAt(oldAction.getUpdatedAt());
             newAction.setPolicies(oldAction.getPolicies());
 
-            mongoTemplate.insert(newAction, "newAction");
+            toBeInsertedActions.add(newAction);
+        }
+
+        mongoTemplate.insertAll(toBeInsertedActions);
+
+    }
+
+    @ChangeSet(order = "040", id = "new-page-new-action-add-indexes", author = "")
+    public void addNewPageAndNewActionNewIndexes(MongoTemplate mongoTemplate) {
+
+        dropIndexIfExists(mongoTemplate, NewAction.class, "createdAt");
+
+        ensureIndexes(mongoTemplate, NewAction.class,
+                makeIndex("applicationId", "deleted", "createdAt")
+                        .named("applicationId_deleted_createdAt_compound_index")
+        );
+
+        dropIndexIfExists(mongoTemplate, NewPage.class, "createdAt");
+
+        ensureIndexes(mongoTemplate, NewPage.class,
+                makeIndex("applicationId", "deleted")
+                        .named("applicationId_deleted_compound_index")
+        );
+
+    }
+
+    @ChangeSet(order = "041", id = "new-action-add-index-pageId", author = "")
+    public void addNewActionIndexForPageId(MongoTemplate mongoTemplate) {
+
+        dropIndexIfExists(mongoTemplate, NewAction.class, "applicationId_deleted_createdAt_compound_index");
+
+        ensureIndexes(mongoTemplate, NewAction.class,
+                makeIndex("applicationId", "deleted", "unpublishedAction.pageId")
+                          .named("applicationId_deleted_unpublishedPageId_compound_index")
+                );
+    }
+
+    @ChangeSet(order = "042", id = "update-action-index-to-single-multiple-indices", author = "")
+    public void updateActionIndexToSingleMultipleIndices(MongoTemplate mongoTemplate) {
+
+        dropIndexIfExists(mongoTemplate, NewAction.class, "applicationId_deleted_unpublishedPageId_compound_index");
+
+        ensureIndexes(mongoTemplate, NewAction.class,
+                makeIndex("applicationId")
+                        .named("applicationId")
+        );
+
+        ensureIndexes(mongoTemplate, NewAction.class,
+                makeIndex("unpublishedAction.pageId")
+                        .named("unpublishedAction_pageId")
+        );
+
+        ensureIndexes(mongoTemplate, NewAction.class,
+                makeIndex("deleted")
+                        .named("deleted")
+        );
+    }
+
+    @ChangeSet(order = "043", id = "add-firestore-plugin", author = "")
+    public void addFirestorePlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Firestore");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("firestore-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Firestore.png");
+        plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-firestore");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
+
+    @ChangeSet(order = "044", id = "ensure-app-icons-and-colors", author = "")
+    public void ensureAppIconsAndColors(MongoTemplate mongoTemplate) {
+        final String iconFieldName = fieldName(QApplication.application.icon);
+        final String colorFieldName = fieldName(QApplication.application.color);
+
+        final org.springframework.data.mongodb.core.query.Query query = query(new Criteria().orOperator(
+                where(iconFieldName).exists(false),
+                where(colorFieldName).exists(false)
+        ));
+
+        // We are only getting the icon and color fields, rest will be null (or default values) in the
+        // resulting Application objects.
+        query.fields().include("_id").include(iconFieldName).include(colorFieldName);
+
+        final List<String> iconPool = List.of(
+                "bag",
+                "product",
+                "book",
+                "camera",
+                "file",
+                "chat",
+                "calender",
+                "flight",
+                "frame",
+                "globe",
+                "shopper",
+                "heart",
+                "alien",
+                "bar-graph",
+                "basketball",
+                "bicycle",
+                "bird",
+                "bitcoin",
+                "burger",
+                "bus",
+                "call",
+                "car",
+                "card",
+                "cat",
+                "chinese-remnibi",
+                "cloud",
+                "coding",
+                "couples",
+                "cricket",
+                "diamond",
+                "dog",
+                "dollar",
+                "earth",
+                "email",
+                "euros",
+                "family",
+                "flag",
+                "football",
+                "hat",
+                "headphones",
+                "hospital",
+                "joystick",
+                "laptop",
+                "line-chart",
+                "location",
+                "lotus",
+                "love",
+                "medal",
+                "medical",
+                "money",
+                "moon",
+                "mug",
+                "music",
+                "pants",
+                "pie-chart",
+                "pizza",
+                "plant",
+                "rainy-weather",
+                "restaurant",
+                "rocket",
+                "rose",
+                "rupee",
+                "saturn",
+                "server",
+                "shake-hands",
+                "shirt",
+                "shop",
+                "single-person",
+                "smartphone",
+                "snowy-weather",
+                "stars",
+                "steam-bowl",
+                "sunflower",
+                "system",
+                "team",
+                "tree",
+                "uk-pounds",
+                "website",
+                "yen",
+                "airplane"
+        );
+        final List<String> colorPool = List.of(
+                "#6C4CF1",
+                "#4F70FD",
+                "#F56AF4",
+                "#B94CF1",
+                "#54A9FB",
+                "#5ED3DA",
+                "#5EDA82",
+                "#A8D76C",
+                "#E9C951",
+                "#FE9F44",
+                "#ED86A1",
+                "#EA6179",
+                "#C03C3C",
+                "#BC6DB2",
+                "#6C9DD0",
+                "#6CD0CF"
+        );
+
+        final Random iconRands = new Random();
+        final Random colorRands = new Random();
+
+        final int iconPoolSize = iconPool.size();
+        final int colorPoolSize = colorPool.size();
+
+        for (final Application app : mongoTemplate.find(query, Application.class)) {
+            if (app.getIcon() == null) {
+                mongoTemplate.updateFirst(
+                        query(where(fieldName(QApplication.application.id)).is(app.getId())),
+                        update(iconFieldName, iconPool.get(iconRands.nextInt(iconPoolSize))),
+                        Application.class
+                );
+            }
+
+            if (app.getColor() == null) {
+                mongoTemplate.updateFirst(
+                        query(where(fieldName(QApplication.application.id)).is(app.getId())),
+                        update(colorFieldName, colorPool.get(colorRands.nextInt(colorPoolSize))),
+                        Application.class
+                );
+            }
         }
     }
+
 }

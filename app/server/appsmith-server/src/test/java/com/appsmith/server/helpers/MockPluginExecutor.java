@@ -14,8 +14,19 @@ public class MockPluginExecutor implements PluginExecutor {
 
     @Override
     public Mono<ActionExecutionResult> execute(Object connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+        if (actionConfiguration == null) {
+            return Mono.error(new Exception("ActionConfiguration is null"));
+        }
+        if (datasourceConfiguration == null) {
+            return Mono.error(new Exception("DatasourceConfiguration is null"));
+        }
         System.out.println("In the execute");
-        return null;
+
+        ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
+        actionExecutionResult.setBody("");
+        actionExecutionResult.setIsExecutionSuccess(true);
+        actionExecutionResult.setStatusCode("200");
+        return Mono.just(actionExecutionResult);
     }
 
     @Override

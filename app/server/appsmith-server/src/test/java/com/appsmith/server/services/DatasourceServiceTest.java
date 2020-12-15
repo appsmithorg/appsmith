@@ -551,10 +551,7 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
-                    assertThat(createdDatasource.getInvalids()).containsExactlyInAnyOrder(
-                            "Host value cannot contain `/` or `:` characters. Found `hostname/`.",
-                            "Host value cannot contain `/` or `:` characters. Found `hostname:`."
-                    );
+                    assertThat(createdDatasource.getInvalids()).isEmpty();
 
                     Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
                             .users(Set.of("api_user"))

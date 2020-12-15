@@ -30,4 +30,4 @@ In order to test the code, you can run the following command:
 mvn -B clean package
 ```
 
-Please make sure that you have a local Redis instance running for the test cases. During tests, the MongoDB is run in-memory. So you don't require to be running a local MongoDB instance.
+Please make sure that you have a local Redis instance running for the test cases. During tests, the MongoDB is run in-memory. So you don't require to be running a local MongoDB instance. 

@@ -6,6 +6,7 @@ import "codemirror/lib/codemirror.css";
 import "codemirror/theme/duotone-dark.css";
 import "codemirror/theme/duotone-light.css";
 import "codemirror/addon/hint/show-hint";
+import "codemirror/addon/edit/matchbrackets";
 import "codemirror/addon/display/placeholder";
 import "codemirror/addon/edit/closebrackets";
 import "codemirror/addon/display/autorefresh";
@@ -21,6 +22,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/modes";
 import {
   EditorConfig,
+  EditorModes,
   EditorSize,
   EditorTheme,
   EditorThemes,
@@ -36,6 +38,8 @@ import {
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import { retryPromise } from "utils/AppsmithUtils";
+import BindingPrompt from "./BindingPrompt";
+import { showBindingPrompt } from "./BindingPromptHelper";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -91,9 +95,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   textArea = React.createRef<HTMLTextAreaElement>();
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-  // @ts-ignore
-  editor: CodeMirror.Editor;
+  editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
 
   constructor(props: Props) {
@@ -118,6 +120,7 @@ class CodeEditor extends Component<Props, State> {
         lineWrapping: this.props.size !== EditorSize.COMPACT,
         lineNumbers: this.props.showLineNumbers,
         addModeClass: true,
+        matchBrackets: false,
         scrollbarStyle:
           this.props.size !== EditorSize.COMPACT ? "native" : "null",
       };
@@ -135,8 +138,11 @@ class CodeEditor extends Component<Props, State> {
 
       this.editor.on("change", _.debounce(this.handleChange, 300));
       this.editor.on("change", this.handleAutocompleteVisibility);
+      this.editor.on("change", this.onChangeTigger);
       this.editor.on("keyup", this.handleAutocompleteHide);
       this.editor.on("focus", this.handleEditorFocus);
+      this.editor.on("cursorActivity", this.handleCursorMovement);
+      this.editor.on("focus", this.onFocusTrigger);
       this.editor.on("blur", this.handleEditorBlur);
       if (this.props.height) {
         this.editor.setSize(0, this.props.height);
@@ -200,6 +206,34 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
+  onFocusTrigger = (cm: CodeMirror.Editor) => {
+    if (!cm.state.completionActive) {
+      this.hinters.forEach(hinter => hinter.trigger && hinter.trigger(cm));
+    }
+  };
+
+  onChangeTigger = (cm: CodeMirror.Editor) => {
+    if (this.state.isFocused) {
+      this.hinters.forEach(hinter => hinter.trigger && hinter.trigger(cm));
+    }
+  };
+
+  handleCursorMovement = (cm: CodeMirror.Editor) => {
+    // ignore if disabled
+    if (!this.props.input.onChange || this.props.disabled) {
+      return;
+    }
+    const mode = cm.getModeAt(cm.getCursor());
+    if (
+      mode &&
+      [EditorModes.JAVASCRIPT, EditorModes.JSON].includes(mode.name)
+    ) {
+      this.editor.setOption("matchBrackets", true);
+    } else {
+      this.editor.setOption("matchBrackets", false);
+    }
+  };
+
   handleEditorFocus = () => {
     this.setState({ isFocused: true });
     this.editor.refresh();
@@ -214,6 +248,8 @@ class CodeEditor extends Component<Props, State> {
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", false);
     }
+
+    this.editor.setOption("matchBrackets", false);
   };
 
   handleChange = (instance?: any, changeObj?: any) => {
@@ -272,6 +308,7 @@ class CodeEditor extends Component<Props, State> {
       theme,
       disabled,
       className,
+      placeholder,
       showLightningMenu,
       dataTreePath,
       dynamicData,
@@ -346,12 +383,11 @@ class CodeEditor extends Component<Props, State> {
                 className="leftImageStyles"
               />
             )}
-
             <textarea
               ref={this.textArea}
               {..._.omit(this.props.input, ["onChange", "value"])}
               defaultValue={input.value}
-              placeholder={this.props.placeholder}
+              placeholder={placeholder}
             />
             {this.props.link && (
               <React.Fragment>
@@ -368,6 +404,9 @@ class CodeEditor extends Component<Props, State> {
             {this.props.rightIcon && (
               <IconContainer>{this.props.rightIcon}</IconContainer>
             )}
+            <BindingPrompt
+              isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
+            />
           </EditorWrapper>
         </EvaluatedValuePopup>
       </DynamicAutocompleteInputWrapper>

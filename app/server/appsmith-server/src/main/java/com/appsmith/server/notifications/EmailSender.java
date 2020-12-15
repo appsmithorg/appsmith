@@ -43,25 +43,30 @@ public class EmailSender {
         REPLY_TO = makeReplyTo();
     }
 
-    public Mono<String> sendMail(String to, String subject, String text, Map<String, String> params) {
-        return Mono
-                .fromSupplier(() -> {
+    public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, String> params) {
+
+        /**
+         * Creating a publisher which sends email in a blocking fashion, subscribing on the bounded elastic
+         * scheduler and then subscribing to it so that the publisher starts emitting immediately. We do not
+         * wait for the blocking call of `sendMailSync` to finish. BoundedElastic scheduler would ensure that
+         * when the number of tasks go beyond the number of available threads, the tasks would be deferred till
+         * a thread becomes available without overloading the server.
+         */
+        Mono.fromCallable(() -> {
                     try {
                         return replaceEmailTemplate(text, params);
                     } catch (IOException e) {
                         throw Exceptions.propagate(e);
                     }
                 })
-                // Sending email is a high cost I/O operation. Schedule the same on non-netty threads
-                // to implement a fire-and-forget strategy.
-                // CAUTION : We may run into scenarios where too many tasks have been created and queued and the master tasks have already exited with success.
-                .doOnNext(emailBody ->
-                        Mono.fromRunnable(() -> sendMailSync(to, subject, emailBody))
-                        // Scheduling using boundedElastic because the number of active tasks are capped
-                        // and hence not allowing the background threads to grow indefinitely
-                        .subscribeOn(Schedulers.boundedElastic())
-                        .subscribe()
-                );
+                .doOnNext(emailBody -> {
+                    sendMailSync(to, subject, emailBody);
+                })
+                .subscribeOn(Schedulers.boundedElastic())
+                .subscribe();
+
+        // Creating a hot source which would be created, emitted, and returned immediately.
+        return Mono.just(Boolean.TRUE);
     }
 
     /**

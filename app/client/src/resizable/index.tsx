@@ -25,9 +25,9 @@ const getSnappedValues = (
 
 type ResizableHandleProps = {
   dragCallback: (x: number, y: number) => void;
-  component: StyledComponent<"div", {}>;
-  onStart: Function;
-  onStop: Function;
+  component: StyledComponent<"div", Record<string, unknown>>;
+  onStart: () => void;
+  onStop: () => void;
   snapGrid: {
     x: number;
     y: number;
@@ -56,23 +56,29 @@ const ResizableHandle = (props: ResizableHandleProps) => {
 
 type ResizableProps = {
   handles: {
-    left: StyledComponent<"div", {}>;
-    top: StyledComponent<"div", {}>;
-    bottom: StyledComponent<"div", {}>;
-    right: StyledComponent<"div", {}>;
-    bottomRight: StyledComponent<"div", {}>;
-    topLeft: StyledComponent<"div", {}>;
-    topRight: StyledComponent<"div", {}>;
-    bottomLeft: StyledComponent<"div", {}>;
+    left: StyledComponent<"div", Record<string, unknown>>;
+    top: StyledComponent<"div", Record<string, unknown>>;
+    bottom: StyledComponent<"div", Record<string, unknown>>;
+    right: StyledComponent<"div", Record<string, unknown>>;
+    bottomRight: StyledComponent<"div", Record<string, unknown>>;
+    topLeft: StyledComponent<"div", Record<string, unknown>>;
+    topRight: StyledComponent<"div", Record<string, unknown>>;
+    bottomLeft: StyledComponent<"div", Record<string, unknown>>;
   };
   componentWidth: number;
   componentHeight: number;
   children: ReactNode;
-  onStart: Function;
-  onStop: Function;
+  onStart: () => void;
+  onStop: (
+    size: { width: number; height: number },
+    position: { x: number; y: number },
+  ) => void;
   snapGrid: { x: number; y: number };
   enable: boolean;
-  isColliding: Function;
+  isColliding: (
+    size: { width: number; height: number },
+    position: { x: number; y: number },
+  ) => boolean;
   className?: string;
 };
 

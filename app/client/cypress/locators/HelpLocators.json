@@ -1,5 +1,5 @@
 {
-    "HelpButton":"t--helpGlobalButton",
+    "HelpButton":".t--helpGlobalButton",
     "DocSearchResult": "t--docHit",
     "DocSearchResultTitle": "t--docHitTitle",
     "DocSearchResultDesc": "t--docHitDesc",
