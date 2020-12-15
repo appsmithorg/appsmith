@@ -130,7 +130,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       selectedRow: `{{ _.get(this.filteredTableData, this.selectedRowIndex, _.mapValues(this.filteredTableData[0], () => undefined)) }}`,
-      selectedRows: `{{ this.filteredTableData.filter((item, i) => selectedRowIndices.includes(i) }); }}`,
+      selectedRows: `{{ this.filteredTableData.filter((item, i) => this.selectedRowIndices && this.selectedRowIndices.includes(i)) }}`,
     };
   }
 
