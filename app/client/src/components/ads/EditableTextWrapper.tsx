@@ -29,7 +29,7 @@ const Container = styled.div<{
         : "transparent"};
   }
 
-  &&&& .${Classes.EDITABLE_TEXT} {
+  &&&& .${Classes.EDITABLE_TEXT}:hover {
     ${props =>
       !props.isEditing
         ? `
@@ -57,7 +57,7 @@ const Container = styled.div<{
     font-size: ${props => props.theme.typography.h4.fontSize}px;
     line-height: ${props => props.theme.typography.h4.lineHeight}px;
     letter-spacing: ${props => props.theme.typography.h4.letterSpacing}px;
-    font-weight: ${props => props.theme.typography.h4.fontWeight}px;
+    font-weight: ${props => props.theme.typography.h4.fontWeight};
   }
 
   .error-message {

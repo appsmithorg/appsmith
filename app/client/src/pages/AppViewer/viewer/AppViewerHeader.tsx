@@ -33,6 +33,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
+import Text, { TextType } from "components/ads/Text";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   background: ${Colors.BALTIC_SEA};
@@ -40,6 +41,14 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   color: white;
   flex-direction: column;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
+
+  .current-app-name {
+    margin-left: -43px;
+
+    span {
+      margin-top: 3px;
+    }
+  }
 `;
 
 const HeaderRow = styled.div<{ justify: string }>`
@@ -227,11 +236,9 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
             <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
           </Link>
         </HeaderSection>
-        <HeaderSection justify={"center"}>
+        <HeaderSection justify={"center"} className="current-app-name">
           {currentApplicationDetails && (
-            <StyledApplicationName>
-              {currentApplicationDetails.name}
-            </StyledApplicationName>
+            <Text type={TextType.H4}>{currentApplicationDetails.name}</Text>
           )}
         </HeaderSection>
         <HeaderSection justify={"flex-end"}>
