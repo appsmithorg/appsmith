@@ -95,7 +95,7 @@ jobs:
 
     # Build master Docker image and push to Docker Hub
     - name: Push master image to Docker Hub with commit tag
-      # if: ${{ success() && github.ref == 'refs/heads/master' }}
+      if: ${{ success() && github.ref == 'refs/heads/master' }}
       run: |
         docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA} .
         docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly .
