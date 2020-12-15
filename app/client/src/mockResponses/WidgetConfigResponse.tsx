@@ -448,7 +448,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       textAlign: "LEFT",
       rows: 1,
       columns: 4,
-      widgetName: "Text",
+      widgetName: "Grid",
     },
   },
   configVersion: 1,
