@@ -11,8 +11,6 @@ import { LogLevelDesc } from "loglevel";
 import FeatureFlag from "utils/featureFlags";
 import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
-import history from "./history";
-import { SERVER_ERROR_URL } from "../constants/routes";
 
 export const createReducer = (
   initialState: any,
