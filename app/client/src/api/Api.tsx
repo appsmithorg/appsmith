@@ -75,6 +75,7 @@ axiosInstance.interceptors.response.use(
       return Promise.reject({
         ...error,
         crash: true,
+        code: ERROR_CODES.REQUEST_TIMEOUT,
         message: SERVER_API_TIMEOUT_ERROR,
       });
     }
@@ -93,7 +94,7 @@ axiosInstance.interceptors.response.use(
             search: `redirectTo=${currentUrl}`,
           });
           return Promise.reject({
-            code: API_STATUS_CODES.REQUEST_NOT_AUTHORISED,
+            code: ERROR_CODES.REQUEST_NOT_AUTHORISED,
             message: "Unauthorized. Redirecting to login page...",
             show: false,
           });

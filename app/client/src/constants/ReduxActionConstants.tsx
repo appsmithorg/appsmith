@@ -1,6 +1,7 @@
 import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import { PageAction } from "constants/ActionConstants";
 import { Org } from "./orgConstants";
+import { ERROR_CODES } from "constants/ApiConstants";
 
 export const ReduxActionTypes: { [key: string]: string } = {
   INITIALIZE_EDITOR: "INITIALIZE_EDITOR",
@@ -430,7 +431,7 @@ export interface ReduxActionWithPromise<T> extends ReduxAction<T> {
 export interface ReduxActionErrorPayload {
   message: string;
   source?: string;
-  code?: number | string;
+  code?: ERROR_CODES;
 }
 
 export interface UpdateCanvasPayload {
