@@ -123,8 +123,8 @@ public class RedshiftPlugin extends BasePlugin {
 
             //TODO: remove it.
             System.out.println("devtest: tables_query: " + TABLES_QUERY);
-            System.out.println("devtest: keys_query_p: " + KEYS_QUERY_PRIMARY_KEY);
-            System.out.println("devtest: keys_query_p: " + KEYS_QUERY_FOREIGN_KEY);
+            //System.out.println("devtest: keys_query_p: " + KEYS_QUERY_PRIMARY_KEY);
+            //System.out.println("devtest: keys_query_p: " + KEYS_QUERY_FOREIGN_KEY);
 
             return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
 
@@ -296,7 +296,6 @@ public class RedshiftPlugin extends BasePlugin {
                     connection.setReadOnly(
                             configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
                     return Mono.just(connection);
-
                 } catch (SQLException e) {
                     //TODO: remove it.
                     System.out.println("devtest: url: " + url);
