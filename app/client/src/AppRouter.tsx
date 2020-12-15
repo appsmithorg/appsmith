@@ -16,8 +16,7 @@ import {
   USER_AUTH_URL,
   USERS_URL,
 } from "constants/routes";
-import { axiosConnectionAbortedCode } from "api/Api";
-import { API_STATUS_CODES, ERROR_CODES } from "constants/ApiConstants";
+import { ERROR_CODES } from "constants/ApiConstants";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
 import EditorLoader from "pages/Editor/loader";
