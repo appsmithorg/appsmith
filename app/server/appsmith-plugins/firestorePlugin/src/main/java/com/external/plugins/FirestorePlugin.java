@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -355,7 +355,7 @@ public class FirestorePlugin extends BasePlugin {
 
         @Override
         public Mono<Firestore> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
             final Set<String> errors = validateDatasource(datasourceConfiguration);
             if (!CollectionUtils.isEmpty(errors)) {
@@ -405,7 +405,7 @@ public class FirestorePlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
             Set<String> invalids = new HashSet<>();
 

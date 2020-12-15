@@ -74,7 +74,9 @@ public final class BeanCopyUtils {
 
             Object targetValue = targetBeanWrapper.getPropertyValue(name);
 
-            if (targetValue != null && isDomainModel(propertyDescriptor.getPropertyType())) {
+            if (targetValue != null
+                    && sourceValue.getClass().isAssignableFrom(targetValue.getClass())
+                    && isDomainModel(propertyDescriptor.getPropertyType())) {
                 // Go deeper *only* if the property belongs to Appsmith's models, and both the source and target values
                 // are not null.
                 copyNestedNonNullProperties(sourceValue, targetValue);
