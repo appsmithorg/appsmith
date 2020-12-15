@@ -4,6 +4,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorPayload,
 } from "constants/ReduxActionConstants";
+import { ERROR_CODES } from "constants/ApiConstants";
 
 const initialState: ErrorReduxState = {
   safeCrash: false,
@@ -39,7 +40,7 @@ const errorReducer = createReducer(initialState, {
 
 export interface ErrorReduxState {
   safeCrash: boolean;
-  safeCrashCode?: number | string;
+  safeCrashCode?: ERROR_CODES;
   currentError: {
     sourceAction?: string;
     message?: string;

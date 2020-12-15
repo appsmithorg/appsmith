@@ -11,6 +11,8 @@ import { LogLevelDesc } from "loglevel";
 import FeatureFlag from "utils/featureFlags";
 import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
+import { ERROR_CODES } from "constants/ApiConstants";
+import { ERROR_500 } from "../constants/messages";
 
 export const createReducer = (
   initialState: any,
@@ -262,8 +264,11 @@ export const retryPromise = (
       .catch((error: any) => {
         setTimeout(() => {
           if (retriesLeft === 1) {
-            reject(error);
-            return;
+            return Promise.reject({
+              code: ERROR_CODES.SERVER_ERROR,
+              message: ERROR_500,
+              show: false,
+            });
           }
 
           // Passing on "reject" is the important part

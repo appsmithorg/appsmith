@@ -17,7 +17,7 @@ import {
   USERS_URL,
 } from "constants/routes";
 import { axiosConnectionAbortedCode } from "api/Api";
-import { API_STATUS_CODES } from "constants/ApiConstants";
+import { API_STATUS_CODES, ERROR_CODES } from "constants/ApiConstants";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
 import EditorLoader from "pages/Editor/loader";
@@ -60,13 +60,13 @@ function changeAppBackground(currentTheme: any) {
  *
  * @param safeCrashCode
  */
-const renderErrorPage = (safeCrashCode: number | string) => {
+const renderErrorPage = (safeCrashCode: ERROR_CODES) => {
   switch (safeCrashCode) {
-    case API_STATUS_CODES.RESOURCE_NOT_FOUND:
+    case ERROR_CODES.PAGE_NOT_FOUND:
       return <PageNotFound />;
-    case API_STATUS_CODES.SERVER_ERROR:
+    case ERROR_CODES.SERVER_ERROR:
       return <ServerUnavailable />;
-    case axiosConnectionAbortedCode:
+    case ERROR_CODES.REQUEST_TIMEOUT:
       return <ServerTimeout />;
   }
 };
