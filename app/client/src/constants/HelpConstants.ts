@@ -99,6 +99,10 @@ export const HelpMap = {
     path: "/core-concepts/connecting-to-databases",
     searchKey: "Connecting to databases",
   },
+  GRID_WIDGET: {
+    path: "",
+    searchKey: "",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";

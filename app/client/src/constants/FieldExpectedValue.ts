@@ -149,6 +149,13 @@ const FIELD_VALUES: Record<
     shouldScroll: "boolean",
     isVisible: "boolean",
   },
+  GRID_WIDGET: {
+    text: "string",
+    textAlign: "LEFT | CENTER | RIGHT",
+    textStyle: "HEADING | LABEL | BODY",
+    shouldScroll: "boolean",
+    isVisible: "boolean",
+  },
 };
 
 export default FIELD_VALUES;

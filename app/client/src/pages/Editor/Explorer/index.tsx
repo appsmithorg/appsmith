@@ -51,13 +51,13 @@ const EntityExplorer = (props: IPanelProps) => {
   const explorerRef = useRef<HTMLDivElement | null>(null);
   const { searchKeyword, clearSearch } = useFilteredEntities(searchInputRef);
   const datasources = useFilteredDatasources(searchKeyword);
-
   const plugins = useSelector(getPlugins);
-
   const widgets = useWidgets(searchKeyword);
   const actions = useActions(searchKeyword);
 
   let noResults = false;
+
+  // setting the value of noResults to false if there no widgets/datasource/actions
   if (searchKeyword) {
     const noWidgets = Object.values(widgets).filter(Boolean).length === 0;
     const noActions =
@@ -69,6 +69,7 @@ const EntityExplorer = (props: IPanelProps) => {
       ).length === 0;
     noResults = noWidgets && noActions && noDatasource;
   }
+
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(
     (pageId: string) => {
@@ -77,6 +78,7 @@ const EntityExplorer = (props: IPanelProps) => {
     },
     [openPanel, applicationId],
   );
+
   return (
     <Wrapper ref={explorerRef}>
       <Search ref={searchInputRef} clear={clearSearch} />

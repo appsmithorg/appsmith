@@ -27,6 +27,7 @@ import { ModalWidgetProps } from "widgets/ModalWidget";
 import { IconWidgetProps } from "widgets/IconWidget";
 import { VideoWidgetProps } from "widgets/VideoWidget";
 import { SkeletonWidgetProps } from "../../widgets/SkeletonWidget";
+import { GridWidgetProps } from "../../widgets/GridWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -76,6 +77,7 @@ export interface WidgetConfigReducerState {
       WidgetConfigProps;
     ICON_WIDGET: Partial<IconWidgetProps> & WidgetConfigProps;
     SKELETON_WIDGET: Partial<SkeletonWidgetProps> & WidgetConfigProps;
+    GRID_WIDGET: Partial<GridWidgetProps> & WidgetConfigProps;
   };
   configVersion: number;
 }

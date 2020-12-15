@@ -7,6 +7,11 @@ const WidgetSidebarResponse: {
 } = {
   ["Form Widgets"]: [
     {
+      type: "GRID_WIDGET",
+      widgetCardName: "Grid",
+      key: generateReactKey(),
+    },
+    {
       type: "FORM_WIDGET",
       widgetCardName: "Form",
       key: generateReactKey(),

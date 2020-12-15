@@ -442,6 +442,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 1,
       widgetName: "Skeleton",
     },
+    GRID_WIDGET: {
+      text: "Label",
+      textStyle: "LABEL",
+      textAlign: "LEFT",
+      rows: 1,
+      columns: 4,
+      widgetName: "Text",
+    },
   },
   configVersion: 1,
 };

@@ -136,6 +136,11 @@ export const WidgetIcons: {
       <ButtonIcon />
     </IconWrapper>
   ),
+  GRID_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <TextIcon />
+    </IconWrapper>
+  ),
 };
 
 export type WidgetIcon = typeof WidgetIcons[keyof typeof WidgetIcons];

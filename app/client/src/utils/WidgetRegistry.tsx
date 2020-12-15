@@ -84,6 +84,12 @@ import SkeletonWidget, {
   ProfiledSkeletonWidget,
   SkeletonWidgetProps,
 } from "../widgets/SkeletonWidget";
+
+import GridWidget, {
+  GridWidgetProps,
+  ProfiledGridWidget,
+} from "widgets/GridWidget";
+
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -393,6 +399,20 @@ export default class WidgetBuilderRegistry {
       SkeletonWidget.getTriggerPropertyMap(),
       SkeletonWidget.getDefaultPropertiesMap(),
       SkeletonWidget.getMetaPropertiesMap(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.GRID_WIDGET,
+      {
+        buildWidget(widgetProps: GridWidgetProps): JSX.Element {
+          return <ProfiledGridWidget {...widgetProps} />;
+        },
+      },
+      GridWidget.getPropertyValidationMap(),
+      GridWidget.getDerivedPropertiesMap(),
+      GridWidget.getTriggerPropertyMap(),
+      GridWidget.getDefaultPropertiesMap(),
+      GridWidget.getMetaPropertiesMap(),
     );
   }
 }

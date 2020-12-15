@@ -66,6 +66,7 @@ export const IconLabel = styled.h5`
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 const WidgetCard = (props: CardProps) => {
+  console.log({ props });
   const { setIsDragging } = useWidgetDragResize();
   // Generate a new widgetId which can be used in the future for this widget.
   const [widgetId, setWidgetId] = useState(generateReactKey());
