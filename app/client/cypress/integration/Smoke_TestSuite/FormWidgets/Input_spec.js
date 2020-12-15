@@ -113,6 +113,25 @@ describe("Input Widget Functionality", function() {
     cy.get(publish.inputWidget + " " + "input").should("be.visible");
     cy.get(publish.backToEditor).click({ force: true });
   });
+
+  it("Input Functionality To check number input type with custom regex", function() {
+    cy.openPropertyPane("inputwidget");
+    cy.get(commonlocators.dataType).click();
+    cy.get(
+      `${commonlocators.dataType} .single-select:contains("Number")`,
+    ).click();
+    cy.testJsontext("regex", "^s*(?=.*[1-9])d*(?:.d{1,2})?s*$");
+    cy.get(widgetsPage.innertext)
+      .click()
+      .clear()
+      .type("1.255");
+    cy.get(".bp3-popover-content").should($x => {
+      expect($x).contain("Invalid input");
+    });
+    cy.get(widgetsPage.innertext)
+      .click()
+      .clear();
+  });
 });
 afterEach(() => {
   // put your clean up code if any
