@@ -25,6 +25,19 @@ module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
   on("before:browser:launch", (browser = {}, launchOptions) => {
+    /*
+      Uncomment below to get console log printed in cypress output
+    */
+    launchOptions.args = require("cypress-log-to-output").browserLaunchHandler(
+      browser,
+      launchOptions.args,
+      (type, event) => {
+        if (event.level === "error" || event.type === "error") {
+          return true;
+        }
+        return false;
+      },
+    );
     if (browser.name === "chrome") {
       launchOptions.args.push("--disable-dev-shm-usage");
       return launchOptions;
