@@ -231,7 +231,14 @@ export class DataTreeEvaluator {
 
         // If this is a property path change, simply add for evaluation
         if (d.path.length > 1) {
-          changePaths.add(convertPathToString(d.path));
+          const propertyPath = convertPathToString(d.path);
+          changePaths.add(propertyPath);
+          // Also, if this is an array update, trim the array index and add it to the change paths for evaluation
+          if (propertyPath.lastIndexOf("[") > 0) {
+            changePaths.add(
+              propertyPath.substr(0, propertyPath.lastIndexOf("[")),
+            );
+          }
 
           // @Hetu : I have commented out the code here. Undo this if incorrect.
           // // We will add all parents of this change to this sort order
@@ -347,10 +354,11 @@ export class DataTreeEvaluator {
     while (computeSortOrder) {
       // Get all the nodes that would be impacted by the evaluation of the nodes in parents array in sorted order
       subSortOrderArray = this.getEvaluationSortOrder(parents, inverseMap);
+
       // Add all the sorted nodes in the final list
       finalSortOrder = [...finalSortOrder, ...subSortOrderArray];
       parents = this.getImmediateParentsOfPropertyPaths(subSortOrderArray);
-      // If we find parents of the property paths in the sorted array, we should contine finding all the nodes dependent
+      // If we find parents of the property paths in the sorted array, we should continue finding all the nodes dependent
       // on the parents
       if (parents.length > 0) {
         computeSortOrder = true;
@@ -360,11 +368,12 @@ export class DataTreeEvaluator {
     }
 
     const uniqueKeysInSortOrder = [...new Set(finalSortOrder)];
+
     return Array.from(uniqueKeysInSortOrder);
   }
 
-  //@Hetu : Please re-write if required. The idea here is to find Table1.selectedRow if the property path is
-  // Table1.selectedRow.email. This needs to happen for all property paths in the array
+  // The idea is to find the immediate parents of the property paths
+  // e.g. For Table1.selectedRow.email, the parent is Table1.selectedRow
   getImmediateParentsOfPropertyPaths(
     propertyPaths: Array<string>,
   ): Array<string> {
@@ -391,12 +400,16 @@ export class DataTreeEvaluator {
     const sortOrder: Array<string> = [...changes];
     let iterator = 0;
     while (iterator < sortOrder.length) {
+      // Find all the nodes who are to be evaluated when sortOrder[iterator] changes
       const newNodes = inverseMap[sortOrder[iterator]];
 
       // If we find more nodes that would be impacted by the evaluation of the node being investigated
       // we add these to the sort order.
       if (newNodes) {
         newNodes.forEach(toBeEvaluatedNode => {
+          // Only add the nodes if they haven't been already added for evaluation in the list. Since we are doing
+          // breadth first traversal, we should be safe in not changing the evaluation order and adding this now at this
+          // point instead of the previous index found.
           if (!sortOrder.includes(toBeEvaluatedNode)) {
             sortOrder.push(toBeEvaluatedNode);
           }
