@@ -1382,6 +1382,79 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
         ],
       },
     ],
+    GRID_WIDGET: [
+      {
+        id: "2.1",
+        sectionName: "General",
+        children: [
+          {
+            id: "2.1.1",
+            propertyName: "text",
+            helpText: "Sets the text of the widget",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter text",
+          },
+          {
+            id: "2.1.3",
+            propertyName: "textAlign",
+            helpText: "Sets the alignments of the text",
+            label: "Text Align",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Left",
+                value: "LEFT",
+              },
+              {
+                label: "Center",
+                value: "CENTER",
+              },
+              {
+                label: "Right",
+                value: "RIGHT",
+              },
+            ],
+          },
+          {
+            id: "2.1.2",
+            propertyName: "textStyle",
+            helpText: "Sets the font and style of the text",
+            label: "Text Style",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Heading",
+                value: "HEADING",
+              },
+              {
+                label: "Label",
+                value: "LABEL",
+              },
+              {
+                label: "Body",
+                value: "BODY",
+              },
+            ],
+          },
+          {
+            id: "2.1.3",
+            propertyName: "shouldScroll",
+            label: "Enable Scroll",
+            helpText: "Allows scrolling text instead of truncation",
+            controlType: "SWITCH",
+          },
+          {
+            id: "2.1.4",
+            propertyName: "isVisible",
+            helpText: "Controls the visibility of the widget",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+        ],
+      },
+    ],
   },
 };
 
