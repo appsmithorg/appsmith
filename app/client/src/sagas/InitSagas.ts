@@ -14,7 +14,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import { API_STATUS_CODES } from "constants/ApiConstants";
+import { ERROR_CODES } from "constants/ApiConstants";
 
 import { fetchEditorConfigs } from "actions/configsActions";
 import {
@@ -72,7 +72,7 @@ function* initializeEditorSaga(
           code: get(
             resultOfPrimaryCalls,
             "failure.payload.error.code",
-            API_STATUS_CODES.SERVER_ERROR,
+            ERROR_CODES.SERVER_ERROR,
           ),
         },
       });
@@ -99,7 +99,7 @@ function* initializeEditorSaga(
           code: get(
             resultOfPrimaryCalls,
             "failure.payload.error.code",
-            API_STATUS_CODES.SERVER_ERROR,
+            ERROR_CODES.SERVER_ERROR,
           ),
         },
       });
@@ -125,7 +125,7 @@ function* initializeEditorSaga(
     yield put({
       type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
       payload: {
-        code: API_STATUS_CODES.SERVER_ERROR,
+        code: ERROR_CODES.SERVER_ERROR,
       },
     });
     return;
@@ -167,7 +167,7 @@ export function* initializeAppViewerSaga(
         code: get(
           resultOfPrimaryCalls,
           "failure.payload.error.code",
-          API_STATUS_CODES.SERVER_ERROR,
+          ERROR_CODES.SERVER_ERROR,
         ),
       },
     });
@@ -193,7 +193,7 @@ export function* initializeAppViewerSaga(
           code: get(
             resultOfFetchPage,
             "failure.payload.error.code",
-            API_STATUS_CODES.SERVER_ERROR,
+            ERROR_CODES.SERVER_ERROR,
           ),
         },
       });
