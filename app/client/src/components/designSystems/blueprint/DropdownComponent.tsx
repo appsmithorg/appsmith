@@ -181,8 +181,8 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
       .${Classes.TAG_INPUT_VALUES} {
         margin-top: 0;
         overflow: hidden;
+        display: flex;
         height: ${props => props.height - WIDGET_PADDING * 2 - 2}px;
-        display: initial;
       }
 
       .${Classes.TAG} {
@@ -216,8 +216,9 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
       .${Classes.INPUT_GHOST} {
         flex: 0 0 auto;
         margin: 0;
-        width: 1px;
+        display: flex;
         height: 26px;
+        flex: 1;
       }
     }
   }
@@ -297,6 +298,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
                       : undefined,
                 }),
                 disabled: this.props.disabled,
+                fill: true,
                 rightElement: <Icon icon={IconNames.CHEVRON_DOWN} />,
               }}
               hideCloseButtonIndex={hideCloseButtonIndex}

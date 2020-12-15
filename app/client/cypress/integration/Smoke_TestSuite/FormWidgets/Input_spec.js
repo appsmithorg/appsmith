@@ -2,8 +2,6 @@ const commonlocators = require("../../../locators/commonlocators.json");
 const dsl = require("../../../fixtures/newFormDsl.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
-const pages = require("../../../locators/Pages.json");
-const explorer = require("../../../locators/explorerlocators.json");
 
 describe("Input Widget Functionality", function() {
   before(() => {
