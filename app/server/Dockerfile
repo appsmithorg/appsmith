@@ -21,7 +21,6 @@ RUN mkdir -p /plugins
 COPY entrypoint.sh /entrypoint.sh
 COPY ${JAR_FILE} server.jar
 COPY ${PLUGIN_JARS} /plugins/
-RUN ls -l entrypoint.sh server.jar plugins/*
 
 #Run the jar
 ENTRYPOINT ["/bin/sh", "-c" , "/entrypoint.sh"]
