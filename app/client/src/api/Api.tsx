@@ -49,7 +49,7 @@ axiosInstance.interceptors.response.use(
     // Do something with response data
     return response.data;
   },
-  function(error: any) {
+  function (error: any) {
     // Return if the call was cancelled via cancel token
     if (axios.isCancel(error)) {
       return;

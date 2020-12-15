@@ -14,10 +14,11 @@ import { retryPromise } from "utils/AppsmithUtils";
 import withMeta, { WithMeta } from "./MetaHOC";
 
 const RichTextEditorComponent = lazy(() =>
-  retryPromise(() =>
-    import(
-      /* webpackChunkName: "rte",webpackPrefetch: 2 */ "components/designSystems/appsmith/RichTextEditorComponent"
-    ),
+  retryPromise(
+    () =>
+      import(
+        /* webpackChunkName: "rte",webpackPrefetch: 2 */ "components/designSystems/appsmith/RichTextEditorComponent"
+      ),
   ),
 );
 

@@ -4,7 +4,7 @@ import styled from "styled-components";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 
 const StyledKey = styled.span`
-  font-family: ${props => props.theme.fonts.text};
+  font-family: ${(props) => props.theme.fonts.text};
   font-style: normal;
   font-weight: 500;
   font-size: 14px;
@@ -22,7 +22,7 @@ const StyledValue = styled.span`
   user-select: text;
 `;
 
-const KeyValuePair = function(props: { hKey: string; hValue: string }) {
+const KeyValuePair = function (props: { hKey: string; hValue: string }) {
   return (
     <StyledValue>
       <StyledKey>{props.hKey}</StyledKey>
@@ -32,7 +32,7 @@ const KeyValuePair = function(props: { hKey: string; hValue: string }) {
 };
 
 const StyledTreeContainer = styled.div`
-  font-family: ${props => props.theme.fonts.text};
+  font-family: ${(props) => props.theme.fonts.text};
   .bp3-tree-node-content {
     height: auto;
   }

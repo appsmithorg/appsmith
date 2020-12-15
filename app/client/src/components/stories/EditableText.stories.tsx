@@ -37,10 +37,10 @@ export const EditableTextStory = () => {
           EditInteractionKind.SINGLE,
         )}
         onTextChanged={action("text-changed")}
-        valueTransform={value => value.toUpperCase()}
+        valueTransform={(value) => value.toUpperCase()}
         placeholder={text("placeholder", "Edit input")}
         hideEditIcon={boolean("hideEditIcon", false)}
-        isInvalid={name => errorFunction(name)}
+        isInvalid={(name) => errorFunction(name)}
         isEditingDefault={boolean("isEditingDefault", false)}
         fill={boolean("fill", false)}
         savingState={savingState}

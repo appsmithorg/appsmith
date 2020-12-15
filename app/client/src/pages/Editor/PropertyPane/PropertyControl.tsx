@@ -83,10 +83,7 @@ const PropertyControl = (props: Props) => {
       propertyName,
     );
     const isConvertible = !!propertyConfig.isJSConvertible;
-    const className = propertyConfig.label
-      .split(" ")
-      .join("")
-      .toLowerCase();
+    const className = propertyConfig.label.split(" ").join("").toLowerCase();
     try {
       return (
         <ControlWrapper

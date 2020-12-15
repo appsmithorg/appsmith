@@ -31,15 +31,15 @@ export const StyledText = styled(Text)<{
   textAlign: string;
 }>`
   height: 100%;
-  overflow-y: ${props => (props.scroll ? "auto" : "hidden")};
+  overflow-y: ${(props) => (props.scroll ? "auto" : "hidden")};
   text-overflow: ellipsis;
-  text-align: ${props => props.textAlign.toLowerCase()};
+  text-align: ${(props) => props.textAlign.toLowerCase()};
   display: flex;
   width: 100%;
   justify-content: flex-start;
-  align-items: ${props => (props.scroll ? "flex-start" : "center")};
+  align-items: ${(props) => (props.scroll ? "flex-start" : "center")};
   &.bp3-heading {
-    font-weight: ${props => props.theme.fontWeights[4]};
+    font-weight: ${(props) => props.theme.fontWeights[4]};
     font-size: 21px;
   }
   &.bp3-ui-text {

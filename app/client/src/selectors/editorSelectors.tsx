@@ -57,7 +57,7 @@ export const getIsPageSaving = (state: AppState) => {
 
   const savingApis = state.ui.apiPane.isSaving;
 
-  Object.keys(savingApis).forEach(apiId => {
+  Object.keys(savingApis).forEach((apiId) => {
     areApisSaving = savingApis[apiId] || areApisSaving;
   });
 
@@ -84,7 +84,7 @@ export const getCurrentApplicationId = (state: AppState) =>
 export const getCurrentPageName = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>
-    pageList.pages.find(page => page.pageId === pageList.currentPageId)
+    pageList.pages.find((page) => page.pageId === pageList.currentPageId)
       ?.pageName,
 );
 
@@ -118,7 +118,7 @@ export const getCanvasWidgetDsl = createSelector(
       PerformanceTransactionName.CONSTRUCT_CANVAS_DSL,
     );
     const widgets: Record<string, DataTreeWidget> = {};
-    Object.keys(canvasWidgets).forEach(widgetKey => {
+    Object.keys(canvasWidgets).forEach((widgetKey) => {
       const canvasWidget = canvasWidgets[widgetKey];
       const evaluatedWidget = evaluatedDataTree[
         canvasWidget.widgetName
@@ -142,7 +142,7 @@ const getOccupiedSpacesForContainer = (
   containerWidgetId: string,
   widgets: FlattenedWidgetProps[],
 ): OccupiedSpace[] => {
-  return widgets.map(widget => {
+  return widgets.map((widget) => {
     const occupiedSpace: OccupiedSpace = {
       id: widget.widgetId,
       parentId: containerWidgetId,
@@ -166,7 +166,7 @@ export const getOccupiedSpaces = createSelector(
     // Get all widgets with type "CONTAINER_WIDGET" and has children
     const containerWidgets: FlattenedWidgetProps[] = Object.values(
       widgets,
-    ).filter(widget => widget.children && widget.children.length > 0);
+    ).filter((widget) => widget.children && widget.children.length > 0);
 
     // If we have any container widgets
     if (containerWidgets) {
@@ -174,7 +174,7 @@ export const getOccupiedSpaces = createSelector(
         const containerWidgetId = containerWidget.widgetId;
         // Get child widgets for the container
         const childWidgets = Object.keys(widgets).filter(
-          widgetId =>
+          (widgetId) =>
             containerWidget.children &&
             containerWidget.children.indexOf(widgetId) > -1 &&
             !widgets[widgetId].detachFromLayout,
@@ -183,7 +183,7 @@ export const getOccupiedSpaces = createSelector(
         // Assign it to the containerWidgetId key in occupiedSpaces
         occupiedSpaces[containerWidgetId] = getOccupiedSpacesForContainer(
           containerWidgetId,
-          childWidgets.map(widgetId => widgets[widgetId]),
+          childWidgets.map((widgetId) => widgets[widgetId]),
         );
       });
     }
@@ -195,7 +195,7 @@ export const getOccupiedSpaces = createSelector(
 export const getActionById = createSelector(
   [getActions, (state: any, props: any) => props.match.params.apiId],
   (actions, id) => {
-    const action = actions.find(action => action.config.id === id);
+    const action = actions.find((action) => action.config.id === id);
     if (action) {
       return action.config;
     } else {

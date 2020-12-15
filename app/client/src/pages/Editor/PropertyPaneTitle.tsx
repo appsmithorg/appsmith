@@ -34,7 +34,7 @@ const Wrapper = styled.div`
   position: sticky;
   top: 0;
   z-index: 3;
-  background-color: ${props => props.theme.colors.paneBG};
+  background-color: ${(props) => props.theme.colors.paneBG};
   & span.${Classes.POPOVER_TARGET} {
     cursor: pointer;
     display: flex;

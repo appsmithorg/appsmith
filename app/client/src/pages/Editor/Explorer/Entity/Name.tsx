@@ -87,7 +87,7 @@ export const EntityName = forwardRef(
 
     const existingWidgetNames: string[] = useSelector((state: AppState) =>
       Object.values(state.entities.canvasWidgets).map(
-        widget => widget.widgetName,
+        (widget) => widget.widgetName,
       ),
     );
     const dispatch = useDispatch();
@@ -133,7 +133,7 @@ export const EntityName = forwardRef(
     const searchHighlightedName = useMemo(() => {
       if (searchKeyword) {
         const regex = new RegExp(searchKeyword, "gi");
-        const delimited = updatedName.replace(regex, function(str) {
+        const delimited = updatedName.replace(regex, function (str) {
           return (
             searchTokenizationDelimiter + str + searchTokenizationDelimiter
           );

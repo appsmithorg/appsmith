@@ -181,7 +181,7 @@ const TableFilters = (props: TableFilterProps) => {
         <FilterIcon />
       </TableActionIcon>
       <TableFilterOuterWrapper>
-        <TableFilerWrapper onClick={e => e.stopPropagation()}>
+        <TableFilerWrapper onClick={(e) => e.stopPropagation()}>
           {filters.map((filter: ReactTableFilter, index: number) => {
             return (
               <CascadeFields

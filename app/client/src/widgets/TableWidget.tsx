@@ -26,8 +26,8 @@ import { retryPromise } from "utils/AppsmithUtils";
 import withMeta, { WithMeta } from "./MetaHOC";
 
 const ReactTableComponent = lazy(() =>
-  retryPromise(() =>
-    import("components/designSystems/appsmith/ReactTableComponent"),
+  retryPromise(
+    () => import("components/designSystems/appsmith/ReactTableComponent"),
   ),
 );
 
@@ -319,10 +319,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
     return sortedTableData.filter((item: { [key: string]: any }) => {
       const searchFound = searchKey
-        ? Object.values(item)
-            .join(", ")
-            .toUpperCase()
-            .includes(searchKey)
+        ? Object.values(item).join(", ").toUpperCase().includes(searchKey)
         : true;
       if (!searchFound) return false;
       if (!filters || filters.length === 0) return true;
@@ -497,7 +494,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getSelectedRowIndexes = (selectedRowIndices: string) => {
     return selectedRowIndices
-      ? selectedRowIndices.split(",").map(i => Number(i))
+      ? selectedRowIndices.split(",").map((i) => Number(i))
       : [];
   };
 

@@ -12,9 +12,9 @@ class OrganizationLoader extends React.PureComponent<any, { Page: any }> {
   }
 
   componentDidMount() {
-    retryPromise(() =>
-      import(/* webpackChunkName: "organization" */ "./index"),
-    ).then(module => {
+    retryPromise(
+      () => import(/* webpackChunkName: "organization" */ "./index"),
+    ).then((module) => {
       this.setState({ Page: module.default });
     });
   }

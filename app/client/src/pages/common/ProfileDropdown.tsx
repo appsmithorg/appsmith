@@ -31,7 +31,7 @@ const ProfileMenuStyle = createGlobalStyle`
 `;
 
 const UserInformation = styled.div`
-  padding: ${props => props.theme.spaces[6]}px;
+  padding: ${(props) => props.theme.spaces[6]}px;
   display: flex;
   align-items: center;
 
@@ -41,12 +41,12 @@ const UserInformation = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     .${Classes.TEXT} {
-      color: ${props => props.theme.colors.profileDropdown.userName};
+      color: ${(props) => props.theme.colors.profileDropdown.userName};
     }
   }
 
   .user-image {
-    margin-right: ${props => props.theme.spaces[4]}px;
+    margin-right: ${(props) => props.theme.spaces[4]}px;
     div {
       cursor: default;
     }

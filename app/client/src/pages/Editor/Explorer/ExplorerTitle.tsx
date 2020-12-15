@@ -7,9 +7,9 @@ const Wrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   & h1 {
-    font-size: ${props => props.theme.fontSizes[3]}px;
+    font-size: ${(props) => props.theme.fontSizes[3]}px;
     letter-spacing: 3px;
-    font-weight: ${props => props.theme.fontWeights[2]};
+    font-weight: ${(props) => props.theme.fontWeights[2]};
   }
 `;
 const ActionIconGroup = styled.div`

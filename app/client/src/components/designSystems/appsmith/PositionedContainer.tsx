@@ -35,10 +35,7 @@ export const PositionedContainer = (props: PositionedContainerProps) => {
       className={
         generateClassName(props.widgetId) +
         " " +
-        `t--widget-${props.widgetType
-          .split("_")
-          .join("")
-          .toLowerCase()}`
+        `t--widget-${props.widgetType.split("_").join("").toLowerCase()}`
       }
     >
       {props.children}

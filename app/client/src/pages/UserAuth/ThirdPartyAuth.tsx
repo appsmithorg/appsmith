@@ -16,7 +16,7 @@ const ThirdPartyAuthWrapper = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-end;
-  margin-left: ${props => props.theme.authCard.dividerSpacing}px;
+  margin-left: ${(props) => props.theme.authCard.dividerSpacing}px;
 `;
 
 //TODO(abhinav): Port this to use themes.
@@ -24,22 +24,22 @@ const StyledSocialLoginButton = styled.a`
   width: 200px;
   display: flex;
   align-items: center;
-  border: ${props => getBorderCSSShorthand(props.theme.borders[2])};
+  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
   padding: 8px;
-  color: ${props => props.theme.colors.textDefault};
-  border-radius: ${props => props.theme.radii[1]}px;
+  color: ${(props) => props.theme.colors.textDefault};
+  border-radius: ${(props) => props.theme.radii[1]}px;
   position: relative;
   height: 42px;
 
   &:hover {
     text-decoration: none;
     background: ${IntentColors.success};
-    color: ${props => props.theme.colors.textOnDarkBG};
+    color: ${(props) => props.theme.colors.textOnDarkBG};
   }
   & > div {
     width: 36px;
     height: 36px;
-    padding: ${props => props.theme.radii[1]}px;
+    padding: ${(props) => props.theme.radii[1]}px;
     position: absolute;
     left: 2px;
     top: 2px;
@@ -55,8 +55,8 @@ const StyledSocialLoginButton = styled.a`
   & p {
     display: block;
     margin: 0 0 0 36px;
-    font-size: ${props => props.theme.fontSizes[3]}px;
-    font-weight: ${props => props.theme.fontWeights[3]};
+    font-size: ${(props) => props.theme.fontSizes[3]}px;
+    font-weight: ${(props) => props.theme.fontWeights[3]};
   }
 `;
 
@@ -111,7 +111,7 @@ export const ThirdPartyAuth = (props: {
   type: SignInType;
 }) => {
   const socialLoginButtons = getSocialLoginButtonProps(props.logins).map(
-    item => {
+    (item) => {
       return <SocialLoginButton key={item.name} {...item} type={props.type} />;
     },
   );

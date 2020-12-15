@@ -21,20 +21,20 @@ const ItemRow = styled.a<{ disabled?: boolean }>`
   align-items: center;
   justify-content: space-between;
   text-decoration: none;
-  padding: 0px ${props => props.theme.spaces[6]}px;
+  padding: 0px ${(props) => props.theme.spaces[6]}px;
   .${Classes.TEXT} {
-    color: ${props => props.theme.colors.menuItem.normalText};
+    color: ${(props) => props.theme.colors.menuItem.normalText};
   }
   .${Classes.ICON} {
     svg {
       path {
-        fill: ${props => props.theme.colors.menuItem.normalIcon};
+        fill: ${(props) => props.theme.colors.menuItem.normalIcon};
       }
     }
   }
   height: 38px;
 
-  ${props =>
+  ${(props) =>
     !props.disabled
       ? `
     &:hover {
@@ -75,7 +75,7 @@ const IconContainer = styled.span`
   align-items: center;
 
   .${Classes.ICON} {
-    margin-right: ${props => props.theme.spaces[5]}px;
+    margin-right: ${(props) => props.theme.spaces[5]}px;
   }
 `;
 

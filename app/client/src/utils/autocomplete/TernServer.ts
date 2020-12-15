@@ -170,7 +170,7 @@ class TernServer {
   }
 
   getHint(cm: CodeMirror.Editor) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.request(
         cm,
         {
@@ -190,7 +190,7 @@ class TernServer {
   sortCompletions(completions: Completion[]) {
     // Add data tree completions before others
     const dataTreeCompletions = completions
-      .filter(c => c.origin === "dataTree")
+      .filter((c) => c.origin === "dataTree")
       .sort((a: Completion, b: Completion) => {
         if (a.type === "FUNCTION" && b.type !== "FUNCTION") {
           return 1;
@@ -199,9 +199,9 @@ class TernServer {
         }
         return a.text.toLowerCase().localeCompare(b.text.toLowerCase());
       });
-    const docCompletetions = completions.filter(c => c.origin === "[doc]");
+    const docCompletetions = completions.filter((c) => c.origin === "[doc]");
     const otherCompletions = completions.filter(
-      c => c.origin !== "dataTree" && c.origin !== "[doc]",
+      (c) => c.origin !== "dataTree" && c.origin !== "[doc]",
     );
     return [...docCompletetions, ...dataTreeCompletions, ...otherCompletions];
   }
@@ -426,7 +426,7 @@ class TernServer {
           },
         ],
       },
-      function(error: Error) {
+      function (error: Error) {
         if (error) window.console.error(error);
         else doc.changed = null;
       },
@@ -447,7 +447,7 @@ class TernServer {
     const cursor = doc.doc.getCursor();
     const value = this.lineValue(doc);
     const stringSegments = getDynamicStringSegments(value);
-    const dynamicStrings = stringSegments.filter(segment => {
+    const dynamicStrings = stringSegments.filter((segment) => {
       if (isDynamicValue(segment)) {
         const index = value.indexOf(segment);
 
@@ -539,10 +539,10 @@ class TernServer {
     };
     let mouseOnTip = false;
     let old = false;
-    CodeMirror.on(tip, "mousemove", function() {
+    CodeMirror.on(tip, "mousemove", function () {
       mouseOnTip = true;
     });
-    CodeMirror.on(tip, "mouseout", function(e: MouseEvent) {
+    CodeMirror.on(tip, "mouseout", function (e: MouseEvent) {
       const related = e.relatedTarget;
       // @ts-ignore: No types available
       if (!related || !CodeMirror.contains(tip, related)) {
@@ -562,7 +562,7 @@ class TernServer {
     cm.on("blur", f);
     cm.on("scroll", f);
     cm.on("setDoc", f);
-    return function() {
+    return function () {
       cm.off("cursorActivity", f);
       cm.off("blur", f);
       cm.off("scroll", f);

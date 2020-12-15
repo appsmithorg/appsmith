@@ -61,9 +61,9 @@ import { setActionProperty } from "actions/actionActions";
 function* fetchDatasourcesSaga() {
   try {
     const orgId = yield select(getCurrentOrgId);
-    const response: GenericApiResponse<Datasource[]> = yield DatasourcesApi.fetchDatasources(
-      orgId,
-    );
+    const response: GenericApiResponse<
+      Datasource[]
+    > = yield DatasourcesApi.fetchDatasources(orgId);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put({

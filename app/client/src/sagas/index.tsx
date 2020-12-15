@@ -48,8 +48,8 @@ export function* rootSaga() {
     evaluationsSaga,
   ];
   yield all(
-    sagas.map(saga =>
-      spawn(function*() {
+    sagas.map((saga) =>
+      spawn(function* () {
         while (true) {
           try {
             yield call(saga);

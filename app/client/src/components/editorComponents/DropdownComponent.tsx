@@ -107,7 +107,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
     if (this.props.selected) {
       const selectedValue = this.props.selected.value;
       const item: DropdownOption | undefined = this.props.options.find(
-        option => option.value === selectedValue,
+        (option) => option.value === selectedValue,
       );
 
       return item && (item.label || item.label);

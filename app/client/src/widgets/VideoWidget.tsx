@@ -15,8 +15,8 @@ import ReactPlayer from "react-player";
 import withMeta, { WithMeta } from "./MetaHOC";
 
 const VideoComponent = lazy(() =>
-  retryPromise(() =>
-    import("components/designSystems/appsmith/VideoComponent"),
+  retryPromise(
+    () => import("components/designSystems/appsmith/VideoComponent"),
   ),
 );
 

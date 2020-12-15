@@ -34,7 +34,7 @@ const pageCanvasStructureReducer = createImmerReducer(initialState, {
       }>
     >,
   ) => {
-    action.payload.forEach(entry => {
+    action.payload.forEach((entry) => {
       state[entry.pageId] = compareAndGenerateImmutableCanvasStructure(
         state[entry.pageId],
         entry.dsl,

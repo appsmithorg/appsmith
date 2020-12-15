@@ -24,9 +24,9 @@ if (env === "PRODUCTION" || env === "STAGING") {
       ignore: ["node_modules", "webpack.config.js"],
       release: process.env.REACT_APP_SENTRY_RELEASE,
       deploy: {
-        env: process.env.REACT_APP_SENTRY_ENVIRONMENT
-      }
-    })
+        env: process.env.REACT_APP_SENTRY_ENVIRONMENT,
+      },
+    }),
   );
 }
 

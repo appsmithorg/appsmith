@@ -12,9 +12,9 @@ class AppViewerLoader extends React.PureComponent<any, { Page: any }> {
   }
 
   componentDidMount() {
-    retryPromise(() =>
-      import(/* webpackChunkName: "AppViewer" */ "./index"),
-    ).then(module => {
+    retryPromise(
+      () => import(/* webpackChunkName: "AppViewer" */ "./index"),
+    ).then((module) => {
       this.setState({ Page: module.default });
     });
   }

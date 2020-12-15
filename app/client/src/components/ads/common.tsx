@@ -50,15 +50,11 @@ export const hexToRgba = (color: string, alpha: number) => {
 };
 
 export const lighten = (color: string, amount: number) => {
-  return tinycolor(color)
-    .lighten(amount)
-    .toString();
+  return tinycolor(color).lighten(amount).toString();
 };
 
 export const darken = (color: string, amount: number) => {
-  return tinycolor(color)
-    .darken(amount)
-    .toString();
+  return tinycolor(color).darken(amount).toString();
 };
 export const StoryWrapper = styled.div`
   background: #ffffff;

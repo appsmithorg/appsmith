@@ -8,10 +8,11 @@ import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 
 const ChartComponent = lazy(() =>
-  retryPromise(() =>
-    import(
-      /* webpackPrefetch: true, webpackChunkName: "charts" */ "components/designSystems/appsmith/ChartComponent"
-    ),
+  retryPromise(
+    () =>
+      import(
+        /* webpackPrefetch: true, webpackChunkName: "charts" */ "components/designSystems/appsmith/ChartComponent"
+      ),
   ),
 );
 

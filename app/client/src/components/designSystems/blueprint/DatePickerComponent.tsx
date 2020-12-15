@@ -17,7 +17,7 @@ const StyledControlGroup = styled(ControlGroup)`
       box-shadow: none;
       border: 1px solid;
       border-color: ${Colors.GEYSER_LIGHT};
-      border-radius: ${props => props.theme.radii[1]}px;
+      border-radius: ${(props) => props.theme.radii[1]}px;
       width: 100%;
       height: inherit;
       align-items: center;
@@ -47,10 +47,10 @@ const StyledControlGroup = styled(ControlGroup)`
   &&& {
     input {
       border: 1px solid ${Colors.HIT_GRAY};
-      border-radius: ${props => props.theme.radii[1]}px;
+      border-radius: ${(props) => props.theme.radii[1]}px;
       box-shadow: none;
       color: ${Colors.OXFORD_BLUE};
-      font-size: ${props => props.theme.fontSizes[3]}px;
+      font-size: ${(props) => props.theme.fontSizes[3]}px;
     }
   }
 `;
