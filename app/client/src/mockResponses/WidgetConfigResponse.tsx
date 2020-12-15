@@ -3,6 +3,9 @@ import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
 import { generateReactKey } from "utils/generators";
 
+/**
+ * this config sets the default values of properties being used in the widget
+ */
 const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
     BUTTON_WIDGET: {

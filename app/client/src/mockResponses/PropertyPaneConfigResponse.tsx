@@ -1,5 +1,8 @@
 import { PropertyPaneConfigsResponse } from "api/ConfigsApi";
 
+/**
+ * config that tells what property widget will have in the property pane
+ */
 const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore: No types available

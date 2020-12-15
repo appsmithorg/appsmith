@@ -57,7 +57,7 @@ const EntityExplorer = (props: IPanelProps) => {
 
   let noResults = false;
 
-  // setting the value of noResults to false if there no widgets/datasource/actions
+  // setting the value of noResults to false if there is no widgets/datasource/actions
   if (searchKeyword) {
     const noWidgets = Object.values(widgets).filter(Boolean).length === 0;
     const noActions =
