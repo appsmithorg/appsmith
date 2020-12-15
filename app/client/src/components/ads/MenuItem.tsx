@@ -13,22 +13,31 @@ export type MenuItemProps = CommonComponentProps & {
   href?: string;
   type?: "warning";
   ellipsize?: number;
+  selected?: boolean;
   onSelect?: () => void;
 };
 
-const ItemRow = styled.a<{ disabled?: boolean }>`
+const ItemRow = styled.a<{ disabled?: boolean; selected?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   text-decoration: none;
   padding: 0px ${props => props.theme.spaces[6]}px;
+  background-color: ${props =>
+    props.selected ? props.theme.colors.menuItem.hoverBg : "transparent"};
   .${Classes.TEXT} {
-    color: ${props => props.theme.colors.menuItem.normalText};
+    color: ${props =>
+      props.selected
+        ? props.theme.colors.menuItem.hoverText
+        : props.theme.colors.menuItem.normalText};
   }
   .${Classes.ICON} {
     svg {
       path {
-        fill: ${props => props.theme.colors.menuItem.normalIcon};
+        fill: ${props =>
+          props.selected
+            ? props.theme.colors.menuItem.hoverIcon
+            : props.theme.colors.menuItem.normalIcon};
       }
     }
   }
@@ -99,6 +108,7 @@ const MenuItemContent = forwardRef(
         data-cy={props.cypressSelector}
         type={props.type}
         ref={ref}
+        selected={props.selected}
       >
         <IconContainer className={props.className}>
           {props.icon ? <Icon name={props.icon} size={IconSize.LARGE} /> : null}

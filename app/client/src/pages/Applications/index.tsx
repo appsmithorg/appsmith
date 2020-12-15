@@ -341,6 +341,7 @@ const ApplicationAddCardWrapper = styled(Card)`
 
 function LeftPane() {
   const menuRef = useRef<HTMLAnchorElement>(null);
+  const [selectedOrg, setSelectedOrg] = useState<string>("");
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const NewWorkspaceTrigger = (
@@ -367,6 +368,7 @@ function LeftPane() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (menuRef && menuRef.current) {
+        menuRef.current.scrollIntoView();
         menuRef.current.click();
       }
     }, 0);
@@ -398,6 +400,11 @@ function LeftPane() {
                 href={`${window.location.pathname}#${org.organization.name}`}
                 text={org.organization.name}
                 ellipsize={20}
+                onSelect={() => setSelectedOrg(org.organization.id)}
+                selected={
+                  selectedOrg === org.organization.id &&
+                  urlHash === org.organization.name
+                }
               />
             ))}
         </WorkpsacesNavigator>
