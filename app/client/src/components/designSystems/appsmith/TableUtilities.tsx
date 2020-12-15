@@ -6,6 +6,7 @@ import {
   ActionWrapper,
   SortIconWrapper,
   MenuCategoryWrapper,
+  MenuStyledOptionHeader,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { ColumnMenuOptionProps } from "components/designSystems/appsmith/ReactTableComponent";
@@ -263,7 +264,7 @@ export const getMenuOptions = (props: MenuOptionProps) => {
         {
           content: (
             <MenuCategoryWrapper>
-              <div>Date Input Format</div>
+              <MenuStyledOptionHeader>Date Input Format</MenuStyledOptionHeader>
               {props.inputFormat && <Tag>Clear</Tag>}
             </MenuCategoryWrapper>
           ),
@@ -273,6 +274,7 @@ export const getMenuOptions = (props: MenuOptionProps) => {
             props.updateColumnType(columnIndex, ColumnTypes.TEXT);
           },
           id: "date_input",
+          isHeader: true,
         },
         {
           content: "UNIX timestamp (s)",
@@ -337,7 +339,9 @@ export const getMenuOptions = (props: MenuOptionProps) => {
         {
           content: (
             <MenuCategoryWrapper>
-              <div>Date Output Format</div>
+              <MenuStyledOptionHeader>
+                Date Output Format
+              </MenuStyledOptionHeader>
             </MenuCategoryWrapper>
           ),
           closeOnClick: false,
@@ -349,6 +353,7 @@ export const getMenuOptions = (props: MenuOptionProps) => {
               props.inputFormat || "",
             );
           },
+          isHeader: true,
         },
         {
           content: "Same as Input",
