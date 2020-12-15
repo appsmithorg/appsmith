@@ -72,6 +72,10 @@ export const EntityItem = styled.div<{
   }
 `;
 
+const IconWrapper = styled.span`
+  line-height: ${props => props.theme.lineHeights[0]}px;
+`;
+
 export type EntityProps = {
   entityId: string;
   className?: string;
@@ -156,9 +160,7 @@ export const Entity = forwardRef(
             disabled={!!props.disabled}
             className={`${EntityClassNames.COLLAPSE_TOGGLE}`}
           />
-          <span style={{ lineHeight: "0px" }} onClick={handleClick}>
-            {props.icon}
-          </span>
+          <IconWrapper onClick={handleClick}>{props.icon}</IconWrapper>
           <EntityName
             entityId={props.entityId}
             className={`${EntityClassNames.NAME}`}
