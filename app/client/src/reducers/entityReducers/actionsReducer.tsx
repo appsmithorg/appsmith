@@ -58,7 +58,7 @@ const actionsReducer = createReducer(initialState, {
       const stateActionMap = _.keyBy(state, "config.id");
       const result: ActionDataState = [];
 
-      action.payload.forEach((actionPayload: any) => {
+      action.payload.forEach((actionPayload: RestAction) => {
         const stateAction = stateActionMap[actionPayload.id];
         if (stateAction) {
           result.push({
