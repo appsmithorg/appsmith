@@ -63,5 +63,9 @@
     "leftPanelContainer": "[data-cy=t--left-panel]",
     "themeText": "label div",
     "shareUserIcons": ".org-share-user-icons",
-    "toastMessage": ".t--toast-action"
+    "toastMessage": ".t--toast-action",
+    "uploadLogo": "//div/form/input",
+    "removeLogo": ".remove-button a span",
+    "generalTab": "//li//span[text()='General']",
+    "membersTab": "//li//span[text()='Members']"
 }

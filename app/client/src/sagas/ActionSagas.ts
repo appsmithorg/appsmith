@@ -11,6 +11,7 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
+import { Datasource } from "api/DatasourcesApi";
 import ActionAPI, { ActionCreateUpdateResponse, Property } from "api/ActionAPI";
 import _ from "lodash";
 import { GenericApiResponse } from "api/ApiResponses";
@@ -51,6 +52,7 @@ import {
   getDatasource,
   getPageNameByPageId,
 } from "selectors/entitiesSelector";
+import { getDataSources } from "selectors/editorSelectors";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
@@ -394,6 +396,7 @@ function* copyActionSaga(
       pageId: action.payload.destinationPageId,
     };
     const response = yield ActionAPI.createAPI(copyAction);
+    const datasources = yield select(getDataSources);
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -409,7 +412,19 @@ function* copyActionSaga(
       pageName: pageName,
       apiID: response.data.id,
     });
-    yield put(copyActionSuccess(response.data));
+
+    // checking if there is existing datasource to be added to the action payload
+    const existingDatasource = datasources.find(
+      (d: Datasource) => d.id === response.data.datasource.id,
+    );
+
+    let payload = response.data;
+
+    if (existingDatasource) {
+      payload = { ...payload, datasource: existingDatasource };
+    }
+
+    yield put(copyActionSuccess(payload));
   } catch (e) {
     Toaster.show({
       text: `Error while copying action ${actionObject.name}`,

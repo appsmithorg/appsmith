@@ -214,9 +214,7 @@ public class FirestorePlugin extends BasePlugin {
                         result.setIsExecutionSuccess(true);
                         System.out.println(
                                 Thread.currentThread().getName()
-                                        + ": In the Firestore Plugin, got action execution result: "
-                                        + result.toString()
-                        );
+                                        + ": In the Firestore Plugin, got action execution result");
                         return Mono.just(result);
                     });
         }
@@ -319,8 +317,7 @@ public class FirestorePlugin extends BasePlugin {
                         result.setIsExecutionSuccess(true);
                         System.out.println(
                                 Thread.currentThread().getName()
-                                        + ": In the Firestore Plugin, got action execution result: "
-                                        + result.toString()
+                                        + ": In the Firestore Plugin, got action execution result"
                         );
                         return Mono.just(result);
                     });

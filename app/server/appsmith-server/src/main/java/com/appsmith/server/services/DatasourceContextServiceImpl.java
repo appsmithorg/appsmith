@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -39,7 +39,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.encryptionService = encryptionService;
-        this.datasourceContextMap = new HashMap<>();
+        this.datasourceContextMap = new ConcurrentHashMap<>();
     }
 
     @Override

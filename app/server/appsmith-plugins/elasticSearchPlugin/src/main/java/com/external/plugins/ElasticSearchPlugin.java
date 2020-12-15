@@ -104,8 +104,8 @@ public class ElasticSearchPlugin extends BasePlugin {
                 }
 
                 result.setIsExecutionSuccess(true);
-                System.out.println(Thread.currentThread().getName() + ": In the Elastic Search Plugin, got action execution result: " + result.toString());
-                return Mono.just(result).zipWith(Mono.just(client));
+                System.out.println(Thread.currentThread().getName() + ": In the Elastic Search Plugin, got action execution result");
+                return Mono.just(result);
             })
                     .flatMap(obj -> obj)
                     .subscribeOn(scheduler);
