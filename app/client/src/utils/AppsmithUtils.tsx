@@ -13,8 +13,6 @@ import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
 import { ERROR_CODES } from "constants/ApiConstants";
 import { ERROR_500 } from "../constants/messages";
-import ServerTimeout from "pages/common/ServerTimeout";
-import ServerUnavailable from "pages/common/ServerUnavailable";
 
 export const createReducer = (
   initialState: any,
