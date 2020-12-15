@@ -19,6 +19,7 @@ describe("Pages", function() {
       201,
     );
 
+    // to check if apis are cloned
     cy.get(".t--entity-name:contains(Page1)").click({ multiple: true });
     cy.get(".t--entity-name:contains(APIs)")
       .last()
