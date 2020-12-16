@@ -729,6 +729,9 @@ type ColorType = {
     textColor: string;
     bg: ShadeColor;
   };
+  apiPane: {
+    bg: ShadeColor;
+  };
 };
 
 export const dark: ColorType = {
@@ -1004,6 +1007,9 @@ export const dark: ColorType = {
     textColor: "#090707",
     bg: darkShades[8],
   },
+  apiPane: {
+    bg: darkShades[6],
+  },
 };
 
 export const light: ColorType = {
@@ -1278,6 +1284,9 @@ export const light: ColorType = {
     dangerColor: "#F22B2B",
     textColor: "#F7F7F7",
     bg: lightShades[10],
+  },
+  apiPane: {
+    bg: lightShades[6],
   },
 };
 
