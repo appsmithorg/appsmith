@@ -164,17 +164,26 @@ class TabsWidget extends BaseWidget<
       }
     }
     if (this.props.defaultTab) {
-      if (this.props.defaultTab !== prevProps.defaultTab) {
-        const selectedTab = _.find(this.props.tabs, {
-          label: this.props.defaultTab,
-        });
-        const selectedTabWidgetId = selectedTab
-          ? selectedTab.widgetId
-          : undefined;
+      const defaultTab = _.find(this.props.tabs, {
+        label: this.props.defaultTab,
+      });
+      const defaultTabWidgetId = defaultTab ? defaultTab.widgetId : undefined;
+
+      if (
+        this.props.defaultTab !== prevProps.defaultTab &&
+        defaultTabWidgetId
+      ) {
         this.props.updateWidgetMetaProperty(
           "selectedTabWidgetId",
-          selectedTabWidgetId,
+          defaultTabWidgetId,
         );
+      }
+
+      // set first as default if default tab is not found
+      if (!defaultTabWidgetId && this.props.tabs.length > 0) {
+        const firstTab = this.props.tabs[0];
+        const firstTabLabel = firstTab && firstTab.label;
+        this.updateWidgetProperty("defaultTab", firstTabLabel);
       }
     }
   }
