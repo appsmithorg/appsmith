@@ -239,8 +239,10 @@ function* updateFormFields(
     let displayFormat;
 
     if (actionConfigurationHeaders) {
+      console.log("header1s", actionConfigurationHeaders);
       const contentType = actionConfigurationHeaders.find(
-        (header: any) => header.key.toLowerCase() === CONTENT_TYPE,
+        (header: any) =>
+          header && header.key && header.key.toLowerCase() === CONTENT_TYPE,
       );
 
       if (contentType && POST_BODY_FORMATS.includes(contentType.value)) {
