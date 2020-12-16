@@ -170,6 +170,7 @@ public class ActionServiceTest {
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
         action.setPageId(testPage.getId());
+        action.setExecuteOnLoad(true);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
@@ -185,6 +186,7 @@ public class ActionServiceTest {
                     assertThat(createdAction.getId()).isNotEmpty();
                     assertThat(createdAction.getName()).isEqualTo(action.getName());
                     assertThat(createdAction.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy));
+                    assertThat(createdAction.getExecuteOnLoad()).isFalse();
                 })
                 .verifyComplete();
     }
