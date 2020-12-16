@@ -13,20 +13,31 @@ import {
 import { withRouter, RouteComponentProps } from "react-router";
 import AppViewerHeader from "pages/AppViewer/viewer/AppViewerHeader";
 import AppEditorHeader from "pages/Editor/EditorHeader";
+import { getSafeCrash } from "selectors/errorSelectors";
+import { AppState } from "reducers";
 
-type Props = { getCurrentUser: () => void } & RouteComponentProps;
+type Props = {
+  getCurrentUser: () => void;
+  safeCrash: boolean;
+} & RouteComponentProps;
 
 class AppHeader extends React.Component<Props, any> {
   componentDidMount() {
     this.props.getCurrentUser();
   }
   render() {
+    const { safeCrash } = this.props;
+
     return (
       <React.Fragment>
         <Switch>
-          <Route path={BUILDER_URL} component={AppEditorHeader} />
-          <Route path={APP_VIEW_URL} component={AppViewerHeader} />
-          <Route path={USER_AUTH_URL} component={LoginHeader} />
+          {!safeCrash && (
+            <Route path={BUILDER_URL} component={AppEditorHeader} />
+          )}
+          {!safeCrash && (
+            <Route path={APP_VIEW_URL} component={AppViewerHeader} />
+          )}
+          {!safeCrash && <Route path={USER_AUTH_URL} component={LoginHeader} />}
           <Route path={BASE_URL} component={PageHeader} />
         </Switch>
       </React.Fragment>
@@ -34,8 +45,14 @@ class AppHeader extends React.Component<Props, any> {
   }
 }
 
-const mapStateToProps = (dispatch: any) => ({
+const mapStateToProps = (state: AppState) => ({
+  safeCrash: getSafeCrash(state),
+});
+
+const mapDispatchToProps = (dispatch: any) => ({
   getCurrentUser: () => dispatch(getCurrentUser()),
 });
 
-export default withRouter(connect(null, mapStateToProps)(AppHeader));
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(AppHeader),
+);

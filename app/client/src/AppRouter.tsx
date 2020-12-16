@@ -78,7 +78,7 @@ class AppRouter extends React.Component<any, any> {
     return (
       <Router history={history}>
         <Suspense fallback={loadingIndicator}>
-          {!safeCrash && <AppHeader />}
+          <AppHeader />
           {safeCrash ? (
             <ErrorPage code={safeCrashCode} />
           ) : (
