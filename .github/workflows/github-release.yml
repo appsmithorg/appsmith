@@ -162,11 +162,13 @@ jobs:
           repo="${{ github.repository }}"
           query='{
             repository(name: "'${repo#*/}'", owner: "'${repo%/*}'") {
-              releases(orderBy: {field: NAME, direction: DESC}, first: 10) {
+              releases(orderBy: {field: NAME, direction: DESC}, first: 30) {
                 nodes {
                   tagName
                   name
                   url
+                  isDraft
+                  isPrerelease
                   createdAt
                   publishedAt
                 }
@@ -174,11 +176,13 @@ jobs:
               }
             }
           }'
+          processor='import sys, json; data = json.load(sys.stdin)["data"]["repository"]["releases"]; data["nodes"] = [n for n in data["nodes"] if not any(n.pop("isDraft"), n.pop("isPrerelease"))][:10]; print(json.dumps(data))'
           curl \
             --header 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
             --header 'Content-Type: application/json' \
             --data-raw "$(python -c "import json; print(json.dumps({'query': '''$query'''}))")" \
             --url 'https://api.github.com/graphql' \
+            | python -c "$processor"
             | tee appsmith-server/src/main/resources/release-notes.json
 
       # Build Docker image and push to Docker Hub
