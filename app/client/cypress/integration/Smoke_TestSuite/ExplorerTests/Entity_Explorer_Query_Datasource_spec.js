@@ -1,3 +1,5 @@
+/// <reference types="Cypress" />
+
 const queryLocators = require("../../../locators/QueryEditor.json");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../locators/apiWidgetslocator.json");
@@ -50,6 +52,7 @@ describe("Entity explorer tests related to query and datasource", function() {
       200,
     );
 
+    /* eslint-disable */
     cy.wait(2000);
     cy.go("back");
 

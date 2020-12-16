@@ -15,7 +15,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     cy.get(commonlocators.entityExplorersearch)
       .clear()
       .type("form");
-    cy.dragAndDropToCanvas("formwidget");
+    cy.dragAndDropToCanvas("formwidget", { x: 300, y: -300 });
     /**
      * @param{Text} Random Text
      * @param{FormWidget}Mouseover

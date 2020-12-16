@@ -9,10 +9,20 @@ import createSagaMiddleware from "redux-saga";
 import { rootSaga } from "sagas";
 import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProduction";
 import * as Sentry from "@sentry/react";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const sagaMiddleware = createSagaMiddleware();
 const sentryReduxEnhancer = Sentry.createReduxEnhancer({
-  // Optionally pass options listed below
+  actionTransformer: action => {
+    if (
+      action.type === ReduxActionTypes.SET_EVALUATED_TREE ||
+      action.type === ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS
+    ) {
+      // Return null to not log the action to Sentry
+      action.payload = null;
+    }
+    return action;
+  },
 });
 
 export default createStore(
