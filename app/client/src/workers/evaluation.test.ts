@@ -649,6 +649,7 @@ describe("DataTreeEvaluator", () => {
       "Table1.selectedRowIndex": [],
       "Table1.selectedRowIndices": [],
       "Text4.text": [],
+      "Input1.text": [],
     });
   });
 
@@ -698,6 +699,7 @@ describe("DataTreeEvaluator", () => {
       "Table1.selectedRowIndex": [],
       "Table1.selectedRowIndices": [],
       "Text4.text": ["Table1.selectedRow.test"],
+      "Input1.text": [],
     });
   });
 });
