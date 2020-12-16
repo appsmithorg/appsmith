@@ -287,50 +287,39 @@ public class RedshiftPluginTest {
         ResultSet mockResultSet = mock(ResultSet.class);
         when(mockStatement.executeQuery(Mockito.anyString())).thenReturn(mockResultSet, mockResultSet, mockResultSet);
         when(mockResultSet.next())
-                .thenReturn(true, true, true, true, true, true, true, true, false)  // TABLES_QUERY
-                .thenReturn(true, true, false)                                      // KEYS_QUERY_PRIMARY_KEY
-                .thenReturn(true, false);                                           // KEYS_QUERY_FOREIGN_KEY
-        when(mockResultSet.getString("kind")).thenReturn("r", "r", "r", "r", "r", "r", "r", "r");
+                .thenReturn(true, true, true, true, true, true, true, true, false)                  // TABLES_QUERY
+                .thenReturn(true, true, false)                                                      // KEYS_QUERY_PRIMARY_KEY
+                .thenReturn(true, false);                                                           // KEYS_QUERY_FOREIGN_KEY
+        when(mockResultSet.getString("kind")).thenReturn("r", "r", "r", "r", "r", "r", "r", "r");// TABLES_QUERY
         when(mockResultSet.getString("schema_name")).thenReturn("public", "public", "public", "public", "public",
-                "public", "public", "public");
+                "public", "public", "public");                                   // TABLES_QUERY
         when(mockResultSet.getString("table_name")).thenReturn("campus", "campus", "possessions", "possessions",
-                "possessions", "users", "users", "users");
+                "possessions", "users", "users", "users");                       // TABLES_QUERY
         when(mockResultSet.getString("name")).thenReturn("id", "name", "id", "title", "user_id", "id", "username",
-                "password");
+                "password");                                                     // TABLES_QUERY
         when(mockResultSet.getString("column_type")).thenReturn("timestamptz", "timestamptz", "int4", "varchar",
-                "int4", "int4", "varchar", "varchar");
+                "int4", "int4", "varchar", "varchar");                           // TABLES_QUERY
         when(mockResultSet.getString("default_expr")).thenReturn("now()", "now()", null, null, null, "\"identity\"" +
-                "(101507, 0, '1,1'::text)", null, null);
+                "(101507, 0, '1,1'::text)", null, null);                         // TABLES_QUERY
         when(mockResultSet.getString("constraint_name"))
-                .thenReturn("possessions_pkey", "users_pkey")  // KEYS_QUERY_PRIMARY_KEY
-                .thenReturn("user_fk");                                     // KEYS_QUERY_FOREIGN_KEY
+                .thenReturn("possessions_pkey", "users_pkey")       // KEYS_QUERY_PRIMARY_KEY
+                .thenReturn("user_fk");                                          // KEYS_QUERY_FOREIGN_KEY
         when(mockResultSet.getString("constraint_type"))
-                .thenReturn("p", "p")                          // KEYS_QUERY_PRIMARY_KEY
-                .thenReturn("f");                                           // KEYS_QUERY_FOREIGN_KEY
+                .thenReturn("p", "p")                               // KEYS_QUERY_PRIMARY_KEY
+                .thenReturn("f");                                                // KEYS_QUERY_FOREIGN_KEY
         when(mockResultSet.getString("self_schema"))
-                .thenReturn("public", "public")                // KEYS_QUERY_PRIMARY_KEY
-                .thenReturn("public");                                      // KEYS_QUERY_FOREIGN_KEY
+                .thenReturn("public", "public")                     // KEYS_QUERY_PRIMARY_KEY
+                .thenReturn("public");                                           // KEYS_QUERY_FOREIGN_KEY
         when(mockResultSet.getString("self_table"))
-                .thenReturn("possessions", "users")            // KEYS_QUERY_PRIMARY_KEY
-                .thenReturn("possessions");                                 // KEYS_QUERY_FOREIGN_KEY
+                .thenReturn("possessions", "users")                 // KEYS_QUERY_PRIMARY_KEY
+                .thenReturn("possessions");                                      // KEYS_QUERY_FOREIGN_KEY
         when(mockResultSet.getString("self_column"))
-                .thenReturn("id", "id")                        // KEYS_QUERY_PRIMARY_KEY
-                .thenReturn("user_id");                                     // KEYS_QUERY_FOREIGN_KEY
-        when(mockResultSet.getString("foreign_schema")).thenReturn("public");
-        when(mockResultSet.getString("foreign_table")).thenReturn("users");
-        when(mockResultSet.getString("foreign_column")).thenReturn("id");
+                .thenReturn("id", "id")                             // KEYS_QUERY_PRIMARY_KEY
+                .thenReturn("user_id");                                          // KEYS_QUERY_FOREIGN_KEY
+        when(mockResultSet.getString("foreign_schema")).thenReturn("public"); // KEYS_QUERY_FOREIGN_KEY
+        when(mockResultSet.getString("foreign_table")).thenReturn("users");   // KEYS_QUERY_FOREIGN_KEY
+        when(mockResultSet.getString("foreign_column")).thenReturn("id");     // KEYS_QUERY_FOREIGN_KEY
         doNothing().when(mockResultSet).close();
-
-        /* Mock java.sql.ResultSetMetaData:
-         *      a. getColumnCount()
-         *      b. getColumnTypeName(...)
-         *      c. getColumnName(...)
-         */
-        ResultSetMetaData mockResultSetMetaData = mock(ResultSetMetaData.class);
-        when(mockResultSet.getMetaData()).thenReturn(mockResultSetMetaData);
-        when(mockResultSetMetaData.getColumnCount()).thenReturn(6);
-        when(mockResultSetMetaData.getColumnTypeName(Mockito.anyInt())).thenReturn("int4");
-        when(mockResultSetMetaData.getColumnName(Mockito.anyInt())).thenReturn("user_id");
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Connection> dsConnectionMono = Mono.just(mockConnection);

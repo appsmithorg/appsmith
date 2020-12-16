@@ -120,12 +120,6 @@ public class RedshiftPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(Connection connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
-
-            //TODO: remove it.
-            System.out.println("devtest: tables_query: " + TABLES_QUERY);
-            //System.out.println("devtest: keys_query_p: " + KEYS_QUERY_PRIMARY_KEY);
-            //System.out.println("devtest: keys_query_p: " + KEYS_QUERY_FOREIGN_KEY);
-
             return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
 
                 try {
@@ -193,11 +187,6 @@ public class RedshiftPlugin extends BasePlugin {
                                 }
 
                                 row.put(metaData.getColumnName(i), value);
-                                //TODO: remove it.
-                                System.out.println("-----------------------");
-                                System.out.println("devtest: type: " + typeName);
-                                System.out.println("devtest: row: " + row);
-                                System.out.println("-----------------------");
                             }
 
                             rowsList.add(row);
@@ -297,12 +286,8 @@ public class RedshiftPlugin extends BasePlugin {
                             configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
                     return Mono.just(connection);
                 } catch (SQLException e) {
-                    //TODO: remove it.
-                    System.out.println("devtest: url: " + url);
-                    System.out.println("devtest: e: " + e);
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error connecting" +
                             " to Redshift.", e));
-
                 }
             })
             .flatMap(obj -> obj)
@@ -381,9 +366,6 @@ public class RedshiftPlugin extends BasePlugin {
         }
 
         private void getTablesInfo(ResultSet columnsResultSet, Map<String, DatasourceStructure.Table> tablesByName) throws SQLException {
-            //TODO: remove it.
-            System.out.println("devtest: getTablesInfo start");
-
             while (columnsResultSet.next()) {
                 final char kind = columnsResultSet.getString("kind").charAt(0);
                 final String schemaName = columnsResultSet.getString("schema_name");
@@ -409,9 +391,6 @@ public class RedshiftPlugin extends BasePlugin {
 
         private void getKeysInfo(ResultSet constraintsResultSet, Map<String, DatasourceStructure.Table> tablesByName,
                                  Map<String, DatasourceStructure.Key> keyRegistry) throws SQLException {
-            //TODO: remove it.
-            System.out.println("devtest: getKeysInfo start");
-
             while (constraintsResultSet.next()) {
                 final String constraintName = constraintsResultSet.getString("constraint_name");
                 final char constraintType = constraintsResultSet.getString("constraint_type").charAt(0);
@@ -462,9 +441,6 @@ public class RedshiftPlugin extends BasePlugin {
         }
 
         private void getTemplates(Map<String, DatasourceStructure.Table> tablesByName) {
-            //TODO: remove it.
-            System.out.println("devtest: getTemplates start");
-
             for (DatasourceStructure.Table table : tablesByName.values()) {
                 final List<DatasourceStructure.Column> columnsWithoutDefault = table.getColumns()
                         .stream()
@@ -522,9 +498,6 @@ public class RedshiftPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStructure> getStructure(Connection connection, DatasourceConfiguration datasourceConfiguration) {
-            //TODO: remove it.
-            System.out.println("devtest: getStructure start");
-
             try {
                 if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
                     log.info("Encountered stale connection in Postgres plugin. Reporting back.");
@@ -564,9 +537,6 @@ public class RedshiftPlugin extends BasePlugin {
                     getTemplates(tablesByName);
 
                 } catch (SQLException throwable) {
-                    //TODO: remove it.
-                    throwable.printStackTrace();
-
                     return Mono.error(throwable);
                 }
 
