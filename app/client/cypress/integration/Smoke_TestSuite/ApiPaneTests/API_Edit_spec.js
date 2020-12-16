@@ -29,22 +29,12 @@ describe("API Panel Test Functionality", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("CrashTestAPI");
     cy.SelectAction(testdata.postAction);
-    // Todo: find a way to clear without doing it character by character
     cy.xpath(apiwidget.postDefaultContentTypeHeaderKey)
       .first()
-      .click({ force: true })
-      .clear({ force: true }) // c
-      .clear({ force: true }) // o
-      .clear({ force: true }) // n
-      .clear({ force: true }) // t
-      .clear({ force: true }) // e
-      .clear({ force: true }) // n
-      .clear({ force: true }) // t
-      .clear({ force: true }) // -
-      .clear({ force: true }) // t
-      .clear({ force: true }) // y
-      .clear({ force: true }) // p
-      .clear({ force: true }); // e
+      .focus({ force: true })
+      .type("{uparrow}", { force: true })
+      .type("{ctrl}{shift}{downarrow}", { force: true })
+      .type("{backspace}", { force: true });
     // assert so that this fails
     cy.xpath(apiwidget.postDefaultContentTypeHeaderKey).should("be.visible");
     cy.xpath(apiwidget.postDefaultContentTypeHeaderKey).should(
