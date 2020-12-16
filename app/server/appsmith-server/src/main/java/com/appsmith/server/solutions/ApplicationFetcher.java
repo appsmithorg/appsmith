@@ -11,6 +11,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserServiceImpl;
 import com.appsmith.server.services.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
@@ -26,6 +27,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 
 @Component
+@RequiredArgsConstructor
 public class ApplicationFetcher {
     /**
      * A component responsible for generating a list of applications accessible by the currently logged-in user.
@@ -36,17 +38,7 @@ public class ApplicationFetcher {
     private final UserService userService;
     private final OrganizationService organizationService;
     private final ApplicationRepository applicationRepository;
-
-    public ApplicationFetcher(
-            SessionUserServiceImpl sessionUserService,
-            UserService userService,
-            OrganizationService organizationService,
-            ApplicationRepository applicationRepository) {
-        this.sessionUserService = sessionUserService;
-        this.userService = userService;
-        this.organizationService = organizationService;
-        this.applicationRepository = applicationRepository;
-    }
+    private final ReleaseNotes releaseNotes;
 
     /**
      * For the current user, it first fetches all the organizations that its part of. For each organization, in turn all
@@ -79,6 +71,9 @@ public class ApplicationFetcher {
 
                     UserHomepageDTO userHomepageDTO = new UserHomepageDTO();
                     userHomepageDTO.setUser(user);
+
+                    userHomepageDTO.setReleaseItems(releaseNotes.getReleaseNodes());
+                    userHomepageDTO.setNewReleasesCount(releaseNotes.computeNewFrom(user.getReleaseNotesViewedVersion()));
 
                     return organizationService
                             .findByIdsIn(orgIds, READ_ORGANIZATIONS)

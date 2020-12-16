@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.util.StringUtils;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,6 +32,8 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     private String name;
 
     private String email;
+
+    private Instant lastLoginTime;
 
     //TODO: This is deprecated in favour of groups
     private Set<Role> roles;
@@ -66,6 +69,9 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     // token flow.
     @JsonIgnore
     private String inviteToken;
+
+    // The version where this user has last viewed the release notes.
+    private String releaseNotesViewedVersion;
 
     @Transient
     Boolean isAnonymous = false;
