@@ -1,75 +1,107 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import TextComponent from "components/designSystems/blueprint/TextComponent";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import _ from "lodash";
+
+import ContainerComponent, {
+  ContainerStyle,
+} from "components/designSystems/appsmith/ContainerComponent";
+import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
+import WidgetFactory from "utils/WidgetFactory";
 import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+  GridDefaults,
+  CONTAINER_GRID_PADDING,
+  WIDGET_PADDING,
+} from "constants/WidgetConstants";
+import { TriggerPropertiesMap } from "utils/WidgetFactory";
+
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import * as Sentry from "@sentry/react";
 
-const LINE_HEIGHTS: { [key in TextStyle]: number } = {
-  // The following values are arrived at by multiplying line-height with font-size
-  BODY: 1.5 * 14,
-  HEADING: 1.28581 * 16,
-  LABEL: 1.28581 * 14,
-  SUB_TEXT: 1.28581 * 12,
-};
+class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
+  constructor(props: GridWidgetProps<WidgetProps>) {
+    super(props);
+    this.renderChildWidget = this.renderChildWidget.bind(this);
+  }
 
-class GridWidget extends BaseWidget<GridWidgetProps, WidgetState> {
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {
-      ...BASE_WIDGET_VALIDATION,
-      text: VALIDATION_TYPES.TEXT,
-      textStyle: VALIDATION_TYPES.TEXT,
-      shouldScroll: VALIDATION_TYPES.BOOLEAN,
+      onListItemClick: true,
     };
   }
 
-  getNumberOfLines() {
-    const height = (this.props.bottomRow - this.props.topRow) * 40;
-    const lineHeight = LINE_HEIGHTS[this.props.textStyle];
-    return Math.floor(height / lineHeight);
+  getSnapSpaces = () => {
+    const { componentWidth } = this.getComponentDimensions();
+    return {
+      snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      snapColumnSpace: componentWidth
+        ? (componentWidth - (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2) /
+          GridDefaults.DEFAULT_GRID_COLUMNS
+        : 0,
+    };
+  };
+
+  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
+    // For now, isVisible prop defines whether to render a detached widget
+    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
+      return null;
+    }
+
+    const snapSpaces = this.getSnapSpaces();
+    const { componentWidth, componentHeight } = this.getComponentDimensions();
+
+    if (childWidgetData.type !== WidgetTypes.CANVAS_WIDGET) {
+      childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
+      childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
+    } else {
+      // This is for the detached child like the default CANVAS_WIDGET child
+
+      childWidgetData.rightColumn = componentWidth;
+      childWidgetData.bottomRow = this.props.shouldScrollContents
+        ? childWidgetData.bottomRow
+        : componentHeight;
+      childWidgetData.minHeight = componentHeight;
+      childWidgetData.isVisible = this.props.isVisible;
+      childWidgetData.shouldScrollContents = false;
+      childWidgetData.canExtend = this.props.shouldScrollContents;
+    }
+
+    childWidgetData.parentId = this.props.widgetId;
+
+    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   }
 
-  getPageView() {
-    // const lines = this.getNumberOfLines();
+  renderChildren = () => {
+    return _.map(
+      // sort by row so stacking context is correct
+      // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
+      // Figure out a way in which the stacking context is consistent.
+      _.sortBy(_.compact(this.props.children), child => child.topRow),
+      this.renderChildWidget,
+    );
+  };
+
+  renderAsContainerComponent(props: GridWidgetProps<WidgetProps>) {
     return (
-      <TextComponent
-        widgetId={this.props.widgetId}
-        key={this.props.widgetId}
-        textStyle={this.props.textStyle}
-        text={this.props.text}
-        textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
-        isLoading={this.props.isLoading}
-        shouldScroll={this.props.shouldScroll}
-        // lines={lines}
-      />
+      <ContainerComponent {...props}>
+        {this.renderChildren()}
+      </ContainerComponent>
     );
   }
 
-  static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {
-      value: `{{ this.text }}`,
-    };
+  getPageView() {
+    return this.renderAsContainerComponent(this.props);
   }
 
   getWidgetType(): WidgetType {
-    return "GRID_WIDGET";
+    return WidgetTypes.GRID_WIDGET;
   }
 }
 
-export type TextStyle = "BODY" | "HEADING" | "LABEL" | "SUB_TEXT";
-export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
-
-export interface GridWidgetProps extends WidgetProps {
-  text?: string;
-  textStyle: TextStyle;
-  isLoading: boolean;
-  textAlign: TextAlign;
-  shouldScroll: boolean;
+export interface GridWidgetProps<T extends WidgetProps> extends WidgetProps {
+  children?: T[];
+  containerStyle?: ContainerStyle;
+  shouldScrollContents?: boolean;
+  onListItemClick?: string;
+  gridData: Array<Record<string, unknown>>;
 }
 
 export default GridWidget;

@@ -404,7 +404,7 @@ export default class WidgetBuilderRegistry {
     WidgetFactory.registerWidgetBuilder(
       WidgetTypes.GRID_WIDGET,
       {
-        buildWidget(widgetProps: GridWidgetProps): JSX.Element {
+        buildWidget(widgetProps: GridWidgetProps<WidgetProps>): JSX.Element {
           return <ProfiledGridWidget {...widgetProps} />;
         },
       },

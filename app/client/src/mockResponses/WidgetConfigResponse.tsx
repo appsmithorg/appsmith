@@ -2,6 +2,7 @@ import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigRe
 import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
 import { generateReactKey } from "utils/generators";
+import { WidgetTypes } from "constants/WidgetConstants";
 
 /**
  * this config sets the default values of properties being used in the widget
@@ -445,13 +446,67 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 1,
       widgetName: "Skeleton",
     },
-    GRID_WIDGET: {
-      text: "Label",
-      textStyle: "LABEL",
-      textAlign: "LEFT",
-      rows: 1,
-      columns: 4,
+    [WidgetTypes.GRID_WIDGET]: {
+      backgroundColor: "#FFFFFF",
+      rows: 10,
+      columns: 8,
+      gridData: [
+        {
+          id: 2381224,
+          email: "michael.lawson@reqres.in",
+          userName: "Michael Lawson",
+          productName: "Chicken Sandwich",
+          orderAmount: 4.99,
+        },
+        {
+          id: 2736212,
+          email: "lindsay.ferguson@reqres.in",
+          userName: "Lindsay Ferguson",
+          productName: "Tuna Salad",
+          orderAmount: 9.99,
+        },
+        {
+          id: 6788734,
+          email: "tobias.funke@reqres.in",
+          userName: "Tobias Funke",
+          productName: "Beef steak",
+          orderAmount: 19.99,
+        },
+      ],
       widgetName: "Grid",
+      containerStyle: "card",
+      children: [],
+      blueprint: {
+        view: [
+          {
+            type: "CANVAS_WIDGET",
+            position: { left: 0, top: 0 },
+            props: {
+              detachFromLayout: true,
+              canExtend: true,
+              isVisible: true,
+              isDisabled: false,
+              shouldScrollContents: false,
+              children: [],
+              blueprint: {
+                view: [
+                  {
+                    type: WidgetTypes.IMAGE_WIDGET,
+                    position: { left: 0, top: 0 },
+                    size: { rows: 3, cols: 3 },
+                    props: {
+                      imageShape: "RECTANGLE",
+                      maxZoomLevel: 1,
+                      defaultImage:
+                        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
     },
   },
   configVersion: 1,

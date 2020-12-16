@@ -1387,72 +1387,47 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
     ],
     GRID_WIDGET: [
       {
-        id: "2.1",
+        id: "18.1",
         sectionName: "General",
         children: [
           {
-            id: "2.1.1",
-            propertyName: "text",
-            helpText: "Sets the text of the widget",
-            label: "Text",
+            id: "18.1.1",
+            helpText:
+              "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
+            propertyName: "gridData",
+            label: "Grid Data",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter text",
+            placeholderText: 'Enter [{ "col1": "val1" }]',
+            inputType: "ARRAY",
           },
           {
-            id: "2.1.3",
-            propertyName: "textAlign",
-            helpText: "Sets the alignments of the text",
-            label: "Text Align",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Left",
-                value: "LEFT",
-              },
-              {
-                label: "Center",
-                value: "CENTER",
-              },
-              {
-                label: "Right",
-                value: "RIGHT",
-              },
-            ],
+            id: "18.1.2",
+            helpText: "Use a html color name, HEX, RGB or RGBA value",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            propertyName: "backgroundColor",
+            label: "Background Color",
+            controlType: "INPUT_TEXT",
           },
           {
-            id: "2.1.2",
-            propertyName: "textStyle",
-            helpText: "Sets the font and style of the text",
-            label: "Text Style",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Heading",
-                value: "HEADING",
-              },
-              {
-                label: "Label",
-                value: "LABEL",
-              },
-              {
-                label: "Body",
-                value: "BODY",
-              },
-            ],
-          },
-          {
-            id: "2.1.3",
-            propertyName: "shouldScroll",
-            label: "Enable Scroll",
-            helpText: "Allows scrolling text instead of truncation",
-            controlType: "SWITCH",
-          },
-          {
-            id: "2.1.4",
-            propertyName: "isVisible",
+            id: "18.1.3",
             helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
             label: "Visible",
             controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            id: "18.1.4",
+            propertyName: "shouldScrollContents",
+            label: "Scroll Contents",
+            controlType: "SWITCH",
+          },
+          {
+            id: "18.1.5",
+            helpText: "Triggers an action when a grid list item is clicked",
+            propertyName: "onListItemClick",
+            label: "onListItemClick",
+            controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
           },
         ],

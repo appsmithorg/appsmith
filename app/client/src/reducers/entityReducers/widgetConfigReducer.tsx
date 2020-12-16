@@ -77,7 +77,7 @@ export interface WidgetConfigReducerState {
       WidgetConfigProps;
     ICON_WIDGET: Partial<IconWidgetProps> & WidgetConfigProps;
     SKELETON_WIDGET: Partial<SkeletonWidgetProps> & WidgetConfigProps;
-    GRID_WIDGET: Partial<GridWidgetProps> & WidgetConfigProps;
+    GRID_WIDGET: Partial<GridWidgetProps<WidgetProps>> & WidgetConfigProps;
   };
   configVersion: number;
 }
