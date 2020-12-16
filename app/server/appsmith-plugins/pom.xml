@@ -14,7 +14,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>postgresPlugin</module>
+        <!--TODO: uncomment.-->
+        <!--<module>postgresPlugin</module>
         <module>restApiPlugin</module>
         <module>mongoPlugin</module>
         <module>rapidApiPlugin</module>
@@ -23,7 +24,7 @@
         <module>dynamoPlugin</module>
         <module>redisPlugin</module>
         <module>mssqlPlugin</module>
-        <module>firestorePlugin</module>
+        <module>firestorePlugin</module>-->
         <module>redshiftPlugin</module>
     </modules>
 </project>

@@ -20,7 +20,6 @@ import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -31,7 +30,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.*;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -178,7 +178,6 @@ public class RedshiftPlugin extends BasePlugin {
                                     value = DateTimeFormatter.ISO_DATE_TIME.format(
                                             resultSet.getObject(i, OffsetDateTime.class)
                                     );
-
                                 }
                                 else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
                                     value = resultSet.getString(i);
@@ -535,7 +534,6 @@ public class RedshiftPlugin extends BasePlugin {
 
                     // Get templates for each table and put those in.
                     getTemplates(tablesByName);
-
                 } catch (SQLException throwable) {
                     return Mono.error(throwable);
                 }
