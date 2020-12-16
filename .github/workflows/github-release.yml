@@ -176,7 +176,7 @@ jobs:
               }
             }
           }'
-          processor='import sys, json; data = json.load(sys.stdin)["data"]["repository"]["releases"]; data["nodes"] = [n for n in data["nodes"] if not any(n.pop("isDraft"), n.pop("isPrerelease"))][:10]; print(json.dumps(data))'
+          processor='import sys, json; data = json.load(sys.stdin)["data"]["repository"]["releases"]; data["nodes"] = [n for n in data["nodes"] if not any([n.pop("isDraft"), n.pop("isPrerelease")])][:10]; print(json.dumps(data))'
           curl \
             --header 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
             --header 'Content-Type: application/json' \
