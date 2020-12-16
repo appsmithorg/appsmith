@@ -169,11 +169,11 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   if (postEvalActions && postEvalActions.length) {
     yield call(postEvalActionDispatcher, postEvalActions);
   }
+  isEvaling = false;
   yield put({
     type: ReduxActionTypes.SET_EVALUATION_DEPENDENCY_MAP,
     payload: dependencies,
   });
-  isEvaling = false;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.EVAL_REDUX_UPDATE,
   );
