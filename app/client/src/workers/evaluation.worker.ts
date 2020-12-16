@@ -39,8 +39,6 @@ import {
   translateDiffEventToDataTreeDiffEvent,
 } from "./evaluationUtils";
 
-const ctx: Worker = self as any;
-
 let dataTreeEvaluator: DataTreeEvaluator | undefined;
 
 type EvalResult = {
@@ -48,8 +46,12 @@ type EvalResult = {
   triggers?: ActionDescription<any>[];
 };
 
-ctx.addEventListener("message", e => {
-  const { action, ...rest } = e.data;
+export default (event: {
+  action: EVAL_WORKER_ACTIONS;
+  [key: string]: any;
+}): any => {
+  // ctx.addEventListener("message", e => {
+  const { action, ...rest } = event;
   switch (action as EVAL_WORKER_ACTIONS) {
     case EVAL_WORKER_ACTIONS.EVAL_TREE: {
       const workerTimeStart = new Date().getTime();
@@ -85,30 +87,26 @@ ctx.addEventListener("message", e => {
         }
         dataTreeEvaluator = undefined;
       }
-      const workerTimeEnd = new Date().getTime();
-      ctx.postMessage({
+      return {
         dataTree,
         dependencies,
         errors,
-        workerTime: (workerTimeEnd - workerTimeStart).toFixed(2),
-      });
-      break;
+      };
     }
     case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
       const { binding, dataTree } = rest;
       const withFunctions = addFunctions(dataTree);
       if (!dataTreeEvaluator) {
-        ctx.postMessage({ value: undefined, errors: [] });
-        break;
+        return { value: undefined, errors: [] };
       }
       const value = dataTreeEvaluator.getDynamicValue(
         binding,
         withFunctions,
         false,
       );
-      ctx.postMessage({ value, errors: dataTreeEvaluator.errors });
+      const response = { value, errors: dataTreeEvaluator.errors };
       dataTreeEvaluator.clearErrors();
-      break;
+      return response;
     }
     case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
       const { dynamicTrigger, callbackData, dataTree } = rest;
@@ -123,32 +121,29 @@ ctx.addEventListener("message", e => {
         true,
         callbackData,
       );
-      ctx.postMessage({ triggers, errors: dataTreeEvaluator.errors });
+      const response = { triggers, errors: dataTreeEvaluator.errors };
       dataTreeEvaluator.clearErrors();
-      break;
+      return response;
     }
     case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
       dataTreeEvaluator = undefined;
-      ctx.postMessage(true);
-      break;
+      return true;
     }
     case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE: {
       const { propertyPath } = rest;
       if (!dataTreeEvaluator) {
-        break;
+        return false;
       }
       dataTreeEvaluator.clearPropertyCache(propertyPath);
-      ctx.postMessage(true);
-      break;
+      return true;
     }
     case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET: {
       const { widgetName } = rest;
       if (!dataTreeEvaluator) {
-        break;
+        return false;
       }
       dataTreeEvaluator.clearPropertyCacheOfWidget(widgetName);
-      ctx.postMessage(true);
-      break;
+      return true;
     }
     case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
       const { widgetType, property, value, props } = rest;
@@ -161,14 +156,14 @@ ctx.addEventListener("message", e => {
         value,
         props,
       );
-      ctx.postMessage(result);
-      break;
+      return result;
     }
     default: {
       console.error("Action not registered on worker", action);
     }
   }
-});
+};
+// });
 
 export class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -725,11 +720,11 @@ export class DataTreeEvaluator {
         });
 
         ///// Remove all unsafe functions
-        unsafeFunctionForEval.forEach(func => {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore: No types available
-          self[func] = undefined;
-        });
+        // unsafeFunctionForEval.forEach(func => {
+        //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //   // @ts-ignore: No types available
+        //   self[func] = undefined;
+        // });
 
         const evalResult = eval(script);
 
