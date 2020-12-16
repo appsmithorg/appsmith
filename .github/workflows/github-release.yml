@@ -176,7 +176,7 @@ jobs:
           curl \
             --header 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
             --header 'Content-Type: application/json' \
-            --data-raw "$query" \
+            --data-raw "$(python -c "import json; print(json.dumps({'query': '''$query'''}))")" \
             --url 'https://api.github.com/graphql' \
             | tee appsmith-server/src/main/resources/release-notes.json
 
