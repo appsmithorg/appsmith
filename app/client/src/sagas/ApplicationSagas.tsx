@@ -50,6 +50,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
+import { showCompletionDialog } from "./OnboardingSagas";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -81,11 +82,17 @@ export function* publishApplicationSaga(
 
       const applicationId = yield select(getCurrentApplicationId);
       const currentPageId = yield select(getCurrentPageId);
-
-      window.open(
-        getApplicationViewerPageURL(applicationId, currentPageId),
-        "_blank",
+      let appicationViewPageUrl = getApplicationViewerPageURL(
+        applicationId,
+        currentPageId,
       );
+
+      const showOnboardingCompletionDialog = yield select(showCompletionDialog);
+      if (showOnboardingCompletionDialog) {
+        appicationViewPageUrl += "?onboardingComplete=true";
+      }
+
+      window.open(appicationViewPageUrl, "_blank");
     }
   } catch (error) {
     yield put({

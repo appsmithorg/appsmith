@@ -48,6 +48,12 @@ export const getTooltipConfig = (state: AppState) => {
 
   return OnboardingConfig[OnboardingStep.NONE].tooltip;
 };
+export const showCompletionDialog = (state: AppState) => {
+  const isInOnboarding = inOnboarding(state);
+  const currentStep = getCurrentStep(state);
+
+  return isInOnboarding && currentStep === OnboardingStep.DEPLOY;
+};
 
 function* listenForWidgetAdditions() {
   while (true) {
@@ -255,6 +261,7 @@ function* listenForDeploySaga() {
       type: ReduxActionTypes.SHOW_ONBOARDING_COMPLETION_DIALOG,
       payload: true,
     });
+    yield put(setOnboardingReduxState(false));
 
     return;
   }

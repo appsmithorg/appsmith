@@ -1,10 +1,9 @@
 import { Dialog, Icon } from "@blueprintjs/core";
 import { IconWrapper } from "constants/IconConstants";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import { HeaderIcons } from "icons/HeaderIcons";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
 import styled from "styled-components";
@@ -12,9 +11,10 @@ import { ReactComponent as BookIcon } from "assets/icons/ads/app-icons/book.svg"
 import { FormDialogComponent } from "../form/FormDialogComponent";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import history from "utils/history";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { endOnboarding } from "actions/onboardingActions";
+import { getQueryParams } from "utils/AppsmithUtils";
+import { getOnboardingState } from "utils/storage";
 
 const StyledDialog = styled(Dialog)`
   && {
@@ -89,25 +89,32 @@ const StyledButton = styled.button`
 `;
 
 const CompletionDialog = () => {
-  const showCompletionDialog = useSelector(
-    state => state.ui.onBoarding.showCompletionDialog,
-  );
+  const [isOpen, setIsOpen] = useState(false);
   const orgId = useSelector(getCurrentOrgId);
   const currentApplication = useSelector(getCurrentApplication);
   const pageId = useSelector(getCurrentPageId);
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    const params = getQueryParams();
+    const showCompletionDialog = async () => {
+      const inOnboarding = await getOnboardingState();
+      if (params.onboardingComplete && inOnboarding) {
+        setIsOpen(true);
+      }
+    };
+
+    showCompletionDialog();
+  }, []);
+
   const onClose = () => {
-    dispatch({
-      type: ReduxActionTypes.SHOW_ONBOARDING_COMPLETION_DIALOG,
-      payload: false,
-    });
+    setIsOpen(false);
     dispatch(endOnboarding());
   };
 
   return (
     <StyledDialog
-      isOpen={showCompletionDialog}
+      isOpen={isOpen}
       canOutsideClickClose={true}
       canEscapeKeyClose={true}
       onClose={onClose}
@@ -187,9 +194,9 @@ const CompletionDialog = () => {
             />
             <QuickLinksItem
               onClick={() => {
-                onClose();
-                history.push(
+                window.open(
                   DATA_SOURCES_EDITOR_URL(currentApplication?.id, pageId),
+                  "_blank",
                 );
               }}
             >
