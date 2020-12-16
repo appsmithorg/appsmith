@@ -185,9 +185,14 @@ class TabsWidget extends BaseWidget<
       });
 
       if (!selectedTabWithinTabs) {
+        // try to select default else select first
+        const defaultTab = _.find(this.props.tabs, {
+          label: this.props.defaultTab,
+        });
+
         this.props.updateWidgetMetaProperty(
           "selectedTabWidgetId",
-          this.props.tabs[0].widgetId,
+          (defaultTab && defaultTab.widgetId) || this.props.tabs[0].widgetId,
         );
       }
     }
