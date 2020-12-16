@@ -116,6 +116,47 @@ public class RedshiftPlugin extends BasePlugin {
                 "         kcu.table_name,\n" +
                 "         kcu.ordinal_position;\n";
 
+        private Map<String, Object> getRow(ResultSet resultSet) throws SQLException {
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int colCount = metaData.getColumnCount();
+            // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
+            Map<String, Object> row = new LinkedHashMap<>(colCount);
+
+            for (int i = 1; i <= colCount; i++) {
+                Object value;
+                final String typeName = metaData.getColumnTypeName(i);
+
+                if (resultSet.getObject(i) == null) {
+                    value = null;
+
+                } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                    value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
+
+                } else if ("timestamp".equalsIgnoreCase(typeName)) {
+                    value = DateTimeFormatter.ISO_DATE_TIME.format(
+                            LocalDateTime.of(
+                                    resultSet.getDate(i).toLocalDate(),
+                                    resultSet.getTime(i).toLocalTime()
+                            )
+                    ) + "Z";
+
+                } else if ("timestamptz".equalsIgnoreCase(typeName)) {
+                    value = DateTimeFormatter.ISO_DATE_TIME.format(
+                            resultSet.getObject(i, OffsetDateTime.class)
+                    );
+                }
+                else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
+                    value = resultSet.getString(i);
+                } else {
+                    value = resultSet.getObject(i);
+                }
+
+                row.put(metaData.getColumnName(i), value);
+            }
+
+            return row;
+        }
+
         @Override
         public Mono<ActionExecutionResult> execute(Connection connection,
                                                    DatasourceConfiguration datasourceConfiguration,
@@ -149,48 +190,11 @@ public class RedshiftPlugin extends BasePlugin {
 
                     if (isResultSet) {
                         resultSet = statement.getResultSet();
-                        ResultSetMetaData metaData = resultSet.getMetaData();
-                        int colCount = metaData.getColumnCount();
 
                         while (resultSet.next()) {
-                            // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
-                            Map<String, Object> row = new LinkedHashMap<>(colCount);
-
-                            for (int i = 1; i <= colCount; i++) {
-                                Object value;
-                                final String typeName = metaData.getColumnTypeName(i);
-
-                                if (resultSet.getObject(i) == null) {
-                                    value = null;
-
-                                } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                    value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
-
-                                } else if ("timestamp".equalsIgnoreCase(typeName)) {
-                                    value = DateTimeFormatter.ISO_DATE_TIME.format(
-                                            LocalDateTime.of(
-                                                    resultSet.getDate(i).toLocalDate(),
-                                                    resultSet.getTime(i).toLocalTime()
-                                            )
-                                    ) + "Z";
-
-                                } else if ("timestamptz".equalsIgnoreCase(typeName)) {
-                                    value = DateTimeFormatter.ISO_DATE_TIME.format(
-                                            resultSet.getObject(i, OffsetDateTime.class)
-                                    );
-                                }
-                                else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
-                                    value = resultSet.getString(i);
-                                } else {
-                                    value = resultSet.getObject(i);
-                                }
-
-                                row.put(metaData.getColumnName(i), value);
-                            }
-
+                            Map<String, Object> row = getRow(resultSet);
                             rowsList.add(row);
                         }
-
                     } else {
                         rowsList.add(Map.of(
                                 "affectedRows",
@@ -198,7 +202,6 @@ public class RedshiftPlugin extends BasePlugin {
                         );
 
                     }
-
                 } catch (SQLException e) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                 } finally {
@@ -217,7 +220,6 @@ public class RedshiftPlugin extends BasePlugin {
                             log.warn("Error closing Redshift Statement", e);
                         }
                     }
-
                 }
 
                 ActionExecutionResult result = new ActionExecutionResult();
