@@ -725,9 +725,9 @@ function* updateWidgetPropertySaga(
   yield put(updateWidgetProperty(widgetId, propertyName, propertyValue));
 
   // noticed the changes dispatched here are not the latest ones
-  const stateWidgets = yield select(getWidgets);
-  const widgets = { ...stateWidgets, [widgetId]: widget };
-  yield put(updateAndSaveLayout(widgets));
+  // const stateWidgets = yield select(getWidgets);
+  // const widgets = { ...stateWidgets, [widgetId]: widget };
+  // yield put(updateAndSaveLayout(widgets));
 }
 
 function* setWidgetDynamicPropertySaga(
