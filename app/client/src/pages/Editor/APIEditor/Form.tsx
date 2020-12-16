@@ -47,6 +47,9 @@ const Form = styled.form`
       width: 100%;
     }
   }
+  .form-row-header {
+    padding-left: 30px;
+  }
 `;
 
 const MainConfiguration = styled.div`
@@ -77,7 +80,8 @@ const DatasourceWrapper = styled.div`
 
 const SecondaryWrapper = styled.div`
   display: flex;
-  height: calc(100% - 120px);
+  flex-direction: column;
+  /* height: calc(100% - 120px); */
   border-top: 1px solid #d0d7dd;
   margin-top: 15px;
 `;
@@ -171,7 +175,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   return (
     <Form onSubmit={handleSubmit}>
       <MainConfiguration>
-        <FormRow>
+        <FormRow className="form-row-header">
           <NameWrapper className="t--nameOfApi">
             <ActionNameEditor />
           </NameWrapper>

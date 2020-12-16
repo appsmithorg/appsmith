@@ -37,6 +37,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 
 import * as Sentry from "@sentry/react";
+import Icon, { IconSize } from "components/ads/Icon";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
@@ -48,13 +49,28 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
   background-color: ${props =>
     props.isVisible ? "rgba(0, 0, 0, 0.26)" : "transparent"};
   z-index: ${props => (props.isVisible ? 2 : -1)};
+
+  .close-modal-icon {
+    position: absolute;
+    top: 26px;
+    left: 25px;
+    cursor: pointer;
+    z-index: 99999;
+    svg {
+      width: 12px;
+      height: 12px;
+      path {
+        fill: ${props => props.theme.colors.apiPane.closeIcon};
+      }
+    }
+  }
 `;
 
 const DrawerWrapper = styled.div<{
   isVisible: boolean;
 }>`
   background-color: white;
-  width: ${props => (!props.isVisible ? "0px" : "75%")};
+  width: ${props => (!props.isVisible ? "0px" : "100%")};
   height: 100%;
 `;
 
@@ -106,11 +122,18 @@ class EditorsRouter extends React.Component<
 
   render(): React.ReactNode {
     return (
-      <Wrapper isVisible={this.state.isVisible} onClick={this.handleClose}>
+      <Wrapper isVisible={this.state.isVisible}>
         <PaneDrawer
           isVisible={this.state.isVisible}
           onClick={this.preventClose}
         >
+          <div onClick={this.handleClose}>
+            <Icon
+              name="close-modal"
+              size={IconSize.LARGE}
+              className="close-modal-icon"
+            />
+          </div>
           <Switch>
             <SentryRoute exact path={API_EDITOR_URL()} component={ApiEditor} />
             <SentryRoute
