@@ -189,27 +189,50 @@ export class DataTreeEvaluator {
   }
 
   createFirstTree(unEvalTree: DataTree) {
+    const totalStart = performance.now();
     // Add functions to the tree
     const withFunctions = addFunctions(unEvalTree);
     // Create dependency map
+    const createDependencyStart = performance.now();
     this.dependencyMap = this.createDependencyMap(withFunctions);
+    const createDependencyEnd = performance.now();
     // Sort
+    const sortDependenciesStart = performance.now();
     this.sortedDependencies = this.sortDependencies(this.dependencyMap);
+    const sortDependenciesEnd = performance.now();
     // Inverse
     this.inverseDependencyMap = this.getInverseDependencyTree();
     // Evaluate
+    const evaluateStart = performance.now();
     const evaluatedTree = this.evaluateTree(
       withFunctions,
       this.sortedDependencies,
     );
+    const evaluateEnd = performance.now();
     // Validate Widgets
+    const validateStart = performance.now();
     const validated = this.getValidatedTree(evaluatedTree);
+    const validateEnd = performance.now();
     // Remove functions
     this.evalTree = removeFunctionsFromDataTree(validated);
     this.oldUnEvalTree = unEvalTree;
+    const totalEnd = performance.now();
+    const timeTakenForFirstTree = {
+      total: (totalEnd - totalStart).toFixed(2),
+      createDependencies: (createDependencyEnd - createDependencyStart).toFixed(
+        2,
+      ),
+      sortDependencies: (sortDependenciesEnd - sortDependenciesStart).toFixed(
+        2,
+      ),
+      evaluate: (evaluateEnd - evaluateStart).toFixed(2),
+      validate: (validateEnd - validateStart).toFixed(2),
+    };
+    console.log({ timeTakenForFirstTree });
   }
 
   updateDataTree(unEvalTree: DataTree) {
+    const totalStart = performance.now();
     // Add functions to the tree
     const withFunctions = addFunctions(unEvalTree);
     // Calculate diff
@@ -276,19 +299,22 @@ export class DataTreeEvaluator {
 
     // Remove functions
     this.evalTree = removeFunctionsFromDataTree(validatedTree);
+    const totalEnd = performance.now();
     this.oldUnEvalTree = unEvalTree;
-    console.log({
-      diffCheck: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),
-      checkDepChange: (
+    const timeTakenForSubTreeEval = {
+      total: (totalEnd - totalStart).toFixed(2),
+      findDifferences: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),
+      updateDependencies: (
         updateDependenciesStop - updateDependenciesStart
       ).toFixed(2),
-      getNeedsEvalPaths: (
+      calculateSortOrder: (
         calculateSortOrderStop - calculateSortOrderStart
       ).toFixed(2),
-      eval: (evalStop - evalStart).toFixed(2),
+      evaluate: (evalStop - evalStart).toFixed(2),
       setLoading: (loadingStop - loadingStart).toFixed(2),
       validate: (validateEnd - validateStart).toFixed(2),
-    });
+    };
+    console.log({ timeTakenForSubTreeEval });
     return this.evalTree;
   }
 
