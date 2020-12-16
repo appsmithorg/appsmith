@@ -22,5 +22,34 @@ describe("API Panel Test Functionality", function() {
     cy.ClearSearch();
     cy.SearchEntityandOpen("SecondAPI");
     cy.DeleteAPI();
+    cy.ClearSearch();
+  });
+
+  it("Should not crash on key delete", function() {
+    cy.NavigateToAPI_Panel();
+    cy.CreateAPI("CrashTestAPI");
+    cy.SelectAction(testdata.postAction);
+    // Todo: find a way to clear without doing it character by character
+    cy.xpath(apiwidget.postDefaultContentTypeHeaderKey)
+      .first()
+      .click({ force: true })
+      .clear({ force: true }) // c
+      .clear({ force: true }) // o
+      .clear({ force: true }) // n
+      .clear({ force: true }) // t
+      .clear({ force: true }) // e
+      .clear({ force: true }) // n
+      .clear({ force: true }) // t
+      .clear({ force: true }) // -
+      .clear({ force: true }) // t
+      .clear({ force: true }) // y
+      .clear({ force: true }) // p
+      .clear({ force: true }); // e
+    // assert so that this fails
+    cy.xpath(apiwidget.postDefaultContentTypeHeaderKey).should("be.visible");
+    cy.xpath(apiwidget.postDefaultContentTypeHeaderKey).should(
+      "have.value",
+      "",
+    );
   });
 });
