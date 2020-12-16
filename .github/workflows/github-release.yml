@@ -161,7 +161,7 @@ jobs:
         run: |
           repo="${{ github.repository }}"
           query='{
-            repository(name: "${repo#*/}", owner: "${repo%/*}") {
+            repository(name: "'${repo#*/}'", owner: "'${repo%/*}'") {
               releases(orderBy: {field: NAME, direction: DESC}, first: 10) {
                 nodes {
                   tagName
