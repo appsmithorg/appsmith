@@ -1,5 +1,11 @@
 import { DependencyMap, isDynamicValue } from "../utils/DynamicBindingUtils";
 import { Diff } from "deep-diff";
+import {
+  DataTree,
+  DataTreeEntity,
+  ENTITY_TYPE,
+} from "../entities/DataTree/dataTreeFactory";
+import _ from "lodash";
 
 export enum DataTreeDiffEvent {
   NEW = "NEW",
@@ -15,6 +21,8 @@ type DataTreeDiff = {
   };
   event: DataTreeDiffEvent;
 };
+
+export class CrashingError extends Error {}
 
 export const convertPathToString = (arrPath: Array<string | number>) => {
   let string = "";
@@ -135,4 +143,38 @@ export const addDependantsOfNestedPropertyPaths = (
   return [...withNestedPaths.values()];
 };
 
-export class CrashingError extends Error {}
+export function isWidget(entity: DataTreeEntity): boolean {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET
+  );
+}
+
+export function isAction(entity: DataTreeEntity): boolean {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
+  );
+}
+
+// We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
+// Check issue https://github.com/appsmithorg/appsmith/issues/719
+export const removeFunctions = (value: any) => {
+  if (_.isFunction(value)) {
+    return "Function call";
+  } else if (_.isObject(value) && _.some(value, _.isFunction)) {
+    return JSON.parse(JSON.stringify(value));
+  } else {
+    return value;
+  }
+};
+
+export const removeFunctionsFromDataTree = (dataTree: DataTree) => {
+  dataTree.actionPaths?.forEach(functionPath => {
+    _.set(dataTree, functionPath, {});
+  });
+  delete dataTree.actionPaths;
+  return dataTree;
+};
