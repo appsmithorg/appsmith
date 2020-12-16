@@ -1,6 +1,5 @@
 package com.external.plugins;
 
-//TODO: remove unused imports
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.AuthenticationDTO;
@@ -13,51 +12,41 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoRule;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import org.mockito.Mockito;
-import static org.easymock.EasyMock.expect;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
-import org.powermock.modules.junit4.PowerMockRunner;
-
-import static org.mockito.Mockito.*;
-import static org.powermock.api.easymock.PowerMock.mockStatic;
-import static org.powermock.api.easymock.PowerMock.replay;
-
-import java.sql.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Date;
+import java.sql.Time;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-
-
 /**
  * Unit tests for the RedshiftPlugin
  */
 @Slf4j
 public class RedshiftPluginTest {
-    RedshiftPlugin.RedshiftPluginExecutor pluginExecutor = new RedshiftPlugin.RedshiftPluginExecutor();
+    PluginExecutor pluginExecutor = new RedshiftPlugin.RedshiftPluginExecutor();
 
     private static String address;
     private static Integer port;
