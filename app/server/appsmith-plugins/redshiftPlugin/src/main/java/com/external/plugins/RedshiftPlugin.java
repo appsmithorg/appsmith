@@ -124,13 +124,13 @@ public class RedshiftPlugin extends BasePlugin {
 
                 try {
                     if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
-                        log.info("Encountered stale connection in Postgres plugin. Reporting back.");
+                        log.info("Encountered stale connection in Redshift plugin. Reporting back.");
                         throw new StaleConnectionException();
                     }
                 } catch (SQLException error) {
                     // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
                     // here, this should never happen.
-                    log.error("Error checking validity of Postgres connection.", error);
+                    log.error("Error checking validity of Redshift connection.", error);
                 }
 
                 String query = actionConfiguration.getBody();
@@ -206,7 +206,7 @@ public class RedshiftPlugin extends BasePlugin {
                         try {
                             resultSet.close();
                         } catch (SQLException e) {
-                            log.warn("Error closing Postgres ResultSet", e);
+                            log.warn("Error closing Redshift ResultSet", e);
                         }
                     }
 
@@ -214,7 +214,7 @@ public class RedshiftPlugin extends BasePlugin {
                         try {
                             statement.close();
                         } catch (SQLException e) {
-                            log.warn("Error closing Postgres Statement", e);
+                            log.warn("Error closing Redshift Statement", e);
                         }
                     }
 
@@ -223,7 +223,7 @@ public class RedshiftPlugin extends BasePlugin {
                 ActionExecutionResult result = new ActionExecutionResult();
                 result.setBody(objectMapper.valueToTree(rowsList));
                 result.setIsExecutionSuccess(true);
-                System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution result:"
+                System.out.println(Thread.currentThread().getName() + ": In the RedshiftPlugin, got action execution result:"
                         + result.toString());
                 return Mono.just(result);
             })
@@ -237,7 +237,7 @@ public class RedshiftPlugin extends BasePlugin {
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading Postgres JDBC Driver class."));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading Redshift JDBC Driver class."));
             }
 
             String url;
@@ -301,7 +301,7 @@ public class RedshiftPlugin extends BasePlugin {
                     connection.close();
                 }
             } catch (SQLException e) {
-                log.error("Error closing Postgres Connection.", e);
+                log.error("Error closing Redshift Connection.", e);
             }
         }
 
@@ -356,7 +356,7 @@ public class RedshiftPlugin extends BasePlugin {
                                 connection.close();
                             }
                         } catch (SQLException e) {
-                            log.warn("Error closing Postgres connection that was made for testing.", e);
+                            log.warn("Error closing Redshift connection that was made for testing.", e);
                         }
 
                         return new DatasourceTestResult();
@@ -499,13 +499,13 @@ public class RedshiftPlugin extends BasePlugin {
         public Mono<DatasourceStructure> getStructure(Connection connection, DatasourceConfiguration datasourceConfiguration) {
             try {
                 if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
-                    log.info("Encountered stale connection in Postgres plugin. Reporting back.");
+                    log.info("Encountered stale connection in Redshift plugin. Reporting back.");
                     throw new StaleConnectionException();
                 }
             } catch (SQLException error) {
                 // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
                 // here, this should never happen.
-                log.error("Error checking validity of Postgres connection.", error);
+                log.error("Error checking validity of Redshift connection.", error);
             }
 
             final DatasourceStructure structure = new DatasourceStructure();
