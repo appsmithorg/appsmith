@@ -7,7 +7,6 @@ import {
   take,
   takeLatest,
 } from "redux-saga/effects";
-import { eventChannel, EventChannel } from "redux-saga";
 import {
   EvaluationReduxAction,
   ReduxAction,
@@ -19,7 +18,7 @@ import {
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
-import Worker from "worker-loader!../workers/evaluation.worker";
+import DataTreeEvaluator from "workers/evaluation.worker";
 import {
   EVAL_WORKER_ACTIONS,
   EvalError,
@@ -36,8 +35,6 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 
-let evaluationWorker: Worker;
-let workerChannel: EventChannel<any>;
 let evalQueue: Array<{
   queued: Date;
   action: EvaluationReduxAction<unknown | unknown[]>;
@@ -46,26 +43,25 @@ let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 function* initEvaluationWorkers(action: EvaluationReduxAction<any>) {
   // If an old worker exists, terminate it
-  if (evaluationWorker) {
-    evaluationWorker.terminate();
-  }
-  evaluationWorker = new Worker();
-  workerChannel = eventChannel(emitter => {
-    evaluationWorker.addEventListener("message", emitter);
-    // The subscriber must return an unsubscribe function
-    return () => {
-      evaluationWorker.removeEventListener("message", emitter);
-    };
-  });
+  // if (evaluationWorker) {
+  //   evaluationWorker.terminate();
+  // }
+  // evaluationWorker = new Worker();
+  // workerChannel = eventChannel(emitter => {
+  //   evaluationWorker.addEventListener("message", emitter);
+  //   // The subscriber must return an unsubscribe function
+  //   return () => {
+  //     evaluationWorker.removeEventListener("message", emitter);
+  //   };
+  // });
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const unevalTree = yield select(getUnevaluatedDataTree);
-  evaluationWorker.postMessage({
+  const response = DataTreeEvaluator({
     action: EVAL_WORKER_ACTIONS.EVAL_TREE,
     unevalTree,
     widgetTypeConfigMap,
   });
-  const workerResponse = yield take(workerChannel);
-  const { errors, dataTree, dependencies } = workerResponse.data;
+  const { errors, dataTree, dependencies } = response;
   log.debug({ dataTree });
   evalErrorHandler(errors);
   yield put({
@@ -129,16 +125,16 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
   const unevalTree = yield select(getUnevaluatedDataTree);
-  // const mainEvalStart = performance.now();
-  evaluationWorker.postMessage({
+  const mainEvalStart = performance.now();
+  const workerResponse = DataTreeEvaluator({
     action: EVAL_WORKER_ACTIONS.EVAL_TREE,
     unevalTree,
     widgetTypeConfigMap,
   });
-  const workerResponse = yield take(workerChannel);
-  // const mainEvalStop = performance.now();
-  // console.log({ mainEval: (mainEvalStop - mainEvalStart).toFixed(2) });
-  const { errors, dataTree, dependencies } = workerResponse.data;
+
+  const mainEvalStop = performance.now();
+  console.log({ mainEval: (mainEvalStop - mainEvalStart).toFixed(2) });
+  const { errors, dataTree, dependencies } = workerResponse;
   log.debug({ dataTree });
   evalErrorHandler(errors);
   yield put({
@@ -158,59 +154,46 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
 }
 
 export function* evaluateSingleValue(binding: string) {
-  if (evaluationWorker) {
-    const dataTree = yield select(getDataTree);
-    evaluationWorker.postMessage({
-      action: EVAL_WORKER_ACTIONS.EVAL_SINGLE,
-      dataTree,
-      binding,
-    });
-    const workerResponse = yield take(workerChannel);
-    const { errors, value } = workerResponse.data;
-    evalErrorHandler(errors);
-    return value;
-  }
+  const dataTree = yield select(getDataTree);
+  const workerResponse = DataTreeEvaluator({
+    action: EVAL_WORKER_ACTIONS.EVAL_SINGLE,
+    dataTree,
+    binding,
+  });
+  const { errors, value } = workerResponse;
+  evalErrorHandler(errors);
+  return value;
 }
 
 export function* evaluateDynamicTrigger(
   dynamicTrigger: string,
   callbackData?: Array<any>,
 ) {
-  if (evaluationWorker) {
-    const unEvalTree = yield select(getUnevaluatedDataTree);
-    evaluationWorker.postMessage({
-      action: EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
-      dataTree: unEvalTree,
-      dynamicTrigger,
-      callbackData,
-    });
-    const workerResponse = yield take(workerChannel);
-    const { errors, triggers } = workerResponse.data;
-    evalErrorHandler(errors);
-    return triggers;
-  }
-  return [];
+  const unEvalTree = yield select(getUnevaluatedDataTree);
+  const workerResponse = DataTreeEvaluator({
+    action: EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
+    dataTree: unEvalTree,
+    dynamicTrigger,
+    callbackData,
+  });
+  const { errors, triggers } = workerResponse;
+  evalErrorHandler(errors);
+  return triggers;
 }
 
 export function* clearEvalCache() {
   console.log("Cleared cache");
-  if (evaluationWorker) {
-    evaluationWorker.postMessage({
-      action: EVAL_WORKER_ACTIONS.CLEAR_CACHE,
-    });
-    yield take(workerChannel);
-    return true;
-  }
+  DataTreeEvaluator({
+    action: EVAL_WORKER_ACTIONS.CLEAR_CACHE,
+  });
+  return true;
 }
 
 export function* clearEvalPropertyCache(propertyPath: string) {
-  if (evaluationWorker) {
-    evaluationWorker.postMessage({
-      action: EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE,
-      propertyPath,
-    });
-    yield take(workerChannel);
-  }
+  DataTreeEvaluator({
+    action: EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE,
+    propertyPath,
+  });
 }
 
 /**
@@ -219,13 +202,10 @@ export function* clearEvalPropertyCache(propertyPath: string) {
  * @param widgetName
  */
 export function* clearEvalPropertyCacheOfWidget(widgetName: string) {
-  if (evaluationWorker) {
-    evaluationWorker.postMessage({
-      action: EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET,
-      widgetName,
-    });
-    yield take(workerChannel);
-  }
+  DataTreeEvaluator({
+    action: EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET,
+    widgetName,
+  });
 }
 
 export function* validateProperty(
@@ -234,18 +214,13 @@ export function* validateProperty(
   value: any,
   props: WidgetProps,
 ) {
-  if (evaluationWorker) {
-    evaluationWorker.postMessage({
-      action: EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY,
-      widgetType,
-      property,
-      value,
-      props,
-    });
-    const response = yield take(workerChannel);
-    return response.data;
-  }
-  return { isValid: true, parsed: value };
+  return DataTreeEvaluator({
+    action: EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY,
+    widgetType,
+    property,
+    value,
+    props,
+  });
 }
 
 const EVALUATE_REDUX_ACTIONS = [
