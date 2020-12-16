@@ -51,7 +51,6 @@ public class MongoConfig {
                 .build();
     }
 
-    // TODO check if this can be skipped
     @Bean
     public MongoTemplate mongoTemplate(MongoDbFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
         return new MongoTemplate(mongoDbFactory, mappingMongoConverter);
@@ -69,7 +68,6 @@ public class MongoConfig {
         return new DefaultMongoTypeMapper(DefaultMongoTypeMapper.DEFAULT_TYPE_KEY, Arrays.asList(typeInformationMapper, new SimpleTypeInformationMapper()));
     }
 
-    // TODO check if this can be skipped
     @Bean
     public MappingMongoConverter mappingMongoConverter(DefaultTypeMapper typeMapper, MongoMappingContext context) {
         MappingMongoConverter converter = new MappingMongoConverter(NoOpDbRefResolver.INSTANCE, context);
