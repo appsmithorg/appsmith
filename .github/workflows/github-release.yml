@@ -18,13 +18,39 @@ jobs:
     outputs:
       tag: ${{ steps.get_version.outputs.tag }}
       version: ${{ steps.get_version.outputs.version }}
+      is_beta: ${{ steps.get_version.outputs.is_beta }}
 
     steps:
       - name: Get the version
         id: get_version
         run: |
-          echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
-          echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+          tag="${GITHUB_REF#refs/tags/}"
+          echo "::set-output name=version::${tag#v}"
+          echo "::set-output name=tag::$tag"
+          if [[ $tag == *"beta"* ]]; then
+            echo "::set-output name=is_beta::true"
+          else
+            echo "::set-output name=is_beta::false"
+          fi
+
+  create-release:
+    needs:
+      - prelude
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          # If the tag has the string "beta", then mark the Github release as a pre-release
+          prerelease: ${{ needs.prelude.outputs.is_beta }}
 
   build-client:
     needs:
@@ -93,6 +119,7 @@ jobs:
   build-server:
     needs:
       - prelude
+      - create-release
 
     runs-on: ubuntu-latest
 
@@ -130,6 +157,29 @@ jobs:
             -DprocessAllModules=true
           mvn --batch-mode package -DskipTests
 
+      - name: Get release notes
+        run: |
+          query='{
+            repository(name: "appsmith", owner: "appsmithorg") {
+              releases(orderBy: {field: NAME, direction: DESC}, first: 10) {
+                nodes {
+                  tagName
+                  name
+                  url
+                  createdAt
+                  publishedAt
+                }
+                totalCount
+              }
+            }
+          }'
+          curl \
+            --header 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+            --header 'Content-Type: application/json' \
+            --data-raw "$query" \
+            --url 'https://api.github.com/graphql' \
+            | tee appsmith-server/src/main/resources/release-notes.json
+
       # Build Docker image and push to Docker Hub
       - name: Push image to Docker Hub
         run: |
@@ -142,35 +192,3 @@ jobs:
 
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server
-
-  create-release:
-    needs:
-      - prelude
-      - build-server
-      - build-client
-
-    runs-on: ubuntu-latest
-
-    steps:
-      # Creating the release on Github
-      # If the tag has the string "beta", then mark the Github release as a pre-release
-      - name: Get the version
-        id: get_prerelease
-        run: |
-          STATUS=false
-          if [[ ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
-            STATUS=true
-          fi
-
-          echo ::set-output name=status::${STATUS}
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: ${{steps.get_prerelease.outputs.status}}
