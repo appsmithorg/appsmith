@@ -81,7 +81,7 @@ public class RedshiftPluginTest {
     }
 
     @Test
-    public void testConnectRedshiftContainer() {
+    public void testDatasourceCreate() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
@@ -94,7 +94,6 @@ public class RedshiftPluginTest {
 
     @Test
     public void itShouldValidateDatasourceWithEmptyEndpoints() {
-
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.setEndpoints(new ArrayList<>());
 
@@ -104,7 +103,6 @@ public class RedshiftPluginTest {
 
     @Test
     public void itShouldValidateDatasourceWithEmptyHost() {
-
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getEndpoints().get(0).setHost("");
 
@@ -114,7 +112,6 @@ public class RedshiftPluginTest {
 
     @Test
     public void itShouldValidateDatasourceWithInvalidHostname() {
-
         String hostname = "jdbc://localhost";
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getEndpoints().get(0).setHost("jdbc://localhost");
@@ -123,17 +120,60 @@ public class RedshiftPluginTest {
                 pluginExecutor.validateDatasource(dsConfig));
     }
 
+    /* 1. CREATE TABLE users (
+     *      id INTEGER PRIMARY KEY IDENTITY(1,1),
+     *      username VARCHAR (50) UNIQUE NOT NULL,
+     *      password VARCHAR (50) NOT NULL,
+     *      email VARCHAR (355) UNIQUE NOT NULL,
+     *      spouse_dob DATE,
+     *      dob DATE NOT NULL,
+     *      time1 TIME NOT NULL,
+     *      time_tz TIME WITH TIME ZONE NOT NULL,
+     *      created_on TIMESTAMP NOT NULL,
+     *      created_on_tz TIMESTAMP WITH TIME ZONE NOT NULL
+     *    );
+     * 2. INSERT INTO users VALUES (
+     *      1,
+     *      'Jack',
+     *      'jill',
+     *      'jack@exemplars.com',
+     *      NULL,
+     *      '2018-12-31',
+     *      '18:32:45',
+     *      '04:05:06 PST',
+     *      TIMESTAMP '2018-11-30 20:45:15',
+     *      TIMESTAMP WITH TIME ZONE '2018-11-30 20:45:15 CET'
+     *    );
+     * 3. SELECT * FROM users WHERE id = 1;
+     */
     @Test
     public void testExecute() throws SQLException {
+        /* Mock java.sql.Connection:
+         *      a. isClosed()
+         *      b. isValid()
+         */
         Connection mockConnection = mock(Connection.class);
         when(mockConnection.isClosed()).thenReturn(false);
         when(mockConnection.isValid(Mockito.anyInt())).thenReturn(true);
 
+        /* Mock java.sql.Statement:
+         *      a. execute(...)
+         *      b. close()
+         */
         Statement mockStatement = mock(Statement.class);
         when(mockConnection.createStatement()).thenReturn(mockStatement);
         when(mockStatement.execute(Mockito.any())).thenReturn(true);
         doNothing().when(mockStatement).close();
 
+        /* Mock java.sql.ResultSet:
+         *      a. getObject(...)
+         *      b. getDate(...)
+         *      c. getTime(...)
+         *      d. getString(...)
+         *      e. getObject(..., ...)
+         *      d. next()
+         *      e. close()
+         */
         ResultSet mockResultSet = mock(ResultSet.class);
         when(mockStatement.getResultSet()).thenReturn(mockResultSet);
         when(mockResultSet.getObject(Mockito.anyInt())).thenReturn("", 1, "", "Jack", "", "jill", "", "jack@exemplars.com"
@@ -146,9 +186,13 @@ public class RedshiftPluginTest {
         when(mockResultSet.next()).thenReturn(true).thenReturn(false);
         doNothing().when(mockResultSet).close();
 
+        /* Mock java.sql.ResultSetMetaData:
+         *      a. getColumnCount()
+         *      b. getColumnTypeName(...)
+         *      c. getColumnName(...)
+         */
         ResultSetMetaData mockResultSetMetaData = mock(ResultSetMetaData.class);
         when(mockResultSet.getMetaData()).thenReturn(mockResultSetMetaData);
-
         when(mockResultSetMetaData.getColumnCount()).thenReturn(10);
         when(mockResultSetMetaData.getColumnTypeName(Mockito.anyInt())).thenReturn("int4", "varchar", "varchar",
         "varchar", "date", "date", "time", "timetz", "timestamp", "timestamptz");
@@ -197,23 +241,55 @@ public class RedshiftPluginTest {
                 .verifyComplete();
     }
 
+    /* 1. CREATE TABLE users (
+     *      id INTEGER PRIMARY KEY IDENTITY(1,1),
+     *      username VARCHAR (50) UNIQUE NOT NULL,
+     *      password VARCHAR (50) NOT NULL,
+     *    );
+     * 2. CREATE TABLE possessions(
+     *      id serial PRIMARY KEY,
+     *      title VARCHAR (50) NOT NULL,
+     *      user_id int NOT NULL,
+     *      constraint user_fk foreign key (user_id) references users(id)
+     *    );
+     * 3. CREATE TABLE campus(
+     *      id timestamptz default now(),
+     *      name timestamptz default now()
+     *    );
+     * 4. Run TABLES_QUERY
+     * 5. Run KEYS_QUERY_PRIMARY_KEY
+     * 6. Run KEYS_QUERY_FOREIGN_KEY
+     */
     @Test
     public void testStructure() throws SQLException {
+        /* Mock java.sql.Connection:
+         *      a. isClosed()
+         *      b. isValid()
+         */
         Connection mockConnection = mock(Connection.class);
         when(mockConnection.isClosed()).thenReturn(false);
         when(mockConnection.isValid(Mockito.anyInt())).thenReturn(true);
 
+        /* Mock java.sql.Statement:
+         *      a. execute(...)
+         *      b. close()
+         */
         Statement mockStatement = mock(Statement.class);
         when(mockConnection.createStatement()).thenReturn(mockStatement);
         when(mockStatement.execute(Mockito.any())).thenReturn(true);
         doNothing().when(mockStatement).close();
 
+        /* Mock java.sql.ResultSet:
+         *      d. getString(...)
+         *      d. next()
+         *      e. close()
+         */
         ResultSet mockResultSet = mock(ResultSet.class);
         when(mockStatement.executeQuery(Mockito.anyString())).thenReturn(mockResultSet, mockResultSet, mockResultSet);
         when(mockResultSet.next())
-                .thenReturn(true, true, true, true, true, true, true, true, false)
-                .thenReturn(true, true, false)
-                .thenReturn(true, false);
+                .thenReturn(true, true, true, true, true, true, true, true, false)  // TABLES_QUERY
+                .thenReturn(true, true, false)                                      // KEYS_QUERY_PRIMARY_KEY
+                .thenReturn(true, false);                                           // KEYS_QUERY_FOREIGN_KEY
         when(mockResultSet.getString("kind")).thenReturn("r", "r", "r", "r", "r", "r", "r", "r");
         when(mockResultSet.getString("schema_name")).thenReturn("public", "public", "public", "public", "public",
                 "public", "public", "public");
@@ -226,29 +302,32 @@ public class RedshiftPluginTest {
         when(mockResultSet.getString("default_expr")).thenReturn("now()", "now()", null, null, null, "\"identity\"" +
                 "(101507, 0, '1,1'::text)", null, null);
         when(mockResultSet.getString("constraint_name"))
-                .thenReturn("possessions_pkey", "users_pkey")
-                .thenReturn("user_fk");
+                .thenReturn("possessions_pkey", "users_pkey")  // KEYS_QUERY_PRIMARY_KEY
+                .thenReturn("user_fk");                                     // KEYS_QUERY_FOREIGN_KEY
         when(mockResultSet.getString("constraint_type"))
-                .thenReturn("p", "p")
-                .thenReturn("f");
+                .thenReturn("p", "p")                          // KEYS_QUERY_PRIMARY_KEY
+                .thenReturn("f");                                           // KEYS_QUERY_FOREIGN_KEY
         when(mockResultSet.getString("self_schema"))
-                .thenReturn("public", "public")
-                .thenReturn("public");
+                .thenReturn("public", "public")                // KEYS_QUERY_PRIMARY_KEY
+                .thenReturn("public");                                      // KEYS_QUERY_FOREIGN_KEY
         when(mockResultSet.getString("self_table"))
-                .thenReturn("possessions", "users")
-                .thenReturn("possessions");
+                .thenReturn("possessions", "users")            // KEYS_QUERY_PRIMARY_KEY
+                .thenReturn("possessions");                                 // KEYS_QUERY_FOREIGN_KEY
         when(mockResultSet.getString("self_column"))
-                .thenReturn("id", "id")
-                .thenReturn("user_id");
+                .thenReturn("id", "id")                        // KEYS_QUERY_PRIMARY_KEY
+                .thenReturn("user_id");                                     // KEYS_QUERY_FOREIGN_KEY
         when(mockResultSet.getString("foreign_schema")).thenReturn("public");
         when(mockResultSet.getString("foreign_table")).thenReturn("users");
         when(mockResultSet.getString("foreign_column")).thenReturn("id");
-
         doNothing().when(mockResultSet).close();
 
+        /* Mock java.sql.ResultSetMetaData:
+         *      a. getColumnCount()
+         *      b. getColumnTypeName(...)
+         *      c. getColumnName(...)
+         */
         ResultSetMetaData mockResultSetMetaData = mock(ResultSetMetaData.class);
         when(mockResultSet.getMetaData()).thenReturn(mockResultSetMetaData);
-
         when(mockResultSetMetaData.getColumnCount()).thenReturn(6);
         when(mockResultSetMetaData.getColumnTypeName(Mockito.anyInt())).thenReturn("int4");
         when(mockResultSetMetaData.getColumnName(Mockito.anyInt())).thenReturn("user_id");
