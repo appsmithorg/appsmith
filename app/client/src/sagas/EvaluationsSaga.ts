@@ -39,11 +39,12 @@ import { EXECUTION_PARAM_KEY } from "../constants/ActionConstants";
 
 let evaluationWorker: Worker;
 let workerChannel: EventChannel<any>;
-let evalQueue: Array<{
-  queued: Date;
-  action: EvaluationReduxAction<unknown | unknown[]>;
-}> = [];
+let requiresEval: boolean;
+let isEvaling: boolean;
 let widgetTypeConfigMap: WidgetTypeConfigMap;
+let unProcessedPostEvalActions: EvaluationReduxAction<
+  unknown | unknown[]
+>[] = [];
 
 function* initEvaluationWorkers(action: EvaluationReduxAction<any>) {
   // If an old worker exists, terminate it
@@ -109,19 +110,24 @@ function* postEvalActionDispatcher(actions: ReduxAction<unknown>[]) {
   }
 }
 
-function* processEvalQueue() {
-  while (evalQueue.length) {
-    const allPostEvalActions: EvaluationReduxAction<unknown | unknown[]>[] = [];
-    evalQueue.forEach(enqueuedAction => {
-      const postEvalActions = enqueuedAction.action.postEvalActions;
-      if (postEvalActions && postEvalActions.length) {
-        allPostEvalActions.push(...postEvalActions);
-      }
-    });
-    log.debug("Evaluating queue of actions");
-    log.debug(evalQueue);
-    evalQueue = [];
-    yield call(evaluateTreeSaga, allPostEvalActions);
+function* queueEvalAction(actionObj: {
+  queued: Date;
+  action: EvaluationReduxAction<unknown | unknown[]>;
+}) {
+  const postEvalActions = actionObj.action.postEvalActions;
+  if (postEvalActions && postEvalActions.length) {
+    unProcessedPostEvalActions.push(...postEvalActions);
+  }
+  requiresEval = true;
+  yield fork(triggerEval);
+}
+
+function* triggerEval() {
+  if (!isEvaling && requiresEval) {
+    isEvaling = true;
+    requiresEval = false;
+    yield call(evaluateTreeSaga, unProcessedPostEvalActions);
+    unProcessedPostEvalActions = [];
   }
 }
 
@@ -131,17 +137,31 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   );
   const unevalTree = yield select(getUnevaluatedDataTree);
   // const mainEvalStart = performance.now();
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.DATA_TREE_WORKER_EVALUATION,
+  );
+  const workerStart = new Date().getTime();
   evaluationWorker.postMessage({
     action: EVAL_WORKER_ACTIONS.EVAL_TREE,
     unevalTree,
     widgetTypeConfigMap,
   });
+
   const workerResponse = yield take(workerChannel);
+  const workerEnd = new Date().getTime();
+  PerformanceTracker.stopAsyncTracking(
+    PerformanceTransactionName.DATA_TREE_WORKER_EVALUATION,
+  );
   // const mainEvalStop = performance.now();
   // console.log({ mainEval: (mainEvalStop - mainEvalStart).toFixed(2) });
-  const { errors, dataTree, dependencies } = workerResponse.data;
+  const { errors, dataTree, dependencies, workerTime } = workerResponse.data;
+  console.log("worker inside time " + workerTime);
+  console.log("worker outside time " + (workerEnd - workerStart));
   log.debug({ dataTree });
   evalErrorHandler(errors);
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.EVAL_REDUX_UPDATE,
+  );
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
     payload: dataTree,
@@ -153,6 +173,10 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
     type: ReduxActionTypes.SET_EVALUATION_DEPENDENCY_MAP,
     payload: dependencies,
   });
+  isEvaling = false;
+  PerformanceTracker.stopAsyncTracking(
+    PerformanceTransactionName.EVAL_REDUX_UPDATE,
+  );
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
@@ -299,7 +323,6 @@ function* evaluationChangeListenerSaga() {
   ]);
   yield fork(initEvaluationWorkers, action);
   while (true) {
-    yield fork(processEvalQueue);
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
       EVALUATE_REDUX_ACTIONS,
     );
@@ -318,7 +341,7 @@ function* evaluationChangeListenerSaga() {
         continue;
       }
     }
-    evalQueue.push({
+    yield fork(queueEvalAction, {
       queued: new Date(),
       action,
     });
@@ -328,5 +351,6 @@ function* evaluationChangeListenerSaga() {
 export default function* evaluationSagaListeners() {
   yield all([
     takeLatest(ReduxActionTypes.START_EVALUATION, evaluationChangeListenerSaga),
+    takeLatest(ReduxActionTypes.SET_EVALUATION_DEPENDENCY_MAP, triggerEval),
   ]);
 }

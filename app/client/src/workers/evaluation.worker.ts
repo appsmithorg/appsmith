@@ -52,6 +52,7 @@ ctx.addEventListener("message", e => {
   const { action, ...rest } = e.data;
   switch (action as EVAL_WORKER_ACTIONS) {
     case EVAL_WORKER_ACTIONS.EVAL_TREE: {
+      const workerTimeStart = new Date().getTime();
       const { widgetTypeConfigMap, unevalTree } = rest;
       let dataTree: DataTree = unevalTree;
       let errors: EvalError[] = [];
@@ -84,10 +85,12 @@ ctx.addEventListener("message", e => {
         }
         dataTreeEvaluator = undefined;
       }
+      const workerTimeEnd = new Date().getTime();
       ctx.postMessage({
         dataTree,
         dependencies,
         errors,
+        workerTime: (workerTimeEnd - workerTimeStart).toFixed(2),
       });
       break;
     }
@@ -233,8 +236,8 @@ export class DataTreeEvaluator {
 
   updateDataTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
-    // Add functions to the tree
-    const withFunctions = addFunctions(unEvalTree);
+    // Add appsmith internal functions to the tree ex. navigateTo / showModal
+    const unEvalTreeWithFunctions = addFunctions(unEvalTree);
     // Calculate diff
     const diffCheckTimeStart = performance.now();
     const differences = diff(this.oldUnEvalTree, unEvalTree) || [];
@@ -246,14 +249,13 @@ export class DataTreeEvaluator {
     // global dependency map if an existing dynamic binding has now become legal
     const removedDependencyNodes = this.updateDependencyMap(
       differences,
-      this.oldUnEvalTree,
-      withFunctions,
+      unEvalTreeWithFunctions,
     );
     const updateDependenciesStop = performance.now();
 
     const calculateSortOrderStart = performance.now();
 
-    const subTreeSortOrder = this.calculateSubTreeSortOrder(
+    const subTreeSortOrder: string[] = this.calculateSubTreeSortOrder(
       differences,
       removedDependencyNodes,
     );
@@ -929,8 +931,7 @@ export class DataTreeEvaluator {
 
   updateDependencyMap(
     differences: Array<Diff<any, any>> | undefined,
-    oldTree: DataTree,
-    dataTree: DataTree,
+    unEvalDataTree: DataTree,
   ): Array<string> {
     if (differences === undefined) {
       return [];
@@ -943,7 +944,7 @@ export class DataTreeEvaluator {
       .map(translateDiffEventToDataTreeDiffEvent)
       .forEach(dataTreeDiff => {
         const entityName = dataTreeDiff.payload.propertyPath.split(".")[0];
-        const entity = dataTree[entityName];
+        const entity = unEvalDataTree[entityName];
         const entityType =
           typeof entity === "object" && "ENTITY_TYPE" in entity
             ? entity.ENTITY_TYPE
@@ -957,15 +958,15 @@ export class DataTreeEvaluator {
                 entityType === ENTITY_TYPE.WIDGET &&
                 dataTreeDiff.payload.propertyPath === entityName
               ) {
-                const widgetBindings = this.listEntityDependencies(
+                const widgetDependencyMap: DependencyMap = this.listEntityDependencies(
                   entity as DataTreeWidget,
                   entityName,
                 );
-                if (Object.keys(widgetBindings).length) {
+                if (Object.keys(widgetDependencyMap).length) {
                   didUpdateDependencyMap = true;
                   this.dependencyMap = {
                     ...this.dependencyMap,
-                    ...widgetBindings,
+                    ...widgetDependencyMap,
                   };
                 }
               }
@@ -973,9 +974,10 @@ export class DataTreeEvaluator {
               // find out if a new dependency has to be created because the property path used in the binding just became
               // eligible
               // TODO: Optimise by only getting paths of changed node
-              this.allKeys = getAllPaths(dataTree);
+              this.allKeys = getAllPaths(unEvalDataTree);
+              // QQ: How are we getting possible references without passing allkeys to thus func
               const possibleReferencesInOldBindings: DependencyMap = this.getPropertyPathReferencesInExistingBindings(
-                dataTree,
+                unEvalDataTree,
                 dataTreeDiff.payload.propertyPath,
               );
               // We have found some bindings which are related to the new property path and hence should be added to the
@@ -995,7 +997,7 @@ export class DataTreeEvaluator {
                 entityType === ENTITY_TYPE.WIDGET &&
                 dataTreeDiff.payload.propertyPath === entityName
               ) {
-                const entity: DataTreeWidget = dataTree[
+                const entity: DataTreeWidget = unEvalDataTree[
                   entityName
                 ] as DataTreeWidget;
 
@@ -1010,7 +1012,7 @@ export class DataTreeEvaluator {
               }
               // Either an existing entity or an existing property path has been deleted. Update the global dependency map
               // by removing the bindings from the same.
-              this.allKeys = getAllPaths(dataTree);
+              this.allKeys = getAllPaths(unEvalDataTree);
               Object.keys(this.dependencyMap).forEach(dependencyPath => {
                 didUpdateDependencyMap = true;
                 // TODO delete via regex
