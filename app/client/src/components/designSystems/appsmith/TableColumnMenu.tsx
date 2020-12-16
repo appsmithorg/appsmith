@@ -83,6 +83,7 @@ const TableColumnMenuPopup = (props: TableColumnMenuPopup) => {
                               : ""
                           }
                           selected={!!item.isSelected}
+                          isHeader={item.isHeader}
                         >
                           {item.content}
                         </OptionWrapper>

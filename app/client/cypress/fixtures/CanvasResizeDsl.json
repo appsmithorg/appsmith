@@ -1,0 +1,57 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 1224,
+        "snapColumns": 16,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 2960,
+        "containerStyle": "none",
+        "snapRows": 33,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 7,
+        "minHeight": 1292,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+          {
+            "widgetName": "Text2",
+            "rightColumn": 8,
+            "textAlign": "LEFT",
+            "widgetId": "i4eeob8e7t",
+            "topRow": 71,
+            "bottomRow": 72,
+            "parentRowSpace": 40,
+            "isVisible": true,
+            "type": "TEXT_WIDGET",
+            "parentId": "0",
+            "isLoading": false,
+            "parentColumnSpace": 74,
+            "leftColumn": 4,
+            "text": "Label",
+            "textStyle": "LABEL"
+          },
+          {
+            "widgetName": "Checkbox1",
+            "rightColumn": 4,
+            "widgetId": "vyl7d3u54d",
+            "topRow": 5,
+            "bottomRow": 6,
+            "parentRowSpace": 40,
+            "isVisible": true,
+            "label": "Label",
+            "type": "CHECKBOX_WIDGET",
+            "parentId": "0",
+            "isLoading": false,
+            "parentColumnSpace": 74,
+            "leftColumn": 1,
+            "defaultCheckedState": true
+          }
+        ]
+      }
+}

@@ -120,7 +120,7 @@ public class DynamoPlugin extends BasePlugin {
                 }
 
                 result.setIsExecutionSuccess(true);
-                System.out.println(Thread.currentThread().getName() + ": In the DynamoPlugin, got action execution result: " + result.toString());
+                System.out.println(Thread.currentThread().getName() + ": In the DynamoPlugin, got action execution result");
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)

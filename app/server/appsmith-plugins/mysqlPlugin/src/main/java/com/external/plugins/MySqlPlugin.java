@@ -234,7 +234,7 @@ public class MySqlPlugin extends BasePlugin {
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setIsExecutionSuccess(true);
                         System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action " +
-                                "execution result: " + result.toString());
+                                "execution result");
                         return Mono.just(result);
                     })
                     .subscribeOn(scheduler);

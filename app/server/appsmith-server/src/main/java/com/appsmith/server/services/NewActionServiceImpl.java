@@ -204,6 +204,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         newAction.setOrganizationId(datasource.getOrganizationId());
                     }
 
+                    // New actions will never be set to auto-magical execution
+                    action.setExecuteOnLoad(false);
+
                     newAction.setUnpublishedAction(action);
 
                     return Mono.just(newAction);

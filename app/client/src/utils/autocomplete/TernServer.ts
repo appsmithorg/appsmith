@@ -6,6 +6,7 @@ import ecma from "tern/defs/ecmascript.json";
 import lodash from "constants/defs/lodash.json";
 import base64 from "constants/defs/base64-js.json";
 import moment from "constants/defs/moment.json";
+import xmlJs from "constants/defs/xmlParser.json";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 import {
@@ -13,7 +14,7 @@ import {
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
 
-const DEFS = [ecma, lodash, base64, moment];
+const DEFS = [ecma, lodash, base64, moment, xmlJs];
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;

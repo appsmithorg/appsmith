@@ -157,7 +157,10 @@ export const DropDownWrapper = styled.div`
   box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
 `;
 
-export const OptionWrapper = styled.div<{ selected: boolean }>`
+export const OptionWrapper = styled.div<{
+  selected: boolean;
+  isHeader?: boolean;
+}>`
   display: flex;
   width: 100%;
   justify-content: space-between;
@@ -167,7 +170,7 @@ export const OptionWrapper = styled.div<{ selected: boolean }>`
   color: ${props => (props.selected ? Colors.WHITE : Colors.OXFORD_BLUE)};
   font-size: 14px;
   min-width: 200px;
-  cursor: pointer;
+  cursor: ${props => (!props.isHeader ? "pointer" : "default")};
   border-radius: 4px;
   margin: 3px 0;
   background: ${props => (props.selected ? Colors.GREEN : Colors.WHITE)};
@@ -178,7 +181,8 @@ export const OptionWrapper = styled.div<{ selected: boolean }>`
     width: 100%;
   }
   &.non-selectable {
-    background: ${Colors.WHITE_SMOKE};
+    background: ${props =>
+      !props.isHeader ? Colors.WHITE_SMOKE : Colors.WHITE_CLOUD};
   }
 `;
 
@@ -367,4 +371,8 @@ export const MenuCategoryWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   color: ${Colors.RIVER_BED};
+`;
+
+export const MenuStyledOptionHeader = styled.div`
+  font-weight: 600;
 `;

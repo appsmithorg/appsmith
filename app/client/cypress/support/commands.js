@@ -1526,11 +1526,11 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
   );
 });
 
-Cypress.Commands.add("dragAndDropToCanvas", widgetType => {
+Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.get(selector)
     .trigger("mousedown", { button: 0 }, { force: true })
-    .trigger("mousemove", 300, -300, { force: true });
+    .trigger("mousemove", x, y, { force: true });
   cy.get(explorer.dropHere)
     .click()
     .trigger("mouseup", { force: true });
@@ -1726,6 +1726,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("PUT", "/api/v1/organizations/*").as("updateOrganization");
   cy.route("GET", "/api/v1/pages/view/application/*").as("viewApp");
+  cy.route("POST", "/api/v1/organizations/*/logo").as("updateLogo");
+  cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
 });
 
 Cypress.Commands.add("alertValidate", text => {
