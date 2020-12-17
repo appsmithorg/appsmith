@@ -1,6 +1,7 @@
 package com.appsmith.server.configurations;
 
 import com.appsmith.external.annotations.DocumentTypeMapper;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.server.configurations.mongo.SoftDeleteMongoRepositoryFactoryBean;
 import com.appsmith.server.repositories.BaseRepositoryImpl;
 import com.github.cloudyrock.mongock.SpringBootMongock;
@@ -62,7 +63,7 @@ public class MongoConfig {
     public DefaultTypeMapper typeMapper() {
         TypeInformationMapper typeInformationMapper = new DocumentTypeMapper
                 .Builder()
-                .withBasePackages(new String[]{"com.appsmith.external.models"})
+                .withBasePackages(new String[]{AuthenticationDTO.class.getPackageName()})
                 .build();
         // This is a hack to include the default mapper as a fallback, because Spring seems to override its list instead of appending mappers
         return new DefaultMongoTypeMapper(DefaultMongoTypeMapper.DEFAULT_TYPE_KEY, Arrays.asList(typeInformationMapper, new SimpleTypeInformationMapper()));
