@@ -1,11 +1,12 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Connection;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
@@ -74,7 +75,7 @@ public class DatasourceServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    String orgId =  "";
+    String orgId = "";
 
     @Before
     @WithUserDetails(value = "api_user")
@@ -234,9 +235,10 @@ public class DatasourceServiceTest {
                     Connection connection1 = new Connection();
                     SSLDetails ssl = new SSLDetails();
                     ssl.setKeyFile(new UploadedFile());
-                    ssl.getKeyFile().setName("ssl_key_file_id");
+                    ssl.getKeyFile().setName("ssl_key_file_id2");
                     connection1.setSsl(ssl);
                     datasourceConfiguration1.setConnection(connection1);
+                    updates.setDatasourceConfiguration(datasourceConfiguration1);
                     return datasourceService.update(datasource1.getId(), updates);
                 });
 
@@ -246,7 +248,72 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
-                    assertThat(createdDatasource.getDatasourceConfiguration().getConnection().getSsl().getKeyFile().getName()).isEqualTo("ssl_key_file_id");
+                    assertThat(createdDatasource.getDatasourceConfiguration().getConnection().getSsl().getKeyFile().getName()).isEqualTo("ssl_key_file_id2");
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createAndUpdateDatasourceDifferentAuthentication() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource datasource = new Datasource();
+        datasource.setName("test db datasource1");
+        datasource.setOrganizationId(orgId);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Connection connection = new Connection();
+        connection.setMode(Connection.Mode.READ_ONLY);
+        connection.setType(Connection.Type.REPLICA_SET);
+        SSLDetails sslDetails = new SSLDetails();
+        sslDetails.setAuthType(SSLDetails.AuthType.CA_CERTIFICATE);
+        sslDetails.setKeyFile(new UploadedFile("ssl_key_file_id", ""));
+        sslDetails.setCertificateFile(new UploadedFile("ssl_cert_file_id", ""));
+        connection.setSsl(sslDetails);
+        datasourceConfiguration.setConnection(connection);
+        DBAuth auth = new DBAuth();
+        auth.setUsername("test");
+        auth.setPassword("test");
+        datasourceConfiguration.setAuthentication(auth);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+
+        datasource.setOrganizationId(orgId);
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+
+        Mono<Datasource> datasourceMono = pluginMono
+                .map(plugin -> {
+                    datasource.setPluginId(plugin.getId());
+                    return datasource;
+                })
+                .flatMap(datasourceService::create)
+                .flatMap(datasource1 -> {
+                    Datasource updates = new Datasource();
+                    DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
+                    Connection connection1 = new Connection();
+                    SSLDetails ssl = new SSLDetails();
+                    ssl.setKeyFile(new UploadedFile());
+                    ssl.getKeyFile().setName("ssl_key_file_id2");
+                    connection1.setSsl(ssl);
+                    OAuth2 auth2 = new OAuth2();
+                    auth2.setClientId("test");
+                    auth2.setClientSecret("test");
+                    datasourceConfiguration1.setAuthentication(auth2);
+                    datasourceConfiguration1.setConnection(connection1);
+                    updates.setDatasourceConfiguration(datasourceConfiguration1);
+
+                    return datasourceService.update(datasource1.getId(), updates);
+                });
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(createdDatasource -> {
+                    assertThat(createdDatasource.getId()).isNotEmpty();
+                    assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
+                    assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
+                    assertThat(createdDatasource.getDatasourceConfiguration().getConnection().getSsl().getKeyFile().getName()).isEqualTo("ssl_key_file_id2");
+                    assertThat(createdDatasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2).isTrue();
                 })
                 .verifyComplete();
     }
@@ -270,10 +337,10 @@ public class DatasourceServiceTest {
 
         final Mono<Tuple2<Datasource, Datasource>> datasourcesMono = pluginMono
                 .flatMap(plugin -> {
-                        datasource1.setPluginId(plugin.getId());
-                        datasource2.setPluginId(plugin.getId());
-                        return datasourceService.create(datasource1);
-                    })
+                    datasource1.setPluginId(plugin.getId());
+                    datasource2.setPluginId(plugin.getId());
+                    return datasourceService.create(datasource1);
+                })
                 .zipWhen(datasource -> datasourceService.create(datasource2));
 
         StepVerifier
@@ -424,13 +491,13 @@ public class DatasourceServiceTest {
     @WithUserDetails(value = "api_user")
     public void checkEncryptionOfAuthenticationDTOTest() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-        
+
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("test datasource name for authenticated fields encryption test");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        AuthenticationDTO authenticationDTO = new AuthenticationDTO();
+        DBAuth authenticationDTO = new DBAuth();
         String username = "username";
         String password = "password";
         authenticationDTO.setUsername(username);
@@ -447,7 +514,7 @@ public class DatasourceServiceTest {
         StepVerifier
                 .create(datasourceMono)
                 .assertNext(savedDatasource -> {
-                    AuthenticationDTO authentication = savedDatasource.getDatasourceConfiguration().getAuthentication();
+                    DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
                     assertThat(authentication.getPassword()).isEqualTo(encryptionService.encryptString(password));
                 })
@@ -464,7 +531,7 @@ public class DatasourceServiceTest {
         datasource.setName("test datasource name for authenticated fields encryption test null password.");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        AuthenticationDTO authenticationDTO = new AuthenticationDTO();
+        DBAuth authenticationDTO = new DBAuth();
         authenticationDTO.setDatabaseName("admin");
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -478,7 +545,7 @@ public class DatasourceServiceTest {
         StepVerifier
                 .create(datasourceMono)
                 .assertNext(savedDatasource -> {
-                    AuthenticationDTO authentication = savedDatasource.getDatasourceConfiguration().getAuthentication();
+                    DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isNull();
                     assertThat(authentication.getPassword()).isNull();
                 })
@@ -495,7 +562,7 @@ public class DatasourceServiceTest {
         datasource.setName("test datasource name for authenticated fields encryption test post update");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        AuthenticationDTO authenticationDTO = new AuthenticationDTO();
+        DBAuth authenticationDTO = new DBAuth();
         String username = "username";
         String password = "password";
         authenticationDTO.setUsername(username);
@@ -519,7 +586,7 @@ public class DatasourceServiceTest {
         StepVerifier
                 .create(datasourceMono)
                 .assertNext(updatedDatasource -> {
-                    AuthenticationDTO authentication = updatedDatasource.getDatasourceConfiguration().getAuthentication();
+                    DBAuth authentication = (DBAuth) updatedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
                     assertThat(authentication.getPassword()).isEqualTo(encryptionService.encryptString(password));
                 })

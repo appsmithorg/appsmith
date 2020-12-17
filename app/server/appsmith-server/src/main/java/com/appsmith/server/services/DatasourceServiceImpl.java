@@ -3,7 +3,6 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
-import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
@@ -12,7 +11,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -36,6 +34,7 @@ import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -111,23 +110,23 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         return datasourceMono
                 .flatMap(datasource1 ->
                         sessionUserService.getCurrentUser()
-                        .flatMap(user -> {
-                            // Create policies for this datasource -> This datasource should inherit its permissions and policies from
-                            // the organization and this datasource should also allow the current user to crud this datasource.
-                            return organizationService.findById(datasource1.getOrganizationId(), AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
-                                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, datasource1.getOrganizationId())))
-                                    .map(org -> {
-                                        Set<Policy> policySet = org.getPolicies().stream()
-                                                .filter(policy ->
-                                                        policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
-                                                                policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
-                                                ).collect(Collectors.toSet());
+                                .flatMap(user -> {
+                                    // Create policies for this datasource -> This datasource should inherit its permissions and policies from
+                                    // the organization and this datasource should also allow the current user to crud this datasource.
+                                    return organizationService.findById(datasource1.getOrganizationId(), AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
+                                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, datasource1.getOrganizationId())))
+                                            .map(org -> {
+                                                Set<Policy> policySet = org.getPolicies().stream()
+                                                        .filter(policy ->
+                                                                policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
+                                                                        policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
+                                                        ).collect(Collectors.toSet());
 
-                                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class, Datasource.class);
-                                        datasource1.setPolicies(documentPolicies);
-                                        return datasource1;
-                                    });
-                        })
+                                                Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class, Datasource.class);
+                                                datasource1.setPolicies(documentPolicies);
+                                                return datasource1;
+                                            });
+                                })
                 )
                 .flatMap(this::validateAndSaveDatasourceToRepository);
     }
@@ -157,10 +156,15 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .flatMap(this::validateAndSaveDatasourceToRepository);
     }
 
-    private AuthenticationDTO encryptAuthenticationFields(AuthenticationDTO authentication) {
-        // Encrypt password in AuthenticationDTO
-        if (authentication != null && authentication.getPassword() != null) {
-            authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
+    @Override
+    public AuthenticationDTO encryptAuthenticationFields(AuthenticationDTO authentication) {
+        if (authentication != null && !authentication.isEncrypted()) {
+            Map<String, String> encryptedFields = authentication.getEncryptionFields().entrySet().stream()
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            e -> encryptionService.encryptString(e.getValue())));
+            authentication.setEncryptionFields(encryptedFields);
+            authentication.setEncrypted(true);
         }
         return authentication;
     }
@@ -232,30 +236,32 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     /**
-    * This function can now only be used if you send the entire datasource object and not just id inside the datasource object. We only fetch
-    * the password from the db if its a saved datasource before testing.
-    */
+     * This function can now only be used if you send the entire datasource object and not just id inside the datasource object. We only fetch
+     * the password from the db if its a saved datasource before testing.
+     */
     @Override
     public Mono<DatasourceTestResult> testDatasource(Datasource datasource) {
         Mono<Datasource> datasourceMono = null;
 
-        // Fetch the password from the db if the datasource being tested does not have password set.
+        // Fetch any fields that maybe encrypted from the db if the datasource being tested does not have those fields set.
         // This scenario would happen whenever an existing datasource is being tested and no changes are present in the
-        // password field (because password is not sent over the network after encryption back to the client
-        if (datasource.getId() != null && datasource.getDatasourceConfiguration()!=null &&
-                datasource.getDatasourceConfiguration().getAuthentication()!=null) {
-            String password = datasource.getDatasourceConfiguration().getAuthentication().getPassword();
-            if (password == null || password.isEmpty()) {
+        // encrypted field (because encrypted fields are not sent over the network after encryption back to the client
+        if (datasource.getId() != null && datasource.getDatasourceConfiguration() != null &&
+                datasource.getDatasourceConfiguration().getAuthentication() != null) {
+            Set<String> emptyFields = datasource.getDatasourceConfiguration().getAuthentication().getEmptyEncryptionFields();
+            if (emptyFields != null && !emptyFields.isEmpty()) {
 
                 datasourceMono = getById(datasource.getId())
-                        // If datasource has encrypted password, decrypt and set it in the datasource which is being tested
-                        .map(datasourceFromRepo-> {
-                            if (datasourceFromRepo.getDatasourceConfiguration()!=null && datasourceFromRepo.getDatasourceConfiguration().getAuthentication()!=null) {
+                        // If datasource has encrypted fields, decrypt and set it in the datasource which is being tested
+                        .map(datasourceFromRepo -> {
+                            if (datasourceFromRepo.getDatasourceConfiguration() != null && datasourceFromRepo.getDatasourceConfiguration().getAuthentication() != null) {
                                 AuthenticationDTO authentication = datasourceFromRepo.getDatasourceConfiguration().getAuthentication();
-                                if (authentication.getPassword() != null) {
-                                    String decryptedPassword = encryptionService.decryptString(authentication.getPassword());
-                                    datasource.getDatasourceConfiguration().getAuthentication().setPassword(decryptedPassword);
-                                }
+                                Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
+                                        .filter(e -> !emptyFields.contains(e.getKey()))
+                                        .collect(Collectors.toMap(
+                                                Map.Entry::getKey,
+                                                e -> encryptionService.decryptString(e.getValue())));
+                                datasource.getDatasourceConfiguration().getAuthentication().setEncryptionFields(decryptedFields);
                             }
                             return datasource;
                         })
