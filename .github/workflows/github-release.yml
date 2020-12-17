@@ -189,8 +189,8 @@ jobs:
             const nodes = []
             for (const node of result.repository.releases.nodes) {
               if (!node.isDraft && !node.isPrerelease) {
-                del node.isDraft
-                del node.isPrerelease
+                delete node.isDraft
+                delete node.isPrerelease
                 nodes.push(node)
               }
               if (nodes.length === 10) {
