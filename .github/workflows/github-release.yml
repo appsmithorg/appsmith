@@ -10,7 +10,7 @@ on:
   # Ref: <https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#release>.
   release:
     types:
-      - published
+      - released
 
 jobs:
   prelude:
@@ -109,8 +109,8 @@ jobs:
         working-directory: app/server
 
     steps:
-      # Checkout the code
-      - uses: actions/checkout@v2
+      - name: Checkout the code
+        uses: actions/checkout@v2
 
       # Setup Java
       - name: Set up JDK 1.11
