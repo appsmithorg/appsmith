@@ -6,7 +6,7 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { AppState } from "reducers";
-import { all, select, put, takeEvery, take, delay } from "redux-saga/effects";
+import { all, delay, put, select, take, takeEvery } from "redux-saga/effects";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getDatasources, getPlugins } from "selectors/entitiesSelector";
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -22,8 +22,8 @@ import {
   createOnboardingActionInit,
   createOnboardingActionSuccess,
   setCurrentStep,
-  showTooltip,
   setOnboardingState as setOnboardingReduxState,
+  showTooltip,
 } from "actions/onboardingActions";
 import {
   changeDatasource,
@@ -36,6 +36,7 @@ import {
   OnboardingConfig,
   OnboardingStep,
 } from "constants/OnboardingConstants";
+import AnalyticsUtil from "../utils/AnalyticsUtil";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -274,6 +275,7 @@ function* listenForDeploySaga() {
 
 function* initiateOnboarding() {
   const currentOnboardingState = yield getOnboardingState();
+  AnalyticsUtil.logEvent("ONBOARDING_WELCOME");
   if (currentOnboardingState) {
     yield put(setOnboardingReduxState(true));
     yield put({
@@ -283,9 +285,9 @@ function* initiateOnboarding() {
 }
 
 function* proceedOnboardingSaga() {
-  const isinOnboarding = yield select(inOnboarding);
+  const isInOnboarding = yield select(inOnboarding);
 
-  if (isinOnboarding) {
+  if (isInOnboarding) {
     yield put({
       type: ReduxActionTypes.INCREMENT_STEP,
     });
@@ -297,6 +299,9 @@ function* proceedOnboardingSaga() {
 function* setupOnboardingStep() {
   const currentStep: OnboardingStep = yield select(getCurrentStep);
   const currentConfig = OnboardingConfig[currentStep];
+  if (currentConfig.eventName) {
+    AnalyticsUtil.logEvent(currentConfig.eventName);
+  }
   let actions = currentConfig.setup();
 
   if (actions.length) {
@@ -306,6 +311,7 @@ function* setupOnboardingStep() {
 }
 
 function* skipOnboardingSaga() {
+  AnalyticsUtil.logEvent("END_ONBOARDING");
   const set = yield setOnboardingState(false);
 
   if (set) {

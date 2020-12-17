@@ -1,5 +1,6 @@
 import { setCurrentStep } from "actions/onboardingActions";
 import { ReduxAction, ReduxActionTypes } from "./ReduxActionConstants";
+import { EventName } from "../utils/AnalyticsUtil";
 
 export enum OnboardingStep {
   NONE = -1,
@@ -24,6 +25,7 @@ export type OnboardingTooltip = {
 export type OnboardingStepConfig = {
   setup: () => { type: string; payload?: any }[];
   tooltip: OnboardingTooltip;
+  eventName?: EventName;
 };
 
 export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
@@ -50,6 +52,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       title: "",
       description: "",
     },
+    eventName: "ONBOARDING_WELCOME",
   },
   [OnboardingStep.EXAMPLE_DATABASE]: {
     setup: () => {
@@ -73,6 +76,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         label: "Got It!",
       },
     },
+    eventName: "ONBOARDING_EXAMPLE_DATABASE",
   },
   [OnboardingStep.ADD_WIDGET]: {
     setup: () => {
@@ -85,6 +89,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         "Copy the example binding below and paste inside TableData input",
       snippet: "{{ExampleQuery.data}}",
     },
+    eventName: "ONBOARDING_ADD_WIDGET",
   },
   [OnboardingStep.SUCCESSFUL_BINDING]: {
     setup: () => {
@@ -103,6 +108,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         action: setCurrentStep(OnboardingStep.DEPLOY),
       },
     },
+    eventName: "ONBOARDING_SUCCESSFUL_BINDING",
   },
   [OnboardingStep.DEPLOY]: {
     setup: () => {
@@ -118,5 +124,6 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         "Deploying your apps is a crucial step to building on appsmith.",
       isFinalStep: true,
     },
+    eventName: "ONBOARDING_DEPLOY",
   },
 };

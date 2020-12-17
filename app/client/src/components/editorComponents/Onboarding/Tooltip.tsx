@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Position, Popover, Classes, Icon } from "@blueprintjs/core";
+import { Classes, Icon, Popover, Position } from "@blueprintjs/core";
 import { useSelector } from "store";
 import { getTooltipConfig } from "sagas/OnboardingSagas";
 import { useDispatch } from "react-redux";
@@ -223,7 +223,7 @@ const ToolTipContent = (props: ToolTipContentProps) => {
 
                 return;
               }
-              dispatch(showTooltip(-1));
+              dispatch(showTooltip(OnboardingStep.NONE));
             }}
             className={TooltipClassNames.ACTION}
           >
