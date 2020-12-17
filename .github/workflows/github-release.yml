@@ -205,8 +205,12 @@ jobs:
             const output = JSON.stringify({ nodes, totalCount: result.repository.releases.totalCount })
             console.log("CWD", process.cwd())
             console.log(output)
-            await io.mkdirP("appsmith-server/src/main/resources")
-            require("fs").writeFileSync("appsmith-server/src/main/resources/release-notes.json", output)
+            const fs = require("fs")
+            let path = "appsmith-server/src/main/resources/release-notes.json"
+            if (fs.existsSync("app/server")) {
+              path = "app/server/" + path
+            }
+            require("fs").writeFileSync(path, output)
 
       - name: Check release-notes file
         run: |
