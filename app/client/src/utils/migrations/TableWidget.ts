@@ -41,6 +41,13 @@ export const tableWidgetPropertyPaneMigrations = (
         : tableColumns;
       children.primaryColumns = primaryColumns.map(
         (accessor: string, index: number) => {
+          let columnType =
+            columnTypeMap && columnTypeMap[accessor]
+              ? columnTypeMap[accessor].type
+              : ColumnTypes.TEXT;
+          if (columnType === "currency") {
+            columnType = ColumnTypes.NUMBER;
+          }
           const column: ColumnProperties = {
             index: index,
             width:
@@ -50,10 +57,7 @@ export const tableWidgetPropertyPaneMigrations = (
             id: accessor,
             horizontalAlignment: CellAlignmentTypes.LEFT,
             verticalAlignment: VerticalAlignmentTypes.CENTER,
-            columnType:
-              columnTypeMap && columnTypeMap[accessor]
-                ? columnTypeMap[accessor].type
-                : ColumnTypes.TEXT,
+            columnType: columnType,
             textColor: Colors.THUNDER,
             textSize: TextSizes.PARAGRAPH,
             fontStyle: FontStyleTypes.REGULAR,
