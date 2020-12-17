@@ -110,7 +110,8 @@ ctx.addEventListener("message", e => {
     case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
       const { widgetType, property, value, props } = rest;
       const result = validateWidgetProperty(widgetType, property, value, props);
-      ctx.postMessage(result);
+      const cleanedResponse = removeFunctions(result);
+      ctx.postMessage(cleanedResponse);
       break;
     }
     default: {
