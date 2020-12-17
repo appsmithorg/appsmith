@@ -11,10 +11,6 @@ describe("Checking for error message on Organisation Name ", function()  {
         // Now click on "X" (Close icon) ensure the pop up closes
     }
     )
-}
-)
-
-describe("Reuse the name of the deleted application name inside the same organisation", function()  {
     it("Reuse the name of the deleted application name ", function() 
     {
         // Navigate to home Page 
@@ -27,10 +23,6 @@ describe("Reuse the name of the deleted application name inside the same organis
         // Ensure the application can be created with the same name 
     }
     )
-}
-)
-
-describe("Adding Special Character ", function()  {
     it("Adding Special Character ", function() 
     {
         // Navigate to home Page 

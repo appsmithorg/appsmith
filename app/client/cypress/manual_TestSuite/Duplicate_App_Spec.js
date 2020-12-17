@@ -11,10 +11,6 @@ describe("Duplicate an application must duplicate every API ,Query widget and Da
         // Ensure the name is appended with the word "Copy" 
     }
     )
-}
-)
-
-describe("Deleting the duplicated Application and ensure parent application does not get deleted", function()  {
     it("Deleting the duplicated Application ", function() 
     {
         // Navigate to home Page 
