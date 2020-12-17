@@ -197,7 +197,9 @@ jobs:
                 break
               }
             }
-            console.log(JSON.stringify({ nodes, totalCount: result.repository.releases.totalCount }))
+            const output = JSON.stringify({ nodes, totalCount: result.repository.releases.totalCount });
+            console.log(output)
+            require("fs").writeFileSync("appsmith-server/src/main/resources/release-notes.json", output)
 
       # Build the code
       - name: Build without running any tests
