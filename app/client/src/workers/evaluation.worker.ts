@@ -70,7 +70,8 @@ ctx.addEventListener("message", e => {
       const { binding, dataTree } = rest;
       const withFunctions = addFunctions(dataTree);
       const value = getDynamicValue(binding, withFunctions, false);
-      ctx.postMessage({ value, errors: ERRORS });
+      const cleanedResponse = removeFunctions(value);
+      ctx.postMessage({ value: cleanedResponse, errors: ERRORS });
       ERRORS = [];
       break;
     }
@@ -84,7 +85,8 @@ ctx.addEventListener("message", e => {
         true,
         callbackData,
       );
-      ctx.postMessage({ triggers, errors: ERRORS });
+      const cleanedResponse = removeFunctions(triggers);
+      ctx.postMessage({ triggers: cleanedResponse, errors: ERRORS });
       ERRORS = [];
       break;
     }
