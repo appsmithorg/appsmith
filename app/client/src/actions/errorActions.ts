@@ -5,3 +5,12 @@ export const flushErrors = () => {
     type: ReduxActionTypes.FLUSH_ERRORS,
   };
 };
+
+export const flushErrorsAndRedirect = (url: string) => {
+  return {
+    type: ReduxActionTypes.FLUSH_AND_REDIRECT,
+    payload: {
+      url,
+    },
+  };
+};

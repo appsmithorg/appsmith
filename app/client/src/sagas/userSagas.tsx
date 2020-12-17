@@ -1,4 +1,4 @@
-import { call, takeLatest, put, all, select } from "redux-saga/effects";
+import { call, takeLatest, put, all } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionWithPromise,
@@ -37,7 +37,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { getSafeCrash } from "selectors/errorSelectors";
+import { flushErrorsAndRedirect } from "actions/errorActions";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -353,18 +353,12 @@ export function* addUserToOrgSaga(
 export function* logoutSaga() {
   try {
     const response: ApiResponse = yield call(UserApi.logoutUser);
-    const safeCrash = yield select(getSafeCrash);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       AnalyticsUtil.reset();
       yield put(logoutUserSuccess());
       localStorage.removeItem("THEME");
-
-      if (safeCrash) {
-        window.location.href = AUTH_LOGIN_URL;
-      } else {
-        history.push(AUTH_LOGIN_URL);
-      }
+      yield put(flushErrorsAndRedirect(AUTH_LOGIN_URL));
     }
   } catch (error) {
     console.log(error);

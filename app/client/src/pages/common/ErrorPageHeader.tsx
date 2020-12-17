@@ -12,6 +12,8 @@ import Button from "components/editorComponents/Button";
 import history from "utils/history";
 import { Colors } from "constants/Colors";
 import ProfileDropdown from "./ProfileDropdown";
+import { flushErrorsAndRedirect, flushErrors } from "actions/errorActions";
+import { getSafeCrash } from "selectors/errorSelectors";
 
 const StyledPageHeader = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
@@ -36,12 +38,15 @@ const AppsmithLogoImg = styled.img`
   max-width: 110px;
 `;
 
-type PageHeaderProps = {
+type ErrorPageHeaderProps = {
   user?: User;
+  flushErrors?: any;
+  flushErrorsAndRedirect?: any;
+  safeCrash: boolean;
 };
 
-export const PageHeader = (props: PageHeaderProps) => {
-  const { user } = props;
+export const ErrorPageHeader = (props: ErrorPageHeaderProps) => {
+  const { user, flushErrors, flushErrorsAndRedirect, safeCrash } = props;
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   let loginUrl = AUTH_LOGIN_URL;
@@ -52,7 +57,13 @@ export const PageHeader = (props: PageHeaderProps) => {
   return (
     <StyledPageHeader>
       <HeaderSection>
-        <Link to={APPLICATIONS_URL} className="t--appsmith-logo">
+        <Link
+          to={APPLICATIONS_URL}
+          className="t--appsmith-logo"
+          onClick={() => {
+            if (safeCrash) flushErrors();
+          }}
+        >
           <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
         </Link>
       </HeaderSection>
@@ -64,7 +75,9 @@ export const PageHeader = (props: PageHeaderProps) => {
               text="Sign In"
               intent={"primary"}
               size="small"
-              onClick={() => history.push(loginUrl)}
+              onClick={() => {
+                flushErrorsAndRedirect(loginUrl);
+              }}
             />
           ) : (
             <ProfileDropdown userName={user.username} />
@@ -77,6 +90,10 @@ export const PageHeader = (props: PageHeaderProps) => {
 
 const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),
+  safeCrash: getSafeCrash(state),
 });
 
-export default connect(mapStateToProps)(PageHeader);
+export default connect(mapStateToProps, {
+  flushErrors,
+  flushErrorsAndRedirect,
+})(ErrorPageHeader);

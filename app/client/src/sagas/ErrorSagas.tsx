@@ -6,11 +6,14 @@ import {
 } from "constants/ReduxActionConstants";
 import { DEFAULT_ERROR_MESSAGE, DEFAULT_ACTION_ERROR } from "constants/errors";
 import { ApiResponse } from "api/ApiResponses";
-import { put, takeLatest, call } from "redux-saga/effects";
+import { put, takeLatest, call, select } from "redux-saga/effects";
 import { ERROR_401, ERROR_500, ERROR_0 } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import log from "loglevel";
+import { flushErrors } from "actions/errorActions";
+import history from "utils/history";
+import { getSafeCrash } from "selectors/errorSelectors";
 
 export function* callAPI(apiCall: any, requestPayload: any) {
   try {
@@ -151,6 +154,27 @@ function* crashAppSaga() {
   });
 }
 
+/**
+ * flush errors and redirect users to a url
+ *
+ * @param action
+ */
+export function* flushErrorsAndRedirectSaga(
+  action: ReduxAction<{ url?: string }>,
+) {
+  const safeCrash = yield select(getSafeCrash);
+
+  if (safeCrash) {
+    yield put(flushErrors());
+  }
+
+  history.push(action.payload.url);
+}
+
 export default function* errorSagas() {
   yield takeLatest(Object.values(ReduxActionErrorTypes), errorSaga);
+  yield takeLatest(
+    ReduxActionTypes.FLUSH_AND_REDIRECT,
+    flushErrorsAndRedirectSaga,
+  );
 }
