@@ -165,7 +165,6 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            repo="${{ github.repository }}"
             const query = `query($owner: String!, $name: String!) {
               repository(owner: $owner, name: $name) {
                 releases(orderBy: {field: NAME, direction: DESC}, first: 30) {
@@ -187,7 +186,18 @@ jobs:
               name: context.repo.repo,
             }
             const result = await github.graphql(query, options)
-            console.log(result)
+            const nodes = []
+            for (const node of result.repository.releases.nodes) {
+              if (!node.isDraft && !node.isPrerelease) {
+                del node.isDraft
+                del node.isPrerelease
+                nodes.push(node)
+              }
+              if (nodes.length === 10) {
+                break
+              }
+            }
+            console.log(JSON.stringify({ nodes, totalCount: result.repository.releases.totalCount }))
 
       # Build the code
       - name: Build without running any tests
