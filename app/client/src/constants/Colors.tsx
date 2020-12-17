@@ -16,6 +16,7 @@ export const Colors: Record<string, string> = {
   BINDING_COLOR: "#ffcc99",
   BINDING_COLOR_LT: "#063289",
   PURE_ORANGE: "#ffb100",
+  WHITE_CLOUD: "#D3DEE3",
 
   BLACK: "#000000",
   BLACK_PEARL: "#040627",

@@ -3,9 +3,10 @@ import {
   REQUEST_TIMEOUT_MS,
   API_REQUEST_HEADERS,
   API_STATUS_CODES,
+  ERROR_CODES,
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
-import { AUTH_LOGIN_URL, PAGE_NOT_FOUND_URL } from "constants/routes";
+import { AUTH_LOGIN_URL } from "constants/routes";
 import history from "utils/history";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
 import { SERVER_API_TIMEOUT_ERROR } from "../constants/messages";
@@ -67,12 +68,14 @@ axiosInstance.interceptors.response.use(
       return Promise.reject({
         ...error,
         message: SERVER_API_TIMEOUT_ERROR,
+        code: ERROR_CODES.REQUEST_TIMEOUT,
       });
     }
     if (error.response.status === API_STATUS_CODES.SERVER_ERROR) {
       return Promise.reject({
         ...error,
         crash: true,
+        code: ERROR_CODES.REQUEST_TIMEOUT,
         message: SERVER_API_TIMEOUT_ERROR,
       });
     }
@@ -91,7 +94,7 @@ axiosInstance.interceptors.response.use(
             search: `redirectTo=${currentUrl}`,
           });
           return Promise.reject({
-            code: API_STATUS_CODES.REQUEST_NOT_AUTHORISED,
+            code: ERROR_CODES.REQUEST_NOT_AUTHORISED,
             message: "Unauthorized. Redirecting to login page...",
             show: false,
           });
@@ -101,12 +104,8 @@ axiosInstance.interceptors.response.use(
           errorData.status === API_STATUS_CODES.RESOURCE_NOT_FOUND &&
           errorData.error.code === 4028
         ) {
-          history.replace({
-            pathname: PAGE_NOT_FOUND_URL,
-            search: `redirectTo=${currentUrl}`,
-          });
           return Promise.reject({
-            code: API_STATUS_CODES.RESOURCE_NOT_FOUND,
+            code: ERROR_CODES.PAGE_NOT_FOUND,
             message: "Resource Not Found",
             show: false,
           });

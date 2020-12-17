@@ -176,6 +176,10 @@ const DraggableComponent = (props: DraggableComponentProps) => {
 
   const className = `${classNameForTesting}`;
 
+  const shouldRenderComponent = !(
+    selectedWidget === props.widgetId && isDragging
+  );
+
   return (
     <DraggableWrapper
       className={className}
@@ -184,7 +188,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       onClick={handleClick}
       style={style}
     >
-      {props.children}
+      {shouldRenderComponent && props.children}
       {widgetBoundaries}
     </DraggableWrapper>
   );
