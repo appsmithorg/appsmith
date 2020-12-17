@@ -31,6 +31,11 @@ describe("Test Create Api and Bind to Table widget", function() {
     /**Validate Table data on current page(page1) */
     cy.ValidateTableData("1");
     cy.get(commonlocators.tableNextPage).click({ force: true });
+    cy.wait("@postExecute").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
     cy.validateToastMessage("done");
     /**Validate Table data on next page(page2) */
     cy.ValidateTableData("11");
@@ -40,6 +45,11 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.PublishtheApp();
     cy.ValidatePublishTableData("1");
     cy.get(commonlocators.tableNextPage).click({ force: true });
+    cy.wait("@postExecute").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
     cy.validateToastMessage("done");
     cy.ValidatePublishTableData("11");
     cy.get(publishPage.backToEditor).click({ force: true });
