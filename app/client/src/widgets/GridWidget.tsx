@@ -1,96 +1,114 @@
 import React from "react";
 import _ from "lodash";
 
-import ContainerComponent, {
-  ContainerStyle,
-} from "components/designSystems/appsmith/ContainerComponent";
+import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
-import {
-  GridDefaults,
-  CONTAINER_GRID_PADDING,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
+import { WidgetOperations } from "widgets/BaseWidget";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import GridComponent from "components/designSystems/appsmith/GridComponent";
 import * as Sentry from "@sentry/react";
+import { generateReactKey } from "utils/generators";
 
 class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
-  constructor(props: GridWidgetProps<WidgetProps>) {
-    super(props);
-    this.renderChildWidget = this.renderChildWidget.bind(this);
+  static getPropertyValidationMap(): WidgetPropertyValidationType {
+    return {
+      items: VALIDATION_TYPES.GRID_DATA,
+    };
+  }
+
+  static getDerivedPropertiesMap() {
+    return {};
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {};
   }
 
   static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onListItemClick: true,
-    };
+    return {};
   }
 
-  getSnapSpaces = () => {
-    const { componentWidth } = this.getComponentDimensions();
-    return {
-      snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      snapColumnSpace: componentWidth
-        ? (componentWidth - (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2) /
-          GridDefaults.DEFAULT_GRID_COLUMNS
-        : 0,
+  /**
+   * as grid component will have a container of its own,
+   * we creating the container on mount
+   */
+  componentDidMount() {
+    this.generateContainer();
+  }
+
+  /**
+   * generates a canvas container where widget can be dragged.
+   */
+  generateContainer = () => {
+    const { widgetId } = this.props;
+
+    const container = {
+      type: WidgetTypes.CANVAS_WIDGET,
+      widgetId: generateReactKey(),
+      parentId: widgetId,
+      detachFromLayout: true,
+      children: [],
+      parentRowSpace: 1,
+      parentColumnSpace: 1,
+      containerStyle: "card",
+      leftColumn: 0,
+      rightColumn:
+        (this.props.rightColumn - this.props.leftColumn) *
+        this.props.parentColumnSpace,
+      topRow: 0,
+      bottomRow:
+        (this.props.bottomRow - this.props.topRow) * this.props.parentRowSpace,
+      isLoading: false,
     };
+
+    this.updateWidget(WidgetOperations.ADD_CHILDREN, widgetId, {
+      children: [container],
+    });
   };
 
-  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
-    // For now, isVisible prop defines whether to render a detached widget
-    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
+  /**
+   * renders the children widgets
+   *
+   * TODO(pawan) - add logic for grid items
+   */
+  getChildren = () => {
+    const childWidgetData: any = this.props.children?.filter(Boolean)[0];
+
+    if (!childWidgetData) {
       return null;
     }
 
-    const snapSpaces = this.getSnapSpaces();
+    childWidgetData.shouldScrollContents = false;
+    childWidgetData.canExtend = this.props.shouldScrollContents;
     const { componentWidth, componentHeight } = this.getComponentDimensions();
-
-    if (childWidgetData.type !== WidgetTypes.CANVAS_WIDGET) {
-      childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
-      childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
-    } else {
-      // This is for the detached child like the default CANVAS_WIDGET child
-
-      childWidgetData.rightColumn = componentWidth;
-      childWidgetData.bottomRow = this.props.shouldScrollContents
-        ? childWidgetData.bottomRow
-        : componentHeight;
-      childWidgetData.minHeight = componentHeight;
-      childWidgetData.isVisible = this.props.isVisible;
-      childWidgetData.shouldScrollContents = false;
-      childWidgetData.canExtend = this.props.shouldScrollContents;
-    }
-
+    childWidgetData.rightColumn = componentWidth;
+    childWidgetData.isVisible = this.props.isVisible;
+    childWidgetData.bottomRow = this.props.shouldScrollContents
+      ? childWidgetData.bottomRow
+      : componentHeight - 1;
     childWidgetData.parentId = this.props.widgetId;
+    childWidgetData.minHeight = componentHeight;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
-  }
-
-  renderChildren = () => {
-    return _.map(
-      // sort by row so stacking context is correct
-      // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
-      // Figure out a way in which the stacking context is consistent.
-      _.sortBy(_.compact(this.props.children), child => child.topRow),
-      this.renderChildWidget,
-    );
   };
 
-  renderAsContainerComponent(props: GridWidgetProps<WidgetProps>) {
-    return (
-      <ContainerComponent {...props}>
-        {this.renderChildren()}
-      </ContainerComponent>
-    );
-  }
-
+  /**
+   * view that is rendered in editor
+   */
   getPageView() {
-    return this.renderAsContainerComponent(this.props);
+    const children = this.getChildren();
+
+    return <GridComponent {...this.props}>{children}</GridComponent>;
   }
 
+  /**
+   * returns type of the widget
+   */
   getWidgetType(): WidgetType {
     return WidgetTypes.GRID_WIDGET;
   }
@@ -101,7 +119,7 @@ export interface GridWidgetProps<T extends WidgetProps> extends WidgetProps {
   containerStyle?: ContainerStyle;
   shouldScrollContents?: boolean;
   onListItemClick?: string;
-  gridData: Array<Record<string, unknown>>;
+  items: Array<Record<string, unknown>>;
 }
 
 export default GridWidget;

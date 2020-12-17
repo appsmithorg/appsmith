@@ -1310,6 +1310,31 @@ const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
+  [VALIDATION_TYPES.GRID_DATA]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+      value,
+      props,
+      dataTree,
+    );
+    if (!isValid) {
+      return {
+        isValid,
+        parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: grid Data`,
+      };
+    } else if (!every(parsed, datum => isObject(datum))) {
+      return {
+        isValid: false,
+        parsed: [],
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: grid Data`,
+      };
+    }
+    return { isValid, parsed };
+  },
   [VALIDATION_TYPES.TABLE_DATA]: (
     value: any,
     props: WidgetProps,

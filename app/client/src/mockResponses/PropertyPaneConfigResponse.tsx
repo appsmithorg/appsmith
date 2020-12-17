@@ -1393,9 +1393,9 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
           {
             id: "18.1.1",
             helpText:
-              "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
-            propertyName: "gridData",
-            label: "Grid Data",
+              "Takes in an array of objects to display items in the grid. Bind data from an API using {{}}",
+            propertyName: "items",
+            label: "Grid Items",
             controlType: "INPUT_TEXT",
             placeholderText: 'Enter [{ "col1": "val1" }]',
             inputType: "ARRAY",

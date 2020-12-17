@@ -450,63 +450,24 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       backgroundColor: "#FFFFFF",
       rows: 10,
       columns: 8,
-      gridData: [
+      items: [
         {
-          id: 2381224,
+          id: 1,
           email: "michael.lawson@reqres.in",
-          userName: "Michael Lawson",
-          productName: "Chicken Sandwich",
-          orderAmount: 4.99,
+          first_name: "Michael",
+          last_name: "Lawson",
+          avatar: "https://reqres.in/img/faces/7-image.jpg",
         },
         {
-          id: 2736212,
+          id: 2,
           email: "lindsay.ferguson@reqres.in",
-          userName: "Lindsay Ferguson",
-          productName: "Tuna Salad",
-          orderAmount: 9.99,
-        },
-        {
-          id: 6788734,
-          email: "tobias.funke@reqres.in",
-          userName: "Tobias Funke",
-          productName: "Beef steak",
-          orderAmount: 19.99,
+          first_name: "Lindsay",
+          last_name: "Ferguson",
+          avatar: "https://reqres.in/img/faces/8-image.jpg",
         },
       ],
       widgetName: "Grid",
-      containerStyle: "card",
       children: [],
-      blueprint: {
-        view: [
-          {
-            type: "CANVAS_WIDGET",
-            position: { left: 0, top: 0 },
-            props: {
-              detachFromLayout: true,
-              canExtend: true,
-              isVisible: true,
-              isDisabled: false,
-              shouldScrollContents: false,
-              children: [],
-              blueprint: {
-                view: [
-                  {
-                    type: WidgetTypes.IMAGE_WIDGET,
-                    position: { left: 0, top: 0 },
-                    size: { rows: 3, cols: 3 },
-                    props: {
-                      imageShape: "RECTANGLE",
-                      maxZoomLevel: 1,
-                      defaultImage:
-                        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        ],
-      },
     },
   },
   configVersion: 1,
