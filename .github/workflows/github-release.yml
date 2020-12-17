@@ -161,7 +161,9 @@ jobs:
             | tee appsmith-server/src/main/resources/release-notes.json
 
       - name: Check release-notes file
-        run: cat appsmith-server/src/main/resources/release-notes.json
+        run: |
+          pwd
+          cat appsmith-server/src/main/resources/release-notes.json
 
       - name: Get release notes
         uses: actions/github-script@v3
@@ -207,7 +209,9 @@ jobs:
             require("fs").writeFileSync("appsmith-server/src/main/resources/release-notes.json", output)
 
       - name: Check release-notes file
-        run: cat appsmith-server/src/main/resources/release-notes.json
+        run: |
+          pwd
+          cat appsmith-server/src/main/resources/release-notes.json
 
       # Build the code
       - name: Build without running any tests
