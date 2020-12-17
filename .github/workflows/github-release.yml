@@ -10,7 +10,7 @@ on:
   # Ref: <https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#release>.
   release:
     types:
-      - released
+      - published
 
 jobs:
   prelude:
