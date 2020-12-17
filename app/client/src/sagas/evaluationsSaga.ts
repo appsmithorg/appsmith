@@ -35,6 +35,7 @@ import PerformanceTracker, {
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
+import { EXECUTION_PARAM_KEY } from "../constants/ActionConstants";
 
 let evaluationWorker: Worker;
 let workerChannel: EventChannel<any>;
@@ -110,9 +111,13 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   }
 }
 
-export function* evaluateSingleValue(binding: string) {
+export function* evaluateSingleValue(
+  binding: string,
+  executionParams: Record<string, any> = {},
+) {
   if (evaluationWorker) {
     const dataTree = yield select(getDataTree);
+    dataTree[EXECUTION_PARAM_KEY] = executionParams;
     evaluationWorker.postMessage({
       action: EVAL_WORKER_ACTIONS.EVAL_SINGLE,
       dataTree,

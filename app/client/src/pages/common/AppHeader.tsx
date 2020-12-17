@@ -14,7 +14,9 @@ import { withRouter, RouteComponentProps } from "react-router";
 import AppViewerHeader from "pages/AppViewer/viewer/AppViewerHeader";
 import AppEditorHeader from "pages/Editor/EditorHeader";
 
-type Props = { getCurrentUser: () => void } & RouteComponentProps;
+type Props = {
+  getCurrentUser: () => void;
+} & RouteComponentProps;
 
 class AppHeader extends React.Component<Props, any> {
   componentDidMount() {
@@ -34,8 +36,8 @@ class AppHeader extends React.Component<Props, any> {
   }
 }
 
-const mapStateToProps = (dispatch: any) => ({
+const mapDispatchToProps = (dispatch: any) => ({
   getCurrentUser: () => dispatch(getCurrentUser()),
 });
 
-export default withRouter(connect(null, mapStateToProps)(AppHeader));
+export default withRouter(connect(null, mapDispatchToProps)(AppHeader));

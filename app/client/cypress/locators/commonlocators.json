@@ -88,5 +88,6 @@
   "filePickerButton": ".t--widget-filepickerwidget",
   "filePickerInput": ".uppy-Dashboard-input",
   "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",
-  "filePickerOnFilesSelected": ".t--property-control-onfilesselected"
+  "filePickerOnFilesSelected": ".t--property-control-onfilesselected",
+  "dataType": ".t--property-control-datatype"
 }

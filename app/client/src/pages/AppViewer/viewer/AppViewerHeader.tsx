@@ -1,5 +1,6 @@
 import React, { ReactElement, useRef, useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AppsmithLogo from "assets/images/appsmith_logo_white.png";
@@ -163,7 +164,15 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const canEdit = isPermitted(userPermissions, permissionRequired);
   const queryParams = new URLSearchParams(useLocation().search);
   const hideHeader = !!queryParams.get("embed");
-  if (hideHeader) return null;
+  const HtmlTitle = () => {
+    if (!currentApplicationDetails?.name) return null;
+    return (
+      <Helmet>
+        <title>{currentApplicationDetails?.name}</title>
+      </Helmet>
+    );
+  };
+  if (hideHeader) return <HtmlTitle />;
   // Mark default page as first page
   const appPages = pages;
   if (appPages.length > 1) {
@@ -221,6 +230,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
 
   return (
     <HeaderWrapper hasPages={pages.length > 1}>
+      <HtmlTitle />
       <HeaderRow justify={"space-between"}>
         <HeaderSection justify={"flex-start"}>
           <Link to={APPLICATIONS_URL}>
