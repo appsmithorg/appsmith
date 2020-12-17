@@ -10,7 +10,10 @@ on:
   # Ref: <https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#release>.
   release:
     types:
-      - published
+      # Unlike the `released` event, the `published` event triggers for pre-releases as well.
+      - released
+      - edited
+      - deleted
 
 jobs:
   prelude:
