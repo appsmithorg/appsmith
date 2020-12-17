@@ -13,6 +13,7 @@
   "autoSuggest": "//div[contains(@id,'react-select')]",
   "headerKey": "(//div[contains(@class,'t--actionConfiguration.headers[0].key.0')]//textarea)[2]",
   "headerValue": "(//div[contains(@class,'t--actionConfiguration.headers[0].value.0')]//textarea)[2]",
+  "postDefaultContentTypeHeaderKey": "(//div[contains(@class,'t--actionConfiguration.headers[2].key.2')]//textarea)[2]",
   "queryKey": "(//div[contains(@class,'t--actionConfiguration.queryParameters[0].key.0')]//textarea)[2]",
   "queryValue": "(//div[contains(@class,'t--actionConfiguration.queryParameters[0].value.0')]//textarea)[2]",
   "formEncoded": "(//div[contains(@class,'t--actionConfiguration.bodyFormData[0].key.0')]//textarea)[2]",
