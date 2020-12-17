@@ -239,7 +239,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               let inputFormat;
               try {
                 const type = column.metaProperties.inputFormat;
-                if (type !== "EPOCH" && type !== "Milliseconds") {
+                if (type !== "Epoch" && type !== "Milliseconds") {
                   inputFormat = type;
                   moment(value, inputFormat);
                 } else if (!isNumber(value)) {
@@ -253,6 +253,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   outputFormat = inputFormat;
                 }
                 if (column.metaProperties.inputFormat === "Milliseconds") {
+                  value = Number(value);
+                } else if (column.metaProperties.inputFormat === "Epoch") {
                   value = 1000 * Number(value);
                 }
                 tableRow[accessor] = moment(value, inputFormat).format(
