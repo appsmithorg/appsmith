@@ -4,12 +4,13 @@ name: Appsmith Github Release Workflow
 # The docker-tag with which this push happens in the release tag (e.g., v1.2.3 etc.).
 # In addition to the above tag, unless the git-tag matches `*beta*`, we also push to the `latest` docker-tag.
 # This workflow does NOT run tests.
+# This workflow is automatically triggered when a relese is created on GitHub.
 
 on:
-  push:
-    # Only trigger if a tag has been created and pushed to this branch
-    tags:
-      - v*
+  # Ref: <https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#release>.
+  release:
+    types:
+      - published
 
 jobs:
   prelude:
@@ -32,25 +33,6 @@ jobs:
           else
             echo "::set-output name=is_beta::false"
           fi
-
-  create-release:
-    needs:
-      - prelude
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          # If the tag has the string "beta", then mark the Github release as a pre-release
-          prerelease: ${{ needs.prelude.outputs.is_beta }}
 
   build-client:
     needs:
@@ -119,7 +101,6 @@ jobs:
   build-server:
     needs:
       - prelude
-      - create-release
 
     runs-on: ubuntu-latest
 
