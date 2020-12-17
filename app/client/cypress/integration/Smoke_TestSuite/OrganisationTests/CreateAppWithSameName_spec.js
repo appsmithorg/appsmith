@@ -1,10 +1,10 @@
 /// <reference types="Cypress" />
 
-describe("Create new org and an app within the same", function() {
+describe("Create org and a new app / delete and recreate app", function() {
   let orgid;
   let appid;
 
-  it("create multiple apps and validate", function() {
+  it("create app within an org and delete and re-create another app with same name", function() {
     cy.NavigateToHome();
     cy.generateUUID().then(uid => {
       orgid = uid;
@@ -12,8 +12,9 @@ describe("Create new org and an app within the same", function() {
       localStorage.setItem("OrgName", orgid);
       cy.createOrg(orgid);
       cy.CreateAppForOrg(orgid, appid);
+      cy.DeleteAppByApi();
       cy.NavigateToHome();
-      cy.CreateApp(appid);
+      cy.CreateAppForOrg(orgid, appid);
     });
   });
 });
