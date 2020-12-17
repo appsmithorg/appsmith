@@ -53,15 +53,15 @@ describe("Onboarding", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(onboarding.tooltipAction).click({ force: true });
 
-    cy.get(homePage.publishButton).click();
-
-    cy.get(homePage.closeBtn).click();
+    cy.PublishtheApp();
     cy.get(".t--continue-on-my-own").click();
   });
 
   after(() => {
     localStorage.removeItem("OnboardingState");
-    indexedDB.deleteDatabase("Appsmith");
+    cy.window().then(window => {
+      window.indexedDB.deleteDatabase("Appsmith");
+    });
     cy.log("Cleared");
   });
 });
