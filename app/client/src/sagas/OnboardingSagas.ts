@@ -188,9 +188,6 @@ function* createOnboardingDatasource() {
         datasource: onboardingDatasource,
       };
       yield put(createOnboardingActionSuccess(newAction));
-      yield put({
-        type: ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_SUCCESS,
-      });
 
       // Run query
       const timeout = yield select(getActionTimeout, newAction.id);
@@ -209,6 +206,9 @@ function* createOnboardingDatasource() {
       yield put({
         type: ReduxActionTypes.RUN_ACTION_SUCCESS,
         payload: { [newAction.id]: payload },
+      });
+      yield put({
+        type: ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_SUCCESS,
       });
 
       // Navigate to that datasource page
