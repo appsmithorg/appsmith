@@ -25,7 +25,10 @@ import {
   showTooltip,
   setOnboardingState as setOnboardingReduxState,
 } from "actions/onboardingActions";
-import { changeDatasource } from "actions/datasourceActions";
+import {
+  changeDatasource,
+  expandDatasourceEntity,
+} from "actions/datasourceActions";
 import { playOnboardingAnimation } from "utils/helpers";
 import { QueryAction } from "entities/Action";
 import { getActionTimeout } from "./ActionExecutionSagas";
@@ -187,6 +190,8 @@ function* createOnboardingDatasource() {
         ...response.data,
         datasource: onboardingDatasource,
       };
+      yield put(expandDatasourceEntity(onboardingDatasource.id));
+
       yield put(createOnboardingActionSuccess(newAction));
 
       // Run query
