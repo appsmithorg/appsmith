@@ -2,8 +2,12 @@ const pages = require("../../../locators/Pages.json");
 
 describe("Pages", function() {
   let veryLongPageName = `abcdefghijklmnopqrstuvwxyz1234`;
+  let apiName = "someApi";
 
   it("Clone page", function() {
+    cy.NavigateToAPI_Panel();
+    cy.CreateAPI(apiName);
+
     cy.xpath(pages.popover)
       .last()
       .click({ force: true });
@@ -15,7 +19,12 @@ describe("Pages", function() {
       201,
     );
 
-    cy.get(".t--entity-name:contains(Page1 Copy)");
+    // to check if apis are cloned
+    cy.get(".t--entity-name:contains(Page1)").click({ multiple: true });
+    cy.get(".t--entity-name:contains(APIs)")
+      .last()
+      .click();
+    cy.get(`.t--entity-name:contains(${apiName})`).should("have.length", 2);
   });
 
   it("Creates a page with long name and checks if it shows tooltip on hover", () => {
