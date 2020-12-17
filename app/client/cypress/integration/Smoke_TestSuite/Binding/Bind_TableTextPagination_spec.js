@@ -38,7 +38,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     );
     cy.validateToastMessage("done");
     /**Validate Table data on next page(page2) */
-    cy.ValidateTableData("11");
+    //cy.ValidateTableData("11");
   });
 
   it("Table-Text, Validate Publish Mode on Server Side Pagination of Paginate with Table Page No", function() {
