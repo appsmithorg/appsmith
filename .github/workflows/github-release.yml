@@ -160,6 +160,9 @@ jobs:
             | python -c "$processor" \
             | tee appsmith-server/src/main/resources/release-notes.json
 
+      - name: Check release-notes file
+        run: cat appsmith-server/src/main/resources/release-notes.json
+
       - name: Get release notes
         uses: actions/github-script@v3
         with:
@@ -197,9 +200,13 @@ jobs:
                 break
               }
             }
-            const output = JSON.stringify({ nodes, totalCount: result.repository.releases.totalCount });
+            const output = JSON.stringify({ nodes, totalCount: result.repository.releases.totalCount })
             console.log(output)
+            await io.mkdirP("appsmith-server/src/main/resources")
             require("fs").writeFileSync("appsmith-server/src/main/resources/release-notes.json", output)
+
+      - name: Check release-notes file
+        run: cat appsmith-server/src/main/resources/release-notes.json
 
       # Build the code
       - name: Build without running any tests
