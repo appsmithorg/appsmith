@@ -15,7 +15,6 @@ import {
   CSSUnit,
   CONTAINER_GRID_PADDING,
 } from "constants/WidgetConstants";
-import _ from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
 import { ExecuteActionPayload } from "constants/ActionConstants";
