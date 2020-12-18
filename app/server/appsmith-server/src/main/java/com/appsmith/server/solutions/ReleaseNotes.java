@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,7 @@ public class ReleaseNotes {
     }
 
     @Data
+    @NoArgsConstructor
     public static class ReleaseNode {
         private String tagName;
         private String name;
@@ -31,6 +33,10 @@ public class ReleaseNotes {
         // The following are ISO timestamps. We are not parsing them since we don't use the values.
         private String createdAt;
         private String publishedAt;
+
+        public ReleaseNode(String tagName) {
+            this.tagName = tagName;
+        }
     }
 
     public ReleaseNotes() {
@@ -52,6 +58,10 @@ public class ReleaseNotes {
         releases = releasesTemp;
     }
 
+    public ReleaseNotes(Releases releases) {
+        this.releases = releases;
+    }
+
     public List<ReleaseNode> getReleaseNodes() {
         return releases == null ? Collections.emptyList() : releases.getNodes();
     }
@@ -71,7 +81,7 @@ public class ReleaseNotes {
             }
         }
 
-        return newCount + (newCount == releases.getNodes().size() ? "+" : "");
+        return newCount == releases.getNodes().size() ? ((newCount - 1) + "+") : String.valueOf(newCount);
     }
 
 }

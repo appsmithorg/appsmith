@@ -1,4 +1,3 @@
-.DS_Store
 dist/**
 target/**
 .idea/**
@@ -13,3 +12,4 @@ node_modules
 **/.project
 **/.factorypath
 *.env
+release-notes.json
