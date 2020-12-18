@@ -249,11 +249,42 @@ export function* evaluateDynamicBoundValueSaga(
 
 const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
 
+/**
+ * Api1
+ * URL: https://example.com/{{Text1.text}}
+ * Body: {
+ *     "name": "{{this.params.name}}",
+ *     "age": {{this.params.age}},
+ *     "gender": {{Dropdown1.selectedOptionValue}}
+ * }
+ *
+ * If you call
+ * Api1.run(undefined, undefined, { name: "Hetu", age: Input1.text });
+ *
+ * executionParams is { name: "Hetu", age: Input1.text }
+ * bindings is [
+ *   "Text1.text",
+ *   "Dropdown1.selectedOptionValue",
+ *   "this.params.name",
+ *   "this.params.age",
+ * ]
+ *
+ * Return will be [
+ *   { key: "Text1.text", value: "updateUser" },
+ *   { key: "Dropdown1.selectedOptionValue", value: "M" },
+ *   { key: "this.params.name", value: "Hetu" },
+ *   { key: "this.params.age", value: 26 },
+ * ]
+ * @param bindings
+ * @param executionParams
+ */
 export function* getActionParams(
   bindings: string[] | undefined,
   executionParams?: Record<string, any>,
 ) {
   if (_.isNil(bindings)) return [];
+  // This might look like a bug, but isn't.
+  // We send in stringified executionParams, but get back an object
   const evaluatedExecutionParams = yield evaluateDynamicBoundValueSaga(
     JSON.stringify(executionParams),
   );
