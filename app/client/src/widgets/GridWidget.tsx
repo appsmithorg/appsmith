@@ -1,18 +1,16 @@
 import React from "react";
-import _ from "lodash";
+import * as Sentry from "@sentry/react";
 
-import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
+import { generateReactKey } from "utils/generators";
 import { WidgetOperations } from "widgets/BaseWidget";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { WidgetPropertyValidationType } from "utils/WidgetValidation";
-
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
+import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import GridComponent from "components/designSystems/appsmith/GridComponent";
-import * as Sentry from "@sentry/react";
-import { generateReactKey } from "utils/generators";
+import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
 
 class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -45,7 +43,10 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
    * generates a canvas container where widget can be dragged.
    */
   generateContainer = () => {
-    const { widgetId } = this.props;
+    const { widgetId, children } = this.props;
+
+    // if there is a children, that container has been created before
+    if ((children || []).length > 0) return false;
 
     const container = {
       type: WidgetTypes.CANVAS_WIDGET,
@@ -86,6 +87,7 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.shouldScrollContents = false;
     childWidgetData.canExtend = this.props.shouldScrollContents;
     const { componentWidth, componentHeight } = this.getComponentDimensions();
+
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.bottomRow = this.props.shouldScrollContents
