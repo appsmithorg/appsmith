@@ -87,7 +87,13 @@ export type EventName =
   | "ROUTE_CHANGE"
   | "PROPERTY_PANE_CLOSE_CLICK"
   | "APPLICATIONS_PAGE_LOAD"
-  | "EXECUTE_ACTION";
+  | "EXECUTE_ACTION"
+  | "ONBOARDING_WELCOME"
+  | "ONBOARDING_EXAMPLE_DATABASE"
+  | "ONBOARDING_ADD_WIDGET"
+  | "ONBOARDING_SUCCESSFUL_BINDING"
+  | "ONBOARDING_DEPLOY"
+  | "END_ONBOARDING";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -203,6 +209,7 @@ class AnalyticsUtil {
         userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
       };
     }
+
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
       windowDoc.analytics.track(eventName, finalEventData);
