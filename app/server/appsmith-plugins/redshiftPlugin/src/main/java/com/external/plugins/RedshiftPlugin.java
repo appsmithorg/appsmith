@@ -184,6 +184,7 @@ public class RedshiftPlugin extends BasePlugin {
                 } catch (SQLException error) {
                     // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
                     // here, this should never happen.
+                    System.out.println("Error checking validity of Redshift connection. " + error);
                     log.error("Error checking validity of Redshift connection.", error);
                 }
 
@@ -316,6 +317,7 @@ public class RedshiftPlugin extends BasePlugin {
                     connection.close();
                 }
             } catch (SQLException e) {
+                System.out.println("Error closing Redshift Connection." + e);
                 log.error("Error closing Redshift Connection.", e);
             }
         }
@@ -520,6 +522,7 @@ public class RedshiftPlugin extends BasePlugin {
             } catch (SQLException error) {
                 // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
                 // here, this should never happen.
+                System.out.println("Error checking validity of Redshift connection." + error);
                 log.error("Error checking validity of Redshift connection.", error);
             }
 
