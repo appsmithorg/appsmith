@@ -127,7 +127,6 @@ public class RedshiftPlugin extends BasePlugin {
             ResultSetMetaData metaData = resultSet.getMetaData();
             if(metaData == null) {
                 System.out.println("Redshift plugin: getRow: metaData is null");
-                log.error("Redshift plugin: getRow: metaData is null");
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "metaData is null");
             }
 
@@ -216,7 +215,7 @@ public class RedshiftPlugin extends BasePlugin {
                         );
 
                     }
-                } catch (SQLException e) {
+                } catch (SQLException | AppsmithPluginException e) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                 } finally {
                     if (resultSet != null) {
@@ -523,7 +522,6 @@ public class RedshiftPlugin extends BasePlugin {
                 // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
                 // here, this should never happen.
                 System.out.println("Error checking validity of Redshift connection." + error);
-                log.error("Error checking validity of Redshift connection.", error);
             }
 
             final DatasourceStructure structure = new DatasourceStructure();
