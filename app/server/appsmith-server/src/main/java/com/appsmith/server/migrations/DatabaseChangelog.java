@@ -1274,7 +1274,7 @@ public class DatabaseChangelog {
         plugin.setType(PluginType.DB);
         plugin.setPackageName("redshift-plugin");
         plugin.setUiComponent("DbEditorForm");
-        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Redshift.png");
         plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-redshift");
         plugin.setDefaultInstall(true);

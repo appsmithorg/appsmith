@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -33,9 +33,16 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 
@@ -56,7 +63,7 @@ public class RedshiftPlugin extends BasePlugin {
     @Extension
     public static class RedshiftPluginExecutor implements PluginExecutor<Connection> {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         private static final String TABLES_QUERY =
                 "select a.attname                                                      as name,\n" +
@@ -116,8 +123,14 @@ public class RedshiftPlugin extends BasePlugin {
                 "         kcu.table_name,\n" +
                 "         kcu.ordinal_position;\n";
 
-        private Map<String, Object> getRow(ResultSet resultSet) throws SQLException {
+        private Map<String, Object> getRow(ResultSet resultSet) throws SQLException, AppsmithPluginException {
             ResultSetMetaData metaData = resultSet.getMetaData();
+            if(metaData == null) {
+                System.out.println("Redshift plugin: getRow: metaData is null");
+                log.error("Redshift plugin: getRow: metaData is null");
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "metaData is null");
+            }
+
             int colCount = metaData.getColumnCount();
             // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
             Map<String, Object> row = new LinkedHashMap<>(colCount);
@@ -225,8 +238,8 @@ public class RedshiftPlugin extends BasePlugin {
                 ActionExecutionResult result = new ActionExecutionResult();
                 result.setBody(objectMapper.valueToTree(rowsList));
                 result.setIsExecutionSuccess(true);
-                System.out.println(Thread.currentThread().getName() + ": In the RedshiftPlugin, got action execution result:"
-                        + result.toString());
+                System.out.println(Thread.currentThread().getName() + ": In RedshiftPlugin, got action execution " +
+                        "result");
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
@@ -243,7 +256,7 @@ public class RedshiftPlugin extends BasePlugin {
             }
 
             String url;
-            AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            DBAuth authentication = datasourceConfiguration.getAuthentication();
 
             com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
 
@@ -281,7 +294,7 @@ public class RedshiftPlugin extends BasePlugin {
 
             return Mono.fromCallable(() -> {
                 try {
-                    System.out.println(Thread.currentThread().getName() + ": Connecting to db");
+                    System.out.println(Thread.currentThread().getName() + ": Connecting to Redshift db");
                     Connection connection = DriverManager.getConnection(url, properties);
                     connection.setReadOnly(
                             configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
@@ -516,7 +529,7 @@ public class RedshiftPlugin extends BasePlugin {
 
             return Mono.fromSupplier(() -> {
                 // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
-                System.out.println(Thread.currentThread().getName() + ": Getting Db structure");
+                System.out.println(Thread.currentThread().getName() + ": Getting Redshift Db structure");
                 try (Statement statement = connection.createStatement()) {
 
                     // Get tables' schema and fill up their columns.
