@@ -1,9 +1,10 @@
 import React from "react";
-import { RouteComponentProps, withRouter } from "react-router";
+import { connect } from "react-redux";
 import styled from "styled-components";
 import Button from "components/editorComponents/Button";
 import PageUnavailableImage from "assets/images/404-image.png";
 import { APPLICATIONS_URL } from "constants/routes";
+import { flushErrorsAndRedirect } from "actions/errorActions";
 
 const Wrapper = styled.div`
   text-align: center;
@@ -20,38 +21,41 @@ const Wrapper = styled.div`
   }
 `;
 
-class PageNotFound extends React.PureComponent<RouteComponentProps> {
-  public render() {
-    return (
-      <>
-        <Wrapper>
-          <img
-            src={PageUnavailableImage}
-            alt="Page Unavailable"
-            className="page-unavailable-img"
-          />
-          <div>
-            <p className="bold-text">Page not found</p>
-            <p>
-              Either this page doesn&apos;t exist, or you don&apos;t have access
-              to <br />
-              this page.
-            </p>
-            <Button
-              filled
-              text="Go back to homepage"
-              intent="primary"
-              icon="arrow-right"
-              iconAlignment="right"
-              size="small"
-              className="button-position"
-              onClick={() => this.props.history.push(APPLICATIONS_URL)}
-            />
-          </div>
-        </Wrapper>
-      </>
-    );
-  }
+interface Props {
+  flushErrorsAndRedirect?: any;
 }
+const PageNotFound: React.FC<Props> = (props: Props) => {
+  const { flushErrorsAndRedirect } = props;
 
-export default withRouter(PageNotFound);
+  return (
+    <Wrapper>
+      <img
+        src={PageUnavailableImage}
+        alt="Page Unavailable"
+        className="page-unavailable-img"
+      />
+      <div>
+        <p className="bold-text">Page not found</p>
+        <p>
+          Either this page doesn&apos;t exist, or you don&apos;t have access to{" "}
+          <br />
+          this page.
+        </p>
+        <Button
+          filled
+          text="Go back to homepage"
+          intent="primary"
+          icon="arrow-right"
+          iconAlignment="right"
+          size="small"
+          className="button-position"
+          onClick={() => flushErrorsAndRedirect(APPLICATIONS_URL)}
+        />
+      </div>
+    </Wrapper>
+  );
+};
+
+export default connect(null, {
+  flushErrorsAndRedirect,
+})(PageNotFound);

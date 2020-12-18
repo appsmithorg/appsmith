@@ -1,6 +1,13 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.*;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Property;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -8,7 +15,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
-import io.r2dbc.spi.Batch;
 import lombok.extern.log4j.Log4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -16,6 +22,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.MySQLR2DBCDatabaseContainer;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -117,8 +124,8 @@ public class MySqlPluginTest {
     }
 
     private static DatasourceConfiguration createDatasourceConfiguration() {
-        AuthenticationDTO authDTO = new AuthenticationDTO();
-        authDTO.setAuthType(AuthenticationDTO.Type.USERNAME_PASSWORD);
+        DBAuth authDTO = new DBAuth();
+        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
         authDTO.setUsername(username);
         authDTO.setPassword(password);
         authDTO.setDatabaseName(database);
@@ -145,8 +152,8 @@ public class MySqlPluginTest {
 
     @Test
     public void testConnectMySQLContainerWithInvalidTimezone() {
-        AuthenticationDTO authDTO = new AuthenticationDTO();
-        authDTO.setAuthType(AuthenticationDTO.Type.USERNAME_PASSWORD);
+        DBAuth authDTO = new DBAuth();
+        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
         authDTO.setUsername(mySQLContainerWithInvalidTimezone.getUsername());
         authDTO.setPassword(mySQLContainerWithInvalidTimezone.getPassword());
         authDTO.setDatabaseName(mySQLContainerWithInvalidTimezone.getDatabaseName());
@@ -198,7 +205,6 @@ public class MySqlPluginTest {
         actionConfiguration.setBody("show databases");
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
-
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
@@ -210,11 +216,26 @@ public class MySqlPluginTest {
     }
 
     @Test
+    public void testStaleConnectionCheck() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("show databases");
+        Connection connection = pluginExecutor.datasourceCreate(dsConfig).block();
+
+        Flux<ActionExecutionResult> resultFlux = Mono.from(connection.close())
+                .thenMany(pluginExecutor.execute(connection, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultFlux)
+                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+                .verify();
+    }
+
+    @Test
     public void testValidateDatasourceNullCredentials() {
         dsConfig.setConnection(new com.appsmith.external.models.Connection());
-        dsConfig.getAuthentication().setUsername(null);
-        dsConfig.getAuthentication().setPassword(null);
-        dsConfig.getAuthentication().setDatabaseName("someDbName");
+        DBAuth auth = (DBAuth) dsConfig.getAuthentication();
+        auth.setUsername(null);
+        auth.setPassword(null);
+        auth.setDatabaseName("someDbName");
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
         assertTrue(output.contains("Missing username for authentication."));
         assertTrue(output.contains("Missing password for authentication."));
@@ -222,10 +243,10 @@ public class MySqlPluginTest {
 
     @Test
     public void testValidateDatasourceMissingDBName() {
-        dsConfig.getAuthentication().setDatabaseName("");
+        ((DBAuth) dsConfig.getAuthentication()).setDatabaseName("");
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
         assertEquals(output.size(), 1);
-        assertTrue(output.contains("Missing database name"));
+        assertTrue(output.contains("Missing database name."));
     }
 
     @Test

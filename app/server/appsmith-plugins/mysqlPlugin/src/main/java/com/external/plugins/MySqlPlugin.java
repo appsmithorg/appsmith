@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -10,21 +10,21 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-
-import io.r2dbc.spi.ConnectionFactoryOptions;
+import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
-import io.r2dbc.spi.RowMetadata;
-import io.r2dbc.spi.Row;
-import io.r2dbc.spi.ColumnMetadata;
+import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Result;
+import io.r2dbc.spi.Row;
+import io.r2dbc.spi.RowMetadata;
+import io.r2dbc.spi.ValidationDepth;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.reactivestreams.Publisher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
@@ -45,7 +45,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -56,15 +55,15 @@ public class MySqlPlugin extends BasePlugin {
     private static final String TIMESTAMP_COLUMN_TYPE_NAME = "timestamp";
 
     /**
-     Example output for COLUMNS_QUERY:
-     +------------+-----------+-------------+-------------+-------------+------------+----------------+
-     | table_name | column_id | column_name | column_type | is_nullable | COLUMN_KEY | EXTRA          |
-     +------------+-----------+-------------+-------------+-------------+------------+----------------+
-     | test       |         1 | id          | int         |           0 | PRI        | auto_increment |
-     | test       |         2 | firstname   | varchar     |           1 |            |                |
-     | test       |         3 | middlename  | varchar     |           1 |            |                |
-     | test       |         4 | lastname    | varchar     |           1 |            |                |
-     +------------+-----------+-------------+-------------+-------------+------------+----------------+
+     * Example output for COLUMNS_QUERY:
+     * +------------+-----------+-------------+-------------+-------------+------------+----------------+
+     * | table_name | column_id | column_name | column_type | is_nullable | COLUMN_KEY | EXTRA          |
+     * +------------+-----------+-------------+-------------+-------------+------------+----------------+
+     * | test       |         1 | id          | int         |           0 | PRI        | auto_increment |
+     * | test       |         2 | firstname   | varchar     |           1 |            |                |
+     * | test       |         3 | middlename  | varchar     |           1 |            |                |
+     * | test       |         4 | lastname    | varchar     |           1 |            |                |
+     * +------------+-----------+-------------+-------------+-------------+------------+----------------+
      */
     private static final String COLUMNS_QUERY = "select tab.table_name as table_name,\n" +
             "       col.ordinal_position as column_id,\n" +
@@ -83,12 +82,12 @@ public class MySqlPlugin extends BasePlugin {
             "         col.ordinal_position;";
 
     /**
-     Example output for KEYS_QUERY:
-     +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
-     | CONSTRAINT_NAME | self_schema | self_table | constraint_type | self_column | foreign_schema | foreign_table | foreign_column |
-     +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
-     | PRIMARY         | mytestdb    | test       | p               | id          | NULL           | NULL          | NULL           |
-     +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
+     * Example output for KEYS_QUERY:
+     * +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
+     * | CONSTRAINT_NAME | self_schema | self_table | constraint_type | self_column | foreign_schema | foreign_table | foreign_column |
+     * +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
+     * | PRIMARY         | mytestdb    | test       | p               | id          | NULL           | NULL          | NULL           |
+     * +-----------------+-------------+------------+-----------------+-------------+----------------+---------------+----------------+
      */
     private static final String KEYS_QUERY = "select i.constraint_name,\n" +
             "       i.TABLE_SCHEMA as self_schema,\n" +
@@ -114,7 +113,7 @@ public class MySqlPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class MySqlPluginExecutor implements PluginExecutor<Connection> {
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         /**
          * 1. Parse the actual row objects returned by r2dbc driver for mysql statements.
@@ -124,18 +123,17 @@ public class MySqlPlugin extends BasePlugin {
             Iterator<ColumnMetadata> iterator = (Iterator<ColumnMetadata>) meta.getColumnMetadatas().iterator();
             Map<String, Object> processedRow = new LinkedHashMap<>();
 
-            while(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 ColumnMetadata metaData = iterator.next();
                 String columnName = metaData.getName();
                 String typeName = metaData.getJavaType().toString();
                 Object columnValue = row.get(columnName);
 
-                if(java.time.LocalDate.class.toString().equalsIgnoreCase(typeName)
+                if (java.time.LocalDate.class.toString().equalsIgnoreCase(typeName)
                         && columnValue != null) {
                     columnValue = DateTimeFormatter.ISO_DATE.format(row.get(columnName,
                             LocalDate.class));
-                }
-                else if ((java.time.LocalDateTime.class.toString().equalsIgnoreCase(typeName))
+                } else if ((java.time.LocalDateTime.class.toString().equalsIgnoreCase(typeName))
                         && columnValue != null) {
                     columnValue = DateTimeFormatter.ISO_DATE_TIME.format(
                             LocalDateTime.of(
@@ -143,17 +141,14 @@ public class MySqlPlugin extends BasePlugin {
                                     row.get(columnName, LocalDateTime.class).toLocalTime()
                             )
                     ) + "Z";
-                }
-                else if(java.time.LocalTime.class.toString().equalsIgnoreCase(typeName)
+                } else if (java.time.LocalTime.class.toString().equalsIgnoreCase(typeName)
                         && columnValue != null) {
                     columnValue = DateTimeFormatter.ISO_TIME.format(row.get(columnName,
                             LocalTime.class));
-                }
-                else if (java.time.Year.class.toString().equalsIgnoreCase(typeName)
+                } else if (java.time.Year.class.toString().equalsIgnoreCase(typeName)
                         && columnValue != null) {
                     columnValue = row.get(columnName, LocalDate.class).getYear();
-                }
-                else {
+                } else {
                     columnValue = row.get(columnName);
                 }
 
@@ -166,14 +161,15 @@ public class MySqlPlugin extends BasePlugin {
         /**
          * 1. Check the type of sql query - i.e Select ... or Insert/Update/Drop
          * 2. In case sql queries are chained together, then decide the type based on the last query. i.e In case of
-         *    query "select * from test; updated test ..." the type of query will be based on the update statement.
+         * query "select * from test; updated test ..." the type of query will be based on the update statement.
          * 3. This is used because the output returned to client is based on the type of the query. In case of a
-         *    select query rows are returned, whereas, in case of any other query the number of updated rows is
-         *    returned.
+         * select query rows are returned, whereas, in case of any other query the number of updated rows is
+         * returned.
          */
-        private boolean getIsSelectQuery(String query) {
+        private boolean getIsSelectOrShowQuery(String query) {
             String[] queries = query.split(";");
-            return queries[queries.length - 1].trim().split(" ")[0].equalsIgnoreCase("select");
+            return (queries[queries.length - 1].trim().split(" ")[0].equalsIgnoreCase("select")
+                    || queries[queries.length - 1].trim().split(" ")[0].equalsIgnoreCase("show"));
         }
 
         @Override
@@ -186,12 +182,20 @@ public class MySqlPlugin extends BasePlugin {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
             }
 
-            boolean isSelectQuery = getIsSelectQuery(query);
+            boolean isSelectOrShowQuery = getIsSelectOrShowQuery(query);
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
-            Flux<Result> resultFlux = Flux.from(connection.createStatement(query).execute());
+            Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
+                    .flatMapMany(isValid -> {
+                        if (isValid) {
+                            return connection.createStatement(query).execute();
+                        } else {
+                            return Flux.error(new StaleConnectionException());
+                        }
+                    });
+            Mono<List<Map<String, Object>>> resultMono = null;
 
-            if(isSelectQuery) {
-                return resultFlux
+            if (isSelectOrShowQuery) {
+                resultMono = resultFlux
                         .flatMap(result -> {
                             return result.map((row, meta) -> {
                                 rowsList.add(getRow(row, meta));
@@ -200,23 +204,10 @@ public class MySqlPlugin extends BasePlugin {
                         })
                         .collectList()
                         .flatMap(execResult -> {
-                            ActionExecutionResult result = new ActionExecutionResult();
-                            result.setBody(objectMapper.valueToTree(rowsList));
-                            result.setIsExecutionSuccess(true);
-                            System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action execution result: " + result.toString());
-                            return Mono.just(result);
-                        })
-                        .onErrorResume(exception -> {
-                            log.debug("In the action execution error mode.", exception);
-                            ActionExecutionResult result = new ActionExecutionResult();
-                            result.setBody(exception.getMessage());
-                            result.setIsExecutionSuccess(false);
-                            return Mono.just(result);
-                        })
-                        .subscribeOn(scheduler);
-            }
-            else {
-                return resultFlux
+                            return Mono.just(rowsList);
+                        });
+            } else {
+                resultMono = resultFlux
                         .flatMap(result -> result.getRowsUpdated())
                         .collectList()
                         .flatMap(list -> Mono.just(list.get(list.size() - 1)))
@@ -227,26 +218,26 @@ public class MySqlPlugin extends BasePlugin {
                                             ObjectUtils.defaultIfNull(rowsUpdated, 0)
                                     )
                             );
-                            ActionExecutionResult result = new ActionExecutionResult();
-                            result.setBody(objectMapper.valueToTree(rowsList));
-                            result.setIsExecutionSuccess(true);
-                            System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action execution result: " + result.toString());
-                            return Mono.just(result);
-                        })
-                        .onErrorResume(exception -> {
-                            log.debug("In the action execution error mode.", exception);
-                            ActionExecutionResult result = new ActionExecutionResult();
-                            result.setBody(exception.getMessage());
-                            result.setIsExecutionSuccess(false);
-                            return Mono.just(result);
-                        })
-                        .subscribeOn(scheduler);
+                            return Mono.just(rowsList);
+                        });
             }
+
+            return resultMono
+                    .flatMap(res -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setBody(objectMapper.valueToTree(rowsList));
+                        result.setIsExecutionSuccess(true);
+                        System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action " +
+                                "execution result");
+                        return Mono.just(result);
+                    })
+                    .subscribeOn(scheduler);
+
         }
 
         @Override
         public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
 
             StringBuilder urlBuilder = new StringBuilder();
@@ -331,16 +322,17 @@ public class MySqlPlugin extends BasePlugin {
             if (datasourceConfiguration.getAuthentication() == null) {
                 invalids.add("Missing authentication details.");
             } else {
-                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getUsername())) {
+                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+                if (StringUtils.isEmpty(authentication.getUsername())) {
                     invalids.add("Missing username for authentication.");
                 }
 
-                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getPassword())) {
+                if (StringUtils.isEmpty(authentication.getPassword())) {
                     invalids.add("Missing password for authentication.");
                 }
 
-                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getDatabaseName())) {
-                    invalids.add("Missing database name");
+                if (StringUtils.isEmpty(authentication.getDatabaseName())) {
+                    invalids.add("Missing database name.");
                 }
             }
 
@@ -519,11 +511,11 @@ public class MySqlPlugin extends BasePlugin {
                     .collectList()
                     .thenMany(Flux.from(connection.createStatement(KEYS_QUERY).execute()))
                     .flatMap(result -> {
-                                return result.map((row, meta) -> {
-                                    getKeyInfo(row, meta, tablesByName, keyRegistry);
+                        return result.map((row, meta) -> {
+                            getKeyInfo(row, meta, tablesByName, keyRegistry);
 
-                                    return result;
-                                });
+                            return result;
+                        });
                     })
                     .collectList()
                     .map(list -> {

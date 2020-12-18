@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -67,7 +67,7 @@ public class FirestorePlugin extends BasePlugin {
     @Extension
     public static class FirestorePluginExecutor implements PluginExecutor<Firestore> {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(Firestore connection,
@@ -212,9 +212,7 @@ public class FirestorePlugin extends BasePlugin {
                         result.setIsExecutionSuccess(true);
                         System.out.println(
                                 Thread.currentThread().getName()
-                                        + ": In the Firestore Plugin, got action execution result: "
-                                        + result.toString()
-                        );
+                                        + ": In the Firestore Plugin, got action execution result");
                         return Mono.just(result);
                     });
         }
@@ -317,8 +315,7 @@ public class FirestorePlugin extends BasePlugin {
                         result.setIsExecutionSuccess(true);
                         System.out.println(
                                 Thread.currentThread().getName()
-                                        + ": In the Firestore Plugin, got action execution result: "
-                                        + result.toString()
+                                        + ": In the Firestore Plugin, got action execution result"
                         );
                         return Mono.just(result);
                     });
@@ -358,7 +355,7 @@ public class FirestorePlugin extends BasePlugin {
 
         @Override
         public Mono<Firestore> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
             final Set<String> errors = validateDatasource(datasourceConfiguration);
             if (!CollectionUtils.isEmpty(errors)) {
@@ -408,7 +405,7 @@ public class FirestorePlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
             Set<String> invalids = new HashSet<>();
 

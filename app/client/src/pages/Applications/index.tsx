@@ -60,9 +60,11 @@ import { notEmptyValidator } from "components/ads/TextInput";
 import { saveOrg } from "actions/orgActions";
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
-import { getNextEntityName } from "utils/AppsmithUtils";
+import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import Spinner from "components/ads/Spinner";
 import ProfileImage from "pages/common/ProfileImage";
+import { getThemeDetails } from "selectors/themeSelectors";
+import { AppIconCollection } from "components/ads/AppIcon";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -434,6 +436,7 @@ const NoSearchResultImg = styled.img`
 
 const ApplicationsSection = (props: any) => {
   const dispatch = useDispatch();
+  const themeDetails = useSelector(getThemeDetails);
   const isSavingOrgInfo = useSelector(getIsSavingOrgInfo);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const userOrgs = useSelector(getUserApplicationsOrgsList);
@@ -496,12 +499,19 @@ const ApplicationsSection = (props: any) => {
   };
 
   const createNewApplication = (applicationName: string, orgId: string) => {
-    console.log(applicationName, orgId);
+    const color = getRandomPaletteColor(
+      themeDetails.theme.colors.appCardColors,
+    );
+    const icon =
+      AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
+
     return dispatch({
       type: ReduxActionTypes.CREATE_APPLICATION_INIT,
       payload: {
         applicationName,
         orgId,
+        icon,
+        color,
       },
     });
   };
@@ -532,7 +542,6 @@ const ApplicationsSection = (props: any) => {
     organizationsListComponent = updatedOrgs.map(
       (organizationObject: any, index: number) => {
         const { organization, applications, userRoles } = organizationObject;
-        const userProfiles = userRoles && userRoles.splice(5);
         const hasManageOrgPermissions = isPermitted(
           organization.userPermissions,
           PERMISSION_TYPE.MANAGE_ORGANIZATION,
@@ -617,17 +626,19 @@ const ApplicationsSection = (props: any) => {
                 !isFetchingApplications && (
                   <OrgShareUsers>
                     <UserImageContainer>
-                      {userRoles.map((el: UserRoles) => (
+                      {userRoles
+                        .slice(0, 5)
+                        .map((el: UserRoles, index: number) => (
+                          <ProfileImage
+                            className="org-share-user-icons"
+                            userName={el.name ? el.name : el.username}
+                            key={el.username}
+                          />
+                        ))}
+                      {userRoles.length > 5 ? (
                         <ProfileImage
                           className="org-share-user-icons"
-                          userName={el.name ? el.name : el.username}
-                          key={el.username}
-                        />
-                      ))}
-                      {userProfiles && userProfiles.length > 0 ? (
-                        <ProfileImage
-                          className="org-share-user-icons"
-                          commonName={`+${userProfiles.length}`}
+                          commonName={`+${userRoles.length - 5}`}
                         />
                       ) : null}
                     </UserImageContainer>

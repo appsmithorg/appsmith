@@ -91,17 +91,27 @@
     registerPageServiceWorker();
   </script>
   <script type="text/javascript">
+    // '' (empty strings), 'false' are falsy
+    // could return either boolean or string based on value
     const parseConfig = (config) => {
       if (config.indexOf("__") === 0 || config.indexOf("$") === 0)
         return "";
-      return config.trim();
+
+      const result = config.trim();
+      if (result.toLowerCase() === "false" || result === "") {
+        return false;
+      } else if (result.toLowerCase() === "true") {
+        return true;
+      }
+
+      return result;
     }
     const LOG_LEVELS = ["debug", "error"];
     const CONFIG_LOG_LEVEL_INDEX = LOG_LEVELS.indexOf(parseConfig("__APPSMITH_CLIENT_LOG_LEVEL__"));
 
     const APP_ID = parseConfig("__APPSMITH_INTERCOM_APP_ID__");
-    const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__").length > 0;
-    const DISABLE_TELEMETRY = parseConfig("__APPSMITH_DISABLE_TELEMETRY__").toLowerCase();
+    const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
+    const DISABLE_TELEMETRY = parseConfig("__APPSMITH_DISABLE_TELEMETRY__");
 
     // Initialize the Intercom library
     if (APP_ID.length && APP_ID[0] !== "%" && CLOUD_HOSTING) {
@@ -118,9 +128,9 @@
       smartLook: {
         id: parseConfig("__APPSMITH_SMART_LOOK_ID__"),
       },
-      enableGoogleOAuth: parseConfig("__APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__").length > 0,
-      enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__").length > 0,
-      enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__").length > 0,
+      enableGoogleOAuth: parseConfig("__APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__"),
+      enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__"),
+      enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__"),
       segment: {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),
         ceKey: parseConfig("__APPSMITH_SEGMENT_CE_KEY__"),
@@ -129,7 +139,7 @@
         licenseKey: parseConfig("__APPSMITH_FUSIONCHARTS_LICENSE_KEY__")
       },
       optimizely: parseConfig("__APPSMITH_OPTIMIZELY_KEY__"),
-      enableMixpanel: parseConfig("__APPSMITH_SEGMENT_KEY__").length > 0,
+      enableMixpanel: parseConfig("__APPSMITH_SEGMENT_KEY__"),
       algolia: {
         apiId: parseConfig("__APPSMITH_ALGOLIA_API_ID__"),
         apiKey: parseConfig("__APPSMITH_ALGOLIA_API_KEY__"),
@@ -138,14 +148,14 @@
       logLevel: CONFIG_LOG_LEVEL_INDEX > -1 ? LOG_LEVELS[CONFIG_LOG_LEVEL_INDEX] : LOG_LEVELS[1],
       google: parseConfig("__APPSMITH_GOOGLE_MAPS_API_KEY__"),
       cloudHosting: CLOUD_HOSTING,
-      enableTNCPP: parseConfig("__APPSMITH_TNC_PP__").length > 0,
+      enableTNCPP: parseConfig("__APPSMITH_TNC_PP__"),
       appVersion: {
         id: parseConfig("__APPSMITH_VERSION_ID__"),
         releaseDate: parseConfig("__APPSMITH_VERSION_RELEASE_DATE__")
       },
       intercomAppID: APP_ID,
-      mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__").length > 0,
-      disableTelemetry: DISABLE_TELEMETRY === "" || DISABLE_TELEMETRY === 'true' ,
+      mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__"),
+      disableTelemetry: DISABLE_TELEMETRY === "" || DISABLE_TELEMETRY,
     };
 
   </script>
