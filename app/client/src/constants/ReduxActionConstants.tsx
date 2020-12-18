@@ -295,6 +295,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   SET_SELECTED_WIDGET_ANCESTORY: "SET_SELECTED_WIDGET_ANCESTORY",
   START_EVALUATION: "START_EVALUATION",
   CURRENT_APPLICATION_NAME_UPDATE: "CURRENT_APPLICATION_NAME_UPDATE",
+  SET_SHOULD_RESET_WIDGET: "SET_SHOULD_RESET_WIDGET",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

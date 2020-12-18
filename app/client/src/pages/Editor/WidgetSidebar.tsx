@@ -11,6 +11,7 @@ import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
 import produce from "immer";
 import { WIDGET_SIDEBAR_CAPTION } from "constants/messages";
+import TagIfShouldResetSelectedWidget from "components/editorComponents/TagIfShouldResetSelectedWidget";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
@@ -144,11 +145,13 @@ const WidgetSidebar = (props: IPanelProps) => {
         {groups.map((group: string) => (
           <React.Fragment key={group}>
             <h5>{group}</h5>
-            <CardsWrapper>
-              {filteredCards[group].map((card: WidgetCardProps) => (
-                <WidgetCard details={card} key={card.key} />
-              ))}
-            </CardsWrapper>
+            <TagIfShouldResetSelectedWidget>
+              <CardsWrapper>
+                {filteredCards[group].map((card: WidgetCardProps) => (
+                  <WidgetCard details={card} key={card.key} />
+                ))}
+              </CardsWrapper>
+            </TagIfShouldResetSelectedWidget>
           </React.Fragment>
         ))}
       </MainWrapper>

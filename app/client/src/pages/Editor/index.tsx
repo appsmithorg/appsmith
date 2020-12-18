@@ -43,8 +43,11 @@ import {
   cutWidget,
   deleteSelectedWidget,
   pasteWidget,
+  selectWidget,
+  setShouldResetWidget,
 } from "actions/widgetActions";
 import { isMac } from "utils/helpers";
+import { getShouldResetSelectedWidget } from "selectors/ui";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -60,6 +63,9 @@ type EditorProps = {
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
   user?: User;
+  selectWidget: (widgetId?: string) => void;
+  shouldResetSelectedWidget: boolean;
+  setShouldResetWidget: (shouldReset: boolean) => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -202,6 +208,13 @@ class Editor extends Component<Props> {
       isDialogOpen: false,
     });
   };
+
+  resetSelectedWidget = () => {
+    if (this.props.shouldResetSelectedWidget) {
+      this.props.selectWidget();
+    }
+    this.props.setShouldResetWidget(true);
+  };
   public render() {
     if (!this.props.isEditorInitialized || !this.state.registered) {
       return (
@@ -217,7 +230,7 @@ class Editor extends Component<Props> {
           enableMouseEvents: true,
         }}
       >
-        <div>
+        <div onMouseDown={this.resetSelectedWidget}>
           <Helmet>
             <meta charSet="utf-8" />
             <title>Editor | Appsmith</title>
@@ -264,6 +277,7 @@ const mapStateToProps = (state: AppState) => ({
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
   user: getCurrentUser(state),
+  shouldResetSelectedWidget: getShouldResetSelectedWidget(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -274,6 +288,9 @@ const mapDispatchToProps = (dispatch: any) => {
     pasteCopiedWidget: () => dispatch(pasteWidget()),
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
+    selectWidget: (widgetId?: string) => dispatch(selectWidget(widgetId)),
+    setShouldResetWidget: (shouldReset: boolean) =>
+      dispatch(setShouldResetWidget(shouldReset)),
   };
 };
 

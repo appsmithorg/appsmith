@@ -133,3 +133,17 @@ export const addTableWidgetFromQuery = (queryName: string) => {
     payload: queryName,
   };
 };
+
+export const selectWidget = (widgetId?: string) => {
+  return {
+    type: ReduxActionTypes.SELECT_WIDGET,
+    payload: { widgetId },
+  };
+};
+
+export const setShouldResetWidget = (flag: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_SHOULD_RESET_WIDGET,
+    payload: { shouldReset: flag },
+  };
+};

@@ -38,6 +38,8 @@ import {
   WidgetEvaluatedProps,
 } from "../utils/DynamicBindingUtils";
 
+import TagIfShouldResetSelectedWidget from "components/editorComponents/TagIfShouldResetSelectedWidget";
+
 /***
  * BaseWidget
  *
@@ -209,6 +211,12 @@ abstract class BaseWidget<
     return <ErrorBoundary isValid={isValid}>{content}</ErrorBoundary>;
   }
 
+  tagIfShouldResetSelected(content: ReactNode) {
+    return (
+      <TagIfShouldResetSelectedWidget>{content}</TagIfShouldResetSelectedWidget>
+    );
+  }
+
   private getWidgetView(): ReactNode {
     let content: ReactNode;
     switch (this.props.renderMode) {
@@ -219,6 +227,7 @@ abstract class BaseWidget<
           content = this.showWidgetName(content);
           content = this.makeDraggable(content);
           content = this.makePositioned(content);
+          content = this.tagIfShouldResetSelected(content);
         }
         return content;
 

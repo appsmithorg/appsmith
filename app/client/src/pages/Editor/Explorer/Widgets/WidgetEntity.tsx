@@ -24,6 +24,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import EntityProperties from "../Entity/EntityProperties";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
 import CurrentPageEntityProperties from "../Entity/CurrentPageEntityProperties";
+import TagIfShouldResetSelectedWidget from "components/editorComponents/TagIfShouldResetSelectedWidget";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -124,59 +125,61 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
   );
 
   return (
-    <Entity
-      key={props.widgetId}
-      className="widget"
-      active={isWidgetSelected}
-      action={navigateToWidget}
-      icon={getWidgetIcon(props.widgetType)}
-      name={props.widgetName}
-      entityId={props.widgetId}
-      step={props.step}
-      updateEntityName={props.pageId === pageId ? updateWidgetName : noop}
-      searchKeyword={props.searchKeyword}
-      isDefaultExpanded={
-        shouldExpand ||
-        (!!props.searchKeyword && !!props.childWidgets) ||
-        !!props.isDefaultExpanded
-      }
-      contextMenu={props.pageId === pageId && contextMenu}
-    >
-      {props.childWidgets &&
-        props.childWidgets.length > 0 &&
-        props.childWidgets.map(child => (
-          <WidgetEntity
-            step={props.step + 1}
-            widgetId={child.widgetId}
-            widgetName={child.widgetName}
-            widgetType={child.type}
-            childWidgets={child.children}
-            key={child.widgetId}
-            searchKeyword={props.searchKeyword}
-            pageId={props.pageId}
-          />
-        ))}
-      {!(props.childWidgets && props.childWidgets.length > 0) &&
-        pageId === props.pageId && (
-          <CurrentPageEntityProperties
-            key={props.widgetId}
-            entityType={ENTITY_TYPE.WIDGET}
-            entityName={props.widgetName}
-            step={props.step + 1}
-          />
-        )}
-      {!(props.childWidgets && props.childWidgets.length > 0) &&
-        pageId !== props.pageId && (
-          <EntityProperties
-            key={props.widgetId}
-            entityType={ENTITY_TYPE.WIDGET}
-            entityName={props.widgetName}
-            step={props.step + 1}
-            pageId={props.pageId}
-            entityId={props.widgetId}
-          />
-        )}
-    </Entity>
+    <TagIfShouldResetSelectedWidget>
+      <Entity
+        key={props.widgetId}
+        className="widget"
+        active={isWidgetSelected}
+        action={navigateToWidget}
+        icon={getWidgetIcon(props.widgetType)}
+        name={props.widgetName}
+        entityId={props.widgetId}
+        step={props.step}
+        updateEntityName={props.pageId === pageId ? updateWidgetName : noop}
+        searchKeyword={props.searchKeyword}
+        isDefaultExpanded={
+          shouldExpand ||
+          (!!props.searchKeyword && !!props.childWidgets) ||
+          !!props.isDefaultExpanded
+        }
+        contextMenu={props.pageId === pageId && contextMenu}
+      >
+        {props.childWidgets &&
+          props.childWidgets.length > 0 &&
+          props.childWidgets.map(child => (
+            <WidgetEntity
+              step={props.step + 1}
+              widgetId={child.widgetId}
+              widgetName={child.widgetName}
+              widgetType={child.type}
+              childWidgets={child.children}
+              key={child.widgetId}
+              searchKeyword={props.searchKeyword}
+              pageId={props.pageId}
+            />
+          ))}
+        {!(props.childWidgets && props.childWidgets.length > 0) &&
+          pageId === props.pageId && (
+            <CurrentPageEntityProperties
+              key={props.widgetId}
+              entityType={ENTITY_TYPE.WIDGET}
+              entityName={props.widgetName}
+              step={props.step + 1}
+            />
+          )}
+        {!(props.childWidgets && props.childWidgets.length > 0) &&
+          pageId !== props.pageId && (
+            <EntityProperties
+              key={props.widgetId}
+              entityType={ENTITY_TYPE.WIDGET}
+              entityName={props.widgetName}
+              step={props.step + 1}
+              pageId={props.pageId}
+              entityId={props.widgetId}
+            />
+          )}
+      </Entity>
+    </TagIfShouldResetSelectedWidget>
   );
 });
 

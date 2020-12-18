@@ -37,6 +37,8 @@ import {
 } from "selectors/applicationSelectors";
 import EditableTextWrapper from "components/ads/EditableTextWrapper";
 
+import { selectWidget } from "actions/widgetActions";
+
 const HeaderWrapper = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
   height: 48px;
@@ -135,6 +137,7 @@ type EditorHeaderProps = {
   currentApplication?: ApplicationPayload;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
+  selectWidget: (widgetId?: string) => void;
 };
 
 export const EditorHeader = (props: EditorHeaderProps) => {
@@ -199,7 +202,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
   };
 
   return (
-    <HeaderWrapper>
+    <HeaderWrapper onMouseDown={() => props.selectWidget()}>
       <HeaderSection>
         <Link to={APPLICATIONS_URL}>
           <AppsmithLogoImg
@@ -320,6 +323,7 @@ const mapDispatchToProps = (dispatch: any) => ({
       },
     });
   },
+  selectWidget: (widgetId?: string) => dispatch(selectWidget(widgetId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditorHeader);

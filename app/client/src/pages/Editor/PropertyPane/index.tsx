@@ -30,6 +30,7 @@ import PaneWrapper from "pages/common/PaneWrapper";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import TagIfShouldResetSelectedWidget from "components/editorComponents/TagIfShouldResetSelectedWidget";
 
 const PropertySectionLabel = styled.div`
   color: ${props => props.theme.colors.paneSectionLabel};
@@ -79,7 +80,9 @@ class PropertyPane extends Component<
           zIndex={3}
           placement="right-start"
         >
-          {content}
+          <TagIfShouldResetSelectedWidget>
+            {content}
+          </TagIfShouldResetSelectedWidget>
         </Popper>
       );
     } else {
