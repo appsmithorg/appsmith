@@ -1,0 +1,16 @@
+{
+  "templates": [
+    {
+      "filename": "CREATE.sql"
+    },
+    {
+      "filename": "SELECT.sql"
+    },
+    {
+      "filename": "UPDATE.sql"
+    },
+    {
+      "filename": "DELETE.sql"
+    }
+  ]
+}
