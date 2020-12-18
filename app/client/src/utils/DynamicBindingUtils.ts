@@ -230,3 +230,10 @@ export const isPathADynamicProperty = (
   }
   return false;
 };
+
+export const unsafeFunctionForEval = [
+  "setTimeout",
+  "fetch",
+  "setInterval",
+  "Promise",
+];

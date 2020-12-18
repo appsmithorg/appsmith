@@ -63,7 +63,6 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
 };
 
 export enum ColumnTypes {
-  CURRENCY = "currency",
   TIME = "time",
   DATE = "date",
   VIDEO = "video",

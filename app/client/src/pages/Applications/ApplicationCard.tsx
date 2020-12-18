@@ -212,7 +212,7 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
   display: -webkit-box;
   -webkit-line-clamp: 3; /* number of lines to show */
   -webkit-box-orient: vertical;
-  word-break: break-all;
+  word-break: break-word;
   color: ${props => props.theme.colors.text.heading};
 `;
 type ApplicationCardProps = {

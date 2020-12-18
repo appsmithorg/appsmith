@@ -70,6 +70,7 @@
   "toastmsg": ".Toastify__toast-body span",
   "copyWidget": ".t--copy-widget",
   "deleteWidget": ".t--delete-widget",
+  "dropTarget":".t--drop-target",
   "toastAction": ".t--toast-action",
   "toastBody": ".Toastify__toast-body",
   "videoInner": ".t--draggable-videowidget span.t--widget-name",

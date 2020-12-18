@@ -217,7 +217,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 },
               ],
             };
-            return renderActions(buttonProps, isHidden);
+            return renderActions(buttonProps, isHidden, cellProperties);
           } else if (columnProperties.columnType === "dropdown") {
             let options = [];
             try {
@@ -270,7 +270,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           const type = column.metaProperties.type;
           const format = column.metaProperties.format;
           switch (type) {
-            case ColumnTypes.CURRENCY:
+            case ColumnTypes.NUMBER:
               if (!isNaN(value)) {
                 tableRow[accessor] = `${format}${value ? value : ""}`;
               } else {

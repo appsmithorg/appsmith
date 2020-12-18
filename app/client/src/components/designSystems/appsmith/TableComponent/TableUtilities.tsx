@@ -42,17 +42,22 @@ export const renderCell = (
   switch (columnType) {
     case ColumnTypes.IMAGE:
       if (!value) {
-        return <CellWrapper isHidden={isHidden}></CellWrapper>;
+        return (
+          <CellWrapper
+            cellProperties={cellProperties}
+            isHidden={isHidden}
+          ></CellWrapper>
+        );
       } else if (!isString(value)) {
         return (
-          <CellWrapper isHidden={isHidden}>
+          <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
             <div>Invalid Image </div>
           </CellWrapper>
         );
       }
       const imageRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
       return (
-        <CellWrapper isHidden={isHidden}>
+        <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
           {value
             .toString()
             .split(",")
@@ -81,16 +86,27 @@ export const renderCell = (
     case ColumnTypes.VIDEO:
       const youtubeRegex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
       if (!value) {
-        return <CellWrapper isHidden={isHidden}></CellWrapper>;
+        return (
+          <CellWrapper
+            cellProperties={cellProperties}
+            isHidden={isHidden}
+          ></CellWrapper>
+        );
       } else if (isString(value) && youtubeRegex.test(value)) {
         return (
-          <CellWrapper isHidden={isHidden} className="video-cell">
+          <CellWrapper
+            cellProperties={cellProperties}
+            isHidden={isHidden}
+            className="video-cell"
+          >
             <PopoverVideo url={value} />
           </CellWrapper>
         );
       } else {
         return (
-          <CellWrapper isHidden={isHidden}>Invalid Video Link</CellWrapper>
+          <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
+            Invalid Video Link
+          </CellWrapper>
         );
       }
     default:
@@ -114,11 +130,20 @@ interface RenderActionProps {
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }
 
-export const renderActions = (props: RenderActionProps, isHidden: boolean) => {
+export const renderActions = (
+  props: RenderActionProps,
+  isHidden: boolean,
+  cellProperties: CellLayoutProperties,
+) => {
   if (!props.columnActions)
-    return <CellWrapper isHidden={isHidden}></CellWrapper>;
+    return (
+      <CellWrapper
+        cellProperties={cellProperties}
+        isHidden={isHidden}
+      ></CellWrapper>
+    );
   return (
-    <CellWrapper isHidden={isHidden}>
+    <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
           <TableAction
@@ -321,7 +346,6 @@ export function sortTableFunction(
         b[sortedColumn] !== null
       ) {
         switch (columnType) {
-          case ColumnTypes.CURRENCY:
           case ColumnTypes.NUMBER:
             return sortOrder
               ? Number(a[sortedColumn]) > Number(b[sortedColumn])

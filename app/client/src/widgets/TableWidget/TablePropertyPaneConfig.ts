@@ -358,55 +358,11 @@ export default [
                       value: "time",
                     },
                     {
-                      label: "Currency",
-                      value: "currencys",
-                    },
-                    {
                       label: "Button",
                       value: "button",
                     },
                   ],
                   updateHook: updateDerivedColumnHook,
-                },
-                {
-                  propertyName: "outputFormat",
-                  label: "Currency Type",
-                  controlType: "DROP_DOWN",
-                  options: [
-                    {
-                      label: "USD - $",
-                      value: "$",
-                    },
-                    {
-                      label: "INR - ₹",
-                      value: "₹",
-                    },
-                    {
-                      label: "GBP - £",
-                      value: "£",
-                    },
-                    {
-                      label: "AUD - A$",
-                      value: "A$",
-                    },
-                    {
-                      label: "EUR - €",
-                      value: "€",
-                    },
-                    {
-                      label: "SGD - S$",
-                      value: "S$",
-                    },
-                    {
-                      label: "CAD - C$",
-                      value: "C$",
-                    },
-                  ],
-                  customJSControl: "COMPUTE_VALUE",
-                  updateHook: updateDerivedColumnHook,
-                  hidden: (props: ColumnProperties) => {
-                    return props.columnType !== "currency";
-                  },
                 },
                 {
                   propertyName: "inputFormat",
@@ -498,7 +454,7 @@ export default [
               ],
             },
             {
-              sectionName: "Text",
+              sectionName: "Styles",
               hidden: (props: ColumnProperties) => {
                 return (
                   props.columnType === "button" ||

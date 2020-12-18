@@ -40,7 +40,6 @@ import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers"
 import { retryPromise } from "utils/AppsmithUtils";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
-import { Popover, Position } from "@blueprintjs/core";
 
 const LightningMenu = lazy(() =>
   retryPromise(() => import("components/editorComponents/LightningMenu")),
@@ -369,58 +368,54 @@ class CodeEditor extends Component<Props, State> {
           expected={expected}
           hasError={hasError}
         >
-          <Popover
-            position={Position.BOTTOM}
-            usePortal={!!this.props.promptMessage}
-            minimal
-            isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
+          <EditorWrapper
+            editorTheme={theme}
+            hasError={hasError}
+            size={size}
+            isFocused={this.state.isFocused}
+            disabled={disabled}
+            className={className}
+            height={height}
+            borderLess={borderLess}
           >
-            <EditorWrapper
-              editorTheme={theme}
-              hasError={hasError}
-              size={size}
-              isFocused={this.state.isFocused}
-              disabled={disabled}
-              className={className}
-              height={height}
-              borderLess={borderLess}
-            >
-              <HintStyles editorTheme={theme || EditorTheme.LIGHT} />
-              {this.props.leftIcon && (
-                <IconContainer>{this.props.leftIcon}</IconContainer>
-              )}
+            <HintStyles editorTheme={theme || EditorTheme.LIGHT} />
+            {this.props.leftIcon && (
+              <IconContainer>{this.props.leftIcon}</IconContainer>
+            )}
 
-              {this.props.leftImage && (
-                <img
-                  src={this.props.leftImage}
-                  alt="img"
-                  className="leftImageStyles"
-                />
-              )}
-              <textarea
-                ref={this.textArea}
-                {..._.omit(this.props.input, ["onChange", "value"])}
-                defaultValue={input.value}
-                placeholder={placeholder}
+            {this.props.leftImage && (
+              <img
+                src={this.props.leftImage}
+                alt="img"
+                className="leftImageStyles"
               />
-              {this.props.link && (
-                <React.Fragment>
-                  <a
-                    href={this.props.link}
-                    target="_blank"
-                    className="linkStyles"
-                    rel="noopener noreferrer"
-                  >
-                    API documentation
-                  </a>
-                </React.Fragment>
-              )}
-              {this.props.rightIcon && (
-                <IconContainer>{this.props.rightIcon}</IconContainer>
-              )}
-            </EditorWrapper>
-            <BindingPrompt promptMessage={this.props.promptMessage} />
-          </Popover>
+            )}
+            <textarea
+              ref={this.textArea}
+              {..._.omit(this.props.input, ["onChange", "value"])}
+              defaultValue={input.value}
+              placeholder={placeholder}
+            />
+            {this.props.link && (
+              <React.Fragment>
+                <a
+                  href={this.props.link}
+                  target="_blank"
+                  className="linkStyles"
+                  rel="noopener noreferrer"
+                >
+                  API documentation
+                </a>
+              </React.Fragment>
+            )}
+            {this.props.rightIcon && (
+              <IconContainer>{this.props.rightIcon}</IconContainer>
+            )}
+            <BindingPrompt
+              isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
+              promptMessage={this.props.promptMessage}
+            />
+          </EditorWrapper>
         </EvaluatedValuePopup>
       </DynamicAutocompleteInputWrapper>
     );
