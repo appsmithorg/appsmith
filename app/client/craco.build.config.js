@@ -18,7 +18,7 @@ plugins.push(
 );
 
 if (env === "PRODUCTION" || env === "STAGING") {
-  if (process.env.REACT_APP_SENTRY_RELEASE) {
+  if (process.env.SENTRY_AUTH_TOKEN != null && process.env.SENTRY_AUTH_TOKEN !== "") {
     plugins.push(
       new SentryWebpackPlugin({
         include: "build",
