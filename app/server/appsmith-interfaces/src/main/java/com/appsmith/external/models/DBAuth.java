@@ -52,7 +52,7 @@ public class DBAuth extends AuthenticationDTO {
     @Override
     public Set<String> getEmptyEncryptionFields() {
         if (this.password == null || this.password.isEmpty()) {
-            return Set.of(FieldName.PASSWORD, null);
+            return Set.of(FieldName.PASSWORD);
         }
         return Set.of();
     }
