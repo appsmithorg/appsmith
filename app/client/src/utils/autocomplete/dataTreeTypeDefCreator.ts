@@ -16,7 +16,7 @@ export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
   };
   Object.keys(dataTree).forEach(entityName => {
     const entity = dataTree[entityName];
-    if ("ENTITY_TYPE" in entity) {
+    if (entity && "ENTITY_TYPE" in entity) {
       if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
         const widgetType = entity.type;
         if (widgetType in entityDefinitions) {

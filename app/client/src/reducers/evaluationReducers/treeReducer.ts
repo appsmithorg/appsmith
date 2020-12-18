@@ -1,4 +1,3 @@
-import { createReducer } from "utils/AppsmithUtils";
 import { createImmerReducer } from "utils/AppsmithUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
