@@ -2,8 +2,8 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Connection;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -53,10 +53,10 @@ import java.util.stream.Collectors;
 
 public class MongoPlugin extends BasePlugin {
 
-    private static final Set<AuthenticationDTO.Type> VALID_AUTH_TYPES = Set.of(
-            AuthenticationDTO.Type.SCRAM_SHA_1,
-            AuthenticationDTO.Type.SCRAM_SHA_256,
-            AuthenticationDTO.Type.MONGODB_CR  // NOTE: Deprecated in the driver.
+    private static final Set<DBAuth.Type> VALID_AUTH_TYPES = Set.of(
+            DBAuth.Type.SCRAM_SHA_1,
+            DBAuth.Type.SCRAM_SHA_256,
+            DBAuth.Type.MONGODB_CR  // NOTE: Deprecated in the driver.
     );
 
     private static final String VALID_AUTH_TYPES_STR = VALID_AUTH_TYPES.stream()
@@ -180,7 +180,7 @@ public class MongoPlugin extends BasePlugin {
             String databaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
 
             // If that's not available, pick the authentication database.
-            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (StringUtils.isEmpty(databaseName) && authentication != null) {
                 databaseName = authentication.getDatabaseName();
             }
@@ -221,7 +221,7 @@ public class MongoPlugin extends BasePlugin {
                 builder.append("mongodb://");
             }
 
-            AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication != null) {
                 builder
                         .append(urlEncode(authentication.getUsername()))
@@ -293,12 +293,12 @@ public class MongoPlugin extends BasePlugin {
 
             }
 
-            AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication == null) {
                 invalids.add("Missing authentication details.");
 
             } else {
-                AuthenticationDTO.Type authType = authentication.getAuthType();
+                DBAuth.Type authType = authentication.getAuthType();
 
                 if (authType != null && VALID_AUTH_TYPES.contains(authType)) {
 

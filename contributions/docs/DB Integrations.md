@@ -1,6 +1,6 @@
 # DB Integration docs
 Create a appsmith-docs/db-integrations/<integratiom>.md file.
-Follow the [asset-upload](./asset-upload.md) guidelines to upload and use an asset in docs.
+Follow the [asset-upload](./UploadingAssets.md) guidelines to upload and use an asset in docs.
 
 ## Action docs template
 Copy paste this template 

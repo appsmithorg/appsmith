@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
@@ -113,8 +113,8 @@ public class RedisPlugin extends BasePlugin {
                 Integer port = (int) (long) ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT);
                 Jedis jedis = new Jedis(endpoint.getHost(), port);
 
-                AuthenticationDTO auth = datasourceConfiguration.getAuthentication();
-                if (auth != null && AuthenticationDTO.Type.USERNAME_PASSWORD.equals(auth.getAuthType())) {
+                DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
+                if (auth != null && DBAuth.Type.USERNAME_PASSWORD.equals(auth.getAuthType())) {
                     jedis.auth(auth.getUsername(), auth.getPassword());
                 }
 
@@ -158,13 +158,13 @@ public class RedisPlugin extends BasePlugin {
                 }
             }
 
-            AuthenticationDTO auth = datasourceConfiguration.getAuthentication();
-            if (auth != null && AuthenticationDTO.Type.USERNAME_PASSWORD.equals(auth.getAuthType())) {
-                if (StringUtils.isNullOrEmpty(datasourceConfiguration.getAuthentication().getUsername())) {
+            DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
+            if (auth != null && DBAuth.Type.USERNAME_PASSWORD.equals(auth.getAuthType())) {
+                if (StringUtils.isNullOrEmpty(auth.getUsername())) {
                     invalids.add("Missing username for authentication.");
                 }
 
-                if (StringUtils.isNullOrEmpty(datasourceConfiguration.getAuthentication().getPassword())) {
+                if (StringUtils.isNullOrEmpty(auth.getPassword())) {
                     invalids.add("Missing password for authentication.");
                 }
             }

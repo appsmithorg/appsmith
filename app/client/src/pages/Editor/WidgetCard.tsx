@@ -7,10 +7,13 @@ import { WidgetIcons } from "icons/WidgetIcons";
 import {
   useWidgetDragResize,
   useShowPropertyPane,
+  useWidgetSelection,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
+import { AppState } from "reducers";
+import { useSelector } from "react-redux";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -68,6 +71,12 @@ export const IconLabel = styled.h5`
 const WidgetCard = (props: CardProps) => {
   console.log({ props });
   const { setIsDragging } = useWidgetDragResize();
+  const { selectWidget } = useWidgetSelection();
+
+  const selectedWidget = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
+  );
+
   // Generate a new widgetId which can be used in the future for this widget.
   const [widgetId, setWidgetId] = useState(generateReactKey());
   const showPropertyPane = useShowPropertyPane();
@@ -80,6 +89,9 @@ const WidgetCard = (props: CardProps) => {
       });
       showPropertyPane && showPropertyPane(undefined);
       setIsDragging && setIsDragging(true);
+
+      // Make sure that this widget is selected
+      selectWidget && selectedWidget !== widgetId && selectWidget(widgetId);
     },
     end: (widget, monitor) => {
       AnalyticsUtil.logEvent("WIDGET_CARD_DROP", {

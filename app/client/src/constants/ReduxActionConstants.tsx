@@ -1,12 +1,14 @@
 import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import { PageAction } from "constants/ActionConstants";
 import { Org } from "./orgConstants";
+import { ERROR_CODES } from "constants/ApiConstants";
 
 export const ReduxActionTypes: { [key: string]: string } = {
   INITIALIZE_EDITOR: "INITIALIZE_EDITOR",
   INITIALIZE_EDITOR_SUCCESS: "INITIALIZE_EDITOR_SUCCESS",
   REPORT_ERROR: "REPORT_ERROR",
   FLUSH_ERRORS: "FLUSH_ERRORS",
+  FLUSH_AND_REDIRECT: "FLUSH_AND_REDIRECT",
   SAFE_CRASH_APPSMITH: "SAFE_CRASH_APPSMITH",
   UPDATE_CANVAS: "UPDATE_CANVAS",
   FETCH_CANVAS: "FETCH_CANVAS",
@@ -430,6 +432,7 @@ export interface ReduxActionWithPromise<T> extends ReduxAction<T> {
 export interface ReduxActionErrorPayload {
   message: string;
   source?: string;
+  code?: ERROR_CODES;
 }
 
 export interface UpdateCanvasPayload {

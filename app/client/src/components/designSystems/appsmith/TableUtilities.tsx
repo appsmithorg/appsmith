@@ -6,6 +6,7 @@ import {
   ActionWrapper,
   SortIconWrapper,
   MenuCategoryWrapper,
+  MenuStyledOptionHeader,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { ColumnMenuOptionProps } from "components/designSystems/appsmith/ReactTableComponent";
@@ -263,7 +264,7 @@ export const getMenuOptions = (props: MenuOptionProps) => {
         {
           content: (
             <MenuCategoryWrapper>
-              <div>Date Input Format</div>
+              <MenuStyledOptionHeader>Date Input Format</MenuStyledOptionHeader>
               {props.inputFormat && <Tag>Clear</Tag>}
             </MenuCategoryWrapper>
           ),
@@ -273,6 +274,7 @@ export const getMenuOptions = (props: MenuOptionProps) => {
             props.updateColumnType(columnIndex, ColumnTypes.TEXT);
           },
           id: "date_input",
+          isHeader: true,
         },
         {
           content: "UNIX timestamp (s)",
@@ -337,7 +339,9 @@ export const getMenuOptions = (props: MenuOptionProps) => {
         {
           content: (
             <MenuCategoryWrapper>
-              <div>Date Output Format</div>
+              <MenuStyledOptionHeader>
+                Date Output Format
+              </MenuStyledOptionHeader>
             </MenuCategoryWrapper>
           ),
           closeOnClick: false,
@@ -349,6 +353,7 @@ export const getMenuOptions = (props: MenuOptionProps) => {
               props.inputFormat || "",
             );
           },
+          isHeader: true,
         },
         {
           content: "Same as Input",
@@ -459,11 +464,12 @@ export const renderCell = (
   columnType: string,
   isHidden: boolean,
 ) => {
+  if (!value) {
+    return <CellWrapper isHidden={isHidden}></CellWrapper>;
+  }
   switch (columnType) {
     case ColumnTypes.IMAGE:
-      if (!value) {
-        return <CellWrapper isHidden={isHidden}></CellWrapper>;
-      } else if (!isString(value)) {
+      if (!isString(value)) {
         return (
           <CellWrapper isHidden={isHidden}>
             <div>Invalid Image </div>
@@ -500,9 +506,7 @@ export const renderCell = (
       );
     case ColumnTypes.VIDEO:
       const youtubeRegex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
-      if (!value) {
-        return <CellWrapper isHidden={isHidden}></CellWrapper>;
-      } else if (isString(value) && youtubeRegex.test(value)) {
+      if (isString(value) && youtubeRegex.test(value)) {
         return (
           <CellWrapper isHidden={isHidden} className="video-cell">
             <PopoverVideo url={value} />
