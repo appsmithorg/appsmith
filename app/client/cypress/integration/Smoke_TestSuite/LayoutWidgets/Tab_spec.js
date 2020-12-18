@@ -32,6 +32,7 @@ describe("Tab widget test", function() {
       .click({ force: true })
       .should("be.visible");
     cy.get(Layoutpage.tabButton).click({ force: true });
+    cy.wait(200);
     cy.tabVerify(2, "Day");
     cy.get(Layoutpage.tabDelete)
       .eq(2)

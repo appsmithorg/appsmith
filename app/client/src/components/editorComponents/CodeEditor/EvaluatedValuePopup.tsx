@@ -143,7 +143,9 @@ export const CurrentValueViewer = (props: {
     } else {
       content = (
         <CodeWrapper colorTheme={props.theme}>
-          {props.evaluatedValue ? props.evaluatedValue.toString() : "null"}
+          {props.evaluatedValue === null
+            ? "null"
+            : props.evaluatedValue.toString()}
         </CodeWrapper>
       );
     }

@@ -178,15 +178,17 @@ export const EditableText = (props: EditableTextProps) => {
 
   const onConfirm = useCallback(
     (_value: string) => {
-      if (savingState === SavingState.ERROR || isInvalid || _value === "") {
+      const finalVal: string = _value.trim();
+      if (savingState === SavingState.ERROR || isInvalid || finalVal === "") {
         setValue(lastValidValue);
         onBlur(lastValidValue);
         setSavingState(SavingState.NOT_STARTED);
-      } else if (changeStarted) {
-        onTextChanged && onTextChanged(_value);
       }
-      if (_value !== defaultValue) {
-        onBlur(_value);
+      if (changeStarted) {
+        onTextChanged && onTextChanged(finalVal);
+      }
+      if (finalVal && finalVal !== defaultValue) {
+        onBlur(finalVal);
       }
       setIsEditing(false);
       setChangeStarted(false);
@@ -203,10 +205,11 @@ export const EditableText = (props: EditableTextProps) => {
 
   const onInputchange = useCallback(
     (_value: string) => {
-      const finalVal: string = _value;
+      const finalVal: string =
+        _value.indexOf(" ") === 0 ? _value.trim() : _value;
       const errorMessage = inputValidation && inputValidation(finalVal);
       const error = errorMessage ? errorMessage : false;
-      if (!error && _value !== "") {
+      if (!error && finalVal !== "") {
         setLastValidValue(finalVal);
         onTextChanged && onTextChanged(finalVal);
       }

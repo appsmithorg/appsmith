@@ -6,5 +6,6 @@
     "deleteQuery": ".t--delete-query",
     "createQuery": ".t--create-query",
     "addQueryEntity": ".//div[contains(@class,'t--entity group queries')]//div[contains(@class,'t--entity-add-btn')]",
-    "addDatasource": ".t--add-datasource"
+    "addDatasource": ".t--add-datasource",
+    "editDatasourceButton": ".t--edit-datasource"
 }

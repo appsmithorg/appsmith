@@ -55,17 +55,32 @@ const actionsReducer = createReducer(initialState, {
     action: ReduxAction<RestAction[]>,
   ): ActionDataState => {
     if (action.payload.length > 0) {
-      const payloadActionMap = _.keyBy(action.payload, "id");
-      return state.map((stateAction: ActionData) => {
-        if (stateAction.config.pageId === action.payload[0].pageId) {
-          return {
+      const stateActionMap = _.keyBy(state, "config.id");
+      const result: ActionDataState = [];
+
+      action.payload.forEach((actionPayload: RestAction) => {
+        const stateAction = stateActionMap[actionPayload.id];
+        if (stateAction) {
+          result.push({
             data: stateAction.data,
             isLoading: false,
-            config: payloadActionMap[stateAction.config.id],
-          };
+            config: actionPayload,
+          });
+
+          delete stateActionMap[actionPayload.id];
+        } else {
+          result.push({
+            isLoading: false,
+            config: actionPayload,
+          });
         }
-        return stateAction;
       });
+
+      Object.keys(stateActionMap).forEach(stateActionKey => {
+        result.push(stateActionMap[stateActionKey]);
+      });
+
+      return result;
     }
     return state;
   },

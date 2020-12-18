@@ -11,8 +11,8 @@ import { LogLevelDesc } from "loglevel";
 import FeatureFlag from "utils/featureFlags";
 import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
-import history from "./history";
-import { SERVER_ERROR_URL } from "../constants/routes";
+import { ERROR_CODES } from "constants/ApiConstants";
+import { ERROR_500 } from "../constants/messages";
 
 export const createReducer = (
   initialState: any,
@@ -46,7 +46,26 @@ export const appInitializer = () => {
   FeatureFlag.initialize(appsmithConfigs.featureFlag);
 
   if (appsmithConfigs.sentry.enabled) {
-    Sentry.init(appsmithConfigs.sentry);
+    Sentry.init({
+      ...appsmithConfigs.sentry,
+      beforeBreadcrumb(breadcrumb, hint) {
+        if (breadcrumb.category === "console" && breadcrumb.level !== "error") {
+          return null;
+        }
+        if (breadcrumb.category === "sentry.transaction") {
+          return null;
+        }
+        if (breadcrumb.category === "redux.action") {
+          if (
+            breadcrumb.data &&
+            breadcrumb.data.type === "SET_EVALUATED_TREE"
+          ) {
+            breadcrumb.data = undefined;
+          }
+        }
+        return breadcrumb;
+      },
+    });
   }
 
   if (appsmithConfigs.smartLook.enabled) {
@@ -242,12 +261,14 @@ export const retryPromise = (
   return new Promise((resolve, reject) => {
     fn()
       .then(resolve)
-      .catch((error: any) => {
+      .catch(() => {
         setTimeout(() => {
           if (retriesLeft === 1) {
-            reject(error);
-            history.replace(SERVER_ERROR_URL);
-            return;
+            return Promise.reject({
+              code: ERROR_CODES.SERVER_ERROR,
+              message: ERROR_500,
+              show: false,
+            });
           }
 
           // Passing on "reject" is the important part
@@ -255,4 +276,8 @@ export const retryPromise = (
         }, interval);
       });
   });
+};
+
+export const getRandomPaletteColor = (colorPalette: string[]) => {
+  return colorPalette[Math.floor(Math.random() * colorPalette.length)];
 };

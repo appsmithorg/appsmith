@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
@@ -61,7 +61,7 @@ public class MssqlPlugin extends BasePlugin {
     @Extension
     public static class MssqlPluginExecutor implements PluginExecutor<Connection> {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(Connection connection,
@@ -176,7 +176,7 @@ public class MssqlPlugin extends BasePlugin {
                 ActionExecutionResult result = new ActionExecutionResult();
                 result.setBody(objectMapper.valueToTree(rowsList));
                 result.setIsExecutionSuccess(true);
-                System.out.println(Thread.currentThread().getName() + ": In the MssqlPlugin, got action execution result: " + result.toString());
+                System.out.println(Thread.currentThread().getName() + ": In the MssqlPlugin, got action execution result");
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
@@ -196,7 +196,7 @@ public class MssqlPlugin extends BasePlugin {
                     ));
                 }
 
-                AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
                 com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
 
@@ -282,15 +282,16 @@ public class MssqlPlugin extends BasePlugin {
                 invalids.add("Missing Connection Mode.");
             }
 
-            if (datasourceConfiguration.getAuthentication() == null) {
+            DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
+            if (auth == null) {
                 invalids.add("Missing authentication details.");
 
             } else {
-                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getUsername())) {
+                if (StringUtils.isEmpty(auth.getUsername())) {
                     invalids.add("Missing username for authentication.");
                 }
 
-                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getPassword())) {
+                if (StringUtils.isEmpty(auth.getPassword())) {
                     invalids.add("Missing password for authentication.");
                 }
 
