@@ -361,36 +361,53 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                         .getPluginClassLoader()
         );
 
-        final Map<String, String> templates = new LinkedHashMap<>();
-
         final PluginTemplatesMeta pluginTemplatesMeta;
         try {
             pluginTemplatesMeta = objectMapper.readValue(
                     resolver.getResource("templates/meta.json").getInputStream(),
                     PluginTemplatesMeta.class
             );
+
         } catch (IOException e) {
             log.error("Error loading templates metadata in plugin for id: " + plugin.getId());
             throw Exceptions.propagate(e);
+
         }
 
+        if (pluginTemplatesMeta.getTemplates() == null) {
+            log.warn("Missing templates key in plugin templates meta.");
+            return Collections.emptyMap();
+        }
+
+        final Map<String, String> templates = new LinkedHashMap<>();
+
         for (final PluginTemplate template : pluginTemplatesMeta.getTemplates()) {
-            final Resource resource = resolver.getResource("templates/" + template.getFilename());
+            final String filename = template.getFile();
+
+            if (filename == null) {
+                log.warn("Empty or missing file for a template in plugin {}.", plugin.getPackageName());
+                continue;
+            }
+
+            final Resource resource = resolver.getResource("templates/" + filename);
+            final String title = StringUtils.isEmpty(template.getTitle())
+                    ? filename.replaceFirst("\\.\\w+$", "")
+                    : template.getTitle();
+
             try {
                 templates.put(
-                        StringUtils.isEmpty(template.getTitle())
-                                ? template.getFilename().replaceFirst("\\.\\w+$", "")
-                                : template.getTitle(),
+                        title,
                         StreamUtils.copyToString(resource.getInputStream(), Charset.defaultCharset())
                 );
+
             } catch (IOException e) {
-                log.error("Error loading template {} for plugin {}", template.getFilename(), plugin.getId());
+                log.error("Error loading template {} for plugin {}", filename, plugin.getId());
                 throw Exceptions.propagate(e);
+
             }
         }
 
         return templates;
-
     }
 
     @Override
@@ -423,7 +440,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
     @Data
     static class PluginTemplate {
-        String filename;
+        String file;
         String title = null;
     }
 }
