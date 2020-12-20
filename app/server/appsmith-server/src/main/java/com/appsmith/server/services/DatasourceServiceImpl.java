@@ -265,6 +265,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                     datasource.getDatasourceConfiguration().getAuthentication().setEncryptionFields(decryptedFields);
                                     datasource.getDatasourceConfiguration().getAuthentication().setEncrypted(false);
                                 }
+
                             }
                             return datasource;
                         })
