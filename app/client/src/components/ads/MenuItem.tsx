@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { forwardRef, ReactNode, Ref } from "react";
 import { CommonComponentProps, Classes } from "./common";
 import styled from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
@@ -13,22 +13,31 @@ export type MenuItemProps = CommonComponentProps & {
   href?: string;
   type?: "warning";
   ellipsize?: number;
+  selected?: boolean;
   onSelect?: () => void;
 };
 
-const ItemRow = styled.a<{ disabled?: boolean }>`
+const ItemRow = styled.a<{ disabled?: boolean; selected?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   text-decoration: none;
   padding: 0px ${props => props.theme.spaces[6]}px;
+  background-color: ${props =>
+    props.selected ? props.theme.colors.menuItem.hoverBg : "transparent"};
   .${Classes.TEXT} {
-    color: ${props => props.theme.colors.menuItem.normalText};
+    color: ${props =>
+      props.selected
+        ? props.theme.colors.menuItem.hoverText
+        : props.theme.colors.menuItem.normalText};
   }
   .${Classes.ICON} {
     svg {
       path {
-        fill: ${props => props.theme.colors.menuItem.normalIcon};
+        fill: ${props =>
+          props.selected
+            ? props.theme.colors.menuItem.hoverIcon
+            : props.theme.colors.menuItem.normalIcon};
       }
     }
   }
@@ -78,40 +87,46 @@ const IconContainer = styled.span`
     margin-right: ${props => props.theme.spaces[5]}px;
   }
 `;
-
-function MenuItem(props: MenuItemProps) {
-  return props.ellipsize && props.text.length > props.ellipsize ? (
-    <TooltipComponent position={Position.BOTTOM} content={props.text}>
-      <MenuItemContent {...props} />
-    </TooltipComponent>
-  ) : (
-    <MenuItemContent {...props} />
-  );
-}
-
-function MenuItemContent(props: MenuItemProps) {
-  return (
-    <ItemRow
-      href={props.href}
-      onClick={props.onSelect}
-      disabled={props.disabled}
-      data-cy={props.cypressSelector}
-      type={props.type}
-    >
-      <IconContainer className={props.className}>
-        {props.icon ? <Icon name={props.icon} size={IconSize.LARGE} /> : null}
-        {props.text ? (
-          <Text type={TextType.H5} weight={FontWeight.NORMAL}>
-            {props.ellipsize
-              ? ellipsize(props.ellipsize, props.text)
-              : props.text}
-          </Text>
-        ) : null}
-      </IconContainer>
-      {props.label ? props.label : null}
-    </ItemRow>
-  );
-}
+const MenuItem = forwardRef(
+  (props: MenuItemProps, ref: Ref<HTMLAnchorElement>) => {
+    return props.ellipsize && props.text.length > props.ellipsize ? (
+      <TooltipComponent position={Position.BOTTOM} content={props.text}>
+        <MenuItemContent ref={ref} {...props} />
+      </TooltipComponent>
+    ) : (
+      <MenuItemContent ref={ref} {...props} />
+    );
+  },
+);
+const MenuItemContent = forwardRef(
+  (props: MenuItemProps, ref: Ref<HTMLAnchorElement>) => {
+    return (
+      <ItemRow
+        href={props.href}
+        onClick={props.onSelect}
+        disabled={props.disabled}
+        data-cy={props.cypressSelector}
+        type={props.type}
+        ref={ref}
+        selected={props.selected}
+      >
+        <IconContainer className={props.className}>
+          {props.icon ? <Icon name={props.icon} size={IconSize.LARGE} /> : null}
+          {props.text ? (
+            <Text type={TextType.H5} weight={FontWeight.NORMAL}>
+              {props.ellipsize
+                ? ellipsize(props.ellipsize, props.text)
+                : props.text}
+            </Text>
+          ) : null}
+        </IconContainer>
+        {props.label ? props.label : null}
+      </ItemRow>
+    );
+  },
+);
+MenuItemContent.displayName = "MenuItemContent";
+MenuItem.displayName = "MenuItem";
 
 function ellipsize(length: number, text: string) {
   return text.length > length ? text.slice(0, length).concat(" ...") : text;
