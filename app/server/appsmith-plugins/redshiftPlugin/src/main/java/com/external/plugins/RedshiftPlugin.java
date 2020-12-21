@@ -282,7 +282,7 @@ public class RedshiftPlugin extends BasePlugin {
                     urlBuilder
                             .append(endpoint.getHost())
                             .append(':')
-                            .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 0))
+                            .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 5439L))
                             .append('/');
 
                     if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
