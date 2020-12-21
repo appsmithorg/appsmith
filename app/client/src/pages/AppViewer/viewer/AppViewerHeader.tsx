@@ -35,6 +35,7 @@ import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
 import Text, { TextType } from "components/ads/Text";
+import { Classes } from "components/ads/common";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   background: ${Colors.BALTIC_SEA};
@@ -42,13 +43,11 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   color: white;
   flex-direction: column;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
-
-  .current-app-name {
-    margin-left: -43px;
-
-    span {
-      margin-top: 3px;
-    }
+  .${Classes.TEXT} {
+    max-width: 194px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 `;
 
