@@ -21,7 +21,11 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: 80px 0px;
+  padding: 40px 0px;
+
+  @media screen and (min-height: 700px) {
+    padding: 80px 0px;
+  }
 `;
 
 const WelcomeText = styled.div`
@@ -36,6 +40,18 @@ const Description = styled.div`
   color: #716e6e;
   margin-top: 16px;
   text-align: center;
+`;
+
+const SubDescriptionWrapper = styled.div`
+  margin-top: 15px;
+
+  @media screen and (min-height: 700px) {
+    margin-top: 36px;
+  }
+`;
+
+const SubDescription = styled(Description)`
+  margin-top: 15px;
 `;
 
 const NotNewUserText = styled.span`
@@ -108,6 +124,21 @@ const Welcome = () => {
           <Description>
             Appsmith helps you build quality internal tools, fast!
           </Description>
+          <SubDescriptionWrapper>
+            <SubDescription>
+              We are excited to show you how Appsmith works.
+            </SubDescription>
+            <SubDescription>
+              In 30 seconds, you’ll learn 3 concepts and make your first app.
+            </SubDescription>
+            <SubDescription>
+              1. How to connect to a database and create a query
+            </SubDescription>
+            <SubDescription>2. How to add a UI widget</SubDescription>
+            <SubDescription>
+              3. How to connect a UI widget to database query
+            </SubDescription>
+          </SubDescriptionWrapper>
         </div>
         <div
           style={{
