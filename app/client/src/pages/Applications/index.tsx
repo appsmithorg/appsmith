@@ -1,4 +1,4 @@
-import React, { Component, Fragment, useState } from "react";
+import React, { Component, Fragment, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { connect, useSelector, useDispatch } from "react-redux";
 import { AppState } from "reducers";
@@ -340,6 +340,8 @@ const ApplicationAddCardWrapper = styled(Card)`
 `;
 
 function LeftPane() {
+  const menuRef = useRef<HTMLAnchorElement>(null);
+  const [selectedOrg, setSelectedOrg] = useState<string>("");
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const NewWorkspaceTrigger = (
@@ -359,6 +361,20 @@ function LeftPane() {
     userOrgs = loadingUserOrgs as any;
   }
 
+  const urlHash = decodeURI(
+    window.location.hash.substring(1, window.location.hash.length),
+  );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (menuRef && menuRef.current) {
+        menuRef.current.scrollIntoView({ behavior: "smooth" });
+        menuRef.current.click();
+      }
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [fetchedUserOrgs]);
+
   return (
     <LeftPaneWrapper>
       <LeftPaneSection
@@ -375,6 +391,7 @@ function LeftPane() {
           {userOrgs &&
             userOrgs.map((org: any) => (
               <MenuItem
+                {...(urlHash === org.organization.name ? { ref: menuRef } : {})}
                 className={
                   isFetchingApplications ? BlueprintClasses.SKELETON : ""
                 }
@@ -383,6 +400,11 @@ function LeftPane() {
                 href={`${window.location.pathname}#${org.organization.name}`}
                 text={org.organization.name}
                 ellipsize={20}
+                onSelect={() => setSelectedOrg(org.organization.id)}
+                selected={
+                  selectedOrg === org.organization.id &&
+                  urlHash === org.organization.name
+                }
               />
             ))}
         </WorkpsacesNavigator>
