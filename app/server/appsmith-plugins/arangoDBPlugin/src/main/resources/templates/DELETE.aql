@@ -1,0 +1,4 @@
+REMOVE "1" IN users
+
+//Use widget data in a query by replacing static values with {{ widgetName.property }}.
+//Read more at https://www.arangodb.com/docs/stable/aql/
