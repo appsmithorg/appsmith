@@ -158,7 +158,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public AuthenticationDTO encryptAuthenticationFields(AuthenticationDTO authentication) {
-        if (authentication != null && !authentication.isEncrypted()) {
+        if (authentication != null && authentication.getEmptyEncryptionFields().isEmpty() && !authentication.isEncrypted()) {
             Map<String, String> encryptedFields = authentication.getEncryptionFields().entrySet().stream()
                     .collect(Collectors.toMap(
                             Map.Entry::getKey,
@@ -242,7 +242,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     @Override
     public Mono<DatasourceTestResult> testDatasource(Datasource datasource) {
         Mono<Datasource> datasourceMono = null;
-
         // Fetch any fields that maybe encrypted from the db if the datasource being tested does not have those fields set.
         // This scenario would happen whenever an existing datasource is being tested and no changes are present in the
         // encrypted field (because encrypted fields are not sent over the network after encryption back to the client
@@ -256,12 +255,17 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                         .map(datasourceFromRepo -> {
                             if (datasourceFromRepo.getDatasourceConfiguration() != null && datasourceFromRepo.getDatasourceConfiguration().getAuthentication() != null) {
                                 AuthenticationDTO authentication = datasourceFromRepo.getDatasourceConfiguration().getAuthentication();
-                                Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
-                                        .filter(e -> !emptyFields.contains(e.getKey()))
-                                        .collect(Collectors.toMap(
-                                                Map.Entry::getKey,
-                                                e -> encryptionService.decryptString(e.getValue())));
-                                datasource.getDatasourceConfiguration().getAuthentication().setEncryptionFields(decryptedFields);
+
+                                if (!authentication.getEncryptionFields().isEmpty()) {
+                                    Map<String, String> decryptedFields = authentication.getEncryptionFields();
+                                    decryptedFields = decryptedFields.entrySet().stream()
+                                            .collect(Collectors.toMap(
+                                                    Map.Entry::getKey,
+                                                    e -> encryptionService.decryptString(e.getValue())));
+                                    datasource.getDatasourceConfiguration().getAuthentication().setEncryptionFields(decryptedFields);
+                                    datasource.getDatasourceConfiguration().getAuthentication().setEncrypted(false);
+                                }
+
                             }
                             return datasource;
                         })
