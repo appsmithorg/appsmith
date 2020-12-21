@@ -107,6 +107,7 @@ class Editor extends Component<Props> {
               this.props.copySelectedWidget();
             }
           }}
+          allowInInput
         />
         <Hotkey
           global={true}
@@ -118,6 +119,7 @@ class Editor extends Component<Props> {
               this.props.pasteCopiedWidget();
             }
           }}
+          allowInInput
         />
         <Hotkey
           global={true}
@@ -129,6 +131,7 @@ class Editor extends Component<Props> {
               this.props.pasteCopiedWidget();
             }
           }}
+          allowInInput
         />
         <Hotkey
           global={true}
@@ -140,6 +143,7 @@ class Editor extends Component<Props> {
               this.props.deleteSelectedWidget();
             }
           }}
+          allowInInput
         />
         <Hotkey
           global={true}
@@ -151,6 +155,7 @@ class Editor extends Component<Props> {
               this.props.cutSelectedWidget();
             }
           }}
+          allowInInput
         />
       </Hotkeys>
     );
