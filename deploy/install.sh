@@ -524,8 +524,8 @@ echo "Installing Appsmith to '$install_dir'."
 mkdir -p "$install_dir"
 echo ""
 
-if confirm y "Would you like to initialize the default database?"; then
-    echo "Appsmith needs to create a MongoDB instance."
+echo "Appsmith needs a MongoDB instance to run"
+if confirm y "Initialise a new database? (Recommended)"; then
     mongo_host="mongo"
     mongo_database="appsmith"
 

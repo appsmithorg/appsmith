@@ -5,6 +5,7 @@ import styled from "styled-components";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
 import { getType, Types } from "utils/TypeHelpers";
 import { Colors } from "constants/Colors";
+import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 
 interface TableProps {
   data: Record<string, any>[];
@@ -214,59 +215,61 @@ const Table = (props: TableProps) => {
   if (rows.length === 0 || headerGroups.length === 0) return null;
 
   return (
-    <TableWrapper>
-      <div className="tableWrap">
-        <div {...getTableProps()} className="table">
-          {headerGroups.map((headerGroup: any, index: number) => (
-            <div
-              key={index}
-              {...headerGroup.getHeaderGroupProps()}
-              className="tr"
-            >
-              {headerGroup.headers.map((column: any, columnIndex: number) => (
-                <div
-                  key={columnIndex}
-                  {...column.getHeaderProps()}
-                  className="th header-reorder"
-                >
+    <ErrorBoundary>
+      <TableWrapper>
+        <div className="tableWrap">
+          <div {...getTableProps()} className="table">
+            {headerGroups.map((headerGroup: any, index: number) => (
+              <div
+                key={index}
+                {...headerGroup.getHeaderGroupProps()}
+                className="tr"
+              >
+                {headerGroup.headers.map((column: any, columnIndex: number) => (
                   <div
-                    className={
-                      !column.isHidden ? "draggable-header" : "hidden-header"
-                    }
+                    key={columnIndex}
+                    {...column.getHeaderProps()}
+                    className="th header-reorder"
                   >
-                    {column.render("Header")}
+                    <div
+                      className={
+                        !column.isHidden ? "draggable-header" : "hidden-header"
+                      }
+                    >
+                      {column.render("Header")}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            ))}
+            <div {...getTableBodyProps()} className="tbody">
+              {rows.map((row: any, index: number) => {
+                prepareRow(row);
+                return (
+                  <div key={index} {...row.getRowProps()} className={"tr"}>
+                    {row.cells.map((cell: any, cellIndex: number) => {
+                      return (
+                        <div
+                          key={cellIndex}
+                          {...cell.getCellProps()}
+                          className="td"
+                          data-rowindex={index}
+                          data-colindex={cellIndex}
+                        >
+                          <CellWrapper isHidden={false}>
+                            {cell.render("Cell")}
+                          </CellWrapper>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
             </div>
-          ))}
-          <div {...getTableBodyProps()} className="tbody">
-            {rows.map((row: any, index: number) => {
-              prepareRow(row);
-              return (
-                <div key={index} {...row.getRowProps()} className={"tr"}>
-                  {row.cells.map((cell: any, cellIndex: number) => {
-                    return (
-                      <div
-                        key={cellIndex}
-                        {...cell.getCellProps()}
-                        className="td"
-                        data-rowindex={index}
-                        data-colindex={cellIndex}
-                      >
-                        <CellWrapper isHidden={false}>
-                          {cell.render("Cell")}
-                        </CellWrapper>
-                      </div>
-                    );
-                  })}
-                </div>
-              );
-            })}
           </div>
         </div>
-      </div>
-    </TableWrapper>
+      </TableWrapper>
+    </ErrorBoundary>
   );
 };
 

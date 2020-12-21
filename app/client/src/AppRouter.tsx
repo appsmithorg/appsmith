@@ -12,8 +12,6 @@ import {
   BUILDER_URL,
   getApplicationViewerPageURL,
   ORG_URL,
-  PAGE_NOT_FOUND_URL,
-  SERVER_ERROR_URL,
   SIGN_UP_URL,
   USER_AUTH_URL,
   USERS_URL,
@@ -25,9 +23,10 @@ import AppViewerLoader from "pages/AppViewer/loader";
 import LandingScreen from "./LandingScreen";
 import UserAuth from "pages/UserAuth";
 import Users from "pages/users";
+import ErrorPage from "pages/common/ErrorPage";
 import PageNotFound from "pages/common/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
-import ServerUnavailable from "pages/common/ServerUnavailable";
+import ErrorPageHeader from "pages/common/ErrorPageHeader";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { ThemeMode } from "reducers/uiReducers/themeReducer";
 import { AppState } from "reducers";
@@ -37,6 +36,7 @@ import { connect } from "react-redux";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { trimTrailingSlash } from "utils/helpers";
+import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -71,46 +71,43 @@ class AppRouter extends React.Component<any, any> {
   }
 
   render() {
-    const { currentTheme, safeCrash } = this.props;
+    const { currentTheme, safeCrash, safeCrashCode } = this.props;
+
     // This is needed for the theme switch.
     changeAppBackground(currentTheme);
+
     return (
       <Router history={history}>
         <Suspense fallback={loadingIndicator}>
-          <AppHeader />
           {safeCrash ? (
-            <ServerUnavailable />
+            <>
+              <ErrorPageHeader />
+              <ErrorPage code={safeCrashCode} />
+            </>
           ) : (
-            <Switch>
-              <SentryRoute exact path={BASE_URL} component={LandingScreen} />
-              <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
-              <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
-              <SentryRoute path={ORG_URL} component={OrganizationLoader} />
-              <SentryRoute exact path={USERS_URL} component={Users} />
-              <SentryRoute path={USER_AUTH_URL} component={UserAuth} />
-              <SentryRoute
-                exact
-                path={APPLICATIONS_URL}
-                component={ApplicationListLoader}
-              />
-              <SentryRoute path={BUILDER_URL} component={EditorLoader} />
-              <SentryRoute
-                path={getApplicationViewerPageURL()}
-                component={AppViewerLoader}
-              />
-              <SentryRoute path={APP_VIEW_URL} component={AppViewerLoader} />
-              <SentryRoute
-                exact
-                path={PAGE_NOT_FOUND_URL}
-                component={PageNotFound}
-              />
-              <SentryRoute
-                exact
-                path={SERVER_ERROR_URL}
-                component={ServerUnavailable}
-              />
-              <SentryRoute component={PageNotFound} />
-            </Switch>
+            <>
+              <AppHeader />
+              <Switch>
+                <SentryRoute exact path={BASE_URL} component={LandingScreen} />
+                <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
+                <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
+                <SentryRoute path={ORG_URL} component={OrganizationLoader} />
+                <SentryRoute exact path={USERS_URL} component={Users} />
+                <SentryRoute path={USER_AUTH_URL} component={UserAuth} />
+                <SentryRoute
+                  exact
+                  path={APPLICATIONS_URL}
+                  component={ApplicationListLoader}
+                />
+                <SentryRoute path={BUILDER_URL} component={EditorLoader} />
+                <SentryRoute
+                  path={getApplicationViewerPageURL()}
+                  component={AppViewerLoader}
+                />
+                <SentryRoute path={APP_VIEW_URL} component={AppViewerLoader} />
+                <SentryRoute component={PageNotFound} />
+              </Switch>
+            </>
           )}
         </Suspense>
       </Router>
@@ -119,8 +116,10 @@ class AppRouter extends React.Component<any, any> {
 }
 const mapStateToProps = (state: AppState) => ({
   currentTheme: getThemeDetails(state).theme,
-  safeCrash: state.ui.errors.safeCrash,
+  safeCrash: getSafeCrash(state),
+  safeCrashCode: getSafeCrashCode(state),
 });
+
 const mapDispatchToProps = (dispatch: any) => ({
   setTheme: (mode: ThemeMode) => {
     dispatch(setThemeMode(mode));
