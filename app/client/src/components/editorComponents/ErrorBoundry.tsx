@@ -2,10 +2,10 @@ import React, { ReactNode } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 
-type Props = { isValid: boolean; children: ReactNode };
+type Props = { children: ReactNode };
 type State = { hasError: boolean };
 
-const ErrorBoundaryContainer = styled.div<{ isValid: boolean }>`
+const ErrorBoundaryContainer = styled.div`
   height: 100%;
   width: 100%;
 
@@ -41,7 +41,7 @@ class ErrorBoundary extends React.Component<Props, State> {
 
   render() {
     return (
-      <ErrorBoundaryContainer isValid={this.props.isValid}>
+      <ErrorBoundaryContainer>
         {this.state.hasError ? (
           <p>
             Oops, Something went wrong.
