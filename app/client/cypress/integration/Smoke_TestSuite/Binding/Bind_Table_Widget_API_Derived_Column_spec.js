@@ -5,14 +5,12 @@ const apiPage = require("../../../locators/ApiEditor.json");
 const publishPage = require("../../../locators/publishWidgetspage.json");
 const testdata = require("../../../fixtures/testdata.json");
 
-
-describe("Test Create Api and Bind to Table widget", function () {
+describe("Test Create Api and Bind to Table widget", function() {
   before(() => {
     cy.addDsl(dsl);
   });
 
-
-  it("Check property pane column names and add column", function () {
+  it("Check property pane column names and add column", function() {
     cy.SearchEntityandOpen("Table1");
     cy.tableColumnDataValidation("id");
     cy.tableColumnDataValidation("email");
@@ -27,11 +25,12 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.hideColumn("productName");
     cy.hideColumn("orderAmount");
     cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
-    cy.get('[data-rbd-draggable-id="DERIVED1"] input').invoke('attr', 'value').should('contain', 'CustomColumn')
+    cy.get('[data-rbd-draggable-id="DERIVED1"] input')
+      .invoke("attr", "value")
+      .should("contain", "CustomColumn");
   });
 
-
-  it("Update the computed value for derived column", function () {
+  it("Update the computed value for derived column", function() {
     cy.editColumn("DERIVED1");
     cy.editColName("UpdatedColName");
     cy.readTabledataPublish("0", "2").then(tabData => {
@@ -45,14 +44,14 @@ describe("Test Create Api and Bind to Table widget", function () {
     });
   });
 
-  it("Create an API and Execute the API and bind with Table", function () {
-    cy.get(commonlocators.entityExplorersearch).clear()
+  it("Create an API and Execute the API and bind with Table", function() {
+    cy.get(commonlocators.entityExplorersearch).clear();
     cy.wait(500);
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
   });
 
-  it("Validate Table with API data and then add a column", function () {
+  it("Validate Table with API data and then add a column", function() {
     cy.SearchEntityandOpen("Table1");
     cy.testJsontext("tabledata", "{{Api1.data.users}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
@@ -65,15 +64,15 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.ValidateTableData("1");
   });
 
-  it("Update table json data and check the column names updated", function () {
+  it("Update table json data and check the column names updated", function() {
     cy.SearchEntityandOpen("Table1");
     cy.tableColumnDataValidation("id");
     cy.tableColumnDataValidation("DERIVED1");
     cy.editColumn("DERIVED1");
-    cy.wait(500)
+    cy.wait(500);
     cy.readTabledataPublish("1", "5").then(tabData => {
       const tabValue = tabData;
-      cy.updateComputedValue(testdata.currentRowEmail);
+      //cy.updateComputedValue(testdata.currentRowEmail);
       cy.readTabledataPublish("1", "9").then(tabData => {
         cy.log("computed value of plain text " + tabData);
         expect(tabData).to.be.equal(tabValue);
@@ -82,7 +81,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     });
   });
 
-  it("Reload page and validate for table data", function () {
+  it("Reload page and validate for table data", function() {
     cy.reload();
     cy.SearchEntityandOpen("Table1");
     cy.tableColumnDataValidation("id");
@@ -95,10 +94,14 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.tableColumnDataValidation("createdAt");
     cy.tableColumnDataValidation("updatedAt");
     cy.tableColumnDataValidation("DERIVED1");
-    cy.get('[data-rbd-draggable-id="DERIVED1"] input').invoke('attr', 'value').should('contain', 'CustomColumn')
+    cy.get('[data-rbd-draggable-id="DERIVED1"] input')
+      .invoke("attr", "value")
+      .should("contain", "CustomColumn");
+    cy.editColumn("DERIVED1");
+    cy.wait(500);
     cy.readTabledataPublish("1", "5").then(tabData => {
       const tabValue = tabData;
-      cy.updateComputedValue(testdata.currentRowEmail);
+      //cy.updateComputedValue(testdata.currentRowEmail);
       cy.readTabledataPublish("1", "9").then(tabData => {
         cy.log("computed value of plain text " + tabData);
         expect(tabData).to.be.equal(tabValue);
