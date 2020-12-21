@@ -13,6 +13,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.pf4j.PluginManager;
@@ -28,6 +29,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StreamUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -44,6 +46,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -336,9 +339,13 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                             templateCache.remove(pluginId)
                     )
                     // It's okay if the templates folder is not present, we just return empty templates collection.
-                    .onErrorMap(throwable -> new AppsmithException(
-                            AppsmithError.PLUGIN_LOAD_TEMPLATES_FAIL, Exceptions.unwrap(throwable).getMessage())
-                    )
+                    .onErrorMap(throwable -> {
+                        log.error("Error loading templates for plugin {}.", plugin.getPackageName(), throwable);
+                        return new AppsmithException(
+                                AppsmithError.PLUGIN_LOAD_TEMPLATES_FAIL,
+                                Exceptions.unwrap(throwable).getMessage()
+                        );
+                    })
                     .cache();
 
             templateCache.put(pluginId, mono);
@@ -354,27 +361,49 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                         .getPluginClassLoader()
         );
 
-        final Map<String, String> templates = new HashMap<>();
-
-        Resource[] resources;
+        final PluginTemplatesMeta pluginTemplatesMeta;
         try {
-            resources = resolver.getResources("templates/*");
+            pluginTemplatesMeta = objectMapper.readValue(
+                    resolver.getResource("templates/meta.json").getInputStream(),
+                    PluginTemplatesMeta.class
+            );
+
         } catch (IOException e) {
-            log.error("Error resolving templates in plugin for id: " + plugin.getId());
+            log.error("Error loading templates metadata in plugin for id: " + plugin.getId());
             throw Exceptions.propagate(e);
+
         }
 
-        for (final Resource resource : resources) {
-            final String filename = resource.getFilename();
+        if (pluginTemplatesMeta.getTemplates() == null) {
+            log.warn("Missing templates key in plugin templates meta.");
+            return Collections.emptyMap();
+        }
+
+        final Map<String, String> templates = new LinkedHashMap<>();
+
+        for (final PluginTemplate template : pluginTemplatesMeta.getTemplates()) {
+            final String filename = template.getFile();
+
+            if (filename == null) {
+                log.warn("Empty or missing file for a template in plugin {}.", plugin.getPackageName());
+                continue;
+            }
+
+            final Resource resource = resolver.getResource("templates/" + filename);
+            final String title = StringUtils.isEmpty(template.getTitle())
+                    ? filename.replaceFirst("\\.\\w+$", "")
+                    : template.getTitle();
+
             try {
-                final String templateContent = StreamUtils.copyToString(
-                        resource.getInputStream(), Charset.defaultCharset());
-                if (filename != null) {
-                    templates.put(filename.replaceFirst("\\.\\w+$", ""), templateContent);
-                }
+                templates.put(
+                        title,
+                        StreamUtils.copyToString(resource.getInputStream(), Charset.defaultCharset())
+                );
+
             } catch (IOException e) {
                 log.error("Error loading template {} for plugin {}", filename, plugin.getId());
                 throw Exceptions.propagate(e);
+
             }
         }
 
@@ -402,5 +431,16 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                         return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, e.getMessage()));
                     }
                 });
+    }
+
+    @Data
+    static class PluginTemplatesMeta {
+        List<PluginTemplate> templates;
+    }
+
+    @Data
+    static class PluginTemplate {
+        String file;
+        String title = null;
     }
 }
