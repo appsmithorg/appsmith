@@ -18,12 +18,12 @@ const scrollContents = css`
   position: absolute;
 `;
 
-const ChildrenWrapper = styled.div<GridComponentProps>`
+const GridContainer = styled.div<GridComponentProps>`
   height: 100%;
   width: 100%;
   position: relative;
   background: ${props => props.backgroundColor};
-  box-shadow: ${props => props.theme.shadows[2]};
+  border: 1px solid #e1e1e1;
   border-bottom-right-radius: ${props => `${props.theme.radii[1]}px`};
   border-bottom-left-radius: ${props => `${props.theme.radii[1]}px`};
   border-top-right-radius: ${props => `${props.theme.radii[1]}px`};
@@ -45,7 +45,7 @@ const GridComponent = (props: GridComponentProps) => {
   const { ...remainingProps } = props;
 
   return (
-    <ChildrenWrapper {...remainingProps}>
+    <GridContainer {...remainingProps}>
       <ScrollableCanvasWrapper
         className={`${
           props.shouldScrollContents ? getCanvasClassName() : ""
@@ -53,7 +53,7 @@ const GridComponent = (props: GridComponentProps) => {
       >
         {props.children}
       </ScrollableCanvasWrapper>
-    </ChildrenWrapper>
+    </GridContainer>
   );
 };
 

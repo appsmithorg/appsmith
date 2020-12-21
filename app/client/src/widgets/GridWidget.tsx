@@ -43,7 +43,7 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
    * generates a canvas container where widget can be dragged.
    */
   generateContainer = () => {
-    const { widgetId, children } = this.props;
+    const { widgetId, children, items } = this.props;
 
     // if there is a children, that container has been created before
     if ((children || []).length > 0) return false;
@@ -63,8 +63,11 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
         this.props.parentColumnSpace,
       topRow: 0,
       bottomRow:
-        (this.props.bottomRow - this.props.topRow) * this.props.parentRowSpace,
+        ((this.props.bottomRow - this.props.topRow) *
+          this.props.parentRowSpace) /
+        items.length,
       isLoading: false,
+      dropEnabled: true,
     };
 
     this.updateWidget(WidgetOperations.ADD_CHILDREN, widgetId, {
@@ -104,6 +107,8 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
    */
   getPageView() {
     const children = this.getChildren();
+
+    console.log({ children });
 
     return <GridComponent {...this.props}>{children}</GridComponent>;
   }

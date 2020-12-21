@@ -72,7 +72,7 @@ export const DropTargetContext: Context<{
   persistDropTargetRows?: (widgetId: string, row: number) => void;
 }> = createContext({});
 
-export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
+export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const canDropTargetExtend = props.canExtend;
 
   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
@@ -265,13 +265,14 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
       ? "1px solid #DDDDDD"
       : "1px solid transparent";
 
+  console.log({ props });
   return (
     <DropTargetContext.Provider
       value={{ updateDropTargetRows, persistDropTargetRows }}
     >
       <StyledDropTarget
         onClick={handleFocus}
-        ref={drop}
+        ref={props.dropEnabled ? drop : undefined}
         style={{
           height,
           border,
@@ -299,6 +300,12 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
       </StyledDropTarget>
     </DropTargetContext.Provider>
   );
-});
+};
 
-export default DropTargetComponent;
+DropTargetComponent.defaultProps = {
+  dropEnabled: true,
+};
+
+const MemoizedDropTargetComponent = memo(DropTargetComponent);
+
+export default MemoizedDropTargetComponent;

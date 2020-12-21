@@ -1,3 +1,4 @@
+import { WidgetTypes } from "constants/WidgetConstants";
 import { PropertyPaneConfigsResponse } from "api/ConfigsApi";
 
 /**
@@ -1385,7 +1386,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
         ],
       },
     ],
-    GRID_WIDGET: [
+    [WidgetTypes.GRID_WIDGET]: [
       {
         id: "18.1",
         sectionName: "General",
@@ -1409,12 +1410,31 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "INPUT_TEXT",
           },
           {
-            id: "18.1.3",
-            helpText: "Controls the visibility of the widget",
-            propertyName: "isVisible",
-            label: "Visible",
-            controlType: "SWITCH",
+            id: "18.1.5",
+            helpText: "Gap between rows and columns",
+            placeholderText: "0",
+            propertyName: "gridGap",
+            label: "Grid Gap",
+            controlType: "INPUT_TEXT",
+          },
+          {
+            id: "18.1.8",
+            helpText: "is grid vertical or horizontal",
+            placeholderText: "vertical or horizontal",
+            propertyName: "gridType",
+            label: "gridType",
+            controlType: "DROP_DOWN",
             isJSConvertible: true,
+            options: [
+              {
+                label: "Vertical",
+                value: "vertical",
+              },
+              {
+                label: "Horizontal",
+                value: "horizontal",
+              },
+            ],
           },
           {
             id: "18.1.4",
@@ -1425,8 +1445,8 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
           {
             id: "18.1.5",
             helpText: "Triggers an action when a grid list item is clicked",
-            propertyName: "onListItemClick",
-            label: "onListItemClick",
+            propertyName: "onGridItemClick",
+            label: "onGridItemClick",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
           },

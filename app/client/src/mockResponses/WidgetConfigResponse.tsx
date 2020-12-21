@@ -447,9 +447,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Skeleton",
     },
     [WidgetTypes.GRID_WIDGET]: {
-      backgroundColor: "#FFFFFF",
+      backgroundColor: "transparent",
       rows: 10,
       columns: 8,
+      gridType: "vertical",
+      gridGap: 0,
       items: [
         {
           id: 1,
