@@ -184,7 +184,8 @@ class Editor extends Component<Props> {
     });
   };
 
-  resetSelectedWidget = () => {
+  resetSelectedWidget = (e: any) => {
+    console.log(e.nativeEvent);
     if (this.props.shouldResetSelectedWidget) {
       this.props.selectWidget();
     }
@@ -206,13 +207,13 @@ class Editor extends Component<Props> {
           enableMouseEvents: true,
         }}
       >
-        <div onMouseDown={this.resetSelectedWidget}>
-          <Helmet>
-            <meta charSet="utf-8" />
-            <title>Editor | Appsmith</title>
-          </Helmet>
-          <MainContainer />
-        </div>
+        {/* <div onMouseDown={this.resetSelectedWidget}> */}
+        <Helmet>
+          <meta charSet="utf-8" />
+          <title>Editor | Appsmith</title>
+        </Helmet>
+        <MainContainer />
+        {/* </div> */}
         <ConfirmRunModal />
       </DndProvider>
     );

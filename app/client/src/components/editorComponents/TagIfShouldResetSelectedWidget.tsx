@@ -9,7 +9,11 @@ type Props = {
 const TagIfShouldResetSelectedWidgets = ({ children }: Props) => {
   const dispatch = useDispatch();
   return (
-    <div onMouseDown={() => dispatch(setShouldResetWidget(false))}>
+    <div
+      onMouseDown={() => {
+        dispatch(setShouldResetWidget(false));
+      }}
+    >
       {children}
     </div>
   );

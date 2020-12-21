@@ -24,7 +24,6 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { AppState } from "reducers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import TagIfShouldResetSelectedWidget from "components/editorComponents/TagIfShouldResetSelectedWidget";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -127,13 +126,11 @@ const WidgetsEditor = () => {
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
-      <TagIfShouldResetSelectedWidget>
-        <EditorWrapper onClick={handleWrapperClick}>
-          <CanvasContainer key={currentPageId} className={getCanvasClassName()}>
-            {node}
-          </CanvasContainer>
-        </EditorWrapper>
-      </TagIfShouldResetSelectedWidget>
+      <EditorWrapper onClick={handleWrapperClick}>
+        <CanvasContainer key={currentPageId} className={getCanvasClassName()}>
+          {node}
+        </CanvasContainer>
+      </EditorWrapper>
     </EditorContextProvider>
   );
 };
