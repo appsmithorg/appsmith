@@ -211,6 +211,7 @@ abstract class BaseWidget<
     return <ErrorBoundary isValid={isValid}>{content}</ErrorBoundary>;
   }
 
+  // wrap to set should reset selected widget
   tagIfShouldResetSelected(content: ReactNode) {
     return (
       <TagIfShouldResetSelectedWidget>{content}</TagIfShouldResetSelectedWidget>
