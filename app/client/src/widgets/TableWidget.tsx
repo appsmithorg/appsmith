@@ -402,14 +402,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         filteredTableData,
       );
       if (!this.props.multiRowSelection) {
-        const selectedRowIndex =
-          this.props.selectedRowIndex !== -1 &&
-          this.props.selectedRowIndex !== undefined &&
-          filteredTableData[this.props.selectedRowIndex]
-            ? this.props.selectedRowIndex
-            : isNumber(this.props.defaultSelectedRow)
-            ? this.props.defaultSelectedRow
-            : -1;
+        const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
+          ? this.props.defaultSelectedRow
+          : -1;
         this.props.updateWidgetMetaProperty(
           "selectedRowIndex",
           selectedRowIndex,
@@ -419,12 +414,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           this.getSelectedRow(filteredTableData, selectedRowIndex),
         );
       } else {
-        const selectedRowIndices =
-          this.props.selectedRowIndices && this.props.selectedRowIndices.length
-            ? this.props.selectedRowIndices
-            : Array.isArray(this.props.defaultSelectedRow)
-            ? this.props.defaultSelectedRow
-            : [];
+        const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
+          ? this.props.defaultSelectedRow
+          : [];
         this.props.updateWidgetMetaProperty(
           "selectedRowIndices",
           selectedRowIndices,
