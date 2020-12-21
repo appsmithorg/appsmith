@@ -368,7 +368,7 @@ function LeftPane() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (menuRef && menuRef.current) {
-        menuRef.current.scrollIntoView();
+        menuRef.current.scrollIntoView({ behavior: "smooth" });
         menuRef.current.click();
       }
     }, 0);
