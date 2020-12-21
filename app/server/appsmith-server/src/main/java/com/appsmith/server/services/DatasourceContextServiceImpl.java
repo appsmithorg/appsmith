@@ -178,7 +178,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                             Map.Entry::getKey,
                             e -> encryptionService.decryptString(e.getValue())));
             authentication.setEncryptionFields(decryptedFields);
-            authentication.setEncrypted(false);
+            authentication.setIsEncrypted(false);
         }
         return authentication;
     }
