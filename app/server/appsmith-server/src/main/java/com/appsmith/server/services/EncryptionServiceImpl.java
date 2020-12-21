@@ -9,12 +9,16 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EncryptionServiceImpl implements EncryptionService {
-    private final TextEncryptor textEncryptor;
+    private final EncryptionConfig encryptionConfig;
+
+    private TextEncryptor textEncryptor;
 
     @Autowired
     public EncryptionServiceImpl(EncryptionConfig encryptionConfig) {
+        this.encryptionConfig = encryptionConfig;
         String saltInHex = Hex.encodeHexString(encryptionConfig.getSalt().getBytes());
-        this.textEncryptor = Encryptors.queryableText(encryptionConfig.getPassword(), saltInHex);
+        this.textEncryptor = Encryptors.queryableText(encryptionConfig.getPassword(),
+                saltInHex);
     }
 
     @Override
