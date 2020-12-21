@@ -105,7 +105,7 @@ const Welcome = () => {
       <Wrapper>
         <LoadingContainer>
           <Spinner />
-          <span>Creating Example Database</span>
+          <span>Connecting to Example Database</span>
         </LoadingContainer>
       </Wrapper>
     );

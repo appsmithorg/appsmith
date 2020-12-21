@@ -7,20 +7,13 @@ import {
 } from "constants/ReduxActionConstants";
 import { AppState } from "reducers";
 import { all, delay, put, select, take, takeEvery } from "redux-saga/effects";
-import { getCurrentPageId } from "selectors/editorSelectors";
 import { getDatasources, getPlugins } from "selectors/entitiesSelector";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getOnboardingState, setOnboardingState } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
 import { getSelectedWidget } from "./selectors";
-import ActionAPI, {
-  ActionApiResponse,
-  ActionCreateUpdateResponse,
-} from "api/ActionAPI";
 import {
-  createOnboardingActionInit,
-  createOnboardingActionSuccess,
   setCurrentStep,
   setOnboardingState as setOnboardingReduxState,
   showTooltip,
@@ -30,8 +23,6 @@ import {
   expandDatasourceEntity,
 } from "actions/datasourceActions";
 import { playOnboardingAnimation } from "utils/helpers";
-import { QueryAction } from "entities/Action";
-import { getActionTimeout } from "./ActionExecutionSagas";
 import {
   OnboardingConfig,
   OnboardingStep,
@@ -117,12 +108,6 @@ function* listenForSuccessfullBinding() {
   }
 }
 
-function* hideDatabaseTooltip() {
-  yield take([ReduxActionTypes.QUERY_PANE_CHANGE]);
-
-  yield put(showTooltip(OnboardingStep.NONE));
-}
-
 function* createOnboardingDatasource() {
   try {
     const organizationId = yield select(getCurrentOrgId);
@@ -167,69 +152,19 @@ function* createOnboardingDatasource() {
       onboardingDatasource = datasourceResponse.data;
     }
 
-    const currentPageId = yield select(getCurrentPageId);
-    const queryactionConfiguration: Partial<QueryAction> = {
-      actionConfiguration: { body: "select * from public.users limit 10" },
-    };
-    const actionPayload = {
-      name: "ExampleQuery",
-      pageId: currentPageId,
-      datasource: {
-        id: onboardingDatasource.id,
-      },
-      ...queryactionConfiguration,
-      eventData: {},
-    };
-    yield put(createOnboardingActionInit(actionPayload));
-    const response: ActionCreateUpdateResponse = yield ActionAPI.createAPI(
-      actionPayload,
-    );
+    yield put(expandDatasourceEntity(onboardingDatasource.id));
 
-    const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      const newAction = {
-        ...response.data,
-        datasource: onboardingDatasource,
-      };
-      yield put(expandDatasourceEntity(onboardingDatasource.id));
+    yield put({
+      type: ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_SUCCESS,
+    });
 
-      yield put(createOnboardingActionSuccess(newAction));
+    // Navigate to that datasource page
+    yield put(changeDatasource(onboardingDatasource));
+    yield put(showTooltip(OnboardingStep.EXAMPLE_DATABASE));
 
-      // Run query
-      const timeout = yield select(getActionTimeout, newAction.id);
-      const executeActionResponse: ActionApiResponse = yield ActionAPI.executeAction(
-        {
-          actionId: newAction.id,
-          viewMode: false,
-        },
-        timeout,
-      );
-      yield validateResponse(response);
-      const payload = {
-        ...executeActionResponse.data,
-        ...executeActionResponse.clientMeta,
-      };
-      yield put({
-        type: ReduxActionTypes.RUN_ACTION_SUCCESS,
-        payload: { [newAction.id]: payload },
-      });
-      yield put({
-        type: ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_SUCCESS,
-      });
-
-      // Navigate to that datasource page
-      yield put(changeDatasource(onboardingDatasource));
-
-      yield put(showTooltip(OnboardingStep.EXAMPLE_DATABASE));
-
-      // Need to hide this tooltip based on some events
-      yield hideDatabaseTooltip();
-    } else {
-      yield put({
-        type: ReduxActionErrorTypes.CREATE_ONBOARDING_ACTION_ERROR,
-        payload: actionPayload,
-      });
-    }
+    // Need to hide this tooltip based on some events
+    yield take([ReduxActionTypes.QUERY_PANE_CHANGE]);
+    yield put(showTooltip(OnboardingStep.NONE));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_ONBOARDING_DBQUERY_ERROR,

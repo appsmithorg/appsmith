@@ -69,12 +69,9 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       ];
     },
     tooltip: {
-      title: "Say hello to your example database",
-      description:
-        "Go ahead, check it out. You can also create a new query or connect to your own db as well.",
-      action: {
-        label: "Got It!",
-      },
+      title:
+        "Say hello to your example database 🗄️, time to create your first query 📋",
+      description: "",
     },
     eventName: "ONBOARDING_EXAMPLE_DATABASE",
   },

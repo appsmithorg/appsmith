@@ -84,21 +84,16 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
             config={props.actionConfig}
             plugins={pluginGroups}
           />
-          {props.datasources.map((datasource: Datasource, index: number) => {
+          {props.datasources.map((datasource: Datasource) => {
             return (
-              <OnboardingTooltip
-                step={[OnboardingStep.EXAMPLE_DATABASE]}
+              <ExplorerDatasourceEntity
                 key={datasource.id}
-                show={index === 0}
-              >
-                <ExplorerDatasourceEntity
-                  plugin={pluginGroups[datasource.pluginId]}
-                  datasource={datasource}
-                  step={props.step + 1}
-                  searchKeyword={props.searchKeyword}
-                  pageId={props.page.pageId}
-                />
-              </OnboardingTooltip>
+                plugin={pluginGroups[datasource.pluginId]}
+                datasource={datasource}
+                step={props.step + 1}
+                searchKeyword={props.searchKeyword}
+                pageId={props.page.pageId}
+              />
             );
           })}
         </>

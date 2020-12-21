@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { AppState } from "reducers";
 import { isNil } from "lodash";
+import { Position } from "@blueprintjs/core";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
@@ -21,6 +22,9 @@ import { ApiActionConfig, PluginType } from "entities/Action";
 import { renderDatasourceSection } from "./DatasourceSection";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
+import { OnboardingStep } from "constants/OnboardingConstants";
+import { inOnboarding } from "sagas/OnboardingSagas";
 
 const ConnectedText = styled.div`
   color: ${Colors.GREEN};
@@ -59,6 +63,13 @@ const Connected = () => {
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
   );
+
+  // Onboarding
+  const isInOnboarding = useSelector(inOnboarding);
+  const showingTooltip = useSelector(
+    (state: AppState) => state.ui.onBoarding.showingTooltip,
+  );
+
   const dispatch = useDispatch();
   const actions = useSelector((state: AppState) => state.entities.actions);
   const currentPageId = useSelector(getCurrentPageId);
@@ -72,22 +83,32 @@ const Connected = () => {
 
   const createQueryAction = useCallback(() => {
     const newQueryName = createNewQueryName(actions, currentPageId || "");
+    let payload = {
+      name: newQueryName,
+      pageId: currentPageId,
+      pluginId: datasource?.pluginId,
+      datasource: {
+        id: datasource?.id,
+      },
+      actionConfiguration: {},
+      eventData: {
+        actionType: "Query",
+        from: "datasource-pane",
+      },
+    };
 
-    dispatch(
-      createActionRequest({
-        name: newQueryName,
-        pageId: currentPageId,
-        pluginId: datasource?.pluginId,
-        datasource: {
-          id: datasource?.id,
+    // If in onboarding and tooltip is being shown
+    if (isInOnboarding && showingTooltip === OnboardingStep.EXAMPLE_DATABASE) {
+      payload = {
+        ...payload,
+        name: "ExampleQuery",
+        actionConfiguration: {
+          body: "select * from public.users limit 10",
         },
-        actionConfiguration: {},
-        eventData: {
-          actionType: "Query",
-          from: "datasource-pane",
-        },
-      }),
-    );
+      };
+    }
+
+    dispatch(createActionRequest(payload));
     history.push(
       QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(
         params.applicationId,
@@ -155,14 +176,19 @@ const Connected = () => {
           />
           <div style={{ marginLeft: "12px" }}>Datasource Saved</div>
         </ConnectedText>
-        <ActionButton
-          className="t--create-query"
-          icon={"plus"}
-          text={isDBDatasource ? "New Query" : "New API"}
-          filled
-          accent="primary"
-          onClick={isDBDatasource ? createQueryAction : createApiAction}
-        />
+        <OnboardingToolTip
+          position={Position.BOTTOM_RIGHT}
+          step={[OnboardingStep.EXAMPLE_DATABASE]}
+        >
+          <ActionButton
+            className="t--create-query"
+            icon={"plus"}
+            text={isDBDatasource ? "New Query" : "New API"}
+            filled
+            accent="primary"
+            onClick={isDBDatasource ? createQueryAction : createApiAction}
+          />
+        </OnboardingToolTip>
       </Header>
       <div style={{ marginTop: "30px" }}>
         {!isNil(currentFormConfig)
