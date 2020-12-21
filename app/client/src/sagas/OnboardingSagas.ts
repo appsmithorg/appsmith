@@ -126,6 +126,9 @@ function* createOnboardingDatasource() {
         name: "ExampleDatabase",
         organizationId,
         datasourceConfiguration: {
+          connection: {
+            mode: "READ_WRITE",
+          },
           endpoints: [
             {
               host: "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
