@@ -36,6 +36,11 @@ import {
   getIsSavingAppName,
 } from "selectors/applicationSelectors";
 import EditableTextWrapper from "components/ads/EditableTextWrapper";
+import Boxed from "components/editorComponents/Onboarding/Boxed";
+import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
+import { Position } from "@blueprintjs/core";
+import { inOnboarding } from "sagas/OnboardingSagas";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 const HeaderWrapper = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
@@ -134,6 +139,7 @@ type EditorHeaderProps = {
   applicationId?: string;
   currentApplication?: ApplicationPayload;
   isSaving: boolean;
+  isInOnboarding: boolean;
   publishApplication: (appId: string) => void;
 };
 
@@ -148,6 +154,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     applicationId,
     pageName,
     publishApplication,
+    isInOnboarding,
   } = props;
 
   const dispatch = useDispatch();
@@ -209,93 +216,109 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           />
         </Link>
       </HeaderSection>
-      <HeaderSection flex-direction={"row"}>
-        {currentApplication ? (
-          <EditableTextWrapper
-            variant="UNDERLINE"
-            defaultValue={currentApplication.name || ""}
-            editInteractionKind={EditInteractionKind.SINGLE}
-            hideEditIcon={true}
-            className="t--application-name"
-            fill={false}
-            savingState={
-              isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-            }
-            isNewApp={
-              applicationList.filter(el => el.id === applicationId).length > 0
-            }
-            onBlur={(value: string) =>
-              updateApplicationDispatch(applicationId || "", {
-                name: value,
-                currentApp: true,
-              })
-            }
-          />
-        ) : null}
-        {/* <PageName>{pageName}&nbsp;</PageName> */}
-      </HeaderSection>
-      <HeaderSection>
-        <SaveStatusContainer className={"t--save-status-container"}>
-          {saveStatusIcon}
-        </SaveStatusContainer>
-        <ShareButton
-          target="_blank"
-          href="https://mail.google.com/mail/u/0/?view=cm&fs=1&to=feedback@appsmith.com&tf=1"
-          text="Feedback"
-          intent="none"
-          outline
-          size="small"
-          className="t--application-feedback-btn"
-          icon={
-            <HeaderIcons.FEEDBACK color={Colors.WHITE} width={13} height={13} />
-          }
-        />
-        <FormDialogComponent
-          trigger={
-            <ShareButton
-              text="Share"
-              intent="none"
-              outline
-              size="small"
-              className="t--application-share-btn"
-              icon={
-                <HeaderIcons.SHARE
-                  color={Colors.WHITE}
-                  width={13}
-                  height={13}
-                />
+      <Boxed step={OnboardingStep.DEPLOY}>
+        <HeaderSection flex-direction={"row"}>
+          {currentApplication ? (
+            <EditableTextWrapper
+              variant="UNDERLINE"
+              defaultValue={currentApplication.name || ""}
+              editInteractionKind={EditInteractionKind.SINGLE}
+              hideEditIcon={true}
+              className="t--application-name"
+              fill={false}
+              savingState={
+                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+              }
+              isNewApp={
+                !isInOnboarding &&
+                applicationList.filter(el => el.id === applicationId).length > 0
+              }
+              onBlur={(value: string) =>
+                updateApplicationDispatch(applicationId || "", {
+                  name: value,
+                  currentApp: true,
+                })
               }
             />
-          }
-          canOutsideClickClose={true}
-          Form={AppInviteUsersForm}
-          orgId={orgId}
-          applicationId={applicationId}
-          title={
-            currentApplication ? currentApplication.name : "Share Application"
-          }
-        />
-        <DeploySection>
-          <DeployButton
-            onClick={handlePublish}
-            text="Deploy"
-            loading={isPublishing}
-            intent="primary"
-            filled
+          ) : null}
+          {/* <PageName>{pageName}&nbsp;</PageName> */}
+        </HeaderSection>
+        <HeaderSection>
+          <SaveStatusContainer className={"t--save-status-container"}>
+            {saveStatusIcon}
+          </SaveStatusContainer>
+          <ShareButton
+            target="_blank"
+            href="https://mail.google.com/mail/u/0/?view=cm&fs=1&to=feedback@appsmith.com&tf=1"
+            text="Feedback"
+            intent="none"
+            outline
             size="small"
-            className="t--application-publish-btn"
+            className="t--application-feedback-btn"
             icon={
-              <HeaderIcons.DEPLOY color={Colors.WHITE} width={13} height={13} />
+              <HeaderIcons.FEEDBACK
+                color={Colors.WHITE}
+                width={13}
+                height={13}
+              />
             }
           />
-          <DeployLinkButtonDialog
+          <FormDialogComponent
             trigger={
-              <DeployLinkButton icon="caret-down" filled intent="primary" />
+              <ShareButton
+                text="Share"
+                intent="none"
+                outline
+                size="small"
+                className="t--application-share-btn"
+                icon={
+                  <HeaderIcons.SHARE
+                    color={Colors.WHITE}
+                    width={13}
+                    height={13}
+                  />
+                }
+              />
             }
-            link={getApplicationViewerPageURL(applicationId, pageId)}
+            canOutsideClickClose={true}
+            Form={AppInviteUsersForm}
+            orgId={orgId}
+            applicationId={applicationId}
+            title={
+              currentApplication ? currentApplication.name : "Share Application"
+            }
           />
-        </DeploySection>
-      </HeaderSection>
+          <DeploySection>
+            <OnboardingToolTip
+              step={[OnboardingStep.DEPLOY]}
+              position={Position.BOTTOM_RIGHT}
+            >
+              <DeployButton
+                onClick={handlePublish}
+                text="Deploy"
+                loading={isPublishing}
+                intent="primary"
+                filled
+                size="small"
+                className="t--application-publish-btn"
+                icon={
+                  <HeaderIcons.DEPLOY
+                    color={Colors.WHITE}
+                    width={13}
+                    height={13}
+                  />
+                }
+              />
+            </OnboardingToolTip>
+            <DeployLinkButtonDialog
+              trigger={
+                <DeployLinkButton icon="caret-down" filled intent="primary" />
+              }
+              link={getApplicationViewerPageURL(applicationId, pageId)}
+            />
+          </DeploySection>
+        </HeaderSection>
+      </Boxed>
       <HelpModal page={"Editor"} />
     </HeaderWrapper>
   );
@@ -309,6 +332,7 @@ const mapStateToProps = (state: AppState) => ({
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),
+  isInOnboarding: inOnboarding(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
