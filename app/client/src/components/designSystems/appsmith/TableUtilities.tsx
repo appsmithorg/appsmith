@@ -838,6 +838,8 @@ export function sortTableFunction(
   return tableData.sort(
     (a: { [key: string]: any }, b: { [key: string]: any }) => {
       if (
+        a !== null &&
+        b !== null &&
         a[sortedColumn] !== undefined &&
         a[sortedColumn] !== null &&
         b[sortedColumn] !== undefined &&

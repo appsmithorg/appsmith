@@ -1334,6 +1334,7 @@ const VALIDATORS: Record<ValidationType, Validator> = {
     const isValidTableData = every(parsed, datum => {
       return (
         isObject(datum) &&
+        !Array.isArray(datum) &&
         Object.keys(datum).filter(key => isString(key) && key.length === 0)
           .length === 0
       );

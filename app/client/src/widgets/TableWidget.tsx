@@ -217,84 +217,86 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const updatedTableData = [];
     for (let row = 0; row < tableData.length; row++) {
       const data: { [key: string]: any } = tableData[row];
-      const tableRow: { [key: string]: any } = {};
-      for (let colIndex = 0; colIndex < columns.length; colIndex++) {
-        const column = columns[colIndex];
-        const { accessor } = column;
-        let value = data[accessor];
-        if (column.metaProperties) {
-          const type = column.metaProperties.type;
-          const format = column.metaProperties.format;
-          switch (type) {
-            case ColumnTypes.CURRENCY:
-              if (!isNaN(value)) {
-                tableRow[accessor] = `${format}${value ? value : ""}`;
-              } else {
-                tableRow[accessor] = "Invalid Value";
-              }
-              break;
-            case ColumnTypes.DATE:
-              let isValidDate = true;
-              let outputFormat = column.metaProperties.format;
-              let inputFormat;
-              try {
-                const type = column.metaProperties.inputFormat;
-                if (type !== "Epoch" && type !== "Milliseconds") {
-                  inputFormat = type;
-                  moment(value, inputFormat);
-                } else if (!isNumber(value)) {
+      if (data !== null && data !== undefined) {
+        const tableRow: { [key: string]: any } = {};
+        for (let colIndex = 0; colIndex < columns.length; colIndex++) {
+          const column = columns[colIndex];
+          const { accessor } = column;
+          let value = data[accessor];
+          if (column.metaProperties) {
+            const type = column.metaProperties.type;
+            const format = column.metaProperties.format;
+            switch (type) {
+              case ColumnTypes.CURRENCY:
+                if (!isNaN(value)) {
+                  tableRow[accessor] = `${format}${value ? value : ""}`;
+                } else {
+                  tableRow[accessor] = "Invalid Value";
+                }
+                break;
+              case ColumnTypes.DATE:
+                let isValidDate = true;
+                let outputFormat = column.metaProperties.format;
+                let inputFormat;
+                try {
+                  const type = column.metaProperties.inputFormat;
+                  if (type !== "Epoch" && type !== "Milliseconds") {
+                    inputFormat = type;
+                    moment(value, inputFormat);
+                  } else if (!isNumber(value)) {
+                    isValidDate = false;
+                  }
+                } catch (e) {
                   isValidDate = false;
                 }
-              } catch (e) {
-                isValidDate = false;
-              }
-              if (isValidDate) {
-                if (outputFormat === "SAME_AS_INPUT") {
-                  outputFormat = inputFormat;
+                if (isValidDate) {
+                  if (outputFormat === "SAME_AS_INPUT") {
+                    outputFormat = inputFormat;
+                  }
+                  if (column.metaProperties.inputFormat === "Milliseconds") {
+                    value = Number(value);
+                  } else if (column.metaProperties.inputFormat === "Epoch") {
+                    value = 1000 * Number(value);
+                  }
+                  tableRow[accessor] = moment(value, inputFormat).format(
+                    outputFormat,
+                  );
+                } else if (value) {
+                  tableRow[accessor] = "Invalid Value";
+                } else {
+                  tableRow[accessor] = "";
                 }
-                if (column.metaProperties.inputFormat === "Milliseconds") {
-                  value = Number(value);
-                } else if (column.metaProperties.inputFormat === "Epoch") {
-                  value = 1000 * Number(value);
+                break;
+              case ColumnTypes.TIME:
+                let isValidTime = true;
+                if (isNaN(value)) {
+                  const time = Date.parse(value);
+                  if (isNaN(time)) {
+                    isValidTime = false;
+                  }
                 }
-                tableRow[accessor] = moment(value, inputFormat).format(
-                  outputFormat,
-                );
-              } else if (value) {
-                tableRow[accessor] = "Invalid Value";
-              } else {
-                tableRow[accessor] = "";
-              }
-              break;
-            case ColumnTypes.TIME:
-              let isValidTime = true;
-              if (isNaN(value)) {
-                const time = Date.parse(value);
-                if (isNaN(time)) {
-                  isValidTime = false;
+                if (isValidTime) {
+                  tableRow[accessor] = moment(value).format("HH:mm");
+                } else if (value) {
+                  tableRow[accessor] = "Invalid Value";
+                } else {
+                  tableRow[accessor] = "";
                 }
-              }
-              if (isValidTime) {
-                tableRow[accessor] = moment(value).format("HH:mm");
-              } else if (value) {
-                tableRow[accessor] = "Invalid Value";
-              } else {
-                tableRow[accessor] = "";
-              }
-              break;
-            default:
-              const data =
-                isString(value) || isNumber(value)
-                  ? value
-                  : isUndefined(value)
-                  ? ""
-                  : JSON.stringify(value);
-              tableRow[accessor] = data;
-              break;
+                break;
+              default:
+                const data =
+                  isString(value) || isNumber(value)
+                    ? value
+                    : isUndefined(value)
+                    ? ""
+                    : JSON.stringify(value);
+                tableRow[accessor] = data;
+                break;
+            }
           }
         }
+        updatedTableData.push(tableRow);
       }
-      updatedTableData.push(tableRow);
     }
     return updatedTableData;
   };
