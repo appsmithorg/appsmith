@@ -211,13 +211,19 @@ abstract class BaseWidget<
 
   private getWidgetView(): ReactNode {
     let content: ReactNode;
+
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getCanvasView();
         if (!this.props.detachFromLayout) {
           content = this.makeResizable(content);
           content = this.showWidgetName(content);
-          content = this.makeDraggable(content);
+
+          // enable drag ability only when enabled
+          if (this.props.dragEnabled === true) {
+            content = this.makeDraggable(content);
+          }
+
           content = this.makePositioned(content);
         }
         return content;
@@ -282,6 +288,8 @@ abstract class BaseWidget<
     parentColumnSpace: 1,
     topRow: 0,
     leftColumn: 0,
+    dragEnabled: true,
+    dropEnabled: true,
   };
 }
 

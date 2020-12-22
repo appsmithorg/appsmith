@@ -470,6 +470,37 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       ],
       widgetName: "Grid",
       children: [],
+      blueprint: {
+        view: [
+          {
+            type: "CANVAS_WIDGET",
+            position: { top: 0, left: 0 },
+            props: {
+              containerStyle: "none",
+              canExtend: false,
+              detachFromLayout: true,
+              dropEnabled: false,
+              children: [],
+              blueprint: {
+                view: [
+                  {
+                    type: "FORM_BUTTON_WIDGET",
+                    size: { rows: 1, cols: 4 },
+                    position: { top: 11, left: 8 },
+                    props: {
+                      text: "Reset",
+                      buttonStyle: "SECONDARY_BUTTON",
+                      disabledWhenInvalid: false,
+                      resetFormOnClick: true,
+                      dragEnabled: false,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
     },
   },
   configVersion: 1,

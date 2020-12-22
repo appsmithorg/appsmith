@@ -265,7 +265,6 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
       ? "1px solid #DDDDDD"
       : "1px solid transparent";
 
-  console.log({ props });
   return (
     <DropTargetContext.Provider
       value={{ updateDropTargetRows, persistDropTargetRows }}
@@ -300,10 +299,6 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
       </StyledDropTarget>
     </DropTargetContext.Provider>
   );
-};
-
-DropTargetComponent.defaultProps = {
-  dropEnabled: true,
 };
 
 const MemoizedDropTargetComponent = memo(DropTargetComponent);
