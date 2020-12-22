@@ -207,7 +207,6 @@ public class RedshiftPlugin extends BasePlugin {
          */
         private void checkConnectionValidity(Connection connection) throws SQLException {
             if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
-                log.info("Encountered stale connection in Redshift plugin. Reporting back.");
                 throw new StaleConnectionException();
             }
         }
@@ -216,14 +215,18 @@ public class RedshiftPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(Connection connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
+            String query = actionConfiguration.getBody();
+
+            if (query == null) {
+                return Mono.error(
+                        new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Missing required parameter: Query."
+                        )
+                );
+            }
+
             return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
-
-                String query = actionConfiguration.getBody();
-
-                if (query == null) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
-                }
-
                 /*
                  * 1. StaleConnectionException thrown by checkConnectionValidity(...) needs to be propagated to upper
                  *    layers so that a retry can be triggered.
@@ -232,11 +235,7 @@ public class RedshiftPlugin extends BasePlugin {
                     checkConnectionValidity(connection);
                 } catch (SQLException error) {
                     String error_msg = "Error checking validity of Redshift connection. " + error;
-                    System.out.println(
-                            Thread.currentThread().getName() + ": " +
-                            error_msg
-                    );
-                    log.error(Thread.currentThread().getName() + ": " + error_msg);
+                    System.out.println(Thread.currentThread().getName() + ": " + error_msg);
 
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, error_msg));
                 }
@@ -575,11 +574,7 @@ public class RedshiftPlugin extends BasePlugin {
                 checkConnectionValidity(connection);
             } catch (SQLException error) {
                 String error_msg = "Error checking validity of Redshift connection. " + error;
-                System.out.println(
-                        Thread.currentThread().getName() + ": " +
-                                error_msg
-                );
-                log.error(Thread.currentThread().getName() + ": " + error_msg);
+                System.out.println(Thread.currentThread().getName() + ": " + error_msg);
 
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, error_msg));
             }
