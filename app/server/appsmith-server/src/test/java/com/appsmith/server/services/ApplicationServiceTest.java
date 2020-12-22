@@ -963,7 +963,7 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void createApplicationShouldHavePublishedState() {
+    public void newApplicationShouldHavePublishedState() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest NewApp PublishedState");
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId).cache();
