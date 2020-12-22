@@ -117,10 +117,11 @@ export function* evaluateSingleValue(
 ) {
   if (evaluationWorker) {
     const dataTree = yield select(getDataTree);
-    dataTree[EXECUTION_PARAM_KEY] = executionParams;
     evaluationWorker.postMessage({
       action: EVAL_WORKER_ACTIONS.EVAL_SINGLE,
-      dataTree,
+      dataTree: Object.assign({}, dataTree, {
+        [EXECUTION_PARAM_KEY]: executionParams,
+      }),
       binding,
     });
     const workerResponse = yield take(workerChannel);

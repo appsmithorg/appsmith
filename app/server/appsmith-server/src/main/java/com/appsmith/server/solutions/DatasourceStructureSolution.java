@@ -95,7 +95,7 @@ public class DatasourceStructureSolution {
                                 Map.Entry::getKey,
                                 e -> encryptionService.decryptString(e.getValue())));
                 authentication.setEncryptionFields(decryptedFields);
-                authentication.setEncrypted(false);
+                authentication.setIsEncrypted(false);
             }
         }
 

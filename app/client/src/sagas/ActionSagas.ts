@@ -67,9 +67,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 
-export function* createActionSaga(
-  actionPayload: ReduxAction<Partial<Action> & { eventData: any }>,
-) {
+export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
   try {
     const response: ActionCreateUpdateResponse = yield ActionAPI.createAPI(
       actionPayload.payload,

@@ -23,7 +23,6 @@ import themeReducer from "./themeReducer";
 import datasourceNameReducer from "./datasourceNameReducer";
 import pageCanvasStructureReducer from "./pageCanvasStructure";
 import pageWidgetsReducer from "./pageWidgetsReducer";
-import onBoardingReducer from "./onBoardingReducer";
 
 const uiReducer = combineReducers({
   widgetSidebar: widgetSidebarReducer,
@@ -50,6 +49,5 @@ const uiReducer = combineReducers({
   pageWidgets: pageWidgetsReducer,
   theme: themeReducer,
   confirmRunAction: confirmRunActionReducer,
-  onBoarding: onBoardingReducer,
 });
 export default uiReducer;

@@ -658,8 +658,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   handleRowClick = (rowData: Record<string, unknown>, index: number) => {
-    const { selectedRowIndices } = this.props;
     if (this.props.multiRowSelection) {
+      const selectedRowIndices = this.props.selectedRowIndices
+        ? [...this.props.selectedRowIndices]
+        : [];
       if (selectedRowIndices.includes(index)) {
         const rowIndex = selectedRowIndices.indexOf(index);
         selectedRowIndices.splice(rowIndex, 1);
