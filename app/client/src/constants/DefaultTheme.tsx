@@ -1299,19 +1299,19 @@ export const theme: Theme = {
     h1: {
       fontSize: 20,
       lineHeight: 27,
-      letterSpacing: "normal",
+      letterSpacing: -0.204,
       fontWeight: 500,
     },
     h2: {
       fontSize: 18,
       lineHeight: 25,
-      letterSpacing: "normal",
+      letterSpacing: -0.204,
       fontWeight: 500,
     },
     h3: {
       fontSize: 17,
       lineHeight: 22,
-      letterSpacing: "normal",
+      letterSpacing: -0.204,
       fontWeight: 500,
     },
     h4: {

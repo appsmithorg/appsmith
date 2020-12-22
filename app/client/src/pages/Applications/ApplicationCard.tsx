@@ -402,7 +402,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
             onTextChanged={(value: string) => {
               setLastUpdatedValue(value);
             }}
-            valueTransform={(value: any) => value.toUpperCase()}
             placeholder={"Edit text input"}
             hideEditIcon={false}
             isInvalid={(value: string) => {
