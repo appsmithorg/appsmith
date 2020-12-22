@@ -14,7 +14,6 @@ import HelpControl from "./HelpControl";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import TagIfShouldResetSelectedWidget from "components/editorComponents/TagIfShouldResetSelectedWidget";
 
 const PositionStyle = styled.div`
   position: absolute;
@@ -109,21 +108,19 @@ export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
     currentActivity = Activities.ACTIVE;
 
   return showWidgetName ? (
-    <TagIfShouldResetSelectedWidget>
-      <PositionStyle>
-        <ControlGroup>
-          <HelpControl
-            type={props.type}
-            show={selectedWidget === props.widgetId}
-          />
-          <SettingsControl
-            toggleSettings={togglePropertyEditor}
-            activity={currentActivity}
-            name={props.widgetName}
-          />
-        </ControlGroup>
-      </PositionStyle>
-    </TagIfShouldResetSelectedWidget>
+    <PositionStyle>
+      <ControlGroup>
+        <HelpControl
+          type={props.type}
+          show={selectedWidget === props.widgetId}
+        />
+        <SettingsControl
+          toggleSettings={togglePropertyEditor}
+          activity={currentActivity}
+          name={props.widgetName}
+        />
+      </ControlGroup>
+    </PositionStyle>
   ) : null;
 };
 
