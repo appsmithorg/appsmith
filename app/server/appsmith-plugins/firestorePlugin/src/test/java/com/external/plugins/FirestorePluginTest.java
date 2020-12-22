@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -200,6 +201,29 @@ public class FirestorePluginTest {
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testAddToCollection() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("changing");
+
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "ADD_TO_COLLECTION")));
+
+        actionConfiguration.setBody("{\n" +
+                "  \"question\": \"What is the answer to life, universe and everything else?\",\n" +
+                "  \"answer\": 42\n" +
+                "}");
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .execute(firestoreConnection, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(firestoreConnection.document("changing/" + ((Map) result.getBody()).get("id")));
                 })
                 .verifyComplete();
     }
