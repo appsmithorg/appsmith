@@ -81,7 +81,7 @@ public class RedshiftPluginTest {
     }
 
     @Test
-    public void testDatasourceCreate() {
+    public void testDatasourceCreateConnectionFailure() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
