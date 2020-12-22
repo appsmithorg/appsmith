@@ -8,6 +8,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -89,6 +90,27 @@ public class RedshiftPluginTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithPluginException && throwable.getMessage()
                         .equals(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error connecting" +
                         " to Redshift.").getMessage()))
+                .verify();
+    }
+
+    @Test
+    public void testStaleConnectionCheck() throws SQLException {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("show databases");
+
+        /* Mock java.sql.Connection:
+         *      a. isClosed(): return true
+         *      b. isValid() : return false
+         */
+        Connection mockConnection = mock(Connection.class);
+        when(mockConnection.isClosed()).thenReturn(true);
+        when(mockConnection.isValid(Mockito.anyInt())).thenReturn(false);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(mockConnection, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
                 .verify();
     }
 
