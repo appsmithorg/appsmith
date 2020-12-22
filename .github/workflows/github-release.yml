@@ -132,59 +132,6 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Get release notes
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            // Explorer at: <https://docs.github.com/en/free-pro-team@latest/graphql/overview/explorer>.
-            const query = `query($owner: String!, $name: String!) {
-              repository(owner: $owner, name: $name) {
-                releases(orderBy: {field: NAME, direction: DESC}, first: 30) {
-                  nodes {
-                    tagName
-                    name
-                    url
-                    isDraft
-                    isPrerelease
-                    createdAt
-                    publishedAt
-                  }
-                  totalCount
-                }
-              }
-            }`
-            const options = {
-              owner: context.repo.owner,
-              name: context.repo.repo,
-            }
-            const result = await github.graphql(query, options)
-            const nodes = []
-            for (const node of result.repository.releases.nodes) {
-              if (!node.isDraft && !node.isPrerelease) {
-                delete node.isDraft
-                delete node.isPrerelease
-                nodes.push(node)
-              }
-              if (nodes.length === 10) {
-                break
-              }
-            }
-            const output = JSON.stringify({ nodes, totalCount: result.repository.releases.totalCount })
-            console.log("CWD", process.cwd())
-            console.log("Release Notes JSON:", output)
-            const fs = require("fs")
-            let path = "appsmith-server/src/main/resources/release-notes.json"
-            if (fs.existsSync("app/server")) {
-              path = "app/server/" + path
-            }
-            require("fs").writeFileSync(path, output)
-
-      - name: Check release-notes file
-        run: |
-          pwd
-          cat appsmith-server/src/main/resources/release-notes.json
-
       # Build the code
       - name: Build without running any tests
         run: |
