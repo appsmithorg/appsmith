@@ -69,7 +69,6 @@ export const IconLabel = styled.h5`
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 const WidgetCard = (props: CardProps) => {
-  console.log({ props });
   const { setIsDragging } = useWidgetDragResize();
   const { selectWidget } = useWidgetSelection();
 
