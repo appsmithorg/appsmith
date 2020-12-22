@@ -18,6 +18,7 @@ import {
   OnboardingStep,
   OnboardingTooltip,
 } from "constants/OnboardingConstants";
+import { BaseModifier } from "popper.js";
 
 enum TooltipClassNames {
   TITLE = "tooltip-title",
@@ -115,6 +116,9 @@ type OnboardingToolTipProps = {
   children: ReactNode;
   show?: boolean;
   position?: Position;
+  offset?: BaseModifier & {
+    offset?: number | string;
+  };
 };
 
 const OnboardingToolTip: React.FC<OnboardingToolTipProps> = (
@@ -154,6 +158,7 @@ const OnboardingToolTip: React.FC<OnboardingToolTipProps> = (
             preventOverflow: { enabled: false },
             hide: { enabled: false },
             flip: { enabled: false },
+            offset: props.offset,
           }}
         >
           {props.children}

@@ -15,6 +15,7 @@ const initialState: OnboardingState = {
   createdDBQuery: false,
   addedWidget: false,
   showingTooltip: OnboardingStep.NONE,
+  showingIndicator: OnboardingStep.NONE,
 };
 
 export interface OnboardingState {
@@ -27,6 +28,7 @@ export interface OnboardingState {
   addedWidget: boolean;
   // Tooltip is shown when the step matches this value
   showingTooltip: OnboardingStep;
+  showingIndicator: OnboardingStep;
 }
 
 const onboardingReducer = createReducer(initialState, {
@@ -79,11 +81,20 @@ const onboardingReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SHOW_ONBOARDING_TOOLTIP]: (
     state: OnboardingState,
-    action: ReduxAction<number>,
+    action: ReduxAction<OnboardingStep>,
   ) => {
     return {
       ...state,
       showingTooltip: action.payload,
+    };
+  },
+  SHOW_INDICATOR: (
+    state: OnboardingState,
+    action: ReduxAction<OnboardingStep>,
+  ) => {
+    return {
+      ...state,
+      showingIndicator: action.payload,
     };
   },
   [ReduxActionTypes.SHOW_ONBOARDING_COMPLETION_DIALOG]: (

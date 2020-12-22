@@ -13,7 +13,7 @@ export enum OnboardingStep {
 
 export type OnboardingTooltip = {
   title: string;
-  description: string;
+  description?: string;
   action?: {
     label: string;
     action?: ReduxAction<OnboardingStep>;
@@ -70,8 +70,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
     tooltip: {
       title:
-        "Say hello to your example database 🗄️, time to create your first query 📋",
-      description: "",
+        "We’ve connected to an example Postgres database. You can now query it.",
     },
     eventName: "ONBOARDING_EXAMPLE_DATABASE",
   },

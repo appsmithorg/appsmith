@@ -97,7 +97,7 @@ const Welcome = () => {
       <Wrapper>
         <LoadingContainer>
           <Spinner />
-          <span>Connecting to Example Database</span>
+          <span>Creating an example Postgres database</span>
         </LoadingContainer>
       </Wrapper>
     );

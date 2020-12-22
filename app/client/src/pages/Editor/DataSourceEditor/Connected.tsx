@@ -25,6 +25,7 @@ import { Variant } from "components/ads/common";
 import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { inOnboarding } from "sagas/OnboardingSagas";
+import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 
 const ConnectedText = styled.div`
   color: ${Colors.GREEN};
@@ -55,6 +56,7 @@ const ActionButton = styled(BaseButton)`
   &&& {
     max-width: 140px;
     align-self: center;
+    position: relative;
   }
 `;
 
@@ -174,12 +176,16 @@ const Connected = () => {
             height={30}
             width={30}
           />
-          <div style={{ marginLeft: "12px" }}>Datasource Saved</div>
+          <OnboardingToolTip
+            position={Position.TOP_LEFT}
+            step={[OnboardingStep.EXAMPLE_DATABASE]}
+            offset={{ enabled: true, offset: "200, 0" }}
+          >
+            <div style={{ marginLeft: "12px" }}>Datasource Connected</div>
+          </OnboardingToolTip>
         </ConnectedText>
-        <OnboardingToolTip
-          position={Position.BOTTOM_RIGHT}
-          step={[OnboardingStep.EXAMPLE_DATABASE]}
-        >
+
+        <OnboardingIndicator step={OnboardingStep.EXAMPLE_DATABASE}>
           <ActionButton
             className="t--create-query"
             icon={"plus"}
@@ -188,7 +194,7 @@ const Connected = () => {
             accent="primary"
             onClick={isDBDatasource ? createQueryAction : createApiAction}
           />
-        </OnboardingToolTip>
+        </OnboardingIndicator>
       </Header>
       <div style={{ marginTop: "30px" }}>
         {!isNil(currentFormConfig)

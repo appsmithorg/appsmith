@@ -164,10 +164,21 @@ function* createOnboardingDatasource() {
     // Navigate to that datasource page
     yield put(changeDatasource(onboardingDatasource));
     yield put(showTooltip(OnboardingStep.EXAMPLE_DATABASE));
+    yield put({
+      type: "SHOW_INDICATOR",
+      payload: OnboardingStep.EXAMPLE_DATABASE,
+    });
 
     // Need to hide this tooltip based on some events
     yield take([ReduxActionTypes.QUERY_PANE_CHANGE]);
     yield put(showTooltip(OnboardingStep.NONE));
+
+    // Stop showing indicator
+    yield take([ReduxActionTypes.CREATE_ACTION_SUCCESS]);
+    yield put({
+      type: "SHOW_INDICATOR",
+      payload: OnboardingStep.NONE,
+    });
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_ONBOARDING_DBQUERY_ERROR,
