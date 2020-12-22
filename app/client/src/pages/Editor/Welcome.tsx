@@ -21,11 +21,15 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: 40px 0px;
+  padding-bottom: 60px;
+`;
 
-  @media screen and (min-height: 700px) {
-    padding: 80px 0px;
-  }
+const Content = styled.div`
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 `;
 
 const WelcomeText = styled.div`
@@ -42,21 +46,8 @@ const Description = styled.div`
   text-align: center;
 `;
 
-const SubDescriptionWrapper = styled.div`
-  margin-top: 15px;
-
-  @media screen and (min-height: 700px) {
-    margin-top: 36px;
-  }
-`;
-
-const SubDescription = styled(Description)`
-  margin-top: 15px;
-`;
-
 const NotNewUserText = styled.span`
   color: #716e6e;
-  margin-top: 24px;
   text-align: center;
 
   span {
@@ -73,6 +64,7 @@ const StyledButton = styled.button`
   padding: 12px 24px;
   border: none;
   cursor: pointer;
+  margin-top: 34px;
 `;
 
 const LoadingContainer = styled(Container)`
@@ -114,7 +106,7 @@ const Welcome = () => {
   return (
     <Wrapper>
       <Container>
-        <div>
+        <Content>
           <WelcomeText>
             <span role="img" aria-label="hello">
               👋
@@ -122,31 +114,9 @@ const Welcome = () => {
             Welcome
           </WelcomeText>
           <Description>
-            Appsmith helps you build quality internal tools, fast!
+            We are excited to show you how Appsmith works.
           </Description>
-          <SubDescriptionWrapper>
-            <SubDescription>
-              We are excited to show you how Appsmith works.
-            </SubDescription>
-            <SubDescription>
-              In 30 seconds, you’ll learn 3 concepts and make your first app.
-            </SubDescription>
-            <SubDescription>
-              1. How to connect to a database and create a query
-            </SubDescription>
-            <SubDescription>2. How to add a UI widget</SubDescription>
-            <SubDescription>
-              3. How to connect a UI widget to database query
-            </SubDescription>
-          </SubDescriptionWrapper>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            flexDirection: "column",
-          }}
-        >
+
           <StyledButton
             className="t--create-database"
             onClick={() => {
@@ -155,13 +125,14 @@ const Welcome = () => {
           >
             Explore Appsmith
           </StyledButton>
-          <NotNewUserText>
-            Not your first time with Appsmith?{" "}
-            <span onClick={() => dispatch(endOnboarding())}>
-              Skip this tutorial
-            </span>
-          </NotNewUserText>
-        </div>
+        </Content>
+
+        <NotNewUserText>
+          Not your first time with Appsmith?{" "}
+          <span onClick={() => dispatch(endOnboarding())}>
+            Skip this tutorial
+          </span>
+        </NotNewUserText>
       </Container>
     </Wrapper>
   );
