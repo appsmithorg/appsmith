@@ -25,8 +25,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertArrayToSentence } from "utils/helpers";
 import BackButton from "./BackButton";
 import { PluginType } from "entities/Action";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
-import { OnboardingStep } from "constants/OnboardingConstants";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -62,7 +60,7 @@ const DBForm = styled.div`
   padding: 20px;
   margin-left: 10px;
   margin-right: 0px;
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  max-height: 93vh;
   overflow: auto;
   .backBtn {
     padding-bottom: 1px;
@@ -339,22 +337,20 @@ class DatasourceDBEditor extends React.Component<
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
           {viewMode && (
-            <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
-              <ActionButton
-                className="t--edit-datasource"
-                text="EDIT"
-                accent="secondary"
-                onClick={() => {
-                  this.props.setDatasourceEditorMode(
-                    this.props.datasourceId,
-                    false,
-                  );
-                }}
-              />
-            </Boxed>
+            <ActionButton
+              className="t--edit-datasource"
+              text="EDIT"
+              accent="secondary"
+              onClick={() => {
+                this.props.setDatasourceEditorMode(
+                  this.props.datasourceId,
+                  false,
+                );
+              }}
+            />
           )}
         </Header>
-        {cloudHosting && pluginType === PluginType.DB && !viewMode && (
+        {cloudHosting && pluginType === PluginType.DB && (
           <CollapsibleWrapper>
             <CollapsibleHelp>
               <span>{`Whitelist the IP ${convertArrayToSentence(

@@ -26,10 +26,7 @@ import { validateResponse } from "./ErrorSagas";
 import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
-import {
-  BUILDER_PAGE_URL,
-  getApplicationViewerPageURL,
-} from "constants/routes";
+import { BUILDER_PAGE_URL } from "constants/routes";
 import { AppState } from "reducers";
 import {
   FetchApplicationPayload,
@@ -46,11 +43,6 @@ import { Organization } from "constants/orgConstants";
 import { Variant } from "components/ads/common";
 import { AppIconName } from "components/ads/AppIcon";
 import { AppColorCode } from "constants/DefaultTheme";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import { showCompletionDialog } from "./OnboardingSagas";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -79,20 +71,6 @@ export function* publishApplicationSaga(
       yield put({
         type: ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS,
       });
-
-      const applicationId = yield select(getCurrentApplicationId);
-      const currentPageId = yield select(getCurrentPageId);
-      let appicationViewPageUrl = getApplicationViewerPageURL(
-        applicationId,
-        currentPageId,
-      );
-
-      const showOnboardingCompletionDialog = yield select(showCompletionDialog);
-      if (showOnboardingCompletionDialog) {
-        appicationViewPageUrl += "?onboardingComplete=true";
-      }
-
-      window.open(appicationViewPageUrl, "_blank");
     }
   } catch (error) {
     yield put({

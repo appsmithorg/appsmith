@@ -6,7 +6,6 @@ const STORAGE_KEYS: { [id: string]: string } = {
   ROUTE_BEFORE_LOGIN: "RedirectPath",
   COPIED_WIDGET: "CopiedWidget",
   DELETED_WIDGET_PREFIX: "DeletedWidget-",
-  ONBOARDING_STATE: "OnboardingState",
 };
 
 const store = localforage.createInstance({
@@ -90,24 +89,5 @@ export const flushDeletedWidgets = async (widgetId: string) => {
     await store.removeItem(`${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`);
   } catch (error) {
     console.log("An error occurred when flushing deleted widgets: ", error);
-  }
-};
-
-export const setOnboardingState = async (onboardingState: boolean) => {
-  try {
-    await store.setItem(STORAGE_KEYS.ONBOARDING_STATE, onboardingState);
-    return true;
-  } catch (error) {
-    console.log("An error occurred when setting onboarding state: ", error);
-    return false;
-  }
-};
-
-export const getOnboardingState = async () => {
-  try {
-    const onboardingState = await store.getItem(STORAGE_KEYS.ONBOARDING_STATE);
-    return onboardingState;
-  } catch (error) {
-    console.log("An error occurred when getting onboarding state: ", error);
   }
 };

@@ -53,7 +53,6 @@ import { AppState } from "reducers";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { setOnboardingState } from "utils/storage";
 const {
   enableGithubOAuth,
   enableGoogleOAuth,
@@ -161,7 +160,6 @@ export const SignUp = (props: SignUpFormProps) => {
                 PerformanceTracker.startTracking(
                   PerformanceTransactionName.SIGN_UP,
                 );
-                setOnboardingState(true);
               }}
             />
           </FormActions>
