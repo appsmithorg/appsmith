@@ -216,14 +216,18 @@ public class RedshiftPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(Connection connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
+            String query = actionConfiguration.getBody();
+
+            if (query == null) {
+                return Mono.error(
+                        new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Missing required parameter: Query."
+                        )
+                );
+            }
+
             return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
-
-                String query = actionConfiguration.getBody();
-
-                if (query == null) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
-                }
-
                 /*
                  * 1. StaleConnectionException thrown by checkConnectionValidity(...) needs to be propagated to upper
                  *    layers so that a retry can be triggered.
