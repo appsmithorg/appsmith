@@ -125,9 +125,7 @@ class Editor extends Component<Props> {
           label="Paste Widget"
           group="Canvas"
           onKeyDown={(e: any) => {
-            if (this.stopPropagationIfWidgetSelected(e)) {
-              this.props.pasteCopiedWidget();
-            }
+            this.props.pasteCopiedWidget();
           }}
           allowInInput
         />
