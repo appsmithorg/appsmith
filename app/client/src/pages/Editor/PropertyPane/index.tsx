@@ -101,6 +101,7 @@ class PropertyPane extends Component<
           title={widgetProperties.widgetName}
           widgetId={this.props.widgetId}
           widgetType={this.props.widgetProperties?.type}
+          isDeletable={this.props.widgetProperties?.isDeletable}
           onClose={this.props.hidePropertyPane}
         />
 

@@ -58,11 +58,12 @@ type PropertyPaneTitleProps = {
   title: string;
   widgetId?: string;
   widgetType?: WidgetType;
+  isDeletable?: boolean;
   onClose: () => void;
 };
 
 /* eslint-disable react/display-name */
-const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
+const PropertyPaneTitle = (props: PropertyPaneTitleProps) => {
   const dispatch = useDispatch();
   const { updating } = useSelector((state: AppState) => ({
     updating: state.ui.editor.loadingStates.updatingWidgetName,
@@ -133,19 +134,21 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
           onClick={handleCopy}
         />
       </Tooltip>
-      <Tooltip
-        content="Delete Widget"
-        position={Position.TOP}
-        hoverOpenDelay={200}
-      >
-        <DeleteIcon
-          className="t--delete-widget"
-          width={16}
-          height={16}
-          color={theme.colors.paneSectionLabel}
-          onClick={handleDelete}
-        />
-      </Tooltip>
+      {props.isDeletable !== false && (
+        <Tooltip
+          content="Delete Widget"
+          position={Position.TOP}
+          hoverOpenDelay={200}
+        >
+          <DeleteIcon
+            className="t--delete-widget"
+            width={16}
+            height={16}
+            color={theme.colors.paneSectionLabel}
+            onClick={handleDelete}
+          />
+        </Tooltip>
+      )}
       <Tooltip
         content={
           <div>
@@ -178,6 +181,12 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
       </Tooltip>
     </Wrapper>
   ) : null;
-});
+};
 
-export default PropertyPaneTitle;
+PropertyPaneTitle.defaultProps = {
+  isDeletable: true,
+};
+
+const MemoizedPropertyPaneTitle = memo(PropertyPaneTitle);
+
+export default MemoizedPropertyPaneTitle;

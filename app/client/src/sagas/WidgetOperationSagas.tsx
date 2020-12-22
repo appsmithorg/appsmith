@@ -367,6 +367,10 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     if (!widgetId) {
       const selectedWidget = yield select(getSelectedWidget);
       if (!selectedWidget) return;
+
+      // if widget is not deletable, don't don anything
+      if (selectedWidget.isDeletable === false) return false;
+
       widgetId = selectedWidget.widgetId;
       parentId = selectedWidget.parentId;
     }

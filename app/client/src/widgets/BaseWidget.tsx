@@ -285,6 +285,7 @@ abstract class BaseWidget<
     leftColumn: 0,
     dragEnabled: true,
     dropEnabled: true,
+    isDeletable: true,
   };
 }
 
