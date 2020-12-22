@@ -34,10 +34,8 @@ import {
   deleteSelectedWidget,
   pasteWidget,
   selectWidget,
-  setShouldResetWidget,
 } from "actions/widgetActions";
 import { isMac } from "utils/helpers";
-import { getShouldResetSelectedWidget } from "selectors/ui";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -54,8 +52,6 @@ type EditorProps = {
   cutSelectedWidget: () => void;
   user?: User;
   selectWidget: (widgetId?: string) => void;
-  shouldResetSelectedWidget: boolean;
-  setShouldResetWidget: (shouldReset: boolean) => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -184,11 +180,9 @@ class Editor extends Component<Props> {
     });
   };
 
-  resetSelectedWidget = () => {
-    if (this.props.shouldResetSelectedWidget) {
-      this.props.selectWidget();
-    }
-    this.props.setShouldResetWidget(true);
+  resetSelectedWidget = (e: any) => {
+    if (e.nativeEvent.shouldNotResetWidget) return;
+    this.props.selectWidget();
   };
 
   public render() {
@@ -227,7 +221,6 @@ const mapStateToProps = (state: AppState) => ({
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
   user: getCurrentUser(state),
-  shouldResetSelectedWidget: getShouldResetSelectedWidget(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -239,8 +232,6 @@ const mapDispatchToProps = (dispatch: any) => {
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
     selectWidget: (widgetId?: string) => dispatch(selectWidget(widgetId)),
-    setShouldResetWidget: (shouldReset: boolean) =>
-      dispatch(setShouldResetWidget(shouldReset)),
   };
 };
 

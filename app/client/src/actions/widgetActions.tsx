@@ -140,10 +140,3 @@ export const selectWidget = (widgetId?: string) => {
     payload: { widgetId },
   };
 };
-
-export const setShouldResetWidget = (flag: boolean) => {
-  return {
-    type: ReduxActionTypes.SET_SHOULD_RESET_WIDGET,
-    payload: { shouldReset: flag },
-  };
-};

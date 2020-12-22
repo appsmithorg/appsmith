@@ -8,7 +8,6 @@ const initialState: WidgetDragResizeState = {
   selectedWidget: undefined,
   focusedWidget: undefined,
   selectedWidgetAncestory: [],
-  shouldResetSelectedWidget: true,
 };
 
 export const widgetDraggingReducer = createImmerReducer(initialState, {
@@ -48,12 +47,6 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     state.selectedWidgetAncestory = action.payload;
   },
-  [ReduxActionTypes.SET_SHOULD_RESET_WIDGET]: (
-    state: WidgetDragResizeState,
-    action: ReduxAction<{ shouldReset: boolean }>,
-  ) => {
-    state.shouldResetSelectedWidget = action.payload.shouldReset;
-  },
 });
 
 export type WidgetDragResizeState = {
@@ -63,7 +56,6 @@ export type WidgetDragResizeState = {
   selectedWidget?: string;
   focusedWidget?: string;
   selectedWidgetAncestory: string[];
-  shouldResetSelectedWidget: boolean;
 };
 
 export default widgetDraggingReducer;
