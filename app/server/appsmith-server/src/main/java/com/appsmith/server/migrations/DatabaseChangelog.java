@@ -1495,4 +1495,24 @@ public class DatabaseChangelog {
             }
         });
     }
+
+    @ChangeSet(order = "046", id = "add-redshift-plugin", author = "")
+    public void addRedshiftPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Redshift");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("redshift-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Redshift.png");
+        plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-redshift");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
 }
