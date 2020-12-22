@@ -253,6 +253,17 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         Mono<Datasource> datasourceMono;
         if (action.getDatasource().getId() == null) {
+            if (action.getDatasource().getDatasourceConfiguration() != null &&
+                    action.getDatasource().getDatasourceConfiguration().getAuthentication() != null) {
+                action.getDatasource()
+                        .getDatasourceConfiguration()
+                        .setAuthentication(datasourceService.encryptAuthenticationFields(action
+                                .getDatasource()
+                                .getDatasourceConfiguration()
+                                .getAuthentication()
+                        ));
+            }
+
             datasourceMono = Mono.just(action.getDatasource())
                     .flatMap(datasourceService::validateDatasource);
         } else {
@@ -394,9 +405,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // the update doesn't lead to resetting of this field. 
         action.setUserSetOnLoad(null);
 
-        NewAction newAction = new NewAction();
-        newAction.setUnpublishedAction(action);
-
         Mono<NewAction> updatedActionMono = repository.findById(id, MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .map(dbAction -> {
@@ -412,7 +420,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         Mono<NewAction> analyticsUpdateMono = updatedActionMono
                 .flatMap(analyticsService::sendUpdateEvent);
 
-                // First Update the Action
+        // First Update the Action
         return savedUpdatedActionMono
                 // Now send the update event to analytics service
                 .then(analyticsUpdateMono)
@@ -438,38 +446,38 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         String actionId = executeActionDTO.getActionId();
         // 2. Fetch the action from the DB and check if it can be executed
         Mono<ActionDTO> actionMono = repository.findById(actionId, EXECUTE_ACTIONS)
-                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
-                    .flatMap(dbAction -> {
-                        ActionDTO action;
-                        if (TRUE.equals(executeActionDTO.getViewMode())) {
-                            action = dbAction.getPublishedAction();
-                            // If the action has not been published, return error
-                            if (action == null) {
-                                return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId));
-                            }
-                        } else {
-                            action = dbAction.getUnpublishedAction();
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
+                .flatMap(dbAction -> {
+                    ActionDTO action;
+                    if (TRUE.equals(executeActionDTO.getViewMode())) {
+                        action = dbAction.getPublishedAction();
+                        // If the action has not been published, return error
+                        if (action == null) {
+                            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId));
                         }
+                    } else {
+                        action = dbAction.getUnpublishedAction();
+                    }
 
-                        // Now check for erroneous situations which would deter the execution of the action :
+                    // Now check for erroneous situations which would deter the execution of the action :
 
-                        // Error out with in case of an invalid action
-                        if (Boolean.FALSE.equals(action.getIsValid())) {
-                            return Mono.error(new AppsmithException(
-                                    AppsmithError.INVALID_ACTION,
-                                    action.getName(),
-                                    actionId,
-                                    ArrayUtils.toString(action.getInvalids().toArray())
-                            ));
-                        }
+                    // Error out with in case of an invalid action
+                    if (Boolean.FALSE.equals(action.getIsValid())) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_ACTION,
+                                action.getName(),
+                                actionId,
+                                ArrayUtils.toString(action.getInvalids().toArray())
+                        ));
+                    }
 
-                        // Error out in case of JS Plugin (this is currently client side execution only)
-                        if (dbAction.getPluginType() == PluginType.JS) {
-                            return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                        }
-                        return Mono.just(action);
-                    })
-                    .cache();
+                    // Error out in case of JS Plugin (this is currently client side execution only)
+                    if (dbAction.getPluginType() == PluginType.JS) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
+                    return Mono.just(action);
+                })
+                .cache();
 
         // 3. Instantiate the implementation class based on the query type
 
@@ -683,7 +691,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     /**
      * Given a list of names of actions and pageId, find all the actions matching this criteria of names and pageId
      *
-     * @param names Set of Action names. The returned list of actions will be a subset of the actioned named in this set.
+     * @param names  Set of Action names. The returned list of actions will be a subset of the actioned named in this set.
      * @param pageId Id of the Page within which to look for Actions.
      * @return A Flux of Actions that are identified to be executed on page-load.
      */

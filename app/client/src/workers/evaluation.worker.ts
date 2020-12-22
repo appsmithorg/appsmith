@@ -70,7 +70,8 @@ ctx.addEventListener("message", e => {
       const { binding, dataTree } = rest;
       const withFunctions = addFunctions(dataTree);
       const value = getDynamicValue(binding, withFunctions, false);
-      ctx.postMessage({ value, errors: ERRORS });
+      const cleanedResponse = removeFunctions(value);
+      ctx.postMessage({ value: cleanedResponse, errors: ERRORS });
       ERRORS = [];
       break;
     }
@@ -84,7 +85,8 @@ ctx.addEventListener("message", e => {
         true,
         callbackData,
       );
-      ctx.postMessage({ triggers, errors: ERRORS });
+      const cleanedResponse = removeFunctions(triggers);
+      ctx.postMessage({ triggers: cleanedResponse, errors: ERRORS });
       ERRORS = [];
       break;
     }
@@ -108,7 +110,8 @@ ctx.addEventListener("message", e => {
     case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
       const { widgetType, property, value, props } = rest;
       const result = validateWidgetProperty(widgetType, property, value, props);
-      ctx.postMessage(result);
+      const cleanedResponse = removeFunctions(result);
+      ctx.postMessage(cleanedResponse);
       break;
     }
     default: {

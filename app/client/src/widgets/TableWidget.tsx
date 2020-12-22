@@ -239,7 +239,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               let inputFormat;
               try {
                 const type = column.metaProperties.inputFormat;
-                if (type !== "EPOCH" && type !== "Milliseconds") {
+                if (type !== "Epoch" && type !== "Milliseconds") {
                   inputFormat = type;
                   moment(value, inputFormat);
                 } else if (!isNumber(value)) {
@@ -253,6 +253,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   outputFormat = inputFormat;
                 }
                 if (column.metaProperties.inputFormat === "Milliseconds") {
+                  value = Number(value);
+                } else if (column.metaProperties.inputFormat === "Epoch") {
                   value = 1000 * Number(value);
                 }
                 tableRow[accessor] = moment(value, inputFormat).format(
@@ -656,8 +658,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   handleRowClick = (rowData: Record<string, unknown>, index: number) => {
-    const { selectedRowIndices } = this.props;
     if (this.props.multiRowSelection) {
+      const selectedRowIndices = this.props.selectedRowIndices
+        ? [...this.props.selectedRowIndices]
+        : [];
       if (selectedRowIndices.includes(index)) {
         const rowIndex = selectedRowIndices.indexOf(index);
         selectedRowIndices.splice(rowIndex, 1);

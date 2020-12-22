@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.google.cloud.NoCredentials;
@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -60,9 +61,10 @@ public class FirestorePluginTest {
         firestoreConnection.document("changing/to-delete").set(Map.of("value", 1)).get();
 
         dsConfig.setUrl(emulator.getEmulatorEndpoint());
-        dsConfig.setAuthentication(new AuthenticationDTO());
-        dsConfig.getAuthentication().setUsername("test-project");
-        dsConfig.getAuthentication().setPassword("");
+        DBAuth auth = new DBAuth();
+        auth.setUsername("test-project");
+        auth.setPassword("");
+        dsConfig.setAuthentication(auth);
     }
 
     @Test
@@ -199,6 +201,29 @@ public class FirestorePluginTest {
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testAddToCollection() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("changing");
+
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "ADD_TO_COLLECTION")));
+
+        actionConfiguration.setBody("{\n" +
+                "  \"question\": \"What is the answer to life, universe and everything else?\",\n" +
+                "  \"answer\": 42\n" +
+                "}");
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .execute(firestoreConnection, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(firestoreConnection.document("changing/" + ((Map) result.getBody()).get("id")));
                 })
                 .verifyComplete();
     }
