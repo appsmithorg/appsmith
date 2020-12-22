@@ -97,9 +97,8 @@ export const getPluginGroups = (
   datasources: Datasource[],
   plugins: Plugin[],
   searchKeyword?: string,
-  actionPluginMap = ACTION_PLUGIN_MAP,
 ) => {
-  return actionPluginMap?.map((config?: ActionGroupConfig) => {
+  return ACTION_PLUGIN_MAP?.map((config?: ActionGroupConfig) => {
     if (!config) return null;
 
     const entries = actions?.filter(
@@ -109,7 +108,6 @@ export const getPluginGroups = (
     const filteredPlugins = plugins.filter(
       plugin => plugin.type === config.type,
     );
-
     const filteredPluginIds = filteredPlugins.map(plugin => plugin.id);
     const filteredDatasources = datasources.filter(datasource => {
       return filteredPluginIds.includes(datasource.pluginId);

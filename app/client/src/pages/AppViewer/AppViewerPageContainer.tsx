@@ -15,7 +15,6 @@ import {
   getCanvasWidgetDsl,
   getCurrentPageName,
 } from "selectors/editorSelectors";
-import OnboardingCompletionDialog from "components/editorComponents/Onboarding/CompletionDialog";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import {
@@ -115,7 +114,6 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
             pageName={this.props.currentPageName}
           />
           <ConfirmRunModal />
-          <OnboardingCompletionDialog />
         </Section>
       );
     }
