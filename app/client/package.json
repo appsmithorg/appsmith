@@ -70,7 +70,6 @@
     "localforage": "^1.7.3",
     "lodash": "^4.17.19",
     "loglevel": "^1.6.7",
-    "lottie-web": "^5.7.4",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
     "nanoid": "^2.0.4",

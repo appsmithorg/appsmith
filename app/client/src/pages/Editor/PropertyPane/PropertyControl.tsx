@@ -15,9 +15,6 @@ import {
   isPathADynamicProperty,
   isPathADynamicTrigger,
 } from "../../../utils/DynamicBindingUtils";
-import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
-import { Position } from "@blueprintjs/core";
-import { OnboardingStep } from "constants/OnboardingConstants";
 
 type Props = {
   widgetProperties: WidgetProps;
@@ -116,22 +113,13 @@ const PropertyControl = (props: Props) => {
               </JSToggleButton>
             )}
           </ControlPropertyLabelContainer>
-          <OnboardingToolTip
-            step={[
-              OnboardingStep.ADD_WIDGET,
-              OnboardingStep.SUCCESSFUL_BINDING,
-            ]}
-            show={propertyName === "tableData"}
-            position={Position.LEFT_TOP}
-          >
-            {PropertyControlFactory.createControl(
-              config,
-              {
-                onPropertyChange: onPropertyChange,
-              },
-              isDynamic,
-            )}
-          </OnboardingToolTip>
+          {PropertyControlFactory.createControl(
+            config,
+            {
+              onPropertyChange: onPropertyChange,
+            },
+            isDynamic,
+          )}
         </ControlWrapper>
       );
     } catch (e) {

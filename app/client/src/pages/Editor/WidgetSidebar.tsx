@@ -11,9 +11,12 @@ import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
 import produce from "immer";
 import { WIDGET_SIDEBAR_CAPTION } from "constants/messages";
+<<<<<<< HEAD
 import TagIfShouldResetSelectedWidget from "components/editorComponents/TagIfShouldResetSelectedWidget";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
+=======
+>>>>>>> origin/release
 
 const MainWrapper = styled.div`
   text-transform: capitalize;

@@ -2,7 +2,10 @@ import React, { Component } from "react";
 import { Helmet } from "react-helmet";
 import { connect } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import { BuilderRouteParams } from "constants/routes";
+import {
+  BuilderRouteParams,
+  getApplicationViewerPageURL,
+} from "constants/routes";
 import { AppState } from "reducers";
 import MainContainer from "./MainContainer";
 import { DndProvider } from "react-dnd";
@@ -15,7 +18,14 @@ import {
   getIsPublishingApplication,
   getPublishingError,
 } from "selectors/editorSelectors";
-import { Hotkey, Hotkeys, Spinner } from "@blueprintjs/core";
+import {
+  AnchorButton,
+  Classes,
+  Dialog,
+  Hotkey,
+  Hotkeys,
+  Spinner,
+} from "@blueprintjs/core";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import { initEditor } from "actions/initActions";
 import { editorInitializer } from "utils/EditorUtils";
@@ -82,7 +92,7 @@ class Editor extends Component<Props> {
           combo="mod + c"
           label="Copy Widget"
           group="Canvas"
-          onKeyDown={() => {
+          onKeyDown={(e: any) => {
             this.props.copySelectedWidget();
           }}
           preventDefault
@@ -93,7 +103,7 @@ class Editor extends Component<Props> {
           combo="mod + v"
           label="Paste Widget"
           group="Canvas"
-          onKeyDown={() => {
+          onKeyDown={(e: any) => {
             this.props.pasteCopiedWidget();
           }}
           preventDefault
@@ -104,7 +114,7 @@ class Editor extends Component<Props> {
           combo="del"
           label="Delete Widget"
           group="Canvas"
-          onKeyDown={() => {
+          onKeyDown={(e: any) => {
             if (!isMac()) this.props.deleteSelectedWidget();
           }}
           preventDefault
@@ -115,7 +125,7 @@ class Editor extends Component<Props> {
           combo="backspace"
           label="Delete Widget"
           group="Canvas"
-          onKeyDown={() => {
+          onKeyDown={(e: any) => {
             if (isMac()) this.props.deleteSelectedWidget();
           }}
           preventDefault
@@ -126,7 +136,7 @@ class Editor extends Component<Props> {
           combo="del"
           label="Delete Widget"
           group="Canvas"
-          onKeyDown={() => {
+          onKeyDown={(e: any) => {
             this.props.deleteSelectedWidget();
           }}
           preventDefault
@@ -137,7 +147,7 @@ class Editor extends Component<Props> {
           combo="mod + x"
           label="Cut Widget"
           group="Canvas"
-          onKeyDown={() => {
+          onKeyDown={(e: any) => {
             this.props.cutSelectedWidget();
           }}
           preventDefault
@@ -147,6 +157,7 @@ class Editor extends Component<Props> {
     );
   }
   public state = {
+    isDialogOpen: false,
     registered: false,
   };
 
@@ -159,8 +170,21 @@ class Editor extends Component<Props> {
       this.props.initEditor(applicationId, pageId);
     }
   }
+  componentDidUpdate(previously: Props) {
+    if (
+      previously.isPublishing &&
+      !(this.props.isPublishing || this.props.errorPublishing)
+    ) {
+      this.setState({
+        isDialogOpen: true,
+      });
+    }
+  }
 
-  shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
+  shouldComponentUpdate(
+    nextProps: Props,
+    nextState: { isDialogOpen: boolean; registered: boolean },
+  ) {
     return (
       nextProps.currentPageId !== this.props.currentPageId ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
@@ -170,6 +194,7 @@ class Editor extends Component<Props> {
       nextProps.errorPublishing !== this.props.errorPublishing ||
       nextProps.isEditorInitializeError !==
         this.props.isEditorInitializeError ||
+      nextState.isDialogOpen !== this.state.isDialogOpen ||
       nextState.registered !== this.state.registered
     );
   }
@@ -206,6 +231,32 @@ class Editor extends Component<Props> {
             <title>Editor | Appsmith</title>
           </Helmet>
           <MainContainer />
+          <Dialog
+            isOpen={this.state.isDialogOpen}
+            canOutsideClickClose={true}
+            canEscapeKeyClose={true}
+            title="Application Published"
+            onClose={this.handleDialogClose}
+            icon="tick-circle"
+          >
+            <div className={Classes.DIALOG_BODY}>
+              <p>
+                {"Your application is now published with the current changes!"}
+              </p>
+            </div>
+            <div className={Classes.DIALOG_FOOTER}>
+              <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+                <AnchorButton
+                  target={this.props.currentApplicationId}
+                  href={getApplicationViewerPageURL(
+                    this.props.currentApplicationId,
+                    this.props.currentPageId,
+                  )}
+                  text="View Application"
+                />
+              </div>
+            </div>
+          </Dialog>
         </div>
         <ConfirmRunModal />
       </DndProvider>
