@@ -397,38 +397,6 @@ const actionsReducer = createReducer(initialState, {
       return action;
     });
   },
-  [ReduxActionTypes.CREATE_ONBOARDING_ACTION_SUCCESS]: (
-    state: ActionDataState,
-    action: ReduxAction<RestAction>,
-  ): ActionDataState =>
-    state.map(a => {
-      if (
-        a.config.pageId === action.payload.pageId &&
-        a.config.id === action.payload.name
-      ) {
-        return { ...a, config: action.payload };
-      }
-      return a;
-    }),
-  [ReduxActionTypes.CREATE_ONBOARDING_ACTION_INIT]: (
-    state: ActionDataState,
-    action: ReduxAction<RestAction>,
-  ): ActionDataState =>
-    state.concat([
-      {
-        config: { ...action.payload, id: action.payload.name },
-        isLoading: false,
-      },
-    ]),
-  [ReduxActionTypes.CREATE_ONBOARDING_ACTION_ERROR]: (
-    state: ActionDataState,
-    action: ReduxAction<RestAction>,
-  ): ActionDataState =>
-    state.filter(
-      a =>
-        a.config.name !== action.payload.name &&
-        a.config.id !== action.payload.name,
-    ),
 });
 
 export default actionsReducer;
