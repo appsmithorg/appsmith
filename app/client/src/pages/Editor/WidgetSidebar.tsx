@@ -11,12 +11,7 @@ import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
 import produce from "immer";
 import { WIDGET_SIDEBAR_CAPTION } from "constants/messages";
-<<<<<<< HEAD
 import TagIfShouldResetSelectedWidget from "components/editorComponents/TagIfShouldResetSelectedWidget";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
-import { OnboardingStep } from "constants/OnboardingConstants";
-=======
->>>>>>> origin/release
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
@@ -149,22 +144,14 @@ const WidgetSidebar = (props: IPanelProps) => {
         </Header>
         {groups.map((group: string) => (
           <React.Fragment key={group}>
-            <TagIfShouldResetSelectedWidget>
-              <Boxed step={OnboardingStep.ADD_WIDGET}>
-                <h5>{group}</h5>
-              </Boxed>
-              <CardsWrapper>
-                {filteredCards[group].map((card: WidgetCardProps) => (
-                  <Boxed
-                    step={OnboardingStep.ADD_WIDGET}
-                    show={card.type === "TABLE_WIDGET"}
-                    key={card.key}
-                  >
-                    <WidgetCard details={card} />
-                  </Boxed>
-                ))}
-              </CardsWrapper>
-            </TagIfShouldResetSelectedWidget>
+            <h5>{group}</h5>
+            <CardsWrapper>
+              {filteredCards[group].map((card: WidgetCardProps) => (
+                <TagIfShouldResetSelectedWidget key={card.key}>
+                  <WidgetCard details={card} />
+                </TagIfShouldResetSelectedWidget>
+              ))}
+            </CardsWrapper>
           </React.Fragment>
         ))}
       </MainWrapper>
