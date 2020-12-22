@@ -178,3 +178,37 @@ export const removeFunctionsFromDataTree = (dataTree: DataTree) => {
   delete dataTree.actionPaths;
   return dataTree;
 };
+
+export const makeParentsDependOnChildren = (
+  depMap: DependencyMap,
+): DependencyMap => {
+  //return depMap;
+  // Make all parents depend on child
+  Object.keys(depMap).forEach(key => {
+    depMap = makeParentsDependOnChild(depMap, key);
+    depMap[key].forEach(path => {
+      depMap = makeParentsDependOnChild(depMap, path);
+    });
+  });
+  return depMap;
+};
+export const makeParentsDependOnChild = (
+  depMap: DependencyMap,
+  child: string,
+): DependencyMap => {
+  const result: DependencyMap = depMap;
+  let curKey = child;
+  const rgx = /^(.*)\..*$/;
+  let matches: Array<string> | null;
+  // Note: The `=` is intentional
+  // Stops looping when match is null
+  while ((matches = curKey.match(rgx)) !== null) {
+    const parentKey = matches[1];
+    // Todo: switch everything to set.
+    const existing = new Set(result[parentKey] || []);
+    existing.add(curKey);
+    result[parentKey] = Array.from(existing);
+    curKey = parentKey;
+  }
+  return result;
+};

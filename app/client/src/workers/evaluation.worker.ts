@@ -37,6 +37,7 @@ import {
   removeFunctions,
   removeFunctionsFromDataTree,
   translateDiffEventToDataTreeDiffEvent,
+  makeParentsDependOnChildren,
 } from "./evaluationUtils";
 
 const ctx: Worker = self as any;
@@ -426,6 +427,7 @@ export class DataTreeEvaluator {
         ),
       );
     });
+    dependencyMap = makeParentsDependOnChildren(dependencyMap);
     return dependencyMap;
   }
 
@@ -1087,12 +1089,14 @@ export class DataTreeEvaluator {
           ),
         );
       });
+      this.dependencyMap = makeParentsDependOnChildren(this.dependencyMap);
     }
     const subDepCalcEnd = performance.now();
     const updateChangedDependenciesStart = performance.now();
     // If the global dependency map has changed, re-calculate the sort order for all entities and the
     // global inverse dependency map
     if (didUpdateDependencyMap) {
+      // This is being called purely to test for new circular dependencies that might have been added
       this.sortedDependencies = this.sortDependencies(this.dependencyMap);
       this.inverseDependencyMap = this.getInverseDependencyTree();
     }
