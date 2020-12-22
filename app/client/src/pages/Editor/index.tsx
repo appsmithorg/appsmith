@@ -121,7 +121,7 @@ class Editor extends Component<Props> {
           }}
           allowInInput
         />
-        <Hotkey
+        <Hotkey // allowInInput with del or backspace deletes the widgets on clear (within cypress)
           global={true}
           combo="backspace"
           label="Delete Widget"
@@ -131,7 +131,6 @@ class Editor extends Component<Props> {
               this.props.pasteCopiedWidget();
             }
           }}
-          allowInInput
         />
         <Hotkey
           global={true}
@@ -143,7 +142,6 @@ class Editor extends Component<Props> {
               this.props.deleteSelectedWidget();
             }
           }}
-          allowInInput
         />
         <Hotkey
           global={true}
