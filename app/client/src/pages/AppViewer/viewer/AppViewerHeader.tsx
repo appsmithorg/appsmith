@@ -91,13 +91,6 @@ const ShareButton = styled(Button)`
   color: white !important;
 `;
 
-const StyledApplicationName = styled.span`
-  font-size: 15px;
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 14px;
-`;
-
 const PageTab = styled(NavLink)`
   display: flex;
   height: 30px;
