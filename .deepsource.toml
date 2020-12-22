@@ -1,0 +1,18 @@
+version = 1
+
+test_patterns = ["**/test/**"]
+
+[[analyzers]]
+name = "javascript"
+enabled = true
+
+  [analyzers.meta]
+  environment = [
+    "browser",
+    "nodejs",
+    "jest"
+  ]
+  plugins = ["react"]
+  dependency_file_paths = [
+  '/app/client/'
+  ]
