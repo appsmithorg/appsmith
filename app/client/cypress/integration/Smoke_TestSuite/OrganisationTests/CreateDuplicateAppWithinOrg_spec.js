@@ -13,6 +13,7 @@ describe("Create new org and an app within the same", function() {
       cy.createOrg(orgid);
       cy.CreateAppForOrg(orgid, appid);
       cy.NavigateToHome();
+
       cy.CreateApp(appid);
     });
   });

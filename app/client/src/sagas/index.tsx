@@ -20,6 +20,8 @@ import modalSagas from "./ModalSagas";
 import batchSagas from "./BatchSagas";
 import themeSagas from "./ThemeSaga";
 import evaluationsSaga from "./evaluationsSaga";
+import onboardingSaga from "./OnboardingSagas";
+
 import log from "loglevel";
 import * as sentry from "@sentry/react";
 
@@ -46,6 +48,7 @@ export function* rootSaga() {
     batchSagas,
     themeSagas,
     evaluationsSaga,
+    onboardingSaga,
   ];
   yield all(
     sagas.map(saga =>
