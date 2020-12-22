@@ -484,14 +484,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               blueprint: {
                 view: [
                   {
-                    type: "FORM_BUTTON_WIDGET",
-                    size: { rows: 1, cols: 4 },
-                    position: { top: 11, left: 8 },
+                    type: "CONTAINER_WIDGET",
+                    size: { rows: 4, cols: 16 },
+                    position: { top: 0, left: 0 },
                     props: {
-                      text: "Reset",
-                      buttonStyle: "SECONDARY_BUTTON",
-                      disabledWhenInvalid: false,
-                      resetFormOnClick: true,
+                      backgroundColor: "white",
                       dragEnabled: false,
                     },
                   },

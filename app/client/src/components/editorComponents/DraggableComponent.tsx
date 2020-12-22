@@ -125,7 +125,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     },
     canDrag: () => {
       // Dont' allow drag if we're resizing or the drag of `DraggableComponent` is disabled
-      return !isResizing && !isDraggingDisabled;
+      return !isResizing && !isDraggingDisabled && props.dragEnabled;
     },
   });
 

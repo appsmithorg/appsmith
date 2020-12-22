@@ -218,12 +218,7 @@ abstract class BaseWidget<
         if (!this.props.detachFromLayout) {
           content = this.makeResizable(content);
           content = this.showWidgetName(content);
-
-          // enable drag ability only when enabled
-          if (this.props.dragEnabled === true) {
-            content = this.makeDraggable(content);
-          }
-
+          content = this.makeDraggable(content);
           content = this.makePositioned(content);
         }
         return content;

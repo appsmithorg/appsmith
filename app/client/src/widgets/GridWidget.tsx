@@ -43,9 +43,9 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.containerStyle = "none";
     childWidgetData.minHeight = componentHeight;
-    childWidgetData.rightColumn = componentWidth;
-
-    console.log({ childWidgetData });
+    childWidgetData.rightColumn =
+      (this.props.rightColumn - this.props.leftColumn) *
+      this.props.parentColumnSpace;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
