@@ -60,7 +60,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
             } else {
                 // We are trying to fetch published page but it doesnt exist because the page hasn't been published yet
-                page = new PageDTO();
+                return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, newPage.getId()));
             }
         } else {
             if (newPage.getUnpublishedPage() != null) {
