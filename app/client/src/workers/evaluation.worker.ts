@@ -25,6 +25,7 @@ import _, {
   isUndefined,
   toNumber,
   toString,
+  isPlainObject,
 } from "lodash";
 import toposort from "toposort";
 import { DATA_BIND_REGEX } from "../constants/BindingsConstants";
@@ -1333,7 +1334,7 @@ const VALIDATORS: Record<ValidationType, Validator> = {
     }
     const isValidTableData = every(parsed, datum => {
       return (
-        isObject(datum) &&
+        isPlainObject(datum) &&
         Object.keys(datum).filter(key => isString(key) && key.length === 0)
           .length === 0
       );
