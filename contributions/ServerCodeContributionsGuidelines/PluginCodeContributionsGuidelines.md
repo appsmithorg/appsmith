@@ -30,8 +30,21 @@ hiccups.
 7. Comment your code in hard to understand areas. 
     
 
-### Test Code 
-// TODO: fill it. 
+### Unit Test 
+1. Every plugin must have its own unit test file like [this](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/postgresPlugin/src/test/java/com/external/plugins/PostgresPluginTest.java)
+2. The test file must be named as PluginNameTest.java e.g. PostgresPluginTest.java
+3. In case testing against a real instance, for example, using testcontainers is not possible, then use Mockito 
+   framework to test via mocking.
+4. Please test the following cases in your file:
+    - Successfully establishing connection to datasource. 
+    - Reject invalid credentials.
+    - Successful query execution.
+    - Stale connection exception. 
+    - In case of a database plugin, test that it is able to fetch tables/collection info from database and key
+      constraints info as well.
+5. Reference test files:
+    - [PostgresPluginTest.java](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/postgresPlugin/src/test/java/com/external/plugins/PostgresPluginTest.java)
+    - [MySqlPluginTest.java](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/mysqlPlugin/src/test/java/com/external/plugins/MySqlPluginTest.java)
 
 ### Code Review
 // TODO: fill it.
