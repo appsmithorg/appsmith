@@ -67,6 +67,5 @@ As much as possible, please try to abide by the following code design:
    been tested. If possible, add snapshots too. 
 
 ### Need Assistance
-- If you are unable to resolve any issue, please initiate a Github discussion or send an email to support@appsmith.
-  com. We'll be happy to help you.
+- If you are unable to resolve any issue, please initiate a Github discussion or send an email to support@appsmith.com. We'll be happy to help you.
 - In case you notice any discrepancy, please raise an issue on Github and/or send an email to support@appsmith.com.
