@@ -53,6 +53,10 @@ public class ArangoDBPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
             String query = actionConfiguration.getBody().trim();
+            if (query == null) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
+            }
+
             ArangoCursor<Map> cursor = db.query(query, null, null, Map.class);
             return Mono.just(cursor)
                     .flatMap(res -> {
