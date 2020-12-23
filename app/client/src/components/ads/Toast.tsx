@@ -156,7 +156,9 @@ export const Toaster = {
       );
       return;
     }
-    const toastId = toast(
+    // Stringified JSON is a long, but valid key :shrug:
+    const toastId = JSON.stringify(config);
+    toast(
       <ToastComponent
         undoAction={() => {
           toast.dismiss(toastId);
@@ -165,12 +167,17 @@ export const Toaster = {
         {...config}
       />,
       {
+        toastId: toastId,
         pauseOnHover: true,
-        autoClose: config.duration || 5000,
+        autoClose: false,
         closeOnClick: false,
         hideProgressBar: config.hideProgressBar,
       },
     );
+    // Update autoclose everytime to keep resetting the timer.
+    toast.update(toastId, {
+      autoClose: config.duration || 5000,
+    });
   },
   clear: () => toast.dismiss(),
 };
