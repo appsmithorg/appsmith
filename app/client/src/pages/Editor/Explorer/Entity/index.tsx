@@ -27,7 +27,7 @@ export enum EntityClassNames {
 }
 
 const Wrapper = styled.div<{ active: boolean }>`
-  line-height: ${props => props.theme.lineHeights[2]}px;
+  line-height: ${(props) => props.theme.lineHeights[2]}px;
 `;
 
 export const EntityItem = styled.div<{
@@ -37,15 +37,15 @@ export const EntityItem = styled.div<{
 }>`
   position: relative;
   font-size: 12px;
-  padding-left: ${props => props.step * props.theme.spaces[2]}px;
-  background: ${props => (props.active ? Colors.TUNDORA : "none")};
+  padding-left: ${(props) => props.step * props.theme.spaces[2]}px;
+  background: ${(props) => (props.active ? Colors.TUNDORA : "none")};
   height: 30px;
   width: 100%;
   display: inline-grid;
-  grid-template-columns: ${props =>
+  grid-template-columns: ${(props) =>
     props.spaced ? "20px auto 1fr 30px" : "8px auto 1fr 30px"};
   border-radius: 0;
-  color: ${props => (props.active ? Colors.WHITE : Colors.ALTO)};
+  color: ${(props) => (props.active ? Colors.WHITE : Colors.ALTO)};
   cursor: pointer;
   align-items: center;
   &:hover {

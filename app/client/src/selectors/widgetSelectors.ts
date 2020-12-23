@@ -8,7 +8,7 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 const getCanvasWidgets = (state: AppState) => state.entities.canvasWidgets;
 export const getModalDropdownList = createSelector(
   getCanvasWidgets,
-  widgets => {
+  (widgets) => {
     const modalWidgets = Object.values(widgets).filter(
       (widget: FlattenedWidgetProps) =>
         widget.type === WidgetTypes.MODAL_WIDGET,

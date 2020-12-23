@@ -53,8 +53,8 @@ function* executeBatchSaga() {
   for (let priority = 0; priority < batches.length; priority++) {
     const batch = batches[priority];
     if (Array.isArray(batch) && batch.length) {
-      const needsSaga = batch.filter(b => BATCH_PRIORITY[b.type].needsSaga);
-      const canBatch = batch.filter(b => !BATCH_PRIORITY[b.type].needsSaga);
+      const needsSaga = batch.filter((b) => BATCH_PRIORITY[b.type].needsSaga);
+      const canBatch = batch.filter((b) => !BATCH_PRIORITY[b.type].needsSaga);
       batches[priority] = [];
       // @ts-ignore: No types available
       yield put(canBatch);

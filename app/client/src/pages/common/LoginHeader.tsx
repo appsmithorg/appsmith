@@ -16,7 +16,7 @@ const StyledPageHeader = styled(StyledHeader)`
   display: flex;
   justify-content: space-between;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
-  padding: 0px ${props => props.theme.spaces[12]};
+  padding: 0px ${(props) => props.theme.spaces[12]};
 `;
 
 const LogoContainer = styled.div`
