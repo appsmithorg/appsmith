@@ -36,6 +36,8 @@ As much as possible, please try to abide by the following code design:
       by upper layers and a retry is triggered. For reference, please check the usage of StaleConnectionException [here](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/postgresPlugin/src/main/java/com/external/plugins/PostgresPlugin.java).
 6. Always check for `null` values before using objects. 
 7. Comment your code in hard to understand areas. 
+8. In case your method implementation is too large (use your own judgement here), please refactor it into smaller 
+   methods. 
     
 
 ### Unit Test 
