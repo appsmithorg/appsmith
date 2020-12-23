@@ -47,4 +47,9 @@ hiccups.
     - [MySqlPluginTest.java](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/mysqlPlugin/src/test/java/com/external/plugins/MySqlPluginTest.java)
 
 ### Code Review
-// TODO: fill it.
+1. Before you start working on a code change, please check with any of the maintainers first regarding the same. You 
+   may initiate a discussion on Github Discussions page or comment on any of the open issues or directly reach out on 
+   our Discord channel. 
+2. Before you raise a pull request, please check if there is a bug that has been raised to address it. If not, then 
+   raise a bug yourself and link it with your pull request.
+3. You may share you pull request on Appsmith's discord channel or send an email to support@appsmith.com for attention. 
