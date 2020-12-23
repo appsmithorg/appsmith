@@ -200,6 +200,10 @@ function* listenForCreateAction() {
   yield take([ReduxActionTypes.RUN_ACTION_SUCCESS]);
   yield put(setCurrentStep(OnboardingStep.RUN_QUERY_SUCCESS));
   yield put(showTooltip(OnboardingStep.RUN_QUERY_SUCCESS));
+  yield put({
+    type: "SHOW_INDICATOR",
+    payload: OnboardingStep.RUN_QUERY_SUCCESS,
+  });
 }
 
 function* listenForWidgetUnselection() {

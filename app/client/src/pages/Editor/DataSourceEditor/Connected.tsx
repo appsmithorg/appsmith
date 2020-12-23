@@ -56,7 +56,6 @@ const ActionButton = styled(BaseButton)`
   &&& {
     max-width: 140px;
     align-self: center;
-    position: relative;
   }
 `;
 

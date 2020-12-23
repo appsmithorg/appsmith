@@ -1,3 +1,7 @@
+import Boxed from "components/editorComponents/Onboarding/Boxed";
+import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
+import { Colors } from "constants/Colors";
+import { OnboardingStep } from "constants/OnboardingConstants";
 import { PluginType } from "entities/Action";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -8,18 +12,22 @@ import { getPluginGroups, ACTION_PLUGIN_MAP } from "../Actions/helpers";
 import { useActions, useFilteredDatasources } from "../hooks";
 
 const AddWidget = styled.button`
-  margin: 25px 0px;
+  margin-bottom: 25px;
   padding: 6px 38px;
-  background-color: transparent;
+  background-color: ${Colors.MINE_SHAFT};
   border: 1px solid #f3672a;
   color: #f3672a;
   font-weight: bold;
   cursor: pointer;
 `;
 
-const Wrapper = styled.div`
+const AddWidgetWrapper = styled.div`
   display: flex;
   justify-content: center;
+`;
+
+const Wrapper = styled.div`
+  padding-top: 25px;
 `;
 
 const DBQueryGroup = (props: any) => {
@@ -35,12 +43,22 @@ const DBQueryGroup = (props: any) => {
   );
 
   return (
-    <>
-      <Wrapper>
-        <AddWidget className="t--add-widget" onClick={props.showWidgetsSidebar}>
-          Add Widget
-        </AddWidget>
-      </Wrapper>
+    <Wrapper>
+      <Boxed step={OnboardingStep.RUN_QUERY_SUCCESS}>
+        <AddWidgetWrapper>
+          <OnboardingIndicator
+            step={OnboardingStep.RUN_QUERY_SUCCESS}
+            offset={{ bottom: 25 }}
+          >
+            <AddWidget
+              className="t--add-widget"
+              onClick={props.showWidgetsSidebar}
+            >
+              Add Widget
+            </AddWidget>
+          </OnboardingIndicator>
+        </AddWidgetWrapper>
+      </Boxed>
       {getPluginGroups(
         currentPage,
         0,
@@ -50,7 +68,7 @@ const DBQueryGroup = (props: any) => {
         "",
         dbPluginMap,
       )}
-    </>
+    </Wrapper>
   );
 };
 

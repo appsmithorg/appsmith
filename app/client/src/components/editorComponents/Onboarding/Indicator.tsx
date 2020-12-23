@@ -4,7 +4,7 @@ import pulse from "assets/lottie/pulse.json";
 import styled from "styled-components";
 import { useSelector } from "store";
 
-const IndicatorWrapper = styled.div`
+const IndicatorWrapper = styled.div<{ offset?: any }>`
   width: 90px;
   height: 90px;
   position: absolute;
@@ -13,12 +13,19 @@ const IndicatorWrapper = styled.div`
   // For centering
   top: 0;
   margin-top: auto;
-  bottom: 0;
+  bottom: ${props => props.offset?.bottom ?? 0}px;
   margin-bottom: auto;
   left: 0;
   margin-left: auto;
   right: 0;
   margin-right: auto;
+
+  // Increasing specificity and setting sibling element's position to relative
+  && {
+    & + * {
+      position: relative;
+    }
+  }
 `;
 
 const Indicator = (props: any) => {
@@ -36,12 +43,12 @@ const Indicator = (props: any) => {
         autoplay: true,
       });
     }
-  }, [indicatorRef]);
+  }, [indicatorRef, showingIndicator]);
 
   if (showingIndicator === props.step) {
     return (
       <div style={{ position: "relative" }}>
-        <IndicatorWrapper ref={indicatorRef} />
+        <IndicatorWrapper ref={indicatorRef} offset={props.offset} />
         {props.children}
       </div>
     );
