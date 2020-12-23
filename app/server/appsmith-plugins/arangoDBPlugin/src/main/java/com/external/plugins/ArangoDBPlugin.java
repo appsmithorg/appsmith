@@ -93,7 +93,7 @@ public class ArangoDBPlugin extends BasePlugin {
                 }
 
                 Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
-                Integer port = (int) ObjectUtils.defaultIfNull(endpoint.getPort(), 8529);
+                Integer port = (int) (long) ObjectUtils.defaultIfNull(endpoint.getPort(), 8529);
                 String host = endpoint.getHost();
 
                 String username = null;
