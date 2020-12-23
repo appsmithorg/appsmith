@@ -1238,6 +1238,7 @@ export class DataTreeEvaluator {
     const loadingEntities = getEntityDependencies(
       isLoadingActions,
       entityDependencyMap,
+      new Set<string>(),
     );
 
     widgetNames.forEach(widgetName => {
@@ -1306,17 +1307,28 @@ const extractReferencesFromBinding = (
 
 const getEntityDependencies = (
   entityNames: string[],
-  dependencyMap: DependencyMap,
+  inverseMap: DependencyMap,
+  visited: Set<string>,
 ): Set<string> => {
   const dependantsEntities: Set<string> = new Set();
   entityNames.forEach(entityName => {
-    if (entityName in dependencyMap) {
-      dependencyMap[entityName].forEach(dependency => {
+    if (entityName in inverseMap) {
+      inverseMap[entityName].forEach(dependency => {
         const dependantEntityName = dependency.split(".")[0];
+        // Example: For a dependency chain that looks like Dropdown1.selectedOptionValue -> Table1.tableData -> Text1.text -> Dropdown1.options
+        // Here we're operating on
+        // Dropdown1 -> Table1 -> Text1 -> Dropdown1
+        // It looks like a circle, but isn't
+        // So we need to mark the visited nodes and avoid infinite recursion in case we've already visited a node once.
+        if (visited.has(dependantEntityName)) {
+          return;
+        }
+        visited.add(dependantEntityName);
         dependantsEntities.add(dependantEntityName);
         const childDependencies = getEntityDependencies(
           Array.from(dependantsEntities),
-          dependencyMap,
+          inverseMap,
+          visited,
         );
         childDependencies.forEach(entityName => {
           dependantsEntities.add(entityName);
