@@ -177,6 +177,25 @@ class TabsWidget extends BaseWidget<
         );
       }
     }
+
+    // if selected tab is deleted
+    if (this.props.selectedTabWidgetId && this.props.tabs.length > 0) {
+      const selectedTabWithinTabs = _.find(this.props.tabs, {
+        widgetId: this.props.selectedTabWidgetId,
+      });
+
+      if (!selectedTabWithinTabs) {
+        // try to select default else select first
+        const defaultTab = _.find(this.props.tabs, {
+          label: this.props.defaultTab,
+        });
+
+        this.props.updateWidgetMetaProperty(
+          "selectedTabWidgetId",
+          (defaultTab && defaultTab.widgetId) || this.props.tabs[0].widgetId,
+        );
+      }
+    }
   }
 
   generateTabContainers = () => {
@@ -223,7 +242,9 @@ class TabsWidget extends BaseWidget<
         label: this.props.defaultTab,
       });
       // Find the default Tab id
-      const selectedTabWidgetId = selectedTab?.widgetId;
+      const selectedTabWidgetId = selectedTab
+        ? selectedTab.widgetId
+        : this.props.tabs[0].widgetId; // in case the default tab is deleted
       // If we have a legitimate default tab Id and it is not already the selected Tab
       if (
         selectedTabWidgetId &&
