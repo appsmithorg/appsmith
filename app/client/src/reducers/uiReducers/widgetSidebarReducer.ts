@@ -9,7 +9,7 @@ import {
 import { EditorReduxState } from "./editorReducer";
 
 export interface WidgetSidebarReduxState {
-  cards: WidgetCardProps[];
+  cards: { [id: string]: WidgetCardProps[] };
 }
 
 const initialState: WidgetSidebarReduxState = {
