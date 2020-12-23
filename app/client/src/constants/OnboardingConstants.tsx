@@ -95,9 +95,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
     tooltip: {
       title:
-        "Wohoo! Your first widget. 🎉 Go ahead and connect this to a Query",
-      description:
-        "Copy the example binding below and paste inside TableData input",
+        "Your first widget 🎉 Copy the snippet below and paste it inside TableData to see the magic",
       snippet: "{{ExampleQuery.data}}",
     },
     eventName: "ONBOARDING_ADD_WIDGET",

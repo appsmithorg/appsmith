@@ -182,6 +182,7 @@ function* createOnboardingDatasource() {
 
 function* listenForCreateAction() {
   yield take([ReduxActionTypes.CREATE_ACTION_SUCCESS]);
+  yield put(setCurrentStep(OnboardingStep.RUN_QUERY));
 
   yield put(showTooltip(OnboardingStep.RUN_QUERY));
   yield put({
