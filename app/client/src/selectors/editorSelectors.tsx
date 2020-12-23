@@ -96,10 +96,17 @@ export const getWidgetCards = createSelector(
     widgetConfigs: WidgetConfigReducerState,
   ) => {
     const cards = widgetCards.cards;
-    return cards.map((widget: WidgetCardProps) => {
-      const { rows, columns } = widgetConfigs.config[widget.type];
-      return { ...widget, rows, columns };
-    });
+    return cards
+      .map((widget: WidgetCardProps) => {
+        const { rows, columns } = widgetConfigs.config[widget.type];
+        return { ...widget, rows, columns };
+      })
+      .sort(
+        (
+          { widgetCardName: widgetACardName }: WidgetCardProps,
+          { widgetCardName: widgetBCardName }: WidgetCardProps,
+        ) => widgetACardName.localeCompare(widgetBCardName),
+      );
   },
 );
 
