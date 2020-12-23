@@ -13,6 +13,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDB;
+import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.Protocol;
 import com.arangodb.entity.CollectionEntity;
@@ -32,6 +33,7 @@ import reactor.core.scheduler.Schedulers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,18 +54,31 @@ public class ArangoDBPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(ArangoDatabase db,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
-            String query = actionConfiguration.getBody().trim();
-            if (query == null) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
-            }
 
-            ArangoCursor<Map> cursor = db.query(query, null, null, Map.class);
-            return Mono.just(cursor)
-                    .flatMap(res -> {
-                        ActionExecutionResult result = new ActionExecutionResult();
-                        result.setIsExecutionSuccess(true);
-                        result.setBody(objectMapper.valueToTree(res.asListRemaining()));
-                        return Mono.just(result);
+            return Mono.fromCallable(() -> {
+
+                String query = actionConfiguration.getBody();
+                if (query == null) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
+                }
+
+                List<Map> docList = new LinkedList<>();
+                try {
+                    ArangoCursor<Map> cursor = db.query(query, null, null, Map.class);
+                    docList.addAll(cursor.asListRemaining());
+                } catch (ArangoDBException e) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                }
+                ActionExecutionResult result = new ActionExecutionResult();
+                result.setBody(objectMapper.valueToTree(docList));
+                result.setIsExecutionSuccess(true);
+                System.out.println(Thread.currentThread().getName() + ": In the ArangoDBPlugin, got action execution result");
+                return Mono.just(result);
+            })
+                    .flatMap(obj -> obj)
+                    .map(obj -> {
+                        ActionExecutionResult result = (ActionExecutionResult) obj;
+                        return result;
                     })
                     .subscribeOn(scheduler);
         }
@@ -137,7 +152,7 @@ public class ArangoDBPlugin extends BasePlugin {
                     .doOnSuccess(tuple -> {
                         ArangoDatabase db = tuple.getT1();
 
-                        if(db != null) {
+                        if (db != null) {
                             db.arango().shutdown();
                         }
                     })
