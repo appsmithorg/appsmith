@@ -486,6 +486,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
         if (widget.tabId && widget.type === WidgetTypes.CANVAS_WIDGET) {
           const parent = { ...widgets[widget.parentId] };
           if (parent.tabs) {
+            parent.tabs = parent.tabs.slice();
             try {
               parent.tabs.push({
                 id: widget.tabId,
