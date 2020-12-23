@@ -113,7 +113,6 @@ const WidgetSidebar = (props: IPanelProps) => {
       el?.removeEventListener("cleared", search);
     };
   }, [searchInputRef, search]);
-  const groups = Object.keys(filteredCards);
   return (
     <>
       <ExplorerSearch
