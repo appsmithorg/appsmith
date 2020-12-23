@@ -71,18 +71,15 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   const widgets = useSelector(getExistingWidgetNames);
   const toggleEditWidgetName = useToggleEditWidgetName();
   const [name, setName] = useState(props.title);
-  const titleValueRef = useRef("");
 
   const updateTitle = useCallback(
-    (value: string) => {
+    (value?: string) => {
       if (
         value &&
         value.trim().length > 0 &&
         value.trim() !== props.title.trim() &&
         props.widgetId
       ) {
-        titleValueRef.current = value.trim();
-
         if (widgets.indexOf(value.trim()) > -1) {
           setName(props.title);
         }
@@ -105,15 +102,6 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
     props.widgetId && toggleEditWidgetName(props.widgetId, false);
   }, [toggleEditWidgetName, props.widgetId]);
 
-  const beforeUnmount = useCallback(
-    _value => {
-      if (_value && _value.trim() !== titleValueRef.current) {
-        updateTitle(_value);
-      }
-    },
-    [updateTitle],
-  );
-
   return props.widgetId ? (
     <Wrapper>
       <NameWrapper>
@@ -130,7 +118,7 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
           hideEditIcon
           minimal
           className="t--propery-page-title"
-          beforeUnmount={beforeUnmount}
+          beforeUnmount={updateTitle}
         />
         {updating && <Spinner size={16} />}
       </NameWrapper>
