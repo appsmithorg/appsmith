@@ -39,6 +39,7 @@ import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
 import { addTableWidgetFromQuery } from "actions/widgetActions";
 import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import Boxed from "components/editorComponents/Onboarding/Boxed";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -542,16 +543,27 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                             : "No data records to display"}
                         </p>
                         {!!output.length && (
-                          <AddWidgetButton
-                            className="t--add-widget"
-                            icon={"plus"}
-                            text="Add Widget"
-                            onClick={onAddWidget}
-                          />
+                          <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+                            <AddWidgetButton
+                              className="t--add-widget"
+                              icon={"plus"}
+                              text="Add Widget"
+                              onClick={onAddWidget}
+                            />
+                          </Boxed>
                         )}
                       </OutputHeader>
                       {isSQL ? (
-                        <Table data={output} />
+                        <OnboardingToolTip
+                          position={Position.TOP}
+                          step={[OnboardingStep.RUN_QUERY_SUCCESS]}
+                          offset={{
+                            enabled: true,
+                            offset: "-200, 0",
+                          }}
+                        >
+                          <Table data={output} />
+                        </OnboardingToolTip>
                       ) : (
                         <JSONViewer src={output} />
                       )}

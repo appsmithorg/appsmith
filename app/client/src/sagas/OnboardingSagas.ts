@@ -196,6 +196,10 @@ function* listenForCreateAction() {
     ReduxActionTypes.RUN_ACTION_INIT,
   ]);
   yield put(showTooltip(OnboardingStep.NONE));
+
+  yield take([ReduxActionTypes.RUN_ACTION_SUCCESS]);
+  yield put(setCurrentStep(OnboardingStep.RUN_QUERY_SUCCESS));
+  yield put(showTooltip(OnboardingStep.RUN_QUERY_SUCCESS));
 }
 
 function* listenForWidgetUnselection() {

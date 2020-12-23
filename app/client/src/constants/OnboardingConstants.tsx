@@ -7,9 +7,10 @@ export enum OnboardingStep {
   WELCOME = 0,
   EXAMPLE_DATABASE = 1,
   RUN_QUERY = 2,
-  ADD_WIDGET = 3,
-  SUCCESSFUL_BINDING = 4,
-  DEPLOY = 5,
+  RUN_QUERY_SUCCESS = 3,
+  ADD_WIDGET = 4,
+  SUCCESSFUL_BINDING = 5,
+  DEPLOY = 6,
 }
 
 export type OnboardingTooltip = {
@@ -74,6 +75,16 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
   },
   [OnboardingStep.RUN_QUERY]: {
     setup: () => {
+      return [];
+    },
+    tooltip: {
+      title:
+        "This is where you query data. Here’s one that fetches a list of users stored in the DB.",
+    },
+    eventName: "ONBOARDING_RUN_QUERY",
+  },
+  [OnboardingStep.RUN_QUERY_SUCCESS]: {
+    setup: () => {
       return [
         {
           type: ReduxActionTypes.LISTEN_FOR_ADD_WIDGET,
@@ -85,7 +96,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
     tooltip: {
       title:
-        "This is where you query data. Here’s one that fetches a list of users stored in the DB.",
+        "This is the response from your query. Now let’s connect it to a UI widget.",
     },
     eventName: "ONBOARDING_RUN_QUERY",
   },

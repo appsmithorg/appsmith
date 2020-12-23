@@ -36,7 +36,7 @@ const Wrapper = styled.div<{ isFinalStep: boolean }>`
 
   .${TooltipClassNames.TITLE} {
     font-weight: 500;
-    font-size: 14px;
+    font-size: 17px;
   }
   .${TooltipClassNames.DESCRIPTION} {
     font-size: 12px;
@@ -155,9 +155,11 @@ const OnboardingToolTip: React.FC<OnboardingToolTipProps> = (
           usePortal={false}
           position={props.position || Position.TOP}
           modifiers={{
-            preventOverflow: { enabled: false },
+            preventOverflow: {
+              enabled: true,
+              boundariesElement: "viewport",
+            },
             hide: { enabled: false },
-            flip: { enabled: false },
             offset: props.offset,
           }}
         >
