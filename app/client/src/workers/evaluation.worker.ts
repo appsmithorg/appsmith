@@ -455,6 +455,7 @@ const getEntityDependencies = (
     }, {});
 
   if (entity in entityDeps) {
+    const visited = new Set<string>();
     const recFind = (
       keys: Array<string>,
       deps: Record<string, string[]>,
@@ -463,6 +464,10 @@ const getEntityDependencies = (
       keys
         .filter(k => entities.includes(k))
         .forEach(e => {
+          if (visited.has(e)) {
+            return;
+          }
+          visited.add(e);
           allDeps = allDeps.concat([e]);
           if (e in deps) {
             allDeps = allDeps.concat([...recFind(deps[e], deps)]);
