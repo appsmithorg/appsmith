@@ -25,6 +25,7 @@ import _, {
   isUndefined,
   toNumber,
   toString,
+  isPlainObject,
 } from "lodash";
 import toposort from "toposort";
 import { DATA_BIND_REGEX } from "../constants/BindingsConstants";
@@ -39,6 +40,7 @@ import {
   EvalError,
   EvalErrorTypes,
   extraLibraries,
+  unsafeFunctionForEval,
   getEntityDynamicBindingPathList,
   getWidgetDynamicTriggerPathList,
   isPathADynamicBinding,
@@ -69,7 +71,8 @@ ctx.addEventListener("message", e => {
       const { binding, dataTree } = rest;
       const withFunctions = addFunctions(dataTree);
       const value = getDynamicValue(binding, withFunctions, false);
-      ctx.postMessage({ value, errors: ERRORS });
+      const cleanedResponse = removeFunctions(value);
+      ctx.postMessage({ value: cleanedResponse, errors: ERRORS });
       ERRORS = [];
       break;
     }
@@ -83,7 +86,8 @@ ctx.addEventListener("message", e => {
         true,
         callbackData,
       );
-      ctx.postMessage({ triggers, errors: ERRORS });
+      const cleanedResponse = removeFunctions(triggers);
+      ctx.postMessage({ triggers: cleanedResponse, errors: ERRORS });
       ERRORS = [];
       break;
     }
@@ -107,7 +111,8 @@ ctx.addEventListener("message", e => {
     case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
       const { widgetType, property, value, props } = rest;
       const result = validateWidgetProperty(widgetType, property, value, props);
-      ctx.postMessage(result);
+      const cleanedResponse = removeFunctions(result);
+      ctx.postMessage(cleanedResponse);
       break;
     }
     default: {
@@ -973,6 +978,13 @@ const evaluate = (
         self[library.accessor] = library.lib;
       });
 
+      ///// Remove all unsafe functions
+      unsafeFunctionForEval.forEach(func => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: No types available
+        self[func] = undefined;
+      });
+
       const evalResult = eval(script);
 
       // Remove it from self
@@ -1322,7 +1334,7 @@ const VALIDATORS: Record<ValidationType, Validator> = {
     }
     const isValidTableData = every(parsed, datum => {
       return (
-        isObject(datum) &&
+        isPlainObject(datum) &&
         Object.keys(datum).filter(key => isString(key) && key.length === 0)
           .length === 0
       );
@@ -1717,6 +1729,12 @@ const VALIDATORS: Record<ValidationType, Validator> = {
         }
       } else {
         try {
+          if (value === "") {
+            return {
+              isValid: true,
+              parsed: -1,
+            };
+          }
           const parsed = toNumber(value);
           return {
             isValid: true,

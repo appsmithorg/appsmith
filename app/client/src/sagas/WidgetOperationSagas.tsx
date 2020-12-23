@@ -329,6 +329,36 @@ const getAllWidgetsInTree = (
   return widgetList;
 };
 
+/**
+ * Note: Mutates finalWidgets[parentId].bottomRow for CANVAS_WIDGET
+ * @param finalWidgets
+ * @param parentId
+ */
+const resizeCanvasToLowestWidget = (
+  finalWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+) => {
+  if (
+    !finalWidgets[parentId] ||
+    finalWidgets[parentId].type !== WidgetTypes.CANVAS_WIDGET
+  ) {
+    return;
+  }
+
+  let lowestBottomRow = 0;
+  const childIds = finalWidgets[parentId].children || [];
+  // find lowest row
+  childIds.forEach(cId => {
+    const child = finalWidgets[cId];
+    if (child.bottomRow > lowestBottomRow) {
+      lowestBottomRow = child.bottomRow;
+    }
+  });
+  finalWidgets[parentId].bottomRow =
+    (lowestBottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+};
+
 export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
     let { widgetId, parentId } = deleteAction.payload;
@@ -402,10 +432,13 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
       yield call(clearEvalPropertyCacheOfWidget, widgetName);
 
-      const finalWidgets = _.omit(
+      const finalWidgets: CanvasWidgetsReduxState = _.omit(
         widgets,
         otherWidgetsToDelete.map(widgets => widgets.widgetId),
       );
+
+      // Note: mutates finalWidgets
+      resizeCanvasToLowestWidget(finalWidgets, parentId);
 
       yield put(updateAndSaveLayout(finalWidgets));
     }
@@ -454,10 +487,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
           const parent = { ...widgets[widget.parentId] };
           if (parent.tabs) {
             try {
-              const tabs = _.isString(parent.tabs)
-                ? JSON.parse(parent.tabs)
-                : parent.tabs;
-              tabs.push({
+              parent.tabs.push({
                 id: widget.tabId,
                 widgetId: widget.widgetId,
                 label: widget.tabName || widget.widgetName,
@@ -466,7 +496,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
                 ...widgets,
                 [widget.parentId]: {
                   ...widgets[widget.parentId],
-                  tabs: JSON.stringify(tabs),
+                  tabs: parent.tabs,
                 },
               };
             } catch (error) {
@@ -813,11 +843,30 @@ function* updateCanvasSize(
   }
 }
 
-function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
+function* createWidgetCopy() {
   const selectedWidget = yield select(getSelectedWidget);
   if (!selectedWidget) return;
   const widgets = yield select(getWidgets);
   const widgetsToStore = getAllWidgetsInTree(selectedWidget.widgetId, widgets);
+  const saveResult = yield saveCopiedWidgets(
+    JSON.stringify({ widgetId: selectedWidget.widgetId, list: widgetsToStore }),
+  );
+
+  return saveResult;
+}
+
+function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
+  const selectedWidget = yield select(getSelectedWidget);
+  if (!selectedWidget) {
+    Toaster.show({
+      text: `Please select a widget to copy`,
+      variant: Variant.info,
+    });
+    return;
+  }
+
+  const saveResult = yield createWidgetCopy();
+
   const eventName = action.payload.isShortcut
     ? "WIDGET_COPY_VIA_SHORTCUT"
     : "WIDGET_COPY";
@@ -825,9 +874,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
     widgetName: selectedWidget.widgetName,
     widgetType: selectedWidget.type,
   });
-  const saveResult = yield saveCopiedWidgets(
-    JSON.stringify({ widgetId: selectedWidget.widgetId, list: widgetsToStore }),
-  );
+
   if (saveResult) {
     Toaster.show({
       text: `Copied ${selectedWidget.widgetName}`,
@@ -988,16 +1035,12 @@ function* pasteWidgetSaga() {
       // Update the tabs for the tabs widget.
       if (widget.tabs && widget.type === WidgetTypes.TABS_WIDGET) {
         try {
-          const tabs = isString(widget.tabs)
-            ? JSON.parse(widget.tabs)
-            : widget.tabs;
+          const tabs = widget.tabs;
           if (Array.isArray(tabs)) {
-            widget.tabs = JSON.stringify(
-              tabs.map(tab => {
-                tab.widgetId = widgetIdMap[tab.widgetId];
-                return tab;
-              }),
-            );
+            widget.tabs = tabs.map(tab => {
+              tab.widgetId = widgetIdMap[tab.widgetId];
+              return tab;
+            });
           }
         } catch (error) {
           log.debug("Error updating tabs", error);
@@ -1075,12 +1118,30 @@ function* pasteWidgetSaga() {
 }
 
 function* cutWidgetSaga() {
-  yield put({
-    type: ReduxActionTypes.COPY_SELECTED_WIDGET_INIT,
-    payload: {
-      isShortcut: true, // We only have shortcut based "cut" operation today.
-    },
+  const selectedWidget = yield select(getSelectedWidget);
+  if (!selectedWidget) {
+    Toaster.show({
+      text: `Please select a widget to cut`,
+      variant: Variant.info,
+    });
+    return;
+  }
+
+  const saveResult = yield createWidgetCopy();
+
+  const eventName = "WIDGET_CUT_VIA_SHORTCUT"; // cut only supported through a shortcut
+  AnalyticsUtil.logEvent(eventName, {
+    widgetName: selectedWidget.widgetName,
+    widgetType: selectedWidget.type,
   });
+
+  if (saveResult) {
+    Toaster.show({
+      text: `Cut ${selectedWidget.widgetName}`,
+      variant: Variant.success,
+    });
+  }
+
   yield put({
     type: ReduxActionTypes.WIDGET_DELETE,
     payload: {

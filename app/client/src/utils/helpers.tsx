@@ -1,5 +1,9 @@
 import { GridDefaults } from "constants/WidgetConstants";
-import { JAVSCRIPT_KEYWORDS } from "constants/WidgetValidation";
+import {
+  DATA_TREE_KEYWORDS,
+  JAVASCRIPT_KEYWORDS,
+} from "constants/WidgetValidation";
+import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
 export const snapToGrid = (
   columnWidth: number,
   rowHeight: number,
@@ -165,7 +169,7 @@ export const convertArrayToSentence = (arr: string[]) => {
 };
 
 /**
- * checks if the name is conflciting with
+ * checks if the name is conflicting with
  * 1. API names,
  * 2. Queries name
  * 3. Javascript reserved names
@@ -180,9 +184,10 @@ export const isNameValid = (
   name: string,
   invalidNames: Record<string, any>,
 ) => {
-  if (name in JAVSCRIPT_KEYWORDS || name in invalidNames) {
-    return false;
-  }
-
-  return true;
+  return !(
+    name in JAVASCRIPT_KEYWORDS ||
+    name in DATA_TREE_KEYWORDS ||
+    name in GLOBAL_FUNCTIONS ||
+    name in invalidNames
+  );
 };

@@ -15,6 +15,18 @@ describe("FilePicker Widget Functionality", function() {
     cy.get(commonlocators.editPropCrossButton).click();
   });
 
+  it("It checks the loading state of filepicker on call the action", function() {
+    cy.openPropertyPane("filepickerwidget");
+    const fixturePath = "example.json";
+    cy.getAlert(commonlocators.filePickerOnFilesSelected);
+    cy.get(commonlocators.filePickerButton).click();
+    cy.get(commonlocators.filePickerInput)
+      .first()
+      .attachFile(fixturePath);
+    cy.get(commonlocators.filePickerUploadButton).click();
+    cy.get(".bp3-spinner").should("have.length", 1);
+  });
+
   afterEach(() => {
     // put your clean up code if any
   });

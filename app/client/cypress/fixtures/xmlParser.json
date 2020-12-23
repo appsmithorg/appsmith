@@ -1,0 +1,64 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1224,
+    "snapColumns": 16,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1280,
+    "containerStyle": "none",
+    "snapRows": 33,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 7,
+    "minHeight": 1292,
+    "parentColumnSpace": 1,
+    "leftColumn": 0,
+    "dynamicBindingPathList": [],
+    "children": [
+      {
+        "isVisible": true,
+        "text": "{{xmlParser.parse(Input1.text) }}",
+        "textStyle": "LABEL",
+        "textAlign": "LEFT",
+        "widgetName": "Text1",
+        "type": "TEXT_WIDGET",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 3,
+        "rightColumn": 8,
+        "topRow": 3,
+        "bottomRow": 10,
+        "parentId": "0",
+        "widgetId": "axlcnmjk4t",
+        "dynamicBindingPathList": [
+          {
+            "key": "text"
+          }
+        ]
+      },
+      {
+        "isVisible": true,
+        "inputType": "TEXT",
+        "label": "",
+        "widgetName": "Input1",
+        "type": "INPUT_WIDGET",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 3,
+        "rightColumn": 8,
+        "topRow": 2,
+        "bottomRow": 3,
+        "parentId": "0",
+        "widgetId": "8n5urob9mz",
+        "dynamicBindingPathList": [],
+        "defaultText": "<note>   <to>Tove</to>   <from>Jani</from>   <heading>Reminder</heading>   <body>Don't forget me this weekend!</body> </note>"
+      }
+    ]
+  }
+}

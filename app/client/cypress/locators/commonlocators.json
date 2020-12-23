@@ -70,6 +70,7 @@
   "toastmsg": ".Toastify__toast-body span",
   "copyWidget": ".t--copy-widget",
   "deleteWidget": ".t--delete-widget",
+  "dropTarget":".t--drop-target",
   "toastAction": ".t--toast-action",
   "toastBody": ".Toastify__toast-body",
   "videoInner": ".t--draggable-videowidget span.t--widget-name",
@@ -80,5 +81,13 @@
   "changeZoomlevel": ".t--property-control-maxzoomlevel .bp3-button",
   "selectedZoomlevel": ".t--property-control-maxzoomlevel button span",
   "imgWidget": "div[data-testid='styledImage']",
-  "selectTab": ".t--tab-Tab"
+  "selectTab": ".t--tab-Tab",
+  "deflautSelectedRow": ".t--property-control-defaultselectedrow textarea",
+  "defaultSearchText": ".t--property-control-defaultsearchtext textarea",
+  "entityName": ".t--entity-name",
+  "filePickerButton": ".t--widget-filepickerwidget",
+  "filePickerInput": ".uppy-Dashboard-input",
+  "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",
+  "filePickerOnFilesSelected": ".t--property-control-onfilesselected",
+  "dataType": ".t--property-control-datatype"
 }

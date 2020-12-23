@@ -3,13 +3,15 @@ package com.external.plugins;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import lombok.extern.slf4j.Slf4j;
+import com.zaxxer.hikari.HikariDataSource;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -37,7 +39,6 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit tests for the PostgresPlugin
  */
-@Slf4j
 public class PostgresPluginTest {
 
     PostgresPlugin.PostgresPluginExecutor pluginExecutor = new PostgresPlugin.PostgresPluginExecutor();
@@ -138,8 +139,8 @@ public class PostgresPluginTest {
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
-        AuthenticationDTO authDTO = new AuthenticationDTO();
-        authDTO.setAuthType(AuthenticationDTO.Type.USERNAME_PASSWORD);
+        DBAuth authDTO = new DBAuth();
+        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
         authDTO.setUsername(username);
         authDTO.setPassword(password);
         authDTO.setDatabaseName("postgres");
@@ -159,7 +160,7 @@ public class PostgresPluginTest {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
 
-        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
                 .assertNext(Assert::assertNotNull)
@@ -200,7 +201,7 @@ public class PostgresPluginTest {
     @Test
     public void testAliasColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
@@ -227,7 +228,7 @@ public class PostgresPluginTest {
     @Test
     public void testExecute() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
@@ -387,5 +388,24 @@ public class PostgresPluginTest {
                     );
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testStaleConnectionCheck() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("show databases");
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> {
+                    pool.close();
+                    return pluginExecutor.execute(pool, dsConfig, actionConfiguration);
+                });
+
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+                .verify();
     }
 }

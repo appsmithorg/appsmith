@@ -1,5 +1,7 @@
 /// <reference types="Cypress" />
 
+require("cypress-file-upload");
+
 const loginPage = require("../locators/LoginPage.json");
 const homePage = require("../locators/HomePage.json");
 const pages = require("../locators/Pages.json");
@@ -86,6 +88,14 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
     .first()
     .should("be.visible")
     .click();
+});
+
+Cypress.Commands.add("CheckShareIcon", (orgName, count) => {
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
+    .scrollIntoView()
+    .should("be.visible");
+  cy.get(homePage.orgList.concat(orgName).concat(") .org-share-user-icons"))
+    .should('have.length', count)
 });
 
 Cypress.Commands.add("shareApp", (email, role) => {
@@ -1134,8 +1144,8 @@ Cypress.Commands.add("Deletepage", Pagename => {
   cy.get(".t--page-sidebar-" + Pagename + "");
   cy.get(
     ".t--page-sidebar-" +
-      Pagename +
-      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
+    Pagename +
+    ">.t--page-sidebar-menu-actions>.bp3-popover-target",
   ).click({ force: true });
   cy.get(pages.Menuaction).click({ force: true });
   cy.get(pages.Delete).click({ force: true });
@@ -1524,11 +1534,11 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
   );
 });
 
-Cypress.Commands.add("dragAndDropToCanvas", widgetType => {
+Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.get(selector)
     .trigger("mousedown", { button: 0 }, { force: true })
-    .trigger("mousemove", 300, -300, { force: true });
+    .trigger("mousemove", x, y, { force: true });
   cy.get(explorer.dropHere)
     .click()
     .trigger("mouseup", { force: true });
@@ -1724,6 +1734,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("PUT", "/api/v1/organizations/*").as("updateOrganization");
   cy.route("GET", "/api/v1/pages/view/application/*").as("viewApp");
+  cy.route("POST", "/api/v1/organizations/*/logo").as("updateLogo");
+  cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
 });
 
 Cypress.Commands.add("alertValidate", text => {

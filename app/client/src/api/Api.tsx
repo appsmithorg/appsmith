@@ -2,9 +2,11 @@ import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import {
   REQUEST_TIMEOUT_MS,
   API_REQUEST_HEADERS,
+  API_STATUS_CODES,
+  ERROR_CODES,
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
-import { AUTH_LOGIN_URL, PAGE_NOT_FOUND_URL } from "constants/routes";
+import { AUTH_LOGIN_URL } from "constants/routes";
 import history from "utils/history";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
 import { SERVER_API_TIMEOUT_ERROR } from "../constants/messages";
@@ -66,6 +68,15 @@ axiosInstance.interceptors.response.use(
       return Promise.reject({
         ...error,
         message: SERVER_API_TIMEOUT_ERROR,
+        code: ERROR_CODES.REQUEST_TIMEOUT,
+      });
+    }
+    if (error.response.status === API_STATUS_CODES.SERVER_ERROR) {
+      return Promise.reject({
+        ...error,
+        crash: true,
+        code: ERROR_CODES.REQUEST_TIMEOUT,
+        message: SERVER_API_TIMEOUT_ERROR,
       });
     }
     if (error.response) {
@@ -76,26 +87,25 @@ axiosInstance.interceptors.response.use(
       // console.log(error.response.headers);
       if (!is404orAuthPath()) {
         const currentUrl = `${window.location.href}`;
-        if (error.response.status === 401) {
+        if (error.response.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED) {
           // Redirect to login and set a redirect url.
           history.replace({
             pathname: AUTH_LOGIN_URL,
             search: `redirectTo=${currentUrl}`,
           });
           return Promise.reject({
-            code: 401,
+            code: ERROR_CODES.REQUEST_NOT_AUTHORISED,
             message: "Unauthorized. Redirecting to login page...",
             show: false,
           });
         }
         const errorData = error.response.data.responseMeta;
-        if (errorData.status === 404 && errorData.error.code === 4028) {
-          history.replace({
-            pathname: PAGE_NOT_FOUND_URL,
-            search: `redirectTo=${currentUrl}`,
-          });
+        if (
+          errorData.status === API_STATUS_CODES.RESOURCE_NOT_FOUND &&
+          errorData.error.code === 4028
+        ) {
           return Promise.reject({
-            code: 404,
+            code: ERROR_CODES.PAGE_NOT_FOUND,
             message: "Resource Not Found",
             show: false,
           });

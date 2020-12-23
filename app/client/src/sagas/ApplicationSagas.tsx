@@ -41,6 +41,8 @@ import { Toaster } from "components/ads/Toast";
 import { APP_MODE } from "../reducers/entityReducers/appReducer";
 import { Organization } from "constants/orgConstants";
 import { Variant } from "components/ads/common";
+import { AppIconName } from "components/ads/AppIcon";
+import { AppColorCode } from "constants/DefaultTheme";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -187,14 +189,13 @@ export function* updateApplicationSaga(
       request,
     );
     const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
+    if (isValidResponse && request && request.name) {
+      Toaster.show({
+        text: "Application name updated",
+        variant: Variant.success,
+      });
       yield put({
         type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
-        payload: response.data,
-      });
-      Toaster.show({
-        text: "Application updated",
-        variant: Variant.success,
       });
     }
     if (isValidResponse && request.currentApp) {
@@ -209,10 +210,6 @@ export function* updateApplicationSaga(
       payload: {
         error,
       },
-    });
-    Toaster.show({
-      text: error,
-      variant: Variant.danger,
     });
   }
 }
@@ -317,12 +314,14 @@ export function* changeAppViewAccessSaga(
 export function* createApplicationSaga(
   action: ReduxAction<{
     applicationName: string;
+    icon: AppIconName;
+    color: AppColorCode;
     orgId: string;
     resolve: any;
     reject: any;
   }>,
 ) {
-  const { applicationName, orgId, reject } = action.payload;
+  const { applicationName, icon, color, orgId, reject } = action.payload;
   try {
     const userOrgs = yield select(getUserApplicationsOrgsList);
     const existingOrgs = userOrgs.filter(
@@ -348,6 +347,8 @@ export function* createApplicationSaga(
     } else {
       const request: CreateApplicationRequest = {
         name: applicationName,
+        icon: icon,
+        color: color,
         orgId,
       };
       const response: CreateApplicationResponse = yield call(

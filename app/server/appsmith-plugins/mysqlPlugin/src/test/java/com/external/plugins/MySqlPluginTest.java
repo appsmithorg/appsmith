@@ -1,6 +1,13 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.*;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Property;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -8,7 +15,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
-import io.r2dbc.spi.Batch;
 import lombok.extern.log4j.Log4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -16,18 +22,18 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.MySQLR2DBCDatabaseContainer;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertArrayEquals;
 
 @Log4j
 public class MySqlPluginTest {
@@ -118,8 +124,8 @@ public class MySqlPluginTest {
     }
 
     private static DatasourceConfiguration createDatasourceConfiguration() {
-        AuthenticationDTO authDTO = new AuthenticationDTO();
-        authDTO.setAuthType(AuthenticationDTO.Type.USERNAME_PASSWORD);
+        DBAuth authDTO = new DBAuth();
+        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
         authDTO.setUsername(username);
         authDTO.setPassword(password);
         authDTO.setDatabaseName(database);
@@ -146,8 +152,8 @@ public class MySqlPluginTest {
 
     @Test
     public void testConnectMySQLContainerWithInvalidTimezone() {
-        AuthenticationDTO authDTO = new AuthenticationDTO();
-        authDTO.setAuthType(AuthenticationDTO.Type.USERNAME_PASSWORD);
+        DBAuth authDTO = new DBAuth();
+        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
         authDTO.setUsername(mySQLContainerWithInvalidTimezone.getUsername());
         authDTO.setPassword(mySQLContainerWithInvalidTimezone.getPassword());
         authDTO.setDatabaseName(mySQLContainerWithInvalidTimezone.getDatabaseName());
@@ -174,14 +180,18 @@ public class MySqlPluginTest {
     public void testTestDatasource() {
         /* Expect no error */
         StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
-                .expectNextCount(1)
+                .assertNext(datasourceTestResult -> {
+                    assertEquals(0, datasourceTestResult.getInvalids().size());
+                })
                 .verifyComplete();
 
         /* Create bad datasource configuration and expect error */
         dsConfig.getEndpoints().get(0).setHost("badHost");
         StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
-                .expectError()
-                .verify();
+                .assertNext(datasourceTestResult -> {
+                    assertNotEquals(0, datasourceTestResult.getInvalids().size());
+                })
+                .verifyComplete();
 
         /* Reset dsConfig */
         createDatasourceConfiguration();
@@ -195,7 +205,6 @@ public class MySqlPluginTest {
         actionConfiguration.setBody("show databases");
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
-
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
@@ -207,11 +216,26 @@ public class MySqlPluginTest {
     }
 
     @Test
+    public void testStaleConnectionCheck() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("show databases");
+        Connection connection = pluginExecutor.datasourceCreate(dsConfig).block();
+
+        Flux<ActionExecutionResult> resultFlux = Mono.from(connection.close())
+                .thenMany(pluginExecutor.execute(connection, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultFlux)
+                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+                .verify();
+    }
+
+    @Test
     public void testValidateDatasourceNullCredentials() {
         dsConfig.setConnection(new com.appsmith.external.models.Connection());
-        dsConfig.getAuthentication().setUsername(null);
-        dsConfig.getAuthentication().setPassword(null);
-        dsConfig.getAuthentication().setDatabaseName("someDbName");
+        DBAuth auth = (DBAuth) dsConfig.getAuthentication();
+        auth.setUsername(null);
+        auth.setPassword(null);
+        auth.setDatabaseName("someDbName");
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
         assertTrue(output.contains("Missing username for authentication."));
         assertTrue(output.contains("Missing password for authentication."));
@@ -219,10 +243,10 @@ public class MySqlPluginTest {
 
     @Test
     public void testValidateDatasourceMissingDBName() {
-        dsConfig.getAuthentication().setDatabaseName("");
+        ((DBAuth) dsConfig.getAuthentication()).setDatabaseName("");
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
         assertEquals(output.size(), 1);
-        assertTrue(output.contains("Missing database name"));
+        assertTrue(output.contains("Missing database name."));
     }
 
     @Test
@@ -312,6 +336,97 @@ public class MySqlPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * 1. Add a test to check that mysql driver can interpret and read all the regular data types used in mysql.
+     * 2. List of the data types is taken is from https://dev.mysql.com/doc/refman/8.0/en/data-types.html
+     * 3. Data types tested here are: INTEGER, SMALLINT, TINYINT, MEDIUMINT, BIGINT, DECIMAL, FLOAT, DOUBLE, BIT,
+     *    DATE, DATETIME, TIMESTAMP, TIME, YEAR, CHAR, VARCHAR, BINARY, VARBINARY, TINYBLOB, BLOB, MEDIUMBLOB, LONGBLOB,
+     *    TINYTEXT, TEXT, MEDIUMTEXT, LONGTEXT, ENUM, SET, JSON, GEOMETRY, POINT    
+     */
+    @Test
+    public void testExecuteDataTypesExtensive() {
+        String query_create_table_numeric_types = "create table test_numeric_types (c_integer INTEGER, c_smallint " +
+                "SMALLINT, c_tinyint TINYINT, c_mediumint MEDIUMINT, c_bigint BIGINT, c_decimal DECIMAL, c_float " +
+                "FLOAT, c_double DOUBLE, c_bit BIT(10));";
+        String query_insert_into_table_numeric_types = "insert into test_numeric_types values (-1, 1, 1, 10, 2000, 1" +
+                ".02345, 0.1234, 1.0102344, b'0101010');";
+
+        String query_create_table_date_time_types = "create table test_date_time_types (c_date DATE, c_datetime " +
+                "DATETIME DEFAULT CURRENT_TIMESTAMP, c_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, c_time TIME, " +
+                "c_year YEAR);";
+        String query_insert_into_table_date_time_types = "insert into test_date_time_types values ('2020-12-01', " +
+                "'2020-12-01 20:20:20', '2020-12-01 20:20:20', '20:20:20', 2020);";
+
+        String query_create_table_data_types = "create table test_data_types (c_char CHAR(50), c_varchar VARCHAR(50)," +
+                " c_binary BINARY(20), c_varbinary VARBINARY(20), c_tinyblob TINYBLOB, c_blob BLOB, c_mediumblob " +
+                "MEDIUMBLOB, c_longblob LONGBLOB, c_tinytext TINYTEXT, c_text TEXT, c_mediumtext MEDIUMTEXT, " +
+                "c_longtext LONGTEXT, c_enum ENUM('ONE'), c_set SET('a'));";
+        String query_insert_data_types = "insert into test_data_types values ('test', 'test', 'a\\0\\t', 'a\\0\\t', " +
+                "'test', 'test', 'test', 'test',  'test', 'test', 'test', 'test', 'ONE', 'a');";
+
+        String query_create_table_json_data_type = "create table test_json_type (c_json JSON);";
+        String query_insert_json_data_type = "insert into test_json_type values ('{\"key1\": \"value1\", \"key2\": " +
+                "\"value2\"}');";
+
+        String query_create_table_geometry_types = "create table test_geometry_types (c_geometry GEOMETRY, c_point " +
+                "POINT);";
+        String query_insert_geometry_types = "insert into test_geometry_types values (ST_GeomFromText('POINT(1 1)'), " +
+                "ST_PointFromText('POINT(1 100)'));";
+
+        String query_select_from_test_numeric_types = "select * from test_numeric_types;";
+        String query_select_from_test_date_time_types = "select * from test_date_time_types;";
+        String query_select_from_test_json_data_type = "select * from test_json_type;";
+        String query_select_from_test_data_types = "select * from test_data_types;";
+        String query_select_from_test_geometry_types = "select * from test_geometry_types;";
+
+        ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
+        ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
+        Mono.from(ConnectionFactories.get(ob.build()).create())
+                .map(connection -> {
+                    return connection.createBatch()
+                            .add(query_create_table_numeric_types)
+                            .add(query_insert_into_table_numeric_types)
+                            .add(query_create_table_date_time_types)
+                            .add(query_insert_into_table_date_time_types)
+                            .add(query_create_table_json_data_type)
+                            .add(query_insert_json_data_type)
+                            .add(query_create_table_data_types)
+                            .add(query_insert_data_types)
+                            .add(query_create_table_geometry_types)
+                            .add(query_insert_geometry_types);
+                })
+                .flatMap(batch -> Mono.from(batch.execute()))
+                .block();
+
+        /* Test numeric types */
+        testExecute(query_select_from_test_numeric_types);
+        /* Test date time types */
+        testExecute(query_select_from_test_date_time_types);
+        /* Test data types */
+        testExecute(query_select_from_test_data_types);
+        /* Test data types */
+        testExecute(query_select_from_test_json_data_type);
+        /* Test data types */
+        testExecute(query_select_from_test_geometry_types);
+
+        return;
+    }
+
+    private void testExecute(String query) {
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(query);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
                 })
                 .verifyComplete();
     }

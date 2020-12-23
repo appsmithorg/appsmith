@@ -1,4 +1,4 @@
-import React, { Component, Fragment, useState } from "react";
+import React, { Component, Fragment, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { connect, useSelector, useDispatch } from "react-redux";
 import { AppState } from "reducers";
@@ -60,10 +60,11 @@ import { notEmptyValidator } from "components/ads/TextInput";
 import { saveOrg } from "actions/orgActions";
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
-import { getNextEntityName } from "utils/AppsmithUtils";
+import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import Spinner from "components/ads/Spinner";
 import ProfileImage from "pages/common/ProfileImage";
-import { Toaster } from "components/ads/Toast";
+import { getThemeDetails } from "selectors/themeSelectors";
+import { AppIconCollection } from "components/ads/AppIcon";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -339,6 +340,8 @@ const ApplicationAddCardWrapper = styled(Card)`
 `;
 
 function LeftPane() {
+  const menuRef = useRef<HTMLAnchorElement>(null);
+  const [selectedOrg, setSelectedOrg] = useState<string>("");
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const NewWorkspaceTrigger = (
@@ -358,6 +361,20 @@ function LeftPane() {
     userOrgs = loadingUserOrgs as any;
   }
 
+  const urlHash = decodeURI(
+    window.location.hash.substring(1, window.location.hash.length),
+  );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (menuRef && menuRef.current) {
+        menuRef.current.scrollIntoView({ behavior: "smooth" });
+        menuRef.current.click();
+      }
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [fetchedUserOrgs]);
+
   return (
     <LeftPaneWrapper>
       <LeftPaneSection
@@ -374,6 +391,7 @@ function LeftPane() {
           {userOrgs &&
             userOrgs.map((org: any) => (
               <MenuItem
+                {...(urlHash === org.organization.name ? { ref: menuRef } : {})}
                 className={
                   isFetchingApplications ? BlueprintClasses.SKELETON : ""
                 }
@@ -382,6 +400,11 @@ function LeftPane() {
                 href={`${window.location.pathname}#${org.organization.name}`}
                 text={org.organization.name}
                 ellipsize={20}
+                onSelect={() => setSelectedOrg(org.organization.id)}
+                selected={
+                  selectedOrg === org.organization.id &&
+                  urlHash === org.organization.name
+                }
               />
             ))}
         </WorkpsacesNavigator>
@@ -435,6 +458,7 @@ const NoSearchResultImg = styled.img`
 
 const ApplicationsSection = (props: any) => {
   const dispatch = useDispatch();
+  const themeDetails = useSelector(getThemeDetails);
   const isSavingOrgInfo = useSelector(getIsSavingOrgInfo);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const userOrgs = useSelector(getUserApplicationsOrgsList);
@@ -465,9 +489,6 @@ const ApplicationsSection = (props: any) => {
   const Form: any = OrgInviteUsersForm;
 
   const OrgNameChange = (newName: string, orgId: string) => {
-    Toaster.show({
-      text: "Updating organization name...",
-    });
     dispatch(
       saveOrg({
         id: orgId as string,
@@ -500,12 +521,19 @@ const ApplicationsSection = (props: any) => {
   };
 
   const createNewApplication = (applicationName: string, orgId: string) => {
-    console.log(applicationName, orgId);
+    const color = getRandomPaletteColor(
+      themeDetails.theme.colors.appCardColors,
+    );
+    const icon =
+      AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
+
     return dispatch({
       type: ReduxActionTypes.CREATE_APPLICATION_INIT,
       payload: {
         applicationName,
         orgId,
+        icon,
+        color,
       },
     });
   };
@@ -536,7 +564,6 @@ const ApplicationsSection = (props: any) => {
     organizationsListComponent = updatedOrgs.map(
       (organizationObject: any, index: number) => {
         const { organization, applications, userRoles } = organizationObject;
-        const userProfiles = userRoles && userRoles.splice(5);
         const hasManageOrgPermissions = isPermitted(
           organization.userPermissions,
           PERMISSION_TYPE.MANAGE_ORGANIZATION,
@@ -621,17 +648,19 @@ const ApplicationsSection = (props: any) => {
                 !isFetchingApplications && (
                   <OrgShareUsers>
                     <UserImageContainer>
-                      {userRoles.map((el: UserRoles) => (
+                      {userRoles
+                        .slice(0, 5)
+                        .map((el: UserRoles, index: number) => (
+                          <ProfileImage
+                            className="org-share-user-icons"
+                            userName={el.name ? el.name : el.username}
+                            key={el.username}
+                          />
+                        ))}
+                      {userRoles.length > 5 ? (
                         <ProfileImage
                           className="org-share-user-icons"
-                          userName={el.name ? el.name : el.username}
-                          key={el.username}
-                        />
-                      ))}
-                      {userProfiles && userProfiles.length > 0 ? (
-                        <ProfileImage
-                          className="org-share-user-icons"
-                          commonName={`+${userProfiles.length}`}
+                          commonName={`+${userRoles.length - 5}`}
                         />
                       ) : null}
                     </UserImageContainer>

@@ -12,6 +12,7 @@ import {
   ReactTableFilter,
 } from "widgets/TableWidget";
 import { EventType } from "constants/ActionConstants";
+import produce from "immer";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -32,6 +33,7 @@ export interface ColumnMenuSubOptionProps {
   onClick?: (columnIndex: number) => void;
   id?: string;
   category?: boolean;
+  isHeader?: boolean;
 }
 
 interface ReactTableComponentProps {
@@ -146,10 +148,9 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
         header.parentElement.className = "th header-reorder";
         if (i !== dragged && dragged !== -1) {
           e.preventDefault();
-          let columnOrder = props.columnOrder;
-          if (columnOrder === undefined) {
-            columnOrder = props.columns.map(item => item.accessor);
-          }
+          const columnOrder = props.columnOrder
+            ? [...props.columnOrder]
+            : props.columns.map(item => item.accessor);
           const draggedColumn = props.columns[dragged].accessor;
           columnOrder.splice(dragged, 1);
           columnOrder.splice(i, 0, draggedColumn);
@@ -275,9 +276,15 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
 
   const handleResizeColumn = (columnIndex: number, columnWidth: string) => {
     const column = props.columns[columnIndex];
-    const columnSizeMap = props.columnSizeMap || {};
     const width = Number(columnWidth.split("px")[0]);
-    columnSizeMap[column.accessor] = width;
+    const columnSizeMap = props.columnSizeMap
+      ? {
+          ...props.columnSizeMap,
+          [column.accessor]: width,
+        }
+      : {
+          [column.accessor]: width,
+        };
     props.handleResizeColumn(columnSizeMap);
   };
 
