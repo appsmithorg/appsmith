@@ -24,9 +24,8 @@ const DeleteIcon = FormIcons.DELETE_ICON;
 const Wrapper = styled.div`
   justify-content: center;
   align-items: center;
-  display: grid;
+  display: flex;
   width: 100%;
-  grid-template-columns: 146px 25px 25px 25px 25px;
   justify-items: center;
   align-items: center;
   justify-content: stretch;
@@ -35,11 +34,16 @@ const Wrapper = styled.div`
   top: 0;
   z-index: 3;
   background-color: ${props => props.theme.colors.paneBG};
+  & > span.${Classes.POPOVER_WRAPPER} {
+    margin-left: 8px;
+  }
+
   & span.${Classes.POPOVER_TARGET} {
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin
   }
 `;
 
@@ -48,7 +52,7 @@ const NameWrapper = styled.div`
   display: flex;
   flex: 0 0 auto;
   display: grid;
-  grid-template-columns: 126px 20px;
+  flex: 1;
   &&&&&&& > * {
     overflow: hidden;
   }
