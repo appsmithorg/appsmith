@@ -7,8 +7,10 @@ hiccups.
 As much as possible, please try to abide by the following code design:
 1. All plugins are part of the package: com.external.plugins.
 2. All plugin src code resides in the path: [app/server/appsmith-plugins](https://github.com/appsmithorg/appsmith/tree/release/app/server/appsmith-plugins) 
-3. To integrate the new plugin, add corresponding changes to the file DatabaseChangelog.java like
+3. To integrate the new plugin:
+   - add corresponding changes to the file DatabaseChangelog.java like
    [here](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-server/src/main/java/com/appsmith/server/migrations/DatabaseChangelog.java#L1258)
+   - add your plugin to [this POM file](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/pom.xml) 
 4. Each plugin must implement all the methods defined by [this](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-interfaces/src/main/java/com/appsmith/external/plugins/PluginExecutor.java) interface like [here](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/mysqlPlugin/src/main/java/com/external/plugins/MySqlPlugin.java) and [here](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/restApiPlugin/src/main/java/com/external/plugins/RestApiPlugin.java)
 
 ### Package Dependency
