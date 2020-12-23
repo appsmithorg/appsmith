@@ -23,6 +23,7 @@ import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QDatasource;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Query;
 import com.appsmith.server.domains.Role;
@@ -1494,5 +1495,25 @@ public class DatabaseChangelog {
                 return null;
             }
         });
+    }
+
+    @ChangeSet(order = "046", id = "ensure-encrypted-field-for-datasources", author = "")
+    public void ensureIsEncryptedFieldForDatasources(MongoTemplate mongoTemplate) {
+        final String isEncryptedField = "datasourceConfiguration.authentication.isEncrypted";
+        final String passwordField = "datasourceConfiguration.authentication.password";
+
+        final org.springframework.data.mongodb.core.query.Query query = query(new Criteria().andOperator(
+                where(passwordField).exists(true),
+                where(isEncryptedField).exists(false)
+        ));
+        query.fields().include("_id");
+
+        for (final Datasource datasource : mongoTemplate.find(query, Datasource.class)) {
+            mongoTemplate.updateFirst(
+                    query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
+                    update(isEncryptedField, true),
+                    Datasource.class
+            );
+        }
     }
 }
