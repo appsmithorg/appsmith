@@ -94,8 +94,9 @@ Cypress.Commands.add("CheckShareIcon", (orgName, count) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(homePage.orgList.concat(orgName).concat(") .org-share-user-icons"))
-    .should('have.length', count)
+  cy.get(
+    homePage.orgList.concat(orgName).concat(") .org-share-user-icons"),
+  ).should("have.length", count);
 });
 
 Cypress.Commands.add("shareApp", (email, role) => {
@@ -1144,8 +1145,8 @@ Cypress.Commands.add("Deletepage", Pagename => {
   cy.get(".t--page-sidebar-" + Pagename + "");
   cy.get(
     ".t--page-sidebar-" +
-    Pagename +
-    ">.t--page-sidebar-menu-actions>.bp3-popover-target",
+      Pagename +
+      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
   ).click({ force: true });
   cy.get(pages.Menuaction).click({ force: true });
   cy.get(pages.Delete).click({ force: true });
