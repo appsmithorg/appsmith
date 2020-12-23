@@ -1,6 +1,12 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.*;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
@@ -12,10 +18,8 @@ import com.arangodb.Protocol;
 import com.arangodb.entity.CollectionEntity;
 import com.arangodb.model.CollectionSchema;
 import com.arangodb.model.CollectionsReadOptions;
-import com.mongodb.reactivestreams.client.MongoDatabase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
-import org.bson.Document;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.pf4j.util.StringUtils;
@@ -25,9 +29,12 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ArangoDBPlugin extends BasePlugin {
 
