@@ -37,8 +37,7 @@ As much as possible, please try to abide by the following code design:
 6. Always check for `null` values before using objects. 
 7. Comment your code in hard to understand areas. 
 8. In case your method implementation is too large (use your own judgement here), please refactor it into smaller 
-   methods. 
-    
+   methods.
 
 ### Unit Test 
 1. Every plugin must have its own unit test file like [this](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/postgresPlugin/src/test/java/com/external/plugins/PostgresPluginTest.java).
@@ -65,3 +64,8 @@ As much as possible, please try to abide by the following code design:
 3. You may share you pull request on Appsmith's discord channel or send an email to support@appsmith.com for attention.
 4. Please be as descriptive as possible in the pull request's description section. Clearly mention how the code has 
    been tested. If possible, add snapshots too. 
+
+### Need Assistance
+- If you are unable to resolve any issue, please initiate a Github discussion or send an email to support@appsmith.
+  com. We'll be happy to help you.
+- In case you notice any discrepancy, please raise an issue on Github and/or send an email to support@appsmith.com.
