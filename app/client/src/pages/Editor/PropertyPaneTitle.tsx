@@ -156,6 +156,7 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
         }
         position={Position.TOP}
         hoverOpenDelay={200}
+        boundary="window"
       >
         <Icon color={theme.colors.paneSectionLabel} icon="help" iconSize={16} />
       </Tooltip>

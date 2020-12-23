@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
@@ -137,7 +137,7 @@ public class ElasticSearchPlugin extends BasePlugin {
 
                 final RestClientBuilder clientBuilder = RestClient.builder(hosts.toArray(new HttpHost[]{}));
 
-                final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+                final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
                 if (authentication != null
                         && !StringUtils.isEmpty(authentication.getUsername())
                         && !StringUtils.isEmpty(authentication.getPassword())) {

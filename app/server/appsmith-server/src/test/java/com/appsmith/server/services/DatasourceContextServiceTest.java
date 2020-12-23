@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Datasource;
@@ -64,7 +64,7 @@ public class DatasourceContextServiceTest {
         datasource.setName("test datasource name for authenticated fields decryption test");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        AuthenticationDTO authenticationDTO = new AuthenticationDTO();
+        DBAuth authenticationDTO = new DBAuth();
         String username = "username";
         String password = "password";
         authenticationDTO.setUsername(username);
@@ -81,8 +81,8 @@ public class DatasourceContextServiceTest {
         StepVerifier
                 .create(datasourceMono)
                 .assertNext(savedDatasource -> {
-                    AuthenticationDTO authentication = savedDatasource.getDatasourceConfiguration().getAuthentication();
-                    AuthenticationDTO decryptedAuthentication = datasourceContextService.decryptSensitiveFields(authentication);
+                    DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
+                    DBAuth decryptedAuthentication = (DBAuth) datasourceContextService.decryptSensitiveFields(authentication);
                     assertThat(decryptedAuthentication.getPassword()).isEqualTo(password);
                 })
                 .verifyComplete();
@@ -98,7 +98,7 @@ public class DatasourceContextServiceTest {
         datasource.setName("test datasource name for authenticated fields decryption test null password");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
-        AuthenticationDTO authenticationDTO = new AuthenticationDTO();
+        DBAuth authenticationDTO = new DBAuth();
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setOrganizationId(orgId);
@@ -111,8 +111,8 @@ public class DatasourceContextServiceTest {
         StepVerifier
                 .create(datasourceMono)
                 .assertNext(savedDatasource -> {
-                    AuthenticationDTO authentication = savedDatasource.getDatasourceConfiguration().getAuthentication();
-                    AuthenticationDTO decryptedAuthentication = datasourceContextService.decryptSensitiveFields(authentication);
+                    DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
+                    DBAuth decryptedAuthentication = (DBAuth) datasourceContextService.decryptSensitiveFields(authentication);
                     assertThat(decryptedAuthentication.getPassword()).isNull();
                 })
                 .verifyComplete();
