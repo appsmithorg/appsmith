@@ -1,7 +1,7 @@
 import React from "react";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
-import { Icon, Popover, Spinner, Tag } from "@blueprintjs/core";
+import { Icon, Popover, Position, Spinner, Tag } from "@blueprintjs/core";
 import {
   components,
   MenuListComponentProps,
@@ -37,6 +37,8 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
 import { addTableWidgetFromQuery } from "actions/widgetActions";
+import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -583,13 +585,23 @@ const renderEachConfig = (section: any): any => {
       return renderEachConfig(formControlOrSection);
     } else {
       try {
-        const { configProperty } = formControlOrSection;
+        const { configProperty, controlType } = formControlOrSection;
         return (
           <FieldWrapper key={configProperty}>
-            <FormControl
-              config={formControlOrSection}
-              formName={QUERY_EDITOR_FORM_NAME}
-            />
+            <OnboardingToolTip
+              step={[OnboardingStep.RUN_QUERY]}
+              show={controlType === "QUERY_DYNAMIC_TEXT"}
+              position={Position.TOP_LEFT}
+              offset={{
+                enabled: true,
+                offset: "200, 0",
+              }}
+            >
+              <FormControl
+                config={formControlOrSection}
+                formName={QUERY_EDITOR_FORM_NAME}
+              />
+            </OnboardingToolTip>
           </FieldWrapper>
         );
       } catch (e) {

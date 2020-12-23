@@ -172,19 +172,29 @@ function* createOnboardingDatasource() {
     // Need to hide this tooltip based on some events
     yield take([ReduxActionTypes.QUERY_PANE_CHANGE]);
     yield put(showTooltip(OnboardingStep.NONE));
-
-    // Stop showing indicator
-    yield take([ReduxActionTypes.CREATE_ACTION_SUCCESS]);
-    yield put({
-      type: "SHOW_INDICATOR",
-      payload: OnboardingStep.NONE,
-    });
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_ONBOARDING_DBQUERY_ERROR,
       payload: { error },
     });
   }
+}
+
+function* listenForCreateAction() {
+  yield take([ReduxActionTypes.CREATE_ACTION_SUCCESS]);
+
+  yield put(showTooltip(OnboardingStep.RUN_QUERY));
+  yield put({
+    type: "SHOW_INDICATOR",
+    payload: OnboardingStep.RUN_QUERY,
+  });
+
+  yield take([
+    ReduxActionTypes.UPDATE_ACTION_INIT,
+    ReduxActionTypes.QUERY_PANE_CHANGE,
+    ReduxActionTypes.RUN_ACTION_INIT,
+  ]);
+  yield put(showTooltip(OnboardingStep.NONE));
 }
 
 function* listenForWidgetUnselection() {
@@ -277,6 +287,7 @@ export default function* onboardingSagas() {
     ),
     takeEvery(ReduxActionTypes.NEXT_ONBOARDING_STEP, proceedOnboardingSaga),
     takeEvery(ReduxActionTypes.END_ONBOARDING, skipOnboardingSaga),
+    takeEvery("LISTEN_FOR_CREATE_ACTION", listenForCreateAction),
     takeEvery(ReduxActionTypes.LISTEN_FOR_ADD_WIDGET, listenForWidgetAdditions),
     takeEvery(
       ReduxActionTypes.LISTEN_FOR_TABLE_WIDGET_BINDING,

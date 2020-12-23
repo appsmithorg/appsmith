@@ -6,9 +6,10 @@ export enum OnboardingStep {
   NONE = -1,
   WELCOME = 0,
   EXAMPLE_DATABASE = 1,
-  ADD_WIDGET = 2,
-  SUCCESSFUL_BINDING = 3,
-  DEPLOY = 4,
+  RUN_QUERY = 2,
+  ADD_WIDGET = 3,
+  SUCCESSFUL_BINDING = 4,
+  DEPLOY = 5,
 }
 
 export type OnboardingTooltip = {
@@ -61,6 +62,20 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
           type: ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_INIT,
         },
         {
+          type: "LISTEN_FOR_CREATE_ACTION",
+        },
+      ];
+    },
+    tooltip: {
+      title:
+        "We’ve connected to an example Postgres database. You can now query it.",
+    },
+    eventName: "ONBOARDING_EXAMPLE_DATABASE",
+  },
+  [OnboardingStep.RUN_QUERY]: {
+    setup: () => {
+      return [
+        {
           type: ReduxActionTypes.LISTEN_FOR_ADD_WIDGET,
         },
         {
@@ -70,9 +85,9 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
     tooltip: {
       title:
-        "We’ve connected to an example Postgres database. You can now query it.",
+        "This is where you query data. Here’s one that fetches a list of users stored in the DB.",
     },
-    eventName: "ONBOARDING_EXAMPLE_DATABASE",
+    eventName: "ONBOARDING_RUN_QUERY",
   },
   [OnboardingStep.ADD_WIDGET]: {
     setup: () => {
