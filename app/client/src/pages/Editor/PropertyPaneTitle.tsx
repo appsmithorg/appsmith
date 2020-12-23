@@ -1,4 +1,4 @@
-import React, { useState, memo, useEffect, useCallback, useRef } from "react";
+import React, { useState, memo, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import EditableText, {
