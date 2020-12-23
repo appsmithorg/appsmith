@@ -40,6 +40,7 @@ import { addTableWidgetFromQuery } from "actions/widgetActions";
 import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
+import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -460,14 +461,19 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                 </Popover>
               </>
             ) : (
-              <ActionButton
-                className="t--run-query"
-                text="Run"
-                filled
-                loading={isRunning}
-                accent="primary"
-                onClick={onRunClick}
-              />
+              <OnboardingIndicator
+                step={OnboardingStep.RUN_QUERY}
+                offset={{ left: -10 }}
+              >
+                <ActionButton
+                  className="t--run-query"
+                  text="Run"
+                  filled
+                  loading={isRunning}
+                  accent="primary"
+                  onClick={onRunClick}
+                />
+              </OnboardingIndicator>
             )}
           </ActionButtons>
         </ActionsWrapper>

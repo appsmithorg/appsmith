@@ -100,7 +100,9 @@ const CompletionDialog = () => {
     const showCompletionDialog = async () => {
       const inOnboarding = await getOnboardingState();
       if (params.onboardingComplete && inOnboarding) {
-        setIsOpen(true);
+        setTimeout(() => {
+          setIsOpen(true);
+        }, 2000);
       }
     };
 

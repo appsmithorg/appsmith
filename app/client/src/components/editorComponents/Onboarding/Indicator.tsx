@@ -15,7 +15,7 @@ const IndicatorWrapper = styled.div<{ offset?: any }>`
   margin-top: auto;
   bottom: ${props => props.offset?.bottom ?? 0}px;
   margin-bottom: auto;
-  left: 0;
+  left: ${props => props.offset?.left ?? 0}px;
   margin-left: auto;
   right: 0;
   margin-right: auto;

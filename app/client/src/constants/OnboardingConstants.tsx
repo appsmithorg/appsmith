@@ -120,9 +120,9 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       ];
     },
     tooltip: {
-      title: "This table is now connected to Example Query",
+      title: "Your widget is now talking to your data 👌👏",
       description:
-        "You can connect properties to variables on Appsmith with {{ }} bindings",
+        "You can access widgets and actions as JS variables anywhere inside {{ }}",
       action: {
         label: "Next",
         action: setCurrentStep(OnboardingStep.DEPLOY),
@@ -140,8 +140,6 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
     tooltip: {
       title: "You’re almost done! Just Hit Deploy",
-      description:
-        "Deploying your apps is a crucial step to building on appsmith.",
       isFinalStep: true,
     },
     eventName: "ONBOARDING_DEPLOY",
