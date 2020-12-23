@@ -25,7 +25,8 @@ As much as possible, please try to abide by the following code design:
 1. Please name your file like `DbnamePlugin.java`, for example: [PostgresPlugin.java](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/postgresPlugin/src/main/java/com/external/plugins/PostgresPlugin.java).
 2. When importing packages make sure that only those packages are imported that are used, and refrain from using `xyz.*`.
 3. Refrain from using magic strings. Whenever possible, assign them to a `private static` variable for usage.
-4. Appsmith's API server is powered by Spring weblfux and hence expects programmers to follow a reactive model.
+4. Appsmith's API server is powered by [Spring weblfux](https://docs.spring.io/spring-framework/docs/current/reference/html/web-reactive.html#webflux) and hence expects programmers to 
+   follow a [reactive model](https://www.reactive-streams.org/).
    - In case a reactive driver is available for the plugin that you want to add, please use it after verifying
      that it supports all of the commonly used data types. In case the reactive driver does not support enough data types,
      please use any other well known and trusted driver.
