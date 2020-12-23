@@ -47,7 +47,10 @@ public class AuthenticationDTO {
 
     @JsonIgnore
     public boolean isEncrypted() {
-        return Boolean.TRUE.equals(isEncrypted);
+        if (isEncrypted == null) {
+            return true;
+        }
+        return isEncrypted;
     }
 
 }
