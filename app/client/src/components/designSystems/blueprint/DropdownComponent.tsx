@@ -278,6 +278,8 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             </StyledSingleDropDown>
           ) : (
             <StyledMultiDropDown
+              resetOnSelect
+              scrollToActiveItem={false}
               className={this.props.isLoading ? Classes.SKELETON : ""}
               items={this.props.options}
               itemListPredicate={this.itemListPredicate}
