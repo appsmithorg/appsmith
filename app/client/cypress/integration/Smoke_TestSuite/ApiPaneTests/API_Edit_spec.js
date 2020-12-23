@@ -22,5 +22,24 @@ describe("API Panel Test Functionality", function() {
     cy.ClearSearch();
     cy.SearchEntityandOpen("SecondAPI");
     cy.DeleteAPI();
+    cy.ClearSearch();
+  });
+
+  it("Should not crash on key delete", function() {
+    cy.NavigateToAPI_Panel();
+    cy.CreateAPI("CrashTestAPI");
+    cy.SelectAction(testdata.postAction);
+    cy.xpath(apiwidget.postDefaultContentTypeHeaderKey)
+      .first()
+      .focus({ force: true })
+      .type("{uparrow}", { force: true })
+      .type("{ctrl}{shift}{downarrow}", { force: true })
+      .type("{backspace}", { force: true });
+    // assert so that this fails
+    cy.xpath(apiwidget.postDefaultContentTypeHeaderKey).should("be.visible");
+    cy.xpath(apiwidget.postDefaultContentTypeHeaderKey).should(
+      "have.value",
+      "",
+    );
   });
 });

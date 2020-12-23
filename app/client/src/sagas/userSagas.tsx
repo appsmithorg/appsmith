@@ -37,6 +37,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { flushErrorsAndRedirect } from "actions/errorActions";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -351,8 +352,8 @@ export function* logoutSaga() {
     if (isValidResponse) {
       AnalyticsUtil.reset();
       yield put(logoutUserSuccess());
-      history.push(AUTH_LOGIN_URL);
       localStorage.removeItem("THEME");
+      yield put(flushErrorsAndRedirect(AUTH_LOGIN_URL));
     }
   } catch (error) {
     console.log(error);

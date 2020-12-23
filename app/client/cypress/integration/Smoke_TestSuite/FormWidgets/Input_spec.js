@@ -2,8 +2,6 @@ const commonlocators = require("../../../locators/commonlocators.json");
 const dsl = require("../../../fixtures/newFormDsl.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
-const pages = require("../../../locators/Pages.json");
-const explorer = require("../../../locators/explorerlocators.json");
 
 describe("Input Widget Functionality", function() {
   before(() => {
@@ -112,6 +110,25 @@ describe("Input Widget Functionality", function() {
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("be.visible");
     cy.get(publish.backToEditor).click({ force: true });
+  });
+
+  it("Input Functionality To check number input type with custom regex", function() {
+    cy.openPropertyPane("inputwidget");
+    cy.get(commonlocators.dataType).click();
+    cy.get(
+      `${commonlocators.dataType} .single-select:contains("Number")`,
+    ).click();
+    cy.testJsontext("regex", "^s*(?=.*[1-9])d*(?:.d{1,2})?s*$");
+    cy.get(widgetsPage.innertext)
+      .click()
+      .clear()
+      .type("1.255");
+    cy.get(".bp3-popover-content").should($x => {
+      expect($x).contain("Invalid input");
+    });
+    cy.get(widgetsPage.innertext)
+      .click()
+      .clear();
   });
 });
 afterEach(() => {

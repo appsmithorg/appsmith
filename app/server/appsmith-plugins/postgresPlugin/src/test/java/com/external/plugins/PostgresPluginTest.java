@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
@@ -138,8 +139,8 @@ public class PostgresPluginTest {
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
-        AuthenticationDTO authDTO = new AuthenticationDTO();
-        authDTO.setAuthType(AuthenticationDTO.Type.USERNAME_PASSWORD);
+        DBAuth authDTO = new DBAuth();
+        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
         authDTO.setUsername(username);
         authDTO.setPassword(password);
         authDTO.setDatabaseName("postgres");

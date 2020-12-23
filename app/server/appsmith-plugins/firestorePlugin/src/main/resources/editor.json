@@ -35,6 +35,10 @@
               "value": "CREATE_DOCUMENT"
             },
             {
+              "label": "Add Document to Collection",
+              "value": "ADD_TO_COLLECTION"
+            },
+            {
               "label": "Update Document",
               "value": "UPDATE_DOCUMENT"
             },

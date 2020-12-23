@@ -3,6 +3,7 @@
  * */
 import { get, omit } from "lodash";
 import { all, select, put, takeEvery, call, take } from "redux-saga/effects";
+import * as Sentry from "@sentry/react";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -53,6 +54,8 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { EventLocation } from "utils/AnalyticsUtil";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -208,10 +211,10 @@ function* updateFormFields(
       const { actionConfiguration } = values;
       const actionConfigurationHeaders = actionConfiguration.headers;
       let contentType;
-
       if (actionConfigurationHeaders) {
         contentType = actionConfigurationHeaders.find(
-          (header: any) => header.key.toLowerCase() === CONTENT_TYPE,
+          (header: any) =>
+            header && header.key && header.key.toLowerCase() === CONTENT_TYPE,
         );
       }
 
@@ -237,7 +240,8 @@ function* updateFormFields(
 
     if (actionConfigurationHeaders) {
       const contentType = actionConfigurationHeaders.find(
-        (header: any) => header.key.toLowerCase() === CONTENT_TYPE,
+        (header: any) =>
+          header && header.key && header.key.toLowerCase() === CONTENT_TYPE,
       );
 
       if (contentType && POST_BODY_FORMATS.includes(contentType.value)) {
@@ -411,6 +415,20 @@ function* handleApiNameChangeSuccessSaga(
   const { actionId } = action.payload;
   const actionObj = yield select(getAction, actionId);
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
+  if (!actionObj) {
+    // Error case, log to sentry
+    Toaster.show({
+      text: "Error occured while renaming API",
+      variant: Variant.danger,
+    });
+
+    Sentry.captureException(new Error("Error occured while renaming API"), {
+      extra: {
+        actionId: actionId,
+      },
+    });
+    return;
+  }
   if (actionObj.pluginType === PLUGIN_TYPE_API) {
     const params = getQueryParams();
     if (params.editName) {

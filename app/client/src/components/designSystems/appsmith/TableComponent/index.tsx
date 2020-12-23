@@ -28,6 +28,7 @@ export interface ColumnMenuSubOptionProps {
   onClick?: (columnIndex: number) => void;
   id?: string;
   category?: boolean;
+  isHeader?: boolean;
 }
 
 interface ReactTableComponentProps {

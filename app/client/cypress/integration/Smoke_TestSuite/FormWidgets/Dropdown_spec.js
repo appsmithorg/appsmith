@@ -14,7 +14,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.openPropertyPane("dropdownwidget");
 
     cy.testJsontext("options", JSON.stringify(data.input));
-    cy.testJsontext("defaultoption", "Not an option");
+    cy.testJsontext("defaultoption", "{{ undefined }}");
 
     cy.get(formWidgetsPage.dropdownWidget)
       .find(widgetLocators.dropdownSingleSelect)
