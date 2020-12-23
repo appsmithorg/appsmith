@@ -26,7 +26,7 @@ describe("Binding the Table and input Widget", function() {
       .last()
       .type("2736212", { force: true });
     cy.get(commonlocators.editPropCrossButton).click();
-    cy.isSelectRow(0);
+    cy.wait("@updateLayout").isSelectRow(0);
     cy.readTabledataPublish("0", "0").then(tabData => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("2736212");

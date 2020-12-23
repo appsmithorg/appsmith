@@ -1728,6 +1728,12 @@ const VALIDATORS: Record<ValidationType, Validator> = {
         }
       } else {
         try {
+          if (value === "") {
+            return {
+              isValid: true,
+              parsed: -1,
+            };
+          }
           const parsed = toNumber(value);
           return {
             isValid: true,
