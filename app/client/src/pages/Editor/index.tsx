@@ -68,8 +68,10 @@ type EditorProps = {
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 
 const getSelectedText = () => {
-  const selectionObj = window.getSelection();
-  return selectionObj && selectionObj.toString();
+  if (typeof window.getSelection === "function") {
+    const selectionObj = window.getSelection();
+    return selectionObj && selectionObj.toString();
+  }
 };
 
 @HotkeysTarget
@@ -117,7 +119,6 @@ class Editor extends Component<Props> {
               this.props.copySelectedWidget();
             }
           }}
-          allowInInput
         />
         <Hotkey
           global={true}
@@ -127,9 +128,8 @@ class Editor extends Component<Props> {
           onKeyDown={(e: any) => {
             this.props.pasteCopiedWidget();
           }}
-          allowInInput
         />
-        <Hotkey // allowInInput with del or backspace deletes the widgets on clear (within cypress)
+        <Hotkey
           global={true}
           combo="backspace"
           label="Delete Widget"
@@ -161,7 +161,6 @@ class Editor extends Component<Props> {
               this.props.cutSelectedWidget();
             }
           }}
-          allowInInput
         />
       </Hotkeys>
     );
