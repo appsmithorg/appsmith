@@ -84,17 +84,11 @@ const WidgetSidebar = (props: IPanelProps) => {
     let filteredCards = cards;
     if (keyword.trim().length > 0) {
       filteredCards = produce(cards, draft => {
-        for (const [key, value] of Object.entries(cards)) {
-          value.forEach((card, index) => {
-            if (card.widgetCardName.toLowerCase().indexOf(keyword) === -1) {
-              delete draft[key][index];
-            }
-          });
-          draft[key] = draft[key].filter(Boolean);
-          if (draft[key].length === 0) {
-            delete draft[key];
+        cards.forEach((card, index) => {
+          if (card.widgetCardName.toLowerCase().indexOf(keyword) === -1) {
+            delete draft[index];
           }
-        }
+        });
       });
     }
     setFilteredCards(filteredCards);
@@ -141,16 +135,11 @@ const WidgetSidebar = (props: IPanelProps) => {
             onClick={props.closePanel}
           />
         </Header>
-        {groups.map((group: string) => (
-          <React.Fragment key={group}>
-            <h5>{group}</h5>
-            <CardsWrapper>
-              {filteredCards[group].map((card: WidgetCardProps) => (
-                <WidgetCard details={card} key={card.key} />
-              ))}
-            </CardsWrapper>
-          </React.Fragment>
-        ))}
+        <CardsWrapper>
+          {filteredCards.map((card: WidgetCardProps) => (
+            <WidgetCard details={card} key={card.key} />
+          ))}
+        </CardsWrapper>
       </MainWrapper>
     </>
   );
