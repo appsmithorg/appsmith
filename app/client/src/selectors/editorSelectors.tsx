@@ -96,14 +96,10 @@ export const getWidgetCards = createSelector(
     widgetConfigs: WidgetConfigReducerState,
   ) => {
     const cards = widgetCards.cards;
-    const groups: string[] = Object.keys(cards);
-    groups.forEach((group: string) => {
-      cards[group] = cards[group].map((widget: WidgetCardProps) => {
-        const { rows, columns } = widgetConfigs.config[widget.type];
-        return { ...widget, rows, columns };
-      });
+    return cards.map((widget: WidgetCardProps) => {
+      const { rows, columns } = widgetConfigs.config[widget.type];
+      return { ...widget, rows, columns };
     });
-    return cards;
   },
 );
 
