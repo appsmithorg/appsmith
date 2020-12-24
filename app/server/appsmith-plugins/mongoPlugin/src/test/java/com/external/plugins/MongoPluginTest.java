@@ -10,23 +10,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoCommandException;
-import com.mongodb.ServerAddress;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
-import org.bson.BsonDocument;
-import org.bson.BsonString;
 import org.bson.Document;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.FieldSetter;
 import org.testcontainers.containers.GenericContainer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
@@ -42,6 +36,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.spy;
 
 /**
  * Unit tests for MongoPlugin
@@ -136,41 +131,39 @@ public class MongoPluginTest {
                 .verifyComplete();
     }
 
+    /*
+     * 1. Test that when a query is attempted to run on mongodb but refused because of lack of authorization, then
+     *    also, it indicates a successful connection establishment.
+     */
     @Test
     public void testDatasourceWithUnauthorizedException() throws NoSuchFieldException {
         /*
          * 1. Create mock exception of type: MongoCommandException.
          *      - mock method getErrorCodeName() to return String "Unauthorized".
          */
-        /*MongoCommandException mockMongoCommandException = mock(MongoCommandException.class);
+        MongoCommandException mockMongoCommandException = mock(MongoCommandException.class);
         when(mockMongoCommandException.getErrorCodeName()).thenReturn("Unauthorized");
-*/
+        when(mockMongoCommandException.getMessage()).thenReturn("Mock Unauthorized Exception");
+
         /*
-         * 1. Mock MongoPluginExecutor class.
+         * 1. Spy MongoPluginExecutor class.
          *      - On calling testDatasource(...) -> call the real method.
          *      - On calling datasourceCreate(...) -> throw the mock exception defined above.
          */
-        MongoPlugin.MongoPluginExecutor mockMongoPluginExecutor = mock(MongoPlugin.MongoPluginExecutor.class);
-        when(mockMongoPluginExecutor.testDatasource(Mockito.any())).thenCallRealMethod();
-        Scheduler scheduler = Schedulers.elastic();
-        FieldSetter.setField(mockMongoPluginExecutor, mockMongoPluginExecutor.getClass().getField("scheduler"),
-                scheduler);
-
-        BsonDocument bsonDocument = new BsonDocument("codeName", new BsonString("Unauthorized"));
-        ServerAddress serverAddress = new ServerAddress("mockAddress");
-        MongoCommandException e = new MongoCommandException(bsonDocument, serverAddress);
-        when(mockMongoPluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.error(e));
+        MongoPlugin.MongoPluginExecutor mongoPluginExecutor    = new MongoPlugin.MongoPluginExecutor();
+        MongoPlugin.MongoPluginExecutor spyMongoPluginExecutor = spy(mongoPluginExecutor);
+        when(spyMongoPluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.error(mockMongoCommandException));
 
         /*
          * 1. Test that MongoCommandException with error code "Unauthorized" is caught and no error is reported.
          */
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        mockMongoPluginExecutor.testDatasource(dsConfig).subscribeOn(Schedulers.elastic()).block();
-        /*StepVerifier.create(mockMongoPluginExecutor.testDatasource(dsConfig))
+        StepVerifier
+                .create(spyMongoPluginExecutor.testDatasource(dsConfig))
                 .assertNext(datasourceTestResult -> {
                     assertTrue(datasourceTestResult.isSuccess());
                 })
-                .verifyComplete();*/
+                .verifyComplete();
     }
 
     @Test
