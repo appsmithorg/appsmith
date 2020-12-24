@@ -94,7 +94,7 @@ export const EditableText = (props: EditableTextProps) => {
   const inputValRef = useRef("");
   const { beforeUnmount } = props;
 
-  const setValue = useCallback(_value => {
+  const setValue = useCallback((_value) => {
     inputValRef.current = _value;
     setStateValue(_value);
   }, []);
