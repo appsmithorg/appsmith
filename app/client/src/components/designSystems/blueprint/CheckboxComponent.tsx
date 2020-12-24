@@ -13,7 +13,7 @@ const CheckboxContainer = styled.div<{ isValid: boolean }>`
     align-items: center;
 
     .bp3-control-indicator {
-      border: ${props =>
+      border: ${(props) =>
         !props.isValid
           ? `1px solid ${props.theme.colors.error} !important`
           : `1px solid transparent`};
@@ -21,7 +21,7 @@ const CheckboxContainer = styled.div<{ isValid: boolean }>`
 
     label {
       margin: 0;
-      color: ${props =>
+      color: ${(props) =>
         !props.isValid ? `${props.theme.colors.error}` : `inherit`};
     }
   }

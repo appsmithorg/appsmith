@@ -396,7 +396,7 @@ class DocumentationSearch extends React.Component<Props, State> {
                 <Hits hitComponent={Hit as any} />
               ) : (
                 <ul className="ais-Hits-list">
-                  {HELP_MENU_ITEMS.map(item => (
+                  {HELP_MENU_ITEMS.map((item) => (
                     <DefaultHelpMenuItem
                       key={item.label}
                       item={item}

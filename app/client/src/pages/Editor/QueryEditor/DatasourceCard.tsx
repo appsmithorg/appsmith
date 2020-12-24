@@ -90,7 +90,7 @@ const DatasourceCard = (props: DatasourceCardProps) => {
   );
   const queryActions = useSelector(getQueryActionsForCurrentPage);
   const queriesWithThisDatasource = queryActions.filter(
-    action => action.config.datasource.id === datasource.id,
+    (action) => action.config.datasource.id === datasource.id,
   ).length;
 
   const currentFormConfig: Array<any> =

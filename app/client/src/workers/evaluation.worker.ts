@@ -197,7 +197,7 @@ const addFunctions = (dataTree: DataTree): DataTree => {
       "ENTITY_TYPE" in entity &&
       entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
     ) {
-      const runFunction = function (
+      const runFunction = function(
         this: DataTreeAction,
         onSuccess: string,
         onError: string,
@@ -217,7 +217,7 @@ const addFunctions = (dataTree: DataTree): DataTree => {
       dataTree.actionPaths && dataTree.actionPaths.push(`${entityName}.run`);
     }
   });
-  dataTree.navigateTo = function (
+  dataTree.navigateTo = function(
     pageNameOrUrl: string,
     params: Record<string, string>,
   ) {
@@ -228,7 +228,7 @@ const addFunctions = (dataTree: DataTree): DataTree => {
   };
   dataTree.actionPaths.push("navigateTo");
 
-  dataTree.showAlert = function (message: string, style: string) {
+  dataTree.showAlert = function(message: string, style: string) {
     return {
       type: "SHOW_ALERT",
       payload: { message, style },
@@ -236,7 +236,7 @@ const addFunctions = (dataTree: DataTree): DataTree => {
   };
   dataTree.actionPaths.push("showAlert");
 
-  dataTree.showModal = function (modalName: string) {
+  dataTree.showModal = function(modalName: string) {
     return {
       type: "SHOW_MODAL_BY_NAME",
       payload: { modalName },
@@ -244,7 +244,7 @@ const addFunctions = (dataTree: DataTree): DataTree => {
   };
   dataTree.actionPaths.push("showModal");
 
-  dataTree.closeModal = function (modalName: string) {
+  dataTree.closeModal = function(modalName: string) {
     return {
       type: "CLOSE_MODAL",
       payload: { modalName },
@@ -252,7 +252,7 @@ const addFunctions = (dataTree: DataTree): DataTree => {
   };
   dataTree.actionPaths.push("closeModal");
 
-  dataTree.storeValue = function (key: string, value: string) {
+  dataTree.storeValue = function(key: string, value: string) {
     return {
       type: "STORE_VALUE",
       payload: { key, value },
@@ -260,7 +260,7 @@ const addFunctions = (dataTree: DataTree): DataTree => {
   };
   dataTree.actionPaths.push("storeValue");
 
-  dataTree.download = function (data: string, name: string, type: string) {
+  dataTree.download = function(data: string, name: string, type: string) {
     return {
       type: "DOWNLOAD",
       payload: { data, name, type },
@@ -950,7 +950,7 @@ const evaluate = (
       `;
   const script = callbackData ? scriptWithCallback : scriptToEvaluate;
   try {
-    const { result, triggers } = (function () {
+    const { result, triggers } = (function() {
       /**** Setting the eval context ****/
       const GLOBAL_DATA: Record<string, any> = {};
       ///// Adding callback data
@@ -962,7 +962,7 @@ const evaluate = (
       ///// Fixing action paths and capturing their execution response
       if (data.actionPaths) {
         GLOBAL_DATA.triggers = [];
-        const pusher = function (
+        const pusher = function(
           this: DataTree,
           action: any,
           ...payload: any[]
@@ -1497,7 +1497,11 @@ const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    const today = moment().hour(0).minute(0).second(0).millisecond(0);
+    const today = moment()
+      .hour(0)
+      .minute(0)
+      .second(0)
+      .millisecond(0);
     const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
 
     const todayDateString = today.format(dateFormat);
@@ -1524,7 +1528,11 @@ const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    const today = moment().hour(0).minute(0).second(0).millisecond(0);
+    const today = moment()
+      .hour(0)
+      .minute(0)
+      .second(0)
+      .millisecond(0);
     const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
 
     const todayDateString = today.format(dateFormat);

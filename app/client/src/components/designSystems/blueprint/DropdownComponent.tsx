@@ -85,7 +85,7 @@ const StyledControlGroup = styled(ControlGroup)<{ haslabel: string }>`
       text-align: right;
     }
     span {
-      max-width: ${props =>
+      max-width: ${(props) =>
         props.haslabel === "true" ? `calc(70% - ${WIDGET_PADDING}px)` : "100%"};
     }
   }
@@ -94,22 +94,22 @@ const StyledControlGroup = styled(ControlGroup)<{ haslabel: string }>`
 const DropdownStyles = createGlobalStyle`
   .select-popover-wrapper {
     width: 100%;
-    border-radius: ${props => props.theme.radii[1]}px;
+    border-radius: ${(props) => props.theme.radii[1]}px;
     box-shadow:  0px 2px 4px rgba(67, 70, 74, 0.14);
-    padding: ${props => props.theme.spaces[3]}px;
+    padding: ${(props) => props.theme.spaces[3]}px;
     background: white;
     && .${Classes.MENU} {
       max-width: 100%;
       max-height: auto;
     }
     &&&& .${Classes.MENU_ITEM} {
-      border-radius: ${props => props.theme.radii[1]}px;
+      border-radius: ${(props) => props.theme.radii[1]}px;
       &:hover{
         background: ${Colors.POLAR};
       }
       &.${Classes.ACTIVE} {
         background: ${Colors.POLAR};
-        color: ${props => props.theme.colors.textDefault};
+        color: ${(props) => props.theme.colors.textDefault};
         position:relative;
         &.single-select{
           &:before{
@@ -117,7 +117,7 @@ const DropdownStyles = createGlobalStyle`
             top: -2px;
             position: absolute;
             content: "";
-            background: ${props => props.theme.colors.primaryOld};
+            background: ${(props) => props.theme.colors.primaryOld};
             border-radius: 4px 0 0 4px;
             width: 4px;
             height:100%;
@@ -136,9 +136,9 @@ const DropdownStyles = createGlobalStyle`
         }&
       }
       .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${props => props.theme.colors.primaryOld};
-        color: ${props => props.theme.colors.textOnDarkBG};
-        border-color: ${props => props.theme.colors.primaryOld};
+        background: ${(props) => props.theme.colors.primaryOld};
+        color: ${(props) => props.theme.colors.textOnDarkBG};
+        border-color: ${(props) => props.theme.colors.primaryOld};
       }
     }
   }
@@ -161,7 +161,7 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
 }>`
   div {
     flex: 1 1 auto;
-    height: ${props => props.height - WIDGET_PADDING * 2}px;
+    height: ${(props) => props.height - WIDGET_PADDING * 2}px;
   }
   .${MultiSelectClasses.MULTISELECT} {
     position: relative;
@@ -182,7 +182,7 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
         margin-top: 0;
         overflow: hidden;
         display: flex;
-        height: ${props => props.height - WIDGET_PADDING * 2 - 2}px;
+        height: ${(props) => props.height - WIDGET_PADDING * 2 - 2}px;
       }
 
       .${Classes.TAG} {
@@ -190,11 +190,11 @@ const StyledMultiDropDown = styled(MultiDropDown)<{
         border: 1px solid #D0D7DD;
         border-radius: 2px;
         margin: 3px 2px;
-        max-width: ${props => props.width * 0.85}px;
+        max-width: ${(props) => props.width * 0.85}px;
         height: 24px;
       }
 
-      ${props =>
+      ${(props) =>
         props.hideCloseButtonIndex >= 0 &&
         `
       .${Classes.TAG}:nth-child(${props.hideCloseButtonIndex}) {
@@ -228,7 +228,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
     const { selectedIndexArr, options } = this.props;
     const selectedItems = selectedIndexArr
-      ? _.map(selectedIndexArr, index => options[index])
+      ? _.map(selectedIndexArr, (index) => options[index])
       : [];
     const hideCloseButtonIndex = -1;
 
@@ -336,14 +336,14 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
   };
 
   isOptionSelected = (selectedOption: DropdownOption) => {
-    const optionIndex = _.findIndex(this.props.options, option => {
+    const optionIndex = _.findIndex(this.props.options, (option) => {
       return option.value === selectedOption.value;
     });
     if (this.props.selectionType === "SINGLE_SELECT") {
       return optionIndex === this.props.selectedIndex;
     } else {
       return (
-        _.findIndex(this.props.selectedIndexArr, index => {
+        _.findIndex(this.props.selectedIndexArr, (index) => {
           return index === optionIndex;
         }) !== -1
       );

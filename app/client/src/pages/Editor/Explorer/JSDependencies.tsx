@@ -48,7 +48,7 @@ const Help = styled(Icon)`
 export const JSDependencies = () => {
   const [isOpen, setIsOpen] = useState(false);
   const openDocs = (name: string, url: string) => () => window.open(url, name);
-  const dependencyList = extraLibraries.map(lib => {
+  const dependencyList = extraLibraries.map((lib) => {
     return (
       <ListItem
         key={lib.displayName}

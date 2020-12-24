@@ -56,8 +56,8 @@ const FormTitle = (props: FormTitleProps) => {
     (name: string) => {
       const datasourcesNames: Record<string, any> = {};
       datasources
-        .filter(datasource => datasource.id !== currentDatasource?.id)
-        .map(datasource => {
+        .filter((datasource) => datasource.id !== currentDatasource?.id)
+        .map((datasource) => {
           datasourcesNames[datasource.name] = datasource;
         });
 
