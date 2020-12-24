@@ -35,7 +35,7 @@ const updateColumnStyles = (
           if (
             !props.dynamicBindingPathList ||
             props.dynamicBindingPathList.findIndex(
-              item => item.key === propertyPath,
+              (item) => item.key === propertyPath,
             ) === -1 // if the property path is not a dynamic binding
           ) {
             // if column is derived, update derivedColumns

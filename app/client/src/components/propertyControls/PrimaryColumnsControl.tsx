@@ -41,12 +41,12 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
     input {
       padding-left: 24px;
       border: none;
-      color: ${props => props.theme.colors.textOnDarkBG};
-      background: ${props => props.theme.colors.paneInputBG};
+      color: ${(props) => props.theme.colors.textOnDarkBG};
+      background: ${(props) => props.theme.colors.paneInputBG};
       &:focus {
         border: none;
-        color: ${props => props.theme.colors.textOnDarkBG};
-        background: ${props => props.theme.colors.paneInputBG};
+        color: ${(props) => props.theme.colors.textOnDarkBG};
+        background: ${(props) => props.theme.colors.paneInputBG};
       }
     }
   }
@@ -241,7 +241,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       buttonLabelColor: "#FFFFFF",
       ...tableStyles,
     };
-    const updatedColumns: ColumnProperties[] = produce(columns, draft => {
+    const updatedColumns: ColumnProperties[] = produce(columns, (draft) => {
       draft.push(column);
     });
     this.updateProperty(this.props.propertyName, updatedColumns);
