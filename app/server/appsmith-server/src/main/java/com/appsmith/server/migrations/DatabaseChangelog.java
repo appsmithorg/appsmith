@@ -1,7 +1,7 @@
 package com.appsmith.server.migrations;
 
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
@@ -23,6 +23,7 @@ import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QDatasource;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Query;
 import com.appsmith.server.domains.Role;
@@ -38,14 +39,21 @@ import com.appsmith.server.services.OrganizationService;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.google.gson.Gson;
+import com.mongodb.MongoException;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.ObjectUtils;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
+import org.springframework.data.mongodb.core.CollectionCallback;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
@@ -556,7 +564,7 @@ public class DatabaseChangelog {
         );
 
         for (final Datasource datasource : datasources) {
-            AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
+            DBAuth authentication = (DBAuth) datasource.getDatasourceConfiguration().getAuthentication();
             authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
             mongoTemplate.save(datasource);
         }
@@ -1408,4 +1416,104 @@ public class DatabaseChangelog {
         }
     }
 
+    @ChangeSet(order = "045", id = "update-authentication-type", author = "")
+    public void updateAuthenticationTypes(MongoTemplate mongoTemplate) {
+        mongoTemplate.execute("datasource", new CollectionCallback<String>() {
+            @Override
+            public String doInCollection(MongoCollection<Document> collection) throws MongoException, DataAccessException {
+                // Only update _class for authentication objects that exist
+                MongoCursor cursor = collection.find(Filters.exists("datasourceConfiguration.authentication")).cursor();
+                while (cursor.hasNext()) {
+                    Document current = (Document) cursor.next();
+                    Document old = Document.parse(current.toJson());
+
+                    // Extra precaution to only update _class for authentication objects that don't already have this
+                    // Is this condition required? What does production datasource look like?
+                    ((Document) ((Document) current.get("datasourceConfiguration"))
+                            .get("authentication"))
+                            .putIfAbsent("_class", "dbAuth");
+
+                    // Replace old document with the new one
+                    collection.findOneAndReplace(old, current);
+                }
+                return null;
+            }
+        });
+
+        mongoTemplate.execute("newAction", new CollectionCallback<String>() {
+            @Override
+            public String doInCollection(MongoCollection<Document> collection) throws MongoException, DataAccessException {
+                // Only update _class for authentication objects that exist
+                MongoCursor cursor = collection
+                        .find(Filters.and(
+                                Filters.exists("unpublishedAction.datasource"),
+                                Filters.exists("unpublishedAction.datasource.datasourceConfiguration"),
+                                Filters.exists("unpublishedAction.datasource.datasourceConfiguration.authentication"))).cursor();
+                while (cursor.hasNext()) {
+                    Document current = (Document) cursor.next();
+                    Document old = Document.parse(current.toJson());
+
+                    // Extra precaution to only update _class for authentication objects that don't already have this
+                    // Is this condition required? What does production datasource look like?
+                    ((Document) ((Document) ((Document) ((Document) current.get("unpublishedAction"))
+                            .get("datasource"))
+                            .get("datasourceConfiguration"))
+                            .get("authentication"))
+                            .putIfAbsent("_class", "dbAuth");
+
+                    // Replace old document with the new one
+                    collection.findOneAndReplace(old, current);
+                }
+                return null;
+            }
+        });
+
+        mongoTemplate.execute("newAction", new CollectionCallback<String>() {
+            @Override
+            public String doInCollection(MongoCollection<Document> collection) throws MongoException, DataAccessException {
+                // Only update _class for authentication objects that exist
+                MongoCursor cursor = collection
+                        .find(Filters.and(
+                                Filters.exists("publishedAction.datasource"),
+                                Filters.exists("publishedAction.datasource.datasourceConfiguration"),
+                                Filters.exists("publishedAction.datasource.datasourceConfiguration.authentication"))).cursor();
+                while (cursor.hasNext()) {
+                    Document current = (Document) cursor.next();
+                    Document old = Document.parse(current.toJson());
+
+                    // Extra precaution to only update _class for authentication objects that don't already have this
+                    // Is this condition required? What does production datasource look like?
+                    ((Document) ((Document) ((Document) ((Document) current.get("publishedAction"))
+                            .get("datasource"))
+                            .get("datasourceConfiguration"))
+                            .get("authentication"))
+                            .putIfAbsent("_class", "dbAuth");
+
+                    // Replace old document with the new one
+                    collection.findOneAndReplace(old, current);
+                }
+                return null;
+            }
+        });
+    }
+
+    @ChangeSet(order = "046", id = "ensure-encrypted-field-for-datasources", author = "")
+    public void ensureIsEncryptedFieldForDatasources(MongoTemplate mongoTemplate) {
+        final String isEncryptedField = "datasourceConfiguration.authentication.isEncrypted";
+        final String passwordField = "datasourceConfiguration.authentication.password";
+
+        final org.springframework.data.mongodb.core.query.Query query = query(new Criteria().andOperator(
+                where(passwordField).exists(true),
+                where(isEncryptedField).exists(false)
+        ));
+        query.fields().include("_id");
+
+        for (final Datasource datasource : mongoTemplate.find(query, Datasource.class)) {
+            mongoTemplate.updateFirst(
+                    query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
+                    update(isEncryptedField, true),
+                    Datasource.class
+            );
+        }
+    }
 }

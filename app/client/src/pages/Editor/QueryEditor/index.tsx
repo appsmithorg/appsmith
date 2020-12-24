@@ -136,7 +136,7 @@ class QueryEditor extends React.Component<Props> {
       );
     }
 
-    const DATASOURCES_OPTIONS = dataSources.map(dataSource => ({
+    const DATASOURCES_OPTIONS = dataSources.map((dataSource) => ({
       label: dataSource.name,
       value: dataSource.id,
       image: pluginImages[dataSource.pluginId],

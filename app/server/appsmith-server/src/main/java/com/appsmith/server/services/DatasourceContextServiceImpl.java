@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 
@@ -170,10 +171,15 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
     }
 
     @Override
-    public AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authenticationDTO) {
-        if (authenticationDTO != null && authenticationDTO.getPassword() != null) {
-            authenticationDTO.setPassword(encryptionService.decryptString(authenticationDTO.getPassword()));
+    public AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authentication) {
+        if (authentication != null && authentication.isEncrypted()) {
+            Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            e -> encryptionService.decryptString(e.getValue())));
+            authentication.setEncryptionFields(decryptedFields);
+            authentication.setIsEncrypted(false);
         }
-        return authenticationDTO;
+        return authentication;
     }
 }

@@ -19,7 +19,7 @@ const Wrapper = styled(EntityTogglesWrapper)`
     }
   }
   span {
-    font-size: ${props => props.theme.fontSizes[2]}px;
+    font-size: ${(props) => props.theme.fontSizes[2]}px;
     margin-left: 5px;
     color: white;
     padding-top: 2px;

@@ -9,6 +9,7 @@ import {
   EventType,
   ExecuteActionPayload,
   ExecuteActionPayloadEvent,
+  EXECUTION_PARAM_KEY,
   PageAction,
 } from "constants/ActionConstants";
 import * as log from "loglevel";
@@ -214,7 +215,10 @@ export const getActionTimeout = (
   state: AppState,
   actionId: string,
 ): number | undefined => {
-  const action = _.find(state.entities.actions, a => a.config.id === actionId);
+  const action = _.find(
+    state.entities.actions,
+    (a) => a.config.id === actionId,
+  );
   if (action) {
     const timeout = _.get(
       action,
@@ -239,62 +243,66 @@ const isErrorResponse = (response: ActionApiResponse) => {
   return !response.data.isExecutionSuccess;
 };
 
-export function* evaluateDynamicBoundValueSaga(path: string): any {
-  return yield call(evaluateSingleValue, `{{${path}}}`);
+export function* evaluateDynamicBoundValueSaga(
+  valueToEvaluate: string,
+  params?: Record<string, unknown>,
+): any {
+  return yield call(evaluateSingleValue, `{{${valueToEvaluate}}}`, params);
 }
 
-const EXECUTION_PARAM_PATH = "this.params";
-const getExecutionParamPath = (key: string) => `${EXECUTION_PARAM_PATH}.${key}`;
+const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
 
+/**
+ * Api1
+ * URL: https://example.com/{{Text1.text}}
+ * Body: {
+ *     "name": "{{this.params.name}}",
+ *     "age": {{this.params.age}},
+ *     "gender": {{Dropdown1.selectedOptionValue}}
+ * }
+ *
+ * If you call
+ * Api1.run(undefined, undefined, { name: "Hetu", age: Input1.text });
+ *
+ * executionParams is { name: "Hetu", age: Input1.text }
+ * bindings is [
+ *   "Text1.text",
+ *   "Dropdown1.selectedOptionValue",
+ *   "this.params.name",
+ *   "this.params.age",
+ * ]
+ *
+ * Return will be [
+ *   { key: "Text1.text", value: "updateUser" },
+ *   { key: "Dropdown1.selectedOptionValue", value: "M" },
+ *   { key: "this.params.name", value: "Hetu" },
+ *   { key: "this.params.age", value: 26 },
+ * ]
+ * @param bindings
+ * @param executionParams
+ */
 export function* getActionParams(
   bindings: string[] | undefined,
   executionParams?: Record<string, any>,
 ) {
   if (_.isNil(bindings)) return [];
-  let dataTreeBindings = bindings;
+  // This might look like a bug, but isn't.
+  // We send in stringified executionParams, but get back an object
+  const evaluatedExecutionParams = yield evaluateDynamicBoundValueSaga(
+    JSON.stringify(executionParams),
+  );
 
-  if (executionParams && Object.keys(executionParams).length) {
-    // List of params in the path format
-    const executionParamsPathList = Object.keys(executionParams).map(
-      getExecutionParamPath,
-    );
-    const paramSearchRegex = new RegExp(executionParamsPathList.join("|"), "g");
-    // Bindings with references to execution params
-    const executionBindings = bindings.filter(binding =>
-      paramSearchRegex.test(binding),
-    );
+  const bindingsForExecutionParams = bindings.map((binding) =>
+    binding.replace(EXECUTION_PARAM_REFERENCE_REGEX, EXECUTION_PARAM_KEY),
+  );
 
-    // Replace references with values
-    const replacedBindings = executionBindings.map(binding => {
-      let replaced = binding;
-      const matches = binding.match(paramSearchRegex);
-      if (matches && matches.length) {
-        matches.forEach(match => {
-          // we add one for substring index to account for '.'
-          const paramKey = match.substring(EXECUTION_PARAM_PATH.length + 1);
-          let paramValue = executionParams[paramKey];
-          if (paramValue) {
-            if (typeof paramValue === "object") {
-              paramValue = JSON.stringify(paramValue);
-            }
-            replaced = replaced.replace(match, paramValue);
-          }
-        });
-      }
-      return replaced;
-    });
-    // Replace binding with replaced bindings for evaluation
-    dataTreeBindings = dataTreeBindings.map(key => {
-      if (executionBindings.includes(key)) {
-        return replacedBindings[executionBindings.indexOf(key)];
-      }
-      return key;
-    });
-  }
-  // Evaluate all values
   const values: any = yield all(
-    dataTreeBindings.map((binding: string) => {
-      return call(evaluateDynamicBoundValueSaga, binding);
+    bindingsForExecutionParams.map((binding: string) => {
+      return call(
+        evaluateDynamicBoundValueSaga,
+        binding,
+        evaluatedExecutionParams,
+      );
     }),
   );
   // convert to object and transform non string values
@@ -309,11 +317,11 @@ export function* getActionParams(
 
 export function extractBindingsFromAction(action: Action) {
   const bindings: string[] = [];
-  action.dynamicBindingPathList.forEach(a => {
+  action.dynamicBindingPathList.forEach((a) => {
     const value = _.get(action, a.key);
     if (isDynamicValue(value)) {
       const { jsSnippets } = getDynamicBindings(value);
-      bindings.push(...jsSnippets.filter(jsSnippet => !!jsSnippet));
+      bindings.push(...jsSnippets.filter((jsSnippet) => !!jsSnippet));
     }
   });
   return bindings;
@@ -730,7 +738,7 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     for (const actionSet of pageActions) {
       // Load all sets in parallel
       yield* yield all(
-        actionSet.map(apiAction => call(executePageLoadAction, apiAction)),
+        actionSet.map((apiAction) => call(executePageLoadAction, apiAction)),
       );
     }
     PerformanceTracker.stopAsyncTracking(

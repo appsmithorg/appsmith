@@ -1,7 +1,5 @@
 const commonlocators = require("../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../locators/FormWidgets.json");
 const dsl = require("../../../fixtures/formInputTableDsl.json");
-const pages = require("../../../locators/Pages.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 const testdata = require("../../../fixtures/testdata.json");
@@ -28,7 +26,7 @@ describe("Binding the Table and input Widget", function() {
       .last()
       .type("2736212", { force: true });
     cy.get(commonlocators.editPropCrossButton).click();
-    cy.isSelectRow(0);
+    cy.wait("@updateLayout").isSelectRow(0);
     cy.readTabledataPublish("0", "0").then(tabData => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("2736212");

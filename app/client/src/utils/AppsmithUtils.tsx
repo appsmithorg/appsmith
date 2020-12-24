@@ -11,8 +11,8 @@ import { LogLevelDesc } from "loglevel";
 import FeatureFlag from "utils/featureFlags";
 import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
-import history from "./history";
-import { SERVER_ERROR_URL } from "../constants/routes";
+import { ERROR_CODES } from "constants/ApiConstants";
+import { ERROR_500 } from "../constants/messages";
 
 export const createReducer = (
   initialState: any,
@@ -94,7 +94,7 @@ export const mapToPropList = (map: Record<string, string>): Property[] => {
 
 export const getNextEntityName = (prefix: string, existingNames: string[]) => {
   const regex = new RegExp(`^${prefix}(\\d+)$`);
-  const usedIndices: number[] = existingNames.map(name => {
+  const usedIndices: number[] = existingNames.map((name) => {
     if (name && regex.test(name)) {
       const matches = name.match(regex);
       const ind =
@@ -112,7 +112,7 @@ export const getNextEntityName = (prefix: string, existingNames: string[]) => {
 export const getDuplicateName = (prefix: string, existingNames: string[]) => {
   const trimmedPrefix = prefix.replace(/ /g, "");
   const regex = new RegExp(`^${trimmedPrefix}(\\d+)$`);
-  const usedIndices: number[] = existingNames.map(name => {
+  const usedIndices: number[] = existingNames.map((name) => {
     if (name && regex.test(name)) {
       const matches = name.match(regex);
       const ind =
@@ -129,8 +129,8 @@ export const getDuplicateName = (prefix: string, existingNames: string[]) => {
 
 export const createNewApiName = (actions: ActionDataState, pageId: string) => {
   const pageApiNames = actions
-    .filter(a => a.config.pageId === pageId)
-    .map(a => a.config.name);
+    .filter((a) => a.config.pageId === pageId)
+    .map((a) => a.config.name);
   return getNextEntityName("Api", pageApiNames);
 };
 
@@ -143,8 +143,8 @@ export const createNewQueryName = (
   pageId: string,
 ) => {
   const pageApiNames = queries
-    .filter(a => a.config.pageId === pageId)
-    .map(a => a.config.name);
+    .filter((a) => a.config.pageId === pageId)
+    .map((a) => a.config.name);
   const newName = getNextEntityName("Query", pageApiNames);
   return newName;
 };
@@ -246,7 +246,7 @@ export function getQueryParams() {
 
 export function convertObjectToQueryParams(object: any): string {
   if (!_.isNil(object)) {
-    const paramArray: string[] = _.map(_.keys(object), key => {
+    const paramArray: string[] = _.map(_.keys(object), (key) => {
       return encodeURIComponent(key) + "=" + encodeURIComponent(object[key]);
     });
     return "?" + _.join(paramArray, "&");
@@ -263,12 +263,14 @@ export const retryPromise = (
   return new Promise((resolve, reject) => {
     fn()
       .then(resolve)
-      .catch((error: any) => {
+      .catch(() => {
         setTimeout(() => {
           if (retriesLeft === 1) {
-            reject(error);
-            history.replace(SERVER_ERROR_URL);
-            return;
+            return Promise.reject({
+              code: ERROR_CODES.SERVER_ERROR,
+              message: ERROR_500,
+              show: false,
+            });
           }
 
           // Passing on "reject" is the important part

@@ -61,7 +61,7 @@ export const getDefaultPageId = (state: AppState): string | undefined =>
 export const getExistingWidgetNames = createSelector(
   getWidgets,
   (widgets: { [widgetId: string]: FlattenedWidgetProps }) => {
-    return Object.values(widgets).map(widget => widget.widgetName);
+    return Object.values(widgets).map((widget) => widget.widgetName);
   },
 );
 export const getActions = (state: AppState) => {
@@ -106,12 +106,12 @@ export const getWidgetByName = (
   const widgets = state.entities.canvasWidgets;
   return _.find(
     Object.values(widgets),
-    widget => widget.widgetName === widgetName,
+    (widget) => widget.widgetName === widgetName,
   );
 };
 
 export const getAllPageIds = (state: AppState) => {
-  return state.entities.pageList.pages.map(page => page.pageId);
+  return state.entities.pageList.pages.map((page) => page.pageId);
 };
 
 export const getPluginIdOfPackageName = (

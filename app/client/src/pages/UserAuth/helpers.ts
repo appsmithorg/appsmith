@@ -40,7 +40,7 @@ export const signupFormSubmitHandler = (
         password,
       },
     });
-  }).catch(error => {
+  }).catch((error) => {
     throw new SubmissionError(error);
   });
 };
@@ -61,7 +61,7 @@ export const resetPasswordSubmitHandler = (
         password,
       },
     });
-  }).catch(error => {
+  }).catch((error) => {
     throw new SubmissionError(error);
   });
 };
@@ -82,7 +82,7 @@ export const createPasswordSubmitHandler = (
         password,
       },
     });
-  }).catch(error => {
+  }).catch((error) => {
     throw new SubmissionError(error);
   });
 };
@@ -101,7 +101,7 @@ export const forgotPasswordSubmitHandler = (
         email,
       },
     });
-  }).catch(error => {
+  }).catch((error) => {
     error.email = "";
     throw new SubmissionError(error);
   });

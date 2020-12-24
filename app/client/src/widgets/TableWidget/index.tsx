@@ -5,6 +5,7 @@ import { EventType } from "constants/ActionConstants";
 import {
   compare,
   getDefaultColumnProperties,
+  getTableStyles,
   renderCell,
   renderDropdown,
   renderActions,
@@ -86,8 +87,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         "{{(()=> { \
         const selectedRowIndex = this.selectedRowIndex === undefined || Number.isNaN(parseInt(this.selectedRowIndex)) ? -1 : parseInt(this.selectedRowIndex);\
         const filteredTableData = this.filteredTableData || []; \
-        if(selectedRowIndex === -1) { const emptyRow = filteredTableData[0]; Object.keys(emptyRow).forEach((key) => { emptyRow[key] = ''; }); return emptyRow; } \
-        return filteredTableData[selectedRowIndex];\
+        if(selectedRowIndex === -1) { const emptyRow = {...filteredTableData[0]}; Object.keys(emptyRow).forEach((key) => { emptyRow[key] = ''; }); return emptyRow; } \
+        return {...filteredTableData[selectedRowIndex]};\
       })()}}",
       selectedRows:
         "{{(()=> { \
@@ -261,82 +262,78 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const updatedTableData = [];
     for (let row = 0; row < tableData.length; row++) {
       const data: { [key: string]: any } = tableData[row];
-      const tableRow: { [key: string]: any } = {};
-      for (let colIndex = 0; colIndex < columns.length; colIndex++) {
-        const column = columns[colIndex];
-        const { accessor } = column;
-        let value = data[accessor];
-        if (column.metaProperties) {
-          const type = column.metaProperties.type;
-          const format = column.metaProperties.format;
-          switch (type) {
-            case ColumnTypes.NUMBER:
-              if (!isNaN(value)) {
-                tableRow[accessor] = `${format}${value ? value : ""}`;
-              } else {
-                tableRow[accessor] = "Invalid Value";
-              }
-              break;
-            case ColumnTypes.DATE:
-              let isValidDate = true;
-              let outputFormat = column.metaProperties.format;
-              let inputFormat;
-              try {
-                const type = column.metaProperties.inputFormat;
-                if (type !== "EPOCH" && type !== "Milliseconds") {
-                  inputFormat = type;
-                  moment(value, inputFormat);
-                } else if (!isNumber(value)) {
+      if (data !== null && data !== undefined) {
+        const tableRow: { [key: string]: any } = {};
+        for (let colIndex = 0; colIndex < columns.length; colIndex++) {
+          const column = columns[colIndex];
+          const { accessor } = column;
+          let value = data[accessor];
+          if (column.metaProperties) {
+            const type = column.metaProperties.type;
+            switch (type) {
+              case ColumnTypes.DATE:
+                let isValidDate = true;
+                let outputFormat = column.metaProperties.format;
+                let inputFormat;
+                try {
+                  const type = column.metaProperties.inputFormat;
+                  if (type !== "Epoch" && type !== "Milliseconds") {
+                    inputFormat = type;
+                    moment(value, inputFormat);
+                  } else if (!isNumber(value)) {
+                    isValidDate = false;
+                  }
+                } catch (e) {
                   isValidDate = false;
                 }
-              } catch (e) {
-                isValidDate = false;
-              }
-              if (isValidDate) {
-                if (outputFormat === "SAME_AS_INPUT") {
-                  outputFormat = inputFormat;
+                if (isValidDate) {
+                  if (outputFormat === "SAME_AS_INPUT") {
+                    outputFormat = inputFormat;
+                  }
+                  if (column.metaProperties.inputFormat === "Milliseconds") {
+                    value = Number(value);
+                  } else if (column.metaProperties.inputFormat === "Epoch") {
+                    value = 1000 * Number(value);
+                  }
+                  tableRow[accessor] = moment(value, inputFormat).format(
+                    outputFormat,
+                  );
+                } else if (value) {
+                  tableRow[accessor] = "Invalid Value";
+                } else {
+                  tableRow[accessor] = "";
                 }
-                if (column.metaProperties.inputFormat === "Milliseconds") {
-                  value = 1000 * Number(value);
+                break;
+              case ColumnTypes.TIME:
+                let isValidTime = true;
+                if (isNaN(value)) {
+                  const time = Date.parse(value);
+                  if (isNaN(time)) {
+                    isValidTime = false;
+                  }
                 }
-                tableRow[accessor] = moment(value, inputFormat).format(
-                  outputFormat,
-                );
-              } else if (value) {
-                tableRow[accessor] = "Invalid Value";
-              } else {
-                tableRow[accessor] = "";
-              }
-              break;
-            case ColumnTypes.TIME:
-              let isValidTime = true;
-              if (isNaN(value)) {
-                const time = Date.parse(value);
-                if (isNaN(time)) {
-                  isValidTime = false;
+                if (isValidTime) {
+                  tableRow[accessor] = moment(value).format("HH:mm");
+                } else if (value) {
+                  tableRow[accessor] = "Invalid Value";
+                } else {
+                  tableRow[accessor] = "";
                 }
-              }
-              if (isValidTime) {
-                tableRow[accessor] = moment(value).format("HH:mm");
-              } else if (value) {
-                tableRow[accessor] = "Invalid Value";
-              } else {
-                tableRow[accessor] = "";
-              }
-              break;
-            default:
-              const data =
-                isString(value) || isNumber(value)
-                  ? value
-                  : isUndefined(value)
-                  ? ""
-                  : JSON.stringify(value);
-              tableRow[accessor] = data;
-              break;
+                break;
+              default:
+                const data =
+                  isString(value) || isNumber(value)
+                    ? value
+                    : isUndefined(value)
+                    ? ""
+                    : JSON.stringify(value);
+                tableRow[accessor] = data;
+                break;
+            }
           }
         }
+        updatedTableData.push(tableRow);
       }
-      updatedTableData.push(tableRow);
     }
     return updatedTableData;
   };
@@ -430,7 +427,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (selectedRowIndex === undefined || selectedRowIndex === -1) {
       return this.getEmptyRow();
     }
-    return filteredTableData[selectedRowIndex];
+    return {
+      ...filteredTableData[selectedRowIndex],
+    };
   };
 
   getDerivedColumns = (
@@ -450,30 +449,43 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   createTablePrimaryColumns = () => {
-    const {
-      tableData,
-      derivedColumns,
-      dynamicBindingPathList,
-      columnOrder,
-    } = this.props;
+    const { tableData, dynamicBindingPathList, columnOrder } = this.props;
+    let derivedColumns = this.props.derivedColumns;
     // If there is tableData attempt to generate primaryColumns
     if (tableData) {
       let tableColumns: ColumnProperties[] = [];
+      //Get table level styles
+      const tableStyles = getTableStyles(this.props);
       const columnKeys: string[] = getAllTableColumnKeys(tableData);
       // Generate default column properties for all columns
       for (let index = 0; index < columnKeys.length; index++) {
         const i = columnKeys[index];
-        tableColumns.push(
-          getDefaultColumnProperties(i, index, this.props.widgetName),
+        const columnProperties = getDefaultColumnProperties(
+          i,
+          index,
+          this.props.widgetName,
         );
+        //add column properties along with table level styles
+        tableColumns.push({
+          ...columnProperties,
+          ...tableStyles,
+        });
       }
-
+      if (isString(derivedColumns)) {
+        // why is this a string in the first place?
+        try {
+          derivedColumns = JSON.parse(derivedColumns);
+        } catch (e) {
+          log.debug("Error parsing derived columns", e);
+        }
+      } else {
+        derivedColumns = derivedColumns;
+      }
       // Get derived columns
       const updatedDerivedColumns = this.getDerivedColumns(
         derivedColumns,
         tableColumns.length,
       );
-
       //Get existing derived column paths
       const derivedColumnsPaths =
         derivedColumns?.map(
@@ -543,7 +555,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidMount() {
     const filteredTableData = this.filterTableData();
-
     this.props.updateWidgetMetaProperty("filteredTableData", filteredTableData);
     setTimeout(() => {
       if (
@@ -576,6 +587,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // Table filters have changed or
     // Table search Text has changed or
     // Sorting has changed
+    // filteredTableData is not created
     if (
       tableDataModified ||
       JSON.stringify(this.props.filters) !==
@@ -583,7 +595,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.searchText !== prevProps.searchText ||
       JSON.stringify(this.props.sortedColumn) !==
         JSON.stringify(prevProps.sortedColumn) ||
-      hasPrimaryColumnsComputedValueChanged
+      hasPrimaryColumnsComputedValueChanged ||
+      this.props.filteredTableData === undefined
     ) {
       const filteredTableData = this.filterTableData();
       // Update filteredTableData meta property
@@ -591,6 +604,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         "filteredTableData",
         filteredTableData,
       );
+      //TODO(abhinav/Vicky) : What we render and the FilteredTableData are different. What we render is correct
     }
 
     // If the user has changed the tableData OR
@@ -611,6 +625,31 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         this.createTablePrimaryColumns(); // This updates the widget
       }
     }
+
+    /*if (!this.props.multiRowSelection) {
+        const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
+          ? this.props.defaultSelectedRow
+          : -1;
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndex",
+          selectedRowIndex,
+        );
+        this.props.updateWidgetMetaProperty(
+          "selectedRow",
+          this.getSelectedRow(filteredTableData, selectedRowIndex),
+        );
+      } else {
+        const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
+          ? this.props.defaultSelectedRow
+          : [];
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndices",
+          selectedRowIndices,
+        );
+        this.props.updateWidgetMetaProperty(
+          "selectedRows",
+          this.getSelectedRows(filteredTableData, selectedRowIndices),
+        );*/
 
     // If the user has switched the mutiple row selection feature
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
@@ -655,7 +694,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getSelectedRowIndexes = (selectedRowIndices: string) => {
     return selectedRowIndices
-      ? selectedRowIndices.split(",").map(i => Number(i))
+      ? selectedRowIndices.split(",").map((i) => Number(i))
       : [];
   };
 
@@ -826,8 +865,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   handleRowClick = (rowData: Record<string, unknown>, index: number) => {
-    const { selectedRowIndices } = this.props;
     if (this.props.multiRowSelection) {
+      const selectedRowIndices = this.props.selectedRowIndices
+        ? [...this.props.selectedRowIndices]
+        : [];
       if (selectedRowIndices.includes(index)) {
         const rowIndex = selectedRowIndices.indexOf(index);
         selectedRowIndices.splice(rowIndex, 1);

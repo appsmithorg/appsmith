@@ -1,5 +1,5 @@
 /// <reference types="Cypress" />
-
+/* eslint-disable  cypress/no-unnecessary-waiting */
 const homePage = require("../../../locators/HomePage.json");
 
 describe("Create new org and share with a user", function() {
@@ -13,11 +13,13 @@ describe("Create new org and share with a user", function() {
       appid = uid;
       localStorage.setItem("OrgName", orgid);
       cy.createOrg(orgid);
+      cy.CheckShareIcon(orgid, 1);
       cy.inviteUserForOrg(
         orgid,
         Cypress.env("TESTUSERNAME1"),
         homePage.viewerRole,
       );
+      cy.CheckShareIcon(orgid, 2);
       cy.CreateAppForOrg(orgid, appid);
     });
     cy.LogOut();

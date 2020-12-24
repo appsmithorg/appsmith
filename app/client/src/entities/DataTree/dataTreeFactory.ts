@@ -88,7 +88,7 @@ export class DataTreeFactory {
     appData,
   }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
-    actions.forEach(action => {
+    actions.forEach((action) => {
       let dynamicBindingPathList: DynamicPath[] = [];
       // update paths
       if (
@@ -96,7 +96,7 @@ export class DataTreeFactory {
         action.config.dynamicBindingPathList.length
       ) {
         dynamicBindingPathList = action.config.dynamicBindingPathList.map(
-          d => ({
+          (d) => ({
             ...d,
             key: `config.${d.key}`,
           }),
@@ -114,7 +114,7 @@ export class DataTreeFactory {
         isLoading: action.isLoading,
       };
     });
-    Object.keys(widgets).forEach(w => {
+    Object.keys(widgets).forEach((w) => {
       const widget = { ...widgets[w] };
       const widgetMetaProps = widgetsMeta[w];
       const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
@@ -125,7 +125,7 @@ export class DataTreeFactory {
       );
       const derivedProps: any = {};
       const dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
-      dynamicBindingPathList.forEach(dynamicPath => {
+      dynamicBindingPathList.forEach((dynamicPath) => {
         const propertyPath = dynamicPath.key;
         const propertyValue = _.get(widget, propertyPath);
         if (_.isObject(propertyValue)) {
@@ -133,7 +133,7 @@ export class DataTreeFactory {
           _.set(widget, propertyPath, JSON.stringify(propertyValue));
         }
       });
-      Object.keys(derivedPropertyMap).forEach(propertyName => {
+      Object.keys(derivedPropertyMap).forEach((propertyName) => {
         derivedProps[propertyName] = derivedPropertyMap[propertyName].replace(
           /this./g,
           `${widget.widgetName}.`,

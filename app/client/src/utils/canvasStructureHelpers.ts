@@ -17,7 +17,7 @@ const getCanvasStructureFromDSL = (dsl: DSL): CanvasStructure => {
   let structureChildren: CanvasStructure[] | undefined = undefined;
   if (dsl.type === WidgetTypes.TABS_WIDGET) {
     if (children && children.length > 0) {
-      structureChildren = children.map(childTab => ({
+      structureChildren = children.map((childTab) => ({
         widgetName: childTab.tabName,
         widgetId: childTab.widgetId,
         type: WidgetTypes.TABS_WIDGET,
