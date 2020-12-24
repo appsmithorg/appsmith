@@ -81,7 +81,7 @@ export function* fetchAllUsersSaga(action: ReduxAction<FetchAllUsersRequest>) {
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const users = response.data.map(user => ({
+      const users = response.data.map((user) => ({
         ...user,
         isDeleting: false,
         isChangingRole: false,

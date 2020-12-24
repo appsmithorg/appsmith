@@ -51,7 +51,7 @@ export function* rootSaga() {
     onboardingSaga,
   ];
   yield all(
-    sagas.map(saga =>
+    sagas.map((saga) =>
       spawn(function*() {
         while (true) {
           try {

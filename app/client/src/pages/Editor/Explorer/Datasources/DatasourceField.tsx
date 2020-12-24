@@ -9,7 +9,7 @@ import { Colors } from "constants/Colors";
 import { DatasourceColumns, DatasourceKeys } from "api/DatasourcesApi";
 
 const Wrapper = styled.div<{ step: number }>`
-  padding-left: ${props =>
+  padding-left: ${(props) =>
     props.step * props.theme.spaces[2] + props.theme.spaces[6]}px;
   flex-direction: row;
   display: flex;

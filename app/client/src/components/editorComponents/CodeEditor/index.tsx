@@ -194,27 +194,27 @@ class CodeEditor extends Component<Props, State> {
       // Update the dynamic bindings for autocomplete
       if (prevProps.dynamicData !== this.props.dynamicData) {
         this.hinters.forEach(
-          hinter => hinter.update && hinter.update(this.props.dynamicData),
+          (hinter) => hinter.update && hinter.update(this.props.dynamicData),
         );
       }
     }
   }
 
   startAutocomplete() {
-    this.hinters = this.props.hinting.map(helper => {
+    this.hinters = this.props.hinting.map((helper) => {
       return helper(this.editor, this.props.dynamicData);
     });
   }
 
   onFocusTrigger = (cm: CodeMirror.Editor) => {
     if (!cm.state.completionActive) {
-      this.hinters.forEach(hinter => hinter.trigger && hinter.trigger(cm));
+      this.hinters.forEach((hinter) => hinter.trigger && hinter.trigger(cm));
     }
   };
 
   onChangeTigger = (cm: CodeMirror.Editor) => {
     if (this.state.isFocused) {
-      this.hinters.forEach(hinter => hinter.trigger && hinter.trigger(cm));
+      this.hinters.forEach((hinter) => hinter.trigger && hinter.trigger(cm));
     }
   };
 
@@ -267,7 +267,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
-    this.hinters.forEach(hinter => hinter.showHint(cm));
+    this.hinters.forEach((hinter) => hinter.showHint(cm));
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
@@ -277,7 +277,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   updateMarkings = () => {
-    this.props.marking.forEach(helper => this.editor && helper(this.editor));
+    this.props.marking.forEach((helper) => this.editor && helper(this.editor));
   };
 
   updatePropertyValue(value: string, cursor?: number) {

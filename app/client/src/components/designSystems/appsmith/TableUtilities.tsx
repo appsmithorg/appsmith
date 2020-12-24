@@ -486,7 +486,7 @@ export const renderCell = (
               if (imageRegex.test(item)) {
                 return (
                   <a
-                    onClick={e => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
                     target="_blank"
                     rel="noopener noreferrer"
                     href={item}
@@ -561,7 +561,7 @@ const TableAction = (props: {
   };
   return (
     <ActionWrapper
-      onClick={e => {
+      onClick={(e) => {
         if (props.isSelected) {
           e.stopPropagation();
         }
@@ -607,8 +607,8 @@ const RenameColumn = (props: {
       placeholder="Enter Column Name"
       defaultValue={columnName}
       onChange={onColumnNameChange}
-      onKeyPress={e => onKeyPress(e.key)}
-      onBlur={e => handleColumnNameUpdate()}
+      onKeyPress={(e) => onKeyPress(e.key)}
+      onBlur={(e) => handleColumnNameUpdate()}
     />
   );
 };
@@ -678,7 +678,7 @@ const SortIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   cursor: pointer;
   svg {
     path {
-      fill: ${props => props.theme.colors.secondary};
+      fill: ${(props) => props.theme.colors.secondary};
     }
   }
 `;

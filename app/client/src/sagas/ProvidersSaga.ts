@@ -84,7 +84,7 @@ export function* addApiToPageSaga(
     if (isValidResponse) {
       const { payload } = action;
       const pageList: Page[] = yield select(getPageList);
-      const page = pageList.find(page => page.pageId === payload.pageId);
+      const page = pageList.find((page) => page.pageId === payload.pageId);
       AnalyticsUtil.logEvent("ADD_API_PAGE", {
         apiName: payload.name,
         providerName: payload.marketplaceElement.item.name,

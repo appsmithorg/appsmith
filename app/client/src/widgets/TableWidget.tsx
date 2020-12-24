@@ -493,7 +493,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getSelectedRowIndexes = (selectedRowIndices: string) => {
     return selectedRowIndices
-      ? selectedRowIndices.split(",").map(i => Number(i))
+      ? selectedRowIndices.split(",").map((i) => Number(i))
       : [];
   };
 

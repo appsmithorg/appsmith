@@ -62,7 +62,7 @@ const DBForm = styled.div`
   padding: 20px;
   margin-left: 10px;
   margin-right: 0px;
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
   overflow: auto;
   .backBtn {
     padding-bottom: 1px;
@@ -164,7 +164,7 @@ class DatasourceDBEditor extends React.Component<
     const requiredFields = Object.keys(this.requiredFields);
     const values = this.props.formData;
 
-    requiredFields.forEach(fieldConfigProperty => {
+    requiredFields.forEach((fieldConfigProperty) => {
       const fieldConfig = this.requiredFields[fieldConfigProperty];
       if (fieldConfig.controlType === "KEYVALUE_ARRAY") {
         const configProperty = fieldConfig.configProperty.split("[*].");
@@ -193,7 +193,7 @@ class DatasourceDBEditor extends React.Component<
 
         if (value.length) {
           const values = Object.values(value[0]);
-          const isNotBlank = values.every(value => value);
+          const isNotBlank = values.every((value) => value);
 
           if (!isNotBlank) {
             _.set(errors, fieldConfigProperty, "This field is required");
@@ -250,7 +250,7 @@ class DatasourceDBEditor extends React.Component<
 
         values.forEach(
           (object: { [s: string]: unknown } | ArrayLike<unknown>) => {
-            const isEmpty = Object.values(object).every(x => x === "");
+            const isEmpty = Object.values(object).every((x) => x === "");
 
             if (!isEmpty) {
               newValues.push(object);
@@ -271,7 +271,7 @@ class DatasourceDBEditor extends React.Component<
 
         values.forEach(
           (object: { [s: string]: unknown } | ArrayLike<unknown>) => {
-            const isEmpty = Object.values(object).every(x => x === "");
+            const isEmpty = Object.values(object).every((x) => x === "");
 
             if (!isEmpty) {
               newValues.push(object);
@@ -323,7 +323,7 @@ class DatasourceDBEditor extends React.Component<
 
     return (
       <form
-        onSubmit={e => {
+        onSubmit={(e) => {
           e.preventDefault();
         }}
       >

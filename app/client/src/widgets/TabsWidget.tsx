@@ -60,7 +60,7 @@ class TabsWidget extends BaseWidget<
     const selectedTabWidgetId = this.props.selectedTabWidgetId;
     const childWidgetData: TabContainerWidgetProps = this.props.children
       ?.filter(Boolean)
-      .filter(item => {
+      .filter((item) => {
         return selectedTabWidgetId === item.widgetId;
       })[0];
     if (!childWidgetData) {
@@ -86,7 +86,7 @@ class TabsWidget extends BaseWidget<
 
   addTabContainer = (widgetIds: string[]) => {
     widgetIds.forEach((newWidgetId: string) => {
-      const tab = this.props.tabs.find(tab => tab.widgetId === newWidgetId);
+      const tab = this.props.tabs.find((tab) => tab.widgetId === newWidgetId);
       if (tab) {
         const columns =
           (this.props.rightColumn - this.props.leftColumn) *
@@ -132,10 +132,10 @@ class TabsWidget extends BaseWidget<
       this.props.tabs.length !== prevProps.tabs.length &&
       this.props.children.length !== this.props.tabs.length
     ) {
-      const tabWidgetIds = this.props.tabs.map(tab => tab.widgetId);
+      const tabWidgetIds = this.props.tabs.map((tab) => tab.widgetId);
       const childWidgetIds = this.props.children
         .filter(Boolean)
-        .map(child => child.widgetId);
+        .map((child) => child.widgetId);
       // If the tabs and children are different,
       // add and/or remove tab container widgets
 
@@ -202,15 +202,15 @@ class TabsWidget extends BaseWidget<
     const { tabs, widgetId } = this.props;
     const childWidgetIds = this.props.children
       ?.filter(Boolean)
-      .map(child => child.widgetId);
+      .map((child) => child.widgetId);
     let tabsToCreate = tabs;
     if (childWidgetIds && childWidgetIds.length > 0) {
       tabsToCreate = tabs.filter(
-        tab => childWidgetIds.indexOf(tab.widgetId) === -1,
+        (tab) => childWidgetIds.indexOf(tab.widgetId) === -1,
       );
     }
 
-    const tabContainers = tabsToCreate.map(tab => ({
+    const tabContainers = tabsToCreate.map((tab) => ({
       type: WidgetTypes.CANVAS_WIDGET,
       tabId: tab.id,
       tabName: tab.label,
