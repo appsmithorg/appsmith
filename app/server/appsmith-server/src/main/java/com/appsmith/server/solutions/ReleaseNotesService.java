@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -48,10 +49,15 @@ public class ReleaseNotesService {
 
     public Mono<List<ReleaseNode>> getReleaseNodes() {
         if (cacheExpiryTime != null && Instant.now().isBefore(cacheExpiryTime)) {
-            return Mono.just(releaseNodesCache);
+            return Mono.justOrEmpty(releaseNodesCache);
         }
 
-        return WebClient.create(cloudServicesConfig.getBaseUrl() + "/api/v1/releases")
+        final String baseUrl = cloudServicesConfig.getBaseUrl();
+        if (StringUtils.isEmpty(baseUrl)) {
+            return Mono.justOrEmpty(releaseNodesCache);
+        }
+
+        return WebClient.create(baseUrl + "/api/v1/releases")
                 .get()
                 .exchange()
                 .flatMap(response -> response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Releases>>() {}))
