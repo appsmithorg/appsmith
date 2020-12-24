@@ -270,7 +270,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           let value = data[accessor];
           if (column.metaProperties) {
             const type = column.metaProperties.type;
-            const format = column.metaProperties.format;
             switch (type) {
               case ColumnTypes.DATE:
                 let isValidDate = true;
@@ -605,6 +604,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         "filteredTableData",
         filteredTableData,
       );
+      //TODO(abhinav/Vicky) : What we render and the FilteredTableData are different. What we render is correct
     }
 
     // If the user has changed the tableData OR

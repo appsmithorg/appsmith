@@ -1,11 +1,6 @@
 import { compact, get, isString, xor, xorWith } from "lodash";
 import { Colors } from "constants/Colors";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
-import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
-import {
-  getTableStyles,
-  getDefaultColumnProperties,
-} from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import { TableWidgetProps } from "./TableWidgetConstants";
 import log from "loglevel";
 
@@ -31,7 +26,6 @@ const updateColumnStyles = (
         derivedColumns = props.derivedColumns;
       }
     }
-    // const derivedColumns = props.derivedColumns || [];
     let updatedDerivedColumns = [...derivedColumns];
     if (currentStyleName) {
       let updates = compact(
@@ -83,124 +77,123 @@ const updateColumnStyles = (
       }
       return updates;
     }
-    // .filter(Boolean); // Remove all undefined entries
   }
   return [];
 };
 
-const updateColumnsHook = (
-  props: TableWidgetProps,
-  propertyPath: string,
-  propertyValue: any,
-): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  const propertiesToUpdate: Array<{
-    propertyPath: string;
-    propertyValue: any;
-  }> = [];
-  try {
-    // Parse the json in the field
-    const tableData = JSON.parse(propertyValue);
-    // Get all the column keys
-    const columnKeys: string[] = getAllTableColumnKeys(tableData);
-    // Get all the primary columns
-    const primaryColumns: ColumnProperties[] = props.primaryColumns
-      ? [...props.primaryColumns]
-      : [];
-    // Get all table level styles
-    const tableStyles = getTableStyles(props);
-    let existingColumnCount = 0;
-    // Use the columnId as identifier instead of index
-    const dynamicBindingPathList = props.dynamicBindingPathList
-      ? props.dynamicBindingPathList.map((item: { key: string }) => {
-          const value = item.key;
-          if (value.includes("primaryColumns")) {
-            const columnId = get(
-              { primaryColumns },
-              `${value.split(".")[0]}.id`,
-            );
-            return {
-              key: `primaryColumns.${columnId}.${value.split(".")[1]}`,
-            };
-          }
-          return item;
-        })
-      : [];
-    // Get all the existing columns which are either derived or exist in primary columns
-    const existingColumns = primaryColumns.filter(
-      (column: ColumnProperties) => {
-        // Index of the column.id in all table column keys
-        const columnKeyIndex = columnKeys.indexOf(column.id);
-        // If this column exists in the column keys of the table
-        if (columnKeyIndex > -1) {
-          // Remove this column from columnKeys
-          columnKeys.splice(columnKeyIndex, 1);
-          // Leverage the fact that filter iterates to increment the count of existing columns
-          existingColumnCount++;
-        }
-        // Return true if this column is a derived column or the column is not found
-        return column.isDerived || columnKeyIndex !== -1;
-      },
-    );
-    for (let i = 0; i < columnKeys.length; i++) {
-      const column = getDefaultColumnProperties(
-        columnKeys[i],
-        0,
-        props.widgetName,
-      );
-      existingColumns.splice(existingColumnCount + i, 0, {
-        ...column,
-        ...tableStyles,
-      });
-    }
-    const columns = existingColumns.map(
-      (column: ColumnProperties, index: number) => {
-        return {
-          ...column,
-          index: index,
-        };
-      },
-    );
-    const updatedDynamicBindingPathList = compact(
-      dynamicBindingPathList.map((item: { key: string }) => {
-        const value = item.key;
-        if (value.includes("primaryColumns")) {
-          const columnId = value.split(".")[1];
-          const columnIndex = columns.findIndex(
-            (column: ColumnProperties) => column.id === columnId,
-          );
-          if (columnIndex !== -1) {
-            return {
-              key: `primaryColumns[${columnIndex}].${value.split(".")[2]}`,
-            };
-          }
-          return;
-        }
-        return item;
-      }),
-    );
+// const updateColumnsHook = (
+//   props: TableWidgetProps,
+//   propertyPath: string,
+//   propertyValue: any,
+// ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+//   const propertiesToUpdate: Array<{
+//     propertyPath: string;
+//     propertyValue: any;
+//   }> = [];
+//   try {
+//     // Parse the json in the field
+//     const tableData = JSON.parse(propertyValue);
+//     // Get all the column keys
+//     const columnKeys: string[] = getAllTableColumnKeys(tableData);
+//     // Get all the primary columns
+//     const primaryColumns: ColumnProperties[] = props.primaryColumns
+//       ? [...props.primaryColumns]
+//       : [];
+//     // Get all table level styles
+//     const tableStyles = getTableStyles(props);
+//     let existingColumnCount = 0;
+//     // Use the columnId as identifier instead of index
+//     const dynamicBindingPathList = props.dynamicBindingPathList
+//       ? props.dynamicBindingPathList.map((item: { key: string }) => {
+//           const value = item.key;
+//           if (value.includes("primaryColumns")) {
+//             const columnId = get(
+//               { primaryColumns },
+//               `${value.split(".")[0]}.id`,
+//             );
+//             return {
+//               key: `primaryColumns.${columnId}.${value.split(".")[1]}`,
+//             };
+//           }
+//           return item;
+//         })
+//       : [];
+//     // Get all the existing columns which are either derived or exist in primary columns
+//     const existingColumns = primaryColumns.filter(
+//       (column: ColumnProperties) => {
+//         // Index of the column.id in all table column keys
+//         const columnKeyIndex = columnKeys.indexOf(column.id);
+//         // If this column exists in the column keys of the table
+//         if (columnKeyIndex > -1) {
+//           // Remove this column from columnKeys
+//           columnKeys.splice(columnKeyIndex, 1);
+//           // Leverage the fact that filter iterates to increment the count of existing columns
+//           existingColumnCount++;
+//         }
+//         // Return true if this column is a derived column or the column is not found
+//         return column.isDerived || columnKeyIndex !== -1;
+//       },
+//     );
+//     for (let i = 0; i < columnKeys.length; i++) {
+//       const column = getDefaultColumnProperties(
+//         columnKeys[i],
+//         0,
+//         props.widgetName,
+//       );
+//       existingColumns.splice(existingColumnCount + i, 0, {
+//         ...column,
+//         ...tableStyles,
+//       });
+//     }
+//     const columns = existingColumns.map(
+//       (column: ColumnProperties, index: number) => {
+//         return {
+//           ...column,
+//           index: index,
+//         };
+//       },
+//     );
+//     const updatedDynamicBindingPathList = compact(
+//       dynamicBindingPathList.map((item: { key: string }) => {
+//         const value = item.key;
+//         if (value.includes("primaryColumns")) {
+//           const columnId = value.split(".")[1];
+//           const columnIndex = columns.findIndex(
+//             (column: ColumnProperties) => column.id === columnId,
+//           );
+//           if (columnIndex !== -1) {
+//             return {
+//               key: `primaryColumns[${columnIndex}].${value.split(".")[2]}`,
+//             };
+//           }
+//           return;
+//         }
+//         return item;
+//       }),
+//     );
 
-    propertiesToUpdate.push(
-      {
-        propertyPath: "primaryColumns",
-        propertyValue: columns,
-      },
-      {
-        propertyPath: "dynamicBindingPathList",
-        propertyValue: updatedDynamicBindingPathList,
-      },
-    );
-    return propertiesToUpdate;
-  } catch (err) {
-    // There was most likely, a parsing error
-    // Reset the primary columns, as new data is coming in
-    return [
-      {
-        propertyPath: "primaryColumns",
-        propertyValue: [],
-      },
-    ];
-  }
-};
+//     propertiesToUpdate.push(
+//       {
+//         propertyPath: "primaryColumns",
+//         propertyValue: columns,
+//       },
+//       {
+//         propertyPath: "dynamicBindingPathList",
+//         propertyValue: updatedDynamicBindingPathList,
+//       },
+//     );
+//     return propertiesToUpdate;
+//   } catch (err) {
+//     // There was most likely, a parsing error
+//     // Reset the primary columns, as new data is coming in
+//     return [
+//       {
+//         propertyPath: "primaryColumns",
+//         propertyValue: [],
+//       },
+//     ];
+//   }
+// };
 
 const updateDerivedColumnHook = (
   props: TableWidgetProps,
