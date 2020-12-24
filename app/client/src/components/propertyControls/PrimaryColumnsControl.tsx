@@ -223,7 +223,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
   addNewColumn = () => {
     const columns: ColumnProperties[] = this.props.propertyValue || [];
     const newColumnName = getNextEntityName(
-      "DERIVED",
+      "customColumn",
       columns
         .filter((column: ColumnProperties) => column.isDerived)
         .map((column: ColumnProperties) => column.id),

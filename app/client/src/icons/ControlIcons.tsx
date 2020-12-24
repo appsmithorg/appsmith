@@ -37,6 +37,7 @@ import { ReactComponent as HeadingOneIcon } from "assets/icons/control/heading_1
 import { ReactComponent as HeadingTwoIcon } from "assets/icons/control/heading_2.svg";
 import { ReactComponent as HeadingThreeIcon } from "assets/icons/control/heading_3.svg";
 import { ReactComponent as ParagraphIcon } from "assets/icons/control/paragraph.svg";
+import { ReactComponent as ParagraphTwoIcon } from "assets/icons/control/paragraph_2.svg";
 import { ReactComponent as BulletsIcon } from "assets/icons/control/bullets.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
@@ -237,6 +238,11 @@ export const ControlIcons: {
   PARAGRAPH: (props: IconProps) => (
     <IconWrapper {...props}>
       <ParagraphIcon />
+    </IconWrapper>
+  ),
+  PARAGRAPH_TWO: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <ParagraphTwoIcon />
     </IconWrapper>
   ),
   BULLETS: (props: IconProps) => (

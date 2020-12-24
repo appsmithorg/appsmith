@@ -5,6 +5,7 @@ import { EventType } from "constants/ActionConstants";
 import {
   compare,
   getDefaultColumnProperties,
+  getTableStyles,
   renderCell,
   renderDropdown,
   renderActions,
@@ -86,8 +87,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         "{{(()=> { \
         const selectedRowIndex = this.selectedRowIndex === undefined || Number.isNaN(parseInt(this.selectedRowIndex)) ? -1 : parseInt(this.selectedRowIndex);\
         const filteredTableData = this.filteredTableData || []; \
-        if(selectedRowIndex === -1) { const emptyRow = filteredTableData[0]; Object.keys(emptyRow).forEach((key) => { emptyRow[key] = ''; }); return emptyRow; } \
-        return filteredTableData[selectedRowIndex];\
+        if(selectedRowIndex === -1) { const emptyRow = {...filteredTableData[0]}; Object.keys(emptyRow).forEach((key) => { emptyRow[key] = ''; }); return emptyRow; } \
+        return {...filteredTableData[selectedRowIndex]};\
       })()}}",
       selectedRows:
         "{{(()=> { \
@@ -430,7 +431,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (selectedRowIndex === undefined || selectedRowIndex === -1) {
       return this.getEmptyRow();
     }
-    return filteredTableData[selectedRowIndex];
+    return {
+      ...filteredTableData[selectedRowIndex],
+    };
   };
 
   getDerivedColumns = (
@@ -450,30 +453,43 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   createTablePrimaryColumns = () => {
-    const {
-      tableData,
-      derivedColumns,
-      dynamicBindingPathList,
-      columnOrder,
-    } = this.props;
+    const { tableData, dynamicBindingPathList, columnOrder } = this.props;
+    let derivedColumns = this.props.derivedColumns;
     // If there is tableData attempt to generate primaryColumns
     if (tableData) {
       let tableColumns: ColumnProperties[] = [];
+      //Get table level styles
+      const tableStyles = getTableStyles(this.props);
       const columnKeys: string[] = getAllTableColumnKeys(tableData);
       // Generate default column properties for all columns
       for (let index = 0; index < columnKeys.length; index++) {
         const i = columnKeys[index];
-        tableColumns.push(
-          getDefaultColumnProperties(i, index, this.props.widgetName),
+        const columnProperties = getDefaultColumnProperties(
+          i,
+          index,
+          this.props.widgetName,
         );
+        //add column properties along with table level styles
+        tableColumns.push({
+          ...columnProperties,
+          ...tableStyles,
+        });
       }
-
+      if (isString(derivedColumns)) {
+        // why is this a string in the first place?
+        try {
+          derivedColumns = JSON.parse(derivedColumns);
+        } catch (e) {
+          log.debug("Error parsing derived columns", e);
+        }
+      } else {
+        derivedColumns = derivedColumns;
+      }
       // Get derived columns
       const updatedDerivedColumns = this.getDerivedColumns(
         derivedColumns,
         tableColumns.length,
       );
-
       //Get existing derived column paths
       const derivedColumnsPaths =
         derivedColumns?.map(
@@ -543,7 +559,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidMount() {
     const filteredTableData = this.filterTableData();
-
     this.props.updateWidgetMetaProperty("filteredTableData", filteredTableData);
     setTimeout(() => {
       if (
@@ -576,6 +591,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // Table filters have changed or
     // Table search Text has changed or
     // Sorting has changed
+    // filteredTableData is not created
     if (
       tableDataModified ||
       JSON.stringify(this.props.filters) !==
@@ -583,7 +599,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.searchText !== prevProps.searchText ||
       JSON.stringify(this.props.sortedColumn) !==
         JSON.stringify(prevProps.sortedColumn) ||
-      hasPrimaryColumnsComputedValueChanged
+      hasPrimaryColumnsComputedValueChanged ||
+      this.props.filteredTableData === undefined
     ) {
       const filteredTableData = this.filterTableData();
       // Update filteredTableData meta property

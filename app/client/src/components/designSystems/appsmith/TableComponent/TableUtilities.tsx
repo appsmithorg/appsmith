@@ -69,9 +69,9 @@ export const renderCell = (
                     target="_blank"
                     rel="noopener noreferrer"
                     href={item}
+                    key={index}
                   >
                     <div
-                      key={index}
                       className="image-cell"
                       style={{ backgroundImage: `url("${item}")` }}
                     />

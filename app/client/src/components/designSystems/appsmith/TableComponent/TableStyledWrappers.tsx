@@ -274,7 +274,7 @@ const TEXT_SIZES = {
   HEADING2: "18px",
   HEADING3: "16px",
   PARAGRAPH: "14px",
-  BULLETPOINTS: "12px",
+  PARAGRAPH2: "12px",
 };
 
 export const TableStyles = css<{ cellProperties?: CellLayoutProperties }>`
@@ -318,6 +318,7 @@ export const CellWrapper = styled.div<{
   opacity: ${props => (props.isHidden ? "0.6" : "1")};
   ${TableStyles};
   padding: 0 10px;
+  line-height: 28px;
   .image-cell {
     width: 40px;
     height: 32px;
