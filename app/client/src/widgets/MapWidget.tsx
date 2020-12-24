@@ -90,7 +90,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     const marker = { lat, long, title: "" };
 
     const markers = [];
-    (this.props.markers || []).forEach(m => {
+    (this.props.markers || []).forEach((m) => {
       markers.push(m);
     });
     markers.push(marker);

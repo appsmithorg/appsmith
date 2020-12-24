@@ -71,7 +71,7 @@ class DynamicTextControl extends BaseControl<
       <Wrapper>
         {showTemplate ? (
           <TemplateMenu
-            createTemplate={templateString => {
+            createTemplate={(templateString) => {
               this.setState(
                 {
                   showTemplateMenu: false,
