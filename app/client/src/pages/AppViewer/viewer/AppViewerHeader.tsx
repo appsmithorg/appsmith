@@ -48,6 +48,7 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    color: #d4d4d4;
   }
 `;
 
