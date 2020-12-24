@@ -2,6 +2,7 @@ import React from "react";
 import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
+import { removeFalsyEntries } from "utils/helpers";
 import { generateReactKey } from "utils/generators";
 import { WidgetOperations } from "widgets/BaseWidget";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
@@ -11,6 +12,7 @@ import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import GridComponent from "components/designSystems/appsmith/GridComponent";
 import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
+import { ContainerWidgetProps } from "./ContainerWidget";
 
 class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -31,7 +33,7 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
     return {};
   }
 
-  renderChildWidget = (childWidgetData: WidgetProps) => {
+  renderChild = (childWidgetData: WidgetProps) => {
     const { componentWidth, componentHeight } = this.getComponentDimensions();
 
     childWidgetData.parentId = this.props.widgetId;
@@ -43,17 +45,90 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.containerStyle = "none";
     childWidgetData.minHeight = componentHeight;
-    childWidgetData.rightColumn =
-      (this.props.rightColumn - this.props.leftColumn) *
-      this.props.parentColumnSpace;
+    childWidgetData.rightColumn = componentWidth;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
-  getChildren = () => {
+  /**
+   * @param children
+   */
+  updatePosition = (children: ContainerWidgetProps<WidgetProps>[]) => {
+    return children.map((child, index) => {
+      return {
+        ...child,
+        topRow: index * children[0].bottomRow,
+        bottomRow: (index + 1) * children[0].bottomRow,
+      };
+    });
+  };
+
+  /**
+   *
+   * @param children
+   */
+  setPathsForNewChildrenInGrid = (
+    children: ContainerWidgetProps<WidgetProps>[],
+  ) => {
+    return children;
+  };
+
+  updateGridChildrenProps = (children: ContainerWidgetProps<WidgetProps>[]) => {
+    let updatedChildren = this.updatePosition(children);
+
+    updatedChildren = this.setPathsForNewChildrenInGrid(updatedChildren);
+    // updatedChildren = this.replaceBindings(updatedChildren);
+    // updatedChildren = this.useNewValues(updatedChildren);
+    // Position all children based on alignment of the grid and gap
+    // Replace bindings with value {{currentRow.email}} => email
+    //
+
+    return updatedChildren;
+  };
+
+  // {
+  //   grid: {
+  //     children: [ <--- children
+  //       {
+  //         canvas: { <--- childCanvas
+  //           children: [ <---- canvasChildren
+  //             {
+  //               container: {
+  //                 children: [
+  //                   {
+  //                     canvas: [
+  //                       {
+  //                         button
+  //                         image
+  //                       }
+  //                     ]
+  //                   }
+  //                 ]
+  //               }
+  //             }
+  //           ]
+  //         }
+  //       }
+  //     ]
+  //   }
+  // }
+
+  /**
+   * renders children
+   */
+  renderChildren = () => {
+    const numberOfItemsInGrid = this.props.items.length;
+
     if (this.props.children && this.props.children.length > 0) {
-      const children = this.props.children.filter(Boolean);
-      return children.length > 0 && children.map(this.renderChildWidget);
+      const children = removeFalsyEntries(this.props.children);
+
+      const childCanvas = children[0];
+      let canvasChildren = childCanvas.children;
+      canvasChildren = new Array(numberOfItemsInGrid).fill(canvasChildren[0]);
+      canvasChildren = this.updateGridChildrenProps(canvasChildren);
+      childCanvas.children = canvasChildren;
+
+      return this.renderChild(childCanvas);
     }
   };
 
@@ -61,9 +136,7 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
    * view that is rendered in editor
    */
   getPageView() {
-    const children = this.getChildren();
-
-    console.log({ children });
+    const children = this.renderChildren();
 
     return <GridComponent {...this.props}>{children}</GridComponent>;
   }

@@ -489,6 +489,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     position: { top: 0, left: 0 },
                     props: {
                       backgroundColor: "white",
+                      containerStyle: "border",
                       dragEnabled: false,
                       isDeletable: false,
                     },
