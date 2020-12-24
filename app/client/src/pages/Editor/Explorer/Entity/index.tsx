@@ -73,7 +73,7 @@ export const EntityItem = styled.div<{
 `;
 
 const IconWrapper = styled.span`
-  line-height: ${props => props.theme.lineHeights[0]}px;
+  line-height: ${(props) => props.theme.lineHeights[0]}px;
 `;
 
 export type EntityProps = {
