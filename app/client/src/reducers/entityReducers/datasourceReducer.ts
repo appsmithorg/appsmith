@@ -125,7 +125,7 @@ const datasourceReducer = createReducer(initialState, {
       ...state,
       isDeleting: false,
       list: state.list.filter(
-        datasource => datasource.id !== action.payload.id,
+        (datasource) => datasource.id !== action.payload.id,
       ),
     };
   },
@@ -146,7 +146,7 @@ const datasourceReducer = createReducer(initialState, {
     return {
       ...state,
       loading: false,
-      list: state.list.map(datasource => {
+      list: state.list.map((datasource) => {
         if (datasource.id === action.payload.id) return action.payload;
 
         return datasource;
@@ -160,7 +160,7 @@ const datasourceReducer = createReducer(initialState, {
     return {
       ...state,
       loading: false,
-      list: state.list.map(datasource => {
+      list: state.list.map((datasource) => {
         if (datasource.id === action.payload.id) return action.payload;
 
         return datasource;

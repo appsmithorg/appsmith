@@ -50,12 +50,12 @@ const EditableTextWrapper = styled.div<{
     justify-content: flex-start;
     align-items: flex-start;
     & .${Classes.EDITABLE_TEXT} {
-      border: ${props =>
+      border: ${(props) =>
         props.isEditing && !props.minimal
           ? `1px solid ${Colors.HIT_GRAY}`
           : "none"};
       cursor: pointer;
-      padding: ${props => (!props.minimal ? "5px 5px" : "0px")};
+      padding: ${(props) => (!props.minimal ? "5px 5px" : "0px")};
       text-transform: none;
       flex: 1 0 100%;
       max-width: 100%;
@@ -76,13 +76,13 @@ const EditableTextWrapper = styled.div<{
 const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
   display: flex;
   &&&& .${Classes.EDITABLE_TEXT} {
-    ${props => (!props.minimal ? "border-radius: 3px;" : "")}
-    ${props =>
+    ${(props) => (!props.minimal ? "border-radius: 3px;" : "")}
+    ${(props) =>
       !props.minimal
         ? `border-color: ${props.isValid ? Colors.HIT_GRAY : "red"}`
         : ""};
     & .${Classes.EDITABLE_TEXT_CONTENT} {
-      text-decoration: ${props => (props.minimal ? "underline" : "none")};
+      text-decoration: ${(props) => (props.minimal ? "underline" : "none")};
     }
   }
 `;

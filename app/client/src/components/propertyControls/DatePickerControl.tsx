@@ -14,11 +14,11 @@ const DatePickerControlWrapper = styled.div<{ isValid: boolean }>`
   margin: 8px 0 0 0;
   &&& {
     input {
-      background: ${props => props.theme.colors.paneTextBG};
-      color: ${props => props.theme.colors.textOnDarkBG};
-      font-size: ${props => props.theme.fontSizes[3]}px;
+      background: ${(props) => props.theme.colors.paneTextBG};
+      color: ${(props) => props.theme.colors.textOnDarkBG};
+      font-size: ${(props) => props.theme.fontSizes[3]}px;
       box-shadow: none;
-      border: ${props =>
+      border: ${(props) =>
         !props.isValid
           ? `1px solid ${props.theme.colors.error}`
           : `1px solid transparent`};
@@ -30,8 +30,8 @@ const DatePickerControlWrapper = styled.div<{ isValid: boolean }>`
     align-items: center;
     margin: 16px 0 4px 0;
     .label {
-      color: ${props => props.theme.colors.paneText};
-      font-size: ${props => props.theme.fontSizes[3]}px;
+      color: ${(props) => props.theme.colors.paneText};
+      font-size: ${(props) => props.theme.fontSizes[3]}px;
     }
     .bp3-control {
       margin-bottom: 0px;

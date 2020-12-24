@@ -5,19 +5,19 @@ import styled, { createGlobalStyle } from "styled-components";
 
 export const LoadingAnimation = createGlobalStyle<{ theme: Theme }>`
 	&&&& .${Classes.SKELETON} {
-		background:  ${props => props.theme.colors.loader.light};;
-		border-color:  ${props => props.theme.colors.loader.light};;
+		background:  ${(props) => props.theme.colors.loader.light};;
+		border-color:  ${(props) => props.theme.colors.loader.light};;
 		animation: 1000ms linear infinite alternate loaderAnimation;
 
 		@keyframes loaderAnimation {
 			from {
-				background: ${props => props.theme.colors.loader.light};
-				border-color:  ${props => props.theme.colors.loader.light};;
+				background: ${(props) => props.theme.colors.loader.light};
+				border-color:  ${(props) => props.theme.colors.loader.light};;
 			}
 
 			to {
-				background: ${props => props.theme.colors.loader.dark};
-				border-color: ${props => props.theme.colors.loader.dark};
+				background: ${(props) => props.theme.colors.loader.dark};
+				border-color: ${(props) => props.theme.colors.loader.dark};
 			}
 		}
 	}

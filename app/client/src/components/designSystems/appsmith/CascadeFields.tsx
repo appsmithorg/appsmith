@@ -46,7 +46,7 @@ const FieldWrapper = styled.div`
 `;
 
 const DropdownWrapper = styled.div<{ width: number }>`
-  width: ${props => props.width}px;
+  width: ${(props) => props.width}px;
   margin-left: 10px;
 `;
 
@@ -243,7 +243,7 @@ const RenderOptions = (props: {
   useEffect(() => {
     if (props.value && props.columns) {
       const selectedOptions = props.columns.filter(
-        i => i.value === props.value,
+        (i) => i.value === props.value,
       );
       if (selectedOptions && selectedOptions.length) {
         selectValue(selectedOptions[0].value);

@@ -43,7 +43,7 @@ export const ErrorTextInputStory = () => (
       placeholder={text("placeholder", "Your name")}
       disabled={boolean("disabled", false)}
       fill={boolean("fill", true)}
-      onChange={value => console.log(value)}
+      onChange={(value) => console.log(value)}
       defaultValue={text("defaultValue", "This is wrong")}
       validator={() => callValidator2()}
     ></TextInput>

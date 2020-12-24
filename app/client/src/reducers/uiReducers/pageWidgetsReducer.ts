@@ -21,7 +21,7 @@ const pageWidgetsReducer = createImmerReducer(initalState, {
     state: PageWidgetsReduxState,
     action: ReduxAction<Array<{ pageId: string; dsl: DSL }>>,
   ) => {
-    action.payload.forEach(entry => {
+    action.payload.forEach((entry) => {
       state[entry.pageId] = CanvasWidgetsNormalizer.normalize(
         entry.dsl,
       ).entities.canvasWidgets;

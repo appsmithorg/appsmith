@@ -8,11 +8,11 @@ import { IntentColors } from "constants/DefaultTheme";
 const StyledError = styled.span<{ show: boolean }>`
   text-align: left;
   color: ${IntentColors.danger};
-  font-size: ${props => props.theme.fontSizes[3]}px;
-  opacity: ${props => (props.show ? 1 : 0)};
+  font-size: ${(props) => props.theme.fontSizes[3]}px;
+  opacity: ${(props) => (props.show ? 1 : 0)};
   display: block;
   position: relative;
-  margin-top: ${props => props.theme.spaces[1]}px;
+  margin-top: ${(props) => props.theme.spaces[1]}px;
 `;
 
 type FormFieldErrorProps = {

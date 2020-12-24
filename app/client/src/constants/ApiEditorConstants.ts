@@ -16,7 +16,7 @@ export const HTTP_METHOD_COLOR_MAP = zipObject(
   HTTP_METHOD_COLORS,
 );
 
-export const HTTP_METHOD_OPTIONS = HTTP_METHODS.map(method => ({
+export const HTTP_METHOD_OPTIONS = HTTP_METHODS.map((method) => ({
   label: method,
   value: method,
 }));
@@ -53,11 +53,11 @@ export const POST_BODY_FORMAT_OPTIONS = [
 ];
 
 export const POST_BODY_FORMAT_OPTIONS_NO_MULTI_PART = POST_BODY_FORMAT_OPTIONS.filter(
-  option => {
+  (option) => {
     return option.value !== "multipart/form-data";
   },
 );
 
-export const POST_BODY_FORMATS = POST_BODY_FORMAT_OPTIONS.map(option => {
+export const POST_BODY_FORMATS = POST_BODY_FORMAT_OPTIONS.map((option) => {
   return option.value;
 });
