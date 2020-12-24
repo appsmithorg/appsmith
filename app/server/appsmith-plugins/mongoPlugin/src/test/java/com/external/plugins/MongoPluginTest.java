@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import org.mockito.Mockito;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.spy;
@@ -152,7 +152,7 @@ public class MongoPluginTest {
          */
         MongoPlugin.MongoPluginExecutor mongoPluginExecutor    = new MongoPlugin.MongoPluginExecutor();
         MongoPlugin.MongoPluginExecutor spyMongoPluginExecutor = spy(mongoPluginExecutor);
-        when(spyMongoPluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.error(mockMongoCommandException));
+        when(spyMongoPluginExecutor.datasourceCreate(any())).thenReturn(Mono.error(mockMongoCommandException));
 
         /*
          * 1. Test that MongoCommandException with error code "Unauthorized" is caught and no error is reported.
