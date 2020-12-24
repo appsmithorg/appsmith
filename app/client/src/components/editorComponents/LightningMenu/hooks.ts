@@ -18,16 +18,16 @@ export const useActions = () => {
   const actions = useSelector((state: AppState) => {
     const currentPageId = state.entities.pageList.currentPageId;
     return state.entities.actions.filter(
-      action => action.config.pageId === currentPageId,
+      (action) => action.config.pageId === currentPageId,
     );
   });
   const apis: RestAction[] = actions
-    .filter(action => action.config.pluginType === "API")
-    .map(action => action.config);
+    .filter((action) => action.config.pluginType === "API")
+    .map((action) => action.config);
 
   const queries: RestAction[] = actions
-    .filter(action => action.config.pluginType === "DB")
-    .map(action => action.config);
+    .filter((action) => action.config.pluginType === "DB")
+    .map((action) => action.config);
 
   return { apis, queries };
 };

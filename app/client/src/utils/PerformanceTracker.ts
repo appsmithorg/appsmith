@@ -91,7 +91,7 @@ class PerformanceTracker {
         }
         const newTransaction = Sentry.startTransaction({ name: eventName });
         newTransaction.setData("startData", data);
-        Sentry.getCurrentHub().configureScope(scope =>
+        Sentry.getCurrentHub().configureScope((scope) =>
           scope.setSpan(newTransaction),
         );
         PerformanceTracker.perfLogQueue.push({
@@ -135,7 +135,7 @@ class PerformanceTracker {
       if (eventName) {
         const index = _.findLastIndex(
           PerformanceTracker.perfLogQueue,
-          perfLog => {
+          (perfLog) => {
             return perfLog.eventName === eventName;
           },
         );

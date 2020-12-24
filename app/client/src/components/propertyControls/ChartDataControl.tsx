@@ -26,12 +26,12 @@ const StyledDynamicInput = styled.div`
   &&& {
     input {
       border: none;
-      color: ${props => props.theme.colors.textOnDarkBG};
-      background: ${props => props.theme.colors.paneInputBG};
+      color: ${(props) => props.theme.colors.textOnDarkBG};
+      background: ${(props) => props.theme.colors.paneInputBG};
       &:focus {
         border: none;
-        color: ${props => props.theme.colors.textOnDarkBG};
-        background: ${props => props.theme.colors.paneInputBG};
+        color: ${(props) => props.theme.colors.textOnDarkBG};
+        background: ${(props) => props.theme.colors.paneInputBG};
       }
     }
   }

@@ -68,7 +68,7 @@ function* syncApiParamsSaga(
   if (field === "actionConfiguration.path") {
     if (value.indexOf("?") > -1) {
       const paramsString = value.substr(value.indexOf("?") + 1);
-      const params = paramsString.split("&").map(p => {
+      const params = paramsString.split("&").map((p) => {
         const keyValue = p.split("=");
         return { key: keyValue[0], value: keyValue[1] || "" };
       });

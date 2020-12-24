@@ -39,7 +39,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       super(props);
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
       this.state = _.fromPairs(
-        Object.keys(metaProperties).map(metaProperty => {
+        Object.keys(metaProperties).map((metaProperty) => {
           return [metaProperty, this.props[metaProperty]];
         }),
       );
@@ -48,7 +48,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     componentDidUpdate(prevProps: WidgetProps) {
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
       const defaultProperties = WrappedWidget.getDefaultPropertiesMap();
-      Object.keys(metaProperties).forEach(metaProperty => {
+      Object.keys(metaProperties).forEach((metaProperty) => {
         const defaultProperty = defaultProperties[metaProperty];
         if (
           !_.isEqual(prevProps[metaProperty], this.props[metaProperty]) &&
@@ -86,7 +86,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       // we will only update a certain property once per debounce interval.
       // Then we will execute any action associated with the trigger of
       // that value changing
-      [...this.updatedProperties.keys()].forEach(propertyName => {
+      [...this.updatedProperties.keys()].forEach((propertyName) => {
         if (updateWidgetMetaProperty) {
           const propertyValue = this.state[propertyName];
           clearEvalPropertyCache(`${widgetName}.${propertyName}`);

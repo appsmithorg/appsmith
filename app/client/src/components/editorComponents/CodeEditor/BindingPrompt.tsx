@@ -9,10 +9,10 @@ const Wrapper = styled.span<{ visible: boolean; bottomOffset: number }>`
   border-radius: 2px;
   background-color: ${Colors.BLUE_CHARCOAL};
   position: absolute;
-  bottom: ${props => -props.bottomOffset}px;
+  bottom: ${(props) => -props.bottomOffset}px;
   width: 100%;
   line-height: 13px;
-  visibility: ${props => (props.visible ? "visible" : "hidden")};
+  visibility: ${(props) => (props.visible ? "visible" : "hidden")};
   z-index: 1;
 `;
 

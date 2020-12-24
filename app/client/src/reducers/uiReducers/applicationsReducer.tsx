@@ -243,7 +243,7 @@ const applicationsReducer = createReducer(initialState, {
     }
     const _organizations = state.userOrgs.map((org: Organization) => {
       const appIndex = org.applications.findIndex(
-        app => app.id === action.payload.id,
+        (app) => app.id === action.payload.id,
       );
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, ...rest } = action.payload;

@@ -45,6 +45,8 @@ import {
   pasteWidget,
 } from "actions/widgetActions";
 import { isMac } from "utils/helpers";
+import { getSelectedWidget } from "selectors/ui";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -60,11 +62,33 @@ type EditorProps = {
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
   user?: User;
+  selectedWidget?: string;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
+
+const getSelectedText = () => {
+  if (typeof window.getSelection === "function") {
+    const selectionObj = window.getSelection();
+    return selectionObj && selectionObj.toString();
+  }
+};
+
 @HotkeysTarget
 class Editor extends Component<Props> {
+  public stopPropagationIfWidgetSelected(e: KeyboardEvent): boolean {
+    if (
+      this.props.selectedWidget &&
+      this.props.selectedWidget != MAIN_CONTAINER_WIDGET_ID &&
+      !getSelectedText()
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      return true;
+    }
+    return false;
+  }
+
   public renderHotkeys() {
     return (
       <Hotkeys>
@@ -90,58 +114,53 @@ class Editor extends Component<Props> {
           combo="mod + c"
           label="Copy Widget"
           group="Canvas"
-          onKeyDown={this.props.copySelectedWidget}
-          preventDefault
-          stopPropagation
+          onKeyDown={(e: any) => {
+            if (this.stopPropagationIfWidgetSelected(e)) {
+              this.props.copySelectedWidget();
+            }
+          }}
         />
         <Hotkey
           global={true}
           combo="mod + v"
           label="Paste Widget"
           group="Canvas"
-          onKeyDown={this.props.pasteCopiedWidget}
-          preventDefault
-          stopPropagation
-        />
-        <Hotkey
-          global={true}
-          combo="del"
-          label="Delete Widget"
-          group="Canvas"
           onKeyDown={() => {
-            if (!isMac()) this.props.deleteSelectedWidget();
+            this.props.pasteCopiedWidget();
           }}
-          preventDefault
-          stopPropagation
         />
         <Hotkey
           global={true}
           combo="backspace"
           label="Delete Widget"
           group="Canvas"
-          onKeyDown={() => {
-            if (isMac()) this.props.deleteSelectedWidget();
+          onKeyDown={(e: any) => {
+            if (this.stopPropagationIfWidgetSelected(e) && isMac()) {
+              this.props.pasteCopiedWidget();
+            }
           }}
-          preventDefault
-          stopPropagation
         />
         <Hotkey
           global={true}
           combo="del"
           label="Delete Widget"
           group="Canvas"
-          onKeyDown={this.props.deleteSelectedWidget}
-          preventDefault
-          stopPropagation
+          onKeyDown={(e: any) => {
+            if (this.stopPropagationIfWidgetSelected(e)) {
+              this.props.deleteSelectedWidget();
+            }
+          }}
         />
         <Hotkey
           global={true}
           combo="mod + x"
           label="Cut Widget"
           group="Canvas"
-          onKeyDown={this.props.cutSelectedWidget}
-          preventDefault
-          stopPropagation
+          onKeyDown={(e: any) => {
+            if (this.stopPropagationIfWidgetSelected(e)) {
+              this.props.cutSelectedWidget();
+            }
+          }}
         />
       </Hotkeys>
     );
@@ -256,6 +275,7 @@ const mapStateToProps = (state: AppState) => ({
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
   user: getCurrentUser(state),
+  selectedWidget: getSelectedWidget(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

@@ -144,7 +144,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
           e.preventDefault();
           const columnOrder = props.columnOrder
             ? [...props.columnOrder]
-            : props.columns.map(item => item.accessor);
+            : props.columns.map((item) => item.accessor);
           const draggedColumn = props.columns[dragged].accessor;
           columnOrder.splice(dragged, 1);
           columnOrder.splice(i, 0, draggedColumn);

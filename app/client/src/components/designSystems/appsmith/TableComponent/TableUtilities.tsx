@@ -65,7 +65,7 @@ export const renderCell = (
               if (imageRegex.test(item)) {
                 return (
                   <a
-                    onClick={e => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
                     target="_blank"
                     rel="noopener noreferrer"
                     href={item}
@@ -175,7 +175,7 @@ const TableAction = (props: {
     <ActionWrapper
       background={props.backgroundColor}
       buttonLabelColor={props.buttonLabelColor}
-      onClick={e => {
+      onClick={(e) => {
         if (props.isSelected) {
           e.stopPropagation();
         }
@@ -261,7 +261,7 @@ const SortIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   cursor: pointer;
   svg {
     path {
-      fill: ${props => props.theme.colors.secondary};
+      fill: ${(props) => props.theme.colors.secondary};
     }
   }
 `;
@@ -513,7 +513,7 @@ export const renderDropdown = (props: {
   selectedIndex?: number;
 }) => {
   const isOptionSelected = (selectedOption: DropdownOption) => {
-    const optionIndex = findIndex(props.options, option => {
+    const optionIndex = findIndex(props.options, (option) => {
       return option.value === selectedOption.value;
     });
     return optionIndex === props.selectedIndex;
