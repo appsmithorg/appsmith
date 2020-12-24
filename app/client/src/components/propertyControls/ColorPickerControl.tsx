@@ -19,14 +19,14 @@ const ColorIcon = styled.div<{ color: string }>`
   z-index: 1;
   top: 3px;
   left: 3px;
-  background: ${props => (props.color ? props.color : "transparent")};
+  background: ${(props) => (props.color ? props.color : "transparent")};
 `;
 
 const StyledInputGroup = styled(InputGroup)`
   &&& input {
     padding-left: 36px;
-    background: ${props => props.theme.colors.paneCard};
-    color: ${props => props.theme.colors.paneSectionLabel};
+    background: ${(props) => props.theme.colors.paneCard};
+    color: ${(props) => props.theme.colors.paneSectionLabel};
   }
 `;
 
@@ -48,7 +48,7 @@ const ColorTab = styled.div<{ color: string }>`
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  background: ${props => (props.color ? props.color : "transparent")};
+  background: ${(props) => (props.color ? props.color : "transparent")};
   margin-top: 12px;
   margin-left: 12px;
   box-shadow: 0px 1px 1px rgba(54, 62, 68, 0.16);
@@ -153,7 +153,7 @@ const ColorPicker = (props: ColorPickerProps) => {
       />
       <ColorBoard
         selectedColor={color}
-        selectColor={color => {
+        selectColor={(color) => {
           setColor(color);
           props.changeColor(color);
         }}

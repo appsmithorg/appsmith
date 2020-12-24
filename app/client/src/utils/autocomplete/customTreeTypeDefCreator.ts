@@ -9,7 +9,7 @@ export const customTreeTypeDefCreator = (
   const def: any = {
     "!name": "customDataTree",
   };
-  Object.keys(dataTree).forEach(entityName => {
+  Object.keys(dataTree).forEach((entityName) => {
     const entity = dataTree[entityName];
     def[entityName] = generateTypeDef(entity);
   });
@@ -31,7 +31,7 @@ export function generateTypeDef(
     }
     case Types.OBJECT: {
       const objType: Record<string, string | Record<string, unknown>> = {};
-      Object.keys(obj).forEach(k => {
+      Object.keys(obj).forEach((k) => {
         objType[k] = generateTypeDef(obj[k]);
       });
       return objType;
