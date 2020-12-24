@@ -27,7 +27,7 @@ const MenuItemWrapper = styled(MenuItem)`
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
     const selected: DropdownOption | undefined = this.props.options.find(
-      option => option.value === this.props.propertyValue,
+      (option) => option.value === this.props.propertyValue,
     );
     const controlIconName: ControlIconName =
       selected && selected.icon ? selected.icon : -1;

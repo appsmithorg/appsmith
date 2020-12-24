@@ -69,7 +69,6 @@ export const Table = (props: TableProps) => {
   });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const columns = React.useMemo(() => props.columns, [columnString]);
-
   const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {

@@ -144,7 +144,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     >
       {props.childWidgets &&
         props.childWidgets.length > 0 &&
-        props.childWidgets.map(child => (
+        props.childWidgets.map((child) => (
           <WidgetEntity
             step={props.step + 1}
             widgetId={child.widgetId}

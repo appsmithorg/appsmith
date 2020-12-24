@@ -24,16 +24,16 @@ import PaneWrapper from "components/editorComponents/PaneWrapper";
 
 const PropertyPaneWrapper = styled(PaneWrapper)`
   width: 100%;
-  max-height: ${props => props.theme.propertyPane.height}px;
-  width: ${props => props.theme.propertyPane.width}px;
-  margin: ${props => props.theme.spaces[2]}px;
-  box-shadow: 0px 0px 10px ${props => props.theme.colors.paneCard};
-  border: ${props => props.theme.spaces[5]}px solid
-    ${props => props.theme.colors.paneBG};
+  max-height: ${(props) => props.theme.propertyPane.height}px;
+  width: ${(props) => props.theme.propertyPane.width}px;
+  margin: ${(props) => props.theme.spaces[2]}px;
+  box-shadow: 0px 0px 10px ${(props) => props.theme.colors.paneCard};
+  border: ${(props) => props.theme.spaces[5]}px solid
+    ${(props) => props.theme.colors.paneBG};
   border-right: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0 ${props => props.theme.spaces[5]}px 0 0;
+  padding: 0 ${(props) => props.theme.spaces[5]}px 0 0;
   text-transform: none;
   ${scrollbarDark};
 `;

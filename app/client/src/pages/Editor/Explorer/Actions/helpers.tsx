@@ -106,10 +106,10 @@ export const getPluginGroups = (
     );
 
     const filteredPlugins = plugins.filter(
-      plugin => plugin.type === config.type,
+      (plugin) => plugin.type === config.type,
     );
-    const filteredPluginIds = filteredPlugins.map(plugin => plugin.id);
-    const filteredDatasources = datasources.filter(datasource => {
+    const filteredPluginIds = filteredPlugins.map((plugin) => plugin.id);
+    const filteredDatasources = datasources.filter((datasource) => {
       return filteredPluginIds.includes(datasource.pluginId);
     });
 

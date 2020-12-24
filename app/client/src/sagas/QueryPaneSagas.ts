@@ -7,6 +7,7 @@ import {
   call,
   race,
 } from "redux-saga/effects";
+import * as Sentry from "@sentry/react";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -40,6 +41,8 @@ import { getQueryParams } from "utils/AppsmithUtils";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
@@ -183,6 +186,20 @@ function* handleNameChangeSuccessSaga(
   const { actionId } = action.payload;
   const actionObj = yield select(getAction, actionId);
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
+  if (!actionObj) {
+    // Error case, log to sentry
+    Toaster.show({
+      text: "Error occured while renaming query",
+      variant: Variant.danger,
+    });
+
+    Sentry.captureException(new Error("Error occured while renaming query"), {
+      extra: {
+        actionId: actionId,
+      },
+    });
+    return;
+  }
   if (actionObj.pluginType === QUERY_CONSTANT) {
     const params = getQueryParams();
     if (params.editName) {

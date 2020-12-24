@@ -61,11 +61,11 @@ const EntityExplorer = (props: IPanelProps) => {
   if (searchKeyword) {
     const noWidgets = Object.values(widgets).filter(Boolean).length === 0;
     const noActions =
-      Object.values(actions).filter(actions => actions && actions.length > 0)
+      Object.values(actions).filter((actions) => actions && actions.length > 0)
         .length === 0;
     const noDatasource =
       Object.values(datasources).filter(
-        datasources => datasources && datasources.length > 0,
+        (datasources) => datasources && datasources.length > 0,
       ).length === 0;
     noResults = noWidgets && noActions && noDatasource;
   }

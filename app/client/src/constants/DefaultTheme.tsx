@@ -42,8 +42,8 @@ export enum Skin {
 }
 
 export const scrollbarDark = css`
-  scrollbar-color: ${props => props.theme.colors.paneCard}
-    ${props => props.theme.colors.paneBG};
+  scrollbar-color: ${(props) => props.theme.colors.paneCard}
+    ${(props) => props.theme.colors.paneBG};
   scrollbar-width: thin;
   &::-webkit-scrollbar {
     width: 6px;
@@ -51,12 +51,12 @@ export const scrollbarDark = css`
 
   &::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px
-      ${props => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
+      ${(props) => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.paneCard};
-    border-radius: ${props => props.theme.radii[1]}px;
+    background-color: ${(props) => props.theme.colors.paneCard};
+    border-radius: ${(props) => props.theme.radii[1]}px;
   }
 `;
 
@@ -64,9 +64,9 @@ export const BlueprintControlTransform = css`
   && {
     .${Classes.CONTROL} {
       & input:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${props => props.theme.colors.primaryOld};
+        background: ${(props) => props.theme.colors.primaryOld};
         box-shadow: none;
-        border: 2px solid ${props => props.theme.colors.primaryOld};
+        border: 2px solid ${(props) => props.theme.colors.primaryOld};
       }
       & input:not(:disabled):active ~ .${Classes.CONTROL_INDICATOR} {
         box-shadow: none;
@@ -168,7 +168,7 @@ export const BlueprintButtonIntentsCSS = css`
       color: ${IntentColors.none};
     }
     & span {
-      font-weight: ${props => props.theme.fontWeights[3]};
+      font-weight: ${(props) => props.theme.fontWeights[3]};
     }
     background: ${Colors.WHITE};
   }
@@ -231,11 +231,11 @@ export const BlueprintButtonIntentsCSS = css`
 export const BlueprintInputTransform = css`
   && {
     .${Classes.INPUT} {
-      border-radius: ${props => props.theme.radii[1]}px;
+      border-radius: ${(props) => props.theme.radii[1]}px;
       box-shadow: none;
-      border: ${props => getBorderCSSShorthand(props.theme.borders[2])};
+      border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
       &:focus {
-        border: ${props => getBorderCSSShorthand(props.theme.borders[2])};
+        border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
         box-shadow: none;
       }
     }
@@ -398,7 +398,7 @@ export const getBorderCSSShorthand = (border?: ThemeBorder): string => {
 };
 
 export const labelStyle = css`
-  font-weight: ${props => props.theme.fontWeights[3]};
+  font-weight: ${(props) => props.theme.fontWeights[3]};
 `;
 
 // export const adsTheme: any = {
@@ -407,24 +407,25 @@ export const labelStyle = css`
 // 3, 7, 11, 26
 
 export const smallButton = css`
-  font-size: ${props => props.theme.typography.btnSmall.fontSize}px;
-  font-weight: ${props => props.theme.typography.btnSmall.fontWeight};
-  line-height: ${props => props.theme.typography.btnSmall.lineHeight}px;
-  letter-spacing: ${props => props.theme.typography.btnSmall.letterSpacing}px;
+  font-size: ${(props) => props.theme.typography.btnSmall.fontSize}px;
+  font-weight: ${(props) => props.theme.typography.btnSmall.fontWeight};
+  line-height: ${(props) => props.theme.typography.btnSmall.lineHeight}px;
+  letter-spacing: ${(props) => props.theme.typography.btnSmall.letterSpacing}px;
 `;
 
 export const mediumButton = css`
-  font-size: ${props => props.theme.typography.btnMedium.fontSize}px;
-  font-weight: ${props => props.theme.typography.btnMedium.fontWeight};
-  line-height: ${props => props.theme.typography.btnMedium.lineHeight}px;
-  letter-spacing: ${props => props.theme.typography.btnMedium.letterSpacing}px;
+  font-size: ${(props) => props.theme.typography.btnMedium.fontSize}px;
+  font-weight: ${(props) => props.theme.typography.btnMedium.fontWeight};
+  line-height: ${(props) => props.theme.typography.btnMedium.lineHeight}px;
+  letter-spacing: ${(props) =>
+    props.theme.typography.btnMedium.letterSpacing}px;
 `;
 
 export const largeButton = css`
-  font-size: ${props => props.theme.typography.btnLarge.fontSize}px;
-  font-weight: ${props => props.theme.typography.btnLarge.fontWeight};
-  line-height: ${props => props.theme.typography.btnLarge.lineHeight}px;
-  letter-spacing: ${props => props.theme.typography.btnLarge.letterSpacing}px;
+  font-size: ${(props) => props.theme.typography.btnLarge.fontSize}px;
+  font-weight: ${(props) => props.theme.typography.btnLarge.fontWeight};
+  line-height: ${(props) => props.theme.typography.btnLarge.lineHeight}px;
+  letter-spacing: ${(props) => props.theme.typography.btnLarge.letterSpacing}px;
 `;
 
 export const appColors = [
@@ -1585,7 +1586,7 @@ export const theme: Theme = {
 };
 
 export const scrollbarLight = css<{ backgroundColor?: Color }>`
-  scrollbar-color: ${props => props.theme.colors.paneText}
+  scrollbar-color: ${(props) => props.theme.colors.paneText}
 
   scrollbar-width: thin;
   &::-webkit-scrollbar {
@@ -1594,14 +1595,14 @@ export const scrollbarLight = css<{ backgroundColor?: Color }>`
   }
   &::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px
-      ${props =>
+      ${(props) =>
         props.backgroundColor
           ? props.backgroundColor
           : getColorWithOpacity(props.theme.colors.paneText, 0.3)};
   }
   &::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.paneText};
-    border-radius: ${props => props.theme.radii[1]}px;
+    background-color: ${(props) => props.theme.colors.paneText};
+    border-radius: ${(props) => props.theme.radii[1]}px;
   }
 `;
 

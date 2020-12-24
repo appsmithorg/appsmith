@@ -33,7 +33,7 @@ const Wrapper = styled.div`
   position: sticky;
   top: 0;
   z-index: 3;
-  background-color: ${props => props.theme.colors.paneBG};
+  background-color: ${(props) => props.theme.colors.paneBG};
   & span.${Classes.POPOVER_TARGET} {
     cursor: pointer;
     display: flex;
@@ -155,6 +155,7 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
         }
         position={Position.TOP}
         hoverOpenDelay={200}
+        boundary="window"
       >
         <Icon color={theme.colors.paneSectionLabel} icon="help" iconSize={16} />
       </Tooltip>

@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AppsmithLogo from "assets/images/appsmith_logo_white.png";
@@ -35,7 +36,7 @@ import TooltipComponent from "components/ads/Tooltip";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   background: ${Colors.BALTIC_SEA};
-  height: ${props => (props.hasPages ? "90px" : "48px")};
+  height: ${(props) => (props.hasPages ? "90px" : "48px")};
   color: white;
   flex-direction: column;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
@@ -46,14 +47,14 @@ const HeaderRow = styled.div<{ justify: string }>`
   display: flex;
   flex: 1;
   flex-direction: row;
-  justify-content: ${props => props.justify};
+  justify-content: ${(props) => props.justify};
 `;
 
 const HeaderSection = styled.div<{ justify: string }>`
   display: flex;
   flex: 1;
   align-items: center;
-  justify-content: ${props => props.justify};
+  justify-content: ${(props) => props.justify};
 `;
 
 const AppsmithLogoImg = styled.img`
@@ -162,7 +163,15 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const canEdit = isPermitted(userPermissions, permissionRequired);
   const queryParams = new URLSearchParams(useLocation().search);
   const hideHeader = !!queryParams.get("embed");
-  if (hideHeader) return null;
+  const HtmlTitle = () => {
+    if (!currentApplicationDetails?.name) return null;
+    return (
+      <Helmet>
+        <title>{currentApplicationDetails?.name}</title>
+      </Helmet>
+    );
+  };
+  if (hideHeader) return <HtmlTitle />;
   // Mark default page as first page
   const appPages = pages;
   if (appPages.length > 1) {
@@ -220,6 +229,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
 
   return (
     <HeaderWrapper hasPages={pages.length > 1}>
+      <HtmlTitle />
       <HeaderRow justify={"space-between"}>
         <HeaderSection justify={"flex-start"}>
           <Link to={APPLICATIONS_URL}>
@@ -266,7 +276,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
       </HeaderRow>
       {appPages.length > 1 && (
         <HeaderRow justify={"flex-start"}>
-          {appPages.map(page => (
+          {appPages.map((page) => (
             <PageTab
               key={page.pageId}
               to={getApplicationViewerPageURL(

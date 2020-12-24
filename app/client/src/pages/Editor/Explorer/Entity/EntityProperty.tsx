@@ -25,7 +25,7 @@ const StyledValue = styled.pre<{ step: number }>`
     font-size: 10px;
     line-height: 12px;
     color: ${Colors.GRAY_CHATEAU};
-    padding-left: ${props =>
+    padding-left: ${(props) =>
       props.step * props.theme.spaces[2] + props.theme.spaces[3]}px;
     margin: 0;
   }
@@ -33,7 +33,7 @@ const StyledValue = styled.pre<{ step: number }>`
 
 const Wrapper = styled.div<{ step: number }>`
   &&&& {
-    margin: ${props => props.theme.spaces[2]}px 0;
+    margin: ${(props) => props.theme.spaces[2]}px 0;
 
     position: relative;
     code {
@@ -98,7 +98,7 @@ const Wrapper = styled.div<{ step: number }>`
         font-size: 11px;
         overflow-wrap: break-word;
         text-shadow: none;
-        padding-left: ${props =>
+        padding-left: ${(props) =>
           props.step * props.theme.spaces[2] + props.theme.spaces[3]}px;
         padding-right: 20px;
         & span.token.property {

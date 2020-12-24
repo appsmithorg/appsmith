@@ -18,8 +18,8 @@ const MainWrapper = styled.div`
   height: 100%;
   overflow-y: auto;
 
-  scrollbar-color: ${props => props.theme.colors.paneCard}
-    ${props => props.theme.colors.paneBG};
+  scrollbar-color: ${(props) => props.theme.colors.paneCard}
+    ${(props) => props.theme.colors.paneBG};
   scrollbar-width: thin;
   &::-webkit-scrollbar {
     width: 8px;
@@ -27,20 +27,20 @@ const MainWrapper = styled.div`
 
   &::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px
-      ${props => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
+      ${(props) => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.paneCard};
-    outline: 1px solid ${props => props.theme.paneText};
-    border-radius: ${props => props.theme.radii[1]}px;
+    background-color: ${(props) => props.theme.colors.paneCard};
+    outline: 1px solid ${(props) => props.theme.paneText};
+    border-radius: ${(props) => props.theme.radii[1]}px;
   }
 `;
 
 const CardsWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  grid-gap: ${props => props.theme.spaces[1]}px;
+  grid-gap: ${(props) => props.theme.spaces[1]}px;
   justify-items: stretch;
   align-items: stretch;
 `;
@@ -83,18 +83,12 @@ const WidgetSidebar = (props: IPanelProps) => {
   const filterCards = (keyword: string) => {
     let filteredCards = cards;
     if (keyword.trim().length > 0) {
-      filteredCards = produce(cards, draft => {
-        for (const [key, value] of Object.entries(cards)) {
-          value.forEach((card, index) => {
-            if (card.widgetCardName.toLowerCase().indexOf(keyword) === -1) {
-              delete draft[key][index];
-            }
-          });
-          draft[key] = draft[key].filter(Boolean);
-          if (draft[key].length === 0) {
-            delete draft[key];
+      filteredCards = produce(cards, (draft) => {
+        cards.forEach((card, index) => {
+          if (card.widgetCardName.toLowerCase().indexOf(keyword) === -1) {
+            delete draft[index];
           }
-        }
+        });
       });
     }
     setFilteredCards(filteredCards);
@@ -119,7 +113,6 @@ const WidgetSidebar = (props: IPanelProps) => {
       el?.removeEventListener("cleared", search);
     };
   }, [searchInputRef, search]);
-  const groups = Object.keys(filteredCards);
   return (
     <>
       <ExplorerSearch
@@ -141,16 +134,11 @@ const WidgetSidebar = (props: IPanelProps) => {
             onClick={props.closePanel}
           />
         </Header>
-        {groups.map((group: string) => (
-          <React.Fragment key={group}>
-            <h5>{group}</h5>
-            <CardsWrapper>
-              {filteredCards[group].map((card: WidgetCardProps) => (
-                <WidgetCard details={card} key={card.key} />
-              ))}
-            </CardsWrapper>
-          </React.Fragment>
-        ))}
+        <CardsWrapper>
+          {filteredCards.map((card: WidgetCardProps) => (
+            <WidgetCard details={card} key={card.key} />
+          ))}
+        </CardsWrapper>
       </MainWrapper>
     </>
   );

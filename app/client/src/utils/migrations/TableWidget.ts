@@ -80,6 +80,8 @@ export const tableWidgetPropertyPaneMigrations = (
       );
 
       const columnActions = children.columnActions || [];
+      const dynamicTriggerPathList: Array<{ key: string }> =
+        children.dynamicTriggerPathList || [];
       const updatedDerivedColumns = columnActions.map(
         (action: ColumnAction, index: number) => {
           return {
@@ -93,15 +95,22 @@ export const tableWidgetPropertyPaneMigrations = (
             buttonLabel: action.label,
             buttonStyle: "#29CCA3",
             buttonLabelColor: "#FFFFFF",
-            dynamicTrigger: action.dynamicTrigger,
+            onClick: action.dynamicTrigger,
           };
         },
       );
       if (updatedDerivedColumns.length) {
-        children.primaryColumns = children.primaryColumns.concat(
-          updatedDerivedColumns,
-        );
+        const columns = children.primaryColumns.concat(updatedDerivedColumns);
+        children.primaryColumns = columns;
+        for (let i = 0; i < columns.length; i++) {
+          if (columns[i].isDerived) {
+            dynamicTriggerPathList.push({
+              key: `primaryColumns[${i}].onClick`,
+            });
+          }
+        }
       }
+      children.dynamicTriggerPathList = dynamicTriggerPathList;
       children.textSize = "PARAGRAPH";
       children.horizontalAlignment = "LEFT";
       children.verticalAlignment = "CENTER";
