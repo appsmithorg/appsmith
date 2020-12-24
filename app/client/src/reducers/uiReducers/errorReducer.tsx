@@ -19,7 +19,7 @@ const errorReducer = createReducer(initialState, {
   ) => ({
     ...state,
     safeCrash: true,
-    safeCrashCode: action.payload.code,
+    safeCrashCode: action.payload && action.payload.code,
   }),
   [ReduxActionTypes.REPORT_ERROR]: (
     state: ErrorReduxState,
