@@ -153,7 +153,7 @@ function* createOnboardingDatasource() {
       (plugin: Plugin) => plugin.name === "PostgreSQL",
     );
     const datasources: Datasource[] = yield select(getDatasources);
-    let onboardingDatasource = datasources.find(datasource => {
+    let onboardingDatasource = datasources.find((datasource) => {
       const host = get(datasource, "datasourceConfiguration.endpoints[0].host");
 
       return host === "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com";
@@ -312,7 +312,7 @@ function* setupOnboardingStep() {
   let actions = currentConfig.setup();
 
   if (actions.length) {
-    actions = actions.map(action => put(action));
+    actions = actions.map((action) => put(action));
     yield all(actions);
   }
 }

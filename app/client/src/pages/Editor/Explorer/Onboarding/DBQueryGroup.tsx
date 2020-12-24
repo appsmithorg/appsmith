@@ -39,7 +39,7 @@ const DBQueryGroup = (props: any) => {
   const datasources = useFilteredDatasources("");
   const plugins = useSelector(getPlugins);
   const dbPluginMap = ACTION_PLUGIN_MAP.filter(
-    plugin => plugin?.type === PluginType.DB,
+    (plugin) => plugin?.type === PluginType.DB,
   );
 
   return (

@@ -13,9 +13,9 @@ const IndicatorWrapper = styled.div<{ offset?: any }>`
   // For centering
   top: 0;
   margin-top: auto;
-  bottom: ${props => props.offset?.bottom ?? 0}px;
+  bottom: ${(props) => props.offset?.bottom ?? 0}px;
   margin-bottom: auto;
-  left: ${props => props.offset?.left ?? 0}px;
+  left: ${(props) => props.offset?.left ?? 0}px;
   margin-left: auto;
   right: 0;
   margin-right: auto;
@@ -31,7 +31,7 @@ const IndicatorWrapper = styled.div<{ offset?: any }>`
 const Indicator = (props: any) => {
   const indicatorRef = useRef<HTMLDivElement>(null);
   const showingIndicator = useSelector(
-    state => state.ui.onBoarding.showingIndicator,
+    (state) => state.ui.onBoarding.showingIndicator,
   );
 
   useEffect(() => {

@@ -30,7 +30,7 @@ enum TooltipClassNames {
 
 const Wrapper = styled.div<{ isFinalStep: boolean }>`
   width: 280px;
-  background-color: ${props => (props.isFinalStep ? "#F86A2B" : "#457ae6")};
+  background-color: ${(props) => (props.isFinalStep ? "#F86A2B" : "#457ae6")};
   color: white;
   padding: 10px;
 
@@ -100,7 +100,7 @@ const Container = styled.div<{ isFinalStep: boolean }>`
     display: block;
   }
   .bp3-popover-arrow-fill {
-    fill: ${props => (props.isFinalStep ? "#F86A2B" : "#457ae6")};
+    fill: ${(props) => (props.isFinalStep ? "#F86A2B" : "#457ae6")};
   }
 `;
 
@@ -126,7 +126,7 @@ const OnboardingToolTip: React.FC<OnboardingToolTipProps> = (
 ) => {
   const [isOpen, setIsOpen] = useState(false);
   const showingTooltip = useSelector(
-    state => state.ui.onBoarding.showingTooltip,
+    (state) => state.ui.onBoarding.showingTooltip,
   );
   const popoverRef: RefObject<Popover> = useRef(null);
   const tooltipConfig = useSelector(getTooltipConfig);

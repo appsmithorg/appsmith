@@ -4,7 +4,7 @@ import { Classes } from "@blueprintjs/core";
 
 const SkeletonRows = styled.div<{ size: number }>`
   height: 20px;
-  width: ${props => props.size}%;
+  width: ${(props) => props.size}%;
   margin-top: 12px;
 `;
 
