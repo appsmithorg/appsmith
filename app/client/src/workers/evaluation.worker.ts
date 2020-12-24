@@ -196,7 +196,7 @@ function getEvaluatedDataTree(dataTree: DataTree): DataTree {
 
 const addFunctions = (dataTree: DataTree): DataTree => {
   dataTree.actionPaths = [];
-  Object.keys(dataTree).forEach(entityName => {
+  Object.keys(dataTree).forEach((entityName) => {
     const entity = dataTree[entityName];
     if (
       entity &&
@@ -277,7 +277,7 @@ const addFunctions = (dataTree: DataTree): DataTree => {
 };
 
 const removeFunctionsFromDataTree = (dataTree: DataTree) => {
-  dataTree.actionPaths?.forEach(functionPath => {
+  dataTree.actionPaths?.forEach((functionPath) => {
     _.set(dataTree, functionPath, {});
   });
   delete dataTree.actionPaths;
@@ -306,7 +306,7 @@ const createDependencyTree = (
 } => {
   let dependencyMap: DynamicDependencyMap = {};
   const allKeys = getAllPaths(dataTree);
-  Object.keys(dataTree).forEach(entityKey => {
+  Object.keys(dataTree).forEach((entityKey) => {
     const entity = dataTree[entityKey];
     if (entity && "ENTITY_TYPE" in entity) {
       if (
@@ -315,14 +315,14 @@ const createDependencyTree = (
       ) {
         const dynamicBindingPathList = getEntityDynamicBindingPathList(entity);
         if (dynamicBindingPathList.length) {
-          dynamicBindingPathList.forEach(dynamicPath => {
+          dynamicBindingPathList.forEach((dynamicPath) => {
             const propertyPath = dynamicPath.key;
             const unevalPropValue = _.get(entity, propertyPath);
             const { jsSnippets } = getDynamicBindings(unevalPropValue);
             const existingDeps =
               dependencyMap[`${entityKey}.${propertyPath}`] || [];
             dependencyMap[`${entityKey}.${propertyPath}`] = existingDeps.concat(
-              jsSnippets.filter(jsSnippet => !!jsSnippet),
+              jsSnippets.filter((jsSnippet) => !!jsSnippet),
             );
           });
         }
@@ -330,7 +330,7 @@ const createDependencyTree = (
           // Set default property dependency
           const defaultProperties =
             WIDGET_TYPE_CONFIG_MAP[entity.type].defaultProperties;
-          Object.keys(defaultProperties).forEach(property => {
+          Object.keys(defaultProperties).forEach((property) => {
             dependencyMap[`${entityKey}.${property}`] = [
               `${entityKey}.${defaultProperties[property]}`,
             ];
@@ -339,7 +339,7 @@ const createDependencyTree = (
             entity,
           );
           if (dynamicTriggerPathList.length) {
-            dynamicTriggerPathList.forEach(dynamicPath => {
+            dynamicTriggerPathList.forEach((dynamicPath) => {
               dependencyMap[`${entityKey}.${dynamicPath.key}`] = [];
             });
           }
@@ -347,16 +347,16 @@ const createDependencyTree = (
       }
     }
   });
-  Object.keys(dependencyMap).forEach(key => {
+  Object.keys(dependencyMap).forEach((key) => {
     dependencyMap[key] = _.flatten(
-      dependencyMap[key].map(path => calculateSubDependencies(path, allKeys)),
+      dependencyMap[key].map((path) => calculateSubDependencies(path, allKeys)),
     );
   });
   dependencyMap = makeParentsDependOnChildren(dependencyMap);
   const dependencyTree: Array<[string, string]> = [];
   Object.keys(dependencyMap).forEach((key: string) => {
     if (dependencyMap[key].length) {
-      dependencyMap[key].forEach(dep => dependencyTree.push([key, dep]));
+      dependencyMap[key].forEach((dep) => dependencyTree.push([key, dep]));
     } else {
       // Set no dependency
       dependencyTree.push([key, ""]);
@@ -367,7 +367,7 @@ const createDependencyTree = (
     // sort dependencies and remove empty dependencies
     const sortedDependencies = toposort(dependencyTree)
       .reverse()
-      .filter(d => !!d);
+      .filter((d) => !!d);
 
     return { sortedDependencies, dependencyMap, dependencyTree };
   } catch (e) {
@@ -414,7 +414,7 @@ const setTreeLoading = (
   const isLoadingActions: string[] = [];
 
   // Fetch all actions that are in loading state
-  Object.keys(dataTree).forEach(e => {
+  Object.keys(dataTree).forEach((e) => {
     const entity = dataTree[e];
     if (entity && "ENTITY_TYPE" in entity) {
       if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
@@ -436,7 +436,7 @@ const setTreeLoading = (
       [],
     )
     // set loading to true for those widgets
-    .forEach(w => {
+    .forEach((w) => {
       const entity = dataTree[w] as DataTreeWidget;
       entity.isLoading = true;
     });
@@ -449,8 +449,8 @@ const getEntityDependencies = (
   entities: string[],
 ): Array<string> => {
   const entityDeps: Record<string, string[]> = dependencyMap
-    .map(d => [d[1].split(".")[0], d[0].split(".")[0]])
-    .filter(d => d[0] !== d[1])
+    .map((d) => [d[1].split(".")[0], d[0].split(".")[0]])
+    .filter((d) => d[0] !== d[1])
     .reduce((deps: Record<string, string[]>, dep) => {
       const key: string = dep[0];
       const value: string = dep[1];
@@ -468,8 +468,8 @@ const getEntityDependencies = (
     ): Array<string> => {
       let allDeps: string[] = [];
       keys
-        .filter(k => entities.includes(k))
-        .forEach(e => {
+        .filter((k) => entities.includes(k))
+        .forEach((e) => {
           if (visited.has(e)) {
             return;
           }
@@ -699,7 +699,7 @@ const getDynamicBindings = (
   // Get the {{binding}} bound values
   const stringSegments = getDynamicStringSegments(sanitisedString);
   // Get the "binding" path values
-  const paths = stringSegments.map(segment => {
+  const paths = stringSegments.map((segment) => {
     const length = segment.length;
     const matches = isDynamicValue(segment);
     if (matches) {
@@ -962,7 +962,7 @@ const evaluate = (
       ///// Adding callback data
       GLOBAL_DATA.CALLBACK_DATA = callbackData;
       ///// Adding Data tree
-      Object.keys(data).forEach(datum => {
+      Object.keys(data).forEach((datum) => {
         GLOBAL_DATA[datum] = data[datum];
       });
       ///// Fixing action paths and capturing their execution response
@@ -986,21 +986,21 @@ const evaluate = (
       }
 
       // Set it to self
-      Object.keys(GLOBAL_DATA).forEach(key => {
+      Object.keys(GLOBAL_DATA).forEach((key) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore: No types available
         self[key] = GLOBAL_DATA[key];
       });
 
       ///// Adding extra libraries separately
-      extraLibraries.forEach(library => {
+      extraLibraries.forEach((library) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore: No types available
         self[library.accessor] = library.lib;
       });
 
       ///// Remove all unsafe functions
-      unsafeFunctionForEval.forEach(func => {
+      unsafeFunctionForEval.forEach((func) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore: No types available
         self[func] = undefined;
@@ -1010,7 +1010,7 @@ const evaluate = (
 
       // Remove it from self
       // This is needed so that next eval can have a clean sheet
-      Object.keys(GLOBAL_DATA).forEach(key => {
+      Object.keys(GLOBAL_DATA).forEach((key) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore: No types available
         delete self[key];
@@ -1326,7 +1326,7 @@ const VALIDATORS: Record<ValidationType, Validator> = {
         parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Tabs Data`,
       };
-    } else if (!every(parsed, datum => isObject(datum))) {
+    } else if (!every(parsed, (datum) => isObject(datum))) {
       return {
         isValid: false,
         parsed: [],
@@ -1353,10 +1353,10 @@ const VALIDATORS: Record<ValidationType, Validator> = {
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "Col1" : "val1", "Col2" : "val2" }]`,
       };
     }
-    const isValidTableData = every(parsed, datum => {
+    const isValidTableData = every(parsed, (datum) => {
       return (
         isPlainObject(datum) &&
-        Object.keys(datum).filter(key => isString(key) && key.length === 0)
+        Object.keys(datum).filter((key) => isString(key) && key.length === 0)
           .length === 0
       );
     });
@@ -1443,7 +1443,7 @@ const VALIDATORS: Record<ValidationType, Validator> = {
         parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Marker Data`,
       };
-    } else if (!every(parsed, datum => isObject(datum))) {
+    } else if (!every(parsed, (datum) => isObject(datum))) {
       return {
         isValid: false,
         parsed: [],
@@ -1703,7 +1703,7 @@ const VALIDATORS: Record<ValidationType, Validator> = {
           } catch {
             values = value.length ? value.split(",") : [];
             if (values.length > 0) {
-              values = values.map(value => value.trim());
+              values = values.map((value) => value.trim());
             }
           }
         }
@@ -1737,7 +1737,7 @@ const VALIDATORS: Record<ValidationType, Validator> = {
           } catch {
             values = value.length ? value.split(",") : [];
             if (values.length > 0) {
-              let numbericValues = values.map(value => {
+              let numbericValues = values.map((value) => {
                 return isNumber(value.trim()) ? -1 : Number(value.trim());
               });
               numbericValues = _.uniq(numbericValues);
@@ -1781,9 +1781,9 @@ export const makeParentsDependOnChildren = (
 ): DynamicDependencyMap => {
   //return depMap;
   // Make all parents depend on child
-  Object.keys(depMap).forEach(key => {
+  Object.keys(depMap).forEach((key) => {
     depMap = makeParentsDependOnChild(depMap, key);
-    depMap[key].forEach(path => {
+    depMap[key].forEach((path) => {
       depMap = makeParentsDependOnChild(depMap, path);
     });
   });

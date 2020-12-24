@@ -81,7 +81,7 @@ export class GracefulWorkerService {
     //TODO: call this on editor unmount as part of a separate PR
     yield this.shutdown();
     this._evaluationWorker = new this._workerClass();
-    this._workerChannel = eventChannel(emitter => {
+    this._workerChannel = eventChannel((emitter) => {
       if (!this._evaluationWorker) {
         // Impossible case unless something really went wrong
         // END the channel in that case
@@ -116,7 +116,7 @@ export class GracefulWorkerService {
     // stop accepting new requests
     this._isReady = false;
     // wait for current responses to drain
-    yield all(Object.values(this._channels).map(c => take(c)));
+    yield all(Object.values(this._channels).map((c) => take(c)));
     // close the worker
     yield this._workerChannel?.close();
   }

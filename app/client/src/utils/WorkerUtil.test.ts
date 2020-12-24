@@ -61,7 +61,7 @@ class MockWorker {
   terminate() {
     this.running = false;
     expect(this.callback).toEqual(this.noop);
-    this.responses.forEach(counter => {
+    this.responses.forEach((counter) => {
       clearTimeout(counter);
     });
     this.responses = new Set<number>();
