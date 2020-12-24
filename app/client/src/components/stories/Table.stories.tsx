@@ -61,7 +61,7 @@ const data = [
       <TableDropdown
         position={Position.BOTTOM}
         options={options}
-        onSelect={selectedValue => console.log(selectedValue)}
+        onSelect={(selectedValue) => console.log(selectedValue)}
         selectedIndex={0}
       ></TableDropdown>
     ),
@@ -83,7 +83,7 @@ const data = [
       <TableDropdown
         position={Position.BOTTOM}
         options={options}
-        onSelect={selectedValue => console.log(selectedValue)}
+        onSelect={(selectedValue) => console.log(selectedValue)}
         selectedIndex={1}
       ></TableDropdown>
     ),
@@ -105,7 +105,7 @@ const data = [
       <TableDropdown
         position={Position.BOTTOM}
         options={options}
-        onSelect={selectedValue => console.log(selectedValue)}
+        onSelect={(selectedValue) => console.log(selectedValue)}
         selectedIndex={2}
       ></TableDropdown>
     ),

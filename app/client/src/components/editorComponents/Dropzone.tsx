@@ -16,18 +16,18 @@ const DropZoneWrapper = styled.div<{
   height: number;
   candrop: boolean;
 }>`
-  width: ${props => props.width}px;
-  height: ${[props => props.height]}px;
+  width: ${(props) => props.width}px;
+  height: ${[(props) => props.height]}px;
   position: absolute;
-  background: ${props => (props.candrop ? IntentColors.success : "#333")};
-  ${props =>
+  background: ${(props) => (props.candrop ? IntentColors.success : "#333")};
+  ${(props) =>
     !props.candrop
       ? `
   background-image: linear-gradient(45deg, #EB2121 8.33%, #33322A 8.33%, #33322A 50%, #EB2121 50%, #EB2121 58.33%, #33322A 58.33%, #33322A 100%);
   background-size: 16.97px 16.97px;
   `
       : ""}
-  border: 1px dashed ${props => props.theme.colors.textAnchor};
+  border: 1px dashed ${(props) => props.theme.colors.textAnchor};
   will-change: transform;
   opacity: 0.6;
   transition: visibility 0s 2s, opacity 2s linear;
@@ -35,7 +35,7 @@ const DropZoneWrapper = styled.div<{
 `;
 
 const SnappedDropZoneWrapper = styled(DropZoneWrapper)<{ candrop: boolean }>`
-  background: ${props =>
+  background: ${(props) =>
     props.candrop ? props.theme.colors.hover : IntentColors.danger};
   z-index: 0;
 `;

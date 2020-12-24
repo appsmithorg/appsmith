@@ -14,7 +14,7 @@ import { Tooltip } from "@blueprintjs/core";
 
 /** Page List Item */
 export const PageListItemCSS = css`
-  font-size: ${props => props.theme.fontSizes[3]}px;
+  font-size: ${(props) => props.theme.fontSizes[3]}px;
   height: 40px;
   cursor: pointer;
   margin: 0px;
@@ -24,14 +24,14 @@ export const PageListItemCSS = css`
 `;
 
 const PageListItemActiveCSS = css`
-  background: ${props => props.theme.colors.paneInputBG};
+  background: ${(props) => props.theme.colors.paneInputBG};
 `;
 
 const PageListItemWrapper = styled.div<{ active: boolean }>`
   && {
     position: relative;
     ${PageListItemCSS}
-    ${props => (props.active ? PageListItemActiveCSS : "")}
+    ${(props) => (props.active ? PageListItemActiveCSS : "")}
     &:hover {
       ${PageListItemActiveCSS}
     }
@@ -50,7 +50,7 @@ const PageListItemWrapper = styled.div<{ active: boolean }>`
         white-space: nowrap;
       }
       & div > svg > path:first-of-type {
-        fill: ${props => props.theme.colors.primaryOld};
+        fill: ${(props) => props.theme.colors.primaryOld};
       }
     }
     & .more {

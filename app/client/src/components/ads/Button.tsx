@@ -244,50 +244,50 @@ const btnFontStyles = (props: ThemeProp & ButtonProps): BtnFontType => {
 };
 
 const ButtonStyles = css<ThemeProp & ButtonProps>`
-  width: ${props => (props.fill ? "100%" : "auto")};
-  height: ${props => btnFontStyles(props).height}px;
+  width: ${(props) => (props.fill ? "100%" : "auto")};
+  height: ${(props) => btnFontStyles(props).height}px;
   border: none;
   text-decoration: none;
   outline: none;
   text-transform: uppercase;
-  background-color: ${props => btnColorStyles(props, "main").bgColor};
-  color: ${props => btnColorStyles(props, "main").txtColor};
-  border: ${props => btnColorStyles(props, "main").border};
-  border-radius: ${props => props.theme.radii[0]};
-  ${props => btnFontStyles(props).buttonFont};
-  padding: ${props => btnFontStyles(props).padding};
+  background-color: ${(props) => btnColorStyles(props, "main").bgColor};
+  color: ${(props) => btnColorStyles(props, "main").txtColor};
+  border: ${(props) => btnColorStyles(props, "main").border};
+  border-radius: ${(props) => props.theme.radii[0]};
+  ${(props) => btnFontStyles(props).buttonFont};
+  padding: ${(props) => btnFontStyles(props).padding};
   .${Classes.ICON} {
-    margin-right: ${props =>
+    margin-right: ${(props) =>
       props.text && props.icon ? `${props.theme.spaces[2] - 1}px` : `0`};
     path {
-      fill: ${props => btnColorStyles(props, "main").txtColor};
+      fill: ${(props) => btnColorStyles(props, "main").txtColor};
     }
   }
   &:hover {
     text-decoration: none;
-    background-color: ${props => btnColorStyles(props, "hover").bgColor};
-    color: ${props => btnColorStyles(props, "hover").txtColor};
-    border: ${props => btnColorStyles(props, "hover").border};
-    cursor: ${props =>
+    background-color: ${(props) => btnColorStyles(props, "hover").bgColor};
+    color: ${(props) => btnColorStyles(props, "hover").txtColor};
+    border: ${(props) => btnColorStyles(props, "hover").border};
+    cursor: ${(props) =>
       props.isLoading || props.disabled ? `not-allowed` : `pointer`};
     .${Classes.ICON} {
-      margin-right: ${props =>
+      margin-right: ${(props) =>
         props.text && props.icon ? `${props.theme.spaces[2] - 1}px` : `0`};
       path {
-        fill: ${props => btnColorStyles(props, "hover").txtColor};
+        fill: ${(props) => btnColorStyles(props, "hover").txtColor};
       }
     }
   }
   font-style: normal;
   &:active {
-    background-color: ${props => btnColorStyles(props, "active").bgColor};
-    color: ${props => btnColorStyles(props, "active").txtColor};
-    border: ${props => btnColorStyles(props, "active").border};
-    cursor: ${props =>
+    background-color: ${(props) => btnColorStyles(props, "active").bgColor};
+    color: ${(props) => btnColorStyles(props, "active").txtColor};
+    border: ${(props) => btnColorStyles(props, "active").border};
+    cursor: ${(props) =>
       props.isLoading || props.disabled ? `not-allowed` : `pointer`};
     .${Classes.ICON} {
       path {
-        fill: ${props => btnColorStyles(props, "active").txtColor};
+        fill: ${(props) => btnColorStyles(props, "active").txtColor};
       }
     }
   }

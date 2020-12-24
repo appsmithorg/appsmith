@@ -8,7 +8,7 @@ import { DropdownOption } from "widgets/DropdownWidget";
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
     const selected: DropdownOption | undefined = this.props.options.find(
-      option => option.value === this.props.propertyValue,
+      (option) => option.value === this.props.propertyValue,
     );
     return (
       <StyledDropDownContainer>

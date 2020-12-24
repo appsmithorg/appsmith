@@ -165,7 +165,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
             </LoadingContainer>
           ) : (
             <DatasourceCardsContainer>
-              {plugins.map(plugin => {
+              {plugins.map((plugin) => {
                 return (
                   <Card
                     interactive={false}

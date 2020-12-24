@@ -21,7 +21,7 @@ export const SelectComponent = (props: SelectComponentProps) => {
         isSticky: false,
         options:
           props.options &&
-          props.options.map(option => ({
+          props.options.map((option) => ({
             content: option.content ? option.content : option.name,
             onSelect: () => {
               props.input.onChange && props.input.onChange(option.id);
@@ -33,7 +33,7 @@ export const SelectComponent = (props: SelectComponentProps) => {
     trigger: {
       text: props.input.value
         ? props.options &&
-          props.options.filter(option => props.input.value === option.id)[0]
+          props.options.filter((option) => props.input.value === option.id)[0]
             .name
         : props.placeholder,
       outline: props?.outline ?? true,

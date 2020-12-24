@@ -215,7 +215,10 @@ export const getActionTimeout = (
   state: AppState,
   actionId: string,
 ): number | undefined => {
-  const action = _.find(state.entities.actions, a => a.config.id === actionId);
+  const action = _.find(
+    state.entities.actions,
+    (a) => a.config.id === actionId,
+  );
   if (action) {
     const timeout = _.get(
       action,
@@ -289,7 +292,7 @@ export function* getActionParams(
     JSON.stringify(executionParams),
   );
 
-  const bindingsForExecutionParams = bindings.map(binding =>
+  const bindingsForExecutionParams = bindings.map((binding) =>
     binding.replace(EXECUTION_PARAM_REFERENCE_REGEX, EXECUTION_PARAM_KEY),
   );
 
@@ -314,11 +317,11 @@ export function* getActionParams(
 
 export function extractBindingsFromAction(action: Action) {
   const bindings: string[] = [];
-  action.dynamicBindingPathList.forEach(a => {
+  action.dynamicBindingPathList.forEach((a) => {
     const value = _.get(action, a.key);
     if (isDynamicValue(value)) {
       const { jsSnippets } = getDynamicBindings(value);
-      bindings.push(...jsSnippets.filter(jsSnippet => !!jsSnippet));
+      bindings.push(...jsSnippets.filter((jsSnippet) => !!jsSnippet));
     }
   });
   return bindings;
@@ -735,7 +738,7 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     for (const actionSet of pageActions) {
       // Load all sets in parallel
       yield* yield all(
-        actionSet.map(apiAction => call(executePageLoadAction, apiAction)),
+        actionSet.map((apiAction) => call(executePageLoadAction, apiAction)),
       );
     }
     PerformanceTracker.stopAsyncTracking(
