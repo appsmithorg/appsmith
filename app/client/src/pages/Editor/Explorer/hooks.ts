@@ -46,8 +46,8 @@ export const useFilteredDatasources = (searchKeyword?: string) => {
   const datasources = useMemo(() => {
     const datasourcesPageMap: Record<string, Datasource[]> = {};
     for (const [key, value] of Object.entries(actions)) {
-      const datasourceIds = value.map(action => action.config.datasource?.id);
-      const activeDatasources = reducerDatasources.filter(datasource =>
+      const datasourceIds = value.map((action) => action.config.datasource?.id);
+      const activeDatasources = reducerDatasources.filter((datasource) =>
         datasourceIds.includes(datasource.id),
       );
       datasourcesPageMap[key] = activeDatasources;
@@ -58,7 +58,7 @@ export const useFilteredDatasources = (searchKeyword?: string) => {
 
   return useMemo(() => {
     if (searchKeyword) {
-      const filteredDatasources = produce(datasources, draft => {
+      const filteredDatasources = produce(datasources, (draft) => {
         for (const [key, value] of Object.entries(draft)) {
           draft[key] = findDataSources(value, searchKeyword);
         }
@@ -82,7 +82,7 @@ export const useActions = (searchKeyword?: string) => {
   return useMemo(() => {
     if (searchKeyword) {
       const start = performance.now();
-      const filteredActions = produce(actions, draft => {
+      const filteredActions = produce(actions, (draft) => {
         for (const [key, value] of Object.entries(draft)) {
           value.forEach((action, index) => {
             const searchMatches =
@@ -112,7 +112,7 @@ export const useWidgets = (searchKeyword?: string) => {
   return useMemo(() => {
     if (searchKeyword && pageCanvasStructures) {
       const start = performance.now();
-      const filteredDSLs = produce(pageCanvasStructures, draft => {
+      const filteredDSLs = produce(pageCanvasStructures, (draft) => {
         for (const [key, value] of Object.entries(draft)) {
           const filteredWidgets = findWidgets(
             value,

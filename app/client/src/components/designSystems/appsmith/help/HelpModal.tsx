@@ -27,8 +27,8 @@ const HelpButton = styled.button<{
     position: absolute;
     bottom: 27px;
     right: 27px;
-    z-index: ${props => props.layer};
-    background: ${props =>
+    z-index: ${(props) => props.layer};
+    background: ${(props) =>
       props.highlight ? "#231f20" : theme.colors.primaryDarker};
     width: 50px;
     height: 50px;

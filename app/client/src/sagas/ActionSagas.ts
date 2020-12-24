@@ -488,7 +488,7 @@ export function* refactorActionName(
 function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
   // Takes from state, checks if the name isValid, saves
   const apiId = action.payload.id;
-  const api = yield select(state =>
+  const api = yield select((state) =>
     state.entities.actions.find(
       (action: ActionData) => action.config.id === apiId,
     ),
@@ -527,7 +527,7 @@ function getDynamicBindingsChangesSaga(
   const fieldExists = _.some(dynamicBindings, { key: bindingField });
 
   if (!isDynamic && fieldExists) {
-    dynamicBindings = dynamicBindings.filter(d => d.key !== bindingField);
+    dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
   }
   if (isDynamic && !fieldExists) {
     dynamicBindings.push({ key: bindingField });
@@ -554,7 +554,7 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
     propertyName,
   );
   yield all(
-    Object.keys(effects).map(field =>
+    Object.keys(effects).map((field) =>
       put(updateActionProperty({ id: actionId, field, value: effects[field] })),
     ),
   );

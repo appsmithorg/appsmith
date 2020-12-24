@@ -20,7 +20,7 @@ export default function ThemeSwitcher(props: { className?: string }) {
         <Switch
           className={props.className}
           value={switchedOn}
-          onSwitch={value => {
+          onSwitch={(value) => {
             setSwitchOn(value);
             dispatch(setThemeMode(value ? ThemeMode.DARK : ThemeMode.LIGHT));
           }}

@@ -79,7 +79,7 @@ Object.keys(ReduxActionErrorTypes).forEach((type: string) => {
 
 ActionErrorDisplayMap = {
   ...ActionErrorDisplayMap,
-  [ReduxActionErrorTypes.API_ERROR]: error =>
+  [ReduxActionErrorTypes.API_ERROR]: (error) =>
     _.get(error, "message", DEFAULT_ERROR_MESSAGE),
   [ReduxActionErrorTypes.FETCH_PAGE_ERROR]: () =>
     DEFAULT_ACTION_ERROR("fetching the page"),

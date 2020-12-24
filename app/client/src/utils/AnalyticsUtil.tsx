@@ -92,7 +92,7 @@ export type EventName =
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
   const applicationsIndex = pathSplit.findIndex(
-    path => path === "applications",
+    (path) => path === "applications",
   );
   const appId = pathSplit[applicationsIndex + 1];
 

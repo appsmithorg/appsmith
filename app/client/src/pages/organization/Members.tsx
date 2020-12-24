@@ -63,10 +63,10 @@ export default function MemberSettings(props: PageProps) {
   const allUsers = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
   const currentOrg = useSelector(getCurrentOrg).filter(
-    el => el.id === orgId,
+    (el) => el.id === orgId,
   )[0];
 
-  const userTableData = allUsers.map(user => ({
+  const userTableData = allUsers.map((user) => ({
     ...user,
     isCurrentUser: user.username === currentUser?.username,
   }));
@@ -86,7 +86,7 @@ export default function MemberSettings(props: PageProps) {
       Cell: function DropdownCell(cellProps: any) {
         const allRoles = useSelector(getAllRoles);
         const roles = allRoles
-          ? Object.keys(allRoles).map(role => {
+          ? Object.keys(allRoles).map((role) => {
               return {
                 name: role,
                 desc: allRoles[role],
@@ -112,7 +112,7 @@ export default function MemberSettings(props: PageProps) {
               roleChangingUserInfo.username ===
                 cellProps.cell.row.values.username
             }
-            onSelect={option => {
+            onSelect={(option) => {
               dispatch(
                 changeOrgUserRole(
                   orgId,
