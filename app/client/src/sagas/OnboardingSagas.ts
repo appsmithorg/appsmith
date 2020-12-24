@@ -6,8 +6,20 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { AppState } from "reducers";
-import { all, delay, put, select, take, takeEvery } from "redux-saga/effects";
-import { getDatasources, getPlugins } from "selectors/entitiesSelector";
+import {
+  all,
+  cancel,
+  delay,
+  put,
+  select,
+  take,
+  takeEvery,
+} from "redux-saga/effects";
+import {
+  getCanvasWidgets,
+  getDatasources,
+  getPlugins,
+} from "selectors/entitiesSelector";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getOnboardingState, setOnboardingState } from "utils/storage";
@@ -49,13 +61,37 @@ export const showCompletionDialog = (state: AppState) => {
 
   return isInOnboarding && currentStep === OnboardingStep.DEPLOY;
 };
+export const getInitialTableData = (state: AppState) => {
+  const widgetConfig = state.entities.widgetConfig;
+
+  return widgetConfig.config.TABLE_WIDGET.tableData;
+};
 
 function* listenForWidgetAdditions() {
   while (true) {
     yield take();
-    const { payload } = yield take("WIDGET_ADD_CHILD");
 
-    if (payload.type === "TABLE_WIDGET") {
+    const selectedWidget = yield select(getSelectedWidget);
+    const canvasWidgets = yield select(getCanvasWidgets);
+    const initialTableData = yield select(getInitialTableData);
+
+    // Updating the tableData property to []
+    if (
+      selectedWidget &&
+      selectedWidget.type === "TABLE_WIDGET" &&
+      canvasWidgets[selectedWidget.widgetId]
+    ) {
+      if (selectedWidget.tableData === initialTableData) {
+        yield put({
+          type: "UPDATE_WIDGET_PROPERTY",
+          payload: {
+            widgetId: selectedWidget.widgetId,
+            propertyName: "tableData",
+            propertyValue: [],
+          },
+        });
+      }
+
       yield put(setCurrentStep(OnboardingStep.ADD_WIDGET));
       yield put({
         type: ReduxActionTypes.ADD_WIDGET_COMPLETE,
@@ -295,7 +331,6 @@ export default function* onboardingSagas() {
       createOnboardingDatasource,
     ),
     takeEvery(ReduxActionTypes.NEXT_ONBOARDING_STEP, proceedOnboardingSaga),
-    takeEvery(ReduxActionTypes.END_ONBOARDING, skipOnboardingSaga),
     takeEvery("LISTEN_FOR_CREATE_ACTION", listenForCreateAction),
     takeEvery(ReduxActionTypes.LISTEN_FOR_ADD_WIDGET, listenForWidgetAdditions),
     takeEvery(
@@ -309,4 +344,8 @@ export default function* onboardingSagas() {
     takeEvery(ReduxActionTypes.SET_CURRENT_STEP, setupOnboardingStep),
     takeEvery(ReduxActionTypes.LISTEN_FOR_DEPLOY, listenForDeploySaga),
   ]);
+
+  yield take(ReduxActionTypes.END_ONBOARDING);
+  yield skipOnboardingSaga();
+  yield cancel();
 }

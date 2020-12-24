@@ -123,10 +123,6 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       title: "Your widget is now talking to your data 👌👏",
       description:
         "You can access widgets and actions as JS variables anywhere inside {{ }}",
-      action: {
-        label: "Next",
-        action: setCurrentStep(OnboardingStep.DEPLOY),
-      },
     },
     eventName: "ONBOARDING_SUCCESSFUL_BINDING",
   },
