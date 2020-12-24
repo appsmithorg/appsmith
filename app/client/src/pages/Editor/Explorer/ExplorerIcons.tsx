@@ -155,6 +155,7 @@ const StyledTag = styled.div<{ color: string }>`
   display: flex;
   justify-content: center;
   align-items: center;
+  line-height: 16px;
 `;
 
 export const MethodTag = (props: { type: typeof HTTP_METHODS[number] }) => {
