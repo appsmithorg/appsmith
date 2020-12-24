@@ -33,6 +33,7 @@ export interface ColumnMenuSubOptionProps {
   onClick?: (columnIndex: number) => void;
   id?: string;
   category?: boolean;
+  isHeader?: boolean;
 }
 
 interface ReactTableComponentProps {
@@ -149,7 +150,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
           e.preventDefault();
           const columnOrder = props.columnOrder
             ? [...props.columnOrder]
-            : props.columns.map(item => item.accessor);
+            : props.columns.map((item) => item.accessor);
           const draggedColumn = props.columns[dragged].accessor;
           columnOrder.splice(dragged, 1);
           columnOrder.splice(i, 0, draggedColumn);
@@ -204,7 +205,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
         props.handleReorderColumn(columnOrder);
       }
     } else {
-      hiddenColumns = hiddenColumns.filter(item => {
+      hiddenColumns = hiddenColumns.filter((item) => {
         return item !== column.accessor;
       });
     }

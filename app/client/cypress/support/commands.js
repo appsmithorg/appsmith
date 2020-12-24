@@ -90,6 +90,15 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
     .click();
 });
 
+Cypress.Commands.add("CheckShareIcon", (orgName, count) => {
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
+    .scrollIntoView()
+    .should("be.visible");
+  cy.get(
+    homePage.orgList.concat(orgName).concat(") .org-share-user-icons"),
+  ).should("have.length", count);
+});
+
 Cypress.Commands.add("shareApp", (email, role) => {
   cy.xpath(homePage.email)
     .click({ force: true })

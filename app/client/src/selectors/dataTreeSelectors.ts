@@ -48,7 +48,7 @@ export const getDataTreeForAutocomplete = createSelector(
   (tree: DataTree, actions: ActionDataState) => {
     const cachedResponses: Record<string, any> = {};
     if (actions && actions.length) {
-      actions.forEach(action => {
+      actions.forEach((action) => {
         if (!(action.config.name in tree) && action.config.cacheResponse) {
           try {
             cachedResponses[action.config.name] = JSON.parse(

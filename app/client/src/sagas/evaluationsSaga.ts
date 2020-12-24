@@ -48,7 +48,7 @@ const initEvaluationWorkers = () => {
   }
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   evaluationWorker = new Worker();
-  workerChannel = eventChannel(emitter => {
+  workerChannel = eventChannel((emitter) => {
     evaluationWorker.addEventListener("message", emitter);
     // The subscriber must return an unsubscribe function
     return () => {
@@ -59,7 +59,7 @@ const initEvaluationWorkers = () => {
 
 const evalErrorHandler = (errors: EvalError[]) => {
   if (!errors) return;
-  errors.forEach(error => {
+  errors.forEach((error) => {
     if (error.type === EvalErrorTypes.DEPENDENCY_ERROR) {
       Toaster.show({
         text: error.message,
@@ -117,10 +117,11 @@ export function* evaluateSingleValue(
 ) {
   if (evaluationWorker) {
     const dataTree = yield select(getDataTree);
-    dataTree[EXECUTION_PARAM_KEY] = executionParams;
     evaluationWorker.postMessage({
       action: EVAL_WORKER_ACTIONS.EVAL_SINGLE,
-      dataTree,
+      dataTree: Object.assign({}, dataTree, {
+        [EXECUTION_PARAM_KEY]: executionParams,
+      }),
       binding,
     });
     const workerResponse = yield take(workerChannel);

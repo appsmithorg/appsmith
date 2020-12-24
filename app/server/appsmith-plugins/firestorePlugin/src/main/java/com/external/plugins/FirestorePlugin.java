@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -17,6 +17,7 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
@@ -132,7 +133,7 @@ public class FirestorePlugin extends BasePlugin {
                         if (method.isDocumentLevel()) {
                             return handleDocumentLevelMethod(connection, path, method, mapBody);
                         } else {
-                            return handleCollectionLevelMethod(connection, path, method, properties);
+                            return handleCollectionLevelMethod(connection, path, method, properties, mapBody);
                         }
                     })
                     .subscribeOn(scheduler);
@@ -221,15 +222,33 @@ public class FirestorePlugin extends BasePlugin {
                 Firestore connection,
                 String path,
                 com.external.plugins.Method method,
-                List<Property> properties
+                List<Property> properties,
+                Map<String, Object> mapBody
         ) {
+            final CollectionReference collection = connection.collection(path);
+
+            if (method == Method.GET_COLLECTION) {
+                return methodGetCollection(collection, properties);
+
+            } else if (method == Method.ADD_TO_COLLECTION) {
+                return methodAddToCollection(collection, mapBody);
+
+            }
+
+            return Mono.error(new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_ERROR,
+                    "Unsupported collection-level command: " + method
+            ));
+        }
+
+        private Mono<ActionExecutionResult> methodGetCollection(CollectionReference query, List<Property> properties) {
             final String orderBy = properties.size() > 1 && properties.get(1) != null ? properties.get(1).getValue() : null;
             final int limit = properties.size() > 2 && properties.get(2) != null ? Integer.parseInt(properties.get(2).getValue()) : 10;
             final String queryFieldPath = properties.size() > 3 && properties.get(3) != null ? properties.get(3).getValue() : null;
             final Op operator = properties.size() > 4 && properties.get(4) != null ? Op.valueOf(properties.get(4).getValue()) : null;
             final String queryValue = properties.size() > 5 && properties.get(5) != null ? properties.get(5).getValue() : null;
 
-            return Mono.just(connection.collection(path))
+            return Mono.just(query)
                     // Apply ordering, if provided.
                     .map(query1 -> StringUtils.isEmpty(orderBy) ? query1 : query1.orderBy(orderBy))
                     // Apply where condition, if provided.
@@ -285,17 +304,7 @@ public class FirestorePlugin extends BasePlugin {
                     // Apply limit, always provided, since without it we can inadvertently end up processing too much data.
                     .map(query1 -> query1.limit(limit))
                     // Run the Firestore query to get a Future of the results.
-                    .flatMap(query1 -> {
-                        switch (method) {
-                            case GET_COLLECTION:
-                                return Mono.just(query1.get());
-                            default:
-                                return Mono.error(new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_ERROR,
-                                        "Unknown collection method: " + method.toString() + "."
-                                ));
-                        }
-                    })
+                    .map(Query::get)
                     // Consume the future to get the actual results.
                     .flatMap(resultFuture -> {
                         try {
@@ -315,7 +324,35 @@ public class FirestorePlugin extends BasePlugin {
                         result.setIsExecutionSuccess(true);
                         System.out.println(
                                 Thread.currentThread().getName()
-                                        + ": In the Firestore Plugin, got action execution result"
+                                        + ": In the Firestore Plugin, got action execution result for get collection"
+                        );
+                        return Mono.just(result);
+                    });
+        }
+
+        private Mono<ActionExecutionResult> methodAddToCollection(CollectionReference collection, Map<String, Object> mapBody) {
+            return Mono.justOrEmpty(collection.add(mapBody))
+                    .flatMap(future -> {
+                        try {
+                            return Mono.just(future.get());
+                        } catch (InterruptedException | ExecutionException e) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    e.getMessage()
+                            ));
+                        }
+                    })
+                    .flatMap(opResult -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        try {
+                            result.setBody(resultToMap(opResult));
+                        } catch (AppsmithPluginException e) {
+                            return Mono.error(e);
+                        }
+                        result.setIsExecutionSuccess(true);
+                        System.out.println(
+                                Thread.currentThread().getName()
+                                        + ": In the Firestore Plugin, got action execution result for add to collection"
                         );
                         return Mono.just(result);
                     });
@@ -344,6 +381,13 @@ public class FirestorePlugin extends BasePlugin {
                 }
                 return documents;
 
+            } else if (objResult instanceof DocumentReference) {
+                DocumentReference documentReference = (DocumentReference) objResult;
+                Map<String, Object> resultMap = new HashMap<>();
+                resultMap.put("id", documentReference.getId());
+                resultMap.put("path", documentReference.getPath());
+                return resultMap;
+
             } else {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
@@ -355,7 +399,7 @@ public class FirestorePlugin extends BasePlugin {
 
         @Override
         public Mono<Firestore> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
             final Set<String> errors = validateDatasource(datasourceConfiguration);
             if (!CollectionUtils.isEmpty(errors)) {
@@ -405,7 +449,7 @@ public class FirestorePlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
             Set<String> invalids = new HashSet<>();
 

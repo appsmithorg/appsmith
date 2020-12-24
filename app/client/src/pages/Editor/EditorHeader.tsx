@@ -222,7 +222,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
             }
             isNewApp={
-              applicationList.filter(el => el.id === applicationId).length > 0
+              applicationList.filter((el) => el.id === applicationId).length > 0
             }
             onBlur={(value: string) =>
               updateApplicationDispatch(applicationId || "", {

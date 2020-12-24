@@ -44,10 +44,10 @@ export type EditableTextProps = CommonComponentProps & {
 const EditableTextWrapper = styled.div<{
   fill?: boolean;
 }>`
-  width: ${props => (!props.fill ? "234px" : "100%")};
+  width: ${(props) => (!props.fill ? "234px" : "100%")};
   .error-message {
-    margin-left: ${props => props.theme.spaces[5]}px;
-    color: ${props => props.theme.colors.danger.main};
+    margin-left: ${(props) => props.theme.spaces[5]}px;
+    color: ${(props) => props.theme.colors.danger.main};
   }
 `;
 
@@ -82,47 +82,47 @@ const TextContainer = styled.div<{
     .${BlueprintClasses.EDITABLE_TEXT_CONTENT},
     &&&
     .${BlueprintClasses.EDITABLE_TEXT_INPUT} {
-    font-size: ${props => props.theme.typography.p1.fontSize}px;
-    line-height: ${props => props.theme.typography.p1.lineHeight}px;
-    letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
-    font-weight: ${props => props.theme.typography.p1.fontWeight}px;
+    font-size: ${(props) => props.theme.typography.p1.fontSize}px;
+    line-height: ${(props) => props.theme.typography.p1.lineHeight}px;
+    letter-spacing: ${(props) => props.theme.typography.p1.letterSpacing}px;
+    font-weight: ${(props) => props.theme.typography.p1.fontWeight}px;
   }
 
   &&& .${BlueprintClasses.EDITABLE_TEXT_CONTENT} {
     cursor: pointer;
-    color: ${props => props.theme.colors.editableText.color};
+    color: ${(props) => props.theme.colors.editableText.color};
     overflow: hidden;
     text-overflow: ellipsis;
-    ${props => (props.isEditing ? "display: none" : "display: block")};
+    ${(props) => (props.isEditing ? "display: none" : "display: block")};
   }
 
   &&& .${BlueprintClasses.EDITABLE_TEXT_INPUT} {
     border: none;
     outline: none;
-    height: ${props => props.theme.spaces[13] + 3}px;
-    color: ${props => props.theme.colors.editableText.color};
+    height: ${(props) => props.theme.spaces[13] + 3}px;
+    color: ${(props) => props.theme.colors.editableText.color};
     min-width: 100%;
-    border-radius: ${props => props.theme.spaces[0]}px;
+    border-radius: ${(props) => props.theme.spaces[0]}px;
   }
 
   &&& .${BlueprintClasses.EDITABLE_TEXT} {
     overflow: hidden;
-    height: ${props => props.theme.spaces[13] + 3}px;
-    padding: ${props => props.theme.spaces[4]}px
-      ${props => props.theme.spaces[5]}px;
+    height: ${(props) => props.theme.spaces[13] + 3}px;
+    padding: ${(props) => props.theme.spaces[4]}px
+      ${(props) => props.theme.spaces[5]}px;
     width: calc(100% - 40px);
-    background-color: ${props => props.bgColor};
+    background-color: ${(props) => props.bgColor};
   }
 
   .icon-wrapper {
-    background-color: ${props => props.bgColor};
+    background-color: ${(props) => props.bgColor};
   }
 `;
 
 const IconWrapper = styled.div`
-  width: ${props => props.theme.spaces[13] + 4}px;
-  padding-right: ${props => props.theme.spaces[5]}px;
-  height: ${props => props.theme.spaces[13] + 3}px;
+  width: ${(props) => props.theme.spaces[13] + 4}px;
+  padding-right: ${(props) => props.theme.spaces[5]}px;
+  height: ${(props) => props.theme.spaces[13] + 3}px;
   display: flex;
   align-items: center;
   justify-content: flex-end;

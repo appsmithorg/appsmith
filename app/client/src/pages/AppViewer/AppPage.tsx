@@ -9,7 +9,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 const PageView = styled.div<{ width: number }>`
   height: 100%;
   position: relative;
-  width: ${props => props.width}px;
+  width: ${(props) => props.width}px;
   margin: 0 auto;
 `;
 

@@ -6,6 +6,7 @@ import ecma from "tern/defs/ecmascript.json";
 import lodash from "constants/defs/lodash.json";
 import base64 from "constants/defs/base64-js.json";
 import moment from "constants/defs/moment.json";
+import xmlJs from "constants/defs/xmlParser.json";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 import {
@@ -13,7 +14,7 @@ import {
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
 
-const DEFS = [ecma, lodash, base64, moment];
+const DEFS = [ecma, lodash, base64, moment, xmlJs];
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
@@ -169,7 +170,7 @@ class TernServer {
   }
 
   getHint(cm: CodeMirror.Editor) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.request(
         cm,
         {
@@ -189,7 +190,7 @@ class TernServer {
   sortCompletions(completions: Completion[]) {
     // Add data tree completions before others
     const dataTreeCompletions = completions
-      .filter(c => c.origin === "dataTree")
+      .filter((c) => c.origin === "dataTree")
       .sort((a: Completion, b: Completion) => {
         if (a.type === "FUNCTION" && b.type !== "FUNCTION") {
           return 1;
@@ -198,9 +199,9 @@ class TernServer {
         }
         return a.text.toLowerCase().localeCompare(b.text.toLowerCase());
       });
-    const docCompletetions = completions.filter(c => c.origin === "[doc]");
+    const docCompletetions = completions.filter((c) => c.origin === "[doc]");
     const otherCompletions = completions.filter(
-      c => c.origin !== "dataTree" && c.origin !== "[doc]",
+      (c) => c.origin !== "dataTree" && c.origin !== "[doc]",
     );
     return [...docCompletetions, ...dataTreeCompletions, ...otherCompletions];
   }
@@ -446,7 +447,7 @@ class TernServer {
     const cursor = doc.doc.getCursor();
     const value = this.lineValue(doc);
     const stringSegments = getDynamicStringSegments(value);
-    const dynamicStrings = stringSegments.filter(segment => {
+    const dynamicStrings = stringSegments.filter((segment) => {
       if (isDynamicValue(segment)) {
         const index = value.indexOf(segment);
 

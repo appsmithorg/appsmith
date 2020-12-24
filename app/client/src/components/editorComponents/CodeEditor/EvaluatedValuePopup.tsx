@@ -38,22 +38,22 @@ const THEMES: PopupTheme = {
 };
 
 const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
-  width: ${props => props.theme.evaluatedValuePopup.width}px;
-  max-height: ${props => props.theme.evaluatedValuePopup.height}px;
+  width: ${(props) => props.theme.evaluatedValuePopup.width}px;
+  max-height: ${(props) => props.theme.evaluatedValuePopup.height}px;
   overflow-y: auto;
   ::-webkit-scrollbar {
     display: none;
   }
   -ms-overflow-style: none;
-  background-color: ${props => THEMES[props.colorTheme].backgroundColor};
-  color: ${props => THEMES[props.colorTheme].textColor};
+  background-color: ${(props) => THEMES[props.colorTheme].backgroundColor};
+  color: ${(props) => THEMES[props.colorTheme].textColor};
   padding: 10px;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 4px;
 `;
 
 const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
-  ${props =>
+  ${(props) =>
     props.colorTheme === EditorTheme.LIGHT ? scrollbarLight : scrollbarDark};
   max-height: 300px;
   overflow-y: auto;
@@ -61,23 +61,23 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
-  ${props =>
+  ${(props) =>
     props.colorTheme === EditorTheme.LIGHT ? scrollbarLight : scrollbarDark};
   padding: 10px;
   margin: 0px 0px;
-  background-color: ${props => THEMES[props.colorTheme].editorBackground};
-  color: ${props => THEMES[props.colorTheme].editorColor};
+  background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
+  color: ${(props) => THEMES[props.colorTheme].editorColor};
   font-size: 14px;
   -ms-overflow-style: none;
   white-space: pre-wrap;
 `;
 
 const TypeText = styled.pre<{ colorTheme: EditorTheme }>`
-  ${props =>
+  ${(props) =>
     props.colorTheme === EditorTheme.LIGHT ? scrollbarLight : scrollbarDark};
   padding: 5px;
-  background-color: ${props => THEMES[props.colorTheme].editorBackground};
-  color: ${props => THEMES[props.colorTheme].editorColor};
+  background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
+  color: ${(props) => THEMES[props.colorTheme].editorColor};
   font-size: 12px;
   margin: 5px 0;
   -ms-overflow-style: none;
@@ -89,7 +89,7 @@ const ErrorText = styled.p`
   border-radius: 2px;
   font-size: 13px;
   background-color: rgba(226, 44, 4, 0.1);
-  color: ${props => props.theme.colors.errorMessage};
+  color: ${(props) => props.theme.colors.errorMessage};
 `;
 
 const StyledTitle = styled.p`

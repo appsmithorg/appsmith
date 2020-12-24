@@ -50,7 +50,7 @@ function getSelectedOption(
     value: "",
   };
   options.length > 0 &&
-    options.forEach(option => {
+    options.forEach((option) => {
       // Find the selected option in the OptionsTree
       if (option.value === selectedValue) {
         selectedOption = option;

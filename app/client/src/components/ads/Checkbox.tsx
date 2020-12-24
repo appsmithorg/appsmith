@@ -14,16 +14,16 @@ const Checkmark = styled.span<{
   position: absolute;
   top: 1px;
   left: 0;
-  width: ${props => props.theme.spaces[8]}px;
-  height: ${props => props.theme.spaces[8]}px;
-  background-color: ${props =>
+  width: ${(props) => props.theme.spaces[8]}px;
+  height: ${(props) => props.theme.spaces[8]}px;
+  background-color: ${(props) =>
     props.isChecked
       ? props.disabled
         ? props.theme.colors.checkbox.disabled
         : props.theme.colors.info.main
       : "transparent"};
   border: 2px solid
-    ${props =>
+    ${(props) =>
       props.isChecked
         ? props.disabled
           ? props.theme.colors.checkbox.disabled
@@ -39,7 +39,7 @@ const Checkmark = styled.span<{
     width: 6px;
     height: 11px;
     border: solid
-      ${props =>
+      ${(props) =>
         props.disabled
           ? props.theme.colors.checkbox.disabledCheck
           : props.theme.colors.checkbox.normalCheck};
@@ -54,13 +54,13 @@ const StyledCheckbox = styled.label<{
   position: relative;
   display: block;
   width: 100%;
-  cursor: ${props => (props.disabled ? "not-allowed" : "pointer")};
-  font-weight: ${props => props.theme.typography.p1.fontWeight};
-  font-size: ${props => props.theme.typography.p1.fontSize}px;
-  line-height: ${props => props.theme.typography.p1.lineHeight}px;
-  letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
-  color: ${props => props.theme.colors.checkbox.labelColor};
-  padding-left: ${props => props.theme.spaces[12] - 2}px;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  font-weight: ${(props) => props.theme.typography.p1.fontWeight};
+  font-size: ${(props) => props.theme.typography.p1.fontSize}px;
+  line-height: ${(props) => props.theme.typography.p1.lineHeight}px;
+  letter-spacing: ${(props) => props.theme.typography.p1.letterSpacing}px;
+  color: ${(props) => props.theme.colors.checkbox.labelColor};
+  padding-left: ${(props) => props.theme.spaces[12] - 2}px;
 
   input {
     position: absolute;

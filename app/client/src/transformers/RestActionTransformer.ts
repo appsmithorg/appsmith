@@ -36,7 +36,7 @@ export const transformRestAction = (data: any): any => {
     ) {
       const contentTypeHeader = _.find(
         action.actionConfiguration.headers,
-        header => {
+        (header) => {
           return header.key.toLowerCase() === CONTENT_TYPE;
         },
       );

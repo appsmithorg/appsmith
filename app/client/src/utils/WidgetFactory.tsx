@@ -145,7 +145,7 @@ class WidgetFactory {
 
   static getWidgetTypeConfigMap(): WidgetTypeConfigMap {
     const typeConfigMap: WidgetTypeConfigMap = {};
-    WidgetFactory.getWidgetTypes().forEach(type => {
+    WidgetFactory.getWidgetTypes().forEach((type) => {
       typeConfigMap[type] = {
         validations: WidgetFactory.getWidgetPropertyValidationMap(type),
         defaultProperties: WidgetFactory.getWidgetDefaultPropertiesMap(type),
