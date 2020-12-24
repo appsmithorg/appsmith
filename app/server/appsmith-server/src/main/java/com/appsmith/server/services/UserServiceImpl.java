@@ -753,8 +753,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     @Override
     public Mono<User> setViewedCurrentVersionReleaseNotes(User user) {
         final String version = projectProperties.getVersion();
-        if (StringUtils.isEmpty(version)) {
-            return Mono.empty();
+        if (user == null || StringUtils.isEmpty(version)) {
+            return Mono.justOrEmpty(user);
         }
 
         return repository
@@ -773,7 +773,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             return setViewedCurrentVersionReleaseNotes(user);
         }
 
-        return Mono.empty();
+        return Mono.justOrEmpty(user);
     }
 
 }

@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +39,7 @@ public class ApplicationFetcher {
     private final UserService userService;
     private final OrganizationService organizationService;
     private final ApplicationRepository applicationRepository;
-    private final ReleaseNotes releaseNotes;
+    private final ReleaseNotesService releaseNotesService;
 
     /**
      * For the current user, it first fetches all the organizations that its part of. For each organization, in turn all
@@ -72,9 +73,6 @@ public class ApplicationFetcher {
                     UserHomepageDTO userHomepageDTO = new UserHomepageDTO();
                     userHomepageDTO.setUser(user);
 
-                    userHomepageDTO.setReleaseItems(releaseNotes.getReleaseNodes());
-                    userHomepageDTO.setNewReleasesCount(releaseNotes.computeNewFrom(user.getReleaseNotesViewedVersion()));
-
                     return organizationService
                             .findByIdsIn(orgIds, READ_ORGANIZATIONS)
                             .collectList()
@@ -103,6 +101,20 @@ public class ApplicationFetcher {
                                 userHomepageDTO.setOrganizationApplications(organizationApplicationsDTOS);
                                 return userHomepageDTO;
                             });
+                })
+                .zipWith(releaseNotesService.getReleaseNodes().defaultIfEmpty(Collections.emptyList()))
+                .flatMap(tuple -> {
+                    final UserHomepageDTO userHomepageDTO = tuple.getT1();
+                    final List<ReleaseNotesService.ReleaseNode> releaseNodes = tuple.getT2();
+
+                    final User user = userHomepageDTO.getUser();
+                    userHomepageDTO.setReleaseItems(releaseNodes);
+                    userHomepageDTO.setNewReleasesCount(
+                            releaseNotesService.computeNewFrom(user.getReleaseNotesViewedVersion())
+                    );
+
+                    return userService.ensureViewedCurrentVersionReleaseNotes(user)
+                            .thenReturn(userHomepageDTO);
                 });
     }
 }
