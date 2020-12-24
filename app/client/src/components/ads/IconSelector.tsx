@@ -17,13 +17,13 @@ const IconPalette = styled.div<{ fill?: boolean }>`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  padding: ${props => props.theme.spaces[4]}px 0px
-    ${props => props.theme.spaces[4]}px ${props => props.theme.spaces[5]}px;
-  width: ${props => (props.fill ? "100%" : "234px")};
+  padding: ${(props) => props.theme.spaces[4]}px 0px
+    ${(props) => props.theme.spaces[4]}px ${(props) => props.theme.spaces[5]}px;
+  width: ${(props) => (props.fill ? "100%" : "234px")};
   max-height: 90px;
   overflow-y: auto;
   &&::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.modal.scrollbar};
+    background-color: ${(props) => props.theme.colors.modal.scrollbar};
   }
   ${scrollbarDark};
   &::-webkit-scrollbar {
@@ -37,17 +37,17 @@ const IconBox = styled.div<{ selectedColor?: string }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: ${props =>
+  background-color: ${(props) =>
     props.selectedColor || props.theme.colors.appIcon.background};
-  margin: 0 ${props => props.theme.spaces[2]}px
-    ${props => props.theme.spaces[2]}px 0;
+  margin: 0 ${(props) => props.theme.spaces[2]}px
+    ${(props) => props.theme.spaces[2]}px 0;
   position: relative;
 
   &:nth-child(6n) {
-    margin-right: ${props => props.theme.spaces[0]}px;
+    margin-right: ${(props) => props.theme.spaces[0]}px;
   }
 
-  ${props =>
+  ${(props) =>
     props.selectedColor
       ? `.${Classes.APP_ICON} {
     svg {

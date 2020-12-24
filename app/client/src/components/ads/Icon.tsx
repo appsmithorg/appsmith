@@ -104,25 +104,25 @@ const IconWrapper = styled.span<IconProps>`
   display: flex;
   align-items: center;
   svg {
-    width: ${props => sizeHandler(props.size)}px;
-    height: ${props => sizeHandler(props.size)}px;
+    width: ${(props) => sizeHandler(props.size)}px;
+    height: ${(props) => sizeHandler(props.size)}px;
     path {
-      fill: ${props => props.theme.colors.icon.normal};
+      fill: ${(props) => props.theme.colors.icon.normal};
     }
   }
-  ${props => (props.invisible ? `visibility: hidden;` : null)};
+  ${(props) => (props.invisible ? `visibility: hidden;` : null)};
 
   &:hover {
     cursor: pointer;
     path {
-      fill: ${props => props.theme.colors.icon.hover};
+      fill: ${(props) => props.theme.colors.icon.hover};
     }
   }
 
   &:active {
     cursor: pointer;
     path {
-      fill: ${props => props.theme.colors.icon.active};
+      fill: ${(props) => props.theme.colors.icon.active};
     }
   }
 `;

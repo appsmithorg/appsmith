@@ -15,10 +15,10 @@ const StyledButton = styled(Button)<CloseButtonProps>`
   right: 3px;
   justify-content: center;
   padding: 0;
-  color: ${props => props.color};
+  color: ${(props) => props.color};
   & svg {
-    width: ${props => props.size};
-    height: ${props => props.size};
+    width: ${(props) => props.size};
+    height: ${(props) => props.size};
   }
 `;
 

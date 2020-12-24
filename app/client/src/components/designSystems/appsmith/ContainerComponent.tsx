@@ -15,7 +15,7 @@ const StyledContainerComponent = styled.div<
     ref: RefObject<HTMLDivElement>;
   }
 >`
-  ${props =>
+  ${(props) =>
     props.containerStyle !== "none"
       ? `
   border: none;
@@ -27,12 +27,12 @@ const StyledContainerComponent = styled.div<
       : ""}
   height: 100%;
   width: 100%;
-  background: ${props => props.backgroundColor};
-  box-shadow: ${props =>
+  background: ${(props) => props.backgroundColor};
+  box-shadow: ${(props) =>
     props.containerStyle === "card" ? props.theme.shadows[2] : "none"};
-  ${props => (!props.isVisible ? invisible : "")};
+  ${(props) => (!props.isVisible ? invisible : "")};
   overflow: hidden;
-  ${props => (props.shouldScrollContents ? scrollContents : "")}
+  ${(props) => (props.shouldScrollContents ? scrollContents : "")}
 }`;
 
 const ContainerComponent = (props: ContainerComponentProps) => {

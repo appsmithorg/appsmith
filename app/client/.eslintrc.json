@@ -6,8 +6,10 @@
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
     "plugin:@typescript-eslint/recommended",
     "prettier/@typescript-eslint",
-    "plugin:prettier/recommended",
-    "plugin:cypress/recommended"
+    "plugin:cypress/recommended",
+    // Note: Please keep this as the last config to make sure that this (and by extension our .prettierrc file) overrides all configuration above it
+    // https://www.npmjs.com/package/eslint-plugin-prettier#recommended-configuration
+    "plugin:prettier/recommended"
   ],
   "parserOptions": {
     "ecmaVersion": 2020, // Allows for the parsing of modern ECMAScript features

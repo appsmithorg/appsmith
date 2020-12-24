@@ -25,9 +25,9 @@ const DropdownContainer = styled.div`
 
 const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
   height: 38px;
-  padding: ${props => props.theme.spaces[4]}px
-    ${props => props.theme.spaces[6]}px;
-  background: ${props =>
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[6]}px;
+  background: ${(props) =>
     props.disabled
       ? props.theme.colors.dropdown.header.disabledBg
       : props.theme.colors.dropdown.header.bg};
@@ -36,20 +36,20 @@ const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
   justify-content: space-between;
   width: 100%;
   cursor: pointer;
-  ${props =>
+  ${(props) =>
     props.isOpen
       ? `border: 1px solid ${props.theme.colors.info.main}`
       : props.disabled
       ? `border: 1px solid ${props.theme.colors.dropdown.header.disabledBg}`
       : `border: 1px solid ${props.theme.colors.dropdown.header.bg}`};
-  ${props =>
+  ${(props) =>
     props.isOpen && !props.disabled ? "box-sizing: border-box" : null};
-  ${props =>
+  ${(props) =>
     props.isOpen && !props.disabled
       ? "box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
       : null};
   .${Classes.TEXT} {
-    ${props =>
+    ${(props) =>
       props.disabled
         ? `color: ${props.theme.colors.dropdown.header.disabledText}`
         : `color: ${props.theme.colors.dropdown.header.text}`};
@@ -61,33 +61,33 @@ const DropdownWrapper = styled.div`
   top: 38px;
   left: 0px;
   z-index: 1;
-  margin-top: ${props => props.theme.spaces[2] - 1}px;
-  background: ${props => props.theme.colors.dropdown.menuBg};
-  box-shadow: 0px 12px 28px ${props => props.theme.colors.dropdown.menuShadow};
+  margin-top: ${(props) => props.theme.spaces[2] - 1}px;
+  background: ${(props) => props.theme.colors.dropdown.menuBg};
+  box-shadow: 0px 12px 28px ${(props) => props.theme.colors.dropdown.menuShadow};
   width: 100%;
 `;
 
 const OptionWrapper = styled.div<{ selected: boolean }>`
-  padding: ${props => props.theme.spaces[4]}px
-    ${props => props.theme.spaces[6]}px;
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[6]}px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  ${props =>
+  ${(props) =>
     props.selected
       ? `background: ${props.theme.colors.dropdown.selected.bg}`
       : null};
   .${Classes.TEXT} {
-    ${props =>
+    ${(props) =>
       props.selected
         ? `color: ${props.theme.colors.dropdown.selected.text}`
         : null};
   }
   .${Classes.ICON} {
-    margin-right: ${props => props.theme.spaces[5]}px;
+    margin-right: ${(props) => props.theme.spaces[5]}px;
     svg {
       path {
-        ${props =>
+        ${(props) =>
           props.selected
             ? `fill: ${props.theme.colors.dropdown.selected.icon}`
             : `fill: ${props.theme.colors.dropdown.icon}`};
@@ -97,12 +97,12 @@ const OptionWrapper = styled.div<{ selected: boolean }>`
 
   &:hover {
     .${Classes.TEXT} {
-      color: ${props => props.theme.colors.dropdown.selected.text};
+      color: ${(props) => props.theme.colors.dropdown.selected.text};
     }
     .${Classes.ICON} {
       svg {
         path {
-          fill: ${props => props.theme.colors.dropdown.selected.icon};
+          fill: ${(props) => props.theme.colors.dropdown.selected.icon};
         }
       }
     }
@@ -114,7 +114,7 @@ const LabelWrapper = styled.div<{ label?: string }>`
   flex-direction: column;
   align-items: flex-start;
 
-  ${props =>
+  ${(props) =>
     props.label
       ? `
     .${Classes.TEXT}:last-child {

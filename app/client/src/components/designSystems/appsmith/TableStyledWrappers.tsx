@@ -64,8 +64,8 @@ export const TableWrapper = styled.div<{
       border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
       border-right: 1px solid ${Colors.GEYSER_LIGHT};
       position: relative;
-      font-size: ${props => props.tableSizes.ROW_FONT_SIZE}px;
-      line-height: ${props => props.tableSizes.ROW_FONT_SIZE}px;
+      font-size: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
+      line-height: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
       :last-child {
         border-right: 0;
       }
@@ -87,13 +87,13 @@ export const TableWrapper = styled.div<{
     }
     .th {
       padding: 0 10px 0 0;
-      height: ${props => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
-      line-height: ${props => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
+      height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
+      line-height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
       background: ${Colors.ATHENS_GRAY_DARKER};
     }
     .td {
-      height: ${props => props.tableSizes.ROW_HEIGHT}px;
-      line-height: ${props => props.tableSizes.ROW_HEIGHT}px;
+      height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
+      line-height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
       padding: 0 10px;
     }
     .thead {
@@ -126,8 +126,8 @@ export const TableWrapper = styled.div<{
   }
   .column-menu {
     cursor: pointer;
-    height: ${props => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
-    line-height: ${props => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
+    height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
+    line-height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
   }
   .th {
     display: flex;
@@ -140,8 +140,8 @@ export const TableWrapper = styled.div<{
     }
   }
   .input-group {
-    height: ${props => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
-    line-height: ${props => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
+    height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
+    line-height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
     padding: 0 5px;
   }
 `;
@@ -167,21 +167,21 @@ export const OptionWrapper = styled.div<{
   height: 32px;
   box-sizing: border-box;
   padding: 8px;
-  color: ${props => (props.selected ? Colors.WHITE : Colors.OXFORD_BLUE)};
+  color: ${(props) => (props.selected ? Colors.WHITE : Colors.OXFORD_BLUE)};
   font-size: 14px;
   min-width: 200px;
-  cursor: ${props => (!props.isHeader ? "pointer" : "default")};
+  cursor: ${(props) => (!props.isHeader ? "pointer" : "default")};
   border-radius: 4px;
   margin: 3px 0;
-  background: ${props => (props.selected ? Colors.GREEN : Colors.WHITE)};
+  background: ${(props) => (props.selected ? Colors.GREEN : Colors.WHITE)};
   &:hover {
-    background: ${props => (props.selected ? Colors.GREEN : Colors.POLAR)};
+    background: ${(props) => (props.selected ? Colors.GREEN : Colors.POLAR)};
   }
   .column-type {
     width: 100%;
   }
   &.non-selectable {
-    background: ${props =>
+    background: ${(props) =>
       !props.isHeader ? Colors.WHITE_SMOKE : Colors.WHITE_CLOUD};
   }
 `;
@@ -206,9 +206,10 @@ export const PaginationItemWrapper = styled.div<{
   disabled?: boolean;
   selected?: boolean;
 }>`
-  background: ${props => (props.disabled ? Colors.ATHENS_GRAY : Colors.WHITE)};
+  background: ${(props) =>
+    props.disabled ? Colors.ATHENS_GRAY : Colors.WHITE};
   border: 1px solid
-    ${props => (props.selected ? Colors.GREEN : Colors.GEYSER_LIGHT)};
+    ${(props) => (props.selected ? Colors.GREEN : Colors.GEYSER_LIGHT)};
   box-sizing: border-box;
   border-radius: 4px;
   width: 24px;
@@ -217,7 +218,7 @@ export const PaginationItemWrapper = styled.div<{
   justify-content: center;
   align-items: center;
   margin: 0 4px;
-  pointer-events: ${props => props.disabled && "none"};
+  pointer-events: ${(props) => props.disabled && "none"};
   cursor: pointer;
   &:hover {
     border-color: ${Colors.GREEN};
@@ -229,10 +230,10 @@ export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
   justify-content: flex-start;
   align-items: center;
   width: 100%;
-  background: ${props => props.selected && Colors.GREEN};
+  background: ${(props) => props.selected && Colors.GREEN};
   position: relative;
   .title {
-    color: ${props => (props.selected ? Colors.WHITE : Colors.OXFORD_BLUE)};
+    color: ${(props) => (props.selected ? Colors.WHITE : Colors.OXFORD_BLUE)};
     margin-left: 10px;
   }
   .sub-menu {
@@ -259,7 +260,7 @@ export const CellWrapper = styled.div<{ isHidden?: boolean }>`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  opacity: ${props => (props.isHidden ? "0.6" : "1")};
+  opacity: ${(props) => (props.isHidden ? "0.6" : "1")};
   .image-cell {
     width: 40px;
     height: 32px;
@@ -289,14 +290,14 @@ export const TableHeaderWrapper = styled.div<{
 }>`
   display: flex;
   border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
-  width: ${props => props.width}px;
+  width: ${(props) => props.width}px;
   .show-page-items {
-    display: ${props => (props.width < 700 ? "none" : "flex")};
+    display: ${(props) => (props.width < 700 ? "none" : "flex")};
   }
   overflow-x: auto;
   overflow-y: hidden;
-  height: ${props => props.tableSizes.TABLE_HEADER_HEIGHT}px;
-  min-height: ${props => props.tableSizes.TABLE_HEADER_HEIGHT}px;
+  height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
+  min-height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   ${scrollbarLight};
 `;
 
@@ -305,7 +306,7 @@ export const CommonFunctionsMenuWrapper = styled.div<{
 }>`
   display: flex;
   align-items: center;
-  height: ${props => props.tableSizes.TABLE_HEADER_HEIGHT}px;
+  height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
 `;
 
 export const RowWrapper = styled.div`
@@ -323,16 +324,17 @@ export const TableIconWrapper = styled.div<{
   selected?: boolean;
   disabled?: boolean;
 }>`
-  background: ${props => (props.selected ? Colors.ATHENS_GRAY : "transparent")};
-  box-shadow: ${props =>
+  background: ${(props) =>
+    props.selected ? Colors.ATHENS_GRAY : "transparent"};
+  box-shadow: ${(props) =>
     props.selected ? `inset 0px 4px 0px ${Colors.GREEN}` : "none"};
   width: 48px;
   height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: ${props => (props.disabled ? 0.6 : 1)};
-  cursor: ${props => !props.disabled && "pointer"};
+  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
+  cursor: ${(props) => !props.disabled && "pointer"};
   position: relative;
   &:hover {
     background: ${Colors.ATHENS_GRAY};
@@ -340,7 +342,8 @@ export const TableIconWrapper = styled.div<{
 `;
 
 export const SortIconWrapper = styled.div<{ rotate: string }>`
-  transform: ${props => (props.rotate === "true" ? "rotate(180deg)" : "none")};
+  transform: ${(props) =>
+    props.rotate === "true" ? "rotate(180deg)" : "none"};
 `;
 
 export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
@@ -348,10 +351,10 @@ export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
   justify-content: space-between;
   align-items: center;
   width: 150px;
-  background: ${props => props.selected && Colors.GREEN};
+  background: ${(props) => props.selected && Colors.GREEN};
   position: relative;
   .title {
-    color: ${props => (props.selected ? Colors.WHITE : Colors.OXFORD_BLUE)};
+    color: ${(props) => (props.selected ? Colors.WHITE : Colors.OXFORD_BLUE)};
     width: 120px;
     white-space: nowrap;
     overflow: hidden;
@@ -361,7 +364,7 @@ export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
     position: absolute;
     left: 135px;
     font-size: 12px !important;
-    color: ${props => (props.selected ? Colors.WHITE : Colors.BLUE_BAYOUX)};
+    color: ${(props) => (props.selected ? Colors.WHITE : Colors.BLUE_BAYOUX)};
   }
 `;
 

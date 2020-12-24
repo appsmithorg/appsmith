@@ -12,8 +12,6 @@ import ExplorerDatasourceEntity from "../Datasources/DatasourceEntity";
 import Entity from "../Entity";
 import EntityPlaceholder from "../Entity/Placeholder";
 import { ExplorerURLParams } from "../helpers";
-import OnboardingTooltip from "components/editorComponents/Onboarding/Tooltip";
-import { OnboardingStep } from "constants/OnboardingConstants";
 
 type ExplorerPluginGroupProps = {
   step: number;
@@ -84,21 +82,16 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
             config={props.actionConfig}
             plugins={pluginGroups}
           />
-          {props.datasources.map((datasource: Datasource, index: number) => {
+          {props.datasources.map((datasource: Datasource) => {
             return (
-              <OnboardingTooltip
-                step={[OnboardingStep.EXAMPLE_DATABASE]}
+              <ExplorerDatasourceEntity
+                plugin={pluginGroups[datasource.pluginId]}
                 key={datasource.id}
-                show={index === 0}
-              >
-                <ExplorerDatasourceEntity
-                  plugin={pluginGroups[datasource.pluginId]}
-                  datasource={datasource}
-                  step={props.step + 1}
-                  searchKeyword={props.searchKeyword}
-                  pageId={props.page.pageId}
-                />
-              </OnboardingTooltip>
+                datasource={datasource}
+                step={props.step + 1}
+                searchKeyword={props.searchKeyword}
+                pageId={props.page.pageId}
+              />
             );
           })}
         </>

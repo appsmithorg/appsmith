@@ -183,7 +183,7 @@ export const Login = (props: LoginFormProps) => {
 };
 
 const selector = formValueSelector(LOGIN_FORM_NAME);
-export default connect(state => ({
+export default connect((state) => ({
   emailValue: selector(state, LOGIN_FORM_EMAIL_FIELD_NAME),
 }))(
   reduxForm<LoginFormValues, { emailValue: string }>({
