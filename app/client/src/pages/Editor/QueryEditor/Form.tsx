@@ -90,8 +90,8 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled(BaseButton)`
-  &&& {
-    max-width: 72px;
+  &&&& {
+    width: 67px;
     margin: 0 5px;
     min-height: 30px;
   }

@@ -40,6 +40,7 @@ import {
   OnboardingStep,
 } from "constants/OnboardingConstants";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
+import { get } from "lodash";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -152,9 +153,11 @@ function* createOnboardingDatasource() {
       (plugin: Plugin) => plugin.name === "PostgreSQL",
     );
     const datasources: Datasource[] = yield select(getDatasources);
-    let onboardingDatasource = datasources.find(
-      datasource => datasource.name === "ExampleDatabase",
-    );
+    let onboardingDatasource = datasources.find(datasource => {
+      const host = get(datasource, "datasourceConfiguration.endpoints[0].host");
+
+      return host === "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com";
+    });
 
     if (!onboardingDatasource) {
       const datasourceConfig: any = {
