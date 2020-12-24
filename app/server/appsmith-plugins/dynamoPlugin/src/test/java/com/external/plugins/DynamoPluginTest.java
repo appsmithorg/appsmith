@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import lombok.extern.log4j.Log4j;
@@ -96,10 +96,11 @@ public class DynamoPluginTest {
         Endpoint endpoint = new Endpoint();
         endpoint.setHost(host);
         endpoint.setPort(port.longValue());
-        dsConfig.setAuthentication(new AuthenticationDTO());
-        dsConfig.getAuthentication().setUsername("dummy");
-        dsConfig.getAuthentication().setPassword("dummy");
-        dsConfig.getAuthentication().setDatabaseName(Region.AP_SOUTH_1.toString());
+        DBAuth auth = new DBAuth();
+        auth.setUsername("dummy");
+        auth.setPassword("dummy");
+        auth.setDatabaseName(Region.AP_SOUTH_1.toString());
+        dsConfig.setAuthentication(auth);
         dsConfig.setEndpoints(List.of(endpoint));
     }
 

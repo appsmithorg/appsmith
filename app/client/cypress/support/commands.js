@@ -1,4 +1,6 @@
 /// <reference types="Cypress" />
+/* eslint-disable cypress/no-unnecessary-waiting */
+/* eslint-disable cypress/no-assigning-return-values */
 
 require("cypress-file-upload");
 
@@ -88,6 +90,15 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
     .first()
     .should("be.visible")
     .click();
+});
+
+Cypress.Commands.add("CheckShareIcon", (orgName, count) => {
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
+    .scrollIntoView()
+    .should("be.visible");
+  cy.get(
+    homePage.orgList.concat(orgName).concat(") .org-share-user-icons"),
+  ).should("have.length", count);
 });
 
 Cypress.Commands.add("shareApp", (email, role) => {
