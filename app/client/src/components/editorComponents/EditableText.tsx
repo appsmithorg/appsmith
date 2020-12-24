@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   EditableText as BlueprintEditableText,
   Classes,
@@ -31,6 +31,7 @@ type EditableTextProps = {
   hideEditIcon?: boolean;
   minimal?: boolean;
   onBlur?: (value?: string) => void;
+  beforeUnmount?: (value?: string) => void;
 };
 
 const EditPen = styled.img`
@@ -89,16 +90,32 @@ const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
 
 export const EditableText = (props: EditableTextProps) => {
   const [isEditing, setIsEditing] = useState(!!props.isEditingDefault);
-  const [value, setValue] = useState(props.defaultValue);
+  const [value, setStateValue] = useState(props.defaultValue);
+  const inputValRef = useRef("");
+  const { beforeUnmount } = props;
+
+  const setValue = useCallback(_value => {
+    inputValRef.current = _value;
+    setStateValue(_value);
+  }, []);
 
   useEffect(() => {
     setValue(props.defaultValue);
     setIsEditing(!!props.isEditingDefault);
-  }, [props.defaultValue, props.isEditingDefault]);
+  }, [props.defaultValue, props.isEditingDefault, setValue]);
 
   useEffect(() => {
     if (props.forceDefault === true) setValue(props.defaultValue);
-  }, [props.forceDefault, props.defaultValue]);
+  }, [props.forceDefault, props.defaultValue, setValue]);
+
+  // in some cases onTextChange is not fired
+  // for example when the modal is closed on clicking the overlay
+  useEffect(() => {
+    return () => {
+      if (typeof beforeUnmount === "function")
+        beforeUnmount(inputValRef.current);
+    };
+  }, [beforeUnmount]);
 
   const edit = (e: any) => {
     setIsEditing(true);
