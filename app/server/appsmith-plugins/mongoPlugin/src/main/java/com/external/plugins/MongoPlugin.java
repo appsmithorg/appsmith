@@ -190,6 +190,9 @@ public class MongoPlugin extends BasePlugin {
 
         @Override
         public Mono<MongoClient> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            //TODO: remove it.
+            System.out.println("devtest: fn start datasourceCreate");
+
             /**
              * TODO: ReadOnly seems to be not supported at the driver level. The recommendation is to connect with a
              * user that doesn't have write permissions on the database.
@@ -326,8 +329,14 @@ public class MongoPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            //TODO: remove it.
+            System.out.println("devtest: fn start testDatasource");
+
             return datasourceCreate(datasourceConfiguration)
                     .flatMap(mongoClient -> {
+                        //TODO: remove it.
+                        System.out.println("devtest: run cmd");
+
                         return Mono.zip(Mono.just(mongoClient),
                                 Mono.from(mongoClient.getDatabase("admin").runCommand(new Document(
                                 "listDatabases", 1))));
@@ -341,6 +350,9 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .then(Mono.just(new DatasourceTestResult()))
                     .onErrorResume(error -> {
+                        //TODO: remove it.
+                        System.out.println("devtest: Handle error");
+
                         /**
                          * 1. Return OK response on "Unauthorized" exception.
                          * 2. If we get an exception with error code "Unauthorized" then it means that the connection to
