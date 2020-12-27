@@ -13,13 +13,13 @@ As much as possible, please try to abide by the following code design:
    - add your plugin to [this pom.xml file](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/pom.xml). 
 4. Each plugin must implement all the methods defined by the interface in [PluginExecutor.java](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-interfaces/src/main/java/com/appsmith/external/plugins/PluginExecutor.java), for example: [MySqlPlugin.java](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/mysqlPlugin/src/main/java/com/external/plugins/MySqlPlugin.java) and [RestApiPlugin.java](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/restApiPlugin/src/main/java/com/external/plugins/RestApiPlugin.java).
 5. The form to be filled by the user when creating a new datasource is rendered by the configuration file [form.json](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/firestorePlugin/src/main/resources/form.json). For details, please see [this mapping](https://github.com/appsmithorg/appsmith/tree/release/static/form.png) between `form.json` and the rendered web page.
-6. The query form for each plugin is defined by [editor.json](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/firestorePlugin/src/main/resources/editor.json).
+6. The form where user enters the query for execution is rendered by the configuration file [editor.json](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/firestorePlugin/src/main/resources/editor.json).
    For details, please see [this mapping](https://github.com/appsmithorg/appsmith/tree/release/static/editor.png) 
    between `editor.json` and the rendered web page.
 
 ### Package Dependency
 1. We use `Maven` to manage package dependencies, hence please add all your dependencies in `POM` file as shown in this 
-   [reference POM file](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/postgresPlugin/pom.xml).
+   [pom.xml file](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/postgresPlugin/pom.xml) for postgreSQL plugin.
 2. Always use release version of the packages or release candidate if the release version is not available. 
 3. Build and test your code to check for any dependency conflicts and resolve them. 
 
@@ -49,15 +49,16 @@ As much as possible, please try to abide by the following code design:
 ### Unit Test 
 1. Every plugin must have its own unit test file like [PostgresPluginTest.java](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/postgresPlugin/src/test/java/com/external/plugins/PostgresPluginTest.java) for [PostgresPlugin.java](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/postgresPlugin/src/main/java/com/external/plugins/PostgresPlugin.java).
 2. The test file must be named as `PluginNameTest.java` e.g. `PostgresPluginTest.java`
-3. Use Mockito framework to test using mock objects whenever testing against a real instance, for example, when
-   using [testcontainers](https://www.testcontainers.org/) is not possible.
+3. Use Mockito framework to test using mock objects whenever testing against a real instance is not possible, for 
+   example, when using [testcontainers](https://www.testcontainers.org/) is not possible.
 4. Please test the following cases in your unit test file:
     - Successfully establishing connection to the datasource. 
     - Reject invalid credentials.
     - Successful query execution.
-    - Stale connection exception. 
+    - Stale connection exception (please see the [Source Code](#source-code) section above for details). 
     - In case of a database plugin, test that it is able to fetch tables/collection information from database and key
-      constraints information as well.
+      constraints information as well. For example, check out the `testStructure()` method in [PostgresPluginTest.
+      java](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/postgresPlugin/src/test/java/com/external/plugins/PostgresPluginTest.java).
 5. Reference test files:
     - [PostgresPluginTest.java](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/postgresPlugin/src/test/java/com/external/plugins/PostgresPluginTest.java).
     - [MySqlPluginTest.java](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/mysqlPlugin/src/test/java/com/external/plugins/MySqlPluginTest.java).
