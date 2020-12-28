@@ -63,7 +63,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
           type: ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_INIT,
         },
         {
-          type: "LISTEN_FOR_CREATE_ACTION",
+          type: ReduxActionTypes.LISTEN_FOR_CREATE_ACTION,
         },
       ];
     },

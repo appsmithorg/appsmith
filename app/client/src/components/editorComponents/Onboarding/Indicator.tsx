@@ -47,7 +47,7 @@ const Indicator = (props: any) => {
 
   if (showingIndicator === props.step) {
     return (
-      <div style={{ position: "relative" }}>
+      <div style={{ position: "relative" }} className="t--onboarding-indicator">
         <IndicatorWrapper ref={indicatorRef} offset={props.offset} />
         {props.children}
       </div>

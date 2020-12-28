@@ -27,7 +27,10 @@ describe("Onboarding", function() {
     //Onboarding
     cy.contains(".t--create-database", "Explore Appsmith").click();
 
-    cy.get(onboarding.tooltipAction).click();
+    // Create and run query
+    cy.get(".t--onboarding-indicator").should("be.visible");
+    cy.get(".t--create-query").click();
+    cy.runQuery();
 
     // Add widget
     cy.get(".t--add-widget").click();
@@ -43,7 +46,7 @@ describe("Onboarding", function() {
     cy.focused().then(() => {
       cy.get(".t--property-control-tabledata" + " .CodeMirror")
         .first()
-        .then(editor => {
+        .then((editor) => {
           editor[0].CodeMirror.setValue("{{ExampleQuery.data}}");
         });
     });
@@ -51,7 +54,7 @@ describe("Onboarding", function() {
     cy.get(explorer.closeWidgets).click();
 
     cy.openPropertyPane("tablewidget");
-    cy.get(onboarding.tooltipAction).click({ force: true });
+    cy.closePropertyPane();
 
     cy.PublishtheApp();
     cy.get(".t--continue-on-my-own").click();
@@ -59,7 +62,7 @@ describe("Onboarding", function() {
 
   after(() => {
     localStorage.removeItem("OnboardingState");
-    cy.window().then(window => {
+    cy.window().then((window) => {
       window.indexedDB.deleteDatabase("Appsmith");
     });
     cy.log("Cleared");

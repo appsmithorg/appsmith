@@ -334,7 +334,7 @@ export default function* onboardingSagas() {
       createOnboardingDatasource,
     ),
     takeEvery(ReduxActionTypes.NEXT_ONBOARDING_STEP, proceedOnboardingSaga),
-    takeEvery("LISTEN_FOR_CREATE_ACTION", listenForCreateAction),
+    takeEvery(ReduxActionTypes.LISTEN_FOR_CREATE_ACTION, listenForCreateAction),
     takeEvery(ReduxActionTypes.LISTEN_FOR_ADD_WIDGET, listenForWidgetAdditions),
     takeEvery(
       ReduxActionTypes.LISTEN_FOR_TABLE_WIDGET_BINDING,
