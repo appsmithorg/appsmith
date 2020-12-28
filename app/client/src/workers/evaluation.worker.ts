@@ -69,17 +69,13 @@ ctx.addEventListener(
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const { widgetTypeConfigMap, dataTree } = requestData;
         WIDGET_TYPE_CONFIG_MAP = widgetTypeConfigMap;
-        const response = getEvaluatedDataTree(dataTree);
         try {
+          const response = getEvaluatedDataTree(dataTree);
           // We need to clean it to remove any possible functions inside the tree.
           // If functions exist, it will crash the web worker
           const cleanDataTree = JSON.stringify(response);
           return { dataTree: cleanDataTree, errors: ERRORS };
         } catch (e) {
-          ERRORS.push({
-            type: EvalErrorTypes.EVAL_TREE_ERROR,
-            message: e.message,
-          });
           const cleanDataTree = JSON.stringify(getValidatedTree(dataTree));
           return { dataTree: cleanDataTree, errors: ERRORS };
         }
