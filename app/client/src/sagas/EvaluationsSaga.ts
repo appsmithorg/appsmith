@@ -72,25 +72,24 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
-  const unEvalTree = yield select(getUnevaluatedDataTree);
-  log.debug({ unEvalTree });
+  const unevalTree = yield select(getUnevaluatedDataTree);
+  log.debug({ unevalTree });
 
   const workerResponse = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,
     {
-      dataTree: unEvalTree,
+      unevalTree,
       widgetTypeConfigMap,
     },
   );
 
   const { errors, dataTree, dependencies } = workerResponse;
-  const parsedDataTree = JSON.parse(dataTree);
-  log.debug({ dataTree: parsedDataTree });
+  log.debug({ dataTree: dataTree });
   evalErrorHandler(errors);
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: parsedDataTree,
+    payload: dataTree,
   });
   yield put({
     type: ReduxActionTypes.SET_EVALUATION_DEPENDENCY_MAP,

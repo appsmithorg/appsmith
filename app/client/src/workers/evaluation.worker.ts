@@ -97,34 +97,33 @@ ctx.addEventListener(
           dataTreeEvaluator = undefined;
         }
         const workerTimeEnd = new Date().getTime();
-        ctx.postMessage({
+        return {
           dataTree,
           dependencies,
           errors,
           workerTime: (workerTimeEnd - workerTimeStart).toFixed(2),
-        });
-        break;
+        };
       }
       case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
         const { binding, dataTree } = requestData;
         const withFunctions = addFunctions(dataTree);
         if (!dataTreeEvaluator) {
-          ctx.postMessage({ value: undefined, errors: [] });
-          break;
+          return { value: undefined, errors: [] };
         }
         const value = dataTreeEvaluator.getDynamicValue(
           binding,
           withFunctions,
           false,
         );
-        ctx.postMessage({ value, errors: dataTreeEvaluator.errors });
+        const errors = dataTreeEvaluator.errors;
         dataTreeEvaluator.clearErrors();
-        break;
+        return { value, errors };
       }
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
         const { dynamicTrigger, callbackData, dataTree } = requestData;
         if (!dataTreeEvaluator) {
-          break;
+          // TODO: Ask hetu what triggers and errors should be
+          return { triggers: undefined, errors: [] };
         }
         const evalTree = dataTreeEvaluator.updateDataTree(dataTree);
         const withFunctions = addFunctions(evalTree);
@@ -134,37 +133,35 @@ ctx.addEventListener(
           true,
           callbackData,
         );
-        ctx.postMessage({ triggers, errors: dataTreeEvaluator.errors });
+        const errors = dataTreeEvaluator.errors;
         dataTreeEvaluator.clearErrors();
-        break;
+        return { triggers, errors };
       }
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
         dataTreeEvaluator = undefined;
-        ctx.postMessage(true);
-        break;
+        return true;
       }
       case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE: {
         const { propertyPath } = requestData;
         if (!dataTreeEvaluator) {
-          break;
+          return true;
         }
         dataTreeEvaluator.clearPropertyCache(propertyPath);
-        ctx.postMessage(true);
-        break;
+        return true;
       }
       case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET: {
         const { widgetName } = requestData;
         if (!dataTreeEvaluator) {
-          break;
+          return true;
         }
         dataTreeEvaluator.clearPropertyCacheOfWidget(widgetName);
-        ctx.postMessage(true);
-        break;
+        return true;
       }
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
         const { widgetType, property, value, props } = requestData;
         if (!dataTreeEvaluator) {
-          break;
+          // TODO: Ask hetu what parsed should be
+          return { isValid: false, parsed: undefined };
         }
         const result = dataTreeEvaluator.validateWidgetProperty(
           widgetType,
@@ -172,8 +169,7 @@ ctx.addEventListener(
           value,
           props,
         );
-        ctx.postMessage(result);
-        break;
+        return result;
       }
       default: {
         console.error("Action not registered on worker", method);
