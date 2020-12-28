@@ -31,14 +31,14 @@ describe("Pages", function() {
     cy.Createpage(veryLongPageName);
     cy.PublishtheApp();
     cy.get(".t--page-switch-tab:nth-child(3)").trigger("mouseover");
-    cy.get(".bp3-popover-content").should($x => {
+    cy.get(".bp3-popover-content").should(($x) => {
       expect($x).contain(veryLongPageName);
     });
   });
 
   it("Checks if 404 is showing correct route", () => {
     cy.visit("/route-that-does-not-exist");
-    cy.get(".bold-text").should($x => {
+    cy.get(".bold-text").should(($x) => {
       expect($x).contain("Page not found");
     });
   });
