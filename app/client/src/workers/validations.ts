@@ -209,7 +209,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Tabs Data`,
       };
-    } else if (!every(parsed, datum => isObject(datum))) {
+    } else if (!every(parsed, (datum) => isObject(datum))) {
       return {
         isValid: false,
         parsed: [],
@@ -236,10 +236,10 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "Col1" : "val1", "Col2" : "val2" }]`,
       };
     }
-    const isValidTableData = every(parsed, datum => {
+    const isValidTableData = every(parsed, (datum) => {
       return (
         isObject(datum) &&
-        Object.keys(datum).filter(key => isString(key) && key.length === 0)
+        Object.keys(datum).filter((key) => isString(key) && key.length === 0)
           .length === 0
       );
     });
@@ -326,7 +326,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Marker Data`,
       };
-    } else if (!every(parsed, datum => isObject(datum))) {
+    } else if (!every(parsed, (datum) => isObject(datum))) {
       return {
         isValid: false,
         parsed: [],
@@ -579,7 +579,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
           } catch {
             values = value.length ? value.split(",") : [];
             if (values.length > 0) {
-              values = values.map(value => value.trim());
+              values = values.map((value) => value.trim());
             }
           }
         }
@@ -612,7 +612,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
           } catch {
             values = value.length ? value.split(",") : [];
             if (values.length > 0) {
-              let numericValues = values.map(value => {
+              let numericValues = values.map((value) => {
                 return isNumber(value.trim()) ? -1 : Number(value.trim());
               });
               numericValues = _.uniq(numericValues);

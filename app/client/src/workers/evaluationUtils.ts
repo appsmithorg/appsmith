@@ -26,7 +26,7 @@ export class CrashingError extends Error {}
 
 export const convertPathToString = (arrPath: Array<string | number>) => {
   let string = "";
-  arrPath.forEach(segment => {
+  arrPath.forEach((segment) => {
     if (typeof segment === "string") {
       if (string.length !== 0) {
         string = string + ".";
@@ -128,14 +128,14 @@ export const addDependantsOfNestedPropertyPaths = (
 ): Array<string> => {
   const withNestedPaths: Set<string> = new Set();
   const dependantNodes = Object.keys(inverseMap);
-  parentPaths.forEach(propertyPath => {
+  parentPaths.forEach((propertyPath) => {
     withNestedPaths.add(propertyPath);
     dependantNodes
-      .filter(dependantNodePath =>
+      .filter((dependantNodePath) =>
         isPropertyPathOrNestedPath(propertyPath, dependantNodePath),
       )
-      .forEach(dependantNodePath => {
-        inverseMap[dependantNodePath].forEach(path => {
+      .forEach((dependantNodePath) => {
+        inverseMap[dependantNodePath].forEach((path) => {
           withNestedPaths.add(path);
         });
       });
@@ -172,7 +172,7 @@ export const removeFunctions = (value: any) => {
 };
 
 export const removeFunctionsFromDataTree = (dataTree: DataTree) => {
-  dataTree.actionPaths?.forEach(functionPath => {
+  dataTree.actionPaths?.forEach((functionPath) => {
     _.set(dataTree, functionPath, {});
   });
   delete dataTree.actionPaths;
@@ -184,9 +184,9 @@ export const makeParentsDependOnChildren = (
 ): DependencyMap => {
   //return depMap;
   // Make all parents depend on child
-  Object.keys(depMap).forEach(key => {
+  Object.keys(depMap).forEach((key) => {
     depMap = makeParentsDependOnChild(depMap, key);
-    depMap[key].forEach(path => {
+    depMap[key].forEach((path) => {
       depMap = makeParentsDependOnChild(depMap, path);
     });
   });
