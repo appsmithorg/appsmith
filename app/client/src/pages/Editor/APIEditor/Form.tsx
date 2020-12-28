@@ -10,7 +10,6 @@ import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { PaginationField } from "api/ActionAPI";
-import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
@@ -27,6 +26,7 @@ import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { apiActionSettingsConfig } from "mockResponses/ActionSettings";
+import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 
 const Form = styled.form`
   display: flex;
@@ -196,7 +196,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           </ActionButtons>
         </FormRow>
         <FormRow>
-          <DropdownField
+          <RequestDropdownField
             placeholder="Method"
             name="actionConfiguration.httpMethod"
             className="t--apiFormHttpMethod"
