@@ -62,7 +62,6 @@ function messageEventListener(
     const responseData = fn(method, requestData);
     const endTime = performance.now();
     ctx.postMessage({
-      method,
       requestId,
       responseData,
       timeTaken: (endTime - startTime).toFixed(2),
