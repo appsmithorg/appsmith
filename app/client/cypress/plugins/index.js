@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
 const chalk = require("chalk");
+const cypressLogToOutput = require("cypress-log-to-output");
 
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
@@ -22,21 +23,24 @@ const chalk = require("chalk");
  * @type {Cypress.PluginConfig}
  */
 module.exports = (on, config) => {
+  // Todo: maybe raise a PR instead of overwriting `on("before:browser:launch", ...)` twice.
+  cypressLogToOutput.install(on, (type, event) => {
+    if (event.level === "error" || event.type === "error") {
+      return true;
+    }
+    return false;
+  });
+
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
   on("before:browser:launch", (browser = {}, launchOptions) => {
     /*
       Uncomment below to get console log printed in cypress output
     */
-    launchOptions.args = require("cypress-log-to-output").browserLaunchHandler(
+
+    launchOptions.args = cypressLogToOutput.browserLaunchHandler(
       browser,
       launchOptions.args,
-      (type, event) => {
-        if (event.level === "error" || event.type === "error") {
-          return true;
-        }
-        return false;
-      },
     );
     if (browser.name === "chrome") {
       launchOptions.args.push("--disable-dev-shm-usage");

@@ -226,9 +226,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     return newPageService
                             .createDefault(page)
                             .flatMap(savedPage -> addPageToApplication(savedApplication, savedPage, true))
-                            // fetch the application again because the application.pages has changed post the addition of
-                            // the newly created page to the application.
-                            .then(applicationService.findById(savedApplication.getId(), READ_APPLICATIONS));
+                            // Now publish this newly created app with default states so that
+                            // launching of newly created application is possible.
+                            .flatMap(updatedApplication -> publish(savedApplication.getId())
+                                    .then(applicationService.findById(savedApplication.getId(), READ_APPLICATIONS)));
                 });
     }
 
@@ -338,7 +339,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         return sourcePageMono
                 .flatMap(page -> {
                     Mono<ApplicationPagesDTO> pageNamesMono = newPageService
-                            .findNamesByApplicationIdAndViewMode(page.getApplicationId(), false);
+                            .findApplicationPagesByApplicationIdAndViewMode(page.getApplicationId(), false);
                     return pageNamesMono
                             // If a new page name suffix is given,
                             // set a unique name for the cloned page and then create the page.
