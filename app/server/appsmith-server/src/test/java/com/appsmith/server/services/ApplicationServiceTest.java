@@ -960,4 +960,35 @@ public class ApplicationServiceTest {
                 .verifyComplete();
 
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void newApplicationShouldHavePublishedState() {
+        Application testApplication = new Application();
+        testApplication.setName("ApplicationServiceTest NewApp PublishedState");
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId).cache();
+
+        Mono<PageDTO> publishedPageMono = applicationMono
+                .flatMap(application -> {
+                    List<ApplicationPage> publishedPages = application.getPublishedPages();
+                    return applicationPageService.getPage(publishedPages.get(0).getId(), true);
+                });
+
+        StepVerifier
+                .create(Mono.zip(applicationMono, publishedPageMono))
+                .assertNext(tuple -> {
+                    Application application = tuple.getT1();
+                    PageDTO publishedPage = tuple.getT2();
+
+                    // Assert that the application has 1 published page
+                    assertThat(application.getPublishedPages()).hasSize(1);
+
+                    // Assert that the published page and the unpublished page are one and the same
+                    assertThat(application.getPages().get(0).getId()).isEqualTo(application.getPublishedPages().get(0).getId());
+
+                    // Assert that the published page has 1 layout
+                    assertThat(publishedPage.getLayouts()).hasSize(1);
+                })
+                .verifyComplete();
+    }
 }
