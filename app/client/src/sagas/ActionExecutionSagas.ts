@@ -696,11 +696,18 @@ function* executePageLoadAction(pageAction: PageAction) {
       pageAction.timeoutInMillisecond,
     );
     if (isErrorResponse(response)) {
+      const body = _.get(response, "data.body");
+      let message = `The action "${pageAction.name}" has failed.`;
+
+      if (body) {
+        message += `\nERROR: "${body}"`;
+      }
+
       yield put(
         executeActionError({
           actionId: pageAction.id,
           error: _.get(response, "responseMeta.error", {
-            message: `The action with name "${pageAction.name}" has failed.`,
+            message,
           }),
           isPageLoad: true,
         }),
@@ -729,7 +736,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     }
   } catch (e) {
-    throw new Error(`The action with name "${pageAction.name}" has failed.`);
+    throw new Error(`The action "${pageAction.name}" has failed.`);
   }
 }
 
