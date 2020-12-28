@@ -71,7 +71,11 @@ ctx.addEventListener("message", (e) => {
           message: e.message,
         });
         const cleanDataTree = JSON.stringify(getValidatedTree(dataTree));
-        ctx.postMessage({ dataTree: cleanDataTree, errors: ERRORS, logs: LOGS });
+        ctx.postMessage({
+          dataTree: cleanDataTree,
+          errors: ERRORS,
+          logs: LOGS,
+        });
       }
       ERRORS = [];
       LOGS = [];
