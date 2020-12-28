@@ -43,7 +43,6 @@ import {
   unsafeFunctionForEval,
   getEntityDynamicBindingPathList,
   getWidgetDynamicTriggerPathList,
-  isPathADynamicBinding,
   isPathADynamicTrigger,
 } from "../utils/DynamicBindingUtils";
 
