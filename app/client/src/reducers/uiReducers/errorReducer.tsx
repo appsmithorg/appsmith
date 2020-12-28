@@ -20,7 +20,7 @@ const errorReducer = createReducer(initialState, {
   ) => ({
     ...state,
     safeCrash: true,
-    safeCrashCode: _.get(action, "payload.code", 502),
+    safeCrashCode: _.get(action, "payload.code", 502), // when the server is not responding
   }),
   [ReduxActionTypes.REPORT_ERROR]: (
     state: ErrorReduxState,
