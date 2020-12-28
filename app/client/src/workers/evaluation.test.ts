@@ -522,6 +522,20 @@ describe("DataTreeEvaluator", () => {
     expect(evaluation).toHaveProperty("Text2.text", "Label");
     expect(evaluation).toHaveProperty("Text3.text", "Label");
     expect(dependencyMap).toStrictEqual({
+      Text1: ["Text1.text"],
+      Text2: ["Text2.text"],
+      Text3: ["Text3.text"],
+      Text4: ["Text4.text"],
+      Table1: [
+        "Table1.tableData",
+        "Table1.searchText",
+        "Table1.selectedRowIndex",
+        "Table1.selectedRowIndices",
+      ],
+      Dropdown1: [
+        "Dropdown1.selectedOptionValue",
+        "Dropdown1.selectedOptionValueArr",
+      ],
       "Text2.text": ["Text1.text"],
       "Text3.text": ["Text1.text"],
       "Dropdown1.selectedOptionValue": [],
@@ -560,6 +574,20 @@ describe("DataTreeEvaluator", () => {
     expect(updatedEvalTree).toHaveProperty("Text2.text", "Label");
     expect(updatedEvalTree).toHaveProperty("Text3.text", "Label 3");
     expect(updatedDependencyMap).toStrictEqual({
+      Text1: ["Text1.text"],
+      Text2: ["Text2.text"],
+      Text3: ["Text3.text"],
+      Text4: ["Text4.text"],
+      Table1: [
+        "Table1.tableData",
+        "Table1.searchText",
+        "Table1.selectedRowIndex",
+        "Table1.selectedRowIndices",
+      ],
+      Dropdown1: [
+        "Dropdown1.selectedOptionValue",
+        "Dropdown1.selectedOptionValueArr",
+      ],
       "Text2.text": ["Text1.text"],
       "Dropdown1.selectedOptionValue": [],
       "Dropdown1.selectedOptionValueArr": [],
@@ -640,6 +668,22 @@ describe("DataTreeEvaluator", () => {
       },
     ]);
     expect(updatedDependencyMap).toStrictEqual({
+      Api1: ["Api1.data"],
+      Input1: ["Input1.text"],
+      Text1: ["Text1.text"],
+      Text2: ["Text2.text"],
+      Text3: ["Text3.text"],
+      Text4: ["Text4.text"],
+      Table1: [
+        "Table1.tableData",
+        "Table1.searchText",
+        "Table1.selectedRowIndex",
+        "Table1.selectedRowIndices",
+      ],
+      Dropdown1: [
+        "Dropdown1.selectedOptionValue",
+        "Dropdown1.selectedOptionValueArr",
+      ],
       "Text2.text": ["Text1.text"],
       "Text3.text": ["Text1.text"],
       "Dropdown1.selectedOptionValue": [],
@@ -690,6 +734,24 @@ describe("DataTreeEvaluator", () => {
     ]);
     expect(updatedEvalTree).toHaveProperty("Text4.text", "Hey");
     expect(updatedDependencyMap).toStrictEqual({
+      Api1: ["Api1.data"],
+      Text1: ["Text1.text"],
+      Text2: ["Text2.text"],
+      Text3: ["Text3.text"],
+      Text4: ["Text4.text"],
+      Table1: [
+        "Table1.tableData",
+        "Table1.selectedRowIndex",
+        "Table1.searchText",
+        "Table1.selectedRowIndices",
+        "Table1.selectedRow",
+      ],
+      "Table1.selectedRow": ["Table1.selectedRow.test"],
+      Dropdown1: [
+        "Dropdown1.selectedOptionValue",
+        "Dropdown1.selectedOptionValueArr",
+      ],
+      Input1: ["Input1.text"],
       "Text2.text": ["Text1.text"],
       "Text3.text": ["Text1.text"],
       "Dropdown1.selectedOptionValue": [],
