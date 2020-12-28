@@ -53,11 +53,20 @@ let LOGS: any[] = [];
 let WIDGET_TYPE_CONFIG_MAP: WidgetTypeConfigMap = {};
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
-function messageEventListener(fn: any) {
+function messageEventListener(
+  fn: (message: EVAL_WORKER_ACTIONS, requestData: any) => void,
+) {
   return (e: MessageEvent) => {
+    const startTime = performance.now();
     const { method, requestId, requestData } = e.data;
     const responseData = fn(method, requestData);
-    ctx.postMessage({ requestId, responseData });
+    const endTime = performance.now();
+    ctx.postMessage({
+      method,
+      requestId,
+      responseData,
+      timeTaken: (endTime - startTime).toFixed(2),
+    });
     ERRORS = [];
     LOGS = [];
   };
@@ -65,8 +74,8 @@ function messageEventListener(fn: any) {
 
 ctx.addEventListener(
   "message",
-  messageEventListener((method: string, requestData: any) => {
-    switch (method as EVAL_WORKER_ACTIONS) {
+  messageEventListener((method, requestData: any) => {
+    switch (method) {
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const { widgetTypeConfigMap, dataTree } = requestData;
         WIDGET_TYPE_CONFIG_MAP = widgetTypeConfigMap;
