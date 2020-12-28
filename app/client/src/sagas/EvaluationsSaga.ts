@@ -177,6 +177,7 @@ export function* validateProperty(
   props: WidgetProps,
 ) {
   return yield call(worker.request, EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY, {
+    widgetTypeConfigMap,
     widgetType,
     property,
     value,

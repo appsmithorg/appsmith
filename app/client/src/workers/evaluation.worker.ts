@@ -25,9 +25,7 @@ import { DATA_BIND_REGEX } from "../constants/BindingsConstants";
 import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
 import unescapeJS from "unescape-js";
-import { WidgetType } from "../constants/WidgetConstants";
-import { WidgetProps } from "../widgets/BaseWidget";
-import { VALIDATORS } from "./validations";
+
 import { applyChange, diff, Diff } from "deep-diff";
 import {
   addDependantsOfNestedPropertyPaths,
@@ -38,6 +36,7 @@ import {
   removeFunctionsFromDataTree,
   translateDiffEventToDataTreeDiffEvent,
   makeParentsDependOnChildren,
+  validateWidgetProperty,
 } from "./evaluationUtils";
 
 const ctx: Worker = self as any;
@@ -122,8 +121,7 @@ ctx.addEventListener(
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
         const { dynamicTrigger, callbackData, dataTree } = requestData;
         if (!dataTreeEvaluator) {
-          // TODO: Ask hetu what triggers and errors should be
-          return { triggers: undefined, errors: [] };
+          return { triggers: [], errors: [] };
         }
         const evalTree = dataTreeEvaluator.updateDataTree(dataTree);
         const withFunctions = addFunctions(evalTree);
@@ -158,12 +156,15 @@ ctx.addEventListener(
         return true;
       }
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
-        const { widgetType, property, value, props } = requestData;
-        if (!dataTreeEvaluator) {
-          // TODO: Ask hetu what parsed should be
-          return { isValid: false, parsed: undefined };
-        }
-        const result = dataTreeEvaluator.validateWidgetProperty(
+        const {
+          widgetType,
+          widgetTypeConfigMap,
+          property,
+          value,
+          props,
+        } = requestData;
+        const result = validateWidgetProperty(
+          widgetTypeConfigMap,
           widgetType,
           property,
           value,
@@ -794,12 +795,8 @@ export class DataTreeEvaluator {
       );
       valueToValidate = triggers;
     }
-    const {
-      parsed,
-      isValid,
-      message,
-      transformed,
-    } = this.validateWidgetProperty(
+    const { parsed, isValid, message, transformed } = validateWidgetProperty(
+      this.widgetConfigMap,
       widget.type,
       entityPropertyName,
       valueToValidate,
@@ -854,30 +851,6 @@ export class DataTreeEvaluator {
     return propertyValue;
   }
 
-  validateWidgetProperty(
-    widgetType: WidgetType,
-    property: string,
-    value: any,
-    props: WidgetProps,
-    dataTree?: DataTree,
-  ) {
-    const propertyValidationTypes = this.widgetConfigMap[widgetType]
-      .validations;
-    const validationTypeOrValidator = propertyValidationTypes[property];
-    let validator;
-
-    if (typeof validationTypeOrValidator === "function") {
-      validator = validationTypeOrValidator;
-    } else {
-      validator = VALIDATORS[validationTypeOrValidator];
-    }
-    if (validator) {
-      return validator(value, props, dataTree);
-    } else {
-      return { isValid: true, parsed: value };
-    }
-  }
-
   getValidatedTree(tree: DataTree, only?: Set<string>) {
     return Object.keys(tree).reduce((tree, entityKey: string) => {
       if (only && only.size) {
@@ -902,7 +875,8 @@ export class DataTreeEvaluator {
             isValid,
             message,
             transformed,
-          } = this.validateWidgetProperty(
+          } = validateWidgetProperty(
+            this.widgetConfigMap,
             entity.type,
             property,
             value,

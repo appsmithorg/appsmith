@@ -1,4 +1,8 @@
 import { DependencyMap, isDynamicValue } from "../utils/DynamicBindingUtils";
+import { WidgetType } from "../constants/WidgetConstants";
+import { WidgetProps } from "../widgets/BaseWidget";
+import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
+import { VALIDATORS } from "./validations";
 import { Diff } from "deep-diff";
 import {
   DataTree,
@@ -212,3 +216,27 @@ export const makeParentsDependOnChild = (
   }
   return result;
 };
+
+export function validateWidgetProperty(
+  widgetConfigMap: WidgetTypeConfigMap,
+  widgetType: WidgetType,
+  property: string,
+  value: any,
+  props: WidgetProps,
+  dataTree?: DataTree,
+) {
+  const propertyValidationTypes = widgetConfigMap[widgetType].validations;
+  const validationTypeOrValidator = propertyValidationTypes[property];
+  let validator;
+
+  if (typeof validationTypeOrValidator === "function") {
+    validator = validationTypeOrValidator;
+  } else {
+    validator = VALIDATORS[validationTypeOrValidator];
+  }
+  if (validator) {
+    return validator(value, props, dataTree);
+  } else {
+    return { isValid: true, parsed: value };
+  }
+}
