@@ -9,8 +9,8 @@ import { DropdownOption } from "widgets/DropdownWidget";
 class MultiSelectControl extends BaseControl<MultiSelectControlProps> {
   render() {
     const selectedItems: DropdownOption[] = [];
-    _.map(this.props.propertyValue, value => {
-      const option = _.find(this.props.options, option => {
+    _.map(this.props.propertyValue, (value) => {
+      const option = _.find(this.props.options, (option) => {
         return option.value === value;
       });
       if (option) selectedItems.push(option);
@@ -74,7 +74,7 @@ class MultiSelectControl extends BaseControl<MultiSelectControlProps> {
 
   isOptionSelected = (selectedOption: DropdownOption) => {
     return (
-      _.findIndex(this.props.propertyValue, value => {
+      _.findIndex(this.props.propertyValue, (value) => {
         return value === selectedOption.value;
       }) !== -1
     );

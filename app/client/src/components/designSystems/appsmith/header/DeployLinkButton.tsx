@@ -88,11 +88,12 @@ export const DeployLinkButton = (props: Props) => {
         content={
           <DeployLinkDialog>
             <Tooltip
-              content={isCopied ? "Copied!" : "Copy app publish link"}
+              content={isCopied ? "Copied!" : "Copy link to published app"}
               autoFocus={false}
               interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
               lazy
               position={PopoverPosition.BOTTOM}
+              openOnTargetFocus={false}
             >
               <IconContainer onClick={copyToClipboard}>
                 <Icon icon="link" color="#BCCCD9" />

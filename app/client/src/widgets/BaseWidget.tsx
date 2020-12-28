@@ -15,7 +15,6 @@ import {
   CSSUnit,
   CONTAINER_GRID_PADDING,
 } from "constants/WidgetConstants";
-import _ from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
 import { ExecuteActionPayload } from "constants/ActionConstants";
@@ -205,8 +204,8 @@ abstract class BaseWidget<
     );
   }
 
-  addErrorBoundary(content: ReactNode, isValid: boolean) {
-    return <ErrorBoundary isValid={isValid}>{content}</ErrorBoundary>;
+  addErrorBoundary(content: ReactNode) {
+    return <ErrorBoundary>{content}</ErrorBoundary>;
   }
 
   private getWidgetView(): ReactNode {
@@ -226,7 +225,7 @@ abstract class BaseWidget<
       case RenderModes.PAGE:
         content = this.getPageView();
         if (this.props.isVisible) {
-          content = this.addErrorBoundary(content, true);
+          content = this.addErrorBoundary(content);
           if (!this.props.detachFromLayout) {
             content = this.makePositioned(content);
           }
@@ -241,13 +240,8 @@ abstract class BaseWidget<
   abstract getPageView(): ReactNode;
 
   getCanvasView(): ReactNode {
-    let isValid = true;
-    if (this.props.invalidProps) {
-      isValid = _.keys(this.props.invalidProps).length === 0;
-    }
-    if (this.props.isLoading) isValid = true;
     const content = this.getPageView();
-    return this.addErrorBoundary(content, isValid);
+    return this.addErrorBoundary(content);
   }
 
   // TODO(abhinav): Maybe make this a pure component to bailout from updating altogether.

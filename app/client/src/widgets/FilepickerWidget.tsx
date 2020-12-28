@@ -119,7 +119,7 @@ class FilePickerWidget extends BaseWidget<
       });
     this.uppy.on("file-removed", (file: any) => {
       const updatedFiles = this.props.files
-        ? this.props.files.filter(dslFile => {
+        ? this.props.files.filter((dslFile) => {
             return file.id !== dslFile.id;
           })
         : [];

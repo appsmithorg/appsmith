@@ -95,7 +95,7 @@ export function* fetchPageListSaga(
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const orgId = response.data.organizationId;
-      const pages: PageListPayload = response.data.pages.map(page => ({
+      const pages: PageListPayload = response.data.pages.map((page) => ({
         pageName: page.name,
         pageId: page.id,
         isDefault: page.isDefault,
@@ -326,7 +326,7 @@ function* savePageSaga() {
         savePageResponse.data.layoutOnLoadActions.length > 0
       ) {
         for (const actionSet of savePageResponse.data.layoutOnLoadActions) {
-          yield put(setActionsToExecuteOnPageLoad(actionSet.map(a => a.id)));
+          yield put(setActionsToExecuteOnPageLoad(actionSet.map((a) => a.id)));
         }
       }
       yield put(savePageSuccess(savePageResponse));

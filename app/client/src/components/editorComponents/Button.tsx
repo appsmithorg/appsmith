@@ -26,27 +26,27 @@ const outline = css`
 const buttonStyles = css<Partial<ButtonProps>>`
   ${BlueprintButtonIntentsCSS}
   &&&& {
-    padding: ${props =>
+    padding: ${(props) =>
       props.filled || props.outline
         ? props.theme.spaces[2] + "px " + props.theme.spaces[3] + "px"
         : 0};
 
-    background: ${props =>
+    background: ${(props) =>
       props.filled || props.outline ? "inherit" : "transparent"};
 
-    width: ${props => (props.fluid ? "100%" : "auto")};
+    width: ${(props) => (props.fluid ? "100%" : "auto")};
   }
   &&&&&& {
     &.bp3-button span {
-      font-weight: ${props => (props.skin !== undefined ? 400 : 700)};
+      font-weight: ${(props) => (props.skin !== undefined ? 400 : 700)};
     }
     .bp3-icon svg {
-      width: ${props => (props.skin !== undefined ? 14 : 16)}px;
-      height: ${props => (props.skin !== undefined ? 14 : 16)}px;
+      width: ${(props) => (props.skin !== undefined ? 14 : 16)}px;
+      height: ${(props) => (props.skin !== undefined ? 14 : 16)}px;
     }
     &.bp3-button {
       display: flex;
-      justify-content: ${props =>
+      justify-content: ${(props) =>
         props.skin === undefined
           ? "center"
           : props.iconAlignment === Directions.RIGHT
@@ -54,7 +54,7 @@ const buttonStyles = css<Partial<ButtonProps>>`
           : "flex-start"};
     }
   }
-  ${props => (props.outline ? outline : "")}
+  ${(props) => (props.outline ? outline : "")}
 `;
 const StyledButton = styled((props: IButtonProps & Partial<ButtonProps>) => (
   <BlueprintButton

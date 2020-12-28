@@ -29,7 +29,7 @@ const EditorWrapper = styled.div`
   align-items: stretch;
   justify-content: flex-start;
   overflow: hidden;
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
 `;
 
 const CanvasContainer = styled.section`

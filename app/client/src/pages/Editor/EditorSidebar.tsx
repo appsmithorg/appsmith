@@ -41,7 +41,7 @@ const SearchBar = styled(BaseTextInput)`
   input {
     background-color: #23292e;
     border: none;
-    color: ${props => props.theme.colors.textOnDarkBG}
+    color: ${(props) => props.theme.colors.textOnDarkBG}
     :focus {
       background-color: #23292e;
     }
@@ -64,14 +64,14 @@ const PageName = styled.h5<{ isMain: boolean }>`
   color: white;
   border-right: 4px solid;
   margin: 10px 0;
-  border-color: ${props =>
+  border-color: ${(props) =>
     props.isMain ? props.theme.colors.primaryOld : "transparent"};
 `;
 
 const PageDropContainer = styled.div`
   min-height: 32px;
   margin: 5px;
-  background-color: ${props => props.theme.colors.paneBG};
+  background-color: ${(props) => props.theme.colors.paneBG};
 
   .createBtn {
     border: none;
@@ -152,12 +152,12 @@ const ItemContainer = styled.div<{
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: ${props =>
+  background-color: ${(props) =>
     props.isSelected || props.isBeingDragged
       ? props.theme.colors.paneCard
       : props.theme.colors.paneBG};
   :hover {
-    background-color: ${props =>
+    background-color: ${(props) =>
       props.isDraggingOver
         ? props.theme.colors.paneBG
         : props.theme.colors.paneCard};
@@ -273,11 +273,11 @@ class EditorSidebar extends React.Component<Props, State> {
     pages.sort((x, y) =>
       x.pageId === pageId ? -1 : y.pageId === pageId ? 1 : 0,
     );
-    return pages.map(page => {
+    return pages.map((page) => {
       return {
         id: page.pageId,
         name: page.pageName,
-        items: [...items.filter(item => item.pageId === page.pageId)].sort(
+        items: [...items.filter((item) => item.pageId === page.pageId)].sort(
           (a, b) => {
             const name1 = a.name.toLowerCase();
             const name2 = b.name.toLowerCase();
@@ -375,7 +375,7 @@ class EditorSidebar extends React.Component<Props, State> {
                                     draggableId={item.id}
                                     index={index}
                                   >
-                                    {provided => (
+                                    {(provided) => (
                                       <ItemContainer
                                         isSelected={item.id === selectedItemId}
                                         isDraggingOver={snapshot.isDraggingOver}
@@ -408,7 +408,7 @@ class EditorSidebar extends React.Component<Props, State> {
                                                   onSelect: () => null,
                                                   label: "Copy to",
                                                   children: pageWiseList.map(
-                                                    p => ({
+                                                    (p) => ({
                                                       label: p.name,
                                                       id: p.id,
                                                       value: p.name,
@@ -426,9 +426,9 @@ class EditorSidebar extends React.Component<Props, State> {
                                                   label: "Move to",
                                                   children: pageWiseList
                                                     .filter(
-                                                      p => p.id !== page.id,
+                                                      (p) => p.id !== page.id,
                                                     )
-                                                    .map(p => ({
+                                                    .map((p) => ({
                                                       label: p.name,
                                                       id: p.id,
                                                       value: p.name,

@@ -50,7 +50,7 @@ export const getApiOptions = (
       ],
     },
     {
-      options: apis.map(api => ({
+      options: apis.map((api) => ({
         content: api.name,
         onSelect: () => {
           updateDynamicInputValue(`{{${api.name}.data}}`);
@@ -99,7 +99,7 @@ export const getQueryOptions = (
       ],
     },
     {
-      options: queries.map(query => ({
+      options: queries.map((query) => ({
         content: query.name,
         onSelect: () => {
           updateDynamicInputValue(`{{${query.name}.data}}`);
@@ -127,7 +127,7 @@ export const getWidgetOptions = (
 ) => ({
   sections: [
     {
-      options: widgets.map(widget => ({
+      options: widgets.map((widget) => ({
         content: widget.widgetName,
         disabled: false,
         shouldCloseDropdown: true,

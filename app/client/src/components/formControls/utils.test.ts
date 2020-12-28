@@ -154,7 +154,7 @@ describe("getConfigInitialValues test", () => {
       },
     ];
 
-    testCases.forEach(testCase => {
+    testCases.forEach((testCase) => {
       expect(getConfigInitialValues(testCase.input)).toEqual(testCase.output);
     });
   });

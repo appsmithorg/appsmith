@@ -43,7 +43,7 @@ const QueryFormContainer = styled.form`
   flex-direction: column;
   padding: 20px 0px;
   width: 100%;
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
   a {
     font-size: 14px;
     line-height: 20px;

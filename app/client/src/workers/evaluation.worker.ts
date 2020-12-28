@@ -49,127 +49,138 @@ type EvalResult = {
   triggers?: ActionDescription<any>[];
 };
 
-ctx.addEventListener("message", e => {
-  const { action, ...rest } = e.data;
-  switch (action as EVAL_WORKER_ACTIONS) {
-    case EVAL_WORKER_ACTIONS.EVAL_TREE: {
-      const workerTimeStart = new Date().getTime();
-      const { widgetTypeConfigMap, unevalTree } = rest;
-      let dataTree: DataTree = unevalTree;
-      let errors: EvalError[] = [];
-      let dependencies: DependencyMap = {};
-      try {
-        if (!dataTreeEvaluator) {
-          dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
-          dataTreeEvaluator.createFirstTree(unevalTree);
-          dataTree = dataTreeEvaluator.evalTree;
-        } else {
-          dataTree = dataTreeEvaluator.updateDataTree(unevalTree);
-        }
+//TODO: Create a more complete RPC setup in the subtree-eval branch.
+function messageEventListener(fn: any) {
+  return (e: MessageEvent) => {
+    const { method, requestId, requestData } = e.data;
+    const responseData = fn(method, requestData);
+    ctx.postMessage({ requestId, responseData });
+  };
+}
 
-        // We need to clean it to remove any possible functions inside the tree.
-        // If functions exist, it will crash the web worker
-        dataTree = JSON.parse(JSON.stringify(dataTree));
-        dependencies = dataTreeEvaluator.dependencyMap;
-        errors = dataTreeEvaluator.errors;
-        dataTreeEvaluator.clearErrors();
-      } catch (e) {
-        if (dataTreeEvaluator !== undefined) {
+ctx.addEventListener(
+  "message",
+  messageEventListener((method: string, requestData: any) => {
+    switch (method as EVAL_WORKER_ACTIONS) {
+      case EVAL_WORKER_ACTIONS.EVAL_TREE: {
+        const workerTimeStart = new Date().getTime();
+        const { widgetTypeConfigMap, unevalTree } = requestData;
+        let dataTree: DataTree = unevalTree;
+        let errors: EvalError[] = [];
+        let dependencies: DependencyMap = {};
+        try {
+          if (!dataTreeEvaluator) {
+            dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
+            dataTreeEvaluator.createFirstTree(unevalTree);
+            dataTree = dataTreeEvaluator.evalTree;
+          } else {
+            dataTree = dataTreeEvaluator.updateDataTree(unevalTree);
+          }
+
+          // We need to clean it to remove any possible functions inside the tree.
+          // If functions exist, it will crash the web worker
+          dataTree = JSON.parse(JSON.stringify(dataTree));
+          dependencies = dataTreeEvaluator.dependencyMap;
           errors = dataTreeEvaluator.errors;
+          dataTreeEvaluator.clearErrors();
+        } catch (e) {
+          if (dataTreeEvaluator !== undefined) {
+            errors = dataTreeEvaluator.errors;
+          }
+          if (!(e instanceof CrashingError)) {
+            errors.push({
+              type: EvalErrorTypes.UNKNOWN_ERROR,
+              message: e.message,
+            });
+            console.error(e);
+          }
+          dataTreeEvaluator = undefined;
         }
-        if (!(e instanceof CrashingError)) {
-          errors.push({
-            type: EvalErrorTypes.UNKNOWN_ERROR,
-            message: e.message,
-          });
-          console.error(e);
+        const workerTimeEnd = new Date().getTime();
+        ctx.postMessage({
+          dataTree,
+          dependencies,
+          errors,
+          workerTime: (workerTimeEnd - workerTimeStart).toFixed(2),
+        });
+        break;
+      }
+      case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
+        const { binding, dataTree } = requestData;
+        const withFunctions = addFunctions(dataTree);
+        if (!dataTreeEvaluator) {
+          ctx.postMessage({ value: undefined, errors: [] });
+          break;
         }
+        const value = dataTreeEvaluator.getDynamicValue(
+          binding,
+          withFunctions,
+          false,
+        );
+        ctx.postMessage({ value, errors: dataTreeEvaluator.errors });
+        dataTreeEvaluator.clearErrors();
+        break;
+      }
+      case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
+        const { dynamicTrigger, callbackData, dataTree } = requestData;
+        if (!dataTreeEvaluator) {
+          break;
+        }
+        const evalTree = dataTreeEvaluator.updateDataTree(dataTree);
+        const withFunctions = addFunctions(evalTree);
+        const triggers = dataTreeEvaluator.getDynamicValue(
+          dynamicTrigger,
+          withFunctions,
+          true,
+          callbackData,
+        );
+        ctx.postMessage({ triggers, errors: dataTreeEvaluator.errors });
+        dataTreeEvaluator.clearErrors();
+        break;
+      }
+      case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
         dataTreeEvaluator = undefined;
-      }
-      const workerTimeEnd = new Date().getTime();
-      ctx.postMessage({
-        dataTree,
-        dependencies,
-        errors,
-        workerTime: (workerTimeEnd - workerTimeStart).toFixed(2),
-      });
-      break;
-    }
-    case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
-      const { binding, dataTree } = rest;
-      const withFunctions = addFunctions(dataTree);
-      if (!dataTreeEvaluator) {
-        ctx.postMessage({ value: undefined, errors: [] });
+        ctx.postMessage(true);
         break;
       }
-      const value = dataTreeEvaluator.getDynamicValue(
-        binding,
-        withFunctions,
-        false,
-      );
-      ctx.postMessage({ value, errors: dataTreeEvaluator.errors });
-      dataTreeEvaluator.clearErrors();
-      break;
-    }
-    case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
-      const { dynamicTrigger, callbackData, dataTree } = rest;
-      if (!dataTreeEvaluator) {
+      case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE: {
+        const { propertyPath } = requestData;
+        if (!dataTreeEvaluator) {
+          break;
+        }
+        dataTreeEvaluator.clearPropertyCache(propertyPath);
+        ctx.postMessage(true);
         break;
       }
-      const evalTree = dataTreeEvaluator.updateDataTree(dataTree);
-      const withFunctions = addFunctions(evalTree);
-      const triggers = dataTreeEvaluator.getDynamicValue(
-        dynamicTrigger,
-        withFunctions,
-        true,
-        callbackData,
-      );
-      ctx.postMessage({ triggers, errors: dataTreeEvaluator.errors });
-      dataTreeEvaluator.clearErrors();
-      break;
-    }
-    case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
-      dataTreeEvaluator = undefined;
-      ctx.postMessage(true);
-      break;
-    }
-    case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE: {
-      const { propertyPath } = rest;
-      if (!dataTreeEvaluator) {
+      case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET: {
+        const { widgetName } = requestData;
+        if (!dataTreeEvaluator) {
+          break;
+        }
+        dataTreeEvaluator.clearPropertyCacheOfWidget(widgetName);
+        ctx.postMessage(true);
         break;
       }
-      dataTreeEvaluator.clearPropertyCache(propertyPath);
-      ctx.postMessage(true);
-      break;
-    }
-    case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET: {
-      const { widgetName } = rest;
-      if (!dataTreeEvaluator) {
+      case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
+        const { widgetType, property, value, props } = requestData;
+        if (!dataTreeEvaluator) {
+          break;
+        }
+        const result = dataTreeEvaluator.validateWidgetProperty(
+          widgetType,
+          property,
+          value,
+          props,
+        );
+        ctx.postMessage(result);
         break;
       }
-      dataTreeEvaluator.clearPropertyCacheOfWidget(widgetName);
-      ctx.postMessage(true);
-      break;
-    }
-    case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
-      const { widgetType, property, value, props } = rest;
-      if (!dataTreeEvaluator) {
-        break;
+      default: {
+        console.error("Action not registered on worker", method);
       }
-      const result = dataTreeEvaluator.validateWidgetProperty(
-        widgetType,
-        property,
-        value,
-        props,
-      );
-      ctx.postMessage(result);
-      break;
     }
-    default: {
-      console.error("Action not registered on worker", action);
-    }
-  }
-});
+  }),
+);
 
 export class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -275,7 +286,7 @@ export class DataTreeEvaluator {
     const evalStart = performance.now();
     // We are setting all values from our uneval tree to the old eval tree we have
     // this way we can get away with just evaluating the sort order and nothing else
-    subTreeSortOrder.forEach(propertyPath => {
+    subTreeSortOrder.forEach((propertyPath) => {
       const lastIndexOfDot = propertyPath.lastIndexOf(".");
       // Only do this for property paths and not the entity themselves
       if (lastIndexOfDot !== -1) {
@@ -294,7 +305,7 @@ export class DataTreeEvaluator {
     const validateStart = performance.now();
     // Validate and parse updated widgets
     const updatedWidgets = new Set(
-      subTreeSortOrder.map(path => path.split(".")[0]),
+      subTreeSortOrder.map((path) => path.split(".")[0]),
     );
 
     const validatedTree = this.getValidatedTree(loadingSetTree, updatedWidgets);
@@ -340,11 +351,7 @@ export class DataTreeEvaluator {
       parents = this.getImmediateParentsOfPropertyPaths(subSortOrderArray);
       // If we find parents of the property paths in the sorted array, we should continue finding all the nodes dependent
       // on the parents
-      if (parents.length > 0) {
-        computeSortOrder = true;
-      } else {
-        computeSortOrder = false;
-      }
+      computeSortOrder = parents.length > 0;
     }
 
     // Remove duplicates from this list. Since we explicitly walk down the tree and implicitly (by fetching parents) walk
@@ -362,7 +369,7 @@ export class DataTreeEvaluator {
     // Use a set to ensure that we dont have duplicates
     const parents: Set<string> = new Set();
 
-    propertyPaths.forEach(path => {
+    propertyPaths.forEach((path) => {
       const parentProperty = path.substr(0, path.lastIndexOf("."));
 
       if (parentProperty.length != 0) {
@@ -388,7 +395,7 @@ export class DataTreeEvaluator {
       // If we find more nodes that would be impacted by the evaluation of the node being investigated
       // we add these to the sort order.
       if (newNodes) {
-        newNodes.forEach(toBeEvaluatedNode => {
+        newNodes.forEach((toBeEvaluatedNode) => {
           // Only add the nodes if they haven't been already added for evaluation in the list. Since we are doing
           // breadth first traversal, we should be safe in not changing the evaluation order and adding this now at this
           // point instead of the previous index found.
@@ -405,7 +412,7 @@ export class DataTreeEvaluator {
   createDependencyMap(unEvalTree: DataTree): DependencyMap {
     let dependencyMap: DependencyMap = {};
     this.allKeys = getAllPaths(unEvalTree);
-    Object.keys(unEvalTree).forEach(entityName => {
+    Object.keys(unEvalTree).forEach((entityName) => {
       const entity = unEvalTree[entityName];
       if (
         typeof entity === "object" &&
@@ -420,9 +427,9 @@ export class DataTreeEvaluator {
         dependencyMap = { ...dependencyMap, ...entityListedDependencies };
       }
     });
-    Object.keys(dependencyMap).forEach(key => {
+    Object.keys(dependencyMap).forEach((key) => {
       dependencyMap[key] = _.flatten(
-        dependencyMap[key].map(path =>
+        dependencyMap[key].map((path) =>
           extractReferencesFromBinding(path, this.allKeys),
         ),
       );
@@ -438,14 +445,14 @@ export class DataTreeEvaluator {
     const dependencies: DependencyMap = {};
     const dynamicBindingPathList = getEntityDynamicBindingPathList(entity);
     if (dynamicBindingPathList.length) {
-      dynamicBindingPathList.forEach(dynamicPath => {
+      dynamicBindingPathList.forEach((dynamicPath) => {
         const propertyPath = dynamicPath.key;
         const unevalPropValue = _.get(entity, propertyPath);
         const { jsSnippets } = getDynamicBindings(unevalPropValue);
         const existingDeps =
           dependencies[`${entityName}.${propertyPath}`] || [];
         dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
-          jsSnippets.filter(jsSnippet => !!jsSnippet),
+          jsSnippets.filter((jsSnippet) => !!jsSnippet),
         );
       });
     }
@@ -453,7 +460,7 @@ export class DataTreeEvaluator {
       // Set default property dependency
       const defaultProperties = this.widgetConfigMap[entity.type]
         .defaultProperties;
-      Object.keys(defaultProperties).forEach(property => {
+      Object.keys(defaultProperties).forEach((property) => {
         dependencies[`${entityName}.${property}`] = [
           `${entityName}.${defaultProperties[property]}`,
         ];
@@ -461,7 +468,7 @@ export class DataTreeEvaluator {
       // Set triggers. TODO check if needed
       const dynamicTriggerPathList = getWidgetDynamicTriggerPathList(entity);
       if (dynamicTriggerPathList.length) {
-        dynamicTriggerPathList.forEach(dynamicPath => {
+        dynamicTriggerPathList.forEach((dynamicPath) => {
           dependencies[`${entityName}.${dynamicPath.key}`] = [];
         });
       }
@@ -549,7 +556,7 @@ export class DataTreeEvaluator {
     const dependencyTree: Array<[string, string]> = [];
     Object.keys(dependencyMap).forEach((key: string) => {
       if (dependencyMap[key].length) {
-        dependencyMap[key].forEach(dep => dependencyTree.push([key, dep]));
+        dependencyMap[key].forEach((dep) => dependencyTree.push([key, dep]));
       } else {
         // Set no dependency
         dependencyTree.push([key, ""]);
@@ -560,7 +567,7 @@ export class DataTreeEvaluator {
       // sort dependencies and remove empty dependencies
       return toposort(dependencyTree)
         .reverse()
-        .filter(d => !!d);
+        .filter((d) => !!d);
     } catch (e) {
       this.errors.push({
         type: EvalErrorTypes.DEPENDENCY_ERROR,
@@ -689,7 +696,7 @@ export class DataTreeEvaluator {
         ///// Adding callback data
         GLOBAL_DATA.CALLBACK_DATA = callbackData;
         ///// Adding Data tree
-        Object.keys(data).forEach(datum => {
+        Object.keys(data).forEach((datum) => {
           GLOBAL_DATA[datum] = data[datum];
         });
         ///// Fixing action paths and capturing their execution response
@@ -713,21 +720,21 @@ export class DataTreeEvaluator {
         }
 
         // Set it to self
-        Object.keys(GLOBAL_DATA).forEach(key => {
+        Object.keys(GLOBAL_DATA).forEach((key) => {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore: No types available
           self[key] = GLOBAL_DATA[key];
         });
 
         ///// Adding extra libraries separately
-        extraLibraries.forEach(library => {
+        extraLibraries.forEach((library) => {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore: No types available
           self[library.accessor] = library.lib;
         });
 
         ///// Remove all unsafe functions
-        unsafeFunctionForEval.forEach(func => {
+        unsafeFunctionForEval.forEach((func) => {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore: No types available
           self[func] = undefined;
@@ -737,7 +744,7 @@ export class DataTreeEvaluator {
 
         // Remove it from self
         // This is needed so that next eval can have a clean sheet
-        Object.keys(GLOBAL_DATA).forEach(key => {
+        Object.keys(GLOBAL_DATA).forEach((key) => {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore: No types available
           delete self[key];
@@ -944,7 +951,7 @@ export class DataTreeEvaluator {
     // Transform the diff library events to Appsmith evaluator events
     differences
       .map(translateDiffEventToDataTreeDiffEvent)
-      .forEach(dataTreeDiff => {
+      .forEach((dataTreeDiff) => {
         const entityName = dataTreeDiff.payload.propertyPath.split(".")[0];
         const entity = unEvalDataTree[entityName];
         const entityType =
@@ -1007,7 +1014,7 @@ export class DataTreeEvaluator {
                   entity,
                   entityName,
                 );
-                Object.keys(widgetBindings).forEach(widgetDep => {
+                Object.keys(widgetBindings).forEach((widgetDep) => {
                   didUpdateDependencyMap = true;
                   delete this.dependencyMap[widgetDep];
                 });
@@ -1015,7 +1022,7 @@ export class DataTreeEvaluator {
               // Either an existing entity or an existing property path has been deleted. Update the global dependency map
               // by removing the bindings from the same.
               this.allKeys = getAllPaths(unEvalDataTree);
-              Object.keys(this.dependencyMap).forEach(dependencyPath => {
+              Object.keys(this.dependencyMap).forEach((dependencyPath) => {
                 didUpdateDependencyMap = true;
                 // TODO delete via regex
                 if (
@@ -1024,14 +1031,18 @@ export class DataTreeEvaluator {
                   delete this.dependencyMap[dependencyPath];
                 } else {
                   const toRemove: Array<string> = [];
-                  this.dependencyMap[dependencyPath].forEach(dependantPath => {
-                    if (
-                      dependantPath.includes(dataTreeDiff.payload.propertyPath)
-                    ) {
-                      removedNodes.push(dependencyPath);
-                      toRemove.push(dependantPath);
-                    }
-                  });
+                  this.dependencyMap[dependencyPath].forEach(
+                    (dependantPath) => {
+                      if (
+                        dependantPath.includes(
+                          dataTreeDiff.payload.propertyPath,
+                        )
+                      ) {
+                        removedNodes.push(dependencyPath);
+                        toRemove.push(dependantPath);
+                      }
+                    },
+                  );
                   this.dependencyMap[dependencyPath] = _.difference(
                     this.dependencyMap[dependencyPath],
                     toRemove,
@@ -1056,7 +1067,7 @@ export class DataTreeEvaluator {
                   dataTreeDiff.payload.value,
                 );
                 const correctSnippets = jsSnippets.filter(
-                  jsSnippet => !!jsSnippet,
+                  (jsSnippet) => !!jsSnippet,
                 );
                 // We found a new dynamic binding for this property path. We update the dependency map by overwriting the
                 // dependencies for this property path with the newly found dependencies
@@ -1082,9 +1093,9 @@ export class DataTreeEvaluator {
     const subDepCalcStart = performance.now();
     if (didUpdateDependencyMap) {
       // TODO Optimise
-      Object.keys(this.dependencyMap).forEach(key => {
+      Object.keys(this.dependencyMap).forEach((key) => {
         this.dependencyMap[key] = _.flatten(
-          this.dependencyMap[key].map(path =>
+          this.dependencyMap[key].map((path) =>
             extractReferencesFromBinding(path, this.allKeys),
           ),
         );
@@ -1118,7 +1129,7 @@ export class DataTreeEvaluator {
     removedDependencyNodes: Array<string>,
   ) {
     const changePaths: Set<string> = new Set(removedDependencyNodes);
-    differences.forEach(d => {
+    differences.forEach((d) => {
       if (d.path) {
         // Apply the changes into the oldEvalTree so that it can be evaluated
         applyChange(this.evalTree, undefined, d);
@@ -1144,7 +1155,7 @@ export class DataTreeEvaluator {
             We want to add all the dependencies in the sorted order to make
             sure all the bindings are evaluated.
           */
-          this.sortedDependencies.forEach(dependency => {
+          this.sortedDependencies.forEach((dependency) => {
             if (d.path && dependency.split(".")[0] === d.path[0]) {
               changePaths.add(dependency);
             }
@@ -1173,10 +1184,10 @@ export class DataTreeEvaluator {
 
   getInverseDependencyTree(): DependencyMap {
     const inverseDag: DependencyMap = {};
-    this.sortedDependencies.forEach(propertyPath => {
+    this.sortedDependencies.forEach((propertyPath) => {
       const incomingEdges: Array<string> = this.dependencyMap[propertyPath];
       if (incomingEdges) {
-        incomingEdges.forEach(edge => {
+        incomingEdges.forEach((edge) => {
           const node = inverseDag[edge];
           if (node) {
             node.push(propertyPath);
@@ -1194,7 +1205,7 @@ export class DataTreeEvaluator {
     propertyPath: string,
   ) {
     const possibleRefs: DependencyMap = {};
-    Object.keys(dataTree).forEach(entityName => {
+    Object.keys(dataTree).forEach((entityName) => {
       const entity = dataTree[entityName];
       if (
         typeof entity === "object" &&
@@ -1203,9 +1214,9 @@ export class DataTreeEvaluator {
           entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET)
       ) {
         const depPaths = this.listEntityDependencies(entity, entityName);
-        Object.keys(depPaths).forEach(path => {
+        Object.keys(depPaths).forEach((path) => {
           const values = depPaths[path];
-          values.forEach(value => {
+          values.forEach((value) => {
             // TODO Do regex here.
             if (value.includes(propertyPath)) {
               possibleRefs[path] = values;
@@ -1241,7 +1252,7 @@ export class DataTreeEvaluator {
       new Set<string>(),
     );
 
-    widgetNames.forEach(widgetName => {
+    widgetNames.forEach((widgetName) => {
       _.set(
         dataTree,
         [widgetName, "isLoading"],
@@ -1311,9 +1322,9 @@ const getEntityDependencies = (
   visited: Set<string>,
 ): Set<string> => {
   const dependantsEntities: Set<string> = new Set();
-  entityNames.forEach(entityName => {
+  entityNames.forEach((entityName) => {
     if (entityName in inverseMap) {
-      inverseMap[entityName].forEach(dependency => {
+      inverseMap[entityName].forEach((dependency) => {
         const dependantEntityName = dependency.split(".")[0];
         // Example: For a dependency chain that looks like Dropdown1.selectedOptionValue -> Table1.tableData -> Text1.text -> Dropdown1.options
         // Here we're operating on
@@ -1330,7 +1341,7 @@ const getEntityDependencies = (
           inverseMap,
           visited,
         );
-        childDependencies.forEach(entityName => {
+        childDependencies.forEach((entityName) => {
           dependantsEntities.add(entityName);
         });
       });
@@ -1346,14 +1357,14 @@ const createEntityDependencyMap = (dependencyMap: DependencyMap) => {
     const existing = entityDepMap[entityDependant] || [];
     entityDepMap[entityDependant] = existing.concat(
       dependencies
-        .map(dep => {
+        .map((dep) => {
           const value = dep.split(".")[0];
           if (value !== entityDependant) {
             return value;
           }
           return undefined;
         })
-        .filter(value => typeof value === "string") as string[],
+        .filter((value) => typeof value === "string") as string[],
     );
   });
   return entityDepMap;
@@ -1406,7 +1417,7 @@ function isAction(entity: DataTreeEntity): boolean {
 const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   const withFunction: DataTree = _.cloneDeep(dataTree);
   withFunction.actionPaths = [];
-  Object.keys(withFunction).forEach(entityName => {
+  Object.keys(withFunction).forEach((entityName) => {
     const entity = withFunction[entityName];
     if (
       typeof entity === "object" &&
