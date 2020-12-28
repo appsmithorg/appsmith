@@ -1,5 +1,5 @@
 import React from "react";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
@@ -15,7 +15,7 @@ import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
 import { PaginationType, RestAction } from "entities/Action";
-import { Icon } from "@blueprintjs/core";
+import { Icon as BlueprintIcon } from "@blueprintjs/core";
 import { HelpMap, HelpBaseURL } from "constants/HelpConstants";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
@@ -27,6 +27,10 @@ import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { apiActionSettingsConfig } from "mockResponses/ActionSettings";
+import { useParams } from "react-router-dom";
+import { ExplorerURLParams } from "../Explorer/helpers";
+import { EntityClassNames } from "../Explorer/Entity";
+import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 
 const Form = styled.form`
   display: flex;
@@ -97,7 +101,7 @@ export const BindingText = styled.span`
   font-weight: 700;
 `;
 
-const StyledOpenDocsIcon = styled(Icon)`
+const StyledOpenDocsIcon = styled(BlueprintIcon)`
   svg {
     width: 12px;
     height: 18px;
@@ -168,6 +172,17 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
 
+  const params = useParams<{ apiId?: string; queryId?: string }>();
+
+  const { pageId } = useParams<ExplorerURLParams>();
+
+  const actions: RestAction[] = useSelector((state: AppState) =>
+    state.entities.actions.map(action => action.config),
+  );
+  const currentActionConfig: RestAction | undefined = actions.find(
+    action => action.id === params.apiId || action.id === params.queryId,
+  );
+
   return (
     <Form onSubmit={handleSubmit}>
       <MainConfiguration>
@@ -176,12 +191,11 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             <ActionNameEditor />
           </NameWrapper>
           <ActionButtons className="t--formActionButtons">
-            <ActionButton
-              text="Delete"
-              accent="error"
-              onClick={onDeleteClick}
-              loading={isDeleting}
-              className="t--apiFormDeleteBtn"
+            <MoreActionsMenu
+              id={currentActionConfig ? currentActionConfig.id : ""}
+              name={currentActionConfig ? currentActionConfig.name : ""}
+              className={EntityClassNames.CONTEXT_MENU}
+              pageId={pageId}
             />
             <ActionButton
               text="Run"
