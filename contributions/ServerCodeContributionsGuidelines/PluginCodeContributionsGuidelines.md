@@ -35,12 +35,18 @@ As much as possible, please try to abide by the following code design:
      please use any other well known and trusted driver.
    - In case the driver that you wish to use does not follow reactive model, please enforce reactive model as shown 
      in the plugin code [PostgresPlugin.java](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/postgresPlugin/src/main/java/com/external/plugins/PostgresPlugin.java).
+   - Make sure that your [Mono/Flux](https://projectreactor.io/docs/core/release/reference/index.html#core-features) 
+     object is processed on a new dedicated thread by chaining [.subscribeOn(...)](https://projectreactor.io/docs/core/release/reference/index.html#schedulers) 
+     method call to the Mono/Flux object. For reference, please check its usage in [PostgresPlugin.java](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/postgresPlugin/src/main/java/com/external/plugins/PostgresPlugin.java). 
 5. Make sure to handle any exceptions
     - Always check for a stale connection (i.e. if the connection to the datasource has been closed or invalidated) 
       before query execution and throw an uncaught `StaleConnectionException`.
       This exception is caught by Appsmith's framework and a new connection is established before running the query. 
       For reference, please check the usage of StaleConnectionException in 
       [PostgresPlugin.java](https://github.com/appsmithorg/appsmith/blob/release/app/server/appsmith-plugins/postgresPlugin/src/main/java/com/external/plugins/PostgresPlugin.java).
+    - Print the exceptions on console along with thread information like `System.out.println(Thread.currentThread().
+      getName() + ": <your 
+      error msg> : " + exception.msg);`
 6. Always check for `null` values before using objects. 
 7. Comment your code in hard to understand areas. 
 8. In case your method implementation is too large (use your own judgement here), please refactor it into smaller 
