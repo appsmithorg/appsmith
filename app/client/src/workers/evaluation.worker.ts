@@ -64,7 +64,11 @@ ctx.addEventListener("message", (e) => {
       // If functions exist, it will crash the web worker
       try {
         const cleanDataTree = JSON.stringify(response);
-        ctx.postMessage({ dataTree: cleanDataTree, errors: ERRORS });
+        ctx.postMessage({
+          dataTree: cleanDataTree,
+          errors: ERRORS,
+          logs: LOGS,
+        });
       } catch (e) {
         ERRORS.push({
           type: EvalErrorTypes.DEPENDENCY_ERROR,
