@@ -375,7 +375,8 @@ const createDependencyTree = (
       type: EvalErrorTypes.DEPENDENCY_ERROR,
       message: e.message,
     });
-    return { sortedDependencies: [], dependencyMap: {}, dependencyTree: [] };
+    throw new Error("Dependency Error");
+    //return { sortedDependencies: [], dependencyMap: {}, dependencyTree: [] };
   }
 };
 
@@ -616,15 +617,8 @@ const getValidatedTree = (tree: any) => {
           "invalidProps",
           "validationMessages",
         ].includes(property);
-        const isDynamicField =
-          isPathADynamicBinding(parsedEntity, property) ||
-          isPathADynamicTrigger(parsedEntity, property);
 
-        if (
-          !isSpecialField &&
-          !isDynamicField &&
-          (!hasValidation || !hasEvaluatedValue)
-        ) {
+        if (!isSpecialField && (!hasValidation || !hasEvaluatedValue)) {
           const value = entity[property];
           // Pass it through parse
           const {
