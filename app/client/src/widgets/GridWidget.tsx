@@ -3,8 +3,6 @@ import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { removeFalsyEntries } from "utils/helpers";
-import { generateReactKey } from "utils/generators";
-import { WidgetOperations } from "widgets/BaseWidget";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
@@ -51,6 +49,9 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
   };
 
   /**
+   * here we are updating the position of each items and disabled resizing for
+   * all items except template ( first item )
+   *
    * @param children
    */
   updatePosition = (
@@ -61,7 +62,7 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
         ...child,
         topRow: index * children[0].bottomRow,
         bottomRow: (index + 1) * children[0].bottomRow,
-        resizeDisabled: index > 0,
+        resizeEnabled: index === 0,
       };
     });
   };
@@ -73,6 +74,8 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
   setPathsForNewChildrenInGrid = (
     children: ContainerWidgetProps<WidgetProps>[],
   ) => {
+    // const { dynamicBindingPathList } = this.props;
+
     return children;
   };
 
@@ -137,6 +140,7 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
 
       const childCanvas = children[0];
       let canvasChildren = childCanvas.children;
+      // here we are duplicating the template for each items
       canvasChildren = new Array(numberOfItemsInGrid).fill(canvasChildren[0]);
       canvasChildren = this.updateGridChildrenProps(canvasChildren);
       childCanvas.children = canvasChildren;
