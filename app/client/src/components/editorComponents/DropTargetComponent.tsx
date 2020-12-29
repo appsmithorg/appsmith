@@ -265,13 +265,15 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
       ? "1px solid #DDDDDD"
       : "1px solid transparent";
 
+  const dropRef = props.dropEnabled ? drop : undefined;
+
   return (
     <DropTargetContext.Provider
       value={{ updateDropTargetRows, persistDropTargetRows }}
     >
       <StyledDropTarget
         onClick={handleFocus}
-        ref={props.dropEnabled ? drop : undefined}
+        ref={dropRef}
         style={{
           height,
           border,

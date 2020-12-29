@@ -1,4 +1,4 @@
-import React, { RefObject, ReactNode, useEffect, useRef } from "react";
+import React, { RefObject, ReactNode } from "react";
 import styled, { css } from "styled-components";
 import { Color } from "constants/Colors";
 import { ComponentProps } from "./BaseComponent";
