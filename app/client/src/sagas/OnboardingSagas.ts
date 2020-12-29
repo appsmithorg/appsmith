@@ -50,9 +50,9 @@ export const inOnboarding = (state: AppState) =>
 export const isAddWidgetComplete = (state: AppState) =>
   state.ui.onBoarding.addedWidget;
 export const getTooltipConfig = (state: AppState) => {
-  const currentStep = getCurrentStep(state);
-  if (currentStep >= 0) {
-    return OnboardingConfig[currentStep].tooltip;
+  const showingTooltip = state.ui.onBoarding.showingTooltip;
+  if (showingTooltip >= 0) {
+    return OnboardingConfig[showingTooltip].tooltip;
   }
 
   return OnboardingConfig[OnboardingStep.NONE].tooltip;
@@ -140,6 +140,7 @@ function* listenForSuccessfullBinding() {
           yield delay(1000);
           playOnboardingAnimation();
 
+          yield put(setCurrentStep(OnboardingStep.DEPLOY));
           return;
         }
       }
@@ -246,10 +247,7 @@ function* listenForWidgetUnselection() {
     const currentStep = yield select(getCurrentStep);
     const isinOnboarding = yield select(inOnboarding);
 
-    if (!isinOnboarding || currentStep !== OnboardingStep.SUCCESSFUL_BINDING)
-      return;
-
-    yield put(setCurrentStep(OnboardingStep.DEPLOY));
+    if (!isinOnboarding || currentStep !== OnboardingStep.DEPLOY) return;
 
     yield delay(1000);
     yield put(showTooltip(OnboardingStep.DEPLOY));

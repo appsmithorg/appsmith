@@ -20,6 +20,7 @@ const StyledDialog = styled(Dialog)`
   && {
     width: 850px;
     background-color: white;
+    padding-bottom: 0px;
   }
 `;
 
@@ -102,7 +103,7 @@ const CompletionDialog = () => {
       if (params.onboardingComplete && inOnboarding) {
         setTimeout(() => {
           setIsOpen(true);
-        }, 2000);
+        }, 3000);
       }
     };
 
