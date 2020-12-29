@@ -134,7 +134,7 @@ export type IconProps = {
   name?: IconName;
   invisible?: boolean;
   className?: string;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent) => void;
 };
 
 const Icon = forwardRef(

@@ -4,6 +4,7 @@ import {
   withRouter,
   RouteComponentProps,
   Route,
+  matchPath,
 } from "react-router-dom";
 import ApiEditor from "./APIEditor";
 import QueryEditor from "./QueryEditor";
@@ -37,7 +38,6 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 
 import * as Sentry from "@sentry/react";
-import Icon, { IconSize } from "components/ads/Icon";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
@@ -49,33 +49,21 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
   background-color: ${props =>
     props.isVisible ? "rgba(0, 0, 0, 0.26)" : "transparent"};
   z-index: ${props => (props.isVisible ? 2 : -1)};
-
-  .close-modal-icon {
-    position: absolute;
-    top: 26px;
-    left: 25px;
-    cursor: pointer;
-    z-index: 99999;
-    svg {
-      width: 12px;
-      height: 12px;
-      path {
-        fill: ${props => props.theme.colors.apiPane.closeIcon};
-      }
-    }
-  }
 `;
 
 const DrawerWrapper = styled.div<{
   isVisible: boolean;
+  isAPIPath: any;
 }>`
   background-color: white;
-  width: ${props => (!props.isVisible ? "0px" : "100%")};
+  width: ${props =>
+    !props.isVisible ? "0px" : props.isAPIPath ? "100%" : "75%"};
   height: 100%;
 `;
 
 interface RouterState {
   isVisible: boolean;
+  isAPIPath: Record<any, any> | null;
 }
 
 class EditorsRouter extends React.Component<
@@ -89,6 +77,7 @@ class EditorsRouter extends React.Component<
       isVisible:
         this.props.location.pathname !==
         BUILDER_PAGE_URL(applicationId, pageId),
+      isAPIPath: this.isMatchPath(),
     };
   }
 
@@ -99,9 +88,22 @@ class EditorsRouter extends React.Component<
         isVisible:
           this.props.location.pathname !==
           BUILDER_PAGE_URL(applicationId, pageId),
+        isAPIPath: this.isMatchPath(),
       });
     }
   }
+
+  isMatchPath = () => {
+    return matchPath(this.props.location.pathname, {
+      path: [
+        API_EDITOR_URL(),
+        API_EDITOR_ID_URL(),
+        API_EDITOR_URL_WITH_SELECTED_PAGE_ID(),
+      ],
+      exact: true,
+      strict: false,
+    });
+  };
 
   handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
@@ -122,18 +124,12 @@ class EditorsRouter extends React.Component<
 
   render(): React.ReactNode {
     return (
-      <Wrapper isVisible={this.state.isVisible}>
+      <Wrapper isVisible={this.state.isVisible} onClick={this.handleClose}>
         <PaneDrawer
           isVisible={this.state.isVisible}
+          isAPIPath={this.state.isAPIPath}
           onClick={this.preventClose}
         >
-          <div onClick={this.handleClose}>
-            <Icon
-              name="close-modal"
-              size={IconSize.LARGE}
-              className="close-modal-icon"
-            />
-          </div>
           <Switch>
             <SentryRoute exact path={API_EDITOR_URL()} component={ApiEditor} />
             <SentryRoute
@@ -185,6 +181,7 @@ class EditorsRouter extends React.Component<
 }
 type PaneDrawerProps = {
   isVisible: boolean;
+  isAPIPath: Record<any, any> | null;
   onClick: (e: React.MouseEvent) => void;
   children: ReactNode;
 };
