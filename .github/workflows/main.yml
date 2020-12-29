@@ -1,3 +1,4 @@
+name: "Super Labeler"
 on:
   issues:
     types: [opened, edited, closed, reopened]
