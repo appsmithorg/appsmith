@@ -61,8 +61,8 @@ const ActionButtons = styled.div`
   display: flex;
   flex-direction: row;
 
-  .t--apiFormRunBtn {
-    margin-left: 8px;
+  button:last-child {
+    margin-left: ${props => props.theme.spaces[7]}px;
   }
 `;
 
@@ -190,6 +190,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             />
             <Button
               text="Run"
+              tag="button"
               size={Size.medium}
               onClick={() => {
                 onRunClick();
