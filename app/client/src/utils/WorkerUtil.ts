@@ -8,6 +8,7 @@ import {
   buffers,
 } from "redux-saga";
 import _ from "lodash";
+import log from "loglevel";
 
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
@@ -42,7 +43,7 @@ import _ from "lodash";
 // TODO: Add telemetry.
 export class GracefulWorkerService {
   // We keep track of all in-flight requests with these channels.
-  private _channels: {
+  private readonly _channels: {
     [requestId: string]: Channel<any>;
   };
   // Redux-saga's channel subscriber for our worker.
@@ -56,9 +57,9 @@ export class GracefulWorkerService {
   // If isReady is false, wait on `this._readyChan` to get the pulse signal.
   private _isReady: boolean;
   // Channel to signal all waiters that we're ready. Always use it with `this._isReady`.
-  private _readyChan: Channel<any>;
+  private readonly _readyChan: Channel<any>;
 
-  private _workerClass: any;
+  private readonly _workerClass: any;
 
   constructor(workerClass: any) {
     this.shutdown = this.shutdown.bind(this);
@@ -142,6 +143,7 @@ export class GracefulWorkerService {
      */
     const requestId = `${method}__${_.uniqueId()}`;
     this._channels[requestId] = channel();
+    const mainThreadStartTime = performance.now();
     this._evaluationWorker.postMessage({
       method,
       requestData,
@@ -149,16 +151,29 @@ export class GracefulWorkerService {
     });
     // The `this._broker` method is listening to events and will pass response to us over this channel.
     const response = yield take(this._channels[requestId]);
-    yield this._channels[requestId].close(); // cleanup
+    const { timeTaken, ...responseData } = response;
+    // Log perf of main thread and worker
+    const mainThreadEndTime = performance.now();
+    const timeTakenOnMainThread = (
+      mainThreadEndTime - mainThreadStartTime
+    ).toFixed(2);
+    const transferTime = (
+      parseFloat(timeTakenOnMainThread) - parseFloat(timeTaken)
+    ).toFixed(2);
+    log.debug(`Worker ${method} took ${timeTaken}ms`);
+    log.debug(`Main ${method} took ${timeTakenOnMainThread}ms`);
+    log.debug(`Transfer ${method} took ${transferTime}ms`);
+    // Cleanup
+    yield this._channels[requestId].close();
     delete this._channels[requestId];
-    return response;
+    return responseData;
   }
 
   private *_broker(event: MessageEvent) {
     if (!event || !event.data) {
       return;
     }
-    const { requestId, responseData } = event.data;
-    yield put(this._channels[requestId], responseData);
+    const { requestId, responseData, timeTaken } = event.data;
+    yield put(this._channels[requestId], { ...responseData, timeTaken });
   }
 }
