@@ -283,6 +283,21 @@ const addFunctions = (dataTree: DataTree): DataTree => {
     };
   };
   dataTree.actionPaths.push("download");
+
+  dataTree.copy = function(
+    data: string,
+    options?: { debug?: boolean; format?: string },
+  ) {
+    return {
+      type: "COPY",
+      payload: {
+        data,
+        options: { debug: options?.debug, format: options?.format },
+      },
+    };
+  };
+  dataTree.actionPaths.push("copy");
+
   return dataTree;
 };
 
