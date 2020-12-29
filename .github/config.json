@@ -19,17 +19,7 @@
       "prereleaseName": "alpha",
       "issue": {
         "labels": {
-          "ref": "release",
-          "actions": {
-            "requires": 1,
-            "conditions": [
-              {
-                "type": "hasLabel",
-                "label": "dataSources",
-                "value": true
-              }
-            ]
-          }
+          "ref": "release"
         }
       }
     }
