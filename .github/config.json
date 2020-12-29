@@ -1,23 +1,39 @@
-[
-  {
-    "root": ".",
-    "projectType": "node",
-    "versioning": "SemVer",
-    "prereleaseName": "alpha",
-    "issue": {
-      "ref": "develop",
-      "labels": {
-        "Actions": {
-          "requires": 1,
-          "conditions": [
-            {
-              "type": "hasLabel",
-              "label": "Datasources",
-              "value": "true"
+{
+  "releaseMastermind": {
+    "labels": {
+      "actions": {
+        "name": "Actions",
+        "color": "61ed84",
+        "description": "Issues related to API / Query execution"
+      },
+      "dataSources": {
+        "name": "Datasources",
+        "color": "f285e1",
+        "description": ""
+      }
+    },
+    "runners": [
+      {
+        "root": ".",
+        "projectType": "other",
+        "versioning": "SemVer",
+        "prereleaseName": "alpha",
+        "issue": {
+          "labels": {
+            "ref": "release",
+            "actions": {
+              "requires": 1,
+              "conditions": [
+                {
+                  "type": "hasLabel",
+                  "label": "dataSources",
+                  "value": "true"
+                }
+              ]
             }
-          ]
+          }
         }
       }
-    }
+    ]
   }
-]
+}

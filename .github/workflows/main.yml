@@ -2,14 +2,13 @@ name: "Super Labeler"
 on:
   issues:
     types: [labeled, opened, edited, closed, reopened]
-  project_card:
-    types: [created, moved, deleted]
 
 jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: ./
+      - uses: actions/checkout@v2.3.4
+      - uses: Videndum/label-mastermind@2.0.0
+
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
