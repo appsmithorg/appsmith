@@ -15,7 +15,6 @@ import {
   ENTITY_TYPE,
 } from "../entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
-import * as log from "loglevel";
 import _, {
   every,
   isBoolean,
@@ -50,85 +49,101 @@ import {
 const ctx: Worker = self as any;
 
 let ERRORS: EvalError[] = [];
+let LOGS: any[] = [];
 let WIDGET_TYPE_CONFIG_MAP: WidgetTypeConfigMap = {};
 
-ctx.addEventListener("message", (e) => {
-  const { action, ...rest } = e.data;
+//TODO: Create a more complete RPC setup in the subtree-eval branch.
+function messageEventListener(
+  fn: (message: EVAL_WORKER_ACTIONS, requestData: any) => void,
+) {
+  return (e: MessageEvent) => {
+    const startTime = performance.now();
+    const { method, requestId, requestData } = e.data;
+    const responseData = fn(method, requestData);
+    const endTime = performance.now();
+    ctx.postMessage({
+      requestId,
+      responseData,
+      timeTaken: (endTime - startTime).toFixed(2),
+    });
+    ERRORS = [];
+    LOGS = [];
+  };
+}
 
-  switch (action as EVAL_WORKER_ACTIONS) {
-    case EVAL_WORKER_ACTIONS.EVAL_TREE: {
-      const { widgetTypeConfigMap, dataTree } = rest;
-      WIDGET_TYPE_CONFIG_MAP = widgetTypeConfigMap;
-      const response = getEvaluatedDataTree(dataTree);
-      // We need to clean it to remove any possible functions inside the tree.
-      // If functions exist, it will crash the web worker
-      try {
-        const cleanDataTree = JSON.stringify(response);
-        ctx.postMessage({ dataTree: cleanDataTree, errors: ERRORS });
-      } catch (e) {
-        ERRORS.push({
-          type: EvalErrorTypes.DEPENDENCY_ERROR,
-          message: e.message,
-        });
-        const cleanDataTree = JSON.stringify(getValidatedTree(dataTree));
-        ctx.postMessage({ dataTree: cleanDataTree, errors: ERRORS });
+ctx.addEventListener(
+  "message",
+  messageEventListener((method, requestData: any) => {
+    switch (method) {
+      case EVAL_WORKER_ACTIONS.EVAL_TREE: {
+        const { widgetTypeConfigMap, dataTree } = requestData;
+        WIDGET_TYPE_CONFIG_MAP = widgetTypeConfigMap;
+        const response = getEvaluatedDataTree(dataTree);
+        try {
+          // We need to clean it to remove any possible functions inside the tree.
+          // If functions exist, it will crash the web worker
+          const cleanDataTree = JSON.stringify(response);
+          return { dataTree: cleanDataTree, errors: ERRORS, logs: LOGS };
+        } catch (e) {
+          ERRORS.push({
+            type: EvalErrorTypes.EVAL_TREE_ERROR,
+            message: e.message,
+          });
+          const cleanDataTree = JSON.stringify(getValidatedTree(dataTree));
+          return { dataTree: cleanDataTree, errors: ERRORS, logs: LOGS };
+        }
       }
-      ERRORS = [];
-      break;
+      case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
+        const { binding, dataTree } = requestData;
+        const withFunctions = addFunctions(dataTree);
+        const value = getDynamicValue(binding, withFunctions, false);
+        const cleanedResponse = removeFunctions(value);
+        return { value: cleanedResponse, errors: ERRORS };
+      }
+      case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
+        const { dynamicTrigger, callbackData, dataTree } = requestData;
+        const evalTree = getEvaluatedDataTree(dataTree);
+        const withFunctions = addFunctions(evalTree);
+        const triggers = getDynamicValue(
+          dynamicTrigger,
+          withFunctions,
+          true,
+          callbackData,
+        );
+        const cleanedResponse = removeFunctions(triggers);
+        return { triggers: cleanedResponse, errors: ERRORS };
+      }
+      case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
+        clearCaches();
+        return true;
+      }
+      case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE: {
+        const { propertyPath } = requestData;
+        clearPropertyCache(propertyPath);
+        return true;
+      }
+      case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET: {
+        const { widgetName } = requestData;
+        clearPropertyCacheOfWidget(widgetName);
+        return true;
+      }
+      case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
+        const { widgetType, property, value, props } = requestData;
+        const result = validateWidgetProperty(
+          widgetType,
+          property,
+          value,
+          props,
+        );
+        const cleanedResponse = removeFunctions(result);
+        return cleanedResponse;
+      }
+      default: {
+        console.error("Action not registered on worker", method, requestData);
+      }
     }
-    case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
-      const { binding, dataTree } = rest;
-      const withFunctions = addFunctions(dataTree);
-      const value = getDynamicValue(binding, withFunctions, false);
-      const cleanedResponse = removeFunctions(value);
-      ctx.postMessage({ value: cleanedResponse, errors: ERRORS });
-      ERRORS = [];
-      break;
-    }
-    case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
-      const { dynamicTrigger, callbackData, dataTree } = rest;
-      const evalTree = getEvaluatedDataTree(dataTree);
-      const withFunctions = addFunctions(evalTree);
-      const triggers = getDynamicValue(
-        dynamicTrigger,
-        withFunctions,
-        true,
-        callbackData,
-      );
-      const cleanedResponse = removeFunctions(triggers);
-      ctx.postMessage({ triggers: cleanedResponse, errors: ERRORS });
-      ERRORS = [];
-      break;
-    }
-    case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
-      clearCaches();
-      ctx.postMessage(true);
-      break;
-    }
-    case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE: {
-      const { propertyPath } = rest;
-      clearPropertyCache(propertyPath);
-      ctx.postMessage(true);
-      break;
-    }
-    case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET: {
-      const { widgetName } = rest;
-      clearPropertyCacheOfWidget(widgetName);
-      ctx.postMessage(true);
-      break;
-    }
-    case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
-      const { widgetType, property, value, props } = rest;
-      const result = validateWidgetProperty(widgetType, property, value, props);
-      const cleanedResponse = removeFunctions(result);
-      ctx.postMessage(cleanedResponse);
-      break;
-    }
-    default: {
-      console.error("Action not registered on worker", action);
-    }
-  }
-});
+  }),
+);
 
 let dependencyTreeCache: any = {};
 let cachedDataTreeString = "";
@@ -168,8 +183,9 @@ function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   const loadingTreeEnd = performance.now();
 
   // Validate Widgets
+  const validateTreeStart = performance.now();
   const validated = getValidatedTree(treeWithLoading);
-
+  const validateTreeEnd = performance.now();
   const withoutFunctions = removeFunctionsFromDataTree(validated);
 
   // End counting total time
@@ -181,9 +197,9 @@ function getEvaluatedDataTree(dataTree: DataTree): DataTree {
     createDeps: (createDepsEnd - createDepsStart).toFixed(2),
     evaluate: (evaluatedTreeEnd - evaluatedTreeStart).toFixed(2),
     loading: (loadingTreeEnd - loadingTreeStart).toFixed(2),
+    validate: (validateTreeEnd - validateTreeStart).toFixed(2),
   };
-  log.debug("data tree evaluated");
-  log.debug(timeTaken);
+  LOGS.push({ timeTaken });
   // dataTreeCache = validated;
   return withoutFunctions;
 }
@@ -887,7 +903,7 @@ function evaluateDynamicProperty(
   if (isCacheHit && cacheObj) {
     return cacheObj.evaluated;
   } else {
-    log.debug("eval " + propertyPath);
+    LOGS.push("eval " + propertyPath);
     const dynamicResult = getDynamicValue(
       unEvalPropertyValue,
       currentTree,
