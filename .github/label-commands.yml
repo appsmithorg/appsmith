@@ -3,4 +3,4 @@
 
 # Actions taken when the `Datasources` label is added
 Datasources:
-  label: advanced
+  label: ['advanced']
