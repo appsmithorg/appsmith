@@ -36,7 +36,7 @@ public class DBAuth extends AuthenticationDTO {
 
     @Override
     public Map<String, String> getEncryptionFields() {
-        if (this.password != null) {
+        if (this.password != null && !this.password.isEmpty()) {
             return Map.of(FieldName.PASSWORD, this.password);
         }
         return Map.of();
@@ -52,7 +52,7 @@ public class DBAuth extends AuthenticationDTO {
     @Override
     public Set<String> getEmptyEncryptionFields() {
         if (this.password == null || this.password.isEmpty()) {
-            return Set.of(FieldName.PASSWORD, null);
+            return Set.of(FieldName.PASSWORD);
         }
         return Set.of();
     }

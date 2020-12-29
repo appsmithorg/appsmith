@@ -2,7 +2,9 @@ package com.appsmith.server.migrations;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
@@ -23,6 +25,7 @@ import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QDatasource;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Query;
 import com.appsmith.server.domains.Role;
@@ -1494,5 +1497,72 @@ public class DatabaseChangelog {
                 return null;
             }
         });
+    }
+
+    @ChangeSet(order = "046", id = "ensure-encrypted-field-for-datasources", author = "")
+    public void ensureIsEncryptedFieldForDatasources(MongoTemplate mongoTemplate) {
+        final String isEncryptedField = "datasourceConfiguration.authentication.isEncrypted";
+        final String passwordField = "datasourceConfiguration.authentication.password";
+
+        final org.springframework.data.mongodb.core.query.Query query = query(new Criteria().andOperator(
+                where(passwordField).exists(true),
+                where(isEncryptedField).exists(false)
+        ));
+        query.fields().include("_id");
+
+        for (final Datasource datasource : mongoTemplate.find(query, Datasource.class)) {
+            mongoTemplate.updateFirst(
+                    query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
+                    update(isEncryptedField, true),
+                    Datasource.class
+            );
+        }
+    }
+
+    @ChangeSet(order = "047", id = "add-isSendSessionEnabled-key-for-datasources", author = "")
+    public void addIsSendSessionEnabledPropertyInDatasources(MongoTemplate mongoTemplate) {
+
+        String keyName = "isSendSessionEnabled";
+
+        Plugin restApiPlugin = mongoTemplate.findOne(
+                query(where("packageName").is("restapi-plugin")),
+                Plugin.class
+        );
+
+        final org.springframework.data.mongodb.core.query.Query query = query(where("pluginId").is(restApiPlugin.getId()));
+
+        for (Datasource datasource : mongoTemplate.find(query, Datasource.class)) {
+            // Find if the datasource should be updated with the new key
+            Boolean updateRequired = false;
+            if (datasource.getDatasourceConfiguration() == null) {
+                updateRequired = true;
+                datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+                datasource.getDatasourceConfiguration().setProperties(new ArrayList<>());
+            } else if (datasource.getDatasourceConfiguration().getProperties() == null) {
+                updateRequired = true;
+                datasource.getDatasourceConfiguration().setProperties(new ArrayList<>());
+            } else {
+                List<Property> properties = datasource.getDatasourceConfiguration().getProperties();
+                Optional<Property> isSendSessionEnabledOptional = properties
+                        .stream()
+                        .filter(property -> property.getKey().equals(keyName))
+                        .findFirst();
+
+                if (!isSendSessionEnabledOptional.isPresent()) {
+                    updateRequired = true;
+                }
+            }
+
+            // If the property does not exist, add the same.
+            if (updateRequired) {
+                Property newProperty = new Property();
+                newProperty.setKey(keyName);
+                newProperty.setValue("N");
+                datasource.getDatasourceConfiguration().getProperties().add(newProperty);
+                mongoTemplate.save(datasource);
+            }
+
+        }
+
     }
 }

@@ -32,7 +32,7 @@ const AppViewerBody = styled.section`
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
 `;
 
 export type AppViewerProps = {

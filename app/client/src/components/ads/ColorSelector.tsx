@@ -13,30 +13,30 @@ const Palette = styled.div<{ fill?: boolean }>`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  padding: ${props => props.theme.spaces[4]}px
-    ${props => props.theme.spaces[5]}px;
-  width: ${props => (props.fill ? "100%" : "234px")};
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[5]}px;
+  width: ${(props) => (props.fill ? "100%" : "234px")};
 `;
 
 const ColorBox = styled.div<{ selected: string; color: string }>`
-  width: ${props => props.theme.spaces[8]}px;
-  height: ${props => props.theme.spaces[8]}px;
-  margin: 0 ${props => props.theme.spaces[2]}px
-    ${props => props.theme.spaces[2]}px 0;
-  background-color: ${props => props.color};
+  width: ${(props) => props.theme.spaces[8]}px;
+  height: ${(props) => props.theme.spaces[8]}px;
+  margin: 0 ${(props) => props.theme.spaces[2]}px
+    ${(props) => props.theme.spaces[2]}px 0;
+  background-color: ${(props) => props.color};
   cursor: pointer;
   position: relative;
 
   &:hover {
-    box-shadow: 0px 0px 0px ${props => props.theme.spaces[1] - 1}px
-      ${props => props.theme.colors.colorSelector.shadow};
+    box-shadow: 0px 0px 0px ${(props) => props.theme.spaces[1] - 1}px
+      ${(props) => props.theme.colors.colorSelector.shadow};
   }
 
   &:nth-child(9n) {
     margin-right: 0px;
   }
 
-  ${props =>
+  ${(props) =>
     props.selected === props.color
       ? `&::before {
     content: "";

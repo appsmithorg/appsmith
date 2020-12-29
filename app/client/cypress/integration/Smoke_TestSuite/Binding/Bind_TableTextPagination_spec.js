@@ -23,8 +23,8 @@ describe("Test Create Api and Bind to Table widget", function() {
     /**Bind Table with Textwidget with selected row */
     cy.SearchEntityandOpen("Text1");
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
-    cy.get(commonlocators.editPropCrossButton).click();
-    cy.readTabledata("0", "0").then(tabData => {
+    cy.SearchEntityandOpen("Table1");
+    cy.readTabledata("0", "0").then((tabData) => {
       const tableData = tabData;
       localStorage.setItem("tableDataPage1", tableData);
     });

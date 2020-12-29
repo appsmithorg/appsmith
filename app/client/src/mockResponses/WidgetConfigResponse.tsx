@@ -293,7 +293,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       const iconChild =
                         widget.children &&
                         widget.children.find(
-                          child => child.type === "ICON_WIDGET",
+                          (child) => child.type === "ICON_WIDGET",
                         );
 
                       if (iconChild && parent) {

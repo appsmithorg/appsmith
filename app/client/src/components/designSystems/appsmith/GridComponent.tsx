@@ -22,12 +22,12 @@ const GridContainer = styled.div<GridComponentProps>`
   height: 100%;
   width: 100%;
   position: relative;
-  background: ${props => props.backgroundColor};
+  background: ${(props) => props.backgroundColor};
   border: 1px solid #e1e1e1;
-  border-bottom-right-radius: ${props => `${props.theme.radii[1]}px`};
-  border-bottom-left-radius: ${props => `${props.theme.radii[1]}px`};
-  border-top-right-radius: ${props => `${props.theme.radii[1]}px`};
-  border-top-left-radius: ${props => `${props.theme.radii[1]}px`};
+  border-bottom-right-radius: ${(props) => `${props.theme.radii[1]}px`};
+  border-bottom-left-radius: ${(props) => `${props.theme.radii[1]}px`};
+  border-top-right-radius: ${(props) => `${props.theme.radii[1]}px`};
+  border-top-left-radius: ${(props) => `${props.theme.radii[1]}px`};
 `;
 
 const ScrollableCanvasWrapper = styled.div<
@@ -38,7 +38,7 @@ const ScrollableCanvasWrapper = styled.div<
   width: 100%;
   height: 100%;
   overflow: hidden;
-  ${props => (props.shouldScrollContents ? scrollContents : "")}
+  ${(props) => (props.shouldScrollContents ? scrollContents : "")}
 `;
 
 const GridComponent = (props: GridComponentProps) => {
