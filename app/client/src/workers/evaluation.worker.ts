@@ -210,6 +210,7 @@ const addFunctions = (dataTree: DataTree): DataTree => {
     const entity = dataTree[entityName];
     if (
       entity &&
+      _.isObject(entity) &&
       "ENTITY_TYPE" in entity &&
       entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
     ) {
@@ -318,7 +319,7 @@ const createDependencyTree = (
   const allKeys = getAllPaths(dataTree);
   Object.keys(dataTree).forEach((entityKey) => {
     const entity = dataTree[entityKey];
-    if (entity && "ENTITY_TYPE" in entity) {
+    if (_.isObject(entity) && "ENTITY_TYPE" in entity) {
       if (
         entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET ||
         entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
@@ -426,7 +427,7 @@ const setTreeLoading = (
   // Fetch all actions that are in loading state
   Object.keys(dataTree).forEach((e) => {
     const entity = dataTree[e];
-    if (entity && "ENTITY_TYPE" in entity) {
+    if (_.isObject(entity) && "ENTITY_TYPE" in entity) {
       if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
         widgets.push(e);
       } else if (
@@ -827,7 +828,11 @@ export const clearPropertyCacheOfWidget = (widgetName: string) => {
 const dependencyCache: Map<string, any[]> = new Map();
 
 function isWidget(entity: DataTreeEntity): boolean {
-  return "ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET;
+  return (
+    _.isObject(entity) &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET
+  );
 }
 
 function validateAndParseWidgetProperty(
