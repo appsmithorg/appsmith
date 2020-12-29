@@ -1545,7 +1545,7 @@ public class DatabaseChangelog {
                 List<Property> properties = datasource.getDatasourceConfiguration().getProperties();
                 Optional<Property> isSendSessionEnabledOptional = properties
                         .stream()
-                        .filter(property -> property.getKey().equals(keyName))
+                        .filter(property -> keyName.equals(property.getKey()))
                         .findFirst();
 
                 if (!isSendSessionEnabledOptional.isPresent()) {
