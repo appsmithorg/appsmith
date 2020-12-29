@@ -61,3 +61,8 @@ Please check out our [Testing Contribution](docs/TestAutomation.md) guide for mo
   cd app/server
   mvn clean package
 ```
+
+### Contribute Code
+#### Server Code
+Please follow these guidelines according to the module that you wish to contribute to:
+- [Plugin](https://github.com/appsmithorg/appsmith/tree/release/contributions/ServerCodeContributionsGuidelines/PluginCodeContributionsGuidelines.md)

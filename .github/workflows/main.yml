@@ -1,0 +1,15 @@
+name: "Super Labeler"
+on:
+  issues:
+    types: [labeled, opened, edited, closed, reopened]
+  project_card:
+    types: [created, moved, deleted]
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
