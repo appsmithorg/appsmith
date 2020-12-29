@@ -1,4 +1,4 @@
 projects:
-  - match: Product Roadmap # RegExp for project name
+  - match: * # RegExp for project name
     labels: # List of label's rules
       - required: ["Project"] # Labels that should be on issues from matching projects
