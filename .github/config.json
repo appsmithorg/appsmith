@@ -1,11 +1,11 @@
 {
   "labels": {
-    "Actions": {
+    "actions": {
       "name": "Actions",
       "color": "61ed84",
       "description": "Issues related to API / Query execution"
     },
-    "Datasources": {
+    "dataSources": {
       "name": "Datasources",
       "color": "f285e1",
       "description": ""
@@ -15,16 +15,17 @@
     {
       "root": ".",
       "projectType": "other",
-      "versioning": "other",
+      "versioning": "SemVer",
       "prereleaseName": "alpha",
       "issue": {
         "labels": {
-          "Actions": {
+          "ref": "release",
+          "actions": {
             "requires": 1,
             "conditions": [
               {
                 "type": "hasLabel",
-                "label": "Datasources",
+                "label": "dataSources",
                 "value": "true"
               }
             ]
