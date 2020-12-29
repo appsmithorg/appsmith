@@ -17,7 +17,35 @@
       "projectType": "other",
       "versioning": "SemVer",
       "prereleaseName": "alpha",
-      "issue": {}
+      "issue": {
+        "assignProject": [
+          {
+            "project": "Issues",
+            "column": "New",
+            "requires": 1,
+            "conditions": [
+              {
+                "type": "hasLabel",
+                "label": "Type - Bug",
+                "value": true
+              }
+            ]
+          }
+        ],
+        "assignColumn": {},
+        "createBranch": {},
+        "labels": {
+          "bug": {
+            "requires": 1,
+            "conditions": [
+              {
+                "type": "descriptionMatches",
+                "pattern": "/^- platform:.*android/im"
+              }
+            ]
+          }
+        }
+      }
     }
   ]
 }
