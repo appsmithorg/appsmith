@@ -3,6 +3,8 @@
     {
       "root": ".",
       "projectType": "other",
+      "versioning": "SemVer",
+      "prereleaseName": "alpha",
       "issue": {
         "labels": {
           "Actions": {
