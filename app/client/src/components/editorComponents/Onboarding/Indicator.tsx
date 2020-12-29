@@ -28,6 +28,10 @@ const IndicatorWrapper = styled.div<{ offset?: any }>`
   }
 `;
 
+const Wrapper = styled.div`
+  position: relative;
+`;
+
 const Indicator = (props: any) => {
   const indicatorRef = useRef<HTMLDivElement>(null);
   const showingIndicator = useSelector(
@@ -47,10 +51,10 @@ const Indicator = (props: any) => {
 
   if (showingIndicator === props.step) {
     return (
-      <div style={{ position: "relative" }} className="t--onboarding-indicator">
+      <Wrapper className="t--onboarding-indicator">
         <IndicatorWrapper ref={indicatorRef} offset={props.offset} />
         {props.children}
-      </div>
+      </Wrapper>
     );
   }
 

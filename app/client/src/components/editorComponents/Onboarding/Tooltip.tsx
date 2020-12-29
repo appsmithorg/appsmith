@@ -131,6 +131,7 @@ const OnboardingToolTip: React.FC<OnboardingToolTipProps> = (
   const popoverRef: RefObject<Popover> = useRef(null);
   const tooltipConfig = useSelector(getTooltipConfig);
   const { isFinalStep = false } = tooltipConfig;
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (props.step.includes(showingTooltip) && props.show) {
@@ -161,6 +162,11 @@ const OnboardingToolTip: React.FC<OnboardingToolTipProps> = (
             },
             hide: { enabled: false },
             offset: props.offset,
+          }}
+          onInteraction={(nextOpenState: boolean) => {
+            if (!nextOpenState) {
+              dispatch(showTooltip(OnboardingStep.NONE));
+            }
           }}
         >
           {props.children}
