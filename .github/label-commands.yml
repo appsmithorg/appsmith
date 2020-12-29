@@ -2,6 +2,7 @@
 # ---------------------------------------------
 
 # Actions taken when the `Datasources` label is added
-Datasources:
-  labels: -Datasources
-  lock: true
+issues:
+  Datasources:
+    labels: Actions
+    lock: true
