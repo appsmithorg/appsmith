@@ -7,13 +7,13 @@
     "issue": {
       "ref": "develop",
       "labels": {
-        "UI Building": {
+        "Actions": {
           "requires": 1,
           "conditions": [
             {
               "type": "hasLabel",
-              "label": "Bug",
-              "value": "false"
+              "label": "Datasources",
+              "value": "true"
             }
           ]
         }
