@@ -60,7 +60,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: VALIDATION_TYPES.TEXT,
       defaultSearchText: VALIDATION_TYPES.TEXT,
       primaryColumns: VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY,
-      derviedColumns: VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY,
+      derivedColumns: VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY,
       defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
     };
   }
