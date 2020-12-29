@@ -23,7 +23,6 @@ import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import toposort from "toposort";
 import { DATA_BIND_REGEX } from "../constants/BindingsConstants";
 import equal from "fast-deep-equal/es6";
-import * as log from "loglevel";
 import unescapeJS from "unescape-js";
 
 import { applyChange, diff, Diff } from "deep-diff";
@@ -43,6 +42,7 @@ import {
 const ctx: Worker = self as any;
 
 let dataTreeEvaluator: DataTreeEvaluator | undefined;
+let LOGS: any[] = [];
 
 type EvalResult = {
   result: any;
@@ -50,18 +50,28 @@ type EvalResult = {
 };
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
-function messageEventListener(fn: any) {
+function messageEventListener(
+  fn: (message: EVAL_WORKER_ACTIONS, requestData: any) => void,
+) {
   return (e: MessageEvent) => {
+    const startTime = performance.now();
     const { method, requestId, requestData } = e.data;
     const responseData = fn(method, requestData);
+    const endTime = performance.now();
+    ctx.postMessage({
+      requestId,
+      responseData,
+      timeTaken: (endTime - startTime).toFixed(2),
+    });
     ctx.postMessage({ requestId, responseData });
+    LOGS = [];
   };
 }
 
 ctx.addEventListener(
   "message",
-  messageEventListener((method: string, requestData: any) => {
-    switch (method as EVAL_WORKER_ACTIONS) {
+  messageEventListener((method, requestData: any) => {
+    switch (method) {
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const { widgetTypeConfigMap, unevalTree } = requestData;
         let dataTree: DataTree = unevalTree;
@@ -100,6 +110,7 @@ ctx.addEventListener(
           dataTree,
           dependencies,
           errors,
+          logs: LOGS,
         };
       }
       case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
@@ -239,7 +250,7 @@ export class DataTreeEvaluator {
       evaluate: (evaluateEnd - evaluateStart).toFixed(2),
       validate: (validateEnd - validateStart).toFixed(2),
     };
-    console.log({ timeTakenForFirstTree });
+    LOGS.push({ timeTakenForFirstTree });
   }
 
   updateDataTree(unEvalTree: DataTree) {
@@ -270,7 +281,7 @@ export class DataTreeEvaluator {
 
     const calculateSortOrderStop = performance.now();
 
-    console.log({
+    LOGS.push({
       differences,
       subTreeSortOrder,
       sortedDependencies: this.sortedDependencies,
@@ -328,7 +339,7 @@ export class DataTreeEvaluator {
       setLoading: (loadingStop - loadingStart).toFixed(2),
       validate: (validateEnd - validateStart).toFixed(2),
     };
-    console.log({ timeTakenForSubTreeEval });
+    LOGS.push({ timeTakenForSubTreeEval });
     return this.evalTree;
   }
 
@@ -484,7 +495,7 @@ export class DataTreeEvaluator {
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, propertyPath: string) => {
-          console.log("evaluating", propertyPath);
+          LOGS.push("evaluating", propertyPath);
           const entityName = propertyPath.split(".")[0];
           const entity: DataTreeEntity = currentTree[entityName];
           const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
@@ -775,7 +786,6 @@ export class DataTreeEvaluator {
       currentTree,
       false,
     );
-    log.debug("eval " + propertyPath);
 
     return dynamicResult;
   }
@@ -1029,7 +1039,7 @@ export class DataTreeEvaluator {
     }
 
     const updateChangedDependenciesStop = performance.now();
-    console.log({
+    LOGS.push({
       diffCalcDeps: (diffCalcEnd - diffCalcStart).toFixed(2),
       subDepCalc: (subDepCalcEnd - subDepCalcStart).toFixed(2),
       updateChangedDependencies: (

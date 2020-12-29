@@ -84,8 +84,9 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
     },
   );
 
-  const { errors, dataTree, dependencies } = workerResponse;
+  const { errors, dataTree, dependencies, logs } = workerResponse;
   log.debug({ dataTree: dataTree });
+  logs.forEach((evalLog: any) => log.debug(evalLog));
   evalErrorHandler(errors);
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
