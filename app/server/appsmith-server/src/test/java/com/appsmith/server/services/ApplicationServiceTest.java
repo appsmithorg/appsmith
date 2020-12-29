@@ -15,6 +15,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
@@ -988,6 +989,53 @@ public class ApplicationServiceTest {
 
                     // Assert that the published page has 1 layout
                     assertThat(publishedPage.getLayouts()).hasSize(1);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validGetApplicationPagesMultiPageApp() {
+        Application app = new Application();
+        app.setName("validGetApplicationPagesMultiPageApp-Test");
+
+        Mono<Application> createApplicationMono = applicationPageService.createApplication(app, orgId)
+                .cache();
+
+        // Create all the pages for this application in a blocking manner.
+        createApplicationMono
+                .flatMap(application -> {
+                    PageDTO testPage = new PageDTO();
+                    testPage.setName("Page2");
+                    testPage.setApplicationId(application.getId());
+                    return applicationPageService.createPage(testPage)
+                            .then(Mono.just(application));
+                })
+                .flatMap(application -> {
+                    PageDTO testPage = new PageDTO();
+                    testPage.setName("Page3");
+                    testPage.setApplicationId(application.getId());
+                    return applicationPageService.createPage(testPage)
+                            .then(Mono.just(application));
+                })
+                .flatMap(application -> {
+                    PageDTO testPage = new PageDTO();
+                    testPage.setName("Page4");
+                    testPage.setApplicationId(application.getId());
+                    return applicationPageService.createPage(testPage);
+                })
+                .block();
+
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = createApplicationMono
+                .map(application -> application.getId())
+                .flatMap(applicationId -> newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId, false));
+
+        StepVerifier
+                .create(applicationPagesDTOMono)
+                .assertNext(applicationPagesDTO -> {
+                    assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
+                    Set<String> pageNames = applicationPagesDTO.getPages().stream().map(pageNameIdDTO -> pageNameIdDTO.getName()).collect(Collectors.toSet());
+                    assertThat(pageNames).containsExactlyInAnyOrder("Page1", "Page2", "Page3", "Page4");
                 })
                 .verifyComplete();
     }
