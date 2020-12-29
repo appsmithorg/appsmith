@@ -1,6 +1,6 @@
 on:
   issues:
-    types: [labeled, opened, edited, closed, reopened]
+    types: []
 
 jobs:
   run:
