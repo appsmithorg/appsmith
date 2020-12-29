@@ -1,6 +1,7 @@
 import { GracefulWorkerService } from "./WorkerUtil";
 import { runSaga } from "redux-saga";
 import WebpackWorker from "worker-loader!";
+import { cancel } from "redux-saga/effects";
 
 const MessageType = "message";
 class MockWorker implements WebpackWorker {
@@ -174,5 +175,23 @@ describe("GracefulWorkerService", () => {
     expect(MockWorker.instance).not.toEqual(oldInstance);
     // The new worker should get the correct message
     expect(await result2.toPromise()).toEqual(message2);
+  });
+
+  test("Cancelled saga should clean up", async () => {
+    const w = new GracefulWorkerService(MockWorker);
+    const message1 = { tree: "hello" };
+    await runSaga({}, w.start);
+
+    // Need this to work with eslint
+    if (MockWorker.instance === undefined) {
+      expect(MockWorker.instance).toBeDefined();
+      return;
+    }
+    MockWorker.instance.delayMilliSeconds = 100;
+    const result1 = await runSaga({}, w.request, "cancel_test", message1);
+    result1.cancel();
+    // wait for shutdown
+    await (await runSaga({}, w.shutdown)).toPromise();
+    expect(await result1.toPromise()).not.toEqual(message1);
   });
 });

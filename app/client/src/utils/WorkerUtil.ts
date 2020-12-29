@@ -1,4 +1,4 @@
-import { all, put, take, race, delay } from "redux-saga/effects";
+import { all, put, take } from "redux-saga/effects";
 import { channel, Channel, buffers } from "redux-saga";
 import _ from "lodash";
 import log from "loglevel";
@@ -18,7 +18,7 @@ import WebpackWorker from "worker-loader!";
  *   requestData: { hello: "world" },
  * }
  *
- * Worker is expected to respond with an object with exactly the `requestId` and `responseData` keys:
+ * Worker is expected to respond with an object with exactly the `requestId`, `timeTaken` and `responseData` keys:
  * {
  *   requestId: "<the id it received>",
  *   responseData: 42,
@@ -70,11 +70,10 @@ export class GracefulWorkerService {
    * Note: Shuts down the old worker, if one exists.
    */
   *start() {
-    //TODO: call this on editor unmount as part of a separate PR
-    yield this.shutdown();
+    // Ignore if already started
+    if (this._isReady || this._evaluationWorker) return;
     this._evaluationWorker = new this._workerClass();
     this._evaluationWorker.addEventListener("message", this._broker);
-
     // Inform all pending requests that we're good to go!
     this._isReady = true;
     yield put(this._readyChan, true);

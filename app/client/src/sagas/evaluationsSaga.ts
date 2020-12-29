@@ -221,6 +221,8 @@ const EVALUATE_REDUX_ACTIONS = [
 ];
 
 function* evaluationChangeListenerSaga() {
+  // Explicitly shutdown old worker if present
+  yield call(worker.shutdown);
   yield call(worker.start);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   yield fork(evaluateTreeSaga);
