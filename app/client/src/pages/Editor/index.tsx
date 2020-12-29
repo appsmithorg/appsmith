@@ -136,7 +136,7 @@ class Editor extends Component<Props> {
           group="Canvas"
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e) && isMac()) {
-              this.props.pasteCopiedWidget();
+              this.props.deleteSelectedWidget();
             }
           }}
         />
