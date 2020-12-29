@@ -1,23 +1,22 @@
-[
-  {
-    "root": ".",
-    "projectType": "node",
-    "versioning": "SemVer",
-    "prereleaseName": "alpha",
-    "issue": {
-      "ref": "develop",
-      "labels": {
-        "Actions": {
-          "requires": 1,
-          "conditions": [
-            {
-              "type": "hasLabel",
-              "label": "Datasources",
-              "value": "true"
-            }
-          ]
+{
+  "runners": [
+    {
+      "root": ".",
+      "projectType": "other",
+      "issue": {
+        "labels": {
+          "Actions": {
+            "requires": 1,
+            "conditions": [
+              {
+                "type": "hasLabel",
+                "label": "Datasources",
+                "value": "true"
+              }
+            ]
+          }
         }
       }
     }
-  }
-]
+  ]
+}
