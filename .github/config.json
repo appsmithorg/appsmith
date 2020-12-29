@@ -1,0 +1,23 @@
+[
+  {
+    "root": ".",
+    "projectType": "node",
+    "versioning": "SemVer",
+    "prereleaseName": "alpha",
+    "issue": {
+      "ref": "develop",
+      "labels": {
+        "UI Building": {
+          "requires": 1,
+          "conditions": [
+            {
+              "type": "hasLabel",
+              "label": "Bug",
+              "value": "false"
+            }
+          ]
+        }
+      }
+    }
+  }
+]
