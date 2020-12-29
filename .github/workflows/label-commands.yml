@@ -8,7 +8,7 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - uses: bubkoo/label-commands@v1.0.6
+      - uses: bubkoo/label-commands@v1.0.5
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CONFIG_FILE: .github/label-commands.yml
