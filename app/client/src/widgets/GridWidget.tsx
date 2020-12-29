@@ -59,6 +59,7 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
         ...child,
         topRow: index * children[0].bottomRow,
         bottomRow: (index + 1) * children[0].bottomRow,
+        resizeEnabled: index === 0 ? true : false,
       };
     });
   };
@@ -95,7 +96,15 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
   //             {
   //               container: {
   //                 children: [
-  //                   {
+  //                   0: {
+  //                     canvas: [
+  //                       {
+  //                         button
+  //                         image
+  //                       }
+  //                     ]
+  //                   },
+  //                   1: {
   //                     canvas: [
   //                       {
   //                         button
@@ -118,6 +127,8 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
    */
   renderChildren = () => {
     const numberOfItemsInGrid = this.props.items.length;
+
+    console.log({ props: this.props });
 
     if (this.props.children && this.props.children.length > 0) {
       const children = removeFalsyEntries(this.props.children);
