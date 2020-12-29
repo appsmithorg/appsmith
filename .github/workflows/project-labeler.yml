@@ -1,16 +1,9 @@
 name: "Project Labeler"
 on:
   issues:
-    types:
-      - assigned
-      - opened
-      - edited
+    types: [assigned, opened, edited]
   project_card:
-    action:
-      - converted
-      - moved
-      - deleted
-      - created
+    types: [converted, moved, deleted, created]
 
 jobs:
   triage:
