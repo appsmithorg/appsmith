@@ -65,7 +65,7 @@ module.exports = (on, config) => {
    *
    * Cypress.env("APPSMITH_FOO") // <empty>
    */
-  Object.keys(process.env).forEach(key => {
+  Object.keys(process.env).forEach((key) => {
     if (
       key.startsWith("APPSMITH_") &&
       !Object.prototype.hasOwnProperty.call(config.env, key)
@@ -89,7 +89,7 @@ module.exports = (on, config) => {
         encoding: "utf-8",
       }),
     );
-    Object.keys(parsedEnv).forEach(key => {
+    Object.keys(parsedEnv).forEach((key) => {
       if (!Object.prototype.hasOwnProperty.call(config.env, key)) {
         config.env[key] = parsedEnv[key];
       }
