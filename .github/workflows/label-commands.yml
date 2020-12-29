@@ -1,9 +1,9 @@
 name: Label Commands
 on:
   pull_request:
-    types: [labeled, unlabeled]
+    types: [labeled]
   issues:
-    types: [labeled, unlabeled]
+    types: [labeled]
 jobs:
   run:
     runs-on: ubuntu-latest
