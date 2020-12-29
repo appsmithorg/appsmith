@@ -2,8 +2,6 @@ name: "Super Labeler"
 on:
   issues:
     types: [labeled, opened, edited, closed, reopened]
-  project_card:
-    types: [created, moved, deleted]
 
 jobs:
   run:
@@ -14,4 +12,3 @@ jobs:
 
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          config: .github/config.json
