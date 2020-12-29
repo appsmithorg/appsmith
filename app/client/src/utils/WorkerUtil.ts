@@ -151,7 +151,7 @@ export class GracefulWorkerService {
     });
     // The `this._broker` method is listening to events and will pass response to us over this channel.
     const response = yield take(this._channels[requestId]);
-    const { timeTaken, ...responseData } = response;
+    const { timeTaken, responseData } = response;
     // Log perf of main thread and worker
     const mainThreadEndTime = performance.now();
     const timeTakenOnMainThread = (
@@ -174,6 +174,6 @@ export class GracefulWorkerService {
       return;
     }
     const { requestId, responseData, timeTaken } = event.data;
-    yield put(this._channels[requestId], { ...responseData, timeTaken });
+    yield put(this._channels[requestId], { responseData, timeTaken });
   }
 }

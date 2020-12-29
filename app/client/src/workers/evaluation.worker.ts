@@ -873,6 +873,11 @@ export class DataTreeEvaluator {
     const diffCalcStart = performance.now();
     let didUpdateDependencyMap = false;
     const removedNodes: Array<string> = [];
+
+    // This is needed for NEW and DELETE events below.
+    // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
+    // TODO: Optimise by only getting paths of changed node
+    this.allKeys = getAllPaths(unEvalDataTree);
     // Transform the diff library events to Appsmith evaluator events
     differences
       .map(translateDiffEventToDataTreeDiffEvent)
@@ -898,18 +903,12 @@ export class DataTreeEvaluator {
                 );
                 if (Object.keys(widgetDependencyMap).length) {
                   didUpdateDependencyMap = true;
-                  this.dependencyMap = {
-                    ...this.dependencyMap,
-                    ...widgetDependencyMap,
-                  };
+                  Object.assign(this.dependencyMap, widgetDependencyMap);
                 }
               }
               // Either a new entity or a new property path has been added. Go through existing dynamic bindings and
               // find out if a new dependency has to be created because the property path used in the binding just became
               // eligible
-              // TODO: Optimise by only getting paths of changed node
-              this.allKeys = getAllPaths(unEvalDataTree);
-              // QQ: How are we getting possible references without passing allkeys to thus func
               const possibleReferencesInOldBindings: DependencyMap = this.getPropertyPathReferencesInExistingBindings(
                 unEvalDataTree,
                 dataTreeDiff.payload.propertyPath,
@@ -918,10 +917,10 @@ export class DataTreeEvaluator {
               // global dependency map
               if (Object.keys(possibleReferencesInOldBindings).length) {
                 didUpdateDependencyMap = true;
-                this.dependencyMap = {
-                  ...this.dependencyMap,
-                  ...possibleReferencesInOldBindings,
-                };
+                Object.assign(
+                  this.dependencyMap,
+                  possibleReferencesInOldBindings,
+                );
               }
               break;
             }
@@ -946,7 +945,6 @@ export class DataTreeEvaluator {
               }
               // Either an existing entity or an existing property path has been deleted. Update the global dependency map
               // by removing the bindings from the same.
-              this.allKeys = getAllPaths(unEvalDataTree);
               Object.keys(this.dependencyMap).forEach((dependencyPath) => {
                 didUpdateDependencyMap = true;
                 // TODO delete via regex
@@ -1125,6 +1123,9 @@ export class DataTreeEvaluator {
     return inverseDag;
   }
 
+  // TODO: create the lookup dictionary once
+  // Response from listEntityDependencies only needs to change if the entity itself changed.
+  // Check if it is possible to make a flat structure with O(1) or at least O(m) lookup instead of O(n*m)
   getPropertyPathReferencesInExistingBindings(
     dataTree: DataTree,
     propertyPath: string,
@@ -1196,22 +1197,22 @@ export class DataTreeEvaluator {
 const getAllPaths = (
   tree: Record<string, any>,
   prefix = "",
+  result: Record<string, true> = {},
 ): Record<string, true> => {
-  return Object.keys(tree).reduce((res: Record<string, true>, el): Record<
-    string,
-    true
-  > => {
+  Object.keys(tree).forEach((el) => {
     if (Array.isArray(tree[el])) {
       const key = `${prefix}${el}`;
-      return { ...res, [key]: true };
+      result[key] = true;
     } else if (typeof tree[el] === "object" && tree[el] !== null) {
       const key = `${prefix}${el}`;
-      return { ...res, [key]: true, ...getAllPaths(tree[el], `${key}.`) };
+      result[key] = true;
+      getAllPaths(tree[el], `${key}.`, result);
     } else {
       const key = `${prefix}${el}`;
-      return { ...res, [key]: true };
+      result[key] = true;
     }
-  }, {});
+  });
+  return result;
 };
 
 const extractReferencesFromBinding = (

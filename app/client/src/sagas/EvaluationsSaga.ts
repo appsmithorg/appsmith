@@ -6,8 +6,10 @@ import {
   select,
   take,
   takeLatest,
+  actionChannel,
 } from "redux-saga/effects";
 
+import { buffers } from "redux-saga";
 import {
   EvaluationReduxAction,
   ReduxAction,
@@ -232,9 +234,13 @@ function* evaluationChangeListenerSaga() {
     ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
   ]);
   yield fork(evaluateTreeSaga, action.postEvalActions);
+  const evaluationActionsChannel = yield actionChannel(
+    EVALUATE_REDUX_ACTIONS,
+    buffers.sliding(1),
+  );
   while (true) {
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
-      EVALUATE_REDUX_ACTIONS,
+      evaluationActionsChannel,
     );
     // When batching success action happens, we need to only evaluate
     // if the batch had any action we need to evaluate properties for
@@ -252,7 +258,7 @@ function* evaluationChangeListenerSaga() {
       }
     }
     log.debug(`Evaluating`, { action });
-    yield fork(evaluateTreeSaga, action.postEvalActions);
+    yield call(evaluateTreeSaga, action.postEvalActions);
   }
   // TODO(hetu) need an action to stop listening and evaluate (exit app)
 }
