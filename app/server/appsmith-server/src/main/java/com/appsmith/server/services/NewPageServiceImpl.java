@@ -29,6 +29,7 @@ import javax.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
@@ -198,12 +199,9 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     } else {
                         pages = application.getPages();
                     }
-                    return pages;
+                    return pages.stream().map(page -> page.getId()).collect(Collectors.toList());
                 })
-                .flatMapMany(Flux::fromIterable)
-                .flatMap(page -> this.findById(page.getId(), READ_PAGES)
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, page.getId())))
-                )
+                .flatMapMany(pageIds -> repository.findAllByIds(pageIds, READ_PAGES))
                 .collectList()
                 .zipWith(defaultPageIdMono)
                 .flatMap(tuple -> {
