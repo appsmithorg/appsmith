@@ -1,15 +1,8 @@
-import { all, put, take, takeEvery } from "redux-saga/effects";
-import {
-  eventChannel,
-  EventChannel,
-  channel,
-  Channel,
-  END,
-  buffers,
-} from "redux-saga";
+import { all, put, take, race, delay } from "redux-saga/effects";
+import { channel, Channel, buffers } from "redux-saga";
 import _ from "lodash";
 import log from "loglevel";
-
+import WebpackWorker from "worker-loader!";
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
  *
@@ -28,7 +21,8 @@ import log from "loglevel";
  * Worker is expected to respond with an object with exactly the `requestId` and `responseData` keys:
  * {
  *   requestId: "<the id it received>",
- *   responseData: 42
+ *   responseData: 42,
+ *   timeTaken: 23.33,
  * }
  * All other keys will be ignored.
  * We make no assumptions about data type of `requestData` or `responseData`.
@@ -40,16 +34,13 @@ import log from "loglevel";
 // TODO: Extract the worker wrapper into a library to be useful to anyone with WebWorkers + redux-saga.
 // TODO: Add support for timeouts on requests and shutdown.
 // TODO: Add a readiness + liveness probes.
-// TODO: Add telemetry.
 export class GracefulWorkerService {
   // We keep track of all in-flight requests with these channels.
   private readonly _channels: {
     [requestId: string]: Channel<any>;
   };
-  // Redux-saga's channel subscriber for our worker.
-  private _workerChannel: EventChannel<any> | undefined;
   // The actual WebWorker
-  private _evaluationWorker: Worker | undefined;
+  private _evaluationWorker: WebpackWorker | undefined;
 
   // Channels in redux-saga are NOT like signals.
   // They operate in `pulse` mode of a signal. But `readiness` is more like a continuous signal.
@@ -59,9 +50,9 @@ export class GracefulWorkerService {
   // Channel to signal all waiters that we're ready. Always use it with `this._isReady`.
   private readonly _readyChan: Channel<any>;
 
-  private readonly _workerClass: any;
+  private readonly _workerClass: typeof WebpackWorker;
 
-  constructor(workerClass: any) {
+  constructor(workerClass: typeof WebpackWorker) {
     this.shutdown = this.shutdown.bind(this);
     this.start = this.start.bind(this);
     this.request = this.request.bind(this);
@@ -82,26 +73,7 @@ export class GracefulWorkerService {
     //TODO: call this on editor unmount as part of a separate PR
     yield this.shutdown();
     this._evaluationWorker = new this._workerClass();
-    this._workerChannel = eventChannel((emitter) => {
-      if (!this._evaluationWorker) {
-        // Impossible case unless something really went wrong
-        // END the channel in that case
-        emitter(END);
-        return _.noop;
-      }
-
-      this._evaluationWorker.addEventListener("message", emitter);
-      // The subscriber must return an unsubscribe function
-      return () => {
-        if (!this._evaluationWorker) return;
-        this._evaluationWorker.removeEventListener("message", emitter);
-        this._evaluationWorker.terminate();
-        this._evaluationWorker = undefined;
-      };
-    });
-
-    // Listen to all messages from the channel and send it to our broker
-    yield takeEvery(this._workerChannel, this._broker);
+    this._evaluationWorker.addEventListener("message", this._broker);
 
     // Inform all pending requests that we're good to go!
     this._isReady = true;
@@ -119,7 +91,10 @@ export class GracefulWorkerService {
     // wait for current responses to drain
     yield all(Object.values(this._channels).map((c) => take(c)));
     // close the worker
-    yield this._workerChannel?.close();
+    if (!this._evaluationWorker) return;
+    this._evaluationWorker.removeEventListener("message", this._broker);
+    this._evaluationWorker.terminate();
+    this._evaluationWorker = undefined;
   }
 
   /**
@@ -149,31 +124,30 @@ export class GracefulWorkerService {
       requestData,
       requestId,
     });
-    // The `this._broker` method is listening to events and will pass response to us over this channel.
-    const response = yield take(this._channels[requestId]);
-    const { timeTaken, ...responseData } = response;
-    // Log perf of main thread and worker
-    const mainThreadEndTime = performance.now();
-    const timeTakenOnMainThread = (
-      mainThreadEndTime - mainThreadStartTime
-    ).toFixed(2);
-    const transferTime = (
-      parseFloat(timeTakenOnMainThread) - parseFloat(timeTaken)
-    ).toFixed(2);
-    log.debug(`Worker ${method} took ${timeTaken}ms`);
-    log.debug(`Main ${method} took ${timeTakenOnMainThread}ms`);
-    log.debug(`Transfer ${method} took ${transferTime}ms`);
-    // Cleanup
-    yield this._channels[requestId].close();
-    delete this._channels[requestId];
-    return responseData;
+    try {
+      // The `this._broker` method is listening to events and will pass response to us over this channel.
+      const response = yield take(this._channels[requestId]);
+      const { timeTaken, responseData } = response;
+      // Log perf of main thread and worker
+      const mainThreadEndTime = performance.now();
+      const timeTakenOnMainThread = mainThreadEndTime - mainThreadStartTime;
+      const transferTime = timeTakenOnMainThread - timeTaken;
+      log.debug(`Worker ${method} took ${timeTaken}ms`);
+      log.debug(`Main ${method} took ${timeTakenOnMainThread.toFixed(2)}ms`);
+      log.debug(`Transfer ${method} took ${transferTime.toFixed(2)}ms`);
+      return responseData;
+    } finally {
+      // Cleanup
+      yield this._channels[requestId].close();
+      delete this._channels[requestId];
+    }
   }
 
-  private *_broker(event: MessageEvent) {
+  private _broker(event: MessageEvent) {
     if (!event || !event.data) {
       return;
     }
     const { requestId, responseData, timeTaken } = event.data;
-    yield put(this._channels[requestId], { ...responseData, timeTaken });
+    this._channels[requestId].put({ responseData, timeTaken });
   }
 }

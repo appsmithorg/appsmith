@@ -1,8 +1,15 @@
 import { GracefulWorkerService } from "./WorkerUtil";
 import { runSaga } from "redux-saga";
+import WebpackWorker from "worker-loader!";
 
 const MessageType = "message";
-class MockWorker {
+class MockWorker implements WebpackWorker {
+  // Implement interface
+  onmessage: any;
+  onmessageerror: any;
+  dispatchEvent: any;
+  onerror: any;
+
   callback: CallableFunction;
   noop: CallableFunction;
   messages: Array<any>;
@@ -26,12 +33,12 @@ class MockWorker {
     this.running = true;
   }
 
-  addEventListener(msgType: string, callback: CallableFunction) {
+  addEventListener(msgType: string, callback: any) {
     expect(msgType).toEqual(MessageType);
     this.callback = callback;
   }
 
-  removeEventListener(msgType: string, callback: CallableFunction) {
+  removeEventListener(msgType: string, callback: any) {
     expect(msgType).toEqual(MessageType);
     expect(callback).toEqual(this.callback);
     this.callback = this.noop;
