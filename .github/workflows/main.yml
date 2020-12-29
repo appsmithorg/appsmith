@@ -9,9 +9,8 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Label Mastermind
-        uses: Videndum/label-mastermind@2.0.0
+      - uses: actions/checkout@v2.3.4
+      - uses: Videndum/label-mastermind@2.0.0
 
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
