@@ -1,7 +1,6 @@
 import { GracefulWorkerService } from "./WorkerUtil";
 import { runSaga } from "redux-saga";
 import WebpackWorker from "worker-loader!";
-import { cancel } from "redux-saga/effects";
 
 const MessageType = "message";
 class MockWorker implements WebpackWorker {
