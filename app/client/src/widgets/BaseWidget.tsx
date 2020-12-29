@@ -286,7 +286,6 @@ abstract class BaseWidget<
     dragEnabled: true,
     dropEnabled: true,
     isDeletable: true,
-    resizeEnabled: true,
   };
 }
 
@@ -357,7 +356,7 @@ export interface WidgetDisplayProps {
   isVisible?: boolean;
   isLoading: boolean;
   isDisabled?: boolean;
-  resizeEnabled?: boolean;
+  resizeDisabled?: boolean;
   backgroundColor?: string;
 }
 

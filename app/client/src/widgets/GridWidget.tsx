@@ -53,13 +53,15 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
   /**
    * @param children
    */
-  updatePosition = (children: ContainerWidgetProps<WidgetProps>[]) => {
-    return children.map((child, index) => {
+  updatePosition = (
+    children: ContainerWidgetProps<WidgetProps>[],
+  ): ContainerWidgetProps<WidgetProps>[] => {
+    return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
       return {
         ...child,
         topRow: index * children[0].bottomRow,
         bottomRow: (index + 1) * children[0].bottomRow,
-        resizeEnabled: index === 0 ? true : false,
+        resizeDisabled: index > 0,
       };
     });
   };
