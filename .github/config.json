@@ -1,4 +1,18 @@
 {
+  {
+  "labels": {
+    "Actions": {
+      "name": "Actions",
+      "color": "61ed84",
+      "description": "Issues related to API / Query execution"
+    },
+    "Datasources": {
+      "name": "Datasources",
+      "color": "f285e1",
+      "description": ""
+    }
+  }
+},
   "runners": [
     {
       "root": ".",
