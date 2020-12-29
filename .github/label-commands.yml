@@ -4,4 +4,4 @@
 # Actions taken when the `Datasources` label is added
 Datasources:
   labels: ['advanced']
-  isLock: true
+  lock: true
