@@ -3,6 +3,14 @@ on:
   issues:
     types:
       - assigned
+      - opened
+      - edited
+  project_card:
+    types:
+      - converted
+      - moved
+      - deleted
+      - created
 
 jobs:
   triage:
