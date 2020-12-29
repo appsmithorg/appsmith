@@ -16,7 +16,8 @@
       "root": ".",
       "projectType": "other",
       "versioning": "SemVer",
-      "prereleaseName": "alpha"
+      "prereleaseName": "alpha",
+      "issue": {}
     }
   ]
 }
