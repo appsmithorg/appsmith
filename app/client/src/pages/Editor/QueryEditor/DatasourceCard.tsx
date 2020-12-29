@@ -27,6 +27,7 @@ const ActionButton = styled(BaseButton)`
   &&&& {
     height: 36px;
     max-width: 120px;
+    width: auto;
   }
 `;
 
@@ -40,6 +41,7 @@ const EditDatasourceButton = styled(BaseButton)`
     height: 36px;
     max-width: 160px;
     border: 1px solid ${Colors.GEYSER_LIGHT};
+    width: auto;
   }
 `;
 
@@ -68,11 +70,8 @@ const Queries = styled.div`
 `;
 
 const ButtonsWrapper = styled.div`
-  flex-direction: row;
-  display: inline-flex;
+  display: flex;
   gap: 10px;
-  flex: 1;
-  justify-content: flex-end;
 `;
 
 type DatasourceCardProps = {
@@ -111,7 +110,7 @@ const DatasourceCard = (props: DatasourceCardProps) => {
   return (
     <Wrapper>
       <DatasourceCardHeader className="t--datasource-name">
-        <div>
+        <div style={{ flex: 1 }}>
           <DatasourceNameWrapper>
             <DatasourceImage
               src={pluginImages[datasource.pluginId]}
