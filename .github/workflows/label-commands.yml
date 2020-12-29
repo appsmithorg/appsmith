@@ -10,5 +10,5 @@ jobs:
     steps:
       - uses: bubkoo/label-commands@v1.0.5
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GIT_ACTION_TOKEN }}
           CONFIG_FILE: .github/label-commands.yml
