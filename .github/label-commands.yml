@@ -3,5 +3,5 @@
 
 # Actions taken when the `Datasources` label is added
 Datasources:
-  labels: advanced
+  labels: "advanced"
   lock: true
