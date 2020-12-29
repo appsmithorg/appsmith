@@ -42,7 +42,6 @@ import {
   unsafeFunctionForEval,
   getEntityDynamicBindingPathList,
   getWidgetDynamicTriggerPathList,
-  isPathADynamicBinding,
   isPathADynamicTrigger,
 } from "../utils/DynamicBindingUtils";
 
@@ -78,17 +77,13 @@ ctx.addEventListener(
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const { widgetTypeConfigMap, dataTree } = requestData;
         WIDGET_TYPE_CONFIG_MAP = widgetTypeConfigMap;
-        const response = getEvaluatedDataTree(dataTree);
         try {
+          const response = getEvaluatedDataTree(dataTree);
           // We need to clean it to remove any possible functions inside the tree.
           // If functions exist, it will crash the web worker
           const cleanDataTree = JSON.stringify(response);
           return { dataTree: cleanDataTree, errors: ERRORS, logs: LOGS };
         } catch (e) {
-          ERRORS.push({
-            type: EvalErrorTypes.EVAL_TREE_ERROR,
-            message: e.message,
-          });
           const cleanDataTree = JSON.stringify(getValidatedTree(dataTree));
           return { dataTree: cleanDataTree, errors: ERRORS, logs: LOGS };
         }
@@ -385,7 +380,8 @@ const createDependencyTree = (
       type: EvalErrorTypes.DEPENDENCY_ERROR,
       message: e.message,
     });
-    return { sortedDependencies: [], dependencyMap: {}, dependencyTree: [] };
+    throw new Error("Dependency Error");
+    //return { sortedDependencies: [], dependencyMap: {}, dependencyTree: [] };
   }
 };
 
@@ -626,15 +622,8 @@ const getValidatedTree = (tree: any) => {
           "invalidProps",
           "validationMessages",
         ].includes(property);
-        const isDynamicField =
-          isPathADynamicBinding(parsedEntity, property) ||
-          isPathADynamicTrigger(parsedEntity, property);
 
-        if (
-          !isSpecialField &&
-          !isDynamicField &&
-          (!hasValidation || !hasEvaluatedValue)
-        ) {
+        if (!isSpecialField && (!hasValidation || !hasEvaluatedValue)) {
           const value = entity[property];
           // Pass it through parse
           const {
