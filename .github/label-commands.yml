@@ -1,0 +1,6 @@
+# Specify commands for issues and pull requests
+# ---------------------------------------------
+
+# Actions taken when the `Datasources` label is added
+Datasources:
+  labels: Actions
