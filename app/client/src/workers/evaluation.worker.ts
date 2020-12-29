@@ -37,6 +37,7 @@ import {
   translateDiffEventToDataTreeDiffEvent,
   makeParentsDependOnChildren,
   validateWidgetProperty,
+  getValidatedTree,
 } from "./evaluationUtils";
 
 const ctx: Worker = self as any;
@@ -62,7 +63,6 @@ ctx.addEventListener(
   messageEventListener((method: string, requestData: any) => {
     switch (method as EVAL_WORKER_ACTIONS) {
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
-        const workerTimeStart = new Date().getTime();
         const { widgetTypeConfigMap, unevalTree } = requestData;
         let dataTree: DataTree = unevalTree;
         let errors: EvalError[] = [];
@@ -95,12 +95,10 @@ ctx.addEventListener(
           }
           dataTreeEvaluator = undefined;
         }
-        const workerTimeEnd = new Date().getTime();
         return {
-          dataTree,
+          dataTree: getValidatedTree(widgetTypeConfigMap, unevalTree),
           dependencies,
           errors,
-          workerTime: (workerTimeEnd - workerTimeStart).toFixed(2),
         };
       }
       case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
@@ -223,7 +221,7 @@ export class DataTreeEvaluator {
     const evaluateEnd = performance.now();
     // Validate Widgets
     const validateStart = performance.now();
-    const validated = this.getValidatedTree(evaluatedTree);
+    const validated = getValidatedTree(this.widgetConfigMap, evaluatedTree);
     const validateEnd = performance.now();
     // Remove functions
     this.evalTree = removeFunctionsFromDataTree(validated);
@@ -305,7 +303,11 @@ export class DataTreeEvaluator {
       subTreeSortOrder.map((path) => path.split(".")[0]),
     );
 
-    const validatedTree = this.getValidatedTree(loadingSetTree, updatedWidgets);
+    const validatedTree = getValidatedTree(
+      this.widgetConfigMap,
+      loadingSetTree,
+      updatedWidgets,
+    );
     const validateEnd = performance.now();
 
     // Remove functions
@@ -849,63 +851,6 @@ export class DataTreeEvaluator {
       return defaultPropertyCache.value;
     }
     return propertyValue;
-  }
-
-  getValidatedTree(tree: DataTree, only?: Set<string>) {
-    return Object.keys(tree).reduce((tree, entityKey: string) => {
-      if (only && only.size) {
-        if (!only.has(entityKey)) {
-          return tree;
-        }
-      }
-      const entity = tree[entityKey] as DataTreeWidget;
-      if (!isWidget(entity)) {
-        return tree;
-      }
-      const parsedEntity = { ...entity };
-      Object.keys(entity).forEach((property: string) => {
-        const validationProperties = this.widgetConfigMap[entity.type]
-          .validations;
-
-        if (property in validationProperties) {
-          const value = _.get(entity, property);
-          // Pass it through parse
-          const {
-            parsed,
-            isValid,
-            message,
-            transformed,
-          } = validateWidgetProperty(
-            this.widgetConfigMap,
-            entity.type,
-            property,
-            value,
-            entity,
-            tree,
-          );
-          parsedEntity[property] = parsed;
-          const evaluatedValue = isValid
-            ? parsed
-            : _.isUndefined(transformed)
-            ? value
-            : transformed;
-          const safeEvaluatedValue = removeFunctions(evaluatedValue);
-          _.set(
-            parsedEntity,
-            `evaluatedValues.${property}`,
-            safeEvaluatedValue,
-          );
-          if (!isValid) {
-            _.set(parsedEntity, `invalidProps.${property}`, true);
-            _.set(parsedEntity, `validationMessages.${property}`, message);
-          } else {
-            _.set(parsedEntity, `invalidProps.${property}`, false);
-            _.set(parsedEntity, `validationMessages.${property}`, "");
-          }
-        }
-      });
-      return { ...tree, [entityKey]: parsedEntity };
-    }, tree);
   }
 
   updateDependencyMap(

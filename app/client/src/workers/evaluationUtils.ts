@@ -7,6 +7,7 @@ import { Diff } from "deep-diff";
 import {
   DataTree,
   DataTreeEntity,
+  DataTreeWidget,
   ENTITY_TYPE,
 } from "../entities/DataTree/dataTreeFactory";
 import _ from "lodash";
@@ -239,4 +240,60 @@ export function validateWidgetProperty(
   } else {
     return { isValid: true, parsed: value };
   }
+}
+
+export function getValidatedTree(
+  widgetConfigMap: WidgetTypeConfigMap,
+  tree: DataTree,
+  only?: Set<string>,
+) {
+  return Object.keys(tree).reduce((tree, entityKey: string) => {
+    if (only && only.size) {
+      if (!only.has(entityKey)) {
+        return tree;
+      }
+    }
+    const entity = tree[entityKey] as DataTreeWidget;
+    if (!isWidget(entity)) {
+      return tree;
+    }
+    const parsedEntity = { ...entity };
+    Object.keys(entity).forEach((property: string) => {
+      const validationProperties = widgetConfigMap[entity.type].validations;
+
+      if (property in validationProperties) {
+        const value = _.get(entity, property);
+        // Pass it through parse
+        const {
+          parsed,
+          isValid,
+          message,
+          transformed,
+        } = validateWidgetProperty(
+          widgetConfigMap,
+          entity.type,
+          property,
+          value,
+          entity,
+          tree,
+        );
+        parsedEntity[property] = parsed;
+        const evaluatedValue = isValid
+          ? parsed
+          : _.isUndefined(transformed)
+          ? value
+          : transformed;
+        const safeEvaluatedValue = removeFunctions(evaluatedValue);
+        _.set(parsedEntity, `evaluatedValues.${property}`, safeEvaluatedValue);
+        if (!isValid) {
+          _.set(parsedEntity, `invalidProps.${property}`, true);
+          _.set(parsedEntity, `validationMessages.${property}`, message);
+        } else {
+          _.set(parsedEntity, `invalidProps.${property}`, false);
+          _.set(parsedEntity, `validationMessages.${property}`, "");
+        }
+      }
+    });
+    return { ...tree, [entityKey]: parsedEntity };
+  }, tree);
 }
