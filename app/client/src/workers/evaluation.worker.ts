@@ -93,10 +93,11 @@ ctx.addEventListener(
             });
             console.error(e);
           }
+          dataTree = getValidatedTree(widgetTypeConfigMap, unevalTree);
           dataTreeEvaluator = undefined;
         }
         return {
-          dataTree: getValidatedTree(widgetTypeConfigMap, unevalTree),
+          dataTree,
           dependencies,
           errors,
         };
