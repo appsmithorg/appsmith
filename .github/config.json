@@ -1,5 +1,4 @@
 {
-  {
   "labels": {
     "Actions": {
       "name": "Actions",
@@ -11,8 +10,7 @@
       "color": "f285e1",
       "description": ""
     }
-  }
-},
+  },
   "runners": [
     {
       "root": ".",
