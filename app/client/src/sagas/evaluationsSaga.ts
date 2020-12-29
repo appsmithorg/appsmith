@@ -221,7 +221,7 @@ const EVALUATE_REDUX_ACTIONS = [
 ];
 
 function* evaluationChangeListenerSaga() {
-  yield fork(worker.start);
+  yield call(worker.start);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   yield fork(evaluateTreeSaga);
   while (true) {
