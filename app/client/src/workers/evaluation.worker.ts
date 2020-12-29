@@ -15,7 +15,6 @@ import {
   ENTITY_TYPE,
 } from "../entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
-import * as log from "loglevel";
 import _, {
   every,
   isBoolean,
@@ -50,22 +49,32 @@ import {
 const ctx: Worker = self as any;
 
 let ERRORS: EvalError[] = [];
+let LOGS: any[] = [];
 let WIDGET_TYPE_CONFIG_MAP: WidgetTypeConfigMap = {};
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
-function messageEventListener(fn: any) {
+function messageEventListener(
+  fn: (message: EVAL_WORKER_ACTIONS, requestData: any) => void,
+) {
   return (e: MessageEvent) => {
+    const startTime = performance.now();
     const { method, requestId, requestData } = e.data;
     const responseData = fn(method, requestData);
-    ctx.postMessage({ requestId, responseData });
+    const endTime = performance.now();
+    ctx.postMessage({
+      requestId,
+      responseData,
+      timeTaken: (endTime - startTime).toFixed(2),
+    });
     ERRORS = [];
+    LOGS = [];
   };
 }
 
 ctx.addEventListener(
   "message",
-  messageEventListener((method: string, requestData: any) => {
-    switch (method as EVAL_WORKER_ACTIONS) {
+  messageEventListener((method, requestData: any) => {
+    switch (method) {
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const { widgetTypeConfigMap, dataTree } = requestData;
         WIDGET_TYPE_CONFIG_MAP = widgetTypeConfigMap;
@@ -74,14 +83,14 @@ ctx.addEventListener(
           // We need to clean it to remove any possible functions inside the tree.
           // If functions exist, it will crash the web worker
           const cleanDataTree = JSON.stringify(response);
-          return { dataTree: cleanDataTree, errors: ERRORS };
+          return { dataTree: cleanDataTree, errors: ERRORS, logs: LOGS };
         } catch (e) {
           ERRORS.push({
             type: EvalErrorTypes.EVAL_TREE_ERROR,
             message: e.message,
           });
           const cleanDataTree = JSON.stringify(getValidatedTree(dataTree));
-          return { dataTree: cleanDataTree, errors: ERRORS };
+          return { dataTree: cleanDataTree, errors: ERRORS, logs: LOGS };
         }
       }
       case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
@@ -174,8 +183,9 @@ function getEvaluatedDataTree(dataTree: DataTree): DataTree {
   const loadingTreeEnd = performance.now();
 
   // Validate Widgets
+  const validateTreeStart = performance.now();
   const validated = getValidatedTree(treeWithLoading);
-
+  const validateTreeEnd = performance.now();
   const withoutFunctions = removeFunctionsFromDataTree(validated);
 
   // End counting total time
@@ -187,9 +197,9 @@ function getEvaluatedDataTree(dataTree: DataTree): DataTree {
     createDeps: (createDepsEnd - createDepsStart).toFixed(2),
     evaluate: (evaluatedTreeEnd - evaluatedTreeStart).toFixed(2),
     loading: (loadingTreeEnd - loadingTreeStart).toFixed(2),
+    validate: (validateTreeEnd - validateTreeStart).toFixed(2),
   };
-  log.debug("data tree evaluated");
-  log.debug(timeTaken);
+  LOGS.push({ timeTaken });
   // dataTreeCache = validated;
   return withoutFunctions;
 }
@@ -893,7 +903,7 @@ function evaluateDynamicProperty(
   if (isCacheHit && cacheObj) {
     return cacheObj.evaluated;
   } else {
-    log.debug("eval " + propertyPath);
+    LOGS.push("eval " + propertyPath);
     const dynamicResult = getDynamicValue(
       unEvalPropertyValue,
       currentTree,
