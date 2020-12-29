@@ -40,6 +40,7 @@ import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { Position } from "@blueprintjs/core";
+import Indicator from "components/editorComponents/Onboarding/Indicator";
 
 const HeaderWrapper = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
@@ -99,6 +100,7 @@ const SaveStatusContainer = styled.div`
 `;
 const DeploySection = styled.div`
   display: flex;
+  align-self: flex-end;
 `;
 
 const DeployButton = styled(Button)`
@@ -240,7 +242,9 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           ) : null}
           {/* <PageName>{pageName}&nbsp;</PageName> */}
         </HeaderSection>
-        <HeaderSection>
+      </Boxed>
+      <HeaderSection>
+        <Boxed step={OnboardingStep.DEPLOY}>
           <SaveStatusContainer className={"t--save-status-container"}>
             {saveStatusIcon}
           </SaveStatusContainer>
@@ -285,27 +289,35 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               currentApplication ? currentApplication.name : "Share Application"
             }
           />
+        </Boxed>
+        <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
           <DeploySection>
             <OnboardingToolTip
               step={[OnboardingStep.DEPLOY]}
               position={Position.BOTTOM_RIGHT}
             >
-              <DeployButton
-                onClick={handlePublish}
-                text="Deploy"
-                loading={isPublishing}
-                intent="primary"
-                filled
-                size="small"
-                className="t--application-publish-btn"
-                icon={
-                  <HeaderIcons.DEPLOY
-                    color={Colors.WHITE}
-                    width={13}
-                    height={13}
-                  />
-                }
-              />
+              <Indicator
+                step={OnboardingStep.SUCCESSFUL_BINDING}
+                offset={{ left: 10 }}
+                theme={"light"}
+              >
+                <DeployButton
+                  onClick={handlePublish}
+                  text="Deploy"
+                  loading={isPublishing}
+                  intent="primary"
+                  filled
+                  size="small"
+                  className="t--application-publish-btn"
+                  icon={
+                    <HeaderIcons.DEPLOY
+                      color={Colors.WHITE}
+                      width={13}
+                      height={13}
+                    />
+                  }
+                />
+              </Indicator>
             </OnboardingToolTip>
             <DeployLinkButtonDialog
               trigger={
@@ -314,8 +326,8 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               link={getApplicationViewerPageURL(applicationId, pageId)}
             />
           </DeploySection>
-        </HeaderSection>
-      </Boxed>
+        </Boxed>
+      </HeaderSection>
       <HelpModal page={"Editor"} />
     </HeaderWrapper>
   );

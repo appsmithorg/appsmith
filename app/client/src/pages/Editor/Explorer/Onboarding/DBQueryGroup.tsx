@@ -49,6 +49,7 @@ const DBQueryGroup = (props: any) => {
           <OnboardingIndicator
             step={OnboardingStep.RUN_QUERY_SUCCESS}
             offset={{ bottom: 25 }}
+            theme={"light"}
           >
             <AddWidget
               className="t--add-widget"

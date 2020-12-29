@@ -88,7 +88,7 @@ const onboardingReducer = createReducer(initialState, {
       showingTooltip: action.payload,
     };
   },
-  SHOW_INDICATOR: (
+  [ReduxActionTypes.SHOW_ONBOARDING_INDICATOR]: (
     state: OnboardingState,
     action: ReduxAction<OnboardingStep>,
   ) => {

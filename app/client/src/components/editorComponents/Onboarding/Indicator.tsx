@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import lottie from "lottie-web";
-import pulse from "assets/lottie/pulse.json";
+import pulseLight from "assets/lottie/pulse-light.json";
+import pulseDark from "assets/lottie/pulse-dark.json";
 import styled from "styled-components";
 import { useSelector } from "store";
 
@@ -40,14 +41,16 @@ const Indicator = (props: any) => {
 
   useEffect(() => {
     if (indicatorRef) {
+      const animationData = props.theme === "light" ? pulseLight : pulseDark;
+
       lottie.loadAnimation({
         container: indicatorRef.current as Element,
-        animationData: pulse,
+        animationData: animationData,
         loop: true,
         autoplay: true,
       });
     }
-  }, [indicatorRef, showingIndicator]);
+  }, [indicatorRef, showingIndicator, props.theme]);
 
   if (showingIndicator === props.step) {
     return (

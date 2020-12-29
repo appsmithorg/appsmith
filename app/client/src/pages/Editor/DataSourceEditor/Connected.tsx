@@ -28,7 +28,7 @@ import { inOnboarding } from "sagas/OnboardingSagas";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 
 const ConnectedText = styled.div`
-  color: ${Colors.GREEN};
+  color: ${Colors.OXFORD_BLUE};
   font-size: 17px;
   font-weight: bold;
   display: flex;

@@ -28,6 +28,7 @@ import { getSelectedWidget } from "./selectors";
 import {
   setCurrentStep,
   setOnboardingState as setOnboardingReduxState,
+  showIndicator,
   showTooltip,
 } from "actions/onboardingActions";
 import {
@@ -135,6 +136,7 @@ function* listenForSuccessfullBinding() {
 
           // Show tooltip now
           yield put(showTooltip(OnboardingStep.SUCCESSFUL_BINDING));
+          yield put(showIndicator(OnboardingStep.SUCCESSFUL_BINDING));
           yield delay(1000);
           playOnboardingAnimation();
 
@@ -203,10 +205,7 @@ function* createOnboardingDatasource() {
     // Navigate to that datasource page
     yield put(changeDatasource(onboardingDatasource));
     yield put(showTooltip(OnboardingStep.EXAMPLE_DATABASE));
-    yield put({
-      type: "SHOW_INDICATOR",
-      payload: OnboardingStep.EXAMPLE_DATABASE,
-    });
+    yield put(showIndicator(OnboardingStep.EXAMPLE_DATABASE));
 
     // Need to hide this tooltip based on some events
     yield take([ReduxActionTypes.QUERY_PANE_CHANGE]);
@@ -224,10 +223,7 @@ function* listenForCreateAction() {
   yield put(setCurrentStep(OnboardingStep.RUN_QUERY));
 
   yield put(showTooltip(OnboardingStep.RUN_QUERY));
-  yield put({
-    type: "SHOW_INDICATOR",
-    payload: OnboardingStep.RUN_QUERY,
-  });
+  yield put(showIndicator(OnboardingStep.RUN_QUERY));
 
   yield take([
     ReduxActionTypes.UPDATE_ACTION_INIT,
@@ -239,10 +235,7 @@ function* listenForCreateAction() {
   yield take([ReduxActionTypes.RUN_ACTION_SUCCESS]);
   yield put(setCurrentStep(OnboardingStep.RUN_QUERY_SUCCESS));
   yield put(showTooltip(OnboardingStep.RUN_QUERY_SUCCESS));
-  yield put({
-    type: "SHOW_INDICATOR",
-    payload: OnboardingStep.RUN_QUERY_SUCCESS,
-  });
+  yield put(showIndicator(OnboardingStep.RUN_QUERY_SUCCESS));
 }
 
 function* listenForWidgetUnselection() {
