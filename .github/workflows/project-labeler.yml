@@ -6,7 +6,7 @@ on:
       - opened
       - edited
   project_card:
-    types:
+    action:
       - converted
       - moved
       - deleted
