@@ -1,7 +1,7 @@
 name: "Super Labeler"
 on:
   issues:
-    types: [opened, edited, closed, reopened]
+    types: [labeled, opened, edited, closed, reopened]
   project_card:
     types: [created, moved, deleted]
 
