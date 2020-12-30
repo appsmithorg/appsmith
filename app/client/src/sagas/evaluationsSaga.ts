@@ -51,7 +51,12 @@ const evalErrorHandler = (errors: EvalError[]) => {
         variant: Variant.danger,
       });
     }
-    if (error.type === EvalErrorTypes.EVAL_TREE_ERROR) {
+    if (
+      [
+        EvalErrorTypes.EVAL_TREE_ERROR,
+        EvalErrorTypes.BAD_UNEVAL_TREE_ERROR,
+      ].includes(error.type)
+    ) {
       Toaster.show({
         text: "Unexpected error occurred while evaluating the app",
         variant: Variant.danger,

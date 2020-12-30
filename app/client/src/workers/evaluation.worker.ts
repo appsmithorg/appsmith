@@ -21,11 +21,11 @@ import _, {
   isBoolean,
   isNumber,
   isObject,
+  isPlainObject,
   isString,
   isUndefined,
   toNumber,
   toString,
-  isPlainObject,
 } from "lodash";
 import toposort from "toposort";
 import { DATA_BIND_REGEX } from "../constants/BindingsConstants";
@@ -40,11 +40,11 @@ import {
   EvalError,
   EvalErrorTypes,
   extraLibraries,
-  unsafeFunctionForEval,
   getEntityDynamicBindingPathList,
   getWidgetDynamicTriggerPathList,
   isPathADynamicBinding,
   isPathADynamicTrigger,
+  unsafeFunctionForEval,
 } from "../utils/DynamicBindingUtils";
 
 const ctx: Worker = self as any;
@@ -825,7 +825,11 @@ const dependencyCache: Map<string, any[]> = new Map();
 
 function isValidEntity(entity: DataTreeEntity): entity is DataTreeObjectEntity {
   if (!_.isObject(entity)) {
-    console.error("Data tree entity is not an object", entity);
+    ERRORS.push({
+      type: EvalErrorTypes.BAD_UNEVAL_TREE_ERROR,
+      message: "Data tree entity is not an object",
+      context: entity,
+    });
     return false;
   }
   return "ENTITY_TYPE" in entity;
