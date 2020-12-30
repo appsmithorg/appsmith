@@ -36,7 +36,7 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 import { EXECUTION_PARAM_KEY } from "../constants/ActionConstants";
-import { buffers } from "redux-saga";
+import { Action } from "redux";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -182,7 +182,14 @@ export function* validateProperty(
   });
 }
 
+const FIRST_EVAL_REDUX_ACTIONS = [
+  // Pages
+  ReduxActionTypes.FETCH_PAGE_SUCCESS,
+  ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
+];
+
 const EVALUATE_REDUX_ACTIONS = [
+  ...FIRST_EVAL_REDUX_ACTIONS,
   // Actions
   ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
   ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
@@ -213,31 +220,42 @@ const EVALUATE_REDUX_ACTIONS = [
   // Widget Meta
   ReduxActionTypes.SET_META_PROP,
   ReduxActionTypes.RESET_WIDGET_META,
-  // Pages
-  ReduxActionTypes.FETCH_PAGE_SUCCESS,
-  ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
   // Batches
   ReduxActionTypes.BATCH_UPDATES_SUCCESS,
 ];
 
-function* evaluationChangeListenerSaga() {
-  // Explicitly shutdown old worker if present
-  yield call(worker.shutdown);
-  yield call(worker.start);
-  widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
-  yield take([
-    ReduxActionTypes.FETCH_PAGE_SUCCESS,
-    ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
-  ]);
-  yield fork(evaluateTreeSaga);
-  const evtActionChannel = yield actionChannel(
-    EVALUATE_REDUX_ACTIONS,
-    buffers.sliding(1),
-  );
-  while (true) {
-    const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
-      evtActionChannel,
-    );
+function evalQueueBuffer() {
+  let initialised = false;
+  let takable = false;
+  let postEvalActions: any = [];
+  const take = () => {
+    if (takable) {
+      const resp = postEvalActions;
+      postEvalActions = [];
+      takable = false;
+      return { postEvalActions: resp, type: "FAKE_ACTION" };
+    }
+  };
+  const flush = () => {
+    if (takable) {
+      return [take() as Action];
+    }
+
+    return [];
+  };
+
+  const put = (action: EvaluationReduxAction<unknown | unknown[]>) => {
+    if (!initialised) {
+      if (
+        ![
+          ReduxActionTypes.FETCH_PAGE_SUCCESS,
+          ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
+        ].includes(action.type)
+      ) {
+        return;
+      }
+      initialised = true;
+    }
     // When batching success action happens, we need to only evaluate
     // if the batch had any action we need to evaluate properties for
     if (
@@ -250,10 +268,40 @@ function* evaluationChangeListenerSaga() {
       if (
         _.intersection(EVALUATE_REDUX_ACTIONS, batchedActionTypes).length === 0
       ) {
-        continue;
+        return;
       }
     }
-    log.debug(`Evaluating`, { action });
+
+    takable = true;
+    // TODO: If the action is the same as before, we can send only one and ignore duplicates.
+    if (action.postEvalActions) {
+      postEvalActions.push(...action.postEvalActions);
+    }
+  };
+
+  return {
+    take,
+    put,
+    isEmpty: () => {
+      return !takable;
+    },
+    flush,
+  };
+}
+
+function* evaluationChangeListenerSaga() {
+  // Explicitly shutdown old worker if present
+  yield call(worker.shutdown);
+  yield call(worker.start);
+  widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
+  const evtActionChannel = yield actionChannel(
+    EVALUATE_REDUX_ACTIONS,
+    evalQueueBuffer(),
+  );
+  while (true) {
+    const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
+      evtActionChannel,
+    );
     yield call(evaluateTreeSaga, action.postEvalActions);
   }
   // TODO(hetu) need an action to stop listening and evaluate (exit app)
