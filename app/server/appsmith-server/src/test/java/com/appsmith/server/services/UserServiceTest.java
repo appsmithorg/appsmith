@@ -361,8 +361,7 @@ public class UserServiceTest {
                     inviteUsersDTO.setOrgId(organization1.getId());
                     inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
 
-                    return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080")
-                            .collectList();
+                    return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 }).block();
 
         // Now Sign Up as the new user
