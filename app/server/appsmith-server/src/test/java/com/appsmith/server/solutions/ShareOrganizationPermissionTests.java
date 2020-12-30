@@ -272,10 +272,15 @@ public class ShareOrganizationPermissionTests {
         inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
 
         // Now trigger the invite flow and cancel it almost immediately!
+        // NOTE : This is the main test flow. Invite would be triggered and is expected now to run
+        // to completion even though its timing out in 5 milli seconds.
         userService.inviteUsers(inviteUsersDTO, "http://localhost:8080")
                 .timeout(Duration.ofMillis(5))
                 .subscribe();
 
+        // Before fetching any objects from the database, to avoid flaky tests, first sleep for 10 seconds. This
+        // ensures that we are guaranteed that the invite flow (which was cancelled in 5 ms) has run to completion
+        // before we fetch the org, app, pages and actions
         Mono<Organization> organizationMono = Mono.just(savedOrganization.getId())
                 .flatMap(orgId -> {
                     try {
