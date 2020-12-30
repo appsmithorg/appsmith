@@ -1,8 +1,15 @@
 import { GracefulWorkerService } from "./WorkerUtil";
 import { runSaga } from "redux-saga";
+import WebpackWorker from "worker-loader!";
 
 const MessageType = "message";
-class MockWorker {
+class MockWorker implements WebpackWorker {
+  // Implement interface
+  onmessage: any;
+  onmessageerror: any;
+  dispatchEvent: any;
+  onerror: any;
+
   callback: CallableFunction;
   noop: CallableFunction;
   messages: Array<any>;
@@ -26,12 +33,12 @@ class MockWorker {
     this.running = true;
   }
 
-  addEventListener(msgType: string, callback: CallableFunction) {
+  addEventListener(msgType: string, callback: any) {
     expect(msgType).toEqual(MessageType);
     this.callback = callback;
   }
 
-  removeEventListener(msgType: string, callback: CallableFunction) {
+  removeEventListener(msgType: string, callback: any) {
     expect(msgType).toEqual(MessageType);
     expect(callback).toEqual(this.callback);
     this.callback = this.noop;
@@ -167,5 +174,39 @@ describe("GracefulWorkerService", () => {
     expect(MockWorker.instance).not.toEqual(oldInstance);
     // The new worker should get the correct message
     expect(await result2.toPromise()).toEqual(message2);
+  });
+
+  test("Cancelling saga before starting up should not crash", async () => {
+    const w = new GracefulWorkerService(MockWorker);
+    const message = { tree: "hello" };
+
+    const task = await runSaga({}, w.request, "cancel_test", message);
+    // Start shutting down
+    const shutdown = await runSaga({}, w.shutdown);
+    task.cancel();
+    // wait for shutdown
+    await shutdown.toPromise();
+    expect(await task.toPromise()).not.toEqual(message);
+  });
+
+  test("Cancelled saga should clean up", async () => {
+    const w = new GracefulWorkerService(MockWorker);
+    const message = { tree: "hello" };
+    await runSaga({}, w.start);
+
+    // Need this to work with eslint
+    if (MockWorker.instance === undefined) {
+      expect(MockWorker.instance).toBeDefined();
+      return;
+    }
+    // Make sure we get a chance to cancel before the worker can respond
+    MockWorker.instance.delayMilliSeconds = 100;
+    const task = await runSaga({}, w.request, "cancel_test", message);
+    // Start shutting down
+    const shutdown = await runSaga({}, w.shutdown);
+    task.cancel();
+    // wait for shutdown
+    await shutdown.toPromise();
+    expect(await task.toPromise()).not.toEqual(message);
   });
 });
