@@ -11,6 +11,7 @@ import {
   DataTree,
   DataTreeAction,
   DataTreeEntity,
+  DataTreeObjectEntity,
   DataTreeWidget,
   ENTITY_TYPE,
 } from "../entities/DataTree/dataTreeFactory";
@@ -20,11 +21,11 @@ import _, {
   isBoolean,
   isNumber,
   isObject,
+  isPlainObject,
   isString,
   isUndefined,
   toNumber,
   toString,
-  isPlainObject,
 } from "lodash";
 import toposort from "toposort";
 import { DATA_BIND_REGEX } from "../constants/BindingsConstants";
@@ -39,10 +40,10 @@ import {
   EvalError,
   EvalErrorTypes,
   extraLibraries,
-  unsafeFunctionForEval,
   getEntityDynamicBindingPathList,
   getWidgetDynamicTriggerPathList,
   isPathADynamicTrigger,
+  unsafeFunctionForEval,
 } from "../utils/DynamicBindingUtils";
 
 const ctx: Worker = self as any;
@@ -203,11 +204,7 @@ const addFunctions = (dataTree: DataTree): DataTree => {
   dataTree.actionPaths = [];
   Object.keys(dataTree).forEach((entityName) => {
     const entity = dataTree[entityName];
-    if (
-      entity &&
-      "ENTITY_TYPE" in entity &&
-      entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
-    ) {
+    if (isValidEntity(entity) && entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
       const runFunction = function(
         this: DataTreeAction,
         onSuccess: string,
@@ -294,7 +291,7 @@ const removeFunctionsFromDataTree = (dataTree: DataTree) => {
 const removeFunctions = (value: any) => {
   if (_.isFunction(value)) {
     return "Function call";
-  } else if (_.isObject(value) && _.some(value, _.isFunction)) {
+  } else if (_.isObject(value)) {
     return JSON.parse(JSON.stringify(value));
   } else {
     return value;
@@ -313,7 +310,7 @@ const createDependencyTree = (
   const allKeys = getAllPaths(dataTree);
   Object.keys(dataTree).forEach((entityKey) => {
     const entity = dataTree[entityKey];
-    if (entity && "ENTITY_TYPE" in entity) {
+    if (isValidEntity(entity)) {
       if (
         entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET ||
         entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
@@ -422,7 +419,7 @@ const setTreeLoading = (
   // Fetch all actions that are in loading state
   Object.keys(dataTree).forEach((e) => {
     const entity = dataTree[e];
-    if (entity && "ENTITY_TYPE" in entity) {
+    if (isValidEntity(entity)) {
       if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
         widgets.push(e);
       } else if (
@@ -815,8 +812,20 @@ export const clearPropertyCacheOfWidget = (widgetName: string) => {
 
 const dependencyCache: Map<string, any[]> = new Map();
 
+function isValidEntity(entity: DataTreeEntity): entity is DataTreeObjectEntity {
+  if (!_.isObject(entity)) {
+    ERRORS.push({
+      type: EvalErrorTypes.BAD_UNEVAL_TREE_ERROR,
+      message: "Data tree entity is not an object",
+      context: entity,
+    });
+    return false;
+  }
+  return "ENTITY_TYPE" in entity;
+}
+
 function isWidget(entity: DataTreeEntity): boolean {
-  return "ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET;
+  return isValidEntity(entity) && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET;
 }
 
 function validateAndParseWidgetProperty(
