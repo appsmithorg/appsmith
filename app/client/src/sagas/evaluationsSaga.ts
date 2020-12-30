@@ -1,11 +1,10 @@
 import {
-  all,
+  actionChannel,
   call,
   fork,
   put,
   select,
   take,
-  takeLatest,
 } from "redux-saga/effects";
 
 import {
@@ -37,6 +36,7 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 import { EXECUTION_PARAM_KEY } from "../constants/ActionConstants";
+import { buffers } from "redux-saga";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -225,10 +225,18 @@ function* evaluationChangeListenerSaga() {
   yield call(worker.shutdown);
   yield call(worker.start);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
+  yield take([
+    ReduxActionTypes.FETCH_PAGE_SUCCESS,
+    ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
+  ]);
   yield fork(evaluateTreeSaga);
+  const evtActionChannel = yield actionChannel(
+    EVALUATE_REDUX_ACTIONS,
+    buffers.sliding(1),
+  );
   while (true) {
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
-      EVALUATE_REDUX_ACTIONS,
+      evtActionChannel,
     );
     // When batching success action happens, we need to only evaluate
     // if the batch had any action we need to evaluate properties for
@@ -246,13 +254,19 @@ function* evaluationChangeListenerSaga() {
       }
     }
     log.debug(`Evaluating`, { action });
-    yield fork(evaluateTreeSaga, action.postEvalActions);
+    yield call(evaluateTreeSaga, action.postEvalActions);
   }
   // TODO(hetu) need an action to stop listening and evaluate (exit app)
 }
 
 export default function* evaluationSagaListeners() {
-  yield all([
-    takeLatest(ReduxActionTypes.START_EVALUATION, evaluationChangeListenerSaga),
-  ]);
+  yield take(ReduxActionTypes.START_EVALUATION);
+  while (true) {
+    try {
+      yield call(evaluationChangeListenerSaga);
+    } catch (e) {
+      log.error(e);
+      Sentry.captureException(e);
+    }
+  }
 }

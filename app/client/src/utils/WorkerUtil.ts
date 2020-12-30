@@ -84,7 +84,7 @@ export class GracefulWorkerService {
     if (!this._isReady) return;
     // stop accepting new requests
     this._isReady = false;
-    // wait for current responses to drain, check every 10 seconds
+    // wait for current responses to drain, check every 10 milliseconds
     while (this._channels.size > 0) {
       yield delay(10);
     }
@@ -93,6 +93,18 @@ export class GracefulWorkerService {
     this._evaluationWorker.removeEventListener("message", this._broker);
     this._evaluationWorker.terminate();
     this._evaluationWorker = undefined;
+  }
+
+  /**
+   * Check if the worker is ready, optionally block on it.
+   */
+  *ready(block = false) {
+    if (this._isReady && this._evaluationWorker) return true;
+    if (block) {
+      yield take(this._readyChan);
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -105,12 +117,10 @@ export class GracefulWorkerService {
    * @returns response from the worker
    */
   *request(method: string, requestData = {}): any {
-    if (!this._evaluationWorker || !this._isReady) {
-      // Block requests till the worker is ready.
-      yield take(this._readyChan);
-      // Impossible case, but helps avoid `?` later in code and makes it clearer.
-      if (!this._evaluationWorker) return;
-    }
+    yield this.ready(true);
+    // Impossible case, but helps avoid `?` later in code and makes it clearer.
+    if (!this._evaluationWorker) return;
+
     /**
      * We create a unique channel to wait for a response of this specific request.
      */
