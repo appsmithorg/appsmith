@@ -528,6 +528,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         tableSizes.COLUMN_HEADER_HEIGHT) /
         tableSizes.ROW_HEIGHT,
     );
+
     if (
       componentHeight -
         (tableSizes.TABLE_HEADER_HEIGHT +
@@ -540,6 +541,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (pageSize !== this.props.pageSize) {
       this.props.updateWidgetMetaProperty("pageSize", pageSize);
     }
+
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
@@ -557,7 +559,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columnNameMap={this.props.columnNameMap}
           columnTypeMap={this.props.columnTypeMap}
           columnOrder={this.props.columnOrder}
-          pageSize={pageSize}
+          pageSize={Math.max(1, pageSize)}
           onCommandClick={this.onCommandClick}
           selectedRowIndex={
             this.props.selectedRowIndex === undefined

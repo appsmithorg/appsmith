@@ -54,3 +54,12 @@ div.bp3-popover-arrow {
 .Toastify__progress-bar--default {
   background: #29CCA3 !important;
 }
+
+#header-root {
+  position: relative;
+  z-index: 11;
+}
+
+.bp3-portal {
+  z-index: 10;
+}

@@ -3,6 +3,7 @@ import {
   DataTree,
   DataTreeAction,
   DataTreeEntity,
+  DataTreeObjectEntity,
   DataTreeWidget,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
@@ -31,12 +32,12 @@ import {
   convertPathToString,
   CrashingError,
   DataTreeDiffEvent,
+  getValidatedTree,
+  makeParentsDependOnChildren,
   removeFunctions,
   removeFunctionsFromDataTree,
   translateDiffEventToDataTreeDiffEvent,
-  makeParentsDependOnChildren,
   validateWidgetProperty,
-  getValidatedTree,
 } from "./evaluationUtils";
 
 const ctx: Worker = self as any;
@@ -172,14 +173,13 @@ ctx.addEventListener(
           value,
           props,
         } = requestData;
-        const result = validateWidgetProperty(
+        return validateWidgetProperty(
           widgetTypeConfigMap,
           widgetType,
           property,
           value,
           props,
         );
-        return result;
       }
       default: {
         console.error("Action not registered on worker", method);
@@ -424,12 +424,7 @@ export class DataTreeEvaluator {
     this.allKeys = getAllPaths(unEvalTree);
     Object.keys(unEvalTree).forEach((entityName) => {
       const entity = unEvalTree[entityName];
-      if (
-        typeof entity === "object" &&
-        "ENTITY_TYPE" in entity &&
-        (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION ||
-          entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET)
-      ) {
+      if (isAction(entity) || isWidget(entity)) {
         const entityListedDependencies = this.listEntityDependencies(
           entity,
           entityName,
@@ -521,7 +516,7 @@ export class DataTreeEvaluator {
             evalPropertyValue = unEvalPropertyValue;
           }
           if (isWidget(entity)) {
-            const widgetEntity: DataTreeWidget = entity as DataTreeWidget;
+            const widgetEntity = entity;
             // TODO fix for nested properties
             const propertyName = propertyPath.split(".")[1];
             if (propertyName) {
@@ -780,13 +775,7 @@ export class DataTreeEvaluator {
     currentTree: DataTree,
     unEvalPropertyValue: any,
   ): any {
-    const dynamicResult = this.getDynamicValue(
-      unEvalPropertyValue,
-      currentTree,
-      false,
-    );
-
-    return dynamicResult;
+    return this.getDynamicValue(unEvalPropertyValue, currentTree, false);
   }
 
   validateAndParseWidgetProperty(
@@ -884,17 +873,14 @@ export class DataTreeEvaluator {
       .forEach((dataTreeDiff) => {
         const entityName = dataTreeDiff.payload.propertyPath.split(".")[0];
         const entity = unEvalDataTree[entityName];
-        const entityType =
-          typeof entity === "object" && "ENTITY_TYPE" in entity
-            ? entity.ENTITY_TYPE
-            : "noop";
+        const entityType = isValidEntity(entity) ? entity.ENTITY_TYPE : "noop";
 
         if (entityType !== "noop") {
           switch (dataTreeDiff.event) {
             case DataTreeDiffEvent.NEW: {
               // If a new widget was added, add all the internal bindings for this widget to the global dependency map
               if (
-                entityType === ENTITY_TYPE.WIDGET &&
+                isWidget(entity) &&
                 dataTreeDiff.payload.propertyPath === entityName
               ) {
                 const widgetDependencyMap: DependencyMap = this.listEntityDependencies(
@@ -1134,8 +1120,7 @@ export class DataTreeEvaluator {
     Object.keys(dataTree).forEach((entityName) => {
       const entity = dataTree[entityName];
       if (
-        typeof entity === "object" &&
-        "ENTITY_TYPE" in entity &&
+        isValidEntity(entity) &&
         (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION ||
           entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET)
       ) {
@@ -1164,11 +1149,7 @@ export class DataTreeEvaluator {
     Object.entries(dataTree).forEach(([entityName, entity]) => {
       if (isWidget(entity)) {
         widgetNames.push(entityName);
-      } else if (
-        isAction(entity) &&
-        "isLoading" in entity &&
-        entity.isLoading
-      ) {
+      } else if (isAction(entity) && entity.isLoading) {
         isLoadingActions.push(entityName);
       }
     });
@@ -1324,20 +1305,24 @@ const createDynamicValueString = (
   return finalValue;
 };
 
-function isWidget(entity: DataTreeEntity): boolean {
-  return (
-    typeof entity === "object" &&
-    "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET
-  );
+function isValidEntity(entity: DataTreeEntity): entity is DataTreeObjectEntity {
+  if (!_.isObject(entity)) {
+    // ERRORS.push({
+    //   type: EvalErrorTypes.BAD_UNEVAL_TREE_ERROR,
+    //   message: "Data tree entity is not an object",
+    //   context: entity,
+    // });
+    return false;
+  }
+  return "ENTITY_TYPE" in entity;
 }
 
-function isAction(entity: DataTreeEntity): boolean {
-  return (
-    typeof entity === "object" &&
-    "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
-  );
+function isWidget(entity: DataTreeEntity): entity is DataTreeWidget {
+  return isValidEntity(entity) && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET;
+}
+
+function isAction(entity: DataTreeEntity): entity is DataTreeAction {
+  return isValidEntity(entity) && entity.ENTITY_TYPE === ENTITY_TYPE.ACTION;
 }
 
 const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
@@ -1345,11 +1330,7 @@ const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   withFunction.actionPaths = [];
   Object.keys(withFunction).forEach((entityName) => {
     const entity = withFunction[entityName];
-    if (
-      typeof entity === "object" &&
-      "ENTITY_TYPE" in entity &&
-      entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
-    ) {
+    if (isAction(entity)) {
       const runFunction = function(
         this: DataTreeAction,
         onSuccess: string,

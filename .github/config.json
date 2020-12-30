@@ -19,13 +19,12 @@
       "prereleaseName": "alpha",
       "issue": {
         "labels": {
-          "ref": "release",
-          "actions": {
+          "Actions": {
             "requires": 1,
             "conditions": [
               {
                 "type": "hasLabel",
-                "label": "dataSources",
+                "label": "Datasources",
                 "value": true
               }
             ]

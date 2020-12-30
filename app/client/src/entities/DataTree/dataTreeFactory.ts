@@ -60,11 +60,14 @@ export interface DataTreeAppsmith extends AppDataState {
   store: Record<string, unknown>;
 }
 
-export type DataTreeEntity =
+export type DataTreeObjectEntity =
   | DataTreeAction
   | DataTreeWidget
+  | DataTreeAppsmith;
+
+export type DataTreeEntity =
+  | DataTreeObjectEntity
   | PageListPayload
-  | DataTreeAppsmith
   | ActionDispatcher<any, any>;
 
 export type DataTree = {

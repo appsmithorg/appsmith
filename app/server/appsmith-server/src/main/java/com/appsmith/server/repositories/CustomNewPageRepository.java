@@ -5,6 +5,8 @@ import com.appsmith.server.domains.NewPage;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface CustomNewPageRepository extends AppsmithRepository<NewPage> {
     Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission);
 
@@ -13,4 +15,6 @@ public interface CustomNewPageRepository extends AppsmithRepository<NewPage> {
     Mono<NewPage> findByNameAndViewMode(String name, AclPermission aclPermission, Boolean viewMode);
 
     Mono<NewPage> findByNameAndApplicationIdAndViewMode(String name, String applicationId, AclPermission aclPermission, Boolean viewMode);
+
+    Flux<NewPage> findAllByIds(List<String> ids, AclPermission aclPermission);
 }

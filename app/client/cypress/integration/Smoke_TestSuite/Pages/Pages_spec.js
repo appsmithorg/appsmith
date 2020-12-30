@@ -20,17 +20,21 @@ describe("Pages", function() {
     );
 
     // to check if apis are cloned
-    cy.get(".t--entity-name:contains(Page1)").click({ multiple: true });
-    cy.get(".t--entity-name:contains(APIs)")
-      .last()
-      .click();
+    cy.get(".bp3-icon-caret-right ~ .t--entity-name:contains(Page1)").click({
+      multiple: true,
+    });
+    cy.get(".bp3-icon-caret-right ~ .t--entity-name:contains(APIs)").click({
+      multiple: true,
+    });
     cy.get(`.t--entity-name:contains(${apiName})`).should("have.length", 2);
   });
 
   it("Creates a page with long name and checks if it shows tooltip on hover", () => {
     cy.Createpage(veryLongPageName);
     cy.PublishtheApp();
-    cy.get(".t--page-switch-tab:nth-child(3)").trigger("mouseover");
+    cy.get(`.t--page-switch-tab:contains(${veryLongPageName})`).trigger(
+      "mouseover",
+    );
     cy.get(".bp3-popover-content").should(($x) => {
       expect($x).contain(veryLongPageName);
     });
