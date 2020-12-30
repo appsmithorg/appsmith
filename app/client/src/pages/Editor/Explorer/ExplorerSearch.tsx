@@ -76,6 +76,7 @@ export const ExplorerSearch = forwardRef(
           placeholder={props.placeholder || "Search entities..."}
           ref={ref}
           autoComplete="off"
+          autoFocus
         />
         <Icon icon="cross" iconSize={12} onClick={props.clear} />
         <Underline className="underline" />
