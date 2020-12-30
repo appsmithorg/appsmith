@@ -26,6 +26,7 @@ import { bindingMarker } from "components/editorComponents/CodeEditor/markHelper
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import { urlGroupsRegexExp } from "constants/ActionConstants";
+import TextInput from "components/ads/TextInput";
 
 type ReduxStateProps = {
   orgId: string;
@@ -219,7 +220,12 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <CodeEditor {...props} />
+        {/* <CodeEditor {...props} /> */}
+        <TextInput
+          defaultValue={input.value}
+          onChange={(value: string) => input.onChange(value)}
+          fill={true}
+        />
       </React.Fragment>
     );
   }
