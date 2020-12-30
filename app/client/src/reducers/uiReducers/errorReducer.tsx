@@ -5,6 +5,7 @@ import {
   ReduxActionErrorPayload,
 } from "constants/ReduxActionConstants";
 import { ERROR_CODES } from "constants/ApiConstants";
+import _ from "lodash";
 
 const initialState: ErrorReduxState = {
   safeCrash: false,
@@ -19,7 +20,7 @@ const errorReducer = createReducer(initialState, {
   ) => ({
     ...state,
     safeCrash: true,
-    safeCrashCode: action.payload.code,
+    safeCrashCode: _.get(action, "payload.code", 502), // when the server is not responding
   }),
   [ReduxActionTypes.REPORT_ERROR]: (
     state: ErrorReduxState,
