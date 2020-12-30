@@ -11,6 +11,7 @@ import {
   DataTree,
   DataTreeAction,
   DataTreeEntity,
+  DataTreeObjectEntity,
   DataTreeWidget,
   ENTITY_TYPE,
 } from "../entities/DataTree/dataTreeFactory";
@@ -208,12 +209,7 @@ const addFunctions = (dataTree: DataTree): DataTree => {
   dataTree.actionPaths = [];
   Object.keys(dataTree).forEach((entityName) => {
     const entity = dataTree[entityName];
-    if (
-      entity &&
-      _.isObject(entity) &&
-      "ENTITY_TYPE" in entity &&
-      entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
-    ) {
+    if (isValidEntity(entity) && entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
       const runFunction = function(
         this: DataTreeAction,
         onSuccess: string,
@@ -319,7 +315,7 @@ const createDependencyTree = (
   const allKeys = getAllPaths(dataTree);
   Object.keys(dataTree).forEach((entityKey) => {
     const entity = dataTree[entityKey];
-    if (_.isObject(entity) && "ENTITY_TYPE" in entity) {
+    if (isValidEntity(entity)) {
       if (
         entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET ||
         entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
@@ -427,7 +423,7 @@ const setTreeLoading = (
   // Fetch all actions that are in loading state
   Object.keys(dataTree).forEach((e) => {
     const entity = dataTree[e];
-    if (_.isObject(entity) && "ENTITY_TYPE" in entity) {
+    if (isValidEntity(entity)) {
       if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
         widgets.push(e);
       } else if (
@@ -827,12 +823,16 @@ export const clearPropertyCacheOfWidget = (widgetName: string) => {
 
 const dependencyCache: Map<string, any[]> = new Map();
 
+function isValidEntity(entity: DataTreeEntity): entity is DataTreeObjectEntity {
+  if (!_.isObject(entity)) {
+    console.error("Data tree entity is not an object", entity);
+    return false;
+  }
+  return "ENTITY_TYPE" in entity;
+}
+
 function isWidget(entity: DataTreeEntity): boolean {
-  return (
-    _.isObject(entity) &&
-    "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET
-  );
+  return isValidEntity(entity) && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET;
 }
 
 function validateAndParseWidgetProperty(
