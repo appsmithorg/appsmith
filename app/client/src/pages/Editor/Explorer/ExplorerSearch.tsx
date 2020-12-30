@@ -64,7 +64,7 @@ const Underline = styled.div`
 /*eslint-disable react/display-name */
 export const ExplorerSearch = forwardRef(
   (
-    props: { clear: () => void; placeholder?: string },
+    props: { clear: () => void; placeholder?: string; autoFocus?: boolean },
     ref: Ref<HTMLInputElement>,
   ) => {
     return (
@@ -76,7 +76,7 @@ export const ExplorerSearch = forwardRef(
           placeholder={props.placeholder || "Search entities..."}
           ref={ref}
           autoComplete="off"
-          autoFocus
+          autoFocus={props.autoFocus}
         />
         <Icon icon="cross" iconSize={12} onClick={props.clear} />
         <Underline className="underline" />
