@@ -121,6 +121,7 @@ const WidgetSidebar = (props: IPanelProps) => {
         ref={searchInputRef}
         clear={clearSearchInput}
         placeholder="Search widgets..."
+        autoFocus={true}
       />
 
       <MainWrapper>
