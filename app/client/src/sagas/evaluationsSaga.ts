@@ -1,11 +1,4 @@
-import {
-  actionChannel,
-  call,
-  fork,
-  put,
-  select,
-  take,
-} from "redux-saga/effects";
+import { actionChannel, call, put, select, take } from "redux-saga/effects";
 
 import {
   EvaluationReduxAction,
