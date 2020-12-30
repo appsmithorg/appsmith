@@ -82,16 +82,10 @@ const ActionsWrapper = styled.div`
   justify-content: flex-end;
 `;
 
-const ActionButtons = styled.div`
-  display: flex;
-  margin-left: 10px;
-  flex: 0 1 150px;
-  justify-content: flex-end;
-`;
-
 const ActionButton = styled(BaseButton)`
   &&&& {
-    width: 67px;
+    min-width: 72px;
+    width: auto;
     margin: 0 5px;
     min-height: 30px;
   }
@@ -99,6 +93,7 @@ const ActionButton = styled(BaseButton)`
 
 const DropdownSelect = styled.div`
   font-size: 14px;
+  margin-right: 10px;
 `;
 
 const NoDataSourceContainer = styled.div`
@@ -413,57 +408,24 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               components={{ MenuList, Option: CustomOption, SingleValue }}
             />
           </DropdownSelect>
-          <ActionButtons>
-            <ActionButton
-              className="t--delete-query"
-              text="Delete"
-              accent="error"
-              loading={isDeleting}
-              onClick={onDeleteClick}
-            />
-            {dataSources.length === 0 ? (
-              <>
-                <TooltipStyles />
-                <Popover
-                  autoFocus={true}
-                  canEscapeKeyClose={true}
-                  content="You don’t have a Data Source to run this query"
-                  position="bottom"
-                  defaultIsOpen={false}
-                  usePortal
-                  portalClassName="helper-tooltip"
-                >
-                  <ActionButton
-                    className="t--run-query"
-                    text="Run"
-                    filled
-                    loading={isRunning}
-                    accent="primary"
-                    onClick={onRunClick}
-                  />
-                  <div>
-                    <p className="popuptext">
-                      You don’t have a Data Source to run this query
-                    </p>
-                    <Button
-                      onClick={() =>
-                        history.push(
-                          DATA_SOURCES_EDITOR_URL(applicationId, pageId),
-                        )
-                      }
-                      text="Add Datasource"
-                      intent="primary"
-                      filled
-                      size="small"
-                      className="popoverBtn"
-                    />
-                  </div>
-                </Popover>
-              </>
-            ) : (
-              <OnboardingIndicator
-                step={OnboardingStep.RUN_QUERY}
-                offset={{ left: -7 }}
+          <ActionButton
+            className="t--delete-query"
+            text="Delete"
+            accent="error"
+            loading={isDeleting}
+            onClick={onDeleteClick}
+          />
+          {dataSources.length === 0 ? (
+            <>
+              <TooltipStyles />
+              <Popover
+                autoFocus={true}
+                canEscapeKeyClose={true}
+                content="You don’t have a Data Source to run this query"
+                position="bottom"
+                defaultIsOpen={false}
+                usePortal
+                portalClassName="helper-tooltip"
               >
                 <ActionButton
                   className="t--run-query"
@@ -473,9 +435,40 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                   accent="primary"
                   onClick={onRunClick}
                 />
-              </OnboardingIndicator>
-            )}
-          </ActionButtons>
+                <div>
+                  <p className="popuptext">
+                    You don’t have a Data Source to run this query
+                  </p>
+                  <Button
+                    onClick={() =>
+                      history.push(
+                        DATA_SOURCES_EDITOR_URL(applicationId, pageId),
+                      )
+                    }
+                    text="Add Datasource"
+                    intent="primary"
+                    filled
+                    size="small"
+                    className="popoverBtn"
+                  />
+                </div>
+              </Popover>
+            </>
+          ) : (
+            <OnboardingIndicator
+              step={OnboardingStep.RUN_QUERY}
+              offset={{ left: -5 }}
+            >
+              <ActionButton
+                className="t--run-query"
+                text="Run"
+                filled
+                loading={isRunning}
+                accent="primary"
+                onClick={onRunClick}
+              />
+            </OnboardingIndicator>
+          )}
         </ActionsWrapper>
       </StyledFormRow>
       <TabContainerView>
