@@ -1,4 +1,4 @@
-import { all, put, take } from "redux-saga/effects";
+import { cancelled, delay, put, take } from "redux-saga/effects";
 import { channel, Channel, buffers } from "redux-saga";
 import _ from "lodash";
 import log from "loglevel";
@@ -36,9 +36,7 @@ import WebpackWorker from "worker-loader!";
 // TODO: Add a readiness + liveness probes.
 export class GracefulWorkerService {
   // We keep track of all in-flight requests with these channels.
-  private readonly _channels: {
-    [requestId: string]: Channel<any>;
-  };
+  private readonly _channels: Map<string, Channel<any>>;
   // The actual WebWorker
   private _evaluationWorker: WebpackWorker | undefined;
 
@@ -61,16 +59,15 @@ export class GracefulWorkerService {
     // Do not buffer messages on this channel
     this._readyChan = channel(buffers.none());
     this._isReady = false;
-    this._channels = {};
+    this._channels = new Map<string, Channel<any>>();
     this._workerClass = workerClass;
   }
 
   /**
    * Start a new worker and registers our broker.
-   * Note: Shuts down the old worker, if one exists.
+   * Note: If the worker is already running, this is a no-op
    */
   *start() {
-    // Ignore if already started
     if (this._isReady || this._evaluationWorker) return;
     this._evaluationWorker = new this._workerClass();
     this._evaluationWorker.addEventListener("message", this._broker);
@@ -81,14 +78,16 @@ export class GracefulWorkerService {
 
   /**
    * Gracefully shutdown the worker.
+   * Note: If the worker is already stopped / shutting down, this is a no-op
    */
   *shutdown() {
-    // Ignore if already shutdown/shutting down
     if (!this._isReady) return;
     // stop accepting new requests
     this._isReady = false;
-    // wait for current responses to drain
-    yield all(Object.values(this._channels).map((c) => take(c)));
+    // wait for current responses to drain, check every 10 seconds
+    while (this._channels.size > 0) {
+      yield delay(10);
+    }
     // close the worker
     if (!this._evaluationWorker) return;
     this._evaluationWorker.removeEventListener("message", this._broker);
@@ -98,7 +97,7 @@ export class GracefulWorkerService {
 
   /**
    * Send a request to the worker for processing.
-   * If the worker has not started yet, we wait for it to become ready.
+   * If the worker isn't ready, we wait for it to become ready.
    *
    * @param method identifier for a rpc method
    * @param requestData data that we want to send over to the worker
@@ -116,29 +115,42 @@ export class GracefulWorkerService {
      * We create a unique channel to wait for a response of this specific request.
      */
     const requestId = `${method}__${_.uniqueId()}`;
-    this._channels[requestId] = channel();
+    const ch = channel();
+    this._channels.set(requestId, ch);
     const mainThreadStartTime = performance.now();
-    this._evaluationWorker.postMessage({
-      method,
-      requestData,
-      requestId,
-    });
+    let timeTaken;
+
     try {
+      this._evaluationWorker.postMessage({
+        method,
+        requestData,
+        requestId,
+      });
       // The `this._broker` method is listening to events and will pass response to us over this channel.
-      const response = yield take(this._channels[requestId]);
-      const { timeTaken, responseData } = response;
+      const response = yield take(ch);
+      timeTaken = response.timeTaken;
+      const { responseData } = response;
+      return responseData;
+    } finally {
       // Log perf of main thread and worker
       const mainThreadEndTime = performance.now();
       const timeTakenOnMainThread = mainThreadEndTime - mainThreadStartTime;
-      const transferTime = timeTakenOnMainThread - timeTaken;
-      log.debug(`Worker ${method} took ${timeTaken}ms`);
-      log.debug(`Main ${method} took ${timeTakenOnMainThread.toFixed(2)}ms`);
-      log.debug(`Transfer ${method} took ${transferTime.toFixed(2)}ms`);
-      return responseData;
-    } finally {
+      if (yield cancelled()) {
+        log.debug(
+          `Main ${method} cancelled in ${timeTakenOnMainThread.toFixed(2)}ms`,
+        );
+      } else {
+        log.debug(`Main ${method} took ${timeTakenOnMainThread.toFixed(2)}ms`);
+      }
+
+      if (timeTaken) {
+        const transferTime = timeTakenOnMainThread - timeTaken;
+        log.debug(`Worker ${method} took ${timeTaken}ms`);
+        log.debug(`Transfer ${method} took ${transferTime.toFixed(2)}ms`);
+      }
       // Cleanup
-      yield this._channels[requestId].close();
-      delete this._channels[requestId];
+      yield ch.close();
+      this._channels.delete(requestId);
     }
   }
 
@@ -147,6 +159,11 @@ export class GracefulWorkerService {
       return;
     }
     const { requestId, responseData, timeTaken } = event.data;
-    this._channels[requestId].put({ responseData, timeTaken });
+    const ch = this._channels.get(requestId);
+    // Channel could have been deleted if the request gets cancelled before the WebWorker can respond.
+    // In that case, we want to drop the request.
+    if (ch) {
+      ch.put({ responseData, timeTaken });
+    }
   }
 }

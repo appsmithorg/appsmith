@@ -176,9 +176,22 @@ describe("GracefulWorkerService", () => {
     expect(await result2.toPromise()).toEqual(message2);
   });
 
+  test("Cancelling saga before starting up should not crash", async () => {
+    const w = new GracefulWorkerService(MockWorker);
+    const message = { tree: "hello" };
+
+    const task = await runSaga({}, w.request, "cancel_test", message);
+    // Start shutting down
+    const shutdown = await runSaga({}, w.shutdown);
+    task.cancel();
+    // wait for shutdown
+    await shutdown.toPromise();
+    expect(await task.toPromise()).not.toEqual(message);
+  });
+
   test("Cancelled saga should clean up", async () => {
     const w = new GracefulWorkerService(MockWorker);
-    const message1 = { tree: "hello" };
+    const message = { tree: "hello" };
     await runSaga({}, w.start);
 
     // Need this to work with eslint
@@ -186,11 +199,14 @@ describe("GracefulWorkerService", () => {
       expect(MockWorker.instance).toBeDefined();
       return;
     }
+    // Make sure we get a chance to cancel before the worker can respond
     MockWorker.instance.delayMilliSeconds = 100;
-    const result1 = await runSaga({}, w.request, "cancel_test", message1);
-    result1.cancel();
+    const task = await runSaga({}, w.request, "cancel_test", message);
+    // Start shutting down
+    const shutdown = await runSaga({}, w.shutdown);
+    task.cancel();
     // wait for shutdown
-    await (await runSaga({}, w.shutdown)).toPromise();
-    expect(await result1.toPromise()).not.toEqual(message1);
+    await shutdown.toPromise();
+    expect(await task.toPromise()).not.toEqual(message);
   });
 });
