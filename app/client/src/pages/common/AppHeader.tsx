@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import { connect } from "react-redux";
 import { getCurrentUser } from "actions/authActions";
 import PageHeader from "pages/common/PageHeader";
@@ -18,11 +19,19 @@ type Props = {
   getCurrentUser: () => void;
 } & RouteComponentProps;
 
+const headerRoot = document.getElementById("header-root");
+
 class AppHeader extends React.Component<Props, any> {
+  private container = document.createElement("div");
+
   componentDidMount() {
     this.props.getCurrentUser();
+    headerRoot?.appendChild(this.container);
   }
-  render() {
+  componentWillUnmount() {
+    headerRoot?.removeChild(this.container);
+  }
+  get header() {
     return (
       <React.Fragment>
         <Switch>
@@ -33,6 +42,9 @@ class AppHeader extends React.Component<Props, any> {
         </Switch>
       </React.Fragment>
     );
+  }
+  render() {
+    return ReactDOM.createPortal(this.header, this.container);
   }
 }
 
