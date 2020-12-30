@@ -84,7 +84,7 @@ class TemplateMenu extends React.Component<Props> {
         onClick={() => createTemplate("")}
       >
         <div style={{ fontSize: 14 }}>
-          Press enter to start with a blank state or select a template.
+          Click here to start with a blank state or select a template.
         </div>
         <div style={{ marginTop: "6px" }}>
           {Object.entries(pluginTemplates).map((template) => {

@@ -1,7 +1,7 @@
 import React from "react";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
-import { Icon, Popover, Spinner, Tag } from "@blueprintjs/core";
+import { Icon, Popover, Position, Spinner, Tag } from "@blueprintjs/core";
 import {
   components,
   MenuListComponentProps,
@@ -37,6 +37,10 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
 import { addTableWidgetFromQuery } from "actions/widgetActions";
+import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
+import { OnboardingStep } from "constants/OnboardingConstants";
+import Boxed from "components/editorComponents/Onboarding/Boxed";
+import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -79,8 +83,9 @@ const ActionsWrapper = styled.div`
 `;
 
 const ActionButton = styled(BaseButton)`
-  &&& {
-    max-width: 72px;
+  &&&& {
+    min-width: 72px;
+    width: auto;
     margin: 0 5px;
     min-height: 30px;
   }
@@ -450,14 +455,19 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               </Popover>
             </>
           ) : (
-            <ActionButton
-              className="t--run-query"
-              text="Run"
-              filled
-              loading={isRunning}
-              accent="primary"
-              onClick={onRunClick}
-            />
+            <OnboardingIndicator
+              step={OnboardingStep.RUN_QUERY}
+              offset={{ left: -5 }}
+            >
+              <ActionButton
+                className="t--run-query"
+                text="Run"
+                filled
+                loading={isRunning}
+                accent="primary"
+                onClick={onRunClick}
+              />
+            </OnboardingIndicator>
           )}
         </ActionsWrapper>
       </StyledFormRow>
@@ -532,16 +542,27 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                             : "No data records to display"}
                         </p>
                         {!!output.length && (
-                          <AddWidgetButton
-                            className="t--add-widget"
-                            icon={"plus"}
-                            text="Add Widget"
-                            onClick={onAddWidget}
-                          />
+                          <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+                            <AddWidgetButton
+                              className="t--add-widget"
+                              icon={"plus"}
+                              text="Add Widget"
+                              onClick={onAddWidget}
+                            />
+                          </Boxed>
                         )}
                       </OutputHeader>
                       {isSQL ? (
-                        <Table data={output} />
+                        <OnboardingToolTip
+                          position={Position.TOP}
+                          step={[OnboardingStep.RUN_QUERY_SUCCESS]}
+                          offset={{
+                            enabled: true,
+                            offset: "-200, 0",
+                          }}
+                        >
+                          <Table data={output} />
+                        </OnboardingToolTip>
                       ) : (
                         <JSONViewer src={output} />
                       )}
@@ -575,13 +596,23 @@ const renderEachConfig = (section: any): any => {
       return renderEachConfig(formControlOrSection);
     } else {
       try {
-        const { configProperty } = formControlOrSection;
+        const { configProperty, controlType } = formControlOrSection;
         return (
           <FieldWrapper key={configProperty}>
-            <FormControl
-              config={formControlOrSection}
-              formName={QUERY_EDITOR_FORM_NAME}
-            />
+            <OnboardingToolTip
+              step={[OnboardingStep.RUN_QUERY]}
+              show={controlType === "QUERY_DYNAMIC_TEXT"}
+              position={Position.TOP_LEFT}
+              offset={{
+                enabled: true,
+                offset: "200, 0",
+              }}
+            >
+              <FormControl
+                config={formControlOrSection}
+                formName={QUERY_EDITOR_FORM_NAME}
+              />
+            </OnboardingToolTip>
           </FieldWrapper>
         );
       } catch (e) {
