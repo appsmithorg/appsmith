@@ -273,8 +273,8 @@ function* listenForDeploySaga() {
 
 function* initiateOnboarding() {
   const currentOnboardingState = yield getOnboardingState();
-  AnalyticsUtil.logEvent("ONBOARDING_WELCOME");
   if (currentOnboardingState) {
+    AnalyticsUtil.logEvent("ONBOARDING_WELCOME");
     yield put(setOnboardingReduxState(true));
     yield put({
       type: ReduxActionTypes.NEXT_ONBOARDING_STEP,
