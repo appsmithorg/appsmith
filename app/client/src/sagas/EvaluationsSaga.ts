@@ -26,7 +26,6 @@ import {
   EvalErrorTypes,
 } from "../utils/DynamicBindingUtils";
 import log from "loglevel";
-import _ from "lodash";
 import { WidgetType } from "../constants/WidgetConstants";
 import { WidgetProps } from "../widgets/BaseWidget";
 import PerformanceTracker, {
