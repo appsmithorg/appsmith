@@ -53,8 +53,6 @@ public class DatasourceStructureSolution {
                                 )
                 )
                 .onErrorMap(e -> {
-                    //TODO: remove it.
-                    System.out.println("devetst: datasourceStructureSol getStructure: e: " + e.getClass().getName());
                     if(!(e instanceof AppsmithPluginException)) {
                         return new AppsmithPluginException(AppsmithPluginError.PLUGIN_STRUCTURE_ERROR, e.getMessage());
                     }

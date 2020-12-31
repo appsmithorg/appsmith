@@ -13,8 +13,9 @@ public enum AppsmithPluginError {
             AppsmithErrorAction.LOG_EXTERNALLY),
     PLUGIN_QUERY_TIMEOUT_ERROR(504, 5002, "Plugin execution for query \"{0}\" timed out in {1}ms. Please increase " +
             "timeout duration in your action settings or check your backend action endpoint.", AppsmithErrorAction.DEFAULT),
-    PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR(504, 5003, "Plugin timed when fetching structure.", AppsmithErrorAction.DEFAULT),
-    PLUGIN_BAD_ARGUMENT_ERROR(500, 5004, "Plugin failed to connect to host with error: {0}",
+    PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR(504, 5003, "Plugin timed out when fetching structure.",
+            AppsmithErrorAction.DEFAULT),
+    PLUGIN_BAD_ARGUMENT_ERROR(500, 5004, "Plugin failed to connect to data source with error: {0}",
             AppsmithErrorAction.DEFAULT),
     ;
 

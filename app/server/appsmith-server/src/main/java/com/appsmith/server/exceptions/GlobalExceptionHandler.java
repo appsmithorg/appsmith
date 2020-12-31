@@ -52,13 +52,7 @@ public class GlobalExceptionHandler {
                 }
         );
 
-        //TODO:remove it.
-        System.out.println("devtest: global exc handle: if else start: " + error.getClass().getName());
-
         if (error instanceof AppsmithException || error instanceof AppsmithPluginException) {
-            //TODO:remove it.
-            System.out.println("devtest: AppsmithError");
-
             if (error instanceof AppsmithException
                 && ((AppsmithException)error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
                 Sentry.captureException(error);
@@ -66,8 +60,6 @@ public class GlobalExceptionHandler {
 
             if (error instanceof AppsmithPluginException
                 && ((AppsmithPluginException)error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
-                //TODO:remove it.
-                System.out.println("devtest: global exc handle: log ext");
                 Sentry.captureException(error);
             }
         }

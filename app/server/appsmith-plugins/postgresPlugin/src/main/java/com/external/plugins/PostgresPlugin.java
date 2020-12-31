@@ -463,9 +463,6 @@ public class PostgresPlugin extends BasePlugin {
                     }
 
                 } catch (SQLException throwable) {
-                    //TODO: remove it.
-                    System.out.println("devtest: getStructure: e.type: " + throwable.getClass().getName());
-
                     return Mono.error(throwable);
                 } finally {
 
