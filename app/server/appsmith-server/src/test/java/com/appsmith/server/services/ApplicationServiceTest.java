@@ -15,6 +15,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
@@ -959,5 +960,83 @@ public class ApplicationServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void newApplicationShouldHavePublishedState() {
+        Application testApplication = new Application();
+        testApplication.setName("ApplicationServiceTest NewApp PublishedState");
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId).cache();
+
+        Mono<PageDTO> publishedPageMono = applicationMono
+                .flatMap(application -> {
+                    List<ApplicationPage> publishedPages = application.getPublishedPages();
+                    return applicationPageService.getPage(publishedPages.get(0).getId(), true);
+                });
+
+        StepVerifier
+                .create(Mono.zip(applicationMono, publishedPageMono))
+                .assertNext(tuple -> {
+                    Application application = tuple.getT1();
+                    PageDTO publishedPage = tuple.getT2();
+
+                    // Assert that the application has 1 published page
+                    assertThat(application.getPublishedPages()).hasSize(1);
+
+                    // Assert that the published page and the unpublished page are one and the same
+                    assertThat(application.getPages().get(0).getId()).isEqualTo(application.getPublishedPages().get(0).getId());
+
+                    // Assert that the published page has 1 layout
+                    assertThat(publishedPage.getLayouts()).hasSize(1);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validGetApplicationPagesMultiPageApp() {
+        Application app = new Application();
+        app.setName("validGetApplicationPagesMultiPageApp-Test");
+
+        Mono<Application> createApplicationMono = applicationPageService.createApplication(app, orgId)
+                .cache();
+
+        // Create all the pages for this application in a blocking manner.
+        createApplicationMono
+                .flatMap(application -> {
+                    PageDTO testPage = new PageDTO();
+                    testPage.setName("Page2");
+                    testPage.setApplicationId(application.getId());
+                    return applicationPageService.createPage(testPage)
+                            .then(Mono.just(application));
+                })
+                .flatMap(application -> {
+                    PageDTO testPage = new PageDTO();
+                    testPage.setName("Page3");
+                    testPage.setApplicationId(application.getId());
+                    return applicationPageService.createPage(testPage)
+                            .then(Mono.just(application));
+                })
+                .flatMap(application -> {
+                    PageDTO testPage = new PageDTO();
+                    testPage.setName("Page4");
+                    testPage.setApplicationId(application.getId());
+                    return applicationPageService.createPage(testPage);
+                })
+                .block();
+
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = createApplicationMono
+                .map(application -> application.getId())
+                .flatMap(applicationId -> newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId, false));
+
+        StepVerifier
+                .create(applicationPagesDTOMono)
+                .assertNext(applicationPagesDTO -> {
+                    assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
+                    List<String> pageNames = applicationPagesDTO.getPages().stream().map(pageNameIdDTO -> pageNameIdDTO.getName()).collect(Collectors.toList());
+                    assertThat(pageNames).containsExactly("Page1", "Page2", "Page3", "Page4");
+                })
+                .verifyComplete();
     }
 }
