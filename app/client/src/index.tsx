@@ -16,6 +16,7 @@ import { AppState } from "reducers";
 import { setThemeMode } from "actions/themeActions";
 import { ThemeMode } from "reducers/uiReducers/themeReducer";
 import { StyledToastContainer } from "components/ads/Toast";
+import "utils/patchDOMForMutationResilience";
 
 import AppErrorBoundary from "./AppErrorBoundry";
 appInitializer();
