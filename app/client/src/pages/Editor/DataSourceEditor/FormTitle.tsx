@@ -14,6 +14,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { isNameValid } from "utils/helpers";
 import { saveDatasourceName } from "actions/datasourceActions";
 import { Spinner } from "@blueprintjs/core";
+import { getCurrentStep, inOnboarding } from "sagas/OnboardingSagas";
 
 const Wrapper = styled.div`
   margin-left: 10px;
@@ -50,6 +51,14 @@ const FormTitle = (props: FormTitleProps) => {
       isSaving: state.ui.datasourceName.isSaving[id],
       error: state.ui.datasourceName.errors[id],
     };
+  });
+
+  // For onboarding
+  const hideEditIcon = useSelector((state: AppState) => {
+    const currentStep = getCurrentStep(state);
+    const isInOnboarding = inOnboarding(state);
+
+    return isInOnboarding && currentStep < 3;
   });
 
   const hasNameConflict = React.useCallback(
@@ -104,13 +113,14 @@ const FormTitle = (props: FormTitleProps) => {
       <EditableText
         className="t--edit-datasource-name"
         type="text"
+        hideEditIcon={hideEditIcon}
         forceDefault={forceUpdate}
         defaultValue={currentDatasource ? currentDatasource.name : ""}
         isInvalid={isInvalidDatasourceName}
         onTextChanged={handleDatasourceNameChange}
         placeholder="Datasource Name"
         editInteractionKind={EditInteractionKind.SINGLE}
-        isEditingDefault={props.focusOnMount}
+        isEditingDefault={props.focusOnMount && !hideEditIcon}
         updating={saveStatus.isSaving}
       />
       {saveStatus.isSaving && <Spinner size={16} />}

@@ -58,7 +58,7 @@ But if you’d rather check out some real applications that can be built with Ap
 ## 🏃‍♀️ Quickstart
 
 The following steps introduce you to building a simple user-list dashboard on Appsmith.
-1. [Sign up on Appsmith Cloud](https://bit.ly/appsmith-signup-github) or [Deploy Appsmith via Docker](https://bit.ly/appsmith-docker-github).
+1. [Sign up on Appsmith Cloud](https://bit.ly/appsmith-signup-github) or [Deploy Appsmith](https://docs.appsmith.com/getting-started/setting-up).
 2. Create a new app within the organization that has already been created for you.
 3. Click on the `+` icon next to the `Queries` section to add a new query in the mock database
     1. Name the query `usersQuery`.
@@ -76,7 +76,7 @@ Connect your own data to build apps for your team. [Read more here.](https://doc
 
 If you encountered a bug or need help troubleshooting an issue, you can use one of the following channels:
 
-* Self Help: [Documentation](https://docs.appsmith.com/core-concepts/building-the-ui)
+* Self Help: [Documentation](https://docs.appsmith.com)
 * Community Support: [Discord](https://discord.gg/rBTTVJp)
 * Issue & bug tracking: [GitHub Issues](https://github.com/appsmithorg/appsmith/issues/new/choose)
 
