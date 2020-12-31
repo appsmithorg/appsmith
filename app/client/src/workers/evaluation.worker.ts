@@ -108,7 +108,6 @@ ctx.addEventListener(
         }
         return {
           dataTree,
-          dependencies,
           errors,
           logs: LOGS,
         };

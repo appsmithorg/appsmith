@@ -116,7 +116,7 @@ export class GracefulWorkerService {
    *
    * @returns response from the worker
    */
-  *request(method: string, requestData = {}): any {
+  *request(method: string, requestData = {}, traceId = ""): any {
     yield this.ready(true);
     // Impossible case, but helps avoid `?` later in code and makes it clearer.
     if (!this._evaluationWorker) return;
@@ -157,6 +157,13 @@ export class GracefulWorkerService {
         const transferTime = timeTakenOnMainThread - timeTaken;
         log.debug(`Worker ${method} took ${timeTaken}ms`);
         log.debug(`Transfer ${method} took ${transferTime.toFixed(2)}ms`);
+        if (method === "EVAL_TREE") {
+          console.warn({
+            traceId: traceId,
+            transferTime: transferTime,
+            evalTime: timeTaken,
+          });
+        }
       }
       // Cleanup
       yield ch.close();

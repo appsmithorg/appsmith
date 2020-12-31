@@ -77,9 +77,11 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
+  const traceId = _.uniqueId();
+  const allStart = performance.now();
   const unevalTree = yield select(getUnevaluatedDataTree);
   log.debug({ unevalTree });
-
+  const getUnevalTreeEnd = performance.now();
   const workerResponse = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,
@@ -87,19 +89,32 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
       unevalTree,
       widgetTypeConfigMap,
     },
+    traceId + "",
   );
-
-  const { errors, dataTree, dependencies, logs } = workerResponse;
+  const { errors, dataTree, logs } = workerResponse;
   log.debug({ dataTree: dataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
   evalErrorHandler(errors);
+
+  const evalTreeDispatchStart = performance.now();
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
     payload: dataTree,
   });
-  yield put({
-    type: ReduxActionTypes.SET_EVALUATION_DEPENDENCY_MAP,
-    payload: dependencies,
+
+  const dependencyMapDispatchStart = performance.now();
+  // yield put({
+  //   type: ReduxActionTypes.SET_EVALUATION_DEPENDENCY_MAP,
+  //   payload: dependencies,
+  // });
+  const allEnd = performance.now();
+
+  console.warn({
+    traceId: traceId,
+    selectUnevalTree: getUnevalTreeEnd - allStart,
+    evalTreeDispatchAndRender:
+      dependencyMapDispatchStart - evalTreeDispatchStart,
+    dependencyMapDispatch: allEnd - dependencyMapDispatchStart,
   });
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -248,7 +263,6 @@ function evalQueueBuffer() {
     if (canTake) {
       return [take() as Action];
     }
-
     return [];
   };
 
