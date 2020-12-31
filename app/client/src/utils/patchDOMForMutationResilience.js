@@ -5,7 +5,7 @@ function patch() {
   }
 
   const originalRemoveChild = Node.prototype.removeChild;
-  Node.prototype.removeChild = function(child) {
+  Node.prototype.removeChild = function (child) {
     if (child.parentNode !== this) {
       if (typeof console !== "undefined") {
         console.error(
