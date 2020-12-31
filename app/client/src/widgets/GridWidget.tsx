@@ -1,4 +1,5 @@
 import React from "react";
+import { get } from "lodash";
 import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -11,6 +12,7 @@ import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import GridComponent from "components/designSystems/appsmith/GridComponent";
 import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
 import { ContainerWidgetProps } from "./ContainerWidget";
+import { generateReactKey } from "utils/generators";
 
 class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -35,15 +37,15 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
     const { componentWidth, componentHeight } = this.getComponentDimensions();
 
     childWidgetData.parentId = this.props.widgetId;
-    childWidgetData.shouldScrollContents = false;
+    childWidgetData.shouldScrollContents = true;
     childWidgetData.canExtend = this.props.shouldScrollContents;
     childWidgetData.bottomRow = this.props.shouldScrollContents
       ? childWidgetData.bottomRow
       : componentHeight - 1;
     childWidgetData.isVisible = this.props.isVisible;
-    childWidgetData.containerStyle = "none";
+    childWidgetData.containerStyle = "card";
     childWidgetData.minHeight = componentHeight;
-    childWidgetData.rightColumn = componentWidth;
+    childWidgetData.rightColumn = childWidgetData.rightColumn;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
@@ -63,6 +65,7 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
         topRow: index * children[0].bottomRow,
         bottomRow: (index + 1) * children[0].bottomRow,
         resizeEnabled: index === 0,
+        widgetId: index > 0 ? generateReactKey() : child.widgetId,
       };
     });
   };
@@ -74,7 +77,29 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
   setPathsForNewChildrenInGrid = (
     children: ContainerWidgetProps<WidgetProps>[],
   ) => {
-    // const { dynamicBindingPathList } = this.props;
+    const { dynamicBindingPathList } = this.props;
+    const templateChildrens = get(children, "0.children.0.children", []);
+
+    console.log({ children });
+
+    // const updatedDynamicBindingPathList: any = [];
+
+    // templateChildrens?.map((child: WidgetProps) => {
+    //   if (child.dynamicBindingPathList) {
+    //     child.dynamicBindingPathList?.map((item: { key: string }) => {
+    //       updatedDynamicBindingPathList.push({
+    //         key: `templateValues.template.${child.widgetName}.${item.key}`,
+    //       });
+    //     });
+    //   }
+    // });
+
+    // console.log({ updatedDynamicBindingPathList });
+
+    // super.updateWidgetProperty(
+    //   "dynamicBindingPathList",
+    //   dynamicBindingPathList?.concat(updatedDynamicBindingPathList),
+    // );
 
     return children;
   };
@@ -154,6 +179,9 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
    */
   getPageView() {
     const children = this.renderChildren();
+    const numberOfItemsInGrid = this.props.items.length;
+
+    const { componentWidth, componentHeight } = this.getComponentDimensions();
 
     return <GridComponent {...this.props}>{children}</GridComponent>;
   }

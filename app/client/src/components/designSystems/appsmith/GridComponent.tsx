@@ -23,11 +23,6 @@ const GridContainer = styled.div<GridComponentProps>`
   width: 100%;
   position: relative;
   background: ${(props) => props.backgroundColor};
-  border: 1px solid #e1e1e1;
-  border-bottom-right-radius: ${(props) => `${props.theme.radii[1]}px`};
-  border-bottom-left-radius: ${(props) => `${props.theme.radii[1]}px`};
-  border-top-right-radius: ${(props) => `${props.theme.radii[1]}px`};
-  border-top-left-radius: ${(props) => `${props.theme.radii[1]}px`};
 `;
 
 const ScrollableCanvasWrapper = styled.div<

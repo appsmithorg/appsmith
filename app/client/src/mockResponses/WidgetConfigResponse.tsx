@@ -480,6 +480,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               canExtend: false,
               detachFromLayout: true,
               dropEnabled: false,
+              paddingEnabled: false,
               children: [],
               blueprint: {
                 view: [
@@ -489,9 +490,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     position: { top: 0, left: 0 },
                     props: {
                       backgroundColor: "white",
-                      containerStyle: "border",
+                      containerStyle: "card",
                       dragEnabled: false,
                       isDeletable: false,
+                      paddingEnabled: false,
                     },
                   },
                 ],
