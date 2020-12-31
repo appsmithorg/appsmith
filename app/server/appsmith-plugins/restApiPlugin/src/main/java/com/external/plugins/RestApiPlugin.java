@@ -242,7 +242,7 @@ public class RestApiPlugin extends BasePlugin {
                 if (isSendSessionEnabled) {
                     if (StringUtils.isEmpty(secretKey) || secretKey.length() < 32) {
                         throw new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.PLUGIN_BAD_ARGUMENT_ERROR,
                                 "Secret key is required when sending session details is switched on," +
                                         " and should be at least 32 characters in length."
                         );

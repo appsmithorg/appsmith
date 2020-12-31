@@ -403,7 +403,8 @@ public class FirestorePlugin extends BasePlugin {
 
             final Set<String> errors = validateDatasource(datasourceConfiguration);
             if (!CollectionUtils.isEmpty(errors)) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, errors.iterator().next()));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_BAD_ARGUMENT_ERROR,
+                        errors.iterator().next()));
             }
 
             final String projectId = authentication.getUsername();

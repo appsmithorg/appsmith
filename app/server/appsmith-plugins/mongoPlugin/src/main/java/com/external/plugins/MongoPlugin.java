@@ -196,12 +196,16 @@ public class MongoPlugin extends BasePlugin {
              * Ref: https://api.mongodb.com/java/2.13/com/mongodb/DB.html#setReadOnly-java.lang.Boolean-
              */
 
-            try {
-                return Mono.just(MongoClients.create(buildClientURI(datasourceConfiguration)))
-                        .subscribeOn(scheduler);
-            } catch (Exception e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
-            }
+            return Mono.just(MongoClients.create(buildClientURI(datasourceConfiguration)))
+                    .onErrorMap(
+                            IllegalArgumentException.class,
+                            error ->
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_BAD_ARGUMENT_ERROR,
+                                            error.getMessage()
+                                    )
+                    )
+                    .subscribeOn(scheduler);
         }
 
         public static String buildClientURI(DatasourceConfiguration datasourceConfiguration) {

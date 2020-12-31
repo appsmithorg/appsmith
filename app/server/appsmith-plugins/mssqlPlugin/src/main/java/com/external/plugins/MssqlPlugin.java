@@ -251,7 +251,6 @@ public class MssqlPlugin extends BasePlugin {
                             AppsmithPluginError.PLUGIN_ERROR,
                             "Error connecting to MsSQL: " + e.getMessage()
                     ));
-
                 }
             })
                     .flatMap(obj -> obj)

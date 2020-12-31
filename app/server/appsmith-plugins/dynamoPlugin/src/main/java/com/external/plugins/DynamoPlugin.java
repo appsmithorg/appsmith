@@ -141,7 +141,7 @@ public class DynamoPlugin extends BasePlugin {
                 final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
                 if (authentication == null || StringUtils.isEmpty(authentication.getDatabaseName())) {
                     return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
+                            AppsmithPluginError.PLUGIN_BAD_ARGUMENT_ERROR,
                             "Missing region in datasource."
                     ));
                 }

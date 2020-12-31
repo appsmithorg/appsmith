@@ -106,7 +106,8 @@ public class RedisPlugin extends BasePlugin {
 
             return (Mono<Jedis>) Mono.fromCallable(() -> {
                 if (datasourceConfiguration.getEndpoints().isEmpty()) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "No endpoint(s) configured"));
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_BAD_ARGUMENT_ERROR, "No endpoint(s) " +
+                            "configured"));
                 }
 
                 Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);

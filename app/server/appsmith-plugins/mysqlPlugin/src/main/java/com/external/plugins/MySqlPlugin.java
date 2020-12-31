@@ -238,7 +238,6 @@ public class MySqlPlugin extends BasePlugin {
         @Override
         public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
 
             StringBuilder urlBuilder = new StringBuilder();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
