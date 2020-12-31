@@ -8,9 +8,9 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.zaxxer.hikari.HikariConfig;
@@ -461,6 +461,9 @@ public class PostgresPlugin extends BasePlugin {
                     }
 
                 } catch (SQLException throwable) {
+                    //TODO: remove it.
+                    System.out.println("devtest: getStructure: e.type: " + throwable.getClass().getName());
+
                     return Mono.error(throwable);
                 } finally {
 

@@ -1,6 +1,7 @@
 package com.appsmith.server.exceptions;
 
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.server.dtos.ResponseDTO;
 import io.sentry.Sentry;
 import io.sentry.SentryLevel;
@@ -51,9 +52,22 @@ public class GlobalExceptionHandler {
                 }
         );
 
+        //TODO:remove it.
+        System.out.println("devtest: global exc handle: if else start: " + error.getClass().getName());
+
         if (error instanceof AppsmithException || error instanceof AppsmithPluginException) {
+            //TODO:remove it.
+            System.out.println("devtest: AppsmithError");
+
             if (error instanceof AppsmithException
                 && ((AppsmithException)error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
+                Sentry.captureException(error);
+            }
+
+            if (error instanceof AppsmithPluginException
+                && ((AppsmithPluginException)error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
+                //TODO:remove it.
+                System.out.println("devtest: global exc handle: log ext");
                 Sentry.captureException(error);
             }
         }

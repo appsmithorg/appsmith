@@ -6,8 +6,8 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
@@ -125,7 +125,8 @@ public class ElasticSearchPlugin extends BasePlugin {
                     try {
                         url = new URL(endpoint.getHost());
                     } catch (MalformedURLException e) {
-                        return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Invalid host provided. It should be of the form http(s)://your-es-url.com"));
+                        return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_BAD_ARGUMENT_ERROR,
+                                "Invalid host provided. It should be of the form http(s)://your-es-url.com"));
                     }
                     String scheme = "http";
                     if (url.getProtocol() != null) {
