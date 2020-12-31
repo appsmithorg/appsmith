@@ -94,9 +94,9 @@ export const EditableText = (props: EditableTextProps) => {
   const inputValRef = useRef("");
   const { beforeUnmount } = props;
 
-  const setValue = useCallback((_value) => {
-    inputValRef.current = _value;
-    setStateValue(_value);
+  const setValue = useCallback((value) => {
+    inputValRef.current = value;
+    setStateValue(value);
   }, []);
 
   useEffect(() => {
@@ -108,7 +108,7 @@ export const EditableText = (props: EditableTextProps) => {
     if (props.forceDefault === true) setValue(props.defaultValue);
   }, [props.forceDefault, props.defaultValue, setValue]);
 
-  // in some cases onTextChange is not fired
+  // at times onTextChange is not fired
   // for example when the modal is closed on clicking the overlay
   useEffect(() => {
     return () => {

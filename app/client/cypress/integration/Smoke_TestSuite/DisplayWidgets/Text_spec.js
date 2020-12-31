@@ -64,7 +64,7 @@ describe("Text Widget Functionality", function() {
   });
 
   it("Text widget depends on itself", function() {
-    cy.getCodeMirror().then($cm => {
+    cy.getCodeMirror().then(($cm) => {
       if ($cm.val() !== "") {
         cy.get(".CodeMirror textarea")
           .first()
