@@ -165,7 +165,7 @@ export const useFilteredEntities = (
   }, [ref, event]);
 
   const stop = performance.now();
-  log.debug("Explorer hook props calculations took", stop - start, "ms");
+  // log.debug("Explorer hook props calculations took", stop - start, "ms");
   return {
     searchKeyword: searchKeyword ?? undefined,
     clearSearch,

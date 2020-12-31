@@ -114,6 +114,7 @@ export class GracefulWorkerService {
    * @param method identifier for a rpc method
    * @param requestData data that we want to send over to the worker
    *
+   * @param traceId
    * @returns response from the worker
    */
   *request(method: string, requestData = {}, traceId = ""): any {
@@ -146,22 +147,23 @@ export class GracefulWorkerService {
       const mainThreadEndTime = performance.now();
       const timeTakenOnMainThread = mainThreadEndTime - mainThreadStartTime;
       if (yield cancelled()) {
-        log.debug(
-          `Main ${method} cancelled in ${timeTakenOnMainThread.toFixed(2)}ms`,
-        );
+        // log.debug(
+        //   `Main ${method} cancelled in ${timeTakenOnMainThread.toFixed(2)}ms`,
+        // );
       } else {
-        log.debug(`Main ${method} took ${timeTakenOnMainThread.toFixed(2)}ms`);
+        // log.debug(`Main ${method} took ${timeTakenOnMainThread.toFixed(2)}ms`);
       }
 
       if (timeTaken) {
         const transferTime = timeTakenOnMainThread - timeTaken;
-        log.debug(`Worker ${method} took ${timeTaken}ms`);
-        log.debug(`Transfer ${method} took ${transferTime.toFixed(2)}ms`);
+        // log.debug(`Worker ${method} took ${timeTaken}ms`);
+        // log.debug(`Transfer ${method} took ${transferTime.toFixed(2)}ms`);
         if (method === "EVAL_TREE") {
-          console.warn({
+          console.log({
             traceId: traceId,
-            transferTime: transferTime,
+            transferTime: transferTime.toFixed(2),
             evalTime: timeTaken,
+            total: timeTakenOnMainThread.toFixed(2),
           });
         }
       }

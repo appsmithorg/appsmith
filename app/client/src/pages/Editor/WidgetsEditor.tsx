@@ -122,7 +122,7 @@ const WidgetsEditor = () => {
     return <Welcome />;
   }
 
-  log.debug("Canvas rendered");
+  // log.debug("Canvas rendered");
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>

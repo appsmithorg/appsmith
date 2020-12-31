@@ -247,6 +247,7 @@ export class DataTreeEvaluator {
       ),
       evaluate: (evaluateEnd - evaluateStart).toFixed(2),
       validate: (validateEnd - validateStart).toFixed(2),
+      evalPaths: this.sortedDependencies.length,
     };
     LOGS.push({ timeTakenForFirstTree });
   }
@@ -290,6 +291,7 @@ export class DataTreeEvaluator {
       sortedDependencies: this.sortedDependencies,
       inverse: this.inverseDependencyMap,
       updatedDependencyMap: this.dependencyMap,
+      evalPaths: subTreeSortOrder.length,
     });
 
     // Evaluate
@@ -493,7 +495,7 @@ export class DataTreeEvaluator {
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, propertyPath: string) => {
-          LOGS.push(`evaluating ${propertyPath}`);
+          // LOGS.push(`evaluating ${propertyPath}`);
           const entityName = propertyPath.split(".")[0];
           const entity: DataTreeEntity = currentTree[entityName];
           const unEvalPropertyValue = _.get(currentTree as any, propertyPath);

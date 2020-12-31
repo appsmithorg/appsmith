@@ -84,13 +84,13 @@ class PerformanceTracker {
       }
       if (PerformanceTracker.perfLogQueue.length === 0) {
         if (!skipLog) {
-          log.debug(
-            PerformanceTracker.generateSpaces(
-              PerformanceTracker.perfLogQueue.length + 1,
-            ) +
-              eventName +
-              " Track Transaction ",
-          );
+          // log.debug(
+          //   PerformanceTracker.generateSpaces(
+          //     PerformanceTracker.perfLogQueue.length + 1,
+          //   ) +
+          //     eventName +
+          //     " Track Transaction ",
+          // );
         }
         const newTransaction = Sentry.startTransaction({ name: eventName });
         newTransaction.setData("startData", data);
@@ -104,13 +104,13 @@ class PerformanceTracker {
         });
       } else {
         if (!skipLog) {
-          log.debug(
-            PerformanceTracker.generateSpaces(
-              PerformanceTracker.perfLogQueue.length + 1,
-            ) +
-              eventName +
-              " Track Span ",
-          );
+          // log.debug(
+          //   PerformanceTracker.generateSpaces(
+          //     PerformanceTracker.perfLogQueue.length + 1,
+          //   ) +
+          //     eventName +
+          //     " Track Span ",
+          // );
         }
         const currentPerfLog =
           PerformanceTracker.perfLogQueue[
@@ -190,12 +190,12 @@ class PerformanceTracker {
     skipLog = false,
   ) => {
     if (!skipLog) {
-      log.debug(
-        "Async " +
-          PerformanceTracker.generateSpaces(0) +
-          eventName +
-          " Track Transaction ",
-      );
+      // log.debug(
+      //   "Async " +
+      //     PerformanceTracker.generateSpaces(0) +
+      //     eventName +
+      //     " Track Transaction ",
+      // );
     }
     if (!parentEventId) {
       const newTransaction = Sentry.startTransaction({ name: eventName });
@@ -262,14 +262,14 @@ class PerformanceTracker {
   ) {
     const duration = ((endTime || 0) - startTime) * 1000;
     const spaces = PerformanceTracker.generateSpaces(level);
-    log.debug(
-      (isAsync ? "Async " : "") +
-        spaces +
-        eventName +
-        " Finish Tracking in " +
-        duration +
-        "ms",
-    );
+    // log.debug(
+    //   (isAsync ? "Async " : "") +
+    //     spaces +
+    //     eventName +
+    //     " Finish Tracking in " +
+    //     duration +
+    //     "ms",
+    // );
   }
 }
 

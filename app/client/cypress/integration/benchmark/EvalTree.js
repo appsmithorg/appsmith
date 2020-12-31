@@ -82,7 +82,7 @@ describe("Benchmark EvalTree", function() {
   it("run 100 times", function() {
     for (let i = 0; i < 100; i++) {
       cy.isSelectRow(i % 2);
-      cy.wait(2000);
+      cy.wait(1000);
     }
   });
 });
