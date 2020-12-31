@@ -1,4 +1,11 @@
-import { actionChannel, call, put, select, take } from "redux-saga/effects";
+import {
+  actionChannel,
+  call,
+  fork,
+  put,
+  select,
+  take,
+} from "redux-saga/effects";
 
 import {
   EvaluationReduxAction,
@@ -227,19 +234,18 @@ const EVALUATE_REDUX_ACTIONS = [
 ];
 
 function evalQueueBuffer() {
-  let initialised = false;
-  let takable = false;
+  let canTake = false;
   let postEvalActions: any = [];
   const take = () => {
-    if (takable) {
+    if (canTake) {
       const resp = postEvalActions;
       postEvalActions = [];
-      takable = false;
-      return { postEvalActions: resp, type: "FAKE_ACTION" };
+      canTake = false;
+      return { postEvalActions: resp, type: "BUFFERED_ACTION" };
     }
   };
   const flush = () => {
-    if (takable) {
+    if (canTake) {
       return [take() as Action];
     }
 
@@ -247,29 +253,7 @@ function evalQueueBuffer() {
   };
 
   const put = (action: EvaluationReduxAction<unknown | unknown[]>) => {
-    if (!initialised) {
-      if (!FIRST_EVAL_REDUX_ACTIONS.includes(action.type)) {
-        return;
-      }
-      initialised = true;
-    }
-    // When batching success action happens, we need to only evaluate
-    // if the batch had any action we need to evaluate properties for
-    if (
-      action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&
-      Array.isArray(action.payload)
-    ) {
-      const batchedActionTypes = action.payload.map(
-        (batchedAction: ReduxAction<unknown>) => batchedAction.type,
-      );
-      if (
-        _.intersection(EVALUATE_REDUX_ACTIONS, batchedActionTypes).length === 0
-      ) {
-        return;
-      }
-    }
-
-    takable = true;
+    canTake = true;
     // TODO: If the action is the same as before, we can send only one and ignore duplicates.
     if (action.postEvalActions) {
       postEvalActions.push(...action.postEvalActions);
@@ -280,7 +264,7 @@ function evalQueueBuffer() {
     take,
     put,
     isEmpty: () => {
-      return !takable;
+      return !canTake;
     },
     flush,
   };
@@ -291,6 +275,8 @@ function* evaluationChangeListenerSaga() {
   yield call(worker.shutdown);
   yield call(worker.start);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
+  const initAction = yield take(FIRST_EVAL_REDUX_ACTIONS);
+  yield fork(evaluateTreeSaga, initAction.postEvalActions);
   const evtActionChannel = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),

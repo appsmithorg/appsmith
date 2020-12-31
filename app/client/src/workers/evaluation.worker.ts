@@ -259,6 +259,11 @@ export class DataTreeEvaluator {
     // Calculate diff
     const diffCheckTimeStart = performance.now();
     const differences = diff(this.oldUnEvalTree, unEvalTree) || [];
+    // Since eval tree is listening to possible events that dont cause differences
+    // We want to check if no diffs are present and bail out early
+    if (differences.length === 0) {
+      return this.evalTree;
+    }
     const diffCheckTimeStop = performance.now();
     // Check if dependencies have changed
     const updateDependenciesStart = performance.now();
@@ -853,12 +858,9 @@ export class DataTreeEvaluator {
   }
 
   updateDependencyMap(
-    differences: Array<Diff<any, any>> | undefined,
+    differences: Array<Diff<any, any>>,
     unEvalDataTree: DataTree,
   ): Array<string> {
-    if (differences === undefined) {
-      return [];
-    }
     const diffCalcStart = performance.now();
     let didUpdateDependencyMap = false;
     const removedNodes: Array<string> = [];
