@@ -1,8 +1,7 @@
-import { compact, get, isString, xor, xorWith } from "lodash";
+import { compact, get, xor, xorWith } from "lodash";
 import { Colors } from "constants/Colors";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableWidgetProps } from "./TableWidgetConstants";
-import log from "loglevel";
 
 const updateColumnStyles = (
   props: TableWidgetProps,
@@ -13,19 +12,7 @@ const updateColumnStyles = (
   if (props.primaryColumns) {
     // The style being updated currently
     const currentStyleName = propertyPath.split(".").pop(); // horizontalAlignment/textStyle
-    let derivedColumns = [];
-    if (props.derivedColumns) {
-      if (isString(props.derivedColumns)) {
-        // why is this a string in the first place?
-        try {
-          derivedColumns = JSON.parse(props.derivedColumns);
-        } catch (e) {
-          log.debug("Error parsing derived columns", e);
-        }
-      } else {
-        derivedColumns = props.derivedColumns;
-      }
-    }
+    const derivedColumns = props.derivedColumns;
     let updatedDerivedColumns = [...derivedColumns];
     if (currentStyleName) {
       let updates = compact(
@@ -451,7 +438,6 @@ export default [
                   controlType: "COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
-                  defaultColor: Colors.THUNDER,
                   updateHook: updateDerivedColumnHook,
                 },
                 {
@@ -460,7 +446,6 @@ export default [
                   controlType: "COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
-                  defaultColor: Colors.WHITE,
                   updateHook: updateDerivedColumnHook,
                 },
               ],
@@ -551,14 +536,12 @@ export default [
         propertyName: "cellBackground",
         label: "Cell Background",
         controlType: "COLOR_PICKER",
-        defaultColor: Colors.WHITE,
         updateHook: updateColumnStyles,
       },
       {
         propertyName: "textColor",
         label: "Text Color",
         controlType: "COLOR_PICKER",
-        defaultColor: Colors.THUNDER,
         updateHook: updateColumnStyles,
       },
       {

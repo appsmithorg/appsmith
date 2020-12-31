@@ -199,13 +199,14 @@ export const Table = (props: TableProps) => {
                         : ""
                     }`
                   }
-                  onClick={() => {
+                  onClick={(e) => {
                     row.toggleRowSelected();
                     props.selectTableRow(
                       row,
                       row.index === selectedRowIndex ||
                         selectedRowIndices.includes(row.index),
                     );
+                    e.stopPropagation();
                   }}
                   key={rowIndex}
                 >

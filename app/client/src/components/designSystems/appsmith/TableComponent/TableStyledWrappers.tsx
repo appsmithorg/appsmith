@@ -97,7 +97,7 @@ export const TableWrapper = styled.div<{
     .td {
       height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
       line-height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
-      padding: 0 10px;
+      padding: 0;
     }
     .thead {
       position: sticky;

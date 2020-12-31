@@ -450,7 +450,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   createTablePrimaryColumns = () => {
     const { tableData, dynamicBindingPathList, columnOrder } = this.props;
-    let derivedColumns = this.props.derivedColumns;
+    const derivedColumns = this.props.derivedColumns;
     // If there is tableData attempt to generate primaryColumns
     if (tableData) {
       let tableColumns: ColumnProperties[] = [];
@@ -470,16 +470,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           ...columnProperties,
           ...tableStyles,
         });
-      }
-      if (isString(derivedColumns)) {
-        // why is this a string in the first place?
-        try {
-          derivedColumns = JSON.parse(derivedColumns);
-        } catch (e) {
-          log.debug("Error parsing derived columns", e);
-        }
-      } else {
-        derivedColumns = derivedColumns;
       }
       // Get derived columns
       const updatedDerivedColumns = this.getDerivedColumns(
