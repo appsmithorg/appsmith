@@ -54,16 +54,12 @@ export const getScrollByPixels = function(
   const scrollAmount =
     GridDefaults.CANVAS_EXTENSION_OFFSET * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
-  if (
-    bounding.top > 0 &&
-    bounding.top - scrollParentBounds.top < SCROLL_THESHOLD
-  )
-    return -scrollAmount;
-  if (scrollParentBounds.bottom - bounding.bottom < SCROLL_THESHOLD)
-    return scrollAmount;
+  if (bounding.top < scrollParentBounds.top) return -scrollAmount;
+  if (scrollParentBounds.bottom < bounding.bottom) return scrollAmount;
   return 0;
 };
 
+const interval: any = {};
 export const scrollElementIntoParentCanvasView = (
   el: Element | null,
   parent: Element | null,
@@ -71,13 +67,23 @@ export const scrollElementIntoParentCanvasView = (
   if (el) {
     const scrollParent = parent;
     if (scrollParent) {
-      const scrollBy: number = getScrollByPixels(el, scrollParent);
-      if (scrollBy < 0 && scrollParent.scrollTop > 0) {
-        scrollParent.scrollBy({ top: scrollBy, behavior: "smooth" });
+      if (interval.current) {
+        clearInterval(interval.current);
       }
-      if (scrollBy > 0) {
-        scrollParent.scrollBy({ top: scrollBy, behavior: "smooth" });
-      }
+      interval.current = setInterval(() => {
+        const scrollBy: number = getScrollByPixels(el, scrollParent);
+        const bounding = el.getBoundingClientRect();
+        const elNotDragged = bounding.top === bounding.bottom;
+        if (!scrollBy || elNotDragged) {
+          clearInterval(interval.current);
+        }
+        if (scrollBy < 0 && scrollParent.scrollTop > 0) {
+          scrollParent.scrollBy({ top: scrollBy, behavior: "smooth" });
+        }
+        if (scrollBy > 0) {
+          scrollParent.scrollBy({ top: scrollBy, behavior: "smooth" });
+        }
+      }, 200);
     }
   }
 };

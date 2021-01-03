@@ -147,21 +147,18 @@ const DragLayerComponent = (props: DragLayerProps) => {
       rowHeight={props.parentRowHeight}
       ref={dropTargetMask}
     >
-      {props.visible &&
-        props.isOver &&
-        currentOffset &&
-        isParentOffsetCalculated && (
-          <DropZone
-            parentOffset={dropTargetOffset.current}
-            parentRowHeight={props.parentRowHeight}
-            parentColumnWidth={props.parentColumnWidth}
-            width={widgetWidth}
-            height={widgetHeight}
-            currentOffset={currentOffset as XYCoord}
-            canDrop={canDrop}
-            ref={dropZoneRef}
-          />
-        )}
+      {currentOffset && isParentOffsetCalculated && (
+        <DropZone
+          parentOffset={dropTargetOffset.current}
+          parentRowHeight={props.parentRowHeight}
+          parentColumnWidth={props.parentColumnWidth}
+          width={widgetWidth}
+          height={widgetHeight}
+          currentOffset={currentOffset as XYCoord}
+          canDrop={canDrop}
+          ref={dropZoneRef}
+        />
+      )}
     </WrappedDragLayer>
   );
 };
