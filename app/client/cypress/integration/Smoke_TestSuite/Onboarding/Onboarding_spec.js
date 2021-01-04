@@ -22,7 +22,7 @@ describe("Onboarding", function() {
       "response.body.responseMeta.status",
       201,
     );
-    cy.get("#loading").should("exist");
+    cy.get("#loading").should("not.exist");
 
     //Onboarding
     cy.contains(".t--create-database", "Explore Appsmith").click();
