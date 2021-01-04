@@ -43,7 +43,7 @@ before(function() {
     200,
   );
 
-  cy.generateUUID().then(id => {
+  cy.generateUUID().then((id) => {
     appId = id;
     cy.CreateApp(id);
     localStorage.setItem("AppName", appId);
@@ -60,6 +60,10 @@ beforeEach(function() {
 });
 
 after(function() {
+  // Clear indexedDB
+  cy.window().then((window) => {
+    window.indexedDB.deleteDatabase("Appsmith");
+  });
   //-- Deleting the application by Api---//
   cy.DeleteAppByApi();
   //-- LogOut Application---//
