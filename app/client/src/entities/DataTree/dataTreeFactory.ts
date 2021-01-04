@@ -126,6 +126,9 @@ export class DataTreeFactory {
       const derivedPropertyMap = WidgetFactory.getWidgetDerivedPropertiesMap(
         widget.type,
       );
+      const defaultProps = WidgetFactory.getWidgetDefaultPropertiesMap(
+        widget.type,
+      );
       const derivedProps: any = {};
       const dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
       dynamicBindingPathList.forEach((dynamicPath) => {
@@ -137,6 +140,7 @@ export class DataTreeFactory {
         }
       });
       Object.keys(derivedPropertyMap).forEach((propertyName) => {
+        // TODO regex is too greedy
         derivedProps[propertyName] = derivedPropertyMap[propertyName].replace(
           /this./g,
           `${widget.widgetName}.`,
@@ -145,11 +149,18 @@ export class DataTreeFactory {
           key: propertyName,
         });
       });
+      const unInitializedDefaultProps: Record<string, undefined> = {};
+      Object.values(defaultProps).forEach((propertyName) => {
+        if (!(propertyName in widget)) {
+          unInitializedDefaultProps[propertyName] = undefined;
+        }
+      });
       dataTree[widget.widgetName] = {
         ...widget,
         ...defaultMetaProps,
         ...widgetMetaProps,
         ...derivedProps,
+        ...unInitializedDefaultProps,
         dynamicBindingPathList,
         ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       };
