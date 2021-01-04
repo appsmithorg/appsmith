@@ -24,7 +24,6 @@ export const executeAction = (
 export const executeActionError = (
   executeErrorPayload: ExecuteErrorPayload,
 ): ReduxAction<ExecuteErrorPayload> => {
-  console.log({ executeErrorPayload });
   return {
     type: ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
     payload: executeErrorPayload,
