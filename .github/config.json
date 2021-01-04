@@ -585,6 +585,61 @@
                 "value": true
               }
             ]
+          },
+          "Platform": {
+            "requires": 1,
+            "conditions": [
+              {
+                "type": "hasLabel",
+                "label": "ACL",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Debugger",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Omnibar",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Login / Signup",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Entity Explorer",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Example apps",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Deployment",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Home Page",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Settings",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Telemetry",
+                "value": true
+              }
+            ]
           }
         }
       }
