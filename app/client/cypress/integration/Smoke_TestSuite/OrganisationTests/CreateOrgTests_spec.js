@@ -8,7 +8,7 @@ describe("Create new org and share with a user", function() {
 
   it("create org and then share with a user from UI", function() {
     cy.NavigateToHome();
-    cy.generateUUID().then(uid => {
+    cy.generateUUID().then((uid) => {
       orgid = uid;
       appid = uid;
       localStorage.setItem("OrgName", orgid);

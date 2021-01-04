@@ -123,9 +123,9 @@ export const getCanvasWidgetDsl = createSelector(
     const widgets: Record<string, DataTreeWidget> = {};
     Object.keys(canvasWidgets).forEach((widgetKey) => {
       const canvasWidget = canvasWidgets[widgetKey];
-      const evaluatedWidget = evaluatedDataTree[
-        canvasWidget.widgetName
-      ] as DataTreeWidget;
+      const evaluatedWidget = _.find(evaluatedDataTree, {
+        widgetId: widgetKey,
+      }) as DataTreeWidget;
       if (evaluatedWidget) {
         widgets[widgetKey] = createCanvasWidget(canvasWidget, evaluatedWidget);
       } else {

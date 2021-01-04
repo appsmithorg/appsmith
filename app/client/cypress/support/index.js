@@ -33,6 +33,10 @@ Cypress.on("fail", (error, runnable) => {
 
 before(function() {
   cy.startServerAndRoutes();
+  // Clear indexedDB
+  cy.window().then((window) => {
+    window.indexedDB.deleteDatabase("Appsmith");
+  });
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
@@ -43,7 +47,7 @@ before(function() {
     200,
   );
 
-  cy.generateUUID().then(id => {
+  cy.generateUUID().then((id) => {
     appId = id;
     cy.CreateApp(id);
     localStorage.setItem("AppName", appId);
