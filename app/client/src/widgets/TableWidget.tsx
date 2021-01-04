@@ -217,84 +217,86 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const updatedTableData = [];
     for (let row = 0; row < tableData.length; row++) {
       const data: { [key: string]: any } = tableData[row];
-      const tableRow: { [key: string]: any } = {};
-      for (let colIndex = 0; colIndex < columns.length; colIndex++) {
-        const column = columns[colIndex];
-        const { accessor } = column;
-        let value = data[accessor];
-        if (column.metaProperties) {
-          const type = column.metaProperties.type;
-          const format = column.metaProperties.format;
-          switch (type) {
-            case ColumnTypes.CURRENCY:
-              if (!isNaN(value)) {
-                tableRow[accessor] = `${format}${value ? value : ""}`;
-              } else {
-                tableRow[accessor] = "Invalid Value";
-              }
-              break;
-            case ColumnTypes.DATE:
-              let isValidDate = true;
-              let outputFormat = column.metaProperties.format;
-              let inputFormat;
-              try {
-                const type = column.metaProperties.inputFormat;
-                if (type !== "Epoch" && type !== "Milliseconds") {
-                  inputFormat = type;
-                  moment(value, inputFormat);
-                } else if (!isNumber(value)) {
+      if (data !== null && data !== undefined) {
+        const tableRow: { [key: string]: any } = {};
+        for (let colIndex = 0; colIndex < columns.length; colIndex++) {
+          const column = columns[colIndex];
+          const { accessor } = column;
+          let value = data[accessor];
+          if (column.metaProperties) {
+            const type = column.metaProperties.type;
+            const format = column.metaProperties.format;
+            switch (type) {
+              case ColumnTypes.CURRENCY:
+                if (!isNaN(value)) {
+                  tableRow[accessor] = `${format}${value ? value : ""}`;
+                } else {
+                  tableRow[accessor] = "Invalid Value";
+                }
+                break;
+              case ColumnTypes.DATE:
+                let isValidDate = true;
+                let outputFormat = column.metaProperties.format;
+                let inputFormat;
+                try {
+                  const type = column.metaProperties.inputFormat;
+                  if (type !== "Epoch" && type !== "Milliseconds") {
+                    inputFormat = type;
+                    moment(value, inputFormat);
+                  } else if (!isNumber(value)) {
+                    isValidDate = false;
+                  }
+                } catch (e) {
                   isValidDate = false;
                 }
-              } catch (e) {
-                isValidDate = false;
-              }
-              if (isValidDate) {
-                if (outputFormat === "SAME_AS_INPUT") {
-                  outputFormat = inputFormat;
+                if (isValidDate) {
+                  if (outputFormat === "SAME_AS_INPUT") {
+                    outputFormat = inputFormat;
+                  }
+                  if (column.metaProperties.inputFormat === "Milliseconds") {
+                    value = Number(value);
+                  } else if (column.metaProperties.inputFormat === "Epoch") {
+                    value = 1000 * Number(value);
+                  }
+                  tableRow[accessor] = moment(value, inputFormat).format(
+                    outputFormat,
+                  );
+                } else if (value) {
+                  tableRow[accessor] = "Invalid Value";
+                } else {
+                  tableRow[accessor] = "";
                 }
-                if (column.metaProperties.inputFormat === "Milliseconds") {
-                  value = Number(value);
-                } else if (column.metaProperties.inputFormat === "Epoch") {
-                  value = 1000 * Number(value);
+                break;
+              case ColumnTypes.TIME:
+                let isValidTime = true;
+                if (isNaN(value)) {
+                  const time = Date.parse(value);
+                  if (isNaN(time)) {
+                    isValidTime = false;
+                  }
                 }
-                tableRow[accessor] = moment(value, inputFormat).format(
-                  outputFormat,
-                );
-              } else if (value) {
-                tableRow[accessor] = "Invalid Value";
-              } else {
-                tableRow[accessor] = "";
-              }
-              break;
-            case ColumnTypes.TIME:
-              let isValidTime = true;
-              if (isNaN(value)) {
-                const time = Date.parse(value);
-                if (isNaN(time)) {
-                  isValidTime = false;
+                if (isValidTime) {
+                  tableRow[accessor] = moment(value).format("HH:mm");
+                } else if (value) {
+                  tableRow[accessor] = "Invalid Value";
+                } else {
+                  tableRow[accessor] = "";
                 }
-              }
-              if (isValidTime) {
-                tableRow[accessor] = moment(value).format("HH:mm");
-              } else if (value) {
-                tableRow[accessor] = "Invalid Value";
-              } else {
-                tableRow[accessor] = "";
-              }
-              break;
-            default:
-              const data =
-                isString(value) || isNumber(value)
-                  ? value
-                  : isUndefined(value)
-                  ? ""
-                  : JSON.stringify(value);
-              tableRow[accessor] = data;
-              break;
+                break;
+              default:
+                const data =
+                  isString(value) || isNumber(value)
+                    ? value
+                    : isUndefined(value)
+                    ? ""
+                    : JSON.stringify(value);
+                tableRow[accessor] = data;
+                break;
+            }
           }
         }
+        updatedTableData.push(tableRow);
       }
-      updatedTableData.push(tableRow);
     }
     return updatedTableData;
   };
@@ -402,14 +404,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         filteredTableData,
       );
       if (!this.props.multiRowSelection) {
-        const selectedRowIndex =
-          this.props.selectedRowIndex !== -1 &&
-          this.props.selectedRowIndex !== undefined &&
-          filteredTableData[this.props.selectedRowIndex]
-            ? this.props.selectedRowIndex
-            : isNumber(this.props.defaultSelectedRow)
-            ? this.props.defaultSelectedRow
-            : -1;
+        const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
+          ? this.props.defaultSelectedRow
+          : -1;
         this.props.updateWidgetMetaProperty(
           "selectedRowIndex",
           selectedRowIndex,
@@ -419,12 +416,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           this.getSelectedRow(filteredTableData, selectedRowIndex),
         );
       } else {
-        const selectedRowIndices =
-          this.props.selectedRowIndices && this.props.selectedRowIndices.length
-            ? this.props.selectedRowIndices
-            : Array.isArray(this.props.defaultSelectedRow)
-            ? this.props.defaultSelectedRow
-            : [];
+        const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
+          ? this.props.defaultSelectedRow
+          : [];
         this.props.updateWidgetMetaProperty(
           "selectedRowIndices",
           selectedRowIndices,
@@ -499,7 +493,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getSelectedRowIndexes = (selectedRowIndices: string) => {
     return selectedRowIndices
-      ? selectedRowIndices.split(",").map(i => Number(i))
+      ? selectedRowIndices.split(",").map((i) => Number(i))
       : [];
   };
 
@@ -534,6 +528,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         tableSizes.COLUMN_HEADER_HEIGHT) /
         tableSizes.ROW_HEIGHT,
     );
+
     if (
       componentHeight -
         (tableSizes.TABLE_HEADER_HEIGHT +
@@ -546,6 +541,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (pageSize !== this.props.pageSize) {
       this.props.updateWidgetMetaProperty("pageSize", pageSize);
     }
+
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
@@ -563,7 +559,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columnNameMap={this.props.columnNameMap}
           columnTypeMap={this.props.columnTypeMap}
           columnOrder={this.props.columnOrder}
-          pageSize={pageSize}
+          pageSize={Math.max(1, pageSize)}
           onCommandClick={this.onCommandClick}
           selectedRowIndex={
             this.props.selectedRowIndex === undefined

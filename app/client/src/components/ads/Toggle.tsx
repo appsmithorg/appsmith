@@ -27,7 +27,7 @@ const StyledToggle = styled.label<{
     cursor: pointer;
     top: 0;
     left: 0;
-    background-color: ${props =>
+    background-color: ${(props) =>
       props.isLoading
         ? props.theme.colors.toggle.disable.off
         : props.theme.colors.toggle.bg};
@@ -37,7 +37,7 @@ const StyledToggle = styled.label<{
     border-radius: 92px;
   }
 
-  ${props =>
+  ${(props) =>
     props.isLoading
       ? `.toggle-spinner {
       position: absolute;
@@ -74,11 +74,11 @@ const StyledToggle = styled.label<{
   }
 
   input:focus + .slider:before {
-    ${props => (props.value ? "opacity: 0.6" : "opacity: 0.7")};
+    ${(props) => (props.value ? "opacity: 0.6" : "opacity: 0.7")};
   }
 
   input:disabled + .slider:before {
-    ${props => (props.value ? "opacity: 0.24" : "opacity: 1")};
+    ${(props) => (props.value ? "opacity: 0.24" : "opacity: 1")};
   }
 
   input:checked + .slider:before {
@@ -86,12 +86,12 @@ const StyledToggle = styled.label<{
   }
 
   input:checked + .slider {
-    background-color: ${props => props.theme.colors.info.main};
+    background-color: ${(props) => props.theme.colors.info.main};
   }
 
   input:hover + .slider,
   input:focus + .slider {
-    background-color: ${props =>
+    background-color: ${(props) =>
       props.value
         ? props.theme.colors.toggle.hover.on
         : props.theme.colors.toggle.hover.off};
@@ -99,7 +99,7 @@ const StyledToggle = styled.label<{
 
   input:disabled + .slider {
     cursor: not-allowed;
-    background-color: ${props =>
+    background-color: ${(props) =>
       props.value && !props.isLoading
         ? props.theme.colors.toggle.disable.on
         : props.theme.colors.toggle.disable.off};
@@ -107,7 +107,7 @@ const StyledToggle = styled.label<{
 
   .${Classes.SPINNER} {
     circle {
-      stroke: ${props => props.theme.colors.toggle.spinner};
+      stroke: ${(props) => props.theme.colors.toggle.spinner};
     }
   }
 `;

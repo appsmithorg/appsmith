@@ -155,12 +155,12 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
               completeSingle: false,
               hint: () => {
                 const list = datasourceList
-                  .filter(datasource =>
+                  .filter((datasource) =>
                     datasource.datasourceConfiguration.url.includes(
                       parsed.datasourceUrl,
                     ),
                   )
-                  .map(datasource => ({
+                  .map((datasource) => ({
                     text: datasource.datasourceConfiguration.url,
                     data: datasource,
                     className: "datasource-hint",
@@ -236,7 +236,7 @@ const mapStateToProps = (
   // Todo: fix this properly later in #2164
   if (datasourceFromAction && "id" in datasourceFromAction) {
     const datasourceFromDataSourceList = state.entities.datasources.list.find(
-      d => d.id === datasourceFromAction.id,
+      (d) => d.id === datasourceFromAction.id,
     );
     if (datasourceFromDataSourceList) {
       datasourceMerged = _.merge(
@@ -251,13 +251,13 @@ const mapStateToProps = (
     orgId: state.ui.orgs.currentOrg.id,
     datasource: datasourceMerged,
     datasourceList: state.entities.datasources.list.filter(
-      d => d.pluginId === ownProps.pluginId && d.isValid,
+      (d) => d.pluginId === ownProps.pluginId && d.isValid,
     ),
   };
 };
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
-  updateDatasource: datasource =>
+  updateDatasource: (datasource) =>
     dispatch(change(API_EDITOR_FORM_NAME, "datasource", datasource)),
 });
 

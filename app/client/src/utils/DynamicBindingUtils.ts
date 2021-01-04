@@ -70,7 +70,7 @@ export const getDynamicBindings = (
   // Get the {{binding}} bound values
   const stringSegments = getDynamicStringSegments(sanitisedString);
   // Get the "binding" path values
-  const paths = stringSegments.map(segment => {
+  const paths = stringSegments.map((segment) => {
     const length = segment.length;
     const matches = isDynamicValue(segment);
     if (matches) {
@@ -87,6 +87,7 @@ export enum EvalErrorTypes {
   EVAL_TREE_ERROR = "EVAL_TREE_ERROR",
   UNESCAPE_STRING_ERROR = "UNESCAPE_STRING_ERROR",
   EVAL_ERROR = "EVAL_ERROR",
+  BAD_UNEVAL_TREE_ERROR = "BAD_UNEVAL_TREE_ERROR",
 }
 
 export type EvalError = {

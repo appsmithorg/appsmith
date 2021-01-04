@@ -12,26 +12,26 @@ const Container = styled.div<{
   &&& {
     .${Classes.OVERLAY} {
       .${Classes.OVERLAY_BACKDROP} {
-        z-index: ${props => props.zIndex || 2 - 1};
+        z-index: ${(props) => props.zIndex || 2 - 1};
       }
       position: fixed;
       top: 0;
       right: 0;
       bottom: 0;
       height: 100vh;
-      z-index: ${props => props.zIndex};
+      z-index: ${(props) => props.zIndex};
       width: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
       & .${Classes.OVERLAY_CONTENT} {
-        margin-top: -${props => props.theme.headerHeight};
-        width: ${props => props.width}px;
-        min-height: ${props => props.height}px;
+        margin-top: -${(props) => props.theme.headerHeight};
+        width: ${(props) => props.width}px;
+        min-height: ${(props) => props.height}px;
         background: white;
-        border-radius: ${props => props.theme.radii[1]}px;
-        top: ${props => props.top}px;
-        left: ${props => props.left}px;
+        border-radius: ${(props) => props.theme.radii[1]}px;
+        top: ${(props) => props.top}px;
+        left: ${(props) => props.left}px;
       }
     }
   }
@@ -41,10 +41,10 @@ const Content = styled.div<{
   scroll: boolean;
   ref: RefObject<HTMLDivElement>;
 }>`
-  overflow-y: ${props => (props.scroll ? "visible" : "hidden")};
+  overflow-y: ${(props) => (props.scroll ? "visible" : "hidden")};
   overflow-x: hidden;
   width: 100%;
-  height: ${props => props.height}px;
+  height: ${(props) => props.height}px;
 `;
 
 export type ModalComponentProps = {

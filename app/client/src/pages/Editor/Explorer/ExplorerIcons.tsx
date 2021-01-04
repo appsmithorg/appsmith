@@ -151,10 +151,11 @@ const StyledTag = styled.div<{ color: string }>`
   width: 40px;
   font-weight: 700;
   color: #fff;
-  background: ${props => props.color};
+  background: ${(props) => props.color};
   display: flex;
   justify-content: center;
   align-items: center;
+  line-height: 16px;
 `;
 
 export const MethodTag = (props: { type: typeof HTTP_METHODS[number] }) => {

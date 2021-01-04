@@ -1,4 +1,4 @@
-import React, { useState, memo, useEffect, useCallback } from "react";
+import React, { useState, memo, useEffect, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import EditableText, {
@@ -34,7 +34,7 @@ const Wrapper = styled.div`
   position: sticky;
   top: 0;
   z-index: 3;
-  background-color: ${props => props.theme.colors.paneBG};
+  background-color: ${(props) => props.theme.colors.paneBG};
   & span.${Classes.POPOVER_TARGET} {
     cursor: pointer;
     display: flex;
@@ -71,14 +71,18 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   const widgets = useSelector(getExistingWidgetNames);
   const toggleEditWidgetName = useToggleEditWidgetName();
   const [name, setName] = useState(props.title);
+  const valueRef = useRef("");
+
   const updateTitle = useCallback(
-    (value: string) => {
+    (value?: string) => {
       if (
         value &&
         value.trim().length > 0 &&
         value.trim() !== props.title.trim() &&
+        valueRef.current !== value.trim() &&
         props.widgetId
       ) {
+        valueRef.current = value.trim();
         if (widgets.indexOf(value.trim()) > -1) {
           setName(props.title);
         }
@@ -117,6 +121,7 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
           hideEditIcon
           minimal
           className="t--propery-page-title"
+          beforeUnmount={updateTitle}
         />
         {updating && <Spinner size={16} />}
       </NameWrapper>

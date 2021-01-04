@@ -57,21 +57,21 @@ const Text = styled.span.attrs((props: TextProps) => ({
   className: props.className ? props.className + Classes.TEXT : Classes.TEXT,
   "data-cy": props.cypressSelector,
 }))<TextProps>`
-  text-decoration: ${props => (props.underline ? "underline" : "unset")};
-  font-style: ${props => (props.italic ? "italic" : "normal")};
-  font-weight: ${props =>
+  text-decoration: ${(props) => (props.underline ? "underline" : "unset")};
+  font-style: ${(props) => (props.italic ? "italic" : "normal")};
+  font-weight: ${(props) =>
     props.weight
       ? props.weight === FontWeight.BOLD
         ? props.theme.fontWeights[2]
         : "normal"
       : props.theme.typography[props.type].fontWeight};
-  font-size: ${props => props.theme.typography[props.type].fontSize}px;
-  line-height: ${props => props.theme.typography[props.type].lineHeight}px;
-  letter-spacing: ${props =>
+  font-size: ${(props) => props.theme.typography[props.type].fontSize}px;
+  line-height: ${(props) => props.theme.typography[props.type].lineHeight}px;
+  letter-spacing: ${(props) =>
     props.theme.typography[props.type].letterSpacing}px;
-  color: ${props =>
+  color: ${(props) =>
     props.highlight ? props.theme.colors.text.hightlight : typeSelector(props)};
-  text-transform: ${props => (props.case ? props.case : "none")};
+  text-transform: ${(props) => (props.case ? props.case : "none")};
 `;
 
 export default Text;

@@ -105,7 +105,7 @@ function getChildWidgetProps(
     ...(WidgetConfigResponse as any).config[type],
   };
   if (!widgetName) {
-    const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
+    const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
     widgetName = getNextEntityName(restDefaultConfig.widgetName, widgetNames);
   }
   if (type === WidgetTypes.CANVAS_WIDGET) {
@@ -276,9 +276,9 @@ export function* addChildrenSaga(
     const { widgetId, children } = addChildrenAction.payload;
     const stateWidgets = yield select(getWidgets);
     const widgets = { ...stateWidgets };
-    const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
+    const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
 
-    children.forEach(child => {
+    children.forEach((child) => {
       // Create only if it doesn't already exist
       if (!widgets[child.widgetId]) {
         const defaultConfig: any = WidgetConfigResponse.config[child.type];
@@ -348,7 +348,7 @@ const resizeCanvasToLowestWidget = (
   let lowestBottomRow = 0;
   const childIds = finalWidgets[parentId].children || [];
   // find lowest row
-  childIds.forEach(cId => {
+  childIds.forEach((cId) => {
     const child = finalWidgets[cId];
     if (child.bottomRow > lowestBottomRow) {
       lowestBottomRow = child.bottomRow;
@@ -397,7 +397,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       if (parent.children) {
         parent = {
           ...parent,
-          children: parent.children.filter(c => c !== widgetId),
+          children: parent.children.filter((c) => c !== widgetId),
         };
       }
 
@@ -434,7 +434,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
       const finalWidgets: CanvasWidgetsReduxState = _.omit(
         widgets,
-        otherWidgetsToDelete.map(widgets => widgets.widgetId),
+        otherWidgetsToDelete.map((widgets) => widgets.widgetId),
       );
 
       // Note: mutates finalWidgets
@@ -460,7 +460,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
   );
   // Find the parent in the list of deleted widgets
   const deletedWidget = deletedWidgets.find(
-    widget => widget.widgetId === action.payload.widgetId,
+    (widget) => widget.widgetId === action.payload.widgetId,
   );
 
   // If the deleted widget is infact available.
@@ -477,7 +477,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
     const stateWidgets = yield select(getWidgets);
     let widgets = { ...stateWidgets };
     // For each deleted widget
-    deletedWidgets.forEach(widget => {
+    deletedWidgets.forEach((widget) => {
       // Add it to the widgets list we fetched from reducer
       widgets[widget.widgetId] = widget;
       // If the widget in question is the deleted widget
@@ -486,6 +486,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
         if (widget.tabId && widget.type === WidgetTypes.CANVAS_WIDGET) {
           const parent = { ...widgets[widget.parentId] };
           if (parent.tabs) {
+            parent.tabs = parent.tabs.slice();
             try {
               parent.tabs.push({
                 id: widget.tabId,
@@ -804,7 +805,7 @@ function* resetEvaluatedWidgetMetaProperties(widgetIds: string[]) {
     const defaultPropertiesMap = WidgetFactory.getWidgetDefaultPropertiesMap(
       widget.type,
     );
-    Object.keys(metaPropsMap).forEach(metaProp => {
+    Object.keys(metaPropsMap).forEach((metaProp) => {
       if (metaProp in defaultPropertiesMap) {
         widgetToUpdate[metaProp] = widget[defaultPropertiesMap[metaProp]];
       } else {
@@ -912,7 +913,7 @@ function calculateNewWidgetPosition(
 function getNextWidgetName(widgets: CanvasWidgetsReduxState, type: WidgetType) {
   // Compute the new widget's name
   const defaultConfig: any = WidgetConfigResponse.config[type];
-  const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
+  const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
   return getNextEntityName(defaultConfig.widgetName, widgetNames);
 }
 
@@ -925,7 +926,7 @@ function* pasteWidgetSaga() {
   if (!copiedWidgets) return;
   const copiedWidgetId = copiedWidgets.widgetId;
   const copiedWidget = copiedWidgets.list.find(
-    widget => widget.widgetId === copiedWidgetId,
+    (widget) => widget.widgetId === copiedWidgetId,
   );
   if (copiedWidget) {
     // Log the paste event
@@ -1011,7 +1012,7 @@ function* pasteWidgetSaga() {
     const newWidgetList: FlattenedWidgetProps[] = [];
     let newWidgetId: string = copiedWidget.widgetId;
     // Generate new widgetIds for the flat list of all the widgets to be updated
-    widgetList.forEach(widget => {
+    widgetList.forEach((widget) => {
       // Create a copy of the widget properties
       const newWidget = cloneDeep(widget);
       newWidget.widgetId = generateReactKey();
@@ -1022,7 +1023,7 @@ function* pasteWidgetSaga() {
     });
 
     // For each of the new widgets generated
-    newWidgetList.forEach(widget => {
+    newWidgetList.forEach((widget) => {
       // Update the children widgetIds if it has children
       if (widget.children && widget.children.length > 0) {
         widget.children.forEach((childWidgetId: string, index: number) => {
@@ -1037,7 +1038,7 @@ function* pasteWidgetSaga() {
         try {
           const tabs = widget.tabs;
           if (Array.isArray(tabs)) {
-            widget.tabs = tabs.map(tab => {
+            widget.tabs = tabs.map((tab) => {
               tab.widgetId = widgetIdMap[tab.widgetId];
               return tab;
             });
@@ -1095,7 +1096,7 @@ function* pasteWidgetSaga() {
         // This means, that their parents will also be newly copied widgets
         // Update widget's parent widget ids with the new parent widget ids
         const newParentId = newWidgetList.find(
-          newWidget => newWidget.widgetId === widgetIdMap[widget.parentId],
+          (newWidget) => newWidget.widgetId === widgetIdMap[widget.parentId],
         )?.widgetId;
         if (newParentId) widget.parentId = newParentId;
       }

@@ -10,7 +10,7 @@ const Wrapper = styled.div`
   text-align: center;
   margin-top: 5%;
   .bold-text {
-    font-weight: ${props => props.theme.fontWeights[3]};
+    font-weight: ${(props) => props.theme.fontWeights[3]};
     font-size: 24px;
   }
   .page-unavailable-img {

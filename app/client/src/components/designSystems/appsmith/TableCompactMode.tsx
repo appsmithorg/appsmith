@@ -30,12 +30,12 @@ const OptionWrapper = styled.div<{ selected?: boolean }>`
   box-sizing: border-box;
   padding: 8px;
   color: ${Colors.OXFORD_BLUE};
-  opacity: ${props => (props.selected ? 1 : 0.7)};
+  opacity: ${(props) => (props.selected ? 1 : 0.7)};
   min-width: 200px;
   cursor: pointer;
   margin-bottom: 4px;
-  background: ${props => (props.selected ? Colors.POLAR : Colors.WHITE)};
-  border-left: ${props => (props.selected ? "4px solid #29CCA3" : "none")};
+  background: ${(props) => (props.selected ? Colors.POLAR : Colors.WHITE)};
+  border-left: ${(props) => (props.selected ? "4px solid #29CCA3" : "none")};
   border-radius: 4px;
   .option-title {
     font-weight: 500;
