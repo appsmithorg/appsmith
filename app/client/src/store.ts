@@ -13,7 +13,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const sagaMiddleware = createSagaMiddleware();
 const sentryReduxEnhancer = Sentry.createReduxEnhancer({
-  actionTransformer: action => {
+  actionTransformer: (action) => {
     if (
       action.type === ReduxActionTypes.SET_EVALUATED_TREE ||
       action.type === ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS

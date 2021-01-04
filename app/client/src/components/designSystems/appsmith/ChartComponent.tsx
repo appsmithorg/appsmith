@@ -32,13 +32,13 @@ export interface ChartComponentProps {
 
 const CanvasContainer = styled.div<ChartComponentProps>`
   border: none;
-  border-radius: ${props => `${props.theme.radii[1]}px`};
+  border-radius: ${(props) => `${props.theme.radii[1]}px`};
   height: 100%;
   width: 100%;
   background: white;
   box-shadow: 0 1px 1px 0 rgba(60,75,100,.14),0 2px 1px -1px rgba(60,75,100,.12),0 1px 3px 0 rgba(60,75,100,.2);
   position: relative;
-  ${props => (!props.isVisible ? invisible : "")};
+  ${(props) => (!props.isVisible ? invisible : "")};
   padding: 10px 0 0 0;
 }`;
 
@@ -98,7 +98,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         },
       ];
     }
-    return data.map(item => {
+    return data.map((item) => {
       return {
         label: item.x,
         value: item.y,
@@ -127,7 +127,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         label: "",
       };
     }
-    return categories.map(item => {
+    return categories.map((item) => {
       return {
         label: item,
       };

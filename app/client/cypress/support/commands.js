@@ -94,8 +94,9 @@ Cypress.Commands.add("CheckShareIcon", (orgName, count) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(homePage.orgList.concat(orgName).concat(") .org-share-user-icons"))
-    .should('have.length', count)
+  cy.get(
+    homePage.orgList.concat(orgName).concat(") .org-share-user-icons"),
+  ).should("have.length", count);
 });
 
 Cypress.Commands.add("shareApp", (email, role) => {
@@ -249,6 +250,7 @@ Cypress.Commands.add("CreateApp", appname => {
   );
   cy.get("#loading").should("not.exist");
   cy.wait(1000);
+
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",
@@ -950,11 +952,18 @@ Cypress.Commands.add("PublishtheApp", () => {
   // Wait before publish
   cy.wait(2000);
   cy.assertPageSave();
+
+  // Stubbing window.open to open in the same tab
+  cy.window().then(window => {
+    cy.stub(window, "open").callsFake(url => {
+      window.location.href = Cypress.config().baseUrl + url.substring(1);
+      window.location.target = "_self";
+    });
+  });
+
   cy.get(homePage.publishButton).click();
   cy.wait("@publishApp");
-  cy.get('a[class="bp3-button"]')
-    .invoke("removeAttr", "target")
-    .click({ force: true });
+
   cy.url().should("include", "/pages");
   cy.log("pagename: " + localStorage.getItem("PageName"));
 });
@@ -1144,8 +1153,8 @@ Cypress.Commands.add("Deletepage", Pagename => {
   cy.get(".t--page-sidebar-" + Pagename + "");
   cy.get(
     ".t--page-sidebar-" +
-    Pagename +
-    ">.t--page-sidebar-menu-actions>.bp3-popover-target",
+      Pagename +
+      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
   ).click({ force: true });
   cy.get(pages.Menuaction).click({ force: true });
   cy.get(pages.Delete).click({ force: true });

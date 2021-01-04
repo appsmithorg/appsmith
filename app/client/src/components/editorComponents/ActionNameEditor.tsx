@@ -9,12 +9,13 @@ import EditableText, {
 import { removeSpecialChars, isNameValid } from "utils/helpers";
 import { AppState } from "reducers";
 import { RestAction } from "entities/Action";
-import { Page } from "constants/ReduxActionConstants";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getExistingPageNames } from "sagas/selectors";
 
 import { saveActionName } from "actions/actionActions";
 import { Spinner } from "@blueprintjs/core";
+import { getCurrentStep, inOnboarding } from "sagas/OnboardingSagas";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 const ApiNameWrapper = styled.div`
   min-width: 50%;
@@ -25,8 +26,8 @@ const ApiNameWrapper = styled.div`
   & > div {
     max-width: 100%;
     flex: 0 1 auto;
-    font-size: ${props => props.theme.fontSizes[5]}px;
-    font-weight: ${props => props.theme.fontWeights[2]};
+    font-size: ${(props) => props.theme.fontSizes[5]}px;
+    font-weight: ${(props) => props.theme.fontWeights[2]};
   }
 `;
 
@@ -40,17 +41,25 @@ export const ActionNameEditor = () => {
     console.log("No API id or Query id found in the url.");
   }
 
+  // For onboarding
+  const hideEditIcon = useSelector((state: AppState) => {
+    const currentStep = getCurrentStep(state);
+    const isInOnboarding = inOnboarding(state);
+
+    return isInOnboarding && currentStep < OnboardingStep.ADD_WIDGET;
+  });
+
   const actions: RestAction[] = useSelector((state: AppState) =>
-    state.entities.actions.map(action => action.config),
+    state.entities.actions.map((action) => action.config),
   );
 
   const currentActionConfig: RestAction | undefined = actions.find(
-    action => action.id === params.apiId || action.id === params.queryId,
+    (action) => action.id === params.apiId || action.id === params.queryId,
   );
 
   const existingWidgetNames: string[] = useSelector((state: AppState) =>
     Object.values(state.entities.canvasWidgets).map(
-      widget => widget.widgetName,
+      (widget) => widget.widgetName,
     ),
   );
 
@@ -125,9 +134,10 @@ export const ActionNameEditor = () => {
           onTextChanged={handleAPINameChange}
           isInvalid={isInvalidActionName}
           valueTransform={removeSpecialChars}
-          isEditingDefault={isNew}
+          isEditingDefault={isNew && !hideEditIcon}
           updating={saveStatus.isSaving}
           editInteractionKind={EditInteractionKind.SINGLE}
+          hideEditIcon={hideEditIcon}
         />
         {saveStatus.isSaving && <Spinner size={16} />}
       </div>

@@ -7,7 +7,7 @@ const ResizeWrapper = styled.div<{ pevents: boolean }>`
   display: block;
   & {
     * {
-      pointer-events: ${props => !props.pevents && "none"};
+      pointer-events: ${(props) => !props.pevents && "none"};
     }
   }
 `;
@@ -252,7 +252,7 @@ export const Resizable = forwardRef(
         }}
         immediate={newDimensions.reset ? true : false}
       >
-        {_props => (
+        {(_props) => (
           <ResizeWrapper
             ref={ref}
             style={_props}

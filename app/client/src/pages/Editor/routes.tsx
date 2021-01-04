@@ -43,18 +43,18 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
   top: 0;
   left: 0;
-  width: ${props => (!props.isVisible ? "0px" : "100%")};
-  height: calc(100vh - ${props => props.theme.headerHeight});
-  background-color: ${props =>
+  width: ${(props) => (!props.isVisible ? "0px" : "100%")};
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  background-color: ${(props) =>
     props.isVisible ? "rgba(0, 0, 0, 0.26)" : "transparent"};
-  z-index: ${props => (props.isVisible ? 2 : -1)};
+  z-index: ${(props) => (props.isVisible ? 2 : -1)};
 `;
 
 const DrawerWrapper = styled.div<{
   isVisible: boolean;
 }>`
   background-color: white;
-  width: ${props => (!props.isVisible ? "0px" : "75%")};
+  width: ${(props) => (!props.isVisible ? "0px" : "75%")};
   height: 100%;
 `;
 

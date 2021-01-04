@@ -246,7 +246,7 @@ const applicationsReducer = createReducer(initialState, {
     const _organizations = state.userOrgs.map(
       (org: Organization, index: number) => {
         const appIndex = org.applications.findIndex(
-          app => app.id === action.payload.id,
+          (app) => app.id === action.payload.id,
         );
         const { id, ...rest } = action.payload;
         if (appIndex !== -1) {

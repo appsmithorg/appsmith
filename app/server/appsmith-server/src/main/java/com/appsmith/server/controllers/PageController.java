@@ -51,13 +51,13 @@ public class PageController {
     @Deprecated
     @GetMapping("/application/{applicationId}")
     public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationId(@PathVariable String applicationId) {
-        return newPageService.findNamesByApplicationIdAndViewMode(applicationId, false)
+        return newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId, false)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @GetMapping("/view/application/{applicationId}")
     public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationIdInViewMode(@PathVariable String applicationId) {
-        return newPageService.findNamesByApplicationIdAndViewMode(applicationId, true)
+        return newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId, true)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
