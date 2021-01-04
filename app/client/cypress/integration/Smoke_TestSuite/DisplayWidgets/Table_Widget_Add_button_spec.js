@@ -25,7 +25,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(commonlocators.editPropCrossButton).click();
     cy.get(widgetsPage.tableBtn)
       .last()
-      .click();
+      .click({force: true});
     cy.wait(3000);
     cy.get(widgetsPage.toastAction).should("be.visible");
     cy.get(widgetsPage.toastActionText)
