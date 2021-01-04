@@ -305,10 +305,15 @@
       "color": "d130d1",
       "description": ""
     },
+    "UI Building Pod": {
+      "name": "UI Building Pod",
+      "color": "e2ffb2",
+      "description": "Issues picked up by the UI building pod"
+    },
     "UI Building": {
       "name": "UI Building",
-      "color": "e2ffb2",
-      "description": ""
+      "color": "006b75",
+      "description": "Issues related to the building UI on the canvas"
     },
     "UI Improvement": {
       "name": "UI Improvement",
@@ -400,10 +405,15 @@
       "color": "e053d6",
       "description": "API configuration section"
     },
+    "Actions Pod": {
+      "name": "Actions Pod",
+      "color": "61ed84",
+      "description": "Issues picked up by the actions pod"
+    },
     "Actions": {
       "name": "Actions",
-      "color": "61ed84",
-      "description": "Issues related to API / Query execution"
+      "color": "c5def5",
+      "description": "Issues related to API / Query / JS execution"
     },
     "Datasources": {
       "name": "Datasources",
@@ -436,7 +446,7 @@
       "prereleaseName": "alpha",
       "issue": {
         "labels": {
-          "Actions": {
+          "Actions Pod": {
             "requires": 1,
             "conditions": [
               {
@@ -462,6 +472,11 @@
               {
                 "type": "hasLabel",
                 "label": "Auto Complete",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Actions",
                 "value": true
               }
             ]
@@ -566,7 +581,7 @@
               }
             ]
           },
-          "UI Building": {
+          "UI Building Pod": {
             "requires": 1,
             "conditions": [
               {
@@ -582,6 +597,11 @@
               {
                 "type": "hasLabel",
                 "label": "Property Pane",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "UI Building",
                 "value": true
               }
             ]
