@@ -14,6 +14,8 @@ export enum EditorModes {
 export enum EditorTheme {
   LIGHT = "LIGHT",
   DARK = "DARK",
+  NEW_LIGHT = "NEW_LIGHT",
+  NEW_DARK = "NEW_DARK",
 }
 export enum TabBehaviour {
   INPUT = "INPUT",
@@ -37,6 +39,8 @@ export type EditorConfig = {
 export const EditorThemes: Record<EditorTheme, string> = {
   [EditorTheme.LIGHT]: "duotone-light",
   [EditorTheme.DARK]: "duotone-dark",
+  [EditorTheme.NEW_LIGHT]: "duotone-light",
+  [EditorTheme.NEW_DARK]: "duotone-dark",
 };
 
 export type HintHelper = (editor: CodeMirror.Editor, data: DataTree) => Hinter;

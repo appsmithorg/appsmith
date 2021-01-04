@@ -114,6 +114,25 @@ const getBorderStyle = (
   return "transparent";
 };
 
+const editorBackground = (theme?: EditorTheme) => {
+  let bg = "#FFFFFF";
+  switch (theme) {
+    case EditorTheme.DARK:
+      bg = "#272822";
+      break;
+    case EditorTheme.LIGHT:
+      bg = "#FFFFFF";
+      break;
+    case EditorTheme.NEW_DARK:
+      bg = "#1A191C";
+      break;
+    case EditorTheme.NEW_LIGHT:
+      bg = "#FAFAFA";
+      break;
+  }
+  return bg;
+};
+
 export const EditorWrapper = styled.div<{
   editorTheme?: EditorTheme;
   hasError: boolean;
@@ -136,8 +155,7 @@ export const EditorWrapper = styled.div<{
       : `position: relative;`}
   min-height: 32px;
   height: ${props => props.height || "auto"};
-  background-color: ${props =>
-    props.editorTheme === EditorTheme.DARK ? "#272822" : "#fff"};
+  background-color: ${props => editorBackground(props.editorTheme)};
   background-color: ${props => props.disabled && "#eef2f5"};
   ${props =>
     !props.borderLess &&
@@ -160,7 +178,8 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.textDefault} !important;
     }
     .cm-s-duotone-light.CodeMirror {
-      background: #ffffff;
+      background: ${props =>
+        props.editorTheme === EditorTheme.LIGHT ? "#FFFFFF" : "#FAFAFA"};
       color: #000000 !important;
       & {
         span.cm-operator {
@@ -169,7 +188,8 @@ export const EditorWrapper = styled.div<{
       }
      }
     .cm-s-duotone-dark.CodeMirror {
-      background: #182026;
+      background: ${props =>
+        props.editorTheme === EditorTheme.DARK ? "#182026" : "#1A191C"};
       color: #FFFFFF;
     }
     .binding-brackets {
