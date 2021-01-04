@@ -55,7 +55,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           if (this.regex) {
             /*
             * break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags
-            * Example /appsmith/i will be split into ["/appsmith/gi", "/", "appsmith", "gi"]
+            * Example /test/i will be split into ["/test/gi", "/", "test", "gi"]
             */
             const regexParts = this.regex.match(/(\\/?)(.+)\\1([a-z]*)/i);
 
