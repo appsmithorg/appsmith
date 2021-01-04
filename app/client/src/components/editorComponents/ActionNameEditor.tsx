@@ -14,6 +14,8 @@ import { getExistingPageNames } from "sagas/selectors";
 
 import { saveActionName } from "actions/actionActions";
 import { Spinner } from "@blueprintjs/core";
+import { getCurrentStep, inOnboarding } from "sagas/OnboardingSagas";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 const ApiNameWrapper = styled.div`
   min-width: 50%;
@@ -38,6 +40,14 @@ export const ActionNameEditor = () => {
   if (!params.apiId && !params.queryId) {
     console.log("No API id or Query id found in the url.");
   }
+
+  // For onboarding
+  const hideEditIcon = useSelector((state: AppState) => {
+    const currentStep = getCurrentStep(state);
+    const isInOnboarding = inOnboarding(state);
+
+    return isInOnboarding && currentStep < OnboardingStep.ADD_WIDGET;
+  });
 
   const actions: RestAction[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
@@ -124,9 +134,10 @@ export const ActionNameEditor = () => {
           onTextChanged={handleAPINameChange}
           isInvalid={isInvalidActionName}
           valueTransform={removeSpecialChars}
-          isEditingDefault={isNew}
+          isEditingDefault={isNew && !hideEditIcon}
           updating={saveStatus.isSaving}
           editInteractionKind={EditInteractionKind.SINGLE}
+          hideEditIcon={hideEditIcon}
         />
         {saveStatus.isSaving && <Spinner size={16} />}
       </div>
