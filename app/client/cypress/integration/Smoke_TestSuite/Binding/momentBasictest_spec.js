@@ -39,10 +39,10 @@ describe("Moment basic test with input Widget", function() {
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")
-      .should("contain", "2020");
+      .should("contain", "2021");
     cy.get(publish.inputWidget + " " + "input")
       .last()
       .invoke("attr", "value")
-      .should("contain", "2020");
+      .should("contain", "2021");
   });
 });
