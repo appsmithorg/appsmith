@@ -15,6 +15,10 @@ import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidget
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
 
+export const getDatasources = (state: AppState): Datasource[] => {
+  return state.entities.datasources.list;
+};
+
 export const getPluginIdsOfNames = (
   state: AppState,
   names: Array<string>,
