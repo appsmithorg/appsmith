@@ -55,15 +55,17 @@ before(function() {
 });
 
 beforeEach(function() {
+  cy.log("Before each");
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
-});
 
-after(function() {
   // Clear indexedDB
   cy.window().then((window) => {
     window.indexedDB.deleteDatabase("Appsmith");
   });
+});
+
+after(function() {
   //-- Deleting the application by Api---//
   cy.DeleteAppByApi();
   //-- LogOut Application---//
