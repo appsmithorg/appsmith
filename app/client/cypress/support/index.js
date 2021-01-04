@@ -59,7 +59,6 @@ before(function() {
 });
 
 beforeEach(function() {
-  cy.log("Before each");
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
 });
