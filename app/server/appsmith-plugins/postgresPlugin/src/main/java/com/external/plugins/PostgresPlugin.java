@@ -52,7 +52,7 @@ public class PostgresPlugin extends BasePlugin {
 
     private static final int MINIMUM_POOL_SIZE = 1;
 
-    private static final int MAXIMUM_POOL_SIZE = 5;
+    private static final int MAXIMUM_POOL_SIZE = 20;
 
     private static final long LEAK_DETECTION_TIME_MS = 60*1000;
 
@@ -133,6 +133,8 @@ public class PostgresPlugin extends BasePlugin {
 
                 Statement statement = null;
                 ResultSet resultSet = null;
+                System.out.println(Thread.currentThread().getName() +
+                        ": Going to execute query" + query);
                 try {
                     statement = connectionFromPool.createStatement();
                     boolean isResultSet = statement.execute(query);
