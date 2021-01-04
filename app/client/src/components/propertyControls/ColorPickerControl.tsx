@@ -70,6 +70,20 @@ interface ColorBoardProps {
   selectColor: (color: string) => void;
   selectedColor: string;
 }
+const EmptyColorIconWrapper = styled.div`
+  width: 32px;
+  height: 32px;
+  margin-top: 12px;
+  margin-left: 12px;
+  box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
+  cursor: pointer;
+  .line {
+    left: 15px;
+    top: -5px;
+    height: 43px;
+    border-radius: 100px;
+  }
+`;
 
 const ColorBoard = (props: ColorBoardProps) => {
   return (
@@ -84,31 +98,40 @@ const ColorBoard = (props: ColorBoardProps) => {
           {props.selectedColor === color && <CheckedIcon />}
         </ColorTab>
       ))}
+      <EmptyColorIconWrapper onClick={() => props.selectColor("")}>
+        <NoColorIcon>
+          <div className="line"></div>
+        </NoColorIcon>
+      </EmptyColorIconWrapper>
     </ColorsWrapper>
   );
 };
 
-const NoColorIcon = styled.div`
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  background: #ffffff;
+const NoColorIconWrapper = styled.div`
   position: absolute;
   z-index: 1;
   top: 3px;
   left: 3px;
-  &:after {
+  width: 24px;
+  height: 24px;
+  .line {
+    left: 11px;
+    top: -3px;
+    height: 30px;
+  }
+`;
+
+const NoColorIcon = styled.div`
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  background: #ffffff;
+  position: relative;
+  .line {
+    width: 2px;
+    background: red;
     position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    content: "\2F";
-    transform: rotate(30deg);
-    text-align: center;
-    color: red;
-    font-size: 24px;
-    line-height: 24px;
+    transform: rotate(45deg);
   }
 `;
 
@@ -130,6 +153,7 @@ const ColorPicker = (props: ColorPickerProps) => {
       debouncedOnChange(value);
     }
   };
+  console.log({ color });
   return (
     <Popover
       minimal
@@ -145,7 +169,15 @@ const ColorPicker = (props: ColorPickerProps) => {
     >
       <StyledInputGroup
         leftIcon={
-          props.color ? <ColorIcon color={props.color} /> : <NoColorIcon />
+          color ? (
+            <ColorIcon color={color} />
+          ) : (
+            <NoColorIconWrapper>
+              <NoColorIcon>
+                <div className="line"></div>
+              </NoColorIcon>
+            </NoColorIconWrapper>
+          )
         }
         onChange={handleChangeColor}
         placeholder="enter color name or hex"
@@ -154,6 +186,7 @@ const ColorPicker = (props: ColorPickerProps) => {
       <ColorBoard
         selectedColor={color}
         selectColor={(color) => {
+          console.log({ color });
           setColor(color);
           props.changeColor(color);
         }}

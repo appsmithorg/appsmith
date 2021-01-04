@@ -9,6 +9,10 @@ import { get } from "lodash";
 
 const SectionWrapper = styled.div`
   position: relative;
+  .${Classes.COLLAPSE_BODY} {
+    z-index: 1;
+    position: relative;
+  }
 `;
 const SectionTitle = styled.div`
   display: grid;
@@ -83,7 +87,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
         <Collapse isOpen={isOpen} keepChildrenMounted>
           <div
             className={`t--property-pane-section-${className}`}
-            style={{ position: "relative" }}
+            style={{ position: "relative", zIndex: 1 }}
           >
             {props.children}
           </div>
