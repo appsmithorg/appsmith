@@ -126,14 +126,12 @@
                   "label": "",
                   "options": [
                     {
-                      "id": "1",
-                      "label": "Male",
-                      "value": "M"
+                      "label":"Male",
+                      "value":"M"
                     },
                     {
-                      "id": "2",
-                      "label": "Female",
-                      "value": "F"
+                      "label":"Female",
+                      "value":"F"
                     }
                   ],
                   "defaultOptionValue": "1",
