@@ -380,11 +380,6 @@
       "color": "d3cb2e",
       "description": "This label marks issues that are potential duplicates of already open issues"
     },
-    "Platform": {
-      "name": "Platform",
-      "color": "#500B69",
-      "description": "All issues related to using the appsmith platform"
-    },
     "regression": {
       "name": "regression",
       "color": "ffe5bc",
@@ -394,6 +389,41 @@
       "name": "view-mode",
       "color": "d5e03c",
       "description": "bugs about view-mode"
+    },
+    "ACL": {
+      "name": "ACL",
+      "color": "032c77",
+      "description": "User permissions and access controls"
+    },
+    "API pane": {
+      "name": "API pane",
+      "color": "e053d6",
+      "description": "API configuration section"
+    },
+    "Actions": {
+      "name": "Actions",
+      "color": "61ed84",
+      "description": "Issues related to API / Query execution"
+    },
+    "Datasources": {
+      "name": "Datasources",
+      "color": "f285e1",
+      "description": ""
+    },
+    "Project": {
+      "name": "Project",
+      "color": "bfdadc",
+      "description": "Label for issues part of a planned project"
+    },
+    "Platform": {
+      "name": "Platform",
+      "color": "500B69",
+      "description": "All issues related to using the appsmith platform"
+    },
+    "calendar widget": {
+      "name": "calendar widget",
+      "color": "445727",
+      "description": ""
     }
   },
   "runners": [
