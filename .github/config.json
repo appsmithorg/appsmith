@@ -638,6 +638,11 @@
                 "type": "hasLabel",
                 "label": "Telemetry",
                 "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Editor",
+                "value": true
               }
             ]
           }
