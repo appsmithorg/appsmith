@@ -41,7 +41,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.tableColumnDataValidation("userName");
     cy.tableColumnDataValidation("productName");
     cy.tableColumnDataValidation("orderAmount");
-    cy.tableColumnDataValidation("DERIVED1");
+    cy.tableColumnDataValidation("customColumn1");
     cy.hideColumn("email");
     cy.hideColumn("userName");
     cy.hideColumn("productName");

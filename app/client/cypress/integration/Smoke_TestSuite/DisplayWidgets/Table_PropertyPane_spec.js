@@ -32,7 +32,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.tableColumnDataValidation("orderAmount");
     cy.tableColumnPopertyUpdate("id", "TestUpdated");
     cy.addColumn("CustomColumn");
-    cy.tableColumnDataValidation("DERIVED1"); //To be updated later
+    cy.tableColumnDataValidation("customColumn1"); //To be updated later
     cy.hideColumn("email");
     cy.hideColumn("userName");
     cy.hideColumn("productName");

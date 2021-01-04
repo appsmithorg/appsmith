@@ -3,8 +3,6 @@
 /* eslint-disable cypress/no-assigning-return-values */
 
 require("cypress-file-upload");
-require('@4tw/cypress-drag-drop');
-
 
 const loginPage = require("../locators/LoginPage.json");
 const homePage = require("../locators/HomePage.json");

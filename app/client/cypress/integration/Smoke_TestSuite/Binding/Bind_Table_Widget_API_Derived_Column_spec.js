@@ -1,4 +1,5 @@
 const commonlocators = require("../../../locators/commonlocators.json");
+const widgetsPage = require("../../../locators/Widgets.json");
 const dsl = require("../../../fixtures/tableNewDsl.json");
 const pages = require("../../../locators/Pages.json");
 const apiPage = require("../../../locators/ApiEditor.json");
@@ -19,19 +20,19 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.tableColumnDataValidation("orderAmount");
     cy.tableColumnPopertyUpdate("id", "TestUpdated");
     cy.addColumn("CustomColumn");
-    cy.tableColumnDataValidation("DERIVED1"); //To be updated later
+    cy.tableColumnDataValidation("customColumn1"); //To be updated later
     cy.hideColumn("email");
     cy.hideColumn("userName");
     cy.hideColumn("productName");
     cy.hideColumn("orderAmount");
     cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
-    cy.get('[data-rbd-draggable-id="DERIVED1"] input')
+    cy.get(widgetsPage.defaultColName)
       .invoke("attr", "value")
       .should("contain", "CustomColumn");
   });
 
   it("Update the computed value for derived column", function() {
-    cy.editColumn("DERIVED1");
+    cy.editColumn("customColumn1");
     cy.editColName("UpdatedColName");
     cy.readTabledataPublish("0", "2").then(tabData => {
       const tabValue = tabData;
@@ -67,8 +68,8 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("Update table json data and check the column names updated", function() {
     cy.SearchEntityandOpen("Table1");
     cy.tableColumnDataValidation("id");
-    cy.tableColumnDataValidation("DERIVED1");
-    cy.editColumn("DERIVED1");
+    cy.tableColumnDataValidation("customColumn1");
+    cy.editColumn("customColumn1");
     cy.wait(500);
     cy.readTabledataPublish("1", "5").then(tabData => {
       const tabValue = tabData;
@@ -93,11 +94,11 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.tableColumnDataValidation("address");
     cy.tableColumnDataValidation("createdAt");
     cy.tableColumnDataValidation("updatedAt");
-    cy.tableColumnDataValidation("DERIVED1");
-    cy.get('[data-rbd-draggable-id="DERIVED1"] input')
+    cy.tableColumnDataValidation("customColumn1");
+    cy.get(widgetsPage.defaultColName)
       .invoke("attr", "value")
       .should("contain", "CustomColumn");
-    cy.editColumn("DERIVED1");
+    cy.editColumn("customColumn1");
     cy.wait(500);
     cy.readTabledataPublish("1", "5").then(tabData => {
       const tabValue = tabData;
