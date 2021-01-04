@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.DslActionDTO;
@@ -35,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
@@ -144,7 +146,29 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     }
 
     public Mono<List<HashSet<DslActionDTO>>> findAndUpdateOnLoadActionsInPage(Set<String> dynamicBindingNames, String pageId) {
-        return findAndUpdateOnLoadActionsInPage(new ArrayList<>(), dynamicBindingNames, pageId);
+        Mono<List<HashSet<DslActionDTO>>> referencedActions = findAndUpdateOnLoadActionsInPage(new ArrayList<>(), dynamicBindingNames, pageId);
+        return referencedActions
+                .zipWith(newActionService.findUnpublishedOnLoadActionsInPage(pageId)
+                        .flatMap(newAction -> {
+                            ActionDTO action = newAction.getUnpublishedAction();
+                            DslActionDTO actionDTO = new DslActionDTO();
+                            actionDTO.setId(action.getId());
+                            actionDTO.setPluginType(action.getPluginType());
+                            actionDTO.setJsonPathKeys(action.getJsonPathKeys());
+                            actionDTO.setName(action.getName());
+                            if (action.getActionConfiguration() != null) {
+                                actionDTO.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
+                            }
+                            return Mono.just(actionDTO);
+                        })
+                        .collect(Collectors.toCollection(HashSet::new)))
+                .map(tuple -> {
+                    List<HashSet<DslActionDTO>> actionList = tuple.getT1();
+                    if (!tuple.getT2().isEmpty()) {
+                        actionList.add(tuple.getT2());
+                    }
+                    return actionList;
+                });
     }
 
     private Mono<List<HashSet<DslActionDTO>>> findAndUpdateOnLoadActionsInPage(List<HashSet<DslActionDTO>> onLoadActions, Set<String> dynamicBindingNames, String pageId) {
@@ -152,7 +176,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
             return Mono.just(onLoadActions);
         }
         Set<String> bindingNames = new HashSet<>();
-        return newActionService.findUnpublishedOnLoadActionsInPage(dynamicBindingNames, pageId)
+        return newActionService.findUnpublishedOnLoadActionsInPageByName(dynamicBindingNames, pageId)
                 .flatMap(newAction -> {
                     ActionDTO action = newAction.getUnpublishedAction();
                     if (!CollectionUtils.isEmpty(action.getJsonPathKeys())) {
@@ -432,7 +456,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         // Widgets will not have FieldName.DYNAMIC_BINDING_PATH_LIST if there are no bindings in that widget.
         // Hence we skip over the extraction of the bindings from that widget.
-        if(dynamicallyBoundedPathList != null) {
+        if (dynamicallyBoundedPathList != null) {
             // Each of these might have nested structures, so we iterate through them to find the leaf node for each
             for (Object x : dynamicallyBoundedPathList) {
                 final String fieldPath = String.valueOf(((Map) x).get(FieldName.KEY));
@@ -459,7 +483,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         break;
                     }
                 }
-                if(parent != null) {
+                if (parent != null) {
                     dynamicBindings.addAll(MustacheHelper.extractMustacheKeysFromFields(parent));
                 }
             }
