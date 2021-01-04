@@ -59,12 +59,4 @@ describe("Onboarding", function() {
     cy.PublishtheApp();
     cy.get(".t--continue-on-my-own").click();
   });
-
-  after(() => {
-    localStorage.removeItem("OnboardingState");
-    cy.window().then((window) => {
-      window.indexedDB.deleteDatabase("Appsmith");
-    });
-    cy.log("Cleared");
-  });
 });
