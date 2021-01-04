@@ -56,6 +56,8 @@ public class PostgresPlugin extends BasePlugin {
 
     private static final long LEAK_DETECTION_TIME_MS = 60*1000;
 
+    private static final long LEAK_DETECTION_TIME_MS = 60*1000;
+
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
