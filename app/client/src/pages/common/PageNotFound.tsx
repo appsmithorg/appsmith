@@ -1,9 +1,12 @@
 import React from "react";
+import { get } from "lodash";
+import { AppState } from "reducers";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import Button from "components/editorComponents/Button";
 import PageUnavailableImage from "assets/images/404-image.png";
-import { APPLICATIONS_URL } from "constants/routes";
+import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 
 const Wrapper = styled.div`
@@ -23,9 +26,18 @@ const Wrapper = styled.div`
 
 interface Props {
   flushErrorsAndRedirect?: any;
+  user?: any;
 }
+
 const PageNotFound: React.FC<Props> = (props: Props) => {
-  const { flushErrorsAndRedirect } = props;
+  const { flushErrorsAndRedirect, user } = props;
+
+  // if we have logged in user, append the current url in login url with `redirectTo` param
+  // logged in user here means email is not "anonymousUser"
+  const redirectURL =
+    get(user, "email") !== "anonymousUser"
+      ? APPLICATIONS_URL
+      : `${AUTH_LOGIN_URL}?redirectTo=${window.location.href}`;
 
   return (
     <Wrapper>
@@ -49,13 +61,17 @@ const PageNotFound: React.FC<Props> = (props: Props) => {
           iconAlignment="right"
           size="small"
           className="button-position"
-          onClick={() => flushErrorsAndRedirect(APPLICATIONS_URL)}
+          onClick={() => flushErrorsAndRedirect(redirectURL)}
         />
       </div>
     </Wrapper>
   );
 };
 
-export default connect(null, {
+const mapStateToProps = (state: AppState) => ({
+  user: getCurrentUser(state),
+});
+
+export default connect(mapStateToProps, {
   flushErrorsAndRedirect,
 })(PageNotFound);
