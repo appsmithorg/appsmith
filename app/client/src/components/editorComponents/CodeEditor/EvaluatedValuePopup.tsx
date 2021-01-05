@@ -35,6 +35,18 @@ const THEMES: PopupTheme = {
     editorBackground: "#090a0f",
     editorColor: "#F4F4F4",
   },
+  [EditorTheme.NEW_LIGHT]: {
+    backgroundColor: "#FAFAFA",
+    textColor: "#1E242B",
+    editorBackground: "#FAFAFA",
+    editorColor: "#1E242B",
+  },
+  [EditorTheme.NEW_DARK]: {
+    backgroundColor: "#1A191C",
+    textColor: "#F4F4F4",
+    editorBackground: "#1A191C",
+    editorColor: "#F4F4F4",
+  },
 };
 
 const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`

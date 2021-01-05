@@ -732,6 +732,19 @@ type ColorType = {
   };
   apiPane: {
     bg: ShadeColor;
+    requestTree: {
+      bg: string;
+      header: {
+        text: string;
+        icon: string;
+        bg: string;
+      };
+      row: {
+        hoverBg: string;
+        key: string;
+        value: string;
+      };
+    };
     moreActions: {
       targetBg: string;
       targetIcon: {
@@ -1027,6 +1040,19 @@ export const dark: ColorType = {
   },
   apiPane: {
     bg: darkShades[6],
+    requestTree: {
+      bg: lightShades[10],
+      header: {
+        text: darkShades[7],
+        icon: darkShades[7],
+        bg: darkShades[1],
+      },
+      row: {
+        hoverBg: darkShades[1],
+        key: darkShades[6],
+        value: darkShades[7],
+      },
+    },
     moreActions: {
       targetBg: "#090707",
       targetIcon: {
@@ -1322,6 +1348,19 @@ export const light: ColorType = {
   },
   apiPane: {
     bg: lightShades[6],
+    requestTree: {
+      bg: lightShades[11],
+      header: {
+        text: lightShades[8],
+        icon: lightShades[8],
+        bg: lightShades[2],
+      },
+      row: {
+        hoverBg: lightShades[2],
+        key: lightShades[7],
+        value: lightShades[8],
+      },
+    },
     moreActions: {
       targetBg: "#E8E8E8",
       targetIcon: {
