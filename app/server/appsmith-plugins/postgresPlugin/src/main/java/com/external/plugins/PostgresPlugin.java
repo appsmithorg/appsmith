@@ -130,7 +130,7 @@ public class PostgresPlugin extends BasePlugin {
                     // library throws SQLException in case the pool is closed or there is an issue initializing
                     // the connection pool which can also be translated in our world to StaleConnectionException
                     // and should then trigger the destruction and recreation of the pool.
-                    return Mono.error(new StaleConnectionException());
+                    return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
                 }
 
                 List<Map<String, Object>> rowsList = new ArrayList<>(50);
