@@ -105,10 +105,7 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
-//            log.debug("Final URL is: " + uri.toString());
-
             ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, uri);
-//            log.debug("request is : {}", actionExecutionRequest);
 
             if (httpMethod == null) {
                 errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage("HTTPMethod must be set."));
