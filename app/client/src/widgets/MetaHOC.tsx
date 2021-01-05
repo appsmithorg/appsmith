@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps } from "./BaseWidget";
 import _ from "lodash";
 import { EditorContext } from "../components/editorComponents/EditorContextProvider";
-import { clearEvalPropertyCache } from "sagas/evaluationsSaga";
+import { clearEvalPropertyCache } from "sagas/EvaluationsSaga";
 import { ExecuteActionPayload } from "../constants/ActionConstants";
 
 type DebouncedExecuteActionPayload = Omit<

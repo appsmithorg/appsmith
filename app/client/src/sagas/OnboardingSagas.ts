@@ -128,7 +128,11 @@ function* listenForSuccessfullBinding() {
 
         if (widgetProperties.invalidProps) {
           bindSuccessfull =
-            bindSuccessfull && !("tableData" in widgetProperties.invalidProps);
+            bindSuccessfull &&
+            !(
+              "tableData" in widgetProperties.invalidProps &&
+              widgetProperties.invalidProps.tableData
+            );
         }
 
         if (bindSuccessfull) {
