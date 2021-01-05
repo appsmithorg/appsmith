@@ -33,7 +33,7 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Flux<NewAction> findUnpublishedOnLoadActionsInPage(String pageId);
 
-    Flux<NewAction> findUnpublishedOnLoadActionsInPageByName(Set<String> names, String pageId);
+    Flux<NewAction> findUnpublishedActionsInPageByNames(Set<String> names, String pageId);
 
     Mono<NewAction> findById(String id);
 
