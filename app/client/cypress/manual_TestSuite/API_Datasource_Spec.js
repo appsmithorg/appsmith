@@ -1,18 +1,6 @@
-const dsl = require("../../../fixtures/tableWidgetDsl.json");
+const commonlocators = require("../../../locators/commonlocators.json");
 
 describe("API associated with Datasource", function() {
-    it("Adding an API to Datasource", function() 
-    {
-        // Create an application
-        // Click on the + icon of the API 
-        // Click on Create API option
-        // Add an API 
-        // Click on the three dots
-        // Select "Set as Datasource"  
-        // Click on "Test"
-        //Click on the "Save"
-    }
-    )
     it("Edit name of the Datasource from Pane and refeclected in the Page ", function() 
     {
         // Click on the API datasource 
@@ -43,15 +31,6 @@ describe("API associated with Datasource", function() {
         // Ensure it is refelected in the API 
     }
     )
-    it("Delete an API Datasource", function() 
-    {
-        // Delete the API associted 
-        // Navigate to the Datasource
-        // Click on Action icon (Three Dots)
-        // Click on "Delete"
-        // Ensure it is deleted
-    }
-    )
     it("Error on trying to Deleting an API Datasource when associated with API  ", function() 
     {
         // Click on API associated Datasource
@@ -67,17 +46,6 @@ describe("API associated with Datasource", function() {
         // Click on "+ New API"
         // Ensure new API is added in the RHS Pane
         // Click on "Run"
-    }
-    )
-    it("Adding Headers to Datasource", function() 
-    {
-        // Click on API associated Datasource
-        // Navigate to respective page 
-        // Click on Add icon in the header section
-        // Ensure the Field are added 
-        // Now Click on the Delete icon present next to the Fields added 
-        // Ensure Fields are deleted
-        // Click on "Save"
     }
     )
     it("Refresh an Datasource  ", function() 
