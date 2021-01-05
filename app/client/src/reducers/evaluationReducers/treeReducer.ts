@@ -11,6 +11,7 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     state: EvaluatedTreeState,
     action: ReduxAction<DataTree>,
   ) => action.payload,
+  [ReduxActionTypes.FETCH_PAGE_INIT]: () => initialState,
 });
 
 export default evaluatedTreeReducer;
