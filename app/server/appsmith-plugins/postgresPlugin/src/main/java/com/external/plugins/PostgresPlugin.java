@@ -15,6 +15,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.HikariPoolMXBean;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -52,7 +53,7 @@ public class PostgresPlugin extends BasePlugin {
 
     private static final int MINIMUM_POOL_SIZE = 1;
 
-    private static final int MAXIMUM_POOL_SIZE = 20;
+    private static final int MAXIMUM_POOL_SIZE = 5;
 
     private static final long LEAK_DETECTION_TIME_MS = 60*1000;
 
@@ -114,27 +115,41 @@ public class PostgresPlugin extends BasePlugin {
             
             return Mono.fromCallable(() -> {
 
-                Connection connectionFromPool;
+                String query = actionConfiguration.getBody();
+                // Check for query parameter before performing the probably expensive fetch connection from the pool op.
+                if (query == null) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
+                }
+                
+                Connection connectionFromPool = null;
 
                 try {
                     connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
-                } catch (StaleConnectionException e) {
-                    return Mono.error(e);
-                } catch (SQLException e) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
-                }
-
-                String query = actionConfiguration.getBody();
-                if (query == null) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
+                } catch (SQLException | StaleConnectionException e) {
+                    // The function can throw either StaleConnectionException or SQLException. The underlying hikari
+                    // library throws SQLException in case the pool is closed or there is an issue initializing
+                    // the connection pool which can also be translated in our world to StaleConnectionException
+                    // and should then trigger the destruction and recreation of the pool.
+                    return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
                 }
 
                 List<Map<String, Object>> rowsList = new ArrayList<>(50);
 
                 Statement statement = null;
                 ResultSet resultSet = null;
-                System.out.println(Thread.currentThread().getName() +
-                        ": Going to execute query" + query);
+
+                HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
+
+                int idleConnections = poolProxy.getIdleConnections();
+                int activeConnections = poolProxy.getActiveConnections();
+                int totalConnections = poolProxy.getTotalConnections();
+                int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+                System.out.println(Thread.currentThread().getName() + ": Before executing postgres query [" +
+                        query +
+                        "] Hikari Pool stats : active - " + activeConnections +
+                        ", idle - " + idleConnections +
+                        ", awaiting - " + threadsAwaitingConnection +
+                        ", total - " + totalConnections );
                 try {
                     statement = connectionFromPool.createStatement();
                     boolean isResultSet = statement.execute(query);
@@ -197,8 +212,17 @@ public class PostgresPlugin extends BasePlugin {
                     }
 
                 } catch (SQLException e) {
+                    System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution error");
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                 } finally {
+                    idleConnections = poolProxy.getIdleConnections();
+                    activeConnections = poolProxy.getActiveConnections();
+                    totalConnections = poolProxy.getTotalConnections();
+                    threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+                    System.out.println(Thread.currentThread().getName() + ": After executing postgres query, Hikari Pool stats active - " + activeConnections +
+                            ", idle - " + idleConnections +
+                            ", awaiting - " + threadsAwaitingConnection +
+                            ", total - " + totalConnections );
                     if (resultSet != null) {
                         try {
                             resultSet.close();
@@ -334,11 +358,25 @@ public class PostgresPlugin extends BasePlugin {
                 Connection connectionFromPool;
                 try {
                     connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
-                } catch (StaleConnectionException e) {
-                    return Mono.error(e);
-                } catch (SQLException e) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                } catch (SQLException | StaleConnectionException e) {
+                    // The function can throw either StaleConnectionException or SQLException. The underlying hikari
+                    // library throws SQLException in case the pool is closed or there is an issue initializing
+                    // the connection pool which can also be translated in our world to StaleConnectionException
+                    // and should then trigger the destruction and recreation of the pool.
+                    return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
                 }
+
+                HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
+
+                int idleConnections = poolProxy.getIdleConnections();
+                int activeConnections = poolProxy.getActiveConnections();
+                int totalConnections = poolProxy.getTotalConnections();
+                int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+                System.out.println(Thread.currentThread().getName() + ": Before getting postgres db structure" +
+                        " Hikari Pool stats : active - " + activeConnections +
+                        ", idle - " + idleConnections +
+                        ", awaiting - " + threadsAwaitingConnection +
+                        ", total - " + totalConnections );
 
                 // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
                 try (Statement statement = connectionFromPool.createStatement()) {
@@ -467,6 +505,14 @@ public class PostgresPlugin extends BasePlugin {
                 } catch (SQLException throwable) {
                     return Mono.error(throwable);
                 } finally {
+                    idleConnections = poolProxy.getIdleConnections();
+                    activeConnections = poolProxy.getActiveConnections();
+                    totalConnections = poolProxy.getTotalConnections();
+                    threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+                    System.out.println(Thread.currentThread().getName() + ": After postgres db structure, Hikari Pool stats active - " + activeConnections +
+                            ", idle - " + idleConnections +
+                            ", awaiting - " + threadsAwaitingConnection +
+                            ", total - " + totalConnections );
 
                     if (connectionFromPool != null) {
                         try {
@@ -496,8 +542,7 @@ public class PostgresPlugin extends BasePlugin {
      * @param datasourceConfiguration
      * @return connection pool
      */
-    private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration)
-    {
+    private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration) {
         HikariConfig config = new HikariConfig();
 
         config.setDriverClassName(JDBC_DRIVER);
