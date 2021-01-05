@@ -33,18 +33,19 @@ import PerformanceTracker, {
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
+import Button, { Size } from "components/ads/Button";
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
   overflow: auto;
   width: 100%;
   ${FormLabel} {
-    padding: ${props => props.theme.spaces[3]}px;
+    padding: ${(props) => props.theme.spaces[3]}px;
   }
   ${FormRow} {
-    padding: ${props => props.theme.spaces[2]}px;
+    padding: ${(props) => props.theme.spaces[2]}px;
     & > * {
       margin-right: 10px;
     }
@@ -66,7 +67,7 @@ const MainConfiguration = styled.div`
       width: 12px;
       height: 12px;
       path {
-        fill: ${props => props.theme.colors.apiPane.closeIcon};
+        fill: ${(props) => props.theme.colors.apiPane.closeIcon};
       }
     }
   }
@@ -77,6 +78,10 @@ const ActionButtons = styled.div`
   justify-self: flex-end;
   display: flex;
   flex-direction: row;
+
+  button:last-child {
+    margin-left: ${(props) => props.theme.spaces[7]}px;
+  }
 `;
 
 const ActionButton = styled(BaseButton)`
@@ -112,7 +117,7 @@ const TabbedViewContainer = styled.div`
 `;
 
 export const BindingText = styled.span`
-  color: ${props => props.theme.colors.bindingTextDark};
+  color: ${(props) => props.theme.colors.bindingTextDark};
   font-weight: 700;
 `;
 
@@ -224,14 +229,14 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               loading={isDeleting}
               className="t--apiFormDeleteBtn"
             />
-            <ActionButton
+            <Button
               text="Run"
-              accent="primary"
-              filled
+              tag="button"
+              size={Size.medium}
               onClick={() => {
                 onRunClick();
               }}
-              loading={isRunning}
+              isLoading={isRunning}
               className="t--apiFormRunBtn"
             />
           </ActionButtons>

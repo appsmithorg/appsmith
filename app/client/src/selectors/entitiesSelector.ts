@@ -15,14 +15,18 @@ import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidget
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
 
+export const getDatasources = (state: AppState): Datasource[] => {
+  return state.entities.datasources.list;
+};
+
 export const getPluginIdsOfNames = (
   state: AppState,
   names: Array<string>,
 ): Array<string> | undefined => {
-  const plugins = state.entities.plugins.list.filter(plugin =>
+  const plugins = state.entities.plugins.list.filter((plugin) =>
     names.includes(plugin.name),
   );
-  const pluginIds = plugins.map(plugin => plugin.id);
+  const pluginIds = plugins.map((plugin) => plugin.id);
 
   if (!pluginIds.length) return undefined;
   return pluginIds;
@@ -32,10 +36,10 @@ export const getPluginIdsOfPackageNames = (
   state: AppState,
   names: Array<string>,
 ): Array<string> | undefined => {
-  const plugins = state.entities.plugins.list.filter(plugin =>
+  const plugins = state.entities.plugins.list.filter((plugin) =>
     names.includes(plugin.packageName),
   );
-  const pluginIds = plugins.map(plugin => plugin.id);
+  const pluginIds = plugins.map((plugin) => plugin.id);
 
   if (!pluginIds.length) return undefined;
   return pluginIds;
@@ -46,10 +50,10 @@ export const getPluginNameFromDatasourceId = (
   datasourceId: string,
 ): string | undefined => {
   const datasource = state.entities.datasources.list.find(
-    datasource => datasource.id === datasourceId,
+    (datasource) => datasource.id === datasourceId,
   );
   const plugin = state.entities.plugins.list.find(
-    plugin => plugin.id === datasource?.pluginId,
+    (plugin) => plugin.id === datasource?.pluginId,
   );
 
   if (!plugin) return undefined;
@@ -58,7 +62,7 @@ export const getPluginNameFromDatasourceId = (
 
 export const getPluginPackageFromId = (state: AppState, pluginId: string) => {
   const plugin = state.entities.plugins.list.find(
-    plugin => plugin.id === pluginId,
+    (plugin) => plugin.id === pluginId,
   );
 
   if (!plugin) return "";
@@ -70,10 +74,10 @@ export const getPluginPackageFromDatasourceId = (
   datasourceId: string,
 ): string | undefined => {
   const datasource = state.entities.datasources.list.find(
-    datasource => datasource.id === datasourceId,
+    (datasource) => datasource.id === datasourceId,
   );
   const plugin = state.entities.plugins.list.find(
-    plugin => plugin.id === datasource?.pluginId,
+    (plugin) => plugin.id === datasource?.pluginId,
   );
 
   if (!plugin) return undefined;
@@ -82,7 +86,7 @@ export const getPluginPackageFromDatasourceId = (
 
 export const getPluginNameFromId = (state: AppState, pluginId: string) => {
   const plugin = state.entities.plugins.list.find(
-    plugin => plugin.id === pluginId,
+    (plugin) => plugin.id === pluginId,
   );
 
   if (!plugin) return "";
@@ -101,7 +105,7 @@ export const getDatasource = (
   datasourceId: string,
 ): Datasource | undefined =>
   state.entities.datasources.list.find(
-    datasource => datasource.id === datasourceId,
+    (datasource) => datasource.id === datasourceId,
   );
 
 export const getDatasourceDraft = (state: AppState, id: string) => {
@@ -114,8 +118,8 @@ export const getPlugins = (state: AppState) => state.entities.plugins.list;
 export const getPluginEditorConfigs = (state: AppState) =>
   state.entities.plugins.editorConfigs;
 
-export const getDBPlugins = createSelector(getPlugins, plugins =>
-  plugins.filter(plugin => plugin.type === QUERY_CONSTANT),
+export const getDBPlugins = createSelector(getPlugins, (plugins) =>
+  plugins.filter((plugin) => plugin.type === QUERY_CONSTANT),
 );
 
 export const getDBDatasources = createSelector(
@@ -123,9 +127,9 @@ export const getDBDatasources = createSelector(
   getEntities,
   (dbPlugins, entities) => {
     const datasources = entities.datasources.list;
-    const dbPluginIds = dbPlugins.map(plugin => plugin.id);
+    const dbPluginIds = dbPlugins.map((plugin) => plugin.id);
 
-    return datasources.filter(datasource =>
+    return datasources.filter((datasource) =>
       dbPluginIds.includes(datasource.pluginId),
     );
   },
@@ -142,34 +146,34 @@ export const getQueryName = (state: AppState, actionId: string): string => {
 const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
-export const getDatasourcePlugins = createSelector(getPlugins, plugins => {
-  return plugins.filter(plugin => plugin?.allowUserDatasources ?? true);
+export const getDatasourcePlugins = createSelector(getPlugins, (plugins) => {
+  return plugins.filter((plugin) => plugin?.allowUserDatasources ?? true);
 });
 
-export const getPluginImages = createSelector(getPlugins, plugins => {
+export const getPluginImages = createSelector(getPlugins, (plugins) => {
   const pluginImages: Record<string, string> = {};
 
-  plugins.forEach(plugin => {
+  plugins.forEach((plugin) => {
     pluginImages[plugin.id] = plugin?.iconLocation ?? ImageAlt;
   });
 
   return pluginImages;
 });
 
-export const getPluginTemplates = createSelector(getPlugins, plugins => {
+export const getPluginTemplates = createSelector(getPlugins, (plugins) => {
   const pluginTemplates: Record<string, any> = {};
 
-  plugins.forEach(plugin => {
+  plugins.forEach((plugin) => {
     pluginTemplates[plugin.id] = plugin.templates;
   });
 
   return pluginTemplates;
 });
 
-export const getPluginResponseTypes = createSelector(getPlugins, plugins => {
+export const getPluginResponseTypes = createSelector(getPlugins, (plugins) => {
   const pluginResponseTypes: Record<string, any> = {};
 
-  plugins.forEach(plugin => {
+  plugins.forEach((plugin) => {
     pluginResponseTypes[plugin.id] = plugin.responseType;
   });
 
@@ -178,10 +182,10 @@ export const getPluginResponseTypes = createSelector(getPlugins, plugins => {
 
 export const getPluginDocumentationLinks = createSelector(
   getPlugins,
-  plugins => {
+  (plugins) => {
     const pluginDocumentationLinks: Record<string, string | undefined> = {};
 
-    plugins.forEach(plugin => {
+    plugins.forEach((plugin) => {
       pluginDocumentationLinks[plugin.id] = plugin.documentationLink;
     });
 
@@ -194,13 +198,13 @@ export const getActionsForCurrentPage = createSelector(
   getActions,
   (pageId, actions) => {
     if (!pageId) return [];
-    return actions.filter(a => a.config.pageId === pageId);
+    return actions.filter((a) => a.config.pageId === pageId);
   },
 );
 
 export const getQueryActionsForCurrentPage = createSelector(
   getActionsForCurrentPage,
-  actions => {
+  (actions) => {
     return actions.filter((action: ActionData) => {
       return action.config.pluginType === QUERY_CONSTANT;
     });
@@ -208,13 +212,13 @@ export const getQueryActionsForCurrentPage = createSelector(
 );
 
 export const getPlugin = (state: AppState, pluginId: string) => {
-  return state.entities.plugins.list.find(plugin => plugin.id === pluginId);
+  return state.entities.plugins.list.find((plugin) => plugin.id === pluginId);
 };
 
-export const getActionResponses = createSelector(getActions, actions => {
+export const getActionResponses = createSelector(getActions, (actions) => {
   const responses: Record<string, ActionResponse | undefined> = {};
 
-  actions.forEach(a => {
+  actions.forEach((a) => {
     responses[a.config.id] = a.data;
   });
 
@@ -225,7 +229,7 @@ export const getAction = (
   state: AppState,
   actionId: string,
 ): Action | undefined => {
-  const action = find(state.entities.actions, a => a.config.id === actionId);
+  const action = find(state.entities.actions, (a) => a.config.id === actionId);
   return action ? action.config : undefined;
 };
 
@@ -233,7 +237,7 @@ export function getCurrentPageNameByActionId(
   state: AppState,
   actionId: string,
 ): string {
-  const action = state.entities.actions.find(action => {
+  const action = state.entities.actions.find((action) => {
     return action.config.id === actionId;
   });
   const pageId = action ? action.config.pageId : "";
@@ -242,7 +246,7 @@ export function getCurrentPageNameByActionId(
 
 export function getPageNameByPageId(state: AppState, pageId: string): string {
   const page = state.entities.pageList.pages.find(
-    page => page.pageId === pageId,
+    (page) => page.pageId === pageId,
   );
   return page ? page.pageName : "";
 }
@@ -263,7 +267,7 @@ export const isActionSaving = (id: string) =>
   );
 
 export const isActionDirty = (id: string) =>
-  createSelector([getActionDirtyState], actionDirtyMap => {
+  createSelector([getActionDirtyState], (actionDirtyMap) => {
     return id in actionDirtyMap && actionDirtyMap[id];
   });
 

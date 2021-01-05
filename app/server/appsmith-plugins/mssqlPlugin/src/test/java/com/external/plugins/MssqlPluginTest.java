@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
@@ -107,8 +107,8 @@ public class MssqlPluginTest {
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
-        AuthenticationDTO authDTO = new AuthenticationDTO();
-        authDTO.setAuthType(AuthenticationDTO.Type.USERNAME_PASSWORD);
+        DBAuth authDTO = new DBAuth();
+        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
         authDTO.setUsername(username);
         authDTO.setPassword(password);
 
@@ -208,8 +208,9 @@ public class MssqlPluginTest {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         // Set up random username and password and try to connect
-        dsConfig.getAuthentication().setUsername(new ObjectId().toString());
-        dsConfig.getAuthentication().setPassword(new ObjectId().toString());
+        DBAuth auth = (DBAuth) dsConfig.getAuthentication();
+        auth.setUsername(new ObjectId().toString());
+        auth.setPassword(new ObjectId().toString());
 
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 

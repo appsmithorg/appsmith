@@ -9,6 +9,7 @@ import com.appsmith.external.models.Endpoint;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mongodb.MongoCommandException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
@@ -32,6 +33,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.spy;
 
 /**
  * Unit tests for MongoPlugin
@@ -122,6 +127,41 @@ public class MongoPluginTest {
                 .assertNext(datasourceTestResult -> {
                     assertNotNull(datasourceTestResult);
                     assertFalse(datasourceTestResult.isSuccess());
+                })
+                .verifyComplete();
+    }
+
+    /*
+     * 1. Test that when a query is attempted to run on mongodb but refused because of lack of authorization, then
+     *    also, it indicates a successful connection establishment.
+     */
+    @Test
+    public void testDatasourceWithUnauthorizedException() throws NoSuchFieldException {
+        /*
+         * 1. Create mock exception of type: MongoCommandException.
+         *      - mock method getErrorCodeName() to return String "Unauthorized".
+         */
+        MongoCommandException mockMongoCommandException = mock(MongoCommandException.class);
+        when(mockMongoCommandException.getErrorCodeName()).thenReturn("Unauthorized");
+        when(mockMongoCommandException.getMessage()).thenReturn("Mock Unauthorized Exception");
+
+        /*
+         * 1. Spy MongoPluginExecutor class.
+         *      - On calling testDatasource(...) -> call the real method.
+         *      - On calling datasourceCreate(...) -> throw the mock exception defined above.
+         */
+        MongoPlugin.MongoPluginExecutor mongoPluginExecutor    = new MongoPlugin.MongoPluginExecutor();
+        MongoPlugin.MongoPluginExecutor spyMongoPluginExecutor = spy(mongoPluginExecutor);
+        when(spyMongoPluginExecutor.datasourceCreate(any())).thenReturn(Mono.error(mockMongoCommandException));
+
+        /*
+         * 1. Test that MongoCommandException with error code "Unauthorized" is caught and no error is reported.
+         */
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        StepVerifier
+                .create(spyMongoPluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> {
+                    assertTrue(datasourceTestResult.isSuccess());
                 })
                 .verifyComplete();
     }

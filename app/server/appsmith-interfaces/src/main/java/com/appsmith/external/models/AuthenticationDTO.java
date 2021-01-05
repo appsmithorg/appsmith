@@ -1,30 +1,53 @@
 package com.appsmith.external.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
+import com.appsmith.external.constants.AuthType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 @Getter
 @Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.EXISTING_PROPERTY,
+        visible = true,
+        property = "type",
+        defaultImpl = DBAuth.class)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = DBAuth.class, name = AuthType.DB_AUTH),
+        @JsonSubTypes.Type(value = OAuth2.class, name = AuthType.OAUTH2)
+})
 public class AuthenticationDTO {
+    // In principle, this class should've been abstract. However, when this class is abstract, Spring's deserialization
+    // routines choke on identifying the correct class to instantiate and ends up trying to instantiate this abstract
+    // class and fails.
 
-    public enum Type {
-        SCRAM_SHA_1, SCRAM_SHA_256, MONGODB_CR, USERNAME_PASSWORD
+    @JsonIgnore
+    private Boolean isEncrypted;
+
+    @JsonIgnore
+    public Map<String, String> getEncryptionFields() {
+        return Collections.emptyMap();
     }
 
-    Type authType;
+    public void setEncryptionFields(Map<String, String> encryptedFields) {
+        // This is supposed to be overridden by implementations.
+    }
 
-    String username;
+    @JsonIgnore
+    public Set<String> getEmptyEncryptionFields() {
+        return Collections.emptySet();
+    }
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    String password;
-
-    String databaseName;
+    @JsonIgnore
+    public boolean isEncrypted() {
+        return Boolean.TRUE.equals(isEncrypted);
+    }
 
 }

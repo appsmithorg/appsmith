@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -52,7 +52,9 @@ public class PostgresPlugin extends BasePlugin {
 
     private static final int MINIMUM_POOL_SIZE = 1;
 
-    private static final int MAXIMUM_POOL_SIZE = 5;
+    private static final int MAXIMUM_POOL_SIZE = 20;
+
+    private static final long LEAK_DETECTION_TIME_MS = 60*1000;
 
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -131,6 +133,8 @@ public class PostgresPlugin extends BasePlugin {
 
                 Statement statement = null;
                 ResultSet resultSet = null;
+                System.out.println(Thread.currentThread().getName() +
+                        ": Going to execute query" + query);
                 try {
                     statement = connectionFromPool.createStatement();
                     boolean isResultSet = statement.execute(query);
@@ -288,15 +292,16 @@ public class PostgresPlugin extends BasePlugin {
                 invalids.add("Missing authentication details.");
 
             } else {
-                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getUsername())) {
+                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+                if (StringUtils.isEmpty(authentication.getUsername())) {
                     invalids.add("Missing username for authentication.");
                 }
 
-                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getPassword())) {
+                if (StringUtils.isEmpty(authentication.getPassword())) {
                     invalids.add("Missing password for authentication.");
                 }
 
-                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getDatabaseName())) {
+                if (StringUtils.isEmpty(authentication.getDatabaseName())) {
                     invalids.add("Missing database name.");
                 }
 
@@ -509,7 +514,7 @@ public class PostgresPlugin extends BasePlugin {
         config.addDataSourceProperty(SSL, isSslEnabled);
 
         // Set authentication properties
-        AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+        DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
         if (authentication.getUsername() != null) {
             config.setUsername(authentication.getUsername());
         }
@@ -538,6 +543,10 @@ public class PostgresPlugin extends BasePlugin {
             url = urlBuilder.toString();
         }
         config.setJdbcUrl(url);
+
+        // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been released in 60 seconds
+        // should get tracked (may be falsely for long running queries) as leaked connection
+        config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
 
         // Now create the connection pool from the configuration
         HikariDataSource datasource = new HikariDataSource(config);

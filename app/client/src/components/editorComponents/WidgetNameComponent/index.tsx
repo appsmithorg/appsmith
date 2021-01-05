@@ -17,8 +17,8 @@ import PerformanceTracker, {
 
 const PositionStyle = styled.div`
   position: absolute;
-  top: -${props => props.theme.spaces[10]}px;
-  height: ${props => props.theme.spaces[10]}px;
+  top: -${(props) => props.theme.spaces[10]}px;
+  height: ${(props) => props.theme.spaces[10]}px;
   width: 100%;
   left: 0;
   display: flex;

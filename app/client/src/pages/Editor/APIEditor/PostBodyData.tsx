@@ -93,6 +93,8 @@ const PostBodyData = (props: Props) => {
 
             const elementsIndex = actionConfigurationHeaders.findIndex(
               (element: { key: string; value: string }) =>
+                element &&
+                element.key &&
                 element.key.trim().toLowerCase() === CONTENT_TYPE,
             );
 
@@ -200,7 +202,8 @@ export default connect((state: AppState) => {
   let contentType;
   if (headers) {
     contentType = headers.find(
-      (header: any) => header.key.toLowerCase() === CONTENT_TYPE,
+      (header: any) =>
+        header && header.key && header.key.toLowerCase() === CONTENT_TYPE,
     );
   }
 

@@ -37,7 +37,7 @@ import TooltipComponent from "components/ads/Tooltip";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   background: ${Colors.BALTIC_SEA};
-  height: ${props => (props.hasPages ? "90px" : "48px")};
+  height: ${(props) => (props.hasPages ? "90px" : "48px")};
   color: white;
   flex-direction: column;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
@@ -48,14 +48,14 @@ const HeaderRow = styled.div<{ justify: string }>`
   display: flex;
   flex: 1;
   flex-direction: row;
-  justify-content: ${props => props.justify};
+  justify-content: ${(props) => props.justify};
 `;
 
 const HeaderSection = styled.div<{ justify: string }>`
   display: flex;
   flex: 1;
   align-items: center;
-  justify-content: ${props => props.justify};
+  justify-content: ${(props) => props.justify};
 `;
 
 const AppsmithLogoImg = styled.img`
@@ -277,7 +277,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
       </HeaderRow>
       {appPages.length > 1 && (
         <HeaderRow justify={"flex-start"}>
-          {appPages.map(page => (
+          {appPages.map((page) => (
             <PageTab
               key={page.pageId}
               to={getApplicationViewerPageURL(

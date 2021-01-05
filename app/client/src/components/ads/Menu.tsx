@@ -14,12 +14,12 @@ type MenuProps = CommonComponentProps & {
 
 const MenuWrapper = styled.div`
   width: 234px;
-  background: ${props => props.theme.colors.menu.background};
-  box-shadow: 0px 12px 28px ${props => props.theme.colors.menu.shadow};
+  background: ${(props) => props.theme.colors.menu.background};
+  box-shadow: 0px 12px 28px ${(props) => props.theme.colors.menu.shadow};
 `;
 
 const MenuOption = styled.div`
-  font-family: ${props => props.theme.fonts[3]};
+  font-family: ${(props) => props.theme.fonts[3]};
 `;
 
 const Menu = (props: MenuProps) => {
