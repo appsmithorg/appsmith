@@ -281,21 +281,27 @@ const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
  * @param bindings
  * @param executionParams
  */
-export function* getActionParams(
+export function* evaluateActionParams(
   bindings: string[] | undefined,
-  executionParams?: Record<string, any>,
+  executionParams?: Record<string, any> | string,
 ) {
   if (_.isNil(bindings)) return [];
-  // This might look like a bug, but isn't.
-  // We send in stringified executionParams, but get back an object
-  const evaluatedExecutionParams = yield evaluateDynamicBoundValueSaga(
-    JSON.stringify(executionParams),
-  );
-
+  // We might get execution params as an object or as a string.
+  // If the user has added a proper object (valid case) it will be an object
+  // If they have not added any execution params or not an object
+  // it would be a string (invalid case)
+  let evaluatedExecutionParams: Record<string, any> = {};
+  if (executionParams && _.isObject(executionParams)) {
+    evaluatedExecutionParams = yield evaluateDynamicBoundValueSaga(
+      JSON.stringify(executionParams),
+    );
+  }
+  // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
   const bindingsForExecutionParams = bindings.map((binding) =>
     binding.replace(EXECUTION_PARAM_REFERENCE_REGEX, EXECUTION_PARAM_KEY),
   );
 
+  // Evaluated all bindings of the actions. Pass executionParams if any
   const values: any = yield all(
     bindingsForExecutionParams.map((binding: string) => {
       return call(
@@ -305,7 +311,8 @@ export function* getActionParams(
       );
     }),
   );
-  // convert to object and transform non string values
+
+  // Convert to object and transform non string values
   const actionParams: Record<string, string> = {};
   bindings.forEach((key, i) => {
     let value = values[i];
@@ -362,7 +369,7 @@ export function* executeActionSaga(
 
     yield put(executeApiActionRequest({ id: apiAction.actionId }));
     const actionParams: Property[] = yield call(
-      getActionParams,
+      evaluateActionParams,
       api.jsonPathKeys,
       params,
     );
@@ -582,7 +589,7 @@ function* runActionSaga(
 
     const { paginationField } = reduxAction.payload;
 
-    const params = yield call(getActionParams, jsonPathKeys);
+    const params = yield call(evaluateActionParams, jsonPathKeys);
     const timeout = yield select(getActionTimeout, actionId);
     const appMode = yield select(getAppMode);
     const viewMode = appMode === APP_MODE.PUBLISHED;
@@ -671,7 +678,7 @@ function* executePageLoadAction(pageAction: PageAction) {
   currentApp = currentApp || {};
   yield put(executeApiActionRequest({ id: pageAction.id }));
   const params: Property[] = yield call(
-    getActionParams,
+    evaluateActionParams,
     pageAction.jsonPathKeys,
   );
   const appMode = yield select(getAppMode);
