@@ -62,7 +62,7 @@ const ActionButtons = styled.div`
   flex-direction: row;
 
   button:last-child {
-    margin-left: ${props => props.theme.spaces[7]}px;
+    margin-left: ${(props) => props.theme.spaces[7]}px;
   }
 `;
 
