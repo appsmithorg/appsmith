@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
@@ -99,8 +99,8 @@ public class RedisPluginTest {
         Endpoint endpoint = new Endpoint();
         endpoint.setHost("test-host");
 
-        AuthenticationDTO invalidAuth = new AuthenticationDTO();
-        invalidAuth.setAuthType(AuthenticationDTO.Type.USERNAME_PASSWORD);
+        DBAuth invalidAuth = new DBAuth();
+        invalidAuth.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
 
         invalidDatasourceConfiguration.setAuthentication(invalidAuth);
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
@@ -115,8 +115,8 @@ public class RedisPluginTest {
     public void itShouldValidateDatasource() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
 
-        AuthenticationDTO auth = new AuthenticationDTO();
-        auth.setAuthType(AuthenticationDTO.Type.USERNAME_PASSWORD);
+        DBAuth auth = new DBAuth();
+        auth.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
         auth.setUsername("test-username");
         auth.setPassword("test-password");
 

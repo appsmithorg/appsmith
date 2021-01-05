@@ -52,7 +52,7 @@ class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
           onChange={this.onRadioSelectionChange}
           disabled={this.props.isDisabled}
         >
-          {this.props.options.map(option => {
+          {this.props.options.map((option) => {
             return (
               <Radio
                 className={this.props.isLoading ? "bp3-skeleton" : ""}

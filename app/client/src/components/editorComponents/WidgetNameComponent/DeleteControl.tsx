@@ -15,7 +15,7 @@ const StyledDeleteIcon = styled.div`
   min-width: 22px;
   min-height: 22px;
   margin-right: 2px;
-  background: ${props => props.theme.colors.widgetBorder};
+  background: ${(props) => props.theme.colors.widgetBorder};
   display: flex;
   justify-content: center;
   align-items: center;

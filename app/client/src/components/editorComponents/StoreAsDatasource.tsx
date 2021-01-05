@@ -67,7 +67,7 @@ const StoreAsDatasource = () => {
       >
         <div
           className="t--store-as-datasource-menu"
-          onMouseDown={e => {
+          onMouseDown={(e) => {
             e.stopPropagation();
           }}
         >

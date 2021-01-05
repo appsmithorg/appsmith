@@ -32,14 +32,14 @@ import Button, { Size } from "components/ads/Button";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
   overflow: auto;
   width: 100%;
   ${FormLabel} {
-    padding: ${props => props.theme.spaces[3]}px;
+    padding: ${(props) => props.theme.spaces[3]}px;
   }
   ${FormRow} {
-    padding: ${props => props.theme.spaces[2]}px;
+    padding: ${(props) => props.theme.spaces[2]}px;
     & > * {
       margin-right: 10px;
     }
@@ -98,7 +98,7 @@ const TabbedViewContainer = styled.div`
 `;
 
 export const BindingText = styled.span`
-  color: ${props => props.theme.colors.bindingTextDark};
+  color: ${(props) => props.theme.colors.bindingTextDark};
   font-weight: 700;
 `;
 
