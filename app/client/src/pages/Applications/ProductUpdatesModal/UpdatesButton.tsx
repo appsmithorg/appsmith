@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import Icon, { IconName, IconSize } from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 
 const StyledUpdatesButton = styled.div`
   position: absolute;
@@ -12,7 +12,7 @@ const StyledUpdatesButton = styled.div`
   display: flex;
   align-items: center;
   box-shadow: 0px 12px 34px rgba(0, 0, 0, 0.75);
-  padding: 0 10px;
+  padding: 0 ${(props) => props.theme.spaces[4]}px;
   justify-content: space-between;
   cursor: pointer;
 `;
@@ -21,12 +21,12 @@ const StyledTag = styled.div`
   font-weight: ${(props) => props.theme.typography.p2.fontWeight};
   font-size: ${(props) => props.theme.typography.p2.fontSize}px;
   line-height: ${(props) => props.theme.typography.p2.lineHeight}px;
-  letter-spacing: ${(props) => props.theme.typography.p2.letterSpacing}px;
-  padding: 3px;
-  background: #e22c2c;
+  letter-spacing: ${(props) => props.theme.typography.p2.letterSpacing}};
+  padding: ${(props) => props.theme.spaces[1]}px;
+  background: ${(props) => props.theme.colors.floatingBtn.tagBackground};
   border-radius: 100px;
   text-align: center;
-  color: #ffffff;
+  color: white;
 `;
 
 const UpdatesButtonTextContainer = styled.div`
@@ -37,7 +37,7 @@ const UpdatesButtonTextContainer = styled.div`
     props.theme.typography.floatingBtn.letterSpacing}px;
   display: flex;
   align-items: center;
-  margin-left: 8px;
+  margin-left: ${(props) => props.theme.spaces[3]}px;
   color: ${(props) => props.theme.colors.text.normal};
 `;
 

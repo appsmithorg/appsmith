@@ -9,8 +9,8 @@ const StyledDialog = styled(Dialog)<{
   maxHeight?: string;
 }>`
   && {
-    border-radius: 0px;
-    padding-bottom: 5px;
+    border-radius: ${(props) => props.theme.radii[0]}px;
+    padding-bottom: ${(props) => props.theme.spaces[2]};
     background: ${(props) => props.theme.colors.modal.bg};
     width: ${(props) => `${props.width}px` || "640px"};
     ${(props) => (props.maxHeight ? `max-height: ${props.maxHeight};` : "")}
@@ -27,10 +27,11 @@ const StyledDialog = styled(Dialog)<{
         color: ${(props) => props.theme.colors.modal.headerText};
         display: flex;
         justify-content: center;
-        margin-top: 20px;
-        font-size: 20px;
-        line-height: 24px;
-        font-weight: 500;
+        margin: ${(props) => props.theme.spaces[9]}px;
+        font-weight: ${(props) => props.theme.typography.h1.fontWeight};
+        font-size: ${(props) => props.theme.typography.h1.fontSize}px;
+        line-height: ${(props) => props.theme.typography.h1.lineHeight}px;
+        letter-spacing: ${(props) => props.theme.typography.h1.letterSpacing};
       }
 
       .${Classes.BUTTON}.${Classes.MINIMAL}:hover {
@@ -40,14 +41,14 @@ const StyledDialog = styled(Dialog)<{
 
     & .${Classes.DIALOG_HEADER}:after {
       content: "";
-      width: 80%;
+      width: calc(100% - 40px);
       height: 1px;
       position: absolute;
       background: white;
       left: 50%;
       bottom: 0;
       transform: translateX(-50%);
-      background-color: ${(props) => props.theme.colors.modal.separator}
+      background-color: ${(props) => props.theme.colors.modal.separator};
     }
     & .${Classes.DIALOG_BODY} {
       padding: ${(props) => props.theme.spaces[9]}px;
