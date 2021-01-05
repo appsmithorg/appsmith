@@ -11,7 +11,7 @@ public class OAuth2Connection extends APIConnection {
     private OAuth2Connection() {
     }
 
-    public static OAuth2Connection create(OAuth2 oAuth2) {
+    public static Mono<OAuth2Connection> create(OAuth2 oAuth2) {
 //        if (oAuth2.getToken() == null || !isValid(oAuth2)) {
 //
 //        }

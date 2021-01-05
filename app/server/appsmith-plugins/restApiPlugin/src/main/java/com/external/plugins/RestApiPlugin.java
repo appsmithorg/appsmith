@@ -394,7 +394,7 @@ public class RestApiPlugin extends BasePlugin {
 
         @Override
         public Mono<APIConnection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.justOrEmpty(APIConnectionFactory.createConnection(datasourceConfiguration.getAuthentication()));
+            return APIConnectionFactory.createConnection(datasourceConfiguration.getAuthentication());
         }
 
         @Override
