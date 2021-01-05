@@ -35,7 +35,7 @@ export type RunActionPayload = {
   actionId: string;
   onSuccess: string;
   onError: string;
-  params: Record<string, any>;
+  params: Record<string, any> | string;
 };
 
 export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
