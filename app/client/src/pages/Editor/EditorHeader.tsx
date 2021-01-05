@@ -43,7 +43,7 @@ import { Position } from "@blueprintjs/core";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
 
 const HeaderWrapper = styled(StyledHeader)`
-  background: ${Colors.BALTIC_SEA};
+  background: ${Colors.MINE_SHAFT};
   height: 48px;
   color: white;
   flex-direction: row;

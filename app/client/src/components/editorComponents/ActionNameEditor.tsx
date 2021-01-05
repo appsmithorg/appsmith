@@ -142,7 +142,7 @@ export const ActionNameEditor = () => {
           saveStatus.isSaving ? SavingState.STARTED : SavingState.NOT_STARTED
         }
         editInteractionKind={EditInteractionKind.SINGLE}
-        hideEditIcon={hideEditIcon}
+        hideEditIcon={true}
       />
     </ApiNameWrapper>
   );

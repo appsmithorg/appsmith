@@ -855,7 +855,7 @@ export const dark: ColorType = {
     header: {
       text: darkShades[7],
       disabledText: darkShades[6],
-      bg: darkShades[0],
+      bg: "#090707",
       disabledBg: darkShades[2],
     },
     menuBg: darkShades[3],
@@ -989,7 +989,7 @@ export const dark: ColorType = {
     scrollbar: darkShades[5],
   },
   tagInput: {
-    bg: darkShades[0],
+    bg: "#090707",
     tag: {
       text: darkShades[9],
     },
@@ -1039,7 +1039,7 @@ export const dark: ColorType = {
     bg: darkShades[8],
   },
   apiPane: {
-    bg: darkShades[6],
+    bg: darkShades[0],
     requestTree: {
       bg: lightShades[10],
       header: {
@@ -1347,7 +1347,7 @@ export const light: ColorType = {
     bg: lightShades[10],
   },
   apiPane: {
-    bg: lightShades[6],
+    bg: lightShades[11],
     requestTree: {
       bg: lightShades[11],
       header: {
