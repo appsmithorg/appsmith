@@ -101,10 +101,8 @@ export function* errorSaga(
   }>,
 ) {
   const effects = [ErrorEffectTypes.LOG_ERROR];
-  const {
-    type,
-    payload: { show = true, error },
-  } = errorAction;
+  const { type, payload } = errorAction;
+  const { show = true, error } = payload || {};
   const message =
     error && error.message ? error.message : ActionErrorDisplayMap[type](error);
 

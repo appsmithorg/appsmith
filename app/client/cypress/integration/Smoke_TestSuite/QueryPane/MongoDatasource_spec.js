@@ -17,7 +17,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
     cy.NavigateToQueryEditor();
 
-    cy.get("@createDatasource").then(httpResponse => {
+    cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
       cy.contains(".t--datasource-name", datasourceName)
@@ -40,7 +40,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.EvaluateCurrentValue(`{"find": "planets"}`);
     cy.runAndDeleteQuery();
 
-    cy.get("@createDatasource").then(httpResponse => {
+    cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
       cy.deleteDatasource(datasourceName);

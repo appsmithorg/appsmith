@@ -2,13 +2,13 @@
 
 const homePage = require("../../../locators/HomePage.json");
 
-describe("Create new org and share with a user", function () {
+describe("Create new org and share with a user", function() {
   let orgid;
   let appid;
 
-  it("create org and then share with a user from UI", function () {
+  it("create org and then share with a user from UI", function() {
     cy.NavigateToHome();
-    cy.generateUUID().then(uid => {
+    cy.generateUUID().then((uid) => {
       orgid = uid;
       appid = uid;
       localStorage.setItem("OrgName", orgid);
@@ -25,7 +25,7 @@ describe("Create new org and share with a user", function () {
     cy.LogOut();
   });
 
-  it("login as invited user and then validate viewer privilage", function () {
+  it("login as invited user and then validate viewer privilage", function() {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.get(homePage.searchInput).type(appid);
     cy.wait(2000);
@@ -39,7 +39,7 @@ describe("Create new org and share with a user", function () {
     cy.LogOut();
   });
 
-  it("login as Org owner and update the invited user role to developer", function () {
+  it("login as Org owner and update the invited user role to developer", function() {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
     cy.wait("@applications").should(
@@ -58,7 +58,7 @@ describe("Create new org and share with a user", function () {
     cy.LogOut();
   });
 
-  it("login as invited user and then validate developer privilage", function () {
+  it("login as invited user and then validate developer privilage", function() {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.get(homePage.searchInput).type(appid);
     cy.wait(2000);
@@ -76,7 +76,7 @@ describe("Create new org and share with a user", function () {
     cy.LogOut();
   });
 
-  it("login as Org owner and update the invited user role to administrator", function () {
+  it("login as Org owner and update the invited user role to administrator", function() {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
     cy.wait("@applications").should(
@@ -95,7 +95,7 @@ describe("Create new org and share with a user", function () {
     cy.LogOut();
   });
 
-  it("login as invited user and then validate administrator privilage", function () {
+  it("login as invited user and then validate administrator privilage", function() {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.get(homePage.searchInput).type(appid);
     cy.wait(2000);
@@ -108,7 +108,7 @@ describe("Create new org and share with a user", function () {
     cy.LogOut();
   });
 
-  it("login as Org owner and delete App ", function () {
+  it("login as Org owner and delete App ", function() {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
     cy.wait("@applications").should(
@@ -119,7 +119,7 @@ describe("Create new org and share with a user", function () {
     cy.get(homePage.searchInput).type(appid);
     cy.wait(2000);
     cy.navigateToOrgSettings(orgid);
-    cy.get(homePage.emailList).then(function ($list) {
+    cy.get(homePage.emailList).then(function($list) {
       expect($list).to.have.length(3);
       expect($list.eq(0)).to.contain(Cypress.env("USERNAME"));
       expect($list.eq(1)).to.contain(Cypress.env("TESTUSERNAME1"));

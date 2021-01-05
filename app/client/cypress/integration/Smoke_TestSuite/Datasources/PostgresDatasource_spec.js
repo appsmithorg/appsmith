@@ -9,7 +9,7 @@ describe("Postgres datasource test cases", function() {
     cy.get(datasource.PostgreSQL).click();
     cy.getPluginFormsAndCreateDatasource();
     cy.fillPostgresDatasourceForm();
-    cy.get("@createDatasource").then(httpResponse => {
+    cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
     cy.testSaveDatasource();

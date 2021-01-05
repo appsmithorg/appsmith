@@ -86,7 +86,7 @@ class DatePickerComponent extends React.Component<
       : now.clone().set({ month: 0, date: 1, year: year - 100 });
     const maxDate = this.props.maxDate
       ? moment(this.props.maxDate)
-      : now.clone().set({ month: 11, date: 31, year: year + 5 });
+      : now.clone().set({ month: 11, date: 31, year: year + 20 });
 
     return (
       <StyledControlGroup
@@ -122,16 +122,8 @@ class DatePickerComponent extends React.Component<
                 ? this.parseDate(this.state.selectedDate)
                 : null
             }
-            minDate={
-              this.props.minDate
-                ? this.parseDate(this.props.minDate)
-                : undefined
-            }
-            maxDate={
-              this.props.maxDate
-                ? this.parseDate(this.props.maxDate)
-                : undefined
-            }
+            minDate={minDate.toDate()}
+            maxDate={maxDate.toDate()}
           />
         ) : (
           <DateRangeInput
