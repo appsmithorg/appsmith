@@ -147,6 +147,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     public Mono<List<HashSet<DslActionDTO>>> findAndUpdateOnLoadActionsInPage(Set<String> dynamicBindingNames, String pageId) {
         Mono<List<HashSet<DslActionDTO>>> referencedActions = findAndUpdateOnLoadActionsInPage(new ArrayList<>(), dynamicBindingNames, pageId);
         return referencedActions
+                // Currently, we do not pick action dependencies for actions that users have set to run
+                // on page load but haven't used on their application page.
+                // If such actions exist, they will inevitably fail because these actions are executed before any other
                 .zipWith(newActionService.findUnpublishedOnLoadActionsInPage(pageId)
                         .flatMap(newAction -> {
                             ActionDTO action = newAction.getUnpublishedAction();
@@ -164,7 +167,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .map(tuple -> {
                     List<HashSet<DslActionDTO>> actionList = tuple.getT1();
                     if (!tuple.getT2().isEmpty()) {
-                        actionList.add(tuple.getT2());
+                        actionList.add(0, tuple.getT2());
                     }
                     return actionList;
                 });
