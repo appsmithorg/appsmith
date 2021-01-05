@@ -205,6 +205,13 @@ public class MongoPlugin extends BasePlugin {
                                             error.getMessage()
                                     )
                     )
+                    .onErrorMap(e -> {
+                        if(!(e instanceof AppsmithPluginException)) {
+                            return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
+                        }
+
+                        return e;
+                    })
                     .subscribeOn(scheduler);
         }
 
