@@ -107,7 +107,7 @@ const IconWrapper = styled.span<IconProps>`
     width: ${(props) => sizeHandler(props.size)}px;
     height: ${(props) => sizeHandler(props.size)}px;
     path {
-      fill: ${(props) => props.theme.colors.icon.normal};
+      fill: ${(props) => props.fillColor || props.theme.colors.icon.normal};
     }
   }
   ${(props) => (props.invisible ? `visibility: hidden;` : null)};
@@ -133,6 +133,7 @@ export type IconProps = {
   invisible?: boolean;
   className?: string;
   onClick?: () => void;
+  fillColor?: string;
 };
 
 const Icon = forwardRef(

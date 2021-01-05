@@ -65,6 +65,7 @@ import Spinner from "components/ads/Spinner";
 import ProfileImage from "pages/common/ProfileImage";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { AppIconCollection } from "components/ads/AppIcon";
+import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal/index";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -797,6 +798,7 @@ class Applications extends Component<
   public render() {
     return (
       <PageWrapper displayName="Applications">
+        <ProductUpdatesModal />
         <LeftPane />
         <SubHeader
           search={{
