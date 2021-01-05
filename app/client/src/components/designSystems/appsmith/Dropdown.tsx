@@ -8,7 +8,7 @@ import { SelectComponentsConfig } from "react-select/src/components";
 export type DropdownProps = {
   options: Array<{
     value: string;
-    label: string;
+    label?: string;
   }>;
   input: WrappedFieldInputProps;
   placeholder: string;
@@ -59,7 +59,7 @@ export const BaseDropdown = (props: DropdownProps) => {
       styles={{ ...selectStyles, ...customSelectStyles }}
       {...input}
       width={props.width}
-      onChange={value => input.onChange(value)}
+      onChange={(value) => input.onChange(value)}
       isSearchable={props.isSearchable}
       isDisabled={props.isDisabled}
       {...props}

@@ -25,6 +25,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertArrayToSentence } from "utils/helpers";
 import BackButton from "./BackButton";
 import { PluginType } from "entities/Action";
+import Boxed from "components/editorComponents/Onboarding/Boxed";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -60,7 +62,7 @@ const DBForm = styled.div`
   padding: 20px;
   margin-left: 10px;
   margin-right: 0px;
-  max-height: 93vh;
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
   overflow: auto;
   .backBtn {
     padding-bottom: 1px;
@@ -162,7 +164,7 @@ class DatasourceDBEditor extends React.Component<
     const requiredFields = Object.keys(this.requiredFields);
     const values = this.props.formData;
 
-    requiredFields.forEach(fieldConfigProperty => {
+    requiredFields.forEach((fieldConfigProperty) => {
       const fieldConfig = this.requiredFields[fieldConfigProperty];
       if (fieldConfig.controlType === "KEYVALUE_ARRAY") {
         const configProperty = fieldConfig.configProperty.split("[*].");
@@ -191,7 +193,7 @@ class DatasourceDBEditor extends React.Component<
 
         if (value.length) {
           const values = Object.values(value[0]);
-          const isNotBlank = values.every(value => value);
+          const isNotBlank = values.every((value) => value);
 
           if (!isNotBlank) {
             _.set(errors, fieldConfigProperty, "This field is required");
@@ -248,7 +250,7 @@ class DatasourceDBEditor extends React.Component<
 
         values.forEach(
           (object: { [s: string]: unknown } | ArrayLike<unknown>) => {
-            const isEmpty = Object.values(object).every(x => x === "");
+            const isEmpty = Object.values(object).every((x) => x === "");
 
             if (!isEmpty) {
               newValues.push(object);
@@ -269,7 +271,7 @@ class DatasourceDBEditor extends React.Component<
 
         values.forEach(
           (object: { [s: string]: unknown } | ArrayLike<unknown>) => {
-            const isEmpty = Object.values(object).every(x => x === "");
+            const isEmpty = Object.values(object).every((x) => x === "");
 
             if (!isEmpty) {
               newValues.push(object);
@@ -321,7 +323,7 @@ class DatasourceDBEditor extends React.Component<
 
     return (
       <form
-        onSubmit={e => {
+        onSubmit={(e) => {
           e.preventDefault();
         }}
       >
@@ -337,20 +339,22 @@ class DatasourceDBEditor extends React.Component<
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
           {viewMode && (
-            <ActionButton
-              className="t--edit-datasource"
-              text="EDIT"
-              accent="secondary"
-              onClick={() => {
-                this.props.setDatasourceEditorMode(
-                  this.props.datasourceId,
-                  false,
-                );
-              }}
-            />
+            <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+              <ActionButton
+                className="t--edit-datasource"
+                text="EDIT"
+                accent="secondary"
+                onClick={() => {
+                  this.props.setDatasourceEditorMode(
+                    this.props.datasourceId,
+                    false,
+                  );
+                }}
+              />
+            </Boxed>
           )}
         </Header>
-        {cloudHosting && pluginType === PluginType.DB && (
+        {cloudHosting && pluginType === PluginType.DB && !viewMode && (
           <CollapsibleWrapper>
             <CollapsibleHelp>
               <span>{`Whitelist the IP ${convertArrayToSentence(

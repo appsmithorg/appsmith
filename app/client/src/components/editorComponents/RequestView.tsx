@@ -4,12 +4,12 @@ import styled from "styled-components";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 
 const StyledKey = styled.span`
-  font-family: ${props => props.theme.fonts.text};
+  font-family: ${(props) => props.theme.fonts.text};
   font-style: normal;
   font-weight: 500;
   font-size: 14px;
   line-height: 16px;
-  color: ${props => props.theme.colors.apiPane.requestTree.row.key};
+  color: ${(props) => props.theme.colors.apiPane.requestTree.row.key};
   user-select: none;
 `;
 const StyledValue = styled.span`
@@ -18,7 +18,7 @@ const StyledValue = styled.span`
   font-weight: normal;
   font-size: 14px;
   line-height: 16px;
-  color: ${props => props.theme.colors.apiPane.requestTree.row.value};
+  color: ${(props) => props.theme.colors.apiPane.requestTree.row.value};
   user-select: text;
 `;
 
@@ -32,9 +32,9 @@ const KeyValuePair = function(props: { hKey: string; hValue: string }) {
 };
 
 const StyledTreeContainer = styled.div`
-  font-family: ${props => props.theme.fonts.text};
+  font-family: ${(props) => props.theme.fonts.text};
   .bp3-tree {
-    background-color: ${props => props.theme.colors.apiPane.requestTree.bg};
+    background-color: ${(props) => props.theme.colors.apiPane.requestTree.bg};
   }
   .bp3-tree-node-content {
     height: auto;
@@ -46,8 +46,8 @@ const StyledTreeContainer = styled.div`
     padding: 4px 0px;
   }
   .bp3-tree-node-content-0 {
-    background: ${props => props.theme.colors.apiPane.requestTree.header.bg};
-    color: ${props => props.theme.colors.apiPane.requestTree.header.text};
+    background: ${(props) => props.theme.colors.apiPane.requestTree.header.bg};
+    color: ${(props) => props.theme.colors.apiPane.requestTree.header.text};
     font-style: normal;
     font-weight: 500;
     font-size: 12px;
@@ -85,10 +85,10 @@ const StyledTreeContainer = styled.div`
     }
   }
   .bp3-tree-node-caret {
-    color: ${props => props.theme.colors.apiPane.requestTree.header.icon};
+    color: ${(props) => props.theme.colors.apiPane.requestTree.header.icon};
   }
   .bp3-tree-node-content:hover {
-    background-color: ${props =>
+    background-color: ${(props) =>
       props.theme.colors.apiPane.requestTree.row.hoverBg};
     cursor: pointer;
   }

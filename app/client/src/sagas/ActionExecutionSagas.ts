@@ -81,7 +81,7 @@ import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import { evaluateDynamicTrigger, evaluateSingleValue } from "./evaluationsSaga";
+import { evaluateDynamicTrigger, evaluateSingleValue } from "./EvaluationsSaga";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -215,7 +215,10 @@ export const getActionTimeout = (
   state: AppState,
   actionId: string,
 ): number | undefined => {
-  const action = _.find(state.entities.actions, a => a.config.id === actionId);
+  const action = _.find(
+    state.entities.actions,
+    (a) => a.config.id === actionId,
+  );
   if (action) {
     const timeout = _.get(
       action,
@@ -249,16 +252,47 @@ export function* evaluateDynamicBoundValueSaga(
 
 const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
 
+/**
+ * Api1
+ * URL: https://example.com/{{Text1.text}}
+ * Body: {
+ *     "name": "{{this.params.name}}",
+ *     "age": {{this.params.age}},
+ *     "gender": {{Dropdown1.selectedOptionValue}}
+ * }
+ *
+ * If you call
+ * Api1.run(undefined, undefined, { name: "Hetu", age: Input1.text });
+ *
+ * executionParams is { name: "Hetu", age: Input1.text }
+ * bindings is [
+ *   "Text1.text",
+ *   "Dropdown1.selectedOptionValue",
+ *   "this.params.name",
+ *   "this.params.age",
+ * ]
+ *
+ * Return will be [
+ *   { key: "Text1.text", value: "updateUser" },
+ *   { key: "Dropdown1.selectedOptionValue", value: "M" },
+ *   { key: "this.params.name", value: "Hetu" },
+ *   { key: "this.params.age", value: 26 },
+ * ]
+ * @param bindings
+ * @param executionParams
+ */
 export function* getActionParams(
   bindings: string[] | undefined,
   executionParams?: Record<string, any>,
 ) {
   if (_.isNil(bindings)) return [];
+  // This might look like a bug, but isn't.
+  // We send in stringified executionParams, but get back an object
   const evaluatedExecutionParams = yield evaluateDynamicBoundValueSaga(
     JSON.stringify(executionParams),
   );
 
-  const bindingsForExecutionParams = bindings.map(binding =>
+  const bindingsForExecutionParams = bindings.map((binding) =>
     binding.replace(EXECUTION_PARAM_REFERENCE_REGEX, EXECUTION_PARAM_KEY),
   );
 
@@ -283,11 +317,11 @@ export function* getActionParams(
 
 export function extractBindingsFromAction(action: Action) {
   const bindings: string[] = [];
-  action.dynamicBindingPathList.forEach(a => {
+  action.dynamicBindingPathList.forEach((a) => {
     const value = _.get(action, a.key);
     if (isDynamicValue(value)) {
       const { jsSnippets } = getDynamicBindings(value);
-      bindings.push(...jsSnippets.filter(jsSnippet => !!jsSnippet));
+      bindings.push(...jsSnippets.filter((jsSnippet) => !!jsSnippet));
     }
   });
   return bindings;
@@ -704,7 +738,7 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     for (const actionSet of pageActions) {
       // Load all sets in parallel
       yield* yield all(
-        actionSet.map(apiAction => call(executePageLoadAction, apiAction)),
+        actionSet.map((apiAction) => call(executePageLoadAction, apiAction)),
       );
     }
     PerformanceTracker.stopAsyncTracking(

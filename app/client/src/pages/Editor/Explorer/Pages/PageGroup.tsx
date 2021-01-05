@@ -51,7 +51,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
     dispatch(createPage(params.applicationId, name));
   }, [dispatch, pages, params.applicationId]);
 
-  const pageEntities = pages.map(page => {
+  const pageEntities = pages.map((page) => {
     const pageWidgets = props.widgets && props.widgets[page.pageId];
     const pageActions = props.actions[page.pageId] || [];
     const datasources = props.datasources[page.pageId] || [];

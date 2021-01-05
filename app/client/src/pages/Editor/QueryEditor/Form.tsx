@@ -1,7 +1,7 @@
 import React from "react";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
-import { Icon, Popover, Spinner, Tag } from "@blueprintjs/core";
+import { Icon, Popover, Position, Spinner, Tag } from "@blueprintjs/core";
 import {
   components,
   MenuListComponentProps,
@@ -37,13 +37,17 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
 import { addTableWidgetFromQuery } from "actions/widgetActions";
+import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
+import { OnboardingStep } from "constants/OnboardingConstants";
+import Boxed from "components/editorComponents/Onboarding/Boxed";
+import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 
 const QueryFormContainer = styled.form`
   display: flex;
   flex-direction: column;
   padding: 20px 0px;
   width: 100%;
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
   a {
     font-size: 14px;
     line-height: 20px;
@@ -78,16 +82,10 @@ const ActionsWrapper = styled.div`
   justify-content: flex-end;
 `;
 
-const ActionButtons = styled.div`
-  display: flex;
-  margin-left: 10px;
-  flex: 0 1 150px;
-  justify-content: flex-end;
-`;
-
 const ActionButton = styled(BaseButton)`
-  &&& {
-    max-width: 72px;
+  &&&& {
+    min-width: 72px;
+    width: auto;
     margin: 0 5px;
     min-height: 30px;
   }
@@ -95,6 +93,7 @@ const ActionButton = styled(BaseButton)`
 
 const DropdownSelect = styled.div`
   font-size: 14px;
+  margin-right: 10px;
 `;
 
 const NoDataSourceContainer = styled.div`
@@ -409,54 +408,57 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               components={{ MenuList, Option: CustomOption, SingleValue }}
             />
           </DropdownSelect>
-          <ActionButtons>
-            <ActionButton
-              className="t--delete-query"
-              text="Delete"
-              accent="error"
-              loading={isDeleting}
-              onClick={onDeleteClick}
-            />
-            {dataSources.length === 0 ? (
-              <>
-                <TooltipStyles />
-                <Popover
-                  autoFocus={true}
-                  canEscapeKeyClose={true}
-                  content="You don’t have a Data Source to run this query"
-                  position="bottom"
-                  defaultIsOpen={false}
-                  usePortal
-                  portalClassName="helper-tooltip"
-                >
-                  <ActionButton
-                    className="t--run-query"
-                    text="Run"
+          <ActionButton
+            className="t--delete-query"
+            text="Delete"
+            accent="error"
+            loading={isDeleting}
+            onClick={onDeleteClick}
+          />
+          {dataSources.length === 0 ? (
+            <>
+              <TooltipStyles />
+              <Popover
+                autoFocus={true}
+                canEscapeKeyClose={true}
+                content="You don’t have a Data Source to run this query"
+                position="bottom"
+                defaultIsOpen={false}
+                usePortal
+                portalClassName="helper-tooltip"
+              >
+                <ActionButton
+                  className="t--run-query"
+                  text="Run"
+                  filled
+                  loading={isRunning}
+                  accent="primary"
+                  onClick={onRunClick}
+                />
+                <div>
+                  <p className="popuptext">
+                    You don’t have a Data Source to run this query
+                  </p>
+                  <Button
+                    onClick={() =>
+                      history.push(
+                        DATA_SOURCES_EDITOR_URL(applicationId, pageId),
+                      )
+                    }
+                    text="Add Datasource"
+                    intent="primary"
                     filled
-                    loading={isRunning}
-                    accent="primary"
-                    onClick={onRunClick}
+                    size="small"
+                    className="popoverBtn"
                   />
-                  <div>
-                    <p className="popuptext">
-                      You don’t have a Data Source to run this query
-                    </p>
-                    <Button
-                      onClick={() =>
-                        history.push(
-                          DATA_SOURCES_EDITOR_URL(applicationId, pageId),
-                        )
-                      }
-                      text="Add Datasource"
-                      intent="primary"
-                      filled
-                      size="small"
-                      className="popoverBtn"
-                    />
-                  </div>
-                </Popover>
-              </>
-            ) : (
+                </div>
+              </Popover>
+            </>
+          ) : (
+            <OnboardingIndicator
+              step={OnboardingStep.RUN_QUERY}
+              offset={{ left: -5 }}
+            >
               <ActionButton
                 className="t--run-query"
                 text="Run"
@@ -465,8 +467,8 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                 accent="primary"
                 onClick={onRunClick}
               />
-            )}
-          </ActionButtons>
+            </OnboardingIndicator>
+          )}
         </ActionsWrapper>
       </StyledFormRow>
       <TabContainerView>
@@ -540,16 +542,27 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                             : "No data records to display"}
                         </p>
                         {!!output.length && (
-                          <AddWidgetButton
-                            className="t--add-widget"
-                            icon={"plus"}
-                            text="Add Widget"
-                            onClick={onAddWidget}
-                          />
+                          <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+                            <AddWidgetButton
+                              className="t--add-widget"
+                              icon={"plus"}
+                              text="Add Widget"
+                              onClick={onAddWidget}
+                            />
+                          </Boxed>
                         )}
                       </OutputHeader>
                       {isSQL ? (
-                        <Table data={output} />
+                        <OnboardingToolTip
+                          position={Position.TOP}
+                          step={[OnboardingStep.RUN_QUERY_SUCCESS]}
+                          offset={{
+                            enabled: true,
+                            offset: "-200, 0",
+                          }}
+                        >
+                          <Table data={output} />
+                        </OnboardingToolTip>
                       ) : (
                         <JSONViewer src={output} />
                       )}
@@ -583,13 +596,23 @@ const renderEachConfig = (section: any): any => {
       return renderEachConfig(formControlOrSection);
     } else {
       try {
-        const { configProperty } = formControlOrSection;
+        const { configProperty, controlType } = formControlOrSection;
         return (
           <FieldWrapper key={configProperty}>
-            <FormControl
-              config={formControlOrSection}
-              formName={QUERY_EDITOR_FORM_NAME}
-            />
+            <OnboardingToolTip
+              step={[OnboardingStep.RUN_QUERY]}
+              show={controlType === "QUERY_DYNAMIC_TEXT"}
+              position={Position.TOP_LEFT}
+              offset={{
+                enabled: true,
+                offset: "200, 0",
+              }}
+            >
+              <FormControl
+                config={formControlOrSection}
+                formName={QUERY_EDITOR_FORM_NAME}
+              />
+            </OnboardingToolTip>
           </FieldWrapper>
         );
       } catch (e) {

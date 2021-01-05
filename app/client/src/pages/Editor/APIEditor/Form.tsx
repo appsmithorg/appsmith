@@ -1,5 +1,5 @@
 import React from "react";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
@@ -10,12 +10,11 @@ import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { PaginationField } from "api/ActionAPI";
-import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
 import { PaginationType, RestAction } from "entities/Action";
-import { Icon } from "@blueprintjs/core";
+import { Icon as BlueprintIcon } from "@blueprintjs/core";
 import { HelpMap, HelpBaseURL } from "constants/HelpConstants";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
@@ -27,18 +26,29 @@ import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { apiActionSettingsConfig } from "mockResponses/ActionSettings";
+import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
+import { ExplorerURLParams } from "../Explorer/helpers";
+import { EntityClassNames } from "../Explorer/Entity";
+import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import { useHistory, useLocation, useParams } from "react-router-dom";
+import { BUILDER_PAGE_URL } from "constants/routes";
+import Icon, { IconSize } from "components/ads/Icon";
+import Button, { Size } from "components/ads/Button";
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
   overflow: auto;
   width: 100%;
   ${FormLabel} {
-    padding: ${props => props.theme.spaces[3]}px;
+    padding: ${(props) => props.theme.spaces[3]}px;
   }
   ${FormRow} {
-    padding: ${props => props.theme.spaces[2]}px;
+    padding: ${(props) => props.theme.spaces[2]}px;
     & > * {
       margin-right: 10px;
     }
@@ -52,6 +62,18 @@ const Form = styled.form`
 const MainConfiguration = styled.div`
   padding-top: 10px;
   padding-left: 17px;
+
+  .close-modal-icon {
+    cursor: pointer;
+    svg {
+      margin-right: 16px;
+      width: 12px;
+      height: 12px;
+      path {
+        fill: ${(props) => props.theme.colors.apiPane.closeIcon};
+      }
+    }
+  }
 `;
 
 const ActionButtons = styled.div`
@@ -59,6 +81,10 @@ const ActionButtons = styled.div`
   justify-self: flex-end;
   display: flex;
   flex-direction: row;
+
+  button:last-child {
+    margin-left: ${(props) => props.theme.spaces[7]}px;
+  }
 `;
 
 const ActionButton = styled(BaseButton)`
@@ -77,7 +103,8 @@ const DatasourceWrapper = styled.div`
 
 const SecondaryWrapper = styled.div`
   display: flex;
-  height: calc(100% - 120px);
+  flex-direction: column;
+  /* height: calc(100% - 120px); */
   border-top: 1px solid #d0d7dd;
   margin-top: 15px;
 `;
@@ -93,11 +120,11 @@ const TabbedViewContainer = styled.div`
 `;
 
 export const BindingText = styled.span`
-  color: ${props => props.theme.colors.bindingTextDark};
+  color: ${(props) => props.theme.colors.bindingTextDark};
   font-weight: 700;
 `;
 
-const StyledOpenDocsIcon = styled(Icon)`
+const StyledOpenDocsIcon = styled(BlueprintIcon)`
   svg {
     width: 12px;
     height: 18px;
@@ -145,7 +172,7 @@ type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;
 export const NameWrapper = styled.div`
   width: 49%;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
   input {
     margin: 0;
     box-sizing: border-box;
@@ -168,35 +195,61 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
 
+  const params = useParams<{ apiId?: string; queryId?: string }>();
+
+  const actions: RestAction[] = useSelector((state: AppState) =>
+    state.entities.actions.map((action) => action.config),
+  );
+  const currentActionConfig: RestAction | undefined = actions.find(
+    (action) => action.id === params.apiId || action.id === params.queryId,
+  );
+  const history = useHistory();
+  const location = useLocation();
+  const { applicationId, pageId } = useParams<ExplorerURLParams>();
+
+  const handleClose = (e: React.MouseEvent) => {
+    PerformanceTracker.startTracking(
+      PerformanceTransactionName.CLOSE_SIDE_PANE,
+      { path: location.pathname },
+    );
+    e.stopPropagation();
+    history.replace(BUILDER_PAGE_URL(applicationId, pageId));
+  };
+
   return (
     <Form onSubmit={handleSubmit}>
       <MainConfiguration>
-        <FormRow>
+        <FormRow className="form-row-header">
           <NameWrapper className="t--nameOfApi">
+            <Icon
+              name="close-modal"
+              size={IconSize.LARGE}
+              className="close-modal-icon"
+              onClick={handleClose}
+            />
             <ActionNameEditor />
           </NameWrapper>
           <ActionButtons className="t--formActionButtons">
-            <ActionButton
-              text="Delete"
-              accent="error"
-              onClick={onDeleteClick}
-              loading={isDeleting}
-              className="t--apiFormDeleteBtn"
+            <MoreActionsMenu
+              id={currentActionConfig ? currentActionConfig.id : ""}
+              name={currentActionConfig ? currentActionConfig.name : ""}
+              className={EntityClassNames.CONTEXT_MENU}
+              pageId={pageId}
             />
-            <ActionButton
+            <Button
               text="Run"
-              accent="primary"
-              filled
+              tag="button"
+              size={Size.medium}
               onClick={() => {
                 onRunClick();
               }}
-              loading={isRunning}
+              isLoading={isRunning}
               className="t--apiFormRunBtn"
             />
           </ActionButtons>
         </FormRow>
         <FormRow>
-          <DropdownField
+          <RequestDropdownField
             placeholder="Method"
             name="actionConfiguration.httpMethod"
             className="t--apiFormHttpMethod"

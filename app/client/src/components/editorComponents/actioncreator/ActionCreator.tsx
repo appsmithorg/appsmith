@@ -100,7 +100,7 @@ const stringToJS = (string: string): string => {
 const JSToString = (js: string): string => {
   const segments = js.split(" + ");
   return segments
-    .map(segment => {
+    .map((segment) => {
       if (segment.charAt(0) === "'") {
         return segment.substring(1, segment.length - 1);
       } else return "{{" + segment + "}}";
@@ -112,7 +112,7 @@ const argsStringToArray = (funcArgs: string): string[] => {
   const argsplitMatches = [...funcArgs.matchAll(FUNC_ARGS_REGEX)];
   const arr: string[] = [];
   let isPrevUndefined = true;
-  argsplitMatches.forEach(match => {
+  argsplitMatches.forEach((match) => {
     const matchVal = match[0];
     if (!matchVal || matchVal === "") {
       if (isPrevUndefined) {
@@ -559,10 +559,10 @@ function getOptionsWithChildren(
   actions: ActionDataState,
   createActionOption: TreeDropdownOption,
 ) {
-  const option = options.find(option => option.value === ActionType.api);
+  const option = options.find((option) => option.value === ActionType.api);
   if (option) {
     option.children = [createActionOption];
-    actions.forEach(action => {
+    actions.forEach((action) => {
       (option.children as TreeDropdownOption[]).push({
         label: action.config.name,
         id: action.config.id,
@@ -700,7 +700,7 @@ function getFieldFromValue(
 }
 
 function getPageDropdownOptions(state: AppState) {
-  return state.entities.pageList.pages.map(page => ({
+  return state.entities.pageList.pages.map((page) => ({
     label: page.pageName,
     id: page.pageId,
     value: `'${page.pageName}'`,
@@ -1009,7 +1009,7 @@ function useApiOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
 
   const actions = useSelector(getActionsForCurrentPage).filter(
-    action => action.config.pluginType === "API",
+    (action) => action.config.pluginType === "API",
   );
   const apiOptionTree = getOptionsWithChildren(baseOptions, actions, {
     label: "Create API",
@@ -1035,10 +1035,10 @@ function getQueryOptionsWithChildren(
   queries: ActionDataState,
   createQueryOption: TreeDropdownOption,
 ) {
-  const option = options.find(option => option.value === ActionType.query);
+  const option = options.find((option) => option.value === ActionType.query);
   if (option) {
     option.children = [createQueryOption];
-    queries.forEach(query => {
+    queries.forEach((query) => {
       (option.children as TreeDropdownOption[]).push({
         label: query.config.name,
         id: query.config.id,
@@ -1055,7 +1055,7 @@ function useQueryOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
 
   const queries = useSelector(getActionsForCurrentPage).filter(
-    action => action.config.pluginType === "DB",
+    (action) => action.config.pluginType === "DB",
   );
   const queryOptionTree = getQueryOptionsWithChildren(baseOptions, queries, {
     label: "Create Query",
