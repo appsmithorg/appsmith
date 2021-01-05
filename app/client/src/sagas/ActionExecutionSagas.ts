@@ -81,7 +81,7 @@ import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import { evaluateDynamicTrigger, evaluateSingleValue } from "./evaluationsSaga";
+import { evaluateDynamicTrigger, evaluateSingleValue } from "./EvaluationsSaga";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },

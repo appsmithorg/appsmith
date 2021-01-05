@@ -26,8 +26,10 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
@@ -187,8 +189,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                         }
                     }
                     return defaultPageId;
-                })
-                .cache();
+                });
 
         Mono<List<PageNameIdDTO>> pagesListMono = applicationMono
                 .map(application -> {
@@ -198,39 +199,45 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     } else {
                         pages = application.getPages();
                     }
-                    return pages;
+                    return pages.stream().map(page -> page.getId()).collect(Collectors.toList());
                 })
-                .flatMapMany(Flux::fromIterable)
-                .flatMap(page -> this.findById(page.getId(), READ_PAGES))
+                .flatMapMany(pageIds -> repository.findAllByIds(pageIds, READ_PAGES))
+                .collectList()
                 .zipWith(defaultPageIdMono)
                 .flatMap(tuple -> {
-                    NewPage pageFromDb = tuple.getT1();
+                    List<NewPage> pagesFromDb = tuple.getT1();
                     String defaultPageId = tuple.getT2();
 
-                    PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
+                    List<PageNameIdDTO> pageNameIdDTOList = new ArrayList<>();
 
-                    pageNameIdDTO.setId(pageFromDb.getId());
+                    for (NewPage pageFromDb : pagesFromDb) {
 
-                    if (Boolean.TRUE.equals(view)) {
-                        if (pageFromDb.getPublishedPage() == null) {
-                            // We are trying to fetch published page but it doesnt exist because the page hasn't been published yet
-                            return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
-                                    FieldName.PAGE, pageFromDb.getId()));
+                        PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
+
+                        pageNameIdDTO.setId(pageFromDb.getId());
+
+                        if (Boolean.TRUE.equals(view)) {
+                            if (pageFromDb.getPublishedPage() == null) {
+                                // We are trying to fetch published page but it doesnt exist because the page hasn't been published yet
+                                return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                        FieldName.PAGE, pageFromDb.getId()));
+                            }
+                            pageNameIdDTO.setName(pageFromDb.getPublishedPage().getName());
+                        } else {
+                            pageNameIdDTO.setName(pageFromDb.getUnpublishedPage().getName());
                         }
-                        pageNameIdDTO.setName(pageFromDb.getPublishedPage().getName());
-                    } else {
-                        pageNameIdDTO.setName(pageFromDb.getUnpublishedPage().getName());
+
+                        if (pageNameIdDTO.getId().equals(defaultPageId)) {
+                            pageNameIdDTO.setIsDefault(true);
+                        } else {
+                            pageNameIdDTO.setIsDefault(false);
+                        }
+
+                        pageNameIdDTOList.add(pageNameIdDTO);
                     }
 
-                    if (pageNameIdDTO.getId().equals(defaultPageId)) {
-                        pageNameIdDTO.setIsDefault(true);
-                    } else {
-                        pageNameIdDTO.setIsDefault(false);
-                    }
-
-                    return Mono.just(pageNameIdDTO);
-                })
-                .collectList();
+                    return Mono.just(pageNameIdDTOList);
+                });
 
         return Mono.zip(applicationMono, pagesListMono)
                 .map(tuple -> {
