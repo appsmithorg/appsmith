@@ -24,7 +24,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.SearchEntityandOpen("Text1");
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
     cy.SearchEntityandOpen("Table1");
-    cy.readTabledata("0", "0").then(tabData => {
+    cy.readTabledata("0", "0").then((tabData) => {
       const tableData = tabData;
       localStorage.setItem("tableDataPage1", tableData);
     });
