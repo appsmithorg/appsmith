@@ -17,7 +17,6 @@ export const HTTP_METHOD_COLOR_MAP = zipObject(
 );
 
 export const HTTP_METHOD_OPTIONS = HTTP_METHODS.map((method) => ({
-  label: method,
   value: method,
 }));
 
