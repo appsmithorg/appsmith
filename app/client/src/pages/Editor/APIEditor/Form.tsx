@@ -15,7 +15,7 @@ import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
 import { PaginationType, RestAction } from "entities/Action";
-import { Icon } from "@blueprintjs/core";
+import { Icon as BlueprintIcon } from "@blueprintjs/core";
 import { HelpMap, HelpBaseURL } from "constants/HelpConstants";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
@@ -27,6 +27,12 @@ import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { apiActionSettingsConfig } from "mockResponses/ActionSettings";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import { useHistory, useLocation, useParams } from "react-router-dom";
+import { BUILDER_PAGE_URL } from "constants/routes";
+import Icon, { IconSize } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 
 const Form = styled.form`
@@ -53,6 +59,18 @@ const Form = styled.form`
 const MainConfiguration = styled.div`
   padding-top: 10px;
   padding-left: 17px;
+
+  .close-modal-icon {
+    cursor: pointer;
+    svg {
+      margin-right: 16px;
+      width: 12px;
+      height: 12px;
+      path {
+        fill: ${(props) => props.theme.colors.apiPane.closeIcon};
+      }
+    }
+  }
 `;
 
 const ActionButtons = styled.div`
@@ -82,7 +100,8 @@ const DatasourceWrapper = styled.div`
 
 const SecondaryWrapper = styled.div`
   display: flex;
-  height: calc(100% - 120px);
+  flex-direction: column;
+  /* height: calc(100% - 120px); */
   border-top: 1px solid #d0d7dd;
   margin-top: 15px;
 `;
@@ -102,7 +121,7 @@ export const BindingText = styled.span`
   font-weight: 700;
 `;
 
-const StyledOpenDocsIcon = styled(Icon)`
+const StyledOpenDocsIcon = styled(BlueprintIcon)`
   svg {
     width: 12px;
     height: 18px;
@@ -150,7 +169,7 @@ type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;
 export const NameWrapper = styled.div`
   width: 49%;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
   input {
     margin: 0;
     box-sizing: border-box;
@@ -173,11 +192,33 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
 
+  const history = useHistory();
+  const location = useLocation();
+  const { applicationId, pageId } = useParams<{
+    applicationId: string;
+    pageId: string;
+  }>();
+
+  const handleClose = (e: React.MouseEvent) => {
+    PerformanceTracker.startTracking(
+      PerformanceTransactionName.CLOSE_SIDE_PANE,
+      { path: location.pathname },
+    );
+    e.stopPropagation();
+    history.replace(BUILDER_PAGE_URL(applicationId, pageId));
+  };
+
   return (
     <Form onSubmit={handleSubmit}>
       <MainConfiguration>
-        <FormRow>
+        <FormRow className="form-row-header">
           <NameWrapper className="t--nameOfApi">
+            <Icon
+              name="close-modal"
+              size={IconSize.LARGE}
+              className="close-modal-icon"
+              onClick={handleClose}
+            />
             <ActionNameEditor />
           </NameWrapper>
           <ActionButtons className="t--formActionButtons">

@@ -732,6 +732,7 @@ type ColorType = {
   };
   apiPane: {
     bg: ShadeColor;
+    closeIcon: ShadeColor;
   };
 };
 
@@ -1010,6 +1011,7 @@ export const dark: ColorType = {
   },
   apiPane: {
     bg: darkShades[6],
+    closeIcon: darkShades[9],
   },
 };
 
@@ -1288,6 +1290,7 @@ export const light: ColorType = {
   },
   apiPane: {
     bg: lightShades[6],
+    closeIcon: lightShades[10],
   },
 };
 
