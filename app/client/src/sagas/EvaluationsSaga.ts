@@ -36,6 +36,7 @@ import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 import { EXECUTION_PARAM_KEY } from "../constants/ActionConstants";
 import { Action } from "redux";
+import _ from "lodash";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -118,9 +119,14 @@ export function* evaluateSingleValue(
     worker.request,
     EVAL_WORKER_ACTIONS.EVAL_SINGLE,
     {
-      dataTree: Object.assign({}, dataTree, {
-        [EXECUTION_PARAM_KEY]: executionParams,
-      }),
+      // If execution params are passed,
+      // we create a new data tree object with the params
+      dataTree:
+        executionParams && !_.isEmpty(executionParams)
+          ? Object.assign({}, dataTree, {
+              [EXECUTION_PARAM_KEY]: executionParams,
+            })
+          : dataTree,
       binding,
     },
   );

@@ -115,6 +115,7 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.EVAL_SINGLE: {
         const { binding, dataTree } = requestData;
+        console.log("inside", { dataTree });
         const withFunctions = addFunctions(dataTree);
         if (!dataTreeEvaluator) {
           return { value: undefined, errors: [] };
