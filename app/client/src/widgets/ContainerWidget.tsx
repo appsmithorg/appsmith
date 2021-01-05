@@ -1,5 +1,5 @@
 import React from "react";
-import _ from "lodash";
+import { map, sortBy, compact } from "lodash";
 
 import ContainerComponent, {
   ContainerStyle,
@@ -23,6 +23,7 @@ class ContainerWidget extends BaseWidget<
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
   }
+
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
     return {
@@ -65,11 +66,11 @@ class ContainerWidget extends BaseWidget<
   }
 
   renderChildren = () => {
-    return _.map(
+    return map(
       // sort by row so stacking context is correct
       // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
       // Figure out a way in which the stacking context is consistent.
-      _.sortBy(_.compact(this.props.children), (child) => child.topRow),
+      sortBy(compact(this.props.children), (child) => child.topRow),
       this.renderChildWidget,
     );
   };

@@ -480,7 +480,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               canExtend: false,
               detachFromLayout: true,
               dropEnabled: false,
-              paddingEnabled: false,
               children: [],
               blueprint: {
                 view: [
@@ -494,6 +493,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       dragEnabled: false,
                       isDeletable: false,
                       paddingEnabled: false,
+                      settingsControlEnabled: false,
                     },
                   },
                 ],

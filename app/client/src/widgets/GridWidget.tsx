@@ -39,9 +39,7 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.parentId = this.props.widgetId;
     childWidgetData.shouldScrollContents = true;
     childWidgetData.canExtend = this.props.shouldScrollContents;
-    childWidgetData.bottomRow = this.props.shouldScrollContents
-      ? childWidgetData.bottomRow
-      : componentHeight - 1;
+    childWidgetData.bottomRow = childWidgetData.bottomRow;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.containerStyle = "card";
     childWidgetData.minHeight = componentHeight;
@@ -60,6 +58,7 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
     children: ContainerWidgetProps<WidgetProps>[],
   ): ContainerWidgetProps<WidgetProps>[] => {
     return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
+      console.log({ index, child });
       return {
         ...child,
         topRow: index * children[0].bottomRow,

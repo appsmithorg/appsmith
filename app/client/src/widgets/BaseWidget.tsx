@@ -172,21 +172,37 @@ abstract class BaseWidget<
       </ResizableComponent>
     );
   }
+
+  /**
+   * this functions wraps the widget in a component that shows a setting control at the top right
+   * which gets shown on hover. A widget can enable/disable this by setting `settingsControlEnabled` prop
+   *
+   * @param content
+   * @param showControls
+   */
   showWidgetName(content: ReactNode, showControls = false) {
     return (
-      <React.Fragment>
-        <WidgetNameComponent
-          widgetName={this.props.widgetName}
-          widgetId={this.props.widgetId}
-          parentId={this.props.parentId}
-          type={this.props.type}
-          showControls={showControls}
-        />
+      <>
+        {this.props.settingsControlEnabled && (
+          <WidgetNameComponent
+            widgetName={this.props.widgetName}
+            widgetId={this.props.widgetId}
+            parentId={this.props.parentId}
+            type={this.props.type}
+            showControls={showControls}
+          />
+        )}
         {content}
-      </React.Fragment>
+      </>
     );
   }
 
+  /**
+   * wraps the widget in a draggable component.
+   * Note: widget drag can be disabled by setting `dragEnabled` prop to false
+   *
+   * @param content
+   */
   makeDraggable(content: ReactNode) {
     return <DraggableComponent {...this.props}>{content}</DraggableComponent>;
   }
@@ -255,8 +271,13 @@ abstract class BaseWidget<
     );
   }
 
+  /**
+   * generates styles that positions the widget
+   */
   private getPositionStyle(): BaseStyle {
+    const { paddingEnabled } = this.props;
     const { componentHeight, componentWidth } = this.getComponentDimensions();
+
     return {
       positionType: PositionTypes.ABSOLUTE,
       componentHeight,
@@ -281,6 +302,8 @@ abstract class BaseWidget<
     dropEnabled: true,
     isDeletable: true,
     resizeEnabled: true,
+    paddingEnabled: true,
+    settingsControlEnabled: true,
   };
 }
 
