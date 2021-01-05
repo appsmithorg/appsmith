@@ -762,6 +762,10 @@ type ColorType = {
       };
     };
     closeIcon: ShadeColor;
+    responseBody: {
+      bg: ShadeColor;
+      dividerBg: ShadeColor;
+    };
   };
 };
 
@@ -1070,6 +1074,10 @@ export const dark: ColorType = {
       },
     },
     closeIcon: darkShades[9],
+    responseBody: {
+      bg: "#090707",
+      dividerBg: darkShades[4],
+    },
   },
 };
 
@@ -1378,6 +1386,10 @@ export const light: ColorType = {
       },
     },
     closeIcon: lightShades[10],
+    responseBody: {
+      bg: lightShades[11],
+      dividerBg: lightShades[3],
+    },
   },
 };
 

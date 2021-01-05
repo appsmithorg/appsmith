@@ -112,7 +112,6 @@ const SecondaryWrapper = styled.div`
 `;
 
 const TabbedViewContainer = styled.div`
-  flex: 1;
   padding-top: 12px;
   &&& {
     ul.react-tabs__tab-list {

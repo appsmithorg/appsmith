@@ -22,11 +22,15 @@ import {
   DONT_SHOW_THIS_AGAIN,
   SHOW_REQUEST,
 } from "constants/messages";
+import { TabComponent } from "components/ads/Tabs";
 
 const ResponseWrapper = styled.div`
   position: relative;
   flex: 1;
   height: 100%;
+  margin-top: ${(props) => props.theme.spaces[6] + 1}px;
+  min-height: 300px;
+  background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
 `;
 const ResponseMetaInfo = styled.div`
   display: flex;
@@ -38,7 +42,7 @@ const ResponseMetaInfo = styled.div`
 
 const ResponseMetaWrapper = styled.div`
   align-items: center;
-  padding: 6px 9px;
+  margin-bottom: ${(props) => props.theme.spaces[4]}px;
   display: flex;
   border-top: transparent 5px solid;
 
@@ -138,7 +142,8 @@ const FailedMessageContainer = styled.div`
 `;
 
 const TabbedViewWrapper = styled.div`
-  padding-top: 12px;
+  padding-top: ${(props) => props.theme.spaces[2]}px;
+  padding-left: ${(props) => props.theme.spaces[12]}px;
   height: calc(100% - 30px);
 `;
 
@@ -148,6 +153,12 @@ const StyledFormActionButton = styled(FormActionButton)`
     margin-right: 9px;
     border: 0;
   }
+`;
+
+const SectionDivider = styled.div`
+  height: 2px;
+  width: 100%;
+  background: ${(props) => props.theme.colors.apiPane.responseBody.dividerBg};
 `;
 
 const ApiResponseView = (props: Props) => {
@@ -243,6 +254,7 @@ const ApiResponseView = (props: Props) => {
 
   return (
     <ResponseWrapper>
+      <SectionDivider />
       {isRunning && (
         <LoadingOverlayScreen>Sending Request</LoadingOverlayScreen>
       )}
@@ -271,11 +283,10 @@ const ApiResponseView = (props: Props) => {
             </ResponseMetaInfo>
           </ResponseMetaWrapper>
         )}
-        <BaseTabbedView
-          overflow
+        <TabComponent
           tabs={tabs}
           selectedIndex={selectedIndex}
-          setSelectedIndex={setSelectedIndex}
+          onSelect={setSelectedIndex}
         />
       </TabbedViewWrapper>
     </ResponseWrapper>
