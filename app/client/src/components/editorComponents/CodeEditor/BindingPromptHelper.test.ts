@@ -14,7 +14,7 @@ describe("Test to check conditons for showing binding prompt", () => {
       { showEvaluatedValue: true, inputValue: undefined },
     ];
 
-    testCases.forEach(testCase => {
+    testCases.forEach((testCase) => {
       expect(
         showBindingPrompt(testCase.showEvaluatedValue, testCase.inputValue),
       ).toBeTruthy();
@@ -31,7 +31,7 @@ describe("Test to check conditons for showing binding prompt", () => {
       { showEvaluatedValue: true, inputValue: "{{}}" },
     ];
 
-    testCases.forEach(testCase => {
+    testCases.forEach((testCase) => {
       expect(
         showBindingPrompt(testCase.showEvaluatedValue, testCase.inputValue),
       ).toBeFalsy();

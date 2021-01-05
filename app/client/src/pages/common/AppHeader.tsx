@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import { connect } from "react-redux";
 import { getCurrentUser } from "actions/authActions";
 import PageHeader from "pages/common/PageHeader";
@@ -14,13 +15,23 @@ import { withRouter, RouteComponentProps } from "react-router";
 import AppViewerHeader from "pages/AppViewer/viewer/AppViewerHeader";
 import AppEditorHeader from "pages/Editor/EditorHeader";
 
-type Props = { getCurrentUser: () => void } & RouteComponentProps;
+type Props = {
+  getCurrentUser: () => void;
+} & RouteComponentProps;
+
+const headerRoot = document.getElementById("header-root");
 
 class AppHeader extends React.Component<Props, any> {
+  private container = document.createElement("div");
+
   componentDidMount() {
     this.props.getCurrentUser();
+    headerRoot?.appendChild(this.container);
   }
-  render() {
+  componentWillUnmount() {
+    headerRoot?.removeChild(this.container);
+  }
+  get header() {
     return (
       <React.Fragment>
         <Switch>
@@ -32,10 +43,13 @@ class AppHeader extends React.Component<Props, any> {
       </React.Fragment>
     );
   }
+  render() {
+    return ReactDOM.createPortal(this.header, this.container);
+  }
 }
 
-const mapStateToProps = (dispatch: any) => ({
+const mapDispatchToProps = (dispatch: any) => ({
   getCurrentUser: () => dispatch(getCurrentUser()),
 });
 
-export default withRouter(connect(null, mapStateToProps)(AppHeader));
+export default withRouter(connect(null, mapDispatchToProps)(AppHeader));

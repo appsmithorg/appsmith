@@ -15,7 +15,7 @@ import {
   ColumnTypes,
   Condition,
 } from "widgets/TableWidget";
-import { isString } from "lodash";
+import { isString, isPlainObject, isNil } from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
@@ -464,11 +464,12 @@ export const renderCell = (
   columnType: string,
   isHidden: boolean,
 ) => {
+  if (!value) {
+    return <CellWrapper isHidden={isHidden}></CellWrapper>;
+  }
   switch (columnType) {
     case ColumnTypes.IMAGE:
-      if (!value) {
-        return <CellWrapper isHidden={isHidden}></CellWrapper>;
-      } else if (!isString(value)) {
+      if (!isString(value)) {
         return (
           <CellWrapper isHidden={isHidden}>
             <div>Invalid Image </div>
@@ -485,7 +486,7 @@ export const renderCell = (
               if (imageRegex.test(item)) {
                 return (
                   <a
-                    onClick={e => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
                     target="_blank"
                     rel="noopener noreferrer"
                     href={item}
@@ -505,9 +506,7 @@ export const renderCell = (
       );
     case ColumnTypes.VIDEO:
       const youtubeRegex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
-      if (!value) {
-        return <CellWrapper isHidden={isHidden}></CellWrapper>;
-      } else if (isString(value) && youtubeRegex.test(value)) {
+      if (isString(value) && youtubeRegex.test(value)) {
         return (
           <CellWrapper isHidden={isHidden} className="video-cell">
             <PopoverVideo url={value} />
@@ -562,7 +561,7 @@ const TableAction = (props: {
   };
   return (
     <ActionWrapper
-      onClick={e => {
+      onClick={(e) => {
         if (props.isSelected) {
           e.stopPropagation();
         }
@@ -608,8 +607,8 @@ const RenameColumn = (props: {
       placeholder="Enter Column Name"
       defaultValue={columnName}
       onChange={onColumnNameChange}
-      onKeyPress={e => onKeyPress(e.key)}
-      onBlur={e => handleColumnNameUpdate()}
+      onKeyPress={(e) => onKeyPress(e.key)}
+      onBlur={(e) => handleColumnNameUpdate()}
     />
   );
 };
@@ -679,7 +678,7 @@ const SortIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   cursor: pointer;
   svg {
     path {
-      fill: ${props => props.theme.colors.secondary};
+      fill: ${(props) => props.theme.colors.secondary};
     }
   }
 `;
@@ -839,10 +838,10 @@ export function sortTableFunction(
   return tableData.sort(
     (a: { [key: string]: any }, b: { [key: string]: any }) => {
       if (
-        a[sortedColumn] !== undefined &&
-        a[sortedColumn] !== null &&
-        b[sortedColumn] !== undefined &&
-        b[sortedColumn] !== null
+        isPlainObject(a) &&
+        isPlainObject(b) &&
+        !isNil(a[sortedColumn]) &&
+        !isNil(b[sortedColumn])
       ) {
         switch (columnType) {
           case ColumnTypes.CURRENCY:
