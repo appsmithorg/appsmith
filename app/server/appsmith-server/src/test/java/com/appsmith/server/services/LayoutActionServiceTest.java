@@ -181,8 +181,8 @@ public class LayoutActionServiceTest {
                     assertThat(page.getLayouts()).hasSize(1);
                     assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(2);
                     assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(0)).hasSize(1);
-                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(0).stream().anyMatch(x -> x.getName().equalsIgnoreCase("query1"))).isTrue();
-                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(1).stream().anyMatch(x -> x.getName().equalsIgnoreCase("query2"))).isTrue();
+                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(0).stream().anyMatch(x -> x.getName().equalsIgnoreCase("query2"))).isTrue();
+                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(1).stream().anyMatch(x -> x.getName().equalsIgnoreCase("query1"))).isTrue();
                 })
                 .verifyComplete();
     }
