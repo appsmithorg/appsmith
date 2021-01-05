@@ -22,9 +22,9 @@ type ExplorerWidgetGroupProps = {
 
 const StyledLink = styled(Link)`
   & {
-    color: ${props => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.primary};
     &:hover {
-      color: ${props => props.theme.colors.primary};
+      color: ${(props) => props.theme.colors.primary};
     }
   }
 `;
@@ -69,7 +69,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       onCreate={props.addWidgetsFn}
       searchKeyword={props.searchKeyword}
     >
-      {props.widgets?.children?.map(child => (
+      {props.widgets?.children?.map((child) => (
         <WidgetEntity
           widgetId={child.widgetId}
           widgetName={child.widgetName}

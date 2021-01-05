@@ -26,7 +26,7 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
           }
           return null;
         })
-        .filter(i => !!i),
+        .filter((i) => !!i),
     );
     for (let row = 0; row < props.data.length; row++) {
       const data: { [key: string]: any } = props.data[row];

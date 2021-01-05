@@ -8,6 +8,8 @@ import moment from "moment-timezone";
 import { WidgetProps } from "../widgets/BaseWidget";
 import parser from "fast-xml-parser";
 
+export type DependencyMap = Record<string, Array<string>>;
+
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
   const withBindings = string.replace(DATA_BIND_REGEX_GLOBAL, "{{ }}");
@@ -70,7 +72,7 @@ export const getDynamicBindings = (
   // Get the {{binding}} bound values
   const stringSegments = getDynamicStringSegments(sanitisedString);
   // Get the "binding" path values
-  const paths = stringSegments.map(segment => {
+  const paths = stringSegments.map((segment) => {
     const length = segment.length;
     const matches = isDynamicValue(segment);
     if (matches) {
@@ -87,6 +89,8 @@ export enum EvalErrorTypes {
   EVAL_TREE_ERROR = "EVAL_TREE_ERROR",
   UNESCAPE_STRING_ERROR = "UNESCAPE_STRING_ERROR",
   EVAL_ERROR = "EVAL_ERROR",
+  UNKNOWN_ERROR = "UNKNOWN_ERROR",
+  BAD_UNEVAL_TREE_ERROR = "BAD_UNEVAL_TREE_ERROR",
 }
 
 export type EvalError = {

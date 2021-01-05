@@ -27,7 +27,7 @@ const ContainerDiv = styled.div<{
 }>`
   width: 320px;
   height: 190px;
-  background-color: ${props => props.theme.colors.filePicker.bg};
+  background-color: ${(props) => props.theme.colors.filePicker.bg};
   position: relative;
 
   #fileInput {
@@ -35,9 +35,9 @@ const ContainerDiv = styled.div<{
   }
 
   .drag-drop-text {
-    margin: ${props => props.theme.spaces[6]}px 0
-      ${props => props.theme.spaces[6]}px 0;
-    color: ${props => props.theme.colors.filePicker.color};
+    margin: ${(props) => props.theme.spaces[6]}px 0
+      ${(props) => props.theme.spaces[6]}px 0;
+    color: ${(props) => props.theme.colors.filePicker.color};
   }
 
   .bg-image {
@@ -53,28 +53,28 @@ const ContainerDiv = styled.div<{
   .file-description {
     width: 95%;
     margin-top: auto;
-    margin-bottom: ${props => props.theme.spaces[6] + 1}px;
+    margin-bottom: ${(props) => props.theme.spaces[6] + 1}px;
     display: none;
   }
 
   .file-spec {
-    margin-bottom: ${props => props.theme.spaces[2]}px;
+    margin-bottom: ${(props) => props.theme.spaces[2]}px;
     span {
-      margin-right: ${props => props.theme.spaces[4]}px;
+      margin-right: ${(props) => props.theme.spaces[4]}px;
     }
   }
 
   .progress-container {
     width: 100%;
-    background: ${props => props.theme.colors.filePicker.progress};
+    background: ${(props) => props.theme.colors.filePicker.progress};
     transition: height 0.2s;
   }
 
   .progress-inner {
-    background-color: ${props => props.theme.colors.success.light};
+    background-color: ${(props) => props.theme.colors.success.light};
     transition: width 0.4s ease;
-    height: ${props => props.theme.spaces[1]}px;
-    border-radius: ${props => props.theme.spaces[1] - 1}px;
+    height: ${(props) => props.theme.spaces[1]}px;
+    border-radius: ${(props) => props.theme.spaces[1] - 1}px;
     width: 0%;
   }
 
@@ -91,26 +91,26 @@ const ContainerDiv = styled.div<{
     right: 0;
     background: linear-gradient(
       180deg,
-      ${props => props.theme.colors.filePicker.shadow.from},
-      ${props => props.theme.colors.filePicker.shadow.to}
+      ${(props) => props.theme.colors.filePicker.shadow.from},
+      ${(props) => props.theme.colors.filePicker.shadow.to}
     );
     opacity: 0.6;
     width: 100%;
 
     a {
       width: 110px;
-      margin: ${props => props.theme.spaces[13]}px
-        ${props => props.theme.spaces[3]}px ${props => props.theme.spaces[3]}px
-        auto;
+      margin: ${(props) => props.theme.spaces[13]}px
+        ${(props) => props.theme.spaces[3]}px
+        ${(props) => props.theme.spaces[3]}px auto;
       .${Classes.ICON} {
-        margin-right: ${props => props.theme.spaces[2] - 1}px;
+        margin-right: ${(props) => props.theme.spaces[2] - 1}px;
       }
     }
   }
 
   &:hover {
     .remove-button {
-      display: ${props => (props.isUploaded ? "block" : "none")};
+      display: ${(props) => (props.isUploaded ? "block" : "none")};
     }
   }
 `;
@@ -149,10 +149,10 @@ export function CloudinaryUploader(
         },
       },
     )
-    .then(data => {
+    .then((data) => {
       onUpload(data.data.url);
     })
-    .catch(error => {
+    .catch((error) => {
       console.error("error in file uploading", error);
     });
 }
@@ -171,7 +171,7 @@ const FilePickerComponent = (props: FilePickerProps) => {
     drop(item, monitor) {
       onDrop(monitor);
     },
-    collect: monitor => ({
+    collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),
     }),
@@ -309,13 +309,13 @@ const FilePickerComponent = (props: FilePickerProps) => {
               ref={inputRef}
               accept=".jpeg,.png,.svg"
               value={""}
-              onChange={el => handleFileUpload(el.target.files)}
+              onChange={(el) => handleFileUpload(el.target.files)}
             />
             <Button
               text="Browse"
               category={Category.tertiary}
               size={Size.medium}
-              onClick={el => ButtonClick(el)}
+              onClick={(el) => ButtonClick(el)}
             />
           </form>
         </div>
@@ -335,7 +335,7 @@ const FilePickerComponent = (props: FilePickerProps) => {
           icon="delete"
           size={Size.medium}
           category={Category.tertiary}
-          onClick={el => removeFile()}
+          onClick={(el) => removeFile()}
         />
       </div>
     </ContainerDiv>

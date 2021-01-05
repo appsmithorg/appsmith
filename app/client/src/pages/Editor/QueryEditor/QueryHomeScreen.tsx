@@ -25,11 +25,11 @@ const QueryHomePage = styled.div`
   overflow: auto;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
 
   .sectionHeader {
-    font-weight: ${props => props.theme.fontWeights[2]};
-    font-size: ${props => props.theme.fontSizes[4]}px;
+    font-weight: ${(props) => props.theme.fontWeights[2]};
+    font-size: ${(props) => props.theme.fontSizes[4]}px;
   }
 `;
 
@@ -151,7 +151,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
             icon={"plus"}
           />
         )}
-        {dataSources.map(datasource => {
+        {dataSources.map((datasource) => {
           return (
             <DatasourceCard
               key={datasource.id}

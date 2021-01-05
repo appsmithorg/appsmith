@@ -17,7 +17,7 @@ const StyledControlGroup = styled(ControlGroup)`
       box-shadow: none;
       border: 1px solid;
       border-color: ${Colors.GEYSER_LIGHT};
-      border-radius: ${props => props.theme.radii[1]}px;
+      border-radius: ${(props) => props.theme.radii[1]}px;
       width: 100%;
       height: inherit;
       align-items: center;
@@ -47,10 +47,10 @@ const StyledControlGroup = styled(ControlGroup)`
   &&& {
     input {
       border: 1px solid ${Colors.HIT_GRAY};
-      border-radius: ${props => props.theme.radii[1]}px;
+      border-radius: ${(props) => props.theme.radii[1]}px;
       box-shadow: none;
       color: ${Colors.OXFORD_BLUE};
-      font-size: ${props => props.theme.fontSizes[3]}px;
+      font-size: ${(props) => props.theme.fontSizes[3]}px;
     }
   }
 `;
@@ -86,7 +86,7 @@ class DatePickerComponent extends React.Component<
       : now.clone().set({ month: 0, date: 1, year: year - 100 });
     const maxDate = this.props.maxDate
       ? moment(this.props.maxDate)
-      : now.clone().set({ month: 11, date: 31, year: year + 5 });
+      : now.clone().set({ month: 11, date: 31, year: year + 20 });
 
     return (
       <StyledControlGroup
@@ -122,16 +122,8 @@ class DatePickerComponent extends React.Component<
                 ? this.parseDate(this.state.selectedDate)
                 : null
             }
-            minDate={
-              this.props.minDate
-                ? this.parseDate(this.props.minDate)
-                : undefined
-            }
-            maxDate={
-              this.props.maxDate
-                ? this.parseDate(this.props.maxDate)
-                : undefined
-            }
+            minDate={minDate.toDate()}
+            maxDate={maxDate.toDate()}
           />
         ) : (
           <DateRangeInput

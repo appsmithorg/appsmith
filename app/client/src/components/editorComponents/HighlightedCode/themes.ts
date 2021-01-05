@@ -6,7 +6,7 @@ export const LIGHT = css`
     color: black;
     background: none;
     text-shadow: 0 1px white;
-    font-family: ${props => props.theme.fonts.code};
+    font-family: ${(props) => props.theme.fonts.code};
     font-size: 1em;
     text-align: left;
     white-space: pre;
@@ -144,7 +144,7 @@ export const DARK = css`
   pre[class*="language-"] {
     color: white;
     background: none;
-    font-family: ${props => props.theme.fonts.code};
+    font-family: ${(props) => props.theme.fonts.code};
     font-size: 1em;
     text-align: left;
     text-shadow: 0 -0.1em 0.2em black;

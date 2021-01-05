@@ -26,6 +26,7 @@ import { bindingMarker } from "components/editorComponents/CodeEditor/markHelper
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import { urlGroupsRegexExp } from "constants/ActionConstants";
+import TextInput from "components/ads/TextInput";
 
 type ReduxStateProps = {
   orgId: string;
@@ -155,12 +156,12 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
               completeSingle: false,
               hint: () => {
                 const list = datasourceList
-                  .filter(datasource =>
+                  .filter((datasource) =>
                     datasource.datasourceConfiguration.url.includes(
                       parsed.datasourceUrl,
                     ),
                   )
-                  .map(datasource => ({
+                  .map((datasource) => ({
                     text: datasource.datasourceConfiguration.url,
                     data: datasource,
                     className: "datasource-hint",
@@ -219,7 +220,12 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <CodeEditor {...props} />
+        {/* <CodeEditor {...props} /> */}
+        <TextInput
+          defaultValue={input.value}
+          onChange={(value: string) => input.onChange(value)}
+          fill={true}
+        />
       </React.Fragment>
     );
   }
@@ -236,7 +242,7 @@ const mapStateToProps = (
   // Todo: fix this properly later in #2164
   if (datasourceFromAction && "id" in datasourceFromAction) {
     const datasourceFromDataSourceList = state.entities.datasources.list.find(
-      d => d.id === datasourceFromAction.id,
+      (d) => d.id === datasourceFromAction.id,
     );
     if (datasourceFromDataSourceList) {
       datasourceMerged = _.merge(
@@ -251,13 +257,13 @@ const mapStateToProps = (
     orgId: state.ui.orgs.currentOrg.id,
     datasource: datasourceMerged,
     datasourceList: state.entities.datasources.list.filter(
-      d => d.pluginId === ownProps.pluginId && d.isValid,
+      (d) => d.pluginId === ownProps.pluginId && d.isValid,
     ),
   };
 };
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
-  updateDatasource: datasource =>
+  updateDatasource: (datasource) =>
     dispatch(change(API_EDITOR_FORM_NAME, "datasource", datasource)),
 });
 

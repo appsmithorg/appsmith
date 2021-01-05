@@ -63,6 +63,34 @@ describe("Text Widget Functionality", function() {
     );
   });
 
+  it("Text widget depends on itself", function() {
+    cy.getCodeMirror().then(($cm) => {
+      if ($cm.val() !== "") {
+        cy.get(".CodeMirror textarea")
+          .first()
+          .clear({
+            force: true,
+          });
+      }
+
+      cy.get(".CodeMirror textarea")
+        .first()
+        .type(`{{${this.data.TextName}}}`, {
+          force: true,
+          parseSpecialCharSequences: false,
+        });
+    });
+    cy.get(commonlocators.toastBody)
+      .first()
+      .contains("Cyclic");
+
+    cy.PublishtheApp();
+    cy.get(commonlocators.bodyTextStyle).should(
+      "have.text",
+      `{{${this.data.TextName}}}`,
+    );
+  });
+
   afterEach(() => {
     cy.get(publishPage.backToEditor).click({ force: true });
   });

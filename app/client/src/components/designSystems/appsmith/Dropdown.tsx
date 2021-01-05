@@ -59,7 +59,7 @@ export const BaseDropdown = (props: DropdownProps) => {
       styles={{ ...selectStyles, ...customSelectStyles }}
       {...input}
       width={props.width}
-      onChange={value => input.onChange(value)}
+      onChange={(value) => input.onChange(value)}
       isSearchable={props.isSearchable}
       isDisabled={props.isDisabled}
       {...props}

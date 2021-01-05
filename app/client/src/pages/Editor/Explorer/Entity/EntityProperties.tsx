@@ -51,7 +51,7 @@ export const EntityProperties = memo(
         config = entityDefinitions.ACTION(entity as DataTreeAction);
         if (config) {
           entityProperties = Object.keys(config)
-            .filter(k => k.indexOf("!") === -1)
+            .filter((k) => k.indexOf("!") === -1)
             .map((actionProperty: string) => {
               let value = entity[actionProperty];
               if (actionProperty === "isLoading") {
@@ -86,8 +86,8 @@ export const EntityProperties = memo(
         if (isFunction(config)) config = config(entity);
 
         entityProperties = Object.keys(config)
-          .filter(k => k.indexOf("!") === -1)
-          .map(widgetProperty => {
+          .filter((k) => k.indexOf("!") === -1)
+          .map((widgetProperty) => {
             return {
               propertyName: widgetProperty,
               entityName: entity.widgetName,
@@ -99,7 +99,7 @@ export const EntityProperties = memo(
     }
     return (
       <>
-        {entityProperties.map(entityProperty => (
+        {entityProperties.map((entityProperty) => (
           <EntityProperty
             key={entityProperty.propertyName}
             {...entityProperty}
