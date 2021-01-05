@@ -3,10 +3,8 @@ import { get } from "lodash";
 import { AppState } from "reducers";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { ERROR_CODES } from "constants/ApiConstants";
 import Button from "components/editorComponents/Button";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { getSafeCrashCode } from "selectors/errorSelectors";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import PageUnavailableImage from "assets/images/404-image.png";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
@@ -29,7 +27,6 @@ const Wrapper = styled.div`
 interface Props {
   flushErrorsAndRedirect?: any;
   user?: any;
-  safeCrashCode?: ERROR_CODES;
 }
 
 const PageNotFound: React.FC<Props> = (props: Props) => {
@@ -73,7 +70,6 @@ const PageNotFound: React.FC<Props> = (props: Props) => {
 
 const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),
-  safeCrashCode: getSafeCrashCode(state),
 });
 
 export default connect(mapStateToProps, {
