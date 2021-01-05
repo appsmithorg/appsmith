@@ -3,11 +3,13 @@ import { get } from "lodash";
 import { AppState } from "reducers";
 import { connect } from "react-redux";
 import styled from "styled-components";
+import { ERROR_CODES } from "constants/ApiConstants";
 import Button from "components/editorComponents/Button";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { getSafeCrashCode } from "selectors/errorSelectors";
+import { flushErrorsAndRedirect } from "actions/errorActions";
 import PageUnavailableImage from "assets/images/404-image.png";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { flushErrorsAndRedirect } from "actions/errorActions";
 
 const Wrapper = styled.div`
   text-align: center;
@@ -27,17 +29,27 @@ const Wrapper = styled.div`
 interface Props {
   flushErrorsAndRedirect?: any;
   user?: any;
+  safeCrashCode?: ERROR_CODES;
 }
 
 const PageNotFound: React.FC<Props> = (props: Props) => {
-  const { flushErrorsAndRedirect, user } = props;
+  const { flushErrorsAndRedirect, user, safeCrashCode } = props;
 
-  // if we have logged in user, append the current url in login url with `redirectTo` param
-  // logged in user here means email is not "anonymousUser"
-  const redirectURL =
-    get(user, "email") !== "anonymousUser"
-      ? APPLICATIONS_URL
-      : `${AUTH_LOGIN_URL}?redirectTo=${window.location.href}`;
+  // if user is not logged
+  // not logged in state means email is "anonymousUser"
+  let redirectURL: string;
+
+  switch (true) {
+    case get(user, "email") === "anonymousUser":
+      redirectURL = `${AUTH_LOGIN_URL}?redirectTo=${window.location.href}`;
+      break;
+    case safeCrashCode === ERROR_CODES.REQUEST_NOT_AUTHORISED:
+    case safeCrashCode === ERROR_CODES.PAGE_NOT_FOUND:
+      redirectURL = APPLICATIONS_URL;
+      break;
+    default:
+      redirectURL = APPLICATIONS_URL;
+  }
 
   return (
     <Wrapper>
@@ -70,6 +82,7 @@ const PageNotFound: React.FC<Props> = (props: Props) => {
 
 const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),
+  safeCrashCode: getSafeCrashCode(state),
 });
 
 export default connect(mapStateToProps, {
