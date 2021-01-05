@@ -27,6 +27,7 @@ import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { apiActionSettingsConfig } from "mockResponses/ActionSettings";
+import Button, { Size } from "components/ads/Button";
 
 const Form = styled.form`
   display: flex;
@@ -59,6 +60,10 @@ const ActionButtons = styled.div`
   justify-self: flex-end;
   display: flex;
   flex-direction: row;
+
+  button:last-child {
+    margin-left: ${props => props.theme.spaces[7]}px;
+  }
 `;
 
 const ActionButton = styled(BaseButton)`
@@ -183,14 +188,14 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               loading={isDeleting}
               className="t--apiFormDeleteBtn"
             />
-            <ActionButton
+            <Button
               text="Run"
-              accent="primary"
-              filled
+              tag="button"
+              size={Size.medium}
               onClick={() => {
                 onRunClick();
               }}
-              loading={isRunning}
+              isLoading={isRunning}
               className="t--apiFormRunBtn"
             />
           </ActionButtons>
