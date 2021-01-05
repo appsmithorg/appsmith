@@ -66,17 +66,13 @@ type FormDialogComponentProps = {
   maxHeight?: string;
 };
 
-const BottomBorder = styled.div`
-  position: absolute;
-  left: 31.94%;
-  right: 31.94%;
-  top: 13.99%;
-  bottom: 85.91%;
-
-  background: #404040;
-  mix-blend-mode: normal;
-  opacity: 0.6;
-`;
+// const HeaderBottomBorder = styled.div`
+//   width: 100%;
+//   background: #404040;
+//   mix-blend-mode: normal;
+//   opacity: 0.6;
+//   height: 1px;
+// `;
 
 export const FormDialogComponent = (props: FormDialogComponentProps) => {
   const [isOpen, setIsOpen] = useState(!!props.isOpen);
@@ -103,7 +99,6 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
       >
         {props.trigger}
       </TriggerWrapper>
-
       <StyledDialog
         canOutsideClickClose={!!props.canOutsideClickClose}
         canEscapeKeyClose={false}
@@ -114,10 +109,7 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
         setMaxWidth={props.setMaxWidth}
         maxHeight={props.maxHeight}
       >
-        <div className={Classes.DIALOG_BODY}>
-          <BottomBorder />
-          {props.children}
-        </div>
+        <div className={Classes.DIALOG_BODY}>{props.children}</div>
       </StyledDialog>
     </React.Fragment>
   );
