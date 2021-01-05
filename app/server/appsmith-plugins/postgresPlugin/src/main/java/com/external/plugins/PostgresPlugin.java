@@ -115,6 +115,11 @@ public class PostgresPlugin extends BasePlugin {
             
             return Mono.fromCallable(() -> {
 
+                String query = actionConfiguration.getBody();
+                if (query == null) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
+                }
+                
                 Connection connectionFromPool;
 
                 try {
@@ -125,10 +130,6 @@ public class PostgresPlugin extends BasePlugin {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                 }
 
-                String query = actionConfiguration.getBody();
-                if (query == null) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
-                }
 
                 List<Map<String, Object>> rowsList = new ArrayList<>(50);
 
