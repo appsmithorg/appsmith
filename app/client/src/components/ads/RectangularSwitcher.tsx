@@ -30,13 +30,13 @@ const StyledSwitch = styled.label<{
     cursor: pointer;
     top: 0;
     left: 0;
-    border: 1px solid ${props => props.theme.colors.switch.border};
-    background-color: ${props => props.theme.colors.info.main};
+    border: 1px solid ${(props) => props.theme.colors.switch.border};
+    background-color: ${(props) => props.theme.colors.info.main};
     width: 78px;
     height: 26px;
   }
 
-  ${props =>
+  ${(props) =>
     `.slider:before {
       position: absolute;
       content: "";
@@ -50,17 +50,17 @@ const StyledSwitch = styled.label<{
 	`}
 
   input:checked + .slider:before {
-    transform: ${props => (props.firstRender ? "translateX(36px)" : "none")};
+    transform: ${(props) => (props.firstRender ? "translateX(36px)" : "none")};
   }
 
   input:checked + .slider:before {
-    background-color: ${props => props.theme.colors.switch.hover.bg};
+    background-color: ${(props) => props.theme.colors.switch.hover.bg};
   }
 `;
 
 const Light = styled.div<{ value: boolean }>`
   .${Classes.TEXT} {
-    color: ${props =>
+    color: ${(props) =>
       props.value
         ? props.theme.colors.switch.lightText
         : props.theme.colors.switch.darkText};
@@ -78,7 +78,7 @@ const Dark = styled.div<{ value: boolean }>`
     font-size: 10px;
     line-height: 12px;
     letter-spacing: -0.171429px;
-    color: ${props => props.theme.colors.switch.lightText};
+    color: ${(props) => props.theme.colors.switch.lightText};
   }
   position: absolute;
   top: 3px;

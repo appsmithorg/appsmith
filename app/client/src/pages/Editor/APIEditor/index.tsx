@@ -118,14 +118,14 @@ class ApiEditor extends React.Component<Props> {
     id: string,
     plugins: Plugin[],
   ): string | undefined => {
-    const plugin = plugins.find(plugin => plugin.id === id);
+    const plugin = plugins.find((plugin) => plugin.id === id);
     if (!plugin) return undefined;
     return plugin.uiComponent;
   };
 
   getPluginUiComponentOfName = (plugins: Plugin[]): string | undefined => {
     const plugin = plugins.find(
-      plugin => plugin.packageName === REST_PLUGIN_PACKAGE_NAME,
+      (plugin) => plugin.packageName === REST_PLUGIN_PACKAGE_NAME,
     );
     if (!plugin) return undefined;
     return plugin.uiComponent;

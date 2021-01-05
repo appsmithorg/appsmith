@@ -64,7 +64,7 @@ type PickMyLocationProps = {
 
 const PickMyLocationWrapper = styled.div<PickMyLocationProps>`
   position: absolute;
-  bottom: ${props => (props.allowZoom ? 110 : 20)}px;
+  bottom: ${(props) => (props.allowZoom ? 110 : 20)}px;
   right: -90px;
   width: 140px;
 `;
@@ -122,7 +122,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
       }}
       zoom={props.zoom}
       center={mapCenter}
-      onClick={e => {
+      onClick={(e) => {
         if (props.enableCreateMarker) {
           props.saveMarker(e.latLng.lat(), e.latLng.lng());
         }
@@ -148,14 +148,14 @@ const MyMapComponent = withGoogleMap((props: any) => {
             props.selectedMarker.lat === marker.lat &&
             props.selectedMarker.long === marker.long
           }
-          onClick={e => {
+          onClick={(e) => {
             setMapCenter({
               ...marker,
               lng: marker.long,
             });
             props.selectMarker(marker.lat, marker.long, marker.title);
           }}
-          onDragEnd={de => {
+          onDragEnd={(de) => {
             props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
           }}
         />
