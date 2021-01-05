@@ -576,7 +576,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                     )
                             )
                             .onErrorResume(e -> {
-                                log.debug("In the action execution error mode.", e);
+                                log.debug("{}: In the action execution error mode.",
+                                        Thread.currentThread().getName(), e);
                                 ActionExecutionResult result = new ActionExecutionResult();
                                 result.setBody(e.getMessage());
                                 result.setIsExecutionSuccess(false);
