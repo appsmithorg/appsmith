@@ -119,14 +119,9 @@ export function* evaluateSingleValue(
     worker.request,
     EVAL_WORKER_ACTIONS.EVAL_SINGLE,
     {
-      // If execution params are passed,
-      // we create a new data tree object with the params
-      dataTree:
-        executionParams && !_.isEmpty(executionParams)
-          ? Object.assign({}, dataTree, {
-              [EXECUTION_PARAM_KEY]: executionParams,
-            })
-          : dataTree,
+      dataTree: Object.assign({}, dataTree, {
+        [EXECUTION_PARAM_KEY]: executionParams,
+      }),
       binding,
     },
   );
