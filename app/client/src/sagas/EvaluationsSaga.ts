@@ -36,7 +36,6 @@ import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 import { EXECUTION_PARAM_KEY } from "../constants/ActionConstants";
 import { Action } from "redux";
-import _ from "lodash";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
