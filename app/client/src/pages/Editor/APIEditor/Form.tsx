@@ -1,5 +1,5 @@
 import React from "react";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
@@ -27,6 +27,9 @@ import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { apiActionSettingsConfig } from "mockResponses/ActionSettings";
+import { ExplorerURLParams } from "../Explorer/helpers";
+import { EntityClassNames } from "../Explorer/Entity";
+import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -192,12 +195,17 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
 
+  const params = useParams<{ apiId?: string; queryId?: string }>();
+
+  const actions: RestAction[] = useSelector((state: AppState) =>
+    state.entities.actions.map((action) => action.config),
+  );
+  const currentActionConfig: RestAction | undefined = actions.find(
+    (action) => action.id === params.apiId || action.id === params.queryId,
+  );
   const history = useHistory();
   const location = useLocation();
-  const { applicationId, pageId } = useParams<{
-    applicationId: string;
-    pageId: string;
-  }>();
+  const { applicationId, pageId } = useParams<ExplorerURLParams>();
 
   const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
@@ -222,12 +230,11 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             <ActionNameEditor />
           </NameWrapper>
           <ActionButtons className="t--formActionButtons">
-            <ActionButton
-              text="Delete"
-              accent="error"
-              onClick={onDeleteClick}
-              loading={isDeleting}
-              className="t--apiFormDeleteBtn"
+            <MoreActionsMenu
+              id={currentActionConfig ? currentActionConfig.id : ""}
+              name={currentActionConfig ? currentActionConfig.name : ""}
+              className={EntityClassNames.CONTEXT_MENU}
+              pageId={pageId}
             />
             <Button
               text="Run"

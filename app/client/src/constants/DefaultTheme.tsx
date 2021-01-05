@@ -732,6 +732,22 @@ type ColorType = {
   };
   apiPane: {
     bg: ShadeColor;
+    moreActions: {
+      targetBg: string;
+      targetIcon: {
+        normal: string;
+        hover: string;
+      };
+      menuShadow: string;
+      menuBg: {
+        normal: ShadeColor;
+        hover: ShadeColor;
+      };
+      menuText: {
+        normal: ShadeColor;
+        hover: ShadeColor;
+      };
+    };
     closeIcon: ShadeColor;
   };
 };
@@ -1011,6 +1027,22 @@ export const dark: ColorType = {
   },
   apiPane: {
     bg: darkShades[6],
+    moreActions: {
+      targetBg: "#090707",
+      targetIcon: {
+        normal: "#9F9F9F",
+        hover: "#9F9F9F",
+      },
+      menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
+      menuBg: {
+        normal: darkShades[3],
+        hover: darkShades[4],
+      },
+      menuText: {
+        normal: darkShades[7],
+        hover: darkShades[9],
+      },
+    },
     closeIcon: darkShades[9],
   },
 };
@@ -1290,6 +1322,22 @@ export const light: ColorType = {
   },
   apiPane: {
     bg: lightShades[6],
+    moreActions: {
+      targetBg: "#E8E8E8",
+      targetIcon: {
+        normal: "#939090",
+        hover: "#4B4848",
+      },
+      menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.32)",
+      menuBg: {
+        normal: lightShades[11],
+        hover: lightShades[2],
+      },
+      menuText: {
+        normal: lightShades[6],
+        hover: lightShades[8],
+      },
+    },
     closeIcon: lightShades[10],
   },
 };
