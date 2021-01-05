@@ -52,10 +52,11 @@ const MoreActionablesContainer = styled.div<{ isOpen: boolean }>`
   }
 
   &&&& svg > path {
-    fill: ${props => props.theme.colors.apiPane.moreActions.targetIcon.normal};
+    fill: ${(props) =>
+      props.theme.colors.apiPane.moreActions.targetIcon.normal};
   }
 
-  ${props =>
+  ${(props) =>
     props.isOpen
       ? `
 		background-color: ${props.theme.colors.apiPane.moreActions.targetBg};
@@ -67,11 +68,12 @@ const MoreActionablesContainer = styled.div<{ isOpen: boolean }>`
       : null}
 
   &:hover {
-    background-color: ${props =>
+    background-color: ${(props) =>
       props.theme.colors.apiPane.moreActions.targetBg};
 
     &&&& svg > path {
-      fill: ${props => props.theme.colors.apiPane.moreActions.targetIcon.hover};
+      fill: ${(props) =>
+        props.theme.colors.apiPane.moreActions.targetIcon.hover};
     }
   }
 `;
@@ -83,14 +85,14 @@ const StyledPopover = styled.div`
 
   .bp3-popover {
     border-radius: 0px;
-    box-shadow: ${props => props.theme.colors.apiPane.moreActions.menuShadow};
+    box-shadow: ${(props) => props.theme.colors.apiPane.moreActions.menuShadow};
 
     .bp3-popover-content {
       border-radius: 0px;
     }
 
     &&& ul {
-      background-color: ${props =>
+      background-color: ${(props) =>
         props.theme.colors.apiPane.moreActions.menuBg.normal};
     }
 
@@ -98,7 +100,7 @@ const StyledPopover = styled.div`
       min-width: 220px;
       padding: 0px;
       border-radius: 0px;
-      background-color: ${props =>
+      background-color: ${(props) =>
         props.theme.colors.apiPane.moreActions.menuBg.normal};
 
       .bp3-menu-item {
@@ -106,7 +108,7 @@ const StyledPopover = styled.div`
         line-height: 20px;
         letter-spacing: -0.24px;
         padding: 10px 15px;
-        color: ${props =>
+        color: ${(props) =>
           props.theme.colors.apiPane.moreActions.menuText.normal};
         .bp3-icon > svg:not([fill]) {
           fill: #9f9f9f;
@@ -114,16 +116,16 @@ const StyledPopover = styled.div`
 
         &:active,
         &:hover {
-          background-color: ${props =>
+          background-color: ${(props) =>
             props.theme.colors.apiPane.moreActions.menuBg.hover};
-          color: ${props =>
+          color: ${(props) =>
             props.theme.colors.apiPane.moreActions.menuText.hover};
         }
       }
       .bp3-submenu .bp3-popover-target.bp3-popover-open > .bp3-menu-item {
-        background-color: ${props =>
+        background-color: ${(props) =>
           props.theme.colors.apiPane.moreActions.menuBg.hover};
-        color: ${props =>
+        color: ${(props) =>
           props.theme.colors.apiPane.moreActions.menuText.hover};
       }
     }
@@ -140,7 +142,7 @@ function getSelectedOption(
     value: "",
   };
   options.length > 0 &&
-    options.forEach(option => {
+    options.forEach((option) => {
       // Find the selected option in the OptionsTree
       if (option.value === selectedValue) {
         selectedOption = option;

@@ -20,7 +20,7 @@ const useNewAPIName = () => {
   // with the same name as the generated API name
   // TODO: Figure out how to handle this scenario
   const apiNames = useSelector((state: AppState) =>
-    state.entities.actions.map(action => action.config.name),
+    state.entities.actions.map((action) => action.config.name),
   );
   return (name: string) =>
     apiNames.indexOf(name) > -1 ? getNextEntityName(name, apiNames) : name;
@@ -66,7 +66,7 @@ export const MoreActionsMenu = (props: EntityContextMenuProps) => {
   );
 
   const menuPages = useSelector((state: AppState) => {
-    return state.entities.pageList.pages.map(page => ({
+    return state.entities.pageList.pages.map((page) => ({
       label: page.pageName,
       id: page.pageId,
       value: page.pageName,
@@ -85,7 +85,7 @@ export const MoreActionsMenu = (props: EntityContextMenuProps) => {
           value: "copy",
           onSelect: noop,
           label: "Copy to page",
-          children: menuPages.map(page => {
+          children: menuPages.map((page) => {
             return {
               ...page,
               onSelect: () => copyActionToPage(props.id, props.name, page.id),
@@ -99,8 +99,8 @@ export const MoreActionsMenu = (props: EntityContextMenuProps) => {
           children:
             menuPages.length > 1
               ? menuPages
-                  .filter(page => page.id !== props.pageId) // Remove current page from the list
-                  .map(page => {
+                  .filter((page) => page.id !== props.pageId) // Remove current page from the list
+                  .map((page) => {
                     return {
                       ...page,
                       onSelect: () =>
