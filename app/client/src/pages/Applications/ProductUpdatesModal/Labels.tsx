@@ -13,15 +13,14 @@ const StyledLabel = styled.div<{ color: string }>`
   color: ${(props) => props.color};
   background-color: ${(props) => `${props.color}30`};
   border-radius: 4px;
-  padding: 10px;
+  padding: 5px 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  font-family: SF Pro Text;
   font-size: 12px;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 15px;
 `;
 
