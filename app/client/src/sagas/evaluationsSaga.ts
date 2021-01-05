@@ -44,16 +44,13 @@ const evalErrorHandler = (errors: EvalError[]) => {
         variant: Variant.danger,
       });
     }
-    if (
-      [
-        EvalErrorTypes.EVAL_TREE_ERROR,
-        EvalErrorTypes.BAD_UNEVAL_TREE_ERROR,
-      ].includes(error.type)
-    ) {
+    if (error.type === EvalErrorTypes.EVAL_TREE_ERROR) {
       Toaster.show({
         text: "Unexpected error occurred while evaluating the app",
         variant: Variant.danger,
       });
+    }
+    if (error.type === EvalErrorTypes.BAD_UNEVAL_TREE_ERROR) {
       Sentry.captureException(error);
     }
     log.debug(error);
