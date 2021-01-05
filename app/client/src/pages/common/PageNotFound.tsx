@@ -33,22 +33,13 @@ interface Props {
 }
 
 const PageNotFound: React.FC<Props> = (props: Props) => {
-  const { flushErrorsAndRedirect, user, safeCrashCode } = props;
+  const { flushErrorsAndRedirect, user } = props;
 
-  // if user is not logged
-  // not logged in state means email is "anonymousUser"
-  let redirectURL: string;
+  // if user is not logged, directly take him to the login page with `redirectTo` param
+  if (get(user, "email") === "anonymousUser") {
+    window.location.href = `${AUTH_LOGIN_URL}?redirectTo=${window.location.href}`;
 
-  switch (true) {
-    case get(user, "email") === "anonymousUser":
-      redirectURL = `${AUTH_LOGIN_URL}?redirectTo=${window.location.href}`;
-      break;
-    case safeCrashCode === ERROR_CODES.REQUEST_NOT_AUTHORISED:
-    case safeCrashCode === ERROR_CODES.PAGE_NOT_FOUND:
-      redirectURL = APPLICATIONS_URL;
-      break;
-    default:
-      redirectURL = APPLICATIONS_URL;
+    return <></>;
   }
 
   return (
@@ -73,7 +64,7 @@ const PageNotFound: React.FC<Props> = (props: Props) => {
           iconAlignment="right"
           size="small"
           className="button-position"
-          onClick={() => flushErrorsAndRedirect(redirectURL)}
+          onClick={() => flushErrorsAndRedirect(APPLICATIONS_URL)}
         />
       </div>
     </Wrapper>
