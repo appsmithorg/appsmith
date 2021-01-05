@@ -1,7 +1,7 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useState, useContext } from "react";
 import styled from "styled-components";
 import { Dialog, Classes } from "@blueprintjs/core";
-import { isPermitted } from "pages/Applications/permissionHelpers";
+import { LayersContext } from "constants/Layers";
 
 const StyledDialog = styled(Dialog)<{
   setMaxWidth?: boolean;
@@ -16,6 +16,7 @@ const StyledDialog = styled(Dialog)<{
     ${(props) => (props.maxHeight ? `max-height: ${props.maxHeight};` : "")}
 
     & .${Classes.DIALOG_HEADER} {
+      position: relative;
       padding: ${(props) => props.theme.spaces[4]}px;
       background: ${(props) => props.theme.colors.modal.bg};
       box-shadow: none;
@@ -36,6 +37,18 @@ const StyledDialog = styled(Dialog)<{
         background-color: ${(props) => props.theme.colors.modal.bg};
       }
     }
+
+    & .${Classes.DIALOG_HEADER}:after {
+      content: "";
+      width: 80%;
+      height: 1px;
+      position: absolute;
+      background: white;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      background-color: ${(props) => props.theme.colors.modal.separator}
+    }
     & .${Classes.DIALOG_BODY} {
       padding: ${(props) => props.theme.spaces[9]}px;
       margin: 0;
@@ -50,7 +63,7 @@ const StyledDialog = styled(Dialog)<{
 
 const TriggerWrapper = styled.div``;
 
-type FormDialogComponentProps = {
+type DialogComponentProps = {
   isOpen?: boolean;
   canOutsideClickClose?: boolean;
   orgId?: string;
@@ -66,29 +79,14 @@ type FormDialogComponentProps = {
   maxHeight?: string;
 };
 
-// const HeaderBottomBorder = styled.div`
-//   width: 100%;
-//   background: #404040;
-//   mix-blend-mode: normal;
-//   opacity: 0.6;
-//   height: 1px;
-// `;
-
-export const FormDialogComponent = (props: FormDialogComponentProps) => {
+export const DialogComponent = (props: DialogComponentProps) => {
   const [isOpen, setIsOpen] = useState(!!props.isOpen);
 
   const onClose = () => {
     setIsOpen(false);
   };
 
-  const Form = props.Form;
-
-  if (
-    props.permissions &&
-    props.permissionRequired &&
-    !isPermitted(props.permissions, props.permissionRequired)
-  )
-    return null;
+  const Layers = useContext(LayersContext);
 
   return (
     <React.Fragment>
@@ -96,6 +94,7 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
         onClick={() => {
           setIsOpen(true);
         }}
+        style={{ zIndex: Layers.max }}
       >
         {props.trigger}
       </TriggerWrapper>
@@ -115,4 +114,4 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
   );
 };
 
-export default FormDialogComponent;
+export default DialogComponent;

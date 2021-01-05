@@ -679,6 +679,7 @@ type ColorType = {
     };
     manageUser: ShadeColor;
     scrollbar: ShadeColor;
+    separator: ShadeColor;
   };
   tagInput: {
     bg: ShadeColor;
@@ -954,6 +955,7 @@ export const dark: ColorType = {
     },
     manageUser: darkShades[6],
     scrollbar: darkShades[5],
+    separator: darkShades[4],
   },
   tagInput: {
     bg: darkShades[0],
@@ -1229,6 +1231,7 @@ export const light: ColorType = {
     },
     manageUser: lightShades[6],
     scrollbar: lightShades[5],
+    separator: lightShades[4],
   },
   tagInput: {
     bg: lightShades[2],
@@ -1359,6 +1362,12 @@ export const theme: Theme = {
       lineHeight: 13,
       letterSpacing: 0.4,
       fontWeight: 600,
+    },
+    floatingBtn: {
+      fontSize: 14,
+      lineHeight: 17,
+      letterSpacing: -0.24,
+      fontWeight: "normal",
     },
   },
   iconSizes: {

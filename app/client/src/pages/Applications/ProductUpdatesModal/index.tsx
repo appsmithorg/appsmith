@@ -1,8 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import Modal from "components/ads/Modal";
+import Dialog from "components/ads/DialogComponent";
+import UpdatesButton from "./UpdatesButton";
 // import { FeaturesLabel, BugFixesLabel } from "./Labels";
 import "@github/g-emoji-element";
+import moment from "moment";
 
 // prettier-ignore
 const releases = [
@@ -175,10 +177,45 @@ const StyledSeparator = styled.div`
   height: 1px;
 `;
 
+const StyledDate = styled.div`
+  font-style: normal;
+  font-weight: normal;
+  font-size: 13px;
+  line-height: 16px;
+  /* identical to box height */
+  letter-spacing: -0.24px;
+  color: #9f9f9f;
+  margin-top: 8px;
+`;
+
+const StyledContent = styled.div`
+  & li {
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 23px;
+    letter-spacing: -0.24px;
+    color: #d4d4d4;
+  }
+
+  & a {
+    color: red;
+  }
+
+  & h2 {
+    font-size: 15px;
+  }
+
+  & g-emoji img {
+    width: 15px;
+    height: 15px;
+  }
+`;
+
 const ProductUpdatesModal = () => {
   return (
-    <Modal
-      trigger={<div>form modal</div>}
+    <Dialog
+      trigger={<UpdatesButton />}
       title={"Product Updates"}
       width={580}
       maxHeight={"80vh"}
@@ -186,11 +223,14 @@ const ProductUpdatesModal = () => {
       {releases.map(({ descriptionHtml, name, publishedAt }, index) => (
         <StyledContainer key={index}>
           <StyledTitle>{name}</StyledTitle>
-          <div dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
+          <StyledDate>{moment(publishedAt).format("Do MMMM, YYYY")}</StyledDate>
+          <StyledContent
+            dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+          />
           <StyledSeparator />
         </StyledContainer>
       ))}
-    </Modal>
+    </Dialog>
   );
 };
 
