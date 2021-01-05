@@ -116,20 +116,21 @@ public class PostgresPlugin extends BasePlugin {
             return Mono.fromCallable(() -> {
 
                 String query = actionConfiguration.getBody();
+                // Check for query parameter before performing the probably expensive fetch connection from the pool op.
                 if (query == null) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
                 }
                 
-                Connection connectionFromPool;
+                Connection connectionFromPool = null;
 
                 try {
                     connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
-                } catch (StaleConnectionException e) {
-                    return Mono.error(e);
-                } catch (SQLException e) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                } catch (Exception e) {
+                    // The function can throw either StaleConnectionException or SQLException. The underlying hikari
+                    // library throws SQLException in case the pool is closed which can also be translated in our world
+                    // to StaleConnectionException and should then trigger the destruction and recreation of the pool.
+                    return Mono.error(new StaleConnectionException());
                 }
-
 
                 List<Map<String, Object>> rowsList = new ArrayList<>(50);
 
