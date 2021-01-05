@@ -240,7 +240,7 @@ const ActionType = {
   showAlert: "showAlert",
   storeValue: "storeValue",
   download: "download",
-  copy: "copy",
+  copyToClipboard: "copyToClipboard",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
@@ -565,8 +565,8 @@ const baseOptions: any = [
     value: ActionType.download,
   },
   {
-    label: "Copy",
-    value: ActionType.copy,
+    label: "Copy to Clipboard",
+    value: ActionType.copyToClipboard,
   },
 ];
 function getOptionsWithChildren(
@@ -711,7 +711,7 @@ function getFieldFromValue(
       },
     );
   }
-  if (value.indexOf("copy") !== -1) {
+  if (value.indexOf("copyToClipboard") !== -1) {
     fields.push({
       field: FieldType.COPY_TEXT_FIELD,
     });
@@ -870,7 +870,7 @@ function renderField(props: {
       } else if (fieldType === FieldType.DOWNLOAD_FILE_NAME_FIELD) {
         fieldLabel = "File name with extension";
       } else if (fieldType === FieldType.COPY_TEXT_FIELD) {
-        fieldLabel = "Text to copy";
+        fieldLabel = "Text to be copied to clipboard";
       }
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: fieldLabel,

@@ -517,7 +517,7 @@ function* executeActionTriggers(
       case "DOWNLOAD":
         yield call(downloadSaga, trigger.payload, event);
         break;
-      case "COPY":
+      case "COPY_TO_CLIPBOARD":
         yield call(copySaga, trigger.payload, event);
         break;
       default:
