@@ -125,10 +125,11 @@ public class PostgresPlugin extends BasePlugin {
 
                 try {
                     connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
-                } catch (Exception e) {
+                } catch (SQLException |StaleConnectionException e) {
                     // The function can throw either StaleConnectionException or SQLException. The underlying hikari
-                    // library throws SQLException in case the pool is closed which can also be translated in our world
-                    // to StaleConnectionException and should then trigger the destruction and recreation of the pool.
+                    // library throws SQLException in case the pool is closed or there is an issue initializing
+                    // the connection pool which can also be translated in our world to StaleConnectionException
+                    // and should then trigger the destruction and recreation of the pool.
                     return Mono.error(new StaleConnectionException());
                 }
 
