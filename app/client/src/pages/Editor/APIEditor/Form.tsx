@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { connect, useSelector } from "react-redux";
 import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
 import {
@@ -37,6 +37,7 @@ import { useHistory, useLocation, useParams } from "react-router-dom";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
+import { TabComponent } from "components/ads/Tabs";
 
 const Form = styled.form`
   display: flex;
@@ -108,14 +109,17 @@ const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
   /* height: calc(100% - 120px); */
-  border-top: 1px solid #d0d7dd;
 `;
 
 const TabbedViewContainer = styled.div`
-  padding-top: 12px;
+  border-top: 2px solid #404040;
+  padding-bottom: ${(props) => props.theme.spaces[6] + 1}px;
   &&& {
     ul.react-tabs__tab-list {
-      padding-left: 23px;
+      padding-left: 30px;
+      padding-top: 7px;
+      background-color: ${(props) =>
+        props.theme.colors.apiPane.responseBody.bg};
     }
   }
 `;
@@ -181,6 +185,8 @@ export const NameWrapper = styled.div`
 `;
 
 const ApiEditorForm: React.FC<Props> = (props: Props) => {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
   const {
     pluginId,
     onDeleteClick,
@@ -268,7 +274,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
       </MainConfiguration>
       <SecondaryWrapper>
         <TabbedViewContainer>
-          <BaseTabbedView
+          <TabComponent
             tabs={[
               {
                 key: "apiInput",
@@ -334,6 +340,8 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 ),
               },
             ]}
+            selectedIndex={selectedIndex}
+            onSelect={setSelectedIndex}
           />
         </TabbedViewContainer>
 

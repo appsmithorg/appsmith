@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
-import FormRow from "./FormRow";
 import { BaseText } from "components/designSystems/blueprint/TextComponent";
-import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import styled from "styled-components";
 import { AppState } from "reducers";
 import { ActionResponse } from "api/ActionAPI";
@@ -28,7 +26,6 @@ const ResponseWrapper = styled.div`
   position: relative;
   flex: 1;
   height: 100%;
-  margin-top: ${(props) => props.theme.spaces[6] + 1}px;
   min-height: 300px;
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
 `;
@@ -143,8 +140,13 @@ const FailedMessageContainer = styled.div`
 
 const TabbedViewWrapper = styled.div`
   padding-top: ${(props) => props.theme.spaces[2]}px;
-  padding-left: ${(props) => props.theme.spaces[12]}px;
   height: calc(100% - 30px);
+
+  &&& {
+    ul.react-tabs__tab-list {
+      padding-left: 30px;
+    }
+  }
 `;
 
 const StyledFormActionButton = styled(FormActionButton)`
