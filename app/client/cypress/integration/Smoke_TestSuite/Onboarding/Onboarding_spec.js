@@ -56,7 +56,18 @@ describe("Onboarding", function() {
     cy.openPropertyPane("tablewidget");
     cy.closePropertyPane();
 
-    cy.PublishtheApp();
+    cy.get(".t--application-feedback-btn").should("not.be.visible");
+
+    // Publish
+    cy.window().then((window) => {
+      cy.stub(window, "open").callsFake((url) => {
+        window.location.href = Cypress.config().baseUrl + url.substring(1);
+        window.location.target = "_self";
+      });
+    });
+    cy.get(homePage.publishButton).click();
+    cy.wait("@publishApp");
+
     cy.get(".t--continue-on-my-own").click();
   });
 });

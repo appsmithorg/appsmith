@@ -1,4 +1,3 @@
-import { setCurrentStep } from "actions/onboardingActions";
 import { ReduxAction, ReduxActionTypes } from "./ReduxActionConstants";
 import { EventName } from "../utils/AnalyticsUtil";
 
@@ -11,6 +10,7 @@ export enum OnboardingStep {
   ADD_WIDGET = 4,
   SUCCESSFUL_BINDING = 5,
   DEPLOY = 6,
+  FINISH = 7,
 }
 
 export type OnboardingTooltip = {
@@ -139,5 +139,14 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       isFinalStep: true,
     },
     eventName: "ONBOARDING_DEPLOY",
+  },
+  // Final step
+  [OnboardingStep.FINISH]: {
+    setup: () => {
+      return [];
+    },
+    tooltip: {
+      title: "",
+    },
   },
 };

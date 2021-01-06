@@ -281,21 +281,27 @@ const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
  * @param bindings
  * @param executionParams
  */
-export function* getActionParams(
+export function* evaluateActionParams(
   bindings: string[] | undefined,
-  executionParams?: Record<string, any>,
+  executionParams?: Record<string, any> | string,
 ) {
   if (_.isNil(bindings)) return [];
-  // This might look like a bug, but isn't.
-  // We send in stringified executionParams, but get back an object
-  const evaluatedExecutionParams = yield evaluateDynamicBoundValueSaga(
-    JSON.stringify(executionParams),
-  );
-
+  // We might get execution params as an object or as a string.
+  // If the user has added a proper object (valid case) it will be an object
+  // If they have not added any execution params or not an object
+  // it would be a string (invalid case)
+  let evaluatedExecutionParams: Record<string, any> = {};
+  if (executionParams && _.isObject(executionParams)) {
+    evaluatedExecutionParams = yield evaluateDynamicBoundValueSaga(
+      JSON.stringify(executionParams),
+    );
+  }
+  // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
   const bindingsForExecutionParams = bindings.map((binding) =>
     binding.replace(EXECUTION_PARAM_REFERENCE_REGEX, EXECUTION_PARAM_KEY),
   );
 
+  // Evaluated all bindings of the actions. Pass executionParams if any
   const values: any = yield all(
     bindingsForExecutionParams.map((binding: string) => {
       return call(
@@ -305,7 +311,8 @@ export function* getActionParams(
       );
     }),
   );
-  // convert to object and transform non string values
+
+  // Convert to object and transform non string values
   const actionParams: Record<string, string> = {};
   bindings.forEach((key, i) => {
     let value = values[i];
@@ -362,7 +369,7 @@ export function* executeActionSaga(
 
     yield put(executeApiActionRequest({ id: apiAction.actionId }));
     const actionParams: Property[] = yield call(
-      getActionParams,
+      evaluateActionParams,
       api.jsonPathKeys,
       params,
     );
@@ -582,7 +589,7 @@ function* runActionSaga(
 
     const { paginationField } = reduxAction.payload;
 
-    const params = yield call(getActionParams, jsonPathKeys);
+    const params = yield call(evaluateActionParams, jsonPathKeys);
     const timeout = yield select(getActionTimeout, actionId);
     const appMode = yield select(getAppMode);
     const viewMode = appMode === APP_MODE.PUBLISHED;
@@ -658,72 +665,85 @@ function* confirmRunActionSaga() {
 }
 
 function* executePageLoadAction(pageAction: PageAction) {
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.EXECUTE_ACTION,
-    {
-      actionId: pageAction.id,
-    },
-    pageAction.id,
-    PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
-  );
-  const pageId = yield select(getCurrentPageId);
-  let currentApp: ApplicationPayload = yield select(getCurrentApplication);
-  currentApp = currentApp || {};
-  yield put(executeApiActionRequest({ id: pageAction.id }));
-  const params: Property[] = yield call(
-    getActionParams,
-    pageAction.jsonPathKeys,
-  );
-  const appMode = yield select(getAppMode);
-  const viewMode = appMode === APP_MODE.PUBLISHED;
-  const executeActionRequest: ExecuteActionRequest = {
-    actionId: pageAction.id,
-    params,
-    viewMode,
-  };
-  AnalyticsUtil.logEvent("EXECUTE_ACTION", {
-    type: pageAction.pluginType,
-    name: pageAction.name,
-    pageId: pageId,
-    appId: currentApp.id,
-    onPageLoad: true,
-    appName: currentApp.name,
-    isExampleApp: currentApp.appIsExample,
-  });
-  const response: ActionApiResponse = yield ActionAPI.executeAction(
-    executeActionRequest,
-    pageAction.timeoutInMillisecond,
-  );
-  if (isErrorResponse(response)) {
-    yield put(
-      executeActionError({
-        actionId: pageAction.id,
-        error: response.responseMeta.error,
-        isPageLoad: true,
-      }),
-    );
-    PerformanceTracker.stopAsyncTracking(
+  try {
+    PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.EXECUTE_ACTION,
       {
-        failed: true,
+        actionId: pageAction.id,
       },
       pageAction.id,
+      PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
     );
-  } else {
-    const payload = createActionExecutionResponse(response);
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.EXECUTE_ACTION,
-      undefined,
-      pageAction.id,
+    const pageId = yield select(getCurrentPageId);
+    let currentApp: ApplicationPayload = yield select(getCurrentApplication);
+    currentApp = currentApp || {};
+    yield put(executeApiActionRequest({ id: pageAction.id }));
+    const params: Property[] = yield call(
+      evaluateActionParams,
+      pageAction.jsonPathKeys,
     );
-    yield put(
-      executeApiActionSuccess({
-        id: pageAction.id,
-        response: payload,
-        isPageLoad: true,
-      }),
+    const appMode = yield select(getAppMode);
+    const viewMode = appMode === APP_MODE.PUBLISHED;
+    const executeActionRequest: ExecuteActionRequest = {
+      actionId: pageAction.id,
+      params,
+      viewMode,
+    };
+    AnalyticsUtil.logEvent("EXECUTE_ACTION", {
+      type: pageAction.pluginType,
+      name: pageAction.name,
+      pageId: pageId,
+      appId: currentApp.id,
+      onPageLoad: true,
+      appName: currentApp.name,
+      isExampleApp: currentApp.appIsExample,
+    });
+    const response: ActionApiResponse = yield ActionAPI.executeAction(
+      executeActionRequest,
+      pageAction.timeoutInMillisecond,
     );
-    yield take(ReduxActionTypes.SET_EVALUATED_TREE);
+    if (isErrorResponse(response)) {
+      const body = _.get(response, "data.body");
+      let message = `The action "${pageAction.name}" has failed.`;
+
+      if (body) {
+        message += `\nERROR: "${body}"`;
+      }
+
+      yield put(
+        executeActionError({
+          actionId: pageAction.id,
+          isPageLoad: true,
+          error: _.get(response, "responseMeta.error", {
+            message,
+          }),
+        }),
+      );
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.EXECUTE_ACTION,
+        {
+          failed: true,
+        },
+        pageAction.id,
+      );
+    } else {
+      const payload = createActionExecutionResponse(response);
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.EXECUTE_ACTION,
+        undefined,
+        pageAction.id,
+      );
+      yield put(
+        executeApiActionSuccess({
+          id: pageAction.id,
+          response: payload,
+          isPageLoad: true,
+        }),
+      );
+      yield take(ReduxActionTypes.SET_EVALUATED_TREE);
+    }
+  } catch (e) {
+    throw new Error(`The action "${pageAction.name}" has failed.`);
   }
 }
 
@@ -746,8 +766,9 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     );
   } catch (e) {
     log.error(e);
+
     Toaster.show({
-      text: "Failed to load onPageLoad actions",
+      text: _.get(e, "message", "Failed to load onPageLoad actions"),
       variant: Variant.danger,
     });
   }
