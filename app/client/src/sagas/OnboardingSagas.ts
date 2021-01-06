@@ -118,7 +118,8 @@ function* listenForSuccessfullBinding() {
         const widgetProperties = dataTree[selectedWidget.widgetName];
         const dynamicBindingPathList =
           dataTree[selectedWidget.widgetName].dynamicBindingPathList;
-        const hasBinding = !!dynamicBindingPathList.length;
+        const hasBinding =
+          dynamicBindingPathList && !!dynamicBindingPathList.length;
 
         if (hasBinding) {
           yield put(showTooltip(OnboardingStep.NONE));
@@ -261,6 +262,8 @@ function* listenForDeploySaga() {
 
     yield take(ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS);
     yield put(showTooltip(OnboardingStep.NONE));
+
+    yield put(setCurrentStep(OnboardingStep.FINISH));
     yield put({
       type: ReduxActionTypes.SHOW_ONBOARDING_COMPLETION_DIALOG,
       payload: true,
