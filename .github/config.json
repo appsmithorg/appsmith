@@ -215,6 +215,11 @@
       "color": "e8b851",
       "description": "Needs attention from maintainers to triage"
     },
+    "New Widget": {
+      "name": "New Widget",
+      "color": "693BA1",
+      "description": "Issues related to new widgets"
+    },
     "Omnibar": {
       "name": "Omnibar",
       "color": "10b5ce",
@@ -571,6 +576,11 @@
               },
               {
                 "label": "Video Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "New Widget",
                 "type": "hasLabel",
                 "value": true
               },
