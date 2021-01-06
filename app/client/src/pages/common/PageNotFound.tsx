@@ -1,13 +1,12 @@
 import React from "react";
-import { get } from "lodash";
 import { AppState } from "reducers";
 import { connect } from "react-redux";
 import styled from "styled-components";
+import { APPLICATIONS_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import PageUnavailableImage from "assets/images/404-image.png";
-import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 
 const Wrapper = styled.div`
   text-align: center;
@@ -30,14 +29,7 @@ interface Props {
 }
 
 const PageNotFound: React.FC<Props> = (props: Props) => {
-  const { flushErrorsAndRedirect, user } = props;
-
-  // if user is not logged, directly take him to the login page with `redirectTo` param
-  if (get(user, "email") === "anonymousUser") {
-    window.location.href = `${AUTH_LOGIN_URL}?redirectTo=${window.location.href}`;
-
-    return <></>;
-  }
+  const { flushErrorsAndRedirect } = props;
 
   return (
     <Wrapper>
