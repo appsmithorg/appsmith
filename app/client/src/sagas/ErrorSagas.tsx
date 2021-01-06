@@ -209,5 +209,8 @@ export default function* errorSagas() {
     ReduxActionTypes.FLUSH_AND_REDIRECT,
     flushErrorsAndRedirectSaga,
   );
-  yield takeLatest(ReduxActionTypes.PRE_SAFE_CRASH_APPSMITH, preSafeCrashSaga);
+  yield takeLatest(
+    ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+    preSafeCrashSaga,
+  );
 }
