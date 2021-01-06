@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import "@github/g-emoji-element";
 import moment from "moment";
@@ -8,6 +8,7 @@ import releases from "./mockReleases";
 
 const StyledContainer = styled.div`
   padding-top: ${(props) => props.theme.spaces[11]}px;
+  color: ${(props) => props.theme.colors.text.normal};
 `;
 
 const StyledTitle = styled.div`
@@ -36,7 +37,7 @@ const StyledDate = styled.div`
   margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
-const StyledContent = styled.div`
+const StyledContent = styled.div<{ isCollapsed: boolean }>`
   li,
   p {
     font-weight: ${(props) => props.theme.typography.releaseList.fontWeight};
@@ -55,12 +56,91 @@ const StyledContent = styled.div`
   h4 {
     color: ${(props) => props.theme.colors.modal.title};
   }
+
+  max-height: ${(props) => (props.isCollapsed ? "500" : "auto")}px;
+  transition: max-height 2s cubic-bezier(0, 1, 0, 1);
+  overflow: hidden;
 `;
 
 type Release = {
   descriptionHtml: string;
   name: string;
   publishedAt?: string;
+};
+
+type ReleaseProps = {
+  release: Release;
+};
+
+enum ReleaseComponentViewState {
+  "collapsed",
+  "expanded",
+}
+
+const StyledReadMore = styled.div`
+  font-weight: ${(props) => props.theme.typography.btnMedium.fontWeight};
+  font-size: ${(props) => props.theme.typography.btnMedium.fontSize}px;
+  line-height: ${(props) => props.theme.typography.btnMedium.lineHeight}px;
+  letter-spacing: ${(props) =>
+    props.theme.typography.btnMedium.letterSpacing}px;
+  text-transform: uppercase;
+  padding: 18px 0;
+`;
+
+const ReadMore = ({
+  currentState,
+  onClick,
+}: {
+  currentState: ReleaseComponentViewState;
+  onClick: () => void;
+}) => (
+  <StyledReadMore onClick={onClick}>
+    {currentState === ReleaseComponentViewState.collapsed
+      ? "read more"
+      : "read less"}
+  </StyledReadMore>
+);
+
+const ReleaseComponent = ({ release }: ReleaseProps) => {
+  const { name, publishedAt, descriptionHtml } = release;
+  const [isCollapsed, setCollapsed] = useState(true);
+  const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      if (containerRef.current.clientHeight >= 500) {
+        setShouldShowReadMore(true);
+      }
+    }
+  });
+
+  const getReadMoreState = useCallback((): ReleaseComponentViewState => {
+    if (isCollapsed) return ReleaseComponentViewState.collapsed;
+    return ReleaseComponentViewState.expanded;
+  }, [isCollapsed]);
+
+  const toggleCollapsedState = useCallback(() => {
+    setCollapsed(!isCollapsed);
+  }, [isCollapsed]);
+
+  return (
+    <StyledContainer ref={containerRef}>
+      <StyledTitle>{name}</StyledTitle>
+      <StyledDate>{moment(publishedAt).format("Do MMMM, YYYY")}</StyledDate>
+      <StyledContent
+        dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+        isCollapsed={isCollapsed}
+      />
+      {shouldShowReadMore && (
+        <ReadMore
+          onClick={toggleCollapsedState}
+          currentState={getReadMoreState()}
+        />
+      )}
+      <StyledSeparator />
+    </StyledContainer>
+  );
 };
 
 const ProductUpdatesModal = () => {
@@ -71,20 +151,9 @@ const ProductUpdatesModal = () => {
       width={580}
       maxHeight={"80vh"}
     >
-      {releases.map(
-        ({ descriptionHtml, name, publishedAt }: Release, index: number) => (
-          <StyledContainer key={index}>
-            <StyledTitle>{name}</StyledTitle>
-            <StyledDate>
-              {moment(publishedAt).format("Do MMMM, YYYY")}
-            </StyledDate>
-            <StyledContent
-              dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-            />
-            <StyledSeparator />
-          </StyledContainer>
-        ),
-      )}
+      {releases.map((release: Release, index: number) => (
+        <ReleaseComponent release={release} key={index} />
+      ))}
     </Dialog>
   );
 };

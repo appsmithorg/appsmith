@@ -59,6 +59,12 @@ const StyledDialog = styled(Dialog)<{
       display: block;
     }
     ${(props) => props.setMaxWidth && `width: 100vh;`}
+
+    & .${Classes.DIALOG_CLOSE_BUTTON} {
+      position: absolute;
+      top: ${(props) => props.theme.spaces[4]}px;
+      right: ${(props) => props.theme.spaces[4]}px;
+    }
   }
 `;
 
