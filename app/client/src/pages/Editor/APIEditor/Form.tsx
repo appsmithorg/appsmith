@@ -112,7 +112,7 @@ const SecondaryWrapper = styled.div`
 `;
 
 const TabbedViewContainer = styled.div`
-  border-top: 2px solid #404040;
+  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   padding-bottom: ${(props) => props.theme.spaces[6] + 1}px;
   &&& {
     ul.react-tabs__tab-list {

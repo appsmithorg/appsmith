@@ -160,7 +160,7 @@ const StyledFormActionButton = styled(FormActionButton)`
 const SectionDivider = styled.div`
   height: 2px;
   width: 100%;
-  background: ${(props) => props.theme.colors.apiPane.responseBody.dividerBg};
+  background: ${(props) => props.theme.colors.apiPane.dividerBg};
 `;
 
 const ApiResponseView = (props: Props) => {
