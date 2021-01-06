@@ -215,7 +215,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           />
         </Link>
       </HeaderSection>
-      <Boxed step={OnboardingStep.DEPLOY}>
+      <Boxed step={OnboardingStep.FINISH}>
         <HeaderSection flex-direction={"row"}>
           {currentApplication ? (
             <EditableTextWrapper
@@ -244,7 +244,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         </HeaderSection>
       </Boxed>
       <HeaderSection>
-        <Boxed step={OnboardingStep.DEPLOY}>
+        <Boxed step={OnboardingStep.FINISH}>
           <SaveStatusContainer className={"t--save-status-container"}>
             {saveStatusIcon}
           </SaveStatusContainer>
