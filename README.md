@@ -23,7 +23,7 @@ Appsmith is a JavaScript-based visual development platform to build and launch i
 
 **UI Components**: Table, Chart, Form, Map, Image, Video, and many more.<br/>
 **API Support**: REST APIs<br/>
-**Database Support**: PostgreSQL, MongoDB, MySQL, Redshift, Elastic Search, DynamoDB, Redis, and MSFT SQL Server<br/>
+**Database Support**: PostgreSQL, MongoDB, MySQL, Firestore, Redshift, Elastic Search, DynamoDB, Redis, and MSFT SQL Server<br/>
 **Hosting**: Cloud-hosted & On-premise
 
 Already familiar with Appsmith? [Quickly start building on your own](#%EF%B8%8F-quickstart).

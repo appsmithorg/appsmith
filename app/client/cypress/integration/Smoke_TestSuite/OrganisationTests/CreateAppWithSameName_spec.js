@@ -6,7 +6,7 @@ describe("Create org and a new app / delete and recreate app", function() {
 
   it("create app within an org and delete and re-create another app with same name", function() {
     cy.NavigateToHome();
-    cy.generateUUID().then(uid => {
+    cy.generateUUID().then((uid) => {
       orgid = uid;
       appid = uid;
       localStorage.setItem("OrgName", orgid);
