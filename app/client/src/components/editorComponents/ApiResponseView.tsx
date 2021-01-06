@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
-import FormRow from "./FormRow";
 import { BaseText } from "components/designSystems/blueprint/TextComponent";
-import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import styled from "styled-components";
 import { AppState } from "reducers";
 import { ActionResponse } from "api/ActionAPI";
@@ -22,29 +20,30 @@ import {
   DONT_SHOW_THIS_AGAIN,
   SHOW_REQUEST,
 } from "constants/messages";
+import { TabComponent } from "components/ads/Tabs";
+import Text, { TextType } from "components/ads/Text";
+import Icon from "components/ads/Icon";
+import { Classes } from "components/ads/common";
 
 const ResponseWrapper = styled.div`
   position: relative;
   flex: 1;
-  height: 100%;
+  height: 50%;
+  background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
 `;
 const ResponseMetaInfo = styled.div`
   display: flex;
   ${BaseText} {
     color: #768896;
-    margin: 0 5px;
+    margin-left: ${(props) => props.theme.spaces[9]}px;
   }
 `;
 
 const ResponseMetaWrapper = styled.div`
   align-items: center;
-  padding: 6px 9px;
   display: flex;
-  border-top: transparent 5px solid;
-
-  div:nth-child(1) {
-    flex: 1;
-  }
+  position: absolute;
+  right: ${(props) => props.theme.spaces[12]}px;
 `;
 
 const StatusCodeText = styled(BaseText)<{ code: string }>`
@@ -137,9 +136,27 @@ const FailedMessageContainer = styled.div`
   // align-items: center;
 `;
 
-const TabbedViewWrapper = styled.div`
-  padding-top: 12px;
+const TabbedViewWrapper = styled.div<{ isCentered: boolean }>`
   height: calc(100% - 30px);
+
+  &&& {
+    ul.react-tabs__tab-list {
+      padding: 0px ${(props) => props.theme.spaces[12]}px;
+    }
+  }
+
+  ${(props) =>
+    props.isCentered
+      ? `
+    &&& {
+      .react-tabs__tab-panel {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    }
+  `
+      : null}
 `;
 
 const StyledFormActionButton = styled(FormActionButton)`
@@ -147,6 +164,36 @@ const StyledFormActionButton = styled(FormActionButton)`
     padding: 10px 12px 9px 9px;
     margin-right: 9px;
     border: 0;
+  }
+`;
+
+const SectionDivider = styled.div`
+  height: 2px;
+  width: 100%;
+  background: ${(props) => props.theme.colors.apiPane.dividerBg};
+`;
+
+const Flex = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: 20px;
+
+  span:first-child {
+    margin-right: ${(props) => props.theme.spaces[1] + 1}px;
+  }
+`;
+
+const NoResponseContainer = styled.div`
+  .${Classes.ICON} {
+    margin-right: 0px;
+    svg {
+      width: 150px;
+      height: 150px;
+    }
+  }
+
+  .${Classes.TEXT} {
+    margin-top: ${(props) => props.theme.spaces[9]}px;
   }
 `;
 
@@ -212,14 +259,21 @@ const ApiResponseView = (props: Props) => {
               </div>
             </FailedMessageContainer>
           )}
-          <ReadOnlyEditor
-            input={{
-              value: response.body
-                ? JSON.stringify(response.body, null, 2)
-                : "",
-            }}
-            height={"100%"}
-          />
+          {_.isEmpty(response.body) ? (
+            <NoResponseContainer>
+              <Icon name="no-response" />
+              <Text type={TextType.P1}>Hit Run to get a Response</Text>
+            </NoResponseContainer>
+          ) : (
+            <ReadOnlyEditor
+              input={{
+                value: response.body
+                  ? JSON.stringify(response.body, null, 2)
+                  : "",
+              }}
+              height={"100%"}
+            />
+          )}
         </>
       ),
     },
@@ -243,39 +297,48 @@ const ApiResponseView = (props: Props) => {
 
   return (
     <ResponseWrapper>
+      <SectionDivider />
       {isRunning && (
         <LoadingOverlayScreen>Sending Request</LoadingOverlayScreen>
       )}
-      <TabbedViewWrapper>
+      <TabbedViewWrapper
+        isCentered={_.isEmpty(response.body) && selectedIndex === 0}
+      >
         {response.statusCode && (
           <ResponseMetaWrapper>
             {response.statusCode && (
-              <StatusCodeText
-                accent="secondary"
-                code={response.statusCode.toString()}
-              >
-                Status: {response.statusCode}
-              </StatusCodeText>
+              <Flex>
+                <Text type={TextType.P3}>Status: </Text>
+                <StatusCodeText
+                  accent="secondary"
+                  code={response.statusCode.toString()}
+                >
+                  {response.statusCode}
+                </StatusCodeText>
+              </Flex>
             )}
             <ResponseMetaInfo>
               {response.duration && (
-                <BaseText accent="secondary">
-                  Time: {response.duration} ms
-                </BaseText>
+                <Flex>
+                  <Text type={TextType.P3}>Time: </Text>
+                  <Text type={TextType.H5}>{response.duration} ms</Text>
+                </Flex>
               )}
               {response.size && (
-                <BaseText accent="secondary">
-                  Size: {formatBytes(parseInt(response.size))}
-                </BaseText>
+                <Flex>
+                  <Text type={TextType.P3}>Size: </Text>
+                  <Text type={TextType.H5}>
+                    {formatBytes(parseInt(response.size))}
+                  </Text>
+                </Flex>
               )}
             </ResponseMetaInfo>
           </ResponseMetaWrapper>
         )}
-        <BaseTabbedView
-          overflow
+        <TabComponent
           tabs={tabs}
           selectedIndex={selectedIndex}
-          setSelectedIndex={setSelectedIndex}
+          onSelect={setSelectedIndex}
         />
       </TabbedViewWrapper>
     </ResponseWrapper>
