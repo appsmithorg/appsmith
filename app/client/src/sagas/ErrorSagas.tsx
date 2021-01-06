@@ -172,7 +172,7 @@ function* preSafeCrashSaga(action: ReduxAction<{ code?: string }>) {
     get(user, "email") === "anonymousUser" &&
     code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
-    window.location.href = `${AUTH_LOGIN_URL}?redirectTo=${window.location.href}`;
+    window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
     return false;
   }
