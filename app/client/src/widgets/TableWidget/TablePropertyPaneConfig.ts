@@ -487,6 +487,7 @@ export default [
                   propertyName: "onClick",
                   label: "onClick",
                   controlType: "ACTION_SELECTOR",
+                  customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   updateHook: updateDerivedColumnHook,
                 },
