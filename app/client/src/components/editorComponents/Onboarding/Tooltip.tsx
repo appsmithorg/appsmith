@@ -12,7 +12,7 @@ import { getTooltipConfig } from "sagas/OnboardingSagas";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import useClipboard from "utils/hooks/useClipboard";
-import { endOnboarding, showTooltip } from "actions/onboardingActions";
+import { showTooltip } from "actions/onboardingActions";
 import { Colors } from "constants/Colors";
 import {
   OnboardingStep,

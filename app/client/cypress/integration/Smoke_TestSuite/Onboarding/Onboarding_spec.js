@@ -62,6 +62,7 @@ describe("Onboarding", function() {
     cy.window().then((window) => {
       cy.stub(window, "open").callsFake((url) => {
         window.location.href = Cypress.config().baseUrl + url.substring(1);
+        cy.log(window.location.href);
         window.location.target = "_self";
       });
     });
