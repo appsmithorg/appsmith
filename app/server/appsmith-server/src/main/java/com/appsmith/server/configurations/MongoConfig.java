@@ -16,8 +16,6 @@ import org.springframework.data.convert.TypeInformationMapper;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.convert.DbRefResolver;
-import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.convert.MongoTypeMapper;
@@ -72,10 +70,8 @@ public class MongoConfig {
     }
 
     @Bean
-    public MappingMongoConverter mappingMongoConverter(DefaultTypeMapper typeMapper, MongoMappingContext context,
-                                                       MongoDbFactory mongoDbFactory) {
-        DbRefResolver defaultDbRefResolver = new DefaultDbRefResolver(mongoDbFactory);
-        MappingMongoConverter converter = new MappingMongoConverter(defaultDbRefResolver, context);
+    public MappingMongoConverter mappingMongoConverter(DefaultTypeMapper typeMapper, MongoMappingContext context) {
+        MappingMongoConverter converter = new MappingMongoConverter(NoOpDbRefResolver.INSTANCE, context);
         converter.setTypeMapper((MongoTypeMapper) typeMapper);
         return converter;
     }
