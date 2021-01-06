@@ -65,6 +65,8 @@ const getDefaultPageId = (
   return defaultPage ? defaultPage.id : undefined;
 };
 
+let windowReference: Window | null = null;
+
 export function* publishApplicationSaga(
   requestAction: ReduxAction<PublishApplicationRequest>,
 ) {
@@ -92,7 +94,13 @@ export function* publishApplicationSaga(
         appicationViewPageUrl += "?onboardingComplete=true";
       }
 
-      window.open(appicationViewPageUrl, "_blank");
+      // If the tab is opened focus and reload else open in new tab
+      if (!windowReference || windowReference.closed) {
+        windowReference = window.open(appicationViewPageUrl, "_blank");
+      } else {
+        windowReference.location.reload();
+        windowReference.focus();
+      }
     }
   } catch (error) {
     yield put({
