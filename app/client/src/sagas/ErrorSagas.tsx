@@ -106,7 +106,7 @@ export function* errorSaga(
   const effects = [ErrorEffectTypes.LOG_ERROR];
   const { type, payload } = errorAction;
   const { show = true, error } = payload || {};
-  const message = _.get(error, "message", ActionErrorDisplayMap[type](error));
+  const message = get(error, "message", ActionErrorDisplayMap[type](error));
 
   if (show) {
     effects.push(ErrorEffectTypes.SHOW_ALERT);
