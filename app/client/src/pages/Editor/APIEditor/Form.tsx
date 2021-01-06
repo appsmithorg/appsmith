@@ -121,6 +121,9 @@ const TabbedViewContainer = styled.div`
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
     }
+    .react-tabs__tab-panel {
+      height: calc(100% - 25px);
+    }
   }
 `;
 

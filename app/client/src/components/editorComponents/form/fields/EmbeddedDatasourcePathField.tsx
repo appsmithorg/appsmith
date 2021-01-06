@@ -222,6 +222,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       <React.Fragment>
         {/* <CodeEditor {...props} /> */}
         <TextInput
+          placeholder={props.placeholder}
           defaultValue={input.value}
           onChange={(value: string) => input.onChange(value)}
           fill={true}
