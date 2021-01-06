@@ -8,8 +8,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
-import com.appsmith.server.domains.OrganizationSetting;
-import com.appsmith.server.domains.Setting;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
@@ -35,7 +33,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +49,6 @@ import static java.util.stream.Collectors.toMap;
 @Service
 public class OrganizationServiceImpl extends BaseService<OrganizationRepository, Organization, String> implements OrganizationService {
 
-    private final SettingService settingService;
     private final PluginRepository pluginRepository;
     private final SessionUserService sessionUserService;
     private final UserOrganizationService userOrganizationService;
@@ -66,7 +62,6 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    MongoConverter mongoConverter,
                                    ReactiveMongoTemplate reactiveMongoTemplate,
                                    OrganizationRepository repository,
-                                   SettingService settingService,
                                    AnalyticsService analyticsService,
                                    PluginRepository pluginRepository,
                                    SessionUserService sessionUserService,
@@ -75,7 +70,6 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    RoleGraph roleGraph,
                                    AssetRepository assetRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.settingService = settingService;
         this.pluginRepository = pluginRepository;
         this.sessionUserService = sessionUserService;
         this.userOrganizationService = userOrganizationService;
@@ -166,8 +160,6 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
         return setSlugMono
                 .flatMap(this::validateObject)
-                //transform the organization data to embed setting object in each object in organizationSetting list.
-                .flatMap(this::enhanceOrganizationSettingList)
                 // Install all the default plugins when the org is created
                 /* TODO: This is a hack. We should ideally use the pluginService.installPlugin() function.
                     Not using it right now because of circular dependency b/w organizationService and pluginService
@@ -208,32 +200,6 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> userRepository.findByEmail(user.getUsername(), READ_USERS))
                 .flatMap(user -> create(organization, user));
-    }
-
-    private Mono<Organization> enhanceOrganizationSettingList(Organization organization) {
-
-        if (organization.getOrganizationSettings() == null) {
-            organization.setOrganizationSettings(new ArrayList<>());
-        }
-
-        Flux<OrganizationSetting> organizationSettingFlux = Flux.fromIterable(organization.getOrganizationSettings());
-        // For each organization setting, fetch and embed the setting, and once all the organization setting are done, collect it
-        // back into a single list of organization settings.
-        Mono<List<OrganizationSetting>> listMono = organizationSettingFlux.flatMap(this::fetchAndEmbedSetting).collectList();
-        return listMono.map(list -> {
-            organization.setOrganizationSettings(list);
-            return list;
-        }).thenReturn(organization);
-    }
-
-    private Mono<OrganizationSetting> fetchAndEmbedSetting(OrganizationSetting organizationSetting) {
-
-        String key = organizationSetting.getSetting().getKey();
-        Mono<Setting> setting = settingService.getByKey(key);
-        return setting.map(setting1 -> {
-            organizationSetting.setSetting(setting1);
-            return organizationSetting;
-        });
     }
 
     @Override
