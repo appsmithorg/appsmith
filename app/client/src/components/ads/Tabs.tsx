@@ -23,7 +23,7 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     height: 100%;
   }
   .react-tabs__tab-panel {
-    height: calc(100% - 32px);
+    height: 100%;
     overflow: auto;
   }
   .react-tabs__tab-list {
@@ -48,7 +48,8 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: 0 0 ${(props) => props.theme.spaces[4]}px 0;
+    padding: ${(props) => props.theme.spaces[3]}px 0
+      ${(props) => props.theme.spaces[4]}px 0;
     margin-right: ${(props) => props.theme.spaces[12] - 3}px;
     text-align: center;
     display: inline-flex;

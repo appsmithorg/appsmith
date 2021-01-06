@@ -21,12 +21,14 @@ import {
   SHOW_REQUEST,
 } from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
+import Text, { TextType } from "components/ads/Text";
+import Icon from "components/ads/Icon";
+import { Classes } from "components/ads/common";
 
 const ResponseWrapper = styled.div`
   position: relative;
   flex: 1;
-  height: 100%;
-  min-height: 300px;
+  height: 50%;
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
 `;
 const ResponseMetaInfo = styled.div`
@@ -134,8 +136,7 @@ const FailedMessageContainer = styled.div`
   // align-items: center;
 `;
 
-const TabbedViewWrapper = styled.div`
-  padding-top: ${(props) => props.theme.spaces[2]}px;
+const TabbedViewWrapper = styled.div<{ isCentered: boolean }>`
   height: calc(100% - 30px);
 
   &&& {
@@ -143,6 +144,19 @@ const TabbedViewWrapper = styled.div`
       padding: 0px ${(props) => props.theme.spaces[12]}px;
     }
   }
+
+  ${(props) =>
+    props.isCentered
+      ? `
+    &&& {
+      .react-tabs__tab-panel {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    }
+  `
+      : null}
 `;
 
 const StyledFormActionButton = styled(FormActionButton)`
@@ -157,6 +171,30 @@ const SectionDivider = styled.div`
   height: 2px;
   width: 100%;
   background: ${(props) => props.theme.colors.apiPane.dividerBg};
+`;
+
+const Flex = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: 20px;
+
+  span:first-child {
+    margin-right: ${(props) => props.theme.spaces[1] + 1}px;
+  }
+`;
+
+const NoResponseContainer = styled.div`
+  .${Classes.ICON} {
+    margin-right: 0px;
+    svg {
+      width: 150px;
+      height: 150px;
+    }
+  }
+
+  .${Classes.TEXT} {
+    margin-top: ${(props) => props.theme.spaces[9]}px;
+  }
 `;
 
 const ApiResponseView = (props: Props) => {
@@ -221,14 +259,21 @@ const ApiResponseView = (props: Props) => {
               </div>
             </FailedMessageContainer>
           )}
-          <ReadOnlyEditor
-            input={{
-              value: response.body
-                ? JSON.stringify(response.body, null, 2)
-                : "",
-            }}
-            height={"100%"}
-          />
+          {_.isEmpty(response.body) ? (
+            <NoResponseContainer>
+              <Icon name="no-response" />
+              <Text type={TextType.P1}>Hit Run to get a Response</Text>
+            </NoResponseContainer>
+          ) : (
+            <ReadOnlyEditor
+              input={{
+                value: response.body
+                  ? JSON.stringify(response.body, null, 2)
+                  : "",
+              }}
+              height={"100%"}
+            />
+          )}
         </>
       ),
     },
@@ -256,27 +301,36 @@ const ApiResponseView = (props: Props) => {
       {isRunning && (
         <LoadingOverlayScreen>Sending Request</LoadingOverlayScreen>
       )}
-      <TabbedViewWrapper>
+      <TabbedViewWrapper
+        isCentered={_.isEmpty(response.body) && selectedIndex === 0}
+      >
         {response.statusCode && (
           <ResponseMetaWrapper>
             {response.statusCode && (
-              <StatusCodeText
-                accent="secondary"
-                code={response.statusCode.toString()}
-              >
-                Status: {response.statusCode}
-              </StatusCodeText>
+              <Flex>
+                <Text type={TextType.P3}>Status: </Text>
+                <StatusCodeText
+                  accent="secondary"
+                  code={response.statusCode.toString()}
+                >
+                  {response.statusCode}
+                </StatusCodeText>
+              </Flex>
             )}
             <ResponseMetaInfo>
               {response.duration && (
-                <BaseText accent="secondary">
-                  Time: {response.duration} ms
-                </BaseText>
+                <Flex>
+                  <Text type={TextType.P3}>Time: </Text>
+                  <Text type={TextType.H5}>{response.duration} ms</Text>
+                </Flex>
               )}
               {response.size && (
-                <BaseText accent="secondary">
-                  Size: {formatBytes(parseInt(response.size))}
-                </BaseText>
+                <Flex>
+                  <Text type={TextType.P3}>Size: </Text>
+                  <Text type={TextType.H5}>
+                    {formatBytes(parseInt(response.size))}
+                  </Text>
+                </Flex>
               )}
             </ResponseMetaInfo>
           </ResponseMetaWrapper>

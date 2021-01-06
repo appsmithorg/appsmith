@@ -43,7 +43,7 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   height: calc(100vh - ${(props) => props.theme.headerHeight});
-  overflow: auto;
+  overflow: hidden;
   width: 100%;
   ${FormLabel} {
     padding: ${(props) => props.theme.spaces[3]}px;
@@ -63,9 +63,9 @@ const Form = styled.form`
 const MainConfiguration = styled.div`
   padding-top: 10px;
   padding-left: 17px;
-
   background-color: ${(props) => props.theme.colors.apiPane.bg};
   padding-bottom: ${(props) => props.theme.spaces[6] + 1}px;
+  height: 126px;
 
   .close-modal-icon {
     cursor: pointer;
@@ -108,16 +108,16 @@ const DatasourceWrapper = styled.div`
 const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  /* height: calc(100% - 120px); */
+  height: calc(100% - 126px);
 `;
 
 const TabbedViewContainer = styled.div`
   border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   padding-bottom: ${(props) => props.theme.spaces[6] + 1}px;
+  height: 50%;
   &&& {
     ul.react-tabs__tab-list {
-      padding-left: 30px;
-      padding-top: 7px;
+      padding: 0px ${(props) => props.theme.spaces[12]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
     }
