@@ -24,7 +24,7 @@ const HelpButton = styled.button<{
   layer: number;
 }>`
   &&&&& {
-    position: absolute;
+    position: fixed;
     bottom: 27px;
     right: 27px;
     z-index: ${(props) => props.layer};

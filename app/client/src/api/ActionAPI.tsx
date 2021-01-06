@@ -5,7 +5,7 @@ import {
   DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
 } from "constants/ApiConstants";
 import axios, { AxiosPromise, CancelTokenSource } from "axios";
-import { RestAction } from "entities/Action";
+import { Action, RestAction } from "entities/Action";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -78,7 +78,7 @@ export interface ActionApiResponse {
 }
 
 export interface ActionResponse {
-  body: Record<string, unknown>;
+  body: unknown;
   headers: Record<string, string[]>;
   request?: ActionApiResponseReq;
   statusCode: string;
@@ -114,7 +114,7 @@ class ActionAPI extends API {
   }
 
   static createAPI(
-    apiConfig: RestAction,
+    apiConfig: Partial<Action>,
   ): AxiosPromise<ActionCreateUpdateResponse> {
     return API.post(ActionAPI.url, apiConfig);
   }

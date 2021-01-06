@@ -10,6 +10,8 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.external.connections.APIConnection;
+import com.external.connections.APIConnectionFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -69,21 +71,23 @@ public class RestApiPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class RestApiPluginExecutor implements PluginExecutor<Void> {
+    public static class RestApiPluginExecutor implements PluginExecutor<APIConnection> {
 
         private final String IS_SEND_SESSION_ENABLED_KEY = "isSendSessionEnabled";
         private final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
         private final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
 
         @Override
-        public Mono<ActionExecutionResult> execute(Void ignored,
+        public Mono<ActionExecutionResult> execute(APIConnection apiConnection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
+            // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
             errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
             errorResult.setIsExecutionSuccess(false);
 
+            // Initializing request URL
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
             String url = datasourceConfiguration.getUrl() + path;
             String reqContentType = "";
@@ -101,10 +105,7 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
-            log.debug("Final URL is: " + uri.toString());
-
             ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, uri);
-            log.debug("request is : {}", actionExecutionRequest);
 
             if (httpMethod == null) {
                 errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage("HTTPMethod must be set."));
@@ -112,8 +113,10 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
+            // Initializing webClient to be used for http call
             WebClient.Builder webClientBuilder = WebClient.builder();
 
+            // Adding headers from datasource
             if (datasourceConfiguration.getHeaders() != null) {
                 reqContentType = addHeadersToRequestAndGetContentType(
                         webClientBuilder, datasourceConfiguration.getHeaders());
@@ -124,6 +127,7 @@ public class RestApiPlugin extends BasePlugin {
                         webClientBuilder, actionConfiguration.getHeaders());
             }
 
+            // Check for content type
             final String contentTypeError = verifyContentType(actionConfiguration.getHeaders());
             if (contentTypeError != null) {
                 errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage("Invalid value for Content-Type."));
@@ -131,6 +135,7 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
+            // Adding request body
             String requestBodyAsString = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
 
             if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
@@ -138,6 +143,7 @@ public class RestApiPlugin extends BasePlugin {
                 requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(), reqContentType);
             }
 
+            // If users have chosen to share the Appsmith signature in the header, calculate and add that
             String secretKey;
             try {
                 secretKey = getSignatureKey(datasourceConfiguration);
@@ -158,8 +164,14 @@ public class RestApiPlugin extends BasePlugin {
                 webClientBuilder.defaultHeader(SIGNATURE_HEADER_NAME, token);
             }
 
+            // Right before building the webclient object, we populate it with whatever mutation the APIConnection object demands
+            if (apiConnection != null) {
+                webClientBuilder.filter(apiConnection);
+            }
+
             WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
+            // Triggering the actual REST API call
             return httpCall(client, httpMethod, uri, requestBodyAsString, 0, reqContentType)
                     .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(stringResponseEntity -> {
@@ -264,7 +276,7 @@ public class RestApiPlugin extends BasePlugin {
                         String key = property.getKey();
                         String value = property.getValue();
 
-                        if(MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)) {
+                        if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)) {
                             try {
                                 value = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
                             } catch (UnsupportedEncodingException e) {
@@ -272,7 +284,7 @@ public class RestApiPlugin extends BasePlugin {
                             }
                         }
 
-                        return key + "="+ value;
+                        return key + "=" + value;
                     })
                     .collect(Collectors.joining("&"));
 
@@ -381,12 +393,12 @@ public class RestApiPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<Void> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.empty();
+        public Mono<APIConnection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            return APIConnectionFactory.createConnection(datasourceConfiguration.getAuthentication());
         }
 
         @Override
-        public void datasourceDestroy(Void connection) {
+        public void datasourceDestroy(APIConnection connection) {
             // REST API plugin doesn't have a datasource.
         }
 

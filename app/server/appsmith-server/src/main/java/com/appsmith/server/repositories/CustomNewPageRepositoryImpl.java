@@ -66,6 +66,14 @@ public class CustomNewPageRepositoryImpl extends BaseAppsmithRepositoryImpl<NewP
         return queryOne(List.of(nameCriterion, applicationIdCriterion), aclPermission);
     }
 
+    @Override
+    public Flux<NewPage> findAllByIds(List<String> ids, AclPermission aclPermission) {
+        Criteria idsCriterion = where("id")
+                .in(ids);
+
+        return queryAll(List.of(idsCriterion), aclPermission);
+    }
+
     private Criteria getNameCriterion(String name, Boolean viewMode) {
         String nameKey;
 
