@@ -33,19 +33,15 @@ const ResponseMetaInfo = styled.div`
   display: flex;
   ${BaseText} {
     color: #768896;
-    margin: 0 5px;
+    margin-left: ${(props) => props.theme.spaces[9]}px;
   }
 `;
 
 const ResponseMetaWrapper = styled.div`
   align-items: center;
-  margin-bottom: ${(props) => props.theme.spaces[4]}px;
   display: flex;
-  border-top: transparent 5px solid;
-
-  div:nth-child(1) {
-    flex: 1;
-  }
+  position: absolute;
+  right: ${(props) => props.theme.spaces[12]}px;
 `;
 
 const StatusCodeText = styled(BaseText)<{ code: string }>`
@@ -144,7 +140,7 @@ const TabbedViewWrapper = styled.div`
 
   &&& {
     ul.react-tabs__tab-list {
-      padding-left: 30px;
+      padding: 0px ${(props) => props.theme.spaces[12]}px;
     }
   }
 `;
