@@ -67,7 +67,6 @@ const StyledTreeContainer = styled.div`
     padding-left: 24px;
   }
   .bp3-tree-node-list {
-    padding-top: 5px;
     padding-bottom: 8px;
     .bp3-tree-root {
       padding-top: 0px;

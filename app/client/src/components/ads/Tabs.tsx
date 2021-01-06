@@ -9,7 +9,7 @@ export type TabProp = {
   key: string;
   title: string;
   panelComponent: JSX.Element;
-  icon: IconName;
+  icon?: IconName;
 };
 
 const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
@@ -23,10 +23,11 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     height: 100%;
   }
   .react-tabs__tab-panel {
-    height: calc(100% - 32px);
+    height: 100%;
     overflow: auto;
   }
   .react-tabs__tab-list {
+    margin: 0px;
     display: flex;
     align-items: center;
     border-bottom: ${(props) => props.theme.spaces[1] - 2}px solid
@@ -47,7 +48,8 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: 0 0 ${(props) => props.theme.spaces[4]}px 0;
+    padding: ${(props) => props.theme.spaces[3]}px 0
+      ${(props) => props.theme.spaces[4]}px 0;
     margin-right: ${(props) => props.theme.spaces[12] - 3}px;
     text-align: center;
     display: inline-flex;

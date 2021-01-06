@@ -732,6 +732,7 @@ type ColorType = {
   };
   apiPane: {
     bg: ShadeColor;
+    dividerBg: ShadeColor;
     requestTree: {
       bg: string;
       header: {
@@ -762,6 +763,9 @@ type ColorType = {
       };
     };
     closeIcon: ShadeColor;
+    responseBody: {
+      bg: ShadeColor;
+    };
   };
 };
 
@@ -1040,6 +1044,7 @@ export const dark: ColorType = {
   },
   apiPane: {
     bg: darkShades[0],
+    dividerBg: darkShades[4],
     requestTree: {
       bg: lightShades[10],
       header: {
@@ -1070,6 +1075,9 @@ export const dark: ColorType = {
       },
     },
     closeIcon: darkShades[9],
+    responseBody: {
+      bg: "#090707",
+    },
   },
 };
 
@@ -1348,6 +1356,7 @@ export const light: ColorType = {
   },
   apiPane: {
     bg: lightShades[11],
+    dividerBg: lightShades[3],
     requestTree: {
       bg: lightShades[11],
       header: {
@@ -1378,6 +1387,9 @@ export const light: ColorType = {
       },
     },
     closeIcon: lightShades[10],
+    responseBody: {
+      bg: lightShades[11],
+    },
   },
 };
 
