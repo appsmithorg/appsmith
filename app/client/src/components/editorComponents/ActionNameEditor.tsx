@@ -3,6 +3,9 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import EditableText, {
+  EditInteractionKind,
+} from "components/editorComponents/EditableText";
 import { removeSpecialChars, isNameValid } from "utils/helpers";
 import { AppState } from "reducers";
 import { RestAction } from "entities/Action";
@@ -10,15 +13,17 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { getExistingPageNames } from "sagas/selectors";
 
 import { saveActionName } from "actions/actionActions";
-import EditableText, {
-  EditInteractionKind,
+import { Spinner } from "@blueprintjs/core";
+import {
+  EditableText as NewEditableText,
+  EditInteractionKind as NewEditInteractionKind,
   SavingState,
 } from "components/ads/EditableText";
 import { Classes } from "@blueprintjs/core";
 import { getCurrentStep, inOnboarding } from "sagas/OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 
-const ApiNameWrapper = styled.div`
+const ApiNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
   margin-right: 10px;
   display: flex;
@@ -31,16 +36,18 @@ const ApiNameWrapper = styled.div`
     font-weight: ${(props) => props.theme.fontWeights[2]};
   }
 
-  &&& .${Classes.EDITABLE_TEXT_CONTENT}, &&& .${Classes.EDITABLE_TEXT_INPUT} {
-    font-size: ${(props) => props.theme.typography.h3.fontSize}px;
-    line-height: ${(props) =>
-      props.theme.typography.h3.lineHeight}px !important;
-    letter-spacing: ${(props) => props.theme.typography.h3.letterSpacing}px;
-    font-weight: ${(props) => props.theme.typography.h3.fontWeight};
-  }
+  ${(props) =>
+    props.page === "API_PANE"
+      ? `  &&& .${Classes.EDITABLE_TEXT_CONTENT}, &&& .${Classes.EDITABLE_TEXT_INPUT} {
+    font-size: ${props.theme.typography.h3.fontSize}px;
+    line-height: ${props.theme.typography.h3.lineHeight}px !important;
+    letter-spacing: ${props.theme.typography.h3.letterSpacing}px;
+    font-weight: ${props.theme.typography.h3.fontWeight};
+  }`
+      : null}
 `;
 
-export const ActionNameEditor = () => {
+export const ActionNameEditor = (props: { page?: string }) => {
   const params = useParams<{ apiId?: string; queryId?: string }>();
   const isNew =
     new URLSearchParams(window.location.search).get("editName") === "true";
@@ -128,22 +135,45 @@ export const ActionNameEditor = () => {
   }, [saveStatus.isSaving, saveStatus.error]);
 
   return (
-    <ApiNameWrapper>
-      <EditableText
-        className="t--action-name-edit-field"
-        defaultValue={currentActionConfig ? currentActionConfig.name : ""}
-        placeholder="Name of the API in camelCase"
-        forceDefault={forceUpdate}
-        onBlur={handleAPINameChange}
-        isInvalid={isInvalidActionName}
-        valueTransform={removeSpecialChars}
-        isEditingDefault={isNew && !hideEditIcon}
-        savingState={
-          saveStatus.isSaving ? SavingState.STARTED : SavingState.NOT_STARTED
-        }
-        editInteractionKind={EditInteractionKind.SINGLE}
-        hideEditIcon={true}
-      />
+    <ApiNameWrapper page={props.page}>
+      {props.page === "API_PANE" ? (
+        <NewEditableText
+          className="t--action-name-edit-field"
+          defaultValue={currentActionConfig ? currentActionConfig.name : ""}
+          placeholder="Name of the API in camelCase"
+          forceDefault={forceUpdate}
+          onBlur={handleAPINameChange}
+          isInvalid={isInvalidActionName}
+          valueTransform={removeSpecialChars}
+          isEditingDefault={isNew && !hideEditIcon}
+          savingState={
+            saveStatus.isSaving ? SavingState.STARTED : SavingState.NOT_STARTED
+          }
+          editInteractionKind={NewEditInteractionKind.SINGLE}
+          hideEditIcon
+        />
+      ) : (
+        <div
+          style={{
+            display: "flex",
+          }}
+        >
+          <EditableText
+            className="t--action-name-edit-field"
+            type="text"
+            defaultValue={currentActionConfig ? currentActionConfig.name : ""}
+            placeholder="Name of the API in camelCase"
+            forceDefault={forceUpdate}
+            onTextChanged={handleAPINameChange}
+            isInvalid={isInvalidActionName}
+            valueTransform={removeSpecialChars}
+            isEditingDefault={isNew}
+            updating={saveStatus.isSaving}
+            editInteractionKind={EditInteractionKind.SINGLE}
+          />
+          {saveStatus.isSaving && <Spinner size={16} />}
+        </div>
+      )}
     </ApiNameWrapper>
   );
 };

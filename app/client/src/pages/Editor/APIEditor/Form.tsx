@@ -237,7 +237,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               className="close-modal-icon"
               onClick={handleClose}
             />
-            <ActionNameEditor />
+            <ActionNameEditor page="API_PANE" />
           </NameWrapper>
           <ActionButtons className="t--formActionButtons">
             <MoreActionsMenu
