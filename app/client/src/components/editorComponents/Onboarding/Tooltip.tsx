@@ -203,10 +203,6 @@ const ToolTipContent = (props: ToolTipContentProps) => {
     snippet && write(snippet);
   };
 
-  const finishOnboarding = () => {
-    dispatch(endOnboarding());
-  };
-
   return (
     <Wrapper isFinalStep={isFinalStep}>
       <div className={TooltipClassNames.TITLE}>{title}</div>
