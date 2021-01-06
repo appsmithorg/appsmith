@@ -223,9 +223,9 @@ const ToolTipContent = (props: ToolTipContentProps) => {
         </div>
       )}
       <ActionWrapper>
-        <span className={TooltipClassNames.SKIP}>
+        {/* <span className={TooltipClassNames.SKIP}>
           Done? <span onClick={finishOnboarding}>Click here to End</span>
-        </span>
+        </span> */}
 
         {action && (
           <button
