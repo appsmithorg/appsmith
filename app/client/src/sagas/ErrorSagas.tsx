@@ -162,7 +162,7 @@ function* crashAppSaga() {
 /**
  * this saga do some logic before actually setting safeCrash to true
  */
-function* preSafeCrashSaga(action: ReduxAction<{ code?: string }>) {
+function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
   const user = yield select(getCurrentUser);
   const code = get(action, "payload.code");
 
@@ -211,6 +211,6 @@ export default function* errorSagas() {
   );
   yield takeLatest(
     ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-    preSafeCrashSaga,
+    safeCrashSagaRequest,
   );
 }

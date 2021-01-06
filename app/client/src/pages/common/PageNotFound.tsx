@@ -1,10 +1,8 @@
 import React from "react";
-import { AppState } from "reducers";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { APPLICATIONS_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
-import { getCurrentUser } from "selectors/usersSelectors";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import PageUnavailableImage from "assets/images/404-image.png";
 
@@ -25,7 +23,6 @@ const Wrapper = styled.div`
 
 interface Props {
   flushErrorsAndRedirect?: any;
-  user?: any;
 }
 
 const PageNotFound: React.FC<Props> = (props: Props) => {
@@ -60,10 +57,6 @@ const PageNotFound: React.FC<Props> = (props: Props) => {
   );
 };
 
-const mapStateToProps = (state: AppState) => ({
-  user: getCurrentUser(state),
-});
-
-export default connect(mapStateToProps, {
+export default connect(null, {
   flushErrorsAndRedirect,
 })(PageNotFound);
