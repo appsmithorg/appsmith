@@ -100,7 +100,7 @@ const stringToJS = (string: string): string => {
 const JSToString = (js: string): string => {
   const segments = js.split(" + ");
   return segments
-    .map(segment => {
+    .map((segment) => {
       if (segment.charAt(0) === "'") {
         return segment.substring(1, segment.length - 1);
       } else return "{{" + segment + "}}";
@@ -112,7 +112,7 @@ const argsStringToArray = (funcArgs: string): string[] => {
   const argsplitMatches = [...funcArgs.matchAll(FUNC_ARGS_REGEX)];
   const arr: string[] = [];
   let isPrevUndefined = true;
-  argsplitMatches.forEach(match => {
+  argsplitMatches.forEach((match) => {
     const matchVal = match[0];
     if (!matchVal || matchVal === "") {
       if (isPrevUndefined) {
@@ -240,6 +240,7 @@ const ActionType = {
   showAlert: "showAlert",
   storeValue: "storeValue",
   download: "download",
+  copyToClipboard: "copyToClipboard",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
@@ -348,6 +349,7 @@ const FieldType = {
   DOWNLOAD_DATA_FIELD: "DOWNLOAD_DATA_FIELD",
   DOWNLOAD_FILE_NAME_FIELD: "DOWNLOAD_FILE_NAME_FIELD",
   DOWNLOAD_FILE_TYPE_FIELD: "DOWNLOAD_FILE_TYPE_FIELD",
+  COPY_TEXT_FIELD: "COPY_TEXT_FIELD",
 };
 type FieldType = typeof FieldType[keyof typeof FieldType];
 
@@ -513,6 +515,15 @@ const fieldConfigs: FieldConfigs = {
       enumTypeSetter(option.value, currentValue, 2),
     view: ViewTypes.SELECTOR_VIEW,
   },
+  [FieldType.COPY_TEXT_FIELD]: {
+    getter: (value: any) => {
+      return textGetter(value, 0);
+    },
+    setter: (option: any, currentValue: string) => {
+      return textSetter(option, currentValue, 0);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
 };
 
 const baseOptions: any = [
@@ -553,16 +564,20 @@ const baseOptions: any = [
     label: "Download",
     value: ActionType.download,
   },
+  {
+    label: "Copy to Clipboard",
+    value: ActionType.copyToClipboard,
+  },
 ];
 function getOptionsWithChildren(
   options: TreeDropdownOption[],
   actions: ActionDataState,
   createActionOption: TreeDropdownOption,
 ) {
-  const option = options.find(option => option.value === ActionType.api);
+  const option = options.find((option) => option.value === ActionType.api);
   if (option) {
     option.children = [createActionOption];
-    actions.forEach(action => {
+    actions.forEach((action) => {
       (option.children as TreeDropdownOption[]).push({
         label: action.config.name,
         id: action.config.id,
@@ -696,11 +711,16 @@ function getFieldFromValue(
       },
     );
   }
+  if (value.indexOf("copyToClipboard") !== -1) {
+    fields.push({
+      field: FieldType.COPY_TEXT_FIELD,
+    });
+  }
   return fields;
 }
 
 function getPageDropdownOptions(state: AppState) {
-  return state.entities.pageList.pages.map(page => ({
+  return state.entities.pageList.pages.map((page) => ({
     label: page.pageName,
     id: page.pageId,
     value: `'${page.pageName}'`,
@@ -833,6 +853,7 @@ function renderField(props: {
     case FieldType.QUERY_PARAMS_FIELD:
     case FieldType.DOWNLOAD_DATA_FIELD:
     case FieldType.DOWNLOAD_FILE_NAME_FIELD:
+    case FieldType.COPY_TEXT_FIELD:
       let fieldLabel = "";
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
@@ -848,6 +869,8 @@ function renderField(props: {
         fieldLabel = "Data to download";
       } else if (fieldType === FieldType.DOWNLOAD_FILE_NAME_FIELD) {
         fieldLabel = "File name with extension";
+      } else if (fieldType === FieldType.COPY_TEXT_FIELD) {
+        fieldLabel = "Text to be copied to clipboard";
       }
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: fieldLabel,
@@ -1009,7 +1032,7 @@ function useApiOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
 
   const actions = useSelector(getActionsForCurrentPage).filter(
-    action => action.config.pluginType === "API",
+    (action) => action.config.pluginType === "API",
   );
   const apiOptionTree = getOptionsWithChildren(baseOptions, actions, {
     label: "Create API",
@@ -1035,10 +1058,10 @@ function getQueryOptionsWithChildren(
   queries: ActionDataState,
   createQueryOption: TreeDropdownOption,
 ) {
-  const option = options.find(option => option.value === ActionType.query);
+  const option = options.find((option) => option.value === ActionType.query);
   if (option) {
     option.children = [createQueryOption];
-    queries.forEach(query => {
+    queries.forEach((query) => {
       (option.children as TreeDropdownOption[]).push({
         label: query.config.name,
         id: query.config.id,
@@ -1055,7 +1078,7 @@ function useQueryOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
 
   const queries = useSelector(getActionsForCurrentPage).filter(
-    action => action.config.pluginType === "DB",
+    (action) => action.config.pluginType === "DB",
   );
   const queryOptionTree = getQueryOptionsWithChildren(baseOptions, queries, {
     label: "Create Query",

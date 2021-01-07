@@ -17,18 +17,18 @@ export const TextInput = styled(({ hasError, ...rest }) => (
   flex: 1;
   & input {
     border: 1px solid
-      ${props =>
+      ${(props) =>
         props.hasError ? props.theme.colors.error : props.theme.colors.border};
     border-radius: 4px;
     box-shadow: none;
     height: 32px;
-    background-color: ${props => props.theme.colors.textOnDarkBG};
+    background-color: ${(props) => props.theme.colors.textOnDarkBG};
     &:focus {
-      border-color: ${props =>
+      border-color: ${(props) =>
         props.hasError
           ? props.theme.colors.error
           : props.theme.colors.secondary};
-      background-color: ${props => props.theme.colors.textOnDarkBG};
+      background-color: ${(props) => props.theme.colors.textOnDarkBG};
       outline: 0;
       box-shadow: none;
     }

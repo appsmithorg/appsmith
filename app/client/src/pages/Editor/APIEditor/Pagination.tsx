@@ -19,7 +19,7 @@ const PaginationFieldWrapper = styled.div`
 
 const ExampleApi = styled.p`
   color: #ef7b63;
-  font-family: ${props => props.theme.fonts.code};
+  font-family: ${(props) => props.theme.fonts.code};
 `;
 
 const StyledLabel = styled.label`
@@ -39,10 +39,13 @@ const StyledDynamicTextField = styled(DynamicTextField)`
 
 const TestButton = styled(BaseButton)`
   &&& {
-    max-width: 72px;
     margin: 0 5px;
     min-height: 32px;
     padding-right: 4px;
+  }
+
+  &&&& {
+    width: auto;
   }
 `;
 

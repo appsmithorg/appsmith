@@ -58,7 +58,7 @@ const TableColumnMenuPopup = (props: TableColumnMenuPopup) => {
               {option.options && (
                 <Popover
                   minimal
-                  usePortal
+                  usePortal={false}
                   enforceFocus={false}
                   interactionKind={PopoverInteractionKind.CLICK}
                   position={Position.BOTTOM_RIGHT}

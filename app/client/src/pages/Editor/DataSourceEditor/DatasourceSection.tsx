@@ -33,7 +33,7 @@ export const renderDatasourceSection = (
 ): any => {
   return (
     <>
-      {map(config.children, section => {
+      {map(config.children, (section) => {
         if ("children" in section) {
           return renderDatasourceSection(section, datasource);
         } else {

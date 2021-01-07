@@ -18,8 +18,8 @@ const switchdropdown = (
     },
     {
       options: orgs
-        .filter(org => org.id !== currentOrg.id)
-        .map(org => ({
+        .filter((org) => org.id !== currentOrg.id)
+        .map((org) => ({
           content: org.name,
           onSelect: () =>
             getOnSelectAction(DropdownOnSelectActions.DISPATCH, {

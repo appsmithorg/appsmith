@@ -87,7 +87,7 @@ export const EntityName = forwardRef(
 
     const existingWidgetNames: string[] = useSelector((state: AppState) =>
       Object.values(state.entities.canvasWidgets).map(
-        widget => widget.widgetName,
+        (widget) => widget.widgetName,
       ),
     );
     const dispatch = useDispatch();

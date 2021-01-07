@@ -77,7 +77,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     let { pairs } = props;
     pairs = Array.isArray(pairs) ? pairs.slice() : [];
 
-    const newRenderPairs: DropDownOptionWithKey[] = pairs.map(pair => {
+    const newRenderPairs: DropDownOptionWithKey[] = pairs.map((pair) => {
       return {
         ...pair,
         key: generateReactKey(),

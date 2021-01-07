@@ -68,7 +68,7 @@ export const ExplorerDatasourceEntity = (
   });
 
   const getDatasourceStructure = useCallback(
-    isOpen => {
+    (isOpen) => {
       if (!datasourceStructure && isOpen) {
         dispatch(fetchDatasourceStructure(props.datasource.id));
       }

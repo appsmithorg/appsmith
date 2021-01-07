@@ -26,10 +26,10 @@ const Form = styled.form`
   overflow: auto;
   width: 100%;
   ${FormLabel} {
-    padding: ${props => props.theme.spaces[3]}px;
+    padding: ${(props) => props.theme.spaces[3]}px;
   }
   ${FormRow} {
-    padding: ${props => props.theme.spaces[2]}px;
+    padding: ${(props) => props.theme.spaces[2]}px;
     & > * {
       margin-right: 10px;
     }
@@ -271,7 +271,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
-export default connect(state => {
+export default connect((state) => {
   const displayFormat = selector(state, "displayFormat");
   const providerImage = selector(state, "provider.imageUrl");
   const providerURL = selector(state, "provider.url");
