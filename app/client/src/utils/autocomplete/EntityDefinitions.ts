@@ -253,4 +253,8 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Download anything as a file",
     "!type": "fn(data: any, fileName: string, fileType?: string) -> void",
   },
+  copyToClipboard: {
+    "!doc": "Copy text to clipboard",
+    "!type": "fn(data: string, options: object) -> void",
+  },
 };

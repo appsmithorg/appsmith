@@ -82,6 +82,7 @@ import {
   getCurrentApplication,
 } from "selectors/applicationSelectors";
 import { evaluateDynamicTrigger, evaluateSingleValue } from "./EvaluationsSaga";
+import copy from "copy-to-clipboard";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -170,6 +171,21 @@ async function downloadSaga(
       variant: Variant.danger,
     });
     if (event.callback) event.callback({ success: false });
+  }
+}
+
+function* copySaga(
+  payload: {
+    data: string;
+    options: { debug: boolean; format: string };
+  },
+  event: ExecuteActionPayloadEvent,
+) {
+  const result = copy(payload.data, payload.options);
+  if (event.callback) {
+    if (result) {
+      event.callback({ success: result });
+    }
   }
 }
 
@@ -507,6 +523,9 @@ function* executeActionTriggers(
         break;
       case "DOWNLOAD":
         yield call(downloadSaga, trigger.payload, event);
+        break;
+      case "COPY_TO_CLIPBOARD":
+        yield call(copySaga, trigger.payload, event);
         break;
       default:
         yield put(

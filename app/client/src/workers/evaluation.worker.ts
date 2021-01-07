@@ -1404,5 +1404,20 @@ const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
     };
   };
   withFunction.actionPaths.push("download");
+
+  withFunction.copyToClipboard = function(
+    data: string,
+    options?: { debug?: boolean; format?: string },
+  ) {
+    return {
+      type: "COPY_TO_CLIPBOARD",
+      payload: {
+        data,
+        options: { debug: options?.debug, format: options?.format },
+      },
+    };
+  };
+  withFunction.actionPaths.push("copyToClipboard");
+
   return withFunction;
 };
