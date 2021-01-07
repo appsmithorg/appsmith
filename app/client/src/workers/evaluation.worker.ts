@@ -373,7 +373,19 @@ export class DataTreeEvaluator {
     // up the tree, there are bound to be many duplicates.
     const uniqueKeysInSortOrder = [...new Set(finalSortOrder)];
 
-    return Array.from(uniqueKeysInSortOrder);
+    const sortOrderPropertyPaths = Array.from(uniqueKeysInSortOrder);
+
+    //Trim this list to now remove the property paths which are simply entity names
+    const finalSortOrderArray: Array<string> = [];
+    sortOrderPropertyPaths.forEach((propertyPath) => {
+      const lastIndexOfDot = propertyPath.lastIndexOf(".");
+      // Only do this for property paths and not the entity themselves
+      if (lastIndexOfDot !== -1) {
+        finalSortOrderArray.push(propertyPath);
+      }
+    });
+
+    return finalSortOrderArray;
   }
 
   // The idea is to find the immediate parents of the property paths
