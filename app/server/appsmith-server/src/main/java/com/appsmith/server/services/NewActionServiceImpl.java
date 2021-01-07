@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
@@ -444,6 +445,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
 
         String actionId = executeActionDTO.getActionId();
+        AtomicReference<String> actionName = new AtomicReference<>();
+        // Initialize the name to be empty value
+        actionName.set("");
         // 2. Fetch the action from the DB and check if it can be executed
         Mono<ActionDTO> actionMono = repository.findById(actionId, EXECUTE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
@@ -530,6 +534,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     final Datasource datasource = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
 
+                    // Set the action name
+                    actionName.set(action.getName());
 
                     DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     ActionConfiguration actionConfiguration = action.getActionConfiguration();
@@ -598,6 +604,16 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     result.setStatusCode(error.getAppErrorCode().toString());
                     result.setBody(error.getMessage());
                     return Mono.just(result);
+                })
+                .elapsed()
+                .map(tuple -> {
+                    log.debug("{}: Action {} with id {} execution time : {} ms",
+                            Thread.currentThread().getName(),
+                            actionName.get(),
+                            actionId,
+                            tuple.getT1()
+                    );
+                    return tuple.getT2();
                 });
     }
 
