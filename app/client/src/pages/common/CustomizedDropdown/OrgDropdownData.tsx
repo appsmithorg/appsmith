@@ -8,6 +8,8 @@ import { Org } from "constants/orgConstants";
 import { User } from "constants/userConstants";
 import _ from "lodash";
 
+// TODO: is this required?
+// eslint-disable-next-line
 const switchdropdown = (
   orgs: Org[],
   currentOrg: Org,

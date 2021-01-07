@@ -220,7 +220,6 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
     );
     let action: Action = yield select(getAction, actionPayload.payload.id);
     const isApi = action.pluginType === "API";
-    const isDB = action.pluginType === "DB";
 
     if (isApi) {
       action = transformRestAction(action);

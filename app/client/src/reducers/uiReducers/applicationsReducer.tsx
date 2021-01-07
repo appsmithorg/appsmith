@@ -26,6 +26,7 @@ const initialState: ApplicationsReduxState = {
 const applicationsReducer = createReducer(initialState, {
   [ReduxActionTypes.DELETE_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
+    // eslint-disable-next-line
     action: ReduxAction<{ applicationId: string; orgId: string }>,
   ) => {
     return { ...state, deletingApplication: true };
@@ -61,6 +62,7 @@ const applicationsReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.DELETE_APPLICATION_ERROR]: (
     state: ApplicationsReduxState,
+    // eslint-disable-next-line
     action: ReduxAction<{ orgId: string }>,
   ) => {
     return { ...state, deletingApplication: false };
@@ -243,22 +245,21 @@ const applicationsReducer = createReducer(initialState, {
     if (action.payload.name) {
       isSavingAppName = true;
     }
-    const _organizations = state.userOrgs.map(
-      (org: Organization, index: number) => {
-        const appIndex = org.applications.findIndex(
-          (app) => app.id === action.payload.id,
-        );
-        const { id, ...rest } = action.payload;
-        if (appIndex !== -1) {
-          org.applications[appIndex] = {
-            ...org.applications[appIndex],
-            ...rest,
-          };
-        }
+    const _organizations = state.userOrgs.map((org: Organization) => {
+      const appIndex = org.applications.findIndex(
+        (app) => app.id === action.payload.id,
+      );
+      // eslint-disable-next-line
+      const { id, ...rest } = action.payload;
+      if (appIndex !== -1) {
+        org.applications[appIndex] = {
+          ...org.applications[appIndex],
+          ...rest,
+        };
+      }
 
-        return org;
-      },
-    );
+      return org;
+    });
 
     return {
       ...state,

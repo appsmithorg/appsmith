@@ -189,6 +189,8 @@ const enumTypeGetter = (
   return defaultValue;
 };
 
+// TODO: Is this required?
+// eslint-disable-next-line
 const objectTypeSetter = (
   obj: Object,
   currentValue: string,
@@ -207,6 +209,8 @@ const objectTypeSetter = (
   return result;
 };
 
+// TODO: Is this required?
+// eslint-disable-next-line
 const objectTypeGetter = (
   value: string,
   argNum: number,
@@ -380,11 +384,7 @@ const fieldConfigs: FieldConfigs = {
       }
       return mainFuncSelectedValue;
     },
-    setter: (
-      option: TreeDropdownOption,
-      currentValue: string,
-      defaultValue?: string,
-    ) => {
+    setter: (option: TreeDropdownOption) => {
       const type: ActionType = option.type || option.value;
       let value = option.value;
       switch (type) {

@@ -8,7 +8,6 @@ import { validateResponse } from "sagas/ErrorSagas";
 import CurlImportApi, { CurlImportRequest } from "api/ImportApi";
 import { ApiResponse } from "api/ApiResponses";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { ToastType } from "react-toastify";
 import { CURL_IMPORT_SUCCESS } from "constants/messages";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { CURL } from "constants/ApiConstants";

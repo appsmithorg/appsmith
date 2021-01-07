@@ -111,6 +111,7 @@ const StyledText = styled.div<TabProps>`
 `;
 
 const TabsComponent = (props: TabsComponentProps) => {
+  // eslint-disable-next-line
   const { onTabChange, ...remainingProps } = props;
   const tabContainerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
     null,

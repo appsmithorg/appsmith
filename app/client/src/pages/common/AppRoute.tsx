@@ -28,6 +28,7 @@ class AppRouteWithoutProps extends React.Component<AppRouteProps> {
   }
 
   render() {
+    // eslint-disable-next-line
     const { component: Component, currentTheme, ...rest } = this.props;
     if (
       window.location.pathname === "/applications" ||

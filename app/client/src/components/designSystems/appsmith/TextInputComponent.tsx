@@ -11,6 +11,7 @@ import {
 import { ComponentProps } from "./BaseComponent";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 
+// eslint-disable-next-line
 export const TextInput = styled(({ hasError, ...rest }) => (
   <InputGroup {...rest} />
 ))<{ hasError: boolean }>`
