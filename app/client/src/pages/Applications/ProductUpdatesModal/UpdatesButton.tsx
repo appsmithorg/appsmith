@@ -41,13 +41,13 @@ const UpdatesButtonTextContainer = styled.div`
   color: ${(props) => props.theme.colors.text.normal};
 `;
 
-const UpdatesButton = () => (
+const UpdatesButton = ({ newReleasesCount }: { newReleasesCount: string }) => (
   <StyledUpdatesButton>
     <div style={{ display: "flex" }}>
       <Icon name={"success"} size={IconSize.XL} fillColor={"white"} />
       <UpdatesButtonTextContainer>What&apos;s New?</UpdatesButtonTextContainer>
     </div>
-    <StyledTag>+13</StyledTag>
+    <StyledTag>{newReleasesCount}</StyledTag>
   </StyledUpdatesButton>
 );
 

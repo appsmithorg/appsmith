@@ -52,6 +52,8 @@ import {
 } from "selectors/editorSelectors";
 import { showCompletionDialog } from "./OnboardingSagas";
 
+import releases from "mockResponses/releases";
+
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
 ): string | undefined => {
@@ -129,6 +131,12 @@ export function* getAllApplicationSaga() {
       yield put({
         type: ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS,
         payload: organizationApplication,
+      });
+
+      // mock data for now, later data would be fetched from here
+      yield put({
+        type: ReduxActionTypes.FETCH_RELEASES_SUCCESS,
+        payload: releases,
       });
     }
   } catch (error) {

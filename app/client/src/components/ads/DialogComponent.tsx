@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useContext } from "react";
+import React, { ReactNode, useState, useContext, useEffect } from "react";
 import styled from "styled-components";
 import { Dialog, Classes } from "@blueprintjs/core";
 import { LayersContext } from "constants/Layers";
@@ -84,6 +84,7 @@ type DialogComponentProps = {
   children?: any;
   width?: number;
   maxHeight?: string;
+  onOpen?: () => void;
 };
 
 export const DialogComponent = (props: DialogComponentProps) => {
@@ -94,6 +95,12 @@ export const DialogComponent = (props: DialogComponentProps) => {
   };
 
   const Layers = useContext(LayersContext);
+
+  useEffect(() => {
+    if (isOpen && typeof props.onOpen === "function") {
+      props.onOpen();
+    }
+  }, [isOpen]);
 
   return (
     <React.Fragment>

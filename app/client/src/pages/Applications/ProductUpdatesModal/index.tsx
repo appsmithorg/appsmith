@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import "@github/g-emoji-element";
 import moment from "moment";
 import Dialog from "components/ads/DialogComponent";
 import UpdatesButton from "./UpdatesButton";
-import releases from "./mockReleases";
+import { AppState } from "reducers";
+import ReleasesAPI from "api/ReleasesAPI";
 
 const StyledContainer = styled.div`
   padding-top: ${(props) => props.theme.spaces[11]}px;
@@ -144,14 +146,25 @@ const ReleaseComponent = ({ release }: ReleaseProps) => {
 };
 
 const ProductUpdatesModal = () => {
+  const { releaseItems, newReleasesCount } = useSelector(
+    (state: AppState) => state.ui.releases,
+  );
+  const onOpen = useCallback(() => {
+    console.log("on open");
+    // if (releaseItems.length > 0) {
+    //   ReleasesAPI.markAsRead({ lastReadRelease: releaseItems[0].tagName });
+    // }
+  }, []);
+
   return (
     <Dialog
-      trigger={<UpdatesButton />}
+      trigger={<UpdatesButton newReleasesCount={newReleasesCount} />}
       title={"Product Updates"}
       width={580}
       maxHeight={"80vh"}
+      onOpen={onOpen}
     >
-      {releases.map((release: Release, index: number) => (
+      {releaseItems.map((release: Release, index: number) => (
         <ReleaseComponent release={release} key={index} />
       ))}
     </Dialog>

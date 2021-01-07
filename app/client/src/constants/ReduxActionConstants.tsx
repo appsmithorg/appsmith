@@ -313,6 +313,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   START_EVALUATION: "START_EVALUATION",
   CURRENT_APPLICATION_NAME_UPDATE: "CURRENT_APPLICATION_NAME_UPDATE",
   SET_WIDGET_LOADING: "SET_WIDGET_LOADING",
+  FETCH_RELEASES_SUCCESS: "FETCH_RELEASES_SUCCESS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
