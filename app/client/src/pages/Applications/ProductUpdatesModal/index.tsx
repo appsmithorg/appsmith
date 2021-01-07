@@ -113,11 +113,11 @@ const ReleaseComponent = ({ release }: ReleaseProps) => {
   const { name, publishedAt, descriptionHtml } = release;
   const [isCollapsed, setCollapsed] = useState(true);
   const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (containerRef.current) {
-      if (containerRef.current.clientHeight >= 500) {
+    if (contentRef.current) {
+      if (contentRef.current.scrollHeight >= 500) {
         setShouldShowReadMore(true);
       }
     }
@@ -133,15 +133,16 @@ const ReleaseComponent = ({ release }: ReleaseProps) => {
   }, [isCollapsed]);
 
   const getHeight = useCallback(() => {
-    if (!containerRef.current) return 500;
-    return isCollapsed ? 500 : containerRef.current.scrollHeight;
+    if (!contentRef.current) return 500;
+    return isCollapsed ? 500 : contentRef.current.scrollHeight;
   }, [isCollapsed]);
 
   return (
-    <StyledContainer ref={containerRef}>
+    <StyledContainer>
       <StyledTitle>{name}</StyledTitle>
       <StyledDate>{moment(publishedAt).format("Do MMMM, YYYY")}</StyledDate>
       <StyledContent
+        ref={contentRef}
         dangerouslySetInnerHTML={{ __html: descriptionHtml }}
         maxHeight={getHeight()}
       />
