@@ -145,6 +145,7 @@ export const StyledDropDownContainer = styled.div`
 export const StyledMenu = styled(Menu)`
   && {
     background: ${(props) => props.theme.dropdown[Skin.DARK].background};
+    border-radius: unset;
   }
   .bp3-submenu .bp3-menu {
     background: ${(props) => props.theme.dropdown[Skin.DARK].background};
