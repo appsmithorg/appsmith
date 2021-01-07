@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import "@github/g-emoji-element";
 import moment from "moment";
+import "@github/g-emoji-element";
 import Dialog from "components/ads/DialogComponent";
 import UpdatesButton from "./UpdatesButton";
 import { AppState } from "reducers";
-import ReleasesAPI from "api/ReleasesAPI";
+// import ReleasesAPI from "api/ReleasesAPI";
 
 const StyledContainer = styled.div`
   padding-top: ${(props) => props.theme.spaces[11]}px;
@@ -24,7 +24,6 @@ const StyledTitle = styled.div`
 const StyledSeparator = styled.div`
   width: 100%;
   background-color: ${(props) => props.theme.colors.modal.separator};
-  mix-blend-mode: normal;
   opacity: 0.6;
   height: 1px;
 `;
@@ -59,8 +58,7 @@ const StyledContent = styled.div<{ isCollapsed: boolean }>`
     color: ${(props) => props.theme.colors.modal.title};
   }
 
-  max-height: ${(props) => (props.isCollapsed ? "500" : "auto")}px;
-  transition: max-height 2s cubic-bezier(0, 1, 0, 1);
+  max-height: ${(props) => (props.isCollapsed ? "500px" : "auto")};
   overflow: hidden;
 `;
 
@@ -86,7 +84,7 @@ const StyledReadMore = styled.div`
   letter-spacing: ${(props) =>
     props.theme.typography.btnMedium.letterSpacing}px;
   text-transform: uppercase;
-  padding: 18px 0;
+  padding: ${(props) => props.theme.spaces[8]}px 0;
 `;
 
 const ReadMore = ({
@@ -149,8 +147,7 @@ const ProductUpdatesModal = () => {
   const { releaseItems, newReleasesCount } = useSelector(
     (state: AppState) => state.ui.releases,
   );
-  const onOpen = useCallback(() => {
-    console.log("on open");
+  const onOpened = useCallback(() => {
     // if (releaseItems.length > 0) {
     //   ReleasesAPI.markAsRead({ lastReadRelease: releaseItems[0].tagName });
     // }
@@ -160,9 +157,9 @@ const ProductUpdatesModal = () => {
     <Dialog
       trigger={<UpdatesButton newReleasesCount={newReleasesCount} />}
       title={"Product Updates"}
-      width={580}
+      width={"580px"}
       maxHeight={"80vh"}
-      onOpen={onOpen}
+      onOpened={onOpened}
     >
       {releaseItems.map((release: Release, index: number) => (
         <ReleaseComponent release={release} key={index} />

@@ -1,19 +1,26 @@
-import React, { ReactNode, useState, useContext, useEffect } from "react";
+import React, { ReactNode, useState, useContext } from "react";
 import styled from "styled-components";
 import { Dialog, Classes } from "@blueprintjs/core";
 import { LayersContext } from "constants/Layers";
 
 const StyledDialog = styled(Dialog)<{
   setMaxWidth?: boolean;
-  width?: number;
+  width?: string;
   maxHeight?: string;
 }>`
   && {
     border-radius: ${(props) => props.theme.radii[0]}px;
     padding-bottom: ${(props) => props.theme.spaces[2]};
     background: ${(props) => props.theme.colors.modal.bg};
-    width: ${(props) => `${props.width}px` || "640px"};
     ${(props) => (props.maxHeight ? `max-height: ${props.maxHeight};` : "")}
+    width: ${(props) => props.width || "640px"};
+    ${(props) => props.setMaxWidth && `width: 100vh;`}
+
+    & .${Classes.DIALOG_CLOSE_BUTTON} {
+      position: absolute;
+      top: ${(props) => props.theme.spaces[4]}px;
+      right: ${(props) => props.theme.spaces[4]}px;
+    }
 
     & .${Classes.DIALOG_HEADER} {
       position: relative;
@@ -50,20 +57,15 @@ const StyledDialog = styled(Dialog)<{
       transform: translateX(-50%);
       background-color: ${(props) => props.theme.colors.modal.separator};
     }
+
     & .${Classes.DIALOG_BODY} {
       padding: ${(props) => props.theme.spaces[9]}px;
       margin: 0;
       overflow: auto;
     }
+
     & .${Classes.DIALOG_FOOTER_ACTIONS} {
       display: block;
-    }
-    ${(props) => props.setMaxWidth && `width: 100vh;`}
-
-    & .${Classes.DIALOG_CLOSE_BUTTON} {
-      position: absolute;
-      top: ${(props) => props.theme.spaces[4]}px;
-      right: ${(props) => props.theme.spaces[4]}px;
     }
   }
 `;
@@ -73,18 +75,13 @@ const TriggerWrapper = styled.div``;
 type DialogComponentProps = {
   isOpen?: boolean;
   canOutsideClickClose?: boolean;
-  orgId?: string;
   title: string;
-  Form?: any;
   trigger: ReactNode;
-  permissionRequired?: string;
-  permissions?: string[];
   setMaxWidth?: boolean;
-  applicationId?: string;
-  children?: any;
-  width?: number;
+  children: ReactNode;
+  width?: string;
   maxHeight?: string;
-  onOpen?: () => void;
+  onOpened?: () => void;
 };
 
 export const DialogComponent = (props: DialogComponentProps) => {
@@ -95,12 +92,6 @@ export const DialogComponent = (props: DialogComponentProps) => {
   };
 
   const Layers = useContext(LayersContext);
-
-  useEffect(() => {
-    if (isOpen && typeof props.onOpen === "function") {
-      props.onOpen();
-    }
-  }, [isOpen]);
 
   return (
     <React.Fragment>
@@ -121,6 +112,7 @@ export const DialogComponent = (props: DialogComponentProps) => {
         width={props.width}
         setMaxWidth={props.setMaxWidth}
         maxHeight={props.maxHeight}
+        onOpened={props.onOpened}
       >
         <div className={Classes.DIALOG_BODY}>{props.children}</div>
       </StyledDialog>

@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-
 import Icon, { IconSize } from "components/ads/Icon";
+import { Colors } from "constants/Colors";
 
 const StyledUpdatesButton = styled.div`
   position: absolute;
@@ -26,7 +26,7 @@ const StyledTag = styled.div`
   background: ${(props) => props.theme.colors.floatingBtn.tagBackground};
   border-radius: 100px;
   text-align: center;
-  color: white;
+  color: ${Colors.WHITE};
 `;
 
 const UpdatesButtonTextContainer = styled.div`
@@ -44,7 +44,7 @@ const UpdatesButtonTextContainer = styled.div`
 const UpdatesButton = ({ newReleasesCount }: { newReleasesCount: string }) => (
   <StyledUpdatesButton>
     <div style={{ display: "flex" }}>
-      <Icon name={"success"} size={IconSize.XL} fillColor={"white"} />
+      <Icon name={"success"} size={IconSize.XL} fillColor={Colors.WHITE} />
       <UpdatesButtonTextContainer>What&apos;s New?</UpdatesButtonTextContainer>
     </div>
     <StyledTag>{newReleasesCount}</StyledTag>
