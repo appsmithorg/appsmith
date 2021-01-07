@@ -1,7 +1,6 @@
 import React, { ReactNode, useState, useContext } from "react";
 import styled from "styled-components";
 import { Dialog, Classes } from "@blueprintjs/core";
-import { LayersContext } from "constants/Layers";
 
 const StyledDialog = styled(Dialog)<{
   setMaxWidth?: boolean;
@@ -82,6 +81,7 @@ type DialogComponentProps = {
   width?: string;
   maxHeight?: string;
   onOpened?: () => void;
+  triggerZIndex?: number;
 };
 
 export const DialogComponent = (props: DialogComponentProps) => {
@@ -91,15 +91,13 @@ export const DialogComponent = (props: DialogComponentProps) => {
     setIsOpen(false);
   };
 
-  const Layers = useContext(LayersContext);
-
   return (
     <React.Fragment>
       <TriggerWrapper
         onClick={() => {
           setIsOpen(true);
         }}
-        style={{ zIndex: Layers.max }}
+        style={{ zIndex: props.triggerZIndex }}
       >
         {props.trigger}
       </TriggerWrapper>

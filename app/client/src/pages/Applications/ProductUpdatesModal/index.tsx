@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useContext,
+} from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import moment from "moment";
@@ -6,6 +12,7 @@ import "@github/g-emoji-element";
 import Dialog from "components/ads/DialogComponent";
 import UpdatesButton from "./UpdatesButton";
 import { AppState } from "reducers";
+import { LayersContext } from "constants/Layers";
 // import ReleasesAPI from "api/ReleasesAPI";
 
 const StyledContainer = styled.div`
@@ -153,6 +160,8 @@ const ProductUpdatesModal = () => {
     // }
   }, []);
 
+  const Layers = useContext(LayersContext);
+
   return (
     <Dialog
       trigger={<UpdatesButton newReleasesCount={newReleasesCount} />}
@@ -160,6 +169,7 @@ const ProductUpdatesModal = () => {
       width={"580px"}
       maxHeight={"80vh"}
       onOpened={onOpened}
+      triggerZIndex={Layers.max}
     >
       {releaseItems.map((release: Release, index: number) => (
         <ReleaseComponent release={release} key={index} />
