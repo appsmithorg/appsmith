@@ -45,7 +45,7 @@ const StyledDate = styled.div`
   margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
-const StyledContent = styled.div<{ isCollapsed: boolean }>`
+const StyledContent = styled.div<{ maxHeight: number }>`
   li,
   p {
     font-weight: ${(props) => props.theme.typography.releaseList.fontWeight};
@@ -65,8 +65,9 @@ const StyledContent = styled.div<{ isCollapsed: boolean }>`
     color: ${(props) => props.theme.colors.modal.title};
   }
 
-  max-height: ${(props) => (props.isCollapsed ? "500px" : "auto")};
+  transition: max-height 0.15s ease-out;
   overflow: hidden;
+  max-height: ${(props) => props.maxHeight}px;
 `;
 
 type Release = {
@@ -131,13 +132,18 @@ const ReleaseComponent = ({ release }: ReleaseProps) => {
     setCollapsed(!isCollapsed);
   }, [isCollapsed]);
 
+  const getHeight = useCallback(() => {
+    if (!containerRef.current) return 500;
+    return isCollapsed ? 500 : containerRef.current.scrollHeight;
+  }, [isCollapsed]);
+
   return (
     <StyledContainer ref={containerRef}>
       <StyledTitle>{name}</StyledTitle>
       <StyledDate>{moment(publishedAt).format("Do MMMM, YYYY")}</StyledDate>
       <StyledContent
         dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-        isCollapsed={isCollapsed}
+        maxHeight={getHeight()}
       />
       {shouldShowReadMore && (
         <ReadMore
