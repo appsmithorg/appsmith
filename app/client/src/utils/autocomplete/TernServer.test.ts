@@ -41,7 +41,7 @@ describe("Tern server", () => {
       },
     ];
 
-    testCases.forEach(testCase => {
+    testCases.forEach((testCase) => {
       const value = ternServer.getFocusedDynamicValue(testCase.input);
       expect(value).toBe(testCase.expectedOutput);
     });

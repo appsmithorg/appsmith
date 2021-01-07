@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   EditableText as BlueprintEditableText,
   Classes,
@@ -31,6 +31,7 @@ type EditableTextProps = {
   hideEditIcon?: boolean;
   minimal?: boolean;
   onBlur?: (value?: string) => void;
+  beforeUnmount?: (value?: string) => void;
 };
 
 const EditPen = styled.img`
@@ -50,12 +51,12 @@ const EditableTextWrapper = styled.div<{
     justify-content: flex-start;
     align-items: flex-start;
     & .${Classes.EDITABLE_TEXT} {
-      border: ${props =>
+      border: ${(props) =>
         props.isEditing && !props.minimal
           ? `1px solid ${Colors.HIT_GRAY}`
           : "none"};
       cursor: pointer;
-      padding: ${props => (!props.minimal ? "5px 5px" : "0px")};
+      padding: ${(props) => (!props.minimal ? "5px 5px" : "0px")};
       text-transform: none;
       flex: 1 0 100%;
       max-width: 100%;
@@ -76,29 +77,45 @@ const EditableTextWrapper = styled.div<{
 const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
   display: flex;
   &&&& .${Classes.EDITABLE_TEXT} {
-    ${props => (!props.minimal ? "border-radius: 3px;" : "")}
-    ${props =>
+    ${(props) => (!props.minimal ? "border-radius: 3px;" : "")}
+    ${(props) =>
       !props.minimal
         ? `border-color: ${props.isValid ? Colors.HIT_GRAY : "red"}`
         : ""};
     & .${Classes.EDITABLE_TEXT_CONTENT} {
-      text-decoration: ${props => (props.minimal ? "underline" : "none")};
+      text-decoration: ${(props) => (props.minimal ? "underline" : "none")};
     }
   }
 `;
 
 export const EditableText = (props: EditableTextProps) => {
   const [isEditing, setIsEditing] = useState(!!props.isEditingDefault);
-  const [value, setValue] = useState(props.defaultValue);
+  const [value, setStateValue] = useState(props.defaultValue);
+  const inputValRef = useRef("");
+  const { beforeUnmount } = props;
+
+  const setValue = useCallback((value) => {
+    inputValRef.current = value;
+    setStateValue(value);
+  }, []);
 
   useEffect(() => {
     setValue(props.defaultValue);
     setIsEditing(!!props.isEditingDefault);
-  }, [props.defaultValue, props.isEditingDefault]);
+  }, [props.defaultValue, props.isEditingDefault, setValue]);
 
   useEffect(() => {
     if (props.forceDefault === true) setValue(props.defaultValue);
-  }, [props.forceDefault, props.defaultValue]);
+  }, [props.forceDefault, props.defaultValue, setValue]);
+
+  // at times onTextChange is not fired
+  // for example when the modal is closed on clicking the overlay
+  useEffect(() => {
+    return () => {
+      if (typeof beforeUnmount === "function")
+        beforeUnmount(inputValRef.current);
+    };
+  }, [beforeUnmount]);
 
   const edit = (e: any) => {
     setIsEditing(true);

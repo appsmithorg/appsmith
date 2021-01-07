@@ -9,8 +9,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
@@ -30,8 +28,6 @@ public class Organization extends BaseDomain {
     private String website;
 
     private String email;
-
-    private List<OrganizationSetting> organizationSettings;
 
     private List<OrganizationPlugin> plugins;
 

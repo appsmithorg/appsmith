@@ -33,6 +33,12 @@ export const getUnevaluatedDataTree = createSelector(
   },
 );
 
+export const getEvaluationDependencyMap = (state: AppState) =>
+  state.evaluations.dependencies.dependencyMap;
+
+export const getEvaluationInverseDependencyMap = (state: AppState) =>
+  state.evaluations.dependencies.inverseDependencyMap;
+
 /**
  * returns evaluation tree object
  *
@@ -48,7 +54,7 @@ export const getDataTreeForAutocomplete = createSelector(
   (tree: DataTree, actions: ActionDataState) => {
     const cachedResponses: Record<string, any> = {};
     if (actions && actions.length) {
-      actions.forEach(action => {
+      actions.forEach((action) => {
         if (!(action.config.name in tree) && action.config.cacheResponse) {
           try {
             cachedResponses[action.config.name] = JSON.parse(

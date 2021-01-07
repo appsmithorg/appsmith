@@ -43,7 +43,7 @@ export class SwitchField extends React.Component<Props, any> {
           </StyledFormLabel>
           <StyledSwitch
             checked={input.value}
-            onChange={value => input.onChange(value)}
+            onChange={(value) => input.onChange(value)}
             large
           />
         </SwitchWrapped>

@@ -6,10 +6,10 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Content = styled.div<{ collapsed: boolean }>`
   display: flex;
-  justify-content: ${props => (props.collapsed ? "center" : "flex-start")};
+  justify-content: ${(props) => (props.collapsed ? "center" : "flex-start")};
   align-items: center;
   & > div:first-of-type {
-    margin-right: ${props => (props.collapsed ? 0 : props.theme.spaces[5])}px;
+    margin-right: ${(props) => (props.collapsed ? 0 : props.theme.spaces[5])}px;
   }
 `;
 

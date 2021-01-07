@@ -25,7 +25,7 @@ const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL as AnyStyledComponent)`
   cursor: move;
   svg {
     path {
-      fill: ${props => props.theme.colors.paneSectionLabel};
+      fill: ${(props) => props.theme.colors.paneSectionLabel};
     }
   }
 `;
@@ -54,12 +54,12 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   &&& {
     input {
       border: none;
-      color: ${props => props.theme.colors.textOnDarkBG};
-      background: ${props => props.theme.colors.paneInputBG};
+      color: ${(props) => props.theme.colors.textOnDarkBG};
+      background: ${(props) => props.theme.colors.paneInputBG};
       &:focus {
         border: none;
-        color: ${props => props.theme.colors.textOnDarkBG};
-        background: ${props => props.theme.colors.paneInputBG};
+        color: ${(props) => props.theme.colors.textOnDarkBG};
+        background: ${(props) => props.theme.colors.paneInputBG};
       }
     }
   }
@@ -194,7 +194,7 @@ class TabControl extends BaseControl<ControlProps> {
     const newTabId = generateReactKey({ prefix: "tab" });
     const newTabLabel = getNextEntityName(
       "Tab ",
-      tabs.map(tab => tab.label),
+      tabs.map((tab) => tab.label),
     );
     tabs = [
       ...tabs,
