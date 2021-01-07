@@ -251,7 +251,11 @@ function* listenForWidgetUnselection() {
   while (true) {
     yield take();
 
-    yield take(ReduxActionTypes.HIDE_PROPERTY_PANE);
+    // After any of these events we show the deploy tooltip
+    yield take([
+      ReduxActionTypes.HIDE_PROPERTY_PANE,
+      ReduxActionTypes.SET_WIDGET_RESIZING,
+    ]);
     const currentStep = yield select(getCurrentStep);
     const isinOnboarding = yield select(inOnboarding);
 
