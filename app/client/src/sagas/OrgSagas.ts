@@ -29,6 +29,7 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
+import history from "utils/history";
 
 export function* fetchRolesSaga() {
   try {
@@ -221,6 +222,9 @@ export function* createOrgSaga(
       });
       yield call(resolve);
     }
+    // get created org in focus
+    const slug = response.data.slug;
+    history.push(`${window.location.pathname}#${slug}`);
   } catch (error) {
     yield call(reject, { _error: error.message });
     yield put({
