@@ -95,6 +95,7 @@ export type EventName =
   | "ONBOARDING_ADD_WIDGET"
   | "ONBOARDING_SUCCESSFUL_BINDING"
   | "ONBOARDING_DEPLOY"
+  | "SKIP_ONBOARDING"
   | "END_ONBOARDING";
 
 function getApplicationId(location: Location) {
@@ -211,6 +212,8 @@ class AnalyticsUtil {
         userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
       };
     }
+
+    log.debug("Event fired added", eventName, finalEventData);
 
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);

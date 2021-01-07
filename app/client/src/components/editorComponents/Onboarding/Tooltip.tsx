@@ -12,13 +12,14 @@ import { getTooltipConfig } from "sagas/OnboardingSagas";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import useClipboard from "utils/hooks/useClipboard";
-import { showTooltip } from "actions/onboardingActions";
+import { endOnboarding, showTooltip } from "actions/onboardingActions";
 import { Colors } from "constants/Colors";
 import {
   OnboardingStep,
   OnboardingTooltip,
 } from "constants/OnboardingConstants";
 import { BaseModifier } from "popper.js";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 enum TooltipClassNames {
   TITLE = "tooltip-title",
@@ -205,6 +206,11 @@ const ToolTipContent = (props: ToolTipContentProps) => {
     snippet && write(snippet);
   };
 
+  const skipOnboarding = () => {
+    AnalyticsUtil.logEvent("SKIP_ONBOARDING");
+    dispatch(endOnboarding());
+  };
+
   return (
     <Wrapper isFinalStep={isFinalStep}>
       <div className={TooltipClassNames.TITLE}>{title}</div>
@@ -221,9 +227,9 @@ const ToolTipContent = (props: ToolTipContentProps) => {
         </div>
       )}
       <ActionWrapper>
-        {/* <span className={TooltipClassNames.SKIP}>
-          Done? <span onClick={finishOnboarding}>Click here to End</span>
-        </span> */}
+        <span className={TooltipClassNames.SKIP}>
+          Done? <span onClick={skipOnboarding}>Click here to End</span>
+        </span>
 
         {action && (
           <button

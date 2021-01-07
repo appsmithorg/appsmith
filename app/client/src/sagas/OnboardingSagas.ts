@@ -317,7 +317,6 @@ function* setupOnboardingStep() {
 }
 
 function* skipOnboardingSaga() {
-  AnalyticsUtil.logEvent("END_ONBOARDING");
   const set = yield setOnboardingState(false);
 
   if (set) {
