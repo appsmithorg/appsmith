@@ -9,7 +9,6 @@ import {
 } from "./hooks";
 import Search from "./ExplorerSearch";
 import ExplorerPageGroup from "./Pages/PageGroup";
-import { scrollbarDark } from "constants/DefaultTheme";
 import { NonIdealState, Classes, IPanelProps } from "@blueprintjs/core";
 import WidgetSidebar from "../WidgetSidebar";
 import { BUILDER_PAGE_URL } from "constants/routes";
