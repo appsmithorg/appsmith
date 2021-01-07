@@ -76,7 +76,6 @@ axiosInstance.interceptors.response.use(
       if (error.response.status === API_STATUS_CODES.SERVER_ERROR) {
         return Promise.reject({
           ...error,
-          crash: true,
           code: ERROR_CODES.SERVER_ERROR,
           message: ERROR_500,
         });
