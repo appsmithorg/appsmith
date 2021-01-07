@@ -47,7 +47,17 @@ const ApiNameWrapper = styled.div<{ page?: string }>`
       : null}
 `;
 
-export const ActionNameEditor = (props: { page?: string }) => {
+type ActionNameEditorProps = {
+  /*
+    This prop checks if page is API Pane or Query Pane or Curl Pane
+    So, that we can toggle between ads editable-text component and existing editable-text component 
+    Right now, it's optional so that it doesn't impact any other pages other than API Pane.
+    In future, when default component will be ads editable-text, then we can remove this prop.
+  */
+  page?: string;
+};
+
+export const ActionNameEditor = (props: ActionNameEditorProps) => {
   const params = useParams<{ apiId?: string; queryId?: string }>();
   const isNew =
     new URLSearchParams(window.location.search).get("editName") === "true";
