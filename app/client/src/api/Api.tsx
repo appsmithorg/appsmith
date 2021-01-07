@@ -91,7 +91,7 @@ axiosInstance.interceptors.response.use(
           // Redirect to login and set a redirect url.
           history.replace({
             pathname: AUTH_LOGIN_URL,
-            search: `redirectTo=${currentUrl}`,
+            search: `redirectUrl=${currentUrl}`,
           });
           return Promise.reject({
             code: ERROR_CODES.REQUEST_NOT_AUTHORISED,
