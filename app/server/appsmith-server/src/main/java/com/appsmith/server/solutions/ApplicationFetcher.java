@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -10,6 +11,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserServiceImpl;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -37,6 +39,7 @@ public class ApplicationFetcher {
 
     private final SessionUserServiceImpl sessionUserService;
     private final UserService userService;
+    private final UserDataService userDataService;
     private final OrganizationService organizationService;
     private final ApplicationRepository applicationRepository;
     private final ReleaseNotesService releaseNotesService;
@@ -102,18 +105,23 @@ public class ApplicationFetcher {
                                 return userHomepageDTO;
                             });
                 })
-                .zipWith(releaseNotesService.getReleaseNodes().defaultIfEmpty(Collections.emptyList()))
+                .flatMap(userHomepageDTO -> Mono.zip(
+                        Mono.just(userHomepageDTO),
+                        releaseNotesService.getReleaseNodes().defaultIfEmpty(Collections.emptyList()),
+                        userDataService.getForUser(userHomepageDTO.getUser())
+                ))
                 .flatMap(tuple -> {
                     final UserHomepageDTO userHomepageDTO = tuple.getT1();
                     final List<ReleaseNotesService.ReleaseNode> releaseNodes = tuple.getT2();
+                    final UserData userData = tuple.getT3();
 
                     final User user = userHomepageDTO.getUser();
                     userHomepageDTO.setReleaseItems(releaseNodes);
                     userHomepageDTO.setNewReleasesCount(
-                            releaseNotesService.computeNewFrom(user.getReleaseNotesViewedVersion())
+                            releaseNotesService.computeNewFrom(userData.getReleaseNotesViewedVersion())
                     );
 
-                    return userService.ensureViewedCurrentVersionReleaseNotes(user)
+                    return userDataService.ensureViewedCurrentVersionReleaseNotes(user)
                             .thenReturn(userHomepageDTO);
                 });
     }

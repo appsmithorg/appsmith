@@ -32,7 +32,4 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader);
 
-    Mono<User> setViewedCurrentVersionReleaseNotes(User user);
-
-    Mono<User> ensureViewedCurrentVersionReleaseNotes(User user);
 }

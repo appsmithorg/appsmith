@@ -5,7 +5,7 @@ import com.appsmith.server.constants.Security;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
     private final RedirectHelper redirectHelper;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
-    private final UserService userService;
+    private final UserDataService userDataService;
 
     /**
      * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
@@ -54,7 +54,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                 : handleRedirect(webFilterExchange);
 
         return sessionUserService.getCurrentUser()
-                .flatMap(user -> userService.ensureViewedCurrentVersionReleaseNotes(user).thenReturn(user))
+                .flatMap(user -> userDataService.ensureViewedCurrentVersionReleaseNotes(user).thenReturn(user))
                 // TODO: Need a better way to identify if this is the user's first-login.
                 .filter(user -> user.getExamplesOrganizationId() == null)
                 .flatMap(user -> {

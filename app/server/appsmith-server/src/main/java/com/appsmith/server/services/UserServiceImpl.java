@@ -4,7 +4,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
-import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
@@ -70,7 +69,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final UserOrganizationService userOrganizationService;
     private final RoleGraph roleGraph;
     private final ConfigService configService;
-    private final ProjectProperties projectProperties;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -98,8 +96,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            OrganizationRepository organizationRepository,
                            UserOrganizationService userOrganizationService,
                            RoleGraph roleGraph,
-                           ConfigService configService,
-                           ProjectProperties projectProperties) {
+                           ConfigService configService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.analyticsService = analyticsService;
@@ -113,7 +110,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.userOrganizationService = userOrganizationService;
         this.roleGraph = roleGraph;
         this.configService = configService;
-        this.projectProperties = projectProperties;
     }
 
     @Override
@@ -755,32 +751,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     public Flux<User> get(MultiValueMap<String, String> params) {
         // Get All Users should not be supported. Return an error
         return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
-    @Override
-    public Mono<User> setViewedCurrentVersionReleaseNotes(User user) {
-        final String version = projectProperties.getVersion();
-        if (user == null || StringUtils.isEmpty(version)) {
-            return Mono.justOrEmpty(user);
-        }
-
-        return repository
-                .saveReleaseNotesViewedVersion(user.getId(), version)
-                .map(updateResult -> {
-                    if (updateResult.getMatchedCount() == 1) {
-                        user.setReleaseNotesViewedVersion(version);
-                    }
-                    return user;
-                });
-    }
-
-    @Override
-    public Mono<User> ensureViewedCurrentVersionReleaseNotes(User user) {
-        if (user != null && user.getReleaseNotesViewedVersion() == null) {
-            return setViewedCurrentVersionReleaseNotes(user);
-        }
-
-        return Mono.justOrEmpty(user);
     }
 
 }
