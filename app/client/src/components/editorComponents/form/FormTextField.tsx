@@ -38,7 +38,7 @@ type FormTextFieldProps = {
 const FormTextField = (props: FormTextFieldProps) => {
   return (
     <React.Fragment>
-      <Field component={renderComponent} {...props} />
+      <Field component={renderComponent} {...props} asyncControl />
     </React.Fragment>
   );
 };
