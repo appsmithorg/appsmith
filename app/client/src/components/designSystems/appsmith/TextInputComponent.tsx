@@ -79,6 +79,7 @@ export interface TextInputProps extends IInputGroupProps {
   refHandler?: any;
   noValidate?: boolean;
   readonly?: boolean;
+  autoFocus?: boolean;
 }
 
 interface TextInputState {
