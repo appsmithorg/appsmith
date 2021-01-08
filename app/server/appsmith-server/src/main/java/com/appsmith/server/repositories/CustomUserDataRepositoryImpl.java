@@ -1,6 +1,6 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.QUser;
+import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.UserData;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -23,8 +23,8 @@ public class CustomUserDataRepositoryImpl extends BaseAppsmithRepositoryImpl<Use
     public Mono<UpdateResult> saveReleaseNotesViewedVersion(String userId, String version) {
         return mongoOperations
                 .updateFirst(
-                        query(where("userId").is(userId)),
-                        Update.update(fieldName(QUser.user.releaseNotesViewedVersion), version),
+                        query(where(fieldName(QUserData.userData.userId)).is(userId)),
+                        Update.update(fieldName(QUserData.userData.releaseNotesViewedVersion), version),
                         UserData.class
                 );
     }
