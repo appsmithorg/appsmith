@@ -10,6 +10,7 @@ import { getAppsmithConfigs } from "configs";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { DEFAULT_CENTER } from "constants/WidgetConstants";
 
 const { google } = getAppsmithConfigs();
 
@@ -29,7 +30,7 @@ const DisabledContainer = styled.div`
   }
 `;
 
-const DefaultCenter = { lat: -34.397, long: 150.644 };
+const DefaultCenter = { ...DEFAULT_CENTER, long: DEFAULT_CENTER.lng };
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
