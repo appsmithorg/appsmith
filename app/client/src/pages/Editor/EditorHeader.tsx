@@ -295,6 +295,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             <OnboardingToolTip
               step={[OnboardingStep.DEPLOY]}
               position={Position.BOTTOM_RIGHT}
+              dismissOnOutsideClick={false}
             >
               <Indicator
                 step={OnboardingStep.SUCCESSFUL_BINDING}
