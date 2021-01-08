@@ -94,6 +94,7 @@ function* listenForWidgetAdditions() {
         });
       }
 
+      AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET");
       yield put(setCurrentStep(OnboardingStep.ADD_WIDGET));
       yield put({
         type: ReduxActionTypes.ADD_WIDGET_COMPLETE,
@@ -133,6 +134,7 @@ function* listenForSuccessfullBinding() {
         }
 
         if (bindSuccessfull) {
+          AnalyticsUtil.logEvent("ONBOARDING_SUCCESSFUL_BINDING");
           yield put(setCurrentStep(OnboardingStep.SUCCESSFUL_BINDING));
 
           // Show tooltip now
@@ -150,6 +152,8 @@ function* listenForSuccessfullBinding() {
 }
 
 function* createOnboardingDatasource() {
+  AnalyticsUtil.logEvent("ONBOARDING_EXAMPLE_DATABASE");
+
   try {
     const organizationId = yield select(getCurrentOrgId);
     const plugins = yield select(getPlugins);
@@ -208,10 +212,6 @@ function* createOnboardingDatasource() {
     yield put(changeDatasource(onboardingDatasource));
     yield put(showTooltip(OnboardingStep.EXAMPLE_DATABASE));
     yield put(showIndicator(OnboardingStep.EXAMPLE_DATABASE));
-
-    // Need to hide this tooltip based on some events
-    yield take([ReduxActionTypes.QUERY_PANE_CHANGE]);
-    yield put(showTooltip(OnboardingStep.NONE));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_ONBOARDING_DBQUERY_ERROR,
@@ -222,6 +222,7 @@ function* createOnboardingDatasource() {
 
 function* listenForCreateAction() {
   yield take([ReduxActionTypes.CREATE_ACTION_SUCCESS]);
+  AnalyticsUtil.logEvent("ONBOARDING_ADD_QUERY");
   yield put(setCurrentStep(OnboardingStep.RUN_QUERY));
 
   yield put(showTooltip(OnboardingStep.RUN_QUERY));
@@ -235,6 +236,8 @@ function* listenForCreateAction() {
   yield put(showTooltip(OnboardingStep.NONE));
 
   yield take([ReduxActionTypes.RUN_ACTION_SUCCESS]);
+  AnalyticsUtil.logEvent("ONBOARDING_RUN_QUERY");
+
   yield put(setCurrentStep(OnboardingStep.RUN_QUERY_SUCCESS));
   yield put(showTooltip(OnboardingStep.RUN_QUERY_SUCCESS));
   yield put(showIndicator(OnboardingStep.RUN_QUERY_SUCCESS));
@@ -244,7 +247,11 @@ function* listenForWidgetUnselection() {
   while (true) {
     yield take();
 
-    yield take(ReduxActionTypes.HIDE_PROPERTY_PANE);
+    // After any of these events we show the deploy tooltip
+    yield take([
+      ReduxActionTypes.HIDE_PROPERTY_PANE,
+      ReduxActionTypes.SET_WIDGET_RESIZING,
+    ]);
     const currentStep = yield select(getCurrentStep);
     const isinOnboarding = yield select(inOnboarding);
 
@@ -261,6 +268,7 @@ function* listenForDeploySaga() {
     yield take();
 
     yield take(ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS);
+    AnalyticsUtil.logEvent("ONBOARDING_DEPLOY");
     yield put(showTooltip(OnboardingStep.NONE));
 
     yield put(setCurrentStep(OnboardingStep.FINISH));
@@ -300,9 +308,6 @@ function* proceedOnboardingSaga() {
 function* setupOnboardingStep() {
   const currentStep: OnboardingStep = yield select(getCurrentStep);
   const currentConfig = OnboardingConfig[currentStep];
-  if (currentConfig.eventName) {
-    AnalyticsUtil.logEvent(currentConfig.eventName);
-  }
   let actions = currentConfig.setup();
 
   if (actions.length) {
@@ -312,7 +317,6 @@ function* setupOnboardingStep() {
 }
 
 function* skipOnboardingSaga() {
-  AnalyticsUtil.logEvent("END_ONBOARDING");
   const set = yield setOnboardingState(false);
 
   if (set) {
