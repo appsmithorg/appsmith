@@ -334,6 +334,8 @@ export class DataTreeEvaluator {
     // Remove functions
     this.evalTree = removeFunctionsFromDataTree(validatedTree);
     const totalEnd = performance.now();
+    // TODO: For some reason we are passing some reference which are getting mutated.
+    // Need to check why big api responses are getting split between two eval runs
     this.oldUnEvalTree = unEvalTree;
     const timeTakenForSubTreeEval = {
       total: (totalEnd - totalStart).toFixed(2),
@@ -461,6 +463,7 @@ export class DataTreeEvaluator {
         ),
       );
     });
+    // TODO make this run only for widgets and not actions
     dependencyMap = makeParentsDependOnChildren(dependencyMap);
     return dependencyMap;
   }
