@@ -22,9 +22,11 @@ public class CustomUserDataRepositoryImpl extends BaseAppsmithRepositoryImpl<Use
     @Override
     public Mono<UpdateResult> saveReleaseNotesViewedVersion(String userId, String version) {
         return mongoOperations
-                .updateFirst(
+                .upsert(
                         query(where(fieldName(QUserData.userData.userId)).is(userId)),
-                        Update.update(fieldName(QUserData.userData.releaseNotesViewedVersion), version),
+                        Update
+                                .update(fieldName(QUserData.userData.releaseNotesViewedVersion), version)
+                                .setOnInsert(fieldName(QUserData.userData.userId), userId),
                         UserData.class
                 );
     }

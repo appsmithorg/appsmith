@@ -17,6 +17,8 @@ import javax.validation.Validator;
 @Service
 public class UserDataServiceImpl extends BaseService<UserDataRepository, UserData, String> implements UserDataService {
 
+    private final UserService userService;
+
     private final ProjectProperties projectProperties;
 
     @Autowired
@@ -26,8 +28,11 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                                ReactiveMongoTemplate reactiveMongoTemplate,
                                UserDataRepository repository,
                                AnalyticsService analyticsService,
-                               ProjectProperties projectProperties) {
+                               UserService userService,
+                               ProjectProperties projectProperties
+    ) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        this.userService = userService;
         this.projectProperties = projectProperties;
     }
 
@@ -47,22 +52,26 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
 
     @Override
     public Mono<User> setViewedCurrentVersionReleaseNotes(User user) {
-        final String version = projectProperties.getVersion();
-        if (user == null || StringUtils.isEmpty(version)) {
-            return Mono.justOrEmpty(user);
+        if (user == null) {
+            return Mono.empty();
         }
 
-        return repository
-                .saveReleaseNotesViewedVersion(user.getId(), version)
+        final String version = projectProperties.getVersion();
+        if (StringUtils.isEmpty(version)) {
+            return Mono.just(user);
+        }
+
+        return Mono.justOrEmpty(user.getId())
+                .switchIfEmpty(userService
+                        .findByEmail(user.getEmail())
+                        .flatMap(user1 -> Mono.justOrEmpty(user1.getId()))
+                )
+                .flatMap(userId -> repository.saveReleaseNotesViewedVersion(userId, version))
                 .thenReturn(user);
     }
 
     @Override
     public Mono<User> ensureViewedCurrentVersionReleaseNotes(User user) {
-        if (user == null) {
-            return Mono.empty();
-        }
-
         return getForUser(user)
                 .flatMap(userData -> {
                     if (userData != null && userData.getReleaseNotesViewedVersion() == null) {

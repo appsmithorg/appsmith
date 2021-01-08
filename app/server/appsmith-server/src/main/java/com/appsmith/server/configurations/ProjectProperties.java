@@ -16,7 +16,7 @@ import org.springframework.context.annotation.PropertySource;
 @Getter
 public class ProjectProperties {
 
-    @Value("${version:}")
+    @Value("${version:UNKNOWN}")
     private String version;
 
 }
