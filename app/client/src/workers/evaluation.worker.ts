@@ -15,7 +15,6 @@ import {
   extraLibraries,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
-  getWidgetDynamicTriggerPathList,
   isPathADynamicTrigger,
   unsafeFunctionForEval,
 } from "../utils/DynamicBindingUtils";
@@ -249,6 +248,11 @@ export class DataTreeEvaluator {
       ),
       evaluate: (evaluateEnd - evaluateStart).toFixed(2),
       validate: (validateEnd - validateStart).toFixed(2),
+      dependencies: {
+        map: JSON.parse(JSON.stringify(this.dependencyMap)),
+        inverseMap: JSON.parse(JSON.stringify(this.inverseDependencyMap)),
+        sortedList: JSON.parse(JSON.stringify(this.sortedDependencies)),
+      },
     };
     LOGS.push({ timeTakenForFirstTree });
   }
@@ -488,13 +492,6 @@ export class DataTreeEvaluator {
           `${entityName}.${defaultProperties[property]}`,
         ];
       });
-      // Set triggers. TODO check if needed
-      const dynamicTriggerPathList = getWidgetDynamicTriggerPathList(entity);
-      if (dynamicTriggerPathList.length) {
-        dynamicTriggerPathList.forEach((dynamicPath) => {
-          dependencies[`${entityName}.${dynamicPath.key}`] = [];
-        });
-      }
     }
     return dependencies;
   }
