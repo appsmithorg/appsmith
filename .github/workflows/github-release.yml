@@ -12,8 +12,6 @@ on:
     types:
       # Unlike the `released` event, the `published` event triggers for pre-releases as well.
       - released
-      - edited
-      - deleted
 
 jobs:
   prelude:

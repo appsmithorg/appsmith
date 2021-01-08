@@ -137,4 +137,12 @@ public class UserController extends BaseController<UserService, User, String> {
         return service.inviteUsers(inviteUsersDTO, originHeader)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
+
+    @PutMapping("/setReleaseNotesViewed")
+    public Mono<ResponseDTO<Void>> setReleaseNotesViewed() {
+        return sessionUserService.getCurrentUser()
+                .flatMap(service::setViewedCurrentVersionReleaseNotes)
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
+    }
+
 }

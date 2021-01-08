@@ -12,4 +12,3 @@ node_modules
 **/.project
 **/.factorypath
 *.env
-release-notes.json
