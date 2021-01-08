@@ -297,3 +297,13 @@ export function getValidatedTree(
     return { ...tree, [entityKey]: parsedEntity };
   }, tree);
 }
+
+export const isChildPropertyPath = (
+  propertyPath: string,
+  testPath: string,
+): boolean => {
+  const regexTest = new RegExp(
+    `^${propertyPath.replace(".", "\\.")}(\\.\\S+)?$`,
+  );
+  return regexTest.test(testPath);
+};

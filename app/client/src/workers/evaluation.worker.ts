@@ -33,6 +33,7 @@ import {
   CrashingError,
   DataTreeDiffEvent,
   getValidatedTree,
+  isChildPropertyPath,
   makeParentsDependOnChildren,
   removeFunctions,
   removeFunctionsFromDataTree,
@@ -947,9 +948,11 @@ export class DataTreeEvaluator {
               // by removing the bindings from the same.
               Object.keys(this.dependencyMap).forEach((dependencyPath) => {
                 didUpdateDependencyMap = true;
-                // TODO delete via regex
                 if (
-                  dependencyPath.includes(dataTreeDiff.payload.propertyPath)
+                  isChildPropertyPath(
+                    dataTreeDiff.payload.propertyPath,
+                    dependencyPath,
+                  )
                 ) {
                   delete this.dependencyMap[dependencyPath];
                 } else {
@@ -957,8 +960,9 @@ export class DataTreeEvaluator {
                   this.dependencyMap[dependencyPath].forEach(
                     (dependantPath) => {
                       if (
-                        dependantPath.includes(
+                        isChildPropertyPath(
                           dataTreeDiff.payload.propertyPath,
+                          dependantPath,
                         )
                       ) {
                         removedNodes.push(dependencyPath);
