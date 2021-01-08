@@ -2,15 +2,13 @@
 name: Sync Community workflow
 
 on:
-  workflow_dispatch:
-    inputs:
-      name:
-        default: ignored
+  schedule:
+  - cron: "0 * * * *"
 
 jobs:
   repo-sync:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v2
       with:
