@@ -19,6 +19,7 @@ import {
   OnboardingTooltip,
 } from "constants/OnboardingConstants";
 import { BaseModifier } from "popper.js";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 enum TooltipClassNames {
   TITLE = "tooltip-title",
@@ -116,6 +117,7 @@ type OnboardingToolTipProps = {
   children: ReactNode;
   show?: boolean;
   position?: Position;
+  dismissOnOutsideClick?: boolean;
   offset?: BaseModifier & {
     offset?: number | string;
   };
@@ -164,7 +166,7 @@ const OnboardingToolTip: React.FC<OnboardingToolTipProps> = (
             offset: props.offset,
           }}
           onInteraction={(nextOpenState: boolean) => {
-            if (!nextOpenState) {
+            if (!nextOpenState && props.dismissOnOutsideClick) {
               dispatch(showTooltip(OnboardingStep.NONE));
             }
           }}
@@ -181,6 +183,7 @@ const OnboardingToolTip: React.FC<OnboardingToolTipProps> = (
 
 OnboardingToolTip.defaultProps = {
   show: true,
+  dismissOnOutsideClick: true,
 };
 
 type ToolTipContentProps = {
@@ -203,7 +206,8 @@ const ToolTipContent = (props: ToolTipContentProps) => {
     snippet && write(snippet);
   };
 
-  const finishOnboarding = () => {
+  const skipOnboarding = () => {
+    AnalyticsUtil.logEvent("SKIP_ONBOARDING");
     dispatch(endOnboarding());
   };
 
@@ -224,7 +228,7 @@ const ToolTipContent = (props: ToolTipContentProps) => {
       )}
       <ActionWrapper>
         <span className={TooltipClassNames.SKIP}>
-          Done? <span onClick={finishOnboarding}>Click here to End</span>
+          Done? <span onClick={skipOnboarding}>Click here to End</span>
         </span>
 
         {action && (
