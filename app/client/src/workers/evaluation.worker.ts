@@ -536,6 +536,9 @@ export class DataTreeEvaluator {
           if (isWidget(entity)) {
             const widgetEntity = entity;
             // TODO fix for nested properties
+            // For nested properties like Table1.selectedRow.email
+            // The following line will calculated the property name to be selectedRow
+            // instead of selectedRow.email
             const propertyName = propertyPath.split(".")[1];
             if (propertyName) {
               let parsedValue = this.validateAndParseWidgetProperty(
@@ -1146,8 +1149,7 @@ export class DataTreeEvaluator {
         Object.keys(depPaths).forEach((path) => {
           const values = depPaths[path];
           values.forEach((value) => {
-            // TODO Do regex here.
-            if (value.includes(propertyPath)) {
+            if (isChildPropertyPath(propertyPath, value)) {
               possibleRefs[path] = values;
             }
           });

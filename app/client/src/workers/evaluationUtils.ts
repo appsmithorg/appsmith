@@ -299,11 +299,11 @@ export function getValidatedTree(
 }
 
 export const isChildPropertyPath = (
-  propertyPath: string,
-  testPath: string,
+  parentPropertyPath: string,
+  childPropertyPath: string,
 ): boolean => {
   const regexTest = new RegExp(
-    `^${propertyPath.replace(".", "\\.")}(\\.\\S+)?$`,
+    `^${parentPropertyPath.replace(".", "\\.")}(\\.\\S+)?$`,
   );
-  return regexTest.test(testPath);
+  return regexTest.test(childPropertyPath);
 };
