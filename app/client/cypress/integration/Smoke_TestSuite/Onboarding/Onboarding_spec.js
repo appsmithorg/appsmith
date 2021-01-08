@@ -57,8 +57,16 @@ describe("Onboarding", function() {
     cy.closePropertyPane();
 
     cy.get(".t--application-feedback-btn").should("not.be.visible");
+  });
 
-    // Publish
+  // Similar to PublishtheApp command with little changes
+  it("Publish app", function() {
+    cy.server();
+    cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
+
+    // Wait before publish
+    cy.wait(2000);
+
     cy.window().then((window) => {
       cy.stub(window, "open").callsFake((url) => {
         window.location.href = Cypress.config().baseUrl + url.substring(1);
@@ -68,6 +76,12 @@ describe("Onboarding", function() {
     cy.get(homePage.publishButton).click();
     cy.wait("@publishApp");
 
+    cy.url().should("include", "/pages");
+    cy.log("pagename: " + localStorage.getItem("PageName"));
+
+    // The button appears after 3 seconds
+    cy.wait(3000);
+    cy.get(".t--continue-on-my-own").should("be.visible");
     cy.get(".t--continue-on-my-own").click();
   });
 });
