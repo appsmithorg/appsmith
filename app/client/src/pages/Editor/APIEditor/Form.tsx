@@ -121,6 +121,9 @@ const TabbedViewContainer = styled.div`
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
     }
+    .react-tabs__tab-panel {
+      height: calc(100% - 25px);
+    }
   }
 `;
 
@@ -234,7 +237,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               className="close-modal-icon"
               onClick={handleClose}
             />
-            <ActionNameEditor />
+            <ActionNameEditor page="API_PANE" />
           </NameWrapper>
           <ActionButtons className="t--formActionButtons">
             <MoreActionsMenu
