@@ -18,7 +18,10 @@ plugins.push(
 );
 
 if (env === "PRODUCTION" || env === "STAGING") {
-  if (process.env.SENTRY_AUTH_TOKEN != null && process.env.SENTRY_AUTH_TOKEN !== "") {
+  if (
+    process.env.SENTRY_AUTH_TOKEN != null &&
+    process.env.SENTRY_AUTH_TOKEN !== ""
+  ) {
     plugins.push(
       new SentryWebpackPlugin({
         include: "build",
@@ -30,7 +33,9 @@ if (env === "PRODUCTION" || env === "STAGING") {
       })
     );
   } else {
-    console.log("Sentry configuration missing in process environment. Sentry will be disabled.");
+    console.log(
+      "Sentry configuration missing in process environment. Sentry will be disabled.",
+    );
   }
 }
 
