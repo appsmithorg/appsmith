@@ -253,6 +253,15 @@
         "code"
       ]
     },
+    {
+      "login": "ofpiyush",
+      "name": "Piyush Mishra",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/292174?v=4",
+      "profile": "https://github.com/ofpiyush",
+      "contributions": [
+        "code"
+      ]
+    },
   ],
   "contributorsPerLine": 7,
   "projectName": "appsmith",
