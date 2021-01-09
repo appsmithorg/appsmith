@@ -129,8 +129,9 @@ The Appsmith platform is available under the [Apache License 2.0](https://www.ap
   </tr>
   <tr>
     <td align="center"><a href="https://github.com/sumanthyedoti"><img src="https://avatars3.githubusercontent.com/u/30371888?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Sumanth Yedoti</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=sumanthyedoti" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/rishabhsaxena"><img src="https://avatars0.githubusercontent.com/u/1944800?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Rishabh Saxena </b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=rishabhsaxena" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/nidhi-nair"><img src="https://avatars2.githubusercontent.com/u/5298848?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Nidhi</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=nidhi-nair" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/jsartisan"><img src="https://avatars1.githubusercontent.com/u/6636360?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Pawan Kumar</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=jsartisan" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/rishabhsaxena"><img src="https://avatars0.githubusercontent.com/u/1944800?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Rishabh Saxena </b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=rishabhsaxena" title="Code">💻</a></td>
   </tr>
 </table>
 
