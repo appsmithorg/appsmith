@@ -2,6 +2,7 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.services.ConfigService;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,8 @@ import java.util.List;
 public class ReleaseNotesService {
 
     private final CloudServicesConfig cloudServicesConfig;
+
+    private final ConfigService configService;
 
     public final List<ReleaseNode> releaseNodesCache = new ArrayList<>();
     private Instant cacheExpiryTime = null;
@@ -57,9 +60,12 @@ public class ReleaseNotesService {
             return Mono.justOrEmpty(releaseNodesCache);
         }
 
-        return WebClient.create(baseUrl + "/api/v1/releases")
-                .get()
-                .exchange()
+        return configService.getInstanceId()
+                .flatMap(instanceId -> WebClient
+                        .create(baseUrl + "/api/v1/releases?instanceId=" + instanceId)
+                        .get()
+                        .exchange()
+                )
                 .flatMap(response -> response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Releases>>() {}))
                 .map(result -> result.getData().getNodes())
                 .map(nodes -> {
