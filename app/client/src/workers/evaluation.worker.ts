@@ -1145,12 +1145,20 @@ export class DataTreeEvaluator {
         (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION ||
           entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET)
       ) {
-        const depPaths = this.listEntityDependencies(entity, entityName);
-        Object.keys(depPaths).forEach((path) => {
-          const values = depPaths[path];
-          values.forEach((value) => {
+        const entityPropertyBindings = this.listEntityDependencies(
+          entity,
+          entityName,
+        );
+        Object.keys(entityPropertyBindings).forEach((path) => {
+          const propertyBindings = entityPropertyBindings[path];
+          const references = _.flatten(
+            propertyBindings.map((binding) =>
+              extractReferencesFromBinding(binding, this.allKeys),
+            ),
+          );
+          references.forEach((value) => {
             if (isChildPropertyPath(propertyPath, value)) {
-              possibleRefs[path] = values;
+              possibleRefs[path] = propertyBindings;
             }
           });
         });
