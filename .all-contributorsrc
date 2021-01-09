@@ -225,7 +225,17 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "jsartisan",
+      "name": "Pawan Kumar",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/6636360?v=4",
+      "profile": "https://github.com/jsartisan",
+      "contributions": [
+        "code"
+      ]
     }
+
   ],
   "contributorsPerLine": 7,
   "projectName": "appsmith",
