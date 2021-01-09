@@ -262,6 +262,15 @@
         "code"
       ]
     },
+    {
+      "login": "akash-codemonk",
+      "name": "akash-codemonk",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/67054171?v=4",
+      "profile": "https://github.com/akash-codemonk",
+      "contributions": [
+        "code"
+      ]
+    },
   ],
   "contributorsPerLine": 7,
   "projectName": "appsmith",
