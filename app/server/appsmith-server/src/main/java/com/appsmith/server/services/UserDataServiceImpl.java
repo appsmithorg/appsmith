@@ -52,13 +52,18 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
 
     @Override
     public Mono<User> setViewedCurrentVersionReleaseNotes(User user) {
-        if (user == null) {
-            return Mono.empty();
-        }
-
         final String version = projectProperties.getVersion();
         if (StringUtils.isEmpty(version)) {
             return Mono.just(user);
+        }
+
+        return setViewedCurrentVersionReleaseNotes(user, version);
+    }
+
+    @Override
+    public Mono<User> setViewedCurrentVersionReleaseNotes(User user, String version) {
+        if (user == null) {
+            return Mono.empty();
         }
 
         return Mono.justOrEmpty(user.getId())
