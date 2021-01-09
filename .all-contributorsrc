@@ -218,6 +218,24 @@
       ]
     },
     {
+      "login": "rishabhsaxena",
+      "name": "Rishabh Saxena ",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/1944800?v=4",
+      "profile": "https://github.com/rishabhsaxena",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "jsartisan",
+      "name": "Pawan Kumar",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/6636360?v=4",
+      "profile": "https://github.com/jsartisan",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
       "login": "nidhi-nair",
       "name": "Nidhi",
       "avatar_url": "https://avatars2.githubusercontent.com/u/5298848?v=4",
@@ -226,6 +244,7 @@
         "code"
       ]
     }
+
   ],
   "contributorsPerLine": 7,
   "projectName": "appsmith",
