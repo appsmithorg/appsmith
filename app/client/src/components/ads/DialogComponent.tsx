@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useContext } from "react";
+import React, { ReactNode, useState, useEffect } from "react";
 import styled from "styled-components";
 import { Dialog, Classes } from "@blueprintjs/core";
 
@@ -6,10 +6,11 @@ const StyledDialog = styled(Dialog)<{
   setMaxWidth?: boolean;
   width?: string;
   maxHeight?: string;
+  showHeaderUnderline?: boolean;
 }>`
   && {
     border-radius: ${(props) => props.theme.radii[0]}px;
-    padding-bottom: ${(props) => props.theme.spaces[2]};
+    padding-bottom: ${(props) => props.theme.spaces[2]}px;
     background: ${(props) => props.theme.colors.modal.bg};
     ${(props) => (props.maxHeight ? `max-height: ${props.maxHeight};` : "")}
     width: ${(props) => props.width || "640px"};
@@ -29,33 +30,43 @@ const StyledDialog = styled(Dialog)<{
       .${Classes.ICON} {
         color: ${(props) => props.theme.colors.modal.iconColor};
       }
-      .${Classes.HEADING} {
-        color: ${(props) => props.theme.colors.modal.headerText};
-        display: flex;
-        justify-content: center;
-        margin: ${(props) => props.theme.spaces[9]}px;
-        font-weight: ${(props) => props.theme.typography.h1.fontWeight};
-        font-size: ${(props) => props.theme.typography.h1.fontSize}px;
-        line-height: ${(props) => props.theme.typography.h1.lineHeight}px;
-        letter-spacing: ${(props) => props.theme.typography.h1.letterSpacing};
-      }
 
       .${Classes.BUTTON}.${Classes.MINIMAL}:hover {
         background-color: ${(props) => props.theme.colors.modal.bg};
       }
     }
 
-    & .${Classes.DIALOG_HEADER}:after {
-      content: "";
-      width: calc(100% - 40px);
-      height: 1px;
-      position: absolute;
-      background: white;
-      left: 50%;
-      bottom: 0;
-      transform: translateX(-50%);
-      background-color: ${(props) => props.theme.colors.modal.separator};
+    .${Classes.HEADING} {
+      color: ${(props) => props.theme.colors.modal.headerText};
+      display: flex;
+      justify-content: center;
+      margin-top: ${(props) => props.theme.spaces[9]}px;
+      font-weight: ${(props) => props.theme.typography.h1.fontWeight};
+      font-size: ${(props) => props.theme.typography.h1.fontSize}px;
+      line-height: ${(props) => props.theme.typography.h1.lineHeight}px;
+      letter-spacing: ${(props) => props.theme.typography.h1.letterSpacing};
     }
+
+    ${(props) =>
+      props.showHeaderUnderline
+        ? `
+        & .${Classes.DIALOG_HEADER}:after {
+          content: "";
+          width: calc(100% - 40px);
+          height: 1px;
+          position: absolute;
+          background: white;
+          left: 50%;
+          bottom: 0;
+          transform: translateX(-50%);
+          background-color: ${props.theme.colors.modal.separator};
+        }
+
+        .${Classes.HEADING} {
+          margin-bottom: ${props.theme.spaces[7]}px;
+        }
+      `
+        : ""}
 
     & .${Classes.DIALOG_BODY} {
       padding: ${(props) => props.theme.spaces[9]}px;
@@ -82,6 +93,7 @@ type DialogComponentProps = {
   maxHeight?: string;
   onOpened?: () => void;
   triggerZIndex?: number;
+  showHeaderUnderline?: boolean;
 };
 
 export const DialogComponent = (props: DialogComponentProps) => {
@@ -90,6 +102,10 @@ export const DialogComponent = (props: DialogComponentProps) => {
   const onClose = () => {
     setIsOpen(false);
   };
+
+  useEffect(() => {
+    setIsOpen(!!props.isOpen);
+  }, [props.isOpen]);
 
   return (
     <React.Fragment>
@@ -111,6 +127,7 @@ export const DialogComponent = (props: DialogComponentProps) => {
         setMaxWidth={props.setMaxWidth}
         maxHeight={props.maxHeight}
         onOpened={props.onOpened}
+        showHeaderUnderline={props.showHeaderUnderline}
       >
         <div className={Classes.DIALOG_BODY}>{props.children}</div>
       </StyledDialog>

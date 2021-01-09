@@ -177,6 +177,7 @@ const ProductUpdatesModal = () => {
       maxHeight={"80vh"}
       onOpened={onOpened}
       triggerZIndex={Layers.max}
+      showHeaderUnderline
     >
       {releaseItems.map((release: Release, index: number) => (
         <ReleaseComponent release={release} key={index} />
