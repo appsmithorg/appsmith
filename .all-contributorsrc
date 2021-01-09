@@ -218,10 +218,10 @@
       ]
     },
     {
-      "login": "rishabhsaxena",
-      "name": "Rishabh Saxena ",
-      "avatar_url": "https://avatars0.githubusercontent.com/u/1944800?v=4",
-      "profile": "https://github.com/rishabhsaxena",
+      "login": "nidhi-nair",
+      "name": "Nidhi",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/5298848?v=4",
+      "profile": "https://github.com/nidhi-nair",
       "contributions": [
         "code"
       ]
@@ -236,15 +236,23 @@
       ]
     },
     {
-      "login": "nidhi-nair",
-      "name": "Nidhi",
-      "avatar_url": "https://avatars2.githubusercontent.com/u/5298848?v=4",
-      "profile": "https://github.com/nidhi-nair",
+      "login": "sumitsum",
+      "name": "Sumit Kumar",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/1757421?v=4",
+      "profile": "https://github.com/sumitsum",
       "contributions": [
         "code"
       ]
     }
-
+    {
+      "login": "rishabhsaxena",
+      "name": "Rishabh Saxena ",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/1944800?v=4",
+      "profile": "https://github.com/rishabhsaxena",
+      "contributions": [
+        "code"
+      ]
+    },
   ],
   "contributorsPerLine": 7,
   "projectName": "appsmith",
