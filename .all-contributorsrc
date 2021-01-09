@@ -271,6 +271,15 @@
         "code"
       ]
     },
+    {
+      "login": "vicky-primathon",
+      "name": "vicky-primathon",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/67091118?v=4",
+      "profile": "https://github.com/vicky-primathon",
+      "contributions": [
+        "code"
+      ]
+    }
   ],
   "contributorsPerLine": 7,
   "projectName": "appsmith",
