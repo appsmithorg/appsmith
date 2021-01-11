@@ -5,7 +5,6 @@ import { MarkerProps } from "widgets/MapWidget";
 import PickMyLocation from "./PickMyLocation";
 import styled from "styled-components";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
-import { DEFAULT_CENTER } from "constants/WidgetConstants";
 
 interface MapComponentProps {
   apiKey: string;
@@ -70,37 +69,6 @@ const PickMyLocationWrapper = styled.div<PickMyLocationProps>`
   width: 140px;
 `;
 
-type Center = {
-  lat: number;
-  lng: number;
-  [x: string]: any;
-};
-
-const validateLatLongObj = (lat?: number, long?: number) => {
-  const validLat = typeof lat === "number" && lat <= 90 && lat >= -90;
-  const validLong = typeof long === "number" && long <= 180 && long >= -180;
-
-  return validLat && validLong;
-};
-
-const getMapCenter = (latLongObj?: Center) => {
-  let center = DEFAULT_CENTER;
-
-  const { lat, lng } = latLongObj || {};
-
-  if (validateLatLongObj(lat, lng)) {
-    center = latLongObj as Center;
-  }
-
-  return center;
-};
-
-const validateMarker = (marker?: MarkerProps) => {
-  if (typeof marker !== "object") return false;
-  const { lat, long } = marker;
-  return validateLatLongObj(lat, long);
-};
-
 const MyMapComponent = withGoogleMap((props: any) => {
   const [mapCenter, setMapCenter] = React.useState<
     | {
@@ -153,7 +121,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
         streetViewControl: false,
       }}
       zoom={props.zoom}
-      center={getMapCenter(mapCenter)}
+      center={mapCenter}
       onClick={(e) => {
         if (props.enableCreateMarker) {
           props.saveMarker(e.latLng.lat(), e.latLng.lng());
@@ -169,31 +137,29 @@ const MyMapComponent = withGoogleMap((props: any) => {
           <StyledInput type="text" placeholder="Enter location to search" />
         </SearchBox>
       )}
-      {props.markers
-        .filter(validateMarker)
-        .map((marker: any, index: number) => (
-          <Marker
-            key={index}
-            title={marker.title}
-            position={{ lat: marker.lat, lng: marker.long }}
-            clickable
-            draggable={
-              props.selectedMarker &&
-              props.selectedMarker.lat === marker.lat &&
-              props.selectedMarker.long === marker.long
-            }
-            onClick={(e) => {
-              setMapCenter({
-                ...marker,
-                lng: marker.long,
-              });
-              props.selectMarker(marker.lat, marker.long, marker.title);
-            }}
-            onDragEnd={(de) => {
-              props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
-            }}
-          />
-        ))}
+      {props.markers.map((marker: any, index: number) => (
+        <Marker
+          key={index}
+          title={marker.title}
+          position={{ lat: marker.lat, lng: marker.long }}
+          clickable
+          draggable={
+            props.selectedMarker &&
+            props.selectedMarker.lat === marker.lat &&
+            props.selectedMarker.long === marker.long
+          }
+          onClick={(e) => {
+            setMapCenter({
+              ...marker,
+              lng: marker.long,
+            });
+            props.selectMarker(marker.lat, marker.long, marker.title);
+          }}
+          onDragEnd={(de) => {
+            props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
+          }}
+        />
+      ))}
       {props.enablePickLocation && (
         <PickMyLocationWrapper
           title="Pick My Location"

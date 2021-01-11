@@ -31,6 +31,25 @@ const DisabledContainer = styled.div`
 `;
 
 const DefaultCenter = { ...DEFAULT_CENTER, long: DEFAULT_CENTER.lng };
+
+type Center = {
+  lat: number;
+  long: number;
+  [x: string]: any;
+};
+
+const validateLatLongObj = ({
+  lat,
+  long,
+}: {
+  lat?: number;
+  long?: number;
+} = {}) => {
+  const validLat = typeof lat === "number" && lat <= 90 && lat >= -90;
+  const validLong = typeof long === "number" && long <= 180 && long >= -180;
+
+  return validLat && validLong;
+};
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -123,6 +142,22 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     });
   };
 
+  getCenter(): Center {
+    if (validateLatLongObj(this.props.center))
+      return this.props.center as Center;
+    else if (validateLatLongObj(this.props.mapCenter))
+      return this.props.mapCenter as Center;
+    return DefaultCenter;
+  }
+
+  getMarkers(): Array<MarkerProps> {
+    if (this.props.markers) {
+      return this.props.markers.filter(validateLatLongObj);
+    }
+
+    return [];
+  }
+
   getPageView() {
     return (
       <>
@@ -150,7 +185,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             isVisible={this.props.isVisible}
             zoomLevel={this.props.zoomLevel}
             allowZoom={this.props.allowZoom}
-            center={this.props.center || this.props.mapCenter || DefaultCenter}
+            center={this.getCenter()}
             enableCreateMarker={this.props.enableCreateMarker}
             selectedMarker={this.props.selectedMarker}
             updateCenter={this.updateCenter}
@@ -161,7 +196,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             updateMarker={this.updateMarker}
             selectMarker={this.onMarkerClick}
             unselectMarker={this.unselectMarker}
-            markers={this.props.markers || []}
+            markers={this.getMarkers()}
             enableDrag={() => {
               this.disableDrag(false);
             }}
