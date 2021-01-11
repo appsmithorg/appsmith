@@ -189,44 +189,6 @@ const enumTypeGetter = (
   return defaultValue;
 };
 
-// TODO: Is this required?
-// eslint-disable-next-line
-const objectTypeSetter = (
-  obj: Object,
-  currentValue: string,
-  argNum: number,
-): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  let args: string[] = [];
-  if (matches.length) {
-    args = argsStringToArray(matches[0][2]);
-    args[argNum] = JSON.stringify(obj);
-  }
-  const result = currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
-  return result;
-};
-
-// TODO: Is this required?
-// eslint-disable-next-line
-const objectTypeGetter = (
-  value: string,
-  argNum: number,
-  defaultValue = undefined,
-): Object | undefined => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
-    const args = argsStringToArray(matches[0][2]);
-    const arg = args[argNum];
-    if (arg) {
-      return JSON.parse(arg.trim());
-    }
-  }
-  return defaultValue;
-};
-
 type ActionCreatorProps = {
   value: string;
   isValid: boolean;

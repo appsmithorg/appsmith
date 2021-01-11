@@ -26,8 +26,6 @@ const initialState: ApplicationsReduxState = {
 const applicationsReducer = createReducer(initialState, {
   [ReduxActionTypes.DELETE_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
-    // eslint-disable-next-line
-    action: ReduxAction<{ applicationId: string; orgId: string }>,
   ) => {
     return { ...state, deletingApplication: true };
   },
@@ -62,8 +60,6 @@ const applicationsReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.DELETE_APPLICATION_ERROR]: (
     state: ApplicationsReduxState,
-    // eslint-disable-next-line
-    action: ReduxAction<{ orgId: string }>,
   ) => {
     return { ...state, deletingApplication: false };
   },
@@ -249,7 +245,7 @@ const applicationsReducer = createReducer(initialState, {
       const appIndex = org.applications.findIndex(
         (app) => app.id === action.payload.id,
       );
-      // eslint-disable-next-line
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, ...rest } = action.payload;
       if (appIndex !== -1) {
         org.applications[appIndex] = {

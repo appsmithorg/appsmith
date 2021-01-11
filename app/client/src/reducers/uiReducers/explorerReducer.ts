@@ -98,18 +98,12 @@ const explorerReducer = createReducer(initialState, {
   [ReduxActionTypes.SAVE_ACTION_NAME_SUCCESS]: setEntityUpdateSuccess,
 
   [ReduxActionTypes.INIT_EXPLORER_ENTITY_NAME_EDIT]: (
-    // eslint-disable-next-line
     state: ExplorerReduxState,
     action: ReduxAction<{ id: string }>,
   ) => {
     return { editingEntityName: action.payload.id };
   },
-  [ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT]: (
-    // eslint-disable-next-line
-    state: ExplorerReduxState,
-    // eslint-disable-next-line
-    action: ReduxAction<{ id: string }>,
-  ) => {
+  [ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT]: () => {
     return {};
   },
 });

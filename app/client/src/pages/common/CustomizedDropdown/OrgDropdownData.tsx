@@ -9,7 +9,7 @@ import { User } from "constants/userConstants";
 import _ from "lodash";
 
 // TODO: is this required?
-// eslint-disable-next-line
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const switchdropdown = (
   orgs: Org[],
   currentOrg: Org,

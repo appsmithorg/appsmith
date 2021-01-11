@@ -21,15 +21,6 @@ export default {
   component: Menu,
   decorators: [withKnobs, withDesign],
 };
-// TODO: Is this required?
-// eslint-disable-next-line
-const calls = (value: string, callback: any) => {
-  setTimeout(() => {
-    return callback(false, SavingState.SUCCESS);
-  }, 2000);
-
-  return callback(true);
-};
 
 const errorFunction = (name: string) => {
   if (name === "") {
