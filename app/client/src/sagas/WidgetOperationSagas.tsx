@@ -75,7 +75,7 @@ import {
 import { generateReactKey } from "utils/generators";
 import { flashElementById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { cloneDeep } from "lodash";
+import { cloneDeep, isString } from "lodash";
 import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/WidgetEntity";
 import {
@@ -101,6 +101,7 @@ function getChildWidgetProps(
   const { leftColumn, topRow, newWidgetId, props, type } = params;
   let { rows, columns, parentColumnSpace, parentRowSpace, widgetName } = params;
   let minHeight = undefined;
+  //eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { blueprint = undefined, ...restDefaultConfig } = {
     ...(WidgetConfigResponse as any).config[type],
   };
@@ -641,12 +642,14 @@ function* updateDynamicTriggers(
   widget: WidgetProps,
   propertyPath: string,
   propertyValue: string,
+  isDynamicTrigger?: boolean,
 ) {
-  // TODO WIDGETFACTORY
+  // TODO: Figure out if isDynamicTrigger can do the job
   const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
     widget.type,
   );
-  if (propertyPath in triggerProperties) {
+
+  if (propertyPath in triggerProperties || !!isDynamicTrigger) {
     let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
       widget,
     );
@@ -682,7 +685,15 @@ function* updateDynamicBindings(
     // Stringify this because composite controls may have bindings in the sub controls
     stringProp = JSON.stringify(propertyValue);
   }
+
+  //TODO(abhinav): This is not appropriate from the platform's archtecture's point of view.
+  // Figure out a holistic solutions where we donot have to stringify above.
+  if (propertyName === "primaryColumns") {
+    return;
+  }
+
   const isDynamic = isDynamicValue(stringProp);
+
   let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
     widget,
   );
@@ -709,7 +720,7 @@ function* updateWidgetPropertySaga(
   updateAction: ReduxAction<UpdateWidgetPropertyRequestPayload>,
 ) {
   const {
-    payload: { propertyValue, propertyName, widgetId },
+    payload: { propertyValue, propertyName, widgetId, isDynamicTrigger },
   } = updateAction;
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
@@ -722,6 +733,7 @@ function* updateWidgetPropertySaga(
     widget,
     propertyName,
     propertyValue,
+    isDynamicTrigger,
   );
   if (!dynamicTriggersUpdated) {
     yield updateDynamicBindings(widget, propertyName, propertyValue);
@@ -1052,6 +1064,36 @@ function* pasteWidgetSaga() {
         }
       }
 
+      // Update the table widget column properties
+      if (widget.type === WidgetTypes.TABLE_WIDGET) {
+        try {
+          const oldWidgetName = widget.widgetName;
+          const newWidgetName = getNextWidgetName(widgets, widget.type);
+          // If the primaryColumns of the table exist
+          if (widget.primaryColumns && Array.isArray(widget.primaryColumns)) {
+            // Map all the primaryColumns of the widget
+            widget.primaryColumns = widget.primaryColumns.map((column) => {
+              // For each property in the column
+              for (const [key, value] of Object.entries(column)) {
+                // Replace reference of previous widget with the new widgetName
+                // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
+                column[key] = isString(value)
+                  ? value.replace(`${oldWidgetName}.`, `${newWidgetName}.`)
+                  : value;
+              }
+              return column;
+            });
+          }
+          // Use the new widget name we used to replace the column properties above.
+          widget.widgetName = newWidgetName;
+        } catch (error) {
+          log.debug("Error updating table widget properties", error);
+        }
+      } else {
+        // Generate a new unique widget name
+        widget.widgetName = getNextWidgetName(widgets, widget.type);
+      }
+
       // If it is the copied widget, update position properties
       if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
         newWidgetId = widget.widgetId;
@@ -1104,8 +1146,7 @@ function* pasteWidgetSaga() {
         )?.widgetId;
         if (newParentId) widget.parentId = newParentId;
       }
-      // Generate a new unique widget name
-      widget.widgetName = getNextWidgetName(widgets, widget.type);
+
       // Add the new widget to the canvas widgets
       widgets[widget.widgetId] = widget;
     });

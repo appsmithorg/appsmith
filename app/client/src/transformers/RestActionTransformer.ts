@@ -1,8 +1,4 @@
-import {
-  CONTENT_TYPE,
-  HTTP_METHODS,
-  POST_BODY_FORMAT_OPTIONS,
-} from "constants/ApiEditorConstants";
+import { CONTENT_TYPE, HTTP_METHODS } from "constants/ApiEditorConstants";
 import _ from "lodash";
 
 export const transformRestAction = (data: any): any => {

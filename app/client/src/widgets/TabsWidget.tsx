@@ -16,6 +16,60 @@ class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState
 > {
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Takes an array of tab names to render tabs",
+            propertyName: "tabs",
+            isJSConvertible: true,
+            label: "Tabs",
+            controlType: "TABS_INPUT",
+          },
+          {
+            propertyName: "defaultTab",
+            helpText: "Selects a tab name specified by default",
+            placeholderText: "Enter tab name",
+            label: "Default Tab",
+            controlType: "INPUT_TEXT",
+          },
+          {
+            propertyName: "shouldShowTabs",
+            helpText:
+              "Hides the tabs so that different widgets can be displayed based on the default tab",
+            label: "Show Tabs",
+            controlType: "SWITCH",
+          },
+          {
+            propertyName: "shouldScrollContents",
+            label: "Scroll Contents",
+            controlType: "SWITCH",
+          },
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when the button is clicked",
+            propertyName: "onTabSelected",
+            label: "onTabSelected",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       tabs: VALIDATION_TYPES.TABS_DATA,

@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import {
   getApplicationViewerPageURL,
@@ -415,7 +415,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
             savingState={
               isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
             }
-            fill={true}
+            fill
             onBlur={(value: string) => {
               props.update &&
                 props.update(props.application.id, {

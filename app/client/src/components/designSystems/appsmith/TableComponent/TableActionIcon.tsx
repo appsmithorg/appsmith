@@ -2,7 +2,7 @@ import React from "react";
 import { Tooltip } from "@blueprintjs/core";
 import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
-import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
+import { TableIconWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
 
 interface TableActionIconProps {
   tooltip: string;

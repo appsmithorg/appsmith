@@ -111,6 +111,9 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       label: "Data",
       widgetName: "Table",
       searchKey: "",
+      textSize: "PARAGRAPH",
+      horizontalAlignment: "LEFT",
+      verticalAlignment: "CENTER",
       tableData: [
         {
           id: 2381224,

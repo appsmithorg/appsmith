@@ -1,5 +1,5 @@
 /// <reference types="Cypress" />
-
+/* eslint-disable  cypress/no-unnecessary-waiting */
 const homePage = require("../../../locators/HomePage.json");
 
 describe("Create new org and share with a user", function() {

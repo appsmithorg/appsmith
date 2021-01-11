@@ -7,19 +7,19 @@ import { Colors } from "constants/Colors";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import { Skin } from "constants/DefaultTheme";
-import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
+import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
 import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
 import {
   OperatorTypes,
   Condition,
   ColumnTypes,
   Operator,
-} from "widgets/TableWidget";
+} from "components/designSystems/appsmith/TableComponent/Constants";
 import {
   DropdownOption,
   ReactTableFilter,
-} from "components/designSystems/appsmith/TableFilters";
-import { RenderOptionWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
+} from "components/designSystems/appsmith/TableComponent/TableFilters";
+import { RenderOptionWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
 import { debounce } from "lodash";
 
 const StyledRemoveIcon = styled(
@@ -127,24 +127,6 @@ const typeOperatorsMap: Record<ColumnTypes, DropdownOption[]> = {
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  [ColumnTypes.CURRENCY]: [
-    { label: "is equal to", value: "isEqualTo", type: "input" },
-    { label: "not equal to", value: "notEqualTo", type: "input" },
-    { label: "greater than", value: "greaterThan", type: "input" },
-    {
-      label: "greater than or equal to",
-      value: "greaterThanEqualTo",
-      type: "input",
-    },
-    { label: "less than", value: "lessThan", type: "input" },
-    {
-      label: "less than or equal to",
-      value: "lessThanEqualTo",
-      type: "input",
-    },
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
-  ],
   [ColumnTypes.NUMBER]: [
     { label: "is equal to", value: "isEqualTo", type: "input" },
     { label: "not equal to", value: "notEqualTo", type: "input" },
@@ -176,7 +158,6 @@ const columnTypeNameMap: Record<ColumnTypes, string> = {
   [ColumnTypes.IMAGE]: "Image",
   [ColumnTypes.NUMBER]: "Num",
   [ColumnTypes.DATE]: "Date",
-  [ColumnTypes.CURRENCY]: "Curr",
   [ColumnTypes.TIME]: "Time",
 };
 

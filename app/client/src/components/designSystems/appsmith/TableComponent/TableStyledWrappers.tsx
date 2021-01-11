@@ -1,5 +1,9 @@
-import styled from "styled-components";
-import { TableSizes } from "widgets/TableWidget";
+import styled, { css } from "styled-components";
+import {
+  TableSizes,
+  CellLayoutProperties,
+  FontStyleTypes,
+} from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors, Color } from "constants/Colors";
 import { scrollbarLight } from "constants/DefaultTheme";
 
@@ -60,7 +64,6 @@ export const TableWrapper = styled.div<{
     .th,
     .td {
       margin: 0;
-      padding: 9px 10px;
       border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
       border-right: 1px solid ${Colors.GEYSER_LIGHT};
       position: relative;
@@ -94,7 +97,7 @@ export const TableWrapper = styled.div<{
     .td {
       height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
       line-height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
-      padding: 0 10px;
+      padding: 0;
     }
     .thead {
       position: sticky;
@@ -242,16 +245,73 @@ export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
   }
 `;
 
-export const ActionWrapper = styled.div`
+export const ActionWrapper = styled.div<{
+  background: string;
+  buttonLabelColor: string;
+}>`
   margin: 0 5px 0 0;
   &&&&&& {
+    .bp3-button {
+      background: ${(props) => props.background};
+      color: ${(props) => props.buttonLabelColor};
+      border: none;
+    }
     .bp3-button span {
       font-weight: 400;
     }
   }
 `;
 
-export const CellWrapper = styled.div<{ isHidden?: boolean }>`
+const JUSTIFY_CONTENT = {
+  LEFT: "flex-start",
+  CENTER: "center",
+  RIGHT: "flex-end",
+};
+
+const ALIGN_ITEMS = {
+  TOP: "flex-start",
+  CENTER: "center",
+  BOTTOM: "flex-end",
+};
+
+const TEXT_SIZES = {
+  HEADING1: "24px",
+  HEADING2: "18px",
+  HEADING3: "16px",
+  PARAGRAPH: "14px",
+  PARAGRAPH2: "12px",
+};
+
+export const TableStyles = css<{ cellProperties?: CellLayoutProperties }>`
+  font-weight: ${(props) =>
+    props?.cellProperties?.fontStyle?.includes(FontStyleTypes.BOLD)
+      ? "bold"
+      : "normal"};
+  color: ${(props) => props?.cellProperties?.textColor};
+  font-style: ${(props) =>
+    props?.cellProperties?.fontStyle?.includes(FontStyleTypes.ITALIC)
+      ? "italic"
+      : ""};
+  text-decoration: ${(props) =>
+    props?.cellProperties?.fontStyle?.includes(FontStyleTypes.UNDERLINE)
+      ? "underline"
+      : ""};
+  justify-content: ${(props) =>
+    props?.cellProperties?.horizontalAlignment &&
+    JUSTIFY_CONTENT[props?.cellProperties?.horizontalAlignment]};
+  align-items: ${(props) =>
+    props?.cellProperties?.verticalAlignment &&
+    ALIGN_ITEMS[props?.cellProperties?.verticalAlignment]};
+  background: ${(props) => props?.cellProperties?.cellBackground};
+  font-size: ${(props) =>
+    props?.cellProperties?.textSize &&
+    TEXT_SIZES[props?.cellProperties?.textSize]};
+`;
+
+export const CellWrapper = styled.div<{
+  isHidden?: boolean;
+  cellProperties?: CellLayoutProperties;
+}>`
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -261,6 +321,9 @@ export const CellWrapper = styled.div<{ isHidden?: boolean }>`
   text-overflow: ellipsis;
   white-space: nowrap;
   opacity: ${(props) => (props.isHidden ? "0.6" : "1")};
+  ${TableStyles};
+  padding: 0 10px;
+  line-height: 28px;
   .image-cell {
     width: 40px;
     height: 32px;
@@ -315,7 +378,7 @@ export const RowWrapper = styled.div`
   justify-content: center;
   font-size: 12px;
   line-height: 20px;
-  color: ${Colors.BLUE_BAYOUX};
+  color: ${Colors.THUNDER};
   margin: 0 4px;
   white-space: nowrap;
 `;

@@ -1,18 +1,13 @@
-/* eslint-disable @typescript-eslint/ban-types */
-
 import React, { useEffect } from "react";
-import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import Table from "components/designSystems/appsmith/Table";
+import Table from "components/designSystems/appsmith/TableComponent/Table";
 import { debounce } from "lodash";
-import { getMenuOptions } from "components/designSystems/appsmith/TableUtilities";
 import {
   ColumnTypes,
   CompactMode,
   ReactTableColumnProps,
   ReactTableFilter,
-} from "widgets/TableWidget";
+} from "components/designSystems/appsmith/TableComponent/Constants";
 import { EventType } from "constants/ActionConstants";
-import produce from "immer";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -59,7 +54,6 @@ interface ReactTableComponentProps {
   prevPageClick: () => void;
   pageNo: number;
   serverSidePaginationEnabled: boolean;
-  columnActions?: ColumnAction[];
   selectedRowIndex: number;
   selectedRowIndices: number[];
   multiRowSelection?: boolean;
@@ -73,11 +67,11 @@ interface ReactTableComponentProps {
     };
   };
   columnSizeMap?: { [key: string]: number };
+  updateColumnSize: (columnSizeMap?: { [key: string]: number }) => void;
   updateColumnType: (columnTypeMap: {
     [key: string]: { type: string; format: string };
   }) => void;
   updateColumnName: (columnNameMap: { [key: string]: string }) => void;
-  handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
@@ -162,103 +156,6 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     });
   });
 
-  const getColumnMenu = (columnIndex: number) => {
-    const column = props.columns[columnIndex];
-    const columnId = column.accessor;
-    const columnType =
-      props.columnTypeMap && props.columnTypeMap[columnId]
-        ? props.columnTypeMap[columnId].type
-        : "";
-    const format =
-      props.columnTypeMap && props.columnTypeMap[columnId]
-        ? props.columnTypeMap[columnId].format
-        : "";
-    const inputFormat =
-      props.columnTypeMap && props.columnTypeMap[columnId]
-        ? props.columnTypeMap[columnId].inputFormat
-        : "";
-    const isColumnHidden = !!(
-      props.hiddenColumns && props.hiddenColumns.includes(columnId)
-    );
-    const columnMenuOptions: ColumnMenuOptionProps[] = getMenuOptions({
-      columnAccessor: columnId,
-      isColumnHidden,
-      columnType,
-      format,
-      inputFormat,
-      hideColumn: hideColumn,
-      updateColumnType: updateColumnType,
-      handleUpdateCurrencySymbol: handleUpdateCurrencySymbol,
-      handleDateFormatUpdate: handleDateFormatUpdate,
-    });
-    return columnMenuOptions;
-  };
-
-  const hideColumn = (columnIndex: number, isColumnHidden: boolean) => {
-    const column = props.columns[columnIndex];
-    let hiddenColumns = props.hiddenColumns || [];
-    if (!isColumnHidden) {
-      hiddenColumns.push(column.accessor);
-      const columnOrder = props.columnOrder || [];
-      if (columnOrder.includes(column.accessor)) {
-        columnOrder.splice(columnOrder.indexOf(column.accessor), 1);
-        props.handleReorderColumn(columnOrder);
-      }
-    } else {
-      hiddenColumns = hiddenColumns.filter((item) => {
-        return item !== column.accessor;
-      });
-    }
-    props.updateHiddenColumns(hiddenColumns);
-  };
-
-  const updateColumnType = (columnIndex: number, columnType: string) => {
-    const column = props.columns[columnIndex];
-    const columnTypeMap = props.columnTypeMap || {};
-    columnTypeMap[column.accessor] = {
-      type: columnType,
-      format: "",
-    };
-    props.updateColumnType(columnTypeMap);
-  };
-
-  const handleColumnNameUpdate = (columnIndex: number, columnName: string) => {
-    const column = props.columns[columnIndex];
-    const columnNameMap = props.columnNameMap || {};
-    columnNameMap[column.accessor] = columnName;
-    props.updateColumnName(columnNameMap);
-  };
-
-  const handleUpdateCurrencySymbol = (
-    columnIndex: number,
-    currencySymbol: string,
-  ) => {
-    const column = props.columns[columnIndex];
-    const columnTypeMap = props.columnTypeMap || {};
-    columnTypeMap[column.accessor] = {
-      type: "currency",
-      format: currencySymbol,
-    };
-    props.updateColumnType(columnTypeMap);
-  };
-
-  const handleDateFormatUpdate = (
-    columnIndex: number,
-    dateFormat: string,
-    dateInputFormat?: string,
-  ) => {
-    const column = props.columns[columnIndex];
-    const columnTypeMap = props.columnTypeMap || {};
-    columnTypeMap[column.accessor] = {
-      type: "date",
-      format: dateFormat,
-    };
-    if (dateInputFormat) {
-      columnTypeMap[column.accessor].inputFormat = dateInputFormat;
-    }
-    props.updateColumnType(columnTypeMap);
-  };
-
   const sortTableColumn = (columnIndex: number, asc: boolean) => {
     if (columnIndex === -1) {
       props.sortTableColumn("", asc);
@@ -275,8 +172,8 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   };
 
   const handleResizeColumn = (columnIndex: number, columnWidth: string) => {
-    const column = props.columns[columnIndex];
     const width = Number(columnWidth.split("px")[0]);
+    const column = props.columns[columnIndex];
     const columnSizeMap = props.columnSizeMap
       ? {
           ...props.columnSizeMap,
@@ -285,7 +182,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       : {
           [column.accessor]: width,
         };
-    props.handleResizeColumn(columnSizeMap);
+    props.updateColumnSize(columnSizeMap);
   };
 
   const selectTableRow = (
@@ -311,15 +208,11 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       updateHiddenColumns={props.updateHiddenColumns}
       data={props.tableData}
       editMode={props.editMode}
-      columnNameMap={props.columnNameMap}
-      getColumnMenu={getColumnMenu}
-      handleColumnNameUpdate={handleColumnNameUpdate}
       handleResizeColumn={debounce(handleResizeColumn, 300)}
       sortTableColumn={sortTableColumn}
       selectTableRow={selectTableRow}
       pageNo={props.pageNo - 1}
       updatePageNo={props.updatePageNo}
-      columnActions={props.columnActions}
       nextPageClick={() => {
         props.nextPageClick();
       }}

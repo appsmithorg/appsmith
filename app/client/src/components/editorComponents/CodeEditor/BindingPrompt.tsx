@@ -2,8 +2,12 @@ import React, { useRef } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 
-const Wrapper = styled.span<{ visible: boolean; bottomOffset: number }>`
-  padding: 8px;
+const Wrapper = styled.span<{
+  visible: boolean;
+  bottomOffset: number;
+  customMessage: boolean;
+}>`
+  padding: ${(props) => (props.customMessage ? 6 : 8)}px;
   font-size: 12px;
   color: ${Colors.GRAY_CHATEAU};
   border-radius: 2px;
@@ -24,23 +28,35 @@ const CurlyBraces = styled.span`
   margin: 0px 2px;
 `;
 
-const BindingPrompt = (props: { isOpen: boolean }): JSX.Element => {
+const BindingPrompt = (props: {
+  promptMessage?: React.ReactNode | string;
+  isOpen: boolean;
+}): JSX.Element => {
   const promptRef = useRef<HTMLDivElement>(null);
   let bottomOffset = 30;
-
+  const customMessage = !!props.promptMessage;
   if (promptRef.current) {
     const boundingRect = promptRef.current.getBoundingClientRect();
     bottomOffset = boundingRect.height;
   }
-
+  if (customMessage) {
+    bottomOffset = 36;
+  }
   return (
     <Wrapper
       className="t--no-binding-prompt"
       ref={promptRef}
-      visible={props.isOpen}
       bottomOffset={bottomOffset}
+      visible={props.isOpen}
+      customMessage={customMessage}
     >
-      Type <CurlyBraces>{"{{"}</CurlyBraces> to see a list of variables
+      {props.promptMessage ? (
+        props.promptMessage
+      ) : (
+        <React.Fragment>
+          Type <CurlyBraces>{"{{"}</CurlyBraces> to see a list of variables
+        </React.Fragment>
+      )}
     </Wrapper>
   );
 };

@@ -1,84 +1,54 @@
 import React, { lazy, Suspense } from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetState } from "../BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import {
   compare,
-  ConditionFunctions,
-  getAllTableColumnKeys,
-  renderActions,
+  getDefaultColumnProperties,
+  getTableStyles,
   renderCell,
-  reorderColumns,
+  renderDropdown,
+  renderActions,
   sortTableFunction,
-} from "components/designSystems/appsmith/TableUtilities";
+  reorderColumns,
+} from "components/designSystems/appsmith/TableComponent/TableUtilities";
+import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
   BASE_WIDGET_VALIDATION,
   WidgetPropertyValidationType,
 } from "utils/WidgetValidation";
-import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
-import { isNumber, isString, isUndefined, isEqual } from "lodash";
+import { isNumber, isString, isUndefined, isEqual, compact, xor } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
-import withMeta, { WithMeta } from "./MetaHOC";
+import withMeta from "../MetaHOC";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import log from "loglevel";
+import { ReactTableFilter } from "components/designSystems/appsmith/TableComponent/TableFilters";
+import { TableWidgetProps } from "./TableWidgetConstants";
+
+import {
+  ColumnProperties,
+  CellLayoutProperties,
+  ReactTableColumnProps,
+  ColumnTypes,
+  Operator,
+  OperatorTypes,
+  TABLE_SIZES,
+  CompactModeTypes,
+  CompactMode,
+} from "components/designSystems/appsmith/TableComponent/Constants";
+import tableProperyPaneConfig from "./TablePropertyPaneConfig";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
-    import("components/designSystems/appsmith/ReactTableComponent"),
+    import("components/designSystems/appsmith/TableComponent"),
   ),
 );
 
-export type TableSizes = {
-  COLUMN_HEADER_HEIGHT: number;
-  TABLE_HEADER_HEIGHT: number;
-  ROW_HEIGHT: number;
-  ROW_FONT_SIZE: number;
-};
-
-export enum CompactModeTypes {
-  SHORT = "SHORT",
-  DEFAULT = "DEFAULT",
-  TALL = "TALL",
-}
-
-export const TABLE_SIZES: { [key: string]: TableSizes } = {
-  [CompactModeTypes.DEFAULT]: {
-    COLUMN_HEADER_HEIGHT: 38,
-    TABLE_HEADER_HEIGHT: 42,
-    ROW_HEIGHT: 40,
-    ROW_FONT_SIZE: 14,
-  },
-  [CompactModeTypes.SHORT]: {
-    COLUMN_HEADER_HEIGHT: 38,
-    TABLE_HEADER_HEIGHT: 42,
-    ROW_HEIGHT: 20,
-    ROW_FONT_SIZE: 12,
-  },
-  [CompactModeTypes.TALL]: {
-    COLUMN_HEADER_HEIGHT: 38,
-    TABLE_HEADER_HEIGHT: 42,
-    ROW_HEIGHT: 60,
-    ROW_FONT_SIZE: 18,
-  },
-};
-
-export enum ColumnTypes {
-  CURRENCY = "currency",
-  TIME = "time",
-  DATE = "date",
-  VIDEO = "video",
-  IMAGE = "image",
-  TEXT = "text",
-  NUMBER = "number",
-}
-
-export enum OperatorTypes {
-  OR = "OR",
-  AND = "AND",
-}
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -89,8 +59,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       label: VALIDATION_TYPES.TEXT,
       searchText: VALIDATION_TYPES.TEXT,
       defaultSearchText: VALIDATION_TYPES.TEXT,
+      primaryColumns: VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY,
+      derivedColumns: VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY,
       defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
     };
+  }
+
+  static getPropertyPaneConfig() {
+    return tableProperyPaneConfig;
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
@@ -100,10 +76,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndex: undefined,
       selectedRowIndices: undefined,
       searchText: undefined,
-      selectedRow: {},
-      selectedRows: [],
       // The following meta property is used for rendering the table.
       filteredTableData: undefined,
+    };
+  }
+
+  static getDerivedPropertiesMap() {
+    return {
+      selectedRow:
+        "{{(()=> { \
+        const selectedRowIndex = this.selectedRowIndex === undefined || Number.isNaN(parseInt(this.selectedRowIndex)) ? -1 : parseInt(this.selectedRowIndex);\
+        const filteredTableData = this.filteredTableData || []; \
+        if(selectedRowIndex === -1) { const emptyRow = {...filteredTableData[0]}; Object.keys(emptyRow).forEach((key) => { emptyRow[key] = ''; }); return emptyRow; } \
+        return {...filteredTableData[selectedRowIndex]};\
+      })()}}",
+      selectedRows:
+        "{{(()=> { \
+        const selectedRowIndices = this.selectedRowIndices || [];\
+        const filteredTableData = this.filteredTableData || []; \
+        return selectedRowIndices.map((ind) => filteredTableData[ind]);\
+      })()}}",
     };
   }
 
@@ -124,90 +116,143 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
-  getTableColumns = (tableData: Array<Record<string, unknown>>) => {
+  getPropertyValue = (value: any, index: number) => {
+    if (value && Array.isArray(value) && value[index]) {
+      return value[index].toString().toUpperCase();
+    } else if (value) {
+      return value.toString().toUpperCase();
+    } else {
+      return value;
+    }
+  };
+
+  getCellProperties = (
+    columnProperties: ColumnProperties,
+    rowIndex: number,
+  ) => {
+    const cellProperties: CellLayoutProperties = {
+      horizontalAlignment: this.getPropertyValue(
+        columnProperties.horizontalAlignment,
+        rowIndex,
+      ),
+      verticalAlignment: this.getPropertyValue(
+        columnProperties.verticalAlignment,
+        rowIndex,
+      ),
+      cellBackground: this.getPropertyValue(
+        columnProperties.cellBackground,
+        rowIndex,
+      ),
+      buttonStyle: this.getPropertyValue(
+        columnProperties.buttonStyle,
+        rowIndex,
+      ),
+      buttonLabelColor: this.getPropertyValue(
+        columnProperties.buttonLabelColor,
+        rowIndex,
+      ),
+      buttonLabel: this.getPropertyValue(
+        columnProperties.buttonLabel,
+        rowIndex,
+      ),
+      textSize: this.getPropertyValue(columnProperties.textSize, rowIndex),
+      textColor: this.getPropertyValue(columnProperties.textColor, rowIndex),
+      fontStyle: this.getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
+    };
+    return cellProperties;
+  };
+
+  getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
     const {
-      columnNameMap,
+      primaryColumns,
+      sortedColumn,
+      columnOrder,
       columnSizeMap,
-      columnTypeMap,
-      columnActions,
     } = this.props;
-    if (tableData.length) {
-      const columnKeys: string[] = getAllTableColumnKeys(tableData);
-      const sortedColumn = this.props.sortedColumn;
-      for (let index = 0; index < columnKeys.length; index++) {
-        const i = columnKeys[index];
-        const columnName: string =
-          columnNameMap && columnNameMap[i] ? columnNameMap[i] : i;
-        const columnType: {
-          type: string;
-          format?: string;
-          inputFormat?: string;
-        } =
-          columnTypeMap && columnTypeMap[i]
-            ? columnTypeMap[i]
-            : { type: ColumnTypes.TEXT };
-        const columnSize: number =
-          columnSizeMap && columnSizeMap[i] ? columnSizeMap[i] : 150;
-        const isHidden =
-          !!this.props.hiddenColumns && this.props.hiddenColumns.includes(i);
-        const columnData = {
-          Header: columnName,
-          accessor: i,
-          width: columnSize,
-          minWidth: 60,
-          draggable: true,
-          isHidden: false,
-          isAscOrder:
-            sortedColumn && sortedColumn.column === i
-              ? sortedColumn.asc
-              : undefined,
-          metaProperties: {
-            isHidden: isHidden,
-            type: columnType.type,
-            format: columnType.format,
-            inputFormat: columnType.inputFormat,
-          },
-          Cell: (props: any) => {
-            return renderCell(props.cell.value, columnType.type, isHidden);
-          },
-        };
-        if (isHidden) {
-          columnData.isHidden = true;
-          hiddenColumns.push(columnData);
-        } else {
-          columns.push(columnData);
-        }
-      }
-      columns = reorderColumns(columns, this.props.columnOrder || []);
-      if (columnActions?.length) {
-        columns.push({
-          Header:
-            columnNameMap && columnNameMap["actions"]
-              ? columnNameMap["actions"]
-              : "Actions",
-          accessor: "actions",
-          width: 150,
-          minWidth: 60,
-          draggable: true,
-          Cell: (props: any) => {
-            return renderActions({
-              isSelected: props.row.isSelected,
-              columnActions: columnActions,
-              onCommandClick: this.onCommandClick,
+    let allColumns = [...(primaryColumns || [])];
+    const sortColumn = sortedColumn?.column;
+    const sortOrder = sortedColumn?.asc;
+    if (columnOrder) {
+      allColumns = reorderColumns(allColumns, columnOrder);
+    }
+    for (let index = 0; index < allColumns.length; index++) {
+      const columnProperties = allColumns[index];
+      const isHidden = !columnProperties.isVisible;
+      const accessor = columnProperties.id;
+      const columnData = {
+        Header: columnProperties.label,
+        accessor: accessor,
+        width: columnSizeMap?.[accessor] || columnProperties.width,
+        minWidth: 60,
+        draggable: true,
+        isHidden: false,
+        isAscOrder: columnProperties.id === sortColumn ? sortOrder : undefined,
+        isDerived: columnProperties.isDerived,
+        metaProperties: {
+          isHidden: isHidden,
+          type: columnProperties.columnType,
+          format: columnProperties?.outputFormat || "",
+          inputFormat: columnProperties?.inputFormat || "",
+        },
+        columnProperties: JSON.stringify(columnProperties),
+        Cell: (props: any) => {
+          const rowIndex: number = props.cell.row.index;
+          const cellProperties = this.getCellProperties(
+            columnProperties,
+            rowIndex,
+          );
+          if (columnProperties.columnType === "button") {
+            const buttonProps = {
+              isSelected: !!props.row.isSelected,
+              onCommandClick: (action: string, onComplete: () => void) =>
+                this.onCommandClick(rowIndex, action, onComplete),
+              backgroundColor: cellProperties.buttonStyle || "#29CCA3",
+              buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
+              columnActions: [
+                {
+                  id: columnProperties.id,
+                  label: cellProperties.buttonLabel || "Action",
+                  dynamicTrigger: columnProperties.onClick || "",
+                },
+              ],
+            };
+            return renderActions(buttonProps, isHidden, cellProperties);
+          } else if (columnProperties.columnType === "dropdown") {
+            let options = [];
+            try {
+              options = JSON.parse(columnProperties.dropdownOptions || "");
+            } catch (e) {}
+            return renderDropdown({
+              options: options,
+              onItemSelect: this.onItemSelect,
+              onOptionChange: columnProperties.onOptionChange || "",
+              selectedIndex: isNumber(props.cell.value)
+                ? props.cell.value
+                : undefined,
             });
-          },
-        });
-      }
-      if (
-        hiddenColumns.length &&
-        this.props.renderMode === RenderModes.CANVAS
-      ) {
-        columns = columns.concat(hiddenColumns);
+          } else {
+            return renderCell(
+              props.cell.value,
+              columnProperties.columnType,
+              isHidden,
+              cellProperties,
+            );
+          }
+        },
+      };
+      if (isHidden) {
+        columnData.isHidden = true;
+        hiddenColumns.push(columnData);
+      } else {
+        columns.push(columnData);
       }
     }
-    return columns;
+    if (hiddenColumns.length && this.props.renderMode === RenderModes.CANVAS) {
+      columns = columns.concat(hiddenColumns);
+    }
+    return columns.filter((column: ReactTableColumnProps) => column.accessor);
   };
 
   transformData = (
@@ -225,15 +270,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           let value = data[accessor];
           if (column.metaProperties) {
             const type = column.metaProperties.type;
-            const format = column.metaProperties.format;
             switch (type) {
-              case ColumnTypes.CURRENCY:
-                if (!isNaN(value)) {
-                  tableRow[accessor] = `${format}${value ? value : ""}`;
-                } else {
-                  tableRow[accessor] = "Invalid Value";
-                }
-                break;
               case ColumnTypes.DATE:
                 let isValidDate = true;
                 let outputFormat = column.metaProperties.format;
@@ -303,23 +340,48 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   filterTableData = () => {
     const { searchText, sortedColumn, filters, tableData } = this.props;
-    const columns = this.getTableColumns(tableData);
     if (!tableData || !tableData.length) {
       return [];
     }
+    const derivedTableData: Array<Record<string, unknown>> = [...tableData];
+    if (this.props.primaryColumns) {
+      for (let i = 0; i < this.props.primaryColumns.length; i++) {
+        const column: ColumnProperties = this.props.primaryColumns[i];
+        const columnId = column.id;
+        if (column.computedValue && Array.isArray(column.computedValue)) {
+          try {
+            let computedValues: Array<unknown> = [];
+            if (isString(column.computedValue)) {
+              computedValues = JSON.parse(column.computedValue);
+            } else {
+              computedValues = column.computedValue;
+            }
+            for (let index = 0; index < computedValues.length; index++) {
+              derivedTableData[index] = {
+                ...derivedTableData[index],
+                [columnId]: computedValues[index],
+              };
+            }
+          } catch (e) {
+            console.log({ e });
+          }
+        }
+      }
+    }
     let sortedTableData: any[];
+    const columns = this.getTableColumns();
     const searchKey = searchText ? searchText.toUpperCase() : "";
     if (sortedColumn) {
       const sortColumn = sortedColumn.column;
       const sortOrder = sortedColumn.asc;
       sortedTableData = sortTableFunction(
-        tableData,
+        derivedTableData,
         columns,
         sortColumn,
         sortOrder,
       );
     } else {
-      sortedTableData = [...tableData];
+      sortedTableData = [...derivedTableData];
     }
     return sortedTableData.filter((item: { [key: string]: any }) => {
       const searchFound = searchKey
@@ -349,61 +411,212 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
   };
 
+  getEmptyRow = () => {
+    const columnKeys: string[] = getAllTableColumnKeys(this.props.tableData);
+    const selectedRow: { [key: string]: any } = {};
+    for (let i = 0; i < columnKeys.length; i++) {
+      selectedRow[columnKeys[i]] = undefined;
+    }
+    return selectedRow;
+  };
+
   getSelectedRow = (
     filteredTableData: Array<Record<string, unknown>>,
     selectedRowIndex?: number,
   ) => {
     if (selectedRowIndex === undefined || selectedRowIndex === -1) {
-      const columnKeys: string[] = getAllTableColumnKeys(this.props.tableData);
-      const selectedRow: { [key: string]: any } = {};
-      for (let i = 0; i < columnKeys.length; i++) {
-        selectedRow[columnKeys[i]] = undefined;
-      }
-      return selectedRow;
+      return this.getEmptyRow();
     }
-    return filteredTableData[selectedRowIndex];
+    return {
+      ...filteredTableData[selectedRowIndex],
+    };
   };
 
-  getSelectedRows = (
-    filteredTableData: Array<Record<string, unknown>>,
-    selectedRowIndices: Array<number>,
+  getDerivedColumns = (
+    derivedColumns: ColumnProperties[],
+    columnLength: number,
   ) => {
-    return filteredTableData.filter(
-      (item: Record<string, unknown>, i: number) => {
-        return selectedRowIndices.includes(i);
-      },
+    if (!derivedColumns) return [];
+    //update index property of all columns in new derived columns
+    return (
+      derivedColumns?.map((column: ColumnProperties, index: number) => {
+        return {
+          ...column,
+          index: index + columnLength,
+        };
+      }) || []
     );
+  };
+
+  createTablePrimaryColumns = () => {
+    const { tableData, dynamicBindingPathList, columnOrder } = this.props;
+    const derivedColumns = this.props.derivedColumns;
+    // If there is tableData attempt to generate primaryColumns
+    if (tableData) {
+      let tableColumns: ColumnProperties[] = [];
+      //Get table level styles
+      const tableStyles = getTableStyles(this.props);
+      const columnKeys: string[] = getAllTableColumnKeys(tableData);
+      // Generate default column properties for all columns
+      for (let index = 0; index < columnKeys.length; index++) {
+        const i = columnKeys[index];
+        const columnProperties = getDefaultColumnProperties(
+          i,
+          index,
+          this.props.widgetName,
+        );
+        //add column properties along with table level styles
+        tableColumns.push({
+          ...columnProperties,
+          ...tableStyles,
+        });
+      }
+      // Get derived columns
+      const updatedDerivedColumns = this.getDerivedColumns(
+        derivedColumns,
+        tableColumns.length,
+      );
+      //Get existing derived column paths
+      const derivedColumnsPaths =
+        derivedColumns?.map(
+          (column: ColumnProperties) => `primaryColumns[${column.index}]`,
+        ) || [];
+
+      //add derived columns to primary columns
+      tableColumns = tableColumns.concat(updatedDerivedColumns);
+      //update dynamic bindings pathlist
+      const updatedDynamicBindingPathList = compact(
+        dynamicBindingPathList?.map((item: { key: string }) => {
+          // If we have bindings in any of the columns
+          if (item.key.includes("primaryColumns")) {
+            // Get the first token (`primaryColumns[index]`) of the path
+            const columnPath = item.key.split(".")[0];
+
+            // If the derivedColumns already had these paths
+            if (derivedColumnsPaths.includes(columnPath)) {
+              // Get the column id of the derivedColumn for wich the paths matched
+              const columnId = derivedColumns.find(
+                (column: ColumnProperties) => {
+                  return `primaryColumns[${column.index}]` === columnPath;
+                },
+              )?.id;
+
+              // If we have a column Id for the derived column for which a dynamic binding path exists
+              if (columnId) {
+                // Get the column form the updatedDerivedColumn
+                const column = updatedDerivedColumns.find(
+                  (column: ColumnProperties) => {
+                    return column.id === columnId;
+                  },
+                );
+
+                // If we find the column
+                if (column) {
+                  // The new path for the binding becomes...
+                  return {
+                    key: `primaryColumns[${column.index}].${
+                      item.key.split(".")[1]
+                    }`,
+                  };
+                }
+              }
+            }
+            return;
+          }
+          return item;
+        }),
+      );
+
+      super.updateWidgetProperty(
+        "dynamicBindingPathList",
+        updatedDynamicBindingPathList,
+      );
+      super.updateWidgetProperty("primaryColumns", tableColumns);
+      const newTableColumnOrder = tableColumns.map(
+        (column: ColumnProperties) => column.id,
+      );
+      // If new columnOrders have different values from the original columnOrders
+      if (xor(newTableColumnOrder, columnOrder).length > 0) {
+        super.updateWidgetProperty("columnOrder", newTableColumnOrder);
+      }
+      super.updateWidgetProperty("derivedColumns", updatedDerivedColumns);
+    }
   };
 
   componentDidMount() {
     const filteredTableData = this.filterTableData();
     this.props.updateWidgetMetaProperty("filteredTableData", filteredTableData);
-    const { selectedRowIndex } = this.props;
-    this.props.updateWidgetMetaProperty(
-      "selectedRow",
-      this.getSelectedRow(filteredTableData, selectedRowIndex),
-    );
+    setTimeout(() => {
+      if (
+        !this.props.primaryColumns ||
+        this.props.primaryColumns.length === 0
+      ) {
+        this.createTablePrimaryColumns();
+      }
+    }, 0);
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
-    const tableDataUpdated =
+    // Check if data is modifed by comparing the stringified versions of the previous and next tableData
+    const tableDataModified =
       JSON.stringify(this.props.tableData) !==
       JSON.stringify(prevProps.tableData);
+
+    let hasPrimaryColumnsComputedValueChanged = false;
+    const oldComputedValues = prevProps.primaryColumns?.map(
+      (column: ColumnProperties) => column.computedValue,
+    );
+    const newComputedValues = this.props.primaryColumns?.map(
+      (column: ColumnProperties) => column.computedValue,
+    );
+    if (!isEqual(oldComputedValues, newComputedValues)) {
+      hasPrimaryColumnsComputedValueChanged = true;
+    }
+
+    // If tableData has changed or
+    // Table filters have changed or
+    // Table search Text has changed or
+    // Sorting has changed
+    // filteredTableData is not created
     if (
-      tableDataUpdated ||
+      tableDataModified ||
       JSON.stringify(this.props.filters) !==
         JSON.stringify(prevProps.filters) ||
       this.props.searchText !== prevProps.searchText ||
       JSON.stringify(this.props.sortedColumn) !==
         JSON.stringify(prevProps.sortedColumn) ||
-      !this.props.filteredTableData
+      hasPrimaryColumnsComputedValueChanged ||
+      this.props.filteredTableData === undefined
     ) {
       const filteredTableData = this.filterTableData();
+      // Update filteredTableData meta property
       this.props.updateWidgetMetaProperty(
         "filteredTableData",
         filteredTableData,
       );
-      if (!this.props.multiRowSelection) {
+      //TODO(abhinav/Vicky) : What we render and the FilteredTableData are different. What we render is correct
+    }
+
+    // If the user has changed the tableData OR
+    // The binding has returned a new value
+    if (tableDataModified) {
+      // Get columns keys from this.props.tableData
+      const columnIds: string[] = getAllTableColumnKeys(this.props.tableData);
+      // Get column keys from columns except for derivedColumns
+      const primaryColumnIds = (this.props.primaryColumns || [])
+        .filter((column: ColumnProperties) => {
+          return !column.isDerived; // Filter out the derived columns
+        })
+        .map((column: ColumnProperties) => {
+          return column.id; // Get the ids only
+        });
+      // If the keys which exist in the tableData are different from the ones available in primaryColumns
+      if (!isEqual(columnIds, primaryColumnIds)) {
+        this.createTablePrimaryColumns(); // This updates the widget
+      }
+    }
+
+    /*if (!this.props.multiRowSelection) {
         const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
           ? this.props.defaultSelectedRow
           : -1;
@@ -426,38 +639,27 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         this.props.updateWidgetMetaProperty(
           "selectedRows",
           this.getSelectedRows(filteredTableData, selectedRowIndices),
-        );
-      }
-    }
+        );*/
+
+    // If the user has switched the mutiple row selection feature
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
+      // It is switched ON:
       if (this.props.multiRowSelection) {
+        // Use the selectedRowIndex if available as default selected index
         const selectedRowIndices = this.props.selectedRowIndex
           ? [this.props.selectedRowIndex]
-          : [];
+          : []; // Else use an empty array
         this.props.updateWidgetMetaProperty(
           "selectedRowIndices",
           selectedRowIndices,
         );
         this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
-        const filteredTableData = this.filterTableData();
-        this.props.updateWidgetMetaProperty(
-          "selectedRows",
-          this.getSelectedRows(filteredTableData, selectedRowIndices),
-        );
-        this.props.updateWidgetMetaProperty(
-          "selectedRow",
-          this.getSelectedRow(filteredTableData),
-        );
       } else {
-        const filteredTableData = this.filterTableData();
         this.props.updateWidgetMetaProperty("selectedRowIndices", []);
-        this.props.updateWidgetMetaProperty("selectedRows", []);
-        this.props.updateWidgetMetaProperty(
-          "selectedRow",
-          this.getSelectedRow(filteredTableData),
-        );
       }
     }
+
+    // If the user changed the defaultSelectedRow(s)
     if (!isEqual(this.props.defaultSelectedRow, prevProps.defaultSelectedRow)) {
       //Runs only when defaultSelectedRow is changed from property pane
       if (!this.props.multiRowSelection) {
@@ -468,10 +670,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           "selectedRowIndex",
           selectedRowIndex,
         );
-        this.props.updateWidgetMetaProperty(
-          "selectedRow",
-          this.getSelectedRow(this.props.filteredTableData, selectedRowIndex),
-        );
       } else {
         const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
           ? this.props.defaultSelectedRow
@@ -479,13 +677,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         this.props.updateWidgetMetaProperty(
           "selectedRowIndices",
           selectedRowIndices,
-        );
-        this.props.updateWidgetMetaProperty(
-          "selectedRows",
-          this.getSelectedRows(
-            this.props.filteredTableData,
-            selectedRowIndices,
-          ),
         );
       }
     }
@@ -498,13 +689,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   getPageView() {
-    const { tableData, hiddenColumns, filteredTableData } = this.props;
+    const { hiddenColumns, filteredTableData } = this.props;
     const computedSelectedRowIndices = Array.isArray(
       this.props.selectedRowIndices,
     )
       ? this.props.selectedRowIndices
       : [];
-    const tableColumns = this.getTableColumns(tableData);
+    const tableColumns = this.getTableColumns();
 
     const transformedData = this.transformData(
       filteredTableData || [],
@@ -555,10 +746,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           searchKey={this.props.searchText}
           editMode={this.props.renderMode === RenderModes.CANVAS}
           hiddenColumns={hiddenColumns}
-          columnActions={this.props.columnActions}
-          columnNameMap={this.props.columnNameMap}
-          columnTypeMap={this.props.columnTypeMap}
           columnOrder={this.props.columnOrder}
+          columnSizeMap={this.props.columnSizeMap}
           pageSize={Math.max(1, pageSize)}
           onCommandClick={this.onCommandClick}
           selectedRowIndex={
@@ -573,25 +762,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           pageNo={pageNo}
           nextPageClick={this.handleNextPageClick}
           prevPageClick={this.handlePrevPageClick}
+          updateColumnSize={(columnSizeMap: { [key: string]: number }) => {
+            super.updateWidgetProperty("columnSizeMap", columnSizeMap);
+          }}
           updatePageNo={this.updatePageNumber}
           updateHiddenColumns={(hiddenColumns?: string[]) => {
             super.updateWidgetProperty("hiddenColumns", hiddenColumns);
           }}
-          updateColumnType={(columnTypeMap: {
-            [key: string]: { type: string; format: string };
-          }) => {
-            super.updateWidgetProperty("columnTypeMap", columnTypeMap);
-          }}
-          updateColumnName={(columnNameMap: { [key: string]: string }) => {
-            super.updateWidgetProperty("columnNameMap", columnNameMap);
-          }}
-          handleResizeColumn={(columnSizeMap: { [key: string]: number }) => {
-            super.updateWidgetProperty("columnSizeMap", columnSizeMap);
-          }}
           handleReorderColumn={(columnOrder: string[]) => {
             super.updateWidgetProperty("columnOrder", columnOrder);
           }}
-          columnSizeMap={this.props.columnSizeMap}
           disableDrag={(disable: boolean) => {
             this.disableDrag(disable);
           }}
@@ -643,12 +823,35 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     super.updateWidgetProperty("hiddenColumns", hiddenColumns);
   };
 
-  onCommandClick = (action: string, onComplete: () => void) => {
+  onCommandClick = (
+    rowIndex: number,
+    action: string,
+    onComplete: () => void,
+  ) => {
+    try {
+      const rowData = [this.props.filteredTableData[rowIndex]];
+      const { jsSnippets } = getDynamicBindings(action);
+      const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
+        return prev + `{{(currentRow) => { ${next} }}} `;
+      }, "");
+      super.executeAction({
+        dynamicString: modifiedAction,
+        event: {
+          type: EventType.ON_CLICK,
+          callback: onComplete,
+        },
+        responseData: rowData,
+      });
+    } catch (error) {
+      log.debug("Error parsing row action", error);
+    }
+  };
+
+  onItemSelect = (action: string) => {
     super.executeAction({
       dynamicString: action,
       event: {
-        type: EventType.ON_CLICK,
-        callback: onComplete,
+        type: EventType.ON_OPTION_CHANGE,
       },
     });
   };
@@ -727,10 +930,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         ? this.props.defaultSelectedRow
         : -1;
       this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
-      this.props.updateWidgetMetaProperty(
-        "selectedRow",
-        this.getSelectedRow(this.props.filteredTableData, selectedRowIndex),
-      );
     } else {
       const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
         ? this.props.defaultSelectedRow
@@ -738,10 +937,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty(
         "selectedRowIndices",
         selectedRowIndices,
-      );
-      this.props.updateWidgetMetaProperty(
-        "selectedRows",
-        this.getSelectedRows(this.props.filteredTableData, selectedRowIndices),
       );
     }
   };
@@ -765,65 +960,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getWidgetType(): WidgetType {
     return "TABLE_WIDGET";
   }
-}
-
-export type CompactMode = keyof typeof CompactModeTypes;
-export type Condition = keyof typeof ConditionFunctions | "";
-export type Operator = keyof typeof OperatorTypes;
-export interface ReactTableFilter {
-  column: string;
-  operator: Operator;
-  condition: Condition;
-  value: any;
-}
-export interface TableColumnMetaProps {
-  isHidden: boolean;
-  format?: string;
-  type: string;
-  inputFormat?: string;
-}
-export interface ReactTableColumnProps {
-  Header: string;
-  accessor: string;
-  width: number;
-  minWidth: number;
-  draggable: boolean;
-  isHidden?: boolean;
-  isAscOrder?: boolean;
-  metaProperties?: TableColumnMetaProps;
-  Cell: (props: any) => JSX.Element;
-}
-
-export interface TableWidgetProps extends WidgetProps, WithMeta {
-  nextPageKey?: string;
-  prevPageKey?: string;
-  label: string;
-  searchText: string;
-  defaultSearchText: string;
-  defaultSelectedRow?: number | number[];
-  tableData: Array<Record<string, unknown>>;
-  onPageChange?: string;
-  pageSize: number;
-  onRowSelected?: string;
-  onSearchTextChanged: string;
-  selectedRowIndex?: number;
-  selectedRowIndices: number[];
-  columnActions?: ColumnAction[];
-  serverSidePaginationEnabled?: boolean;
-  multiRowSelection?: boolean;
-  hiddenColumns?: string[];
-  columnOrder?: string[];
-  columnNameMap?: { [key: string]: string };
-  columnTypeMap?: {
-    [key: string]: { type: string; format: string; inputFormat?: string };
-  };
-  columnSizeMap?: { [key: string]: number };
-  filters?: ReactTableFilter[];
-  compactMode?: CompactMode;
-  sortedColumn?: {
-    column: string;
-    asc: boolean;
-  };
 }
 
 export default TableWidget;

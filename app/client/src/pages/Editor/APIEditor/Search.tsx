@@ -19,7 +19,7 @@ const SearchBar = styled(BaseTextInput)`
 `;
 
 class Search extends React.Component {
-  handleSearchChange = (e: any) => {
+  handleSearchChange = () => {
     console.log("test");
   };
 

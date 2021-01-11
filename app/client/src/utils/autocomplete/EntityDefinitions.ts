@@ -67,7 +67,7 @@ export const entityDefinitions = {
     isVisible: isVisible,
     searchText: "string",
   }),
-  VIDEO_WIDGET: (widget: any) => ({
+  VIDEO_WIDGET: () => ({
     "!doc":
       "Video widget can be used for playing a variety of URLs, including file paths, YouTube, Facebook, Twitch, SoundCloud, Streamable, Vimeo, Wistia, Mixcloud, and DailyMotion.",
     "!url": "https://docs.appsmith.com/widget-reference/video",

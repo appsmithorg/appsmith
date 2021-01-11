@@ -8,10 +8,6 @@ const StyledDiv = styled.div`
   display: block;
 `;
 
-type SkeletonProps = {
-  type?: string;
-};
-
 export const Skeleton = () => {
   return <StyledDiv className={Classes.SKELETON} />;
 };

@@ -11,10 +11,7 @@ import {
   OptionWrapper,
   IconOptionWrapper,
 } from "./TableStyledWrappers";
-import {
-  ColumnMenuSubOptionProps,
-  ColumnMenuOptionProps,
-} from "./ReactTableComponent";
+import { ColumnMenuSubOptionProps, ColumnMenuOptionProps } from "./";
 
 interface TableColumnMenuPopup {
   columnIndex: number;

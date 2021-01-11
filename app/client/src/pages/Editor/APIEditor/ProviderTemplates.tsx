@@ -251,8 +251,8 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
     this.setState({ addedTemplates });
   };
 
-  handleSearchChange = (e: React.ChangeEvent<{ value: string }>) => {
-    const value = e.target.value;
+  handleSearchChange = () => {
+    // const value = e.target.value;
   };
 
   handleIsOpen = (templateId: string) => {

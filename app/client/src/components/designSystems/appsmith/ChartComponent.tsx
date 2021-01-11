@@ -89,6 +89,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         },
       ];
     }
+
     const data: ChartDataPoint[] = chartData[0].data;
     if (data.length === 0) {
       return [

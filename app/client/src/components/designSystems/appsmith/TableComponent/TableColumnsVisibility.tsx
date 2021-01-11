@@ -11,9 +11,9 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ReactComponent as VisibleIcon } from "assets/icons/control/columns-visibility.svg";
 import Button from "components/editorComponents/Button";
-import { ReactTableColumnProps } from "widgets/TableWidget";
-import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
-import TableActionIcon from "components/designSystems/appsmith/TableActionIcon";
+import { ReactTableColumnProps } from "components/designSystems/appsmith/TableComponent/Constants";
+import { TableIconWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
+import TableActionIcon from "components/designSystems/appsmith/TableComponent/TableActionIcon";
 
 const DropDownWrapper = styled.div`
   display: flex;
