@@ -208,7 +208,10 @@ export default function* errorSagas() {
     flushErrorsAndRedirectSaga,
   );
   yield takeLatest(
-    ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+    [
+      ReduxActionErrorTypes.FETCH_USER_DETAILS_ERROR,
+      ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+    ],
     safeCrashSagaRequest,
   );
 }
