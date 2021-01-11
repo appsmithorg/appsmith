@@ -19,7 +19,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
-import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.Page;    
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
@@ -27,10 +27,8 @@ import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QDatasource;
 import com.appsmith.server.domains.QPlugin;
-import com.appsmith.server.domains.Query;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
-import com.appsmith.server.domains.Setting;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
@@ -309,18 +307,8 @@ public class DatabaseChangelog {
                 makeIndex("packageName").unique()
         );
 
-        ensureIndexes(mongoTemplate, Query.class,
-                createdAtIndex,
-                makeIndex("name").unique()
-        );
-
         ensureIndexes(mongoTemplate, Role.class,
                 createdAtIndex
-        );
-
-        ensureIndexes(mongoTemplate, Setting.class,
-                createdAtIndex,
-                makeIndex("key").unique()
         );
 
         ensureIndexes(mongoTemplate, User.class,
@@ -1545,7 +1533,7 @@ public class DatabaseChangelog {
                 List<Property> properties = datasource.getDatasourceConfiguration().getProperties();
                 Optional<Property> isSendSessionEnabledOptional = properties
                         .stream()
-                        .filter(property -> property.getKey().equals(keyName))
+                        .filter(property -> keyName.equals(property.getKey()))
                         .findFirst();
 
                 if (!isSendSessionEnabledOptional.isPresent()) {
@@ -1563,6 +1551,25 @@ public class DatabaseChangelog {
             }
 
         }
+    }
 
+    @ChangeSet(order = "048", id = "add-redshift-plugin", author = "")
+    public void addRedshiftPlugin (MongoTemplate mongoTemplate){
+        Plugin plugin = new Plugin();
+        plugin.setName("Redshift");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("redshift-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Redshift.png");
+        plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-redshift");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
 }

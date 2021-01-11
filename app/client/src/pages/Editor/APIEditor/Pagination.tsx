@@ -39,10 +39,13 @@ const StyledDynamicTextField = styled(DynamicTextField)`
 
 const TestButton = styled(BaseButton)`
   &&& {
-    max-width: 72px;
     margin: 0 5px;
     min-height: 32px;
     padding-right: 4px;
+  }
+
+  &&&& {
+    width: auto;
   }
 `;
 

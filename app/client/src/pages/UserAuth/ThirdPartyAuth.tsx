@@ -10,6 +10,7 @@ import { useLocation } from "react-router-dom";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { setOnboardingState } from "utils/storage";
 
 const ThirdPartyAuthWrapper = styled.div`
   display: flex;
@@ -76,8 +77,8 @@ const SocialLoginButton = (props: {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   let url = props.url;
-  if (queryParams.has("redirectTo")) {
-    url += `?redirectUrl=${queryParams.get("redirectTo")}`;
+  if (queryParams.has("redirectUrl")) {
+    url += `?redirectUrl=${queryParams.get("redirectUrl")}`;
   }
   return (
     <StyledSocialLoginButton
@@ -86,6 +87,9 @@ const SocialLoginButton = (props: {
         let eventName: EventName = "LOGIN_CLICK";
         if (props.type === "SIGNUP") {
           eventName = "SIGNUP_CLICK";
+
+          // Set onboarding flag on signup
+          setOnboardingState(true);
         }
         PerformanceTracker.startTracking(
           eventName === "SIGNUP_CLICK"

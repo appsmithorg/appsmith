@@ -40,6 +40,7 @@
   "env": {
     "browser": true,
     "node": true,
-    "cypress/globals": true
+    "cypress/globals": true,
+    "worker": true
   }
 }

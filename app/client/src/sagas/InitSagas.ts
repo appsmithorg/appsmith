@@ -67,7 +67,7 @@ function* initializeEditorSaga(
 
     if (resultOfPrimaryCalls.failure) {
       yield put({
-        type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
         payload: {
           code: get(
             resultOfPrimaryCalls,
@@ -94,7 +94,7 @@ function* initializeEditorSaga(
 
     if (resultOfSecondaryCalls.failure) {
       yield put({
-        type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
         payload: {
           code: get(
             resultOfPrimaryCalls,
@@ -123,7 +123,7 @@ function* initializeEditorSaga(
     });
   } catch (e) {
     yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
       payload: {
         code: ERROR_CODES.SERVER_ERROR,
       },
@@ -162,7 +162,7 @@ export function* initializeAppViewerSaga(
 
   if (resultOfPrimaryCalls.failure) {
     yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
       payload: {
         code: get(
           resultOfPrimaryCalls,
@@ -188,7 +188,7 @@ export function* initializeAppViewerSaga(
 
     if (resultOfFetchPage.failure) {
       yield put({
-        type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
         payload: {
           code: get(
             resultOfFetchPage,

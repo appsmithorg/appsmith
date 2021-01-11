@@ -35,14 +35,15 @@ describe("Moment basic test with input Widget", function() {
   });
 
   it("publish widget and validate the data displayed in input widgets", function() {
+    var currentTime = new Date();
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")
-      .should("contain", "2020");
+      .should("contain", currentTime.getFullYear());
     cy.get(publish.inputWidget + " " + "input")
       .last()
       .invoke("attr", "value")
-      .should("contain", "2020");
+      .should("contain", currentTime.getFullYear());
   });
 });

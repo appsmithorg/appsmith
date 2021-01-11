@@ -250,6 +250,7 @@ Cypress.Commands.add("CreateApp", (appname) => {
   );
   cy.get("#loading").should("not.exist");
   cy.wait(1000);
+
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",
@@ -924,7 +925,7 @@ Cypress.Commands.add(
 Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.get(commonlocators.editWidgetName)
     .click({ force: true })
-    .type(text)
+    .type(text, { delay: 300 })
     .type("{enter}");
   cy.get(inputcss)
     .first()
@@ -951,11 +952,18 @@ Cypress.Commands.add("PublishtheApp", () => {
   // Wait before publish
   cy.wait(2000);
   cy.assertPageSave();
+
+  // Stubbing window.open to open in the same tab
+  cy.window().then((window) => {
+    cy.stub(window, "open").callsFake((url) => {
+      window.location.href = Cypress.config().baseUrl + url.substring(1);
+      window.location.target = "_self";
+    });
+  });
+
   cy.get(homePage.publishButton).click();
   cy.wait("@publishApp");
-  cy.get('a[class="bp3-button"]')
-    .invoke("removeAttr", "target")
-    .click({ force: true });
+
   cy.url().should("include", "/pages");
   cy.log("pagename: " + localStorage.getItem("PageName"));
 });
@@ -1228,24 +1236,6 @@ Cypress.Commands.add("dropdownDynamic", (text) => {
     .contains(text)
     .click({ force: true })
     .should("have.text", text);
-});
-
-Cypress.Commands.add("getAlert", (alertcss) => {
-  cy.get(commonlocators.dropdownSelectButton).click({ force: true });
-  cy.get(widgetsPage.menubar)
-    .contains("Show Alert")
-    .click({ force: true })
-    .should("have.text", "Show Alert");
-
-  cy.get(alertcss)
-    .click({ force: true })
-    .type("{command}{A}{del}")
-    .type("hello")
-    .should("not.to.be.empty");
-  cy.get(".t--open-dropdown-Select-type").click({ force: true });
-  cy.get(".bp3-popover-content .bp3-menu li")
-    .contains("Success")
-    .click({ force: true });
 });
 
 Cypress.Commands.add("tabVerify", (index, text) => {

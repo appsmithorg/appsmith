@@ -1034,8 +1034,8 @@ public class ApplicationServiceTest {
                 .create(applicationPagesDTOMono)
                 .assertNext(applicationPagesDTO -> {
                     assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
-                    Set<String> pageNames = applicationPagesDTO.getPages().stream().map(pageNameIdDTO -> pageNameIdDTO.getName()).collect(Collectors.toSet());
-                    assertThat(pageNames).containsExactlyInAnyOrder("Page1", "Page2", "Page3", "Page4");
+                    List<String> pageNames = applicationPagesDTO.getPages().stream().map(pageNameIdDTO -> pageNameIdDTO.getName()).collect(Collectors.toList());
+                    assertThat(pageNames).containsExactly("Page1", "Page2", "Page3", "Page4");
                 })
                 .verifyComplete();
     }
