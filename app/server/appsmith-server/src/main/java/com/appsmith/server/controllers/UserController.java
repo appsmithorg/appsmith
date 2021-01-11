@@ -50,6 +50,7 @@ public class UserController extends BaseController<UserService, User, String> {
     }
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<User>> create(@Valid @RequestBody User resource,
                                           @RequestHeader(name = "Origin", required = false) String originHeader,
                                           ServerWebExchange exchange) {
