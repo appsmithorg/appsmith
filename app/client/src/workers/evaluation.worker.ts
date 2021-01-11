@@ -275,17 +275,18 @@ export class DataTreeEvaluator {
 
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
-    const removedDependencyNodes = this.updateDependencyMap(
-      differences,
-      unEvalTreeWithFunctions,
-    );
+    const {
+      dependenciesOfRemovedPaths,
+      removedPaths,
+    } = this.updateDependencyMap(differences, unEvalTreeWithFunctions);
     const updateDependenciesStop = performance.now();
 
     const calculateSortOrderStart = performance.now();
 
     const subTreeSortOrder: string[] = this.calculateSubTreeSortOrder(
       differences,
-      removedDependencyNodes,
+      dependenciesOfRemovedPaths,
+      removedPaths,
     );
 
     const calculateSortOrderStop = performance.now();
@@ -310,6 +311,12 @@ export class DataTreeEvaluator {
         _.set(this.evalTree, propertyPath, unEvalPropValue);
       }
     });
+
+    // Remove any deleted paths from the eval tree
+    removedPaths.forEach((removedPath) => {
+      _.unset(this.evalTree, removedPath);
+    });
+
     const evaluatedTree = this.evaluateTree(this.evalTree, subTreeSortOrder);
     const evalStop = performance.now();
 
@@ -876,10 +883,14 @@ export class DataTreeEvaluator {
   updateDependencyMap(
     differences: Array<Diff<any, any>>,
     unEvalDataTree: DataTree,
-  ): Array<string> {
+  ): {
+    dependenciesOfRemovedPaths: Array<string>;
+    removedPaths: Array<string>;
+  } {
     const diffCalcStart = performance.now();
     let didUpdateDependencyMap = false;
-    const removedNodes: Array<string> = [];
+    const dependenciesOfRemovedPaths: Array<string> = [];
+    const removedPaths: Array<string> = [];
 
     // This is needed for NEW and DELETE events below.
     // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
@@ -929,6 +940,8 @@ export class DataTreeEvaluator {
               break;
             }
             case DataTreeDiffEvent.DELETE: {
+              // Add to removedPaths as they have been deleted from the evalTree
+              removedPaths.push(dataTreeDiff.payload.propertyPath);
               // If an existing widget was deleted, remove all the bindings from the global dependency map
               if (
                 entityType === ENTITY_TYPE.WIDGET &&
@@ -968,7 +981,7 @@ export class DataTreeEvaluator {
                           dependantPath,
                         )
                       ) {
-                        removedNodes.push(dependencyPath);
+                        dependenciesOfRemovedPaths.push(dependencyPath);
                         toRemove.push(dependantPath);
                       }
                     },
@@ -1051,46 +1064,42 @@ export class DataTreeEvaluator {
       ).toFixed(2),
     });
 
-    return removedNodes;
+    return { dependenciesOfRemovedPaths, removedPaths };
   }
 
   calculateSubTreeSortOrder(
     differences: Diff<any, any>[],
-    removedDependencyNodes: Array<string>,
+    dependenciesOfRemovedPaths: Array<string>,
+    removedPaths: Array<string>,
   ) {
-    const changePaths: Set<string> = new Set(removedDependencyNodes);
+    const changePaths: Set<string> = new Set(dependenciesOfRemovedPaths);
     differences.forEach((d) => {
-      if (d.path) {
-        // Apply the changes into the oldEvalTree so that it can be evaluated
-        applyChange(this.evalTree, undefined, d);
+      // If this is a property path change, simply add for evaluation
+      if (d.path && d.path.length > 1) {
+        const propertyPath = convertPathToString(d.path);
+        changePaths.add(propertyPath);
 
-        // If this is a property path change, simply add for evaluation
-        if (d.path.length > 1) {
-          const propertyPath = convertPathToString(d.path);
-          changePaths.add(propertyPath);
-
-          // If this is an array update, trim the array index and add it to the change paths for evaluation
-          // This is because sometimes inside an object of array time, if only a particular entry changes, the
-          // difference comes as propertyPath[0].fieldChanged. Another entity could depend on propertyPath and not
-          // propertyPath[0]. The said entity must be evaluated.
-          // To do this, we are trimming the array index
-          if (propertyPath.lastIndexOf("[") > 0) {
-            changePaths.add(
-              propertyPath.substr(0, propertyPath.lastIndexOf("[")),
-            );
-          }
-        } else if (d.path.length === 1) {
-          /*
+        // If this is an array update, trim the array index and add it to the change paths for evaluation
+        // This is because sometimes inside an object of array time, if only a particular entry changes, the
+        // difference comes as propertyPath[0].fieldChanged. Another entity could depend on propertyPath and not
+        // propertyPath[0]. The said entity must be evaluated.
+        // To do this, we are trimming the array index
+        if (propertyPath.lastIndexOf("[") > 0) {
+          changePaths.add(
+            propertyPath.substr(0, propertyPath.lastIndexOf("[")),
+          );
+        }
+      } else if (d.path && d.path.length === 1) {
+        /*
             When we see a new widget has been added or or delete an old widget ( d.path.length === 1)
             We want to add all the dependencies in the sorted order to make
             sure all the bindings are evaluated.
           */
-          this.sortedDependencies.forEach((dependency) => {
-            if (d.path && dependency.split(".")[0] === d.path[0]) {
-              changePaths.add(dependency);
-            }
-          });
-        }
+        this.sortedDependencies.forEach((dependency) => {
+          if (d.path && dependency.split(".")[0] === d.path[0]) {
+            changePaths.add(dependency);
+          }
+        });
       }
     });
 
@@ -1106,10 +1115,12 @@ export class DataTreeEvaluator {
 
     // Now that we have all the root nodes which have to be evaluated, recursively find all the other paths which
     // would get impacted because they are dependent on the said root nodes and add them in order
-    return this.getCompleteSortOrder(
+    const completeSortOrder = this.getCompleteSortOrder(
       changePathsWithNestedDependants,
       this.inverseDependencyMap,
     );
+    // Remove any paths that do no exist in the data tree any more
+    return _.difference(completeSortOrder, removedPaths);
   }
 
   getInverseDependencyTree(): DependencyMap {
