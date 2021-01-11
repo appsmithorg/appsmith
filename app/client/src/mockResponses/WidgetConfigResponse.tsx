@@ -451,6 +451,25 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 10,
       columns: 8,
       gridType: "vertical",
+      propertyPaneEnhancements: {
+        additionalAutocomplete: {
+          currentItem: (props: any) => {
+            const obj: any = {};
+            Object.keys(props.items[0]).forEach(
+              (key: string) => (obj[key] = ""),
+            );
+            return obj;
+          },
+        },
+        beforeChildPropertyUpdate: (
+          childWidgetId: string,
+          propertyPath: string,
+          propertyValue: any,
+        ) => {
+          // to be implemented
+          return [];
+        },
+      },
       gridGap: 0,
       items: [
         {

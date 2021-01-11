@@ -381,7 +381,16 @@ export interface WidgetDisplayProps {
 export interface WidgetDataProps
   extends WidgetBaseProps,
     WidgetPositionProps,
-    WidgetDisplayProps {}
+    WidgetDisplayProps {
+  propertyPaneEnhancements?: {
+    additionalAutocomplete: Record<string, unknown>;
+    beforeChildPropertyUpdate: (
+      childWidgetId: string,
+      propertyPath: string,
+      propertyValue: any,
+    ) => Array<{ widgetId: string; propertyPath: string; propertyValue: any }>;
+  };
+}
 
 export interface WidgetProps
   extends WidgetDataProps,
