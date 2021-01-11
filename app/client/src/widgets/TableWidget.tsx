@@ -353,7 +353,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     filteredTableData: Array<Record<string, unknown>>,
     selectedRowIndex?: number,
   ) => {
-    if (selectedRowIndex === undefined || selectedRowIndex === -1) {
+    if (
+      selectedRowIndex === undefined ||
+      selectedRowIndex === null ||
+      selectedRowIndex === -1
+    ) {
       const columnKeys: string[] = getAllTableColumnKeys(this.props.tableData);
       const selectedRow: { [key: string]: any } = {};
       for (let i = 0; i < columnKeys.length; i++) {
