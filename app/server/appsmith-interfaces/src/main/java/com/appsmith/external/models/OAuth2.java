@@ -6,13 +6,11 @@ import com.appsmith.external.constants.FieldName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,9 +22,8 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @DocumentType(AuthType.OAUTH2)
-public class OAuth2 extends AuthenticationDTO implements Serializable {
+public class OAuth2 extends AuthenticationDTO {
     public enum Type {
         CLIENT_CREDENTIALS,
     }
@@ -58,20 +55,6 @@ public class OAuth2 extends AuthenticationDTO implements Serializable {
     @JsonIgnore
     Instant expiresAt;
 
-    public OAuth2(OAuth2 oAuth2) {
-        this.authType = oAuth2.authType;
-        this.isHeader = oAuth2.isHeader;
-        this.clientId = oAuth2.clientId;
-        this.clientSecret = oAuth2.clientSecret;
-        this.accessTokenUrl = oAuth2.accessTokenUrl;
-        this.scope = oAuth2.scope;
-        this.headerPrefix = oAuth2.headerPrefix;
-        this.tokenResponse = oAuth2.tokenResponse;
-        this.token = oAuth2.token;
-        this.issuedAt = oAuth2.issuedAt;
-        this.expiresAt = oAuth2.expiresAt;
-    }
-
     @Override
     public Map<String, String> getEncryptionFields() {
         Map<String, String> map = new HashMap<>();
@@ -80,6 +63,9 @@ public class OAuth2 extends AuthenticationDTO implements Serializable {
         }
         if (this.token != null) {
             map.put(FieldName.TOKEN, this.token);
+        }
+        if (this.tokenResponse != null) {
+            map.put(FieldName.TOKEN_RESPONSE, String.valueOf(this.tokenResponse));
         }
         return map;
     }
@@ -93,6 +79,9 @@ public class OAuth2 extends AuthenticationDTO implements Serializable {
             if (encryptedFields.containsKey(FieldName.TOKEN)) {
                 this.token = encryptedFields.get(FieldName.TOKEN);
             }
+            if (encryptedFields.containsKey(FieldName.TOKEN_RESPONSE)) {
+                this.tokenResponse = encryptedFields.get(FieldName.TOKEN_RESPONSE);
+            }
         }
     }
 
@@ -104,6 +93,9 @@ public class OAuth2 extends AuthenticationDTO implements Serializable {
         }
         if (this.token == null || this.token.isEmpty()) {
             set.add(FieldName.TOKEN);
+        }
+        if (this.tokenResponse == null || (String.valueOf(this.token)).isEmpty()) {
+            set.add(FieldName.TOKEN_RESPONSE);
         }
         return set;
     }
