@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useMemo } from "react";
+import React, { ChangeEvent } from "react";
 import CodeEditor, {
   EditorProps,
 } from "components/editorComponents/CodeEditor";
@@ -8,8 +8,6 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { useSelector } from "react-redux";
-import { getThemeDetails } from "selectors/themeSelectors";
 
 interface Props {
   input: {
@@ -17,19 +15,10 @@ interface Props {
     onChange?: (event: ChangeEvent<HTMLTextAreaElement>) => void;
   };
   height: string;
+  theme?: EditorTheme;
 }
 
 const ReadOnlyEditor = (props: Props) => {
-  const themeMode = useSelector(getThemeDetails).mode;
-
-  const theme = useMemo(() => {
-    if (themeMode === "LIGHT") {
-      return EditorTheme.NEW_LIGHT;
-    } else {
-      return EditorTheme.NEW_DARK;
-    }
-  }, [themeMode]);
-
   const editorProps: EditorProps = {
     hinting: [],
     input: props.input,
@@ -37,7 +26,7 @@ const ReadOnlyEditor = (props: Props) => {
     mode: EditorModes.JSON_WITH_BINDING,
     size: EditorSize.EXTENDED,
     tabBehaviour: TabBehaviour.INDENT,
-    theme: theme,
+    theme: props.theme || EditorTheme.NEW_DARK,
     height: props.height,
     showLightningMenu: false,
     showLineNumbers: true,

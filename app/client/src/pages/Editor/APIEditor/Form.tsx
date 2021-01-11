@@ -11,7 +11,6 @@ import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { PaginationField } from "api/ActionAPI";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
-import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
 import { PaginationType, RestAction } from "entities/Action";
 import { Icon as BlueprintIcon } from "@blueprintjs/core";
@@ -391,7 +390,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           />
         </TabbedViewContainer>
 
-        <ApiResponseView />
+        <ApiResponseView theme={theme} />
       </SecondaryWrapper>
     </Form>
   );
