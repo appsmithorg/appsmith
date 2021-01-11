@@ -64,6 +64,10 @@ export const getIsPageSaving = (state: AppState) => {
   return state.ui.editor.loadingStates.saving || areApisSaving;
 };
 
+export const getPageSavingError = (state: AppState) => {
+  return state.ui.editor.loadingStates.savingError;
+};
+
 export const getIsPublishingApplication = (state: AppState) =>
   state.ui.editor.loadingStates.publishing;
 
