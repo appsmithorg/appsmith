@@ -247,26 +247,6 @@ function* listenForCreateAction() {
   yield put(showIndicator(OnboardingStep.RUN_QUERY_SUCCESS));
 }
 
-function* listenForWidgetUnselection() {
-  while (true) {
-    yield take();
-
-    // After any of these events we show the deploy tooltip
-    yield take([
-      ReduxActionTypes.HIDE_PROPERTY_PANE,
-      ReduxActionTypes.SET_WIDGET_RESIZING,
-    ]);
-    const currentStep = yield select(getCurrentStep);
-    const isinOnboarding = yield select(inOnboarding);
-
-    if (!isinOnboarding || currentStep !== OnboardingStep.DEPLOY) return;
-
-    yield delay(1000);
-    yield put(showTooltip(OnboardingStep.DEPLOY));
-    return;
-  }
-}
-
 function* listenForDeploySaga() {
   while (true) {
     yield take();
@@ -341,10 +321,6 @@ export default function* onboardingSagas() {
     takeEvery(
       ReduxActionTypes.LISTEN_FOR_TABLE_WIDGET_BINDING,
       listenForSuccessfullBinding,
-    ),
-    takeEvery(
-      ReduxActionTypes.LISTEN_FOR_WIDGET_UNSELECTION,
-      listenForWidgetUnselection,
     ),
     takeEvery(ReduxActionTypes.SET_CURRENT_STEP, setupOnboardingStep),
     takeEvery(ReduxActionTypes.LISTEN_FOR_DEPLOY, listenForDeploySaga),
