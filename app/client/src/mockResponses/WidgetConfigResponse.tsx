@@ -469,6 +469,17 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           propertyPath: string,
           propertyValue: any,
         ) => {
+          let value = propertyValue;
+          if (propertyValue.indexOf("currentItem")) {
+            value = "{{Grid1.items.map((currentItem) => propertyValue)}}";
+          }
+          [
+            {
+              widgetId: "GridWidgetId",
+              propertyPath: "Grid1.template.childWidgetId",
+              propertyValue: value,
+            },
+          ];
           // to be implemented
           return [];
         },

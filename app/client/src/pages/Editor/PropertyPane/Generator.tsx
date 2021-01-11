@@ -7,6 +7,7 @@ import {
 import { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import WidgetFactory from "utils/WidgetFactory";
+import { PropertyPaneEnhancements } from ".";
 import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
 
@@ -19,6 +20,7 @@ const getPropertyPaneConfig = (
 export type PropertyControlsGeneratorProps = {
   type: WidgetType;
   panel: IPanelProps;
+  enhancements?: PropertyPaneEnhancements;
 };
 
 export const generatePropertyControl = (
@@ -47,6 +49,7 @@ export const generatePropertyControl = (
           key={config.id}
           {...(config as PropertyPaneControlConfig)}
           panel={props.panel}
+          enhancements={props.enhancements}
         />
       );
     }

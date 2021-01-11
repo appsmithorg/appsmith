@@ -59,9 +59,38 @@ interface PropertyPaneState {
   currentPanelStack: IPanel[];
 }
 
+interface UpdatePropertyPayload {
+  widgetId: string;
+  propertyPath: string;
+  propertyValue: any;
+}
+
+export interface PropertyPaneEnhancements {
+  additionalAutocomplete: Record<
+    string,
+    (props: any) => Record<string, unknown>
+  >;
+  beforeChildPropertyUpdate: (
+    id: string,
+    path: string,
+    value: any,
+  ) => UpdatePropertyPayload[];
+}
+
 const PropertyPaneView = (
   props: {
     hidePropertyPane: () => void;
+    enhancements?: {
+      additionalAutocomplete: Record<
+        string,
+        (props: any) => Record<string, unknown>
+      >;
+      beforeChildPropertyUpdate: (
+        id: string,
+        path: string,
+        value: any,
+      ) => UpdatePropertyPayload[];
+    };
   } & IPanelProps,
 ) => {
   const { hidePropertyPane, ...panel } = props;
@@ -75,7 +104,11 @@ const PropertyPaneView = (
         widgetType={widgetProperties?.type}
         onClose={hidePropertyPane}
       />
-      <PropertyControlsGenerator type={widgetProperties.type} panel={panel} />
+      <PropertyControlsGenerator
+        enhancements={props.enhancements}
+        type={widgetProperties.type}
+        panel={panel}
+      />
     </>
   );
 };
@@ -85,6 +118,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     if (this.props.isVisible) {
       log.debug("Property pane rendered");
       const content = this.renderPropertyPane();
+      // Find the widget element in the DOM
       const el = document.getElementsByClassName(
         generateClassName(this.props.widgetProperties?.widgetId),
       )[0];
@@ -117,6 +151,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
             component: PropertyPaneView,
             props: {
               hidePropertyPane: this.props.hidePropertyPane,
+              enhancements: this.props.propertyPaneEnhancements,
             },
           }}
           showPanelHeader={false}
@@ -175,6 +210,7 @@ const mapStateToProps = (state: AppState) => {
   return {
     widgetProperties: getWidgetPropsForPropertyPane(state),
     isVisible: getIsPropertyPaneVisible(state),
+    propertyPaneEnhancements: getPropertyPaneEnhacements(state),
   };
 };
 

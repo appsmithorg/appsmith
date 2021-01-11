@@ -22,14 +22,16 @@ import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
   isPathADynamicProperty,
   isPathADynamicTrigger,
-} from "../../../utils/DynamicBindingUtils";
+} from "utils/DynamicBindingUtils";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { Position } from "@blueprintjs/core";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import { PropertyPaneEnhancements } from ".";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
+  enhancements?: PropertyPaneEnhancements;
 };
 
 const PropertyControl = memo((props: Props) => {
@@ -68,30 +70,42 @@ const PropertyControl = memo((props: Props) => {
         propertyName: propertyName,
         updatedValue: propertyValue,
       });
+      let propertiesToUpdate:
+        | Array<{
+            propertyPath: string;
+            propertyValue: any;
+            widgetId?: string;
+          }>
+        | undefined = undefined;
       if (props.updateHook) {
-        const propertiesToUpdate:
-          | Array<{
-              propertyPath: string;
-              propertyValue: any;
-            }>
-          | undefined = props.updateHook(
+        propertiesToUpdate = props.updateHook(
           widgetProperties,
           propertyName,
           propertyValue,
         );
-        if (propertiesToUpdate) {
-          propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
+      }
+      if (props.enhancements?.beforeChildPropertyUpdate) {
+        // TODO: Concat if exists, else replace
+        propertiesToUpdate = props.enhancements.beforeChildPropertyUpdate(
+          widgetProperties.widgetId,
+          propertyName,
+          propertyValue,
+        );
+      }
+      if (propertiesToUpdate) {
+        propertiesToUpdate.forEach(
+          ({ propertyPath, propertyValue, widgetId }) => {
             dispatch(
               updateWidgetPropertyRequest(
-                widgetProperties.widgetId,
+                widgetId || widgetProperties.widgetId,
                 propertyPath,
                 propertyValue,
                 RenderModes.CANVAS,
                 false,
               ),
             );
-          });
-        }
+          },
+        );
       }
       dispatch(
         updateWidgetPropertyRequest(
