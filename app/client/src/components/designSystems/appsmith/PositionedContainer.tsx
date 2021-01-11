@@ -4,9 +4,11 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import styled from "styled-components";
 
-const PositionedWidget = styled.div`
+const PositionedWidget = styled.div<{
+  resizeEnabled: boolean;
+}>`
   &:hover {
-    z-index: 1;
+    z-index: ${(props) => (props.resizeEnabled ? "1" : "auto")};
   }
 `;
 type PositionedContainerProps = {
@@ -14,6 +16,7 @@ type PositionedContainerProps = {
   children: ReactNode;
   widgetId: string;
   widgetType: string;
+  resizeEnabled: boolean;
 };
 
 export const PositionedContainer = (props: PositionedContainerProps) => {
@@ -22,6 +25,7 @@ export const PositionedContainer = (props: PositionedContainerProps) => {
   const padding = WIDGET_PADDING;
   return (
     <PositionedWidget
+      resizeEnabled={props.resizeEnabled}
       style={{
         position: "absolute",
         left: x,

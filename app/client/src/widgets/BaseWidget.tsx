@@ -214,6 +214,7 @@ abstract class BaseWidget<
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
         style={style}
+        resizeEnabled={this.props.resizeEnabled}
       >
         {content}
       </PositionedContainer>

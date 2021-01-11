@@ -58,7 +58,6 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
     children: ContainerWidgetProps<WidgetProps>[],
   ): ContainerWidgetProps<WidgetProps>[] => {
     return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
-      console.log({ index, child });
       return {
         ...child,
         topRow: index * children[0].bottomRow,
@@ -70,7 +69,6 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
   };
 
   /**
-   *
    * @param children
    */
   setPathsForNewChildrenInGrid = (
@@ -78,8 +76,6 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
   ) => {
     const { dynamicBindingPathList } = this.props;
     const templateChildrens = get(children, "0.children.0.children", []);
-
-    console.log({ children });
 
     // const updatedDynamicBindingPathList: any = [];
 
@@ -164,7 +160,9 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
 
       const childCanvas = children[0];
       let canvasChildren = childCanvas.children;
-      // here we are duplicating the template for each items
+
+      // here we are duplicating the template for each items in the data array
+      // first item of the canvasChildren acts as a template
       canvasChildren = new Array(numberOfItemsInGrid).fill(canvasChildren[0]);
       canvasChildren = this.updateGridChildrenProps(canvasChildren);
       childCanvas.children = canvasChildren;
@@ -178,9 +176,6 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
    */
   getPageView() {
     const children = this.renderChildren();
-    const numberOfItemsInGrid = this.props.items.length;
-
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
 
     return <GridComponent {...this.props}>{children}</GridComponent>;
   }
