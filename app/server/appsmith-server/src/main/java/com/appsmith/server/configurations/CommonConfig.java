@@ -25,6 +25,9 @@ public class CommonConfig {
 
     private static final String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
 
+    @Value("${signup.disabled}")
+    private boolean isSignupDisabled;
+
     @Value("${oauth2.allowed-domains}")
     private String allowedDomainList;
 

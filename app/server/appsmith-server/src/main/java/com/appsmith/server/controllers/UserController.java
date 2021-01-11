@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.InviteUsersDTO;
@@ -37,23 +38,29 @@ public class UserController extends BaseController<UserService, User, String> {
     private final SessionUserService sessionUserService;
     private final UserOrganizationService userOrganizationService;
     private final UserSignup userSignup;
+    private final CommonConfig commonConfig;
 
     @Autowired
     public UserController(UserService service,
                           SessionUserService sessionUserService,
                           UserOrganizationService userOrganizationService,
-                          UserSignup userSignup) {
+                          UserSignup userSignup,
+                          CommonConfig commonConfig) {
         super(service);
         this.sessionUserService = sessionUserService;
         this.userOrganizationService = userOrganizationService;
         this.userSignup = userSignup;
+        this.commonConfig = commonConfig;
     }
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<User>> create(@Valid @RequestBody User resource,
                                           @RequestHeader(name = "Origin", required = false) String originHeader,
                                           ServerWebExchange exchange) {
+        if (commonConfig.isSignupDisabled()) {
+            return Mono.just(new ResponseDTO<>(HttpStatus.FORBIDDEN.value(), null, null));
+        }
+
         return userSignup.signupAndLogin(resource, exchange)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
