@@ -169,6 +169,10 @@ const OnboardingToolTip: React.FC<OnboardingToolTipProps> = (
             if (!nextOpenState && props.dismissOnOutsideClick) {
               dispatch(showTooltip(OnboardingStep.NONE));
             }
+
+            if (!nextOpenState && tooltipConfig.onClickOutside) {
+              dispatch(tooltipConfig.onClickOutside);
+            }
           }}
         >
           {props.children}
