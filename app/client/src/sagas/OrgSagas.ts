@@ -222,6 +222,7 @@ export function* createOrgSaga(
       });
       yield call(resolve);
     }
+
     // get created org in focus
     const slug = response.data.slug;
     history.push(`${window.location.pathname}#${slug}`);

@@ -203,6 +203,7 @@ const ApplicationContainer = styled.div`
         props.theme.homePage.leftPane.rightMargin +
         props.theme.homePage.leftPane.leftPadding}px
   );
+  scroll-behavior: smooth;
 `;
 
 const ItemWrapper = styled.div`
@@ -402,14 +403,14 @@ function LeftPane() {
                   isFetchingApplications ? BlueprintClasses.SKELETON : ""
                 }
                 icon="workspace"
-                key={org.organization.id}
-                href={`${window.location.pathname}#${org.organization.name}`}
+                key={org.organization.slug}
+                href={`${window.location.pathname}#${org.organization.slug}`}
                 text={org.organization.name}
                 ellipsize={20}
                 onSelect={() => setSelectedOrg(org.organization.id)}
                 selected={
                   selectedOrg === org.organization.id &&
-                  urlHash === org.organization.name
+                  urlHash === org.organization.slug
                 }
               />
             ))}
@@ -503,12 +504,16 @@ const ApplicationsSection = (props: any) => {
     );
   };
 
-  const OrgMenuTarget = (props: { orgName: string; disabled?: boolean }) => {
-    const { orgName, disabled } = props;
+  const OrgMenuTarget = (props: {
+    orgName: string;
+    disabled?: boolean;
+    orgSlug: string;
+  }) => {
+    const { orgName, disabled, orgSlug } = props;
 
     const OrgName = (
       <OrgNameWrapper disabled={disabled} className="t--org-name">
-        <StyledAnchor id={orgName}></StyledAnchor>
+        <StyledAnchor id={orgSlug}></StyledAnchor>
         <OrgNameHolder
           type={TextType.H1}
           className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
@@ -582,6 +587,7 @@ const ApplicationsSection = (props: any) => {
                   target={OrgMenuTarget({
                     orgName: organization.name,
                     disabled: !hasManageOrgPermissions,
+                    orgSlug: organization.slug,
                   })}
                   position={Position.BOTTOM_RIGHT}
                   className="t--org-name"
