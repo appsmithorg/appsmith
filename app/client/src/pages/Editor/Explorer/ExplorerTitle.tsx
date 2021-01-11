@@ -22,7 +22,7 @@ export const ExplorerTitle = () => {
   return (
     <Wrapper>
       <h1>EXPLORER</h1>
-      <ActionIconGroup></ActionIconGroup>
+      <ActionIconGroup />
     </Wrapper>
   );
 };
