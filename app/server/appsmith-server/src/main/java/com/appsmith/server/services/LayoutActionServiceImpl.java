@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
@@ -83,29 +84,29 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         }
 
         return Mono.fromSupplier(() -> {
-            Set<String> widgetNames = new HashSet<>();
-            Set<String> dynamicBindings = new HashSet<>();
-            try {
-                extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, dynamicBindings);
-            } catch (Throwable t) {
-                throw Exceptions.propagate(t);
-            }
-            layout.setWidgetNames(widgetNames);
+                    Set<String> widgetNames = new HashSet<>();
+                    Set<String> dynamicBindings = new HashSet<>();
+                    try {
+                        extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, dynamicBindings);
+                    } catch (Throwable t) {
+                        throw Exceptions.propagate(t);
+                    }
+                    layout.setWidgetNames(widgetNames);
 
-            // dynamicBindingNames is a set of all words extracted from mustaches which would also contain the names
-            // of the actions being used to read data from into the widget fields
-            Set<String> dynamicBindingNames = new HashSet<>();
-            if (!CollectionUtils.isEmpty(dynamicBindings)) {
-                for (String mustacheKey : dynamicBindings) {
-                    // Extract all the words in the dynamic bindings
-                    extractWordsAndAddToSet(dynamicBindingNames, mustacheKey);
-                }
-            }
-            return dynamicBindingNames;
-        })
+                    // dynamicBindingNames is a set of all words extracted from mustaches which would also contain the names
+                    // of the actions being used to read data from into the widget fields
+                    Set<String> dynamicBindingNames = new HashSet<>();
+                    if (!CollectionUtils.isEmpty(dynamicBindings)) {
+                        for (String mustacheKey : dynamicBindings) {
+                            // Extract all the words in the dynamic bindings
+                            extractWordsAndAddToSet(dynamicBindingNames, mustacheKey);
+                        }
+                    }
+                    return dynamicBindingNames;
+                })
                 .flatMap(dynamicBindingNames -> {
                     // Update these actions to be executed on load, unless the user has touched the executeOnLoad setting for this
-                    Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = findAndUpdateOnLoadActionsInPage((Set<String>) dynamicBindingNames, pageId);
+                    Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = findAndUpdateOnLoadActionsInPage(dynamicBindingNames, pageId);
                     return onLoadActionsMono;
                 })
                 .zipWith(
@@ -144,15 +145,43 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     }
 
     public Mono<List<HashSet<DslActionDTO>>> findAndUpdateOnLoadActionsInPage(Set<String> dynamicBindingNames, String pageId) {
-        return findAndUpdateOnLoadActionsInPage(new ArrayList<>(), dynamicBindingNames, pageId);
+        Mono<List<HashSet<DslActionDTO>>> referencedActions = findAndUpdateOnLoadActionsInPage(new ArrayList<>(), dynamicBindingNames, pageId);
+        return referencedActions
+                // Currently, we do not pick action dependencies for actions that users have set to run
+                // on page load but haven't used on their application page.
+                // If such actions exist, they will inevitably fail because these actions are executed before any other
+                .zipWith(newActionService.findUnpublishedOnLoadActionsInPage(pageId)
+                        .flatMap(newAction -> {
+                            ActionDTO action = newAction.getUnpublishedAction();
+                            DslActionDTO actionDTO = new DslActionDTO();
+                            actionDTO.setId(action.getId());
+                            actionDTO.setPluginType(action.getPluginType());
+                            actionDTO.setJsonPathKeys(action.getJsonPathKeys());
+                            actionDTO.setName(action.getName());
+                            if (action.getActionConfiguration() != null) {
+                                actionDTO.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
+                            }
+                            return Mono.just(actionDTO);
+                        })
+                        .collect(Collectors.toCollection(HashSet::new)))
+                .map(tuple -> {
+                    List<HashSet<DslActionDTO>> actionList = tuple.getT1();
+                    if (!tuple.getT2().isEmpty()) {
+                        actionList.add(0, tuple.getT2());
+                    }
+                    return actionList;
+                });
     }
 
-    private Mono<List<HashSet<DslActionDTO>>> findAndUpdateOnLoadActionsInPage(List<HashSet<DslActionDTO>> onLoadActions, Set<String> dynamicBindingNames, String pageId) {
+    private Mono<List<HashSet<DslActionDTO>>> findAndUpdateOnLoadActionsInPage(List<HashSet<DslActionDTO>> onLoadActions,
+                                                                               Set<String> dynamicBindingNames,
+                                                                               String pageId) {
         if (dynamicBindingNames == null || dynamicBindingNames.isEmpty()) {
             return Mono.just(onLoadActions);
         }
         Set<String> bindingNames = new HashSet<>();
-        return newActionService.findUnpublishedOnLoadActionsInPage(dynamicBindingNames, pageId)
+        // First fetch all the actions in the page whose name matches the words found in all the dynamic bindings
+        return newActionService.findUnpublishedActionsInPageByNames(dynamicBindingNames, pageId)
                 .flatMap(newAction -> {
                     ActionDTO action = newAction.getUnpublishedAction();
                     if (!CollectionUtils.isEmpty(action.getJsonPathKeys())) {
@@ -171,6 +200,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     }
 
                     // If the executeOnLoad field isn't true and the user hasn't explicitly set it so, set it to true at this point
+                    // This ensures that when the user opens the action settings, the user would know that this action
+                    // executes on page load
                     if (!Boolean.TRUE.equals(action.getUserSetOnLoad()) && !Boolean.TRUE.equals(action.getExecuteOnLoad())) {
                         action.setExecuteOnLoad(true);
 
@@ -432,7 +463,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         // Widgets will not have FieldName.DYNAMIC_BINDING_PATH_LIST if there are no bindings in that widget.
         // Hence we skip over the extraction of the bindings from that widget.
-        if(dynamicallyBoundedPathList != null) {
+        if (dynamicallyBoundedPathList != null) {
             // Each of these might have nested structures, so we iterate through them to find the leaf node for each
             for (Object x : dynamicallyBoundedPathList) {
                 final String fieldPath = String.valueOf(((Map) x).get(FieldName.KEY));
@@ -459,7 +490,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         break;
                     }
                 }
-                if(parent != null) {
+                if (parent != null) {
                     dynamicBindings.addAll(MustacheHelper.extractMustacheKeysFromFields(parent));
                 }
             }
