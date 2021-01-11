@@ -183,7 +183,7 @@ type Props = {
   theme?: EditorTheme;
 };
 
-const ApiPaneKeyValueFieldArray = (props: Props) => {
+const KeyValueFieldArray = (props: Props) => {
   return (
     <FieldArray
       component={KeyValueRow}
@@ -193,4 +193,4 @@ const ApiPaneKeyValueFieldArray = (props: Props) => {
   );
 };
 
-export default ApiPaneKeyValueFieldArray;
+export default KeyValueFieldArray;
