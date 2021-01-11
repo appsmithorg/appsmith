@@ -222,7 +222,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   const list = optionTree.map(renderTreeOption);
   const menuItems = <Menu>{list}</Menu>;
   const defaultToggle = (
-    <MoreActionablesContainer isOpen={isOpen}>
+    <MoreActionablesContainer isOpen={isOpen} className={props.className}>
       <Icon name="context-menu" size={IconSize.XXXL}></Icon>
     </MoreActionablesContainer>
   );

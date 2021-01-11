@@ -153,6 +153,7 @@ export default function Dropdown(props: DropdownProps) {
         isOpen={isOpen}
         disabled={props.disabled}
         onClick={() => setIsOpen(!isOpen)}
+        className={props.className}
       >
         <Text type={TextType.P1}>{selected.value}</Text>
         <Icon name="downArrow" size={IconSize.XXS} />
@@ -176,7 +177,9 @@ export default function Dropdown(props: DropdownProps) {
                       <Text type={TextType.H5}>{option.value}</Text>
                     </div>
                   ) : (
-                    <Text type={TextType.P1}>{option.value}</Text>
+                    <Text className="t--dropdown-option" type={TextType.P1}>
+                      {option.value}
+                    </Text>
                   )}
                   {option.label ? (
                     <Text type={TextType.P3}>{option.label}</Text>

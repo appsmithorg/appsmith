@@ -738,10 +738,11 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
     .type(apiname, { force: true })
     .should("have.value", apiname)
     .focus();
-  cy.get(".bp3-popover-content").should(($x) => {
+  cy.get(".error-message").should(($x) => {
     console.log($x);
     expect($x).contain(apiname.concat(" is already being used."));
   });
+  cy.get(apiwidget.apiTxt).blur();
 });
 
 Cypress.Commands.add("MoveAPIToHome", (apiname) => {
@@ -826,6 +827,9 @@ Cypress.Commands.add("deleteEntity", () => {
 });
 
 Cypress.Commands.add("DeleteAPI", (apiname) => {
+  cy.get(ApiEditor.ApiActionMenu)
+    .first()
+    .click({ force: true });
   cy.get(apiwidget.deleteAPI)
     .first()
     .click({ force: true });
@@ -1600,9 +1604,6 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   cy.get(ApiEditor.dataSourceField)
     .click({ force: true })
     .type(url, { parseSpecialCharSequences: false }, { force: true });
-  cy.contains(url).click({
-    force: true,
-  });
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })

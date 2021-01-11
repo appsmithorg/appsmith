@@ -6,6 +6,7 @@ type DropdownWrapperProps = {
   placeholder: string;
   input: WrappedFieldInputProps;
   options: Array<{ id?: string; value: string; label?: string }>;
+  className?: string;
 };
 
 const DropdownFieldWrapper = (props: DropdownWrapperProps) => {
@@ -35,6 +36,7 @@ const DropdownFieldWrapper = (props: DropdownWrapperProps) => {
 
   return (
     <Dropdown
+      className={props.className}
       options={props.options}
       selected={selectedOption}
       onSelect={onSelectHandler}

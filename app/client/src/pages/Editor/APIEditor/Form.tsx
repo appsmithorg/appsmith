@@ -243,7 +243,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             <MoreActionsMenu
               id={currentActionConfig ? currentActionConfig.id : ""}
               name={currentActionConfig ? currentActionConfig.name : ""}
-              className={EntityClassNames.CONTEXT_MENU}
+              className="t--more-action-menu"
               pageId={pageId}
             />
             <Button

@@ -114,6 +114,7 @@ export const MoreActionsMenu = (props: EntityContextMenuProps) => {
           onSelect: () => deleteActionFromPage(props.id, props.name),
           label: "Delete",
           intent: "danger",
+          className: "t--apiFormDeleteBtn",
         },
       ]}
     />
