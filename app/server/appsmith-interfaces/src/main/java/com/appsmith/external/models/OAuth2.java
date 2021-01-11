@@ -6,11 +6,13 @@ import com.appsmith.external.constants.FieldName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,13 +24,16 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @DocumentType(AuthType.OAUTH2)
-public class OAuth2 extends AuthenticationDTO {
+public class OAuth2 extends AuthenticationDTO implements Serializable {
     public enum Type {
         CLIENT_CREDENTIALS,
     }
 
     Type authType;
+
+    Boolean isHeader;
 
     String clientId;
 
@@ -37,13 +42,35 @@ public class OAuth2 extends AuthenticationDTO {
 
     String accessTokenUrl;
 
-    String scope;
+    Set<String> scope;
+
+    String headerPrefix = "Bearer";
+
+    @JsonIgnore
+    Object tokenResponse;
 
     @JsonIgnore
     String token;
 
     @JsonIgnore
+    Instant issuedAt;
+
+    @JsonIgnore
     Instant expiresAt;
+
+    public OAuth2(OAuth2 oAuth2) {
+        this.authType = oAuth2.authType;
+        this.isHeader = oAuth2.isHeader;
+        this.clientId = oAuth2.clientId;
+        this.clientSecret = oAuth2.clientSecret;
+        this.accessTokenUrl = oAuth2.accessTokenUrl;
+        this.scope = oAuth2.scope;
+        this.headerPrefix = oAuth2.headerPrefix;
+        this.tokenResponse = oAuth2.tokenResponse;
+        this.token = oAuth2.token;
+        this.issuedAt = oAuth2.issuedAt;
+        this.expiresAt = oAuth2.expiresAt;
+    }
 
     @Override
     public Map<String, String> getEncryptionFields() {
