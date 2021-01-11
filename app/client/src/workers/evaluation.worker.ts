@@ -25,7 +25,7 @@ import { DATA_BIND_REGEX } from "../constants/BindingsConstants";
 import equal from "fast-deep-equal/es6";
 import unescapeJS from "unescape-js";
 
-import { applyChange, diff, Diff } from "deep-diff";
+import { diff, Diff } from "deep-diff";
 import {
   addDependantsOfNestedPropertyPaths,
   convertPathToString,
