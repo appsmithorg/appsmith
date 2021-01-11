@@ -29,6 +29,7 @@ import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import log from "loglevel";
 import { ReactTableFilter } from "components/designSystems/appsmith/TableComponent/TableFilters";
 import { TableWidgetProps } from "./TableWidgetConstants";
+import derivedProperties from "./parseDerivedProperties";
 
 import {
   ColumnProperties,
@@ -49,6 +50,7 @@ const ReactTableComponent = lazy(() =>
   ),
 );
 
+console.log("TEST:", derivedProperties);
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
