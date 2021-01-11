@@ -12,9 +12,17 @@ type TooltipProps = CommonComponentProps & {
   children: JSX.Element;
   variant?: Variant;
   maxWidth?: number;
+  minWidth?: number;
+  openOnTargetFocus?: boolean;
+  autoFocus?: boolean;
+  hoverOpenDelay?: number;
 };
 
-const TooltipWrapper = styled.div<{ variant?: Variant; maxWidth?: number }>`
+const TooltipWrapper = styled.div<{
+  variant?: Variant;
+  maxWidth?: number;
+  minWidth?: number;
+}>`
   .${Classes.TOOLTIP} .${Classes.POPOVER_CONTENT} {
     padding: 10px 12px;
     border-radius: 0px;
@@ -29,7 +37,8 @@ const TooltipWrapper = styled.div<{ variant?: Variant; maxWidth?: number }>`
   .${Classes.TOOLTIP} {
     box-shadow: 0px 12px 20px rgba(0, 0, 0, 0.35);
     max-width: ${(props) => (props.maxWidth ? `${props.maxWidth}px` : null)};
-
+    min-width: ${(props) => (props.minWidth ? `${props.minWidth}px` : null)};
+  }
   .${Classes.TOOLTIP}
     .${CsClasses.BP3_POPOVER_ARROW_BORDER},
     &&&&
@@ -48,11 +57,15 @@ const TooltipComponent = (props: TooltipProps) => {
       variant={props.variant}
       data-cy={props.cypressSelector}
       maxWidth={props.maxWidth}
+      minWidth={props.minWidth}
     >
       <Tooltip
         content={props.content}
         position={props.position}
         usePortal={false}
+        autoFocus={props.autoFocus}
+        hoverOpenDelay={props.hoverOpenDelay}
+        openOnTargetFocus={props.openOnTargetFocus}
       >
         {props.children}
       </Tooltip>

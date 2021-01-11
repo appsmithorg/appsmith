@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { connect, useSelector } from "react-redux";
 import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
 import {
@@ -38,6 +38,8 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import { TabComponent } from "components/ads/Tabs";
+import { getThemeDetails } from "selectors/themeSelectors";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 const Form = styled.form`
   display: flex;
@@ -51,20 +53,25 @@ const Form = styled.form`
   ${FormRow} {
     padding: ${(props) => props.theme.spaces[2]}px;
     & > * {
-      margin-right: 10px;
+      /* margin-right: 10px; */
     }
     ${FormLabel} {
       padding: 0;
       width: 100%;
     }
   }
+  .api-info-row {
+    input {
+      margin-left: ${(props) => props.theme.spaces[1] + 1}px;
+    }
+  }
 `;
 
 const MainConfiguration = styled.div`
-  padding-top: 10px;
-  padding-left: 17px;
+  padding: ${(props) => props.theme.spaces[8]}px
+    ${(props) => props.theme.spaces[12]}px 0px
+    ${(props) => props.theme.spaces[12]}px;
   background-color: ${(props) => props.theme.colors.apiPane.bg};
-  padding-bottom: ${(props) => props.theme.spaces[6] + 1}px;
   height: 126px;
 
   .close-modal-icon {
@@ -81,10 +88,9 @@ const MainConfiguration = styled.div`
 `;
 
 const ActionButtons = styled.div`
-  flex: 0 1 150px;
   justify-self: flex-end;
   display: flex;
-  flex-direction: row;
+  align-items: center;
 
   button:last-child {
     margin-left: ${(props) => props.theme.spaces[7]}px;
@@ -113,8 +119,15 @@ const SecondaryWrapper = styled.div`
 
 const TabbedViewContainer = styled.div`
   border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
-  padding-bottom: ${(props) => props.theme.spaces[6] + 1}px;
   height: 50%;
+  ${FormRow} {
+    min-height: auto;
+    padding: ${(props) => props.theme.spaces[0]}px;
+    & > * {
+      margin-right: 0px;
+    }
+  }
+
   &&& {
     ul.react-tabs__tab-list {
       padding: 0px ${(props) => props.theme.spaces[12]}px;
@@ -155,8 +168,14 @@ const SettingsWrapper = styled.div`
   }
 `;
 
-const HeadersSection = styled.div`
-  margin-bottom: 32px;
+const TabSection = styled.div`
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[14]}px
+    ${(props) => props.theme.spaces[11] + 1}px
+    ${(props) => props.theme.spaces[9]}px;
+  background-color: ${(props) => props.theme.colors.apiPane.bg};
+  height: 100%;
+  overflow: auto;
 `;
 
 interface APIFormProps {
@@ -189,6 +208,14 @@ export const NameWrapper = styled.div`
 
 const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const themeMode = useSelector(getThemeDetails).mode;
+  const theme = useMemo(() => {
+    if (themeMode === "LIGHT") {
+      return EditorTheme.NEW_LIGHT;
+    } else {
+      return EditorTheme.NEW_DARK;
+    }
+  }, [themeMode]);
 
   const {
     pluginId,
@@ -258,7 +285,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             />
           </ActionButtons>
         </FormRow>
-        <FormRow>
+        <FormRow className="api-info-row">
           <RequestDropdownField
             placeholder="Method"
             name="actionConfiguration.httpMethod"
@@ -280,11 +307,11 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           <TabComponent
             tabs={[
               {
-                key: "apiInput",
-                title: "API Input",
+                key: "headers",
+                title: "Headers",
                 panelComponent: (
-                  <RequestParamsWrapper>
-                    <CollapsibleHelp>
+                  <TabSection>
+                    {/* <CollapsibleHelp>
                       <span>{`Having trouble taking inputs from widget?`}</span>
                       <a
                         href={`${HelpBaseURL}${HelpMap["API_BINDING"].path}`}
@@ -294,21 +321,37 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                         {" Learn How "}
                         <StyledOpenDocsIcon icon="document-open" />
                       </a>
-                    </CollapsibleHelp>
-                    <HeadersSection>
-                      <KeyValueFieldArray
-                        name="actionConfiguration.headers"
-                        label="Headers"
-                        actionConfig={actionConfigurationHeaders}
-                        placeholder="Value"
-                        dataTreePath={`${actionName}.config.headers`}
-                      />
-                    </HeadersSection>
+                    </CollapsibleHelp> */}
                     <KeyValueFieldArray
+                      theme={theme}
+                      name="actionConfiguration.headers"
+                      label="Headers"
+                      actionConfig={actionConfigurationHeaders}
+                      placeholder="Value"
+                      dataTreePath={`${actionName}.config.headers`}
+                    />
+                  </TabSection>
+                ),
+              },
+              {
+                key: "params",
+                title: "Params",
+                panelComponent: (
+                  <TabSection>
+                    <KeyValueFieldArray
+                      theme={theme}
                       name="actionConfiguration.queryParameters"
                       label="Params"
                       dataTreePath={`${actionName}.config.queryParameters`}
                     />
+                  </TabSection>
+                ),
+              },
+              {
+                key: "body",
+                title: "Body",
+                panelComponent: (
+                  <>
                     {allowPostBody && (
                       <PostBodyData
                         actionConfigurationHeaders={actionConfigurationHeaders}
@@ -317,7 +360,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                         dataTreePath={`${actionName}.config`}
                       />
                     )}
-                  </RequestParamsWrapper>
+                  </>
                 ),
               },
               {

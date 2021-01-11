@@ -39,6 +39,8 @@ export const IntentIcons: Record<Intent, JSXElementConstructor<IconProps>> = {
 export enum Skin {
   LIGHT,
   DARK,
+  NEW_LIGHT,
+  NEW_DARK,
 }
 
 export const scrollbarDark = css`
@@ -309,6 +311,19 @@ export type Theme = {
       inActiveText: Color;
       border: Color;
     };
+    [Skin.NEW_LIGHT]: {
+      hoverBG: ShadeColor;
+      hoverText: ShadeColor;
+      inActiveBG: ShadeColor;
+      inActiveText: ShadeColor;
+    };
+    [Skin.NEW_DARK]: {
+      hoverBG: ShadeColor;
+      hoverText: ShadeColor;
+      inActiveBG: ShadeColor;
+      inActiveText: ShadeColor;
+      border: Color;
+    };
   };
   authCard: {
     width: number;
@@ -357,6 +372,42 @@ export type Theme = {
       hover: {
         color: Color;
         background: Color;
+      };
+      none: {
+        color: string;
+        background: string;
+      };
+    };
+    [Skin.NEW_DARK]: {
+      default: {
+        color: Color;
+        background: Color;
+      };
+      active: {
+        color: Color;
+        background: Color;
+      };
+      hover: {
+        color: Color;
+        background: Color;
+      };
+      none: {
+        color: string;
+        background: string;
+      };
+    };
+    [Skin.NEW_LIGHT]: {
+      default: {
+        color: string;
+        background: string;
+      };
+      active: {
+        color: string;
+        background: string;
+      };
+      hover: {
+        color: string;
+        background: string;
       };
       none: {
         color: string;
@@ -766,6 +817,20 @@ type ColorType = {
     responseBody: {
       bg: ShadeColor;
     };
+    bindingPrompt: {
+      textColor: string;
+      bg: ShadeColor;
+      boxShadow: string;
+    };
+    codeEditor: {
+      bg: ShadeColor;
+      bgOnHover: ShadeColor;
+      bgOnActive: ShadeColor;
+      textColor: ShadeColor;
+      borderColor: ShadeColor;
+      placeholderColor: ShadeColor;
+      lightningMenuBg: ShadeColor;
+    };
   };
 };
 
@@ -934,7 +999,7 @@ export const dark: ColorType = {
   },
   tabs: {
     normal: darkShades[6],
-    hover: darkShades[9],
+    hover: darkShades[7],
     border: darkShades[3],
   },
   settingHeading: darkShades[9],
@@ -1077,6 +1142,20 @@ export const dark: ColorType = {
     closeIcon: darkShades[9],
     responseBody: {
       bg: "#090707",
+    },
+    bindingPrompt: {
+      textColor: "#858282",
+      bg: darkShades[2],
+      boxShadow: "0px 12px 34px -6px rgba(0, 0, 0, 0.75)",
+    },
+    codeEditor: {
+      bg: darkShades[0],
+      bgOnHover: darkShades[1],
+      bgOnActive: darkShades[3],
+      textColor: darkShades[7],
+      borderColor: darkShades[3],
+      placeholderColor: darkShades[5],
+      lightningMenuBg: darkShades[7],
     },
   },
 };
@@ -1293,7 +1372,7 @@ export const light: ColorType = {
   modal: {
     bg: lightShades[11],
     headerText: lightShades[10],
-    iconColor: "#A9A7A7",
+    iconColor: lightShades[5],
     user: {
       textColor: lightShades[9],
     },
@@ -1389,6 +1468,20 @@ export const light: ColorType = {
     closeIcon: lightShades[10],
     responseBody: {
       bg: lightShades[11],
+    },
+    bindingPrompt: {
+      textColor: "#858282",
+      bg: lightShades[3],
+      boxShadow: "0px 12px 34px -6px rgba(0, 0, 0, 0.75)",
+    },
+    codeEditor: {
+      bg: lightShades[11],
+      bgOnActive: lightShades[3],
+      bgOnHover: lightShades[1],
+      textColor: lightShades[8],
+      borderColor: lightShades[3],
+      placeholderColor: lightShades[5],
+      lightningMenuBg: lightShades[7],
     },
   },
 };
@@ -1619,6 +1712,19 @@ export const theme: Theme = {
       inActiveText: Colors.WHITE,
       border: Colors.TROUT_DARK,
     },
+    [Skin.NEW_LIGHT]: {
+      hoverBG: lightShades[0],
+      hoverText: lightShades[10],
+      inActiveBG: lightShades[3],
+      inActiveText: lightShades[8],
+    },
+    [Skin.NEW_DARK]: {
+      hoverBG: darkShades[0],
+      hoverText: darkShades[9],
+      inActiveBG: darkShades[2],
+      inActiveText: darkShades[7],
+      border: Colors.TROUT_DARK,
+    },
   },
   authCard: {
     width: 612,
@@ -1687,6 +1793,42 @@ export const theme: Theme = {
       hover: {
         color: Colors.WHITE,
         background: Colors.BLUE_CHARCOAL,
+      },
+      none: {
+        color: "transparent",
+        background: "transparent",
+      },
+    },
+    [Skin.NEW_DARK]: {
+      default: {
+        color: darkShades[7],
+        background: "transparent",
+      },
+      active: {
+        color: darkShades[9],
+        background: dark.info.main,
+      },
+      hover: {
+        color: darkShades[9],
+        background: darkShades[7],
+      },
+      none: {
+        color: "transparent",
+        background: "transparent",
+      },
+    },
+    [Skin.NEW_LIGHT]: {
+      default: {
+        color: lightShades[7],
+        background: "transparent",
+      },
+      active: {
+        color: lightShades[11],
+        background: dark.info.light,
+      },
+      hover: {
+        color: lightShades[11],
+        background: lightShades[7],
       },
       none: {
         color: "transparent",

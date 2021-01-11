@@ -22,6 +22,8 @@ import { ReactComponent as LogoutIcon } from "assets/icons/ads/logout.svg";
 import { ReactComponent as ManageIcon } from "assets/icons/ads/manage.svg";
 import { ReactComponent as CloseModalIcon } from "assets/icons/ads/close-modal.svg";
 import { ReactComponent as NoResponseIcon } from "assets/icons/ads/no-response.svg";
+import { ReactComponent as LightningIcon } from "assets/icons/ads/lightning.svg";
+import { ReactComponent as AddMoreIcon } from "assets/icons/ads/add-more.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -97,6 +99,8 @@ export const IconCollection = [
   "manage",
   "close-modal",
   "no-response",
+  "lightning",
+  "add-more",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -211,6 +215,12 @@ const Icon = forwardRef(
         break;
       case "no-response":
         returnIcon = <NoResponseIcon />;
+        break;
+      case "lightning":
+        returnIcon = <LightningIcon />;
+        break;
+      case "add-more":
+        returnIcon = <AddMoreIcon />;
         break;
       default:
         returnIcon = null;

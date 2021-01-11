@@ -44,6 +44,7 @@ const ResponseMetaWrapper = styled.div`
   display: flex;
   position: absolute;
   right: ${(props) => props.theme.spaces[12]}px;
+  top: ${(props) => props.theme.spaces[4]}px;
 `;
 
 const StatusCodeText = styled(BaseText)<{ code: string }>`

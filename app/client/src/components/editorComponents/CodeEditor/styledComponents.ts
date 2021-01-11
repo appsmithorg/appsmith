@@ -141,6 +141,7 @@ export const EditorWrapper = styled.div<{
   size: EditorSize;
   height?: string | number;
   borderLess?: boolean;
+  isNotHover?: boolean;
 }>`
   width: 100%;
   ${(props) =>
@@ -168,6 +169,38 @@ export const EditorWrapper = styled.div<{
   flex: 1;
   flex-direction: row;
   text-transform: none;
+  ${(props) =>
+    props.editorTheme === EditorTheme.NEW_LIGHT ||
+    props.editorTheme === EditorTheme.NEW_DARK
+      ? `
+    &:hover {
+      && {
+        .cm-s-duotone-dark.CodeMirror {
+          cursor: pointer;
+          border-radius: 0px;
+          background: ${
+            !props.isNotHover
+              ? props.theme.colors.apiPane.codeEditor.bgOnHover
+              : props.isFocused
+              ? props.theme.colors.apiPane.codeEditor.bgOnActive
+              : props.theme.colors.apiPane.codeEditor.bg
+          };
+        }
+        .cm-s-duotone-light.CodeMirror {
+          cursor: pointer;
+          border-radius: 0px;
+          background: ${
+            !props.isNotHover
+              ? props.theme.colors.apiPane.codeEditor.bgOnHover
+              : props.isFocused
+              ? props.theme.colors.apiPane.codeEditor.bgOnActive
+              : props.theme.colors.apiPane.codeEditor.bg
+          };
+        }
+      }
+    }
+    `
+      : null}
   && {
     .CodeMirror-cursor {
       border-right: none;
@@ -178,9 +211,27 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.textDefault} !important;
     }
     .cm-s-duotone-light.CodeMirror {
+      ${(props) =>
+        props.editorTheme === EditorTheme.NEW_LIGHT
+          ? `
+          font-size: 12px;
+          line-height: 16px;
+          letter-spacing: -0.21px;
+          border-radius: 0px;
+          border-bottom: 1px solid ${props.theme.colors.apiPane.codeEditor.borderColor};
+          padding-left: 10px;
+          `
+          : null};
       background: ${(props) =>
-        props.editorTheme === EditorTheme.LIGHT ? "#FFFFFF" : "#FAFAFA"};
-      color: #000000 !important;
+        props.editorTheme === EditorTheme.LIGHT
+          ? "#FFFFFF"
+          : props.isFocused
+          ? props.theme.colors.apiPane.codeEditor.bgOnActive
+          : props.theme.colors.apiPane.codeEditor.bg};
+      color: ${(props) =>
+        props.editorTheme === EditorTheme.LIGHT
+          ? "#000000 !important"
+          : props.theme.colors.apiPane.codeEditor.textColor};
       & {
         span.cm-operator {
           color: ${(props) => props.theme.colors.textDefault};
@@ -188,9 +239,27 @@ export const EditorWrapper = styled.div<{
       }
      }
     .cm-s-duotone-dark.CodeMirror {
+      ${(props) =>
+        props.editorTheme === EditorTheme.NEW_DARK
+          ? `
+          border-radius: 0px;
+          padding-left: 10px;
+          border-bottom: 1px solid ${props.theme.colors.apiPane.codeEditor.borderColor};
+          font-size: 12px;
+          line-height: 16px;
+          letter-spacing: -0.21px;
+          `
+          : null};
       background: ${(props) =>
-        props.editorTheme === EditorTheme.DARK ? "#182026" : "#1A191C"};
-      color: #FFFFFF;
+        props.editorTheme === EditorTheme.DARK
+          ? "#182026"
+          : props.isFocused
+          ? props.theme.colors.apiPane.codeEditor.bgOnActive
+          : props.theme.colors.apiPane.codeEditor.bg};
+      color: ${(props) =>
+        props.editorTheme === EditorTheme.DARK
+          ? "#FFFFFF"
+          : props.theme.colors.apiPane.codeEditor.textColor};
     }
     .binding-brackets {
       ${(props) =>
@@ -232,7 +301,11 @@ export const EditorWrapper = styled.div<{
     }
     `}
     .CodeMirror pre.CodeMirror-placeholder {
-      color: #a3b3bf;
+      color: ${(props) =>
+        props.editorTheme === EditorTheme.NEW_DARK ||
+        props.editorTheme === EditorTheme.NEW_LIGHT
+          ? props.theme.colors.apiPane.codeEditor.placeholderColor
+          : "#a3b3bf"};
     }
     ${(props) =>
       props.size === EditorSize.COMPACT &&
@@ -247,8 +320,15 @@ export const EditorWrapper = styled.div<{
   }
   && {
     .CodeMirror-lines {
+      ${(props) =>
+        props.editorTheme === EditorTheme.NEW_DARK ||
+        props.editorTheme === EditorTheme.NEW_LIGHT
+          ? `
+      padding: ${props.theme.spaces[3]}px 0px;
+      `
+          : null};
       background-color: ${(props) => props.disabled && "#eef2f5"};
-      cursor: ${(props) => (props.disabled ? "not-allowed" : "text")};
+      cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
     }
   }
   .bp3-popover-target {
@@ -264,6 +344,14 @@ export const EditorWrapper = styled.div<{
     margin: 5px;
     margin-right: 11px;
   }
+  ${(props) =>
+    props.editorTheme === EditorTheme.NEW_LIGHT ||
+    props.editorTheme === EditorTheme.NEW_DARK
+      ? `
+      border: 0px;
+      border-radius: 0px;
+  `
+      : null}
 `;
 
 export const IconContainer = styled.div`
@@ -316,6 +404,8 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
         !props.isNotHover
           ? props.skin === Skin.DARK
             ? Colors.ALABASTER
+            : props.skin === Skin.NEW_DARK || props.skin === Skin.NEW_LIGHT
+            ? "#716E6E"
             : Colors.BLUE_CHARCOAL
           : ""};
       svg {
@@ -331,4 +421,14 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
       }
     }
   }
+  ${(props) =>
+    props.skin === Skin.NEW_DARK || props.skin === Skin.NEW_LIGHT
+      ? `
+        border: 0px;
+        border-radius: 0px;
+        .lightning-menu {
+          z-index: 1 !important;
+        }
+      `
+      : null};
 `;

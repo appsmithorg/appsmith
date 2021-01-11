@@ -4,12 +4,16 @@ import { ReactComponent as LightningIcon } from "assets/icons/control/lightning.
 import { LIGHTNING_MENU_DATA_TOOLTIP } from "constants/messages";
 import { Theme, Skin } from "constants/DefaultTheme";
 import styled from "styled-components";
-import { Tooltip } from "@blueprintjs/core";
+import { Tooltip as BlueprintTooltip } from "@blueprintjs/core";
+import Icon, { IconSize } from "components/ads/Icon";
+import { Position } from "@blueprintjs/core";
+import Tooltip from "components/ads/Tooltip";
 
 const LightningIconWrapper = styled.span<{
   background: string;
   skin: Skin;
   isFocused: boolean;
+  color?: string;
 }>`
   background: ${(props) => (props.isFocused ? "none" : props.background)};
   position: absolute;
@@ -19,6 +23,15 @@ const LightningIconWrapper = styled.span<{
   justify-content: center;
   align-items: center;
   border-radius: 2px;
+  ${(props) =>
+    props.skin === Skin.NEW_DARK || props.skin === Skin.NEW_LIGHT
+      ? `
+      border-radius: 0px;
+      svg path {
+        fill: ${!props.isFocused && props.color};
+      }
+      `
+      : null};
   width: ${(props) => (props.skin === Skin.LIGHT ? 30 : 30)}px;
   height: ${(props) => (props.skin === Skin.LIGHT ? 30 : 30)}px;
   z-index: 10;
@@ -65,6 +78,7 @@ export const LightningMenuTrigger = (props: LightningMenuTriggerProps) => {
   const { background, iconProps } = getMenuState();
   return (
     <LightningIconWrapper
+      color={iconProps.color}
       background={background}
       onClick={() => {
         if (props.onOpenLightningMenu) {
@@ -75,16 +89,29 @@ export const LightningMenuTrigger = (props: LightningMenuTriggerProps) => {
       className="lightning-menu"
       isFocused={props.isFocused}
     >
-      <Tooltip
-        autoFocus={false}
-        hoverOpenDelay={1000}
-        content={LIGHTNING_MENU_DATA_TOOLTIP}
-        openOnTargetFocus={false}
-      >
-        <IconWrapper {...iconProps}>
-          <LightningIcon />
-        </IconWrapper>
-      </Tooltip>
+      {props.skin === Skin.NEW_DARK || props.skin === Skin.NEW_LIGHT ? (
+        <Tooltip
+          content={LIGHTNING_MENU_DATA_TOOLTIP}
+          autoFocus={false}
+          hoverOpenDelay={1000}
+          openOnTargetFocus={false}
+          minWidth={180}
+          position={Position.LEFT}
+        >
+          <Icon name="lightning" size={IconSize.LARGE} />
+        </Tooltip>
+      ) : (
+        <BlueprintTooltip
+          autoFocus={false}
+          hoverOpenDelay={1000}
+          content={LIGHTNING_MENU_DATA_TOOLTIP}
+          openOnTargetFocus={false}
+        >
+          <IconWrapper {...iconProps}>
+            <LightningIcon />
+          </IconWrapper>
+        </BlueprintTooltip>
+      )}
     </LightningIconWrapper>
   );
 };
