@@ -63,7 +63,7 @@ describe("Tab widget test", function() {
     cy.openPropertyPane("tabswidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.tabWidget).should("not.be.visible");
+    cy.get(publish.tabWidget).should("not.exist");
     cy.get(publish.backToEditor).click();
   });
   it("Tab Widget Functionality To Check Visible Widget", function() {

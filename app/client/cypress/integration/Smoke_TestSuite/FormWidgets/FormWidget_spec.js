@@ -47,7 +47,7 @@ describe("Form Widget Functionality", function() {
     cy.openPropertyPane("formwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.formWidget).should("not.be.visible");
+    cy.get(publish.formWidget).should("not.exist");
     cy.get(publish.backToEditor).click();
   });
   it("Form Widget Functionality To Check Visible Widget", function() {

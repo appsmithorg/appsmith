@@ -62,7 +62,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.openPropertyPane("checkboxwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.checkboxWidget + " " + "input").should("not.be.visible");
+    cy.get(publish.checkboxWidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click();
   });
   it("Checkbox Functionality To Check Visible Widget", function() {

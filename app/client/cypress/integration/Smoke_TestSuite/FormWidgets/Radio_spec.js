@@ -58,7 +58,7 @@ describe("Radio Widget Functionality", function() {
     cy.openPropertyPane("radiogroupwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.radioWidget + " " + "input").should("not.be.visible");
+    cy.get(publish.radioWidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click();
   });
   it("Radio Functionality To Check Visible Widget", function() {
