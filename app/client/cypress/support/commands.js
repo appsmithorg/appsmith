@@ -395,7 +395,7 @@ Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
   ).should("be.visible");
   cy.get(
     commonlocators.entitySearchResult.concat(apiname2).concat("')"),
-  ).should("not.be.visible");
+  ).should("not.exist");
 });
 
 Cypress.Commands.add("GlobalSearchEntity", (apiname1) => {
