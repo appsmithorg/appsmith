@@ -13,6 +13,6 @@ describe("Binding prompt", function() {
     cy.get(dynamicInput.bindingPrompt).should("be.visible");
 
     cy.get(widgetsPage.defaultInput).type("{{");
-    cy.get(dynamicInput.bindingPrompt).should("not.exist");
+    cy.get(dynamicInput.bindingPrompt).should("not.be.visible");
   });
 });

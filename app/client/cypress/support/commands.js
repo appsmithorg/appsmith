@@ -947,7 +947,8 @@ Cypress.Commands.add("EvaluateCurrentValue", (currentValue) => {
 });
 
 Cypress.Commands.add("PublishtheApp", () => {
-  cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
+  cy.server();
+  cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
   cy.wait(2000);
   cy.assertPageSave();
@@ -1178,6 +1179,7 @@ Cypress.Commands.add("addDsl", (dsl) => {
     cy.log(pageidcopy + "page id copy");
     cy.log(pageid + "page id");
     //Fetch the layout id
+    cy.server();
     cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
       const len = JSON.stringify(response.body);
       cy.log(len);
@@ -1650,85 +1652,81 @@ Cypress.Commands.add("validateHTMLText", (widgetCss, htmlTag, value) => {
 });
 
 Cypress.Commands.add("startServerAndRoutes", () => {
-  cy.intercept("GET", "/api/v1/applications/new").as("applications");
-  cy.intercept("GET", "/api/v1/users/profile").as("getUser");
-  cy.intercept("GET", "/api/v1/plugins").as("getPlugins");
-  cy.intercept("POST", "/api/v1/logout").as("postLogout");
+  cy.server();
+  cy.route("GET", "/api/v1/applications/new").as("applications");
+  cy.route("GET", "/api/v1/users/profile").as("getUser");
+  cy.route("GET", "/api/v1/plugins").as("getPlugins");
+  cy.route("POST", "/api/v1/logout").as("postLogout");
 
-  cy.intercept("GET", "/api/v1/datasources").as("getDataSources");
-  cy.intercept("GET", "/api/v1/pages/application/*").as("getPagesForCreateApp");
-  cy.intercept("GET", "/api/v1/applications/view/*").as("getPagesForViewApp");
+  cy.route("GET", "/api/v1/datasources").as("getDataSources");
+  cy.route("GET", "/api/v1/pages/application/*").as("getPagesForCreateApp");
+  cy.route("GET", "/api/v1/applications/view/*").as("getPagesForViewApp");
 
-  cy.intercept("POST");
-  cy.intercept("GET", "/api/v1/pages/*").as("getPage");
-  cy.intercept("GET", "/api/v1/actions*").as("getActions");
-  cy.intercept("GET", "api/v1/providers/categories").as("getCategories");
-  cy.intercept("GET", "api/v1/import/templateCollections").as(
+  cy.route("POST");
+  cy.route("GET", "/api/v1/pages/*").as("getPage");
+  cy.route("GET", "/api/v1/actions*").as("getActions");
+  cy.route("GET", "api/v1/providers/categories").as("getCategories");
+  cy.route("GET", "api/v1/import/templateCollections").as(
     "getTemplateCollections",
   );
-  cy.intercept("DELETE", "/api/v1/actions/*").as("deleteAPI");
-  cy.intercept("DELETE", "/api/v1/applications/*").as("deleteApp");
-  cy.intercept("DELETE", "/api/v1/actions/*").as("deleteAction");
-  cy.intercept("DELETE", "/api/v1/pages/*").as("deletePage");
-  cy.intercept("POST", "/api/v1/datasources").as("createDatasource");
-  cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
-  cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
-  cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
+  cy.route("DELETE", "/api/v1/actions/*").as("deleteAPI");
+  cy.route("DELETE", "/api/v1/applications/*").as("deleteApp");
+  cy.route("DELETE", "/api/v1/actions/*").as("deleteAction");
+  cy.route("DELETE", "/api/v1/pages/*").as("deletePage");
+  cy.route("POST", "/api/v1/datasources").as("createDatasource");
+  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
+  cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
+  cy.route("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
     "getDatasourceStructure",
   );
 
-  cy.intercept("GET", "/api/v1/organizations").as("organizations");
-  cy.intercept("GET", "/api/v1/organizations/*").as("getOrganisation");
+  cy.route("GET", "/api/v1/organizations").as("organizations");
+  cy.route("GET", "/api/v1/organizations/*").as("getOrganisation");
 
-  cy.intercept("POST", "/api/v1/actions/execute").as("executeAction");
-  cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
-  cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
+  cy.route("POST", "/api/v1/actions/execute").as("executeAction");
+  cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
+  cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
 
-  cy.intercept("POST", "/track/*").as("postTrack");
-  cy.intercept("POST", "/api/v1/actions/execute").as("postExecute");
-  cy.intercept("PUT", "/api/v1/actions/executeOnLoad/*").as("setExecuteOnLoad");
+  cy.route("POST", "/track/*").as("postTrack");
+  cy.route("POST", "/api/v1/actions/execute").as("postExecute");
+  cy.route("PUT", "/api/v1/actions/executeOnLoad/*").as("setExecuteOnLoad");
 
-  cy.intercept("POST", "/api/v1/actions").as("createNewApi");
-  cy.intercept("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as(
-    "curlImport",
+  cy.route("POST", "/api/v1/actions").as("createNewApi");
+  cy.route("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as("curlImport");
+  cy.route("DELETE", "/api/v1/actions/*").as("deleteAction");
+  cy.route("GET", "/api/v1/marketplace/providers?category=*&page=*&size=*").as(
+    "get3PProviders",
   );
-  cy.intercept("DELETE", "/api/v1/actions/*").as("deleteAction");
-  cy.intercept(
-    "GET",
-    "/api/v1/marketplace/providers?category=*&page=*&size=*",
-  ).as("get3PProviders");
-  cy.intercept("GET", "/api/v1/marketplace/templates?providerId=*").as(
+  cy.route("GET", "/api/v1/marketplace/templates?providerId=*").as(
     "get3PProviderTemplates",
   );
-  cy.intercept("POST", "/api/v1/items/addToPage").as("add3PApiToPage");
+  cy.route("POST", "/api/v1/items/addToPage").as("add3PApiToPage");
 
-  cy.intercept("GET", "/api/v1/plugins/*/form").as("getPluginForm");
-  cy.intercept("POST", "/api/v1/datasources").as("createDatasource");
-  cy.intercept("POST", "/api/v1/datasources/test").as("testDatasource");
-  cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
-  cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
-  cy.intercept("DELETE", "/api/v1/applications/*").as("deleteApplication");
-  cy.intercept("POST", "/api/v1/applications/?orgId=*").as(
-    "createNewApplication",
-  );
-  cy.intercept("PUT", "/api/v1/applications/*").as("updateApplication");
-  cy.intercept("PUT", "/api/v1/actions/*").as("saveAction");
-  cy.intercept("PUT", "/api/v1/actions/move").as("moveAction");
+  cy.route("GET", "/api/v1/plugins/*/form").as("getPluginForm");
+  cy.route("POST", "/api/v1/datasources").as("createDatasource");
+  cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
+  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
+  cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
+  cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
+  cy.route("POST", "/api/v1/applications/?orgId=*").as("createNewApplication");
+  cy.route("PUT", "/api/v1/applications/*").as("updateApplication");
+  cy.route("PUT", "/api/v1/actions/*").as("saveAction");
+  cy.route("PUT", "/api/v1/actions/move").as("moveAction");
 
-  cy.intercept("POST", "/api/v1/organizations").as("createOrg");
-  cy.intercept("POST", "/api/v1/users/invite").as("postInvite");
-  cy.intercept("GET", "/api/v1/organizations/roles?organizationId=*").as(
+  cy.route("POST", "/api/v1/organizations").as("createOrg");
+  cy.route("POST", "/api/v1/users/invite").as("postInvite");
+  cy.route("GET", "/api/v1/organizations/roles?organizationId=*").as(
     "getRoles",
   );
-  cy.intercept("GET", "/api/v1/users/me").as("getUser");
-  cy.intercept("POST", "/api/v1/pages").as("createPage");
-  cy.intercept("POST", "/api/v1/pages/clone/*").as("clonePage");
-  cy.intercept("PUT", "/api/v1/applications/*/changeAccess").as("changeAccess");
+  cy.route("GET", "/api/v1/users/me").as("getUser");
+  cy.route("POST", "/api/v1/pages").as("createPage");
+  cy.route("POST", "/api/v1/pages/clone/*").as("clonePage");
+  cy.route("PUT", "/api/v1/applications/*/changeAccess").as("changeAccess");
 
-  cy.intercept("PUT", "/api/v1/organizations/*").as("updateOrganization");
-  cy.intercept("GET", "/api/v1/pages/view/application/*").as("viewApp");
-  cy.intercept("POST", "/api/v1/organizations/*/logo").as("updateLogo");
-  cy.intercept("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
+  cy.route("PUT", "/api/v1/organizations/*").as("updateOrganization");
+  cy.route("GET", "/api/v1/pages/view/application/*").as("viewApp");
+  cy.route("POST", "/api/v1/organizations/*/logo").as("updateLogo");
+  cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
 });
 
 Cypress.Commands.add("alertValidate", (text) => {
