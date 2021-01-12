@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
@@ -11,7 +11,6 @@ import {
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import {
-  Page,
   ApplicationPayload,
   PageListPayload,
 } from "constants/ReduxActionConstants";
