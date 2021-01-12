@@ -6,6 +6,7 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserOrganizationService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.UserSignup;
@@ -37,16 +38,19 @@ public class UserController extends BaseController<UserService, User, String> {
     private final SessionUserService sessionUserService;
     private final UserOrganizationService userOrganizationService;
     private final UserSignup userSignup;
+    private final UserDataService userDataService;
 
     @Autowired
     public UserController(UserService service,
                           SessionUserService sessionUserService,
                           UserOrganizationService userOrganizationService,
-                          UserSignup userSignup) {
+                          UserSignup userSignup,
+                          UserDataService userDataService) {
         super(service);
         this.sessionUserService = sessionUserService;
         this.userOrganizationService = userOrganizationService;
         this.userSignup = userSignup;
+        this.userDataService = userDataService;
     }
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
@@ -124,4 +128,12 @@ public class UserController extends BaseController<UserService, User, String> {
         return service.inviteUsers(inviteUsersDTO, originHeader)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
+
+    @PutMapping("/setReleaseNotesViewed")
+    public Mono<ResponseDTO<Void>> setReleaseNotesViewed() {
+        return sessionUserService.getCurrentUser()
+                .flatMap(userDataService::setViewedCurrentVersionReleaseNotes)
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
+    }
+
 }
