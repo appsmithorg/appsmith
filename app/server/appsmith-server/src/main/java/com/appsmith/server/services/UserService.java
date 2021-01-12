@@ -27,4 +27,5 @@ public interface UserService extends CrudService<User, String> {
     Mono<User> userCreate(User user);
 
     Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader);
+
 }
