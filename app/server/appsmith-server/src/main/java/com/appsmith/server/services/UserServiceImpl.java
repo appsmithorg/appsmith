@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
@@ -71,6 +72,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final RoleGraph roleGraph;
     private final ConfigService configService;
     private final CommonConfig commonConfig;
+    private final EmailConfig emailConfig;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -99,7 +101,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            UserOrganizationService userOrganizationService,
                            RoleGraph roleGraph,
                            ConfigService configService,
-                           CommonConfig commonConfig) {
+                           CommonConfig commonConfig,
+                           EmailConfig emailConfig) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.analyticsService = analyticsService;
@@ -114,6 +117,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.roleGraph = roleGraph;
         this.configService = configService;
         this.commonConfig = commonConfig;
+        this.emailConfig = emailConfig;
     }
 
     @Override
@@ -524,7 +528,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                                 ? Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED))
                                 : userCreate(user)
                 )
-                .flatMap(savedUser -> sendWelcomeEmail(savedUser, finalOriginHeader));
+                .flatMap(savedUser ->
+                        emailConfig.isWelcomeEmailEnabled()
+                                ? sendWelcomeEmail(savedUser, finalOriginHeader)
+                                : Mono.just(savedUser)
+                );
 
     }
 
