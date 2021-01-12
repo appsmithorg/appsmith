@@ -24,24 +24,12 @@ type PopupTheme = Record<EditorTheme, ThemeConfig>;
 
 const THEMES: PopupTheme = {
   [EditorTheme.LIGHT]: {
-    backgroundColor: "#fff",
-    textColor: "#1E242B",
-    editorBackground: "#F4F4F4",
-    editorColor: "#1E242B",
-  },
-  [EditorTheme.DARK]: {
-    backgroundColor: "#23292e",
-    textColor: "#F4F4F4",
-    editorBackground: "#090a0f",
-    editorColor: "#F4F4F4",
-  },
-  [EditorTheme.NEW_LIGHT]: {
     backgroundColor: "#FAFAFA",
     textColor: "#1E242B",
     editorBackground: "#FAFAFA",
     editorColor: "#1E242B",
   },
-  [EditorTheme.NEW_DARK]: {
+  [EditorTheme.DARK]: {
     backgroundColor: "#1A191C",
     textColor: "#F4F4F4",
     editorBackground: "#1A191C",

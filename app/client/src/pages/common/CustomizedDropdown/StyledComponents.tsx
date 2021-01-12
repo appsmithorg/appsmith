@@ -46,10 +46,7 @@ export const DropdownContentSection = styled.div<{
   skin: Skin;
 }>`
   position: ${(props) => (props.stick ? "sticky" : "relative")};
-  background: ${(props) =>
-    props.skin === Skin.NEW_DARK || props.skin === Skin.NEW_LIGHT
-      ? props.theme.dropdown[props.skin].inActiveBG
-      : "white"};
+  background: ${(props) => props.theme.dropdown[props.skin].inActiveBG};
   z-index: ${(props) => (props.stick ? 1 : 0)};
   padding: 8px 0;
   &&&&&& button {
@@ -100,28 +97,17 @@ export const Option = styled.div<{
   color: ${(props) => props.theme.dropdown[props.skin].inActiveText};
   &:hover {
     ${(props) => (!props.disabled ? highlightOption : ``)};
-    ${(props) =>
-      props.skin === Skin.NEW_DARK || props.skin === Skin.NEW_LIGHT
-        ? `
+
     &&& button {
       span {
-        color: ${props.theme.dropdown[props.skin].hoverText};
-        }
+        color: ${(props) => props.theme.dropdown[props.skin].hoverText};
       }
-      `
-        : null}
+    }
   }
   ${(props) => (props.active && !props.disabled ? highlightOption : ``)};
   &&& button {
     span {
-      color: ${(props) =>
-        props.skin === Skin.DARK
-          ? props.theme.colors.textOnDarkBG
-          : props.skin === Skin.LIGHT
-          ? props.theme.colors.defaultText
-          : props.skin === Skin.NEW_DARK || props.skin === Skin.NEW_LIGHT
-          ? props.theme.dropdown[props.skin].inActiveText
-          : "initial"};
+      color: ${(props) => props.theme.dropdown[props.skin].inActiveText};
     }
   }
 `;

@@ -39,8 +39,6 @@ export const IntentIcons: Record<Intent, JSXElementConstructor<IconProps>> = {
 export enum Skin {
   LIGHT,
   DARK,
-  NEW_LIGHT,
-  NEW_DARK,
 }
 
 export const scrollbarDark = css`
@@ -299,25 +297,12 @@ export type Theme = {
   };
   dropdown: {
     [Skin.LIGHT]: {
-      hoverBG: Color;
-      hoverText: Color;
-      inActiveBG: Color;
-      inActiveText: Color;
-    };
-    [Skin.DARK]: {
-      hoverBG: Color;
-      hoverText: Color;
-      inActiveBG: Color;
-      inActiveText: Color;
-      border: Color;
-    };
-    [Skin.NEW_LIGHT]: {
       hoverBG: ShadeColor;
       hoverText: ShadeColor;
       inActiveBG: ShadeColor;
       inActiveText: ShadeColor;
     };
-    [Skin.NEW_DARK]: {
+    [Skin.DARK]: {
       hoverBG: ShadeColor;
       hoverText: ShadeColor;
       inActiveBG: ShadeColor;
@@ -361,42 +346,6 @@ export type Theme = {
       };
     };
     [Skin.LIGHT]: {
-      default: {
-        color: Color;
-        background: Color;
-      };
-      active: {
-        color: Color;
-        background: Color;
-      };
-      hover: {
-        color: Color;
-        background: Color;
-      };
-      none: {
-        color: string;
-        background: string;
-      };
-    };
-    [Skin.NEW_DARK]: {
-      default: {
-        color: Color;
-        background: Color;
-      };
-      active: {
-        color: Color;
-        background: Color;
-      };
-      hover: {
-        color: Color;
-        background: Color;
-      };
-      none: {
-        color: string;
-        background: string;
-      };
-    };
-    [Skin.NEW_LIGHT]: {
       default: {
         color: string;
         background: string;
@@ -817,11 +766,6 @@ type ColorType = {
     responseBody: {
       bg: ShadeColor;
     };
-    bindingPrompt: {
-      textColor: string;
-      bg: ShadeColor;
-      boxShadow: string;
-    };
     codeEditor: {
       bg: ShadeColor;
       bgOnHover: ShadeColor;
@@ -1142,11 +1086,6 @@ export const dark: ColorType = {
     closeIcon: darkShades[9],
     responseBody: {
       bg: "#090707",
-    },
-    bindingPrompt: {
-      textColor: "#858282",
-      bg: darkShades[2],
-      boxShadow: "0px 12px 34px -6px rgba(0, 0, 0, 0.75)",
     },
     codeEditor: {
       bg: darkShades[0],
@@ -1469,11 +1408,6 @@ export const light: ColorType = {
     responseBody: {
       bg: lightShades[11],
     },
-    bindingPrompt: {
-      textColor: "#858282",
-      bg: lightShades[3],
-      boxShadow: "0px 12px 34px -6px rgba(0, 0, 0, 0.75)",
-    },
     codeEditor: {
       bg: lightShades[11],
       bgOnActive: lightShades[3],
@@ -1700,25 +1634,12 @@ export const theme: Theme = {
   },
   dropdown: {
     [Skin.LIGHT]: {
-      hoverBG: Colors.GREEN,
-      hoverText: Colors.WHITE,
-      inActiveBG: Colors.WHITE,
-      inActiveText: Colors.BLACK_PEARL,
-    },
-    [Skin.DARK]: {
-      hoverBG: Colors.TROUT_DARK,
-      hoverText: Colors.WHITE,
-      inActiveBG: Colors.BLUE_CHARCOAL,
-      inActiveText: Colors.WHITE,
-      border: Colors.TROUT_DARK,
-    },
-    [Skin.NEW_LIGHT]: {
       hoverBG: lightShades[0],
       hoverText: lightShades[10],
       inActiveBG: lightShades[3],
       inActiveText: lightShades[8],
     },
-    [Skin.NEW_DARK]: {
+    [Skin.DARK]: {
       hoverBG: darkShades[0],
       hoverText: darkShades[9],
       inActiveBG: darkShades[2],
@@ -1765,42 +1686,6 @@ export const theme: Theme = {
   lightningMenu: {
     [Skin.DARK]: {
       default: {
-        color: Colors.ALABASTER,
-        background: Colors.BLUE_CHARCOAL,
-      },
-      active: {
-        color: Colors.BLUE_CHARCOAL,
-        background: Colors.JAFFA_DARK,
-      },
-      hover: {
-        color: Colors.BLUE_CHARCOAL,
-        background: Colors.ALABASTER,
-      },
-      none: {
-        color: "transparent",
-        background: "transparent",
-      },
-    },
-    [Skin.LIGHT]: {
-      default: {
-        color: Colors.BLUE_CHARCOAL,
-        background: Colors.WHITE,
-      },
-      active: {
-        color: Colors.BLUE_CHARCOAL,
-        background: Colors.JAFFA_DARK,
-      },
-      hover: {
-        color: Colors.WHITE,
-        background: Colors.BLUE_CHARCOAL,
-      },
-      none: {
-        color: "transparent",
-        background: "transparent",
-      },
-    },
-    [Skin.NEW_DARK]: {
-      default: {
         color: darkShades[7],
         background: "transparent",
       },
@@ -1817,7 +1702,7 @@ export const theme: Theme = {
         background: "transparent",
       },
     },
-    [Skin.NEW_LIGHT]: {
+    [Skin.LIGHT]: {
       default: {
         color: lightShades[7],
         background: "transparent",

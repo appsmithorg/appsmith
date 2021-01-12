@@ -24,7 +24,7 @@ const LightningIconWrapper = styled.span<{
   align-items: center;
   border-radius: 2px;
   ${(props) =>
-    props.skin === Skin.NEW_DARK || props.skin === Skin.NEW_LIGHT
+    props.skin === Skin.DARK || props.skin === Skin.LIGHT
       ? `
       border-radius: 0px;
       svg path {
@@ -89,7 +89,7 @@ export const LightningMenuTrigger = (props: LightningMenuTriggerProps) => {
       className="lightning-menu"
       isFocused={props.isFocused}
     >
-      {props.skin === Skin.NEW_DARK || props.skin === Skin.NEW_LIGHT ? (
+      {props.skin === Skin.DARK || props.skin === Skin.LIGHT ? (
         <Tooltip
           content={LIGHTNING_MENU_DATA_TOOLTIP}
           autoFocus={false}

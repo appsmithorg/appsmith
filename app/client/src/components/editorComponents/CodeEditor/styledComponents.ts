@@ -118,15 +118,9 @@ const editorBackground = (theme?: EditorTheme) => {
   let bg = "#FFFFFF";
   switch (theme) {
     case EditorTheme.DARK:
-      bg = "#272822";
-      break;
-    case EditorTheme.LIGHT:
-      bg = "#FFFFFF";
-      break;
-    case EditorTheme.NEW_DARK:
       bg = "#1A191C";
       break;
-    case EditorTheme.NEW_LIGHT:
+    case EditorTheme.LIGHT:
       bg = "#FAFAFA";
       break;
   }
@@ -169,9 +163,11 @@ export const EditorWrapper = styled.div<{
   flex: 1;
   flex-direction: row;
   text-transform: none;
+  border: 0px;
+  border-radius: 0px;
   ${(props) =>
-    props.editorTheme === EditorTheme.NEW_LIGHT ||
-    props.editorTheme === EditorTheme.NEW_DARK
+    props.editorTheme === EditorTheme.LIGHT ||
+    props.editorTheme === EditorTheme.DARK
       ? `
     &:hover {
       && {
@@ -180,10 +176,10 @@ export const EditorWrapper = styled.div<{
           border-radius: 0px;
           background: ${
             !props.isNotHover
-              ? props.theme.colors.apiPane.codeEditor.bgOnHover
+              ? "#232324"
               : props.isFocused
-              ? props.theme.colors.apiPane.codeEditor.bgOnActive
-              : props.theme.colors.apiPane.codeEditor.bg
+              ? "#2B2B2B"
+              : "#1A191C"
           };
         }
         .cm-s-duotone-light.CodeMirror {
@@ -191,10 +187,10 @@ export const EditorWrapper = styled.div<{
           border-radius: 0px;
           background: ${
             !props.isNotHover
-              ? props.theme.colors.apiPane.codeEditor.bgOnHover
+              ? "#F7F7F7"
               : props.isFocused
-              ? props.theme.colors.apiPane.codeEditor.bgOnActive
-              : props.theme.colors.apiPane.codeEditor.bg
+              ? "#E8E8E8"
+              : "#FFFFFF"
           };
         }
       }
@@ -211,55 +207,29 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.textDefault} !important;
     }
     .cm-s-duotone-light.CodeMirror {
-      ${(props) =>
-        props.editorTheme === EditorTheme.NEW_LIGHT
-          ? `
-          font-size: 12px;
-          line-height: 16px;
-          letter-spacing: -0.21px;
-          border-radius: 0px;
-          border-bottom: 1px solid ${props.theme.colors.apiPane.codeEditor.borderColor};
-          padding-left: 10px;
-          `
-          : null};
-      background: ${(props) =>
-        props.editorTheme === EditorTheme.LIGHT
-          ? "#FFFFFF"
-          : props.isFocused
-          ? props.theme.colors.apiPane.codeEditor.bgOnActive
-          : props.theme.colors.apiPane.codeEditor.bg};
-      color: ${(props) =>
-        props.editorTheme === EditorTheme.LIGHT
-          ? "#000000 !important"
-          : props.theme.colors.apiPane.codeEditor.textColor};
+      font-size: 12px;
+      line-height: 16px;
+      letter-spacing: -0.21px;
+      border-radius: 0px;
+      border-bottom: 1px solid #E8E8E8;
+      padding-left: 10px;
+      background: ${(props) => (props.isFocused ? "#E8E8E8" : "#FFFFFF")};
+      color: #4B4848;
       & {
         span.cm-operator {
           color: ${(props) => props.theme.colors.textDefault};
         }
       }
-     }
+    }
     .cm-s-duotone-dark.CodeMirror {
-      ${(props) =>
-        props.editorTheme === EditorTheme.NEW_DARK
-          ? `
-          border-radius: 0px;
-          padding-left: 10px;
-          border-bottom: 1px solid ${props.theme.colors.apiPane.codeEditor.borderColor};
-          font-size: 12px;
-          line-height: 16px;
-          letter-spacing: -0.21px;
-          `
-          : null};
-      background: ${(props) =>
-        props.editorTheme === EditorTheme.DARK
-          ? "#182026"
-          : props.isFocused
-          ? props.theme.colors.apiPane.codeEditor.bgOnActive
-          : props.theme.colors.apiPane.codeEditor.bg};
-      color: ${(props) =>
-        props.editorTheme === EditorTheme.DARK
-          ? "#FFFFFF"
-          : props.theme.colors.apiPane.codeEditor.textColor};
+      border-radius: 0px;
+      padding-left: 10px;
+      border-bottom: 1px solid #2B2B2B;
+      font-size: 12px;
+      line-height: 16px;
+      letter-spacing: -0.21px;
+      background: ${(props) => (props.isFocused ? "#2B2B2B" : "#1A191C")};
+      color: #D4D4D4;
     }
     .binding-brackets {
       ${(props) =>
@@ -302,10 +272,7 @@ export const EditorWrapper = styled.div<{
     `}
     .CodeMirror pre.CodeMirror-placeholder {
       color: ${(props) =>
-        props.editorTheme === EditorTheme.NEW_DARK ||
-        props.editorTheme === EditorTheme.NEW_LIGHT
-          ? props.theme.colors.apiPane.codeEditor.placeholderColor
-          : "#a3b3bf"};
+        props.theme.colors.apiPane.codeEditor.placeholderColor};
     }
     ${(props) =>
       props.size === EditorSize.COMPACT &&
@@ -320,13 +287,7 @@ export const EditorWrapper = styled.div<{
   }
   && {
     .CodeMirror-lines {
-      ${(props) =>
-        props.editorTheme === EditorTheme.NEW_DARK ||
-        props.editorTheme === EditorTheme.NEW_LIGHT
-          ? `
-      padding: ${props.theme.spaces[3]}px 0px;
-      `
-          : null};
+      padding: ${(props) => props.theme.spaces[3]}px 0px;
       background-color: ${(props) => props.disabled && "#eef2f5"};
       cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
     }
@@ -344,14 +305,6 @@ export const EditorWrapper = styled.div<{
     margin: 5px;
     margin-right: 11px;
   }
-  ${(props) =>
-    props.editorTheme === EditorTheme.NEW_LIGHT ||
-    props.editorTheme === EditorTheme.NEW_DARK
-      ? `
-      border: 0px;
-      border-radius: 0px;
-  `
-      : null}
 `;
 
 export const IconContainer = styled.div`
@@ -402,9 +355,7 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
     .lightning-menu {
       background: ${(props) =>
         !props.isNotHover
-          ? props.skin === Skin.DARK
-            ? Colors.ALABASTER
-            : props.skin === Skin.NEW_DARK || props.skin === Skin.NEW_LIGHT
+          ? props.skin === Skin.DARK || props.skin === Skin.LIGHT
             ? "#716E6E"
             : Colors.BLUE_CHARCOAL
           : ""};
@@ -422,7 +373,7 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
     }
   }
   ${(props) =>
-    props.skin === Skin.NEW_DARK || props.skin === Skin.NEW_LIGHT
+    props.skin === Skin.DARK || props.skin === Skin.LIGHT
       ? `
         border: 0px;
         border-radius: 0px;

@@ -300,24 +300,6 @@ class CodeEditor extends Component<Props, State> {
       this.handleAutocompleteVisibility(this.editor);
     });
   }
-  getThemeSkin() {
-    let skin;
-    switch (this.props.theme) {
-      case EditorTheme.DARK:
-        skin = Skin.DARK;
-        break;
-      case EditorTheme.LIGHT:
-        skin = Skin.LIGHT;
-        break;
-      case EditorTheme.NEW_DARK:
-        skin = Skin.NEW_DARK;
-        break;
-      case EditorTheme.NEW_LIGHT:
-        skin = Skin.NEW_LIGHT;
-        break;
-    }
-    return skin;
-  }
 
   render() {
     const {
@@ -349,7 +331,7 @@ class CodeEditor extends Component<Props, State> {
     return (
       <DynamicAutocompleteInputWrapper
         theme={this.props.theme}
-        skin={this.getThemeSkin()}
+        skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
         isError={hasError}
         isActive={(this.state.isFocused && !hasError) || this.state.isOpened}
         isNotHover={this.state.isFocused || this.state.isOpened}
@@ -357,7 +339,9 @@ class CodeEditor extends Component<Props, State> {
         {showLightningMenu !== false && (
           <Suspense fallback={<div />}>
             <LightningMenu
-              skin={this.getThemeSkin()}
+              skin={
+                this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT
+              }
               updateDynamicInputValue={this.updatePropertyValue}
               isFocused={this.state.isFocused}
               isOpened={this.state.isOpened}

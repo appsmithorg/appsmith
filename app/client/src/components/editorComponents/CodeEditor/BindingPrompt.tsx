@@ -10,20 +10,14 @@ const Wrapper = styled.span<{
 }>`
   padding: 8px;
   font-size: 12px;
-  color: ${Colors.GRAY_CHATEAU};
-  ${(props) =>
-    props.editorTheme === EditorTheme.NEW_DARK ||
-    props.editorTheme === EditorTheme.NEW_LIGHT
-      ? `
-      color: ${props.theme.colors.apiPane.bindingPrompt.textColor};
-      box-shadow: ${props.theme.colors.apiPane.bindingPrompt.boxShadow};
-      `
-      : null};
+  color: #858282;
+  box-shadow: 0px 12px 34px -6px rgba(0, 0, 0, 0.75);
   border-radius: 2px;
   background-color: ${(props) =>
-    props.editorTheme === EditorTheme.NEW_DARK ||
-    props.editorTheme === EditorTheme.NEW_LIGHT
-      ? props.theme.colors.apiPane.bindingPrompt.bg
+    props.editorTheme === EditorTheme.DARK
+      ? "#262626"
+      : props.editorTheme === EditorTheme.LIGHT
+      ? "#E8E8E8"
       : Colors.BLUE_CHARCOAL};
   position: absolute;
   bottom: ${(props) => -props.bottomOffset}px;

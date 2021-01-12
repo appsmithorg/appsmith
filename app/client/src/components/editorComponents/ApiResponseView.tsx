@@ -275,7 +275,6 @@ const ApiResponseView = (props: Props) => {
                   : "",
               }}
               height={"100%"}
-              theme={props.theme}
             />
           )}
         </>

@@ -8,13 +8,13 @@ export default styled.div<{ theme?: EditorTheme }>`
   right: 0;
   left: 0;
   background-color: ${(props) =>
-    props.theme === EditorTheme.NEW_DARK
+    props.theme === EditorTheme.DARK
       ? "rgba(0, 0, 0, 0.6)"
       : "rgba(255, 255, 255, 0.6)"};
   pointer-events: none;
   z-index: 10;
   color: ${(props) =>
-    props.theme === EditorTheme.NEW_DARK ? "white" : "black"};
+    props.theme === EditorTheme.DARK ? "#FFFFFF" : "#000000"};
   display: flex;
   align-items: center;
   justify-content: center;
