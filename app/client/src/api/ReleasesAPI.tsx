@@ -7,7 +7,7 @@ export interface MarkAsReadRequest {
 }
 
 class ReleasesAPI extends Api {
-  static markAsReadURL = `v1/mark-releases-as-read`;
+  static markAsReadURL = `v1/setReleaseNotesViewed`;
 
   static markAsRead(request: MarkAsReadRequest): AxiosPromise<ApiResponse> {
     return Api.post(ReleasesAPI.markAsReadURL, request);

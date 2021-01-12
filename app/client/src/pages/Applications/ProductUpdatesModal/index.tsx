@@ -164,9 +164,7 @@ const ProductUpdatesModal = () => {
   );
   const dispatch = useDispatch();
   const onOpened = useCallback(async () => {
-    // if (releaseItems.length > 0) {
-    //   await ReleasesAPI.markAsRead({ lastReadRelease: releaseItems[0].tagName });
-    // }
+    // await ReleasesAPI.markAsRead();
     dispatch(resetReleasesCount());
   }, []);
 
