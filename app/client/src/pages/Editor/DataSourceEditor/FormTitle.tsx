@@ -8,7 +8,7 @@ import EditableText, {
 import { AppState } from "reducers";
 import { getDatasource } from "selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { getDataSources } from "selectors/editorSelectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { isNameValid } from "utils/helpers";

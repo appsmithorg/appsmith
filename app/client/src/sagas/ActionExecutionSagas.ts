@@ -47,7 +47,7 @@ import {
   showRunActionConfirmModal,
   updateAction,
 } from "actions/actionActions";
-import { Action, RestAction } from "entities/Action";
+import { Action } from "entities/Action";
 import ActionAPI, {
   ActionApiResponse,
   ActionResponse,
@@ -362,14 +362,16 @@ export function* executeActionSaga(
     },
     actionId,
   );
+  const appMode = yield select(getAppMode);
   try {
-    const api: RestAction = yield select(getAction, actionId);
+    const api: Action = yield select(getAction, actionId);
     const currentApp: ApplicationPayload = yield select(getCurrentApplication);
     AnalyticsUtil.logEvent("EXECUTE_ACTION", {
       type: api.pluginType,
       name: api.name,
       pageId: api.pageId,
       appId: currentApp.id,
+      appMode: appMode,
       appName: currentApp.name,
       isExampleApp: currentApp.appIsExample,
     });
@@ -395,7 +397,6 @@ export function* executeActionSaga(
         : event.type === EventType.ON_PREV_PAGE
         ? "PREV"
         : undefined;
-    const appMode = yield select(getAppMode);
 
     const executeActionRequest: ExecuteActionRequest = {
       actionId: actionId,
@@ -712,6 +713,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       type: pageAction.pluginType,
       name: pageAction.name,
       pageId: pageId,
+      appMode: appMode,
       appId: currentApp.id,
       onPageLoad: true,
       appName: currentApp.name,
