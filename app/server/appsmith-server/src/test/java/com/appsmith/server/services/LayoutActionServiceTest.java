@@ -146,8 +146,25 @@ public class LayoutActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
+        ActionDTO unreferencedAction = new ActionDTO();
+        unreferencedAction.setName("query2");
+        unreferencedAction.setPageId(testPage.getId());
+        unreferencedAction.setUserSetOnLoad(true);
+        ActionConfiguration actionConfiguration2 = new ActionConfiguration();
+        actionConfiguration2.setHttpMethod(HttpMethod.GET);
+        unreferencedAction.setActionConfiguration(actionConfiguration2);
+        unreferencedAction.setDatasource(datasource);
+
         Mono<PageDTO> resultMono = newActionService
                 .createAction(action)
+                .flatMap(savedAction -> {
+                    ActionDTO updates = new ActionDTO();
+                    updates.setExecuteOnLoad(true);
+                    updates.setPolicies(null);
+                    updates.setUserPermissions(null);
+                    return layoutActionService.updateAction(savedAction.getId(), updates);
+                })
+                .flatMap(savedAction -> newActionService.createAction(unreferencedAction))
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
@@ -162,8 +179,10 @@ public class LayoutActionServiceTest {
                 .create(resultMono)
                 .assertNext(page -> {
                     assertThat(page.getLayouts()).hasSize(1);
-                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(1);
-                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(0).iterator().next().getName()).isEqualTo("query1");
+                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(2);
+                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(0)).hasSize(1);
+                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(0).stream().anyMatch(x -> x.getName().equalsIgnoreCase("query2"))).isTrue();
+                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(1).stream().anyMatch(x -> x.getName().equalsIgnoreCase("query1"))).isTrue();
                 })
                 .verifyComplete();
     }

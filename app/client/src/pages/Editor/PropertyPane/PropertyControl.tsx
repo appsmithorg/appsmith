@@ -227,6 +227,7 @@ const PropertyControl = memo((props: Props) => {
             ]}
             show={propertyName === "tableData"}
             position={Position.LEFT_TOP}
+            dismissOnOutsideClick={false}
           >
             {PropertyControlFactory.createControl(
               config,

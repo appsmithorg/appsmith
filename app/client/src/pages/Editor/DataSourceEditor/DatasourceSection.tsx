@@ -1,4 +1,4 @@
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import React from "react";
 import { map, get } from "lodash";
 import { Colors } from "constants/Colors";
@@ -29,16 +29,17 @@ const FieldWrapper = styled.div`
 
 export const renderDatasourceSection = (
   config: any,
-  datasource: Datasource | undefined,
+  datasource: Datasource,
 ): any => {
   return (
-    <>
+    <React.Fragment key={datasource.id}>
       {map(config.children, (section) => {
         if ("children" in section) {
           return renderDatasourceSection(section, datasource);
         } else {
           try {
             const { label, configProperty, controlType } = section;
+            const reactKey = datasource.id + "_" + label;
             let value = get(datasource, configProperty);
 
             if (controlType === "KEYVALUE_ARRAY") {
@@ -55,7 +56,7 @@ export const renderDatasourceSection = (
 
             if (controlType === "FIXED_KEY_INPUT") {
               return (
-                <FieldWrapper>
+                <FieldWrapper key={reactKey}>
                   <Key>{configProperty.key}: </Key>{" "}
                   <Value>{configProperty.value}</Value>
                 </FieldWrapper>
@@ -64,7 +65,7 @@ export const renderDatasourceSection = (
 
             if (controlType === "KEY_VAL_INPUT") {
               return (
-                <FieldWrapper>
+                <FieldWrapper key={reactKey}>
                   <Key>{label}</Key>
                   {value.map((val: { key: string; value: string }) => {
                     return (
@@ -85,13 +86,13 @@ export const renderDatasourceSection = (
             }
 
             return (
-              <FieldWrapper>
+              <FieldWrapper key={reactKey}>
                 <Key>{label}: </Key> <Value>{value}</Value>
               </FieldWrapper>
             );
           } catch (e) {}
         }
       })}
-    </>
+    </React.Fragment>
   );
 };

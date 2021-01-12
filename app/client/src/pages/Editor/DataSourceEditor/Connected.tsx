@@ -17,8 +17,8 @@ import {
 } from "constants/routes";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { DEFAULT_API_ACTION } from "constants/ApiEditorConstants";
-import { ApiActionConfig, PluginType } from "entities/Action";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import { ApiActionConfig, PluginType, QueryAction } from "entities/Action";
 import { renderDatasourceSection } from "./DatasourceSection";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -96,18 +96,20 @@ const Connected = () => {
         actionType: "Query",
         from: "datasource-pane",
       },
-    };
-
-    // If in onboarding and tooltip is being shown
-    if (isInOnboarding && showingTooltip === OnboardingStep.EXAMPLE_DATABASE) {
-      payload = {
-        ...payload,
-        name: "ExampleQuery",
-        actionConfiguration: {
-          body: "select * from public.users limit 10",
-        },
-      };
-    }
+    } as Partial<QueryAction>; // TODO: refactor later. Handle case for undefined datasource before we reach here.
+    if (datasource)
+      if (
+        isInOnboarding &&
+        showingTooltip === OnboardingStep.EXAMPLE_DATABASE
+      ) {
+        // If in onboarding and tooltip is being shown
+        payload = Object.assign({}, payload, {
+          name: "ExampleQuery",
+          actionConfiguration: {
+            body: "select * from public.users limit 10",
+          },
+        });
+      }
 
     dispatch(createActionRequest(payload));
     history.push(
@@ -122,11 +124,9 @@ const Connected = () => {
   const createApiAction = useCallback(() => {
     const newApiName = createNewApiName(actions, currentPageId || "");
     const headers = datasource?.datasourceConfiguration?.headers ?? [];
-    const defaultAction: Partial<ApiActionConfig> | undefined = {
-      ...DEFAULT_API_ACTION.actionConfiguration,
-      headers: headers.length
-        ? headers
-        : DEFAULT_API_ACTION.actionConfiguration?.headers,
+    const defaultApiActionConfig: ApiActionConfig = {
+      ...DEFAULT_API_ACTION_CONFIG,
+      headers: headers.length ? headers : DEFAULT_API_ACTION_CONFIG.headers,
     };
 
     if (!datasource?.datasourceConfiguration?.url) {
@@ -142,17 +142,15 @@ const Connected = () => {
       createActionRequest({
         name: newApiName,
         pageId: currentPageId,
-        pluginId: datasource?.pluginId,
+        pluginId: datasource.pluginId,
         datasource: {
-          id: datasource?.id,
+          id: datasource.id,
         },
         eventData: {
           actionType: "API",
           from: "datasource-pane",
         },
-        actionConfiguration: {
-          ...defaultAction,
-        },
+        actionConfiguration: defaultApiActionConfig,
       }),
     );
     history.push(
@@ -196,7 +194,7 @@ const Connected = () => {
         </OnboardingIndicator>
       </Header>
       <div style={{ marginTop: "30px" }}>
-        {!isNil(currentFormConfig)
+        {!isNil(currentFormConfig) && !isNil(datasource)
           ? renderDatasourceSection(currentFormConfig[0], datasource)
           : undefined}
       </div>

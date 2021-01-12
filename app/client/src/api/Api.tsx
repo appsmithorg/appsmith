@@ -9,7 +9,7 @@ import { ActionApiResponse } from "./ActionAPI";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import history from "utils/history";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
-import { SERVER_API_TIMEOUT_ERROR } from "../constants/messages";
+import { ERROR_500, SERVER_API_TIMEOUT_ERROR } from "../constants/messages";
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {
@@ -71,15 +71,16 @@ axiosInstance.interceptors.response.use(
         code: ERROR_CODES.REQUEST_TIMEOUT,
       });
     }
-    if (error.response.status === API_STATUS_CODES.SERVER_ERROR) {
-      return Promise.reject({
-        ...error,
-        crash: true,
-        code: ERROR_CODES.REQUEST_TIMEOUT,
-        message: SERVER_API_TIMEOUT_ERROR,
-      });
-    }
+
     if (error.response) {
+      if (error.response.status === API_STATUS_CODES.SERVER_ERROR) {
+        return Promise.reject({
+          ...error,
+          code: ERROR_CODES.SERVER_ERROR,
+          message: ERROR_500,
+        });
+      }
+
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
       // console.log(error.response.data);
@@ -91,7 +92,7 @@ axiosInstance.interceptors.response.use(
           // Redirect to login and set a redirect url.
           history.replace({
             pathname: AUTH_LOGIN_URL,
-            search: `redirectTo=${currentUrl}`,
+            search: `redirectUrl=${currentUrl}`,
           });
           return Promise.reject({
             code: ERROR_CODES.REQUEST_NOT_AUTHORISED,

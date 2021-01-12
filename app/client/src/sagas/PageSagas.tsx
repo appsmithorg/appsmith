@@ -341,6 +341,7 @@ function* savePageSaga() {
         failed: true,
       },
     );
+
     yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
       payload: {

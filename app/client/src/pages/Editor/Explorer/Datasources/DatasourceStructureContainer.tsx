@@ -1,7 +1,7 @@
 import {
   DatasourceStructure as DatasourceStructureType,
   DatasourceTable,
-} from "api/DatasourcesApi";
+} from "entities/Datasource";
 import React, { memo, ReactNode } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
 import { useEntityUpdateState } from "../hooks";

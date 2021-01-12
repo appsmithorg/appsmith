@@ -265,30 +265,6 @@ public class UserServiceTest {
 
     @Test
     @WithMockAppsmithUser
-    public void confirmInviteTokenFlow() {
-        User newUser = new User();
-        newUser.setEmail("newEmail@newEmail.com");
-        newUser.setIsEnabled(false);
-        newUser.setInviteToken("inviteToken");
-
-        userRepository.save(newUser).block();
-
-        newUser.setPassword("newPassword");
-
-        Mono<User> afterConfirmationUserMono = userService.confirmInviteUser(newUser, "http://localhost:8080")
-                .then(userRepository.findByEmail("newEmail@newEmail.com"));
-
-        StepVerifier.create(afterConfirmationUserMono)
-                .assertNext(user -> {
-                    assertThat(user).isNotNull();
-                    assertThat(user.getIsEnabled()).isTrue();
-                })
-                .verifyComplete();
-
-    }
-
-    @Test
-    @WithMockAppsmithUser
     public void signUpViaFormLoginIfAlreadyInvited() {
         User newUser = new User();
         newUser.setEmail("alreadyInvited@alreadyInvited.com");

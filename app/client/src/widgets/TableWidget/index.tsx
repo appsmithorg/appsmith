@@ -414,7 +414,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     filteredTableData: Array<Record<string, unknown>>,
     selectedRowIndex?: number,
   ) => {
-    if (selectedRowIndex === undefined || selectedRowIndex === -1) {
+    if (
+      selectedRowIndex === undefined ||
+      selectedRowIndex === -1 ||
+      selectedRowIndex === null
+    ) {
       return this.getEmptyRow();
     }
     return {
