@@ -36,6 +36,7 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
     private String headerPrefix;
     private boolean isHeader;
     private Instant expiresAt;
+    private static final int MAX_IN_MEMORY_SIZE = 10 * 1024 * 1024; // 10 MB
 
     private OAuth2Connection() {
     }
@@ -74,7 +75,7 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .exchangeStrategies(ExchangeStrategies
                         .builder()
-                        .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
+                        .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(MAX_IN_MEMORY_SIZE))
                         .build())
                 .build();
 
@@ -109,7 +110,7 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
                     oAuth2.setExpiresAt(expiresAt);
                     oAuth2.setIssuedAt(issuedAt);
                     oAuth2.setToken(String.valueOf(mappedResponse.get("access_token")));
-
+                    System.out.println("Entered token generation...");
                     return oAuth2;
                 });
     }
@@ -119,7 +120,7 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
         // Validate token before execution
         Instant now = this.clock.instant();
         Instant expiresAt = this.expiresAt;
-        if (this.expiresAt != null && now.isBefore(expiresAt.minus(Duration.ofMinutes(1)))) {
+        if (this.expiresAt != null && now.isAfter(expiresAt.minus(Duration.ofMinutes(1)))) {
             return Mono.error(new StaleConnectionException("The access token has expired"));
         }
         // Pick the token that has been created/retrieved
