@@ -520,7 +520,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, user.getUsername()));
                 })
                 .switchIfEmpty(
-                        commonConfig.isSignupDisabled()
+                        commonConfig.isSignupDisabled() && !commonConfig.getAdminEmails().contains(user.getEmail())
                                 ? Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED))
                                 : userCreate(user)
                 )

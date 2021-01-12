@@ -28,6 +28,9 @@ public class CommonConfig {
     @Value("${signup.disabled}")
     private boolean isSignupDisabled;
 
+    @Value("${admin.emails}")
+    private List<String> adminEmails = Collections.emptyList();
+
     @Value("${oauth2.allowed-domains}")
     private String allowedDomainList;
 
