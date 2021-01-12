@@ -216,7 +216,6 @@ const EVALUATE_REDUX_ACTIONS = [
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-  ReduxActionTypes.SET_URL_DATA,
   ReduxActionTypes.UPDATE_APP_STORE,
   // Widgets
   ReduxActionTypes.UPDATE_LAYOUT,
