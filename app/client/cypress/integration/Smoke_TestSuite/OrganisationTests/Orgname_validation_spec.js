@@ -2,7 +2,7 @@
 
 const homePage = require("../../../locators/HomePage.json");
 
-describe("Create org and a new app / delete and recreate app", function() {
+describe("Org name validation spec", function() {
   it("create org with leading space validation", function() {
     cy.NavigateToHome();
     cy.get(homePage.createOrg)
