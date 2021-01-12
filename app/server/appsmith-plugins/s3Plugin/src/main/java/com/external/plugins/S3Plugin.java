@@ -1,6 +1,12 @@
 package com.external.plugins;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Connection;
@@ -31,7 +37,7 @@ import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 
 public class S3Plugin extends BasePlugin {
 
-    private static final String S3_DRIVER = "com.amazonaws.services.AmazonS3";
+    private static final String S3_DRIVER = "com.amazonaws.services.s3.AmazonS3";
     private static final String USER = "user";
     private static final String PASSWORD = "password";
     private static final String SSL = "ssl";
@@ -53,62 +59,50 @@ public class S3Plugin extends BasePlugin {
 
         @Override
         public Mono<AmazonS3> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            //TODO: check if it works
             try {
                 Class.forName(S3_DRIVER);
             } catch (ClassNotFoundException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading Redshift JDBC Driver class."));
+                return Mono.error(
+                        new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_ERROR,
+                            "Error loading S3 driver class."
+                        )
+                );
             }
 
-            String url;
+            //TODO: create a field to hold it. ?? endpoint.host()
+            Regions clientRegion = Regions.fromName("ap-south-1");
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+            String accessKey = authentication.getUsername();
+            String secretKey = authentication.getPassword();
+            BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
 
-            Connection configurationConnection = datasourceConfiguration.getConnection();
-
-            final boolean isSslEnabled = configurationConnection != null
-                    && configurationConnection.getSsl() != null
-                    && !SSLDetails.AuthType.NO_SSL.equals(configurationConnection.getSsl().getAuthType());
-
-            Properties properties = new Properties();
-            //TODO: check if SSL option works
-            properties.put(SSL, isSslEnabled);
-            if (authentication.getUsername() != null) {
-                properties.put(USER, authentication.getUsername());
-            }
-            if (authentication.getPassword() != null) {
-                properties.put(PASSWORD, authentication.getPassword());
-            }
-
-            if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                url = datasourceConfiguration.getUrl();
-
-            } else {
-                StringBuilder urlBuilder = new StringBuilder(JDBC_PROTOCOL);
-                for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                    urlBuilder
-                            .append(endpoint.getHost())
-                            .append(':')
-                            .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 5439L))
-                            .append('/');
-
-                    if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
-                        urlBuilder.append(authentication.getDatabaseName());
-                    }
-                }
-                url = urlBuilder.toString();
-            }
-
-            return Mono.fromCallable(() -> {
-
-            })
-                    .flatMap(obj -> obj)
-                    .map(conn -> (Connection) conn)
-                    .subscribeOn(scheduler);
+            //TODO: handle errors
+            return Mono.fromCallable(() ->
+                        AmazonS3ClientBuilder
+                        .standard()
+                        .withRegion(clientRegion)
+                        .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+                        .build()
+            )
+            .subscribeOn(scheduler);
         }
 
         @Override
         public void datasourceDestroy(AmazonS3 connection) {
-
+            if (connection != null) {
+                Mono.fromCallable(() -> {
+                        connection.shutdown();
+                        return connection;
+                    })
+                    .onErrorResume(exception -> {
+                        log.debug("In datasourceDestroy function error mode.", exception);
+                        System.out.println("In datasourceDestroy function error mode: " + exception);
+                        return Mono.empty();
+                    })
+                    .subscribeOn(scheduler)
+                    .subscribe();
+            }
         }
 
         @Override
