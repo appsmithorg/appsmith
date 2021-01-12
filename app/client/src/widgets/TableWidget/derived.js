@@ -15,4 +15,9 @@ export default {
     }
     return { ...filteredTableData[selectedRowIndex] };
   },
+  getSelectedRow: (props) => {
+    const selectedRowIndices = props.selectedRowIndices || [];
+    const filteredTableData = props.filteredTableData || [];
+    return selectedRowIndices.map((ind) => filteredTableData[ind]);
+  },
 };

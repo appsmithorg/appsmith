@@ -2,13 +2,34 @@
 //@ts-ignore
 import widgetPropertyFns from "!!raw-loader!./derived.js";
 
+// TODO(abhinav):
+// Add unit test cases
+// Handle edge cases
+// Error out on wrong values
 const derivedProperties: any = {};
-const regex = /(\w+):\s?\(props\)\s?=>\s?{([\w\W]*?)},/;
+const regex = /(\w+):\s?\(props\)\s?=>\s?{([\w\W]*?)},/gim;
 
-const matches = widgetPropertyFns.match(regex);
-console.log("TEST", matches[1], matches[2]);
+let m;
 
-const value = matches[2].trim().replace(/\n/, "");
+while ((m = regex.exec(widgetPropertyFns)) !== null) {
+  // This is necessary to avoid infinite loops with zero-width matches
+  if (m.index === regex.lastIndex) {
+    regex.lastIndex++;
+  }
 
-derivedProperties[matches[1]] = value;
+  let key = "";
+  // The result can be accessed through the `m`-variable.
+  m.forEach((match, groupIndex) => {
+    if (groupIndex === 1) {
+      key = match;
+    }
+    if (groupIndex === 2) {
+      derivedProperties[key] = match
+        .trim()
+        .replace(/\n/g, "")
+        .replace(/props\./g, "this.");
+    }
+  });
+}
+
 export default derivedProperties;
