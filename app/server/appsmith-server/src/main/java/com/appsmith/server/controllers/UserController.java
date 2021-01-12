@@ -111,19 +111,6 @@ public class UserController extends BaseController<UserService, User, String> {
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 
-    @GetMapping("/invite/verify")
-    public Mono<ResponseDTO<Boolean>> verifyInviteToken(@RequestParam String email, @RequestParam String token) {
-        return service.verifyInviteToken(email, token)
-                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
-    }
-
-    @PutMapping("/invite/confirm")
-    public Mono<ResponseDTO<Boolean>> confirmInviteUser(@RequestBody User inviteUser,
-                                                        @RequestHeader("Origin") String originHeader) {
-        return service.confirmInviteUser(inviteUser, originHeader)
-                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
-    }
-
     /**
      * This function creates an invite for new users to join an Appsmith organization. We require the Origin header
      * in order to construct client facing URLs that will be sent to the users via email.
