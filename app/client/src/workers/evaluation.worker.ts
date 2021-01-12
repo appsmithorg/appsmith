@@ -25,7 +25,7 @@ import { DATA_BIND_REGEX } from "../constants/BindingsConstants";
 import equal from "fast-deep-equal/es6";
 import unescapeJS from "unescape-js";
 
-import { diff, Diff } from "deep-diff";
+import { applyChange, diff, Diff } from "deep-diff";
 import {
   addDependantsOfNestedPropertyPaths,
   convertPathToString,
@@ -308,6 +308,7 @@ export class DataTreeEvaluator {
       // Only do this for property paths and not the entity themselves
       if (lastIndexOfDot !== -1) {
         const unEvalPropValue = _.get(unEvalTree, propertyPath);
+        // TODO Optimise: Required only if unEvalPropValue is a binding that needs eval
         _.set(this.evalTree, propertyPath, unEvalPropValue);
       }
     });
@@ -1074,32 +1075,37 @@ export class DataTreeEvaluator {
   ) {
     const changePaths: Set<string> = new Set(dependenciesOfRemovedPaths);
     differences.forEach((d) => {
-      // If this is a property path change, simply add for evaluation
-      if (d.path && d.path.length > 1) {
-        const propertyPath = convertPathToString(d.path);
-        changePaths.add(propertyPath);
+      if (d.path) {
+        // Apply the changes into the evalTree so that it gets the latest changes
+        applyChange(this.evalTree, undefined, d);
 
-        // If this is an array update, trim the array index and add it to the change paths for evaluation
-        // This is because sometimes inside an object of array time, if only a particular entry changes, the
-        // difference comes as propertyPath[0].fieldChanged. Another entity could depend on propertyPath and not
-        // propertyPath[0]. The said entity must be evaluated.
-        // To do this, we are trimming the array index
-        if (propertyPath.lastIndexOf("[") > 0) {
-          changePaths.add(
-            propertyPath.substr(0, propertyPath.lastIndexOf("[")),
-          );
-        }
-      } else if (d.path && d.path.length === 1) {
-        /*
-            When we see a new widget has been added or or delete an old widget ( d.path.length === 1)
-            We want to add all the dependencies in the sorted order to make
-            sure all the bindings are evaluated.
-          */
-        this.sortedDependencies.forEach((dependency) => {
-          if (d.path && dependency.split(".")[0] === d.path[0]) {
-            changePaths.add(dependency);
+        // If this is a property path change, simply add for evaluation
+        if (d.path.length > 1) {
+          const propertyPath = convertPathToString(d.path);
+          changePaths.add(propertyPath);
+
+          // If this is an array update, trim the array index and add it to the change paths for evaluation
+          // This is because sometimes inside an object of array time, if only a particular entry changes, the
+          // difference comes as propertyPath[0].fieldChanged. Another entity could depend on propertyPath and not
+          // propertyPath[0]. The said entity must be evaluated.
+          // To do this, we are trimming the array index
+          if (propertyPath.lastIndexOf("[") > 0) {
+            changePaths.add(
+              propertyPath.substr(0, propertyPath.lastIndexOf("[")),
+            );
           }
-        });
+        } else if (d.path.length === 1) {
+          /*
+              When we see a new widget has been added or or delete an old widget ( d.path.length === 1)
+              We want to add all the dependencies in the sorted order to make
+              sure all the bindings are evaluated.
+            */
+          this.sortedDependencies.forEach((dependency) => {
+            if (d.path && dependency.split(".")[0] === d.path[0]) {
+              changePaths.add(dependency);
+            }
+          });
+        }
       }
     });
 
