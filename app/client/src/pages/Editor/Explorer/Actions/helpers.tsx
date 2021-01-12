@@ -12,7 +12,7 @@ import {
 
 import { Page } from "constants/ReduxActionConstants";
 import { ExplorerURLParams } from "../helpers";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import PluginGroup from "../PluginGroup/PluginGroup";
 

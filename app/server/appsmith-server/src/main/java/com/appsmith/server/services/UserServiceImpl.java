@@ -4,6 +4,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
@@ -69,6 +70,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final UserOrganizationService userOrganizationService;
     private final RoleGraph roleGraph;
     private final ConfigService configService;
+    private final CommonConfig commonConfig;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -96,7 +98,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            OrganizationRepository organizationRepository,
                            UserOrganizationService userOrganizationService,
                            RoleGraph roleGraph,
-                           ConfigService configService) {
+                           ConfigService configService,
+                           CommonConfig commonConfig) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.analyticsService = analyticsService;
@@ -110,6 +113,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.userOrganizationService = userOrganizationService;
         this.roleGraph = roleGraph;
         this.configService = configService;
+        this.commonConfig = commonConfig;
     }
 
     @Override
@@ -515,7 +519,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     }
                     return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, user.getUsername()));
                 })
-                .switchIfEmpty(userCreate(user))
+                .switchIfEmpty(
+                        commonConfig.isSignupDisabled()
+                                ? Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED))
+                                : userCreate(user)
+                )
                 .flatMap(savedUser -> sendWelcomeEmail(savedUser, finalOriginHeader));
 
     }

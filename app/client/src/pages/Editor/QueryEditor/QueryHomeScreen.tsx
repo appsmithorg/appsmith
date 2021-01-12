@@ -6,7 +6,7 @@ import { AppState } from "reducers";
 import { createNewQueryName } from "utils/AppsmithUtils";
 import { getPluginImages } from "selectors/entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { createActionRequest } from "actions/actionActions";
 import { Page } from "constants/ReduxActionConstants";
 import {

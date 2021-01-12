@@ -8,7 +8,7 @@ import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
 import styled from "styled-components";
 import QueryTemplates from "./QueryTemplates";
 import DatasourceField from "./DatasourceField";
-import { DatasourceTable } from "api/DatasourcesApi";
+import { DatasourceTable } from "entities/Datasource";
 
 const Wrapper = styled(EntityTogglesWrapper)`
   &&&& {

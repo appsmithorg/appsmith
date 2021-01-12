@@ -189,40 +189,6 @@ const enumTypeGetter = (
   return defaultValue;
 };
 
-const objectTypeSetter = (
-  obj: Object,
-  currentValue: string,
-  argNum: number,
-): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  let args: string[] = [];
-  if (matches.length) {
-    args = argsStringToArray(matches[0][2]);
-    args[argNum] = JSON.stringify(obj);
-  }
-  const result = currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
-  return result;
-};
-
-const objectTypeGetter = (
-  value: string,
-  argNum: number,
-  defaultValue = undefined,
-): Object | undefined => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
-    const args = argsStringToArray(matches[0][2]);
-    const arg = args[argNum];
-    if (arg) {
-      return JSON.parse(arg.trim());
-    }
-  }
-  return defaultValue;
-};
-
 type ActionCreatorProps = {
   value: string;
   isValid: boolean;
@@ -380,11 +346,7 @@ const fieldConfigs: FieldConfigs = {
       }
       return mainFuncSelectedValue;
     },
-    setter: (
-      option: TreeDropdownOption,
-      currentValue: string,
-      defaultValue?: string,
-    ) => {
+    setter: (option: TreeDropdownOption) => {
       const type: ActionType = option.type || option.value;
       let value = option.value;
       switch (type) {
