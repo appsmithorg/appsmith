@@ -17,8 +17,8 @@ export const resetAuthExpiration = () => {
   const expireBy = moment()
     .add(1, "h")
     .format();
-  store.setItem(STORAGE_KEYS.AUTH_EXPIRATION, expireBy).catch((error) => {
-    console.log("Unable to set expiration time");
+  store.setItem(STORAGE_KEYS.AUTH_EXPIRATION, expireBy).catch(() => {
+    console.error("Unable to set expiration time");
   });
 };
 

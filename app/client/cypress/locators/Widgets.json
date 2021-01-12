@@ -46,5 +46,6 @@
     "widgetBtn": ".t--widget-buttonwidget button",
     "actionSelect": ".t--open-dropdown-Select-Action",
     "tableActionSelect": ".t--property-control-onsearchtextchanged .t--open-dropdown-Select-Action",
-    "chartWidget": ".t--widget-chartwidget"
+    "chartWidget": ".t--widget-chartwidget",
+    "tableOnRowSelect": ".t--property-control-onrowselected .t--open-dropdown-Select-Action"
 }

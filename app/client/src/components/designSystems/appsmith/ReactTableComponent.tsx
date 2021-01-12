@@ -12,7 +12,6 @@ import {
   ReactTableFilter,
 } from "widgets/TableWidget";
 import { EventType } from "constants/ActionConstants";
-import produce from "immer";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;

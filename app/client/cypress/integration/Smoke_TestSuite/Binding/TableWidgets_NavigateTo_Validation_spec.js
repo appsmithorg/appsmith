@@ -17,7 +17,7 @@ describe("Table Widget and Navigate to functionality validation", function() {
     cy.openPropertyPane("tablewidget");
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
-    cy.get(widgetsPage.tableActionSelect).click();
+    cy.get(widgetsPage.tableOnRowSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
       .contains("Navigate To")
@@ -35,21 +35,12 @@ describe("Table Widget and Navigate to functionality validation", function() {
 
   it("Validate NavigateTo Page functionality ", function() {
     cy.SearchEntityandOpen("Table1");
+    //Below test to be enabled once the bug related to change of page in table in fixed
+    //cy.get('.t--table-widget-next-page')
+    //  .click();
+    cy.PublishtheApp();
+    cy.get(widgetsPage.chartWidget).should("not.be.visible");
     cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "2").then(tabData => {
-      const tabValue = tabData;
-      expect(tabValue).to.be.equal("Lindsay Ferguson");
-      cy.log("the value is" + tabValue);
-      cy.wait(500);
-      cy.get(widgetsPage.chartWidget).should("not.be.visible");
-      //Below test to be enabled once the bug related to change of page in table in fixed
-      //cy.get('.t--table-widget-next-page')
-      //  .click();
-      cy.PublishtheApp();
-      cy.get(publish.searchInput)
-        .first()
-        .type(tabData);
-      cy.get(widgetsPage.chartWidget).should("be.visible");
-    });
+    cy.get(widgetsPage.chartWidget).should("be.visible");
   });
 });

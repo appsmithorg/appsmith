@@ -1,4 +1,4 @@
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { Page } from "constants/ReduxActionConstants";
 import { keyBy } from "lodash";
 import React, { memo, useCallback, useMemo } from "react";
@@ -12,8 +12,6 @@ import ExplorerDatasourceEntity from "../Datasources/DatasourceEntity";
 import Entity from "../Entity";
 import EntityPlaceholder from "../Entity/Placeholder";
 import { ExplorerURLParams } from "../helpers";
-import OnboardingTooltip from "components/editorComponents/Onboarding/Tooltip";
-import { OnboardingStep } from "constants/OnboardingConstants";
 
 type ExplorerPluginGroupProps = {
   step: number;

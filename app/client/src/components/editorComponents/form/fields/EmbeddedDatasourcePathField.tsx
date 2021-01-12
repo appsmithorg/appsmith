@@ -12,9 +12,12 @@ import CodeEditor, {
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { AppState } from "reducers";
 import { connect } from "react-redux";
-import { Datasource } from "api/DatasourcesApi";
 import _ from "lodash";
-import { DEFAULT_DATASOURCE, EmbeddedDatasource } from "entities/Datasource";
+import {
+  DEFAULT_DATASOURCE,
+  EmbeddedRestDatasource,
+  Datasource,
+} from "entities/Datasource";
 import CodeMirror from "codemirror";
 import {
   EditorModes,
@@ -29,12 +32,12 @@ import { urlGroupsRegexExp } from "constants/ActionConstants";
 
 type ReduxStateProps = {
   orgId: string;
-  datasource: Datasource | EmbeddedDatasource;
+  datasource: Datasource | EmbeddedRestDatasource;
   datasourceList: Datasource[];
 };
 
 type ReduxDispatchProps = {
-  updateDatasource: (datasource: Datasource | EmbeddedDatasource) => void;
+  updateDatasource: (datasource: Datasource | EmbeddedRestDatasource) => void;
 };
 
 type Props = EditorProps &
