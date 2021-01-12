@@ -334,7 +334,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     ) {
       return {
         isValid: false,
-        parsed: undefined,
+        parsed: [],
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Marker Data`,
       };
     }
