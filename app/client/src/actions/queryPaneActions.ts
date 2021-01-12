@@ -1,7 +1,7 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
-import { RestAction } from "entities/Action";
+import { Action } from "entities/Action";
 
-export const createQueryRequest = (payload: Partial<RestAction>) => {
+export const createQueryRequest = (payload: Partial<Action>) => {
   return {
     type: ReduxActionTypes.CREATE_QUERY_INIT,
     payload,

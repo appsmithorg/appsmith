@@ -4,7 +4,7 @@ import CustomizedDropdown, {
 } from "pages/common/CustomizedDropdown";
 
 import { Directions } from "utils/helpers";
-import { RestAction } from "entities/Action";
+import { Action } from "entities/Action";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getLightningMenuOptions } from "./helpers";
 import { LightningMenuTrigger } from "./LightningMenuTrigger";
@@ -15,8 +15,8 @@ import { useDispatch } from "react-redux";
 
 const lightningMenuOptions = (
   skin: Skin,
-  apis: RestAction[],
-  queries: RestAction[],
+  apis: Action[],
+  queries: Action[],
   widgets: WidgetProps[],
   pageId: string,
   dispatch: (action: unknown) => void,
