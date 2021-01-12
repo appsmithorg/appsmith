@@ -315,6 +315,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   CURRENT_APPLICATION_NAME_UPDATE: "CURRENT_APPLICATION_NAME_UPDATE",
   SET_WIDGET_LOADING: "SET_WIDGET_LOADING",
   FETCH_RELEASES_SUCCESS: "FETCH_RELEASES_SUCCESS",
+  RESET_UNREAD_RELEASES_COUNT: "RESET_UNREAD_RELEASES_COUNT",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

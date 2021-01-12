@@ -15,6 +15,8 @@ const StyledUpdatesButton = styled.div`
   padding: 0 ${(props) => props.theme.spaces[4]}px;
   justify-content: space-between;
   cursor: pointer;
+  background-color: ${(props) =>
+    props.theme.colors.floatingBtn.backgroundColor};
 `;
 
 const StyledTag = styled.div`
@@ -47,7 +49,7 @@ const UpdatesButton = ({ newReleasesCount }: { newReleasesCount: string }) => (
       <Icon name={"success"} size={IconSize.XL} fillColor={Colors.WHITE} />
       <UpdatesButtonTextContainer>What&apos;s New?</UpdatesButtonTextContainer>
     </div>
-    <StyledTag>{newReleasesCount}</StyledTag>
+    {newReleasesCount && <StyledTag>{newReleasesCount}</StyledTag>}
   </StyledUpdatesButton>
 );
 

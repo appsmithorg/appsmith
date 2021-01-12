@@ -11,6 +11,10 @@ const importReducer = createReducer(initialState, {
     _state: ReleasesState,
     action: ReduxAction<{ payload: Record<string, unknown> }>,
   ) => action.payload,
+  [ReduxActionTypes.RESET_UNREAD_RELEASES_COUNT]: (state: ReleasesState) => ({
+    ...state,
+    newReleasesCount: "",
+  }),
 });
 
 export type ReleasesState = {

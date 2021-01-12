@@ -1014,6 +1014,7 @@ export const dark: ColorType = {
   },
   floatingBtn: {
     tagBackground: "#e22c2c",
+    backgroundColor: darkShades[3],
   },
 };
 
@@ -1295,6 +1296,7 @@ export const light: ColorType = {
   },
   floatingBtn: {
     tagBackground: "#e22c2c",
+    backgroundColor: lightShades[3],
   },
 };
 

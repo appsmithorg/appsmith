@@ -5,7 +5,7 @@ import React, {
   useCallback,
   useContext,
 } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import moment from "moment";
 import "@github/g-emoji-element";
@@ -14,6 +14,7 @@ import UpdatesButton from "./UpdatesButton";
 import { AppState } from "reducers";
 import { LayersContext } from "constants/Layers";
 // import ReleasesAPI from "api/ReleasesAPI";
+import { resetReleasesCount } from "actions/releasesActions";
 
 const StyledContainer = styled.div`
   padding-top: ${(props) => props.theme.spaces[11]}px;
@@ -161,10 +162,12 @@ const ProductUpdatesModal = () => {
   const { releaseItems, newReleasesCount } = useSelector(
     (state: AppState) => state.ui.releases,
   );
-  const onOpened = useCallback(() => {
+  const dispatch = useDispatch();
+  const onOpened = useCallback(async () => {
     // if (releaseItems.length > 0) {
-    //   ReleasesAPI.markAsRead({ lastReadRelease: releaseItems[0].tagName });
+    //   await ReleasesAPI.markAsRead({ lastReadRelease: releaseItems[0].tagName });
     // }
+    dispatch(resetReleasesCount());
   }, []);
 
   const Layers = useContext(LayersContext);
