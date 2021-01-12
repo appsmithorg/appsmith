@@ -37,19 +37,6 @@ type Center = {
   long: number;
   [x: string]: any;
 };
-
-const validateLatLongObj = ({
-  lat,
-  long,
-}: {
-  lat?: number;
-  long?: number;
-} = {}) => {
-  const validLat = typeof lat === "number" && lat <= 90 && lat >= -90;
-  const validLong = typeof long === "number" && long <= 180 && long >= -180;
-
-  return validLat && validLong;
-};
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -61,7 +48,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       enableCreateMarker: VALIDATION_TYPES.BOOLEAN,
       allowZoom: VALIDATION_TYPES.BOOLEAN,
       zoomLevel: VALIDATION_TYPES.NUMBER,
-      mapCenter: VALIDATION_TYPES.OBJECT,
+      mapCenter: VALIDATION_TYPES.LAT_LONG,
     };
   }
 
@@ -143,19 +130,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   };
 
   getCenter(): Center {
-    if (validateLatLongObj(this.props.center))
-      return this.props.center as Center;
-    else if (validateLatLongObj(this.props.mapCenter))
-      return this.props.mapCenter as Center;
-    return DefaultCenter;
-  }
-
-  getMarkers(): Array<MarkerProps> {
-    if (this.props.markers) {
-      return this.props.markers.filter(validateLatLongObj);
-    }
-
-    return [];
+    return this.props.center || this.props.mapCenter || DefaultCenter;
   }
 
   getPageView() {
@@ -196,7 +171,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             updateMarker={this.updateMarker}
             selectMarker={this.onMarkerClick}
             unselectMarker={this.unselectMarker}
-            markers={this.getMarkers()}
+            markers={this.props.markers}
             enableDrag={() => {
               this.disableDrag(false);
             }}
