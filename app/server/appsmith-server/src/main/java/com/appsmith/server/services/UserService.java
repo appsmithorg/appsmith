@@ -22,10 +22,6 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<User> inviteUserToApplication(InviteUser inviteUser, String originHeader, String applicationId);
 
-    Mono<Boolean> verifyInviteToken(String email, String token);
-
-    Mono<Boolean> confirmInviteUser(User inviteUser, String originHeader);
-
     Mono<User> createUserAndSendEmail(User user, String originHeader);
 
     Mono<User> userCreate(User user);
