@@ -17,6 +17,7 @@ import javax.validation.Validator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -29,7 +30,7 @@ public class CommonConfig {
     private boolean isSignupDisabled;
 
     @Value("${admin.emails}")
-    private List<String> adminEmails = Collections.emptyList();
+    private Set<String> adminEmails = Collections.emptySet();
 
     @Value("${oauth2.allowed-domains}")
     private String allowedDomainList;
