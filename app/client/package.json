@@ -8,7 +8,7 @@
   },
   "cracoConfig": "craco.dev.config.js",
   "dependencies": {
-    "@blueprintjs/core": "^3.18.1",
+    "@blueprintjs/core": "^3.36.0",
     "@blueprintjs/datetime": "^3.14.0",
     "@blueprintjs/icons": "^3.10.0",
     "@blueprintjs/select": "^3.10.0",

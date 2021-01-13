@@ -6,6 +6,7 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserOrganizationService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.UserSignup;
@@ -37,16 +38,19 @@ public class UserController extends BaseController<UserService, User, String> {
     private final SessionUserService sessionUserService;
     private final UserOrganizationService userOrganizationService;
     private final UserSignup userSignup;
+    private final UserDataService userDataService;
 
     @Autowired
     public UserController(UserService service,
                           SessionUserService sessionUserService,
                           UserOrganizationService userOrganizationService,
-                          UserSignup userSignup) {
+                          UserSignup userSignup,
+                          UserDataService userDataService) {
         super(service);
         this.sessionUserService = sessionUserService;
         this.userOrganizationService = userOrganizationService;
         this.userSignup = userSignup;
+        this.userDataService = userDataService;
     }
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
@@ -111,19 +115,6 @@ public class UserController extends BaseController<UserService, User, String> {
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 
-    @GetMapping("/invite/verify")
-    public Mono<ResponseDTO<Boolean>> verifyInviteToken(@RequestParam String email, @RequestParam String token) {
-        return service.verifyInviteToken(email, token)
-                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
-    }
-
-    @PutMapping("/invite/confirm")
-    public Mono<ResponseDTO<Boolean>> confirmInviteUser(@RequestBody User inviteUser,
-                                                        @RequestHeader("Origin") String originHeader) {
-        return service.confirmInviteUser(inviteUser, originHeader)
-                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
-    }
-
     /**
      * This function creates an invite for new users to join an Appsmith organization. We require the Origin header
      * in order to construct client facing URLs that will be sent to the users via email.
@@ -137,4 +128,12 @@ public class UserController extends BaseController<UserService, User, String> {
         return service.inviteUsers(inviteUsersDTO, originHeader)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
+
+    @PutMapping("/setReleaseNotesViewed")
+    public Mono<ResponseDTO<Void>> setReleaseNotesViewed() {
+        return sessionUserService.getCurrentUser()
+                .flatMap(userDataService::setViewedCurrentVersionReleaseNotes)
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
+    }
+
 }
