@@ -78,6 +78,9 @@ public class ReleaseNotesService {
                             .method(HttpMethod.GET)
                             .exchange();
                 })
+                .doOnError(error -> log.error("Error fetching release notes from CS Server : {}", String.valueOf(error)))
+                // In case of an error in exchange with CS Server, stop processing further.
+                .onErrorResume(error -> Mono.empty())
                 .flatMap(clientResponse -> clientResponse.toEntity(String.class))
                 .map(response -> {
                     ResponseDTO<Releases> releasesResponseDTO;
