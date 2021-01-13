@@ -767,13 +767,7 @@ type ColorType = {
       bg: ShadeColor;
     };
     codeEditor: {
-      bg: ShadeColor;
-      bgOnHover: ShadeColor;
-      bgOnActive: ShadeColor;
-      textColor: ShadeColor;
-      borderColor: ShadeColor;
       placeholderColor: ShadeColor;
-      lightningMenuBg: ShadeColor;
     };
   };
 };
@@ -1088,13 +1082,7 @@ export const dark: ColorType = {
       bg: "#090707",
     },
     codeEditor: {
-      bg: darkShades[0],
-      bgOnHover: darkShades[1],
-      bgOnActive: darkShades[3],
-      textColor: darkShades[7],
-      borderColor: darkShades[3],
       placeholderColor: darkShades[5],
-      lightningMenuBg: darkShades[7],
     },
   },
 };
@@ -1409,13 +1397,7 @@ export const light: ColorType = {
       bg: lightShades[11],
     },
     codeEditor: {
-      bg: lightShades[11],
-      bgOnActive: lightShades[3],
-      bgOnHover: lightShades[1],
-      textColor: lightShades[8],
-      borderColor: lightShades[3],
       placeholderColor: lightShades[5],
-      lightningMenuBg: lightShades[7],
     },
   },
 };

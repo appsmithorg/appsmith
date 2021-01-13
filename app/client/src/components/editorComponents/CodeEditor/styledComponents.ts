@@ -165,38 +165,30 @@ export const EditorWrapper = styled.div<{
   text-transform: none;
   border: 0px;
   border-radius: 0px;
-  ${(props) =>
-    props.editorTheme === EditorTheme.LIGHT ||
-    props.editorTheme === EditorTheme.DARK
-      ? `
-    &:hover {
-      && {
-        .cm-s-duotone-dark.CodeMirror {
-          cursor: pointer;
-          border-radius: 0px;
-          background: ${
-            !props.isNotHover
-              ? "#232324"
-              : props.isFocused
-              ? "#2B2B2B"
-              : "#1A191C"
-          };
-        }
-        .cm-s-duotone-light.CodeMirror {
-          cursor: pointer;
-          border-radius: 0px;
-          background: ${
-            !props.isNotHover
-              ? "#F7F7F7"
-              : props.isFocused
-              ? "#E8E8E8"
-              : "#FFFFFF"
-          };
-        }
+  &:hover {
+    && {
+      .cm-s-duotone-dark.CodeMirror {
+        cursor: pointer;
+        border-radius: 0px;
+        background: ${(props) =>
+          !props.isNotHover
+            ? Colors.SHARK2
+            : props.isFocused
+            ? Colors.NERO
+            : Colors.BALTIC_SEA};
+      }
+      .cm-s-duotone-light.CodeMirror {
+        cursor: pointer;
+        border-radius: 0px;
+        background: ${(props) =>
+          !props.isNotHover
+            ? Colors.WHITE_SNOW
+            : props.isFocused
+            ? Colors.MERCURY
+            : Colors.WHITE};
       }
     }
-    `
-      : null}
+  }
   && {
     .CodeMirror-cursor {
       border-right: none;
@@ -211,10 +203,11 @@ export const EditorWrapper = styled.div<{
       line-height: 16px;
       letter-spacing: -0.21px;
       border-radius: 0px;
-      border-bottom: 1px solid #E8E8E8;
+      border-bottom: 1px solid ${Colors.MERCURY};
       padding-left: 10px;
-      background: ${(props) => (props.isFocused ? "#E8E8E8" : "#FFFFFF")};
-      color: #4B4848;
+      background: ${(props) =>
+        props.isFocused ? Colors.MERCURY : Colors.WHITE};
+      color: ${Colors.CHARCOAL};
       & {
         span.cm-operator {
           color: ${(props) => props.theme.colors.textDefault};
@@ -224,12 +217,13 @@ export const EditorWrapper = styled.div<{
     .cm-s-duotone-dark.CodeMirror {
       border-radius: 0px;
       padding-left: 10px;
-      border-bottom: 1px solid #2B2B2B;
+      border-bottom: 1px solid ${Colors.NERO};
       font-size: 12px;
       line-height: 16px;
       letter-spacing: -0.21px;
-      background: ${(props) => (props.isFocused ? "#2B2B2B" : "#1A191C")};
-      color: #D4D4D4;
+      background: ${(props) =>
+        props.isFocused ? Colors.NERO : Colors.BALTIC_SEA};
+      color: ${Colors.LIGHT_GREY};
     }
     .binding-brackets {
       ${(props) =>
@@ -336,8 +330,6 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   height: 100%;
   flex: 1;
   position: relative;
-  border: 1px solid;
-  border-radius: 2px;
   border-color: ${(props) =>
     !props.isError && props.isActive && props.skin === Skin.DARK
       ? Colors.ALABASTER
@@ -353,12 +345,7 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
         ? Colors.ALABASTER
         : "transparent"};
     .lightning-menu {
-      background: ${(props) =>
-        !props.isNotHover
-          ? props.skin === Skin.DARK || props.skin === Skin.LIGHT
-            ? "#716E6E"
-            : Colors.BLUE_CHARCOAL
-          : ""};
+      background: ${(props) => (!props.isNotHover ? "#716E6E" : "")};
       svg {
         path,
         circle {
@@ -372,14 +359,9 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
       }
     }
   }
-  ${(props) =>
-    props.skin === Skin.DARK || props.skin === Skin.LIGHT
-      ? `
-        border: 0px;
-        border-radius: 0px;
-        .lightning-menu {
-          z-index: 1 !important;
-        }
-      `
-      : null};
+  border: 0px;
+  border-radius: 0px;
+  .lightning-menu {
+    z-index: 1 !important;
+  }
 `;

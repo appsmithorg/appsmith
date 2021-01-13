@@ -12,12 +12,12 @@ const Wrapper = styled.span<{
   font-size: 12px;
   color: #858282;
   box-shadow: 0px 12px 34px -6px rgba(0, 0, 0, 0.75);
-  border-radius: 2px;
+  border-radius: 0px;
   background-color: ${(props) =>
     props.editorTheme === EditorTheme.DARK
-      ? "#262626"
+      ? Colors.MINE_SHAFT
       : props.editorTheme === EditorTheme.LIGHT
-      ? "#E8E8E8"
+      ? Colors.MERCURY
       : Colors.BLUE_CHARCOAL};
   position: absolute;
   bottom: ${(props) => -props.bottomOffset}px;

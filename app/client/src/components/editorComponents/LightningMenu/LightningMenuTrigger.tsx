@@ -22,16 +22,10 @@ const LightningIconWrapper = styled.span<{
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 2px;
-  ${(props) =>
-    props.skin === Skin.DARK || props.skin === Skin.LIGHT
-      ? `
-      border-radius: 0px;
-      svg path {
-        fill: ${!props.isFocused && props.color};
-      }
-      `
-      : null};
+  border-radius: 0px;
+  svg path {
+    fill: ${(props) => !props.isFocused && props.color};
+  }
   width: ${(props) => (props.skin === Skin.LIGHT ? 30 : 30)}px;
   height: ${(props) => (props.skin === Skin.LIGHT ? 30 : 30)}px;
   z-index: 10;
@@ -89,29 +83,16 @@ export const LightningMenuTrigger = (props: LightningMenuTriggerProps) => {
       className="lightning-menu"
       isFocused={props.isFocused}
     >
-      {props.skin === Skin.DARK || props.skin === Skin.LIGHT ? (
-        <Tooltip
-          content={LIGHTNING_MENU_DATA_TOOLTIP}
-          autoFocus={false}
-          hoverOpenDelay={1000}
-          openOnTargetFocus={false}
-          minWidth={180}
-          position={Position.LEFT}
-        >
-          <Icon name="lightning" size={IconSize.LARGE} />
-        </Tooltip>
-      ) : (
-        <BlueprintTooltip
-          autoFocus={false}
-          hoverOpenDelay={1000}
-          content={LIGHTNING_MENU_DATA_TOOLTIP}
-          openOnTargetFocus={false}
-        >
-          <IconWrapper {...iconProps}>
-            <LightningIcon />
-          </IconWrapper>
-        </BlueprintTooltip>
-      )}
+      <Tooltip
+        content={LIGHTNING_MENU_DATA_TOOLTIP}
+        autoFocus={false}
+        hoverOpenDelay={1000}
+        openOnTargetFocus={false}
+        minWidth={180}
+        position={Position.LEFT}
+      >
+        <Icon name="lightning" size={IconSize.LARGE} />
+      </Tooltip>
     </LightningIconWrapper>
   );
 };
