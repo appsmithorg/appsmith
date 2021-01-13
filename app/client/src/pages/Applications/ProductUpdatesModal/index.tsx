@@ -9,6 +9,7 @@ import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import moment from "moment";
 import "@github/g-emoji-element";
+import { Link } from "react-router-dom";
 import Dialog from "components/ads/DialogComponent";
 import UpdatesButton from "./UpdatesButton";
 import { AppState } from "reducers";
@@ -183,6 +184,13 @@ const ProductUpdatesModal = () => {
       {releaseItems.map((release: Release, index: number) => (
         <ReleaseComponent release={release} key={index} />
       ))}
+      <a
+        href="https://github.com/appsmithorg/appsmith/releases"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Github Releases
+      </a>
     </Dialog>
   );
 };
