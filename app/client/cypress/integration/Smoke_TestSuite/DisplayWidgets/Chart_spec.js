@@ -84,7 +84,7 @@ describe("Chart Widget Functionality", function() {
   it("Chart Widget Functionality To Uncheck Horizontal Scroll Visible", function() {
     cy.togglebarDisable(commonlocators.horizontalScroll);
     cy.PublishtheApp();
-    cy.get(publish.horizontalTab).should("not.visible");
+    cy.get(publish.horizontalTab).should("not.exist");
     cy.get(publish.backToEditor).click();
   });
   it("Chart Widget Functionality To Check Horizontal Scroll Visible", function() {

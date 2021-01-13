@@ -65,7 +65,7 @@ describe("Radio Widget Functionality", function() {
     cy.openPropertyPane("radiogroupwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.radioWidget + " " + "input").should("be.visible");
+    cy.get(publish.radioWidget + " " + "input").should("be.checked");
   });
   it("Radio Functionality To Button Text", function() {
     cy.get(publish.radioWidget + " " + "label")

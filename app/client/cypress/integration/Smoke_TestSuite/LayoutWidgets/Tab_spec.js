@@ -39,7 +39,7 @@ describe("Tab widget test", function() {
       .click({ force: true });
     cy.get(Layoutpage.tabWidget)
       .contains("Day")
-      .should("not.to.be.visible");
+      .should("not.exist");
     /**
      * @param{toggleButton Css} Assert to be checked
      */
