@@ -31,7 +31,9 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission);
 
-    Flux<NewAction> findUnpublishedOnLoadActionsInPage(Set<String> names, String pageId);
+    Flux<NewAction> findUnpublishedOnLoadActionsInPage(String pageId);
+
+    Flux<NewAction> findUnpublishedActionsInPageByNames(Set<String> names, String pageId);
 
     Mono<NewAction> findById(String id);
 

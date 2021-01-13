@@ -15,7 +15,6 @@ import {
   extraLibraries,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
-  getWidgetDynamicTriggerPathList,
   isPathADynamicTrigger,
   unsafeFunctionForEval,
 } from "../utils/DynamicBindingUtils";
@@ -33,6 +32,7 @@ import {
   CrashingError,
   DataTreeDiffEvent,
   getValidatedTree,
+  isChildPropertyPath,
   makeParentsDependOnChildren,
   removeFunctions,
   removeFunctionsFromDataTree,
@@ -248,6 +248,11 @@ export class DataTreeEvaluator {
       ),
       evaluate: (evaluateEnd - evaluateStart).toFixed(2),
       validate: (validateEnd - validateStart).toFixed(2),
+      dependencies: {
+        map: JSON.parse(JSON.stringify(this.dependencyMap)),
+        inverseMap: JSON.parse(JSON.stringify(this.inverseDependencyMap)),
+        sortedList: JSON.parse(JSON.stringify(this.sortedDependencies)),
+      },
     };
     LOGS.push({ timeTakenForFirstTree });
   }
@@ -329,6 +334,8 @@ export class DataTreeEvaluator {
     // Remove functions
     this.evalTree = removeFunctionsFromDataTree(validatedTree);
     const totalEnd = performance.now();
+    // TODO: For some reason we are passing some reference which are getting mutated.
+    // Need to check why big api responses are getting split between two eval runs
     this.oldUnEvalTree = unEvalTree;
     const timeTakenForSubTreeEval = {
       total: (totalEnd - totalStart).toFixed(2),
@@ -373,7 +380,19 @@ export class DataTreeEvaluator {
     // up the tree, there are bound to be many duplicates.
     const uniqueKeysInSortOrder = [...new Set(finalSortOrder)];
 
-    return Array.from(uniqueKeysInSortOrder);
+    const sortOrderPropertyPaths = Array.from(uniqueKeysInSortOrder);
+
+    //Trim this list to now remove the property paths which are simply entity names
+    const finalSortOrderArray: Array<string> = [];
+    sortOrderPropertyPaths.forEach((propertyPath) => {
+      const lastIndexOfDot = propertyPath.lastIndexOf(".");
+      // Only do this for property paths and not the entity themselves
+      if (lastIndexOfDot !== -1) {
+        finalSortOrderArray.push(propertyPath);
+      }
+    });
+
+    return finalSortOrderArray;
   }
 
   // The idea is to find the immediate parents of the property paths
@@ -444,6 +463,7 @@ export class DataTreeEvaluator {
         ),
       );
     });
+    // TODO make this run only for widgets and not actions
     dependencyMap = makeParentsDependOnChildren(dependencyMap);
     return dependencyMap;
   }
@@ -475,13 +495,6 @@ export class DataTreeEvaluator {
           `${entityName}.${defaultProperties[property]}`,
         ];
       });
-      // Set triggers. TODO check if needed
-      const dynamicTriggerPathList = getWidgetDynamicTriggerPathList(entity);
-      if (dynamicTriggerPathList.length) {
-        dynamicTriggerPathList.forEach((dynamicPath) => {
-          dependencies[`${entityName}.${dynamicPath.key}`] = [];
-        });
-      }
     }
     return dependencies;
   }
@@ -523,6 +536,9 @@ export class DataTreeEvaluator {
           if (isWidget(entity)) {
             const widgetEntity = entity;
             // TODO fix for nested properties
+            // For nested properties like Table1.selectedRow.email
+            // The following line will calculated the property name to be selectedRow
+            // instead of selectedRow.email
             const propertyName = propertyPath.split(".")[1];
             if (propertyName) {
               let parsedValue = this.validateAndParseWidgetProperty(
@@ -935,9 +951,11 @@ export class DataTreeEvaluator {
               // by removing the bindings from the same.
               Object.keys(this.dependencyMap).forEach((dependencyPath) => {
                 didUpdateDependencyMap = true;
-                // TODO delete via regex
                 if (
-                  dependencyPath.includes(dataTreeDiff.payload.propertyPath)
+                  isChildPropertyPath(
+                    dataTreeDiff.payload.propertyPath,
+                    dependencyPath,
+                  )
                 ) {
                   delete this.dependencyMap[dependencyPath];
                 } else {
@@ -945,8 +963,9 @@ export class DataTreeEvaluator {
                   this.dependencyMap[dependencyPath].forEach(
                     (dependantPath) => {
                       if (
-                        dependantPath.includes(
+                        isChildPropertyPath(
                           dataTreeDiff.payload.propertyPath,
+                          dependantPath,
                         )
                       ) {
                         removedNodes.push(dependencyPath);
@@ -1126,13 +1145,20 @@ export class DataTreeEvaluator {
         (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION ||
           entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET)
       ) {
-        const depPaths = this.listEntityDependencies(entity, entityName);
-        Object.keys(depPaths).forEach((path) => {
-          const values = depPaths[path];
-          values.forEach((value) => {
-            // TODO Do regex here.
-            if (value.includes(propertyPath)) {
-              possibleRefs[path] = values;
+        const entityPropertyBindings = this.listEntityDependencies(
+          entity,
+          entityName,
+        );
+        Object.keys(entityPropertyBindings).forEach((path) => {
+          const propertyBindings = entityPropertyBindings[path];
+          const references = _.flatten(
+            propertyBindings.map((binding) =>
+              extractReferencesFromBinding(binding, this.allKeys),
+            ),
+          );
+          references.forEach((value) => {
+            if (isChildPropertyPath(propertyPath, value)) {
+              possibleRefs[path] = propertyBindings;
             }
           });
         });

@@ -18,22 +18,11 @@ const ActionIconGroup = styled.div`
   justify-content: space-between;
   align-items: center;
 `;
-
-export const ExplorerTitle = (props: {
-  isCollapsed: boolean;
-  onCollapseToggle: () => void;
-}) => {
+export const ExplorerTitle = () => {
   return (
     <Wrapper>
       <h1>EXPLORER</h1>
-      <ActionIconGroup>
-        {/* <Icon
-          iconSize={ICON_SIZE}
-          icon={props.isCollapsed ? "remove" : "add"}
-          onClick={props.onCollapseToggle}
-        />
-        <Icon icon="pin" iconSize={ICON_SIZE} /> */}
-      </ActionIconGroup>
+      <ActionIconGroup />
     </Wrapper>
   );
 };

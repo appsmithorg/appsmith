@@ -608,7 +608,7 @@ const RenameColumn = (props: {
       defaultValue={columnName}
       onChange={onColumnNameChange}
       onKeyPress={(e) => onKeyPress(e.key)}
-      onBlur={(e) => handleColumnNameUpdate()}
+      onBlur={handleColumnNameUpdate}
     />
   );
 };

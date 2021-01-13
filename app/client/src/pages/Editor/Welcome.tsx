@@ -5,6 +5,7 @@ import Spinner from "components/ads/Spinner";
 import { Classes } from "components/ads/common";
 import { AppState } from "reducers";
 import { endOnboarding, setCurrentStep } from "actions/onboardingActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -129,7 +130,12 @@ const Welcome = () => {
 
         <NotNewUserText>
           Not your first time with Appsmith?{" "}
-          <span onClick={() => dispatch(endOnboarding())}>
+          <span
+            onClick={() => {
+              AnalyticsUtil.logEvent("SKIP_ONBOARDING");
+              dispatch(endOnboarding());
+            }}
+          >
             Skip this tutorial
           </span>
         </NotNewUserText>

@@ -1,10 +1,10 @@
 import { transformRestAction } from "transformers/RestActionTransformer";
-import { PluginType, RestAction } from "entities/Action";
+import { PluginType, ApiAction } from "entities/Action";
 import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
 
 // jest.mock("POST_");
 
-const BASE_ACTION: RestAction = {
+const BASE_ACTION: ApiAction = {
   dynamicBindingPathList: [],
   cacheResponse: "",
   executeOnLoad: false,
@@ -22,13 +22,15 @@ const BASE_ACTION: RestAction = {
   actionConfiguration: {
     httpMethod: "GET",
     path: "users",
+    headers: [],
+    timeoutInMillisecond: 5000,
   },
   jsonPathKeys: [],
 };
 
 describe("Api action transformer", () => {
   it("Removes params from path", () => {
-    const input: RestAction = {
+    const input: ApiAction = {
       ...BASE_ACTION,
       actionConfiguration: {
         ...BASE_ACTION.actionConfiguration,
@@ -110,7 +112,16 @@ describe("Api action transformer", () => {
         httpMethod: "POST",
         headers: [{ key: "content-type", value: "application/json" }],
         body: "{ name: 'test' }",
-        bodyFormData: [{ key: "key", value: "value" }],
+        bodyFormData: [
+          {
+            key: "hey",
+            value: "ho",
+            editable: true,
+            mandatory: false,
+            description: "I been tryin to do it right",
+            type: "",
+          },
+        ],
       },
     };
     const output = {
@@ -120,7 +131,16 @@ describe("Api action transformer", () => {
         httpMethod: "POST",
         headers: [{ key: "content-type", value: "application/json" }],
         body: "{ name: 'test' }",
-        bodyFormData: [{ key: "key", value: "value" }],
+        bodyFormData: [
+          {
+            key: "hey",
+            value: "ho",
+            editable: true,
+            mandatory: false,
+            description: "I been tryin to do it right",
+            type: "",
+          },
+        ],
       },
     };
     const result = transformRestAction(input);
@@ -136,7 +156,16 @@ describe("Api action transformer", () => {
         headers: [
           { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
         ],
-        bodyFormData: [{ key: "key", value: "value" }],
+        bodyFormData: [
+          {
+            key: "hey",
+            value: "ho",
+            editable: true,
+            mandatory: false,
+            description: "I been tryin to do it right",
+            type: "",
+          },
+        ],
         body: "{ name: 'test' }",
       },
     };
@@ -149,7 +178,16 @@ describe("Api action transformer", () => {
           { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
         ],
         body: "{ name: 'test' }",
-        bodyFormData: [{ key: "key", value: "value" }],
+        bodyFormData: [
+          {
+            key: "hey",
+            value: "ho",
+            editable: true,
+            mandatory: false,
+            description: "I been tryin to do it right",
+            type: "",
+          },
+        ],
       },
     };
     const result = transformRestAction(input);
@@ -165,7 +203,16 @@ describe("Api action transformer", () => {
         headers: [
           { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
         ],
-        bodyFormData: [{ key: "hey", value: "ho" }],
+        bodyFormData: [
+          {
+            key: "hey",
+            value: "ho",
+            editable: true,
+            mandatory: false,
+            description: "I been tryin to do it right",
+            type: "",
+          },
+        ],
       },
     };
     const output = {
@@ -177,7 +224,16 @@ describe("Api action transformer", () => {
           { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
         ],
         body: "",
-        bodyFormData: [{ key: "hey", value: "ho" }],
+        bodyFormData: [
+          {
+            key: "hey",
+            value: "ho",
+            editable: true,
+            mandatory: false,
+            description: "I been tryin to do it right",
+            type: "",
+          },
+        ],
       },
     };
     const result = transformRestAction(input);
