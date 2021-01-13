@@ -1,5 +1,4 @@
 import { ReduxAction, ReduxActionTypes } from "./ReduxActionConstants";
-import { EventName } from "../utils/AnalyticsUtil";
 import { showTooltip } from "actions/onboardingActions";
 
 export enum OnboardingStep {
@@ -27,12 +26,14 @@ export type OnboardingTooltip = {
 };
 
 export type OnboardingStepConfig = {
+  name: string;
   setup: () => { type: string; payload?: any }[];
   tooltip: OnboardingTooltip;
 };
 
 export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
   [OnboardingStep.NONE]: {
+    name: "NONE",
     setup: () => {
       return [];
     },
@@ -42,6 +43,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
   },
   [OnboardingStep.WELCOME]: {
+    name: "WELCOME",
     setup: () => {
       // To setup the state if any
       // Return action that needs to be dispatched
@@ -57,6 +59,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
   },
   [OnboardingStep.EXAMPLE_DATABASE]: {
+    name: "EXAMPLE_DATABASE",
     setup: () => {
       return [
         {
@@ -73,6 +76,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
   },
   [OnboardingStep.RUN_QUERY]: {
+    name: "RUN_QUERY",
     setup: () => {
       return [];
     },
@@ -82,6 +86,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
   },
   [OnboardingStep.RUN_QUERY_SUCCESS]: {
+    name: "RUN_QUERY_SUCCESS",
     setup: () => {
       return [
         {
@@ -98,6 +103,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
   },
   [OnboardingStep.ADD_WIDGET]: {
+    name: "ADD_WIDGET",
     setup: () => {
       return [];
     },
@@ -108,6 +114,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
   },
   [OnboardingStep.SUCCESSFUL_BINDING]: {
+    name: "SUCCESSFUL_BINDING",
     setup: () => {
       return [];
     },
@@ -119,6 +126,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
   },
   [OnboardingStep.DEPLOY]: {
+    name: "DEPLOY",
     setup: () => {
       return [
         {
@@ -133,6 +141,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
   },
   // Final step
   [OnboardingStep.FINISH]: {
+    name: "FINISH",
     setup: () => {
       return [];
     },
