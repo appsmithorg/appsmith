@@ -104,7 +104,7 @@ const CompletionDialog = () => {
       if (params.onboardingComplete && inOnboarding) {
         setTimeout(() => {
           setIsOpen(true);
-        }, 3000);
+        }, 1000);
       }
     };
 
