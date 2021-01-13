@@ -34,7 +34,6 @@ import PerformanceTracker, {
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
-import { EXECUTION_PARAM_KEY } from "../constants/ActionConstants";
 import { Action } from "redux";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
@@ -105,27 +104,26 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   }
 }
 
-export function* evaluateSingleValue(
-  binding: string,
-  executionParams: Record<string, any> = {},
+export function* evaluateActionBindings(
+  bindings: string[],
+  executionParams: Record<string, any> | string = {},
 ) {
   const dataTree = yield select(getDataTree);
 
   const workerResponse = yield call(
     worker.request,
-    EVAL_WORKER_ACTIONS.EVAL_SINGLE,
+    EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS,
     {
-      dataTree: Object.assign({}, dataTree, {
-        [EXECUTION_PARAM_KEY]: executionParams,
-      }),
-      binding,
+      dataTree,
+      bindings,
+      executionParams,
     },
   );
 
-  const { errors, value } = workerResponse;
+  const { errors, values } = workerResponse;
 
   evalErrorHandler(errors);
-  return value;
+  return values;
 }
 
 export function* evaluateDynamicTrigger(
