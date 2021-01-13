@@ -1652,6 +1652,7 @@ Cypress.Commands.add("validateHTMLText", (widgetCss, htmlTag, value) => {
 });
 
 Cypress.Commands.add("startServerAndRoutes", () => {
+  //To update route with intercept after working on alias wrt wait
   cy.server();
   cy.route("GET", "/api/v1/applications/new").as("applications");
   cy.route("GET", "/api/v1/users/profile").as("getUser");
