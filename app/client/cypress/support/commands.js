@@ -1403,7 +1403,12 @@ Cypress.Commands.add("testSaveDatasource", () => {
 
 Cypress.Commands.add("fillMongoDatasourceForm", () => {
   cy.get(datasourceEditor["host"]).type(datasourceFormData["mongo-host"]);
-  cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
+  //cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
+  cy.get(datasourceEditor["selConnectionType"]).click();
+  cy.contains(datasourceFormData["connection-type"]).click();
+  cy.get(datasourceEditor["defaultDatabaseName"]).type(
+    datasourceFormData["mongo-defaultDatabaseName"],
+  );
 
   cy.get(datasourceEditor.sectionAuthentication).click();
   cy.get(datasourceEditor["databaseName"])
