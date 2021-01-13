@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getPlugins } from "selectors/entitiesSelector";
 import styled from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPluginGroups, ACTION_PLUGIN_MAP } from "../Actions/helpers";
 import { useActions, useFilteredDatasources } from "../hooks";
 
@@ -53,7 +54,10 @@ const DBQueryGroup = (props: any) => {
           >
             <AddWidget
               className="t--add-widget"
-              onClick={props.showWidgetsSidebar}
+              onClick={() => {
+                AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET_CLICK");
+                props.showWidgetsSidebar();
+              }}
             >
               Add Widget
             </AddWidget>

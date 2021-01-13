@@ -29,7 +29,6 @@ export type OnboardingTooltip = {
 export type OnboardingStepConfig = {
   setup: () => { type: string; payload?: any }[];
   tooltip: OnboardingTooltip;
-  eventName?: EventName;
 };
 
 export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
@@ -56,7 +55,6 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       title: "",
       description: "",
     },
-    eventName: "ONBOARDING_WELCOME",
   },
   [OnboardingStep.EXAMPLE_DATABASE]: {
     setup: () => {
@@ -73,7 +71,6 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       title:
         "We’ve connected to an example Postgres database. You can now query it.",
     },
-    eventName: "ONBOARDING_EXAMPLE_DATABASE",
   },
   [OnboardingStep.RUN_QUERY]: {
     setup: () => {
@@ -83,7 +80,6 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       title:
         "This is where you query data. Here’s one that fetches a list of users stored in the DB.",
     },
-    eventName: "ONBOARDING_RUN_QUERY",
   },
   [OnboardingStep.RUN_QUERY_SUCCESS]: {
     setup: () => {
@@ -100,7 +96,6 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       title:
         "This is the response from your query. Now let’s connect it to a UI widget.",
     },
-    eventName: "ONBOARDING_RUN_QUERY",
   },
   [OnboardingStep.ADD_WIDGET]: {
     setup: () => {
@@ -111,7 +106,6 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         "Your first widget 🎉 Copy the snippet below and paste it inside TableData to see the magic",
       snippet: "{{ExampleQuery.data}}",
     },
-    eventName: "ONBOARDING_ADD_WIDGET",
   },
   [OnboardingStep.SUCCESSFUL_BINDING]: {
     setup: () => {
@@ -123,7 +117,6 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         "You can access widgets and actions as JS variables anywhere inside {{ }}",
       onClickOutside: showTooltip(OnboardingStep.DEPLOY),
     },
-    eventName: "ONBOARDING_SUCCESSFUL_BINDING",
   },
   [OnboardingStep.DEPLOY]: {
     setup: () => {
@@ -137,7 +130,6 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       title: "You’re almost done! Just Hit Deploy",
       isFinalStep: true,
     },
-    eventName: "ONBOARDING_DEPLOY",
   },
   // Final step
   [OnboardingStep.FINISH]: {
