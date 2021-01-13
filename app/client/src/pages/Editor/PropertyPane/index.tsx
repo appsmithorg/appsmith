@@ -51,7 +51,7 @@ const StyledPanelStack = styled(PanelStack)`
   position: static;
   &&& .${Classes.PANEL_STACK_VIEW} {
     position: static;
-    overflow-x: hidden;
+    overflow: hidden;
   }
 `;
 
