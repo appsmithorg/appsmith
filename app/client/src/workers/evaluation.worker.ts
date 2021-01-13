@@ -15,6 +15,7 @@ import {
   extraLibraries,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
+  isPathADynamicBinding,
   isPathADynamicTrigger,
   unsafeFunctionForEval,
 } from "../utils/DynamicBindingUtils";
@@ -519,8 +520,15 @@ export class DataTreeEvaluator {
           const entityName = propertyPath.split(".")[0];
           const entity: DataTreeEntity = currentTree[entityName];
           const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
+          const isABindingPath =
+            (isAction(entity) || isWidget(entity)) &&
+            isPathADynamicBinding(
+              entity,
+              propertyPath.substring(propertyPath.indexOf(".") + 1),
+            );
           let evalPropertyValue;
-          const requiresEval = isDynamicValue(unEvalPropertyValue);
+          const requiresEval =
+            isABindingPath && isDynamicValue(unEvalPropertyValue);
           if (requiresEval) {
             try {
               evalPropertyValue = this.evaluateDynamicProperty(
@@ -1005,24 +1013,37 @@ export class DataTreeEvaluator {
                 entityType === ENTITY_TYPE.WIDGET &&
                 typeof dataTreeDiff.payload.value === "string"
               ) {
-                didUpdateDependencyMap = true;
+                const entity: DataTreeWidget = unEvalDataTree[
+                  entityName
+                ] as DataTreeWidget;
+                const isABindingPath = isPathADynamicBinding(
+                  entity,
+                  dataTreeDiff.payload.propertyPath.substring(
+                    dataTreeDiff.payload.propertyPath.indexOf(".") + 1,
+                  ),
+                );
+                if (isABindingPath) {
+                  didUpdateDependencyMap = true;
 
-                const { jsSnippets } = getDynamicBindings(
-                  dataTreeDiff.payload.value,
-                );
-                const correctSnippets = jsSnippets.filter(
-                  (jsSnippet) => !!jsSnippet,
-                );
-                // We found a new dynamic binding for this property path. We update the dependency map by overwriting the
-                // dependencies for this property path with the newly found dependencies
-                if (correctSnippets.length) {
-                  this.dependencyMap[
-                    dataTreeDiff.payload.propertyPath
-                  ] = correctSnippets;
-                } else {
-                  // The dependency on this property path has been removed. Delete this property path from the global
-                  // dependency map
-                  delete this.dependencyMap[dataTreeDiff.payload.propertyPath];
+                  const { jsSnippets } = getDynamicBindings(
+                    dataTreeDiff.payload.value,
+                  );
+                  const correctSnippets = jsSnippets.filter(
+                    (jsSnippet) => !!jsSnippet,
+                  );
+                  // We found a new dynamic binding for this property path. We update the dependency map by overwriting the
+                  // dependencies for this property path with the newly found dependencies
+                  if (correctSnippets.length) {
+                    this.dependencyMap[
+                      dataTreeDiff.payload.propertyPath
+                    ] = correctSnippets;
+                  } else {
+                    // The dependency on this property path has been removed. Delete this property path from the global
+                    // dependency map
+                    delete this.dependencyMap[
+                      dataTreeDiff.payload.propertyPath
+                    ];
+                  }
                 }
               }
               break;
@@ -1322,6 +1343,7 @@ const createEntityDependencyMap = (dependencyMap: DependencyMap) => {
   return entityDepMap;
 };
 
+// TODO cryptic comment below. Dont know if we still need this. Duplicate function
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 const isDynamicValue = (value: string): boolean => DATA_BIND_REGEX.test(value);
 
