@@ -764,6 +764,14 @@ function* executePageLoadAction(pageAction: PageAction) {
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     }
   } catch (e) {
+    yield put(
+      executeActionError({
+        actionId: pageAction.id,
+        isPageLoad: true,
+        error: "",
+        show: false,
+      }),
+    );
     throw new Error(`The action "${pageAction.name}" has failed.`);
   }
 }
