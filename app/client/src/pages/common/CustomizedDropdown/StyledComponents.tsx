@@ -35,9 +35,8 @@ export const DropdownContent = styled.div<{ skin: Skin }>`
   &&& * {
     font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
-  border: ${(props) => (props.skin === Skin.DARK ? "1px solid" : "")};
-  border-color: ${(props) =>
-    props.skin === Skin.DARK ? props.theme.dropdown[props.skin].border : ""};
+  border: 0px;
+  border-color: ${(props) => props.theme.dropdown[props.skin].border};
   background: ${(props) => props.theme.dropdown[props.skin].inActiveBG};
 `;
 
@@ -49,9 +48,13 @@ export const DropdownContentSection = styled.div<{
   background: ${(props) => props.theme.dropdown[props.skin].inActiveBG};
   z-index: ${(props) => (props.stick ? 1 : 0)};
   padding: 8px 0;
-  &&&&&& button {
+  &&&&& .bp3-icon {
+    color: ${(props) => props.theme.dropdown[props.skin].inActiveText};
+  }
+  &&&&& button {
     padding: 0;
     min-height: 0px;
+    width: 100%;
   }
   &:first-of-type {
     padding: 0 0 0px 0;
