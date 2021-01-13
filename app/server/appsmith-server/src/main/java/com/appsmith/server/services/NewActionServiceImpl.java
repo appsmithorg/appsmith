@@ -684,7 +684,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                                                                DatasourceConfiguration datasourceConfiguration,
                                                                                PaginationField paginationField) {
         if (PaginationField.NEXT.equals(paginationField)) {
-            datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), StandardCharsets.UTF_8));
+            if (actionConfiguration.getNext() == null) {
+                datasourceConfiguration.setUrl(null);
+            } else {
+                datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), StandardCharsets.UTF_8));
+            }
         } else if (PaginationField.PREV.equals(paginationField)) {
             datasourceConfiguration.setUrl(actionConfiguration.getPrev());
         }
