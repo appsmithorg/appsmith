@@ -297,16 +297,16 @@ export type Theme = {
   };
   dropdown: {
     [Skin.LIGHT]: {
-      hoverBG: Color;
-      hoverText: Color;
-      inActiveBG: Color;
-      inActiveText: Color;
+      hoverBG: ShadeColor;
+      hoverText: ShadeColor;
+      inActiveBG: ShadeColor;
+      inActiveText: ShadeColor;
     };
     [Skin.DARK]: {
-      hoverBG: Color;
-      hoverText: Color;
-      inActiveBG: Color;
-      inActiveText: Color;
+      hoverBG: ShadeColor;
+      hoverText: ShadeColor;
+      inActiveBG: ShadeColor;
+      inActiveText: ShadeColor;
       border: Color;
     };
   };
@@ -347,16 +347,16 @@ export type Theme = {
     };
     [Skin.LIGHT]: {
       default: {
-        color: Color;
-        background: Color;
+        color: string;
+        background: string;
       };
       active: {
-        color: Color;
-        background: Color;
+        color: string;
+        background: string;
       };
       hover: {
-        color: Color;
-        background: Color;
+        color: string;
+        background: string;
       };
       none: {
         color: string;
@@ -766,6 +766,9 @@ type ColorType = {
     responseBody: {
       bg: ShadeColor;
     };
+    codeEditor: {
+      placeholderColor: ShadeColor;
+    };
   };
 };
 
@@ -934,7 +937,7 @@ export const dark: ColorType = {
   },
   tabs: {
     normal: darkShades[6],
-    hover: darkShades[9],
+    hover: darkShades[7],
     border: darkShades[3],
   },
   settingHeading: darkShades[9],
@@ -1077,6 +1080,9 @@ export const dark: ColorType = {
     closeIcon: darkShades[9],
     responseBody: {
       bg: "#090707",
+    },
+    codeEditor: {
+      placeholderColor: darkShades[5],
     },
   },
 };
@@ -1293,7 +1299,7 @@ export const light: ColorType = {
   modal: {
     bg: lightShades[11],
     headerText: lightShades[10],
-    iconColor: "#A9A7A7",
+    iconColor: lightShades[5],
     user: {
       textColor: lightShades[9],
     },
@@ -1389,6 +1395,9 @@ export const light: ColorType = {
     closeIcon: lightShades[10],
     responseBody: {
       bg: lightShades[11],
+    },
+    codeEditor: {
+      placeholderColor: lightShades[5],
     },
   },
 };
@@ -1607,16 +1616,16 @@ export const theme: Theme = {
   },
   dropdown: {
     [Skin.LIGHT]: {
-      hoverBG: Colors.GREEN,
-      hoverText: Colors.WHITE,
-      inActiveBG: Colors.WHITE,
-      inActiveText: Colors.BLACK_PEARL,
+      hoverBG: lightShades[0],
+      hoverText: lightShades[10],
+      inActiveBG: lightShades[3],
+      inActiveText: lightShades[8],
     },
     [Skin.DARK]: {
-      hoverBG: Colors.TROUT_DARK,
-      hoverText: Colors.WHITE,
-      inActiveBG: Colors.BLUE_CHARCOAL,
-      inActiveText: Colors.WHITE,
+      hoverBG: darkShades[0],
+      hoverText: darkShades[9],
+      inActiveBG: darkShades[2],
+      inActiveText: darkShades[7],
       border: Colors.TROUT_DARK,
     },
   },
@@ -1659,16 +1668,16 @@ export const theme: Theme = {
   lightningMenu: {
     [Skin.DARK]: {
       default: {
-        color: Colors.ALABASTER,
-        background: Colors.BLUE_CHARCOAL,
+        color: darkShades[7],
+        background: "transparent",
       },
       active: {
-        color: Colors.BLUE_CHARCOAL,
-        background: Colors.JAFFA_DARK,
+        color: darkShades[9],
+        background: dark.info.main,
       },
       hover: {
-        color: Colors.BLUE_CHARCOAL,
-        background: Colors.ALABASTER,
+        color: darkShades[9],
+        background: darkShades[7],
       },
       none: {
         color: "transparent",
@@ -1677,16 +1686,16 @@ export const theme: Theme = {
     },
     [Skin.LIGHT]: {
       default: {
-        color: Colors.BLUE_CHARCOAL,
-        background: Colors.WHITE,
+        color: lightShades[7],
+        background: "transparent",
       },
       active: {
-        color: Colors.BLUE_CHARCOAL,
-        background: Colors.JAFFA_DARK,
+        color: lightShades[11],
+        background: dark.info.light,
       },
       hover: {
-        color: Colors.WHITE,
-        background: Colors.BLUE_CHARCOAL,
+        color: lightShades[11],
+        background: lightShades[7],
       },
       none: {
         color: "transparent",

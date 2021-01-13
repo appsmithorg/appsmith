@@ -48,7 +48,7 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: ${(props) => props.theme.spaces[3]}px 0
+    padding: ${(props) => props.theme.spaces[3] - 1}px 0
       ${(props) => props.theme.spaces[4]}px 0;
     margin-right: ${(props) => props.theme.spaces[12] - 3}px;
     text-align: center;
@@ -101,10 +101,10 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
 `;
 
 const TabTitle = styled.span`
-  font-size: ${(props) => props.theme.typography.h4.fontSize}px;
-  font-weight: normal;
-  line-height: ${(props) => props.theme.typography.h4.lineHeight}px;
-  letter-spacing: ${(props) => props.theme.typography.h4.letterSpacing}px;
+  font-size: ${(props) => props.theme.typography.h5.fontSize}px;
+  font-weight: ${(props) => props.theme.typography.h5.fontWeight};
+  line-height: ${(props) => props.theme.typography.h5.lineHeight - 3}px;
+  letter-spacing: ${(props) => props.theme.typography.h5.letterSpacing}px;
 `;
 
 type TabbedViewComponentType = CommonComponentProps & {

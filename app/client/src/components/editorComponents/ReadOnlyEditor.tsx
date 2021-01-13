@@ -21,12 +21,11 @@ interface Props {
 
 const ReadOnlyEditor = (props: Props) => {
   const themeMode = useSelector(getThemeDetails).mode;
-
   const theme = useMemo(() => {
     if (themeMode === "LIGHT") {
-      return EditorTheme.NEW_LIGHT;
+      return EditorTheme.LIGHT;
     } else {
-      return EditorTheme.NEW_DARK;
+      return EditorTheme.DARK;
     }
   }, [themeMode]);
 

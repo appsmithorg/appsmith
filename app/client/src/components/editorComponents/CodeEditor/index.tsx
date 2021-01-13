@@ -362,7 +362,7 @@ class CodeEditor extends Component<Props, State> {
           hasError={hasError}
         >
           <EditorWrapper
-            editorTheme={theme}
+            editorTheme={this.props.theme}
             hasError={hasError}
             size={size}
             isFocused={this.state.isFocused}
@@ -370,6 +370,7 @@ class CodeEditor extends Component<Props, State> {
             className={className}
             height={height}
             borderLess={borderLess}
+            isNotHover={this.state.isFocused || this.state.isOpened}
           >
             <HintStyles editorTheme={theme || EditorTheme.LIGHT} />
             {this.props.leftIcon && (
@@ -406,6 +407,7 @@ class CodeEditor extends Component<Props, State> {
             )}
             <BindingPrompt
               isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
+              editorTheme={this.props.theme}
             />
           </EditorWrapper>
         </EvaluatedValuePopup>

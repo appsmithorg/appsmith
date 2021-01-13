@@ -24,6 +24,7 @@ import { TabComponent } from "components/ads/Tabs";
 import Text, { TextType } from "components/ads/Text";
 import Icon from "components/ads/Icon";
 import { Classes } from "components/ads/common";
+import { EditorTheme } from "./CodeEditor/EditorConfig";
 
 const ResponseWrapper = styled.div`
   position: relative;
@@ -44,6 +45,7 @@ const ResponseMetaWrapper = styled.div`
   display: flex;
   position: absolute;
   right: ${(props) => props.theme.spaces[12]}px;
+  top: ${(props) => props.theme.spaces[4]}px;
 `;
 
 const StatusCodeText = styled(BaseText)<{ code: string }>`
@@ -96,7 +98,8 @@ interface ReduxStateProps {
 //   );
 // };
 
-type Props = ReduxStateProps & RouteComponentProps<APIEditorRouteParams>;
+type Props = ReduxStateProps &
+  RouteComponentProps<APIEditorRouteParams> & { theme?: EditorTheme };
 
 const EMPTY_RESPONSE: ActionResponse = {
   statusCode: "",
@@ -299,7 +302,9 @@ const ApiResponseView = (props: Props) => {
     <ResponseWrapper>
       <SectionDivider />
       {isRunning && (
-        <LoadingOverlayScreen>Sending Request</LoadingOverlayScreen>
+        <LoadingOverlayScreen theme={props.theme}>
+          Sending Request
+        </LoadingOverlayScreen>
       )}
       <TabbedViewWrapper
         isCentered={_.isEmpty(response.body) && selectedIndex === 0}
