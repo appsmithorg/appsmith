@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { HelpIcons } from "icons/HelpIcons";
 import { Colors } from "constants/Colors";
+import { withTheme } from "styled-components";
 
 const StyledUpdatesButton = styled.div`
   position: absolute;
@@ -12,7 +13,7 @@ const StyledUpdatesButton = styled.div`
   display: flex;
   align-items: center;
   box-shadow: 0px 12px 34px rgba(0, 0, 0, 0.75);
-  padding: 0 ${(props) => props.theme.spaces[4]}px;
+  padding: 0 ${(props) => props.theme.spaces[5]}px;
   justify-content: space-between;
   cursor: pointer;
   background-color: ${(props) =>
@@ -43,10 +44,18 @@ const UpdatesButtonTextContainer = styled.div`
   color: ${(props) => props.theme.colors.text.normal};
 `;
 
+const UpdatesIcon = withTheme(({ theme }) => (
+  <HelpIcons.UPDATES
+    height={12}
+    width={13}
+    color={theme.colors.floatingBtn.iconColor}
+  />
+));
+
 const UpdatesButton = ({ newReleasesCount }: { newReleasesCount: string }) => (
   <StyledUpdatesButton>
     <div style={{ display: "flex" }}>
-      <Icon name={"success"} size={IconSize.XL} fillColor={Colors.WHITE} />
+      <UpdatesIcon />
       <UpdatesButtonTextContainer>What&apos;s New?</UpdatesButtonTextContainer>
     </div>
     {newReleasesCount && <StyledTag>{newReleasesCount}</StyledTag>}

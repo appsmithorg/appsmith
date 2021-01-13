@@ -9,13 +9,14 @@ import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import moment from "moment";
 import "@github/g-emoji-element";
-import { Link } from "react-router-dom";
 import Dialog from "components/ads/DialogComponent";
 import UpdatesButton from "./UpdatesButton";
 import { AppState } from "reducers";
 import { LayersContext } from "constants/Layers";
 // import ReleasesAPI from "api/ReleasesAPI";
 import { resetReleasesCount } from "actions/releasesActions";
+import Icon, { IconSize } from "components/ads/Icon";
+import { Colors } from "constants/Colors";
 
 const StyledContainer = styled.div`
   padding-top: ${(props) => props.theme.spaces[11]}px;
@@ -95,6 +96,7 @@ const StyledReadMore = styled.div`
     props.theme.typography.btnMedium.letterSpacing}px;
   text-transform: uppercase;
   padding: ${(props) => props.theme.spaces[8]}px 0;
+  display: flex;
 `;
 
 const ReadMore = ({
@@ -105,9 +107,19 @@ const ReadMore = ({
   onClick: () => void;
 }) => (
   <StyledReadMore onClick={onClick}>
-    {currentState === ReleaseComponentViewState.collapsed
-      ? "read more"
-      : "read less"}
+    <div style={{ marginRight: 3 }}>
+      {currentState === ReleaseComponentViewState.collapsed
+        ? "read more"
+        : "read less"}
+    </div>
+    <Icon
+      name={
+        currentState === ReleaseComponentViewState.collapsed
+          ? "view-all"
+          : "view-less"
+      }
+      size={IconSize.XS}
+    />
   </StyledReadMore>
 );
 
