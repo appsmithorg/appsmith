@@ -88,6 +88,8 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                     placeholder="Key"
                     showLightningMenu={false}
                     dataTreePath={`${props.dataTreePath}[${index}].key`}
+                    hoverInteraction={true}
+                    border="bottom-side"
                   />
                 </div>
 
@@ -100,6 +102,8 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                       placeholder="Value"
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
                       expected={FIELD_VALUES.API_ACTION.params}
+                      hoverInteraction={true}
+                      border="bottom-side"
                     />
                   </div>
                 )}
@@ -135,6 +139,8 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                         )
                       }
                       {...otherProps}
+                      hoverInteraction={true}
+                      border="bottom-side"
                     />
                   </div>
                 )}

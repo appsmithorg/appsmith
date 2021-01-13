@@ -1,6 +1,7 @@
 import React from "react";
 import { Field, BaseFieldProps } from "redux-form";
 import CodeEditor, {
+  CodeEditorBorder,
   EditorStyleProps,
 } from "components/editorComponents/CodeEditor";
 import {
@@ -17,6 +18,8 @@ class DynamicTextField extends React.Component<
       tabBehaviour?: TabBehaviour;
       mode?: EditorModes;
       theme?: EditorTheme;
+      hoverInteraction?: boolean;
+      border?: CodeEditorBorder;
     }
 > {
   render() {

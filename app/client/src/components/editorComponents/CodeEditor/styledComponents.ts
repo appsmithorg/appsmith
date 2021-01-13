@@ -5,6 +5,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Skin, Theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import { CodeEditorBorder } from ".";
 
 export const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
   .CodeMirror-hints {
@@ -136,6 +137,8 @@ export const EditorWrapper = styled.div<{
   height?: string | number;
   borderLess?: boolean;
   isNotHover?: boolean;
+  border?: CodeEditorBorder;
+  hoverInteraction?: boolean;
 }>`
   width: 100%;
   ${(props) =>
@@ -152,43 +155,41 @@ export const EditorWrapper = styled.div<{
   height: ${(props) => props.height || "auto"};
   background-color: ${(props) => editorBackground(props.editorTheme)};
   background-color: ${(props) => props.disabled && "#eef2f5"};
-  ${(props) =>
-    !props.borderLess &&
-    `
-    border: 1px solid;
-    border-radius: 4px;
-  `}
   border-color: ${getBorderStyle};
   display: flex;
   flex: 1;
   flex-direction: row;
   text-transform: none;
-  border: 0px;
-  border-radius: 0px;
+  ${(props) =>
+    props.hoverInteraction
+      ? `
   &:hover {
     && {
       .cm-s-duotone-dark.CodeMirror {
         cursor: pointer;
         border-radius: 0px;
-        background: ${(props) =>
+        background: ${
           !props.isNotHover
             ? Colors.SHARK2
             : props.isFocused
             ? Colors.NERO
-            : Colors.BALTIC_SEA};
+            : Colors.BALTIC_SEA
+        };
       }
       .cm-s-duotone-light.CodeMirror {
         cursor: pointer;
         border-radius: 0px;
-        background: ${(props) =>
+        background: ${
           !props.isNotHover
             ? Colors.WHITE_SNOW
             : props.isFocused
             ? Colors.MERCURY
-            : Colors.WHITE};
+            : Colors.WHITE
+        };
       }
     }
-  }
+  }`
+      : null};
   && {
     .CodeMirror-cursor {
       border-right: none;
@@ -203,7 +204,12 @@ export const EditorWrapper = styled.div<{
       line-height: 16px;
       letter-spacing: -0.21px;
       border-radius: 0px;
-      border-bottom: 1px solid ${Colors.MERCURY};
+      ${(props) =>
+        props.border === "none"
+          ? `border: 0px`
+          : props.border === "bottom-side"
+          ? `border-bottom: 1px solid ${Colors.MERCURY}`
+          : `border: 1px solid ${Colors.MERCURY}`};
       padding-left: 10px;
       background: ${(props) =>
         props.isFocused ? Colors.MERCURY : Colors.WHITE};
@@ -217,7 +223,12 @@ export const EditorWrapper = styled.div<{
     .cm-s-duotone-dark.CodeMirror {
       border-radius: 0px;
       padding-left: 10px;
-      border-bottom: 1px solid ${Colors.NERO};
+      ${(props) =>
+        props.border === "none"
+          ? `border: 0px`
+          : props.border === "bottom-side"
+          ? `border-bottom: 1px solid ${Colors.NERO}`
+          : `border: 1px solid ${Colors.NERO}`};
       font-size: 12px;
       line-height: 16px;
       letter-spacing: -0.21px;
@@ -238,10 +249,10 @@ export const EditorWrapper = styled.div<{
             };`}
       font-weight: 700;
     }
-    .CodeMirror-matchingbracket { 
-      text-decoration: none; 
-      color: #FFD600 !important;
-      background-color: #A74444;
+    .CodeMirror-matchingbracket {
+      text-decoration: none;
+      color: #ffd600 !important;
+      background-color: #a74444;
     }
     .datasource-highlight {
       background-color: rgba(104, 113, 239, 0.1);
@@ -283,7 +294,7 @@ export const EditorWrapper = styled.div<{
     .CodeMirror-lines {
       padding: ${(props) => props.theme.spaces[3]}px 0px;
       background-color: ${(props) => props.disabled && "#eef2f5"};
-      cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+      cursor: ${(props) => (props.disabled ? "not-allowed" : "text")};
     }
   }
   .bp3-popover-target {
