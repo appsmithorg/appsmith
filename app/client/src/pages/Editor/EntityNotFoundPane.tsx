@@ -19,7 +19,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const PageNotFound = () => {
+const EntityNotFoundPane = () => {
   const history = useHistory();
   return (
     <Wrapper>
@@ -29,11 +29,11 @@ const PageNotFound = () => {
         className="page-unavailable-img"
       />
       <div>
-        <p className="bold-text">Page not found</p>
+        <p className="bold-text">Entity not found</p>
         <p>
-          Either this page doesn&apos;t exist, or you don&apos;t have access to{" "}
-          <br />
-          this page.
+          Either this entity doesn&apos;t exist, or you don&apos;t have access
+          to <br />
+          this entity.
         </p>
         <Button
           filled
@@ -50,4 +50,4 @@ const PageNotFound = () => {
   );
 };
 
-export default PageNotFound;
+export default EntityNotFoundPane;

@@ -32,7 +32,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
-import PageNotFound from "pages/Editor/PageNotFound";
+import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 
 const LoadingContainer = styled(CenteredWrapper)`
@@ -146,7 +146,7 @@ class ApiEditor extends React.Component<Props> {
       isEditorInitialized,
     } = this.props;
     if (!this.props.pluginId && this.props.match.params.apiId) {
-      return <PageNotFound />;
+      return <EntityNotFoundPane />;
     }
     if (isCreating || !isEditorInitialized) {
       return (

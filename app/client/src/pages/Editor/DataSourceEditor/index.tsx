@@ -21,7 +21,7 @@ import DatasourceHome from "./DatasourceHome";
 import DataSourceEditorForm from "./DBForm";
 import { Datasource } from "entities/Datasource";
 import { RouteComponentProps } from "react-router";
-import PageNotFound from "pages/Editor/PageNotFound";
+import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 
 interface ReduxStateProps {
   formData: Datasource;
@@ -90,7 +90,7 @@ class DataSourceEditor extends React.Component<Props> {
       pluginType,
     } = this.props;
     if (!pluginId && datasourceId) {
-      return <PageNotFound />;
+      return <EntityNotFoundPane />;
     }
     return (
       <React.Fragment>

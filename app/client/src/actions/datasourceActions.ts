@@ -17,7 +17,6 @@ export const updateDatasource = (payload: Datasource) => {
 };
 
 export const fetchDatasourceStructure = (id: string) => {
-  console.log({ type: ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT, id });
   return {
     type: ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,
     payload: {
