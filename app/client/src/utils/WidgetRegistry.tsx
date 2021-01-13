@@ -1,105 +1,44 @@
 import BaseWidget, { WidgetProps } from "widgets/BaseWidget";
 import { WidgetTypes } from "constants/WidgetConstants";
-import ContainerWidget, {
-  ContainerWidgetProps,
-  ProfiledContainerWidget,
-} from "widgets/ContainerWidget";
-import TextWidget, {
-  TextWidgetProps,
-  ProfiledTextWidget,
-} from "widgets/TextWidget";
-import InputWidget, {
-  InputWidgetProps,
-  ProfiledInputWidget,
-} from "widgets/InputWidget";
-import CheckboxWidget, {
-  CheckboxWidgetProps,
-  ProfiledCheckboxWidget,
-} from "widgets/CheckboxWidget";
-import RadioGroupWidget, {
-  RadioGroupWidgetProps,
-  ProfiledRadioGroupWidget,
-} from "widgets/RadioGroupWidget";
+import ContainerWidget, { ContainerWidgetProps, ProfiledContainerWidget } from "widgets/ContainerWidget";
+import TextWidget, { TextWidgetProps, ProfiledTextWidget } from "widgets/TextWidget";
+import InputWidget, { InputWidgetProps, ProfiledInputWidget } from "widgets/InputWidget";
+import CheckboxWidget, { CheckboxWidgetProps, ProfiledCheckboxWidget } from "widgets/CheckboxWidget";
+import RadioGroupWidget, { RadioGroupWidgetProps, ProfiledRadioGroupWidget } from "widgets/RadioGroupWidget";
 import WidgetFactory from "./WidgetFactory";
 import React from "react";
-import ButtonWidget, {
-  ButtonWidgetProps,
-  ProfiledButtonWidget,
-} from "widgets/ButtonWidget";
-import DropdownWidget, {
-  DropdownWidgetProps,
-  ProfiledDropDownWidget,
-} from "widgets/DropdownWidget";
-import ImageWidget, {
-  ImageWidgetProps,
-  ProfiledImageWidget,
-} from "widgets/ImageWidget";
+import ButtonWidget, { ButtonWidgetProps, ProfiledButtonWidget } from "widgets/ButtonWidget";
+import DropdownWidget, { DropdownWidgetProps, ProfiledDropDownWidget } from "widgets/DropdownWidget";
+import ImageWidget, { ImageWidgetProps, ProfiledImageWidget } from "widgets/ImageWidget";
 import TableWidget, { ProfiledTableWidget } from "widgets/TableWidget";
 import { TableWidgetProps } from "widgets/TableWidget/TableWidgetConstants";
-import VideoWidget, {
-  VideoWidgetProps,
-  ProfiledVideoWidget,
-} from "widgets/VideoWidget";
-import TabsWidget, {
-  TabsWidgetProps,
-  TabContainerWidgetProps,
-  ProfiledTabsWidget,
-} from "widgets/TabsWidget";
-import {
-  ModalWidgetProps,
-  ProfiledModalWidget,
-  ModalWidget,
-} from "widgets/ModalWidget";
+import VideoWidget, { VideoWidgetProps, ProfiledVideoWidget } from "widgets/VideoWidget";
+import TabsWidget, { TabsWidgetProps, TabContainerWidgetProps, ProfiledTabsWidget } from "widgets/TabsWidget";
+import { ModalWidgetProps, ProfiledModalWidget, ModalWidget } from "widgets/ModalWidget";
 import RichTextEditorWidget, {
   RichTextEditorWidgetProps,
   ProfiledRichTextEditorWidget,
 } from "widgets/RichTextEditorWidget";
-import ChartWidget, {
-  ChartWidgetProps,
-  ProfiledChartWidget,
-} from "widgets/ChartWidget";
-import MapWidget, {
-  MapWidgetProps,
-  ProfiledMapWidget,
-} from "widgets/MapWidget";
+import ChartWidget, { ChartWidgetProps, ProfiledChartWidget } from "widgets/ChartWidget";
+import MapWidget, { MapWidgetProps, ProfiledMapWidget } from "widgets/MapWidget";
 
-import FilePickerWidget, {
-  FilePickerWidgetProps,
-  ProfiledFilePickerWidget,
-} from "widgets/FilepickerWidget";
-import DatePickerWidget, {
-  DatePickerWidgetProps,
-  ProfiledDatePickerWidget,
-} from "widgets/DatePickerWidget";
+import FilePickerWidget, { FilePickerWidgetProps, ProfiledFilePickerWidget } from "widgets/FilepickerWidget";
+import DatePickerWidget, { DatePickerWidgetProps, ProfiledDatePickerWidget } from "widgets/DatePickerWidget";
 import FormWidget, { ProfiledFormWidget } from "widgets/FormWidget";
-import FormButtonWidget, {
-  FormButtonWidgetProps,
-  ProfiledFormButtonWidget,
-} from "widgets/FormButtonWidget";
-import IconWidget, {
-  IconWidgetProps,
-  ProfiledIconWidget,
-} from "widgets/IconWidget";
+import FormButtonWidget, { FormButtonWidgetProps, ProfiledFormButtonWidget } from "widgets/FormButtonWidget";
+import IconWidget, { IconWidgetProps, ProfiledIconWidget } from "widgets/IconWidget";
 
 import CanvasWidget, { ProfiledCanvasWidget } from "widgets/CanvasWidget";
-import SkeletonWidget, {
-  ProfiledSkeletonWidget,
-  SkeletonWidgetProps,
-} from "../widgets/SkeletonWidget";
+import SkeletonWidget, { ProfiledSkeletonWidget, SkeletonWidgetProps } from "../widgets/SkeletonWidget";
 
-import GridWidget, {
-  GridWidgetProps,
-  ProfiledGridWidget,
-} from "widgets/GridWidget";
+import ListWidget, { ListWidgetProps, ProfiledListWidget } from "widgets/ListWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
       "CONTAINER_WIDGET",
       {
-        buildWidget(
-          widgetData: ContainerWidgetProps<WidgetProps>,
-        ): JSX.Element {
+        buildWidget(widgetData: ContainerWidgetProps<WidgetProps>): JSX.Element {
           return <ProfiledContainerWidget {...widgetData} />;
         },
       },
@@ -276,9 +215,7 @@ export default class WidgetBuilderRegistry {
     WidgetFactory.registerWidgetBuilder(
       "TABS_WIDGET",
       {
-        buildWidget(
-          widgetProps: TabsWidgetProps<TabContainerWidgetProps>,
-        ): JSX.Element {
+        buildWidget(widgetProps: TabsWidgetProps<TabContainerWidgetProps>): JSX.Element {
           return <ProfiledTabsWidget {...widgetProps} />;
         },
       },
@@ -334,9 +271,7 @@ export default class WidgetBuilderRegistry {
     WidgetFactory.registerWidgetBuilder(
       "FORM_WIDGET",
       {
-        buildWidget(
-          widgetProps: ContainerWidgetProps<WidgetProps>,
-        ): JSX.Element {
+        buildWidget(widgetProps: ContainerWidgetProps<WidgetProps>): JSX.Element {
           return <ProfiledFormWidget {...widgetProps} />;
         },
       },
@@ -381,9 +316,7 @@ export default class WidgetBuilderRegistry {
     WidgetFactory.registerWidgetBuilder(
       WidgetTypes.CANVAS_WIDGET,
       {
-        buildWidget(
-          widgetData: ContainerWidgetProps<WidgetProps>,
-        ): JSX.Element {
+        buildWidget(widgetData: ContainerWidgetProps<WidgetProps>): JSX.Element {
           return <ProfiledCanvasWidget {...widgetData} />;
         },
       },
@@ -423,17 +356,18 @@ export default class WidgetBuilderRegistry {
     );
 
     WidgetFactory.registerWidgetBuilder(
-      WidgetTypes.GRID_WIDGET,
+      WidgetTypes.LIST_WIDGET,
       {
-        buildWidget(widgetProps: GridWidgetProps<WidgetProps>): JSX.Element {
-          return <ProfiledGridWidget {...widgetProps} />;
+        buildWidget(widgetProps: ListWidgetProps<WidgetProps>): JSX.Element {
+          return <ProfiledListWidget {...widgetProps} />;
         },
       },
-      GridWidget.getPropertyValidationMap(),
-      GridWidget.getDerivedPropertiesMap(),
-      GridWidget.getTriggerPropertyMap(),
-      GridWidget.getDefaultPropertiesMap(),
-      GridWidget.getMetaPropertiesMap(),
+      ListWidget.getPropertyValidationMap(),
+      ListWidget.getDerivedPropertiesMap(),
+      ListWidget.getTriggerPropertyMap(),
+      ListWidget.getDefaultPropertiesMap(),
+      ListWidget.getMetaPropertiesMap(),
+      ListWidget.getPropertyPaneConfig(),
     );
   }
 }

@@ -6,15 +6,16 @@ import WidgetFactory from "utils/WidgetFactory";
 import { removeFalsyEntries } from "utils/helpers";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import GridComponent from "components/designSystems/appsmith/GridComponent";
 import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
-import { ContainerWidgetProps } from "./ContainerWidget";
 import { generateReactKey } from "utils/generators";
+import { ContainerWidgetProps } from "../ContainerWidget";
+import propertyPaneConfig from "./ListPropertyPaneConfig";
 
-class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
+class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       items: VALIDATION_TYPES.GRID_DATA,
@@ -22,66 +23,7 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
   }
 
   static getPropertyPaneConfig() {
-    return [
-      {
-        sectionName: "General",
-        children: [
-          {
-            helpText:
-              "Takes in an array of objects to display items in the grid. Bind data from an API using {{}}",
-            propertyName: "items",
-            label: "Grid Items",
-            controlType: "INPUT_TEXT",
-            placeholderText: 'Enter [{ "col1": "val1" }]',
-            inputType: "ARRAY",
-          },
-          {
-            helpText: "Use a html color name, HEX, RGB or RGBA value",
-            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-            propertyName: "backgroundColor",
-            label: "Background Color",
-            controlType: "INPUT_TEXT",
-          },
-          {
-            helpText: "Gap between rows and columns",
-            placeholderText: "0",
-            propertyName: "gridGap",
-            label: "Grid Gap",
-            controlType: "INPUT_TEXT",
-          },
-          {
-            helpText: "is grid vertical or horizontal",
-            placeholderText: "vertical or horizontal",
-            propertyName: "gridType",
-            label: "gridType",
-            controlType: "DROP_DOWN",
-            isJSConvertible: true,
-            options: [
-              {
-                label: "Vertical",
-                value: "vertical",
-              },
-              {
-                label: "Horizontal",
-                value: "horizontal",
-              },
-            ],
-          },
-          {
-            propertyName: "shouldScrollContents",
-            label: "Scroll Contents",
-            controlType: "SWITCH",
-          },
-          {
-            helpText: "Triggers an action when a grid list item is clicked",
-            propertyName: "onGridItemClick",
-            label: "onGridItemClick",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-          },
-        ],
-      },
-    ];
+    return propertyPaneConfig;
   }
 
   static getDerivedPropertiesMap() {
@@ -117,9 +59,7 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
    *
    * @param children
    */
-  updatePosition = (
-    children: ContainerWidgetProps<WidgetProps>[],
-  ): ContainerWidgetProps<WidgetProps>[] => {
+  updatePosition = (children: ContainerWidgetProps<WidgetProps>[]): ContainerWidgetProps<WidgetProps>[] => {
     return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
       return {
         ...child,
@@ -134,9 +74,7 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
   /**
    * @param children
    */
-  setPathsForNewChildrenInGrid = (
-    children: ContainerWidgetProps<WidgetProps>[],
-  ) => {
+  setPathsForNewChildrenInGrid = (children: ContainerWidgetProps<WidgetProps>[]) => {
     const { dynamicBindingPathList } = this.props;
     const templateChildrens = get(children, "0.children.0.children", []);
 
@@ -216,8 +154,6 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
   renderChildren = () => {
     const numberOfItemsInGrid = this.props.items.length;
 
-    console.log({ props: this.props });
-
     if (this.props.children && this.props.children.length > 0) {
       const children = removeFalsyEntries(this.props.children);
 
@@ -247,11 +183,11 @@ class GridWidget extends BaseWidget<GridWidgetProps<WidgetProps>, WidgetState> {
    * returns type of the widget
    */
   getWidgetType(): WidgetType {
-    return WidgetTypes.GRID_WIDGET;
+    return WidgetTypes.LIST_WIDGET;
   }
 }
 
-export interface GridWidgetProps<T extends WidgetProps> extends WidgetProps {
+export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   children?: T[];
   containerStyle?: ContainerStyle;
   shouldScrollContents?: boolean;
@@ -259,5 +195,5 @@ export interface GridWidgetProps<T extends WidgetProps> extends WidgetProps {
   items: Array<Record<string, unknown>>;
 }
 
-export default GridWidget;
-export const ProfiledGridWidget = Sentry.withProfiler(GridWidget);
+export default ListWidget;
+export const ProfiledListWidget = Sentry.withProfiler(ListWidget);

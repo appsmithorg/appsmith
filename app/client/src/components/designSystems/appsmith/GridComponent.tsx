@@ -2,7 +2,7 @@ import React, { RefObject, ReactNode } from "react";
 import styled, { css } from "styled-components";
 import { Color } from "constants/Colors";
 import { ComponentProps } from "./BaseComponent";
-import { GridWidgetProps } from "widgets/GridWidget";
+import { ListWidgetProps } from "widgets/ListWidget";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { WidgetProps } from "widgets/BaseWidget";
 
@@ -26,7 +26,7 @@ const GridContainer = styled.div<GridComponentProps>`
 `;
 
 const ScrollableCanvasWrapper = styled.div<
-  GridWidgetProps<WidgetProps> & {
+  ListWidgetProps<WidgetProps> & {
     ref: RefObject<HTMLDivElement>;
   }
 >`
@@ -42,9 +42,7 @@ const GridComponent = (props: GridComponentProps) => {
   return (
     <GridContainer {...remainingProps}>
       <ScrollableCanvasWrapper
-        className={`${
-          props.shouldScrollContents ? getCanvasClassName() : ""
-        } ${generateClassName(props.widgetId)}`}
+        className={`${props.shouldScrollContents ? getCanvasClassName() : ""} ${generateClassName(props.widgetId)}`}
       >
         {props.children}
       </ScrollableCanvasWrapper>

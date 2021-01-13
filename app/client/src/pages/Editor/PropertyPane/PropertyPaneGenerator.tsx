@@ -11,9 +11,7 @@ import { PropertyPaneEnhancements } from ".";
 import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
 
-const getPropertyPaneConfig = (
-  type: WidgetType,
-): PropertyPaneConfig[] | undefined => {
+const getPropertyPaneConfig = (type: WidgetType): PropertyPaneConfig[] | undefined => {
   return WidgetFactory.propertyPaneConfigsMap.get(type);
 };
 
@@ -57,9 +55,7 @@ export const generatePropertyControl = (
   });
 };
 
-export const PropertyControlsGenerator = (
-  props: PropertyControlsGeneratorProps,
-) => {
+export const PropertyControlsGenerator = (props: PropertyControlsGeneratorProps) => {
   const config = getPropertyPaneConfig(props.type);
   return <>{generatePropertyControl(config as PropertyPaneConfig[], props)}</>;
 };

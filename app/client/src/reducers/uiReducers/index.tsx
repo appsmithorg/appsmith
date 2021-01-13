@@ -24,7 +24,7 @@ import datasourceNameReducer from "./datasourceNameReducer";
 import pageCanvasStructureReducer from "./pageCanvasStructure";
 import pageWidgetsReducer from "./pageWidgetsReducer";
 import onBoardingReducer from "./onBoardingReducer";
-import propertyPaneEnhancementsReducer from "./PropertyPaneEnhancementsReducer";
+import propertyPaneEnhancementsReducer from "./propertyPaneEnhancementsReducer";
 
 const uiReducer = combineReducers({
   widgetSidebar: widgetSidebarReducer,

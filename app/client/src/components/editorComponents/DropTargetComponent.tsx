@@ -1,36 +1,16 @@
-import React, {
-  useState,
-  useContext,
-  ReactNode,
-  Context,
-  createContext,
-  useEffect,
-  memo,
-} from "react";
+import React, { useState, useContext, ReactNode, Context, createContext, useEffect, memo } from "react";
 import styled from "styled-components";
 import { useDrop, XYCoord, DropTargetMonitor } from "react-dnd";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import {
-  widgetOperationParams,
-  noCollision,
-  getCanvasSnapRows,
-} from "utils/WidgetPropsUtils";
+import { widgetOperationParams, noCollision, getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  GridDefaults,
-  WidgetTypes,
-} from "constants/WidgetConstants";
+import { MAIN_CONTAINER_WIDGET_ID, GridDefaults, WidgetTypes } from "constants/WidgetConstants";
 import { calculateDropTargetRows } from "./DropTargetUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import { AppState } from "reducers";
 import { useSelector } from "react-redux";
-import {
-  useShowPropertyPane,
-  useWidgetSelection,
-  useCanvasSnapRowsUpdateHook,
-} from "utils/hooks/dragResizeHooks";
+import { useShowPropertyPane, useWidgetSelection, useCanvasSnapRowsUpdateHook } from "utils/hooks/dragResizeHooks";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 
 type DropTargetComponentProps = WidgetProps & {
@@ -72,27 +52,16 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
 
   const { updateWidget } = useContext(EditorContext);
   const occupiedSpaces = useSelector(getOccupiedSpaces);
-  const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
-  );
-  const isResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isResizing,
-  );
-  const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
-  );
+  const selectedWidget = useSelector((state: AppState) => state.ui.widgetDragResize.selectedWidget);
+  const isResizing = useSelector((state: AppState) => state.ui.widgetDragResize.isResizing);
+  const isDragging = useSelector((state: AppState) => state.ui.widgetDragResize.isDragging);
 
   const spacesOccupiedBySiblingWidgets =
-    occupiedSpaces && occupiedSpaces[props.widgetId]
-      ? occupiedSpaces[props.widgetId]
-      : undefined;
+    occupiedSpaces && occupiedSpaces[props.widgetId] ? occupiedSpaces[props.widgetId] : undefined;
 
-  const childWidgets = useSelector(
-    (state: AppState) => state.entities.canvasWidgets[props.widgetId].children,
-  );
+  const childWidgets = useSelector((state: AppState) => state.entities.canvasWidgets[props.widgetId].children);
 
-  const occupiedSpacesByChildren =
-    occupiedSpaces && occupiedSpaces[props.widgetId];
+  const occupiedSpacesByChildren = occupiedSpaces && occupiedSpaces[props.widgetId];
 
   const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
   const [rows, setRows] = useState(snapRows);
@@ -113,10 +82,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
       props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
       occupiedSpacesByChildren,
     );
-    const rowsToPersist = Math.max(
-      props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-      newRows,
-    );
+    const rowsToPersist = Math.max(props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1, newRows);
     setRows(rowsToPersist);
     if (canDropTargetExtend) {
       updateCanvasSnapRows(props.widgetId, rowsToPersist);
@@ -142,10 +108,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   };
 
   const isChildFocused =
-    !!childWidgets &&
-    !!selectedWidget &&
-    childWidgets.length > 0 &&
-    childWidgets.indexOf(selectedWidget) > -1;
+    !!childWidgets && !!selectedWidget && childWidgets.length > 0 && childWidgets.indexOf(selectedWidget) > -1;
 
   const isChildResizing = !!isResizing && isChildFocused;
   // Make this component a drop target
@@ -170,8 +133,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
 
         // const widgetBottomRow = getWidgetBottomRow(widget, updateWidgetParams);
         const widgetBottomRow =
-          updateWidgetParams.payload.topRow +
-          (updateWidgetParams.payload.rows || widget.bottomRow - widget.topRow);
+          updateWidgetParams.payload.topRow + (updateWidgetParams.payload.rows || widget.bottomRow - widget.topRow);
 
         // Only show propertypane if this is a new widget.
         // If it is not a new widget, then let the DraggableComponent handle it.
@@ -189,11 +151,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
 
         /* Finally update the widget */
         updateWidget &&
-          updateWidget(
-            updateWidgetParams.operation,
-            updateWidgetParams.widgetId,
-            updateWidgetParams.payload,
-          );
+          updateWidget(updateWidgetParams.operation, updateWidgetParams.widgetId, updateWidgetParams.payload);
       }
       return undefined;
     },
@@ -247,23 +205,17 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     e.stopPropagation();
     e.preventDefault();
   };
-  const height = canDropTargetExtend
-    ? `${Math.max(rows * props.snapRowSpace, props.minHeight)}px`
-    : "100%";
+  const height = canDropTargetExtend ? `${Math.max(rows * props.snapRowSpace, props.minHeight)}px` : "100%";
 
   const border =
-    (isResizing || isDragging) &&
-    isExactlyOver &&
-    props.widgetId === MAIN_CONTAINER_WIDGET_ID
+    (isResizing || isDragging) && isExactlyOver && props.widgetId === MAIN_CONTAINER_WIDGET_ID
       ? "1px solid #DDDDDD"
       : "1px solid transparent";
 
   const dropRef = props.dropEnabled ? drop : undefined;
 
   return (
-    <DropTargetContext.Provider
-      value={{ updateDropTargetRows, persistDropTargetRows }}
-    >
+    <DropTargetContext.Provider value={{ updateDropTargetRows, persistDropTargetRows }}>
       <StyledDropTarget
         onClick={handleFocus}
         ref={dropRef}
@@ -274,9 +226,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
         className={"t--drop-target"}
       >
         {props.children}
-        {!(childWidgets && childWidgets.length) &&
-          !isDragging &&
-          !props.parentId && <Onboarding />}
+        {!(childWidgets && childWidgets.length) && !isDragging && !props.parentId && <Onboarding />}
         <DragLayerComponent
           parentWidgetId={props.widgetId}
           canDropTargetExtend={canDropTargetExtend}

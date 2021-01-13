@@ -1,35 +1,33 @@
+import { connect } from "react-redux";
 import React, { Component } from "react";
 import styled from "styled-components";
-import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
+import { PanelStack, IPanel, Classes } from "@blueprintjs/core";
+
+import * as log from "loglevel";
 import {
   getIsPropertyPaneVisible,
+  getPropertyPaneEnhancements,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
-import { PanelStack, IPanel, Classes, IPanelProps } from "@blueprintjs/core";
-
 import Popper from "pages/Editor/Popper";
-import { generateClassName } from "utils/generators";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { scrollbarDark } from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
-import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import * as log from "loglevel";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import PropertyControlsGenerator from "./Generator";
+import { generateClassName } from "utils/generators";
+import { scrollbarDark } from "constants/DefaultTheme";
+import { hidePropertyPane } from "actions/propertyPaneActions";
 import PaneWrapper from "components/editorComponents/PaneWrapper";
+import PropertyPaneView, { UpdatePropertyPayload } from "./PropertyPaneView";
+import PerformanceTracker, { PerformanceTransactionName } from "utils/PerformanceTracker";
 
+/** Styled Components */
 const PropertyPaneWrapper = styled(PaneWrapper)`
   width: 100%;
   max-height: ${(props) => props.theme.propertyPane.height}px;
   width: ${(props) => props.theme.propertyPane.width}px;
   margin: ${(props) => props.theme.spaces[2]}px;
   box-shadow: 0px 0px 10px ${(props) => props.theme.colors.paneCard};
-  border: ${(props) => props.theme.spaces[5]}px solid
-    ${(props) => props.theme.colors.paneBG};
+  border: ${(props) => props.theme.spaces[5]}px solid ${(props) => props.theme.colors.paneBG};
   border-right: 0;
   overflow-y: auto;
   overflow-x: hidden;
@@ -55,80 +53,40 @@ const StyledPanelStack = styled(PanelStack)`
   }
 `;
 
+/** Interfaces */
+export interface PropertyPaneProps extends PropertyPaneFunctions {
+  widgetProperties?: WidgetProps;
+  isVisible: boolean;
+  propertyPaneEnhancements?: PropertyPaneEnhancements;
+}
+
+export interface PropertyPaneFunctions {
+  hidePropertyPane: () => void;
+}
+
 interface PropertyPaneState {
   currentPanelStack: IPanel[];
 }
 
-interface UpdatePropertyPayload {
-  widgetId: string;
-  propertyPath: string;
-  propertyValue: any;
-}
-
 export interface PropertyPaneEnhancements {
-  additionalAutocomplete: Record<
-    string,
-    (props: any) => Record<string, unknown>
-  >;
-  beforeChildPropertyUpdate: (
-    id: string,
-    path: string,
-    value: any,
-  ) => UpdatePropertyPayload[];
+  additionalAutocomplete?: Record<string, (props: any) => Record<string, unknown>>;
+  beforeChildPropertyUpdate?: (id: string, path: string, value: any) => UpdatePropertyPayload[];
 }
 
-const PropertyPaneView = (
-  props: {
-    hidePropertyPane: () => void;
-    enhancements?: {
-      additionalAutocomplete: Record<
-        string,
-        (props: any) => Record<string, unknown>
-      >;
-      beforeChildPropertyUpdate: (
-        id: string,
-        path: string,
-        value: any,
-      ) => UpdatePropertyPayload[];
-    };
-  } & IPanelProps,
-) => {
-  const { hidePropertyPane, ...panel } = props;
-  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
-  return (
-    <>
-      <PropertyPaneTitle
-        key={widgetProperties.widgetId}
-        title={widgetProperties.widgetName}
-        widgetId={widgetProperties.widgetId}
-        widgetType={widgetProperties?.type}
-        onClose={hidePropertyPane}
-      />
-      <PropertyControlsGenerator
-        enhancements={props.enhancements}
-        type={widgetProperties.type}
-        panel={panel}
-      />
-    </>
-  );
-};
-
+/** Components */
 class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   render() {
-    if (this.props.isVisible) {
+    const { isVisible, widgetProperties } = this.props;
+
+    // only render properyPane if a widget is focussed which sets the isVisible to true
+    if (isVisible) {
       log.debug("Property pane rendered");
       const content = this.renderPropertyPane();
       // Find the widget element in the DOM
-      const el = document.getElementsByClassName(
-        generateClassName(this.props.widgetProperties?.widgetId),
-      )[0];
+      const el = document.getElementsByClassName(generateClassName(widgetProperties?.widgetId))[0];
+
       return (
-        <Popper
-          isOpen={true}
-          targetNode={el}
-          zIndex={3}
-          placement="right-start"
-        >
+        <Popper isOpen={true} targetNode={el} zIndex={3} placement="right-start">
           {content}
         </Popper>
       );
@@ -137,9 +95,16 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     }
   }
 
+  /**
+   * returns the content that goes in the popper. This is the main function that is responsible for
+   * generating property pane
+   */
   renderPropertyPane() {
-    const { widgetProperties } = this.props;
+    const { widgetProperties, hidePropertyPane, propertyPaneEnhancements } = this.props;
+
+    // if there are no widgetProperties, just render a blank property pane wrapper
     if (!widgetProperties) return <PropertyPaneWrapper />;
+
     return (
       <PropertyPaneWrapper
         onClick={(e: any) => {
@@ -150,8 +115,8 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
           initialPanel={{
             component: PropertyPaneView,
             props: {
-              hidePropertyPane: this.props.hidePropertyPane,
-              enhancements: this.props.propertyPaneEnhancements,
+              hidePropertyPane: hidePropertyPane,
+              enhancements: propertyPaneEnhancements,
             },
           }}
           showPanelHeader={false}
@@ -161,20 +126,20 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   }
 
   componentDidMount() {
-    PerformanceTracker.stopTracking(
-      PerformanceTransactionName.OPEN_PROPERTY_PANE,
-    );
+    PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_PROPERTY_PANE);
   }
 
+  /**
+   * here we are mainly doing some analytics based on the open/close state of propertypane
+   *
+   * @param prevProps
+   */
   componentDidUpdate(prevProps: PropertyPaneProps) {
     if (
-      this.props.widgetProperties?.widgetId !==
-        prevProps.widgetProperties?.widgetId &&
+      this.props.widgetProperties?.widgetId !== prevProps.widgetProperties?.widgetId &&
       this.props.widgetProperties?.widgetId !== undefined
     ) {
-      PerformanceTracker.stopTracking(
-        PerformanceTransactionName.OPEN_PROPERTY_PANE,
-      );
+      PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_PROPERTY_PANE);
       if (prevProps.widgetProperties?.widgetId && prevProps.widgetProperties) {
         AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE", {
           widgetType: prevProps.widgetProperties.type,
@@ -190,8 +155,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     }
 
     if (
-      this.props.widgetProperties?.widgetId ===
-        prevProps.widgetProperties?.widgetId &&
+      this.props.widgetProperties?.widgetId === prevProps.widgetProperties?.widgetId &&
       this.props.isVisible &&
       !prevProps.isVisible &&
       this.props.widgetProperties !== undefined
@@ -210,26 +174,8 @@ const mapStateToProps = (state: AppState) => {
   return {
     widgetProperties: getWidgetPropsForPropertyPane(state),
     isVisible: getIsPropertyPaneVisible(state),
-    propertyPaneEnhancements: getPropertyPaneEnhacements(state),
+    propertyPaneEnhancements: getPropertyPaneEnhancements(state),
   };
 };
 
-const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
-  return {
-    hidePropertyPane: () =>
-      dispatch({
-        type: ReduxActionTypes.HIDE_PROPERTY_PANE,
-      }),
-  };
-};
-
-export interface PropertyPaneProps extends PropertyPaneFunctions {
-  widgetProperties?: WidgetProps;
-  isVisible: boolean;
-}
-
-export interface PropertyPaneFunctions {
-  hidePropertyPane: () => void;
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(PropertyPane);
+export default connect(mapStateToProps, { hidePropertyPane })(PropertyPane);

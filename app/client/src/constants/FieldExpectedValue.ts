@@ -1,9 +1,6 @@
 import { WidgetType } from "constants/WidgetConstants";
 
-const FIELD_VALUES: Record<
-  WidgetType | "API_ACTION",
-  Record<string, string>
-> = {
+const FIELD_VALUES: Record<WidgetType | "API_ACTION", Record<string, string>> = {
   API_ACTION: {
     body: "JSON",
     params: "string",
@@ -54,8 +51,7 @@ const FIELD_VALUES: Record<
     // onSelectionChange: "Function Call",
   },
   TABS_WIDGET: {
-    tabs:
-      "Array<{ label: string, id: string(unique), widgetId: string(unique) }>",
+    tabs: "Array<{ label: string, id: string(unique), widgetId: string(unique) }>",
     selectedTab: "string",
     isVisible: "boolean",
   },
@@ -149,7 +145,7 @@ const FIELD_VALUES: Record<
     shouldScroll: "boolean",
     isVisible: "boolean",
   },
-  GRID_WIDGET: {
+  LIST_WIDGET: {
     text: "string",
     textAlign: "LEFT | CENTER | RIGHT",
     textStyle: "HEADING | LABEL | BODY",

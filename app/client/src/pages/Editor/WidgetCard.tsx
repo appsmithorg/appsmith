@@ -4,11 +4,7 @@ import blankImage from "assets/images/blank.png";
 import { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
 import { WidgetIcons } from "icons/WidgetIcons";
-import {
-  useWidgetDragResize,
-  useShowPropertyPane,
-  useWidgetSelection,
-} from "utils/hooks/dragResizeHooks";
+import { useWidgetDragResize, useShowPropertyPane, useWidgetSelection } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
@@ -72,9 +68,7 @@ const WidgetCard = (props: CardProps) => {
   const { setIsDragging } = useWidgetDragResize();
   const { selectWidget } = useWidgetSelection();
 
-  const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
-  );
+  const selectedWidget = useSelector((state: AppState) => state.ui.widgetDragResize.selectedWidget);
 
   // Generate a new widgetId which can be used in the future for this widget.
   const [widgetId, setWidgetId] = useState(generateReactKey());

@@ -44,8 +44,8 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     key: generateReactKey(),
   },
   {
-    type: "GRID_WIDGET",
-    widgetCardName: "Grid",
+    type: "LIST_WIDGET",
+    widgetCardName: "List",
     key: generateReactKey(),
   },
   {

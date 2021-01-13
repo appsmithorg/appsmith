@@ -21,7 +21,7 @@ export enum WidgetTypes {
   FILE_PICKER_WIDGET = "FILE_PICKER_WIDGET",
   VIDEO_WIDGET = "VIDEO_WIDGET",
   SKELETON_WIDGET = "SKELETON_WIDGET",
-  GRID_WIDGET = "GRID_WIDGET",
+  LIST_WIDGET = "LIST_WIDGET",
 }
 
 export type WidgetType = keyof typeof WidgetTypes;
@@ -51,11 +51,7 @@ export type CSSUnit =
   | "vmax"
   | "%";
 
-export type RenderMode =
-  | "COMPONENT_PANE"
-  | "CANVAS"
-  | "PAGE"
-  | "CANVAS_SELECTED";
+export type RenderMode = "COMPONENT_PANE" | "CANVAS" | "PAGE" | "CANVAS_SELECTED";
 
 export const RenderModes: { [id: string]: RenderMode } = {
   COMPONENT_PANE: "COMPONENT_PANE",
@@ -79,8 +75,7 @@ export const GridDefaults = {
   CANVAS_EXTENSION_OFFSET: 2,
 };
 
-export const CONTAINER_GRID_PADDING =
-  (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.8;
+export const CONTAINER_GRID_PADDING = (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.8;
 
 export const WIDGET_PADDING = (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.2;
 

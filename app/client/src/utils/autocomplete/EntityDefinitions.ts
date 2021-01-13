@@ -23,8 +23,7 @@ export const entityDefinitions = {
       data = { ...data, ...dataDef };
     }
     return {
-      "!doc":
-        "Actions allow you to connect your widgets to your backend data in a secure manner.",
+      "!doc": "Actions allow you to connect your widgets to your backend data in a secure manner.",
       "!url": "https://docs.appsmith.com/quick-start#connect-your-apis",
       isLoading: "bool",
       data,
@@ -93,8 +92,7 @@ export const entityDefinitions = {
     options: "[dropdownOption]",
   },
   IMAGE_WIDGET: {
-    "!doc":
-      "Image widget is used to display images in your app. Images must be either a URL or a valid base64.",
+    "!doc": "Image widget is used to display images in your app. Images must be either a URL or a valid base64.",
     "!url": "https://docs.appsmith.com/widget-reference/image",
     image: "string",
     isVisible: isVisible,
@@ -107,8 +105,7 @@ export const entityDefinitions = {
     text: "string",
   },
   BUTTON_WIDGET: {
-    "!doc":
-      "Buttons are used to capture user intent and trigger actions based on that intent",
+    "!doc": "Buttons are used to capture user intent and trigger actions based on that intent",
     "!url": "https://docs.appsmith.com/widget-reference/button",
     isVisible: isVisible,
     text: "string",
@@ -125,8 +122,7 @@ export const entityDefinitions = {
     isDisabled: "bool",
   },
   CHECKBOX_WIDGET: {
-    "!doc":
-      "Checkbox is a simple UI widget you can use when you want users to make a binary choice",
+    "!doc": "Checkbox is a simple UI widget you can use when you want users to make a binary choice",
     "!url": "https://docs.appsmith.com/widget-reference/checkbox",
     isVisible: isVisible,
     isChecked: "bool",
@@ -197,7 +193,7 @@ export const entityDefinitions = {
     isDisabled: "bool",
     uploadedFileUrls: "string",
   },
-  GRID_WIDGET: {
+  LIST_WIDGET: {
     "!doc":
       "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
     "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",

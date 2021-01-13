@@ -1,20 +1,24 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { WidgetType } from "constants/WidgetConstants";
+import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 
 const initialState: PropertyPaneEnhancementsReduxState = {};
+
+export type PropertyPaneEnhancementsDataState = {
+  [widgetId: string]: WidgetType;
+};
 
 const propertyPaneEnhancementsReducer = createReducer(initialState, {
   [ReduxActionTypes.SET_PROPERTY_PANE_ENHANCEMENTS]: (
     state: PropertyPaneEnhancementsReduxState,
-    action: { widgetId },
+    action: ReduxAction<PropertyPaneEnhancementsDataState>,
   ) => {
-    return { ...state, defaultRefinement: action.payload };
+    return { ...state, ...action.payload };
   },
 });
 
 export interface PropertyPaneEnhancementsReduxState {
-  [widgetId: string]: WidgetType;
+  [widgetId: string]: WidgetType[];
 }
 
 export default propertyPaneEnhancementsReducer;

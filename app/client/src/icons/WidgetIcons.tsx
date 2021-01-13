@@ -136,7 +136,7 @@ export const WidgetIcons: {
       <ButtonIcon />
     </IconWrapper>
   ),
-  GRID_WIDGET: (props: IconProps) => (
+  LIST_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <TextIcon />
     </IconWrapper>

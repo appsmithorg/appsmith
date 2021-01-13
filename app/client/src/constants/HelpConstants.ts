@@ -99,7 +99,7 @@ export const HelpMap = {
     path: "/core-concepts/connecting-to-databases",
     searchKey: "Connecting to databases",
   },
-  GRID_WIDGET: {
+  LIST_WIDGET: {
     path: "",
     searchKey: "",
   },

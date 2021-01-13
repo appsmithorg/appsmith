@@ -1,19 +1,8 @@
 import { WidgetType, RenderMode } from "constants/WidgetConstants";
-import {
-  WidgetBuilder,
-  WidgetProps,
-  WidgetDataProps,
-  WidgetState,
-} from "widgets/BaseWidget";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "./WidgetValidation";
+import { WidgetBuilder, WidgetProps, WidgetDataProps, WidgetState } from "widgets/BaseWidget";
+import { WidgetPropertyValidationType, BASE_WIDGET_VALIDATION } from "./WidgetValidation";
 import React from "react";
-import {
-  PropertyPaneConfig,
-  PropertyPaneControlConfig,
-} from "constants/PropertyControlConstants";
+import { PropertyPaneConfig, PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { generateReactKey } from "./generators";
 
 type WidgetDerivedPropertyType = any;
@@ -26,19 +15,11 @@ const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
   return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
     sectionOrControlConfig.id = generateReactKey();
     if (sectionOrControlConfig.children) {
-      sectionOrControlConfig.children = addPropertyConfigIds(
-        sectionOrControlConfig.children,
-      );
+      sectionOrControlConfig.children = addPropertyConfigIds(sectionOrControlConfig.children);
     }
     const config = sectionOrControlConfig as PropertyPaneControlConfig;
-    if (
-      config.panelConfig &&
-      config.panelConfig.children &&
-      Array.isArray(config.panelConfig.children)
-    ) {
-      config.panelConfig.children = addPropertyConfigIds(
-        config.panelConfig.children,
-      );
+    if (config.panelConfig && config.panelConfig.children && Array.isArray(config.panelConfig.children)) {
+      config.panelConfig.children = addPropertyConfigIds(config.panelConfig.children);
 
       (sectionOrControlConfig as PropertyPaneControlConfig) = config;
     }
@@ -46,35 +27,14 @@ const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
   });
 };
 class WidgetFactory {
-  static widgetMap: Map<
-    WidgetType,
-    WidgetBuilder<WidgetProps, WidgetState>
-  > = new Map();
-  static widgetPropValidationMap: Map<
-    WidgetType,
-    WidgetPropertyValidationType
-  > = new Map();
-  static widgetDerivedPropertiesGetterMap: Map<
-    WidgetType,
-    WidgetDerivedPropertyType
-  > = new Map();
-  static derivedPropertiesMap: Map<
-    WidgetType,
-    DerivedPropertiesMap
-  > = new Map();
-  static triggerPropertiesMap: Map<
-    WidgetType,
-    TriggerPropertiesMap
-  > = new Map();
-  static defaultPropertiesMap: Map<
-    WidgetType,
-    Record<string, string>
-  > = new Map();
+  static widgetMap: Map<WidgetType, WidgetBuilder<WidgetProps, WidgetState>> = new Map();
+  static widgetPropValidationMap: Map<WidgetType, WidgetPropertyValidationType> = new Map();
+  static widgetDerivedPropertiesGetterMap: Map<WidgetType, WidgetDerivedPropertyType> = new Map();
+  static derivedPropertiesMap: Map<WidgetType, DerivedPropertiesMap> = new Map();
+  static triggerPropertiesMap: Map<WidgetType, TriggerPropertiesMap> = new Map();
+  static defaultPropertiesMap: Map<WidgetType, Record<string, string>> = new Map();
   static metaPropertiesMap: Map<WidgetType, Record<string, any>> = new Map();
-  static propertyPaneConfigsMap: Map<
-    WidgetType,
-    PropertyPaneConfig[]
-  > = new Map();
+  static propertyPaneConfigsMap: Map<WidgetType, PropertyPaneConfig[]> = new Map();
 
   static registerWidgetBuilder(
     widgetType: WidgetType,
@@ -93,17 +53,10 @@ class WidgetFactory {
     this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
     this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
 
-    propertyPaneConfig &&
-      this.propertyPaneConfigsMap.set(
-        widgetType,
-        addPropertyConfigIds(propertyPaneConfig),
-      );
+    propertyPaneConfig && this.propertyPaneConfigsMap.set(widgetType, addPropertyConfigIds(propertyPaneConfig));
   }
 
-  static createWidget(
-    widgetData: WidgetDataProps,
-    renderMode: RenderMode,
-  ): React.ReactNode {
+  static createWidget(widgetData: WidgetDataProps, renderMode: RenderMode): React.ReactNode {
     const widgetProps: WidgetProps = {
       key: widgetData.widgetId,
       isVisible: true,
@@ -117,8 +70,7 @@ class WidgetFactory {
       return widget;
     } else {
       const ex: WidgetCreationException = {
-        message:
-          "Widget Builder not registered for widget type" + widgetData.type,
+        message: "Widget Builder not registered for widget type" + widgetData.type,
       };
       console.error(ex);
       return null;
@@ -129,9 +81,7 @@ class WidgetFactory {
     return Array.from(this.widgetMap.keys());
   }
 
-  static getWidgetPropertyValidationMap(
-    widgetType: WidgetType,
-  ): WidgetPropertyValidationType {
+  static getWidgetPropertyValidationMap(widgetType: WidgetType): WidgetPropertyValidationType {
     const map = this.widgetPropValidationMap.get(widgetType);
     if (!map) {
       console.error("Widget type validation is not defined");
@@ -140,9 +90,7 @@ class WidgetFactory {
     return map;
   }
 
-  static getWidgetDerivedPropertiesMap(
-    widgetType: WidgetType,
-  ): DerivedPropertiesMap {
+  static getWidgetDerivedPropertiesMap(widgetType: WidgetType): DerivedPropertiesMap {
     const map = this.derivedPropertiesMap.get(widgetType);
     if (!map) {
       console.error("Widget type validation is not defined");
@@ -151,9 +99,7 @@ class WidgetFactory {
     return map;
   }
 
-  static getWidgetTriggerPropertiesMap(
-    widgetType: WidgetType,
-  ): TriggerPropertiesMap {
+  static getWidgetTriggerPropertiesMap(widgetType: WidgetType): TriggerPropertiesMap {
     const map = this.triggerPropertiesMap.get(widgetType);
     if (!map) {
       console.error("Widget trigger map is not defined");
@@ -162,9 +108,7 @@ class WidgetFactory {
     return map;
   }
 
-  static getWidgetDefaultPropertiesMap(
-    widgetType: WidgetType,
-  ): Record<string, string> {
+  static getWidgetDefaultPropertiesMap(widgetType: WidgetType): Record<string, string> {
     const map = this.defaultPropertiesMap.get(widgetType);
     if (!map) {
       console.error("Widget default properties not defined");
@@ -173,9 +117,7 @@ class WidgetFactory {
     return map;
   }
 
-  static getWidgetMetaPropertiesMap(
-    widgetType: WidgetType,
-  ): Record<string, any> {
+  static getWidgetMetaPropertiesMap(widgetType: WidgetType): Record<string, any> {
     const map = this.metaPropertiesMap.get(widgetType);
     if (!map) {
       console.error("Widget meta properties not defined: ", widgetType);

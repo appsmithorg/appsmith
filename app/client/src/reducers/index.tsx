@@ -76,7 +76,7 @@ export interface AppState {
     datasourceName: DatasourceNameReduxState;
     theme: ThemeState;
     onBoarding: OnboardingState;
-    enhancementsMap: PropertyPaneEnhancementsReduxState;
+    propertyPaneEnhancementsMap: PropertyPaneEnhancementsReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

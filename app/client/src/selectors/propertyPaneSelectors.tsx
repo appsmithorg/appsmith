@@ -1,24 +1,19 @@
-import { createSelector } from "reselect";
+import { find, get } from "lodash";
 import { AppState } from "reducers";
-import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
+import { createSelector } from "reselect";
 
-import {
-  CanvasWidgetsReduxState,
-  FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { find } from "lodash";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetType } from "constants/WidgetConstants";
-import { mainModule } from "process";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
+import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
+import { PropertyPaneEnhancementsReduxState } from "reducers/uiReducers/propertyPaneEnhancementsReducer";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
-const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
-  state.ui.propertyPane;
+const getPropertyPaneState = (state: AppState): PropertyPaneReduxState => state.ui.propertyPane;
 
-const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
-  state.entities.canvasWidgets;
+const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState => state.entities.canvasWidgets;
 
 export const getCurrentWidgetId = createSelector(
   getPropertyPaneState,
@@ -28,32 +23,28 @@ export const getCurrentWidgetId = createSelector(
 export const getCurrentWidgetProperties = createSelector(
   getCanvasWidgets,
   getPropertyPaneState,
-  (
-    widgets: CanvasWidgetsReduxState,
-    pane: PropertyPaneReduxState,
-  ): WidgetProps | undefined => {
-    return pane.widgetId && widgets ? widgets[pane.widgetId] : undefined;
+  (widgets: CanvasWidgetsReduxState, pane: PropertyPaneReduxState): WidgetProps | undefined => {
+    return get(widgets, `${pane.widgetId}`);
   },
 );
 
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
   getDataTree,
-  (
-    widget: WidgetProps | undefined,
-    evaluatedTree: DataTree,
-  ): WidgetProps | undefined => {
+  (widget: WidgetProps | undefined, evaluatedTree: DataTree): WidgetProps | undefined => {
     if (!widget) return undefined;
     const evaluatedWidget = find(evaluatedTree, {
       widgetId: widget.widgetId,
     }) as DataTreeWidget;
     const widgetProperties = { ...widget };
+
     if (evaluatedWidget) {
       if (evaluatedWidget.evaluatedValues) {
         widgetProperties.evaluatedValues = {
           ...evaluatedWidget.evaluatedValues,
         };
       }
+
       if (evaluatedWidget.invalidProps) {
         const { invalidProps, validationMessages } = evaluatedWidget;
         widgetProperties.invalidProps = invalidProps;
@@ -69,19 +60,28 @@ export const getIsPropertyPaneVisible = createSelector(
   (pane: PropertyPaneReduxState) => !!(pane.isVisible && pane.widgetId),
 );
 
-const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
-const getEnhancementsMap = (state: AppState) => state.ui.enhancementsMap;
-const getPropertyPaneEnhancements = createSelector(
+/**
+ * return the redux state of enhancmentsMap
+ *
+ * @param state
+ */
+export const getEnhancementsMap = (state: AppState) => state.ui.propertyPaneEnhancementsMap;
+
+/**
+ * returns the enchancments of current widget from widget config
+ * enchancmentsMap is the object key-value pair of widgetId => widgetType
+ *
+ *  for e.g: { "mywidgetId": "LIST_WIDGET" }
+ */
+export const getPropertyPaneEnhancements = createSelector(
   getEnhancementsMap,
   getCurrentWidgetId,
-  (enhancementsMap: { [widgetId: string]: WidgetType[] }, widgetId?: string) => {
-    if (widgetId) {
-      const widgetconfigType = enhancementsMap[widgetId];
-      if(widgetConfigType) {
-        const config = ...(WidgetConfigResponse as any).config[widget.type];
-        return config.propertyPaneEnhancements;
-      }
-    }
-    return;
+  (enhancementsMap: PropertyPaneEnhancementsReduxState, widgetId?: string) => {
+    // if there is no widget id ( that's means, no widget property pane is selected)
+    if (!widgetId) return;
+
+    const widgetType = get(enhancementsMap, `${widgetId}`);
+
+    return get(WidgetConfigResponse, `config.${widgetType}.propertyPaneEnhancements`);
   },
 );
