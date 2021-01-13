@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "appsmith.name" . }}-frontend
+  labels:
+    app: {{ template "appsmith.fullname" . }}
+    chart: {{ template "appsmith.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    app: {{ template "appsmith.name" . }}-frontend
+  type: ClusterIP
+  ports:
+  - port: {{ .Values.frontend.port }}
+    targetPort:  {{ .Values.frontend.port }}
+    name: http

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ template "appsmith.name" . }}-frontend
+    chart: {{ template "appsmith.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  name: {{ template "appsmith.name" . }}-frontend
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "appsmith.name" . }}-frontend
+  replicas: {{ .Values.frontend.replicas }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "appsmith.name" . }}-frontend
+    spec:
+      containers:
+      - name: front
+        image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+        {{- with .Values.frontend.imagePullSecrets }}
+        imagePullSecrets:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        imagePullPolicy: {{ .Values.frontend.imagePullPolicy }}
+        ports:
+          - containerPort: {{ .Values.frontend.port }}
+        envFrom:
+          - configMapRef:
+              name: {{ template "appsmith.fullname" . }}-application-config
+        volumeMounts:
+          - name: nginx-config-template
+            mountPath: /nginx.conf.template
+            subPath: nginx.conf.template
+      volumes:
+      - name: nginx-config-template
+        configMap:
+          name: {{ template "appsmith.fullname" . }}-nginx-config-template

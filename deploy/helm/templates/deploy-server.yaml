@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ template "appsmith.name" . }}-server
+    chart: {{ template "appsmith.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  name: {{ template "appsmith.name" . }}-server
+spec:
+  replicas: {{ .Values.server.replicas }}
+  selector:
+    matchLabels:
+        app: appsmith-server
+  template:
+    metadata:
+      labels:
+        app: appsmith-server
+    spec:
+      containers:
+      - envFrom:
+          - configMapRef:
+              name: {{ template "appsmith.fullname" . }}-application-config
+          - secretRef:
+              name: {{ template "appsmith.fullname" . }}-encryption-secret
+        {{- with .Values.server.imagePullSecrets }}
+        imagePullSecrets:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
+        imagePullPolicy: {{ .Values.server.imagePullPolicy }}
+        name: appsmith-server
+        ports:
+          - containerPort: {{ .Values.server.targetPort }}

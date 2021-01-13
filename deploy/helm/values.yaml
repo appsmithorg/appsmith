@@ -1,0 +1,72 @@
+# Default values for appsmith.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+AppsmithConfiguration:
+  APPSMITH_DISABLE_TELEMETRY: false
+  APPSMITH_SIGNUP_DISABLED: false
+  APPSMITH_MAIL_ENABLED: false
+  # APPSMITH_MAIL_FROM: YOUR_VERIFIED_EMAIL_ID
+  # APPSMITH_REPLY_TO: YOUR_VERIFIED_EMAIL_ID
+  # APPSMITH_MAIL_HOST: email-smtp.us-east-2.amazonaws.com
+  # APPSMITH_MAIL_PORT: 587
+  # APPSMITH_MAIL_SMTP_TLS_ENABLED: true
+  # APPSMITH_MAIL_USERNAME: YOUR_SES_USER_NAME
+  # APPSMITH_MAIL_PASSWORD: YOUR_SES_PASSWORD
+  # APPSMITH_MAIL_SMTP_AUTH: true
+  # APPSMITH_OAUTH2_ALLOWED_DOMAINS: ""
+  # APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ""
+  # APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ""
+
+AppsmithEncription:
+  APPSMITH_ENCRYPTION_PASSWORD: "password"
+  APPSMITH_ENCRYPTION_SALT: "salt"
+
+frontend:
+  port: 443
+  replicas: 1
+  image:
+    repository: appsmith/appsmith-editor
+    imagePullPolicy: IfNotPresent
+    tag: "latest"
+    imagePullSecrets: []
+
+server:
+  port: 80
+  targetPort: 8080
+  replicas: 1
+  image:
+    repository: appsmith/appsmith-server
+    imagePullPolicy: IfNotPresent
+    tag: "latest"
+    imagePullSecrets: []
+
+redis:
+  enabled: true
+  usePassword: yes
+  password: "password"
+  cluster:
+    enabled: false
+
+mongodb:
+  enabled: true
+  auth:
+    database: "appsmith"
+    username: "appsmith"
+    rootPassword: "password"
+    password: "password"
+
+ingress:
+  enabled: false
+  annotations:
+    # kubernetes.io/ingress.class: "nginx"
+    # cert-manager.io/issuer: "letsencrypt-production"
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  path: /
+  hosts: []
+    # - domain.tld
+  tls: []
+    # - secretName: appsmith-cert
+    #   hosts:
+    #     - domain.tld
