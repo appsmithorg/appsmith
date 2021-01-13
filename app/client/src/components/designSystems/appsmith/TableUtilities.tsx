@@ -527,7 +527,6 @@ export const renderCell = (
 };
 
 interface RenderActionProps {
-  isSelected: boolean;
   columnActions?: ColumnAction[];
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }
@@ -541,7 +540,6 @@ export const renderActions = (props: RenderActionProps) => {
           <TableAction
             key={index}
             action={action}
-            isSelected={props.isSelected}
             onCommandClick={props.onCommandClick}
           />
         );
@@ -551,7 +549,6 @@ export const renderActions = (props: RenderActionProps) => {
 };
 
 const TableAction = (props: {
-  isSelected: boolean;
   action: ColumnAction;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }) => {
@@ -562,9 +559,7 @@ const TableAction = (props: {
   return (
     <ActionWrapper
       onClick={(e) => {
-        if (props.isSelected) {
-          e.stopPropagation();
-        }
+        e.stopPropagation();
       }}
     >
       <Button

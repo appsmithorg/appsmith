@@ -191,9 +191,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           width: 150,
           minWidth: 60,
           draggable: true,
-          Cell: (props: any) => {
+          Cell: () => {
             return renderActions({
-              isSelected: props.row.isSelected,
               columnActions: columnActions,
               onCommandClick: this.onCommandClick,
             });
