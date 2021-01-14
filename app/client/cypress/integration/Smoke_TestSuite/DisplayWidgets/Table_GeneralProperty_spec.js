@@ -86,7 +86,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(5000);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(41, 204, 163)");
-    cy.get(widgetsPage.textColor).type("purple",{ force : true });
+    cy.get(widgetsPage.textColor).type("purple", { force: true });
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
     cy.get(widgetsPage.backgroundColor)
@@ -100,7 +100,9 @@ describe("Table Widget property pane feature validation", function() {
       "background",
       "rgb(41, 204, 163) none repeat scroll 0% 0% / auto padding-box border-box",
     );
-    cy.get(widgetsPage.backgroundColor).type("purple",{force : true });
+    cy.get(widgetsPage.backgroundColor)
+      .clear({ force: true })
+      .type("purple", { force: true });
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
       "1",
