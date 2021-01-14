@@ -694,6 +694,7 @@ export const TableHeaderCell = (props: {
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: (columnIndex: number, columnWidth: string) => void;
   column: any;
+  isResizingColumn: boolean;
 }) => {
   const { column } = props;
   const [renameColumn, toggleRenameColumn] = React.useState(false);
@@ -702,7 +703,7 @@ export const TableHeaderCell = (props: {
     toggleRenameColumn(false);
   };
   const handleSortColumn = () => {
-    if (column.isResizing) return;
+    if (props.isResizingColumn) return;
     let columnIndex = props.columnIndex;
     if (props.isAscOrder === true) {
       columnIndex = -1;

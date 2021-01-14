@@ -86,6 +86,7 @@ export const Table = (props: TableProps) => {
     prepareRow,
     page,
     pageOptions,
+    state,
   } = useTable(
     {
       columns: columns,
@@ -103,6 +104,10 @@ export const Table = (props: TableProps) => {
     usePagination,
     useRowSelect,
   );
+  const isResizingColumn = React.useRef(false);
+  if (state.columnResizing.isResizingColumn) {
+    isResizingColumn.current = true;
+  }
   let startIndex = currentPageIndex * props.pageSize;
   let endIndex = startIndex + props.pageSize;
   if (props.serverSidePaginationEnabled) {
@@ -180,6 +185,7 @@ export const Table = (props: TableProps) => {
                       handleResizeColumn={props.handleResizeColumn}
                       sortTableColumn={props.sortTableColumn}
                       isAscOrder={column.isAscOrder}
+                      isResizingColumn={isResizingColumn.current}
                     />
                   );
                 })}
