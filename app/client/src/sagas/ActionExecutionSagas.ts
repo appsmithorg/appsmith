@@ -295,7 +295,6 @@ export function* evaluateActionParams(
   executionParams?: Record<string, any> | string,
 ) {
   if (_.isNil(bindings) || bindings.length === 0) return [];
-  // console.log("Main", { bindings });
 
   // Evaluated all bindings of the actions. Pass executionParams if any
   const values: any = yield call(
@@ -303,8 +302,6 @@ export function* evaluateActionParams(
     bindings,
     executionParams,
   );
-
-  console.log({ values });
 
   // Convert to object and transform non string values
   const actionParams: Record<string, string> = {};

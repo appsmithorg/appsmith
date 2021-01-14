@@ -73,7 +73,6 @@ const ACTION_EXECUTION_REDUX_ACTIONS = [
 ];
 
 function* setWidgetsLoadingSaga() {
-  console.log("loadingEntities", "aaya");
   const inverseMap = yield select(getEvaluationInverseDependencyMap);
   const entityDependencyMap = createEntityDependencyMap(inverseMap);
   const actions = yield select(getActions);

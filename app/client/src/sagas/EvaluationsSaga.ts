@@ -13,10 +13,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import {
-  getDataTree,
-  getUnevaluatedDataTree,
-} from "selectors/dataTreeSelectors";
+import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { GracefulWorkerService } from "../utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
@@ -108,13 +105,10 @@ export function* evaluateActionBindings(
   bindings: string[],
   executionParams: Record<string, any> | string = {},
 ) {
-  const dataTree = yield select(getDataTree);
-
   const workerResponse = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS,
     {
-      dataTree,
       bindings,
       executionParams,
     },

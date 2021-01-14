@@ -116,48 +116,15 @@ ctx.addEventListener(
         };
       }
       case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {
-        const { bindings, dataTree, executionParams } = requestData;
+        const { bindings, executionParams } = requestData;
         if (!dataTreeEvaluator) {
           return { value: undefined, errors: [] };
         }
 
-        // We might get execution params as an object or as a string.
-        // If the user has added a proper object (valid case) it will be an object
-        // If they have not added any execution params or not an object
-        // it would be a string (invalid case)
-        let evaluatedExecutionParams: Record<string, any> = {};
-        if (executionParams && _.isObject(executionParams)) {
-          evaluatedExecutionParams = dataTreeEvaluator.getDynamicValue(
-            `{{${JSON.stringify(executionParams)}}}`,
-            dataTree,
-            false,
-          );
-        }
-        const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
-
-        // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
-        const bindingsForExecutionParams: string[] = bindings.map(
-          (binding: string) =>
-            binding.replace(
-              EXECUTION_PARAM_REFERENCE_REGEX,
-              EXECUTION_PARAM_KEY,
-            ),
+        const values = dataTreeEvaluator.evaluateActionBindings(
+          bindings,
+          executionParams,
         );
-
-        const dataTreeWithExecutionParams = Object.assign(dataTree, {
-          [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
-        });
-
-        const values = bindingsForExecutionParams.map((binding) => {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          return dataTreeEvaluator.getDynamicValue(
-            `{{${binding}}}`,
-            dataTreeWithExecutionParams,
-            false,
-          );
-        });
-        console.log({ values });
 
         const errors = dataTreeEvaluator.errors;
         dataTreeEvaluator.clearErrors();
@@ -1231,6 +1198,45 @@ export class DataTreeEvaluator {
       }
     });
     return possibleRefs;
+  }
+
+  evaluateActionBindings(
+    bindings: string[],
+    executionParams?: Record<string, unknown> | string,
+  ) {
+    // We might get execution params as an object or as a string.
+    // If the user has added a proper object (valid case) it will be an object
+    // If they have not added any execution params or not an object
+    // it would be a string (invalid case)
+    let evaluatedExecutionParams: Record<string, any> = {};
+    if (executionParams && _.isObject(executionParams)) {
+      evaluatedExecutionParams = this.getDynamicValue(
+        `{{${JSON.stringify(executionParams)}}}`,
+        this.evalTree,
+        false,
+      );
+    }
+    const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
+
+    // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
+    const bindingsForExecutionParams: string[] = bindings.map(
+      (binding: string) =>
+        binding.replace(EXECUTION_PARAM_REFERENCE_REGEX, EXECUTION_PARAM_KEY),
+    );
+
+    const dataTreeWithExecutionParams = Object.assign({}, this.evalTree, {
+      [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
+    });
+
+    return bindingsForExecutionParams.map((binding) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return this.getDynamicValue(
+        `{{${binding}}}`,
+        dataTreeWithExecutionParams,
+        false,
+      );
+    });
   }
 
   clearErrors() {
