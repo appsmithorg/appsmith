@@ -36,6 +36,7 @@ import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 import { EXECUTION_PARAM_KEY } from "../constants/ActionConstants";
 import { Action } from "redux";
+import _ from "lodash";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -228,6 +229,22 @@ const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.BATCH_UPDATES_SUCCESS,
 ];
 
+const shouldProcessAction = (action: ReduxAction<unknown>) => {
+  // debugger;
+  if (
+    action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&
+    Array.isArray(action.payload)
+  ) {
+    const batchedActionTypes = action.payload.map(
+      (batchedAction) => batchedAction.type,
+    );
+    return (
+      _.intersection(EVALUATE_REDUX_ACTIONS, batchedActionTypes).length > 0
+    );
+  }
+  return true;
+};
+
 function evalQueueBuffer() {
   let canTake = false;
   let postEvalActions: any = [];
@@ -248,7 +265,11 @@ function evalQueueBuffer() {
   };
 
   const put = (action: EvaluationReduxAction<unknown | unknown[]>) => {
+    if (!shouldProcessAction(action)) {
+      return;
+    }
     canTake = true;
+
     // TODO: If the action is the same as before, we can send only one and ignore duplicates.
     if (action.postEvalActions) {
       postEvalActions.push(...action.postEvalActions);
@@ -280,7 +301,9 @@ function* evaluationChangeListenerSaga() {
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
       evtActionChannel,
     );
-    yield call(evaluateTreeSaga, action.postEvalActions);
+    if (shouldProcessAction(action)) {
+      yield call(evaluateTreeSaga, action.postEvalActions);
+    }
   }
   // TODO(hetu) need an action to stop listening and evaluate (exit app)
 }
