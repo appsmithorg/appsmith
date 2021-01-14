@@ -16,11 +16,11 @@ import {
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 import { OccupiedSpace } from "constants/editorConstants";
-import { getDataTree } from "selectors/dataTreeSelectors";
+import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 import _ from "lodash";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { getActions } from "sagas/selectors";
+import { getActions } from "selectors/entitiesSelector";
 
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -117,9 +117,11 @@ export const getWidgetCards = createSelector(
 export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
   getDataTree,
+  getLoadingEntities,
   (
     canvasWidgets: CanvasWidgetsReduxState,
     evaluatedDataTree,
+    loadingEntities,
   ): ContainerWidgetProps<WidgetProps> => {
     PerformanceTracker.startTracking(
       PerformanceTransactionName.CONSTRUCT_CANVAS_DSL,
@@ -135,6 +137,9 @@ export const getCanvasWidgetDsl = createSelector(
       } else {
         widgets[widgetKey] = createLoadingWidget(canvasWidget);
       }
+      widgets[widgetKey].isLoading = loadingEntities.has(
+        canvasWidget.widgetName,
+      );
     });
 
     const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
