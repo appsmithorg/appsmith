@@ -120,15 +120,13 @@ interface ColorPickerProps {
 const ColorPicker = (props: ColorPickerProps) => {
   const [color, setColor] = React.useState(props.color);
   const debouncedOnChange = React.useCallback(
-    debounce(props.changeColor, 1000),
-    [],
+    debounce(props.changeColor, 500),
+    [props.changeColor],
   );
   const handleChangeColor = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    if (value === "" || (/^#[0-9A-F]*$/i.test(value) && value.length <= 7)) {
-      setColor(value);
-      debouncedOnChange(value);
-    }
+    debouncedOnChange(value);
+    setColor(value);
   };
   return (
     <Popover
