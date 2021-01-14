@@ -94,7 +94,7 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   });
   yield put({
     type: ReduxActionTypes.SET_EVALUATION_DEPENDENCY_MAP,
-    payload: dependencies,
+    payload: { inverseDependencyMap: dependencies },
   });
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -205,10 +205,8 @@ const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.DELETE_ACTION_SUCCESS,
   ReduxActionTypes.COPY_ACTION_SUCCESS,
   ReduxActionTypes.MOVE_ACTION_SUCCESS,
-  ReduxActionTypes.RUN_ACTION_REQUEST,
   ReduxActionTypes.RUN_ACTION_SUCCESS,
   ReduxActionErrorTypes.RUN_ACTION_ERROR,
-  ReduxActionTypes.EXECUTE_API_ACTION_REQUEST,
   ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
   ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
   // App Data

@@ -91,7 +91,7 @@ ctx.addEventListener(
           // We need to clean it to remove any possible functions inside the tree.
           // If functions exist, it will crash the web worker
           dataTree = JSON.parse(JSON.stringify(dataTree));
-          dependencies = dataTreeEvaluator.dependencyMap;
+          dependencies = dataTreeEvaluator.inverseDependencyMap;
           errors = dataTreeEvaluator.errors;
           dataTreeEvaluator.clearErrors();
         } catch (e) {
@@ -356,11 +356,6 @@ export class DataTreeEvaluator {
     const evaluatedTree = this.evaluateTree(this.evalTree, subTreeSortOrder);
     const evalStop = performance.now();
 
-    // Set widgets loading
-    const loadingStart = performance.now();
-    const loadingSetTree = this.updateWidgetLoadingStateSaga(evaluatedTree);
-    const loadingStop = performance.now();
-
     const validateStart = performance.now();
     // Validate and parse updated widgets
     const updatedWidgets = new Set(
@@ -369,7 +364,7 @@ export class DataTreeEvaluator {
 
     const validatedTree = getValidatedTree(
       this.widgetConfigMap,
-      loadingSetTree,
+      evaluatedTree,
       updatedWidgets,
     );
     const validateEnd = performance.now();
@@ -390,7 +385,6 @@ export class DataTreeEvaluator {
         calculateSortOrderStop - calculateSortOrderStart
       ).toFixed(2),
       evaluate: (evalStop - evalStart).toFixed(2),
-      setLoading: (loadingStop - loadingStart).toFixed(2),
       validate: (validateEnd - validateStart).toFixed(2),
     };
     LOGS.push({ timeTakenForSubTreeEval });
@@ -1239,37 +1233,6 @@ export class DataTreeEvaluator {
     return possibleRefs;
   }
 
-  updateWidgetLoadingStateSaga(dataTree: DataTree) {
-    const entityDependencyMap = createEntityDependencyMap(
-      this.inverseDependencyMap,
-    );
-    const isLoadingActions: string[] = [];
-    const widgetNames: string[] = [];
-
-    Object.entries(dataTree).forEach(([entityName, entity]) => {
-      if (isWidget(entity)) {
-        widgetNames.push(entityName);
-      } else if (isAction(entity) && entity.isLoading) {
-        isLoadingActions.push(entityName);
-      }
-    });
-    const loadingEntities = getEntityDependencies(
-      isLoadingActions,
-      entityDependencyMap,
-      new Set<string>(),
-    );
-
-    widgetNames.forEach((widgetName) => {
-      _.set(
-        dataTree,
-        [widgetName, "isLoading"],
-        loadingEntities.has(widgetName),
-      );
-    });
-
-    return dataTree;
-  }
-
   clearErrors() {
     this.errors = [];
   }
@@ -1321,60 +1284,6 @@ const extractReferencesFromBinding = (
     }
   });
   return _.uniq(subDeps);
-};
-
-const getEntityDependencies = (
-  entityNames: string[],
-  inverseMap: DependencyMap,
-  visited: Set<string>,
-): Set<string> => {
-  const dependantsEntities: Set<string> = new Set();
-  entityNames.forEach((entityName) => {
-    if (entityName in inverseMap) {
-      inverseMap[entityName].forEach((dependency) => {
-        const dependantEntityName = dependency.split(".")[0];
-        // Example: For a dependency chain that looks like Dropdown1.selectedOptionValue -> Table1.tableData -> Text1.text -> Dropdown1.options
-        // Here we're operating on
-        // Dropdown1 -> Table1 -> Text1 -> Dropdown1
-        // It looks like a circle, but isn't
-        // So we need to mark the visited nodes and avoid infinite recursion in case we've already visited a node once.
-        if (visited.has(dependantEntityName)) {
-          return;
-        }
-        visited.add(dependantEntityName);
-        dependantsEntities.add(dependantEntityName);
-        const childDependencies = getEntityDependencies(
-          Array.from(dependantsEntities),
-          inverseMap,
-          visited,
-        );
-        childDependencies.forEach((entityName) => {
-          dependantsEntities.add(entityName);
-        });
-      });
-    }
-  });
-  return dependantsEntities;
-};
-
-const createEntityDependencyMap = (dependencyMap: DependencyMap) => {
-  const entityDepMap: DependencyMap = {};
-  Object.entries(dependencyMap).forEach(([dependant, dependencies]) => {
-    const entityDependant = dependant.split(".")[0];
-    const existing = entityDepMap[entityDependant] || [];
-    entityDepMap[entityDependant] = existing.concat(
-      dependencies
-        .map((dep) => {
-          const value = dep.split(".")[0];
-          if (value !== entityDependant) {
-            return value;
-          }
-          return undefined;
-        })
-        .filter((value) => typeof value === "string") as string[],
-    );
-  });
-  return entityDepMap;
 };
 
 // TODO cryptic comment below. Dont know if we still need this. Duplicate function

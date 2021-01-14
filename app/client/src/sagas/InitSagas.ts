@@ -122,6 +122,7 @@ function* initializeEditorSaga(
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });
   } catch (e) {
+    console.error(e);
     yield put({
       type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
       payload: {
