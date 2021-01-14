@@ -7,7 +7,10 @@ import FormLabel from "components/editorComponents/FormLabel";
 import FIELD_VALUES from "constants/FieldExpectedValue";
 import HelperTooltip from "components/editorComponents/HelperTooltip";
 import Icon, { IconSize } from "components/ads/Icon";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import {
+  CodeEditorBorder,
+  EditorTheme,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import Text, { Case, TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 
@@ -88,6 +91,8 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                     placeholder="Key"
                     showLightningMenu={false}
                     dataTreePath={`${props.dataTreePath}[${index}].key`}
+                    hoverInteraction={true}
+                    border={CodeEditorBorder.BOTTOM_SIDE}
                   />
                 </div>
 
@@ -100,6 +105,8 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                       placeholder="Value"
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
                       expected={FIELD_VALUES.API_ACTION.params}
+                      hoverInteraction={true}
+                      border={CodeEditorBorder.BOTTOM_SIDE}
                     />
                   </div>
                 )}
@@ -135,6 +142,8 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                         )
                       }
                       {...otherProps}
+                      hoverInteraction={true}
+                      border={CodeEditorBorder.BOTTOM_SIDE}
                     />
                   </div>
                 )}
