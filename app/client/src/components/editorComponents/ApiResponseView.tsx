@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
-import FormRow from "./FormRow";
 import { BaseText } from "components/designSystems/blueprint/TextComponent";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import styled from "styled-components";

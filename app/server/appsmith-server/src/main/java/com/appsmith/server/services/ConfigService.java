@@ -10,6 +10,8 @@ public interface ConfigService extends CrudService<Config, String> {
 
     Mono<Config> updateByName(String name, Config config);
 
+    Mono<String> getInstanceId();
+
     Mono<String> getTemplateOrganizationId();
 
     Flux<Application> getTemplateApplications();

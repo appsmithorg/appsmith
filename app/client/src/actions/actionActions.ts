@@ -7,9 +7,7 @@ import {
 import { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 
-export const createActionRequest = (
-  payload: Partial<Action> & { eventData: any },
-) => {
+export const createActionRequest = (payload: Partial<Action>) => {
   return {
     type: ReduxActionTypes.CREATE_ACTION_INIT,
     payload,

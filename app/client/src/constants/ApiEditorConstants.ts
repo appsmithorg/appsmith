@@ -1,4 +1,4 @@
-import { RestAction } from "entities/Action";
+import { ApiActionConfig } from "entities/Action";
 import { DEFAULT_ACTION_TIMEOUT } from "constants/ApiConstants";
 import { zipObject } from "lodash";
 
@@ -23,19 +23,17 @@ export const HTTP_METHOD_OPTIONS = HTTP_METHODS.map((method) => ({
 
 export const REST_PLUGIN_PACKAGE_NAME = "restapi-plugin";
 
-export const DEFAULT_API_ACTION: Partial<RestAction> = {
-  actionConfiguration: {
-    timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
-    httpMethod: HTTP_METHODS[0],
-    headers: [
-      { key: "", value: "" },
-      { key: "", value: "" },
-    ],
-    queryParameters: [
-      { key: "", value: "" },
-      { key: "", value: "" },
-    ],
-  },
+export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
+  timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
+  httpMethod: HTTP_METHODS[0],
+  headers: [
+    { key: "", value: "" },
+    { key: "", value: "" },
+  ],
+  queryParameters: [
+    { key: "", value: "" },
+    { key: "", value: "" },
+  ],
 };
 
 export const PLUGIN_TYPE_API = "API";

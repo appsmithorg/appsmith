@@ -7,20 +7,19 @@ import {
 import { ActionResponse } from "api/ActionAPI";
 import { ExecuteErrorPayload } from "constants/ActionConstants";
 import _ from "lodash";
-import { RapidApiAction, RestAction } from "entities/Action";
+import { Action } from "entities/Action";
 import { UpdateActionPropertyActionPayload } from "actions/actionActions";
 import produce from "immer";
-import { Datasource } from "api/DatasourcesApi";
 
 export interface ActionData {
   isLoading: boolean;
-  config: RestAction | RapidApiAction;
+  config: Action;
   data?: ActionResponse;
 }
 export type ActionDataState = ActionData[];
 export interface PartialActionData {
   isLoading: boolean;
-  config: Partial<RestAction | RapidApiAction>;
+  config: { id: string };
   data?: ActionResponse;
 }
 
@@ -29,7 +28,7 @@ const initialState: ActionDataState = [];
 const actionsReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_ACTIONS_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction[]>,
+    action: ReduxAction<Action[]>,
   ): ActionDataState => {
     return action.payload.map((action) => {
       const foundAction = state.find((currentAction) => {
@@ -44,7 +43,7 @@ const actionsReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction[]>,
+    action: ReduxAction<Action[]>,
   ): ActionDataState =>
     action.payload.map((a) => ({
       isLoading: false,
@@ -52,13 +51,13 @@ const actionsReducer = createReducer(initialState, {
     })),
   [ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction[]>,
+    action: ReduxAction<Action[]>,
   ): ActionDataState => {
     if (action.payload.length > 0) {
       const stateActionMap = _.keyBy(state, "config.id");
       const result: ActionDataState = [];
 
-      action.payload.forEach((actionPayload: RestAction) => {
+      action.payload.forEach((actionPayload: Action) => {
         const stateAction = stateActionMap[actionPayload.id];
         if (stateAction) {
           result.push({
@@ -86,13 +85,13 @@ const actionsReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SUBMIT_CURL_FORM_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction>,
+    action: ReduxAction<Action>,
   ) => state.concat([{ config: action.payload, isLoading: false }]),
   [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR]: () => initialState,
   [ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR]: () => initialState,
   [ReduxActionTypes.CREATE_ACTION_INIT]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction>,
+    action: ReduxAction<Action>,
   ): ActionDataState =>
     state.concat([
       {
@@ -102,7 +101,7 @@ const actionsReducer = createReducer(initialState, {
     ]),
   [ReduxActionTypes.CREATE_ACTION_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction>,
+    action: ReduxAction<Action>,
   ): ActionDataState =>
     state.map((a) => {
       if (
@@ -115,7 +114,7 @@ const actionsReducer = createReducer(initialState, {
     }),
   [ReduxActionTypes.CREATE_ACTION_ERROR]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction>,
+    action: ReduxAction<Action>,
   ): ActionDataState =>
     state.filter(
       (a) =>
@@ -124,7 +123,7 @@ const actionsReducer = createReducer(initialState, {
     ),
   [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<{ data: RestAction }>,
+    action: ReduxAction<{ data: Action }>,
   ): ActionDataState =>
     state.map((a) => {
       if (a.config.id === action.payload.data.id)
@@ -257,7 +256,7 @@ const actionsReducer = createReducer(initialState, {
     }),
   [ReduxActionTypes.MOVE_ACTION_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction>,
+    action: ReduxAction<Action>,
   ): ActionDataState =>
     state.map((a) => {
       if (a.config.id === action.payload.id) {
@@ -306,7 +305,7 @@ const actionsReducer = createReducer(initialState, {
     ),
   [ReduxActionTypes.COPY_ACTION_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction>,
+    action: ReduxAction<Action>,
   ): ActionDataState =>
     state.map((a) => {
       if (
@@ -349,52 +348,6 @@ const actionsReducer = createReducer(initialState, {
           draft[index].config.executeOnLoad = true;
         }
       });
-    });
-  },
-  [ReduxActionTypes.FETCH_DATASOURCES_SUCCESS]: (
-    state: ActionDataState,
-    action: ReduxAction<Datasource[]>,
-  ) => {
-    const datasources = action.payload;
-
-    return state.map((action) => {
-      const datasourceId = action.config.datasource.id;
-      if (datasourceId) {
-        const datasource = datasources.find(
-          (datasource) => datasource.id === datasourceId,
-        );
-
-        return {
-          ...action,
-          config: {
-            ...action.config,
-            datasource: datasource || action.config.datasource, // fallback to original datasource if datasource not available.
-          },
-        };
-      }
-
-      return action;
-    });
-  },
-  [ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS]: (
-    state: ActionDataState,
-    action: ReduxAction<Datasource>,
-  ) => {
-    const datasource = action.payload;
-
-    return state.map((action) => {
-      const datasourceId = action.config.datasource.id;
-      if (datasourceId && datasource.id === datasourceId) {
-        return {
-          ...action,
-          config: {
-            ...action.config,
-            datasource: datasource,
-          },
-        };
-      }
-
-      return action;
     });
   },
 });
