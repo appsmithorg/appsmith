@@ -9,7 +9,6 @@ import {
   EventType,
   ExecuteActionPayload,
   ExecuteActionPayloadEvent,
-  EXECUTION_PARAM_KEY,
   PageAction,
 } from "constants/ActionConstants";
 import * as log from "loglevel";
@@ -81,7 +80,10 @@ import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import { evaluateDynamicTrigger, evaluateSingleValue } from "./EvaluationsSaga";
+import {
+  evaluateDynamicTrigger,
+  evaluateActionBindings,
+} from "./EvaluationsSaga";
 import copy from "copy-to-clipboard";
 
 function* navigateActionSaga(
@@ -259,15 +261,6 @@ const isErrorResponse = (response: ActionApiResponse) => {
   return !response.data.isExecutionSuccess;
 };
 
-export function* evaluateDynamicBoundValueSaga(
-  valueToEvaluate: string,
-  params?: Record<string, unknown>,
-): any {
-  return yield call(evaluateSingleValue, `{{${valueToEvaluate}}}`, params);
-}
-
-const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
-
 /**
  * Api1
  * URL: https://example.com/{{Text1.text}}
@@ -301,31 +294,13 @@ export function* evaluateActionParams(
   bindings: string[] | undefined,
   executionParams?: Record<string, any> | string,
 ) {
-  if (_.isNil(bindings)) return [];
-  // We might get execution params as an object or as a string.
-  // If the user has added a proper object (valid case) it will be an object
-  // If they have not added any execution params or not an object
-  // it would be a string (invalid case)
-  let evaluatedExecutionParams: Record<string, any> = {};
-  if (executionParams && _.isObject(executionParams)) {
-    evaluatedExecutionParams = yield evaluateDynamicBoundValueSaga(
-      JSON.stringify(executionParams),
-    );
-  }
-  // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
-  const bindingsForExecutionParams = bindings.map((binding) =>
-    binding.replace(EXECUTION_PARAM_REFERENCE_REGEX, EXECUTION_PARAM_KEY),
-  );
+  if (_.isNil(bindings) || bindings.length === 0) return [];
 
   // Evaluated all bindings of the actions. Pass executionParams if any
-  const values: any = yield all(
-    bindingsForExecutionParams.map((binding: string) => {
-      return call(
-        evaluateDynamicBoundValueSaga,
-        binding,
-        evaluatedExecutionParams,
-      );
-    }),
+  const values: any = yield call(
+    evaluateActionBindings,
+    bindings,
+    executionParams,
   );
 
   // Convert to object and transform non string values
@@ -764,6 +739,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     }
   } catch (e) {
+    console.error(e);
     yield put(
       executeActionError({
         actionId: pageAction.id,

@@ -13,10 +13,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import {
-  getDataTree,
-  getUnevaluatedDataTree,
-} from "selectors/dataTreeSelectors";
+import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { GracefulWorkerService } from "../utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
@@ -34,7 +31,6 @@ import PerformanceTracker, {
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
-import { EXECUTION_PARAM_KEY } from "../constants/ActionConstants";
 import { Action } from "redux";
 import _ from "lodash";
 
@@ -95,8 +91,8 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
     payload: dataTree,
   });
   yield put({
-    type: ReduxActionTypes.SET_EVALUATION_DEPENDENCY_MAP,
-    payload: dependencies,
+    type: ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
+    payload: { inverseDependencyMap: dependencies },
   });
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -106,27 +102,23 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   }
 }
 
-export function* evaluateSingleValue(
-  binding: string,
-  executionParams: Record<string, any> = {},
+export function* evaluateActionBindings(
+  bindings: string[],
+  executionParams: Record<string, any> | string = {},
 ) {
-  const dataTree = yield select(getDataTree);
-
   const workerResponse = yield call(
     worker.request,
-    EVAL_WORKER_ACTIONS.EVAL_SINGLE,
+    EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS,
     {
-      dataTree: Object.assign({}, dataTree, {
-        [EXECUTION_PARAM_KEY]: executionParams,
-      }),
-      binding,
+      bindings,
+      executionParams,
     },
   );
 
-  const { errors, value } = workerResponse;
+  const { errors, values } = workerResponse;
 
   evalErrorHandler(errors);
-  return value;
+  return values;
 }
 
 export function* evaluateDynamicTrigger(
@@ -208,10 +200,8 @@ const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.DELETE_ACTION_SUCCESS,
   ReduxActionTypes.COPY_ACTION_SUCCESS,
   ReduxActionTypes.MOVE_ACTION_SUCCESS,
-  ReduxActionTypes.RUN_ACTION_REQUEST,
   ReduxActionTypes.RUN_ACTION_SUCCESS,
   ReduxActionErrorTypes.RUN_ACTION_ERROR,
-  ReduxActionTypes.EXECUTE_API_ACTION_REQUEST,
   ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
   ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
   // App Data
