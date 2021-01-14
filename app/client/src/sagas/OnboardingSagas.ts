@@ -1,5 +1,6 @@
 import { GenericApiResponse } from "api/ApiResponses";
-import DatasourcesApi, { Datasource } from "api/DatasourcesApi";
+import DatasourcesApi from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import {
   ReduxActionErrorTypes,

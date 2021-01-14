@@ -29,6 +29,7 @@ import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import log from "loglevel";
 import { ReactTableFilter } from "components/designSystems/appsmith/TableComponent/TableFilters";
 import { TableWidgetProps } from "./TableWidgetConstants";
+import derivedProperties from "./parseDerivedProperties";
 
 import {
   ColumnProperties,
@@ -83,19 +84,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      selectedRow:
-        "{{(()=> { \
-        const selectedRowIndex = this.selectedRowIndex === undefined || Number.isNaN(parseInt(this.selectedRowIndex)) ? -1 : parseInt(this.selectedRowIndex);\
-        const filteredTableData = this.filteredTableData || []; \
-        if(selectedRowIndex === -1) { const emptyRow = {...filteredTableData[0]}; Object.keys(emptyRow).forEach((key) => { emptyRow[key] = ''; }); return emptyRow; } \
-        return {...filteredTableData[selectedRowIndex]};\
-      })()}}",
-      selectedRows:
-        "{{(()=> { \
-        const selectedRowIndices = this.selectedRowIndices || [];\
-        const filteredTableData = this.filteredTableData || []; \
-        return selectedRowIndices.map((ind) => filteredTableData[ind]);\
-      })()}}",
+      selectedRow: `{{(()=>{${derivedProperties.getSelectedRow}})()}}`,
+      selectedRows: `{{(()=>{${derivedProperties.getSelectedRows}})()}}`,
     };
   }
 
@@ -260,11 +250,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     columns: ReactTableColumnProps[],
   ) => {
     const updatedTableData = [];
+    // For each row in the tableData (filteredTableData)
     for (let row = 0; row < tableData.length; row++) {
+      // Get the row object
       const data: { [key: string]: any } = tableData[row];
-      if (data !== null && data !== undefined) {
+      if (data) {
         const tableRow: { [key: string]: any } = {};
+        // For each column in the expected columns of the table
         for (let colIndex = 0; colIndex < columns.length; colIndex++) {
+          // Get the column properties
           const column = columns[colIndex];
           const { accessor } = column;
           let value = data[accessor];
@@ -338,36 +332,102 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return updatedTableData;
   };
 
+  getParsedComputedValues = (value: string | Array<unknown>) => {
+    let computedValues: Array<unknown> = [];
+    if (isString(value)) {
+      try {
+        computedValues = JSON.parse(value);
+      } catch (e) {
+        log.debug("Error parsing column value: ", value);
+      }
+    } else if (Array.isArray(value)) {
+      computedValues = value;
+    } else {
+      log.debug("Error parsing column values:", value);
+    }
+    return computedValues;
+  };
+
   filterTableData = () => {
-    const { searchText, sortedColumn, filters, tableData } = this.props;
+    const {
+      searchText,
+      sortedColumn,
+      filters,
+      tableData,
+      derivedColumns,
+      primaryColumns,
+    } = this.props;
+    console.log("Table log: checking====", { tableData }, { primaryColumns });
     if (!tableData || !tableData.length) {
       return [];
     }
     const derivedTableData: Array<Record<string, unknown>> = [...tableData];
+    // If we've already computed the columns list
     if (this.props.primaryColumns) {
+      // For each column in the table
       for (let i = 0; i < this.props.primaryColumns.length; i++) {
+        // Get the column properties
         const column: ColumnProperties = this.props.primaryColumns[i];
         const columnId = column.id;
-        if (column.computedValue && Array.isArray(column.computedValue)) {
-          try {
-            let computedValues: Array<unknown> = [];
-            if (isString(column.computedValue)) {
-              computedValues = JSON.parse(column.computedValue);
-            } else {
-              computedValues = column.computedValue;
+        let computedValues: Array<unknown> = [];
+
+        if (column.computedValue) {
+          computedValues = this.getParsedComputedValues(column.computedValue);
+        }
+        if (computedValues.length === 0) {
+          if (derivedColumns && derivedColumns.length > 0) {
+            // Find the derived column with the same column id as the current column
+            const derivedColumn = derivedColumns.find(
+              (column: ColumnProperties) => column.id === columnId,
+            );
+            // if such a derived column exists, use it.
+            if (derivedColumn) {
+              console.log("Table log: Assigning derived columns", {
+                derivedColumn,
+              });
+              computedValues = this.getParsedComputedValues(
+                derivedColumn.computedValue,
+              );
             }
-            for (let index = 0; index < computedValues.length; index++) {
-              derivedTableData[index] = {
-                ...derivedTableData[index],
-                [columnId]: computedValues[index],
-              };
-            }
-          } catch (e) {
-            console.log({ e });
           }
+        }
+
+        // // If the column has a `computedValue` property
+        // if (column.computedValue) {
+        //   let computedValues: Array<unknown> = [];
+        //   // If it is a string try to parse it into an array.
+        //   if (isString(column.computedValue)) {
+        //     try {
+        //       computedValues = JSON.parse(column.computedValue);
+        //     } catch (e) {
+        //       log.debug("Error parsing column value:", column.computedValue);
+        //       // computedValues = Array(tableData.length).fill(
+        //       //   column.computedValue,
+        //       // );
+        //     }
+        //     // Else if it already is an array.
+        //   } else if (Array.isArray(column.computedValue)) {
+        //     computedValues = column.computedValue;
+        //     // Else, log an error, as it should always be an array.
+        //   } else {
+        //     // If we have derivedColumns
+
+        //     log.debug(
+        //       "Incorrect values for computed value:",
+        //       column.computedValue,
+        //     );
+        //   }
+        console.log({ computedValues }, { derivedTableData });
+        // Fill the values from the computed values into the table data.
+        for (let index = 0; index < computedValues.length; index++) {
+          derivedTableData[index] = {
+            ...derivedTableData[index],
+            [columnId]: computedValues[index],
+          };
         }
       }
     }
+
     let sortedTableData: any[];
     const columns = this.getTableColumns();
     const searchKey = searchText ? searchText.toUpperCase() : "";
@@ -383,32 +443,36 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     } else {
       sortedTableData = [...derivedTableData];
     }
-    return sortedTableData.filter((item: { [key: string]: any }) => {
-      const searchFound = searchKey
-        ? Object.values(item)
-            .join(", ")
-            .toUpperCase()
-            .includes(searchKey)
-        : true;
-      if (!searchFound) return false;
-      if (!filters || filters.length === 0) return true;
-      const filterOperator: Operator =
-        filters.length >= 2 ? filters[1].operator : OperatorTypes.OR;
-      let filter = filterOperator === OperatorTypes.AND;
-      for (let i = 0; i < filters.length; i++) {
-        const filterValue = compare(
-          item[filters[i].column],
-          filters[i].value,
-          filters[i].condition,
-        );
-        if (filterOperator === OperatorTypes.AND) {
-          filter = filter && filterValue;
-        } else {
-          filter = filter || filterValue;
+    const finalTableData = sortedTableData.filter(
+      (item: { [key: string]: any }) => {
+        const searchFound = searchKey
+          ? Object.values(item)
+              .join(", ")
+              .toUpperCase()
+              .includes(searchKey)
+          : true;
+        if (!searchFound) return false;
+        if (!filters || filters.length === 0) return true;
+        const filterOperator: Operator =
+          filters.length >= 2 ? filters[1].operator : OperatorTypes.OR;
+        let filter = filterOperator === OperatorTypes.AND;
+        for (let i = 0; i < filters.length; i++) {
+          const filterValue = compare(
+            item[filters[i].column],
+            filters[i].value,
+            filters[i].condition,
+          );
+          if (filterOperator === OperatorTypes.AND) {
+            filter = filter && filterValue;
+          } else {
+            filter = filter || filterValue;
+          }
         }
-      }
-      return filter;
-    });
+        return filter;
+      },
+    );
+    // console.log("Table log: checking====", { finalTableData });
+    return finalTableData;
   };
 
   getEmptyRow = () => {
@@ -424,7 +488,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     filteredTableData: Array<Record<string, unknown>>,
     selectedRowIndex?: number,
   ) => {
-    if (selectedRowIndex === undefined || selectedRowIndex === -1) {
+    if (
+      selectedRowIndex === undefined ||
+      selectedRowIndex === -1 ||
+      selectedRowIndex === null
+    ) {
       return this.getEmptyRow();
     }
     return {
@@ -434,7 +502,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getDerivedColumns = (
     derivedColumns: ColumnProperties[],
-    columnLength: number,
+    tableColumnCount: number,
   ) => {
     if (!derivedColumns) return [];
     //update index property of all columns in new derived columns
@@ -442,7 +510,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       derivedColumns?.map((column: ColumnProperties, index: number) => {
         return {
           ...column,
-          index: index + columnLength,
+          index: index + tableColumnCount,
         };
       }) || []
     );
@@ -531,6 +599,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         "dynamicBindingPathList",
         updatedDynamicBindingPathList,
       );
+      console.log("Table log: primary columns: ", { tableColumns });
       super.updateWidgetProperty("primaryColumns", tableColumns);
       const newTableColumnOrder = tableColumns.map(
         (column: ColumnProperties) => column.id,
@@ -545,6 +614,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidMount() {
     const filteredTableData = this.filterTableData();
+    console.log("Table log: UPDATING=====", { filteredTableData });
     this.props.updateWidgetMetaProperty("filteredTableData", filteredTableData);
     setTimeout(() => {
       if (
@@ -589,6 +659,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.filteredTableData === undefined
     ) {
       const filteredTableData = this.filterTableData();
+      console.log("Table log: UPDATING=====", { filteredTableData });
       // Update filteredTableData meta property
       this.props.updateWidgetMetaProperty(
         "filteredTableData",
@@ -696,11 +767,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       ? this.props.selectedRowIndices
       : [];
     const tableColumns = this.getTableColumns();
-
+    console.log("Table log:", { filteredTableData });
+    console.log("Table log:", { tableColumns });
     const transformedData = this.transformData(
       filteredTableData || [],
       tableColumns,
     );
+
+    console.log("Table log:", { transformedData });
     const serverSidePaginationEnabled = (this.props
       .serverSidePaginationEnabled &&
       this.props.serverSidePaginationEnabled) as boolean;

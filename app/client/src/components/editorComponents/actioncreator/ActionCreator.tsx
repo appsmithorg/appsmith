@@ -83,7 +83,7 @@ export const modalGetter = (value: string) => {
   return name;
 };
 
-const stringToJS = (string: string): string => {
+export const stringToJS = (string: string): string => {
   const { stringSegments, jsSnippets } = getDynamicBindings(string);
   const js = stringSegments
     .map((segment, index) => {
@@ -97,7 +97,7 @@ const stringToJS = (string: string): string => {
   return js;
 };
 
-const JSToString = (js: string): string => {
+export const JSToString = (js: string): string => {
   const segments = js.split(" + ");
   return segments
     .map((segment) => {
@@ -185,40 +185,6 @@ const enumTypeGetter = (
     const args = argsStringToArray(matches[0][2]);
     const arg = args[argNum];
     return arg ? arg.trim() : defaultValue;
-  }
-  return defaultValue;
-};
-
-const objectTypeSetter = (
-  obj: Object,
-  currentValue: string,
-  argNum: number,
-): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  let args: string[] = [];
-  if (matches.length) {
-    args = argsStringToArray(matches[0][2]);
-    args[argNum] = JSON.stringify(obj);
-  }
-  const result = currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
-  return result;
-};
-
-const objectTypeGetter = (
-  value: string,
-  argNum: number,
-  defaultValue = undefined,
-): Object | undefined => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
-    const args = argsStringToArray(matches[0][2]);
-    const arg = args[argNum];
-    if (arg) {
-      return JSON.parse(arg.trim());
-    }
   }
   return defaultValue;
 };

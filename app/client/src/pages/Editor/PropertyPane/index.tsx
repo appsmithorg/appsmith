@@ -18,7 +18,9 @@ import { scrollbarDark } from "constants/DefaultTheme";
 import { hidePropertyPane } from "actions/propertyPaneActions";
 import PaneWrapper from "components/editorComponents/PaneWrapper";
 import PropertyPaneView, { UpdatePropertyPayload } from "./PropertyPaneView";
-import PerformanceTracker, { PerformanceTransactionName } from "utils/PerformanceTracker";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 
 /** Styled Components */
 const PropertyPaneWrapper = styled(PaneWrapper)`
@@ -27,7 +29,8 @@ const PropertyPaneWrapper = styled(PaneWrapper)`
   width: ${(props) => props.theme.propertyPane.width}px;
   margin: ${(props) => props.theme.spaces[2]}px;
   box-shadow: 0px 0px 10px ${(props) => props.theme.colors.paneCard};
-  border: ${(props) => props.theme.spaces[5]}px solid ${(props) => props.theme.colors.paneBG};
+  border: ${(props) => props.theme.spaces[5]}px solid
+    ${(props) => props.theme.colors.paneBG};
   border-right: 0;
   overflow-y: auto;
   overflow-x: hidden;
@@ -49,7 +52,7 @@ const StyledPanelStack = styled(PanelStack)`
   position: static;
   &&& .${Classes.PANEL_STACK_VIEW} {
     position: static;
-    overflow-x: hidden;
+    overflow: hidden;
   }
 `;
 
@@ -69,8 +72,15 @@ interface PropertyPaneState {
 }
 
 export interface PropertyPaneEnhancements {
-  additionalAutocomplete?: Record<string, (props: any) => Record<string, unknown>>;
-  beforeChildPropertyUpdate?: (id: string, path: string, value: any) => UpdatePropertyPayload[];
+  additionalAutocomplete?: Record<
+    string,
+    (props: any) => Record<string, unknown>
+  >;
+  beforeChildPropertyUpdate?: (
+    id: string,
+    path: string,
+    value: any,
+  ) => UpdatePropertyPayload[];
 }
 
 /** Components */
@@ -83,10 +93,17 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
       log.debug("Property pane rendered");
       const content = this.renderPropertyPane();
       // Find the widget element in the DOM
-      const el = document.getElementsByClassName(generateClassName(widgetProperties?.widgetId))[0];
+      const el = document.getElementsByClassName(
+        generateClassName(widgetProperties?.widgetId),
+      )[0];
 
       return (
-        <Popper isOpen={true} targetNode={el} zIndex={3} placement="right-start">
+        <Popper
+          isOpen={true}
+          targetNode={el}
+          zIndex={3}
+          placement="right-start"
+        >
           {content}
         </Popper>
       );
@@ -100,7 +117,11 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
    * generating property pane
    */
   renderPropertyPane() {
-    const { widgetProperties, hidePropertyPane, propertyPaneEnhancements } = this.props;
+    const {
+      widgetProperties,
+      hidePropertyPane,
+      propertyPaneEnhancements,
+    } = this.props;
 
     // if there are no widgetProperties, just render a blank property pane wrapper
     if (!widgetProperties) return <PropertyPaneWrapper />;
@@ -126,7 +147,9 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   }
 
   componentDidMount() {
-    PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_PROPERTY_PANE);
+    PerformanceTracker.stopTracking(
+      PerformanceTransactionName.OPEN_PROPERTY_PANE,
+    );
   }
 
   /**
@@ -136,10 +159,13 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
    */
   componentDidUpdate(prevProps: PropertyPaneProps) {
     if (
-      this.props.widgetProperties?.widgetId !== prevProps.widgetProperties?.widgetId &&
+      this.props.widgetProperties?.widgetId !==
+        prevProps.widgetProperties?.widgetId &&
       this.props.widgetProperties?.widgetId !== undefined
     ) {
-      PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_PROPERTY_PANE);
+      PerformanceTracker.stopTracking(
+        PerformanceTransactionName.OPEN_PROPERTY_PANE,
+      );
       if (prevProps.widgetProperties?.widgetId && prevProps.widgetProperties) {
         AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE", {
           widgetType: prevProps.widgetProperties.type,
@@ -155,7 +181,8 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     }
 
     if (
-      this.props.widgetProperties?.widgetId === prevProps.widgetProperties?.widgetId &&
+      this.props.widgetProperties?.widgetId ===
+        prevProps.widgetProperties?.widgetId &&
       this.props.isVisible &&
       !prevProps.isVisible &&
       this.props.widgetProperties !== undefined

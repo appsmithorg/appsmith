@@ -217,10 +217,13 @@ export function* invitedUserSignupSaga(
   }
 }
 
-export function* inviteUser(
-  payload: { email: string; orgId: string; roleName: string },
-  reject: any,
-) {
+type InviteUserPayload = {
+  email: string;
+  orgId: string;
+  roleName: string;
+};
+
+export function* inviteUser(payload: InviteUserPayload, reject: any) {
   const response: ApiResponse = yield callAPI(UserApi.inviteUser, payload);
   const isValidResponse = yield validateResponse(response);
   if (!isValidResponse) {

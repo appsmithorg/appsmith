@@ -28,7 +28,7 @@ class AppRouteWithoutProps extends React.Component<AppRouteProps> {
   }
 
   render() {
-    const { component, currentTheme, ...rest } = this.props;
+    const { currentTheme, ...rest } = this.props;
     if (
       window.location.pathname === "/applications" ||
       window.location.pathname.indexOf("/settings/") !== -1
@@ -38,7 +38,7 @@ class AppRouteWithoutProps extends React.Component<AppRouteProps> {
     } else {
       document.body.style.backgroundColor = currentTheme.colors.appBackground;
     }
-    return <SentryRoute {...rest} component={component} />;
+    return <SentryRoute {...rest} />;
   }
 }
 const mapStateToProps = (state: AppState) => ({

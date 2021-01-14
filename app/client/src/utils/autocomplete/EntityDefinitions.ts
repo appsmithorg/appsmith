@@ -23,7 +23,8 @@ export const entityDefinitions = {
       data = { ...data, ...dataDef };
     }
     return {
-      "!doc": "Actions allow you to connect your widgets to your backend data in a secure manner.",
+      "!doc":
+        "Actions allow you to connect your widgets to your backend data in a secure manner.",
       "!url": "https://docs.appsmith.com/quick-start#connect-your-apis",
       isLoading: "bool",
       data,
@@ -66,13 +67,13 @@ export const entityDefinitions = {
     isVisible: isVisible,
     searchText: "string",
   }),
-  VIDEO_WIDGET: () => ({
+  VIDEO_WIDGET: {
     "!doc":
       "Video widget can be used for playing a variety of URLs, including file paths, YouTube, Facebook, Twitch, SoundCloud, Streamable, Vimeo, Wistia, Mixcloud, and DailyMotion.",
     "!url": "https://docs.appsmith.com/widget-reference/video",
     playState: "number",
     autoPlay: "bool",
-  }),
+  },
   DROP_DOWN_WIDGET: {
     "!doc":
       "Dropdown is used to capture user input/s from a specified list of permitted inputs. A Dropdown can capture a single choice as well as multiple choices",
@@ -92,7 +93,8 @@ export const entityDefinitions = {
     options: "[dropdownOption]",
   },
   IMAGE_WIDGET: {
-    "!doc": "Image widget is used to display images in your app. Images must be either a URL or a valid base64.",
+    "!doc":
+      "Image widget is used to display images in your app. Images must be either a URL or a valid base64.",
     "!url": "https://docs.appsmith.com/widget-reference/image",
     image: "string",
     isVisible: isVisible,
@@ -105,7 +107,8 @@ export const entityDefinitions = {
     text: "string",
   },
   BUTTON_WIDGET: {
-    "!doc": "Buttons are used to capture user intent and trigger actions based on that intent",
+    "!doc":
+      "Buttons are used to capture user intent and trigger actions based on that intent",
     "!url": "https://docs.appsmith.com/widget-reference/button",
     isVisible: isVisible,
     text: "string",
@@ -122,7 +125,8 @@ export const entityDefinitions = {
     isDisabled: "bool",
   },
   CHECKBOX_WIDGET: {
-    "!doc": "Checkbox is a simple UI widget you can use when you want users to make a binary choice",
+    "!doc":
+      "Checkbox is a simple UI widget you can use when you want users to make a binary choice",
     "!url": "https://docs.appsmith.com/widget-reference/checkbox",
     isVisible: isVisible,
     isChecked: "bool",

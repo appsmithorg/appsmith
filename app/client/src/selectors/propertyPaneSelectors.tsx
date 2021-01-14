@@ -11,9 +11,11 @@ import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer"
 import { PropertyPaneEnhancementsReduxState } from "reducers/uiReducers/propertyPaneEnhancementsReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
-const getPropertyPaneState = (state: AppState): PropertyPaneReduxState => state.ui.propertyPane;
+const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
+  state.ui.propertyPane;
 
-const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState => state.entities.canvasWidgets;
+const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
+  state.entities.canvasWidgets;
 
 export const getCurrentWidgetId = createSelector(
   getPropertyPaneState,
@@ -23,7 +25,10 @@ export const getCurrentWidgetId = createSelector(
 export const getCurrentWidgetProperties = createSelector(
   getCanvasWidgets,
   getPropertyPaneState,
-  (widgets: CanvasWidgetsReduxState, pane: PropertyPaneReduxState): WidgetProps | undefined => {
+  (
+    widgets: CanvasWidgetsReduxState,
+    pane: PropertyPaneReduxState,
+  ): WidgetProps | undefined => {
     return get(widgets, `${pane.widgetId}`);
   },
 );
@@ -31,7 +36,10 @@ export const getCurrentWidgetProperties = createSelector(
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
   getDataTree,
-  (widget: WidgetProps | undefined, evaluatedTree: DataTree): WidgetProps | undefined => {
+  (
+    widget: WidgetProps | undefined,
+    evaluatedTree: DataTree,
+  ): WidgetProps | undefined => {
     if (!widget) return undefined;
     const evaluatedWidget = find(evaluatedTree, {
       widgetId: widget.widgetId,
@@ -65,7 +73,8 @@ export const getIsPropertyPaneVisible = createSelector(
  *
  * @param state
  */
-export const getEnhancementsMap = (state: AppState) => state.ui.propertyPaneEnhancementsMap;
+export const getEnhancementsMap = (state: AppState) =>
+  state.ui.propertyPaneEnhancementsMap;
 
 /**
  * returns the enchancments of current widget from widget config
@@ -82,6 +91,9 @@ export const getPropertyPaneEnhancements = createSelector(
 
     const widgetType = get(enhancementsMap, `${widgetId}`);
 
-    return get(WidgetConfigResponse, `config.${widgetType}.propertyPaneEnhancements`);
+    return get(
+      WidgetConfigResponse,
+      `config.${widgetType}.propertyPaneEnhancements`,
+    );
   },
 );
