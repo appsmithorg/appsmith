@@ -3,8 +3,17 @@ import { CANVAS_DEFAULT_HEIGHT_PX } from "constants/AppConstants";
 import { XYCoord } from "react-dnd";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import { WidgetOperation, WidgetOperations, WidgetProps } from "widgets/BaseWidget";
-import { GridDefaults, RenderMode, WidgetType, WidgetTypes } from "constants/WidgetConstants";
+import {
+  WidgetOperation,
+  WidgetOperations,
+  WidgetProps,
+} from "widgets/BaseWidget";
+import {
+  GridDefaults,
+  RenderMode,
+  WidgetType,
+  WidgetTypes,
+} from "constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/editorConstants";
 import defaultTemplate from "templates/default";
@@ -32,12 +41,16 @@ type Rect = {
 const defaultDSL = defaultTemplate;
 
 const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
-  if (dsl.type === WidgetTypes.CONTAINER_WIDGET || dsl.type === WidgetTypes.FORM_WIDGET) {
+  if (
+    dsl.type === WidgetTypes.CONTAINER_WIDGET ||
+    dsl.type === WidgetTypes.FORM_WIDGET
+  ) {
     if (
       !(
         dsl.children &&
         dsl.children.length > 0 &&
-        (dsl.children[0].type === WidgetTypes.CANVAS_WIDGET || dsl.children[0].type === WidgetTypes.FORM_WIDGET)
+        (dsl.children[0].type === WidgetTypes.CANVAS_WIDGET ||
+          dsl.children[0].type === WidgetTypes.FORM_WIDGET)
       )
     ) {
       const canvas = {
@@ -63,7 +76,8 @@ const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       delete canvas.dynamicProperties;
-      if (canvas.children && canvas.children.length > 0) canvas.children = canvas.children.map(updateContainers);
+      if (canvas.children && canvas.children.length > 0)
+        canvas.children = canvas.children.map(updateContainers);
       dsl.children = [{ ...canvas }];
     }
   }
@@ -94,13 +108,18 @@ const chartDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   return currentDSL;
 };
 
-const singleChartDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
+const singleChartDataMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
   currentDSL.children = currentDSL.children?.map((child) => {
     if (child.type === WidgetTypes.CHART_WIDGET) {
       // Check if chart widget has the deprecated singleChartData property
       if (child.hasOwnProperty("singleChartData")) {
         // This is to make sure that the format of the chartData is accurate
-        if (Array.isArray(child.singleChartData) && !child.singleChartData[0].hasOwnProperty("seriesName")) {
+        if (
+          Array.isArray(child.singleChartData) &&
+          !child.singleChartData[0].hasOwnProperty("seriesName")
+        ) {
           child.singleChartData = {
             seriesName: "Series 1",
             data: child.singleChartData || [],
@@ -124,18 +143,25 @@ const mapDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
     if (children.type === WidgetTypes.MAP_WIDGET) {
       if (children.markers) {
-        children.markers = children.markers.map((marker: { lat: any; lng: any; long: any; title: any }) => {
-          return {
-            lat: marker.lat,
-            long: marker.lng || marker.long,
-            title: marker.title,
-          };
-        });
+        children.markers = children.markers.map(
+          (marker: { lat: any; lng: any; long: any; title: any }) => {
+            return {
+              lat: marker.lat,
+              long: marker.lng || marker.long,
+              title: marker.title,
+            };
+          },
+        );
       }
       if (children.defaultMarkers) {
         const defaultMarkers = JSON.parse(children.defaultMarkers);
         children.defaultMarkers = defaultMarkers.map(
-          (marker: { lat: number; lng: number; long: number; title: string }) => {
+          (marker: {
+            lat: number;
+            lng: number;
+            long: number;
+            title: string;
+          }) => {
             return {
               lat: marker.lat,
               long: marker.lng || marker.long,
@@ -173,47 +199,61 @@ const mapDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   return currentDSL;
 };
 
-const tabsWidgetTabsPropertyMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
-  currentDSL.children = currentDSL.children?.filter(Boolean).map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.TABS_WIDGET) {
-      try {
-        const tabs = isString(child.tabs) ? JSON.parse(child.tabs) : child.tabs;
-        const newTabs = tabs.map((tab: any) => {
-          const childForTab = child.children
-            ?.filter(Boolean)
-            .find((tabChild: WidgetProps) => tabChild.tabId === tab.id);
-          if (childForTab) {
-            tab.widgetId = childForTab.widgetId;
-          }
-          return tab;
-        });
-        child.tabs = JSON.stringify(newTabs);
-      } catch (migrationError) {
-        log.debug({ migrationError });
+const tabsWidgetTabsPropertyMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children
+    ?.filter(Boolean)
+    .map((child: WidgetProps) => {
+      if (child.type === WidgetTypes.TABS_WIDGET) {
+        try {
+          const tabs = isString(child.tabs)
+            ? JSON.parse(child.tabs)
+            : child.tabs;
+          const newTabs = tabs.map((tab: any) => {
+            const childForTab = child.children
+              ?.filter(Boolean)
+              .find((tabChild: WidgetProps) => tabChild.tabId === tab.id);
+            if (childForTab) {
+              tab.widgetId = childForTab.widgetId;
+            }
+            return tab;
+          });
+          child.tabs = JSON.stringify(newTabs);
+        } catch (migrationError) {
+          log.debug({ migrationError });
+        }
       }
-    }
-    if (child.children && child.children.length) {
-      child = tabsWidgetTabsPropertyMigration(child);
-    }
-    return child;
-  });
+      if (child.children && child.children.length) {
+        child = tabsWidgetTabsPropertyMigration(child);
+      }
+      return child;
+    });
   return currentDSL;
 };
 
-const dynamicPathListMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
+const dynamicPathListMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map(dynamicPathListMigration);
   }
   if (currentDSL.dynamicBindings) {
-    currentDSL.dynamicBindingPathList = Object.keys(currentDSL.dynamicBindings).map((path) => ({ key: path }));
+    currentDSL.dynamicBindingPathList = Object.keys(
+      currentDSL.dynamicBindings,
+    ).map((path) => ({ key: path }));
     delete currentDSL.dynamicBindings;
   }
   if (currentDSL.dynamicTriggers) {
-    currentDSL.dynamicTriggerPathList = Object.keys(currentDSL.dynamicTriggers).map((path) => ({ key: path }));
+    currentDSL.dynamicTriggerPathList = Object.keys(
+      currentDSL.dynamicTriggers,
+    ).map((path) => ({ key: path }));
     delete currentDSL.dynamicTriggers;
   }
   if (currentDSL.dynamicProperties) {
-    currentDSL.dynamicPropertyPathList = Object.keys(currentDSL.dynamicProperties).map((path) => ({ key: path }));
+    currentDSL.dynamicPropertyPathList = Object.keys(
+      currentDSL.dynamicProperties,
+    ).map((path) => ({ key: path }));
     delete currentDSL.dynamicProperties;
   }
   return currentDSL;
@@ -229,7 +269,8 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.minHeight = CANVAS_DEFAULT_HEIGHT_PX;
     // For the first time the DSL is created, remove one row from the total possible rows
     // to adjust for padding and margins.
-    currentDSL.snapRows = Math.floor(currentDSL.bottomRow / DEFAULT_GRID_ROW_HEIGHT) - 1;
+    currentDSL.snapRows =
+      Math.floor(currentDSL.bottomRow / DEFAULT_GRID_ROW_HEIGHT) - 1;
 
     // Force the width of the canvas to 1224 px
     currentDSL.rightColumn = 1224;
@@ -278,24 +319,47 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   return currentDSL;
 };
 
-export const extractCurrentDSL = (fetchPageResponse: FetchPageResponse): ContainerWidgetProps<WidgetProps> => {
+export const extractCurrentDSL = (
+  fetchPageResponse: FetchPageResponse,
+): ContainerWidgetProps<WidgetProps> => {
   const currentDSL = fetchPageResponse.data.layouts[0].dsl || defaultDSL;
   return transformDSL(currentDSL);
 };
 
-export const getDropZoneOffsets = (colWidth: number, rowHeight: number, dragOffset: XYCoord, parentOffset: XYCoord) => {
+export const getDropZoneOffsets = (
+  colWidth: number,
+  rowHeight: number,
+  dragOffset: XYCoord,
+  parentOffset: XYCoord,
+) => {
   // Calculate actual drop position by snapping based on x, y and grid cell size
-  return snapToGrid(colWidth, rowHeight, dragOffset.x - parentOffset.x, dragOffset.y - parentOffset.y);
+  return snapToGrid(
+    colWidth,
+    rowHeight,
+    dragOffset.x - parentOffset.x,
+    dragOffset.y - parentOffset.y,
+  );
 };
 
 const areIntersecting = (r1: Rect, r2: Rect) => {
-  return !(r2.left >= r1.right || r2.right <= r1.left || r2.top >= r1.bottom || r2.bottom <= r1.top);
+  return !(
+    r2.left >= r1.right ||
+    r2.right <= r1.left ||
+    r2.top >= r1.bottom ||
+    r2.bottom <= r1.top
+  );
 };
 
-export const isDropZoneOccupied = (offset: Rect, widgetId: string, occupied?: OccupiedSpace[]) => {
+export const isDropZoneOccupied = (
+  offset: Rect,
+  widgetId: string,
+  occupied?: OccupiedSpace[],
+) => {
   if (occupied) {
     occupied = occupied.filter((widgetDetails) => {
-      return widgetDetails.id !== widgetId && widgetDetails.parentId !== widgetId;
+      return (
+        widgetDetails.id !== widgetId && widgetDetails.parentId !== widgetId
+      );
     });
     for (let i = 0; i < occupied.length; i++) {
       if (areIntersecting(occupied[i], offset)) {
@@ -330,12 +394,21 @@ export const noCollision = (
   cols?: number,
 ): boolean => {
   if (clientOffset && dropTargetOffset && widget) {
-    const [left, top] = getDropZoneOffsets(colWidth, rowHeight, clientOffset as XYCoord, dropTargetOffset);
+    const [left, top] = getDropZoneOffsets(
+      colWidth,
+      rowHeight,
+      clientOffset as XYCoord,
+      dropTargetOffset,
+    );
     if (left < 0 || top < 0) {
       return false;
     }
-    const widgetWidth = widget.columns ? widget.columns : widget.rightColumn - widget.leftColumn;
-    const widgetHeight = widget.rows ? widget.rows : widget.bottomRow - widget.topRow;
+    const widgetWidth = widget.columns
+      ? widget.columns
+      : widget.rightColumn - widget.leftColumn;
+    const widgetHeight = widget.rows
+      ? widget.rows
+      : widget.bottomRow - widget.topRow;
     const currentOffset = {
       left,
       right: left + widgetWidth,
@@ -356,8 +429,13 @@ export const currentDropRow = (
   draggableItemVerticalOffset: number,
   widget: WidgetProps & Partial<WidgetConfigProps>,
 ) => {
-  const widgetHeight = widget.rows ? widget.rows : widget.bottomRow - widget.topRow;
-  const top = Math.round((draggableItemVerticalOffset - dropTargetVerticalOffset) / dropTargetRowSpace);
+  const widgetHeight = widget.rows
+    ? widget.rows
+    : widget.bottomRow - widget.topRow;
+  const top = Math.round(
+    (draggableItemVerticalOffset - dropTargetVerticalOffset) /
+      dropTargetRowSpace,
+  );
   const currentBottomOffset = top + widgetHeight;
   return currentBottomOffset;
 };
@@ -370,7 +448,12 @@ export const widgetOperationParams = (
   parentRowSpace: number,
   parentWidgetId: string, // parentWidget
 ): WidgetOperationParams => {
-  const [leftColumn, topRow] = getDropZoneOffsets(parentColumnSpace, parentRowSpace, widgetOffset, parentOffset);
+  const [leftColumn, topRow] = getDropZoneOffsets(
+    parentColumnSpace,
+    parentRowSpace,
+    widgetOffset,
+    parentOffset,
+  );
   // If this is an existing widget, we'll have the widgetId
   // Therefore, this is a move operation on drop of the widget
   if (widget.widgetName) {
@@ -407,7 +490,11 @@ export const widgetOperationParams = (
   };
 };
 
-export const updateWidgetPosition = (widget: WidgetProps, leftColumn: number, topRow: number) => {
+export const updateWidgetPosition = (
+  widget: WidgetProps,
+  leftColumn: number,
+  topRow: number,
+) => {
   const newPositions = {
     leftColumn,
     topRow,
@@ -420,8 +507,13 @@ export const updateWidgetPosition = (widget: WidgetProps, leftColumn: number, to
   };
 };
 
-export const getCanvasSnapRows = (bottomRow: number, canExtend: boolean): number => {
-  const totalRows = Math.floor(bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
+export const getCanvasSnapRows = (
+  bottomRow: number,
+  canExtend: boolean,
+): number => {
+  const totalRows = Math.floor(
+    bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  );
 
   // Canvas Widgets do not need to accomodate for widget and container padding.
   // Only when they're extensible
@@ -444,7 +536,9 @@ export const generateWidgetProps = (
   parentRowSpace: number,
   parentColumnSpace: number,
   widgetName: string,
-  widgetConfig: { widgetId: string; renderMode: RenderMode } & Partial<WidgetProps>,
+  widgetConfig: { widgetId: string; renderMode: RenderMode } & Partial<
+    WidgetProps
+  >,
 ): ContainerWidgetProps<WidgetProps> => {
   if (parent) {
     const sizes = {

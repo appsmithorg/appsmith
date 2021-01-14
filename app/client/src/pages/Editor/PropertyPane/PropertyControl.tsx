@@ -11,12 +11,18 @@ import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import FIELD_EXPECTED_VALUE from "constants/FieldExpectedValue";
 import { useDispatch, useSelector } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { setWidgetDynamicProperty, updateWidgetPropertyRequest } from "actions/controlActions";
+import {
+  setWidgetDynamicProperty,
+  updateWidgetPropertyRequest,
+} from "actions/controlActions";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
-import { isPathADynamicProperty, isPathADynamicTrigger } from "utils/DynamicBindingUtils";
+import {
+  isPathADynamicProperty,
+  isPathADynamicTrigger,
+} from "utils/DynamicBindingUtils";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { Position } from "@blueprintjs/core";
@@ -40,9 +46,20 @@ const PropertyControl = memo((props: Props) => {
         propertyName: propertyName,
         propertyState: !isDynamic ? "JS" : "NORMAL",
       });
-      dispatch(setWidgetDynamicProperty(widgetProperties.widgetId, propertyName, !isDynamic));
+      dispatch(
+        setWidgetDynamicProperty(
+          widgetProperties.widgetId,
+          propertyName,
+          !isDynamic,
+        ),
+      );
     },
-    [dispatch, widgetProperties.widgetId, widgetProperties.type, widgetProperties.widgetName],
+    [
+      dispatch,
+      widgetProperties.widgetId,
+      widgetProperties.type,
+      widgetProperties.widgetName,
+    ],
   );
 
   const onPropertyChange = useCallback(
@@ -61,7 +78,11 @@ const PropertyControl = memo((props: Props) => {
           }>
         | undefined = undefined;
       if (props.updateHook) {
-        propertiesToUpdate = props.updateHook(widgetProperties, propertyName, propertyValue);
+        propertiesToUpdate = props.updateHook(
+          widgetProperties,
+          propertyName,
+          propertyValue,
+        );
       }
       if (props.enhancements?.beforeChildPropertyUpdate) {
         // TODO: Concat if exists, else replace
@@ -72,17 +93,19 @@ const PropertyControl = memo((props: Props) => {
         );
       }
       if (propertiesToUpdate) {
-        propertiesToUpdate.forEach(({ propertyPath, propertyValue, widgetId }) => {
-          dispatch(
-            updateWidgetPropertyRequest(
-              widgetId || widgetProperties.widgetId,
-              propertyPath,
-              propertyValue,
-              RenderModes.CANVAS,
-              false,
-            ),
-          );
-        });
+        propertiesToUpdate.forEach(
+          ({ propertyPath, propertyValue, widgetId }) => {
+            dispatch(
+              updateWidgetPropertyRequest(
+                widgetId || widgetProperties.widgetId,
+                propertyPath,
+                propertyValue,
+                RenderModes.CANVAS,
+                false,
+              ),
+            );
+          },
+        );
       }
       dispatch(
         updateWidgetPropertyRequest(
@@ -118,16 +141,25 @@ const PropertyControl = memo((props: Props) => {
   // Do not render the control if it needs to be hidden
   if (
     props.hidden &&
-    props.hidden(_.get(widgetProperties, props.propertyName.substr(0, props.propertyName.lastIndexOf("."))))
+    props.hidden(
+      _.get(
+        widgetProperties,
+        props.propertyName.substr(0, props.propertyName.lastIndexOf(".")),
+      ),
+    )
   ) {
     return null;
   }
 
-  const getPropertyValidation = (propertyName: string): { isValid: boolean; validationMessage?: string } => {
+  const getPropertyValidation = (
+    propertyName: string,
+  ): { isValid: boolean; validationMessage?: string } => {
     let isValid = true;
     let validationMessage = "";
     if (widgetProperties) {
-      isValid = widgetProperties.invalidProps ? !(propertyName in widgetProperties.invalidProps) : true;
+      isValid = widgetProperties.invalidProps
+        ? !(propertyName in widgetProperties.invalidProps)
+        : true;
       validationMessage = widgetProperties.validationMessages
         ? propertyName in widgetProperties.validationMessages
           ? widgetProperties.validationMessages[propertyName]
@@ -141,7 +173,10 @@ const PropertyControl = memo((props: Props) => {
   if (widgetProperties) {
     const propertyValue = _.get(widgetProperties, propertyName);
     const dataTreePath: any = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
-    const evaluatedValue = _.get(widgetProperties, `evaluatedValues.${propertyName}`);
+    const evaluatedValue = _.get(
+      widgetProperties,
+      `evaluatedValues.${propertyName}`,
+    );
 
     const { isValid, validationMessage } = getPropertyValidation(propertyName);
     const config = {
@@ -154,7 +189,9 @@ const PropertyControl = memo((props: Props) => {
       widgetProperties,
       parentPropertyName: propertyName,
       parentPropertyValue: propertyValue,
-      expected: FIELD_EXPECTED_VALUE[widgetProperties.type as WidgetType][propertyName] as any,
+      expected: FIELD_EXPECTED_VALUE[widgetProperties.type as WidgetType][
+        propertyName
+      ] as any,
     };
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
       config.isValid = true;
@@ -164,7 +201,10 @@ const PropertyControl = memo((props: Props) => {
       delete config.expected;
     }
 
-    const isDynamic: boolean = isPathADynamicProperty(widgetProperties, propertyName);
+    const isDynamic: boolean = isPathADynamicProperty(
+      widgetProperties,
+      propertyName,
+    );
     const isConvertible = !!props.isJSConvertible;
     const className = props.label
       .split(" ")
@@ -176,7 +216,11 @@ const PropertyControl = memo((props: Props) => {
         <ControlWrapper
           className={`t--property-control-${className}`}
           key={config.id}
-          orientation={config.controlType === "SWITCH" && !isDynamic ? "HORIZONTAL" : "VERTICAL"}
+          orientation={
+            config.controlType === "SWITCH" && !isDynamic
+              ? "HORIZONTAL"
+              : "VERTICAL"
+          }
         >
           <ControlPropertyLabelContainer>
             <PropertyHelpLabel tooltip={props.helpText} label={label} />
@@ -191,7 +235,10 @@ const PropertyControl = memo((props: Props) => {
             )}
           </ControlPropertyLabelContainer>
           <OnboardingToolTip
-            step={[OnboardingStep.ADD_WIDGET, OnboardingStep.SUCCESSFUL_BINDING]}
+            step={[
+              OnboardingStep.ADD_WIDGET,
+              OnboardingStep.SUCCESSFUL_BINDING,
+            ]}
             show={propertyName === "tableData"}
             position={Position.LEFT_TOP}
             dismissOnOutsideClick={false}

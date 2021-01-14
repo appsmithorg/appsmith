@@ -18,7 +18,10 @@ export interface FetchPageListPayload {
   mode: APP_MODE;
 }
 
-export const fetchPageList = (applicationId: string, mode: APP_MODE): ReduxAction<FetchPageListPayload> => {
+export const fetchPageList = (
+  applicationId: string,
+  mode: APP_MODE,
+): ReduxAction<FetchPageListPayload> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_LIST_INIT,
     payload: {
@@ -45,7 +48,9 @@ export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
   },
 });
 
-export const fetchPageSuccess = (postEvalActions: ReduxAction<unknown>[]): EvaluationReduxAction<unknown> => {
+export const fetchPageSuccess = (
+  postEvalActions: ReduxAction<unknown>[],
+): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_SUCCESS,
     payload: {},
@@ -73,7 +78,9 @@ export const updateCurrentPage = (id: string) => ({
   payload: { id },
 });
 
-export const updateCanvas = (payload: UpdateCanvasPayload): ReduxAction<UpdateCanvasPayload> => {
+export const updateCanvas = (
+  payload: UpdateCanvasPayload,
+): ReduxAction<UpdateCanvasPayload> => {
   return {
     type: ReduxActionTypes.UPDATE_CANVAS,
     payload,
@@ -128,7 +135,11 @@ export const clonePageInit = (pageId: string) => {
   };
 };
 
-export const clonePageSuccess = (pageId: string, pageName: string, layoutId: string) => {
+export const clonePageSuccess = (
+  pageId: string,
+  pageName: string,
+  layoutId: string,
+) => {
   return {
     type: ReduxActionTypes.CLONE_PAGE_SUCCESS,
     payload: {
@@ -218,14 +229,18 @@ export const updateWidget = (
   operation: WidgetOperation,
   widgetId: string,
   payload: any,
-): ReduxAction<WidgetAddChild | WidgetMove | WidgetResize | WidgetDelete | WidgetAddChildren> => {
+): ReduxAction<
+  WidgetAddChild | WidgetMove | WidgetResize | WidgetDelete | WidgetAddChildren
+> => {
   return {
     type: ReduxActionTypes["WIDGET_" + operation],
     payload: { widgetId, ...payload },
   };
 };
 
-export const setUrlData = (payload: UrlDataState): ReduxAction<UrlDataState> => {
+export const setUrlData = (
+  payload: UrlDataState,
+): ReduxAction<UrlDataState> => {
   return {
     type: ReduxActionTypes.SET_URL_DATA,
     payload,
@@ -239,7 +254,9 @@ export const setAppMode = (payload: APP_MODE): ReduxAction<APP_MODE> => {
   };
 };
 
-export const updateAppStore = (payload: Record<string, unknown>): ReduxAction<Record<string, unknown>> => {
+export const updateAppStore = (
+  payload: Record<string, unknown>,
+): ReduxAction<Record<string, unknown>> => {
   return {
     type: ReduxActionTypes.UPDATE_APP_STORE,
     payload,

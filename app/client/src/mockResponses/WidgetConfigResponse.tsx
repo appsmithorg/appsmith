@@ -37,7 +37,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isDefaultClickDisabled: true,
     },
     IMAGE_WIDGET: {
-      defaultImage: "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+      defaultImage:
+        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
       imageShape: "RECTANGLE",
       maxZoomLevel: 1,
       image: "",
@@ -293,7 +294,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       parent?: WidgetProps & { children?: WidgetProps[] },
                     ) => {
                       const iconChild =
-                        widget.children && widget.children.find((child) => child.type === "ICON_WIDGET");
+                        widget.children &&
+                        widget.children.find(
+                          (child) => child.type === "ICON_WIDGET",
+                        );
 
                       if (iconChild && parent) {
                         return [
@@ -454,11 +458,17 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         additionalAutocomplete: {
           currentItem: (props: any) => {
             const obj: any = {};
-            Object.keys(props.items[0]).forEach((key: string) => (obj[key] = ""));
+            Object.keys(props.items[0]).forEach(
+              (key: string) => (obj[key] = ""),
+            );
             return obj;
           },
         },
-        beforeChildPropertyUpdate: (childWidgetId: string, propertyPath: string, propertyValue: any) => {
+        beforeChildPropertyUpdate: (
+          childWidgetId: string,
+          propertyPath: string,
+          propertyValue: any,
+        ) => {
           // let value = propertyValue;
           // if (propertyValue.indexOf("currentItem")) {
           //   value = "{{Grid1.items.map((currentItem) => propertyValue)}}";

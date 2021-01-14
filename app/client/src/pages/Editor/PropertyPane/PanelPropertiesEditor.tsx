@@ -49,7 +49,10 @@ const PanelHeader = (props: PanelHeaderProps) => {
         e.stopPropagation();
       }}
     >
-      <StyledBackIcon onClick={props.closePanel} className="t--property-pane-back-btn" />
+      <StyledBackIcon
+        onClick={props.closePanel}
+        className="t--property-pane-back-btn"
+      />
       <PropertyTitleEditor
         title={props.title}
         updatePropertyTitle={props.updatePropertyTitle}
@@ -63,7 +66,10 @@ const updateConfigPaths = (config: PropertyPaneConfig[], basePath: string) => {
   return config.map((_childConfig) => {
     const childConfig = Object.assign({}, _childConfig);
     // TODO(abhinav): Figure out a better way to differentiate between section and control
-    if ((childConfig as PropertyPaneSectionConfig).sectionName && childConfig.children) {
+    if (
+      (childConfig as PropertyPaneSectionConfig).sectionName &&
+      childConfig.children
+    ) {
       (childConfig as PropertyPaneSectionConfig).propertySectionPath = basePath;
       childConfig.children = updateConfigPaths(childConfig.children, basePath);
     } else {
@@ -76,7 +82,9 @@ const updateConfigPaths = (config: PropertyPaneConfig[], basePath: string) => {
 };
 
 export const PanelPropertiesEditor = (
-  props: PanelPropertiesEditorProps & PanelPropertiesEditorPanelProps & IPanelProps,
+  props: PanelPropertiesEditorProps &
+    PanelPropertiesEditorPanelProps &
+    IPanelProps,
 ) => {
   const dispatch = useDispatch();
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
@@ -88,7 +96,12 @@ export const PanelPropertiesEditor = (
     dispatch({ type: ReduxActionTypes.HIDE_PROPERTY_PANE });
   }, [dispatch, widgetProperties.type, widgetProperties.widgetId]);
 
-  const { panelConfig, panelProps, closePanel, panelParentPropertyPath } = props;
+  const {
+    panelConfig,
+    panelProps,
+    closePanel,
+    panelParentPropertyPath,
+  } = props;
 
   // TODO(abhinav): This works for arrays, not for objects
   // handle scenario where the children are object properties instead of array of objects
@@ -96,7 +109,9 @@ export const PanelPropertiesEditor = (
     const parentProperty = get(widgetProperties, panelParentPropertyPath);
     if (parentProperty && Array.isArray(parentProperty)) {
       const currentIndex = parentProperty.findIndex(
-        (entry) => panelProps[panelConfig.panelIdPropertyName] === entry[panelConfig.panelIdPropertyName],
+        (entry) =>
+          panelProps[panelConfig.panelIdPropertyName] ===
+          entry[panelConfig.panelIdPropertyName],
       );
       return currentIndex;
     }
@@ -106,7 +121,10 @@ export const PanelPropertiesEditor = (
   const panelConfigs = useMemo(() => {
     if (currentIndex !== undefined && currentIndex > -1) {
       const configChildren = [...panelConfig.children];
-      return updateConfigPaths(configChildren, `${panelParentPropertyPath}[${currentIndex}]`);
+      return updateConfigPaths(
+        configChildren,
+        `${panelParentPropertyPath}[${currentIndex}]`,
+      );
     }
   }, [currentIndex, panelConfig, panelParentPropertyPath]);
   const panel = useMemo(

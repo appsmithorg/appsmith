@@ -42,7 +42,9 @@ const GridComponent = (props: GridComponentProps) => {
   return (
     <GridContainer {...remainingProps}>
       <ScrollableCanvasWrapper
-        className={`${props.shouldScrollContents ? getCanvasClassName() : ""} ${generateClassName(props.widgetId)}`}
+        className={`${
+          props.shouldScrollContents ? getCanvasClassName() : ""
+        } ${generateClassName(props.widgetId)}`}
       >
         {props.children}
       </ScrollableCanvasWrapper>

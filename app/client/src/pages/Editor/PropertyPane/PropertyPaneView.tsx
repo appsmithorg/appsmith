@@ -18,8 +18,15 @@ const PropertyPaneView = (
   props: {
     hidePropertyPane: () => void;
     enhancements?: {
-      additionalAutocomplete: Record<string, (props: any) => Record<string, unknown>>;
-      beforeChildPropertyUpdate: (id: string, path: string, value: any) => UpdatePropertyPayload[];
+      additionalAutocomplete: Record<
+        string,
+        (props: any) => Record<string, unknown>
+      >;
+      beforeChildPropertyUpdate: (
+        id: string,
+        path: string,
+        value: any,
+      ) => UpdatePropertyPayload[];
     };
   } & IPanelProps,
 ) => {
@@ -35,7 +42,11 @@ const PropertyPaneView = (
         widgetType={widgetProperties?.type}
         onClose={hidePropertyPane}
       />
-      <PropertyControlsGenerator enhancements={props.enhancements} type={widgetProperties.type} panel={panel} />
+      <PropertyControlsGenerator
+        enhancements={props.enhancements}
+        type={widgetProperties.type}
+        panel={panel}
+      />
     </>
   );
 };

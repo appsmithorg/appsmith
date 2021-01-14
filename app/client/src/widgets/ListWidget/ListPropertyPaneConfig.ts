@@ -3,7 +3,8 @@ const PropertyPaneConfig = [
     sectionName: "General",
     children: [
       {
-        helpText: "Takes in an array of objects to display items in the grid. Bind data from an API using {{}}",
+        helpText:
+          "Takes in an array of objects to display items in the grid. Bind data from an API using {{}}",
         propertyName: "items",
         label: "Grid Items",
         controlType: "INPUT_TEXT",

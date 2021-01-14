@@ -37,4 +37,6 @@ export type PropertyPaneControlConfig = {
   hidden?: (props: any) => boolean;
 };
 
-export type PropertyPaneConfig = PropertyPaneSectionConfig | PropertyPaneControlConfig;
+export type PropertyPaneConfig =
+  | PropertyPaneSectionConfig
+  | PropertyPaneControlConfig;

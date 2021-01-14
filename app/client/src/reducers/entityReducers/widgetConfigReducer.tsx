@@ -15,7 +15,10 @@ import { CheckboxWidgetProps } from "../../widgets/CheckboxWidget";
 import { RadioGroupWidgetProps } from "../../widgets/RadioGroupWidget";
 import { AlertWidgetProps } from "../../widgets/AlertWidget";
 import { FilePickerWidgetProps } from "../../widgets/FilepickerWidget";
-import { TabsWidgetProps, TabContainerWidgetProps } from "../../widgets/TabsWidget";
+import {
+  TabsWidgetProps,
+  TabContainerWidgetProps,
+} from "../../widgets/TabsWidget";
 import { ChartWidgetProps } from "../../widgets/ChartWidget";
 import { FormWidgetProps } from "widgets/FormWidget";
 import { FormButtonWidgetProps } from "widgets/FormButtonWidget";
@@ -51,8 +54,10 @@ export interface WidgetConfigReducerState {
     TEXT_WIDGET: Partial<TextWidgetProps> & WidgetConfigProps;
     IMAGE_WIDGET: Partial<ImageWidgetProps> & WidgetConfigProps;
     INPUT_WIDGET: Partial<InputWidgetProps> & WidgetConfigProps;
-    RICH_TEXT_EDITOR_WIDGET: Partial<RichTextEditorWidgetProps> & WidgetConfigProps;
-    CONTAINER_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> & WidgetConfigProps;
+    RICH_TEXT_EDITOR_WIDGET: Partial<RichTextEditorWidgetProps> &
+      WidgetConfigProps;
+    CONTAINER_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> &
+      WidgetConfigProps;
     DATE_PICKER_WIDGET: Partial<DatePickerWidgetProps> & WidgetConfigProps;
     TABLE_WIDGET: Partial<TableWidgetProps> & WidgetConfigProps;
     VIDEO_WIDGET: Partial<VideoWidgetProps> & WidgetConfigProps;
@@ -61,13 +66,15 @@ export interface WidgetConfigReducerState {
     RADIO_GROUP_WIDGET: Partial<RadioGroupWidgetProps> & WidgetConfigProps;
     ALERT_WIDGET: Partial<AlertWidgetProps> & WidgetConfigProps;
     FILE_PICKER_WIDGET: Partial<FilePickerWidgetProps> & WidgetConfigProps;
-    TABS_WIDGET: Partial<TabsWidgetProps<TabContainerWidgetProps>> & WidgetConfigProps;
+    TABS_WIDGET: Partial<TabsWidgetProps<TabContainerWidgetProps>> &
+      WidgetConfigProps;
     MODAL_WIDGET: Partial<ModalWidgetProps> & WidgetConfigProps;
     CHART_WIDGET: Partial<ChartWidgetProps> & WidgetConfigProps;
     FORM_WIDGET: Partial<FormWidgetProps> & WidgetConfigProps;
     FORM_BUTTON_WIDGET: Partial<FormButtonWidgetProps> & WidgetConfigProps;
     MAP_WIDGET: Partial<MapWidgetProps> & WidgetConfigProps;
-    CANVAS_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> & WidgetConfigProps;
+    CANVAS_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> &
+      WidgetConfigProps;
     ICON_WIDGET: Partial<IconWidgetProps> & WidgetConfigProps;
     SKELETON_WIDGET: Partial<SkeletonWidgetProps> & WidgetConfigProps;
     LIST_WIDGET: Partial<ListWidgetProps<WidgetProps>> & WidgetConfigProps;

@@ -59,7 +59,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    *
    * @param children
    */
-  updatePosition = (children: ContainerWidgetProps<WidgetProps>[]): ContainerWidgetProps<WidgetProps>[] => {
+  updatePosition = (
+    children: ContainerWidgetProps<WidgetProps>[],
+  ): ContainerWidgetProps<WidgetProps>[] => {
     return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
       return {
         ...child,
@@ -74,7 +76,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   /**
    * @param children
    */
-  setPathsForNewChildrenInGrid = (children: ContainerWidgetProps<WidgetProps>[]) => {
+  setPathsForNewChildrenInGrid = (
+    children: ContainerWidgetProps<WidgetProps>[],
+  ) => {
     const { dynamicBindingPathList } = this.props;
     const templateChildrens = get(children, "0.children.0.children", []);
 

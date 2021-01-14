@@ -3,9 +3,18 @@
  * spawing components based on those props
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
-import { WidgetType, RenderMode, RenderModes, CSSUnits } from "constants/WidgetConstants";
+import {
+  WidgetType,
+  RenderMode,
+  RenderModes,
+  CSSUnits,
+} from "constants/WidgetConstants";
 import React, { Component, ReactNode } from "react";
-import { PositionType, CSSUnit, CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
+import {
+  PositionType,
+  CSSUnit,
+  CONTAINER_GRID_PADDING,
+} from "constants/WidgetConstants";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
 import { ExecuteActionPayload } from "constants/ActionConstants";
@@ -15,9 +24,18 @@ import shallowequal from "shallowequal";
 import { PositionTypes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
-import { BASE_WIDGET_VALIDATION, WidgetPropertyValidationType } from "utils/WidgetValidation";
-import { DerivedPropertiesMap, TriggerPropertiesMap } from "utils/WidgetFactory";
-import { WidgetDynamicPathListProps, WidgetEvaluatedProps } from "../utils/DynamicBindingUtils";
+import {
+  BASE_WIDGET_VALIDATION,
+  WidgetPropertyValidationType,
+} from "utils/WidgetValidation";
+import {
+  DerivedPropertiesMap,
+  TriggerPropertiesMap,
+} from "utils/WidgetFactory";
+import {
+  WidgetDynamicPathListProps,
+  WidgetEvaluatedProps,
+} from "../utils/DynamicBindingUtils";
 
 /***
  * BaseWidget
@@ -31,7 +49,10 @@ import { WidgetDynamicPathListProps, WidgetEvaluatedProps } from "../utils/Dynam
  * 3) Call actions in widgets or connect the widgets to the entity reducers
  *
  */
-abstract class BaseWidget<T extends WidgetProps, K extends WidgetState> extends Component<T, K> {
+abstract class BaseWidget<
+  T extends WidgetProps,
+  K extends WidgetState
+> extends Component<T, K> {
   static contextType = EditorContext;
 
   // Needed to send a default no validation option. In case a widget needs
@@ -80,7 +101,11 @@ abstract class BaseWidget<T extends WidgetProps, K extends WidgetState> extends 
     disableDrag && disable !== undefined && disableDrag(disable);
   }
 
-  updateWidget(operationName: string, widgetId: string, widgetProperties: any): void {
+  updateWidget(
+    operationName: string,
+    widgetId: string,
+    widgetProperties: any,
+  ): void {
     const { updateWidget } = this.context;
     updateWidget && updateWidget(operationName, widgetId, widgetProperties);
   }
@@ -145,7 +170,10 @@ abstract class BaseWidget<T extends WidgetProps, K extends WidgetState> extends 
    */
   makeResizable(content: ReactNode) {
     return (
-      <ResizableComponent {...this.props} paddingOffset={PositionedContainer.padding}>
+      <ResizableComponent
+        {...this.props}
+        paddingOffset={PositionedContainer.padding}
+      >
         {content}
       </ResizableComponent>
     );
@@ -244,7 +272,10 @@ abstract class BaseWidget<T extends WidgetProps, K extends WidgetState> extends 
   // This would involve making all widgets which have "states" to not have states,
   // as they're extending this one.
   shouldComponentUpdate(nextProps: WidgetProps, nextState: WidgetState) {
-    return !shallowequal(nextProps, this.props) || !shallowequal(nextState, this.state);
+    return (
+      !shallowequal(nextProps, this.props) ||
+      !shallowequal(nextState, this.state)
+    );
   }
 
   /**
@@ -258,8 +289,11 @@ abstract class BaseWidget<T extends WidgetProps, K extends WidgetState> extends 
       positionType: PositionTypes.ABSOLUTE,
       componentHeight,
       componentWidth,
-      yPosition: this.props.topRow * this.props.parentRowSpace + CONTAINER_GRID_PADDING,
-      xPosition: this.props.leftColumn * this.props.parentColumnSpace + CONTAINER_GRID_PADDING,
+      yPosition:
+        this.props.topRow * this.props.parentRowSpace + CONTAINER_GRID_PADDING,
+      xPosition:
+        this.props.leftColumn * this.props.parentColumnSpace +
+        CONTAINER_GRID_PADDING,
       xPositionUnit: CSSUnits.PIXEL,
       yPositionUnit: CSSUnits.PIXEL,
     };
@@ -350,7 +384,10 @@ export interface WidgetDisplayProps {
   backgroundColor?: string;
 }
 
-export interface WidgetDataProps extends WidgetBaseProps, WidgetPositionProps, WidgetDisplayProps {
+export interface WidgetDataProps
+  extends WidgetBaseProps,
+    WidgetPositionProps,
+    WidgetDisplayProps {
   propertyPaneEnhancements?: {
     additionalAutocomplete: Record<string, unknown>;
     beforeChildPropertyUpdate: (
@@ -361,7 +398,10 @@ export interface WidgetDataProps extends WidgetBaseProps, WidgetPositionProps, W
   };
 }
 
-export interface WidgetProps extends WidgetDataProps, WidgetDynamicPathListProps, WidgetEvaluatedProps {
+export interface WidgetProps
+  extends WidgetDataProps,
+    WidgetDynamicPathListProps,
+    WidgetEvaluatedProps {
   key?: string;
   isDefaultClickDisabled?: boolean;
   [key: string]: any;
