@@ -748,7 +748,10 @@ function* executePageLoadAction(pageAction: PageAction) {
         show: false,
       }),
     );
-    throw new Error(`The action "${pageAction.name}" has failed.`);
+    Toaster.show({
+      text: `The action "${pageAction.name}" has failed.`,
+      variant: Variant.danger,
+    });
   }
 }
 
@@ -773,7 +776,7 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     log.error(e);
 
     Toaster.show({
-      text: _.get(e, "message", "Failed to load onPageLoad actions"),
+      text: "Failed to load onPageLoad actions",
       variant: Variant.danger,
     });
   }
