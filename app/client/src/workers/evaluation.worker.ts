@@ -40,7 +40,10 @@ import {
   translateDiffEventToDataTreeDiffEvent,
   validateWidgetProperty,
 } from "./evaluationUtils";
-import { EXECUTION_PARAM_KEY } from "../constants/ActionConstants";
+import {
+  EXECUTION_PARAM_KEY,
+  EXECUTION_PARAM_REFERENCE_REGEX,
+} from "../constants/ActionConstants";
 
 const ctx: Worker = self as any;
 
@@ -1216,7 +1219,6 @@ export class DataTreeEvaluator {
         false,
       );
     }
-    const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
 
     // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
     const bindingsForExecutionParams: string[] = bindings.map(
@@ -1228,15 +1230,13 @@ export class DataTreeEvaluator {
       [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
     });
 
-    return bindingsForExecutionParams.map((binding) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      return this.getDynamicValue(
+    return bindingsForExecutionParams.map((binding) =>
+      this.getDynamicValue(
         `{{${binding}}}`,
         dataTreeWithExecutionParams,
         false,
-      );
-    });
+      ),
+    );
   }
 
   clearErrors() {
