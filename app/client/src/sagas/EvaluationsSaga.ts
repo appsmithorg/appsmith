@@ -90,7 +90,7 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
     payload: dataTree,
   });
   yield put({
-    type: ReduxActionTypes.SET_EVALUATION_DEPENDENCY_MAP,
+    type: ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
     payload: { inverseDependencyMap: dependencies },
   });
   PerformanceTracker.stopAsyncTracking(

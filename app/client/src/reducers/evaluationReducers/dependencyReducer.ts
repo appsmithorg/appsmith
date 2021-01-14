@@ -11,7 +11,7 @@ const initialState: EvaluationDependencyState = {
 };
 
 const evaluationDependencyReducer = createReducer(initialState, {
-  [ReduxActionTypes.SET_EVALUATION_DEPENDENCY_MAP]: (
+  [ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP]: (
     state: EvaluationDependencyState,
     action: ReduxAction<{
       inverseDependencyMap: DependencyMap;
