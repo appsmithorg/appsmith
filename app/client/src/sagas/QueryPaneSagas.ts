@@ -7,6 +7,7 @@ import {
   call,
   race,
 } from "redux-saga/effects";
+import * as Sentry from "@sentry/react";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -33,13 +34,15 @@ import {
   getDatasource,
   getPluginTemplates,
 } from "selectors/entitiesSelector";
-import { RestAction } from "entities/Action";
+import { QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
@@ -135,7 +138,7 @@ function* formValueChangeSaga(
   );
 }
 
-function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
+function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   const {
     id,
     pluginType,
@@ -161,7 +164,6 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
     const showTemplate = !(
       !!actionConfiguration.body || isEmpty(queryTemplate)
     );
-
     history.replace(
       QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",
@@ -183,6 +185,20 @@ function* handleNameChangeSuccessSaga(
   const { actionId } = action.payload;
   const actionObj = yield select(getAction, actionId);
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
+  if (!actionObj) {
+    // Error case, log to sentry
+    Toaster.show({
+      text: "Error occured while renaming query",
+      variant: Variant.danger,
+    });
+
+    Sentry.captureException(new Error("Error occured while renaming query"), {
+      extra: {
+        actionId: actionId,
+      },
+    });
+    return;
+  }
   if (actionObj.pluginType === QUERY_CONSTANT) {
     const params = getQueryParams();
     if (params.editName) {

@@ -11,7 +11,7 @@ import { AppState } from "reducers";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Plugin } from "api/PluginApi";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import {
   getPluginIdsOfPackageNames,
   getPlugins,
@@ -136,7 +136,7 @@ class QueryEditor extends React.Component<Props> {
       );
     }
 
-    const DATASOURCES_OPTIONS = dataSources.map(dataSource => ({
+    const DATASOURCES_OPTIONS = dataSources.map((dataSource) => ({
       label: dataSource.name,
       value: dataSource.id,
       image: pluginImages[dataSource.pluginId],
@@ -180,9 +180,15 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   const { editorConfigs, loadingFormConfigs } = plugins;
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction;
-  const queryAction = getAction(state, props.match.params.queryId);
+  const queryAction = getAction(
+    state,
+    props.match.params.queryId,
+  ) as QueryAction;
+  let pluginId;
+  if (queryAction) {
+    pluginId = queryAction.pluginId;
+  }
   let editorConfig: any;
-  const pluginId = queryAction?.datasource?.pluginId;
 
   if (editorConfigs && pluginId) {
     editorConfig = editorConfigs[pluginId];

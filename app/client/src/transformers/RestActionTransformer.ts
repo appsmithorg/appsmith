@@ -1,7 +1,8 @@
 import { HTTP_METHODS } from "constants/ApiEditorConstants";
+import { ApiAction } from "entities/Action";
 import _ from "lodash";
 
-export const transformRestAction = (data: any): any => {
+export const transformRestAction = (data: ApiAction): ApiAction => {
   let action = { ...data };
   // GET actions should not save body
   if (action.actionConfiguration.httpMethod === HTTP_METHODS[0]) {
@@ -26,8 +27,9 @@ export const transformRestAction = (data: any): any => {
   // Body should send correct format depending on the content type
   if (action.actionConfiguration.httpMethod !== HTTP_METHODS[0]) {
     let body: any = "";
-    if (action.actionConfiguration.body)
+    if (action.actionConfiguration.body) {
       body = action.actionConfiguration.body || undefined;
+    }
 
     if (!_.isString(body)) body = JSON.stringify(body);
     action = {

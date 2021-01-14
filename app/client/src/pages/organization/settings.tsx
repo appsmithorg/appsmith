@@ -33,13 +33,13 @@ const LinkToApplications = styled(Link)`
   }
 `;
 const SettingsWrapper = styled.div`
-  width: ${props => props.theme.pageContentWidth}px;
+  width: ${(props) => props.theme.pageContentWidth}px;
   margin: 0 auto;
 `;
 export default function Settings() {
   const { orgId } = useParams<{ orgId: string }>();
   const currentOrg = useSelector(getCurrentOrg).filter(
-    el => el.id === orgId,
+    (el) => el.id === orgId,
   )[0];
 
   const { path } = useRouteMatch();

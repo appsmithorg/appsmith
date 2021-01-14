@@ -41,6 +41,13 @@ export const tableWidgetPropertyPaneMigrations = (
         : tableColumns;
       children.primaryColumns = primaryColumns.map(
         (accessor: string, index: number) => {
+          let columnType =
+            columnTypeMap && columnTypeMap[accessor]
+              ? columnTypeMap[accessor].type
+              : ColumnTypes.TEXT;
+          if (columnType === "currency") {
+            columnType = ColumnTypes.NUMBER;
+          }
           const column: ColumnProperties = {
             index: index,
             width:
@@ -50,10 +57,7 @@ export const tableWidgetPropertyPaneMigrations = (
             id: accessor,
             horizontalAlignment: CellAlignmentTypes.LEFT,
             verticalAlignment: VerticalAlignmentTypes.CENTER,
-            columnType:
-              columnTypeMap && columnTypeMap[accessor]
-                ? columnTypeMap[accessor].type
-                : ColumnTypes.TEXT,
+            columnType: columnType,
             textColor: Colors.THUNDER,
             textSize: TextSizes.PARAGRAPH,
             fontStyle: FontStyleTypes.REGULAR,
@@ -76,6 +80,8 @@ export const tableWidgetPropertyPaneMigrations = (
       );
 
       const columnActions = children.columnActions || [];
+      const dynamicTriggerPathList: Array<{ key: string }> =
+        children.dynamicTriggerPathList || [];
       const updatedDerivedColumns = columnActions.map(
         (action: ColumnAction, index: number) => {
           return {
@@ -89,18 +95,26 @@ export const tableWidgetPropertyPaneMigrations = (
             buttonLabel: action.label,
             buttonStyle: "#29CCA3",
             buttonLabelColor: "#FFFFFF",
-            dynamicTrigger: action.dynamicTrigger,
+            onClick: action.dynamicTrigger,
           };
         },
       );
       if (updatedDerivedColumns.length) {
-        children.primaryColumns = children.primaryColumns.concat(
-          updatedDerivedColumns,
-        );
+        const columns = children.primaryColumns.concat(updatedDerivedColumns);
+        children.primaryColumns = columns;
+        for (let i = 0; i < columns.length; i++) {
+          if (columns[i].isDerived) {
+            dynamicTriggerPathList.push({
+              key: `primaryColumns[${i}].onClick`,
+            });
+          }
+        }
       }
+      children.dynamicTriggerPathList = dynamicTriggerPathList;
       children.textSize = "PARAGRAPH";
       children.horizontalAlignment = "LEFT";
       children.verticalAlignment = "CENTER";
+      children.derivedColumns = updatedDerivedColumns;
     } else if (children.children && children.children.length > 0) {
       children = tableWidgetPropertyPaneMigrations(children);
     }

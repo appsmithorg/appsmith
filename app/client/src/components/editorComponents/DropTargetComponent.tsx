@@ -269,6 +269,7 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
           height,
           border,
         }}
+        className={"t--drop-target"}
       >
         {props.children}
         {!(childWidgets && childWidgets.length) &&

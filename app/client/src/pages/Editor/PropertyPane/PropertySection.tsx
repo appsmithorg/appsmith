@@ -9,15 +9,19 @@ import { get } from "lodash";
 
 const SectionWrapper = styled.div`
   position: relative;
+  .${Classes.COLLAPSE_BODY} {
+    z-index: 1;
+    position: relative;
+  }
 `;
 const SectionTitle = styled.div`
   display: grid;
   grid-template-columns: 1fr 30px;
   cursor: pointer;
   & span {
-    color: ${props => props.theme.colors.paneSectionLabel};
-    padding: ${props => props.theme.spaces[2]}px 0;
-    font-size: ${props => props.theme.fontSizes[3]}px;
+    color: ${(props) => props.theme.colors.paneSectionLabel};
+    padding: ${(props) => props.theme.spaces[2]}px 0;
+    font-size: ${(props) => props.theme.fontSizes[3]}px;
     display: flex;
     font-weight: normal;
     justify-content: flex-start;
@@ -83,7 +87,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
         <Collapse isOpen={isOpen} keepChildrenMounted>
           <div
             className={`t--property-pane-section-${className}`}
-            style={{ position: "relative" }}
+            style={{ position: "relative", zIndex: 1 }}
           >
             {props.children}
           </div>

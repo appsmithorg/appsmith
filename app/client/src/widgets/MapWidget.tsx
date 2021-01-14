@@ -147,8 +147,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     const markers: Array<MarkerProps> = [...(this.props.markers || [])].map(
       (marker, i) => {
         if (index === i) {
-          marker.lat = lat;
-          marker.long = long;
+          marker = { lat, long };
         }
         return marker;
       },
@@ -162,7 +161,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     const marker = { lat, long, title: "" };
 
     const markers = [];
-    (this.props.markers || []).forEach(m => {
+    (this.props.markers || []).forEach((m) => {
       markers.push(m);
     });
     markers.push(marker);

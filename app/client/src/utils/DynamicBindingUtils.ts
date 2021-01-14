@@ -6,6 +6,9 @@ import {
 import { Action } from "entities/Action";
 import moment from "moment-timezone";
 import { WidgetProps } from "../widgets/BaseWidget";
+import parser from "fast-xml-parser";
+
+export type DependencyMap = Record<string, Array<string>>;
 
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
@@ -69,7 +72,7 @@ export const getDynamicBindings = (
   // Get the {{binding}} bound values
   const stringSegments = getDynamicStringSegments(sanitisedString);
   // Get the "binding" path values
-  const paths = stringSegments.map(segment => {
+  const paths = stringSegments.map((segment) => {
     const length = segment.length;
     const matches = isDynamicValue(segment);
     if (matches) {
@@ -86,6 +89,8 @@ export enum EvalErrorTypes {
   EVAL_TREE_ERROR = "EVAL_TREE_ERROR",
   UNESCAPE_STRING_ERROR = "UNESCAPE_STRING_ERROR",
   EVAL_ERROR = "EVAL_ERROR",
+  UNKNOWN_ERROR = "UNKNOWN_ERROR",
+  BAD_UNEVAL_TREE_ERROR = "BAD_UNEVAL_TREE_ERROR",
 }
 
 export type EvalError = {
@@ -126,6 +131,13 @@ export const extraLibraries: ExtraLibrary[] = [
     version: moment.version,
     docsURL: `https://momentjs.com/docs/`,
     displayName: "moment",
+  },
+  {
+    accessor: "xmlParser",
+    lib: parser,
+    version: "3.17.5",
+    docsURL: "https://github.com/NaturalIntelligence/fast-xml-parser",
+    displayName: "xmlParser",
   },
 ];
 
@@ -230,3 +242,10 @@ export const isPathADynamicProperty = (
   }
   return false;
 };
+
+export const unsafeFunctionForEval = [
+  "setTimeout",
+  "fetch",
+  "setInterval",
+  "Promise",
+];

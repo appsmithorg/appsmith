@@ -338,7 +338,11 @@ const output2 = {
       parentId: "0",
       widgetId: "l9i1e8ybkm",
       dynamicBindingPathList: [],
-      dynamicTriggerPathList: [{ key: "columnActions" }],
+      dynamicTriggerPathList: [
+        { key: "columnActions" },
+        { key: "primaryColumns[5].onClick" },
+        { key: "primaryColumns[6].onClick" },
+      ],
       columnActions: [
         {
           label: "Test",
@@ -440,7 +444,7 @@ const output2 = {
           computedValue: "",
         },
         {
-          index: 0,
+          index: 5,
           width: 150,
           id: "ezooq966rd",
           label: "Test",
@@ -450,10 +454,10 @@ const output2 = {
           buttonLabel: "Test",
           buttonStyle: "#29CCA3",
           buttonLabelColor: "#FFFFFF",
-          dynamicTrigger: "{{showAlert('test','success')}}",
+          onClick: "{{showAlert('test','success')}}",
         },
         {
-          index: 1,
+          index: 6,
           width: 150,
           id: "1k8nkay5r6",
           label: "Fail",
@@ -463,7 +467,7 @@ const output2 = {
           buttonLabel: "Fail",
           buttonStyle: "#29CCA3",
           buttonLabelColor: "#FFFFFF",
-          dynamicTrigger: "{{showAlert('Fail','error')}}",
+          onClick: "{{showAlert('Fail','error')}}",
         },
       ],
       textSize: "PARAGRAPH",

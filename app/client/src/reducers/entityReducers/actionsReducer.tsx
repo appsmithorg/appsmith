@@ -7,20 +7,19 @@ import {
 import { ActionResponse } from "api/ActionAPI";
 import { ExecuteErrorPayload } from "constants/ActionConstants";
 import _ from "lodash";
-import { RapidApiAction, RestAction } from "entities/Action";
+import { Action } from "entities/Action";
 import { UpdateActionPropertyActionPayload } from "actions/actionActions";
 import produce from "immer";
-import { Datasource } from "api/DatasourcesApi";
 
 export interface ActionData {
   isLoading: boolean;
-  config: RestAction | RapidApiAction;
+  config: Action;
   data?: ActionResponse;
 }
 export type ActionDataState = ActionData[];
 export interface PartialActionData {
   isLoading: boolean;
-  config: Partial<RestAction | RapidApiAction>;
+  config: { id: string };
   data?: ActionResponse;
 }
 
@@ -29,10 +28,10 @@ const initialState: ActionDataState = [];
 const actionsReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_ACTIONS_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction[]>,
+    action: ReduxAction<Action[]>,
   ): ActionDataState => {
-    return action.payload.map(action => {
-      const foundAction = state.find(currentAction => {
+    return action.payload.map((action) => {
+      const foundAction = state.find((currentAction) => {
         return currentAction.config.id === action.id;
       });
       return {
@@ -44,40 +43,55 @@ const actionsReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction[]>,
+    action: ReduxAction<Action[]>,
   ): ActionDataState =>
-    action.payload.map(a => ({
+    action.payload.map((a) => ({
       isLoading: false,
       config: a,
     })),
   [ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction[]>,
+    action: ReduxAction<Action[]>,
   ): ActionDataState => {
     if (action.payload.length > 0) {
-      const payloadActionMap = _.keyBy(action.payload, "id");
-      return state.map((stateAction: ActionData) => {
-        if (stateAction.config.pageId === action.payload[0].pageId) {
-          return {
+      const stateActionMap = _.keyBy(state, "config.id");
+      const result: ActionDataState = [];
+
+      action.payload.forEach((actionPayload: Action) => {
+        const stateAction = stateActionMap[actionPayload.id];
+        if (stateAction) {
+          result.push({
             data: stateAction.data,
             isLoading: false,
-            config: payloadActionMap[stateAction.config.id],
-          };
+            config: actionPayload,
+          });
+
+          delete stateActionMap[actionPayload.id];
+        } else {
+          result.push({
+            isLoading: false,
+            config: actionPayload,
+          });
         }
-        return stateAction;
       });
+
+      Object.keys(stateActionMap).forEach((stateActionKey) => {
+        result.push(stateActionMap[stateActionKey]);
+      });
+
+      return result;
     }
     return state;
   },
   [ReduxActionTypes.SUBMIT_CURL_FORM_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction>,
+    action: ReduxAction<Action>,
   ) => state.concat([{ config: action.payload, isLoading: false }]),
   [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR]: () => initialState,
   [ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR]: () => initialState,
   [ReduxActionTypes.CREATE_ACTION_INIT]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction>,
+    action: ReduxAction<Action>,
   ): ActionDataState =>
     state.concat([
       {
@@ -87,9 +101,9 @@ const actionsReducer = createReducer(initialState, {
     ]),
   [ReduxActionTypes.CREATE_ACTION_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction>,
+    action: ReduxAction<Action>,
   ): ActionDataState =>
-    state.map(a => {
+    state.map((a) => {
       if (
         a.config.pageId === action.payload.pageId &&
         a.config.id === action.payload.name
@@ -100,18 +114,18 @@ const actionsReducer = createReducer(initialState, {
     }),
   [ReduxActionTypes.CREATE_ACTION_ERROR]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction>,
+    action: ReduxAction<Action>,
   ): ActionDataState =>
     state.filter(
-      a =>
+      (a) =>
         a.config.name !== action.payload.name &&
         a.config.id !== action.payload.name,
     ),
   [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<{ data: RestAction }>,
+    action: ReduxAction<{ data: Action }>,
   ): ActionDataState =>
-    state.map(a => {
+    state.map((a) => {
       if (a.config.id === action.payload.data.id)
         return { ...a, config: action.payload.data };
       return a;
@@ -120,7 +134,7 @@ const actionsReducer = createReducer(initialState, {
     state: ActionDataState,
     action: ReduxAction<UpdateActionPropertyActionPayload>,
   ) =>
-    state.map(a => {
+    state.map((a) => {
       if (a.config.id === action.payload.id) {
         return _.set(a, `config.${action.payload.field}`, action.payload.value);
       }
@@ -129,12 +143,12 @@ const actionsReducer = createReducer(initialState, {
   [ReduxActionTypes.DELETE_ACTION_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<{ id: string }>,
-  ): ActionDataState => state.filter(a => a.config.id !== action.payload.id),
+  ): ActionDataState => state.filter((a) => a.config.id !== action.payload.id),
   [ReduxActionTypes.EXECUTE_API_ACTION_REQUEST]: (
     state: ActionDataState,
     action: ReduxAction<{ id: string }>,
   ): ActionDataState =>
-    state.map(a => {
+    state.map((a) => {
       if (a.config.id === action.payload.id) {
         return {
           ...a,
@@ -147,11 +161,11 @@ const actionsReducer = createReducer(initialState, {
     state: ActionDataState,
     action: ReduxAction<{ id: string; response: ActionResponse }>,
   ): PartialActionData[] => {
-    const foundAction = state.find(stateAction => {
+    const foundAction = state.find((stateAction) => {
       return stateAction.config.id === action.payload.id;
     });
     if (foundAction) {
-      return state.map(stateAction => {
+      return state.map((stateAction) => {
         if (stateAction.config.id === action.payload.id) {
           return {
             ...stateAction,
@@ -174,7 +188,7 @@ const actionsReducer = createReducer(initialState, {
     state: ActionDataState,
     action: ReduxAction<ExecuteErrorPayload>,
   ): ActionDataState =>
-    state.map(a => {
+    state.map((a) => {
       if (a.config.id === action.payload.actionId) {
         return { ...a, isLoading: false, data: action.payload.error };
       }
@@ -185,7 +199,7 @@ const actionsReducer = createReducer(initialState, {
     state: ActionDataState,
     action: ReduxAction<{ id: string }>,
   ): ActionDataState =>
-    state.map(a => {
+    state.map((a) => {
       if (action.payload.id === a.config.id) {
         return {
           ...a,
@@ -200,7 +214,7 @@ const actionsReducer = createReducer(initialState, {
     action: ReduxAction<{ [id: string]: ActionResponse }>,
   ): ActionDataState => {
     const actionId = Object.keys(action.payload)[0];
-    return state.map(a => {
+    return state.map((a) => {
       if (a.config.id === actionId) {
         return { ...a, isLoading: false, data: action.payload[actionId] };
       }
@@ -211,7 +225,7 @@ const actionsReducer = createReducer(initialState, {
     state: ActionDataState,
     action: ReduxAction<{ id: string }>,
   ): ActionDataState =>
-    state.map(a => {
+    state.map((a) => {
       if (a.config.id === action.payload.id) {
         return { ...a, isLoading: false };
       }
@@ -226,7 +240,7 @@ const actionsReducer = createReducer(initialState, {
       name: string;
     }>,
   ): ActionDataState =>
-    state.map(a => {
+    state.map((a) => {
       if (a.config.id === action.payload.id) {
         return {
           ...a,
@@ -242,9 +256,9 @@ const actionsReducer = createReducer(initialState, {
     }),
   [ReduxActionTypes.MOVE_ACTION_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction>,
+    action: ReduxAction<Action>,
   ): ActionDataState =>
-    state.map(a => {
+    state.map((a) => {
       if (a.config.id === action.payload.id) {
         return { ...a, config: action.payload };
       }
@@ -255,7 +269,7 @@ const actionsReducer = createReducer(initialState, {
     state: ActionDataState,
     action: ReduxAction<{ id: string; originalPageId: string }>,
   ): ActionDataState =>
-    state.map(a => {
+    state.map((a) => {
       if (a.config.id === action.payload.id) {
         return {
           ...a,
@@ -278,8 +292,8 @@ const actionsReducer = createReducer(initialState, {
   ): ActionDataState =>
     state.concat(
       state
-        .filter(a => a.config.id === action.payload.id)
-        .map(a => ({
+        .filter((a) => a.config.id === action.payload.id)
+        .map((a) => ({
           ...a,
           config: {
             ...a.config,
@@ -291,9 +305,9 @@ const actionsReducer = createReducer(initialState, {
     ),
   [ReduxActionTypes.COPY_ACTION_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<RestAction>,
+    action: ReduxAction<Action>,
   ): ActionDataState =>
-    state.map(a => {
+    state.map((a) => {
       if (
         a.config.pageId === action.payload.pageId &&
         a.config.name === action.payload.name
@@ -314,7 +328,7 @@ const actionsReducer = createReducer(initialState, {
       name: string;
     }>,
   ): ActionDataState =>
-    state.filter(a => {
+    state.filter((a) => {
       if (a.config.pageId === action.payload.destinationPageId) {
         if (a.config.id === action.payload.id) {
           return a.config.name !== action.payload.name;
@@ -328,58 +342,12 @@ const actionsReducer = createReducer(initialState, {
     state: ActionDataState,
     actionIds: ReduxAction<string[]>,
   ) => {
-    return produce(state, draft => {
+    return produce(state, (draft) => {
       draft.forEach((action, index) => {
         if (actionIds.payload.indexOf(action.config.id) > -1) {
           draft[index].config.executeOnLoad = true;
         }
       });
-    });
-  },
-  [ReduxActionTypes.FETCH_DATASOURCES_SUCCESS]: (
-    state: ActionDataState,
-    action: ReduxAction<Datasource[]>,
-  ) => {
-    const datasources = action.payload;
-
-    return state.map(action => {
-      const datasourceId = action.config.datasource.id;
-      if (datasourceId) {
-        const datasource = datasources.find(
-          datasource => datasource.id === datasourceId,
-        );
-
-        return {
-          ...action,
-          config: {
-            ...action.config,
-            datasource: datasource || action.config.datasource, // fallback to original datasource if datasource not available.
-          },
-        };
-      }
-
-      return action;
-    });
-  },
-  [ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS]: (
-    state: ActionDataState,
-    action: ReduxAction<Datasource>,
-  ) => {
-    const datasource = action.payload;
-
-    return state.map(action => {
-      const datasourceId = action.config.datasource.id;
-      if (datasourceId && datasource.id === datasourceId) {
-        return {
-          ...action,
-          config: {
-            ...action.config,
-            datasource: datasource,
-          },
-        };
-      }
-
-      return action;
     });
   },
 });

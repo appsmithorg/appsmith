@@ -9,20 +9,20 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { QueryAction } from "entities/Action";
 import { Classes } from "@blueprintjs/core";
 import history from "utils/history";
-import { Datasource, QueryTemplate } from "api/DatasourcesApi";
+import { Datasource, QueryTemplate } from "entities/Datasource";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import { getDatasource } from "selectors/entitiesSelector";
 
 const Container = styled.div`
-  background-color: ${props => props.theme.colors.queryTemplate.bg};
-  color: ${props => props.theme.colors.textOnDarkBG};
+  background-color: ${(props) => props.theme.colors.queryTemplate.bg};
+  color: ${(props) => props.theme.colors.textOnDarkBG};
   width: 250px;
 `;
 
 const TemplateType = styled.div`
-  color: ${props => props.theme.colors.queryTemplate.color};
+  color: ${(props) => props.theme.colors.queryTemplate.color};
   padding: 8px;
   &:hover {
     cursor: pointer;
@@ -48,7 +48,9 @@ export const QueryTemplates = (props: QueryTemplatesProps) => {
     (template: QueryTemplate) => {
       const newQueryName = createNewQueryName(actions, currentPageId || "");
       const queryactionConfiguration: Partial<QueryAction> = {
-        actionConfiguration: { body: template.body },
+        actionConfiguration: {
+          body: template.body,
+        },
       };
 
       dispatch(
@@ -86,7 +88,7 @@ export const QueryTemplates = (props: QueryTemplatesProps) => {
 
   return (
     <Container>
-      {props.templates.map(template => {
+      {props.templates.map((template) => {
         return (
           <TemplateType
             key={template.title}

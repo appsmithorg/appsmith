@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
@@ -204,6 +205,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         newAction.setOrganizationId(datasource.getOrganizationId());
                     }
 
+                    // New actions will never be set to auto-magical execution
+                    action.setExecuteOnLoad(false);
+
                     newAction.setUnpublishedAction(action);
 
                     return Mono.just(newAction);
@@ -250,6 +254,17 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         Mono<Datasource> datasourceMono;
         if (action.getDatasource().getId() == null) {
+            if (action.getDatasource().getDatasourceConfiguration() != null &&
+                    action.getDatasource().getDatasourceConfiguration().getAuthentication() != null) {
+                action.getDatasource()
+                        .getDatasourceConfiguration()
+                        .setAuthentication(datasourceService.encryptAuthenticationFields(action
+                                .getDatasource()
+                                .getDatasourceConfiguration()
+                                .getAuthentication()
+                        ));
+            }
+
             datasourceMono = Mono.just(action.getDatasource())
                     .flatMap(datasourceService::validateDatasource);
         } else {
@@ -391,9 +406,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // the update doesn't lead to resetting of this field. 
         action.setUserSetOnLoad(null);
 
-        NewAction newAction = new NewAction();
-        newAction.setUnpublishedAction(action);
-
         Mono<NewAction> updatedActionMono = repository.findById(id, MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .map(dbAction -> {
@@ -409,7 +421,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         Mono<NewAction> analyticsUpdateMono = updatedActionMono
                 .flatMap(analyticsService::sendUpdateEvent);
 
-                // First Update the Action
+        // First Update the Action
         return savedUpdatedActionMono
                 // Now send the update event to analytics service
                 .then(analyticsUpdateMono)
@@ -433,40 +445,43 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
 
         String actionId = executeActionDTO.getActionId();
+        AtomicReference<String> actionName = new AtomicReference<>();
+        // Initialize the name to be empty value
+        actionName.set("");
         // 2. Fetch the action from the DB and check if it can be executed
         Mono<ActionDTO> actionMono = repository.findById(actionId, EXECUTE_ACTIONS)
-                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
-                    .flatMap(dbAction -> {
-                        ActionDTO action;
-                        if (TRUE.equals(executeActionDTO.getViewMode())) {
-                            action = dbAction.getPublishedAction();
-                            // If the action has not been published, return error
-                            if (action == null) {
-                                return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId));
-                            }
-                        } else {
-                            action = dbAction.getUnpublishedAction();
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
+                .flatMap(dbAction -> {
+                    ActionDTO action;
+                    if (TRUE.equals(executeActionDTO.getViewMode())) {
+                        action = dbAction.getPublishedAction();
+                        // If the action has not been published, return error
+                        if (action == null) {
+                            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId));
                         }
+                    } else {
+                        action = dbAction.getUnpublishedAction();
+                    }
 
-                        // Now check for erroneous situations which would deter the execution of the action :
+                    // Now check for erroneous situations which would deter the execution of the action :
 
-                        // Error out with in case of an invalid action
-                        if (Boolean.FALSE.equals(action.getIsValid())) {
-                            return Mono.error(new AppsmithException(
-                                    AppsmithError.INVALID_ACTION,
-                                    action.getName(),
-                                    actionId,
-                                    ArrayUtils.toString(action.getInvalids().toArray())
-                            ));
-                        }
+                    // Error out with in case of an invalid action
+                    if (Boolean.FALSE.equals(action.getIsValid())) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_ACTION,
+                                action.getName(),
+                                actionId,
+                                ArrayUtils.toString(action.getInvalids().toArray())
+                        ));
+                    }
 
-                        // Error out in case of JS Plugin (this is currently client side execution only)
-                        if (dbAction.getPluginType() == PluginType.JS) {
-                            return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                        }
-                        return Mono.just(action);
-                    })
-                    .cache();
+                    // Error out in case of JS Plugin (this is currently client side execution only)
+                    if (dbAction.getPluginType() == PluginType.JS) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
+                    return Mono.just(action);
+                })
+                .cache();
 
         // 3. Instantiate the implementation class based on the query type
 
@@ -519,6 +534,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     final Datasource datasource = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
 
+                    // Set the action name
+                    actionName.set(action.getName());
 
                     DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     ActionConfiguration actionConfiguration = action.getActionConfiguration();
@@ -565,7 +582,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                     )
                             )
                             .onErrorResume(e -> {
-                                log.debug("In the action execution error mode.", e);
+                                log.debug("{}: In the action execution error mode.",
+                                        Thread.currentThread().getName(), e);
                                 ActionExecutionResult result = new ActionExecutionResult();
                                 result.setBody(e.getMessage());
                                 result.setIsExecutionSuccess(false);
@@ -586,6 +604,16 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     result.setStatusCode(error.getAppErrorCode().toString());
                     result.setBody(error.getMessage());
                     return Mono.just(result);
+                })
+                .elapsed()
+                .map(tuple -> {
+                    log.debug("{}: Action {} with id {} execution time : {} ms",
+                            Thread.currentThread().getName(),
+                            actionName.get(),
+                            actionId,
+                            tuple.getT1()
+                    );
+                    return tuple.getT2();
                 });
     }
 
@@ -677,16 +705,23 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .flatMap(action -> generateActionByViewMode(action, false));
     }
 
+    @Override
+    public Flux<NewAction> findUnpublishedOnLoadActionsInPage(String pageId) {
+        return repository
+                .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, MANAGE_ACTIONS);
+    }
+
     /**
      * Given a list of names of actions and pageId, find all the actions matching this criteria of names and pageId
      *
-     * @param names Set of Action names. The returned list of actions will be a subset of the actioned named in this set.
+     * @param names  Set of Action names. The returned list of actions will be a subset of the actioned named in this set.
      * @param pageId Id of the Page within which to look for Actions.
      * @return A Flux of Actions that are identified to be executed on page-load.
      */
     @Override
-    public Flux<NewAction> findUnpublishedOnLoadActionsInPage(Set<String> names, String pageId) {
-        return repository.findUnpublishedActionsByNameInAndPageId(names, pageId, MANAGE_ACTIONS);
+    public Flux<NewAction> findUnpublishedActionsInPageByNames(Set<String> names, String pageId) {
+        return repository
+                .findUnpublishedActionsByNameInAndPageId(names, pageId, MANAGE_ACTIONS);
     }
 
     @Override

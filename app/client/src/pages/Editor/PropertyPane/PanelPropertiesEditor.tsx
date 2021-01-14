@@ -20,8 +20,8 @@ import { IPanelProps } from "@blueprintjs/core";
 
 const PaneTitleWrapper = styled.div`
   align-items: center;
-  background-color: ${props => props.theme.colors.paneBG};
-  color: ${props => props.theme.colors.textOnDarkBG};
+  background-color: ${(props) => props.theme.colors.paneBG};
+  color: ${(props) => props.theme.colors.textOnDarkBG};
   padding-bottom: 12px;
   display: grid;
   grid-template-columns: 20px 1fr;
@@ -37,7 +37,7 @@ const StyledBackIcon = styled(ControlIcons.BACK_CONTROL as AnyStyledComponent)`
     width: 16px;
     height: 16px;
     path {
-      fill: ${props => props.theme.colors.paneText};
+      fill: ${(props) => props.theme.colors.paneText};
     }
   }
 `;
@@ -63,7 +63,7 @@ const PanelHeader = (props: PanelHeaderProps) => {
 };
 
 const updateConfigPaths = (config: PropertyPaneConfig[], basePath: string) => {
-  return config.map(_childConfig => {
+  return config.map((_childConfig) => {
     const childConfig = Object.assign({}, _childConfig);
     // TODO(abhinav): Figure out a better way to differentiate between section and control
     if (
@@ -109,7 +109,7 @@ export const PanelPropertiesEditor = (
     const parentProperty = get(widgetProperties, panelParentPropertyPath);
     if (parentProperty && Array.isArray(parentProperty)) {
       const currentIndex = parentProperty.findIndex(
-        entry =>
+        (entry) =>
           panelProps[panelConfig.panelIdPropertyName] ===
           entry[panelConfig.panelIdPropertyName],
       );

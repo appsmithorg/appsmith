@@ -7,8 +7,6 @@ import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigInteger;
-
 @Service
 public class EncryptionServiceImpl implements EncryptionService {
     private final EncryptionConfig encryptionConfig;

@@ -67,9 +67,8 @@ export const Table = (props: TableProps) => {
     columns: props.columns,
     compactMode: props.compactMode,
   });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const columns = React.useMemo(() => props.columns, [columnString]);
 
+  const columns = React.useMemo(() => props.columns, [columnString]);
   const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {
@@ -200,13 +199,14 @@ export const Table = (props: TableProps) => {
                         : ""
                     }`
                   }
-                  onClick={() => {
+                  onClick={(e) => {
                     row.toggleRowSelected();
                     props.selectTableRow(
                       row,
                       row.index === selectedRowIndex ||
                         selectedRowIndices.includes(row.index),
                     );
+                    e.stopPropagation();
                   }}
                   key={rowIndex}
                 >

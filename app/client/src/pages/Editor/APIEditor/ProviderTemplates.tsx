@@ -94,7 +94,7 @@ const ProviderInfoTopSection = styled.div`
 const TemplatesCardsContainer = styled.div`
   height: calc(
     100vh - ${TEMPLATES_TOP_SECTION_HEIGHT} -
-      ${props => props.theme.headerHeight}
+      ${(props) => props.theme.headerHeight}
   );
   overflow: auto;
   .noProvidersMessage {
@@ -230,8 +230,8 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
       destinationPageId = pageId;
     }
     const pageApiNames = this.props.actions
-      .filter(a => a.config.pageId === destinationPageId)
-      .map(a => a.config.name);
+      .filter((a) => a.config.pageId === destinationPageId)
+      .map((a) => a.config.name);
     let name = templateData.templateData.name.replace(/ /g, "");
     if (pageApiNames.indexOf(name) > -1) {
       name = getDuplicateName(name, pageApiNames);
@@ -249,10 +249,6 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
     const { addedTemplates } = this.state;
     this.props.addApiToPage(addApiRequestObject);
     this.setState({ addedTemplates });
-  };
-
-  handleSearchChange = () => {
-    // const value = e.target.value;
   };
 
   handleIsOpen = (templateId: string) => {
@@ -383,7 +379,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             </p>
           ) : (
             <React.Fragment>
-              {providerTemplates.map(template => (
+              {providerTemplates.map((template) => (
                 <TemplateCard key={template.templateData.id}>
                   <CardTopContent>
                     <TemplateCardLeftContent>

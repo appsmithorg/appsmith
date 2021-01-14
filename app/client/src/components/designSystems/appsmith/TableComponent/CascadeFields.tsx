@@ -46,7 +46,7 @@ const FieldWrapper = styled.div`
 `;
 
 const DropdownWrapper = styled.div<{ width: number }>`
-  width: ${props => props.width}px;
+  width: ${(props) => props.width}px;
   margin-left: 10px;
 `;
 
@@ -127,24 +127,6 @@ const typeOperatorsMap: Record<ColumnTypes, DropdownOption[]> = {
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  [ColumnTypes.CURRENCY]: [
-    { label: "is equal to", value: "isEqualTo", type: "input" },
-    { label: "not equal to", value: "notEqualTo", type: "input" },
-    { label: "greater than", value: "greaterThan", type: "input" },
-    {
-      label: "greater than or equal to",
-      value: "greaterThanEqualTo",
-      type: "input",
-    },
-    { label: "less than", value: "lessThan", type: "input" },
-    {
-      label: "less than or equal to",
-      value: "lessThanEqualTo",
-      type: "input",
-    },
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
-  ],
   [ColumnTypes.NUMBER]: [
     { label: "is equal to", value: "isEqualTo", type: "input" },
     { label: "not equal to", value: "notEqualTo", type: "input" },
@@ -176,7 +158,6 @@ const columnTypeNameMap: Record<ColumnTypes, string> = {
   [ColumnTypes.IMAGE]: "Image",
   [ColumnTypes.NUMBER]: "Num",
   [ColumnTypes.DATE]: "Date",
-  [ColumnTypes.CURRENCY]: "Curr",
   [ColumnTypes.TIME]: "Time",
 };
 
@@ -243,7 +224,7 @@ const RenderOptions = (props: {
   useEffect(() => {
     if (props.value && props.columns) {
       const selectedOptions = props.columns.filter(
-        i => i.value === props.value,
+        (i) => i.value === props.value,
       );
       if (selectedOptions && selectedOptions.length) {
         selectValue(selectedOptions[0].value);

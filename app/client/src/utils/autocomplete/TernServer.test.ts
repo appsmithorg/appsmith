@@ -41,7 +41,7 @@ describe("Tern server", () => {
       },
     ];
 
-    testCases.forEach(testCase => {
+    testCases.forEach((testCase) => {
       const value = ternServer.getFocusedDynamicValue(testCase.input);
       expect(value).toBe(testCase.expectedOutput);
     });
@@ -88,7 +88,7 @@ describe("Tern server", () => {
       },
     ];
 
-    testCases.forEach(testCase => {
+    testCases.forEach((testCase) => {
       const request = ternServer.buildRequest(testCase.input, {});
 
       expect(request.query.end).toEqual(testCase.expectedOutput);
@@ -140,7 +140,7 @@ describe("Tern server", () => {
       },
     ];
 
-    testCases.forEach(testCase => {
+    testCases.forEach((testCase) => {
       MockCodemirrorEditor.getValue.mockReturnValueOnce(
         testCase.input.codeEditor.value,
       );

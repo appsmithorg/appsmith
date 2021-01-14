@@ -19,10 +19,10 @@ export const StyledImage = styled.div<
   position: relative;
   display: flex;                                                                                                                                                                                                                                                                                                                                                                          
   flex-direction: "row";
-  cursor: ${props =>
+  cursor: ${(props) =>
     props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
-  background: ${props => props.backgroundColor};
-  background-image: url("${props =>
+  background: ${(props) => props.backgroundColor};
+  background-image: url("${(props) =>
     props.imageError ? props.defaultImageUrl : props.imageUrl}");
   background-position: center;
   background-repeat: no-repeat;

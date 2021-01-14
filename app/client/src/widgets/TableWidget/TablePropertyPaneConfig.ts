@@ -1,13 +1,7 @@
-import { compact, get, isString, xor, xorWith } from "lodash";
+import { compact, get, xor, xorWith } from "lodash";
 import { Colors } from "constants/Colors";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
-import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
-import {
-  getTableStyles,
-  getDefaultColumnProperties,
-} from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import { TableWidgetProps } from "./TableWidgetConstants";
-import log from "loglevel";
 
 const updateColumnStyles = (
   props: TableWidgetProps,
@@ -18,20 +12,7 @@ const updateColumnStyles = (
   if (props.primaryColumns) {
     // The style being updated currently
     const currentStyleName = propertyPath.split(".").pop(); // horizontalAlignment/textStyle
-    let derivedColumns = [];
-    if (props.derivedColumns) {
-      if (isString(props.derivedColumns)) {
-        // why is this a string in the first place?
-        try {
-          derivedColumns = JSON.parse(props.derivedColumns);
-        } catch (e) {
-          log.debug("Error parsing derived columns", e);
-        }
-      } else {
-        derivedColumns = props.derivedColumns;
-      }
-    }
-    // const derivedColumns = props.derivedColumns || [];
+    const derivedColumns = props.derivedColumns;
     let updatedDerivedColumns = [...derivedColumns];
     if (currentStyleName) {
       let updates = compact(
@@ -41,7 +22,7 @@ const updateColumnStyles = (
           if (
             !props.dynamicBindingPathList ||
             props.dynamicBindingPathList.findIndex(
-              item => item.key === propertyPath,
+              (item) => item.key === propertyPath,
             ) === -1 // if the property path is not a dynamic binding
           ) {
             // if column is derived, update derivedColumns
@@ -83,123 +64,8 @@ const updateColumnStyles = (
       }
       return updates;
     }
-    // .filter(Boolean); // Remove all undefined entries
   }
   return [];
-};
-
-const updateColumnsHook = (
-  props: TableWidgetProps,
-  propertyPath: string,
-  propertyValue: any,
-): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  const propertiesToUpdate: Array<{
-    propertyPath: string;
-    propertyValue: any;
-  }> = [];
-  try {
-    // Parse the json in the field
-    const tableData = JSON.parse(propertyValue);
-    // Get all the column keys
-    const columnKeys: string[] = getAllTableColumnKeys(tableData);
-    // Get all the primary columns
-    const primaryColumns: ColumnProperties[] = props.primaryColumns
-      ? [...props.primaryColumns]
-      : [];
-    // Get all table level styles
-    const tableStyles = getTableStyles(props);
-    let existingColumnCount = 0;
-    // Use the columnId as identifier instead of index
-    const dynamicBindingPathList = props.dynamicBindingPathList
-      ? props.dynamicBindingPathList.map((item: { key: string }) => {
-          const value = item.key;
-          if (value.includes("primaryColumns")) {
-            const columnId = get(
-              { primaryColumns },
-              `${value.split(".")[0]}.id`,
-            );
-            return {
-              key: `primaryColumns.${columnId}.${value.split(".")[1]}`,
-            };
-          }
-          return item;
-        })
-      : [];
-    // Get all the existing columns which are either derived or exist in primary columns
-    const existingColumns = primaryColumns.filter(
-      (column: ColumnProperties) => {
-        // Index of the column.id in all table column keys
-        const columnKeyIndex = columnKeys.indexOf(column.id);
-        // If this column exists in the column keys of the table
-        if (columnKeyIndex > -1) {
-          // Remove this column from columnKeys
-          columnKeys.splice(columnKeyIndex, 1);
-          // Leverage the fact that filter iterates to increment the count of existing columns
-          existingColumnCount++;
-        }
-        // Return true if this column is a derived column or the column is not found
-        return column.isDerived || columnKeyIndex !== -1;
-      },
-    );
-    for (let i = 0; i < columnKeys.length; i++) {
-      const column = getDefaultColumnProperties(
-        columnKeys[i],
-        0,
-        props.widgetName,
-      );
-      existingColumns.splice(existingColumnCount + i, 0, {
-        ...column,
-        ...tableStyles,
-      });
-    }
-    const columns = existingColumns.map(
-      (column: ColumnProperties, index: number) => {
-        return {
-          ...column,
-          index: index,
-        };
-      },
-    );
-    const updatedDynamicBindingPathList = compact(
-      dynamicBindingPathList.map((item: { key: string }) => {
-        const value = item.key;
-        if (value.includes("primaryColumns")) {
-          const columnId = value.split(".")[1];
-          const columnIndex = columns.findIndex(
-            (column: ColumnProperties) => column.id === columnId,
-          );
-          if (columnIndex !== -1) {
-            return {
-              key: `primaryColumns[${columnIndex}].${value.split(".")[2]}`,
-            };
-          }
-          return;
-        }
-        return item;
-      }),
-    );
-
-    propertiesToUpdate.push(
-      {
-        propertyPath: "primaryColumns",
-        propertyValue: columns,
-      },
-      {
-        propertyPath: "dynamicBindingPathList",
-        propertyValue: updatedDynamicBindingPathList,
-      },
-    );
-    return propertiesToUpdate;
-  } catch (err) {
-    // There was most likely, a parsing error
-    // Reset the primary columns, as new data is coming in
-    return [
-      {
-        propertyPath: "primaryColumns",
-        propertyValue: [],
-      },
-    ];
-  }
 };
 
 const updateDerivedColumnHook = (
@@ -358,55 +224,11 @@ export default [
                       value: "time",
                     },
                     {
-                      label: "Currency",
-                      value: "currencys",
-                    },
-                    {
                       label: "Button",
                       value: "button",
                     },
                   ],
                   updateHook: updateDerivedColumnHook,
-                },
-                {
-                  propertyName: "outputFormat",
-                  label: "Currency Type",
-                  controlType: "DROP_DOWN",
-                  options: [
-                    {
-                      label: "USD - $",
-                      value: "$",
-                    },
-                    {
-                      label: "INR - ₹",
-                      value: "₹",
-                    },
-                    {
-                      label: "GBP - £",
-                      value: "£",
-                    },
-                    {
-                      label: "AUD - A$",
-                      value: "A$",
-                    },
-                    {
-                      label: "EUR - €",
-                      value: "€",
-                    },
-                    {
-                      label: "SGD - S$",
-                      value: "S$",
-                    },
-                    {
-                      label: "CAD - C$",
-                      value: "C$",
-                    },
-                  ],
-                  customJSControl: "COMPUTE_VALUE",
-                  updateHook: updateDerivedColumnHook,
-                  hidden: (props: ColumnProperties) => {
-                    return props.columnType !== "currency";
-                  },
                 },
                 {
                   propertyName: "inputFormat",
@@ -498,7 +320,7 @@ export default [
               ],
             },
             {
-              sectionName: "Text",
+              sectionName: "Styles",
               hidden: (props: ColumnProperties) => {
                 return (
                   props.columnType === "button" ||
@@ -561,10 +383,10 @@ export default [
                       icon: "PARAGRAPH",
                     },
                     {
-                      label: "Bullet Points",
-                      value: "BULLETPOINTS",
-                      subText: "14px",
-                      icon: "BULLETS",
+                      label: "Paragraph 2",
+                      value: "PARAGRAPH2",
+                      subText: "12px",
+                      icon: "PARAGRAPH_TWO",
                     },
                   ],
                   updateHook: updateDerivedColumnHook,
@@ -616,7 +438,6 @@ export default [
                   controlType: "COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
-                  defaultColor: Colors.THUNDER,
                   updateHook: updateDerivedColumnHook,
                 },
                 {
@@ -625,7 +446,6 @@ export default [
                   controlType: "COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
-                  defaultColor: Colors.WHITE,
                   updateHook: updateDerivedColumnHook,
                 },
               ],
@@ -667,6 +487,7 @@ export default [
                   propertyName: "onClick",
                   label: "onClick",
                   controlType: "ACTION_SELECTOR",
+                  customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   updateHook: updateDerivedColumnHook,
                 },
@@ -716,14 +537,12 @@ export default [
         propertyName: "cellBackground",
         label: "Cell Background",
         controlType: "COLOR_PICKER",
-        defaultColor: Colors.WHITE,
         updateHook: updateColumnStyles,
       },
       {
         propertyName: "textColor",
         label: "Text Color",
         controlType: "COLOR_PICKER",
-        defaultColor: Colors.THUNDER,
         updateHook: updateColumnStyles,
       },
       {
@@ -757,10 +576,10 @@ export default [
             icon: "PARAGRAPH",
           },
           {
-            label: "Bullet Points",
-            value: "BULLETPOINTS",
-            subText: "14px",
-            icon: "BULLETS",
+            label: "Paragraph 2",
+            value: "PARAGRAPH2",
+            subText: "12px",
+            icon: "PARAGRAPH_TWO",
           },
         ],
       },

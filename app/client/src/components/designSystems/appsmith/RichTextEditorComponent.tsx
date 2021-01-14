@@ -55,6 +55,7 @@ export const RichtextEditorComponent = (
     }, 200);
     const selector = `textarea#rte-${props.widgetId}`;
     (window as any).tinyMCE.init({
+      forced_root_block: false,
       height: "100%",
       selector: selector,
       menubar: false,

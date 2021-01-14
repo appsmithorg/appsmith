@@ -11,20 +11,20 @@ const LightningIconWrapper = styled.span<{
   skin: Skin;
   isFocused: boolean;
 }>`
-  background: ${props => (props.isFocused ? "none" : props.background)};
+  background: ${(props) => (props.isFocused ? "none" : props.background)};
   position: absolute;
-  right: ${props => (props.skin === Skin.LIGHT ? 1 : 1)}px;
-  top: ${props => (props.skin === Skin.LIGHT ? 1 : 1)}px;
+  right: ${(props) => (props.skin === Skin.LIGHT ? 1 : 1)}px;
+  top: ${(props) => (props.skin === Skin.LIGHT ? 1 : 1)}px;
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 2px;
-  width: ${props => (props.skin === Skin.LIGHT ? 30 : 30)}px;
-  height: ${props => (props.skin === Skin.LIGHT ? 30 : 30)}px;
+  width: ${(props) => (props.skin === Skin.LIGHT ? 30 : 30)}px;
+  height: ${(props) => (props.skin === Skin.LIGHT ? 30 : 30)}px;
   z-index: 10;
   cursor: pointer;
   &:hover {
-    background: ${props => props.isFocused && props.background};
+    background: ${(props) => props.isFocused && props.background};
   }
 `;
 

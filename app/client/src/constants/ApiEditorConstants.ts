@@ -1,4 +1,4 @@
-import { RestAction } from "entities/Action";
+import { ApiActionConfig } from "entities/Action";
 import { DEFAULT_ACTION_TIMEOUT } from "constants/ApiConstants";
 import { zipObject } from "lodash";
 
@@ -16,26 +16,24 @@ export const HTTP_METHOD_COLOR_MAP = zipObject(
   HTTP_METHOD_COLORS,
 );
 
-export const HTTP_METHOD_OPTIONS = HTTP_METHODS.map(method => ({
+export const HTTP_METHOD_OPTIONS = HTTP_METHODS.map((method) => ({
   label: method,
   value: method,
 }));
 
 export const REST_PLUGIN_PACKAGE_NAME = "restapi-plugin";
 
-export const DEFAULT_API_ACTION: Partial<RestAction> = {
-  actionConfiguration: {
-    timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
-    httpMethod: HTTP_METHODS[0],
-    headers: [
-      { key: "", value: "" },
-      { key: "", value: "" },
-    ],
-    queryParameters: [
-      { key: "", value: "" },
-      { key: "", value: "" },
-    ],
-  },
+export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
+  timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
+  httpMethod: HTTP_METHODS[0],
+  headers: [
+    { key: "", value: "" },
+    { key: "", value: "" },
+  ],
+  queryParameters: [
+    { key: "", value: "" },
+    { key: "", value: "" },
+  ],
 };
 
 export const PLUGIN_TYPE_API = "API";
@@ -53,11 +51,11 @@ export const POST_BODY_FORMAT_OPTIONS = [
 ];
 
 export const POST_BODY_FORMAT_OPTIONS_NO_MULTI_PART = POST_BODY_FORMAT_OPTIONS.filter(
-  option => {
+  (option) => {
     return option.value !== "multipart/form-data";
   },
 );
 
-export const POST_BODY_FORMATS = POST_BODY_FORMAT_OPTIONS.map(option => {
+export const POST_BODY_FORMATS = POST_BODY_FORMAT_OPTIONS.map((option) => {
   return option.value;
 });

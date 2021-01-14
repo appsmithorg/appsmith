@@ -203,8 +203,9 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               const tabs = [...widget.tabs];
 
               const newTabs = tabs.map((tab: any) => {
-                tab.widgetId = generateReactKey();
-                return tab;
+                const newTab = { ...tab };
+                newTab.widgetId = generateReactKey();
+                return newTab;
               });
               const updatePropertyMap = [
                 {
@@ -264,7 +265,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                   {
                     type: "BUTTON_WIDGET",
-                    position: { left: 10, top: 4 },
+                    position: { left: 9, top: 4 },
                     size: { rows: 1, cols: 3 },
                     props: {
                       text: "Cancel",
@@ -273,8 +274,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                   {
                     type: "BUTTON_WIDGET",
-                    position: { left: 13, top: 4 },
-                    size: { rows: 1, cols: 3 },
+                    position: { left: 12, top: 4 },
+                    size: { rows: 1, cols: 4 },
                     props: {
                       text: "Confirm",
                       buttonStyle: "PRIMARY_BUTTON",
@@ -291,7 +292,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       const iconChild =
                         widget.children &&
                         widget.children.find(
-                          child => child.type === "ICON_WIDGET",
+                          (child) => child.type === "ICON_WIDGET",
                         );
 
                       if (iconChild && parent) {

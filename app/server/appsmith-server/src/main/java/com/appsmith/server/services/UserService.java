@@ -4,8 +4,9 @@ import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 public interface UserService extends CrudService<User, String> {
 
@@ -29,5 +30,5 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<User> userCreate(User user);
 
-    Flux<User> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader);
+    Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader);
 }

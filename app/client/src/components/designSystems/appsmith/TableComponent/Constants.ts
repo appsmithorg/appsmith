@@ -31,7 +31,7 @@ export enum TextSizes {
   HEADING2 = "HEADING2",
   HEADING3 = "HEADING3",
   PARAGRAPH = "PARAGRAPH",
-  BULLETPOINTS = "BULLETPOINTS",
+  PARAGRAPH2 = "PARAGRAPH2",
 }
 
 export enum FontStyleTypes {
@@ -63,7 +63,6 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
 };
 
 export enum ColumnTypes {
-  CURRENCY = "currency",
   TIME = "time",
   DATE = "date",
   VIDEO = "video",

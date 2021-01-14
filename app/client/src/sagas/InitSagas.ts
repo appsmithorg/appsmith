@@ -1,3 +1,4 @@
+import { get } from "lodash";
 import {
   all,
   call,
@@ -13,6 +14,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
+import { ERROR_CODES } from "constants/ApiConstants";
 
 import { fetchEditorConfigs } from "actions/configsActions";
 import {
@@ -65,7 +67,14 @@ function* initializeEditorSaga(
 
     if (resultOfPrimaryCalls.failure) {
       yield put({
-        type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+        payload: {
+          code: get(
+            resultOfPrimaryCalls,
+            "failure.payload.error.code",
+            ERROR_CODES.SERVER_ERROR,
+          ),
+        },
       });
       return;
     }
@@ -85,7 +94,14 @@ function* initializeEditorSaga(
 
     if (resultOfSecondaryCalls.failure) {
       yield put({
-        type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+        payload: {
+          code: get(
+            resultOfPrimaryCalls,
+            "failure.payload.error.code",
+            ERROR_CODES.SERVER_ERROR,
+          ),
+        },
       });
       return;
     }
@@ -107,7 +123,10 @@ function* initializeEditorSaga(
     });
   } catch (e) {
     yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+      payload: {
+        code: ERROR_CODES.SERVER_ERROR,
+      },
     });
     return;
   }
@@ -143,7 +162,14 @@ export function* initializeAppViewerSaga(
 
   if (resultOfPrimaryCalls.failure) {
     yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+      payload: {
+        code: get(
+          resultOfPrimaryCalls,
+          "failure.payload.error.code",
+          ERROR_CODES.SERVER_ERROR,
+        ),
+      },
     });
     return;
   }
@@ -159,9 +185,17 @@ export function* initializeAppViewerSaga(
       success: take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS),
       failure: take(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR),
     });
+
     if (resultOfFetchPage.failure) {
       yield put({
-        type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+        payload: {
+          code: get(
+            resultOfFetchPage,
+            "failure.payload.error.code",
+            ERROR_CODES.SERVER_ERROR,
+          ),
+        },
       });
       return;
     }

@@ -1,5 +1,5 @@
 import React from "react";
-import { RestAction } from "entities/Action";
+import { Action } from "entities/Action";
 import { Directions } from "utils/helpers";
 import { WidgetProps } from "widgets/BaseWidget";
 import CustomizedDropdown, {
@@ -24,7 +24,7 @@ import { ReduxAction } from "constants/ReduxActionConstants";
 
 export const getApiOptions = (
   skin: Skin,
-  apis: RestAction[],
+  apis: Action[],
   pageId: string,
   dispatch: (action: ReduxAction<unknown>) => void,
   updateDynamicInputValue: (value: string, cursor?: number) => void,
@@ -50,7 +50,7 @@ export const getApiOptions = (
       ],
     },
     {
-      options: apis.map(api => ({
+      options: apis.map((api) => ({
         content: api.name,
         onSelect: () => {
           updateDynamicInputValue(`{{${api.name}.data}}`);
@@ -73,7 +73,7 @@ export const getApiOptions = (
 
 export const getQueryOptions = (
   skin: Skin,
-  queries: RestAction[],
+  queries: Action[],
   pageId: string,
   dispatch: (action: ReduxAction<unknown>) => void,
   updateDynamicInputValue: (value: string, cursor?: number) => void,
@@ -99,7 +99,7 @@ export const getQueryOptions = (
       ],
     },
     {
-      options: queries.map(query => ({
+      options: queries.map((query) => ({
         content: query.name,
         onSelect: () => {
           updateDynamicInputValue(`{{${query.name}.data}}`);
@@ -127,7 +127,7 @@ export const getWidgetOptions = (
 ) => ({
   sections: [
     {
-      options: widgets.map(widget => ({
+      options: widgets.map((widget) => ({
         content: widget.widgetName,
         disabled: false,
         shouldCloseDropdown: true,
@@ -151,8 +151,8 @@ export const getWidgetOptions = (
 });
 
 export const getLightningMenuOptions = (
-  apis: RestAction[],
-  queries: RestAction[],
+  apis: Action[],
+  queries: Action[],
   widgets: WidgetProps[],
   pageId: string,
   dispatch: (action: ReduxAction<unknown>) => void,

@@ -1,4 +1,4 @@
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { Page } from "constants/ReduxActionConstants";
 import { keyBy } from "lodash";
 import React, { memo, useCallback, useMemo } from "react";
@@ -85,8 +85,8 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
           {props.datasources.map((datasource: Datasource) => {
             return (
               <ExplorerDatasourceEntity
-                plugin={pluginGroups[datasource.pluginId]}
                 key={datasource.id}
+                plugin={pluginGroups[datasource.pluginId]}
                 datasource={datasource}
                 step={props.step + 1}
                 searchKeyword={props.searchKeyword}

@@ -20,7 +20,7 @@ import {
   ConditionFunctions,
   TableStyles,
 } from "components/designSystems/appsmith/TableComponent/Constants";
-import { isString, isEmpty, findIndex } from "lodash";
+import { isString, isEmpty, findIndex, isPlainObject, isNil } from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
@@ -42,17 +42,22 @@ export const renderCell = (
   switch (columnType) {
     case ColumnTypes.IMAGE:
       if (!value) {
-        return <CellWrapper isHidden={isHidden}></CellWrapper>;
+        return (
+          <CellWrapper
+            cellProperties={cellProperties}
+            isHidden={isHidden}
+          ></CellWrapper>
+        );
       } else if (!isString(value)) {
         return (
-          <CellWrapper isHidden={isHidden}>
+          <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
             <div>Invalid Image </div>
           </CellWrapper>
         );
       }
       const imageRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
       return (
-        <CellWrapper isHidden={isHidden}>
+        <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
           {value
             .toString()
             .split(",")
@@ -60,13 +65,13 @@ export const renderCell = (
               if (imageRegex.test(item)) {
                 return (
                   <a
-                    onClick={e => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
                     target="_blank"
                     rel="noopener noreferrer"
                     href={item}
+                    key={index}
                   >
                     <div
-                      key={index}
                       className="image-cell"
                       style={{ backgroundImage: `url("${item}")` }}
                     />
@@ -81,16 +86,27 @@ export const renderCell = (
     case ColumnTypes.VIDEO:
       const youtubeRegex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
       if (!value) {
-        return <CellWrapper isHidden={isHidden}></CellWrapper>;
+        return (
+          <CellWrapper
+            cellProperties={cellProperties}
+            isHidden={isHidden}
+          ></CellWrapper>
+        );
       } else if (isString(value) && youtubeRegex.test(value)) {
         return (
-          <CellWrapper isHidden={isHidden} className="video-cell">
+          <CellWrapper
+            cellProperties={cellProperties}
+            isHidden={isHidden}
+            className="video-cell"
+          >
             <PopoverVideo url={value} />
           </CellWrapper>
         );
       } else {
         return (
-          <CellWrapper isHidden={isHidden}>Invalid Video Link</CellWrapper>
+          <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
+            Invalid Video Link
+          </CellWrapper>
         );
       }
     default:
@@ -114,11 +130,20 @@ interface RenderActionProps {
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }
 
-export const renderActions = (props: RenderActionProps, isHidden: boolean) => {
+export const renderActions = (
+  props: RenderActionProps,
+  isHidden: boolean,
+  cellProperties: CellLayoutProperties,
+) => {
   if (!props.columnActions)
-    return <CellWrapper isHidden={isHidden}></CellWrapper>;
+    return (
+      <CellWrapper
+        cellProperties={cellProperties}
+        isHidden={isHidden}
+      ></CellWrapper>
+    );
   return (
-    <CellWrapper isHidden={isHidden}>
+    <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
           <TableAction
@@ -150,7 +175,7 @@ const TableAction = (props: {
     <ActionWrapper
       background={props.backgroundColor}
       buttonLabelColor={props.buttonLabelColor}
-      onClick={e => {
+      onClick={(e) => {
         if (props.isSelected) {
           e.stopPropagation();
         }
@@ -236,7 +261,7 @@ const SortIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   cursor: pointer;
   svg {
     path {
-      fill: ${props => props.theme.colors.secondary};
+      fill: ${(props) => props.theme.colors.secondary};
     }
   }
 `;
@@ -315,13 +340,12 @@ export function sortTableFunction(
   return tableData.sort(
     (a: { [key: string]: any }, b: { [key: string]: any }) => {
       if (
-        a[sortedColumn] !== undefined &&
-        a[sortedColumn] !== null &&
-        b[sortedColumn] !== undefined &&
-        b[sortedColumn] !== null
+        isPlainObject(a) &&
+        isPlainObject(b) &&
+        !isNil(a[sortedColumn]) &&
+        !isNil(b[sortedColumn])
       ) {
         switch (columnType) {
-          case ColumnTypes.CURRENCY:
           case ColumnTypes.NUMBER:
             return sortOrder
               ? Number(a[sortedColumn]) > Number(b[sortedColumn])
@@ -489,7 +513,7 @@ export const renderDropdown = (props: {
   selectedIndex?: number;
 }) => {
   const isOptionSelected = (selectedOption: DropdownOption) => {
-    const optionIndex = findIndex(props.options, option => {
+    const optionIndex = findIndex(props.options, (option) => {
       return option.value === selectedOption.value;
     });
     return optionIndex === props.selectedIndex;
