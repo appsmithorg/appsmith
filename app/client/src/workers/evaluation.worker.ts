@@ -15,6 +15,7 @@ import {
   extraLibraries,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
+  isPathADynamicBinding,
   isPathADynamicTrigger,
   unsafeFunctionForEval,
 } from "../utils/DynamicBindingUtils";
@@ -275,17 +276,18 @@ export class DataTreeEvaluator {
 
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
-    const removedDependencyNodes = this.updateDependencyMap(
-      differences,
-      unEvalTreeWithFunctions,
-    );
+    const {
+      dependenciesOfRemovedPaths,
+      removedPaths,
+    } = this.updateDependencyMap(differences, unEvalTreeWithFunctions);
     const updateDependenciesStop = performance.now();
 
     const calculateSortOrderStart = performance.now();
 
     const subTreeSortOrder: string[] = this.calculateSubTreeSortOrder(
       differences,
-      removedDependencyNodes,
+      dependenciesOfRemovedPaths,
+      removedPaths,
     );
 
     const calculateSortOrderStop = performance.now();
@@ -307,9 +309,16 @@ export class DataTreeEvaluator {
       // Only do this for property paths and not the entity themselves
       if (lastIndexOfDot !== -1) {
         const unEvalPropValue = _.get(unEvalTree, propertyPath);
+        // TODO Optimise: Required only if unEvalPropValue is a binding that needs eval
         _.set(this.evalTree, propertyPath, unEvalPropValue);
       }
     });
+
+    // Remove any deleted paths from the eval tree
+    removedPaths.forEach((removedPath) => {
+      _.unset(this.evalTree, removedPath);
+    });
+
     const evaluatedTree = this.evaluateTree(this.evalTree, subTreeSortOrder);
     const evalStop = performance.now();
 
@@ -511,8 +520,15 @@ export class DataTreeEvaluator {
           const entityName = propertyPath.split(".")[0];
           const entity: DataTreeEntity = currentTree[entityName];
           const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
+          const isABindingPath =
+            (isAction(entity) || isWidget(entity)) &&
+            isPathADynamicBinding(
+              entity,
+              propertyPath.substring(propertyPath.indexOf(".") + 1),
+            );
           let evalPropertyValue;
-          const requiresEval = isDynamicValue(unEvalPropertyValue);
+          const requiresEval =
+            isABindingPath && isDynamicValue(unEvalPropertyValue);
           if (requiresEval) {
             try {
               evalPropertyValue = this.evaluateDynamicProperty(
@@ -876,10 +892,14 @@ export class DataTreeEvaluator {
   updateDependencyMap(
     differences: Array<Diff<any, any>>,
     unEvalDataTree: DataTree,
-  ): Array<string> {
+  ): {
+    dependenciesOfRemovedPaths: Array<string>;
+    removedPaths: Array<string>;
+  } {
     const diffCalcStart = performance.now();
     let didUpdateDependencyMap = false;
-    const removedNodes: Array<string> = [];
+    const dependenciesOfRemovedPaths: Array<string> = [];
+    const removedPaths: Array<string> = [];
 
     // This is needed for NEW and DELETE events below.
     // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
@@ -929,6 +949,8 @@ export class DataTreeEvaluator {
               break;
             }
             case DataTreeDiffEvent.DELETE: {
+              // Add to removedPaths as they have been deleted from the evalTree
+              removedPaths.push(dataTreeDiff.payload.propertyPath);
               // If an existing widget was deleted, remove all the bindings from the global dependency map
               if (
                 entityType === ENTITY_TYPE.WIDGET &&
@@ -968,7 +990,7 @@ export class DataTreeEvaluator {
                           dependantPath,
                         )
                       ) {
-                        removedNodes.push(dependencyPath);
+                        dependenciesOfRemovedPaths.push(dependencyPath);
                         toRemove.push(dependantPath);
                       }
                     },
@@ -991,24 +1013,37 @@ export class DataTreeEvaluator {
                 entityType === ENTITY_TYPE.WIDGET &&
                 typeof dataTreeDiff.payload.value === "string"
               ) {
-                didUpdateDependencyMap = true;
+                const entity: DataTreeWidget = unEvalDataTree[
+                  entityName
+                ] as DataTreeWidget;
+                const isABindingPath = isPathADynamicBinding(
+                  entity,
+                  dataTreeDiff.payload.propertyPath.substring(
+                    dataTreeDiff.payload.propertyPath.indexOf(".") + 1,
+                  ),
+                );
+                if (isABindingPath) {
+                  didUpdateDependencyMap = true;
 
-                const { jsSnippets } = getDynamicBindings(
-                  dataTreeDiff.payload.value,
-                );
-                const correctSnippets = jsSnippets.filter(
-                  (jsSnippet) => !!jsSnippet,
-                );
-                // We found a new dynamic binding for this property path. We update the dependency map by overwriting the
-                // dependencies for this property path with the newly found dependencies
-                if (correctSnippets.length) {
-                  this.dependencyMap[
-                    dataTreeDiff.payload.propertyPath
-                  ] = correctSnippets;
-                } else {
-                  // The dependency on this property path has been removed. Delete this property path from the global
-                  // dependency map
-                  delete this.dependencyMap[dataTreeDiff.payload.propertyPath];
+                  const { jsSnippets } = getDynamicBindings(
+                    dataTreeDiff.payload.value,
+                  );
+                  const correctSnippets = jsSnippets.filter(
+                    (jsSnippet) => !!jsSnippet,
+                  );
+                  // We found a new dynamic binding for this property path. We update the dependency map by overwriting the
+                  // dependencies for this property path with the newly found dependencies
+                  if (correctSnippets.length) {
+                    this.dependencyMap[
+                      dataTreeDiff.payload.propertyPath
+                    ] = correctSnippets;
+                  } else {
+                    // The dependency on this property path has been removed. Delete this property path from the global
+                    // dependency map
+                    delete this.dependencyMap[
+                      dataTreeDiff.payload.propertyPath
+                    ];
+                  }
                 }
               }
               break;
@@ -1051,17 +1086,18 @@ export class DataTreeEvaluator {
       ).toFixed(2),
     });
 
-    return removedNodes;
+    return { dependenciesOfRemovedPaths, removedPaths };
   }
 
   calculateSubTreeSortOrder(
     differences: Diff<any, any>[],
-    removedDependencyNodes: Array<string>,
+    dependenciesOfRemovedPaths: Array<string>,
+    removedPaths: Array<string>,
   ) {
-    const changePaths: Set<string> = new Set(removedDependencyNodes);
+    const changePaths: Set<string> = new Set(dependenciesOfRemovedPaths);
     differences.forEach((d) => {
       if (d.path) {
-        // Apply the changes into the oldEvalTree so that it can be evaluated
+        // Apply the changes into the evalTree so that it gets the latest changes
         applyChange(this.evalTree, undefined, d);
 
         // If this is a property path change, simply add for evaluation
@@ -1081,10 +1117,10 @@ export class DataTreeEvaluator {
           }
         } else if (d.path.length === 1) {
           /*
-            When we see a new widget has been added or or delete an old widget ( d.path.length === 1)
-            We want to add all the dependencies in the sorted order to make
-            sure all the bindings are evaluated.
-          */
+              When we see a new widget has been added or or delete an old widget ( d.path.length === 1)
+              We want to add all the dependencies in the sorted order to make
+              sure all the bindings are evaluated.
+            */
           this.sortedDependencies.forEach((dependency) => {
             if (d.path && dependency.split(".")[0] === d.path[0]) {
               changePaths.add(dependency);
@@ -1106,10 +1142,12 @@ export class DataTreeEvaluator {
 
     // Now that we have all the root nodes which have to be evaluated, recursively find all the other paths which
     // would get impacted because they are dependent on the said root nodes and add them in order
-    return this.getCompleteSortOrder(
+    const completeSortOrder = this.getCompleteSortOrder(
       changePathsWithNestedDependants,
       this.inverseDependencyMap,
     );
+    // Remove any paths that do no exist in the data tree any more
+    return _.difference(completeSortOrder, removedPaths);
   }
 
   getInverseDependencyTree(): DependencyMap {
@@ -1305,6 +1343,7 @@ const createEntityDependencyMap = (dependencyMap: DependencyMap) => {
   return entityDepMap;
 };
 
+// TODO cryptic comment below. Dont know if we still need this. Duplicate function
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 const isDynamicValue = (value: string): boolean => DATA_BIND_REGEX.test(value);
 
