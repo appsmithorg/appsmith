@@ -3,7 +3,11 @@ import { ReduxAction } from "constants/ReduxActionConstants";
 export enum ActionableErrorType {
   UNKNOWN = "unknown",
   EVAL = "eval",
-  BINDING = "binding",
+  BINDING_SYNTAX = "binding:syntax",
+  BINDING_UNKNOWN_VARIABLE = "binding:unknown_variable",
+  BINDING_DISALLOWED_FUNCTION = "binding:disallowed_function",
+  ACTION_EXECUTION_TIMEOUT = "action:execution:timeout",
+  // add as we need
 }
 
 export enum ActionableErrorSeverity {
@@ -25,18 +29,70 @@ export type UserAction = {
   reduxAction: ReduxAction<unknown>;
 };
 
-export type ActionableError = {
-  // Message will need formatting to highlight what exactly is broken.
-  // Do we want to add clickable elements?
-  // Eg: clicking `Table1.tableData` will take you to the propertyPane of `Table1` and focus on the `Data`
-  // If yes, string might not be the correct type here.
+export interface TimelineEvent {
+  // "when" did this event happen
+  timestamp: Date;
+  // "what": Human readable description of what happened.
   message: string;
-  // Should we have a more open system of error codes that people can define and handle?
+  // "where" propertyPath / function (widget/action) that triggered this event.
+  source: string;
+  // "Why" User action or parent that triggered this event.
+  // Walking up the parents can be used to construct the timeline/trace of events.
+  parent: TimelineEvent | undefined;
+
+  // Snapshot KV pair of scope variables or state associated with this event.
+  state: Record<string, any>;
+}
+
+/**
+ * Example:
+ * "User clicked a button -> Triggered an API call -> Api timed out"
+ * {
+ *   id: 1,
+ *   type: ActionableErrorType.ACTION_EXECUTION_TIMEOUT,
+ *   severity: ActionableErrorSeverity.ERROR,
+ *   message: "Action execution timedout after 10 seconds",
+ *   source: "Api1.run",
+ *   timestamp: new Date(),
+ *   state: {
+ *     timeoutMilliseconds: 10000,
+ *   },
+ *   userActions: [
+ *     {
+ *       label: "Increase timeout by 5 seconds",
+ *       reduxAction: {
+ *         type: "ACTION_INCREASE_TIMEOUT",
+ *         payload: { actionId: "abcdef", value: 5000 },
+ *       },
+ *     },
+ *   ],
+ *   parent: {
+ *     message: "Api1 started executing",
+ *     source: "Api1.run",
+ *     timestamp: new Date(),
+ *     parent: {
+ *       timestamp: new Date(),
+ *       message: "Button1 clicked",
+ *       source: "Button1.onClick",
+ *       state: {},
+ *       parent: undefined,
+ *     },
+ *     state: {
+ *       "Dropdown1.selectedOptionValue": "VEG",
+ *     },
+ *   }
+ * }
+ */
+export interface ActionableError extends TimelineEvent {
+  // Identifier for this particular error, must be globally unique in this run
+  // Does not need to be shown to the user.
+  id: number;
+
+  // Error type of the event.
   type: ActionableErrorType;
+
   severity: ActionableErrorSeverity;
+
+  // Actions a user can take to resolve this issue
   userActions: Array<UserAction>;
-  // Not completely sure of this,
-  // If this error occured as a result of another, we can use this to link to the parent
-  // Might help group errors in a flow and help user figure out what happened.
-  parent?: ActionableError;
-};
+}
