@@ -75,7 +75,7 @@ describe("Button Widget Functionality", function() {
     //Uncheck the disabled checkbox and validate
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publishPage.buttonWidget).should("not.be.visible");
+    cy.get(publishPage.buttonWidget).should("not.exist");
   });
 
   it("Button-Check Visible field Validation", function() {

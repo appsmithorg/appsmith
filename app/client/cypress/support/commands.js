@@ -395,7 +395,7 @@ Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
   ).should("be.visible");
   cy.get(
     commonlocators.entitySearchResult.concat(apiname2).concat("')"),
-  ).should("not.be.visible");
+  ).should("not.exist");
 });
 
 Cypress.Commands.add("GlobalSearchEntity", (apiname1) => {
@@ -1661,6 +1661,7 @@ Cypress.Commands.add("validateHTMLText", (widgetCss, htmlTag, value) => {
 });
 
 Cypress.Commands.add("startServerAndRoutes", () => {
+  //To update route with intercept after working on alias wrt wait and alias
   cy.server();
   cy.route("GET", "/api/v1/applications/new").as("applications");
   cy.route("GET", "/api/v1/users/profile").as("getUser");
