@@ -21,6 +21,7 @@ import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/modes";
 import {
+  CodeEditorBorder,
   EditorConfig,
   EditorModes,
   EditorSize,
@@ -56,8 +57,6 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
 interface ReduxStateProps {
   dynamicData: DataTree;
 }
-
-export type CodeEditorBorder = "none" | "all-side" | "bottom-side";
 
 export type EditorStyleProps = {
   placeholder?: string;

@@ -1,11 +1,11 @@
 import styled, { createGlobalStyle } from "styled-components";
 import {
+  CodeEditorBorder,
   EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Skin, Theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { CodeEditorBorder } from ".";
 
 export const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
   .CodeMirror-hints {
