@@ -739,7 +739,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     }
   } catch (e) {
-    console.error(e);
+    log.error(e);
     yield put(
       executeActionError({
         actionId: pageAction.id,
