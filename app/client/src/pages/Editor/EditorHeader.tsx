@@ -42,6 +42,7 @@ import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { Position } from "@blueprintjs/core";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
+import GlobalSearch from "components/editorComponents/GlobalSearch";
 
 const HeaderWrapper = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
@@ -312,6 +313,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         </Boxed>
       </HeaderSection>
       <HelpModal page={"Editor"} />
+      <GlobalSearch />
     </HeaderWrapper>
   );
 };

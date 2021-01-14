@@ -39,6 +39,7 @@ import { EvaluatedTreeState } from "./evaluationReducers/treeReducer";
 import { EvaluationDependencyState } from "./evaluationReducers/dependencyReducer";
 import { PageWidgetsReduxState } from "./uiReducers/pageWidgetsReducer";
 import { OnboardingState } from "./uiReducers/onBoardingReducer";
+import { GlobalSearchReduxState } from "./uiReducers/globalSearchReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -76,6 +77,7 @@ export interface AppState {
     datasourceName: DatasourceNameReduxState;
     theme: ThemeState;
     onBoarding: OnboardingState;
+    globalSearch: GlobalSearchReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
