@@ -947,7 +947,7 @@ Cypress.Commands.add(
 Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.get(commonlocators.editWidgetName)
     .click({ force: true })
-    .type(text)
+    .type(text, { delay: 300 })
     .type("{enter}");
   cy.get(inputcss)
     .first()
@@ -1455,31 +1455,6 @@ Cypress.Commands.add("dropdownDynamic", (text) => {
     .contains(text)
     .click({ force: true })
     .should("have.text", text);
-});
-
-Cypress.Commands.add("selectTextSize", (text) => {
-  cy.get("ul[class='bp3-menu']")
-    .first()
-    .contains(text)
-    .click({ force: true });
-});
-
-Cypress.Commands.add("getAlert", (alertcss) => {
-  cy.get(commonlocators.dropdownSelectButton).click({ force: true });
-  cy.get(widgetsPage.menubar)
-    .contains("Show Alert")
-    .click({ force: true })
-    .should("have.text", "Show Alert");
-
-  cy.get(alertcss)
-    .click({ force: true })
-    .type("{command}{A}{del}")
-    .type("hello")
-    .should("not.to.be.empty");
-  cy.get(".t--open-dropdown-Select-type").click({ force: true });
-  cy.get(".bp3-popover-content .bp3-menu li")
-    .contains("Success")
-    .click({ force: true });
 });
 
 Cypress.Commands.add("tabVerify", (index, text) => {

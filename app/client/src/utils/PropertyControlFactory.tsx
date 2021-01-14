@@ -22,7 +22,6 @@ class PropertyControlFactory {
     preferEditor: boolean,
     customEditor?: string,
   ): JSX.Element {
-    // TODO(abhinav): Use computedValue editor for this if necessary
     let controlBuilder = this.controlMap.get(controlData.controlType);
     if (preferEditor) {
       if (customEditor) controlBuilder = this.controlMap.get(customEditor);
@@ -34,6 +33,7 @@ class PropertyControlFactory {
         ...controlData,
         ...controlFunctions,
         key: controlData.id,
+        customJSControl: customEditor,
       };
       const control = controlBuilder.buildPropertyControl(controlProps);
       return control;

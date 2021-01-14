@@ -20,6 +20,7 @@ export function InputText(props: {
   expected?: string;
   placeholder?: string;
   dataTreePath?: string;
+  additionalAutocomplete?: Record<string, Record<string, unknown>>;
 }) {
   const {
     errorMessage,
@@ -50,6 +51,7 @@ export function InputText(props: {
         tabBehaviour={TabBehaviour.INDENT}
         size={EditorSize.EXTENDED}
         placeholder={placeholder}
+        additionalDynamicData={props.additionalAutocomplete}
       />
     </StyledDynamicInput>
   );

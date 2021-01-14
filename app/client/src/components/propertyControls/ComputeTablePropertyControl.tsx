@@ -9,8 +9,12 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
+import {
+  JSToString,
+  stringToJS,
+} from "components/editorComponents/actioncreator/ActionCreator";
 
 const CurlyBraces = styled.span`
   color: white;
@@ -119,37 +123,18 @@ class ComputeTablePropertyControl extends BaseControl<
   }
 
   getInputComputedValue = (propertyValue: string, tableId: string) => {
-    const regex = /(\(currentRow.[\w\d]([\s\S](?<!currentRow))*\))/g;
     const value = `${propertyValue.substring(
       `{{${tableId}.tableData.map((currentRow) => `.length,
       propertyValue.length - 3,
     )}`;
-    const args = [...value.matchAll(regex)];
-    if (!args.length) {
-      return propertyValue;
-    }
-    let output = value;
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i][0];
-      const trimmedValue = "{{" + arg.substring(1, arg.length - 1) + "}}";
-      output = output.replace(arg, trimmedValue);
-    }
-    return output;
+    const stringValue = JSToString(value);
+
+    return stringValue;
   };
 
   getComputedValue = (value: string, tableId: string) => {
-    const regex = /({{(currentRow.[\w\d])([^}])*}})/g;
-    const args = [...value.matchAll(regex)];
-    let output = value;
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i][0];
-      const trimmedValue = "(" + arg.substring(2, arg.length - 2) + ")";
-      output = output.replace(arg, trimmedValue);
-    }
-    if (args.length) {
-      return `{{${tableId}.tableData.map((currentRow) => ${output})}}`;
-    }
-    return output;
+    const stringToEvaluate = stringToJS(value);
+    return `{{${tableId}.tableData.map((currentRow) => ${stringToEvaluate})}}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
@@ -159,7 +144,7 @@ class ComputeTablePropertyControl extends BaseControl<
     } else {
       value = event;
     }
-    if (value && isDynamicValue(value)) {
+    if (value) {
       const output = this.getComputedValue(
         value,
         this.props.widgetProperties.widgetName,

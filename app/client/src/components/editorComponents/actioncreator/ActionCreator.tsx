@@ -83,7 +83,7 @@ export const modalGetter = (value: string) => {
   return name;
 };
 
-const stringToJS = (string: string): string => {
+export const stringToJS = (string: string): string => {
   const { stringSegments, jsSnippets } = getDynamicBindings(string);
   const js = stringSegments
     .map((segment, index) => {
@@ -97,7 +97,7 @@ const stringToJS = (string: string): string => {
   return js;
 };
 
-const JSToString = (js: string): string => {
+export const JSToString = (js: string): string => {
   const segments = js.split(" + ");
   return segments
     .map((segment) => {
@@ -189,45 +189,12 @@ const enumTypeGetter = (
   return defaultValue;
 };
 
-const objectTypeSetter = (
-  obj: Object,
-  currentValue: string,
-  argNum: number,
-): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  let args: string[] = [];
-  if (matches.length) {
-    args = argsStringToArray(matches[0][2]);
-    args[argNum] = JSON.stringify(obj);
-  }
-  const result = currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
-  return result;
-};
-
-const objectTypeGetter = (
-  value: string,
-  argNum: number,
-  defaultValue = undefined,
-): Object | undefined => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
-    const args = argsStringToArray(matches[0][2]);
-    const arg = args[argNum];
-    if (arg) {
-      return JSON.parse(arg.trim());
-    }
-  }
-  return defaultValue;
-};
-
 type ActionCreatorProps = {
   value: string;
   isValid: boolean;
   validationMessage?: string;
   onValueChange: (newValue: string) => void;
+  additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
 
 const ActionType = {
@@ -240,6 +207,7 @@ const ActionType = {
   showAlert: "showAlert",
   storeValue: "storeValue",
   download: "download",
+  copyToClipboard: "copyToClipboard",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
@@ -271,6 +239,7 @@ type KeyValueViewProps = ViewProps;
 type TextViewProps = ViewProps & {
   isValid: boolean;
   validationMessage?: string;
+  additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
 
 const views = {
@@ -324,6 +293,7 @@ const views = {
             evaluatedValue={props.get(props.value, false) as string}
             isValid={props.isValid}
             errorMessage={props.validationMessage}
+            additionalAutocomplete={props.additionalAutoComplete}
           />
         </ControlWrapper>
       </FieldWrapper>
@@ -348,6 +318,7 @@ const FieldType = {
   DOWNLOAD_DATA_FIELD: "DOWNLOAD_DATA_FIELD",
   DOWNLOAD_FILE_NAME_FIELD: "DOWNLOAD_FILE_NAME_FIELD",
   DOWNLOAD_FILE_TYPE_FIELD: "DOWNLOAD_FILE_TYPE_FIELD",
+  COPY_TEXT_FIELD: "COPY_TEXT_FIELD",
 };
 type FieldType = typeof FieldType[keyof typeof FieldType];
 
@@ -509,6 +480,15 @@ const fieldConfigs: FieldConfigs = {
       enumTypeSetter(option.value, currentValue, 2),
     view: ViewTypes.SELECTOR_VIEW,
   },
+  [FieldType.COPY_TEXT_FIELD]: {
+    getter: (value: any) => {
+      return textGetter(value, 0);
+    },
+    setter: (option: any, currentValue: string) => {
+      return textSetter(option, currentValue, 0);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
 };
 
 const baseOptions: any = [
@@ -548,6 +528,10 @@ const baseOptions: any = [
   {
     label: "Download",
     value: ActionType.download,
+  },
+  {
+    label: "Copy to Clipboard",
+    value: ActionType.copyToClipboard,
   },
 ];
 function getOptionsWithChildren(
@@ -692,6 +676,11 @@ function getFieldFromValue(
       },
     );
   }
+  if (value.indexOf("copyToClipboard") !== -1) {
+    fields.push({
+      field: FieldType.COPY_TEXT_FIELD,
+    });
+  }
   return fields;
 }
 
@@ -716,6 +705,7 @@ function renderField(props: {
   pageDropdownOptions: TreeDropdownOption[];
   depth: number;
   maxDepth: number;
+  additionalAutoComplete?: Record<string, Record<string, unknown>>;
 }) {
   const { field } = props;
   const fieldType = field.field;
@@ -829,6 +819,7 @@ function renderField(props: {
     case FieldType.QUERY_PARAMS_FIELD:
     case FieldType.DOWNLOAD_DATA_FIELD:
     case FieldType.DOWNLOAD_FILE_NAME_FIELD:
+    case FieldType.COPY_TEXT_FIELD:
       let fieldLabel = "";
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
@@ -844,6 +835,8 @@ function renderField(props: {
         fieldLabel = "Data to download";
       } else if (fieldType === FieldType.DOWNLOAD_FILE_NAME_FIELD) {
         fieldLabel = "File name with extension";
+      } else if (fieldType === FieldType.COPY_TEXT_FIELD) {
+        fieldLabel = "Text to be copied to clipboard";
       }
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: fieldLabel,
@@ -855,6 +848,7 @@ function renderField(props: {
         value: props.value,
         isValid: props.isValid,
         validationMessage: props.validationMessage,
+        additionalAutoComplete: props.additionalAutoComplete,
       });
       break;
     default:
@@ -877,6 +871,7 @@ function Fields(props: {
   pageDropdownOptions: TreeDropdownOption[];
   depth: number;
   maxDepth: number;
+  additionalAutoComplete?: Record<string, Record<string, unknown>>;
 }) {
   const { fields, ...otherProps } = props;
   if (fields[0].field === FieldType.ACTION_SELECTOR_FIELD) {
@@ -914,6 +909,7 @@ function Fields(props: {
                       );
                       props.onValueChange(parentValue);
                     }}
+                    additionalAutoComplete={props.additionalAutoComplete}
                   />
                 </li>
               );
@@ -1092,6 +1088,7 @@ export function ActionCreator(props: ActionCreatorProps) {
         onValueChange={props.onValueChange}
         depth={1}
         maxDepth={1}
+        additionalAutoComplete={props.additionalAutoComplete}
       />
     </TreeStructure>
   );

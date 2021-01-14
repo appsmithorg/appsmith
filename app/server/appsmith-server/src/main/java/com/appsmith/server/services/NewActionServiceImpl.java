@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
@@ -444,6 +445,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
 
         String actionId = executeActionDTO.getActionId();
+        AtomicReference<String> actionName = new AtomicReference<>();
+        // Initialize the name to be empty value
+        actionName.set("");
         // 2. Fetch the action from the DB and check if it can be executed
         Mono<ActionDTO> actionMono = repository.findById(actionId, EXECUTE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
@@ -530,6 +534,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     final Datasource datasource = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
 
+                    // Set the action name
+                    actionName.set(action.getName());
 
                     DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     ActionConfiguration actionConfiguration = action.getActionConfiguration();
@@ -576,7 +582,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                     )
                             )
                             .onErrorResume(e -> {
-                                log.debug("In the action execution error mode.", e);
+                                log.debug("{}: In the action execution error mode.",
+                                        Thread.currentThread().getName(), e);
                                 ActionExecutionResult result = new ActionExecutionResult();
                                 result.setBody(e.getMessage());
                                 result.setIsExecutionSuccess(false);
@@ -597,6 +604,16 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     result.setStatusCode(error.getAppErrorCode().toString());
                     result.setBody(error.getMessage());
                     return Mono.just(result);
+                })
+                .elapsed()
+                .map(tuple -> {
+                    log.debug("{}: Action {} with id {} execution time : {} ms",
+                            Thread.currentThread().getName(),
+                            actionName.get(),
+                            actionId,
+                            tuple.getT1()
+                    );
+                    return tuple.getT2();
                 });
     }
 
@@ -688,6 +705,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .flatMap(action -> generateActionByViewMode(action, false));
     }
 
+    @Override
+    public Flux<NewAction> findUnpublishedOnLoadActionsInPage(String pageId) {
+        return repository
+                .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, MANAGE_ACTIONS);
+    }
+
     /**
      * Given a list of names of actions and pageId, find all the actions matching this criteria of names and pageId
      *
@@ -696,8 +719,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
      * @return A Flux of Actions that are identified to be executed on page-load.
      */
     @Override
-    public Flux<NewAction> findUnpublishedOnLoadActionsInPage(Set<String> names, String pageId) {
-        return repository.findUnpublishedActionsByNameInAndPageId(names, pageId, MANAGE_ACTIONS);
+    public Flux<NewAction> findUnpublishedActionsInPageByNames(Set<String> names, String pageId) {
+        return repository
+                .findUnpublishedActionsByNameInAndPageId(names, pageId, MANAGE_ACTIONS);
     }
 
     @Override

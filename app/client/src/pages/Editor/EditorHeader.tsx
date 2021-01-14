@@ -23,6 +23,7 @@ import {
   getCurrentPageId,
   getIsPageSaving,
   getIsPublishingApplication,
+  getPageSavingError,
 } from "selectors/editorSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
@@ -196,7 +197,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           />
         </Link>
       </HeaderSection>
-      <Boxed step={OnboardingStep.DEPLOY}>
+      <Boxed step={OnboardingStep.FINISH}>
         <HeaderSection flex-direction={"row"}>
           {currentApplication ? (
             <EditableTextWrapper
@@ -225,7 +226,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         </HeaderSection>
       </Boxed>
       <HeaderSection>
-        <Boxed step={OnboardingStep.DEPLOY}>
+        <Boxed step={OnboardingStep.FINISH}>
           <SaveStatusContainer className={"t--save-status-container"}>
             {saveStatusIcon}
           </SaveStatusContainer>
@@ -276,6 +277,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             <OnboardingToolTip
               step={[OnboardingStep.DEPLOY]}
               position={Position.BOTTOM_RIGHT}
+              dismissOnOutsideClick={false}
             >
               <Indicator
                 step={OnboardingStep.SUCCESSFUL_BINDING}
@@ -317,6 +319,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,
   isSaving: getIsPageSaving(state),
+  pageSaveError: getPageSavingError(state),
   orgId: getCurrentOrgId(state),
   applicationId: getCurrentApplicationId(state),
   currentApplication: state.ui.applications.currentApplication,

@@ -241,12 +241,10 @@ const applicationsReducer = createReducer(initialState, {
     if (action.payload.name) {
       isSavingAppName = true;
     }
+    const { id, ...rest } = action.payload;
     const _organizations = state.userOrgs.map((org: Organization) => {
-      const appIndex = org.applications.findIndex(
-        (app) => app.id === action.payload.id,
-      );
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id, ...rest } = action.payload;
+      const appIndex = org.applications.findIndex((app) => app.id === id);
+
       if (appIndex !== -1) {
         org.applications[appIndex] = {
           ...org.applications[appIndex],

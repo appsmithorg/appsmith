@@ -1,6 +1,6 @@
-import { setCurrentStep } from "actions/onboardingActions";
 import { ReduxAction, ReduxActionTypes } from "./ReduxActionConstants";
 import { EventName } from "../utils/AnalyticsUtil";
+import { showTooltip } from "actions/onboardingActions";
 
 export enum OnboardingStep {
   NONE = -1,
@@ -11,6 +11,7 @@ export enum OnboardingStep {
   ADD_WIDGET = 4,
   SUCCESSFUL_BINDING = 5,
   DEPLOY = 6,
+  FINISH = 7,
 }
 
 export type OnboardingTooltip = {
@@ -20,6 +21,7 @@ export type OnboardingTooltip = {
     label: string;
     action?: ReduxAction<OnboardingStep>;
   };
+  onClickOutside?: ReduxAction<any>;
   snippet?: string;
   isFinalStep?: boolean;
 };
@@ -113,16 +115,13 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
   },
   [OnboardingStep.SUCCESSFUL_BINDING]: {
     setup: () => {
-      return [
-        {
-          type: ReduxActionTypes.LISTEN_FOR_WIDGET_UNSELECTION,
-        },
-      ];
+      return [];
     },
     tooltip: {
       title: "Your widget is now talking to your data 👌👏",
       description:
         "You can access widgets and actions as JS variables anywhere inside {{ }}",
+      onClickOutside: showTooltip(OnboardingStep.DEPLOY),
     },
     eventName: "ONBOARDING_SUCCESSFUL_BINDING",
   },
@@ -139,5 +138,14 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       isFinalStep: true,
     },
     eventName: "ONBOARDING_DEPLOY",
+  },
+  // Final step
+  [OnboardingStep.FINISH]: {
+    setup: () => {
+      return [];
+    },
+    tooltip: {
+      title: "",
+    },
   },
 };

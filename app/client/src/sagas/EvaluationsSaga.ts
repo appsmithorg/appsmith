@@ -50,16 +50,13 @@ const evalErrorHandler = (errors: EvalError[]) => {
         variant: Variant.danger,
       });
     }
-    if (
-      [
-        EvalErrorTypes.EVAL_TREE_ERROR,
-        EvalErrorTypes.BAD_UNEVAL_TREE_ERROR,
-      ].includes(error.type)
-    ) {
+    if (error.type === EvalErrorTypes.EVAL_TREE_ERROR) {
       Toaster.show({
         text: "Unexpected error occurred while evaluating the app",
         variant: Variant.danger,
       });
+    }
+    if (error.type === EvalErrorTypes.BAD_UNEVAL_TREE_ERROR) {
       Sentry.captureException(error);
     }
     log.debug(error);
@@ -219,7 +216,6 @@ const EVALUATE_REDUX_ACTIONS = [
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-  ReduxActionTypes.SET_URL_DATA,
   ReduxActionTypes.UPDATE_APP_STORE,
   // Widgets
   ReduxActionTypes.UPDATE_LAYOUT,

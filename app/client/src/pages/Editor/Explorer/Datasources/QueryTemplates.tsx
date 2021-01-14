@@ -9,7 +9,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { QueryAction } from "entities/Action";
 import { Classes } from "@blueprintjs/core";
 import history from "utils/history";
-import { Datasource, QueryTemplate } from "api/DatasourcesApi";
+import { Datasource, QueryTemplate } from "entities/Datasource";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
@@ -48,7 +48,9 @@ export const QueryTemplates = (props: QueryTemplatesProps) => {
     (template: QueryTemplate) => {
       const newQueryName = createNewQueryName(actions, currentPageId || "");
       const queryactionConfiguration: Partial<QueryAction> = {
-        actionConfiguration: { body: template.body },
+        actionConfiguration: {
+          body: template.body,
+        },
       };
 
       dispatch(

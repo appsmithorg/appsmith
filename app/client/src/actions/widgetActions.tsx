@@ -23,10 +23,12 @@ export const executeAction = (
 
 export const executeActionError = (
   executeErrorPayload: ExecuteErrorPayload,
-): ReduxAction<ExecuteErrorPayload> => ({
-  type: ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
-  payload: executeErrorPayload,
-});
+): ReduxAction<ExecuteErrorPayload> => {
+  return {
+    type: ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
+    payload: executeErrorPayload,
+  };
+};
 
 export const executePageLoadActions = (
   payload: PageAction[][],
