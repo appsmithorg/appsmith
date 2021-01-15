@@ -739,16 +739,15 @@ function* executePageLoadAction(pageAction: PageAction) {
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     }
   } catch (e) {
-    console.error(e);
     yield put(
       executeActionError({
         actionId: pageAction.id,
         isPageLoad: true,
-        error: "",
-        show: false,
+        error: {
+          message: `The action "${pageAction.name}" has failed.`,
+        },
       }),
     );
-    throw new Error(`The action "${pageAction.name}" has failed.`);
   }
 }
 
@@ -773,7 +772,7 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     log.error(e);
 
     Toaster.show({
-      text: _.get(e, "message", "Failed to load onPageLoad actions"),
+      text: "Failed to load onPageLoad actions",
       variant: Variant.danger,
     });
   }
