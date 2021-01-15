@@ -9,7 +9,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
-import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
 import {
   JSToString,
@@ -149,6 +149,7 @@ class ComputeTablePropertyControl extends BaseControl<
         value,
         this.props.widgetProperties.widgetName,
       );
+
       this.updateProperty(this.props.propertyName, output);
     } else {
       this.updateProperty(this.props.propertyName, value);

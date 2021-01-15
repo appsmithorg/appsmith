@@ -73,7 +73,7 @@ describe("RichTextEditor Widget Functionality", function() {
     // Uncheck the visible checkbox
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publishPage.richTextEditorWidget).should("not.be.visible");
+    cy.get(publishPage.richTextEditorWidget).should("not.exist");
   });
 
   it("RichTextEditor-uncheck Visible field validation", function() {

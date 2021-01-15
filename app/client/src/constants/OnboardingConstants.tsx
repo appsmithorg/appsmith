@@ -1,5 +1,4 @@
 import { ReduxAction, ReduxActionTypes } from "./ReduxActionConstants";
-import { EventName } from "../utils/AnalyticsUtil";
 import { showTooltip } from "actions/onboardingActions";
 
 export enum OnboardingStep {
@@ -27,13 +26,14 @@ export type OnboardingTooltip = {
 };
 
 export type OnboardingStepConfig = {
+  name: string;
   setup: () => { type: string; payload?: any }[];
   tooltip: OnboardingTooltip;
-  eventName?: EventName;
 };
 
 export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
   [OnboardingStep.NONE]: {
+    name: "NONE",
     setup: () => {
       return [];
     },
@@ -43,6 +43,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
   },
   [OnboardingStep.WELCOME]: {
+    name: "WELCOME",
     setup: () => {
       // To setup the state if any
       // Return action that needs to be dispatched
@@ -56,9 +57,9 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       title: "",
       description: "",
     },
-    eventName: "ONBOARDING_WELCOME",
   },
   [OnboardingStep.EXAMPLE_DATABASE]: {
+    name: "EXAMPLE_DATABASE",
     setup: () => {
       return [
         {
@@ -73,9 +74,9 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       title:
         "We’ve connected to an example Postgres database. You can now query it.",
     },
-    eventName: "ONBOARDING_EXAMPLE_DATABASE",
   },
   [OnboardingStep.RUN_QUERY]: {
+    name: "RUN_QUERY",
     setup: () => {
       return [];
     },
@@ -83,9 +84,9 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       title:
         "This is where you query data. Here’s one that fetches a list of users stored in the DB.",
     },
-    eventName: "ONBOARDING_RUN_QUERY",
   },
   [OnboardingStep.RUN_QUERY_SUCCESS]: {
+    name: "RUN_QUERY_SUCCESS",
     setup: () => {
       return [
         {
@@ -100,9 +101,9 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       title:
         "This is the response from your query. Now let’s connect it to a UI widget.",
     },
-    eventName: "ONBOARDING_RUN_QUERY",
   },
   [OnboardingStep.ADD_WIDGET]: {
+    name: "ADD_WIDGET",
     setup: () => {
       return [];
     },
@@ -111,9 +112,9 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         "Your first widget 🎉 Copy the snippet below and paste it inside TableData to see the magic",
       snippet: "{{ExampleQuery.data}}",
     },
-    eventName: "ONBOARDING_ADD_WIDGET",
   },
   [OnboardingStep.SUCCESSFUL_BINDING]: {
+    name: "SUCCESSFUL_BINDING",
     setup: () => {
       return [];
     },
@@ -123,9 +124,9 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         "You can access widgets and actions as JS variables anywhere inside {{ }}",
       onClickOutside: showTooltip(OnboardingStep.DEPLOY),
     },
-    eventName: "ONBOARDING_SUCCESSFUL_BINDING",
   },
   [OnboardingStep.DEPLOY]: {
+    name: "DEPLOY",
     setup: () => {
       return [
         {
@@ -137,10 +138,10 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       title: "You’re almost done! Just Hit Deploy",
       isFinalStep: true,
     },
-    eventName: "ONBOARDING_DEPLOY",
   },
   // Final step
   [OnboardingStep.FINISH]: {
+    name: "FINISH",
     setup: () => {
       return [];
     },

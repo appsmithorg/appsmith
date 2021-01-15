@@ -13,11 +13,11 @@ describe("Test curl import flow", function() {
     );
     cy.get("textarea").type("curl -X GET https://mock-api.appsmith.com/users");
     cy.importCurl();
-    cy.get("@curlImport").then(response => {
+    cy.get("@curlImport").then((response) => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);
       cy.get(apiwidget.ApiName)
         .invoke("text")
-        .then(text => {
+        .then((text) => {
           const someText = text;
           expect(someText).to.equal(response.response.body.data.name);
         });
@@ -28,10 +28,10 @@ describe("Test curl import flow", function() {
     cy.get(ApiEditor.formActionButtons).should("be.visible");
     cy.get(ApiEditor.ApiDeleteBtn).click();
     cy.wait("@deleteAction");
-    cy.get("@deleteAction").then(response => {
+    cy.get("@deleteAction").then((response) => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);
     });
     cy.get(ApiEditor.ApiHomePage).should("be.visible");
-    cy.get(ApiEditor.formActionButtons).should("not.be.visible");
+    cy.get(ApiEditor.formActionButtons).should("not.exist");
   });
 });
