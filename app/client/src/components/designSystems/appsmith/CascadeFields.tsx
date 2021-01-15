@@ -246,7 +246,7 @@ const RenderOptions = (props: {
         (i) => i.value === props.value,
       );
       if (selectedOptions && selectedOptions.length) {
-        selectValue(selectedOptions[0].value);
+        selectValue(selectedOptions[0].label);
       } else {
         selectValue(props.placeholder);
       }
