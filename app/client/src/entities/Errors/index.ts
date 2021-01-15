@@ -1,16 +1,13 @@
 import { ReduxAction } from "constants/ReduxActionConstants";
+import { BindingError } from "entities/Errors/binding";
+import { ActionError } from "entities/Errors/action";
+import { WidgetError } from "entities/Errors/widget";
+import { EvalError } from "entities/Errors/eval";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
-export enum ActionableErrorType {
-  UNKNOWN = "unknown",
-  EVAL = "eval",
-  BINDING_SYNTAX = "binding:syntax",
-  BINDING_UNKNOWN_VARIABLE = "binding:unknown_variable",
-  BINDING_DISALLOWED_FUNCTION = "binding:disallowed_function",
-  ACTION_EXECUTION_TIMEOUT = "action:execution:timeout",
-  // add as we need
-}
+export type ErrorType = BindingError | ActionError | WidgetError | EvalError;
 
-export enum ActionableErrorSeverity {
+export enum ErrorSeverity {
   // Doesn't break the app, but can cause slowdowns / ux issues/ unexpected behaviour
   WARNING = "warning",
   // Can cause an error in some cases/ single widget, app will work in other cases
@@ -20,7 +17,7 @@ export enum ActionableErrorSeverity {
 }
 
 export type UserAction = {
-  // Label may or may not need formatting
+  // Label is used to display the
   label: string;
   // As there can be multiple errors of the same base type at the same time
   // and we need to be able to tell the difference,
@@ -29,16 +26,26 @@ export type UserAction = {
   reduxAction: ReduxAction<unknown>;
 };
 
+export interface SourceEntity {
+  type: ENTITY_TYPE;
+  // Widget or action name
+  name: string;
+  // Id of the widget or action
+  id: string;
+  // property path of the child
+  propertyPath: string;
+}
+
 export interface TimelineEvent {
   // "when" did this event happen
   timestamp: Date;
   // "what": Human readable description of what happened.
   message: string;
   // "where" propertyPath / function (widget/action) that triggered this event.
-  source: string;
+  source: SourceEntity;
   // "Why" User action or parent that triggered this event.
-  // Walking up the parents can be used to construct the timeline/trace of events.
-  parent: TimelineEvent | undefined;
+  // Walking back on previous events can be used to construct the timeline/trace of events.
+  previous: TimelineEvent | undefined;
 
   // Snapshot KV pair of scope variables or state associated with this event.
   state: Record<string, any>;
@@ -49,14 +56,13 @@ export interface TimelineEvent {
  * "User clicked a button -> Triggered an API call -> Api timed out"
  * {
  *   id: 1,
- *   type: ActionableErrorType.ACTION_EXECUTION_TIMEOUT,
- *   severity: ActionableErrorSeverity.ERROR,
+ *   type: ActionError.EXECUTION_TIMEOUT,
+ *   timeoutMs: 10000,
+ *   severity: ErrorSeverity.ERROR,
  *   message: "Action execution timedout after 10 seconds",
  *   source: "Api1.run",
  *   timestamp: new Date(),
- *   state: {
- *     timeoutMilliseconds: 10000,
- *   },
+ *   state: {},
  *   userActions: [
  *     {
  *       label: "Increase timeout by 5 seconds",
@@ -66,19 +72,20 @@ export interface TimelineEvent {
  *       },
  *     },
  *   ],
- *   parent: {
+ *   previous: {
  *     message: "Api1 started executing",
  *     source: "Api1.run",
  *     timestamp: new Date(),
- *     parent: {
+ *     previous: {
  *       timestamp: new Date(),
  *       message: "Button1 clicked",
  *       source: "Button1.onClick",
  *       state: {},
- *       parent: undefined,
+ *       previous: undefined,
  *     },
  *     state: {
  *       "Dropdown1.selectedOptionValue": "VEG",
+ *       executionParams: { name: "Piyush" }
  *     },
  *   }
  * }
@@ -89,9 +96,9 @@ export interface ActionableError extends TimelineEvent {
   id: number;
 
   // Error type of the event.
-  type: ActionableErrorType;
+  type: ErrorType;
 
-  severity: ActionableErrorSeverity;
+  severity: ErrorSeverity;
 
   // Actions a user can take to resolve this issue
   userActions: Array<UserAction>;
