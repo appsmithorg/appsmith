@@ -44,35 +44,6 @@ public class OAuth2ConnectionTest {
         assertThat(connection.getToken()).isEqualTo("SomeToken");
     }
 
-//    @Test
-//    public void testExpiredConnection() throws Exception {
-//        // Setting up an expired token object
-//        OAuth2 oAuth2 = new OAuth2();
-//        oAuth2.setIsHeader(true);
-//        oAuth2.setToken("SomeToken");
-//        oAuth2.setIsEncrypted(false);
-//        oAuth2.setExpiresAt(Instant.now());
-//
-//        // Setting up the sample token to be returned
-//        OAuth2 newOauth2 = new OAuth2();
-//        newOauth2.setToken("Generated token");
-//        newOauth2.setHeaderPrefix("ManualPrefix");
-//        Mono<OAuth2> generatedOauth2 = Mono.just(newOauth2);
-//        PowerMockito.mockStatic(OAuth2Connection.class);
-//
-//        OAuth2Connection oAuth2Connection = PowerMockito.mock(OAuth2Connection.class);
-//        PowerMockito.spy(oAuth2Connection);
-//        PowerMockito
-//                .when(oAuth2Connection, OAuth2Connection.class.getDeclaredMethod("generateOAuth2Token", OAuth2.class))
-//                .withArguments(oAuth2)
-//                .thenReturn(generatedOauth2);
-//        OAuth2Connection connection = oAuth2Connection.create(oAuth2).block(Duration.ofMillis(100));
-//
-//        assertThat(connection).isNotNull();
-//        assertThat(connection.getHeaderPrefix()).isEqualTo("ManualPrefix");
-//        assertThat(connection.getToken()).isEqualTo("Generated token");
-//    }
-
     @Test
     public void testStaleFilter() {
         OAuth2 oAuth2 = new OAuth2();
