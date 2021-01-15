@@ -187,6 +187,9 @@ jobs:
             --env APPSMITH_ENCRYPTION_PASSWORD=password \
             --env APPSMITH_ENCRYPTION_SALT=salt \
             --env APPSMITH_IS_SELF_HOSTED=false \
+            --env APPSMITH_CLOUD_SERVICES_BASE_URL= \
+            --env APPSMITH_CLOUD_SERVICES_USERNAME= \
+            --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
 
       - name: Pull master server docker container and start it locally
@@ -201,6 +204,9 @@ jobs:
             --env APPSMITH_ENCRYPTION_PASSWORD=password \
             --env APPSMITH_ENCRYPTION_SALT=salt \
             --env APPSMITH_IS_SELF_HOSTED=false \
+            --env APPSMITH_CLOUD_SERVICES_BASE_URL= \
+            --env APPSMITH_CLOUD_SERVICES_USERNAME= \
+            --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
 
       - name: Installing Yarn serve
