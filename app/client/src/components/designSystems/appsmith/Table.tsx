@@ -113,13 +113,13 @@ export const Table = (props: TableProps) => {
   if (state.columnResizing.isResizingColumn) {
     isResizingColumn.current = true;
   } else {
-    /*
-      We are updating column size since the drag is complete 
-      when we are changing value of isResizing from true to false 
-    */
+    // We are updating column size since the drag is complete when we are changing value of isResizing from true to false
     if (isResizingColumn.current) {
-      isResizingColumn.current = false;
-      handleResizeColumn(state.columnResizing.columnWidths);
+      //update isResizingColumn in next event loop so that dragEnd event does not trigger click event.
+      setTimeout(function() {
+        isResizingColumn.current = false;
+        handleResizeColumn(state.columnResizing.columnWidths);
+      }, 0);
     }
   }
   let startIndex = currentPageIndex * props.pageSize;
