@@ -83,16 +83,21 @@ describe("Table Widget property pane feature validation", function() {
       .first()
       .click({ force: true });
     cy.xpath(widgetsPage.greenColor).click();
-    cy.wait(5000);
+    cy.wait(500);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(41, 204, 163)");
-    cy.get(widgetsPage.textColor).type("purple", { force: true });
+    cy.get(widgetsPage.textColor)
+      .clear({ force: true })
+      .type("purple", { force: true });
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
     cy.get(widgetsPage.backgroundColor)
       .first()
       .click({ force: true });
-    cy.xpath(widgetsPage.greenColor).click();
+    cy.wait(500);
+    cy.xpath(widgetsPage.greenColor)
+      .first()
+      .click();
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
       "1",
