@@ -21,7 +21,15 @@ import {
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
-import { isNumber, isString, isUndefined, isEqual, compact, xor } from "lodash";
+import {
+  isNumber,
+  isString,
+  isUndefined,
+  isEqual,
+  compact,
+  xor,
+  union,
+} from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta from "../MetaHOC";
@@ -155,13 +163,28 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
-    const {
-      primaryColumns,
-      sortedColumn,
-      columnOrder,
-      columnSizeMap,
-    } = this.props;
-    let allColumns = [...(primaryColumns || [])];
+    const { sortedColumn, columnOrder, columnSizeMap } = this.props;
+    const derivedColumns =
+      this.props.derivedColumns && Array.isArray(this.props.derivedColumns)
+        ? this.props.derivedColumns
+        : [];
+    const primaryColumns =
+      this.props.primaryColumns && Array.isArray(this.props.primaryColumns)
+        ? this.props.primaryColumns
+        : [];
+    const derivedColumnIds = derivedColumns.map(
+      (column: ColumnProperties) => column.id,
+    );
+    const primaryColumnIds = primaryColumns.map(
+      (column: ColumnProperties) => column.id,
+    );
+    let allColumns = [...primaryColumns];
+    if (
+      union(primaryColumnIds, derivedColumnIds).length !==
+      primaryColumnIds.length
+    ) {
+      allColumns = [...primaryColumns, ...derivedColumns];
+    }
     const sortColumn = sortedColumn?.column;
     const sortOrder = sortedColumn?.asc;
     if (columnOrder) {
@@ -355,9 +378,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       filters,
       tableData,
       derivedColumns,
-      primaryColumns,
     } = this.props;
-    console.log("Table log: checking====", { tableData }, { primaryColumns });
     if (!tableData || !tableData.length) {
       return [];
     }
@@ -382,9 +403,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             );
             // if such a derived column exists, use it.
             if (derivedColumn) {
-              console.log("Table log: Assigning derived columns", {
-                derivedColumn,
-              });
               computedValues = this.getParsedComputedValues(
                 derivedColumn.computedValue,
               );
@@ -392,32 +410,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }
         }
 
-        // // If the column has a `computedValue` property
-        // if (column.computedValue) {
-        //   let computedValues: Array<unknown> = [];
-        //   // If it is a string try to parse it into an array.
-        //   if (isString(column.computedValue)) {
-        //     try {
-        //       computedValues = JSON.parse(column.computedValue);
-        //     } catch (e) {
-        //       log.debug("Error parsing column value:", column.computedValue);
-        //       // computedValues = Array(tableData.length).fill(
-        //       //   column.computedValue,
-        //       // );
-        //     }
-        //     // Else if it already is an array.
-        //   } else if (Array.isArray(column.computedValue)) {
-        //     computedValues = column.computedValue;
-        //     // Else, log an error, as it should always be an array.
-        //   } else {
-        //     // If we have derivedColumns
-
-        //     log.debug(
-        //       "Incorrect values for computed value:",
-        //       column.computedValue,
-        //     );
-        //   }
-        console.log({ computedValues }, { derivedTableData });
         // Fill the values from the computed values into the table data.
         for (let index = 0; index < computedValues.length; index++) {
           derivedTableData[index] = {
@@ -471,7 +463,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         return filter;
       },
     );
-    // console.log("Table log: checking====", { finalTableData });
     return finalTableData;
   };
 
@@ -518,7 +509,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   createTablePrimaryColumns = () => {
     const { tableData, dynamicBindingPathList, columnOrder } = this.props;
-    const derivedColumns = this.props.derivedColumns;
+    const derivedColumns = [...(this.props.derivedColumns || [])];
     // If there is tableData attempt to generate primaryColumns
     if (tableData) {
       let tableColumns: ColumnProperties[] = [];
@@ -571,7 +562,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
               // If we have a column Id for the derived column for which a dynamic binding path exists
               if (columnId) {
-                // Get the column form the updatedDerivedColumn
+                // Get the column from the updatedDerivedColumn
                 const column = updatedDerivedColumns.find(
                   (column: ColumnProperties) => {
                     return column.id === columnId;
@@ -595,12 +586,22 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         }),
       );
 
+      // console.log(
+      //   "Table log:",
+      //   { updatedDynamicBindingPathList },
+      //   { tableColumns },
+      //   { updatedDerivedColumns },
+      //   { derivedColumns },
+      //   { derivedColumnsPaths },
+      //   { dynamicBindingPathList },
+      // );
+
       super.updateWidgetProperty(
         "dynamicBindingPathList",
         updatedDynamicBindingPathList,
       );
-      console.log("Table log: primary columns: ", { tableColumns });
       super.updateWidgetProperty("primaryColumns", tableColumns);
+      console.log("Table log: Updating primaryColumns", { tableColumns });
       const newTableColumnOrder = tableColumns.map(
         (column: ColumnProperties) => column.id,
       );
@@ -613,20 +614,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   componentDidMount() {
-    const filteredTableData = this.filterTableData();
-    console.log("Table log: UPDATING=====", { filteredTableData });
-    this.props.updateWidgetMetaProperty("filteredTableData", filteredTableData);
-    setTimeout(() => {
-      if (
-        !this.props.primaryColumns ||
-        this.props.primaryColumns.length === 0
-      ) {
-        this.createTablePrimaryColumns();
-      }
-    }, 0);
+    if (this.props.primaryColumns && this.props.primaryColumns.length > 0) {
+      const filteredTableData = this.filterTableData();
+      this.props.updateWidgetMetaProperty(
+        "filteredTableData",
+        filteredTableData,
+      );
+    } else {
+      this.createTablePrimaryColumns();
+    }
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
+    // console.log("Table log: Table re-rendered", this.props);
     // Check if data is modifed by comparing the stringified versions of the previous and next tableData
     const tableDataModified =
       JSON.stringify(this.props.tableData) !==
@@ -658,14 +658,23 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       hasPrimaryColumnsComputedValueChanged ||
       this.props.filteredTableData === undefined
     ) {
-      const filteredTableData = this.filterTableData();
-      console.log("Table log: UPDATING=====", { filteredTableData });
-      // Update filteredTableData meta property
-      this.props.updateWidgetMetaProperty(
-        "filteredTableData",
-        filteredTableData,
-      );
-      //TODO(abhinav/Vicky) : What we render and the FilteredTableData are different. What we render is correct
+      if (this.props.primaryColumns && this.props.primaryColumns.length > 0) {
+        const filteredTableData = this.filterTableData();
+
+        if (
+          JSON.stringify(filteredTableData) !==
+          JSON.stringify(this.props.filteredTableData)
+        ) {
+          console.log("Table log: Updating filteredTableData", {
+            filteredTableData,
+          });
+          // Update filteredTableData meta property
+          this.props.updateWidgetMetaProperty(
+            "filteredTableData",
+            filteredTableData,
+          );
+        }
+      }
     }
 
     // If the user has changed the tableData OR
@@ -686,31 +695,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         this.createTablePrimaryColumns(); // This updates the widget
       }
     }
-
-    /*if (!this.props.multiRowSelection) {
-        const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
-          ? this.props.defaultSelectedRow
-          : -1;
-        this.props.updateWidgetMetaProperty(
-          "selectedRowIndex",
-          selectedRowIndex,
-        );
-        this.props.updateWidgetMetaProperty(
-          "selectedRow",
-          this.getSelectedRow(filteredTableData, selectedRowIndex),
-        );
-      } else {
-        const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
-          ? this.props.defaultSelectedRow
-          : [];
-        this.props.updateWidgetMetaProperty(
-          "selectedRowIndices",
-          selectedRowIndices,
-        );
-        this.props.updateWidgetMetaProperty(
-          "selectedRows",
-          this.getSelectedRows(filteredTableData, selectedRowIndices),
-        );*/
 
     // If the user has switched the mutiple row selection feature
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
@@ -767,14 +751,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       ? this.props.selectedRowIndices
       : [];
     const tableColumns = this.getTableColumns();
-    console.log("Table log:", { filteredTableData });
-    console.log("Table log:", { tableColumns });
     const transformedData = this.transformData(
       filteredTableData || [],
       tableColumns,
     );
 
-    console.log("Table log:", { transformedData });
     const serverSidePaginationEnabled = (this.props
       .serverSidePaginationEnabled &&
       this.props.serverSidePaginationEnabled) as boolean;

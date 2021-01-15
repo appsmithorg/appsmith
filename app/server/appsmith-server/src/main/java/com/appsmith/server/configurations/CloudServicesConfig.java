@@ -6,13 +6,13 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Getter
-public class MarketplaceConfig {
-    @Value("${marketplace.base-url}")
+public class CloudServicesConfig {
+    @Value("${appsmith.cloud_services.base_url}")
     String baseUrl;
 
-    @Value("${marketplace.username}")
+    @Value("${appsmith.cloud_services.username}")
     private String username;
 
-    @Value("${marketplace.password}")
+    @Value("${appsmith.cloud_services.password}")
     private String password;
 }

@@ -6,6 +6,7 @@ import _ from "lodash";
 import { WidgetType } from "constants/WidgetConstants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "constants/ReduxActionConstants";
+import { getActions } from "../selectors/entitiesSelector";
 
 export const getWidgets = (
   state: AppState,
@@ -64,9 +65,6 @@ export const getExistingWidgetNames = createSelector(
     return Object.values(widgets).map((widget) => widget.widgetName);
   },
 );
-export const getActions = (state: AppState) => {
-  return state.entities.actions;
-};
 
 export const currentPageId = (state: AppState) => {
   return state.entities.pageList.currentPageId;

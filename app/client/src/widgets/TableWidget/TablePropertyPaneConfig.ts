@@ -91,6 +91,7 @@ const updateDerivedColumnHook = (
         return column;
       },
     );
+
     return [
       {
         propertyPath: "derivedColumns",
