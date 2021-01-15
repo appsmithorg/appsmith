@@ -21,7 +21,15 @@ import {
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
-import { isNumber, isString, isUndefined, isEqual, compact, xor } from "lodash";
+import {
+  isNumber,
+  isString,
+  isUndefined,
+  isEqual,
+  compact,
+  xor,
+  union,
+} from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta from "../MetaHOC";
@@ -155,13 +163,29 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
-    const {
-      primaryColumns,
-      sortedColumn,
-      columnOrder,
-      columnSizeMap,
-    } = this.props;
-    let allColumns = [...(primaryColumns || [])];
+    const { sortedColumn, columnOrder, columnSizeMap } = this.props;
+    const derivedColumns =
+      this.props.derivedColumns && Array.isArray(this.props.derivedColumns)
+        ? this.props.derivedColumns
+        : [];
+    const primaryColumns =
+      this.props.primaryColumns && Array.isArray(this.props.primaryColumns)
+        ? this.props.primaryColumns
+        : [];
+    const derivedColumnIds = derivedColumns.map(
+      (column: ColumnProperties) => column.id,
+    );
+    const primaryColumnIds = primaryColumns.map(
+      (column: ColumnProperties) => column.id,
+    );
+    let allColumns = [...primaryColumns];
+    if (
+      union(primaryColumnIds, derivedColumnIds).length !==
+      primaryColumnIds.length
+    ) {
+      allColumns = [...primaryColumns, ...derivedColumns];
+    }
+    // let allColumns = [...primaryColumns, ...derivedColumns];
     const sortColumn = sortedColumn?.column;
     const sortOrder = sortedColumn?.asc;
     if (columnOrder) {
@@ -417,7 +441,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         //       column.computedValue,
         //     );
         //   }
-        console.log({ computedValues }, { derivedTableData });
+        console.log("Table log:", { computedValues }, { derivedTableData });
         // Fill the values from the computed values into the table data.
         for (let index = 0; index < computedValues.length; index++) {
           derivedTableData[index] = {
@@ -518,7 +542,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   createTablePrimaryColumns = () => {
     const { tableData, dynamicBindingPathList, columnOrder } = this.props;
-    const derivedColumns = this.props.derivedColumns;
+    const derivedColumns = [...(this.props.derivedColumns || [])];
     // If there is tableData attempt to generate primaryColumns
     if (tableData) {
       let tableColumns: ColumnProperties[] = [];
@@ -595,11 +619,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         }),
       );
 
+      console.log(
+        "Table log: ",
+        { updatedDynamicBindingPathList },
+        { tableColumns },
+        { updatedDerivedColumns },
+        { derivedColumns },
+      );
+
       super.updateWidgetProperty(
         "dynamicBindingPathList",
         updatedDynamicBindingPathList,
       );
-      console.log("Table log: primary columns: ", { tableColumns });
       super.updateWidgetProperty("primaryColumns", tableColumns);
       const newTableColumnOrder = tableColumns.map(
         (column: ColumnProperties) => column.id,
@@ -608,7 +639,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       if (xor(newTableColumnOrder, columnOrder).length > 0) {
         super.updateWidgetProperty("columnOrder", newTableColumnOrder);
       }
-      super.updateWidgetProperty("derivedColumns", updatedDerivedColumns);
+      // super.updateWidgetProperty("derivedColumns", updatedDerivedColumns);
     }
   };
 
@@ -658,15 +689,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       hasPrimaryColumnsComputedValueChanged ||
       this.props.filteredTableData === undefined
     ) {
-      const filteredTableData = this.filterTableData();
-      console.log("Table log: UPDATING=====", { filteredTableData });
-      // Update filteredTableData meta property
-      this.props.updateWidgetMetaProperty(
-        "filteredTableData",
-        filteredTableData,
-      );
+      if (this.props.primaryColumns && this.props.primaryColumns.length > 0) {
+        const filteredTableData = this.filterTableData();
+        console.log("Table log: UPDATING=====", { filteredTableData });
+        // Update filteredTableData meta property
+        this.props.updateWidgetMetaProperty(
+          "filteredTableData",
+          filteredTableData,
+        );
+      }
       //TODO(abhinav/Vicky) : What we render and the FilteredTableData are different. What we render is correct
     }
+
+    console.log("Table log BBBBBBB:", this.props);
 
     // If the user has changed the tableData OR
     // The binding has returned a new value
