@@ -34,6 +34,8 @@ import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { getAppStore } from "constants/AppConstants";
 import { getDefaultPageId } from "./selectors";
 import { populatePageDSLsSaga } from "./PageSagas";
+import log from "loglevel";
+import * as Sentry from "@sentry/react";
 
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
@@ -122,6 +124,8 @@ function* initializeEditorSaga(
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });
   } catch (e) {
+    log.error(e);
+    Sentry.captureException(e);
     yield put({
       type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
       payload: {

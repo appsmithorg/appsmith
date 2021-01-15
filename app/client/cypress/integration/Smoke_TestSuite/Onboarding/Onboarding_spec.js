@@ -56,7 +56,7 @@ describe("Onboarding", function() {
     cy.openPropertyPane("tablewidget");
     cy.closePropertyPane();
 
-    cy.get(".t--application-feedback-btn").should("not.be.visible");
+    cy.get(".t--application-feedback-btn").should("not.exist");
   });
 
   // Similar to PublishtheApp command with little changes
