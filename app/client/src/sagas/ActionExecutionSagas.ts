@@ -739,19 +739,15 @@ function* executePageLoadAction(pageAction: PageAction) {
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     }
   } catch (e) {
-    log.error(e);
     yield put(
       executeActionError({
         actionId: pageAction.id,
         isPageLoad: true,
-        error: "",
-        show: false,
+        error: {
+          message: `The action "${pageAction.name}" has failed.`,
+        },
       }),
     );
-    Toaster.show({
-      text: `The action "${pageAction.name}" has failed.`,
-      variant: Variant.danger,
-    });
   }
 }
 
