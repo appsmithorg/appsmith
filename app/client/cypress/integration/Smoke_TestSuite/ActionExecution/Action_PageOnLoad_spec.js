@@ -30,28 +30,10 @@ describe("API Panel Test Functionality", function() {
     );
   });
 
-  it("Will not crash the app for failure", function() {
-    cy.SearchEntityandOpen("PageLoadApi");
-    cy.get("li:contains('Settings')").click({ force: true });
-    cy.get("[data-cy='actionConfiguration.timeoutInMillisecond']")
-      .find(".bp3-input")
-      .type("{backspace}{backspace}{backspace}");
-
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("NormalApi");
-    cy.enterDatasourceAndPath("https://reqres.in/api/", "users");
-    cy.WaitAutoSave();
-
-    cy.reload();
-    cy.wait("@postExecute");
-    cy.RunAPI();
-    cy.ResponseStatusCheck("200 OK");
-  });
-
   it("Shows which action failed on action fail.", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("PageLoadApi2");
-    cy.enterDatasourceAndPath("https://abc.com/", "users");
+    cy.enterDatasourceAndPath("https://abc.com", "users");
     cy.WaitAutoSave();
     cy.get("li:contains('Settings')").click({ force: true });
     cy.get("[data-cy=executeOnLoad]")
