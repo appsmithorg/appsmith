@@ -54,9 +54,6 @@ const updateColumnStyles = (
         (a, b) => JSON.stringify(a) !== JSON.stringify(b),
       );
       if (difference) {
-        console.log("Table log: AAAAAAAABBBBBBBB ============", {
-          updatedDerivedColumns,
-        });
         updates = [
           ...updates,
           {
@@ -94,14 +91,7 @@ const updateDerivedColumnHook = (
         return column;
       },
     );
-    console.log(
-      "Table log: AAAAAAAAAA ============",
-      {
-        updatedDerivedColumns,
-      },
-      { propertyPath },
-      { propertyValue },
-    );
+
     return [
       {
         propertyPath: "derivedColumns",
@@ -139,13 +129,7 @@ const updateDerivedColumnsHook = (
         a.id === b.id && a.label === b.label,
     );
 
-    console.log("Table log: DERIVED COLUMNS ============", {
-      newDerivedColumns,
-    });
     if (difference.length > 0) {
-      console.log("Table log: DERIVED COLUMNS ============", {
-        newDerivedColumns,
-      });
       propertiesToUpdate.push({
         propertyPath: "derivedColumns",
         propertyValue: newDerivedColumns,

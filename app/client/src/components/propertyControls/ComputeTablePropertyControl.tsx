@@ -9,7 +9,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
-import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
 import {
   JSToString,
@@ -106,7 +106,6 @@ class ComputeTablePropertyControl extends BaseControl<
     for (let i = 0; i < columns.length; i++) {
       currentRow[columns[i].id] = undefined;
     }
-    console.log("AAAAAAAAA", { value }, { propertyValue }, this.props);
     return (
       <InputText
         label={label}
@@ -135,7 +134,6 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getComputedValue = (value: string, tableId: string) => {
     const stringToEvaluate = stringToJS(value);
-    console.log({ value }, { stringToEvaluate });
     return `{{${tableId}.tableData.map((currentRow) => ${stringToEvaluate})}}`;
   };
 
@@ -151,18 +149,9 @@ class ComputeTablePropertyControl extends BaseControl<
         value,
         this.props.widgetProperties.widgetName,
       );
-      console.log(
-        "Table log: AAAAAAAAAA ============",
-        {
-          output,
-        },
-        { event },
-      );
+
       this.updateProperty(this.props.propertyName, output);
     } else {
-      console.log("Table log: AAAAAAAAAA ============", {
-        value,
-      });
       this.updateProperty(this.props.propertyName, value);
     }
   };
