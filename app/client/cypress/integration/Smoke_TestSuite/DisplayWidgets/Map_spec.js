@@ -86,7 +86,7 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
        * Disable the Search Location checkbox and Validate the same in editor mode
        */
       cy.UncheckWidgetProperties(commonlocators.enableSearchLocCheckbox);
-      cy.get(viewWidgetsPage.mapSearch).should("not.be.visible");
+      cy.get(viewWidgetsPage.mapSearch).should("not.exist");
       /**
        * Disable the Pick Location checkbox and Validate the same in editor mode
        */
@@ -105,7 +105,7 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
       /**
        * Publish mode Validation
        */
-      cy.get(publishPage.mapSearch).should("not.be.visible");
+      cy.get(publishPage.mapSearch).should("not.exist");
       cy.get(publishPage.pickMyLocation).should("not.exist");
       cy.get(publishPage.backToEditor).click();
     });
@@ -141,7 +141,7 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
       //Uncheck the disabled checkbox and validate
       cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
       cy.PublishtheApp();
-      cy.get(publishPage.mapWidget).should("not.be.visible");
+      cy.get(publishPage.mapWidget).should("not.exist");
     });
   });
 }
