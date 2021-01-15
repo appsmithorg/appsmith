@@ -1,6 +1,5 @@
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
-import { Colors } from "constants/Colors";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { PluginType } from "entities/Action";
 import React from "react";
