@@ -21,6 +21,7 @@ import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/modes";
 import {
+  CodeEditorBorder,
   EditorConfig,
   EditorModes,
   EditorSize,
@@ -73,6 +74,8 @@ export type EditorStyleProps = {
   evaluatedValue?: any;
   expected?: string;
   borderLess?: boolean;
+  border?: CodeEditorBorder;
+  hoverInteraction?: boolean;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -322,6 +325,8 @@ class CodeEditor extends Component<Props, State> {
       evaluatedValue,
       height,
       borderLess,
+      border,
+      hoverInteraction,
     } = this.props;
     const hasError = !!(meta && meta.error);
     let evaluated = evaluatedValue;
@@ -375,7 +380,9 @@ class CodeEditor extends Component<Props, State> {
             className={className}
             height={height}
             borderLess={borderLess}
+            border={border}
             isNotHover={this.state.isFocused || this.state.isOpened}
+            hoverInteraction={hoverInteraction}
           >
             <HintStyles editorTheme={theme || EditorTheme.LIGHT} />
             {this.props.leftIcon && (
