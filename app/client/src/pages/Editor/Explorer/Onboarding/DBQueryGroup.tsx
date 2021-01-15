@@ -14,10 +14,10 @@ import { useActions, useFilteredDatasources } from "../hooks";
 
 const AddWidget = styled.button`
   margin-bottom: 25px;
-  padding: 6px 38px;
-  background-color: ${Colors.MINE_SHAFT};
-  border: 1px solid #f3672a;
-  color: #f3672a;
+  padding: 7px 38px;
+  background-color: #f3672a;
+  color: white;
+  border: none;
   font-weight: bold;
   cursor: pointer;
 `;
