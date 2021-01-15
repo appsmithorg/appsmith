@@ -132,7 +132,9 @@ const Welcome = () => {
           Not your first time with Appsmith?{" "}
           <span
             onClick={() => {
-              AnalyticsUtil.logEvent("SKIP_ONBOARDING");
+              AnalyticsUtil.logEvent("SKIP_ONBOARDING", {
+                step: "WELCOME",
+              });
               dispatch(endOnboarding());
             }}
           >
