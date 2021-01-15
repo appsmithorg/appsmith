@@ -692,7 +692,6 @@ export const TableHeaderCell = (props: {
   handleColumnNameUpdate: (columnIndex: number, name: string) => void;
   getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  handleResizeColumn: (columnIndex: number, columnWidth: string) => void;
   column: any;
   isResizingColumn: boolean;
 }) => {
@@ -712,12 +711,6 @@ export const TableHeaderCell = (props: {
       props.isAscOrder === undefined ? false : !props.isAscOrder;
     props.sortTableColumn(columnIndex, sortOrder);
   };
-  if (column.isResizing) {
-    props.handleResizeColumn(
-      props.columnIndex,
-      column.getHeaderProps().style.width,
-    );
-  }
   return (
     <div
       {...column.getHeaderProps()}

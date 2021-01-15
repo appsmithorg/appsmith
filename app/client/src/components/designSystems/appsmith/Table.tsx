@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   useTable,
   usePagination,
@@ -39,7 +39,7 @@ interface TableProps {
   getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
   handleColumnNameUpdate: (columnIndex: number, columnName: string) => void;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  handleResizeColumn: (columnIndex: number, columnWidth: string) => void;
+  handleResizeColumn: (columnId: string, columnWidth: number) => void;
   selectTableRow: (
     row: { original: Record<string, unknown>; index: number },
     isSelected: boolean,
@@ -67,6 +67,12 @@ const defaultColumn = {
 };
 
 export const Table = (props: TableProps) => {
+  const isResizingColumn = React.useRef(false);
+  const handleResizeColumn = (columnWidths: Record<string, number>) => {
+    const columnId = Object.keys(columnWidths)[0];
+    const width = columnWidths[columnId];
+    props.handleResizeColumn(columnId, width);
+  };
   const data = React.useMemo(() => props.data, [props.data]);
   const columnString = JSON.stringify({
     columns: props.columns,
@@ -74,7 +80,6 @@ export const Table = (props: TableProps) => {
     columnActions: props.columnActions,
     compactMode: props.compactMode,
   });
-
   const columns = React.useMemo(() => props.columns, [columnString]);
 
   const pageCount = Math.ceil(props.data.length / props.pageSize);
@@ -104,9 +109,18 @@ export const Table = (props: TableProps) => {
     usePagination,
     useRowSelect,
   );
-  const isResizingColumn = React.useRef(false);
+  //Set isResizingColumn as true when column is resizing using table state
   if (state.columnResizing.isResizingColumn) {
     isResizingColumn.current = true;
+  } else {
+    /*
+      We are updating column size since the drag is complete 
+      when we are changing value of isResizing from true to false 
+    */
+    if (isResizingColumn.current) {
+      isResizingColumn.current = false;
+      handleResizeColumn(state.columnResizing.columnWidths);
+    }
   }
   let startIndex = currentPageIndex * props.pageSize;
   let endIndex = startIndex + props.pageSize;
@@ -182,7 +196,6 @@ export const Table = (props: TableProps) => {
                       editMode={props.editMode}
                       handleColumnNameUpdate={props.handleColumnNameUpdate}
                       getColumnMenu={props.getColumnMenu}
-                      handleResizeColumn={props.handleResizeColumn}
                       sortTableColumn={props.sortTableColumn}
                       isAscOrder={column.isAscOrder}
                       isResizingColumn={isResizingColumn.current}

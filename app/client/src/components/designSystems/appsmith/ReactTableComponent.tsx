@@ -3,7 +3,6 @@
 import React, { useEffect } from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import Table from "components/designSystems/appsmith/Table";
-import { debounce } from "lodash";
 import { getMenuOptions } from "components/designSystems/appsmith/TableUtilities";
 import {
   ColumnTypes,
@@ -273,16 +272,14 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     }
   };
 
-  const handleResizeColumn = (columnIndex: number, columnWidth: string) => {
-    const column = props.columns[columnIndex];
-    const width = Number(columnWidth.split("px")[0]);
+  const handleResizeColumn = (columnId: string, columnWidth: number) => {
     const columnSizeMap = props.columnSizeMap
       ? {
           ...props.columnSizeMap,
-          [column.accessor]: width,
+          [columnId]: columnWidth,
         }
       : {
-          [column.accessor]: width,
+          [columnId]: columnWidth,
         };
     props.handleResizeColumn(columnSizeMap);
   };
@@ -313,7 +310,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       columnNameMap={props.columnNameMap}
       getColumnMenu={getColumnMenu}
       handleColumnNameUpdate={handleColumnNameUpdate}
-      handleResizeColumn={debounce(handleResizeColumn, 300)}
+      handleResizeColumn={handleResizeColumn}
       sortTableColumn={sortTableColumn}
       selectTableRow={selectTableRow}
       pageNo={props.pageNo - 1}
