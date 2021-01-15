@@ -134,7 +134,7 @@ const TabbedViewContainer = styled.div`
         props.theme.colors.apiPane.responseBody.bg};
     }
     .react-tabs__tab-panel {
-      height: calc(100% - 25px);
+      height: calc(100% - 36px);
     }
   }
 `;
@@ -175,6 +175,7 @@ const TabSection = styled.div`
   background-color: ${(props) => props.theme.colors.apiPane.bg};
   height: 100%;
   overflow: auto;
+  position: relative;
 `;
 
 interface APIFormProps {

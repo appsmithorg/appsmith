@@ -253,7 +253,12 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleChange = (instance?: any, changeObj?: any) => {
-    const value = this.editor.getValue();
+    let value = this.editor.getValue();
+    try {
+      value = JSON.parse(this.editor.getValue());
+    } catch (error) {
+      value = this.editor.getValue();
+    }
     if (changeObj && changeObj.origin === "complete") {
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
         searchString: changeObj.text[0],
