@@ -26,6 +26,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.solutions.ApplicationFetcher;
+import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -103,6 +104,9 @@ public class ApplicationServiceTest {
 
     @Autowired
     ApplicationRepository applicationRepository;
+
+    @MockBean
+    ReleaseNotesService releaseNotesService;
 
     String orgId;
 
@@ -330,6 +334,8 @@ public class ApplicationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getAllApplicationsForHome() {
+        Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
+
         Mono<UserHomepageDTO> allApplications = applicationFetcher.getAllApplications();
 
         StepVerifier
@@ -340,12 +346,11 @@ public class ApplicationServiceTest {
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
                     List<OrganizationApplicationsDTO> organizationApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
-
-                    assertThat(organizationApplicationsDTOs.size() > 0);
+                    assertThat(organizationApplicationsDTOs.size()).isPositive();
 
                     for (OrganizationApplicationsDTO organizationApplicationDTO : organizationApplicationsDTOs) {
                         if (organizationApplicationDTO.getOrganization().getName().equals("Spring Test Organization")) {
-                            assertThat(organizationApplicationDTO.getOrganization().getUserPermissions().contains("read:organizations"));
+                            assertThat(organizationApplicationDTO.getOrganization().getUserPermissions()).contains("read:organizations");
 
                             Application application = organizationApplicationDTO.getApplications().get(0);
                             assertThat(application.getUserPermissions()).contains("read:applications");
@@ -365,6 +370,8 @@ public class ApplicationServiceTest {
     @Test
     @WithUserDetails(value = "usertest@usertest.com")
     public void getAllApplicationsForHomeWhenNoApplicationPresent() {
+        Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
+
         // Create an organization for this user first.
         Organization organization = new Organization();
         organization.setName("usertest's organization");

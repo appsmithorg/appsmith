@@ -1,9 +1,9 @@
 {
-    "mongo-host": "ds119422.mlab.com",
+    "mongo-host": "cypress-test.zljea.mongodb.net",
     "mongo-port": 19422,
-    "mongo-databaseName": "heroku_bcmprc4k",
-    "mongo-username": "akash",
-    "mongo-password": "123wheel",
+    "mongo-databaseName": "admin",
+    "mongo-username": "cypress-test",
+    "mongo-password": "RaopEmky505xYV4p",
     "mongo-authenticationAuthtype": "SCRAM-SHA-1",
     "mongo-sslAuthtype": "No SSL",
     "postgres-host": "postgres-test-db.cz8diybf9wdj.ap-south-1.rds.amazonaws.com",
@@ -11,5 +11,7 @@
     "postgres-databaseName": "fakeapi",
     "postgres-username": "postgres",
     "postgres-password": "Appsmith2019#",
-    "restapi-url": "https://my-json-server.typicode.com/typicode/demo/posts"
+    "restapi-url": "https://my-json-server.typicode.com/typicode/demo/posts",
+    "mongo-defaultDatabaseName": "sample_airbnb",
+    "connection-type": "Replica set"
 }

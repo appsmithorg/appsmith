@@ -258,6 +258,26 @@ const dynamicPathListMigration = (
   return currentDSL;
 };
 
+const canvasNameConflictMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+  props = { counter: 1 },
+): ContainerWidgetProps<WidgetProps> => {
+  if (
+    currentDSL.type === WidgetTypes.CANVAS_WIDGET &&
+    currentDSL.widgetName.startsWith("Canvas")
+  ) {
+    currentDSL.widgetName = `Canvas${props.counter}`;
+    // Canvases inside tabs have `name` property as well
+    if (currentDSL.name) {
+      currentDSL.name = currentDSL.widgetName;
+    }
+    props.counter++;
+  }
+  currentDSL.children?.forEach((c) => canvasNameConflictMigration(c, props));
+
+  return currentDSL;
+};
+
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
 const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
@@ -308,6 +328,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   if (currentDSL.version === 6) {
     currentDSL = dynamicPathListMigration(currentDSL);
     currentDSL.version = 7;
+  }
+
+  if (currentDSL.version === 7) {
+    currentDSL = canvasNameConflictMigration(currentDSL);
+    currentDSL.version = 8;
   }
 
   return currentDSL;
