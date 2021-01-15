@@ -15,5 +15,7 @@
   "sectionSSL": "[data-cy=section-SSL\\ \\(optional\\)]",
   "PostgresEntity": ".t--entity-name:contains(PostgreSQL)",
   "createQuerty": ".t--create-query",
-  "editDatasource": ".t--edit-datasource"
+  "editDatasource": ".t--edit-datasource",
+  "defaultDatabaseName": "input[name='datasourceConfiguration.connection.defaultDatabaseName']",
+  "selConnectionType": "[data-cy='datasourceConfiguration.connection.type']"
 }

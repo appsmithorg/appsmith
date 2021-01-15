@@ -51,7 +51,7 @@ describe("API Panel Test Functionality", function() {
   it("Shows which action failed on action fail.", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("PageLoadApi2");
-    cy.enterDatasourceAndPath("https://abc.com", "users");
+    cy.enterDatasourceAndPath("https://abc.com/", "users");
     cy.WaitAutoSave();
     cy.get("li:contains('Settings')").click({ force: true });
     cy.get("[data-cy=executeOnLoad]")

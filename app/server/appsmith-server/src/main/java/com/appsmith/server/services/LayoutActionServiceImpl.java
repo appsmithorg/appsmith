@@ -154,8 +154,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         .flatMap(newAction -> {
                             ActionDTO action = newAction.getUnpublishedAction();
                             DslActionDTO actionDTO = new DslActionDTO();
-                            actionDTO.setId(action.getId());
-                            actionDTO.setPluginType(action.getPluginType());
+                            actionDTO.setId(newAction.getId());
+                            actionDTO.setPluginType(newAction.getPluginType());
                             actionDTO.setJsonPathKeys(action.getJsonPathKeys());
                             actionDTO.setName(action.getName());
                             if (action.getActionConfiguration() != null) {
@@ -188,6 +188,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         for (String mustacheKey : action.getJsonPathKeys()) {
                             extractWordsAndAddToSet(bindingNames, mustacheKey);
                         }
+                        // If the action refers to itself in the json path keys, remove the same to circumvent
+                        // supposed circular dependency. This is possible in case of pagination with response url
+                        // where the action refers to its own data to find the next and previous URLs.
                         bindingNames.remove(action.getName());
                     }
                     DslActionDTO actionDTO = new DslActionDTO();
