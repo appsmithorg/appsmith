@@ -14,6 +14,12 @@ import {
 import Text, { Case, TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 
+const KeyValueStackContainer = styled.div`
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[14]}px
+    ${(props) => props.theme.spaces[11] + 1}px
+    ${(props) => props.theme.spaces[9]}px;
+`;
 const FormRowWithLabel = styled(FormRow)`
   flex-wrap: wrap;
   ${FormLabel} {
@@ -26,12 +32,6 @@ const FormRowWithLabel = styled(FormRow)`
 
 const CenterdIcon = styled(Icon)`
   align-self: center;
-  margin-left: 15px;
-`;
-
-const EmptySpace = styled.div`
-  width: 15px;
-  height: 15px;
   margin-left: 15px;
 `;
 
@@ -49,6 +49,27 @@ const AddMoreAction = styled.div`
   }
 `;
 
+const FlexOne = styled.div`
+  flex: 1;
+`;
+const FlexThree = styled.div`
+  flex: 3;
+`;
+const FlexContainer = styled.div`
+  display: flex;
+  align-items: center;
+  height: 30px;
+  width: calc(100% - 30px);
+  border-bottom: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+
+  .key-value {
+    padding-left: ${(props) => props.theme.spaces[1]}px;
+    span {
+      color: ${(props) => props.theme.colors.apiPane.text};
+    }
+  }
+`;
+
 const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
   useEffect(() => {
     // Always maintain 2 rows
@@ -60,7 +81,19 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
   }, [props.fields, props.pushFields]);
 
   return (
-    <React.Fragment>
+    <KeyValueStackContainer>
+      <FlexContainer>
+        <FlexOne className="key-value">
+          <Text type={TextType.H6} case={Case.UPPERCASE}>
+            Key
+          </Text>
+        </FlexOne>
+        <FlexThree className="key-value">
+          <Text type={TextType.H6} case={Case.UPPERCASE}>
+            Value
+          </Text>
+        </FlexThree>
+      </FlexContainer>
       {props.fields.length && (
         <React.Fragment>
           {props.fields.map((field: any, index: number) => {
@@ -80,10 +113,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
 
             return (
               <FormRowWithLabel key={index}>
-                {/* {index === 0 && props.label !== "" && (
-                  <FormLabel>{props.label}</FormLabel>
-                )} */}
-                <div style={{ flex: 1 }}>
+                <FlexOne>
                   <DynamicTextField
                     theme={props.theme}
                     className={`t--${field}.key.${index}`}
@@ -94,10 +124,10 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                     hoverInteraction={true}
                     border={CodeEditorBorder.BOTTOM_SIDE}
                   />
-                </div>
+                </FlexOne>
 
                 {!props.actionConfig && (
-                  <div style={{ flex: 3 }}>
+                  <FlexThree>
                     <DynamicTextField
                       theme={props.theme}
                       className={`t--${field}.value.${index}`}
@@ -108,11 +138,11 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                       hoverInteraction={true}
                       border={CodeEditorBorder.BOTTOM_SIDE}
                     />
-                  </div>
+                  </FlexThree>
                 )}
 
                 {props.actionConfig && props.actionConfig[index] && (
-                  <div style={{ flex: 3 }}>
+                  <FlexThree>
                     <DynamicTextField
                       theme={props.theme}
                       className={`t--${field}.value.${index}`}
@@ -145,7 +175,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                       hoverInteraction={true}
                       border={CodeEditorBorder.BOTTOM_SIDE}
                     />
-                  </div>
+                  </FlexThree>
                 )}
                 {props.addOrDeleteFields !== false && (
                   <CenterdIcon
@@ -171,7 +201,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
           </AddMoreAction>
         </React.Fragment>
       )}
-    </React.Fragment>
+    </KeyValueStackContainer>
   );
 };
 

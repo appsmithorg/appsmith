@@ -210,7 +210,6 @@ export const EditorWrapper = styled.div<{
           : props.border === "bottom-side"
           ? `border-bottom: 1px solid ${Colors.MERCURY}`
           : `border: 1px solid ${Colors.MERCURY}`};
-      padding-left: 10px;
       background: ${(props) =>
         props.isFocused ? Colors.MERCURY : Colors.WHITE};
       color: ${Colors.CHARCOAL};
@@ -220,9 +219,12 @@ export const EditorWrapper = styled.div<{
         }
       }
     }
+    .cm-s-duotone-light .CodeMirror-gutters {
+      background: ${(props) =>
+        props.isFocused ? Colors.MERCURY : Colors.WHITE};
+    }
     .cm-s-duotone-dark.CodeMirror {
       border-radius: 0px;
-      padding-left: 10px;
       ${(props) =>
         props.border === "none"
           ? `border: 0px`
@@ -235,6 +237,14 @@ export const EditorWrapper = styled.div<{
       background: ${(props) =>
         props.isFocused ? Colors.NERO : Colors.BALTIC_SEA};
       color: ${Colors.LIGHT_GREY};
+    }
+    .cm-s-duotone-light .CodeMirror-linenumber,
+    .cm-s-duotone-dark .CodeMirror-linenumber {
+      color: ${Colors.DOVE_GRAY};
+    }
+    .cm-s-duotone-dark .CodeMirror-gutters {
+      background: ${(props) =>
+        props.isFocused ? Colors.NERO : Colors.BALTIC_SEA};
     }
     .binding-brackets {
       ${(props) =>
