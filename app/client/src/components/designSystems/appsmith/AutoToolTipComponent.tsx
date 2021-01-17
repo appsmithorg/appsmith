@@ -6,6 +6,7 @@ const AutoToolTipComponent = (props: {
   isHidden?: boolean;
   children: React.ReactNode;
   title: string;
+  tableWidth?: number;
 }) => {
   const ref = createRef<HTMLDivElement>();
   const [useToolTip, updateToolTip] = useState(false);

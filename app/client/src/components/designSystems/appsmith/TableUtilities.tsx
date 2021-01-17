@@ -463,6 +463,7 @@ export const renderCell = (
   value: any,
   columnType: string,
   isHidden: boolean,
+  tableWidth: number,
 ) => {
   if (!value) {
     return <CellWrapper isHidden={isHidden}></CellWrapper>;
@@ -519,7 +520,11 @@ export const renderCell = (
       }
     default:
       return (
-        <AutoToolTipComponent title={value.toString()} isHidden={isHidden}>
+        <AutoToolTipComponent
+          title={value.toString()}
+          isHidden={isHidden}
+          tableWidth={tableWidth}
+        >
           {value.toString()}
         </AutoToolTipComponent>
       );
