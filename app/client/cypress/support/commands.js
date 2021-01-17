@@ -1175,7 +1175,7 @@ Cypress.Commands.add("tableDataHide", (endp, value) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
-    .should("not.be.visible");
+    .should("not.exist");
 });
 
 Cypress.Commands.add("tableDataVisiblity", (endp, value) => {
@@ -1241,6 +1241,7 @@ Cypress.Commands.add("editColumn", (colId) => {
   cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click({
     force: true,
   });
+  cy.wait(500);
 });
 
 Cypress.Commands.add(
