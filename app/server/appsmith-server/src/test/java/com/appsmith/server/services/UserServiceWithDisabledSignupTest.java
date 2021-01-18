@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = { "signup.disabled = true" })
+@SpringBootTest(properties = { "signup.disabled = true", "admin.emails = dummy_admin@appsmith.com,dummy2@appsmith.com" })
 @DirtiesContext
 public class UserServiceWithDisabledSignupTest {
 
@@ -86,6 +86,48 @@ public class UserServiceWithDisabledSignupTest {
                     return true;
                 })
                 .verify();
+    }
+
+    @Test
+    @WithMockAppsmithUser
+    public void createNewAdminValidWhenDisabled() {
+        User newUser = new User();
+        newUser.setEmail("dummy_admin@appsmith.com");
+        newUser.setPassword("admin-password");
+
+        Mono<User> userMono = userService.create(newUser);
+
+        StepVerifier.create(userMono)
+                .assertNext(user -> {
+                    assertThat(user).isNotNull();
+                    assertThat(user.getId()).isNotNull();
+                    assertThat(user.getEmail()).isEqualTo("dummy_admin@appsmith.com");
+                    assertThat(user.getName()).isEqualTo("dummy_admin@appsmith.com");
+                    assertThat(user.getPolicies()).isNotEmpty();
+                    assertThat(user.getOrganizationIds()).isNullOrEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockAppsmithUser
+    public void createNewAdminValidWhenDisabled2() {
+        User newUser = new User();
+        newUser.setEmail("dummy2@appsmith.com");
+        newUser.setPassword("admin-password");
+
+        Mono<User> userMono = userService.create(newUser);
+
+        StepVerifier.create(userMono)
+                .assertNext(user -> {
+                    assertThat(user).isNotNull();
+                    assertThat(user.getId()).isNotNull();
+                    assertThat(user.getEmail()).isEqualTo("dummy2@appsmith.com");
+                    assertThat(user.getName()).isEqualTo("dummy2@appsmith.com");
+                    assertThat(user.getPolicies()).isNotEmpty();
+                    assertThat(user.getOrganizationIds()).isNullOrEmpty();
+                })
+                .verifyComplete();
     }
 
     @Test

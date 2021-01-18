@@ -120,14 +120,12 @@ function* listenForSuccessfullBinding() {
         const widgetProperties = dataTree[selectedWidget.widgetName];
         const dynamicBindingPathList =
           dataTree[selectedWidget.widgetName].dynamicBindingPathList;
+        const tableHasData = dataTree[selectedWidget.widgetName].tableData;
         const hasBinding =
           dynamicBindingPathList && !!dynamicBindingPathList.length;
 
-        if (hasBinding) {
-          yield put(showTooltip(OnboardingStep.NONE));
-        }
-
-        bindSuccessfull = bindSuccessfull && hasBinding;
+        bindSuccessfull =
+          bindSuccessfull && hasBinding && tableHasData && tableHasData.length;
 
         if (widgetProperties.invalidProps) {
           bindSuccessfull =
@@ -139,6 +137,7 @@ function* listenForSuccessfullBinding() {
         }
 
         if (bindSuccessfull) {
+          yield put(showTooltip(OnboardingStep.NONE));
           AnalyticsUtil.logEvent("ONBOARDING_SUCCESSFUL_BINDING");
           yield put(setCurrentStep(OnboardingStep.SUCCESSFUL_BINDING));
 
