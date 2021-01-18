@@ -16,12 +16,6 @@ const StyledDialog = styled(Dialog)<{
     width: ${(props) => props.width || "640px"};
     ${(props) => props.setMaxWidth && `width: 100vh;`}
 
-    & .${Classes.DIALOG_CLOSE_BUTTON} {
-      position: absolute;
-      top: ${(props) => props.theme.spaces[4]}px;
-      right: ${(props) => props.theme.spaces[4]}px;
-    }
-
     & .${Classes.DIALOG_HEADER} {
       position: relative;
       padding: ${(props) => props.theme.spaces[4]}px;
