@@ -4,7 +4,7 @@ import ReactDOM from "react-dom";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import { Hotkey, Hotkeys } from "@blueprintjs/core";
 import styled from "styled-components";
-
+import { HelpBaseURL } from "constants/HelpConstants";
 import Container from "./Container";
 import { AppState } from "reducers";
 
@@ -38,35 +38,48 @@ type Props = {
 class DocsSearch extends React.Component<Props> {
   state = { show: false };
 
+  get hotKeysConfig() {
+    return [
+      {
+        combo: "shift + o",
+        onKeyDown: this.toggleShow,
+        hideWhenModalClosed: false,
+      },
+      { combo: "up", onKeyDown: this.handleUpKey, hideWhenModalClosed: true },
+      {
+        combo: "down",
+        onKeyDown: this.handleDownKey,
+        hideWhenModalClosed: true,
+      },
+      {
+        combo: "return",
+        onKeyDown: this.handleOpenDocumentation,
+        hideWhenModalClosed: true,
+      },
+      { combo: "esc", onKeyDown: this.toggleShow, hideWhenModalClosed: true },
+    ].filter(
+      ({ hideWhenModalClosed }) =>
+        !hideWhenModalClosed || (hideWhenModalClosed && this.props.modalOpen),
+    );
+  }
+
   renderHotkeys() {
-    console.log(this.props.modalOpen, "open");
     return (
       <Hotkeys>
-        <Hotkey
-          global={true}
-          combo="shift + o"
-          label="Toggle help center"
-          onKeyDown={this.toggleShow}
-        />
-        {this.props.modalOpen && (
+        {this.hotKeysConfig.map(({ combo, onKeyDown }, index) => (
           <Hotkey
+            key={index}
             global={true}
-            combo="up"
-            label="UP"
-            onKeyDown={this.handleUpKey}
+            combo={combo}
+            onKeyDown={onKeyDown}
+            label=""
           />
-        )}
-        {this.props.modalOpen && (
-          <Hotkey
-            global={true}
-            combo="down"
-            label="DOWN"
-            onKeyDown={this.handleDownKey}
-          />
-        )}
+        ))}
       </Hotkeys>
     );
   }
+
+  toggleShow = this.props.toggleShow;
 
   getNextActiveItem = (nextIndex: number) => {
     const max = this.props.helpResults.length - 1;
@@ -86,7 +99,15 @@ class DocsSearch extends React.Component<Props> {
       this.getNextActiveItem(this.props.activeItemIndex + 1),
     );
 
-  toggleShow = this.props.toggleShow;
+  handleHideModal = (_e: KeyboardEvent) => this.toggleShow();
+
+  handleOpenDocumentation = (_e: KeyboardEvent) => {
+    const { activeItemIndex, helpResults } = this.props;
+    const activeItem = helpResults[activeItemIndex];
+    if (activeItem) {
+      window.open(activeItem.path.replace("master", HelpBaseURL), "_blank");
+    }
+  };
 
   render() {
     const { modalOpen } = this.props;
