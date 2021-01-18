@@ -107,7 +107,10 @@ public class ApplicationFetcher {
                 })
                 .flatMap(userHomepageDTO -> Mono.zip(
                         Mono.just(userHomepageDTO),
-                        releaseNotesService.getReleaseNodes().defaultIfEmpty(Collections.emptyList()),
+                        releaseNotesService.getReleaseNodes()
+                                // In case of an error or empty response from CS Server, continue without this data.
+                                .onErrorResume(error -> Mono.empty())
+                                .defaultIfEmpty(Collections.emptyList()),
                         userDataService.getForUser(userHomepageDTO.getUser())
                 ))
                 .flatMap(tuple -> {
