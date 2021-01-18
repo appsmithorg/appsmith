@@ -23,7 +23,7 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
   }, []);
 
   // we need to track if the dialog is open to close it when clicking cancel within the form
-  const onOpened = useCallback(() => {
+  const onOpening = useCallback(() => {
     setIsOpen(true);
   }, []);
 
@@ -44,7 +44,7 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
         isOpen={isOpen}
         setMaxWidth={props.setMaxWidth}
         trigger={props.trigger}
-        onOpened={onOpened}
+        onOpening={onOpening}
       >
         <Form
           onCancel={onClose}

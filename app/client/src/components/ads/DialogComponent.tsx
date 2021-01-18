@@ -85,10 +85,11 @@ type DialogComponentProps = {
   children: ReactNode;
   width?: string;
   maxHeight?: string;
-  onOpened?: () => void;
+  onOpening?: () => void;
   triggerZIndex?: number;
   showHeaderUnderline?: boolean;
   getHeader?: () => ReactNode;
+  canEscapeKeyClose?: boolean;
 };
 
 export const DialogComponent = (props: DialogComponentProps) => {
@@ -116,14 +117,14 @@ export const DialogComponent = (props: DialogComponentProps) => {
       </TriggerWrapper>
       <StyledDialog
         canOutsideClickClose={!!props.canOutsideClickClose}
-        canEscapeKeyClose={false}
+        canEscapeKeyClose={!!props.canEscapeKeyClose}
         title={props.title}
         onClose={onClose}
         isOpen={isOpen}
         width={props.width}
         setMaxWidth={props.setMaxWidth}
         maxHeight={props.maxHeight}
-        onOpened={props.onOpened}
+        onOpening={props.onOpening}
         showHeaderUnderline={props.showHeaderUnderline}
       >
         {getHeader && getHeader()}

@@ -6,6 +6,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 
 const StyledContainer = styled.div`
   color: ${(props) => props.theme.colors.text.normal};
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const StyledTitle = styled.div`
@@ -137,7 +138,7 @@ const ReleaseComponent = ({ release }: ReleaseProps) => {
     return isCollapsed ? 500 : contentRef.current.scrollHeight;
   }, [isCollapsed]);
 
-  return (
+  return descriptionHtml ? (
     <StyledContainer>
       <StyledTitle>{name}</StyledTitle>
       <StyledDate>{moment(publishedAt).format("Do MMMM, YYYY")}</StyledDate>
@@ -154,7 +155,7 @@ const ReleaseComponent = ({ release }: ReleaseProps) => {
       )}
       <StyledSeparator />
     </StyledContainer>
-  );
+  ) : null;
 };
 
 export default ReleaseComponent;

@@ -6,9 +6,8 @@ import Dialog from "components/ads/DialogComponent";
 import UpdatesButton from "./UpdatesButton";
 import { AppState } from "reducers";
 import { LayersContext } from "constants/Layers";
-// import ReleasesAPI from "api/ReleasesAPI";
+import ReleasesAPI from "api/ReleasesAPI";
 import { resetReleasesCount } from "actions/releasesActions";
-// import { Colors } from "constants/Colors";
 import { HelpIcons } from "icons/HelpIcons";
 import ReleaseComponent, { Release, StyledSeparator } from "./ReleaseComponent";
 import { withTheme } from "styled-components";
@@ -87,10 +86,10 @@ const ProductUpdatesModal = () => {
     (state: AppState) => state.ui.releases,
   );
   const dispatch = useDispatch();
-  const onOpened = useCallback(async () => {
-    // await ReleasesAPI.markAsRead();
-    dispatch(resetReleasesCount());
+  const onOpening = useCallback(async () => {
     setIsOpen(true);
+    dispatch(resetReleasesCount());
+    await ReleasesAPI.markAsRead();
   }, []);
 
   const Layers = useContext(LayersContext);
@@ -103,9 +102,11 @@ const ProductUpdatesModal = () => {
       maxHeight={"80vh"}
       triggerZIndex={Layers.max}
       showHeaderUnderline
-      onOpened={onOpened}
+      onOpening={onOpening}
       isOpen={isOpen}
       getHeader={() => <Header onClose={() => setIsOpen(false)} />}
+      canOutsideClickClose
+      canEscapeKeyClose
     >
       {releaseItems.map((release: Release, index: number) => (
         <ReleaseComponent release={release} key={index} />
