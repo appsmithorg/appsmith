@@ -85,7 +85,7 @@ const TriggerWrapper = styled.div``;
 type DialogComponentProps = {
   isOpen?: boolean;
   canOutsideClickClose?: boolean;
-  title: string;
+  title?: string;
   trigger: ReactNode;
   setMaxWidth?: boolean;
   children: ReactNode;
@@ -94,6 +94,7 @@ type DialogComponentProps = {
   onOpened?: () => void;
   triggerZIndex?: number;
   showHeaderUnderline?: boolean;
+  getHeader?: () => ReactNode;
 };
 
 export const DialogComponent = (props: DialogComponentProps) => {
@@ -106,6 +107,8 @@ export const DialogComponent = (props: DialogComponentProps) => {
   useEffect(() => {
     setIsOpen(!!props.isOpen);
   }, [props.isOpen]);
+
+  const getHeader = props.getHeader;
 
   return (
     <React.Fragment>
@@ -129,6 +132,7 @@ export const DialogComponent = (props: DialogComponentProps) => {
         onOpened={props.onOpened}
         showHeaderUnderline={props.showHeaderUnderline}
       >
+        {getHeader && getHeader()}
         <div className={Classes.DIALOG_BODY}>{props.children}</div>
       </StyledDialog>
     </React.Fragment>

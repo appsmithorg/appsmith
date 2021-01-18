@@ -1,13 +1,6 @@
-import React, {
-  useState,
-  useRef,
-  useEffect,
-  useCallback,
-  useContext,
-} from "react";
+import React, { useState, useCallback, useContext } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
-import moment from "moment";
 import "@github/g-emoji-element";
 import Dialog from "components/ads/DialogComponent";
 import UpdatesButton from "./UpdatesButton";
@@ -15,161 +8,79 @@ import { AppState } from "reducers";
 import { LayersContext } from "constants/Layers";
 // import ReleasesAPI from "api/ReleasesAPI";
 import { resetReleasesCount } from "actions/releasesActions";
-import Icon, { IconSize } from "components/ads/Icon";
-import { Colors } from "constants/Colors";
+// import { Colors } from "constants/Colors";
+import { HelpIcons } from "icons/HelpIcons";
+import ReleaseComponent, { Release, StyledSeparator } from "./ReleaseComponent";
+import { withTheme } from "styled-components";
+import { Color } from "constants/Colors";
 
-const StyledContainer = styled.div`
-  padding-top: ${(props) => props.theme.spaces[11]}px;
-  color: ${(props) => props.theme.colors.text.normal};
+const CloseIcon = HelpIcons.CLOSE_ICON;
+
+const HeaderContents = styled.div`
+  padding: ${(props) => props.theme.spaces[9]}px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
-const StyledTitle = styled.div`
-  font-weight: ${(props) => props.theme.typography.h2.fontWeight};
-  font-size: ${(props) => props.theme.typography.h2.fontSize}px;
-  line-height: ${(props) => props.theme.typography.h2.lineHeight}px;
-  letter-spacing: ${(props) => props.theme.typography.h2.letterSpacing}px;
-  color: ${(props) => props.theme.colors.modal.title};
+const Heading = styled.div`
+  color: ${(props) => props.theme.colors.modal.headerText};
+  display: flex;
+  justify-content: center;
+  font-weight: ${(props) => props.theme.typography.h1.fontWeight};
+  font-size: ${(props) => props.theme.typography.h1.fontSize}px;
+  line-height: ${(props) => props.theme.typography.h1.lineHeight}px;
+  letter-spacing: ${(props) => props.theme.typography.h1.letterSpacing};
 `;
 
-const StyledSeparator = styled.div`
-  width: 100%;
-  background-color: ${(props) => props.theme.colors.modal.separator};
-  opacity: 0.6;
-  height: 1px;
-`;
-
-const StyledDate = styled.div`
+const ViewInGithubLink = styled.a`
+  cursor: pointer;
+  text-decoration: none;
+  :hover {
+    text-decoration: none;
+    color: ${(props) => props.theme.colors.text.normal};
+  }
   font-weight: ${(props) => props.theme.typography.releaseList.fontWeight};
   font-size: ${(props) => props.theme.typography.releaseList.fontSize}px;
   line-height: ${(props) => props.theme.typography.releaseList.lineHeight}px;
   letter-spacing: ${(props) =>
     props.theme.typography.releaseList.letterSpacing}px;
   color: ${(props) => props.theme.colors.text.normal};
-  margin-top: ${(props) => props.theme.spaces[3]}px;
+  margin-right: ${(props) => props.theme.spaces[4]}px;
 `;
 
-const StyledContent = styled.div<{ maxHeight: number }>`
-  li,
-  p {
-    font-weight: ${(props) => props.theme.typography.releaseList.fontWeight};
-    font-size: ${(props) => props.theme.typography.releaseList.fontSize}px;
-    line-height: ${(props) => props.theme.typography.releaseList.lineHeight}px;
-    letter-spacing: ${(props) =>
-      props.theme.typography.releaseList.letterSpacing}px;
-    color: ${(props) => props.theme.colors.text.normal};
-  }
-  a {
-    color: ${(props) => props.theme.colors.modal.link};
-  }
-  h1,
-  h2,
-  h3,
-  h4 {
-    color: ${(props) => props.theme.colors.modal.title};
-  }
-
-  transition: max-height 0.15s ease-out;
-  overflow: hidden;
-  max-height: ${(props) => props.maxHeight}px;
-`;
-
-type Release = {
-  descriptionHtml: string;
-  name: string;
-  publishedAt?: string;
-};
-
-type ReleaseProps = {
-  release: Release;
-};
-
-enum ReleaseComponentViewState {
-  "collapsed",
-  "expanded",
-}
-
-const StyledReadMore = styled.div`
-  font-weight: ${(props) => props.theme.typography.btnMedium.fontWeight};
-  font-size: ${(props) => props.theme.typography.btnMedium.fontSize}px;
-  line-height: ${(props) => props.theme.typography.btnMedium.lineHeight}px;
-  letter-spacing: ${(props) =>
-    props.theme.typography.btnMedium.letterSpacing}px;
-  text-transform: uppercase;
-  padding: ${(props) => props.theme.spaces[8]}px 0;
+const HeaderRight = styled.div`
   display: flex;
 `;
 
-const ReadMore = ({
-  currentState,
-  onClick,
-}: {
-  currentState: ReleaseComponentViewState;
-  onClick: () => void;
-}) => (
-  <StyledReadMore onClick={onClick}>
-    <div style={{ marginRight: 3 }}>
-      {currentState === ReleaseComponentViewState.collapsed
-        ? "read more"
-        : "read less"}
-    </div>
-    <Icon
-      name={
-        currentState === ReleaseComponentViewState.collapsed
-          ? "view-all"
-          : "view-less"
-      }
-      size={IconSize.XS}
-    />
-  </StyledReadMore>
+const Header = withTheme(
+  ({ onClose, theme }: { onClose: () => void; theme: any }) => (
+    <>
+      <HeaderContents>
+        <Heading>Product Updates</Heading>
+        <HeaderRight>
+          <ViewInGithubLink
+            target="_blank"
+            href="https://github.com/appsmithorg/appsmith/releases"
+          >
+            View on Github
+          </ViewInGithubLink>
+          <div onClick={onClose} style={{ cursor: "pointer" }}>
+            <CloseIcon
+              height={20}
+              width={20}
+              color={theme.colors.text.normal as Color}
+            />
+          </div>
+        </HeaderRight>
+      </HeaderContents>
+      <div style={{ padding: `0 ${theme.spaces[9]}px` }}>
+        <StyledSeparator />
+      </div>
+    </>
+  ),
 );
-
-const ReleaseComponent = ({ release }: ReleaseProps) => {
-  const { name, publishedAt, descriptionHtml } = release;
-  const [isCollapsed, setCollapsed] = useState(true);
-  const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (contentRef.current) {
-      if (contentRef.current.scrollHeight >= 500) {
-        setShouldShowReadMore(true);
-      }
-    }
-  });
-
-  const getReadMoreState = useCallback((): ReleaseComponentViewState => {
-    if (isCollapsed) return ReleaseComponentViewState.collapsed;
-    return ReleaseComponentViewState.expanded;
-  }, [isCollapsed]);
-
-  const toggleCollapsedState = useCallback(() => {
-    setCollapsed(!isCollapsed);
-  }, [isCollapsed]);
-
-  const getHeight = useCallback(() => {
-    if (!contentRef.current) return 500;
-    return isCollapsed ? 500 : contentRef.current.scrollHeight;
-  }, [isCollapsed]);
-
-  return (
-    <StyledContainer>
-      <StyledTitle>{name}</StyledTitle>
-      <StyledDate>{moment(publishedAt).format("Do MMMM, YYYY")}</StyledDate>
-      <StyledContent
-        ref={contentRef}
-        dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-        maxHeight={getHeight()}
-      />
-      {shouldShowReadMore && (
-        <ReadMore
-          onClick={toggleCollapsedState}
-          currentState={getReadMoreState()}
-        />
-      )}
-      <StyledSeparator />
-    </StyledContainer>
-  );
-};
 
 const ProductUpdatesModal = () => {
   const { releaseItems, newReleasesCount } = useSelector(
@@ -179,30 +90,26 @@ const ProductUpdatesModal = () => {
   const onOpened = useCallback(async () => {
     // await ReleasesAPI.markAsRead();
     dispatch(resetReleasesCount());
+    setIsOpen(true);
   }, []);
 
   const Layers = useContext(LayersContext);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Dialog
       trigger={<UpdatesButton newReleasesCount={newReleasesCount} />}
-      title={"Product Updates"}
       width={"580px"}
       maxHeight={"80vh"}
-      onOpened={onOpened}
       triggerZIndex={Layers.max}
       showHeaderUnderline
+      onOpened={onOpened}
+      isOpen={isOpen}
+      getHeader={() => <Header onClose={() => setIsOpen(false)} />}
     >
       {releaseItems.map((release: Release, index: number) => (
         <ReleaseComponent release={release} key={index} />
       ))}
-      <a
-        href="https://github.com/appsmithorg/appsmith/releases"
-        target="_blank"
-        rel="noreferrer"
-      >
-        Github Releases
-      </a>
     </Dialog>
   );
 };
