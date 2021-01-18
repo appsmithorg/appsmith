@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -30,6 +31,9 @@ public class ReleaseNotesService {
     public final List<ReleaseNode> releaseNodesCache = new ArrayList<>();
 
     private Instant cacheExpiryTime = null;
+
+    @Value("${github_repo}")
+    private String repo;
 
     @Data
     static class Releases {
@@ -65,7 +69,10 @@ public class ReleaseNotesService {
 
         return configService.getInstanceId()
                 .flatMap(instanceId -> WebClient
-                        .create(baseUrl + "/api/v1/releases?instanceId=" + instanceId)
+                        .create(
+                                baseUrl + "/api/v1/releases?instanceId=" + instanceId +
+                                        (StringUtils.isEmpty(repo) ? "" : ("&repo=" + repo))
+                        )
                         .get()
                         .exchange()
                 )
