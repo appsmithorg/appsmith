@@ -13,6 +13,8 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { MetaLogger } from "utils/DebuggerUtil";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -51,13 +53,19 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       this.setState({
         isLoading: true,
       });
-      super.executeAction({
-        dynamicString: this.props.onClick,
-        event: {
-          type: EventType.ON_CLICK,
-          callback: this.handleActionComplete,
+      const l = super.logEvent(
+        super.makeEvent(`${this.props.widgetName} clicked`, "onClick"),
+      );
+      super.executeAction(
+        { logger: l },
+        {
+          dynamicString: this.props.onClick,
+          event: {
+            type: EventType.ON_CLICK,
+            callback: this.handleActionComplete,
+          },
         },
-      });
+      );
     }
   }
 

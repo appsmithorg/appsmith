@@ -50,12 +50,20 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
 
   onImageClick() {
     if (this.props.onClick) {
-      super.executeAction({
-        dynamicString: this.props.onClick,
-        event: {
-          type: EventType.ON_CLICK,
+      const l = super.logEvent(
+        super.makeEvent(`${this.props.widgetName} clicked`, "onClick"),
+      );
+      super.executeAction(
+        {
+          logger: l,
         },
-      });
+        {
+          dynamicString: this.props.onClick,
+          event: {
+            type: EventType.ON_CLICK,
+          },
+        },
+      );
     }
   }
 

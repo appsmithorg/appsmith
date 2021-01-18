@@ -36,6 +36,9 @@ import {
   WidgetDynamicPathListProps,
   WidgetEvaluatedProps,
 } from "../utils/DynamicBindingUtils";
+import { MetaLogger } from "utils/DebuggerUtil";
+import { TimelineEvent } from "entities/Errors";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 /***
  * BaseWidget
@@ -91,9 +94,12 @@ abstract class BaseWidget<
    *  Widgets can execute actions using this `executeAction` method.
    *  Triggers may be specific to the widget
    */
-  executeAction(actionPayload: ExecuteActionPayload): void {
+  executeAction(
+    meta: { logger: MetaLogger },
+    actionPayload: ExecuteActionPayload,
+  ): void {
     const { executeAction } = this.context;
-    executeAction && executeAction(actionPayload);
+    executeAction && executeAction(meta, actionPayload);
   }
 
   disableDrag(disable: boolean) {
@@ -206,6 +212,31 @@ abstract class BaseWidget<
 
   addErrorBoundary(content: ReactNode) {
     return <ErrorBoundary>{content}</ErrorBoundary>;
+  }
+
+  protected makeEvent(
+    message: string,
+    propertyPath: string,
+    state: Record<string, any> = {},
+  ): TimelineEvent {
+    return {
+      timestamp: new Date(),
+      message: message,
+      source: {
+        type: ENTITY_TYPE.WIDGET,
+        name: this.props.widgetName,
+        id: this.props.widgetId,
+        propertyPath: propertyPath,
+      },
+      state: state,
+      previous: undefined,
+    };
+  }
+
+  protected logEvent(event: TimelineEvent, l?: MetaLogger): MetaLogger {
+    l = l || new MetaLogger();
+    l.logEvent(event);
+    return l;
   }
 
   private getWidgetView(): ReactNode {

@@ -648,13 +648,20 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   onCommandClick = (action: string, onComplete: () => void) => {
-    super.executeAction({
-      dynamicString: action,
-      event: {
-        type: EventType.ON_CLICK,
-        callback: onComplete,
+    const l = super.logEvent(
+      // TODO: fix this?
+      super.makeEvent(`${this.props.widgetName} clicked`, "onCommandClick"),
+    );
+    super.executeAction(
+      { logger: l },
+      {
+        dynamicString: action,
+        event: {
+          type: EventType.ON_CLICK,
+          callback: onComplete,
+        },
       },
-    });
+    );
   };
 
   handleRowClick = (rowData: Record<string, unknown>, index: number) => {

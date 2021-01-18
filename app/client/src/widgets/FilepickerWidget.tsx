@@ -166,13 +166,21 @@ class FilePickerWidget extends BaseWidget<
    */
   onFilesSelected = () => {
     if (this.props.onFilesSelected) {
-      this.executeAction({
-        dynamicString: this.props.onFilesSelected,
-        event: {
-          type: EventType.ON_FILES_SELECTED,
-          callback: this.handleFileUploaded,
+      const l = super.logEvent(
+        super.makeEvent(`${this.props.widgetName} clicked`, "onClick"),
+      );
+      super.executeAction(
+        {
+          logger: l,
         },
-      });
+        {
+          dynamicString: this.props.onFilesSelected,
+          event: {
+            type: EventType.ON_FILES_SELECTED,
+            callback: this.handleFileUploaded,
+          },
+        },
+      );
 
       this.setState({ isLoading: true });
     }

@@ -1,6 +1,12 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionWithMeta,
+  ReduxActionTypes,
+} from "constants/ReduxActionConstants";
 
-export const batchAction = (action: ReduxAction<any>) => ({
+export const batchAction = (
+  action: ReduxAction<any> | ReduxActionWithMeta<any, any>,
+) => ({
   type: ReduxActionTypes.BATCHED_UPDATE,
   payload: action,
 });

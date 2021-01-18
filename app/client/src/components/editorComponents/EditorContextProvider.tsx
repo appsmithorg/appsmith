@@ -15,9 +15,13 @@ import {
   resetChildrenMetaProperty,
   updateWidgetMetaProperty,
 } from "actions/metaActions";
+import { MetaLogger } from "utils/DebuggerUtil";
 
 export type EditorContextType = {
-  executeAction?: (actionPayloads: ExecuteActionPayload) => void;
+  executeAction?: (
+    meta: { logger: MetaLogger },
+    actionPayloads: ExecuteActionPayload,
+  ) => void;
   updateWidget?: (
     operation: WidgetOperation,
     widgetId: string,
@@ -84,8 +88,10 @@ const mapDispatchToProps = (dispatch: any) => {
           RenderModes.CANVAS,
         ),
       ),
-    executeAction: (actionPayload: ExecuteActionPayload) =>
-      dispatch(executeAction(actionPayload)),
+    executeAction: (
+      meta: { logger: MetaLogger },
+      actionPayload: ExecuteActionPayload,
+    ) => dispatch(executeAction(meta, actionPayload)),
     updateWidget: (
       operation: WidgetOperation,
       widgetId: string,

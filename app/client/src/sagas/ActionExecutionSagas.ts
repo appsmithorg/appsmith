@@ -4,6 +4,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
+  ReduxActionWithMeta,
 } from "constants/ReduxActionConstants";
 import {
   EventType,
@@ -25,6 +26,7 @@ import {
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import {
   ActionDescription,
+  ENTITY_TYPE,
   RunActionPayload,
 } from "entities/DataTree/dataTreeFactory";
 import { executeAction, executeActionError } from "actions/widgetActions";
@@ -85,6 +87,9 @@ import {
   evaluateActionBindings,
 } from "./EvaluationsSaga";
 import copy from "copy-to-clipboard";
+import { MetaLogger, nextErrorId } from "utils/DebuggerUtil";
+import { ErrorSeverity } from "entities/Errors";
+import { ActionError } from "entities/Errors/action";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -326,6 +331,7 @@ export function extractBindingsFromAction(action: Action) {
 }
 
 export function* executeActionSaga(
+  meta: { logger: MetaLogger },
   apiAction: RunActionPayload,
   event: ExecuteActionPayloadEvent,
 ) {
@@ -359,8 +365,7 @@ export function* executeActionSaga(
         return;
       }
     }
-
-    yield put(executeApiActionRequest({ id: apiAction.actionId }));
+    yield put(executeApiActionRequest(meta, { id: apiAction.actionId }));
     const actionParams: Property[] = yield call(
       evaluateActionParams,
       api.jsonPathKeys,
@@ -379,7 +384,26 @@ export function* executeActionSaga(
       paginationField: pagination,
       viewMode: appMode === APP_MODE.PUBLISHED,
     };
+
     const timeout = yield select(getActionTimeout, actionId);
+    const source = {
+      type: ENTITY_TYPE.ACTION,
+      name: api.name,
+      id: api.id,
+      propertyPath: "run",
+    };
+    meta.logger.logEvent(
+      {
+        timestamp: new Date(),
+        message: `Running action ${api.name}`,
+        source: source,
+        state: {
+          timeout: timeout,
+          params,
+        },
+      },
+      true,
+    );
     const response: ActionApiResponse = yield ActionAPI.executeAction(
       executeActionRequest,
       timeout,
@@ -399,7 +423,7 @@ export function* executeActionSaga(
       );
       if (onError) {
         yield put(
-          executeAction({
+          executeAction(meta, {
             dynamicString: onError,
             event: {
               ...event,
@@ -413,6 +437,19 @@ export function* executeActionSaga(
           event.callback({ success: false });
         }
       }
+      meta.logger.logError(
+        {
+          id: nextErrorId(),
+          userActions: [],
+          timestamp: new Date(),
+          source: source,
+          type: ActionError.EXECUTION_UNKNOWN,
+          message: response.data.body.toString(),
+          severity: ErrorSeverity.ERROR,
+          state: { response },
+        },
+        true,
+      );
       Toaster.show({
         text: api.name + " failed to execute. Please check it's configuration",
         variant: Variant.danger,
@@ -425,7 +462,7 @@ export function* executeActionSaga(
       );
       if (onSuccess) {
         yield put(
-          executeAction({
+          executeAction(meta, {
             dynamicString: onSuccess,
             event: {
               ...event,
@@ -454,7 +491,7 @@ export function* executeActionSaga(
     });
     if (onError) {
       yield put(
-        executeAction({
+        executeAction(meta, {
           dynamicString: `{{${onError}}}`,
           event: {
             ...event,
@@ -472,13 +509,14 @@ export function* executeActionSaga(
 }
 
 function* executeActionTriggers(
+  meta: { logger: MetaLogger },
   trigger: ActionDescription<any>,
   event: ExecuteActionPayloadEvent,
 ) {
   try {
     switch (trigger.type) {
       case "RUN_ACTION":
-        yield call(executeActionSaga, trigger.payload, event);
+        yield call(executeActionSaga, meta, trigger.payload, event);
         break;
       case "NAVIGATE_TO":
         yield call(navigateActionSaga, trigger.payload, event);
@@ -522,7 +560,9 @@ function* executeActionTriggers(
   }
 }
 
-function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
+function* executeAppAction(
+  action: ReduxActionWithMeta<ExecuteActionPayload, { logger: MetaLogger }>,
+) {
   const { dynamicString, event, responseData } = action.payload;
   log.debug({ dynamicString, responseData });
 
@@ -536,7 +576,7 @@ function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   if (triggers && triggers.length) {
     yield all(
       triggers.map((trigger: ActionDescription<any>) =>
-        call(executeActionTriggers, trigger, event),
+        call(executeActionTriggers, action.meta, trigger, event),
       ),
     );
   } else {
@@ -659,7 +699,10 @@ function* confirmRunActionSaga() {
   return !!accept;
 }
 
-function* executePageLoadAction(pageAction: PageAction) {
+function* executePageLoadAction(
+  meta: { logger: MetaLogger },
+  pageAction: PageAction,
+) {
   try {
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.EXECUTE_ACTION,
@@ -672,7 +715,7 @@ function* executePageLoadAction(pageAction: PageAction) {
     const pageId = yield select(getCurrentPageId);
     let currentApp: ApplicationPayload = yield select(getCurrentApplication);
     currentApp = currentApp || {};
-    yield put(executeApiActionRequest({ id: pageAction.id }));
+    yield put(executeApiActionRequest(meta, { id: pageAction.id }));
     const params: Property[] = yield call(
       evaluateActionParams,
       pageAction.jsonPathKeys,
@@ -751,7 +794,9 @@ function* executePageLoadAction(pageAction: PageAction) {
   }
 }
 
-function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
+function* executePageLoadActionsSaga(
+  action: ReduxActionWithMeta<PageAction[][], { logger: MetaLogger }>,
+) {
   try {
     const pageActions = action.payload;
     const actionCount = _.flatten(pageActions).length;
@@ -762,7 +807,9 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     for (const actionSet of pageActions) {
       // Load all sets in parallel
       yield* yield all(
-        actionSet.map((apiAction) => call(executePageLoadAction, apiAction)),
+        actionSet.map((apiAction) =>
+          call(executePageLoadAction, action.meta, apiAction),
+        ),
       );
     }
     PerformanceTracker.stopAsyncTracking(

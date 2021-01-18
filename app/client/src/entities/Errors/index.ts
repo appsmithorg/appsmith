@@ -45,7 +45,7 @@ export interface TimelineEvent {
   source: SourceEntity;
   // "Why" User action or parent that triggered this event.
   // Walking back on previous events can be used to construct the timeline/trace of events.
-  previous: TimelineEvent | undefined;
+  previous?: TimelineEvent;
 
   // Snapshot KV pair of scope variables or state associated with this event.
   state: Record<string, any>;
@@ -60,7 +60,12 @@ export interface TimelineEvent {
  *   timeoutMs: 10000,
  *   severity: ErrorSeverity.ERROR,
  *   message: "Action execution timedout after 10 seconds",
- *   source: "Api1.run",
+ *   source: {
+ *     type: ENTITY_TYPE.ACTION,
+ *     name: "Api1",
+ *     id: "a12345",
+ *     propertyPath: "run",
+ *   },
  *   timestamp: new Date(),
  *   state: {},
  *   userActions: [
@@ -74,18 +79,28 @@ export interface TimelineEvent {
  *   ],
  *   previous: {
  *     message: "Api1 started executing",
- *     source: "Api1.run",
- *     timestamp: new Date(),
- *     previous: {
- *       timestamp: new Date(),
- *       message: "Button1 clicked",
- *       source: "Button1.onClick",
- *       state: {},
- *       previous: undefined,
+ *     source: {
+ *       type: ENTITY_TYPE.ACTION,
+ *       name: "Api1",
+ *       id: "a12345",
+ *       propertyPath: "run",
  *     },
+ *     timestamp: new Date(),
  *     state: {
  *       "Dropdown1.selectedOptionValue": "VEG",
  *       executionParams: { name: "Piyush" }
+ *     },
+ *     previous: {
+ *       timestamp: new Date(),
+ *       message: "Button1 clicked",
+ *       source: {
+ *         type: ENTITY_TYPE.WIDGET,
+ *         name: "Button1",
+ *         id: "abcdef",
+ *         propertyPath: "onClick",
+ *       },
+ *       state: {},
+ *       previous: undefined,
  *     },
  *   }
  * }

@@ -12,12 +12,15 @@ import { BatchAction, batchAction } from "actions/batchActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { MetaLogger } from "utils/DebuggerUtil";
 
 export const executeAction = (
+  meta: { logger: MetaLogger },
   payload: ExecuteActionPayload,
 ): BatchAction<ExecuteActionPayload> =>
   batchAction({
     type: ReduxActionTypes.EXECUTE_ACTION,
+    meta,
     payload,
   });
 

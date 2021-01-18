@@ -9,7 +9,10 @@ import {
   BuilderRouteParams,
   getApplicationViewerPageURL,
 } from "constants/routes";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxActionWithMeta,
+} from "constants/ReduxActionConstants";
 import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeAction } from "actions/widgetActions";
 import { ExecuteActionPayload } from "constants/ActionConstants";
@@ -24,6 +27,8 @@ import {
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
+import { MetaLogger } from "utils/DebuggerUtil";
+import { BatchAction } from "actions/batchActions";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -39,7 +44,10 @@ export type AppViewerProps = {
   initializeAppViewer: (applicationId: string, pageId?: string) => void;
   isInitialized: boolean;
   isInitializeError: boolean;
-  executeAction: (actionPayload: ExecuteActionPayload) => void;
+  executeAction: (
+    meta: { logger: MetaLogger },
+    actionPayload: ExecuteActionPayload,
+  ) => void;
   updateWidgetProperty: (
     widgetId: string,
     propertyName: string,
@@ -104,10 +112,11 @@ class AppViewer extends Component<
 const mapStateToProps = (state: AppState) => ({
   isInitialized: getIsInitialized(state),
 });
-
 const mapDispatchToProps = (dispatch: any) => ({
-  executeAction: (actionPayload: ExecuteActionPayload) =>
-    dispatch(executeAction(actionPayload)),
+  executeAction: (
+    meta: { logger: MetaLogger },
+    actionPayload: ExecuteActionPayload,
+  ) => dispatch(executeAction(meta, actionPayload)),
   updateWidgetProperty: (
     widgetId: string,
     propertyName: string,

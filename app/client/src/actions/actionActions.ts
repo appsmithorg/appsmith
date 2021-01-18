@@ -6,6 +6,7 @@ import {
 } from "constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
+import { MetaLogger } from "utils/DebuggerUtil";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
@@ -184,9 +185,13 @@ export const copyActionError = (payload: {
   };
 };
 
-export const executeApiActionRequest = (payload: { id: string }) => ({
+export const executeApiActionRequest = (
+  meta: { logger: MetaLogger },
+  payload: { id: string },
+) => ({
   type: ReduxActionTypes.EXECUTE_API_ACTION_REQUEST,
-  payload: payload,
+  meta,
+  payload,
 });
 
 export const executeApiActionSuccess = (payload: {

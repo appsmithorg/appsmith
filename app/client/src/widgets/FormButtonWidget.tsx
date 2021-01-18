@@ -73,13 +73,21 @@ class FormButtonWidget extends BaseWidget<
       this.setState({
         isLoading: true,
       });
-      super.executeAction({
-        dynamicString: this.props.onClick,
-        event: {
-          type: EventType.ON_CLICK,
-          callback: this.handleActionResult,
+      const l = super.logEvent(
+        super.makeEvent(`${this.props.widgetName} clicked`, "onClick"),
+      );
+      super.executeAction(
+        {
+          logger: l,
         },
-      });
+        {
+          dynamicString: this.props.onClick,
+          event: {
+            type: EventType.ON_CLICK,
+            callback: this.handleActionResult,
+          },
+        },
+      );
     } else if (this.props.resetFormOnClick && this.props.onReset) {
       this.props.onReset();
     }
