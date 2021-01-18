@@ -36,6 +36,7 @@ jobs:
         if: github.event_name == 'pull_request_target'
         uses: actions/checkout@v2
         with:
+          fetch-depth: 0
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch

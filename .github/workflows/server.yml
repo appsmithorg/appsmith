@@ -38,6 +38,8 @@ jobs:
     steps:
     # Checkout the code
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
 
     # Setup Java
     - name: Set up JDK 1.11
