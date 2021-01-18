@@ -21,6 +21,9 @@ const globalSearchReducer = createReducer(initialState, {
     state: GlobalSearchReduxState,
     action: ReduxAction<Record<string, any>[]>,
   ) => ({ ...state, helpResults: action.payload }),
+  [ReduxActionTypes.TOGGLE_SHOW_GLOBAL_SEARCH_MODAL]: (
+    state: GlobalSearchReduxState,
+  ) => ({ ...state, modalOpen: !state.modalOpen }),
 });
 
 export interface GlobalSearchReduxState {

@@ -14,3 +14,7 @@ export const setHelpResults = (results: Record<string, any>[]) => ({
   type: ReduxActionTypes.SET_HELP_RESULTS,
   payload: results,
 });
+
+export const toggleShowGlobalSearchModal = () => ({
+  type: ReduxActionTypes.TOGGLE_SHOW_GLOBAL_SEARCH_MODAL,
+});

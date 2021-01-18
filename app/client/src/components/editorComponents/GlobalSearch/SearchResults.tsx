@@ -7,18 +7,33 @@ import { HelpBaseURL } from "constants/HelpConstants";
 import { setHelpResults } from "actions/globalSearchActions";
 import { AppState } from "reducers";
 
-const Hit = (props: { hit: { path: string } }) => {
+import styled from "styled-components";
+
+type HitProps = {
+  activeItemIndex: number;
+  hit: IHit;
+  index: number;
+};
+
+const HitContainer = styled.div<{ activeItem: boolean }>`
+  background-color: ${(props) => (props.activeItem ? "grey" : "white")};
+`;
+
+const Hit = (props: HitProps) => {
+  const { hit, activeItemIndex, index } = props;
+
   return (
-    <div
+    <HitContainer
       className="t--docHit"
       onClick={() => {
         window.open(props.hit.path.replace("master", HelpBaseURL), "_blank");
       }}
+      activeItem={activeItemIndex === index}
     >
       <div className="hit-name t--docHitTitle">
-        <Highlight attribute="title" hit={props.hit} />
+        <Highlight attribute="title" hit={hit} />
       </div>
-    </div>
+    </HitContainer>
   );
 };
 
@@ -28,14 +43,19 @@ const Hits = ({ hits }: { hits: Array<IHit> }) => {
     dispatch(setHelpResults(hits));
   }, [hits]);
 
-  const { helpResults } = useSelector(
+  const { helpResults, activeItemIndex } = useSelector(
     (state: AppState) => state.ui.globalSearch,
   );
 
   return (
     <>
       {helpResults.map((hit, index) => (
-        <Hit key={index} hit={hit} />
+        <Hit
+          key={index}
+          index={index}
+          hit={hit}
+          activeItemIndex={activeItemIndex}
+        />
       ))}
     </>
   );

@@ -318,6 +318,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UPDATE_GLOBAL_SEARCH_ACTIVE_ITEM_INDEX:
     "UPDATE_GLOBAL_SEARCH_ACTIVE_ITEM_INDEX",
   SET_HELP_RESULTS: "SET_HELP_RESULTS",
+  TOGGLE_SHOW_GLOBAL_SEARCH_MODAL: "TOGGLE_SHOW_GLOBAL_SEARCH_MODAL",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

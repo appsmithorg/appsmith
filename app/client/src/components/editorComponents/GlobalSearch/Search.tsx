@@ -13,10 +13,7 @@ const { algolia } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
 
 const Search = () => {
-  const globalSearchState = useSelector(
-    (state: AppState) => state.ui.globalSearch,
-  );
-  const { query } = globalSearchState;
+  const query = useSelector((state: AppState) => state.ui.globalSearch.query);
 
   return (
     <InstantSearch

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useCallback } from "react";
 import { connectSearchBox } from "react-instantsearch-dom";
 import { SearchBoxProvided } from "react-instantsearch-core";
 import { useDispatch } from "react-redux";
