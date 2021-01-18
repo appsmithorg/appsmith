@@ -24,7 +24,12 @@ describe("FilePicker Widget Functionality", function() {
       .first()
       .attachFile(fixturePath);
     cy.get(commonlocators.filePickerUploadButton).click();
-    cy.get(".bp3-spinner").should("have.length", 1);
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get("button").contains("1 files selected");
   });
 
   afterEach(() => {
