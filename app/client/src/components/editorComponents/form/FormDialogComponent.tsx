@@ -22,7 +22,7 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
     setIsOpen(false);
   }, []);
 
-  // we need to track if the dialog is open to close it when clicking cancel within the form
+  // track if the dialog is open to close it when clicking cancel within the form
   const onOpening = useCallback(() => {
     setIsOpen(true);
   }, []);
