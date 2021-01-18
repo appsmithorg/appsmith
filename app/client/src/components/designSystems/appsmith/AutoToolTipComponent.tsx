@@ -26,6 +26,11 @@ const AutoToolTipComponent = (props: {
           hoverOpenDelay={1000}
           content={props.title}
           position="top"
+          modifiers={{
+            preventOverflow: {
+              enabled: true,
+            },
+          }}
         >
           {props.children}
         </Tooltip>

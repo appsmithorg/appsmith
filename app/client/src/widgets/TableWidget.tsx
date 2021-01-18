@@ -135,7 +135,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     } = this.props;
     if (tableData.length) {
       const columnKeys: string[] = getAllTableColumnKeys(tableData);
-      const { componentWidth, componentHeight } = this.getComponentDimensions();
+      const { componentWidth } = this.getComponentDimensions();
       const sortedColumn = this.props.sortedColumn;
       for (let index = 0; index < columnKeys.length; index++) {
         const i = columnKeys[index];
