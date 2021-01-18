@@ -1175,7 +1175,7 @@ Cypress.Commands.add("tableDataHide", (endp, value) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
-    .should("not.exist");
+    .should("not.be.visible");
 });
 
 Cypress.Commands.add("tableDataVisiblity", (endp, value) => {
