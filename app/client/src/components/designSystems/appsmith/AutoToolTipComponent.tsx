@@ -7,6 +7,7 @@ const AutoToolTipComponent = (props: {
   children: React.ReactNode;
   title: string;
   tableWidth?: number;
+  widgetId?: string;
 }) => {
   const ref = createRef<HTMLDivElement>();
   const [useToolTip, updateToolTip] = useState(false);
@@ -18,6 +19,9 @@ const AutoToolTipComponent = (props: {
       updateToolTip(false);
     }
   }, [ref]);
+  const boundariesElement = props.widgetId
+    ? document.getElementById(props.widgetId)
+    : undefined;
   return (
     <CellWrapper ref={ref} isHidden={props.isHidden}>
       {useToolTip && props.children ? (
@@ -29,6 +33,9 @@ const AutoToolTipComponent = (props: {
           modifiers={{
             preventOverflow: {
               enabled: true,
+              boundariesElement: boundariesElement
+                ? boundariesElement
+                : undefined,
             },
           }}
         >

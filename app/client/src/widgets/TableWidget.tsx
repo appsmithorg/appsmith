@@ -132,6 +132,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       columnSizeMap,
       columnTypeMap,
       columnActions,
+      widgetId,
     } = this.props;
     if (tableData.length) {
       const columnKeys: string[] = getAllTableColumnKeys(tableData);
@@ -176,6 +177,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               columnType.type,
               isHidden,
               componentWidth,
+              widgetId,
             );
           },
         };
