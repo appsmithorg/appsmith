@@ -29,6 +29,7 @@ describe("FilePicker Widget Functionality", function() {
       "response.body.responseMeta.status",
       200,
     );
+    cy.wait(500);
     cy.get("button").contains("1 files selected");
   });
 
