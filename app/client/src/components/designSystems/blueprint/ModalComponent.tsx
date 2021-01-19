@@ -2,6 +2,7 @@ import React, { ReactNode, RefObject, useRef, useEffect } from "react";
 import { Overlay, Classes } from "@blueprintjs/core";
 import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
+
 const Container = styled.div<{
   width: number;
   height: number;
