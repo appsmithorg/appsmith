@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import styled from "styled-components";
@@ -126,6 +126,7 @@ export default function Dropdown(props: DropdownProps) {
   const { onSelect } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
+  const [containerWidth, setContainerWidth] = useState(0);
 
   useEffect(() => {
     setSelected(props.selected);
@@ -141,15 +142,14 @@ export default function Dropdown(props: DropdownProps) {
     [onSelect],
   );
 
-  const containerRef = useRef<HTMLInputElement>(null);
-
-  const getContainerWidth = useCallback(() => {
-    if (!containerRef) return undefined;
-    return containerRef.current?.offsetWidth;
+  const measuredRef = useCallback((node) => {
+    if (node !== null) {
+      setContainerWidth(node.getBoundingClientRect().width);
+    }
   }, []);
 
   return (
-    <DropdownContainer data-cy={props.cypressSelector} ref={containerRef}>
+    <DropdownContainer data-cy={props.cypressSelector} ref={measuredRef}>
       <Popover
         minimal
         position={Position.BOTTOM_RIGHT}
@@ -165,7 +165,7 @@ export default function Dropdown(props: DropdownProps) {
           <Text type={TextType.P1}>{selected.value}</Text>
           <Icon name="downArrow" size={IconSize.XXS} />
         </Selected>
-        <DropdownWrapper width={getContainerWidth()}>
+        <DropdownWrapper width={containerWidth}>
           {props.options.map((option: DropdownOption, index: number) => {
             return (
               <OptionWrapper
