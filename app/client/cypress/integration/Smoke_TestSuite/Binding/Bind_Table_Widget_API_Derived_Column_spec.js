@@ -34,11 +34,11 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("Update the computed value for derived column", function() {
     cy.editColumn("customColumn1");
     cy.editColName("UpdatedColName");
-    cy.readTabledataPublish("0", "2").then(tabData => {
+    cy.readTabledataPublish("0", "2").then((tabData) => {
       const tabValue = tabData;
       expect(tabData).to.not.equal("1");
       cy.updateComputedValue(testdata.currentRowEmail);
-      cy.readTabledataPublish("0", "1").then(tabData => {
+      cy.readTabledataPublish("0", "1").then((tabData) => {
         expect(tabData).to.be.equal(tabValue);
         cy.log("computed value of plain text " + tabData);
       });
@@ -50,15 +50,13 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.wait(500);
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
-  });
-
-  it("Validate Table with API data and then add a column", function() {
     cy.SearchEntityandOpen("Table1");
+    cy.wait(500);
     cy.testJsontext("tabledata", "{{Api1.data.users}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     cy.wait(1000);
     cy.SearchEntityandOpen("Table1");
-    cy.readTabledata("0", "0").then(tabData => {
+    cy.readTabledata("0", "0").then((tabData) => {
       const tableData = tabData;
       localStorage.setItem("tableDataPage1", tableData);
     });
@@ -71,10 +69,10 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.tableColumnDataValidation("customColumn1");
     cy.editColumn("customColumn1");
     cy.wait(500);
-    cy.readTabledataPublish("1", "5").then(tabData => {
+    cy.readTabledataPublish("1", "5").then((tabData) => {
       const tabValue = tabData;
       //cy.updateComputedValue(testdata.currentRowEmail);
-      cy.readTabledataPublish("1", "9").then(tabData => {
+      cy.readTabledataPublish("1", "9").then((tabData) => {
         cy.log("computed value of plain text " + tabData);
         expect(tabData).to.be.equal(tabValue);
       });
@@ -100,10 +98,10 @@ describe("Test Create Api and Bind to Table widget", function() {
       .should("contain", "CustomColumn");
     cy.editColumn("customColumn1");
     cy.wait(500);
-    cy.readTabledataPublish("1", "5").then(tabData => {
+    cy.readTabledataPublish("1", "5").then((tabData) => {
       const tabValue = tabData;
       //cy.updateComputedValue(testdata.currentRowEmail);
-      cy.readTabledataPublish("1", "9").then(tabData => {
+      cy.readTabledataPublish("1", "9").then((tabData) => {
         cy.log("computed value of plain text " + tabData);
         expect(tabData).to.be.equal(tabValue);
       });
