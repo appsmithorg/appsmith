@@ -21,15 +21,7 @@ import {
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
-import {
-  isNumber,
-  isString,
-  isUndefined,
-  isEqual,
-  compact,
-  xor,
-  union,
-} from "lodash";
+import { isNumber, isString, isUndefined, isEqual, xor, union } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta from "../MetaHOC";
