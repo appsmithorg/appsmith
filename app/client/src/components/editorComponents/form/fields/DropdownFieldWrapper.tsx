@@ -40,6 +40,7 @@ const DropdownFieldWrapper = (props: DropdownWrapperProps) => {
       options={props.options}
       selected={selectedOption}
       onSelect={onSelectHandler}
+      width={120}
     />
   );
 };

@@ -730,8 +730,15 @@ type ColorType = {
     textColor: string;
     bg: ShadeColor;
   };
+  multiSwitch: {
+    bg: ShadeColor;
+    selectedBg: ShadeColor;
+    text: ShadeColor;
+    border: string;
+  };
   apiPane: {
     bg: ShadeColor;
+    text: ShadeColor;
     dividerBg: ShadeColor;
     requestTree: {
       bg: string;
@@ -768,6 +775,9 @@ type ColorType = {
     };
     codeEditor: {
       placeholderColor: ShadeColor;
+    };
+    body: {
+      text: string;
     };
   };
 };
@@ -1045,8 +1055,15 @@ export const dark: ColorType = {
     textColor: "#090707",
     bg: darkShades[8],
   },
+  multiSwitch: {
+    bg: darkShades[2],
+    selectedBg: lightShades[10],
+    text: darkShades[8],
+    border: darkShades[3],
+  },
   apiPane: {
     bg: darkShades[0],
+    text: darkShades[6],
     dividerBg: darkShades[4],
     requestTree: {
       bg: lightShades[10],
@@ -1083,6 +1100,9 @@ export const dark: ColorType = {
     },
     codeEditor: {
       placeholderColor: darkShades[5],
+    },
+    body: {
+      text: "#6D6D6D",
     },
   },
 };
@@ -1360,8 +1380,15 @@ export const light: ColorType = {
     textColor: "#F7F7F7",
     bg: lightShades[10],
   },
+  multiSwitch: {
+    bg: lightShades[3],
+    selectedBg: lightShades[11],
+    text: lightShades[8],
+    border: "#E0DEDE",
+  },
   apiPane: {
     bg: lightShades[11],
+    text: lightShades[6],
     dividerBg: lightShades[3],
     requestTree: {
       bg: lightShades[11],
@@ -1398,6 +1425,9 @@ export const light: ColorType = {
     },
     codeEditor: {
       placeholderColor: lightShades[5],
+    },
+    body: {
+      text: "#A9A7A7",
     },
   },
 };

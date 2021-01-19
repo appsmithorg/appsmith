@@ -16,10 +16,11 @@ type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
   selected: DropdownOption;
   onSelect?: (value?: string) => void;
+  width?: number;
 };
 
-const DropdownContainer = styled.div`
-  width: 260px;
+const DropdownContainer = styled.div<{ width?: number }>`
+  width: ${(props) => props.width || 260}px;
   position: relative;
 `;
 
@@ -113,15 +114,14 @@ const LabelWrapper = styled.div<{ label?: string }>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-
-  ${(props) =>
-    props.label
-      ? `
-    .${Classes.TEXT}:last-child {
-      margin-top: ${props.theme.spaces[2] - 1}px;
+  span:last-child {
+    margin-top: ${(props) => props.theme.spaces[2] - 1}px;
+  }
+  &:hover {
+    .${Classes.TEXT} {
+      color: ${(props) => props.theme.colors.dropdown.selected.text};
     }
-    `
-      : null}
+  }
 `;
 
 export default function Dropdown(props: DropdownProps) {
@@ -148,6 +148,7 @@ export default function Dropdown(props: DropdownProps) {
       tabIndex={0}
       onBlur={() => setIsOpen(false)}
       data-cy={props.cypressSelector}
+      width={props.width}
     >
       <Selected
         isOpen={isOpen}
@@ -167,24 +168,19 @@ export default function Dropdown(props: DropdownProps) {
                 key={index}
                 selected={selected.value === option.value}
                 onClick={() => optionClickHandler(option)}
+                className="t--dropdown-option"
               >
                 {option.icon ? (
                   <Icon name={option.icon} size={IconSize.LARGE} />
                 ) : null}
-                <LabelWrapper label={option.label}>
-                  {option.label ? (
-                    <div className="label-title">
-                      <Text type={TextType.H5}>{option.value}</Text>
-                    </div>
-                  ) : (
-                    <Text className="t--dropdown-option" type={TextType.P1}>
-                      {option.value}
-                    </Text>
-                  )}
-                  {option.label ? (
+                {option.label && option.value ? (
+                  <LabelWrapper>
+                    <Text type={TextType.H5}>{option.value}</Text>
                     <Text type={TextType.P3}>{option.label}</Text>
-                  ) : null}
-                </LabelWrapper>
+                  </LabelWrapper>
+                ) : (
+                  <Text type={TextType.P1}>{option.value}</Text>
+                )}
               </OptionWrapper>
             );
           })}
