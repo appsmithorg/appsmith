@@ -1,47 +1,6 @@
-import React, { ReactNode, useState } from "react";
-import styled from "styled-components";
-import { Dialog, Classes } from "@blueprintjs/core";
+import React, { ReactNode, useState, useCallback } from "react";
 import { isPermitted } from "pages/Applications/permissionHelpers";
-
-const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
-  && {
-    border-radius: 0px;
-    padding-bottom: 5px;
-    background: ${(props) => props.theme.colors.modal.bg};
-    width: 640px;
-
-    & .${Classes.DIALOG_HEADER} {
-      padding: ${(props) => props.theme.spaces[4]}px;
-      background: ${(props) => props.theme.colors.modal.bg};
-      box-shadow: none;
-      .${Classes.ICON} {
-        color: ${(props) => props.theme.colors.modal.iconColor};
-      }
-      .${Classes.HEADING} {
-        color: ${(props) => props.theme.colors.modal.headerText};
-        display: flex;
-        justify-content: center;
-        margin-top: 20px;
-        font-size: 20px;
-        line-height: 24px;
-        font-weight: 500;
-      }
-
-      .${Classes.BUTTON}.${Classes.MINIMAL}:hover {
-        background-color: ${(props) => props.theme.colors.modal.bg};
-      }
-    }
-    & .${Classes.DIALOG_BODY} {
-      margin: ${(props) => props.theme.spaces[9]}px;
-    }
-    & .${Classes.DIALOG_FOOTER_ACTIONS} {
-      display: block;
-    }
-    ${(props) => props.setMaxWidth && `width: 100vh;`}
-  }
-`;
-
-const TriggerWrapper = styled.div``;
+import Dialog from "components/ads/DialogComponent";
 
 type FormDialogComponentProps = {
   isOpen?: boolean;
@@ -59,9 +18,14 @@ type FormDialogComponentProps = {
 export const FormDialogComponent = (props: FormDialogComponentProps) => {
   const [isOpen, setIsOpen] = useState(!!props.isOpen);
 
-  const onClose = () => {
+  const onClose = useCallback(() => {
     setIsOpen(false);
-  };
+  }, []);
+
+  // track if the dialog is open to close it when clicking cancel within the form
+  const onOpening = useCallback(() => {
+    setIsOpen(true);
+  }, []);
 
   const Form = props.Form;
 
@@ -74,30 +38,20 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
 
   return (
     <React.Fragment>
-      <TriggerWrapper
-        onClick={() => {
-          setIsOpen(true);
-        }}
-      >
-        {props.trigger}
-      </TriggerWrapper>
-
-      <StyledDialog
+      <Dialog
         canOutsideClickClose={!!props.canOutsideClickClose}
-        canEscapeKeyClose={false}
         title={props.title}
-        onClose={onClose}
         isOpen={isOpen}
         setMaxWidth={props.setMaxWidth}
+        trigger={props.trigger}
+        onOpening={onOpening}
       >
-        <div className={Classes.DIALOG_BODY}>
-          <Form
-            onCancel={onClose}
-            orgId={props.orgId}
-            applicationId={props.applicationId}
-          />
-        </div>
-      </StyledDialog>
+        <Form
+          onCancel={onClose}
+          orgId={props.orgId}
+          applicationId={props.applicationId}
+        />
+      </Dialog>
     </React.Fragment>
   );
 };
