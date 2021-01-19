@@ -28,5 +28,26 @@ describe("adding role without Email Id", function()  {
     }
     )
 
+    it("Admin can only assign another Admin ", function() 
+    {
+        // Navigate to Organisation Setting 
+        // Navigate to Members
+        // Navigate to roles 
+        // Ensure your also an "Admin"
+        // Change the role "Admin" 
+
+    }
+    )
+
+    it("Ensure the user can not delete or create an application in the organisation", function() 
+    {
+        // Navigate to Home page 
+        // Navigate to Members
+        // Navigate to roles 
+        // Ensure role is "App Viewer"
+        // Ensure user is not able to  delete or add any user for the application 
+
+    }
+    )
 }
 )
