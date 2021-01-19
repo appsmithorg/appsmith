@@ -95,7 +95,7 @@ const ProductUpdatesModal = () => {
   const Layers = useContext(LayersContext);
   const [isOpen, setIsOpen] = useState(false);
 
-  return (
+  return Array.isArray(releaseItems) && releaseItems.length > 0 ? (
     <Dialog
       trigger={<UpdatesButton newReleasesCount={newReleasesCount} />}
       width={"580px"}
@@ -112,7 +112,7 @@ const ProductUpdatesModal = () => {
         <ReleaseComponent release={release} key={index} />
       ))}
     </Dialog>
-  );
+  ) : null;
 };
 
 export default ProductUpdatesModal;
