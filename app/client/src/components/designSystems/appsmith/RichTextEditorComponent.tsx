@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { debounce } from "lodash";
 import styled from "styled-components";
+import { useScript, ScriptStatus } from "utils/hooks/useScript";
 const StyledRTEditor = styled.div`
   && {
     width: 100%;
@@ -22,6 +23,10 @@ export interface RichtextEditorComponentProps {
 export const RichtextEditorComponent = (
   props: RichtextEditorComponentProps,
 ) => {
+  const status = useScript(
+    "https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.4.0/tinymce.min.js",
+  );
+
   const [editorInstance, setEditorInstance] = useState(null as any);
   /* Using editorContent as a variable to save editor content locally to verify against new content*/
   const editorContent = useRef("");
@@ -32,7 +37,7 @@ export const RichtextEditorComponent = (
         props.isDisabled === true ? "readonly" : "design",
       );
     }
-  }, [props.isDisabled]);
+  }, [props.isDisabled, editorInstance, status]);
 
   useEffect(() => {
     if (
@@ -49,8 +54,9 @@ export const RichtextEditorComponent = (
         });
       }, 200);
     }
-  }, [props.defaultValue]);
+  }, [props.defaultValue, editorInstance, status]);
   useEffect(() => {
+    if (status !== ScriptStatus.READY) return;
     const onChange = debounce((content: string) => {
       editorContent.current = content;
       props.onValueChange(content);
@@ -100,7 +106,10 @@ export const RichtextEditorComponent = (
       (window as any).tinyMCE.EditorManager.remove(selector);
       editorInstance !== null && editorInstance.remove();
     };
-  }, []);
+  }, [status]);
+
+  if (status !== ScriptStatus.READY) return null;
+
   return (
     <StyledRTEditor>
       <textarea id={`rte-${props.widgetId}`}></textarea>
