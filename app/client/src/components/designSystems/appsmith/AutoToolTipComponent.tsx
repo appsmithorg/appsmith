@@ -22,22 +22,24 @@ const AutoToolTipComponent = (props: {
   const boundariesElement = props.widgetId
     ? document.getElementById(props.widgetId)
     : undefined;
+  console.log({ boundariesElement });
   return (
     <CellWrapper ref={ref} isHidden={props.isHidden}>
       {useToolTip && props.children ? (
         <Tooltip
           autoFocus={false}
           hoverOpenDelay={1000}
-          content={props.title}
+          content={
+            <div
+              style={{
+                wordBreak: "break-all",
+                width: `${(props.tableWidth || 300) - 32}px`,
+              }}
+            >
+              {props.title}
+            </div>
+          }
           position="top"
-          modifiers={{
-            preventOverflow: {
-              enabled: true,
-              boundariesElement: boundariesElement
-                ? boundariesElement
-                : undefined,
-            },
-          }}
         >
           {props.children}
         </Tooltip>
