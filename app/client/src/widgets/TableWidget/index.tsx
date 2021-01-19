@@ -87,6 +87,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: undefined,
       // The following meta property is used for rendering the table.
       filteredTableData: undefined,
+      filters: [],
+      hiddenColumns: [],
+      compactMode: CompactModeTypes.DEFAULT,
     };
   }
 
@@ -470,7 +473,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const columnKeys: string[] = getAllTableColumnKeys(this.props.tableData);
     const selectedRow: { [key: string]: any } = {};
     for (let i = 0; i < columnKeys.length; i++) {
-      selectedRow[columnKeys[i]] = undefined;
+      selectedRow[columnKeys[i]] = "";
     }
     return selectedRow;
   };
@@ -508,11 +511,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   createTablePrimaryColumns = () => {
-    const { tableData, dynamicBindingPathList, columnOrder } = this.props;
+    const { tableData, columnOrder, primaryColumns } = this.props;
     const derivedColumns = [...(this.props.derivedColumns || [])];
     // If there is tableData attempt to generate primaryColumns
     if (tableData) {
-      let tableColumns: ColumnProperties[] = [];
+      let tableColumns: ColumnProperties[] = Array.from(primaryColumns || []);
       //Get table level styles
       const tableStyles = getTableStyles(this.props);
       const columnKeys: string[] = getAllTableColumnKeys(tableData);
@@ -535,73 +538,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         derivedColumns,
         tableColumns.length,
       );
-      //Get existing derived column paths
-      const derivedColumnsPaths =
-        derivedColumns?.map(
-          (column: ColumnProperties) => `primaryColumns[${column.index}]`,
-        ) || [];
 
       //add derived columns to primary columns
       tableColumns = tableColumns.concat(updatedDerivedColumns);
-      //update dynamic bindings pathlist
-      const updatedDynamicBindingPathList = compact(
-        dynamicBindingPathList?.map((item: { key: string }) => {
-          // If we have bindings in any of the columns
-          if (item.key.includes("primaryColumns")) {
-            // Get the first token (`primaryColumns[index]`) of the path
-            const columnPath = item.key.split(".")[0];
 
-            // If the derivedColumns already had these paths
-            if (derivedColumnsPaths.includes(columnPath)) {
-              // Get the column id of the derivedColumn for wich the paths matched
-              const columnId = derivedColumns.find(
-                (column: ColumnProperties) => {
-                  return `primaryColumns[${column.index}]` === columnPath;
-                },
-              )?.id;
+      tableColumns.forEach((column: ColumnProperties, index: number) => {
+        super.updateWidgetProperty(`primaryColumns[${index}]`, column);
+      });
 
-              // If we have a column Id for the derived column for which a dynamic binding path exists
-              if (columnId) {
-                // Get the column from the updatedDerivedColumn
-                const column = updatedDerivedColumns.find(
-                  (column: ColumnProperties) => {
-                    return column.id === columnId;
-                  },
-                );
-
-                // If we find the column
-                if (column) {
-                  // The new path for the binding becomes...
-                  return {
-                    key: `primaryColumns[${column.index}].${
-                      item.key.split(".")[1]
-                    }`,
-                  };
-                }
-              }
-            }
-            return;
-          }
-          return item;
-        }),
-      );
-
-      // console.log(
-      //   "Table log:",
-      //   { updatedDynamicBindingPathList },
-      //   { tableColumns },
-      //   { updatedDerivedColumns },
-      //   { derivedColumns },
-      //   { derivedColumnsPaths },
-      //   { dynamicBindingPathList },
-      // );
-
-      super.updateWidgetProperty(
-        "dynamicBindingPathList",
-        updatedDynamicBindingPathList,
-      );
-      super.updateWidgetProperty("primaryColumns", tableColumns);
-      console.log("Table log: Updating primaryColumns", { tableColumns });
       const newTableColumnOrder = tableColumns.map(
         (column: ColumnProperties) => column.id,
       );
@@ -626,7 +570,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
-    // console.log("Table log: Table re-rendered", this.props);
+    console.log("Table log: Table re-rendered", this.props);
     // Check if data is modifed by comparing the stringified versions of the previous and next tableData
     const tableDataModified =
       JSON.stringify(this.props.tableData) !==
