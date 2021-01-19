@@ -30,6 +30,8 @@ public class OAuth2 extends AuthenticationDTO {
 
     Type authType;
 
+    Boolean isHeader;
+
     String clientId;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -37,10 +39,18 @@ public class OAuth2 extends AuthenticationDTO {
 
     String accessTokenUrl;
 
-    String scope;
+    Set<String> scope;
+
+    String headerPrefix = "Bearer";
+
+    @JsonIgnore
+    Object tokenResponse;
 
     @JsonIgnore
     String token;
+
+    @JsonIgnore
+    Instant issuedAt;
 
     @JsonIgnore
     Instant expiresAt;
@@ -54,6 +64,9 @@ public class OAuth2 extends AuthenticationDTO {
         if (this.token != null) {
             map.put(FieldName.TOKEN, this.token);
         }
+        if (this.tokenResponse != null) {
+            map.put(FieldName.TOKEN_RESPONSE, String.valueOf(this.tokenResponse));
+        }
         return map;
     }
 
@@ -66,6 +79,9 @@ public class OAuth2 extends AuthenticationDTO {
             if (encryptedFields.containsKey(FieldName.TOKEN)) {
                 this.token = encryptedFields.get(FieldName.TOKEN);
             }
+            if (encryptedFields.containsKey(FieldName.TOKEN_RESPONSE)) {
+                this.tokenResponse = encryptedFields.get(FieldName.TOKEN_RESPONSE);
+            }
         }
     }
 
@@ -77,6 +93,9 @@ public class OAuth2 extends AuthenticationDTO {
         }
         if (this.token == null || this.token.isEmpty()) {
             set.add(FieldName.TOKEN);
+        }
+        if (this.tokenResponse == null || (String.valueOf(this.token)).isEmpty()) {
+            set.add(FieldName.TOKEN_RESPONSE);
         }
         return set;
     }
