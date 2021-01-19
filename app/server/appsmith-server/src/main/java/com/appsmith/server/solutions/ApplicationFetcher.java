@@ -120,9 +120,9 @@ public class ApplicationFetcher {
 
                     final User user = userHomepageDTO.getUser();
                     userHomepageDTO.setReleaseItems(releaseNodes);
-                    userHomepageDTO.setNewReleasesCount(
-                            releaseNotesService.computeNewFrom(userData.getReleaseNotesViewedVersion())
-                    );
+
+                    final String count = releaseNotesService.computeNewFrom(userData.getReleaseNotesViewedVersion());
+                    userHomepageDTO.setNewReleasesCount("0".equals(count) ? "" : count);
 
                     return userDataService.ensureViewedCurrentVersionReleaseNotes(user)
                             .thenReturn(userHomepageDTO);
