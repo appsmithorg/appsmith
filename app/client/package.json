@@ -14,6 +14,7 @@
     "@blueprintjs/select": "^3.10.0",
     "@blueprintjs/timezone": "^3.6.0",
     "@craco/craco": "^5.7.0",
+    "@github/g-emoji-element": "^1.1.5",
     "@manaflair/redux-batch": "^1.0.0",
     "@optimizely/optimizely-sdk": "^4.0.0",
     "@sentry/react": "^5.24.2",

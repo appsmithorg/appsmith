@@ -679,6 +679,9 @@ type ColorType = {
     };
     manageUser: ShadeColor;
     scrollbar: ShadeColor;
+    separator: ShadeColor;
+    title: ShadeColor;
+    link: string;
   };
   tagInput: {
     bg: ShadeColor;
@@ -730,6 +733,7 @@ type ColorType = {
     textColor: string;
     bg: ShadeColor;
   };
+  floatingBtn: any;
 };
 
 export const dark: ColorType = {
@@ -954,6 +958,9 @@ export const dark: ColorType = {
     },
     manageUser: darkShades[6],
     scrollbar: darkShades[5],
+    separator: darkShades[4],
+    title: darkShades[8],
+    link: "#F86A2B",
   },
   tagInput: {
     bg: darkShades[0],
@@ -1004,6 +1011,11 @@ export const dark: ColorType = {
     dangerColor: "#E22C2C",
     textColor: "#090707",
     bg: darkShades[8],
+  },
+  floatingBtn: {
+    tagBackground: "#e22c2c",
+    backgroundColor: darkShades[3],
+    iconColor: darkShades[6],
   },
 };
 
@@ -1229,6 +1241,9 @@ export const light: ColorType = {
     },
     manageUser: lightShades[6],
     scrollbar: lightShades[5],
+    separator: lightShades[4],
+    title: lightShades[8],
+    link: "#F86A2B",
   },
   tagInput: {
     bg: lightShades[2],
@@ -1279,6 +1294,11 @@ export const light: ColorType = {
     dangerColor: "#F22B2B",
     textColor: "#F7F7F7",
     bg: lightShades[10],
+  },
+  floatingBtn: {
+    tagBackground: "#e22c2c",
+    backgroundColor: lightShades[3],
+    iconColor: lightShades[7],
   },
 };
 
@@ -1359,6 +1379,18 @@ export const theme: Theme = {
       lineHeight: 13,
       letterSpacing: 0.4,
       fontWeight: 600,
+    },
+    floatingBtn: {
+      fontSize: 14,
+      lineHeight: 17,
+      letterSpacing: -0.24,
+      fontWeight: "normal",
+    },
+    releaseList: {
+      fontSize: 14,
+      lineHeight: 23,
+      letterSpacing: -0.24,
+      fontWeight: "normal",
     },
   },
   iconSizes: {
