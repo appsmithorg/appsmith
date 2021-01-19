@@ -3,6 +3,7 @@ import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
+import { Popover, Position } from "@blueprintjs/core";
 
 type DropdownOption = {
   label?: string;
@@ -57,14 +58,11 @@ const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
 `;
 
 const DropdownWrapper = styled.div`
-  position: absolute;
-  top: 38px;
-  left: 0px;
+  width: 260px;
   z-index: 1;
   margin-top: ${(props) => props.theme.spaces[2] - 1}px;
   background: ${(props) => props.theme.colors.dropdown.menuBg};
   box-shadow: 0px 12px 28px ${(props) => props.theme.colors.dropdown.menuShadow};
-  width: 100%;
 `;
 
 const OptionWrapper = styled.div<{ selected: boolean }>`
@@ -144,21 +142,23 @@ export default function Dropdown(props: DropdownProps) {
   );
 
   return (
-    <DropdownContainer
-      tabIndex={0}
-      onBlur={() => setIsOpen(false)}
-      data-cy={props.cypressSelector}
-    >
-      <Selected
-        isOpen={isOpen}
-        disabled={props.disabled}
-        onClick={() => setIsOpen(!isOpen)}
+    <DropdownContainer data-cy={props.cypressSelector}>
+      <Popover
+        minimal
+        position={Position.BOTTOM_RIGHT}
+        data-cy={props.cypressSelector}
+        isOpen={isOpen && !props.disabled}
+        onInteraction={(state) => setIsOpen(state)}
+        boundary="viewport"
       >
-        <Text type={TextType.P1}>{selected.value}</Text>
-        <Icon name="downArrow" size={IconSize.XXS} />
-      </Selected>
-
-      {isOpen && !props.disabled ? (
+        <Selected
+          isOpen={isOpen}
+          disabled={props.disabled}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <Text type={TextType.P1}>{selected.value}</Text>
+          <Icon name="downArrow" size={IconSize.XXS} />
+        </Selected>
         <DropdownWrapper>
           {props.options.map((option: DropdownOption, index: number) => {
             return (
@@ -186,7 +186,7 @@ export default function Dropdown(props: DropdownProps) {
             );
           })}
         </DropdownWrapper>
-      ) : null}
+      </Popover>
     </DropdownContainer>
   );
 }
