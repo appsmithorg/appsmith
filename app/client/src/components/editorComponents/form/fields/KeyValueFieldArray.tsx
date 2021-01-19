@@ -16,6 +16,12 @@ import {
 import Text, { Case, TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 
+const KeyValueStackContainer = styled.div`
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[14]}px
+    ${(props) => props.theme.spaces[11] + 1}px
+    ${(props) => props.theme.spaces[11] + 2}px;
+`;
 const FormRowWithLabel = styled(FormRow)`
   flex-wrap: wrap;
   ${FormLabel} {
@@ -54,8 +60,38 @@ const BottomWrapper = styled.div<{ bulkEdit: boolean }>`
   right: 0px;
   height: 40px;
   width: 100%;
+  background-color: ${(props) => props.theme.colors.apiPane.bg};
   padding: 0px ${(props) => props.theme.spaces[14]}px 0px
     ${(props) => props.theme.spaces[9]}px;
+`;
+
+const Flex = styled.div<{ size: number }>`
+  flex: ${(props) => props.size};
+  ${(props) =>
+    props.size === 3
+      ? `
+    margin-left: ${props.theme.spaces[4]}px;
+  `
+      : null};
+`;
+
+const FlexContainer = styled.div`
+  display: flex;
+  align-items: center;
+  width: calc(100% - 30px);
+
+  .key-value {
+    padding: ${(props) => props.theme.spaces[2]}px 0px
+      ${(props) => props.theme.spaces[2]}px
+      ${(props) => props.theme.spaces[1]}px;
+    .${Classes.TEXT} {
+      color: ${(props) => props.theme.colors.apiPane.text};
+    }
+    border-bottom: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  }
+  .key-value:nth-child(2) {
+    margin-left: ${(props) => props.theme.spaces[4]}px;
+  }
 `;
 
 const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
@@ -70,7 +106,19 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
   }, [props.fields, props.pushFields]);
 
   return (
-    <React.Fragment>
+    <KeyValueStackContainer>
+      <FlexContainer>
+        <Flex size={1} className="key-value">
+          <Text type={TextType.H6} case={Case.UPPERCASE}>
+            Key
+          </Text>
+        </Flex>
+        <Flex size={3} className="key-value">
+          <Text type={TextType.H6} case={Case.UPPERCASE}>
+            Value
+          </Text>
+        </Flex>
+      </FlexContainer>
       {props.fields.length && (
         <React.Fragment>
           {!bulkEdit &&
@@ -91,21 +139,21 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
 
               return (
                 <FormRowWithLabel key={index}>
-                  <div style={{ flex: 1 }}>
+                  <Flex size={1}>
                     <DynamicTextField
                       theme={props.theme}
-                      className={`t--${field}.value.${index}`}
-                      name={`${field}.value`}
-                      placeholder="Value"
-                      dataTreePath={`${props.dataTreePath}[${index}].value`}
-                      expected={FIELD_VALUES.API_ACTION.params}
+                      className={`t--${field}.key.${index}`}
+                      name={`${field}.key`}
+                      placeholder="Key"
+                      showLightningMenu={false}
+                      dataTreePath={`${props.dataTreePath}[${index}].key`}
                       hoverInteraction={true}
                       border={CodeEditorBorder.BOTTOM_SIDE}
                     />
-                  </div>
+                  </Flex>
 
                   {!props.actionConfig && (
-                    <div style={{ flex: 3 }}>
+                    <Flex size={3}>
                       <DynamicTextField
                         theme={props.theme}
                         className={`t--${field}.value.${index}`}
@@ -116,11 +164,11 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                         hoverInteraction={true}
                         border={CodeEditorBorder.BOTTOM_SIDE}
                       />
-                    </div>
+                    </Flex>
                   )}
 
                   {props.actionConfig && props.actionConfig[index] && (
-                    <div style={{ flex: 3 }}>
+                    <Flex size={3}>
                       <DynamicTextField
                         theme={props.theme}
                         className={`t--${field}.value.${index}`}
@@ -153,7 +201,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                         hoverInteraction={true}
                         border={CodeEditorBorder.BOTTOM_SIDE}
                       />
-                    </div>
+                    </Flex>
                   )}
                   {props.addOrDeleteFields !== false && (
                     <CenterdIcon
@@ -218,7 +266,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
           </BottomWrapper>
         </React.Fragment>
       )}
-    </React.Fragment>
+    </KeyValueStackContainer>
   );
 };
 

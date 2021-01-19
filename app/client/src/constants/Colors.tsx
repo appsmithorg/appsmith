@@ -70,6 +70,7 @@ export const Colors: Record<string, string> = {
   NERO: "#2B2B2B",
   CHARCOAL: "#4B4848",
   LIGHT_GREY: "#D4D4D4",
+  Gallery: "#F0F0F0",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

@@ -60,3 +60,9 @@ export const POST_BODY_FORMAT_OPTIONS_NO_MULTI_PART = POST_BODY_FORMAT_OPTIONS.f
 export const POST_BODY_FORMATS = POST_BODY_FORMAT_OPTIONS.map((option) => {
   return option.value;
 });
+
+export const POST_BODY_FORMAT_TITLES_NO_MULTI_PART = POST_BODY_FORMAT_OPTIONS_NO_MULTI_PART.map(
+  (option) => {
+    return { title: option.label, key: option.value };
+  },
+);
