@@ -18,7 +18,7 @@ const KeyValueStackContainer = styled.div`
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[14]}px
     ${(props) => props.theme.spaces[11] + 1}px
-    ${(props) => props.theme.spaces[9]}px;
+    ${(props) => props.theme.spaces[11] + 2}px;
 `;
 const FormRowWithLabel = styled(FormRow)`
   flex-wrap: wrap;
@@ -49,24 +49,32 @@ const AddMoreAction = styled.div`
   }
 `;
 
-const FlexOne = styled.div`
-  flex: 1;
+const Flex = styled.div<{ size: number }>`
+  flex: ${(props) => props.size};
+  ${(props) =>
+    props.size === 3
+      ? `
+    margin-left: ${props.theme.spaces[4]}px;
+  `
+      : null};
 `;
-const FlexThree = styled.div`
-  flex: 3;
-`;
+
 const FlexContainer = styled.div`
   display: flex;
   align-items: center;
-  height: 30px;
   width: calc(100% - 30px);
-  border-bottom: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
 
   .key-value {
-    padding-left: ${(props) => props.theme.spaces[1]}px;
-    span {
+    padding: ${(props) => props.theme.spaces[2]}px 0px
+      ${(props) => props.theme.spaces[2]}px
+      ${(props) => props.theme.spaces[1]}px;
+    .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.apiPane.text};
     }
+    border-bottom: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  }
+  .key-value:nth-child(2) {
+    margin-left: ${(props) => props.theme.spaces[4]}px;
   }
 `;
 
@@ -83,16 +91,16 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
   return (
     <KeyValueStackContainer>
       <FlexContainer>
-        <FlexOne className="key-value">
+        <Flex size={1} className="key-value">
           <Text type={TextType.H6} case={Case.UPPERCASE}>
             Key
           </Text>
-        </FlexOne>
-        <FlexThree className="key-value">
+        </Flex>
+        <Flex size={3} className="key-value">
           <Text type={TextType.H6} case={Case.UPPERCASE}>
             Value
           </Text>
-        </FlexThree>
+        </Flex>
       </FlexContainer>
       {props.fields.length && (
         <React.Fragment>
@@ -113,7 +121,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
 
             return (
               <FormRowWithLabel key={index}>
-                <FlexOne>
+                <Flex size={1}>
                   <DynamicTextField
                     theme={props.theme}
                     className={`t--${field}.key.${index}`}
@@ -124,10 +132,10 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                     hoverInteraction={true}
                     border={CodeEditorBorder.BOTTOM_SIDE}
                   />
-                </FlexOne>
+                </Flex>
 
                 {!props.actionConfig && (
-                  <FlexThree>
+                  <Flex size={3}>
                     <DynamicTextField
                       theme={props.theme}
                       className={`t--${field}.value.${index}`}
@@ -138,11 +146,11 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                       hoverInteraction={true}
                       border={CodeEditorBorder.BOTTOM_SIDE}
                     />
-                  </FlexThree>
+                  </Flex>
                 )}
 
                 {props.actionConfig && props.actionConfig[index] && (
-                  <FlexThree>
+                  <Flex size={3}>
                     <DynamicTextField
                       theme={props.theme}
                       className={`t--${field}.value.${index}`}
@@ -175,7 +183,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                       hoverInteraction={true}
                       border={CodeEditorBorder.BOTTOM_SIDE}
                     />
-                  </FlexThree>
+                  </Flex>
                 )}
                 {props.addOrDeleteFields !== false && (
                   <CenterdIcon

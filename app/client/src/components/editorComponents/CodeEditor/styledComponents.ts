@@ -200,9 +200,6 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.textDefault} !important;
     }
     .cm-s-duotone-light.CodeMirror {
-      font-size: 12px;
-      line-height: 16px;
-      letter-spacing: -0.21px;
       border-radius: 0px;
       ${(props) =>
         props.border === "none"
@@ -220,8 +217,7 @@ export const EditorWrapper = styled.div<{
       }
     }
     .cm-s-duotone-light .CodeMirror-gutters {
-      background: ${(props) =>
-        props.isFocused ? Colors.MERCURY : Colors.WHITE};
+      background: ${(props) => Colors.Gallery};
     }
     .cm-s-duotone-dark.CodeMirror {
       border-radius: 0px;
@@ -231,9 +227,6 @@ export const EditorWrapper = styled.div<{
           : props.border === "bottom-side"
           ? `border-bottom: 1px solid ${Colors.NERO}`
           : `border: 1px solid ${Colors.NERO}`};
-      font-size: 12px;
-      line-height: 16px;
-      letter-spacing: -0.21px;
       background: ${(props) =>
         props.isFocused ? Colors.NERO : Colors.BALTIC_SEA};
       color: ${Colors.LIGHT_GREY};
@@ -243,8 +236,7 @@ export const EditorWrapper = styled.div<{
       color: ${Colors.DOVE_GRAY};
     }
     .cm-s-duotone-dark .CodeMirror-gutters {
-      background: ${(props) =>
-        props.isFocused ? Colors.NERO : Colors.BALTIC_SEA};
+      background: ${(props) => Colors.SHARK2};
     }
     .binding-brackets {
       ${(props) =>
@@ -302,7 +294,7 @@ export const EditorWrapper = styled.div<{
   }
   && {
     .CodeMirror-lines {
-      padding: ${(props) => props.theme.spaces[3]}px 0px;
+      padding: ${(props) => props.theme.spaces[2]}px 0px;
       background-color: ${(props) => props.disabled && "#eef2f5"};
       cursor: ${(props) => (props.disabled ? "not-allowed" : "text")};
     }

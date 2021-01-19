@@ -776,6 +776,9 @@ type ColorType = {
     codeEditor: {
       placeholderColor: ShadeColor;
     };
+    body: {
+      text: string;
+    };
   };
 };
 
@@ -1060,7 +1063,7 @@ export const dark: ColorType = {
   },
   apiPane: {
     bg: darkShades[0],
-    text: darkShades[7],
+    text: darkShades[6],
     dividerBg: darkShades[4],
     requestTree: {
       bg: lightShades[10],
@@ -1097,6 +1100,9 @@ export const dark: ColorType = {
     },
     codeEditor: {
       placeholderColor: darkShades[5],
+    },
+    body: {
+      text: "#6D6D6D",
     },
   },
 };
@@ -1382,7 +1388,7 @@ export const light: ColorType = {
   },
   apiPane: {
     bg: lightShades[11],
-    text: lightShades[7],
+    text: lightShades[6],
     dividerBg: lightShades[3],
     requestTree: {
       bg: lightShades[11],
@@ -1419,6 +1425,9 @@ export const light: ColorType = {
     },
     codeEditor: {
       placeholderColor: lightShades[5],
+    },
+    body: {
+      text: "#A9A7A7",
     },
   },
 };

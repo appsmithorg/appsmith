@@ -30,6 +30,7 @@ const PostbodyContainer = styled.div`
 `;
 
 const JSONEditorFieldWrapper = styled.div`
+  margin: 0 30px;
   .CodeMirror {
     height: auto;
     min-height: 300px;
@@ -90,7 +91,6 @@ const PostBodyData = (props: Props) => {
                   }
                   dataTreePath={`${dataTreePath}.body`}
                   theme={props.theme}
-                  border={CodeEditorBorder.NONE}
                 />
               </JSONEditorFieldWrapper>
             );

@@ -39,6 +39,8 @@ import Button, { Size } from "components/ads/Button";
 import { TabComponent } from "components/ads/Tabs";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import Text, { TextType } from "components/ads/Text";
+import { Classes } from "components/ads/common";
 
 const Form = styled.form`
   display: flex;
@@ -50,10 +52,6 @@ const Form = styled.form`
     padding: ${(props) => props.theme.spaces[3]}px;
   }
   ${FormRow} {
-    padding: ${(props) => props.theme.spaces[2]}px;
-    & > * {
-      /* margin-right: 10px; */
-    }
     ${FormLabel} {
       padding: 0;
       width: 100%;
@@ -172,6 +170,16 @@ const TabSection = styled.div`
   background-color: ${(props) => props.theme.colors.apiPane.bg};
   height: 100%;
   overflow: auto;
+`;
+
+const NoBodyMessage = styled.div`
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+
+  .${Classes.TEXT} {
+    color: ${(props) => props.theme.colors.apiPane.body.text};
+  }
 `;
 
 interface APIFormProps {
@@ -348,7 +356,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 title: "Body",
                 panelComponent: (
                   <>
-                    {allowPostBody && (
+                    {allowPostBody ? (
                       <PostBodyData
                         actionConfigurationHeaders={actionConfigurationHeaders}
                         actionConfiguration={actionConfigurationBody}
@@ -356,6 +364,12 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                         dataTreePath={`${actionName}.config`}
                         theme={theme}
                       />
+                    ) : (
+                      <NoBodyMessage>
+                        <Text type={TextType.P2}>
+                          This request does not have a body
+                        </Text>
+                      </NoBodyMessage>
                     )}
                   </>
                 ),
