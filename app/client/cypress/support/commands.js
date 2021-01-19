@@ -1065,29 +1065,6 @@ Cypress.Commands.add("updateComputedValue", (value) => {
       });
   });
   cy.wait(1000);
-  /*
-  cy.get(".CodeMirror textarea")
-    .first()
-    .focus()
-    .type("{ctrl}{shift}{downarrow}")
-    .then($cm => {
-      if ($cm.val() !== "") {
-        cy.get(".CodeMirror textarea")
-          .first()
-          .clear({
-            force: true,
-          });
-      }
-      cy.get(".CodeMirror textarea")
-        .first()
-        .type("{command}{A}{del}")
-        .type(value, {
-          force: true,
-          parseSpecialCharSequences: false,
-        });
-      cy.wait(2000);
-    });
-    */
 });
 
 Cypress.Commands.add("testCodeMirrorLast", (value) => {
