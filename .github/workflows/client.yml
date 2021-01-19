@@ -147,7 +147,7 @@ jobs:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v2
 
       - name: Use Node.js 10.16.3
@@ -290,7 +290,7 @@ jobs:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v2
 
       - name: Download the react build artifact
