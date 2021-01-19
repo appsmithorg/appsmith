@@ -1113,6 +1113,14 @@ Cypress.Commands.add("testJsontext", (endp, value) => {
         });
     }
     cy.wait(500);
+    cy.get(
+      ".t--property-control-" + endp + " .CodeMirror textarea",
+    ).scrollIntoView();
+    cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+      .first()
+      .focus({ force: true })
+      .type("{uparrow}", { force: true })
+      .type("{ctrl}{shift}{downarrow}", { force: true });
     cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
       .first()
       .type(value, {

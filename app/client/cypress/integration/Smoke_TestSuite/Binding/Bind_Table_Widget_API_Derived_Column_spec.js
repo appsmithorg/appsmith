@@ -51,7 +51,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
     cy.SearchEntityandOpen("Table1");
-    cy.wait(500);
+    cy.wait(3000);
     cy.testJsontext("tabledata", "{{Api1.data.users}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     cy.wait(1000);
