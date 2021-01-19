@@ -90,7 +90,7 @@ export const RichtextEditorComponent = (
             onChange(editor.getContent());
           });
         setEditorInstance(editor);
-        editor.on("init", function() {
+        editor.on("init", () => {
           setIsEditorInitialised(true);
         });
       },
