@@ -503,11 +503,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   createTablePrimaryColumns = () => {
-    const { tableData, columnOrder, primaryColumns } = this.props;
+    const { tableData, columnOrder } = this.props;
     const derivedColumns = [...(this.props.derivedColumns || [])];
     // If there is tableData attempt to generate primaryColumns
     if (tableData) {
-      let tableColumns: ColumnProperties[] = Array.from(primaryColumns || []);
+      let tableColumns: ColumnProperties[] = [];
       //Get table level styles
       const tableStyles = getTableStyles(this.props);
       const columnKeys: string[] = getAllTableColumnKeys(tableData);
@@ -534,6 +534,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       //add derived columns to primary columns
       tableColumns = tableColumns.concat(updatedDerivedColumns);
 
+      console.log("Table log: creating new:", { tableColumns });
       tableColumns.forEach((column: ColumnProperties, index: number) => {
         super.updateWidgetProperty(`primaryColumns[${index}]`, column);
       });
@@ -562,7 +563,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
-    console.log("Table log: Table re-rendered", this.props);
+    // console.log("Table log: Table re-rendered", this.props);
     // Check if data is modifed by comparing the stringified versions of the previous and next tableData
     const tableDataModified =
       JSON.stringify(this.props.tableData) !==
