@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ConfigService;
 import lombok.Data;
@@ -27,6 +28,8 @@ public class ReleaseNotesService {
     private final CloudServicesConfig cloudServicesConfig;
 
     private final ConfigService configService;
+
+    private final ProjectProperties projectProperties;
 
     public final List<ReleaseNode> releaseNodesCache = new ArrayList<>();
 
@@ -88,14 +91,14 @@ public class ReleaseNotesService {
     }
 
     public String computeNewFrom(String version) {
-        if (CollectionUtils.isEmpty(releaseNodesCache)) {
+        if (CollectionUtils.isEmpty(releaseNodesCache) || StringUtils.isEmpty(version)) {
             return "0";
         }
 
         int newCount = 0;
 
         for (ReleaseNode node : releaseNodesCache) {
-            if (version == null || version.equals(node.getTagName())) {
+            if (version.equals(node.getTagName())) {
                 break;
             } else {
                 ++newCount;
@@ -103,6 +106,20 @@ public class ReleaseNotesService {
         }
 
         return newCount == releaseNodesCache.size() ? ((newCount - 1) + "+") : String.valueOf(newCount);
+    }
+
+    public String getReleasedVersion() {
+        final String version = projectProperties.getVersion();
+
+        if (!version.endsWith("-SNAPSHOT")) {
+            return version;
+        }
+
+        if (CollectionUtils.isEmpty(releaseNodesCache)) {
+            return "";
+        }
+
+        return releaseNodesCache.get(0).getTagName();
     }
 
 }
