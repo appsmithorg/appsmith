@@ -1241,6 +1241,7 @@ Cypress.Commands.add("editColumn", (colId) => {
   cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click({
     force: true,
   });
+  cy.wait(500);
 });
 
 Cypress.Commands.add(

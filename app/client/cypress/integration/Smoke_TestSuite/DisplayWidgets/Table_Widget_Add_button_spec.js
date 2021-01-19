@@ -13,7 +13,7 @@ describe("Table Widget property pane feature validation", function() {
   it("Table widget with Add button test and validation", function() {
     cy.openPropertyPane("tablewidget");
     cy.editColumn("id");
-    cy.get(widgetsPage.tableBtn).should("not.be.visible");
+    cy.get(widgetsPage.tableBtn).should("not.exist");
     cy.changeColumnType("Button");
     cy.updateComputedValue(testdata.currentRowOrderAmt);
     cy.get(widgetsPage.actionSelect).click();
