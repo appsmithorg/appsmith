@@ -27,6 +27,9 @@ public class ConfigServiceImpl extends BaseService<ConfigRepository, Config, Str
 
     private final ApplicationRepository applicationRepository;
 
+    // This is permanently cached through the life of the JVM process as this is not intended to change at runtime ever.
+    private String instanceId = null;
+
     public ConfigServiceImpl(Scheduler scheduler,
                              Validator validator,
                              MongoConverter mongoConverter,
@@ -52,6 +55,19 @@ public class ConfigServiceImpl extends BaseService<ConfigRepository, Config, Str
                     log.debug("Found config with name: {} and id: {}", name, dbConfig.getId());
                     dbConfig.setConfig(config.getConfig());
                     return repository.save(dbConfig);
+                });
+    }
+
+    @Override
+    public Mono<String> getInstanceId() {
+        if (instanceId != null) {
+            return Mono.just(instanceId);
+        }
+
+        return getByName("instance-id")
+                .map(config -> {
+                    instanceId = config.getConfig().getAsString("value");
+                    return instanceId;
                 });
     }
 

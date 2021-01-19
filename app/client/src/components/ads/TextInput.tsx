@@ -81,23 +81,23 @@ const boxStyles = (
 const StyledInput = styled.input<
   TextInputProps & { inputStyle: boxReturnType; isValid: boolean }
 >`
-  width: ${props => (props.fill ? "100%" : "320px")};
+  width: ${(props) => (props.fill ? "100%" : "320px")};
   border-radius: 0;
   outline: 0;
   box-shadow: none;
-  border: 1px solid ${props => props.inputStyle.borderColor};
-  padding: 0px ${props => props.theme.spaces[6]}px;
+  border: 1px solid ${(props) => props.inputStyle.borderColor};
+  padding: 0px ${(props) => props.theme.spaces[6]}px;
   height: 38px;
-  background-color: ${props => props.inputStyle.bgColor};
-  color: ${props => props.inputStyle.color};
+  background-color: ${(props) => props.inputStyle.bgColor};
+  color: ${(props) => props.inputStyle.color};
 
   &::placeholder {
-    color: ${props => props.theme.colors.textInput.placeholder};
+    color: ${(props) => props.theme.colors.textInput.placeholder};
   }
   &:disabled {
     cursor: not-allowed;
   }
-  ${props =>
+  ${(props) =>
     !props.readOnly
       ? `
   &:focus {
@@ -124,7 +124,7 @@ const InputWrapper = styled.div`
   position: relative;
 
   .${Classes.TEXT} {
-    color: ${props => props.theme.colors.danger.main};
+    color: ${(props) => props.theme.colors.danger.main};
   }
 `;
 
@@ -155,7 +155,7 @@ const TextInput = forwardRef(
     );
 
     const memoizedChangeHandler = useCallback(
-      el => {
+      (el) => {
         const inputValue = el.target.value.trim();
         const validation = props.validator && props.validator(inputValue);
         if (validation) {

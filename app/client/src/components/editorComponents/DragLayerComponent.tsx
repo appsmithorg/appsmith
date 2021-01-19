@@ -25,11 +25,12 @@ const WrappedDragLayer = styled.div<{
 
   background-image: radial-gradient(
     circle,
-    ${props => props.theme.colors.grid} 1px,
+    ${(props) => props.theme.colors.grid} 1px,
     transparent 0
   );
-  background-size: ${props => props.columnWidth}px ${props => props.rowHeight}px;
-  background-position: -${props => props.columnWidth / 2}px -${props =>
+  background-size: ${(props) => props.columnWidth}px
+    ${(props) => props.rowHeight}px;
+  background-position: -${(props) => props.columnWidth / 2}px -${(props) =>
       props.rowHeight / 2}px;
 `;
 
@@ -69,7 +70,7 @@ const DragLayerComponent = (props: DragLayerProps) => {
     y: 0,
   });
   const { isDragging, currentOffset, widget, canDrop } = useDragLayer(
-    monitor => ({
+    (monitor) => ({
       isDragging: monitor.isDragging(),
       currentOffset: monitor.getSourceClientOffset(),
       widget: monitor.getItem(),

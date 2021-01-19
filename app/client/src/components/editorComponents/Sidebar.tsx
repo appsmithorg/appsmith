@@ -11,10 +11,10 @@ import PerformanceTracker, {
 const SidebarWrapper = styled.div`
   background-color: ${Colors.MINE_SHAFT};
   padding: 0px 0 0 6px;
-  width: ${props => props.theme.sidebarWidth};
+  width: ${(props) => props.theme.sidebarWidth};
   z-index: 3;
 
-  color: ${props => props.theme.colors.textOnDarkBG};
+  color: ${(props) => props.theme.colors.textOnDarkBG};
   overflow-y: auto;
   & .${Classes.PANEL_STACK} {
     height: 100%;

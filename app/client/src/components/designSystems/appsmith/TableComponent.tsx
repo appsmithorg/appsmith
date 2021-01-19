@@ -21,7 +21,7 @@ const rowProps = ({ rowData }: { rowData: { isLoading: boolean } }) => {
 
 const StyledTable = styled(BaseTable)`
   .row-selected {
-    background-color: ${props =>
+    background-color: ${(props) =>
       props.theme.widgets.tableWidget.selectHighlightColor};
   }
 `;
@@ -72,7 +72,7 @@ export default class SelectableTable extends React.PureComponent<
 
   render() {
     const { data, isLoading, ...rest } = this.props;
-    const dataWithLoadingState = data.map(rowData => {
+    const dataWithLoadingState = data.map((rowData) => {
       return {
         ...rowData,
         isLoading,

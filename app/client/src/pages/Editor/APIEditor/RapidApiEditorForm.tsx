@@ -15,7 +15,7 @@ import CredentialsTooltip from "components/editorComponents/form/CredentialsTool
 import { FormIcons } from "icons/FormIcons";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
-import { PaginationType, RestAction } from "entities/Action";
+import { PaginationType, Action } from "entities/Action";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import { NameWrapper } from "./Form";
 const Form = styled.form`
@@ -26,10 +26,10 @@ const Form = styled.form`
   overflow: auto;
   width: 100%;
   ${FormLabel} {
-    padding: ${props => props.theme.spaces[3]}px;
+    padding: ${(props) => props.theme.spaces[3]}px;
   }
   ${FormRow} {
-    padding: ${props => props.theme.spaces[2]}px;
+    padding: ${(props) => props.theme.spaces[2]}px;
     & > * {
       margin-right: 10px;
     }
@@ -113,7 +113,7 @@ interface APIFormProps {
   dispatch: any;
 }
 
-type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;
+type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
 
 const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
   const {
@@ -271,7 +271,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
-export default connect(state => {
+export default connect((state) => {
   const displayFormat = selector(state, "displayFormat");
   const providerImage = selector(state, "provider.imageUrl");
   const providerURL = selector(state, "provider.url");
@@ -307,7 +307,7 @@ export default connect(state => {
     providerCredentialSteps,
   };
 })(
-  reduxForm<RestAction, APIFormProps>({
+  reduxForm<Action, APIFormProps>({
     form: API_EDITOR_FORM_NAME,
     destroyOnUnmount: false,
   })(RapidApiEditorForm),

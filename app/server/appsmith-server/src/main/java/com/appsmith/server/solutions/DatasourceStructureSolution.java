@@ -89,8 +89,9 @@ public class DatasourceStructureSolution {
         // If datasource has encrypted fields, decrypt and set it in the datasource.
         if (datasource.getDatasourceConfiguration() != null) {
             AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
-            if (authentication != null && authentication.getEmptyEncryptionFields().isEmpty() && authentication.isEncrypted()) {
+            if (authentication != null && authentication.isEncrypted()) {
                 Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
+                        .filter(e -> e.getValue() != null)
                         .collect(Collectors.toMap(
                                 Map.Entry::getKey,
                                 e -> encryptionService.decryptString(e.getValue())));

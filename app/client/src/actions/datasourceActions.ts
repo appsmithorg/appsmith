@@ -1,5 +1,6 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { CreateDatasourceConfig, Datasource } from "api/DatasourcesApi";
+import { CreateDatasourceConfig } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 
 export const createDatasourceFromForm = (payload: CreateDatasourceConfig) => {
   return {

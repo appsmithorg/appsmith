@@ -26,7 +26,10 @@ import { validateResponse } from "./ErrorSagas";
 import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
-import { BUILDER_PAGE_URL } from "constants/routes";
+import {
+  BUILDER_PAGE_URL,
+  getApplicationViewerPageURL,
+} from "constants/routes";
 import { AppState } from "reducers";
 import {
   FetchApplicationPayload,
@@ -43,19 +46,26 @@ import { Organization } from "constants/orgConstants";
 import { Variant } from "components/ads/common";
 import { AppIconName } from "components/ads/AppIcon";
 import { AppColorCode } from "constants/DefaultTheme";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { showCompletionDialog } from "./OnboardingSagas";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
 ): string | undefined => {
   let defaultPage: ApplicationPagePayload | undefined = undefined;
   if (pages) {
-    defaultPage = pages.find(page => page.isDefault);
+    defaultPage = pages.find((page) => page.isDefault);
     if (!defaultPage) {
       defaultPage = pages[0];
     }
   }
   return defaultPage ? defaultPage.id : undefined;
 };
+
+let windowReference: Window | null = null;
 
 export function* publishApplicationSaga(
   requestAction: ReduxAction<PublishApplicationRequest>,
@@ -71,6 +81,26 @@ export function* publishApplicationSaga(
       yield put({
         type: ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS,
       });
+
+      const applicationId = yield select(getCurrentApplicationId);
+      const currentPageId = yield select(getCurrentPageId);
+      let appicationViewPageUrl = getApplicationViewerPageURL(
+        applicationId,
+        currentPageId,
+      );
+
+      const showOnboardingCompletionDialog = yield select(showCompletionDialog);
+      if (showOnboardingCompletionDialog) {
+        appicationViewPageUrl += "?onboardingComplete=true";
+      }
+
+      // If the tab is opened focus and reload else open in new tab
+      if (!windowReference || windowReference.closed) {
+        windowReference = window.open(appicationViewPageUrl, "_blank");
+      } else {
+        windowReference.location.reload();
+        windowReference.focus();
+      }
     }
   } catch (error) {
     yield put({
@@ -107,6 +137,11 @@ export function* getAllApplicationSaga() {
       yield put({
         type: ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS,
         payload: organizationApplication,
+      });
+      const { newReleasesCount, releaseItems } = response.data || {};
+      yield put({
+        type: ReduxActionTypes.FETCH_RELEASES_SUCCESS,
+        payload: { newReleasesCount, releaseItems },
       });
     }
   } catch (error) {

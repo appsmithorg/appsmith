@@ -8,7 +8,8 @@ import {
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { compact, groupBy } from "lodash";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
+import { isStoredDatasource } from "entities/Action";
 import { debounce } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import log from "loglevel";
@@ -46,9 +47,17 @@ export const useFilteredDatasources = (searchKeyword?: string) => {
   const datasources = useMemo(() => {
     const datasourcesPageMap: Record<string, Datasource[]> = {};
     for (const [key, value] of Object.entries(actions)) {
-      const datasourceIds = value.map(action => action.config.datasource?.id);
-      const activeDatasources = reducerDatasources.filter(datasource =>
-        datasourceIds.includes(datasource.id),
+      const datasourceIds = new Set();
+      value.forEach((action) => {
+        if (
+          isStoredDatasource(action.config.datasource) &&
+          action.config.datasource.id
+        ) {
+          datasourceIds.add(action.config.datasource.id);
+        }
+      });
+      const activeDatasources = reducerDatasources.filter((datasource) =>
+        datasourceIds.has(datasource.id),
       );
       datasourcesPageMap[key] = activeDatasources;
     }
@@ -58,7 +67,7 @@ export const useFilteredDatasources = (searchKeyword?: string) => {
 
   return useMemo(() => {
     if (searchKeyword) {
-      const filteredDatasources = produce(datasources, draft => {
+      const filteredDatasources = produce(datasources, (draft) => {
         for (const [key, value] of Object.entries(draft)) {
           draft[key] = findDataSources(value, searchKeyword);
         }
@@ -82,7 +91,7 @@ export const useActions = (searchKeyword?: string) => {
   return useMemo(() => {
     if (searchKeyword) {
       const start = performance.now();
-      const filteredActions = produce(actions, draft => {
+      const filteredActions = produce(actions, (draft) => {
         for (const [key, value] of Object.entries(draft)) {
           value.forEach((action, index) => {
             const searchMatches =
@@ -112,7 +121,7 @@ export const useWidgets = (searchKeyword?: string) => {
   return useMemo(() => {
     if (searchKeyword && pageCanvasStructures) {
       const start = performance.now();
-      const filteredDSLs = produce(pageCanvasStructures, draft => {
+      const filteredDSLs = produce(pageCanvasStructures, (draft) => {
         for (const [key, value] of Object.entries(draft)) {
           const filteredWidgets = findWidgets(
             value,

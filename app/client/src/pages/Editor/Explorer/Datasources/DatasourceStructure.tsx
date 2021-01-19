@@ -8,7 +8,7 @@ import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
 import styled from "styled-components";
 import QueryTemplates from "./QueryTemplates";
 import DatasourceField from "./DatasourceField";
-import { DatasourceTable } from "api/DatasourcesApi";
+import { DatasourceTable } from "entities/Datasource";
 
 const Wrapper = styled(EntityTogglesWrapper)`
   &&&& {
@@ -19,7 +19,7 @@ const Wrapper = styled(EntityTogglesWrapper)`
     }
   }
   span {
-    font-size: ${props => props.theme.fontSizes[2]}px;
+    font-size: ${(props) => props.theme.fontSizes[2]}px;
     margin-left: 5px;
     color: white;
     padding-top: 2px;

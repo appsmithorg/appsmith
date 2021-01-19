@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, ReactNode, memo } from "react";
+import React, { useMemo, useCallback, memo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetTypes, WidgetType } from "constants/WidgetConstants";
@@ -144,7 +144,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     >
       {props.childWidgets &&
         props.childWidgets.length > 0 &&
-        props.childWidgets.map(child => (
+        props.childWidgets.map((child) => (
           <WidgetEntity
             step={props.step + 1}
             widgetId={child.widgetId}

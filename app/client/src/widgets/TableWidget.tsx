@@ -353,7 +353,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     filteredTableData: Array<Record<string, unknown>>,
     selectedRowIndex?: number,
   ) => {
-    if (selectedRowIndex === undefined || selectedRowIndex === -1) {
+    if (
+      selectedRowIndex === undefined ||
+      selectedRowIndex === null ||
+      selectedRowIndex === -1
+    ) {
       const columnKeys: string[] = getAllTableColumnKeys(this.props.tableData);
       const selectedRow: { [key: string]: any } = {};
       for (let i = 0; i < columnKeys.length; i++) {
@@ -493,7 +497,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getSelectedRowIndexes = (selectedRowIndices: string) => {
     return selectedRowIndices
-      ? selectedRowIndices.split(",").map(i => Number(i))
+      ? selectedRowIndices.split(",").map((i) => Number(i))
       : [];
   };
 
@@ -528,6 +532,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         tableSizes.COLUMN_HEADER_HEIGHT) /
         tableSizes.ROW_HEIGHT,
     );
+
     if (
       componentHeight -
         (tableSizes.TABLE_HEADER_HEIGHT +
@@ -540,6 +545,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (pageSize !== this.props.pageSize) {
       this.props.updateWidgetMetaProperty("pageSize", pageSize);
     }
+
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
@@ -557,7 +563,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columnNameMap={this.props.columnNameMap}
           columnTypeMap={this.props.columnTypeMap}
           columnOrder={this.props.columnOrder}
-          pageSize={pageSize}
+          pageSize={Math.max(1, pageSize)}
           onCommandClick={this.onCommandClick}
           selectedRowIndex={
             this.props.selectedRowIndex === undefined

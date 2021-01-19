@@ -32,9 +32,9 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 
 const PropertySectionLabel = styled.div`
-  color: ${props => props.theme.colors.paneSectionLabel};
-  padding: ${props => props.theme.spaces[2]}px 0;
-  font-size: ${props => props.theme.fontSizes[3]}px;
+  color: ${(props) => props.theme.colors.paneSectionLabel};
+  padding: ${(props) => props.theme.spaces[2]}px 0;
+  font-size: ${(props) => props.theme.fontSizes[3]}px;
   display: flex;
   font-weight: bold;
   justify-content: flex-start;
@@ -43,16 +43,16 @@ const PropertySectionLabel = styled.div`
 
 const PropertyPaneWrapper = styled(PaneWrapper)`
   width: 100%;
-  max-height: ${props => props.theme.propertyPane.height}px;
-  width: ${props => props.theme.propertyPane.width}px;
-  margin: ${props => props.theme.spaces[2]}px;
-  box-shadow: 0px 0px 10px ${props => props.theme.colors.paneCard};
-  border: ${props => props.theme.spaces[5]}px solid
-    ${props => props.theme.colors.paneBG};
+  max-height: ${(props) => props.theme.propertyPane.height}px;
+  width: ${(props) => props.theme.propertyPane.width}px;
+  margin: ${(props) => props.theme.spaces[2]}px;
+  box-shadow: 0px 0px 10px ${(props) => props.theme.colors.paneCard};
+  border: ${(props) => props.theme.spaces[5]}px solid
+    ${(props) => props.theme.colors.paneBG};
   border-right: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0 ${props => props.theme.spaces[5]}px 0 0;
+  padding: 0 ${(props) => props.theme.spaces[5]}px 0 0;
   text-transform: none;
   ${scrollbarDark};
 `;

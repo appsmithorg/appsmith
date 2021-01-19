@@ -49,8 +49,8 @@ export const Wrapper = styled.div`
     }
   }
   & i {
-    font-family: ${props => props.theme.fonts.text};
-    font-size: ${props => props.theme.fontSizes[7]}px;
+    font-family: ${(props) => props.theme.fonts.text};
+    font-size: ${(props) => props.theme.fontSizes[7]}px;
   }
 `;
 
@@ -58,16 +58,15 @@ export const IconLabel = styled.h5`
   text-align: center;
   margin: 0;
   text-transform: uppercase;
-  font-weight: ${props => props.theme.fontWeights[1]};
+  font-weight: ${(props) => props.theme.fontWeights[1]};
   flex-shrink: 1;
-  font-size: ${props => props.theme.fontSizes[1]}px;
-  line-height: ${props => props.theme.lineHeights[2]}px;
+  font-size: ${(props) => props.theme.fontSizes[1]}px;
+  line-height: ${(props) => props.theme.lineHeights[2]}px;
   &::selection {
     background: none;
   }
 `;
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 const WidgetCard = (props: CardProps) => {
   const { setIsDragging } = useWidgetDragResize();
   const { selectWidget } = useWidgetSelection();

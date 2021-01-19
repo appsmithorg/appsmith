@@ -2,6 +2,7 @@ import React, { useEffect, ReactNode, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import Canvas from "./Canvas";
+import Welcome from "./Welcome";
 import {
   getIsFetchingPage,
   getCurrentPageId,
@@ -21,6 +22,7 @@ import { fetchPage } from "actions/pageActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { AppState } from "reducers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 
 const EditorWrapper = styled.div`
@@ -29,7 +31,7 @@ const EditorWrapper = styled.div`
   align-items: stretch;
   justify-content: flex-start;
   overflow: hidden;
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
 `;
 
 const CanvasContainer = styled.section`
@@ -60,6 +62,9 @@ const WidgetsEditor = () => {
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
+  const showWelcomeScreen = useSelector(
+    (state: AppState) => state.ui.onBoarding.showWelcomeScreen,
+  );
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.EDITOR_MOUNT);
@@ -112,6 +117,11 @@ const WidgetsEditor = () => {
   if (!isFetchingPage && widgets) {
     node = <Canvas dsl={widgets} />;
   }
+
+  if (showWelcomeScreen) {
+    return <Welcome />;
+  }
+
   log.debug("Canvas rendered");
   PerformanceTracker.stopTracking();
   return (

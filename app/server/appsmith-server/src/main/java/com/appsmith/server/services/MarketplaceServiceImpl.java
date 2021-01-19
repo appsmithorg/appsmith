@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.external.models.Provider;
-import com.appsmith.server.configurations.MarketplaceConfig;
+import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.dtos.ProviderPaginatedDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -31,7 +31,7 @@ import java.util.List;
 public class MarketplaceServiceImpl implements MarketplaceService {
     private final WebClient webClient;
 
-    private final MarketplaceConfig marketplaceConfig;
+    private final CloudServicesConfig cloudServicesConfig;
 
     private static String PROVIDER_PATH = "/providers";
 
@@ -47,12 +47,12 @@ public class MarketplaceServiceImpl implements MarketplaceService {
 
     @Autowired
     public MarketplaceServiceImpl(WebClient.Builder webClientBuilder,
-                                  MarketplaceConfig marketplaceConfig, ObjectMapper objectMapper) {
-        this.marketplaceConfig = marketplaceConfig;
+                                  CloudServicesConfig cloudServicesConfig, ObjectMapper objectMapper) {
+        this.cloudServicesConfig = cloudServicesConfig;
         this.webClient = webClientBuilder
-                .defaultHeaders(header -> header.setBasicAuth(marketplaceConfig.getUsername(),
-                        marketplaceConfig.getPassword()))
-                .baseUrl(marketplaceConfig.getBaseUrl())
+                .defaultHeaders(header -> header.setBasicAuth(cloudServicesConfig.getUsername(),
+                        cloudServicesConfig.getPassword()))
+                .baseUrl(cloudServicesConfig.getBaseUrl())
                 .build();
         this.objectMapper = objectMapper;
     }
@@ -210,7 +210,7 @@ public class MarketplaceServiceImpl implements MarketplaceService {
     }
 
     private URI buildFullURI(MultiValueMap<String, String> params, String path) {
-        final String baseUrl = marketplaceConfig.getBaseUrl();
+        final String baseUrl = cloudServicesConfig.getBaseUrl();
         if (!StringUtils.hasText(baseUrl)) {
             return null;
         }

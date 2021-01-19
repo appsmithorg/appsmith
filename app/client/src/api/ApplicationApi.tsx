@@ -106,6 +106,8 @@ export interface FetchUsersApplicationsOrgsResponse extends ApiResponse {
   data: {
     organizationApplications: Array<OrganizationApplicationObject>;
     user: string;
+    newReleasesCount: string;
+    releaseItems: Array<Record<string, any>>;
   };
 }
 

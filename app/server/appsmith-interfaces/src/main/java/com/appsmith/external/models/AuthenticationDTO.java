@@ -29,7 +29,7 @@ public class AuthenticationDTO {
     // class and fails.
 
     @JsonIgnore
-    private Boolean isEncrypted;
+    private Boolean isEncrypted = false;
 
     @JsonIgnore
     public Map<String, String> getEncryptionFields() {
@@ -47,10 +47,7 @@ public class AuthenticationDTO {
 
     @JsonIgnore
     public boolean isEncrypted() {
-        if (isEncrypted == null) {
-            return true;
-        }
-        return isEncrypted;
+        return Boolean.TRUE.equals(isEncrypted);
     }
 
 }
