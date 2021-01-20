@@ -68,6 +68,7 @@ export const renderCell = (
                     onClick={(e) => e.stopPropagation()}
                     target="_blank"
                     rel="noopener noreferrer"
+                    className="image-cell-wrapper"
                     href={item}
                     key={index}
                   >
