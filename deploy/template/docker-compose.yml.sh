@@ -11,13 +11,12 @@ version: "3.7"
 
 services:
   nginx:
-    image: index.docker.io/appsmith/appsmith-editor
+    image: appsmith/appsmith-editor
     env_file: ./docker.env
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./data/nginx/app.conf.template:/nginx.conf.template
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
     command: "/bin/sh -c 'while :; do sleep 6h & wait \$\${!}; nginx -s reload; done & /start-nginx.sh'"

@@ -5,7 +5,7 @@ install_dir="/home/ubuntu/appsmith"
 config_ssl_pwd=$(pwd)
 
 confirm() {
-    local default="$1"  # Should be `y` or `n`.
+    local default="$1" # Should be `y` or `n`.
     local prompt="$2"
 
     local options="y/N"
@@ -27,40 +27,50 @@ confirm() {
     [[ yY =~ $answer ]]
 }
 
+ssl_enable=false
+
 read -rp 'Enter the domain or subdomain on which you want to host appsmith (example.com / app.example.com): ' custom_domain
 echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
 if confirm y '(Your DNS records must be updated for us to proceed)'; then
-    ssl_enable="true"
+    ssl_enable=true
+
+    read -rp 'Enter email address to create SSL certificate: (Optional, but strongly recommended): ' email
+    if [[ -z $email ]]; then
+        email_arg="--register-unsafely-without-email"
+    else
+        email_arg="--email $email --no-eff-email"
+    fi
+
+    if confirm n 'Do you want to create certificate in staging mode (which is used for dev purposes and is not subject to rate limits)?'; then
+        staging_arg="--staging"
+    else
+        staging_arg=""
+    fi
 fi
 
-if [[ -z ssl_enable ]]; then
+if [[ $ssl_enable == false ]]; then
     NGINX_SSL_CMNT="#"
 fi
 
-templates_dir="$(mktemp -d)"
-mkdir -p "$templates_dir"
-
-cd "$templates_dir"
-curl --remote-name-all --silent --show-error \
-    https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/nginx_app.conf.sh \
-
-bash "$templates_dir/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$custom_domain" > "$install_dir/data/nginx/app.conf.template"
+sed -i "s|APPSMITH_DOMAIN=|APPSMITH_DOMAIN=$custom_domain|" $install_dir/docker.env
+sed -i "s|APPSMITH_SSL_ENABLED=|APPSMITH_SSL_ENABLED=$ssl_enable|" $install_dir/docker.env
+sed -i "s|APPSMITH_SSL_EMAIL=|APPSMITH_SSL_EMAIL=$email|" $install_dir/docker.env
+sed -i "s|APPSMITH_SSL_ENV=|APPSMITH_SSL_ENV=$staging_arg|" $install_dir/docker.env
 
 current_dir=$(pwd)
 init_letsencrypt_file="$config_ssl_pwd/init-letsencrypt.sh"
 
-if ! [[ -z $ssl_enable ]]; then
+if [[ $ssl_enable == true ]]; then
     sudo chown ubuntu:ubuntu "$init_letsencrypt_file" && sudo chmod +x "$init_letsencrypt_file"
-    /bin/bash "$init_letsencrypt_file" "$custom_domain"
+    /bin/bash "$init_letsencrypt_file" "$custom_domain" "$email_arg" "$staging_arg"
 fi
 
 echo "+++++++++++ SUCCESS ++++++++++++++++++++++++++++++"
 echo "Your installation is complete!"
 echo ""
 
-if [[ -z $ssl_enable ]]; then
+if [[ $ssl_enable == false ]]; then
     echo "Your application is running on 'http://$custom_domain'."
 else
     echo "Your application is running on 'https://$custom_domain'."
 fi
-

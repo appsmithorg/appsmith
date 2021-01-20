@@ -6,6 +6,10 @@ encoded_mongo_root_user="$1"
 encoded_mongo_root_password="$2"
 mongo_host="$3"
 disable_telemetry="$4"
+custom_domain="$5"
+ssl_enabled="$6"
+ssl_email_contact="$7"
+ssl_env="$8"
 
 cat << EOF
 # Read our documentation on how to configure these features
@@ -54,4 +58,11 @@ APPSMITH_MONGODB_URI=mongodb://$encoded_mongo_root_user:$encoded_mongo_root_pass
 # ******** ANALYTICS *************
 APPSMITH_DISABLE_TELEMETRY=$disable_telemetry
 # *******************************
+
+# ******** SSL *************
+APPSMITH_DOMAIN=$custom_domain
+APPSMITH_SSL_ENABLED=$ssl_enabled
+APPSMITH_SSL_EMAIL=$ssl_email_contact
+APPSMITH_SSL_ENV=$ssl_env
+# **************************
 EOF

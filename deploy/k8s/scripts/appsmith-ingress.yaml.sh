@@ -18,7 +18,7 @@ if [[ "$ssl_enable" == "true" ]]; then
       tls:
         - hosts:
             - $custom_domain
-          secretName: lego-tls
+          secretName: appsmith-tls
       backend:
         serviceName: "appsmith-editor"
         servicePort: 80
