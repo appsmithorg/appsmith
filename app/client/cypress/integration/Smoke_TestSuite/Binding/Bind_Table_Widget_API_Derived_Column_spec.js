@@ -11,6 +11,13 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.addDsl(dsl);
   });
 
+  it("Create an API and Execute the API and bind with Table", function() {
+    cy.get(commonlocators.entityExplorersearch).clear();
+    cy.wait(500);
+    cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
+    cy.RunAPI();
+  });
+
   it("Check property pane column names and add column", function() {
     cy.SearchEntityandOpen("Table1");
     cy.tableColumnDataValidation("id");
@@ -43,13 +50,10 @@ describe("Test Create Api and Bind to Table widget", function() {
         cy.log("computed value of plain text " + tabData);
       });
     });
+    cy.get(commonlocators.editPropCrossButton).click();
   });
 
-  it("Create an API and Execute the API and bind with Table", function() {
-    cy.get(commonlocators.entityExplorersearch).clear();
-    cy.wait(500);
-    cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
-    cy.RunAPI();
+  it("Bind API and Table", function() {
     cy.SearchEntityandOpen("Table1");
     cy.wait(3000);
     cy.testJsontext("tabledata", "{{Api1.data.users}}");
