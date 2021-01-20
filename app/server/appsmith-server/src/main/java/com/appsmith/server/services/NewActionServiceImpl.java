@@ -684,7 +684,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                                                                DatasourceConfiguration datasourceConfiguration,
                                                                                PaginationField paginationField) {
         if (PaginationField.NEXT.equals(paginationField)) {
-            datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), StandardCharsets.UTF_8));
+            if (actionConfiguration.getNext() == null) {
+                datasourceConfiguration.setUrl(null);
+            } else {
+                datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), StandardCharsets.UTF_8));
+            }
         } else if (PaginationField.PREV.equals(paginationField)) {
             datasourceConfiguration.setUrl(actionConfiguration.getPrev());
         }
@@ -705,6 +709,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .flatMap(action -> generateActionByViewMode(action, false));
     }
 
+    @Override
+    public Flux<NewAction> findUnpublishedOnLoadActionsInPage(String pageId) {
+        return repository
+                .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, MANAGE_ACTIONS);
+    }
+
     /**
      * Given a list of names of actions and pageId, find all the actions matching this criteria of names and pageId
      *
@@ -713,8 +723,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
      * @return A Flux of Actions that are identified to be executed on page-load.
      */
     @Override
-    public Flux<NewAction> findUnpublishedOnLoadActionsInPage(Set<String> names, String pageId) {
-        return repository.findUnpublishedActionsByNameInAndPageId(names, pageId, MANAGE_ACTIONS);
+    public Flux<NewAction> findUnpublishedActionsInPageByNames(Set<String> names, String pageId) {
+        return repository
+                .findUnpublishedActionsByNameInAndPageId(names, pageId, MANAGE_ACTIONS);
     }
 
     @Override

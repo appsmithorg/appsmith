@@ -262,7 +262,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                   {
                     type: "BUTTON_WIDGET",
-                    position: { left: 10, top: 4 },
+                    position: { left: 9, top: 4 },
                     size: { rows: 1, cols: 3 },
                     props: {
                       text: "Cancel",
@@ -271,8 +271,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                   {
                     type: "BUTTON_WIDGET",
-                    position: { left: 13, top: 4 },
-                    size: { rows: 1, cols: 3 },
+                    position: { left: 12, top: 4 },
+                    size: { rows: 1, cols: 4 },
                     props: {
                       text: "Confirm",
                       buttonStyle: "PRIMARY_BUTTON",

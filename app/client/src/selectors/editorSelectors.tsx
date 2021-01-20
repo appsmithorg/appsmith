@@ -16,11 +16,11 @@ import {
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 import { OccupiedSpace } from "constants/editorConstants";
-import { getDataTree } from "selectors/dataTreeSelectors";
+import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 import _ from "lodash";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { getActions } from "sagas/selectors";
+import { getActions } from "selectors/entitiesSelector";
 
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -62,6 +62,10 @@ export const getIsPageSaving = (state: AppState) => {
   });
 
   return state.ui.editor.loadingStates.saving || areApisSaving;
+};
+
+export const getPageSavingError = (state: AppState) => {
+  return state.ui.editor.loadingStates.savingError;
 };
 
 export const getIsPublishingApplication = (state: AppState) =>
@@ -113,9 +117,11 @@ export const getWidgetCards = createSelector(
 export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
   getDataTree,
+  getLoadingEntities,
   (
     canvasWidgets: CanvasWidgetsReduxState,
     evaluatedDataTree,
+    loadingEntities,
   ): ContainerWidgetProps<WidgetProps> => {
     PerformanceTracker.startTracking(
       PerformanceTransactionName.CONSTRUCT_CANVAS_DSL,
@@ -123,14 +129,17 @@ export const getCanvasWidgetDsl = createSelector(
     const widgets: Record<string, DataTreeWidget> = {};
     Object.keys(canvasWidgets).forEach((widgetKey) => {
       const canvasWidget = canvasWidgets[widgetKey];
-      const evaluatedWidget = evaluatedDataTree[
-        canvasWidget.widgetName
-      ] as DataTreeWidget;
+      const evaluatedWidget = _.find(evaluatedDataTree, {
+        widgetId: widgetKey,
+      }) as DataTreeWidget;
       if (evaluatedWidget) {
         widgets[widgetKey] = createCanvasWidget(canvasWidget, evaluatedWidget);
       } else {
         widgets[widgetKey] = createLoadingWidget(canvasWidget);
       }
+      widgets[widgetKey].isLoading = loadingEntities.has(
+        canvasWidget.widgetName,
+      );
     });
 
     const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {

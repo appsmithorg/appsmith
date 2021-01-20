@@ -77,8 +77,8 @@ const SocialLoginButton = (props: {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   let url = props.url;
-  if (queryParams.has("redirectTo")) {
-    url += `?redirectUrl=${queryParams.get("redirectTo")}`;
+  if (queryParams.has("redirectUrl")) {
+    url += `?redirectUrl=${queryParams.get("redirectUrl")}`;
   }
   return (
     <StyledSocialLoginButton

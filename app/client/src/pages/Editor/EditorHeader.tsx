@@ -23,6 +23,7 @@ import {
   getCurrentPageId,
   getIsPageSaving,
   getIsPublishingApplication,
+  getPageSavingError,
 } from "selectors/editorSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
@@ -68,24 +69,6 @@ const HeaderSection = styled.div`
 
 const AppsmithLogoImg = styled.img`
   max-width: 110px;
-`;
-
-const ApplicationName = styled.span`
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 14px;
-  color: #fff;
-  margin-bottom: 6px;
-`;
-
-const PageName = styled.span`
-  display: flex;
-  flex: 1;
-  font-size: 12px;
-  line-height: 12px;
-  letter-spacing: 0.04em;
-  color: #ffffff;
-  opacity: 0.5;
 `;
 
 const SaveStatusContainer = styled.div`
@@ -152,7 +135,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     isPublishing,
     orgId,
     applicationId,
-    pageName,
     publishApplication,
   } = props;
 
@@ -337,6 +319,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,
   isSaving: getIsPageSaving(state),
+  pageSaveError: getPageSavingError(state),
   orgId: getCurrentOrgId(state),
   applicationId: getCurrentApplicationId(state),
   currentApplication: state.ui.applications.currentApplication,

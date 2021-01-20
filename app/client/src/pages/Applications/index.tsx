@@ -65,6 +65,7 @@ import Spinner from "components/ads/Spinner";
 import ProfileImage from "pages/common/ProfileImage";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { AppIconCollection } from "components/ads/AppIcon";
+import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -654,15 +655,13 @@ const ApplicationsSection = (props: any) => {
                 !isFetchingApplications && (
                   <OrgShareUsers>
                     <UserImageContainer>
-                      {userRoles
-                        .slice(0, 5)
-                        .map((el: UserRoles, index: number) => (
-                          <ProfileImage
-                            className="org-share-user-icons"
-                            userName={el.name ? el.name : el.username}
-                            key={el.username}
-                          />
-                        ))}
+                      {userRoles.slice(0, 5).map((el: UserRoles) => (
+                        <ProfileImage
+                          className="org-share-user-icons"
+                          userName={el.name ? el.name : el.username}
+                          key={el.username}
+                        />
+                      ))}
                       {userRoles.length > 5 ? (
                         <ProfileImage
                           className="org-share-user-icons"
@@ -797,6 +796,7 @@ class Applications extends Component<
   public render() {
     return (
       <PageWrapper displayName="Applications">
+        <ProductUpdatesModal />
         <LeftPane />
         <SubHeader
           search={{

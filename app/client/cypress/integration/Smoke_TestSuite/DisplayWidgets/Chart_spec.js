@@ -45,12 +45,12 @@ describe("Chart Widget Functionality", function() {
     cy.testJsontext("chartdata", JSON.stringify(this.data.chartInput));
     cy.get(viewWidgetsPage.chartWidget)
       .should("be.visible")
-      .and(chart => {
+      .and((chart) => {
         expect(chart.height()).to.be.greaterThan(200);
       });
     cy.get(viewWidgetsPage.chartWidget).should("have.css", "opacity", "1");
     const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    [0, 1, 2, 3, 4, 5, 6].forEach(k => {
+    [0, 1, 2, 3, 4, 5, 6].forEach((k) => {
       cy.get(viewWidgetsPage.rectangleChart)
         .eq(k)
         .trigger("mousemove", { force: true });
@@ -72,7 +72,7 @@ describe("Chart Widget Functionality", function() {
   it("Chart Widget Functionality To Unchecked Visible Widget", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.chartWidget).should("not.be.visible");
+    cy.get(publish.chartWidget).should("not.exist");
     cy.get(publish.backToEditor).click();
   });
   it("Chart Widget Functionality To Check Visible Widget", function() {
@@ -84,7 +84,7 @@ describe("Chart Widget Functionality", function() {
   it("Chart Widget Functionality To Uncheck Horizontal Scroll Visible", function() {
     cy.togglebarDisable(commonlocators.horizontalScroll);
     cy.PublishtheApp();
-    cy.get(publish.horizontalTab).should("not.visible");
+    cy.get(publish.horizontalTab).should("not.exist");
     cy.get(publish.backToEditor).click();
   });
   it("Chart Widget Functionality To Check Horizontal Scroll Visible", function() {

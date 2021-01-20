@@ -216,7 +216,79 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "nidhi-nair",
+      "name": "Nidhi",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/5298848?v=4",
+      "profile": "https://github.com/nidhi-nair",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "jsartisan",
+      "name": "Pawan Kumar",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/6636360?v=4",
+      "profile": "https://github.com/jsartisan",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "sumitsum",
+      "name": "Sumit Kumar",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/1757421?v=4",
+      "profile": "https://github.com/sumitsum",
+      "contributions": [
+        "code"
+      ]
     }
+    {
+      "login": "rishabhsaxena",
+      "name": "Rishabh Saxena ",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/1944800?v=4",
+      "profile": "https://github.com/rishabhsaxena",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "ofpiyush",
+      "name": "Piyush Mishra",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/292174?v=4",
+      "profile": "https://github.com/ofpiyush",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "akash-codemonk",
+      "name": "akash-codemonk",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/67054171?v=4",
+      "profile": "https://github.com/akash-codemonk",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "vicky-primathon",
+      "name": "vicky-primathon",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/67091118?v=4",
+      "profile": "https://github.com/vicky-primathon",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "devrk96",
+      "name": "devrk96",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/68607686?v=4",
+      "profile": "https://github.com/devrk96",
+      "contributions": [
+        "code"
+      ]
+    },
   ],
   "contributorsPerLine": 7,
   "projectName": "appsmith",

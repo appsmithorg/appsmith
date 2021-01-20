@@ -1,4 +1,11 @@
-import { actionChannel, call, put, select, take } from "redux-saga/effects";
+import {
+  actionChannel,
+  call,
+  fork,
+  put,
+  select,
+  take,
+} from "redux-saga/effects";
 
 import {
   EvaluationReduxAction,
@@ -6,10 +13,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import {
-  getDataTree,
-  getUnevaluatedDataTree,
-} from "selectors/dataTreeSelectors";
+import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { GracefulWorkerService } from "../utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
@@ -19,7 +23,6 @@ import {
   EvalErrorTypes,
 } from "../utils/DynamicBindingUtils";
 import log from "loglevel";
-import _ from "lodash";
 import { WidgetType } from "../constants/WidgetConstants";
 import { WidgetProps } from "../widgets/BaseWidget";
 import PerformanceTracker, {
@@ -28,8 +31,8 @@ import PerformanceTracker, {
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
-import { EXECUTION_PARAM_KEY } from "../constants/ActionConstants";
 import { Action } from "redux";
+import _ from "lodash";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -67,26 +70,29 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
-  const unEvalTree = yield select(getUnevaluatedDataTree);
-  log.debug({ unEvalTree });
+  const unevalTree = yield select(getUnevaluatedDataTree);
+  log.debug({ unevalTree });
 
   const workerResponse = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,
     {
-      dataTree: unEvalTree,
+      unevalTree,
       widgetTypeConfigMap,
     },
   );
 
-  const { errors, dataTree, logs } = workerResponse;
-  const parsedDataTree = JSON.parse(dataTree);
+  const { errors, dataTree, dependencies, logs } = workerResponse;
+  log.debug({ dataTree: dataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
-  log.debug({ dataTree: parsedDataTree });
   evalErrorHandler(errors);
   yield put({
     type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: parsedDataTree,
+    payload: dataTree,
+  });
+  yield put({
+    type: ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
+    payload: { inverseDependencyMap: dependencies },
   });
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -96,27 +102,23 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
   }
 }
 
-export function* evaluateSingleValue(
-  binding: string,
-  executionParams: Record<string, any> = {},
+export function* evaluateActionBindings(
+  bindings: string[],
+  executionParams: Record<string, any> | string = {},
 ) {
-  const dataTree = yield select(getDataTree);
-
   const workerResponse = yield call(
     worker.request,
-    EVAL_WORKER_ACTIONS.EVAL_SINGLE,
+    EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS,
     {
-      dataTree: Object.assign({}, dataTree, {
-        [EXECUTION_PARAM_KEY]: executionParams,
-      }),
-      binding,
+      bindings,
+      executionParams,
     },
   );
 
-  const { errors, value } = workerResponse;
+  const { errors, values } = workerResponse;
 
   evalErrorHandler(errors);
-  return value;
+  return values;
 }
 
 export function* evaluateDynamicTrigger(
@@ -170,6 +172,7 @@ export function* validateProperty(
   props: WidgetProps,
 ) {
   return yield call(worker.request, EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY, {
+    widgetTypeConfigMap,
     widgetType,
     property,
     value,
@@ -197,16 +200,13 @@ const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.DELETE_ACTION_SUCCESS,
   ReduxActionTypes.COPY_ACTION_SUCCESS,
   ReduxActionTypes.MOVE_ACTION_SUCCESS,
-  ReduxActionTypes.RUN_ACTION_REQUEST,
   ReduxActionTypes.RUN_ACTION_SUCCESS,
   ReduxActionErrorTypes.RUN_ACTION_ERROR,
-  ReduxActionTypes.EXECUTE_API_ACTION_REQUEST,
   ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
   ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-  ReduxActionTypes.SET_URL_DATA,
   ReduxActionTypes.UPDATE_APP_STORE,
   // Widgets
   ReduxActionTypes.UPDATE_LAYOUT,
@@ -219,20 +219,35 @@ const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.BATCH_UPDATES_SUCCESS,
 ];
 
+const shouldProcessAction = (action: ReduxAction<unknown>) => {
+  // debugger;
+  if (
+    action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&
+    Array.isArray(action.payload)
+  ) {
+    const batchedActionTypes = action.payload.map(
+      (batchedAction) => batchedAction.type,
+    );
+    return (
+      _.intersection(EVALUATE_REDUX_ACTIONS, batchedActionTypes).length > 0
+    );
+  }
+  return true;
+};
+
 function evalQueueBuffer() {
-  let initialised = false;
-  let takable = false;
+  let canTake = false;
   let postEvalActions: any = [];
   const take = () => {
-    if (takable) {
+    if (canTake) {
       const resp = postEvalActions;
       postEvalActions = [];
-      takable = false;
-      return { postEvalActions: resp, type: "FAKE_ACTION" };
+      canTake = false;
+      return { postEvalActions: resp, type: "BUFFERED_ACTION" };
     }
   };
   const flush = () => {
-    if (takable) {
+    if (canTake) {
       return [take() as Action];
     }
 
@@ -240,34 +255,11 @@ function evalQueueBuffer() {
   };
 
   const put = (action: EvaluationReduxAction<unknown | unknown[]>) => {
-    if (!initialised) {
-      if (
-        ![
-          ReduxActionTypes.FETCH_PAGE_SUCCESS,
-          ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
-        ].includes(action.type)
-      ) {
-        return;
-      }
-      initialised = true;
+    if (!shouldProcessAction(action)) {
+      return;
     }
-    // When batching success action happens, we need to only evaluate
-    // if the batch had any action we need to evaluate properties for
-    if (
-      action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&
-      Array.isArray(action.payload)
-    ) {
-      const batchedActionTypes = action.payload.map(
-        (batchedAction: ReduxAction<unknown>) => batchedAction.type,
-      );
-      if (
-        _.intersection(EVALUATE_REDUX_ACTIONS, batchedActionTypes).length === 0
-      ) {
-        return;
-      }
-    }
+    canTake = true;
 
-    takable = true;
     // TODO: If the action is the same as before, we can send only one and ignore duplicates.
     if (action.postEvalActions) {
       postEvalActions.push(...action.postEvalActions);
@@ -278,7 +270,7 @@ function evalQueueBuffer() {
     take,
     put,
     isEmpty: () => {
-      return !takable;
+      return !canTake;
     },
     flush,
   };
@@ -289,6 +281,8 @@ function* evaluationChangeListenerSaga() {
   yield call(worker.shutdown);
   yield call(worker.start);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
+  const initAction = yield take(FIRST_EVAL_REDUX_ACTIONS);
+  yield fork(evaluateTreeSaga, initAction.postEvalActions);
   const evtActionChannel = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),
@@ -297,7 +291,9 @@ function* evaluationChangeListenerSaga() {
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
       evtActionChannel,
     );
-    yield call(evaluateTreeSaga, action.postEvalActions);
+    if (shouldProcessAction(action)) {
+      yield call(evaluateTreeSaga, action.postEvalActions);
+    }
   }
   // TODO(hetu) need an action to stop listening and evaluate (exit app)
 }
