@@ -403,7 +403,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
 
         // The client does not know about this field. Hence the default value takes over. Set this to null to ensure
-        // the update doesn't lead to resetting of this field. 
+        // the update doesn't lead to resetting of this field.
         action.setUserSetOnLoad(null);
 
         Mono<NewAction> updatedActionMono = repository.findById(id, MANAGE_ACTIONS)
@@ -560,7 +560,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                     )
                             );
 
-                    return executionMono
+                    return analyticsService.sendActionExecutionEvent(action, executeActionDTO)
+                            .then(executionMono)
                             .onErrorResume(StaleConnectionException.class, error -> {
                                 log.info("Looks like the connection is stale. Retrying with a fresh context.");
                                 return datasourceContextService

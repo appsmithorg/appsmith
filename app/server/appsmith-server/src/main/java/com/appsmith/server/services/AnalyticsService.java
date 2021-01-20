@@ -3,6 +3,8 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
 import com.segment.analytics.messages.TrackMessage;
@@ -116,5 +118,26 @@ public class AnalyticsService {
 
     public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object) {
         return sendDeleteEvent(object, null);
+    }
+
+    public Mono<Void> sendActionExecutionEvent(ActionDTO action, ExecuteActionDTO executeActionDTO) {
+        return sessionUserService.getCurrentUser()
+                .map(user -> {
+                    analytics.enqueue(TrackMessage
+                            .builder("execute_ACTION")
+                            .userId(user.getUsername())
+                            .properties(Map.of(
+                                    "type", action.getPluginType(),
+                                    "name", action.getName(),
+                                    "pageId", action.getPageId(),
+                                    "appId", action.getApplicationId(),
+                                    "appMode", executeActionDTO.getViewMode(),
+                                    "appName", "",
+                                    "isExampleApp", ""
+                            ))
+                    );
+                    return user;
+                })
+                .then();
     }
 }
