@@ -4,6 +4,8 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
+import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
@@ -58,7 +60,6 @@ import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 public class UserServiceImpl extends BaseService<UserRepository, User, String> implements UserService {
 
     private final OrganizationService organizationService;
-    private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
@@ -69,6 +70,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final UserOrganizationService userOrganizationService;
     private final RoleGraph roleGraph;
     private final ConfigService configService;
+    private final CommonConfig commonConfig;
+    private final EmailConfig emailConfig;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -96,10 +99,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            OrganizationRepository organizationRepository,
                            UserOrganizationService userOrganizationService,
                            RoleGraph roleGraph,
-                           ConfigService configService) {
+                           ConfigService configService,
+                           CommonConfig commonConfig,
+                           EmailConfig emailConfig) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
-        this.analyticsService = analyticsService;
         this.sessionUserService = sessionUserService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.passwordEncoder = passwordEncoder;
@@ -110,6 +114,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.userOrganizationService = userOrganizationService;
         this.roleGraph = roleGraph;
         this.configService = configService;
+        this.commonConfig = commonConfig;
+        this.emailConfig = emailConfig;
     }
 
     @Override
@@ -361,61 +367,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         return userMono;
     }
 
-    /**
-     * This function checks if the inviteToken is valid for the user. If the token is incorrect or it as expired,
-     * the client should show the appropriate message to the user
-     *
-     * @param email
-     * @param token
-     * @return
-     */
-    @Override
-    public Mono<Boolean> verifyInviteToken(String email, String token) {
-        log.debug("Verifying token: {} for email: {}", token, email);
-        return repository.findByEmail(email)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "email", email)))
-                .flatMap(inviteUser -> passwordEncoder.matches(token, inviteUser.getInviteToken()) ?
-                        Mono.just(true) : Mono.just(false));
-    }
-
-    /**
-     * This function confirms the signup for a new invited user. Primarily it will be used to set the password
-     * for the user and set the user to enabled. The user should have been created during the invite flow.
-     *
-     * @param inviteUser
-     * @return
-     */
-    @Override
-    public Mono<Boolean> confirmInviteUser(User inviteUser, String originHeader) {
-
-        if (inviteUser.getEmail() == null || inviteUser.getEmail().isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "email"));
-        }
-
-        if (inviteUser.getPassword() == null || inviteUser.getPassword().isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "password"));
-        }
-
-        log.debug("Confirming the signup for the user: {} and token: {}", inviteUser.getEmail(), inviteUser.getInviteToken());
-
-        inviteUser.setPassword(this.passwordEncoder.encode(inviteUser.getPassword()));
-
-        return repository.findByEmail(inviteUser.getEmail())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "email", inviteUser.getEmail())))
-                .flatMap(newUser -> {
-
-                    // Activate the user now :
-                    newUser.setIsEnabled(true);
-                    newUser.setPassword(inviteUser.getPassword());
-                    // The user has now been invited and has signed up. Delete the invite token because its no longer required
-                    newUser.setInviteToken(null);
-
-                    return repository.save(newUser)
-                            .map(savedUser -> sendWelcomeEmail(savedUser, originHeader))
-                            .thenReturn(true);
-                });
-    }
-
     @Override
     public Mono<User> create(User user) {
         // This is the path that is taken when a new user signs up on its own
@@ -515,8 +466,16 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     }
                     return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, user.getUsername()));
                 })
-                .switchIfEmpty(userCreate(user))
-                .flatMap(savedUser -> sendWelcomeEmail(savedUser, finalOriginHeader));
+                .switchIfEmpty(
+                        commonConfig.isSignupDisabled() && !commonConfig.getAdminEmails().contains(user.getEmail())
+                                ? Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED))
+                                : userCreate(user)
+                )
+                .flatMap(savedUser ->
+                        emailConfig.isWelcomeEmailEnabled()
+                                ? sendWelcomeEmail(savedUser, finalOriginHeader)
+                                : Mono.just(savedUser)
+                );
 
     }
 

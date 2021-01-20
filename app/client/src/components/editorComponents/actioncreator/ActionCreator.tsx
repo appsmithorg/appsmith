@@ -189,40 +189,6 @@ const enumTypeGetter = (
   return defaultValue;
 };
 
-const objectTypeSetter = (
-  obj: Object,
-  currentValue: string,
-  argNum: number,
-): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  let args: string[] = [];
-  if (matches.length) {
-    args = argsStringToArray(matches[0][2]);
-    args[argNum] = JSON.stringify(obj);
-  }
-  const result = currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
-  return result;
-};
-
-const objectTypeGetter = (
-  value: string,
-  argNum: number,
-  defaultValue = undefined,
-): Object | undefined => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
-    const args = argsStringToArray(matches[0][2]);
-    const arg = args[argNum];
-    if (arg) {
-      return JSON.parse(arg.trim());
-    }
-  }
-  return defaultValue;
-};
-
 type ActionCreatorProps = {
   value: string;
   isValid: boolean;
@@ -240,6 +206,7 @@ const ActionType = {
   showAlert: "showAlert",
   storeValue: "storeValue",
   download: "download",
+  copyToClipboard: "copyToClipboard",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
@@ -348,6 +315,7 @@ const FieldType = {
   DOWNLOAD_DATA_FIELD: "DOWNLOAD_DATA_FIELD",
   DOWNLOAD_FILE_NAME_FIELD: "DOWNLOAD_FILE_NAME_FIELD",
   DOWNLOAD_FILE_TYPE_FIELD: "DOWNLOAD_FILE_TYPE_FIELD",
+  COPY_TEXT_FIELD: "COPY_TEXT_FIELD",
 };
 type FieldType = typeof FieldType[keyof typeof FieldType];
 
@@ -378,11 +346,7 @@ const fieldConfigs: FieldConfigs = {
       }
       return mainFuncSelectedValue;
     },
-    setter: (
-      option: TreeDropdownOption,
-      currentValue: string,
-      defaultValue?: string,
-    ) => {
+    setter: (option: TreeDropdownOption) => {
       const type: ActionType = option.type || option.value;
       let value = option.value;
       switch (type) {
@@ -513,6 +477,15 @@ const fieldConfigs: FieldConfigs = {
       enumTypeSetter(option.value, currentValue, 2),
     view: ViewTypes.SELECTOR_VIEW,
   },
+  [FieldType.COPY_TEXT_FIELD]: {
+    getter: (value: any) => {
+      return textGetter(value, 0);
+    },
+    setter: (option: any, currentValue: string) => {
+      return textSetter(option, currentValue, 0);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
 };
 
 const baseOptions: any = [
@@ -552,6 +525,10 @@ const baseOptions: any = [
   {
     label: "Download",
     value: ActionType.download,
+  },
+  {
+    label: "Copy to Clipboard",
+    value: ActionType.copyToClipboard,
   },
 ];
 function getOptionsWithChildren(
@@ -696,6 +673,11 @@ function getFieldFromValue(
       },
     );
   }
+  if (value.indexOf("copyToClipboard") !== -1) {
+    fields.push({
+      field: FieldType.COPY_TEXT_FIELD,
+    });
+  }
   return fields;
 }
 
@@ -833,6 +815,7 @@ function renderField(props: {
     case FieldType.QUERY_PARAMS_FIELD:
     case FieldType.DOWNLOAD_DATA_FIELD:
     case FieldType.DOWNLOAD_FILE_NAME_FIELD:
+    case FieldType.COPY_TEXT_FIELD:
       let fieldLabel = "";
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
@@ -848,6 +831,8 @@ function renderField(props: {
         fieldLabel = "Data to download";
       } else if (fieldType === FieldType.DOWNLOAD_FILE_NAME_FIELD) {
         fieldLabel = "File name with extension";
+      } else if (fieldType === FieldType.COPY_TEXT_FIELD) {
+        fieldLabel = "Text to be copied to clipboard";
       }
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: fieldLabel,

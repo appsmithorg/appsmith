@@ -1,11 +1,8 @@
-import {
-  CONTENT_TYPE,
-  HTTP_METHODS,
-  POST_BODY_FORMAT_OPTIONS,
-} from "constants/ApiEditorConstants";
+import { HTTP_METHODS } from "constants/ApiEditorConstants";
+import { ApiAction } from "entities/Action";
 import _ from "lodash";
 
-export const transformRestAction = (data: any): any => {
+export const transformRestAction = (data: ApiAction): ApiAction => {
   let action = { ...data };
   // GET actions should not save body
   if (action.actionConfiguration.httpMethod === HTTP_METHODS[0]) {
@@ -29,25 +26,10 @@ export const transformRestAction = (data: any): any => {
   }
   // Body should send correct format depending on the content type
   if (action.actionConfiguration.httpMethod !== HTTP_METHODS[0]) {
-    let contentType = "raw";
-    if (
-      action.actionConfiguration.headers &&
-      action.actionConfiguration.headers.length
-    ) {
-      const contentTypeHeader = _.find(
-        action.actionConfiguration.headers,
-        (header) => {
-          return header.key.toLowerCase() === CONTENT_TYPE;
-        },
-      );
-      if (contentTypeHeader) {
-        contentType = contentTypeHeader.value;
-      }
-    }
-
     let body: any = "";
-    if (action.actionConfiguration.body)
+    if (action.actionConfiguration.body) {
       body = action.actionConfiguration.body || undefined;
+    }
 
     if (!_.isString(body)) body = JSON.stringify(body);
     action = {

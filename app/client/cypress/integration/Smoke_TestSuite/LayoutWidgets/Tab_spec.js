@@ -39,7 +39,7 @@ describe("Tab widget test", function() {
       .click({ force: true });
     cy.get(Layoutpage.tabWidget)
       .contains("Day")
-      .should("not.to.be.visible");
+      .should("not.exist");
     /**
      * @param{toggleButton Css} Assert to be checked
      */
@@ -63,7 +63,7 @@ describe("Tab widget test", function() {
     cy.openPropertyPane("tabswidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.tabWidget).should("not.be.visible");
+    cy.get(publish.tabWidget).should("not.exist");
     cy.get(publish.backToEditor).click();
   });
   it("Tab Widget Functionality To Check Visible Widget", function() {

@@ -70,7 +70,7 @@ import {
   setActionsToExecuteOnPageLoad,
 } from "actions/actionActions";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
-import { clearEvalCache } from "./evaluationsSaga";
+import { clearEvalCache } from "./EvaluationsSaga";
 import { getQueryParams } from "utils/AppsmithUtils";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -341,6 +341,7 @@ function* savePageSaga() {
         failed: true,
       },
     );
+
     yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
       payload: {

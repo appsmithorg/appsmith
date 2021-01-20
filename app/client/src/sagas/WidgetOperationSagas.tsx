@@ -49,7 +49,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { isString } from "lodash";
+import _ from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
@@ -88,7 +88,7 @@ import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import {
   validateProperty,
   clearEvalPropertyCacheOfWidget,
-} from "./evaluationsSaga";
+} from "./EvaluationsSaga";
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -101,6 +101,7 @@ function getChildWidgetProps(
   const { leftColumn, topRow, newWidgetId, props, type } = params;
   let { rows, columns, parentColumnSpace, parentRowSpace, widgetName } = params;
   let minHeight = undefined;
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   const { blueprint = undefined, ...restDefaultConfig } = {
     ...(WidgetConfigResponse as any).config[type],
   };
@@ -286,6 +287,8 @@ export function* addChildrenSaga(
           defaultConfig.widgetName,
           widgetNames,
         );
+        // update the list of widget names for the next iteration
+        widgetNames.push(newWidgetName);
         widgets[child.widgetId] = {
           ...child,
           widgetName: newWidgetName,

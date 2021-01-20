@@ -35,9 +35,11 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
-      .type(`{"find": "planets"}`, { parseSpecialCharSequences: false });
+      .type(`{"find": "listingsAndReviews","limit": 10}`, {
+        parseSpecialCharSequences: false,
+      });
 
-    cy.EvaluateCurrentValue(`{"find": "planets"}`);
+    cy.EvaluateCurrentValue(`{"find": "listingsAndReviews","limit": 10}`);
     cy.runAndDeleteQuery();
 
     cy.get("@createDatasource").then((httpResponse) => {

@@ -14,7 +14,7 @@ import {
 import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import {
-  DEFAULT_API_ACTION,
+  DEFAULT_API_ACTION_CONFIG,
   POST_BODY_FORMAT_OPTIONS,
   REST_PLUGIN_PACKAGE_NAME,
   POST_BODY_FORMATS,
@@ -44,10 +44,10 @@ import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugins } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { createActionRequest, setActionProperty } from "actions/actionActions";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
-import { RestAction } from "entities/Action";
+import { Action, ApiAction } from "entities/Action";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import log from "loglevel";
 import PerformanceTracker, {
@@ -140,7 +140,7 @@ function* initializeExtraFormDataSaga() {
   const headers = get(
     values,
     "actionConfiguration.headers",
-    DEFAULT_API_ACTION.actionConfiguration?.headers,
+    DEFAULT_API_ACTION_CONFIG.headers,
   );
 
   const queryParameters = get(
@@ -157,7 +157,7 @@ function* initializeExtraFormDataSaga() {
         change(
           API_EDITOR_FORM_NAME,
           "actionConfiguration.queryParameters",
-          DEFAULT_API_ACTION.actionConfiguration?.queryParameters,
+          DEFAULT_API_ACTION_CONFIG.queryParameters,
         ),
       );
   }
@@ -302,7 +302,7 @@ function* formValueChangeSaga(
   ]);
 }
 
-function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
+function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const { id, pluginType } = actionPayload.payload;
   const action = yield select(getAction, id);
   const data = { ...action };
@@ -338,7 +338,7 @@ function* handleCreateNewApiActionSaga(
     const newActionName = createNewApiName(pageActions, pageId);
     yield put(
       createActionRequest({
-        ...DEFAULT_API_ACTION,
+        actionConfiguration: DEFAULT_API_ACTION_CONFIG,
         name: newActionName,
         datasource: {
           name: "DEFAULT_REST_DATASOURCE",
@@ -350,7 +350,7 @@ function* handleCreateNewApiActionSaga(
           from: action.payload.from,
         },
         pageId,
-      }),
+      } as ApiAction), // We don't have recursive partial in typescript for now.
     );
     history.push(
       API_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
