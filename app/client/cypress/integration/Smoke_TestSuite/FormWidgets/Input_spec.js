@@ -101,7 +101,7 @@ describe("Input Widget Functionality", function() {
     cy.openPropertyPane("inputwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.inputWidget + " " + "input").should("not.be.visible");
+    cy.get(publish.inputWidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click({ force: true });
   });
   it("Input Functionality To Check Visible Widget", function() {
@@ -123,7 +123,7 @@ describe("Input Widget Functionality", function() {
       .click()
       .clear()
       .type("1.255");
-    cy.get(".bp3-popover-content").should($x => {
+    cy.get(".bp3-popover-content").should(($x) => {
       expect($x).contain("Invalid input");
     });
     cy.get(widgetsPage.innertext)

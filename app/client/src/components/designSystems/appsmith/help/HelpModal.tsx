@@ -48,7 +48,7 @@ const HelpButton = styled.button<{
 `;
 
 const MODAL_WIDTH = 240;
-const MODAL_HEIGHT = 198;
+const MODAL_HEIGHT = 206;
 const MODAL_BOTTOM_DISTANCE = 45;
 const MODAL_RIGHT_DISTANCE = 30;
 
