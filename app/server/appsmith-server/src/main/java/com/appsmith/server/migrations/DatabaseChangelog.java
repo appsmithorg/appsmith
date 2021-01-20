@@ -19,7 +19,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
-import com.appsmith.server.domains.Page;    
+import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
@@ -27,9 +27,11 @@ import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QDatasource;
 import com.appsmith.server.domains.QPlugin;
+import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
@@ -61,6 +63,7 @@ import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StreamUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -97,7 +100,7 @@ public class DatabaseChangelog {
      * from an index with the fields `"organizationId", "name"`. If an index exists with the first ordering and we try
      * to **ensure** an index with the same name but the second ordering of fields, errors will show up and bad things
      * WILL happen.
-     *
+     * <p>
      * Also, please check out the following blog on how to best create indexes :
      * https://emptysqua.re/blog/optimizing-mongodb-compound-indexes/
      */
@@ -963,7 +966,7 @@ public class DatabaseChangelog {
 
         ensureIndexes(mongoTemplate, PasswordResetToken.class,
                 makeIndex(FieldName.CREATED_AT)
-                    .expire(2, TimeUnit.DAYS),
+                        .expire(2, TimeUnit.DAYS),
                 makeIndex(FieldName.EMAIL).unique()
         );
     }
@@ -1221,8 +1224,8 @@ public class DatabaseChangelog {
 
         ensureIndexes(mongoTemplate, NewAction.class,
                 makeIndex("applicationId", "deleted", "unpublishedAction.pageId")
-                          .named("applicationId_deleted_unpublishedPageId_compound_index")
-                );
+                        .named("applicationId_deleted_unpublishedPageId_compound_index")
+        );
     }
 
     @ChangeSet(order = "042", id = "update-action-index-to-single-multiple-indices", author = "")
@@ -1554,7 +1557,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "048", id = "add-redshift-plugin", author = "")
-    public void addRedshiftPlugin (MongoTemplate mongoTemplate){
+    public void addRedshiftPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Redshift");
         plugin.setType(PluginType.DB);
@@ -1571,5 +1574,20 @@ public class DatabaseChangelog {
         }
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
+
+    @ChangeSet(order = "049", id = "fix-versions-in-userdata", author = "")
+    public void addVPrefixToVersionsInUserData(MongoTemplate mongoTemplate) {
+        final List<UserData> userDataList = mongoTemplate.findAll(UserData.class);
+
+        for (final UserData userData : userDataList) {
+            if (!StringUtils.isEmpty(userData.getReleaseNotesViewedVersion()) && !userData.getReleaseNotesViewedVersion().startsWith("v")) {
+                mongoTemplate.updateFirst(
+                        query(where(fieldName(QUserData.userData.id)).is(userData.getId())),
+                        update(fieldName(QUserData.userData.releaseNotesViewedVersion), "v" + userData.getReleaseNotesViewedVersion()),
+                        UserData.class
+                );
+            }
+        }
     }
 }
