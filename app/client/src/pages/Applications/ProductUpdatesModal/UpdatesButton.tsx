@@ -30,6 +30,11 @@ const StyledTag = styled.div`
   border-radius: 100px;
   text-align: center;
   color: ${Colors.WHITE};
+  max-width: 50px;
+  min-width: 25px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const UpdatesButtonTextContainer = styled.div`
