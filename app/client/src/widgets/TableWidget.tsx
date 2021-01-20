@@ -90,13 +90,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: VALIDATION_TYPES.TEXT,
       defaultSearchText: VALIDATION_TYPES.TEXT,
       defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
+      pageSize: VALIDATION_TYPES.NUMBER,
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
-      pageSize: undefined,
+      pageSize: 0,
       selectedRowIndex: undefined,
       selectedRowIndices: undefined,
       searchText: undefined,
@@ -543,7 +544,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageSize += 1;
 
     if (pageSize !== this.props.pageSize) {
-      this.props.updateWidgetMetaProperty("pageSize", pageSize);
+      setTimeout(() => {
+        this.props.updateWidgetMetaProperty("pageSize", pageSize);
+      }, 0);
     }
 
     return (
