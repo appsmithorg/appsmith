@@ -225,6 +225,11 @@
       "color": "10b5ce",
       "description": ""
     },
+    "Onboarding": {
+      "name": "Onboarding",
+      "color": "079829",
+      "description": ""
+    },
     "Pages": {
       "name": "Pages",
       "color": "dee258",
@@ -672,6 +677,11 @@
               {
                 "type": "hasLabel",
                 "label": "Editor",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Onboarding",
                 "value": true
               }
             ]
