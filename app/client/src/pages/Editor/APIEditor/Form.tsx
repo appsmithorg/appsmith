@@ -12,7 +12,7 @@ import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { PaginationField } from "api/ActionAPI";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import Pagination from "./Pagination";
-import { PaginationType, RestAction } from "entities/Action";
+import { PaginationType, Action } from "entities/Action";
 import { Icon as BlueprintIcon } from "@blueprintjs/core";
 import { HelpMap, HelpBaseURL } from "constants/HelpConstants";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
@@ -198,7 +198,7 @@ interface APIFormProps {
   apiName: string;
 }
 
-type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;
+type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
 
 export const NameWrapper = styled.div`
   width: 49%;
@@ -238,10 +238,10 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
-  const actions: RestAction[] = useSelector((state: AppState) =>
+  const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
   );
-  const currentActionConfig: RestAction | undefined = actions.find(
+  const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const history = useHistory();
@@ -428,7 +428,7 @@ export default connect((state: AppState) => {
     actionConfigurationHeaders,
   };
 })(
-  reduxForm<RestAction, APIFormProps>({
+  reduxForm<Action, APIFormProps>({
     form: API_EDITOR_FORM_NAME,
   })(ApiEditorForm),
 );

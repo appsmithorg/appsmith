@@ -1,6 +1,5 @@
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
-import { Colors } from "constants/Colors";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { PluginType } from "entities/Action";
 import React from "react";
@@ -8,15 +7,16 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getPlugins } from "selectors/entitiesSelector";
 import styled from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPluginGroups, ACTION_PLUGIN_MAP } from "../Actions/helpers";
 import { useActions, useFilteredDatasources } from "../hooks";
 
 const AddWidget = styled.button`
   margin-bottom: 25px;
-  padding: 6px 38px;
-  background-color: ${Colors.MINE_SHAFT};
-  border: 1px solid #f3672a;
-  color: #f3672a;
+  padding: 7px 38px;
+  background-color: #f3672a;
+  color: white;
+  border: none;
   font-weight: bold;
   cursor: pointer;
 `;
@@ -53,7 +53,10 @@ const DBQueryGroup = (props: any) => {
           >
             <AddWidget
               className="t--add-widget"
-              onClick={props.showWidgetsSidebar}
+              onClick={() => {
+                AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET_CLICK");
+                props.showWidgetsSidebar();
+              }}
             >
               Add Widget
             </AddWidget>

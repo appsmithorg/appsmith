@@ -16,6 +16,7 @@ import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/workspace.svg"
 import { ReactComponent as CreateNewIcon } from "assets/icons/ads/create-new.svg";
 import { ReactComponent as InviteUserIcon } from "assets/icons/ads/invite-users.svg";
 import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
+import { ReactComponent as ViewLessIcon } from "assets/icons/ads/view-less.svg";
 import { ReactComponent as ContextMenuIcon } from "assets/icons/ads/context-menu.svg";
 import { ReactComponent as DuplicateIcon } from "assets/icons/ads/duplicate.svg";
 import { ReactComponent as LogoutIcon } from "assets/icons/ads/logout.svg";
@@ -91,6 +92,7 @@ export const IconCollection = [
   "plus",
   "invite-user",
   "view-all",
+  "view-less",
   "warning",
   "downArrow",
   "context-menu",
@@ -115,7 +117,7 @@ const IconWrapper = styled.span<IconProps>`
     width: ${(props) => sizeHandler(props.size)}px;
     height: ${(props) => sizeHandler(props.size)}px;
     path {
-      fill: ${(props) => props.theme.colors.icon.normal};
+      fill: ${(props) => props.fillColor || props.theme.colors.icon.normal};
     }
   }
   ${(props) => (props.invisible ? `visibility: hidden;` : null)};
@@ -141,6 +143,7 @@ export type IconProps = {
   invisible?: boolean;
   className?: string;
   onClick?: (e: React.MouseEvent) => void;
+  fillColor?: string;
 };
 
 const Icon = forwardRef(
@@ -194,6 +197,9 @@ const Icon = forwardRef(
         break;
       case "view-all":
         returnIcon = <ViewAllIcon />;
+        break;
+      case "view-less":
+        returnIcon = <ViewLessIcon />;
         break;
       case "context-menu":
         returnIcon = <ContextMenuIcon />;

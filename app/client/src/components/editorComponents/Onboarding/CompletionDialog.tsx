@@ -15,6 +15,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { endOnboarding } from "actions/onboardingActions";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getOnboardingState } from "utils/storage";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledDialog = styled(Dialog)`
   && {
@@ -103,7 +104,7 @@ const CompletionDialog = () => {
       if (params.onboardingComplete && inOnboarding) {
         setTimeout(() => {
           setIsOpen(true);
-        }, 3000);
+        }, 1000);
       }
     };
 
@@ -111,6 +112,7 @@ const CompletionDialog = () => {
   }, []);
 
   const onClose = () => {
+    AnalyticsUtil.logEvent("END_ONBOARDING");
     setIsOpen(false);
     dispatch(endOnboarding());
   };

@@ -1,12 +1,16 @@
 name: Appsmith Client Workflow
 
 on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+
   push:
     branches: [release, master]
     # Only trigger if files have changed in this specific path
     paths:
       - 'app/client/**'
       - '!app/client/cypress/manual_TestSuite/**'
+
   pull_request_target:
     branches: [release, master]
     paths:
@@ -29,14 +33,17 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: ${{ github.event_name == 'pull_request_target' }}
+        if: github.event_name == 'pull_request_target'
         uses: actions/checkout@v2
         with:
+          fetch-depth: 0
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
-        if: ${{ github.event_name == 'push' }}
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Figure out the PR number
         run: echo ${{ github.event.pull_request.number }}
@@ -75,6 +82,13 @@ jobs:
           if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
               echo "::set-output name=REACT_APP_ENVIRONMENT::STAGING"
           fi
+          # Since this is an unreleased build, we set the version to incremented version number with
+          # a `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
 
       - name: Run the jest tests
         run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
@@ -82,7 +96,13 @@ jobs:
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
       - name: Create the bundle
-        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} yarn build
+        run: |
+          REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
+            REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
+            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
+            REACT_APP_VERSION_RELEASE_DATE=$(date +%Y-%m-%d) \
+            yarn build
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
@@ -121,13 +141,13 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: ${{ github.event_name == 'pull_request_target' }}
+        if: github.event_name == 'pull_request_target'
         uses: actions/checkout@v2
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
-        if: ${{ github.event_name == 'push' }}
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v2
 
       - name: Use Node.js 10.16.3
@@ -150,7 +170,6 @@ jobs:
             ${{ runner.OS }}-node-
             ${{ runner.OS }}-
 
-
       # Install all the dependencies
       - name: Install dependencies
         run: yarn install
@@ -168,12 +187,15 @@ jobs:
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
 
           docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
-          --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
-          --env APPSMITH_REDIS_URL=redis://localhost:6379 \
-          --env APPSMITH_ENCRYPTION_PASSWORD=password \
-          --env APPSMITH_ENCRYPTION_SALT=salt \
-          --env APPSMITH_IS_SELF_HOSTED=false \
-          appsmith/appsmith-server:release
+            --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
+            --env APPSMITH_REDIS_URL=redis://localhost:6379 \
+            --env APPSMITH_ENCRYPTION_PASSWORD=password \
+            --env APPSMITH_ENCRYPTION_SALT=salt \
+            --env APPSMITH_IS_SELF_HOSTED=false \
+            --env APPSMITH_CLOUD_SERVICES_BASE_URL= \
+            --env APPSMITH_CLOUD_SERVICES_USERNAME= \
+            --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
 
       - name: Pull master server docker container and start it locally
         if: github.ref == 'refs/heads/master'
@@ -182,12 +204,15 @@ jobs:
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
 
           docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
-          --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
-          --env APPSMITH_REDIS_URL=redis://localhost:6379 \
-          --env APPSMITH_ENCRYPTION_PASSWORD=password \
-          --env APPSMITH_ENCRYPTION_SALT=salt \
-          --env APPSMITH_IS_SELF_HOSTED=false \
-          appsmith/appsmith-server:nightly
+            --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
+            --env APPSMITH_REDIS_URL=redis://localhost:6379 \
+            --env APPSMITH_ENCRYPTION_PASSWORD=password \
+            --env APPSMITH_ENCRYPTION_SALT=salt \
+            --env APPSMITH_IS_SELF_HOSTED=false \
+            --env APPSMITH_CLOUD_SERVICES_BASE_URL= \
+            --env APPSMITH_CLOUD_SERVICES_USERNAME= \
+            --env APPSMITH_CLOUD_SERVICES_PASSWORD= \
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
 
       - name: Installing Yarn serve
         run: |
@@ -259,13 +284,13 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: ${{ github.event_name == 'pull_request_target' }}
+        if: github.event_name == 'pull_request_target'
         uses: actions/checkout@v2
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
-        if: ${{ github.event_name == 'push' }}
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v2
 
       - name: Download the react build artifact
@@ -282,17 +307,17 @@ jobs:
 
       # Build release Docker image and push to Docker Hub
       - name: Push release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release' && github.event_name == 'push'
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
-          docker build -t appsmith/appsmith-editor:${{steps.branch_name.outputs.tag}} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}} .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push appsmith/appsmith-editor
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor
 
       # Build master Docker image and push to Docker Hub
       - name: Push production image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master' && github.event_name == 'push'
+        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
-          docker build -t appsmith/appsmith-editor:${GITHUB_SHA} .
-          docker build -t appsmith/appsmith-editor:nightly .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push appsmith/appsmith-editor
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor

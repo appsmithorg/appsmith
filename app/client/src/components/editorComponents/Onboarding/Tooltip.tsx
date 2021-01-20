@@ -17,8 +17,10 @@ import { Colors } from "constants/Colors";
 import {
   OnboardingStep,
   OnboardingTooltip,
+  OnboardingConfig,
 } from "constants/OnboardingConstants";
 import { BaseModifier } from "popper.js";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 enum TooltipClassNames {
   TITLE = "tooltip-title",
@@ -116,6 +118,7 @@ type OnboardingToolTipProps = {
   children: ReactNode;
   show?: boolean;
   position?: Position;
+  dismissOnOutsideClick?: boolean;
   offset?: BaseModifier & {
     offset?: number | string;
   };
@@ -164,8 +167,12 @@ const OnboardingToolTip: React.FC<OnboardingToolTipProps> = (
             offset: props.offset,
           }}
           onInteraction={(nextOpenState: boolean) => {
-            if (!nextOpenState) {
+            if (!nextOpenState && props.dismissOnOutsideClick) {
               dispatch(showTooltip(OnboardingStep.NONE));
+            }
+
+            if (!nextOpenState && tooltipConfig.onClickOutside) {
+              dispatch(tooltipConfig.onClickOutside);
             }
           }}
         >
@@ -181,6 +188,7 @@ const OnboardingToolTip: React.FC<OnboardingToolTipProps> = (
 
 OnboardingToolTip.defaultProps = {
   show: true,
+  dismissOnOutsideClick: true,
 };
 
 type ToolTipContentProps = {
@@ -188,6 +196,10 @@ type ToolTipContentProps = {
 };
 
 const ToolTipContent = (props: ToolTipContentProps) => {
+  const showingTooltip = useSelector(
+    (state) => state.ui.onBoarding.showingTooltip,
+  );
+
   const dispatch = useDispatch();
   const {
     title,
@@ -203,7 +215,11 @@ const ToolTipContent = (props: ToolTipContentProps) => {
     snippet && write(snippet);
   };
 
-  const finishOnboarding = () => {
+  const skipOnboarding = () => {
+    const onboardingStep = OnboardingConfig[showingTooltip].name;
+
+    // Logging at which step was the skip onboarding clicked
+    AnalyticsUtil.logEvent("SKIP_ONBOARDING", { step: onboardingStep });
     dispatch(endOnboarding());
   };
 
@@ -224,7 +240,7 @@ const ToolTipContent = (props: ToolTipContentProps) => {
       )}
       <ActionWrapper>
         <span className={TooltipClassNames.SKIP}>
-          Done? <span onClick={finishOnboarding}>Click here to End</span>
+          Done? <span onClick={skipOnboarding}>Click here to End</span>
         </span>
 
         {action && (

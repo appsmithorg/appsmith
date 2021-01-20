@@ -36,6 +36,7 @@ import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { ERROR_CODES } from "constants/ApiConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 
@@ -116,6 +117,13 @@ export function* getCurrentUserSaga() {
       type: ReduxActionErrorTypes.FETCH_USER_DETAILS_ERROR,
       payload: {
         error,
+      },
+    });
+
+    yield put({
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+      payload: {
+        code: ERROR_CODES.SERVER_ERROR,
       },
     });
   }
@@ -211,13 +219,11 @@ export function* invitedUserSignupSaga(
 
 type InviteUserPayload = {
   email: string;
-  groupIds: string[];
+  orgId: string;
+  roleName: string;
 };
 
-export function* inviteUser(
-  payload: { email: string; orgId: string; roleName: string },
-  reject: any,
-) {
+export function* inviteUser(payload: InviteUserPayload, reject: any) {
   const response: ApiResponse = yield callAPI(UserApi.inviteUser, payload);
   const isValidResponse = yield validateResponse(response);
   if (!isValidResponse) {

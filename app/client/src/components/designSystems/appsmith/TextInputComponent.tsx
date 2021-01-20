@@ -11,6 +11,7 @@ import {
 import { ComponentProps } from "./BaseComponent";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const TextInput = styled(({ hasError, ...rest }) => (
   <InputGroup {...rest} />
 ))<{ hasError: boolean }>`
@@ -79,6 +80,7 @@ export interface TextInputProps extends IInputGroupProps {
   refHandler?: any;
   noValidate?: boolean;
   readonly?: boolean;
+  autoFocus?: boolean;
 }
 
 interface TextInputState {
