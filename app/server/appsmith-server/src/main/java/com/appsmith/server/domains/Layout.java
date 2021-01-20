@@ -44,6 +44,12 @@ public class Layout extends BaseDomain {
     @JsonIgnore
     Set<String> widgetNames;
 
+    @JsonIgnore
+    Set<String> actionNames;
+
+    @JsonIgnore
+    Set<ActionDependencyEdge> actionDependencies;
+
     /**
      * If view mode, the dsl returned should be the publishedDSL, else if the edit mode is on (view mode = false)
      * the dsl returned should be JSONObject dsl

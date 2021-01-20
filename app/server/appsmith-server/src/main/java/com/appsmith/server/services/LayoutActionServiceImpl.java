@@ -17,6 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+import org.jgrapht.graph.AbstractBaseGraph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DirectedAcyclicGraph;
+import org.jgrapht.traverse.BreadthFirstIterator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -638,5 +642,59 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 })
                 .collectList()
                 .then(Mono.just(pageId));
+    }
+
+    // Trying to implement offline scheduler by using level by level traversal. Level i+1 actions would be dependent on Level i actions. All actions in a level can run independently
+    public AbstractBaseGraph<String, DefaultEdge> findPageLoadActionsSchedulingOrder() {
+        String[] actionNames = {"f", "a", "b", "c", "d", "e", "z"};
+        String[][] actionDependencies = {
+                {},
+                {"b", "r1", "r2"},
+                {"c", "d", "z", "r3"},
+                {"r4", "a"},
+                {"e"},
+                {},
+                {"r5"}
+
+        };
+
+        AbstractBaseGraph<String, DefaultEdge> actionSchedulingGraph =
+                new DirectedAcyclicGraph<>(DefaultEdge.class);
+
+        for (int i=0; i<actionNames.length; i++) {
+            actionSchedulingGraph.addVertex(actionNames[i]);
+        }
+
+
+        for (int i=0; i<actionNames.length; i++) {
+            for (int j=0; j<actionDependencies[i].length; j++) {
+                String providesUpdateToActionName = actionDependencies[i][j];
+                if ((providesUpdateToActionName != null || !providesUpdateToActionName.isEmpty()) && Set.of(actionNames).contains(providesUpdateToActionName)) {
+                    try {
+                        actionSchedulingGraph.addEdge(actionNames[i], actionDependencies[i][j]);
+                    } catch (IllegalArgumentException e) {
+                        log.debug("Ignoring the edge ({},{}) because {}", actionNames[i], providesUpdateToActionName, e.getMessage());
+                    }
+                }
+            }
+        }
+
+        List<HashSet<String>> onPageLoadActions = new ArrayList<>();
+        BreadthFirstIterator<String, DefaultEdge> bfsIterator = new BreadthFirstIterator<>(actionSchedulingGraph);
+
+        while(bfsIterator.hasNext()) {
+            String vertex=bfsIterator.next();
+            int level = bfsIterator.getDepth(vertex);
+            if (onPageLoadActions.size() <= level) {
+                onPageLoadActions.add(new HashSet<>());
+            }
+            log.debug("vertex : {}, level : {}", vertex, level);
+
+            onPageLoadActions.get(level).add(vertex);
+        }
+
+        log.debug("On page load actions are : {}", onPageLoadActions);
+
+        return actionSchedulingGraph;
     }
 }
