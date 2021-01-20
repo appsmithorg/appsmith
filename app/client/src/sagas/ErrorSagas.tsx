@@ -92,10 +92,14 @@ const getErrorMessageFromActionType = (
   type: string,
   error: ErrorPayloadType,
 ): string => {
-  if (type in ActionErrorDisplayMap) {
-    return ActionErrorDisplayMap[type](error);
+  const actionErrorMessage = get(error, "message");
+  if (actionErrorMessage === undefined) {
+    if (type in ActionErrorDisplayMap) {
+      return ActionErrorDisplayMap[type](error);
+    }
+    return DEFAULT_ERROR_MESSAGE;
   }
-  return DEFAULT_ERROR_MESSAGE;
+  return actionErrorMessage;
 };
 
 enum ErrorEffectTypes {
