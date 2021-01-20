@@ -177,7 +177,15 @@ function ColumnControlComponent(props: RenderComponentProps) {
 class PrimaryColumnsControl extends BaseControl<ControlProps> {
   render() {
     // Get columns from widget properties
-    const columns = this.props.propertyValue || [];
+    let columns = this.props.propertyValue || [];
+    columns = columns
+      ?.map((column: ColumnProperties) => {
+        if (Array.isArray(column) && column.length === 0) {
+          return undefined;
+        }
+        return column;
+      })
+      .filter(Boolean);
     // If there are no columns, show empty state
     if (columns.length === 0) {
       return <EmptyDataState />;

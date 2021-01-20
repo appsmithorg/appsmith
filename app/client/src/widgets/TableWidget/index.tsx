@@ -171,7 +171,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       (column: ColumnProperties) => column.id,
     );
     const primaryColumnIds = primaryColumns.map(
-      (column: ColumnProperties) => column.id,
+      (column: ColumnProperties) => column?.id,
     );
     let allColumns = [...primaryColumns];
     if (
@@ -503,7 +503,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   createTablePrimaryColumns = () => {
-    const { tableData, columnOrder } = this.props;
+    const { tableData, columnOrder, primaryColumns } = this.props;
     const derivedColumns = [...(this.props.derivedColumns || [])];
     // If there is tableData attempt to generate primaryColumns
     if (tableData) {
@@ -534,7 +534,21 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       //add derived columns to primary columns
       tableColumns = tableColumns.concat(updatedDerivedColumns);
 
-      console.log("Table log: creating new:", { tableColumns });
+      if (
+        primaryColumns &&
+        Array.isArray(primaryColumns) &&
+        primaryColumns.length > tableColumns.length
+      ) {
+        let diff = primaryColumns.length - tableColumns.length;
+        while (diff > 0) {
+          super.updateWidgetProperty(
+            `primaryColumns[${tableColumns.length + diff - 1}]`,
+            [],
+          );
+          diff--;
+        }
+      }
+
       tableColumns.forEach((column: ColumnProperties, index: number) => {
         super.updateWidgetProperty(`primaryColumns[${index}]`, column);
       });
@@ -550,8 +564,21 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
+  getCompactPrimaryColumns = () => {
+    const { primaryColumns = [] } = this.props;
+    return primaryColumns
+      ?.map((column: ColumnProperties) => {
+        if (Array.isArray(column) && column.length === 0) {
+          return undefined;
+        }
+        return column;
+      })
+      .filter(Boolean);
+  };
+
   componentDidMount() {
-    if (this.props.primaryColumns && this.props.primaryColumns.length > 0) {
+    const primaryColumns = this.getCompactPrimaryColumns();
+    if (primaryColumns.length > 0) {
       const filteredTableData = this.filterTableData();
       this.props.updateWidgetMetaProperty(
         "filteredTableData",
@@ -563,7 +590,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
-    // console.log("Table log: Table re-rendered", this.props);
     // Check if data is modifed by comparing the stringified versions of the previous and next tableData
     const tableDataModified =
       JSON.stringify(this.props.tableData) !==
@@ -578,40 +604,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     );
     if (!isEqual(oldComputedValues, newComputedValues)) {
       hasPrimaryColumnsComputedValueChanged = true;
-    }
-
-    // If tableData has changed or
-    // Table filters have changed or
-    // Table search Text has changed or
-    // Sorting has changed
-    // filteredTableData is not created
-    if (
-      tableDataModified ||
-      JSON.stringify(this.props.filters) !==
-        JSON.stringify(prevProps.filters) ||
-      this.props.searchText !== prevProps.searchText ||
-      JSON.stringify(this.props.sortedColumn) !==
-        JSON.stringify(prevProps.sortedColumn) ||
-      hasPrimaryColumnsComputedValueChanged ||
-      this.props.filteredTableData === undefined
-    ) {
-      if (this.props.primaryColumns && this.props.primaryColumns.length > 0) {
-        const filteredTableData = this.filterTableData();
-
-        if (
-          JSON.stringify(filteredTableData) !==
-          JSON.stringify(this.props.filteredTableData)
-        ) {
-          console.log("Table log: Updating filteredTableData", {
-            filteredTableData,
-          });
-          // Update filteredTableData meta property
-          this.props.updateWidgetMetaProperty(
-            "filteredTableData",
-            filteredTableData,
-          );
-        }
-      }
     }
 
     // If the user has changed the tableData OR
@@ -630,6 +622,38 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       // If the keys which exist in the tableData are different from the ones available in primaryColumns
       if (!isEqual(columnIds, primaryColumnIds)) {
         this.createTablePrimaryColumns(); // This updates the widget
+      }
+    }
+
+    // If tableData has changed or
+    // Table filters have changed or
+    // Table search Text has changed or
+    // Sorting has changed
+    // filteredTableData is not created
+    else if (
+      JSON.stringify(this.props.filters) !==
+        JSON.stringify(prevProps.filters) ||
+      this.props.searchText !== prevProps.searchText ||
+      JSON.stringify(this.props.sortedColumn) !==
+        JSON.stringify(prevProps.sortedColumn) ||
+      hasPrimaryColumnsComputedValueChanged ||
+      JSON.stringify(this.props.primaryColumns) !==
+        JSON.stringify(prevProps.primaryColumns) ||
+      this.props.filteredTableData === undefined
+    ) {
+      if (this.props.primaryColumns && this.props.primaryColumns.length > 0) {
+        const filteredTableData = this.filterTableData();
+
+        if (
+          JSON.stringify(filteredTableData) !==
+          JSON.stringify(this.props.filteredTableData)
+        ) {
+          // Update filteredTableData meta property
+          this.props.updateWidgetMetaProperty(
+            "filteredTableData",
+            filteredTableData,
+          );
+        }
       }
     }
 
