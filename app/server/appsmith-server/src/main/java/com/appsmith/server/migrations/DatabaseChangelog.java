@@ -27,7 +27,6 @@ import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QDatasource;
 import com.appsmith.server.domains.QPlugin;
-import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
@@ -63,7 +62,6 @@ import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StreamUtils;
-import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -1576,18 +1574,8 @@ public class DatabaseChangelog {
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
 
-    @ChangeSet(order = "049", id = "fix-versions-in-userdata", author = "")
-    public void addVPrefixToVersionsInUserData(MongoTemplate mongoTemplate) {
-        final List<UserData> userDataList = mongoTemplate.findAll(UserData.class);
-
-        for (final UserData userData : userDataList) {
-            if (!StringUtils.isEmpty(userData.getReleaseNotesViewedVersion()) && !userData.getReleaseNotesViewedVersion().startsWith("v")) {
-                mongoTemplate.updateFirst(
-                        query(where(fieldName(QUserData.userData.id)).is(userData.getId())),
-                        update(fieldName(QUserData.userData.releaseNotesViewedVersion), "v" + userData.getReleaseNotesViewedVersion()),
-                        UserData.class
-                );
-            }
-        }
+    @ChangeSet(order = "049", id = "clear-userdata-collection", author = "")
+    public void clearUserDataCollection(MongoTemplate mongoTemplate) {
+        mongoTemplate.dropCollection(UserData.class);
     }
 }
