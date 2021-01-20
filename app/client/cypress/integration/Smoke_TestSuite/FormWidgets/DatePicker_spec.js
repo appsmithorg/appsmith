@@ -146,7 +146,7 @@ describe("DatePicker Widget Functionality", function() {
     // Check the visible checkbox
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publishPage.datepickerWidget).should("not.be.visible");
+    cy.get(publishPage.datepickerWidget).should("not.exist");
   });
 
   it("DatePicker-uncheck Visible field validation", function() {

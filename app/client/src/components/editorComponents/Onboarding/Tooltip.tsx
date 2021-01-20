@@ -17,6 +17,7 @@ import { Colors } from "constants/Colors";
 import {
   OnboardingStep,
   OnboardingTooltip,
+  OnboardingConfig,
 } from "constants/OnboardingConstants";
 import { BaseModifier } from "popper.js";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -195,6 +196,10 @@ type ToolTipContentProps = {
 };
 
 const ToolTipContent = (props: ToolTipContentProps) => {
+  const showingTooltip = useSelector(
+    (state) => state.ui.onBoarding.showingTooltip,
+  );
+
   const dispatch = useDispatch();
   const {
     title,
@@ -211,7 +216,10 @@ const ToolTipContent = (props: ToolTipContentProps) => {
   };
 
   const skipOnboarding = () => {
-    AnalyticsUtil.logEvent("SKIP_ONBOARDING");
+    const onboardingStep = OnboardingConfig[showingTooltip].name;
+
+    // Logging at which step was the skip onboarding clicked
+    AnalyticsUtil.logEvent("SKIP_ONBOARDING", { step: onboardingStep });
     dispatch(endOnboarding());
   };
 

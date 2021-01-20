@@ -17,6 +17,7 @@ import javax.validation.Validator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -24,6 +25,12 @@ import java.util.List;
 public class CommonConfig {
 
     private static final String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
+
+    @Value("${signup.disabled}")
+    private boolean isSignupDisabled;
+
+    @Value("${admin.emails}")
+    private Set<String> adminEmails = Collections.emptySet();
 
     @Value("${oauth2.allowed-domains}")
     private String allowedDomainList;

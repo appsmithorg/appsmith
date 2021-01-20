@@ -16,7 +16,7 @@ import Connected from "./Connected";
 
 import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
 import Button from "components/editorComponents/Button";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { reduxForm, InjectedFormProps } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";

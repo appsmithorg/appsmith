@@ -11,7 +11,7 @@ import { Page } from "constants/ReduxActionConstants";
 import ExplorerPageEntity from "./PageEntity";
 import { AppState } from "reducers";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 
 type ExplorerPageGroupProps = {

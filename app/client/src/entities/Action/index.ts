@@ -1,5 +1,6 @@
-import { Datasource } from "api/DatasourcesApi";
+import { EmbeddedRestDatasource } from "entities/Datasource";
 import { DynamicPath } from "../../utils/DynamicBindingUtils";
+import _ from "lodash";
 
 export enum PluginType {
   API = "API",
@@ -13,7 +14,7 @@ export enum PaginationType {
 }
 
 export interface ActionConfig {
-  timeoutInMillisecond: number;
+  timeoutInMillisecond?: number;
   paginationType?: PaginationType;
 }
 
@@ -49,47 +50,62 @@ export interface ApiActionConfig extends ActionConfig {
 }
 
 export interface QueryActionConfig extends ActionConfig {
-  body: string;
+  body?: string;
 }
 
-export interface Action {
+export const isStoredDatasource = (val: any): val is StoredDatasource => {
+  if (!_.isObject(val)) return false;
+  if (!("id" in val)) return false;
+  return true;
+};
+export interface StoredDatasource {
+  id: string;
+}
+
+interface BaseAction {
   id: string;
   name: string;
-  datasource: Partial<Datasource>;
   organizationId: string;
   pageId: string;
   collectionId?: string;
-  actionConfiguration: Partial<ActionConfig>;
   pluginId: string;
-  pluginType: PluginType;
   executeOnLoad: boolean;
   dynamicBindingPathList: DynamicPath[];
   isValid: boolean;
   invalids: string[];
   jsonPathKeys: string[];
   cacheResponse: string;
-  templateId?: string;
-  providerId?: string;
-  provider?: ActionProvider;
-  documentation?: { text: string };
   confirmBeforeExecute?: boolean;
-}
-
-export interface RestAction extends Action {
-  actionConfiguration: Partial<ApiActionConfig>;
   eventData?: any;
 }
 
-export interface RapidApiAction extends Action {
-  actionConfiguration: Partial<ApiActionConfig>;
+interface BaseApiAction extends BaseAction {
+  pluginType: PluginType.API;
+  actionConfiguration: ApiActionConfig;
+}
+
+export interface EmbeddedApiAction extends BaseApiAction {
+  datasource: EmbeddedRestDatasource;
+}
+
+export interface StoredDatasourceApiAction extends BaseApiAction {
+  datasource: StoredDatasource;
+}
+
+export type ApiAction = EmbeddedApiAction | StoredDatasourceApiAction;
+
+export type RapidApiAction = ApiAction & {
   templateId: string;
   proverId: string;
   provider: ActionProvider;
   pluginId: string;
   documentation: { text: string };
+};
+
+export interface QueryAction extends BaseAction {
+  pluginType: PluginType.DB;
+  actionConfiguration: QueryActionConfig;
+  datasource: StoredDatasource;
 }
 
-export interface QueryAction extends Action {
-  actionConfiguration: Partial<QueryActionConfig>;
-  eventData?: any;
-}
+export type Action = ApiAction | QueryAction;

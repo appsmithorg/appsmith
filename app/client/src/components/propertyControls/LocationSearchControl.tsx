@@ -76,6 +76,7 @@ const MapScriptWrapper = (props: MapScriptWrapperProps) => {
     AddScriptTo.HEAD,
   );
   const [title, setTitle] = useState("");
+
   return (
     <div data-standalone-searchbox="">
       {status === ScriptStatus.READY && (
@@ -89,7 +90,7 @@ const MapScriptWrapper = (props: MapScriptWrapperProps) => {
           <StyledInput
             type="text"
             placeholder="Enter location"
-            value={title || props.propertyValue.title}
+            value={title || props.propertyValue?.title}
             onChange={(ev) => {
               const val = ev.target.value;
               if (val === "") {

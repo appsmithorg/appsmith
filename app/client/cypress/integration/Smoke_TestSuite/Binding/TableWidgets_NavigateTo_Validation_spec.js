@@ -39,7 +39,7 @@ describe("Table Widget and Navigate to functionality validation", function() {
     //cy.get('.t--table-widget-next-page')
     //  .click();
     cy.PublishtheApp();
-    cy.get(widgetsPage.chartWidget).should("not.be.visible");
+    cy.get(widgetsPage.chartWidget).should("not.exist");
     cy.isSelectRow(1);
     cy.get(widgetsPage.chartWidget).should("be.visible");
   });
