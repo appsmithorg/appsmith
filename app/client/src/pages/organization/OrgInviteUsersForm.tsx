@@ -40,6 +40,7 @@ import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { scrollbarDark } from "constants/DefaultTheme";
 import ProfileImage from "pages/common/ProfileImage";
+import ManageUsers from "./ManageUsers";
 
 const OrgInviteTitle = styled.div`
   padding: 10px 0px;
@@ -60,35 +61,6 @@ const StyledForm = styled.form`
     }
     .bp3-button {
       padding-top: 5px;
-    }
-  }
-`;
-
-const ManageUsers = styled("a")`
-  margin-top: 20px;
-  display: inline-flex;
-  &&&& {
-    text-decoration: none;
-  }
-
-  .${Classes.TEXT} {
-    color: ${(props) => props.theme.colors.modal.manageUser};
-    margin-right: ${(props) => props.theme.spaces[1]}px;
-  }
-  .${Classes.ICON} {
-    svg path {
-      fill: ${(props) => props.theme.colors.modal.manageUser};
-    }
-  }
-
-  &:hover {
-    .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.modal.headerText};
-    }
-    .${Classes.ICON} {
-      svg path {
-        fill: ${(props) => props.theme.colors.modal.headerText};
-      }
     }
   }
 `;
@@ -248,8 +220,6 @@ const OrgInviteUsersForm = (props: any) => {
     isLoading,
   } = props;
 
-  const currentPath = useLocation().pathname;
-  const pathRegex = /(?:\/org\/)\w+(?:\/settings)/;
   const currentOrg = useSelector(getCurrentOrg).filter(
     (el) => el.id === props.orgId,
   )[0];
@@ -399,17 +369,7 @@ const OrgInviteUsersForm = (props: any) => {
             <Callout text={error || emailError} variant={Variant.danger} fill />
           )}
         </ErrorBox>
-        {!pathRegex.test(currentPath) && canManage && (
-          <ManageUsers
-            className="manageUsers"
-            onClick={() => {
-              history.push(`/org/${props.orgId}/settings/members`);
-            }}
-          >
-            <Text type={TextType.H6}>MANAGE USERS</Text>
-            <Icon name="manage" size={IconSize.XXS} />
-          </ManageUsers>
-        )}
+        {canManage && <ManageUsers orgId={props.orgId} />}
       </StyledForm>
     </>
   );

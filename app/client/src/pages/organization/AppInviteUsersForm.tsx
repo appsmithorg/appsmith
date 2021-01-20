@@ -15,6 +15,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import Text, { TextType } from "components/ads/Text";
 import Toggle from "components/ads/Toggle";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import ManageUsers from "./ManageUsers";
 
 const Title = styled.div`
   padding: 10px 0px;
@@ -54,6 +55,11 @@ const AppInviteUsersForm = (props: any) => {
   const canShareWithPublic = isPermitted(
     userAppPermissions,
     PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
+  );
+
+  const canManage = isPermitted(
+    userOrgPermissions,
+    PERMISSION_TYPE.MANAGE_ORGANIZATION,
   );
 
   const getViewApplicationURL = () => {
@@ -104,6 +110,7 @@ const AppInviteUsersForm = (props: any) => {
       {canInviteToOrg && (
         <OrgInviteUsersForm orgId={props.orgId} isApplicationInvite={true} />
       )}
+      {canManage && <ManageUsers orgId={props.orgId} />}
     </>
   );
 };
