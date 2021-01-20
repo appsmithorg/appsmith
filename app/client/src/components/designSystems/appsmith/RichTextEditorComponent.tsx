@@ -27,6 +27,8 @@ export const RichtextEditorComponent = (
     "https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.4.0/tinymce.min.js",
   );
 
+  const [isEditorInitialised, setIsEditorInitialised] = useState(false);
+
   const [editorInstance, setEditorInstance] = useState(null as any);
   /* Using editorContent as a variable to save editor content locally to verify against new content*/
   const editorContent = useRef("");
@@ -37,7 +39,7 @@ export const RichtextEditorComponent = (
         props.isDisabled === true ? "readonly" : "design",
       );
     }
-  }, [props.isDisabled, editorInstance, status]);
+  }, [props.isDisabled, editorInstance, isEditorInitialised]);
 
   useEffect(() => {
     if (
@@ -45,16 +47,15 @@ export const RichtextEditorComponent = (
       (editorContent.current.length === 0 ||
         editorContent.current !== props.defaultValue)
     ) {
-      setTimeout(() => {
-        const content = props.defaultValue
-          ? props.defaultValue.replace(/\n/g, "<br/>")
-          : props.defaultValue;
-        editorInstance.setContent(content, {
-          format: "html",
-        });
-      }, 200);
+      const content = props.defaultValue
+        ? props.defaultValue.replace(/\n/g, "<br/>")
+        : props.defaultValue;
+
+      editorInstance.setContent(content, {
+        format: "html",
+      });
     }
-  }, [props.defaultValue, editorInstance, status]);
+  }, [props.defaultValue, editorInstance, isEditorInitialised]);
   useEffect(() => {
     if (status !== ScriptStatus.READY) return;
     const onChange = debounce((content: string) => {
@@ -71,13 +72,10 @@ export const RichtextEditorComponent = (
       resize: false,
       setup: (editor: any) => {
         editor.mode.set(props.isDisabled === true ? "readonly" : "design");
-        // Without timeout default value is not set on browser refresh.
-        setTimeout(() => {
-          const content = props.defaultValue
-            ? props.defaultValue.replace(/\n/g, "<br/>")
-            : props.defaultValue;
-          editor.setContent(content, { format: "html" });
-        }, 300);
+        const content = props.defaultValue
+          ? props.defaultValue.replace(/\n/g, "<br/>")
+          : props.defaultValue;
+        editor.setContent(content, { format: "html" });
         editor
           .on("Change", () => {
             onChange(editor.getContent());
@@ -92,6 +90,9 @@ export const RichtextEditorComponent = (
             onChange(editor.getContent());
           });
         setEditorInstance(editor);
+        editor.on("init", () => {
+          setIsEditorInitialised(true);
+        });
       },
       plugins: [
         "advlist autolink lists link image charmap print preview anchor",
