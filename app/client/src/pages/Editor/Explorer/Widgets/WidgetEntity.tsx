@@ -133,7 +133,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
       name={props.widgetName}
       entityId={props.widgetId}
       step={props.step}
-      updateEntityName={props.pageId === pageId ? updateWidgetName : noop}
+      updateEntityName={props.pageId === pageId ? updateWidgetName : undefined}
       searchKeyword={props.searchKeyword}
       isDefaultExpanded={
         shouldExpand ||
