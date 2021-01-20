@@ -50,11 +50,11 @@ mkdir -p $boot_script_path
 sudo chown -R ubuntu:ubuntu $app_path
 cd $boot_script_path
 
-sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/feature/self-installation-script/deploy/aws_ami/boot.sh
-sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/feature/self-installation-script/deploy/aws_ami/first-time-setup.sh
-sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/feature/self-installation-script/deploy/aws_ami/configure-ssl.sh
-sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/feature/self-installation-script/deploy/aws_ami/init-letsencrypt.sh
-sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/feature/self-installation-script/deploy/aws_ami/user-data.sh
+sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/aws_ami/boot.sh
+sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/aws_ami/first-time-setup.sh
+sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/aws_ami/configure-ssl.sh
+sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/aws_ami/init-letsencrypt.sh
+sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/aws_ami/user-data.sh
 
 sudo chown ubuntu:ubuntu $boot_script_path/$boot_file_name && sudo chmod +x $boot_script_path/$boot_file_name
 sudo chown ubuntu:ubuntu $boot_script_path/$first_time_setup_file_name && sudo chmod +x $boot_script_path/$first_time_setup_file_name

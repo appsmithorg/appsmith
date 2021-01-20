@@ -197,7 +197,7 @@ bye() { # Prints a friendly good bye message and exits the script.
 }
 download_template_file() {
     templates_dir="$(mktemp -d)"
-    template_endpoint="https://raw.githubusercontent.com/appsmithorg/appsmith/feature/self-installation-script"
+    template_endpoint="https://raw.githubusercontent.com/appsmithorg/appsmith/master"
     mkdir -p "$templates_dir"
     (
         cd "$templates_dir"
