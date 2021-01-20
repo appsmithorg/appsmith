@@ -259,7 +259,7 @@ public class LayoutActionServiceTest {
         newPageService
                 .findById(testPage.getId(), READ_PAGES)
                 .flatMap(page -> {
-                    page.getUnpublishedPage().getLayouts().get(0).setActionNames(pageLoadActionsDag.vertexSet());
+                    page.getUnpublishedPage().getLayouts().get(0).setAllOnPageLoadActionNames(pageLoadActionsDag.vertexSet());
                     Set<ActionDependencyEdge> edges = (Set<ActionDependencyEdge>) pageLoadActionsDag.edgeSet().stream()
                             .map(edge -> {
                                 ActionDependencyEdge actionDependencyEdge = new ActionDependencyEdge();
@@ -270,7 +270,7 @@ public class LayoutActionServiceTest {
                                 return actionDependencyEdge;
                             })
                             .collect(Collectors.toSet());
-                    page.getUnpublishedPage().getLayouts().get(0).setActionDependencies(edges);
+                    page.getUnpublishedPage().getLayouts().get(0).setAllOnPageLoadActionEdges(edges);
                     return newPageService.save(page);
                 })
                 .block();
@@ -282,12 +282,12 @@ public class LayoutActionServiceTest {
                 .assertNext(layout1 -> {
                     DirectedAcyclicGraph onLoadActionsDAG = new DirectedAcyclicGraph(DefaultEdge.class);
 
-                    Set<String> actionNames = layout1.getActionNames();
+                    Set<String> actionNames = layout1.getAllOnPageLoadActionNames();
                     for (String actionName : actionNames) {
                         onLoadActionsDAG.addVertex(actionName);
                     }
 
-                    Set<ActionDependencyEdge> actionDependencies = layout1.getActionDependencies();
+                    Set<ActionDependencyEdge> actionDependencies = layout1.getAllOnPageLoadActionEdges();
                     for (ActionDependencyEdge edge : actionDependencies) {
                         onLoadActionsDAG.addEdge(edge.getSource(), edge.getTarget());
                     }

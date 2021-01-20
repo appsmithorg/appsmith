@@ -45,10 +45,13 @@ public class Layout extends BaseDomain {
     Set<String> widgetNames;
 
     @JsonIgnore
-    Set<String> actionNames;
+    Set<String> allOnPageLoadActionNames;
 
     @JsonIgnore
-    Set<ActionDependencyEdge> actionDependencies;
+    Set<ActionDependencyEdge> allOnPageLoadActionEdges;
+
+    @JsonIgnore
+    Set<String> actionsUsedInDynamicBindings;
 
     /**
      * If view mode, the dsl returned should be the publishedDSL, else if the edit mode is on (view mode = false)

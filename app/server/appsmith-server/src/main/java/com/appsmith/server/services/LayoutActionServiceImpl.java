@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
-import org.jgrapht.graph.AbstractBaseGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
@@ -645,7 +644,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     }
 
     // Trying to implement offline scheduler by using level by level traversal. Level i+1 actions would be dependent on Level i actions. All actions in a level can run independently
-    public AbstractBaseGraph<String, DefaultEdge> findPageLoadActionsSchedulingOrder() {
+    public DirectedAcyclicGraph<String, DefaultEdge> findPageLoadActionsSchedulingOrder() {
         String[] actionNames = {"f", "a", "b", "c", "d", "e", "z"};
         String[][] actionDependencies = {
                 {},
@@ -658,7 +657,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         };
 
-        AbstractBaseGraph<String, DefaultEdge> actionSchedulingGraph =
+        DirectedAcyclicGraph<String, DefaultEdge> actionSchedulingGraph =
                 new DirectedAcyclicGraph<>(DefaultEdge.class);
 
         for (int i=0; i<actionNames.length; i++) {
