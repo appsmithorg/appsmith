@@ -77,7 +77,9 @@ export interface PropertyPaneEnhancements {
     (props: any) => Record<string, unknown>
   >;
   beforeChildPropertyUpdate?: (
-    id: string,
+    widgetName: string,
+    parentWidgetId: string,
+    parentWidgetName: string,
     path: string,
     value: any,
   ) => UpdatePropertyPayload[];

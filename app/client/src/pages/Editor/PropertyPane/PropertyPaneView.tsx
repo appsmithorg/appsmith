@@ -23,7 +23,8 @@ const PropertyPaneView = (
         (props: any) => Record<string, unknown>
       >;
       beforeChildPropertyUpdate: (
-        id: string,
+        widgetName: string,
+        parentId: string,
         path: string,
         value: any,
       ) => UpdatePropertyPayload[];

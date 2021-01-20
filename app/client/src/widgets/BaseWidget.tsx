@@ -391,7 +391,9 @@ export interface WidgetDataProps
   propertyPaneEnhancements?: {
     additionalAutocomplete: Record<string, unknown>;
     beforeChildPropertyUpdate: (
-      childWidgetId: string,
+      widgetName: string,
+      parentWidgetId: string,
+      parentWidgetName: string,
       propertyPath: string,
       propertyValue: any,
     ) => Array<{ widgetId: string; propertyPath: string; propertyValue: any }>;

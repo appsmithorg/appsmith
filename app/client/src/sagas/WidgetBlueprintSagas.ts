@@ -3,6 +3,7 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
 import { call } from "redux-saga/effects";
+import { get } from "lodash";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
@@ -48,13 +49,26 @@ export type BlueprintOperationModifyPropsFn = (
   parent?: WidgetProps,
 ) => UpdatePropertyArgs[] | undefined;
 
+export type BlueprintOperationChildOperationsFn = (
+  widgets: { [widgetId: string]: FlattenedWidgetProps },
+  widgetId: string,
+  parentId: string,
+) => { [widgetId: string]: FlattenedWidgetProps } | undefined;
+
+export type BlueprintChildOperationsFn = (
+  widget: WidgetProps & { children?: WidgetProps[] },
+  widgets: { [widgetId: string]: FlattenedWidgetProps },
+) => UpdatePropertyArgs[] | undefined;
+
 export type BlueprintOperationFunction =
   | BlueprintOperationModifyPropsFn
-  | BlueprintOperationAddActionFn;
+  | BlueprintOperationAddActionFn
+  | BlueprintChildOperationsFn;
 
 export enum BlueprintOperationTypes {
   MODIFY_PROPS = "MODIFY_PROPS",
   ADD_ACTION = "ADD_ACTION",
+  CHILD_OPERATIONS = "CHILD_OPERATIONS",
 }
 
 export type BlueprintOperationType = keyof typeof BlueprintOperationTypes;
@@ -70,11 +84,12 @@ export function* executeWidgetBlueprintOperations(
   widgetId: string,
 ) {
   operations.forEach((operation: BlueprintOperation) => {
+    const widget: WidgetProps & { children?: string[] | WidgetProps[] } = {
+      ...widgets[widgetId],
+    };
+
     switch (operation.type) {
       case BlueprintOperationTypes.MODIFY_PROPS:
-        const widget: WidgetProps & { children?: string[] | WidgetProps[] } = {
-          ...widgets[widgetId],
-        };
         if (widget.children && widget.children.length > 0) {
           widget.children = (widget.children as string[]).map(
             (childId: string) => widgets[childId],
@@ -91,7 +106,21 @@ export function* executeWidgetBlueprintOperations(
             widgets[params.widgetId][params.propertyName] =
               params.propertyValue;
           });
+        break;
     }
   });
   return yield widgets;
+}
+
+export function* executeWidgetBlueprintChildOperations(
+  operation: BlueprintOperation,
+  widgets: { [widgetId: string]: FlattenedWidgetProps },
+  widgetId: string,
+  parentId: string,
+) {
+  return yield (operation.fn as BlueprintOperationChildOperationsFn)(
+    widgets,
+    widgetId,
+    parentId,
+  );
 }

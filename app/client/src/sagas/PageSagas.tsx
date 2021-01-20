@@ -80,6 +80,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -706,6 +707,8 @@ function* hydrateEnhancementsMap() {
     const widget = widgets[widgetId];
 
     // only hydrate if it's not hydrated already
+    // adding this if because generateEnhancementsMap runs over
+    // its children, so there will be already enhancmentMap created for children
     if (!get(enhancementsMap, `${widgetId}`)) {
       const enhancements = get(
         WidgetConfigResponse,
@@ -715,6 +718,9 @@ function* hydrateEnhancementsMap() {
       if (enhancements) {
         enhancementsMap = yield generateEnhancementsMap(
           widgetId,
+          widget.parentId === MAIN_CONTAINER_WIDGET_ID
+            ? undefined
+            : widget.parentId,
           widgets,
           widget.type,
           enhancementsMap,

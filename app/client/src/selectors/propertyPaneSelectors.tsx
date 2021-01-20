@@ -89,7 +89,7 @@ export const getPropertyPaneEnhancements = createSelector(
     // if there is no widget id ( that's means, no widget property pane is selected)
     if (!widgetId) return;
 
-    const widgetType = get(enhancementsMap, `${widgetId}`);
+    const widgetType = get(enhancementsMap, `${widgetId}.type`);
 
     return get(
       WidgetConfigResponse,

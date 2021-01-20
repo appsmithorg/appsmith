@@ -1,8 +1,11 @@
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
+import { get } from "lodash";
 import { generateReactKey } from "utils/generators";
 import { WidgetTypes } from "constants/WidgetConstants";
+import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagas";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 
 /**
  * this config sets the default values of properties being used in the widget
@@ -465,23 +468,23 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
         },
         beforeChildPropertyUpdate: (
-          childWidgetId: string,
+          widgetName: string,
+          parentWidgetId: string,
+          parentWidgetName: string,
           propertyPath: string,
           propertyValue: any,
         ) => {
-          // let value = propertyValue;
-          // if (propertyValue.indexOf("currentItem")) {
-          //   value = "{{Grid1.items.map((currentItem) => propertyValue)}}";
-          // }
-          // [
-          //   {
-          //     widgetId: "ListWidgetId",
-          //     propertyPath: "Grid1.template.childWidgetId",
-          //     propertyValue: value,
-          //   },
-          // ];
-          // to be implemented
-          return [];
+          let value = propertyValue;
+          value = `{{${parentWidgetName}.items.map((currentItem) => "${propertyValue}")}}`;
+          const path = `template.${widgetName}.${propertyPath}`;
+
+          return [
+            {
+              widgetId: parentWidgetId,
+              propertyPath: path,
+              propertyValue: value,
+            },
+          ];
         },
       },
       gridGap: 0,
@@ -531,6 +534,32 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                 ],
               },
+            },
+          },
+        ],
+        operations: [
+          {
+            type: BlueprintOperationTypes.CHILD_OPERATIONS,
+            fn: (
+              widgets: { [widgetId: string]: FlattenedWidgetProps },
+              widgetId: string,
+              parentId: string,
+            ) => {
+              if (!parentId) return widgets;
+
+              const parent = { ...widgets[parentId] };
+              const widget = { ...widgets[widgetId] };
+
+              const template = {
+                ...get(parent, "template", {}),
+                [widget.widgetName]: widget,
+              };
+
+              parent.template = template;
+
+              widgets[parentId] = parent;
+
+              return widgets;
             },
           },
         ],

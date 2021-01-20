@@ -52,7 +52,10 @@ import { WidgetProps } from "widgets/BaseWidget";
 import _, { get } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
+  BlueprintOperationTypes,
+  BlueprintOperation,
   buildWidgetBlueprint,
+  executeWidgetBlueprintChildOperations,
   executeWidgetBlueprintOperations,
 } from "sagas/WidgetBlueprintSagas";
 import { resetWidgetMetaProperty } from "actions/metaActions";
@@ -93,6 +96,7 @@ import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getEnhancementsMap } from "selectors/propertyPaneSelectors";
+import { PropertyPaneEnhancementsDataState } from "reducers/uiReducers/propertyPaneEnhancementsReducer";
 
 function getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -219,6 +223,7 @@ function* generateChildWidgets(
       widget.widgetId,
     );
   }
+
   // Add the parentId prop to this widget
   widget.parentId = parent.widgetId;
   // Remove the blueprint from the widget (if any)
@@ -231,6 +236,8 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
     const start = performance.now();
     Toaster.clear();
+
+    // NOTE: widgetId here is the parentId of the dropped widget ( we should rename it to avoid confusion )
     const { widgetId } = addChildAction.payload;
 
     // Get the current parent widget whose child will be the new widget.
@@ -238,7 +245,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     // const parent = Object.assign({}, stateParent);
     // Get all the widgets from the canvasWidgetsReducer
     const stateWidgets = yield select(getWidgets);
-    const widgets = Object.assign({}, stateWidgets);
+    let widgets = Object.assign({}, stateWidgets);
     // Generate the full WidgetProps of the widget to be added.
     const childWidgetPayload: GeneratedWidgetPayload = yield generateChildWidgets(
       stateParent,
@@ -255,19 +262,58 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
 
     widgets[parent.widgetId] = parent;
     log.debug("add child computations took", performance.now() - start, "ms");
+
+    // some widgets need to update property of parent if they have CHILD_OPERATIONS
+    // so here we are going up the tree till we get to MAIN_CONTAINER_WIDGET_ID
+    // while travesring, if we find any widget which has CHILD_OPERATION, we will call the fn in it
+    let root = parent;
+    while (root.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
+      const parentConfig = {
+        ...(WidgetConfigResponse as any).config[root.type],
+      };
+
+      // find the blueprint with type CHILD_OPERATIONS
+      const blueprintChildOperation = get(
+        parentConfig,
+        "blueprint.operations",
+        [],
+      ).find(
+        (operation: BlueprintOperation) =>
+          operation.type === BlueprintOperationTypes.CHILD_OPERATIONS,
+      );
+
+      // if there is blueprint operation with CHILD_OPERATION type, call the fn in it
+      if (blueprintChildOperation) {
+        const updatedWidgets = yield call(
+          executeWidgetBlueprintChildOperations,
+          blueprintChildOperation,
+          widgets,
+          addChildAction.payload.newWidgetId,
+          root.widgetId,
+        );
+
+        if (updatedWidgets) {
+          widgets = updatedWidgets;
+        }
+      }
+
+      root = widgets[root.parentId];
+    }
+
     yield put(updateAndSaveLayout(widgets));
 
-    // constructing enhancementMap
+    // getting enhancement of the dropped widget from config
     const enhancements = get(
       WidgetConfigResponse,
       `config.${addChildAction.payload.type}.propertyPaneEnhancements`,
     );
     let enhancementsMap = yield select(getEnhancementsMap);
 
-    // adding enhancmentMaps for all childrens
+    // if there is a enhancement, pass on the enhancement to every child to be retrived later on
     if (enhancements) {
       enhancementsMap = yield generateEnhancementsMap(
         addChildAction.payload.newWidgetId,
+        get(enhancementsMap, `${widgetId}.parentId`),
         widgets,
         addChildAction.payload.type,
         enhancementsMap,
@@ -278,8 +324,9 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     if (enhancementsMap[parent.widgetId]) {
       enhancementsMap = yield generateEnhancementsMap(
         addChildAction.payload.newWidgetId,
+        get(enhancementsMap, `${widgetId}.parentId`),
         widgets,
-        enhancementsMap[parent.widgetId],
+        get(enhancementsMap, `${parent.widgetId}.type`),
         enhancementsMap,
       );
     }
@@ -288,6 +335,9 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       type: ReduxActionTypes.SET_PROPERTY_PANE_ENHANCEMENTS,
       payload: enhancementsMap,
     });
+
+    // go up till MAIN_CONTAINER, if there is a operation CHILD_OPERATIONS IN ANY PARENT,
+    // call execute
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -1347,14 +1397,19 @@ function* selectedWidgetAncestorySaga(
  */
 export function* generateEnhancementsMap(
   widgetId: string,
+  parentId: string,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
   type: WidgetType,
-  enhancemnetsMap: { [widgetId: string]: WidgetType },
+  enhancemnetsMap: PropertyPaneEnhancementsDataState,
 ): any {
   const widget = widgets[widgetId];
   const children = get(widget, "children", []);
 
-  enhancemnetsMap[widgetId] = type;
+  enhancemnetsMap[widgetId] = {
+    type,
+    parentId,
+    parentWidgetName: parentId && get(widgets[parentId], `widgetName`),
+  };
 
   // iterating over all childrens and updating enhancementsMap for them
   for (let i = 0; i < children.length; i++) {
@@ -1362,6 +1417,7 @@ export function* generateEnhancementsMap(
 
     enhancemnetsMap = yield generateEnhancementsMap(
       child,
+      parentId || widgetId,
       widgets,
       type,
       enhancemnetsMap,

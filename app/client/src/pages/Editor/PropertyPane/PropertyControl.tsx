@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from "react";
-import _ from "lodash";
+import _, { get } from "lodash";
 import {
   ControlPropertyLabelContainer,
   ControlWrapper,
@@ -23,7 +23,10 @@ import {
   isPathADynamicProperty,
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import {
+  getWidgetPropsForPropertyPane,
+  getEnhancementsMap,
+} from "selectors/propertyPaneSelectors";
 import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { Position } from "@blueprintjs/core";
 import { OnboardingStep } from "constants/OnboardingConstants";
@@ -37,6 +40,7 @@ type Props = PropertyPaneControlConfig & {
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
+  const enhancementsMap = useSelector(getEnhancementsMap);
 
   const toggleDynamicProperty = useCallback(
     (propertyName: string, isDynamic: boolean) => {
@@ -62,6 +66,11 @@ const PropertyControl = memo((props: Props) => {
     ],
   );
 
+  /**
+   * this function is called whenever we change any property in the property pane
+   * it updates the widget property by updateWidgetPropertyRequest
+   * It also calls the beforeChildPropertyUpdate hook
+   */
   const onPropertyChange = useCallback(
     (propertyName: string, propertyValue: any, isDynamicTrigger?: boolean) => {
       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
@@ -84,14 +93,21 @@ const PropertyControl = memo((props: Props) => {
           propertyValue,
         );
       }
+
+      // if there are enhancements related to the widget, calling them here
+      // enhancements are basically group of functions that are called before widget propety
+      // is changed on propertypane. For e.g - set/update parent property
       if (props.enhancements?.beforeChildPropertyUpdate) {
         // TODO: Concat if exists, else replace
         propertiesToUpdate = props.enhancements.beforeChildPropertyUpdate(
-          widgetProperties.widgetId,
+          widgetProperties.widgetName,
+          get(enhancementsMap[widgetProperties.widgetId], "parentId", ""),
+          get(enhancementsMap[widgetProperties.widgetId], "parentWidgetName"),
           propertyName,
           propertyValue,
         );
       }
+
       if (propertiesToUpdate) {
         propertiesToUpdate.forEach(
           ({ propertyPath, propertyValue, widgetId }) => {
