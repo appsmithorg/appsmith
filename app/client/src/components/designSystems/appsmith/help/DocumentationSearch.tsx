@@ -287,6 +287,7 @@ const HelpFooter = styled.div`
   padding: 5px 10px;
   height: 30px;
   color: rgba(255, 255, 255, 0.7);
+  font-size: 6pt;
 `;
 
 const HelpBody = styled.div`

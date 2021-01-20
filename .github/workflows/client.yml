@@ -147,7 +147,7 @@ jobs:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v2
 
       - name: Use Node.js 10.16.3
@@ -290,7 +290,7 @@ jobs:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v2
 
       - name: Download the react build artifact
@@ -307,7 +307,7 @@ jobs:
 
       # Build release Docker image and push to Docker Hub
       - name: Push release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release' && github.event_name == 'push'
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}} .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -315,7 +315,7 @@ jobs:
 
       # Build master Docker image and push to Docker Hub
       - name: Push production image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master' && github.event_name == 'push'
+        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA} .
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly .
