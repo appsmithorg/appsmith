@@ -39,6 +39,7 @@ import PerformanceTracker, {
 import { ERROR_CODES } from "constants/ApiConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
+import { getAllApplications } from "actions/applicationActions";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -317,7 +318,7 @@ export function* switchUserOrgSaga(action: ReduxAction<SwitchUserOrgRequest>) {
     const isValidResponse = yield validateResponse(response);
 
     if (isValidResponse) {
-      window.location.reload();
+      yield put(getAllApplications());
     }
   } catch (error) {
     yield put({
