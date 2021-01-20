@@ -10,8 +10,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -25,12 +28,13 @@ import java.util.Set;
 @DocumentType(AuthType.OAUTH2)
 public class OAuth2 extends AuthenticationDTO {
     public enum Type {
+        @JsonProperty("client_credentials")
         CLIENT_CREDENTIALS,
     }
 
-    Type authType;
+    Type grantType;
 
-    Boolean isHeader;
+    Boolean isTokenHeader = false;
 
     String clientId;
 
@@ -38,6 +42,9 @@ public class OAuth2 extends AuthenticationDTO {
     String clientSecret;
 
     String accessTokenUrl;
+
+    @Transient
+    String scopeString;
 
     Set<String> scope;
 
@@ -54,6 +61,19 @@ public class OAuth2 extends AuthenticationDTO {
 
     @JsonIgnore
     Instant expiresAt;
+
+    public String getScopeString() {
+        if (this.scope != null && !this.scope.isEmpty()) {
+            return Strings.join(this.scope, ',');
+        } else return scopeString;
+    }
+
+    public void setScopeString(String scopeString) {
+        this.scopeString = scopeString;
+        if (scopeString != null && !scopeString.isBlank()) {
+            this.scope = new HashSet<>(Arrays.asList(scopeString.split(",")));
+        }
+    }
 
     @Override
     public Map<String, String> getEncryptionFields() {

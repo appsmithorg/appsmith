@@ -62,7 +62,7 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
                 // Store valid token
                 .flatMap(token -> {
                     connection.setToken(token.getToken());
-                    connection.setHeader(token.getIsHeader());
+                    connection.setHeader(token.getIsTokenHeader());
                     connection.setHeaderPrefix(token.getHeaderPrefix());
                     connection.setExpiresAt(token.getExpiresAt());
                     return Mono.just(connection);
@@ -168,7 +168,7 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
         OAuth2 oAuth2 = (OAuth2) authenticationDTO;
         oAuth2.setToken(this.token);
         oAuth2.setHeaderPrefix(this.headerPrefix);
-        oAuth2.setIsHeader(this.isHeader);
+        oAuth2.setIsTokenHeader(this.isHeader);
 
         return oAuth2;
     }

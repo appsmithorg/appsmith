@@ -426,6 +426,7 @@ public class DatasourceServiceTest {
 
         Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> {
             ((DBAuth) datasource1.getDatasourceConfiguration().getAuthentication()).setPassword(null);
+            datasource1.getDatasourceConfiguration().getAuthentication().setIsEncrypted(false);
             return datasourceService.testDatasource(datasource1);
         });
 

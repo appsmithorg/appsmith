@@ -5,7 +5,6 @@ import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.web.reactive.function.client.ClientRequest;
@@ -33,7 +32,7 @@ public class OAuth2ConnectionTest {
     @Test
     public void testValidConnection() {
         OAuth2 oAuth2 = new OAuth2();
-        oAuth2.setIsHeader(true);
+        oAuth2.setIsTokenHeader(true);
         oAuth2.setToken("SomeToken");
         oAuth2.setIsEncrypted(false);
         oAuth2.setExpiresAt(Instant.now().plusSeconds(1200));
@@ -47,7 +46,7 @@ public class OAuth2ConnectionTest {
     @Test
     public void testStaleFilter() {
         OAuth2 oAuth2 = new OAuth2();
-        oAuth2.setIsHeader(true);
+        oAuth2.setIsTokenHeader(true);
         oAuth2.setToken("SomeToken");
         oAuth2.setIsEncrypted(false);
         oAuth2.setExpiresAt(Instant.now().plusSeconds(1200));
