@@ -29,7 +29,7 @@ const StyledRemoveIcon = styled(
   position: relative;
   cursor: pointer;
   &.hide-icon {
-    opacity: 0;
+    display: none;
   }
 `;
 
