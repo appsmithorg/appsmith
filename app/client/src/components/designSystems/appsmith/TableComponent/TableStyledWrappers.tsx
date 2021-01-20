@@ -324,9 +324,13 @@ export const CellWrapper = styled.div<{
   ${TableStyles};
   padding: 0 10px;
   line-height: 28px;
+  .image-cell-wrapper {
+    width: 100%;
+    height: 100%;
+  }
   .image-cell {
-    width: 40px;
-    height: 32px;
+    width: 100%;
+    height: 100%;
     margin: 0 5px 0 0;
     border-radius: 4px;
     background-position: center;
