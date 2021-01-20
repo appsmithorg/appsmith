@@ -21,5 +21,6 @@
     "apiPaginationNextTest": ".t--apiFormPaginationNextTest",
     "apiPaginationTab": ".t--apiFormPaginationType",
     "apiTab": ".react-tabs__tab-list li",
-    "bodyType": ".t--apiFormPostBodyType"
+    "bodyType": ".t--apiFormPostBodyType",
+    "bodyTab": "Body"
 }

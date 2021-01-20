@@ -150,6 +150,7 @@ export default function Dropdown(props: DropdownProps) {
 
   return (
     <DropdownContainer
+      tabIndex={0}
       data-cy={props.cypressSelector}
       ref={measuredRef}
       width={props.width}
@@ -183,7 +184,7 @@ export default function Dropdown(props: DropdownProps) {
                   <Icon name={option.icon} size={IconSize.LARGE} />
                 ) : null}
                 {option.label && option.value ? (
-                  <LabelWrapper>
+                  <LabelWrapper className="label-container">
                     <Text type={TextType.H5}>{option.value}</Text>
                     <Text type={TextType.P3}>{option.label}</Text>
                   </LabelWrapper>
