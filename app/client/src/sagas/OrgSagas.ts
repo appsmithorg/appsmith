@@ -30,6 +30,7 @@ import { Variant } from "components/ads/common";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 import history from "utils/history";
+import { getAllApplications } from "actions/applicationActions";
 
 export function* fetchRolesSaga() {
   try {
@@ -214,12 +215,7 @@ export function* createOrgSaga(
         payload: response.data,
       });
 
-      yield put({
-        type: ReduxActionTypes.SWITCH_ORGANIZATION_INIT,
-        payload: {
-          orgId: response.data.id,
-        },
-      });
+      yield put(getAllApplications());
       yield call(resolve);
     }
 
