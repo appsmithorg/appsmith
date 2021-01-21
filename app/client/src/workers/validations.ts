@@ -326,7 +326,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Marker Data`,
       };
-    } else if (!every(parsed, (datum) => isObject(datum))) {
+    } else if (
+      !every(
+        parsed,
+        (datum) => VALIDATORS[VALIDATION_TYPES.LAT_LONG](datum, props).isValid,
+      )
+    ) {
       return {
         isValid: false,
         parsed: [],
@@ -641,6 +646,39 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     return {
       isValid: true,
       parsed: values,
+    };
+  },
+  [VALIDATION_TYPES.LAT_LONG]: (unparsedValue: {
+    lat?: number;
+    long?: number;
+    [x: string]: any;
+  }): ValidationResponse => {
+    let value = unparsedValue;
+    const invalidResponse = {
+      isValid: false,
+      parsed: undefined,
+      message: `${WIDGET_TYPE_VALIDATION_ERROR}: { lat: number, long: number }`,
+    };
+
+    if (isString(unparsedValue)) {
+      try {
+        value = JSON.parse(unparsedValue);
+      } catch (e) {
+        console.error(`Error when parsing string as object`);
+      }
+    }
+
+    const { lat, long } = value || {};
+    const validLat = typeof lat === "number" && lat <= 90 && lat >= -90;
+    const validLong = typeof long === "number" && long <= 180 && long >= -180;
+
+    if (!validLat || !validLong) {
+      return invalidResponse;
+    }
+
+    return {
+      isValid: true,
+      parsed: value,
     };
   },
 };

@@ -2276,6 +2276,11 @@
     "@fusioncharts/features" "^1.2.0"
     "@fusioncharts/utils" "^1.2.0"
 
+"@github/g-emoji-element@^1.1.5":
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/@github/g-emoji-element/-/g-emoji-element-1.1.5.tgz#4fd6b20caf49b88705cf3365d1d1f00a69dfa29a"
+  integrity sha512-qnp14gzcC4AeQ+AK+Hvi3ZjO1MbfiOl9BzUmL+6+yfPpkT3rYpoQYjKuOftPObjVF5XJ3iotENjuvINANfH3Xw==
+
 "@hapi/address@2.x.x":
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/@hapi/address/-/address-2.1.4.tgz#5d67ed43f3fd41a69d4b9ff7b56e7c0d1d0a81e5"
