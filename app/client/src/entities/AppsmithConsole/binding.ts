@@ -1,4 +1,4 @@
-import { ActionableError } from "entities/Events";
+import { ActionableError } from "entities/AppsmithConsole";
 
 export enum BindingError {
   SYNTAX = "binding:syntax",

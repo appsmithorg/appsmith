@@ -1,4 +1,4 @@
-import { ActionableError, SourceEntity } from "entities/Events";
+import { ActionableError, SourceEntity } from "entities/AppsmithConsole";
 
 export enum EvalError {
   CYCLIC = "eval:cyclic",

@@ -1,13 +1,13 @@
 import { ReduxAction } from "constants/ReduxActionConstants";
-import { BindingError } from "entities/Events/binding";
-import { ActionError } from "entities/Events/action";
-import { WidgetError } from "entities/Events/widget";
-import { EvalError } from "entities/Events/eval";
+import { BindingError } from "entities/AppsmithConsole/binding";
+import { ActionError } from "entities/AppsmithConsole/action";
+import { WidgetError } from "entities/AppsmithConsole/widget";
+import { EvalError } from "entities/AppsmithConsole/eval";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 export type ErrorType = BindingError | ActionError | WidgetError | EvalError;
 
-export enum EventSeverity {
+export enum Severity {
   // Everything, irrespective of what the user should see or not
   DEBUG = "debug",
   // Something the dev user should probably know about
@@ -40,12 +40,12 @@ export interface SourceEntity {
   propertyPath: string;
 }
 
-export interface TimelineEvent {
-  severity: EventSeverity;
+export interface Message {
+  severity: Severity;
   // "when" did this event happen
   timestamp: Date;
   // "what": Human readable description of what happened.
-  message: string;
+  text: string;
   // "where" source entity and propertyPsath.
   source: SourceEntity;
   // Snapshot KV pair of scope variables or state associated with this event.
@@ -54,11 +54,11 @@ export interface TimelineEvent {
 
 /**
  * Example:
- * "User clicked a button -> Triggered an API call -> Api timed out"
+ * "Api timed out"
  * {
  *   type: ActionError.EXECUTION_TIMEOUT,
  *   timeoutMs: 10000,
- *   severity: EventSeverity.ERROR,
+ *   severity: Severity.ERROR,
  *   message: "Action execution timedout after 10 seconds",
  *   source: {
  *     type: ENTITY_TYPE.ACTION,
@@ -79,9 +79,11 @@ export interface TimelineEvent {
  *   ]
  * }
  */
-export interface ActionableError extends TimelineEvent {
+export interface ActionableError extends Message {
   // Error type of the event.
   type: ErrorType;
+
+  severity: Severity.ERROR | Severity.CRITICAL;
 
   // Actions a user can take to resolve this issue
   userActions: Array<UserAction>;
