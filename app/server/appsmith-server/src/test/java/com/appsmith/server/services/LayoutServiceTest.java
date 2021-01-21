@@ -37,6 +37,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -414,6 +415,15 @@ public class LayoutServiceTest {
                     assertThat(layout.getLayoutOnLoadActions().get(1)).hasSize(1);
                     assertThat(layout.getLayoutOnLoadActions().get(1).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
                             .hasSameElementsAs(Set.of("aPostActionWithAutoExec"));
+                    Set<DslActionDTO> flatOnLoadActions = new HashSet<>();
+                    for (Set<DslActionDTO> actions : layout.getLayoutOnLoadActions()) {
+                        flatOnLoadActions.addAll(actions);
+                    }
+                    for (DslActionDTO action : flatOnLoadActions) {
+                        assertThat(action.getId()).isNotBlank();
+                        assertThat(action.getName()).isNotBlank();
+                        assertThat(action.getTimeoutInMillisecond()).isNotZero();
+                    }
                 })
                 .verifyComplete();
     }

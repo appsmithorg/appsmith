@@ -38,9 +38,9 @@ public class PageLoadActionsUtil {
         Set<String> dynamicBindingNames = new HashSet<>();
 
         return newActionService.findUnpublishedActionsInPageByNames(bindings, pageId)
+                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 // First find all the actions directly used in the DSL and get the graph started
-                .flatMap(action -> {
-                    ActionDTO unpublishedAction = action.getUnpublishedAction();
+                .flatMap(unpublishedAction -> {
 
                     // If the user has explicity set an action to not run on page load, this action should be ignored
                     if (Boolean.TRUE.equals(unpublishedAction.getUserSetOnLoad()) && !Boolean.TRUE.equals(unpublishedAction.getExecuteOnLoad())) {
@@ -150,9 +150,9 @@ public class PageLoadActionsUtil {
 
         //First fetch all the actions which have been tagged as on load by the user explicitly.
         return newActionService.findUnpublishedOnLoadActionsInPage(pageId)
+                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 // Add the vertices and edges to the graph
-                .map(newAction -> {
-                    ActionDTO actionDTO = newAction.getUnpublishedAction();
+                .map(actionDTO -> {
                     extractAndSetActionNameAndBindingsForGraph(actionNames, edges, dynamicBindingNames, actionDTO);
                     return actionDTO;
                 })
@@ -181,8 +181,8 @@ public class PageLoadActionsUtil {
         Set<String> bindingNames = new HashSet<>();
         // First fetch all the actions in the page whose name matches the words found in all the dynamic bindings
         Mono<Map<String, ActionDTO>> updatedActionsMapMono = newActionService.findUnpublishedActionsInPageByNames(dynamicBindingNames, pageId)
-                .flatMap(newAction -> {
-                    ActionDTO action = newAction.getUnpublishedAction();
+                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                .flatMap(action -> {
 
                     // If the user has explicity set an action to not run on page load, this action should be ignored
                     if (Boolean.TRUE.equals(action.getUserSetOnLoad()) && !Boolean.TRUE.equals(action.getExecuteOnLoad())) {
@@ -256,13 +256,10 @@ public class PageLoadActionsUtil {
             if (onPageLoadActions.size() <= level) {
                 onPageLoadActions.add(new HashSet<>());
             }
-            log.debug("vertex : {}, level : {}", vertex, level);
 
             onPageLoadActions.get(level).add(vertex);
         }
-
-        log.debug("On page load actions are : {}", onPageLoadActions);
-
+        
         return onPageLoadActions;
     }
 
