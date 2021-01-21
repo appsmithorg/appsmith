@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.helpers.MustacheHelper.extractWordsAndAddToSet;
 
@@ -124,10 +125,14 @@ public class PageLoadActionsUtil {
             // where the action refers to its own data to find the next and previous URLs.
             dynamicBindingNamesInAction.remove(action.getName());
 
-            for (String target : dynamicBindingNamesInAction) {
+            // The relationship is represented as follows :
+            // If A depends on B aka B exists in the dynamic bindings of A,
+            // the corresponding edge would be B->A since B updates A and hence,
+            // B should be executed before A.
+            for (String source : dynamicBindingNamesInAction) {
                 ActionDependencyEdge edge = new ActionDependencyEdge();
-                edge.setSource(name);
-                edge.setTarget(target);
+                edge.setSource(source);
+                edge.setTarget(name);
                 edges.add(edge);
             }
 
@@ -218,10 +223,10 @@ public class PageLoadActionsUtil {
         }
 
         for (ActionDependencyEdge edge : edges) {
-            // If the target of the edge is an action, only then add an edge
+            // If the source of the edge is an action, only then add an edge
             // At this point we are guaranteed to find the action in the set because we have recursively found all
             // possible actions that should be on load
-            if (actionNames.contains(edge.getTarget())) {
+            if (actionNames.contains(edge.getSource())) {
                 try {
                     actionSchedulingGraph.addEdge(edge.getSource(), edge.getTarget());
                 } catch (IllegalArgumentException e) {
@@ -235,7 +240,13 @@ public class PageLoadActionsUtil {
 
     private List<HashSet<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag) {
         List<HashSet<String>> onPageLoadActions = new ArrayList<>();
-        BreadthFirstIterator<String, DefaultEdge> bfsIterator = new BreadthFirstIterator<>(dag);
+
+        // Find all root nodes to start the BFS traversal from
+        List<String> rootNodes = dag.vertexSet().stream()
+                .filter(key -> dag.incomingEdgesOf(key).size() == 0)
+                .collect(Collectors.toList());
+
+        BreadthFirstIterator<String, DefaultEdge> bfsIterator = new BreadthFirstIterator<>(dag, rootNodes);
 
         // Implementation of offline scheduler by using level by level traversal. Level i+1 actions would be dependent
         // on Level i actions. All actions in a level can run independently and hence would get added to the same set.

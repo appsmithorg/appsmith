@@ -293,7 +293,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.getActionConfiguration().setBody(
                             "this won't be auto-executed: {{aPostSecondaryAction.data}}, but this one will be: {{aPostTertiaryAction.data}}.");
-                    action.setJsonPathKeys(Set.of("aPostSecondaryAction.data", "aPostTertiaryAction.data"));
+                        action.setJsonPathKeys(Set.of("aPostSecondaryAction.data", "aPostTertiaryAction.data"));
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
@@ -408,11 +408,12 @@ public class LayoutServiceTest {
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
                     assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
+                    assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(5);
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
-                            .hasSameElementsAs(Set.of("aPostTertiaryAction"));
-                    assertThat(layout.getLayoutOnLoadActions().get(1)).hasSize(5);
+                            .hasSameElementsAs(Set.of("aPostTertiaryAction", "aGetAction", "aDBAction", "aTableAction", "anotherDBAction"));
+                    assertThat(layout.getLayoutOnLoadActions().get(1)).hasSize(1);
                     assertThat(layout.getLayoutOnLoadActions().get(1).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
-                            .hasSameElementsAs(Set.of("aGetAction", "aPostActionWithAutoExec", "aDBAction", "anotherDBAction", "aTableAction"));
+                            .hasSameElementsAs(Set.of("aPostActionWithAutoExec"));
                 })
                 .verifyComplete();
     }
