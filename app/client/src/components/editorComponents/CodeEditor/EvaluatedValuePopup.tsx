@@ -221,7 +221,7 @@ const EvaluatedValuePopup = (props: Props) => {
             expected={props.expected}
             evaluatedValue={props.evaluatedValue}
             hasError={props.hasError}
-            theme={props.theme || EditorTheme.DARK}
+            theme={props.theme}
             onMouseLeave={() => {
               setContentHovered(false);
             }}
