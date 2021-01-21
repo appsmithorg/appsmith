@@ -2,32 +2,31 @@ const commonlocators = require("../../../locators/commonlocators.json");
 const dsl = require("../../../fixtures/newFormDsl.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
-const pages = require("../../../locators/Pages.json");
-const explorer = require("../../../locators/explorerlocators.json");
 
 describe("Input Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Checks if default values are not persisted in cache after delete", function() {
-    cy.openPropertyPane("inputwidget");
-    cy.get(widgetsPage.defaultInput)
-      .type(this.data.command)
-      .type(this.data.defaultdata);
-    cy.get(widgetsPage.inputWidget + " " + "input")
-      .invoke("attr", "value")
-      .should("contain", this.data.defaultdata);
-    cy.get(commonlocators.deleteWidget).click();
-    cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("inputwidget");
-    cy.get(widgetsPage.inputWidget + " " + "input")
-      .invoke("attr", "value")
-      .should("not.contain", this.data.defaultdata);
+  // Note: commenting it out because Drag/Drop feature is not stable on cypress.
+  // it("Checks if default values are not persisted in cache after delete", function() {
+  //   cy.openPropertyPane("inputwidget");
+  //   cy.get(widgetsPage.defaultInput)
+  //     .type(this.data.command)
+  //     .type(this.data.defaultdata);
+  //   cy.get(widgetsPage.inputWidget + " " + "input")
+  //     .invoke("attr", "value")
+  //     .should("contain", this.data.defaultdata);
+  //   cy.get(commonlocators.deleteWidget).click();
+  //   cy.get(explorer.addWidget).click();
+  //   cy.dragAndDropToCanvas("inputwidget");
+  //   cy.get(widgetsPage.inputWidget + " " + "input")
+  //     .invoke("attr", "value")
+  //     .should("not.contain", this.data.defaultdata);
 
-    cy.addDsl(dsl);
-    cy.reload();
-  });
+  //   cy.addDsl(dsl);
+  //   cy.reload();
+  // });
 
   it("Input Widget Functionality", function() {
     cy.openPropertyPane("inputwidget");
@@ -102,7 +101,7 @@ describe("Input Widget Functionality", function() {
     cy.openPropertyPane("inputwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.inputWidget + " " + "input").should("not.be.visible");
+    cy.get(publish.inputWidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click({ force: true });
   });
   it("Input Functionality To Check Visible Widget", function() {
@@ -111,6 +110,25 @@ describe("Input Widget Functionality", function() {
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("be.visible");
     cy.get(publish.backToEditor).click({ force: true });
+  });
+
+  it("Input Functionality To check number input type with custom regex", function() {
+    cy.openPropertyPane("inputwidget");
+    cy.get(commonlocators.dataType).click();
+    cy.get(
+      `${commonlocators.dataType} .single-select:contains("Number")`,
+    ).click();
+    cy.testJsontext("regex", "^s*(?=.*[1-9])d*(?:.d{1,2})?s*$");
+    cy.get(widgetsPage.innertext)
+      .click()
+      .clear()
+      .type("1.255");
+    cy.get(".bp3-popover-content").should(($x) => {
+      expect($x).contain("Invalid input");
+    });
+    cy.get(widgetsPage.innertext)
+      .click()
+      .clear();
   });
 });
 afterEach(() => {

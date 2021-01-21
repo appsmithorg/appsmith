@@ -1,3 +1,4 @@
+import { get } from "lodash";
 import {
   all,
   call,
@@ -13,6 +14,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
+import { ERROR_CODES } from "constants/ApiConstants";
 
 import { fetchEditorConfigs } from "actions/configsActions";
 import {
@@ -32,7 +34,8 @@ import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { getAppStore } from "constants/AppConstants";
 import { getDefaultPageId } from "./selectors";
 import { populatePageDSLsSaga } from "./PageSagas";
-import { initEditorError, initViewerError } from "../actions/initActions";
+import log from "loglevel";
+import * as Sentry from "@sentry/react";
 
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
@@ -65,7 +68,16 @@ function* initializeEditorSaga(
     });
 
     if (resultOfPrimaryCalls.failure) {
-      yield put(initEditorError());
+      yield put({
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+        payload: {
+          code: get(
+            resultOfPrimaryCalls,
+            "failure.payload.error.code",
+            ERROR_CODES.SERVER_ERROR,
+          ),
+        },
+      });
       return;
     }
 
@@ -83,7 +95,16 @@ function* initializeEditorSaga(
     });
 
     if (resultOfSecondaryCalls.failure) {
-      yield put(initEditorError());
+      yield put({
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+        payload: {
+          code: get(
+            resultOfPrimaryCalls,
+            "failure.payload.error.code",
+            ERROR_CODES.SERVER_ERROR,
+          ),
+        },
+      });
       return;
     }
 
@@ -103,7 +124,14 @@ function* initializeEditorSaga(
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });
   } catch (e) {
-    yield put(initEditorError());
+    log.error(e);
+    Sentry.captureException(e);
+    yield put({
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+      payload: {
+        code: ERROR_CODES.SERVER_ERROR,
+      },
+    });
     return;
   }
 
@@ -137,7 +165,16 @@ export function* initializeAppViewerSaga(
   });
 
   if (resultOfPrimaryCalls.failure) {
-    yield put(initViewerError());
+    yield put({
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+      payload: {
+        code: get(
+          resultOfPrimaryCalls,
+          "failure.payload.error.code",
+          ERROR_CODES.SERVER_ERROR,
+        ),
+      },
+    });
     return;
   }
 
@@ -152,8 +189,18 @@ export function* initializeAppViewerSaga(
       success: take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS),
       failure: take(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR),
     });
+
     if (resultOfFetchPage.failure) {
-      yield put(initViewerError());
+      yield put({
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+        payload: {
+          code: get(
+            resultOfFetchPage,
+            "failure.payload.error.code",
+            ERROR_CODES.SERVER_ERROR,
+          ),
+        },
+      });
       return;
     }
 

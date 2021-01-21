@@ -1,3 +1,5 @@
+/// <reference types="Cypress" />
+
 const queryLocators = require("../../../locators/QueryEditor.json");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../locators/apiWidgetslocator.json");
@@ -8,7 +10,7 @@ let datasourceName;
 
 describe("Entity explorer tests related to query and datasource", function() {
   before(() => {
-    cy.generateUUID().then(uid => {
+    cy.generateUUID().then((uid) => {
       datasourceName = uid;
     });
   });
@@ -50,7 +52,39 @@ describe("Entity explorer tests related to query and datasource", function() {
       200,
     );
 
-    cy.get(queryLocators.templateMenu).click();
+    /* eslint-disable */
+    cy.wait(2000);
+    cy.go("back");
+
+    cy.contains(".t--datasource-name", datasourceName)
+      .find(queryLocators.editDatasourceButton)
+      .click();
+
+    cy.get(".t--edit-datasource-name").click();
+    cy.get(".t--edit-datasource-name input")
+      .clear()
+      .type(`${datasourceName}new`, { force: true })
+      .blur();
+
+    cy.contains(commonlocators.entityName, `${datasourceName}new`);
+
+    // reverting the name
+    cy.get(".t--edit-datasource-name").click();
+    cy.get(".t--edit-datasource-name input")
+      .clear()
+      .type(`${datasourceName}`, { force: true })
+      .blur();
+
+    // going  to the query create page
+    cy.contains(commonlocators.entityName, "Query1").click();
+
+    cy.get("@getPluginForm").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+
+    // cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
       .focus()

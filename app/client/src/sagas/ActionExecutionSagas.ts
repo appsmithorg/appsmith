@@ -46,7 +46,7 @@ import {
   showRunActionConfirmModal,
   updateAction,
 } from "actions/actionActions";
-import { Action, RestAction } from "entities/Action";
+import { Action } from "entities/Action";
 import ActionAPI, {
   ActionApiResponse,
   ActionResponse,
@@ -63,7 +63,7 @@ import {
 import { AppState } from "reducers";
 import { mapToPropList } from "utils/AppsmithUtils";
 import { validateResponse } from "sagas/ErrorSagas";
-import { ToastType, TypeOptions } from "react-toastify";
+import { TypeOptions } from "react-toastify";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 import { updateAppStore } from "actions/pageActions";
@@ -71,7 +71,7 @@ import { getAppStoreName } from "constants/AppConstants";
 import downloadjs from "downloadjs";
 import { getType, Types } from "utils/TypeHelpers";
 import { Toaster } from "components/ads/Toast";
-import { Variant, ToastVariant } from "components/ads/common";
+import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -80,7 +80,11 @@ import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import { evaluateDynamicTrigger, evaluateSingleValue } from "./evaluationsSaga";
+import {
+  evaluateDynamicTrigger,
+  evaluateActionBindings,
+} from "./EvaluationsSaga";
+import copy from "copy-to-clipboard";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -172,6 +176,21 @@ async function downloadSaga(
   }
 }
 
+function* copySaga(
+  payload: {
+    data: string;
+    options: { debug: boolean; format: string };
+  },
+  event: ExecuteActionPayloadEvent,
+) {
+  const result = copy(payload.data, payload.options);
+  if (event.callback) {
+    if (result) {
+      event.callback({ success: result });
+    }
+  }
+}
+
 function* showAlertSaga(
   payload: { message: string; style?: TypeOptions },
   event: ExecuteActionPayloadEvent,
@@ -214,7 +233,10 @@ export const getActionTimeout = (
   state: AppState,
   actionId: string,
 ): number | undefined => {
-  const action = _.find(state.entities.actions, a => a.config.id === actionId);
+  const action = _.find(
+    state.entities.actions,
+    (a) => a.config.id === actionId,
+  );
   if (action) {
     const timeout = _.get(
       action,
@@ -239,65 +261,49 @@ const isErrorResponse = (response: ActionApiResponse) => {
   return !response.data.isExecutionSuccess;
 };
 
-export function* evaluateDynamicBoundValueSaga(path: string): any {
-  return yield call(evaluateSingleValue, `{{${path}}}`);
-}
-
-const EXECUTION_PARAM_PATH = "this.params";
-const getExecutionParamPath = (key: string) => `${EXECUTION_PARAM_PATH}.${key}`;
-
-export function* getActionParams(
+/**
+ * Api1
+ * URL: https://example.com/{{Text1.text}}
+ * Body: {
+ *     "name": "{{this.params.name}}",
+ *     "age": {{this.params.age}},
+ *     "gender": {{Dropdown1.selectedOptionValue}}
+ * }
+ *
+ * If you call
+ * Api1.run(undefined, undefined, { name: "Hetu", age: Input1.text });
+ *
+ * executionParams is { name: "Hetu", age: Input1.text }
+ * bindings is [
+ *   "Text1.text",
+ *   "Dropdown1.selectedOptionValue",
+ *   "this.params.name",
+ *   "this.params.age",
+ * ]
+ *
+ * Return will be [
+ *   { key: "Text1.text", value: "updateUser" },
+ *   { key: "Dropdown1.selectedOptionValue", value: "M" },
+ *   { key: "this.params.name", value: "Hetu" },
+ *   { key: "this.params.age", value: 26 },
+ * ]
+ * @param bindings
+ * @param executionParams
+ */
+export function* evaluateActionParams(
   bindings: string[] | undefined,
-  executionParams?: Record<string, any>,
+  executionParams?: Record<string, any> | string,
 ) {
-  if (_.isNil(bindings)) return [];
-  let dataTreeBindings = bindings;
+  if (_.isNil(bindings) || bindings.length === 0) return [];
 
-  if (executionParams && Object.keys(executionParams).length) {
-    // List of params in the path format
-    const executionParamsPathList = Object.keys(executionParams).map(
-      getExecutionParamPath,
-    );
-    const paramSearchRegex = new RegExp(executionParamsPathList.join("|"), "g");
-    // Bindings with references to execution params
-    const executionBindings = bindings.filter(binding =>
-      paramSearchRegex.test(binding),
-    );
-
-    // Replace references with values
-    const replacedBindings = executionBindings.map(binding => {
-      let replaced = binding;
-      const matches = binding.match(paramSearchRegex);
-      if (matches && matches.length) {
-        matches.forEach(match => {
-          // we add one for substring index to account for '.'
-          const paramKey = match.substring(EXECUTION_PARAM_PATH.length + 1);
-          let paramValue = executionParams[paramKey];
-          if (paramValue) {
-            if (typeof paramValue === "object") {
-              paramValue = JSON.stringify(paramValue);
-            }
-            replaced = replaced.replace(match, paramValue);
-          }
-        });
-      }
-      return replaced;
-    });
-    // Replace binding with replaced bindings for evaluation
-    dataTreeBindings = dataTreeBindings.map(key => {
-      if (executionBindings.includes(key)) {
-        return replacedBindings[executionBindings.indexOf(key)];
-      }
-      return key;
-    });
-  }
-  // Evaluate all values
-  const values: any = yield all(
-    dataTreeBindings.map((binding: string) => {
-      return call(evaluateDynamicBoundValueSaga, binding);
-    }),
+  // Evaluated all bindings of the actions. Pass executionParams if any
+  const values: any = yield call(
+    evaluateActionBindings,
+    bindings,
+    executionParams,
   );
-  // convert to object and transform non string values
+
+  // Convert to object and transform non string values
   const actionParams: Record<string, string> = {};
   bindings.forEach((key, i) => {
     let value = values[i];
@@ -309,11 +315,11 @@ export function* getActionParams(
 
 export function extractBindingsFromAction(action: Action) {
   const bindings: string[] = [];
-  action.dynamicBindingPathList.forEach(a => {
+  action.dynamicBindingPathList.forEach((a) => {
     const value = _.get(action, a.key);
     if (isDynamicValue(value)) {
       const { jsSnippets } = getDynamicBindings(value);
-      bindings.push(...jsSnippets.filter(jsSnippet => !!jsSnippet));
+      bindings.push(...jsSnippets.filter((jsSnippet) => !!jsSnippet));
     }
   });
   return bindings;
@@ -331,14 +337,16 @@ export function* executeActionSaga(
     },
     actionId,
   );
+  const appMode = yield select(getAppMode);
   try {
-    const api: RestAction = yield select(getAction, actionId);
+    const api: Action = yield select(getAction, actionId);
     const currentApp: ApplicationPayload = yield select(getCurrentApplication);
     AnalyticsUtil.logEvent("EXECUTE_ACTION", {
       type: api.pluginType,
       name: api.name,
       pageId: api.pageId,
       appId: currentApp.id,
+      appMode: appMode,
       appName: currentApp.name,
       isExampleApp: currentApp.appIsExample,
     });
@@ -354,7 +362,7 @@ export function* executeActionSaga(
 
     yield put(executeApiActionRequest({ id: apiAction.actionId }));
     const actionParams: Property[] = yield call(
-      getActionParams,
+      evaluateActionParams,
       api.jsonPathKeys,
       params,
     );
@@ -364,7 +372,6 @@ export function* executeActionSaga(
         : event.type === EventType.ON_PREV_PAGE
         ? "PREV"
         : undefined;
-    const appMode = yield select(getAppMode);
 
     const executeActionRequest: ExecuteActionRequest = {
       actionId: actionId,
@@ -493,6 +500,9 @@ function* executeActionTriggers(
       case "DOWNLOAD":
         yield call(downloadSaga, trigger.payload, event);
         break;
+      case "COPY_TO_CLIPBOARD":
+        yield call(copySaga, trigger.payload, event);
+        break;
       default:
         yield put(
           executeActionError({
@@ -574,7 +584,7 @@ function* runActionSaga(
 
     const { paginationField } = reduxAction.payload;
 
-    const params = yield call(getActionParams, jsonPathKeys);
+    const params = yield call(evaluateActionParams, jsonPathKeys);
     const timeout = yield select(getActionTimeout, actionId);
     const appMode = yield select(getAppMode);
     const viewMode = appMode === APP_MODE.PUBLISHED;
@@ -650,72 +660,94 @@ function* confirmRunActionSaga() {
 }
 
 function* executePageLoadAction(pageAction: PageAction) {
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.EXECUTE_ACTION,
-    {
+  try {
+    PerformanceTracker.startAsyncTracking(
+      PerformanceTransactionName.EXECUTE_ACTION,
+      {
+        actionId: pageAction.id,
+      },
+      pageAction.id,
+      PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
+    );
+    const pageId = yield select(getCurrentPageId);
+    let currentApp: ApplicationPayload = yield select(getCurrentApplication);
+    currentApp = currentApp || {};
+    yield put(executeApiActionRequest({ id: pageAction.id }));
+    const params: Property[] = yield call(
+      evaluateActionParams,
+      pageAction.jsonPathKeys,
+    );
+    const appMode = yield select(getAppMode);
+    const viewMode = appMode === APP_MODE.PUBLISHED;
+    const executeActionRequest: ExecuteActionRequest = {
       actionId: pageAction.id,
-    },
-    pageAction.id,
-    PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
-  );
-  const pageId = yield select(getCurrentPageId);
-  let currentApp: ApplicationPayload = yield select(getCurrentApplication);
-  currentApp = currentApp || {};
-  yield put(executeApiActionRequest({ id: pageAction.id }));
-  const params: Property[] = yield call(
-    getActionParams,
-    pageAction.jsonPathKeys,
-  );
-  const appMode = yield select(getAppMode);
-  const viewMode = appMode === APP_MODE.PUBLISHED;
-  const executeActionRequest: ExecuteActionRequest = {
-    actionId: pageAction.id,
-    params,
-    viewMode,
-  };
-  AnalyticsUtil.logEvent("EXECUTE_ACTION", {
-    type: pageAction.pluginType,
-    name: pageAction.name,
-    pageId: pageId,
-    appId: currentApp.id,
-    onPageLoad: true,
-    appName: currentApp.name,
-    isExampleApp: currentApp.appIsExample,
-  });
-  const response: ActionApiResponse = yield ActionAPI.executeAction(
-    executeActionRequest,
-    pageAction.timeoutInMillisecond,
-  );
-  if (isErrorResponse(response)) {
+      params,
+      viewMode,
+    };
+    AnalyticsUtil.logEvent("EXECUTE_ACTION", {
+      type: pageAction.pluginType,
+      name: pageAction.name,
+      pageId: pageId,
+      appMode: appMode,
+      appId: currentApp.id,
+      onPageLoad: true,
+      appName: currentApp.name,
+      isExampleApp: currentApp.appIsExample,
+    });
+    const response: ActionApiResponse = yield ActionAPI.executeAction(
+      executeActionRequest,
+      pageAction.timeoutInMillisecond,
+    );
+    if (isErrorResponse(response)) {
+      const body = _.get(response, "data.body");
+      let message = `The action "${pageAction.name}" has failed.`;
+
+      if (body) {
+        message += `\nERROR: "${body}"`;
+      }
+
+      yield put(
+        executeActionError({
+          actionId: pageAction.id,
+          isPageLoad: true,
+          error: _.get(response, "responseMeta.error", {
+            message,
+          }),
+        }),
+      );
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.EXECUTE_ACTION,
+        {
+          failed: true,
+        },
+        pageAction.id,
+      );
+    } else {
+      const payload = createActionExecutionResponse(response);
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.EXECUTE_ACTION,
+        undefined,
+        pageAction.id,
+      );
+      yield put(
+        executeApiActionSuccess({
+          id: pageAction.id,
+          response: payload,
+          isPageLoad: true,
+        }),
+      );
+      yield take(ReduxActionTypes.SET_EVALUATED_TREE);
+    }
+  } catch (e) {
     yield put(
       executeActionError({
         actionId: pageAction.id,
-        error: response.responseMeta.error,
         isPageLoad: true,
+        error: {
+          message: `The action "${pageAction.name}" has failed.`,
+        },
       }),
     );
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.EXECUTE_ACTION,
-      {
-        failed: true,
-      },
-      pageAction.id,
-    );
-  } else {
-    const payload = createActionExecutionResponse(response);
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.EXECUTE_ACTION,
-      undefined,
-      pageAction.id,
-    );
-    yield put(
-      executeApiActionSuccess({
-        id: pageAction.id,
-        response: payload,
-        isPageLoad: true,
-      }),
-    );
-    yield take(ReduxActionTypes.SET_EVALUATED_TREE);
   }
 }
 
@@ -730,7 +762,7 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     for (const actionSet of pageActions) {
       // Load all sets in parallel
       yield* yield all(
-        actionSet.map(apiAction => call(executePageLoadAction, apiAction)),
+        actionSet.map((apiAction) => call(executePageLoadAction, apiAction)),
       );
     }
     PerformanceTracker.stopAsyncTracking(
@@ -738,6 +770,7 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     );
   } catch (e) {
     log.error(e);
+
     Toaster.show({
       text: "Failed to load onPageLoad actions",
       variant: Variant.danger,

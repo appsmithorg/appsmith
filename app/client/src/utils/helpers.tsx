@@ -1,5 +1,11 @@
 import { GridDefaults } from "constants/WidgetConstants";
-import { JAVSCRIPT_KEYWORDS } from "constants/WidgetValidation";
+import lottie from "lottie-web";
+import confetti from "assets/lottie/confetti.json";
+import {
+  DATA_TREE_KEYWORDS,
+  JAVASCRIPT_KEYWORDS,
+} from "constants/WidgetValidation";
+import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
 export const snapToGrid = (
   columnWidth: number,
   rowHeight: number,
@@ -165,7 +171,7 @@ export const convertArrayToSentence = (arr: string[]) => {
 };
 
 /**
- * checks if the name is conflciting with
+ * checks if the name is conflicting with
  * 1. API names,
  * 2. Queries name
  * 3. Javascript reserved names
@@ -180,9 +186,41 @@ export const isNameValid = (
   name: string,
   invalidNames: Record<string, any>,
 ) => {
-  if (name in JAVSCRIPT_KEYWORDS || name in invalidNames) {
-    return false;
-  }
+  return !(
+    name in JAVASCRIPT_KEYWORDS ||
+    name in DATA_TREE_KEYWORDS ||
+    name in GLOBAL_FUNCTIONS ||
+    name in invalidNames
+  );
+};
 
-  return true;
+export const playOnboardingAnimation = () => {
+  const container: Element = document.getElementById("root") as Element;
+
+  const el = document.createElement("div");
+  Object.assign(el.style, {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    "z-index": 99,
+    width: "100%",
+    height: "100%",
+  });
+
+  container.appendChild(el);
+
+  const animObj = lottie.loadAnimation({
+    container: el,
+    animationData: confetti,
+    loop: false,
+  });
+  const duration = (animObj.totalFrames / animObj.frameRate) * 1000;
+
+  animObj.play();
+
+  setTimeout(() => {
+    container.removeChild(el);
+  }, duration);
 };

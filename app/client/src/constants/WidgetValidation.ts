@@ -1,5 +1,6 @@
 import { WidgetProps } from "widgets/BaseWidget";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { EXECUTION_PARAM_KEY } from "./ActionConstants";
 
 // Always add a validator function in ./Validators for these types
 export const VALIDATION_TYPES = {
@@ -21,6 +22,7 @@ export const VALIDATION_TYPES = {
   SELECTED_TAB: "SELECTED_TAB",
   DEFAULT_OPTION_VALUE: "DEFAULT_OPTION_VALUE",
   DEFAULT_SELECTED_ROW: "DEFAULT_SELECTED_ROW",
+  LAT_LONG: "LAT_LONG",
 };
 
 export type ValidationResponse = {
@@ -39,7 +41,7 @@ export type Validator = (
 
 export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.SSSZ";
 
-export const JAVSCRIPT_KEYWORDS = {
+export const JAVASCRIPT_KEYWORDS = {
   true: "true",
   await: "await",
   break: "break",
@@ -86,4 +88,11 @@ export const JAVSCRIPT_KEYWORDS = {
   while: "while",
   with: "with",
   yield: "yield",
+};
+
+export const DATA_TREE_KEYWORDS = {
+  actionPaths: "actionPaths",
+  appsmith: "appsmith",
+  pageList: "pageList",
+  [EXECUTION_PARAM_KEY]: EXECUTION_PARAM_KEY,
 };

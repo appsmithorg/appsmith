@@ -19,7 +19,9 @@ import queryPaneSagas from "./QueryPaneSagas";
 import modalSagas from "./ModalSagas";
 import batchSagas from "./BatchSagas";
 import themeSagas from "./ThemeSaga";
-import evaluationsSaga from "./evaluationsSaga";
+import evaluationsSaga from "./EvaluationsSaga";
+import onboardingSaga from "./OnboardingSagas";
+import actionExecutionChangeListeners from "./WidgetLoadingSaga";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
 
@@ -46,9 +48,11 @@ export function* rootSaga() {
     batchSagas,
     themeSagas,
     evaluationsSaga,
+    onboardingSaga,
+    actionExecutionChangeListeners,
   ];
   yield all(
-    sagas.map(saga =>
+    sagas.map((saga) =>
       spawn(function*() {
         while (true) {
           try {

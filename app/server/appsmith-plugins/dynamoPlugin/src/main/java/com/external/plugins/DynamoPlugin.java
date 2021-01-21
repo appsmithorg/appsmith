@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
@@ -65,7 +65,7 @@ public class DynamoPlugin extends BasePlugin {
     @Extension
     public static class DynamoPluginExecutor implements PluginExecutor<DynamoDbClient> {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(DynamoDbClient ddb,
@@ -120,7 +120,7 @@ public class DynamoPlugin extends BasePlugin {
                 }
 
                 result.setIsExecutionSuccess(true);
-                System.out.println(Thread.currentThread().getName() + ": In the DynamoPlugin, got action execution result: " + result.toString());
+                System.out.println(Thread.currentThread().getName() + ": In the DynamoPlugin, got action execution result");
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
@@ -138,7 +138,7 @@ public class DynamoPlugin extends BasePlugin {
                     builder.endpointOverride(URI.create("http://" + endpoint.getHost() + ":" + endpoint.getPort()));
                 }
 
-                final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+                final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
                 if (authentication == null || StringUtils.isEmpty(authentication.getDatabaseName())) {
                     return Mono.error(new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
@@ -169,7 +169,7 @@ public class DynamoPlugin extends BasePlugin {
         public Set<String> validateDatasource(@NonNull DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
 
-            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication == null) {
                 invalids.add("Missing AWS Access Key ID and Secret Access Key.");
             } else {

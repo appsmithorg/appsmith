@@ -2,7 +2,6 @@
 @import "~@blueprintjs/core/lib/css/blueprint.css";
 @import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
 
-
 body {
   margin: 0;
   padding: 0;
@@ -54,3 +53,13 @@ div.bp3-popover-arrow {
 .Toastify__progress-bar--default {
   background: #29CCA3 !important;
 }
+
+#header-root {
+  position: relative;
+  z-index: 11;
+}
+
+.bp3-portal {
+  z-index: 10;
+}
+

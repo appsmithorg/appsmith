@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -13,8 +13,9 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.HikariPoolMXBean;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -25,7 +26,6 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -39,37 +39,32 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 
 public class PostgresPlugin extends BasePlugin {
 
     static final String JDBC_DRIVER = "org.postgresql.Driver";
 
-    private static final String USER = "user";
-    private static final String PASSWORD = "password";
-    private static final String SSL = "ssl";
-    private static final int VALIDITY_CHECK_TIMEOUT = 5;
+    private static final String SSL = "useSSL";
 
     private static final String DATE_COLUMN_TYPE_NAME = "date";
+
+    private static final int MINIMUM_POOL_SIZE = 1;
+
+    private static final int MAXIMUM_POOL_SIZE = 5;
+
+    private static final long LEAK_DETECTION_TIME_MS = 60*1000;
 
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
-    /**
-     * Postgres plugin receives the query as json of the following format :
-     */
-
-    @Slf4j
     @Extension
-    public static class PostgresPluginExecutor implements PluginExecutor<Connection> {
+    public static class PostgresPluginExecutor implements PluginExecutor<HikariDataSource> {
 
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        private final Scheduler scheduler = Schedulers.elastic();
 
         private static final String TABLES_QUERY =
                 "select a.attname                                                      as name,\n" +
@@ -114,35 +109,49 @@ public class PostgresPlugin extends BasePlugin {
                 "order by self_schema, self_table;";
 
         @Override
-        public Mono<ActionExecutionResult> execute(Connection connection,
+        public Mono<ActionExecutionResult> execute(HikariDataSource connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
             
-            return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
-
-                try {
-                    if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
-                        log.info("Encountered stale connection in Postgres plugin. Reporting back.");
-                        throw new StaleConnectionException();
-                    }
-                } catch (SQLException error) {
-                    // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
-                    // here, this should never happen.
-                    log.error("Error checking validity of Postgres connection.", error);
-                }
+            return Mono.fromCallable(() -> {
 
                 String query = actionConfiguration.getBody();
-
+                // Check for query parameter before performing the probably expensive fetch connection from the pool op.
                 if (query == null) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
+                }
+                
+                Connection connectionFromPool = null;
+
+                try {
+                    connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
+                } catch (SQLException | StaleConnectionException e) {
+                    // The function can throw either StaleConnectionException or SQLException. The underlying hikari
+                    // library throws SQLException in case the pool is closed or there is an issue initializing
+                    // the connection pool which can also be translated in our world to StaleConnectionException
+                    // and should then trigger the destruction and recreation of the pool.
+                    return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
                 }
 
                 List<Map<String, Object>> rowsList = new ArrayList<>(50);
 
                 Statement statement = null;
                 ResultSet resultSet = null;
+
+                HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
+
+                int idleConnections = poolProxy.getIdleConnections();
+                int activeConnections = poolProxy.getActiveConnections();
+                int totalConnections = poolProxy.getTotalConnections();
+                int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+                System.out.println(Thread.currentThread().getName() + ": Before executing postgres query [" +
+                        query +
+                        "] Hikari Pool stats : active - " + activeConnections +
+                        ", idle - " + idleConnections +
+                        ", awaiting - " + threadsAwaitingConnection +
+                        ", total - " + totalConnections );
                 try {
-                    statement = connection.createStatement();
+                    statement = connectionFromPool.createStatement();
                     boolean isResultSet = statement.execute(query);
 
                     if (isResultSet) {
@@ -203,13 +212,23 @@ public class PostgresPlugin extends BasePlugin {
                     }
 
                 } catch (SQLException e) {
+                    System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution error");
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                 } finally {
+                    idleConnections = poolProxy.getIdleConnections();
+                    activeConnections = poolProxy.getActiveConnections();
+                    totalConnections = poolProxy.getTotalConnections();
+                    threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+                    System.out.println(Thread.currentThread().getName() + ": After executing postgres query, Hikari Pool stats active - " + activeConnections +
+                            ", idle - " + idleConnections +
+                            ", awaiting - " + threadsAwaitingConnection +
+                            ", total - " + totalConnections );
                     if (resultSet != null) {
                         try {
                             resultSet.close();
                         } catch (SQLException e) {
-                            log.warn("Error closing Postgres ResultSet", e);
+                            System.out.println(Thread.currentThread().getName() +
+                                    ": Execute Error closing Postgres ResultSet" + e.getMessage());
                         }
                     }
 
@@ -217,7 +236,18 @@ public class PostgresPlugin extends BasePlugin {
                         try {
                             statement.close();
                         } catch (SQLException e) {
-                            log.warn("Error closing Postgres Statement", e);
+                            System.out.println(Thread.currentThread().getName() +
+                                    ": Execute Error closing Postgres Statement" + e.getMessage());
+                        }
+                    }
+
+                    if (connectionFromPool != null) {
+                        try {
+                            // Return the connetion back to the pool
+                            connectionFromPool.close();
+                        } catch (SQLException e) {
+                            System.out.println(Thread.currentThread().getName() +
+                                    ": Execute Error returning Postgres connection to pool" + e.getMessage());
                         }
                     }
 
@@ -226,92 +256,43 @@ public class PostgresPlugin extends BasePlugin {
                 ActionExecutionResult result = new ActionExecutionResult();
                 result.setBody(objectMapper.valueToTree(rowsList));
                 result.setIsExecutionSuccess(true);
-                System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution result:"
-                                    + result.toString());
+                System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution result");
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
+                    .map(obj -> {
+                        ActionExecutionResult result = (ActionExecutionResult) obj;
+                        return result;
+                    })
                     .subscribeOn(scheduler);
 
         }
 
         @Override
-        public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading Postgres JDBC Driver class."));
             }
 
-            String url;
-            AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
-
-            com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
-
-            final boolean isSslEnabled = configurationConnection != null
-                    && configurationConnection.getSsl() != null
-                    && !SSLDetails.AuthType.NO_SSL.equals(configurationConnection.getSsl().getAuthType());
-
-            Properties properties = new Properties();
-            properties.put(SSL, isSslEnabled);
-            if (authentication.getUsername() != null) {
-                properties.put(USER, authentication.getUsername());
-            }
-            if (authentication.getPassword() != null) {
-                properties.put(PASSWORD, authentication.getPassword());
-            }
-
-            if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                url = datasourceConfiguration.getUrl();
-
-            } else {
-                StringBuilder urlBuilder = new StringBuilder("jdbc:postgresql://");
-                for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                    urlBuilder
-                            .append(endpoint.getHost())
-                            .append(':')
-                            .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
-                            .append('/');
-
-                    if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
-                        urlBuilder.append(authentication.getDatabaseName());
-                    }
-                }
-                url = urlBuilder.toString();
-
-            }
-
-            return Mono.fromCallable(() -> {
-                try {
-                    System.out.println(Thread.currentThread().getName() + ": Connecting to db");
-                    Connection connection = DriverManager.getConnection(url, properties);
-                    connection.setReadOnly(
-                            configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
-                    return Mono.just(connection);
-
-                } catch (SQLException e) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error connecting to Postgres.", e));
-
-                }
-            })
-                    .flatMap(obj -> obj)
-                    .map(conn -> (Connection) conn)
+            return Mono
+                    .fromCallable(() -> {
+                        System.out.println(Thread.currentThread().getName() + ": Connecting to Postgres db");
+                        return createConnectionPool(datasourceConfiguration);
+                    })
                     .subscribeOn(scheduler);
         }
 
         @Override
-        public void datasourceDestroy(Connection connection) {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                log.error("Error closing Postgres Connection.", e);
+        public void datasourceDestroy(HikariDataSource connection) {
+            if (connection != null) {
+                connection.close();
             }
         }
 
         @Override
-        public Set<String> validateDatasource(@NonNull DatasourceConfiguration datasourceConfiguration) {
+        public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
 
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
@@ -335,15 +316,16 @@ public class PostgresPlugin extends BasePlugin {
                 invalids.add("Missing authentication details.");
 
             } else {
-                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getUsername())) {
+                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+                if (StringUtils.isEmpty(authentication.getUsername())) {
                     invalids.add("Missing username for authentication.");
                 }
 
-                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getPassword())) {
+                if (StringUtils.isEmpty(authentication.getPassword())) {
                     invalids.add("Missing password for authentication.");
                 }
 
-                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getDatabaseName())) {
+                if (StringUtils.isEmpty(authentication.getDatabaseName())) {
                     invalids.add("Missing database name.");
                 }
 
@@ -356,12 +338,8 @@ public class PostgresPlugin extends BasePlugin {
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             return datasourceCreate(datasourceConfiguration)
                     .map(connection -> {
-                        try {
-                            if (connection != null) {
-                                connection.close();
-                            }
-                        } catch (SQLException e) {
-                            log.warn("Error closing Postgres connection that was made for testing.", e);
+                        if (connection != null) {
+                            connection.close();
                         }
 
                         return new DatasourceTestResult();
@@ -370,28 +348,38 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceStructure> getStructure(Connection connection, DatasourceConfiguration datasourceConfiguration) {
-
-            try {
-                if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
-                    log.info("Encountered stale connection in Postgres plugin. Reporting back.");
-                    throw new StaleConnectionException();
-                }
-            } catch (SQLException error) {
-                // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
-                // here, this should never happen.
-                log.error("Error checking validity of Postgres connection.", error);
-            }
+        public Mono<DatasourceStructure> getStructure(HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
 
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
 
             return Mono.fromSupplier(() -> {
 
-                // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
+                Connection connectionFromPool;
+                try {
+                    connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
+                } catch (SQLException | StaleConnectionException e) {
+                    // The function can throw either StaleConnectionException or SQLException. The underlying hikari
+                    // library throws SQLException in case the pool is closed or there is an issue initializing
+                    // the connection pool which can also be translated in our world to StaleConnectionException
+                    // and should then trigger the destruction and recreation of the pool.
+                    return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                }
 
-                System.out.println(Thread.currentThread().getName() + ": Getting Db structure");
-                try (Statement statement = connection.createStatement()) {
+                HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
+
+                int idleConnections = poolProxy.getIdleConnections();
+                int activeConnections = poolProxy.getActiveConnections();
+                int totalConnections = poolProxy.getTotalConnections();
+                int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+                System.out.println(Thread.currentThread().getName() + ": Before getting postgres db structure" +
+                        " Hikari Pool stats : active - " + activeConnections +
+                        ", idle - " + idleConnections +
+                        ", awaiting - " + threadsAwaitingConnection +
+                        ", total - " + totalConnections );
+
+                // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
+                try (Statement statement = connectionFromPool.createStatement()) {
 
                     // Get tables and fill up their columns.
                     try (ResultSet columnsResultSet = statement.executeQuery(TABLES_QUERY)) {
@@ -516,17 +504,134 @@ public class PostgresPlugin extends BasePlugin {
 
                 } catch (SQLException throwable) {
                     return Mono.error(throwable);
+                } finally {
+                    idleConnections = poolProxy.getIdleConnections();
+                    activeConnections = poolProxy.getActiveConnections();
+                    totalConnections = poolProxy.getTotalConnections();
+                    threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+                    System.out.println(Thread.currentThread().getName() + ": After postgres db structure, Hikari Pool stats active - " + activeConnections +
+                            ", idle - " + idleConnections +
+                            ", awaiting - " + threadsAwaitingConnection +
+                            ", total - " + totalConnections );
+
+                    if (connectionFromPool != null) {
+                        try {
+                            // Return the connection back to the pool
+                            connectionFromPool.close();
+                        } catch (SQLException e) {
+                            System.out.println(Thread.currentThread().getName() +
+                                    ": Error returning Postgres connection to pool during get structure" + e.getMessage());
+                        }
+                    }
                 }
 
                 structure.setTables(new ArrayList<>(tablesByName.values()));
                 for (DatasourceStructure.Table table : structure.getTables()) {
                     table.getKeys().sort(Comparator.naturalOrder());
                 }
+                System.out.println(Thread.currentThread().getName() + ": Got the structure of postgres db");
                 return structure;
             })
                     .map(resultStructure -> (DatasourceStructure) resultStructure)
                     .subscribeOn(scheduler);
         }
+    }
+
+    /**
+     * This function is blocking in nature which connects to the database and creates a connection pool
+     * @param datasourceConfiguration
+     * @return connection pool
+     */
+    private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration) {
+        HikariConfig config = new HikariConfig();
+
+        config.setDriverClassName(JDBC_DRIVER);
+
+        // Set SSL property
+        com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
+        config.setMinimumIdle(MINIMUM_POOL_SIZE);
+        config.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
+
+        final boolean isSslEnabled = configurationConnection != null
+                && configurationConnection.getSsl() != null
+                && !SSLDetails.AuthType.NO_SSL.equals(configurationConnection.getSsl().getAuthType());
+
+        config.addDataSourceProperty(SSL, isSslEnabled);
+
+        // Set authentication properties
+        DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+        if (authentication.getUsername() != null) {
+            config.setUsername(authentication.getUsername());
+        }
+        if (authentication.getPassword() != null) {
+            config.setPassword(authentication.getPassword());
+        }
+
+        // Set up the connection URL
+        String url;
+        if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+            url = datasourceConfiguration.getUrl();
+
+        } else {
+            StringBuilder urlBuilder = new StringBuilder("jdbc:postgresql://");
+            for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                urlBuilder
+                        .append(endpoint.getHost())
+                        .append(':')
+                        .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
+                        .append('/');
+
+                if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
+                    urlBuilder.append(authentication.getDatabaseName());
+                }
+            }
+            url = urlBuilder.toString();
+        }
+        config.setJdbcUrl(url);
+
+        // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been released in 60 seconds
+        // should get tracked (may be falsely for long running queries) as leaked connection
+        config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
+
+        // Now create the connection pool from the configuration
+        HikariDataSource datasource = new HikariDataSource(config);
+
+        return datasource;
+    }
+
+    /**
+     * First checks if the connection pool is still valid. If yes, we fetch a connection from the pool and return
+     * In case a connection is not available in the pool, SQL Exception is thrown
+     * @param connectionPool
+     * @return SQL Connection
+     */
+    private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool, DatasourceConfiguration datasourceConfiguration) throws SQLException {
+
+        if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
+            System.out.println(Thread.currentThread().getName() +
+                    ": Encountered stale connection pool in Postgres plugin. Reporting back.");
+            throw new StaleConnectionException();
+        }
+
+        Connection connection = connectionPool.getConnection();
+
+        com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
+        if (configurationConnection == null) {
+            return connection;
+        }
+
+        switch (configurationConnection.getMode()) {
+            case READ_WRITE: {
+                connection.setReadOnly(false);
+                break;
+            }
+            case READ_ONLY: {
+                connection.setReadOnly(true);
+                break;
+            }
+        }
+
+        return connection;
     }
 
 }

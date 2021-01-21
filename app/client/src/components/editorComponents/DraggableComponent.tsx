@@ -30,7 +30,7 @@ const WidgetBoundaries = styled.div`
   height: calc(100% + ${WIDGET_PADDING - 2}px);
   position: absolute;
   border: 1px dashed
-    ${props => getColorWithOpacity(props.theme.colors.textAnchor, 0.5)};
+    ${(props) => getColorWithOpacity(props.theme.colors.textAnchor, 0.5)};
   pointer-events: none;
 `;
 
@@ -176,6 +176,10 @@ const DraggableComponent = (props: DraggableComponentProps) => {
 
   const className = `${classNameForTesting}`;
 
+  const shouldRenderComponent = !(
+    selectedWidget === props.widgetId && isDragging
+  );
+
   return (
     <DraggableWrapper
       className={className}
@@ -184,7 +188,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       onClick={handleClick}
       style={style}
     >
-      {props.children}
+      {shouldRenderComponent && props.children}
       {widgetBoundaries}
     </DraggableWrapper>
   );

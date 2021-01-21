@@ -15,7 +15,7 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   .react-tabs__tab-list {
     border-bottom-color: #d0d7dd;
     color: #a3b3bf;
-    ${props =>
+    ${(props) =>
       props.shouldOverflow &&
       `
       overflow-y: hidden;
@@ -28,12 +28,12 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   }
   .react-tabs__tab:focus {
     box-shadow: none;
-    border-color: ${props => props.theme.colors.primaryOld};
+    border-color: ${(props) => props.theme.colors.primaryOld};
   }
   .react-tabs__tab--selected {
-    color: ${props => props.theme.colors.primaryOld};
+    color: ${(props) => props.theme.colors.primaryOld};
     border-color: #d0d7dd;
-    border-top: ${props => props.theme.colors.primaryOld} 5px solid;
+    border-top: ${(props) => props.theme.colors.primaryOld} 5px solid;
     border-radius: 0;
   }
 `;
@@ -59,11 +59,11 @@ export const BaseTabbedView = (props: TabbedViewComponentType) => {
         }}
       >
         <TabList>
-          {props.tabs.map(tab => (
+          {props.tabs.map((tab) => (
             <Tab key={tab.key}>{tab.title}</Tab>
           ))}
         </TabList>
-        {props.tabs.map(tab => (
+        {props.tabs.map((tab) => (
           <TabPanel key={tab.key}>{tab.panelComponent}</TabPanel>
         ))}
       </Tabs>

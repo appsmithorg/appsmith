@@ -2,6 +2,8 @@ import EditableText, { EditableTextProps, SavingState } from "./EditableText";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
+import { Variant } from "./common";
+import { Toaster } from "./Toast";
 
 type EditableTextWrapperProps = EditableTextProps & {
   variant: "UNDERLINE" | "ICON";
@@ -20,7 +22,7 @@ const Container = styled.div<{
   &&& .${Classes.EDITABLE_TEXT}, .icon-wrapper {
     padding: 5px 10px;
     height: 25px;
-    background-color: ${props =>
+    background-color: ${(props) =>
       (props.isInvalid && props.isEditing) ||
       props.savingState === SavingState.ERROR
         ? props.theme.colors.editableText.dangerBg
@@ -28,7 +30,7 @@ const Container = styled.div<{
   }
 
   &&&& .${Classes.EDITABLE_TEXT} {
-    ${props =>
+    ${(props) =>
       !props.isEditing
         ? `
       padding-left: 0px;
@@ -41,7 +43,7 @@ const Container = styled.div<{
   }
 
   &&&& .${Classes.EDITABLE_TEXT_CONTENT} {
-    ${props =>
+    ${(props) =>
       !props.isEditing
         ? `
         min-width: 0px !important;
@@ -52,14 +54,18 @@ const Container = styled.div<{
   &&& .${Classes.EDITABLE_TEXT_CONTENT}, &&& .${Classes.EDITABLE_TEXT_INPUT} {
     text-align: center;
     color: #d4d4d4;
-    font-size: ${props => props.theme.typography.h4.fontSize}px;
-    line-height: ${props => props.theme.typography.h4.lineHeight}px;
-    letter-spacing: ${props => props.theme.typography.h4.letterSpacing}px;
-    font-weight: ${props => props.theme.typography.h4.fontWeight}px;
+    font-size: ${(props) => props.theme.typography.h4.fontSize}px;
+    line-height: ${(props) => props.theme.typography.h4.lineHeight}px;
+    letter-spacing: ${(props) => props.theme.typography.h4.letterSpacing}px;
+    font-weight: ${(props) => props.theme.typography.h4.fontWeight}px;
   }
 
   .error-message {
     margin-top: 2px;
+  }
+
+  .icon-wrapper {
+    padding-bottom: 0px;
   }
 `;
 
@@ -85,17 +91,23 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
         isEditingDefault={props.isNewApp}
         savingState={props.savingState}
         fill={props.fill}
-        onBlur={value => {
+        onBlur={(value) => {
           setIsEditing(false);
           props.onBlur(value);
         }}
         className={props.className}
-        onTextChanged={(value: string) => setIsEditing(true)}
+        onTextChanged={() => setIsEditing(true)}
         isInvalid={(value: string) => {
           setIsEditing(true);
           if (props.isInvalid) {
             setIsValid(Boolean(props.isInvalid(value)));
             return props.isInvalid(value);
+          } else if (value.trim() === "") {
+            Toaster.show({
+              text: "Application name can't be empty",
+              variant: Variant.danger,
+            });
+            return false;
           } else {
             return false;
           }

@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import {
   getApplicationViewerPageURL,
@@ -20,6 +20,7 @@ import {
 import {
   getInitialsAndColorCode,
   getApplicationIcon,
+  getRandomPaletteColor,
 } from "utils/AppsmithUtils";
 import { omit } from "lodash";
 import Text, { TextType } from "components/ads/Text";
@@ -60,7 +61,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
     border-radius: 0;
     box-shadow: none;
   }
-  ${props =>
+  ${(props) =>
     props.showOverlay &&
     `
       {
@@ -111,11 +112,11 @@ const Wrapper = styled(
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: ${props => props.theme.card.minWidth}px;
-  height: ${props => props.theme.card.minHeight}px;
+  width: ${(props) => props.theme.card.minWidth}px;
+  height: ${(props) => props.theme.card.minHeight}px;
   position: relative;
-  background-color: ${props => props.backgroundColor};
-  margin: ${props => props.theme.spaces[5]}px;
+  background-color: ${(props) => props.backgroundColor};
+  margin: ${(props) => props.theme.spaces[5]}px;
   .overlay {
     display: block;
     position: absolute;
@@ -123,7 +124,7 @@ const Wrapper = styled(
     top: 0;
     height: 100%;
     width: 100%;
-    ${props => !props.hasReadPermission && `pointer-events: none;`}
+    ${(props) => !props.hasReadPermission && `pointer-events: none;`}
   }
   .bp3-card {
     border-radius: 0;
@@ -149,7 +150,7 @@ const ApplicationImage = styled.div`
       .control {
         button {
           span {
-            font-weight: ${props => props.theme.fontWeights[3]};
+            font-weight: ${(props) => props.theme.fontWeights[3]};
             color: white;
           }
         }
@@ -179,8 +180,8 @@ const Control = styled.div<{ fixed?: boolean }>`
 
   .more {
     position: absolute;
-    right: ${props => props.theme.spaces[6]}px;
-    top: ${props => props.theme.spaces[4]}px;
+    right: ${(props) => props.theme.spaces[6]}px;
+    top: ${(props) => props.theme.spaces[4]}px;
   }
 `;
 
@@ -198,7 +199,7 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
   padding-top: 0;
   padding-bottom: 0;
   margin-bottom: 12px;
-  ${props =>
+  ${(props) =>
     props.isFetching
       ? `
     width: 119px;
@@ -211,8 +212,8 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
   display: -webkit-box;
   -webkit-line-clamp: 3; /* number of lines to show */
   -webkit-box-orient: vertical;
-  word-break: break-all;
-  color: ${props => props.theme.colors.text.heading};
+  word-break: break-word;
+  color: ${(props) => props.theme.colors.text.heading};
 `;
 type ApplicationCardProps = {
   application: ApplicationPayload;
@@ -235,7 +236,7 @@ const ContextDropdownWrapper = styled.div`
     span {
       svg {
         path {
-          fill: ${props => props.theme.colors.card.iconColor};
+          fill: ${(props) => props.theme.colors.card.iconColor};
         }
       }
     }
@@ -251,18 +252,25 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     themeDetails.theme.colors.appCardColors,
   );
   let initials = initialsAndColorCode[0];
-  const colorCode = props.application?.color || initialsAndColorCode[1];
 
   const [showOverlay, setShowOverlay] = useState(false);
-  const [selectedColor, setSelectedColor] = useState<string>(colorCode);
+  const [selectedColor, setSelectedColor] = useState<string>("");
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let colorCode;
+    if (props.application.color) {
+      colorCode = props.application.color;
+    } else {
+      colorCode = getRandomPaletteColor(
+        themeDetails.theme.colors.appCardColors,
+      );
+    }
     setSelectedColor(colorCode);
-  }, [colorCode]);
+  }, [props.application.color]);
   useEffect(() => {
     if (props.share) {
       moreActionItems.push({
@@ -332,7 +340,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   };
   const addDeleteOption = () => {
     if (props.delete && hasEditPermission) {
-      const index = moreActionItems.findIndex(el => el.icon === "delete");
+      const index = moreActionItems.findIndex((el) => el.icon === "delete");
       if (index >= 0) {
         moreActionItems.pop();
       }
@@ -470,7 +478,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           }
           key={props.application.id}
           hasReadPermission={hasReadPermission}
-          backgroundColor={colorCode}
+          backgroundColor={selectedColor}
         >
           <AppIcon size={Size.large} name={appIcon} />
           {/* <Initials>{initials}</Initials> */}

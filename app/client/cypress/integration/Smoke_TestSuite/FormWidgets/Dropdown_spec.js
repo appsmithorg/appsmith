@@ -14,7 +14,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.openPropertyPane("dropdownwidget");
 
     cy.testJsontext("options", JSON.stringify(data.input));
-    cy.testJsontext("defaultoption", "Not an option");
+    cy.testJsontext("defaultoption", "{{ undefined }}");
 
     cy.get(formWidgetsPage.dropdownWidget)
       .find(widgetLocators.dropdownSingleSelect)
@@ -62,7 +62,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.openPropertyPane("dropdownwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.dropdownWidget + " " + "input").should("not.be.visible");
+    cy.get(publish.dropdownWidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click();
   });
   it("Dropdown Functionality To Check Visible Widget", function() {

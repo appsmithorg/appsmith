@@ -79,6 +79,7 @@ export type EventName =
   | "WIDGET_DELETE_UNDO"
   | "WIDGET_COPY_VIA_SHORTCUT"
   | "WIDGET_COPY"
+  | "WIDGET_CUT_VIA_SHORTCUT"
   | "WIDGET_PASTE"
   | "WIDGET_DELETE_VIA_SHORTCUT"
   | "OPEN_HELP"
@@ -86,12 +87,22 @@ export type EventName =
   | "ROUTE_CHANGE"
   | "PROPERTY_PANE_CLOSE_CLICK"
   | "APPLICATIONS_PAGE_LOAD"
-  | "EXECUTE_ACTION";
+  | "EXECUTE_ACTION"
+  | "ONBOARDING_WELCOME"
+  | "ONBOARDING_EXAMPLE_DATABASE"
+  | "ONBOARDING_ADD_QUERY"
+  | "ONBOARDING_RUN_QUERY"
+  | "ONBOARDING_ADD_WIDGET_CLICK"
+  | "ONBOARDING_ADD_WIDGET"
+  | "ONBOARDING_SUCCESSFUL_BINDING"
+  | "ONBOARDING_DEPLOY"
+  | "SKIP_ONBOARDING"
+  | "END_ONBOARDING";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
   const applicationsIndex = pathSplit.findIndex(
-    path => path === "applications",
+    (path) => path === "applications",
   );
   const appId = pathSplit[applicationsIndex + 1];
 
@@ -202,6 +213,7 @@ class AnalyticsUtil {
         userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
       };
     }
+
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
       windowDoc.analytics.track(eventName, finalEventData);

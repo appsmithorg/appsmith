@@ -110,7 +110,7 @@ const chartDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 const singleChartDataMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
-  currentDSL.children = currentDSL.children?.map(child => {
+  currentDSL.children = currentDSL.children?.map((child) => {
     if (child.type === WidgetTypes.CHART_WIDGET) {
       // Check if chart widget has the deprecated singleChartData property
       if (child.hasOwnProperty("singleChartData")) {
@@ -240,21 +240,41 @@ const dynamicPathListMigration = (
   if (currentDSL.dynamicBindings) {
     currentDSL.dynamicBindingPathList = Object.keys(
       currentDSL.dynamicBindings,
-    ).map(path => ({ key: path }));
+    ).map((path) => ({ key: path }));
     delete currentDSL.dynamicBindings;
   }
   if (currentDSL.dynamicTriggers) {
     currentDSL.dynamicTriggerPathList = Object.keys(
       currentDSL.dynamicTriggers,
-    ).map(path => ({ key: path }));
+    ).map((path) => ({ key: path }));
     delete currentDSL.dynamicTriggers;
   }
   if (currentDSL.dynamicProperties) {
     currentDSL.dynamicPropertyPathList = Object.keys(
       currentDSL.dynamicProperties,
-    ).map(path => ({ key: path }));
+    ).map((path) => ({ key: path }));
     delete currentDSL.dynamicProperties;
   }
+  return currentDSL;
+};
+
+const canvasNameConflictMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+  props = { counter: 1 },
+): ContainerWidgetProps<WidgetProps> => {
+  if (
+    currentDSL.type === WidgetTypes.CANVAS_WIDGET &&
+    currentDSL.widgetName.startsWith("Canvas")
+  ) {
+    currentDSL.widgetName = `Canvas${props.counter}`;
+    // Canvases inside tabs have `name` property as well
+    if (currentDSL.name) {
+      currentDSL.name = currentDSL.widgetName;
+    }
+    props.counter++;
+  }
+  currentDSL.children?.forEach((c) => canvasNameConflictMigration(c, props));
+
   return currentDSL;
 };
 
@@ -310,6 +330,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = 7;
   }
 
+  if (currentDSL.version === 7) {
+    currentDSL = canvasNameConflictMigration(currentDSL);
+    currentDSL.version = 8;
+  }
+
   return currentDSL;
 };
 
@@ -350,7 +375,7 @@ export const isDropZoneOccupied = (
   occupied?: OccupiedSpace[],
 ) => {
   if (occupied) {
-    occupied = occupied.filter(widgetDetails => {
+    occupied = occupied.filter((widgetDetails) => {
       return (
         widgetDetails.id !== widgetId && widgetDetails.parentId !== widgetId
       );

@@ -26,7 +26,10 @@ import { validateResponse } from "./ErrorSagas";
 import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
-import { BUILDER_PAGE_URL } from "constants/routes";
+import {
+  BUILDER_PAGE_URL,
+  getApplicationViewerPageURL,
+} from "constants/routes";
 import { AppState } from "reducers";
 import {
   FetchApplicationPayload,
@@ -41,19 +44,28 @@ import { Toaster } from "components/ads/Toast";
 import { APP_MODE } from "../reducers/entityReducers/appReducer";
 import { Organization } from "constants/orgConstants";
 import { Variant } from "components/ads/common";
+import { AppIconName } from "components/ads/AppIcon";
+import { AppColorCode } from "constants/DefaultTheme";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { showCompletionDialog } from "./OnboardingSagas";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
 ): string | undefined => {
   let defaultPage: ApplicationPagePayload | undefined = undefined;
   if (pages) {
-    defaultPage = pages.find(page => page.isDefault);
+    defaultPage = pages.find((page) => page.isDefault);
     if (!defaultPage) {
       defaultPage = pages[0];
     }
   }
   return defaultPage ? defaultPage.id : undefined;
 };
+
+let windowReference: Window | null = null;
 
 export function* publishApplicationSaga(
   requestAction: ReduxAction<PublishApplicationRequest>,
@@ -69,6 +81,26 @@ export function* publishApplicationSaga(
       yield put({
         type: ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS,
       });
+
+      const applicationId = yield select(getCurrentApplicationId);
+      const currentPageId = yield select(getCurrentPageId);
+      let appicationViewPageUrl = getApplicationViewerPageURL(
+        applicationId,
+        currentPageId,
+      );
+
+      const showOnboardingCompletionDialog = yield select(showCompletionDialog);
+      if (showOnboardingCompletionDialog) {
+        appicationViewPageUrl += "?onboardingComplete=true";
+      }
+
+      // If the tab is opened focus and reload else open in new tab
+      if (!windowReference || windowReference.closed) {
+        windowReference = window.open(appicationViewPageUrl, "_blank");
+      } else {
+        windowReference.location.reload();
+        windowReference.focus();
+      }
     }
   } catch (error) {
     yield put({
@@ -105,6 +137,11 @@ export function* getAllApplicationSaga() {
       yield put({
         type: ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS,
         payload: organizationApplication,
+      });
+      const { newReleasesCount, releaseItems } = response.data || {};
+      yield put({
+        type: ReduxActionTypes.FETCH_RELEASES_SUCCESS,
+        payload: { newReleasesCount, releaseItems },
       });
     }
   } catch (error) {
@@ -187,14 +224,13 @@ export function* updateApplicationSaga(
       request,
     );
     const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
+    if (isValidResponse && request && request.name) {
+      Toaster.show({
+        text: "Application name updated",
+        variant: Variant.success,
+      });
       yield put({
         type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
-        payload: response.data,
-      });
-      Toaster.show({
-        text: "Application updated",
-        variant: Variant.success,
       });
     }
     if (isValidResponse && request.currentApp) {
@@ -209,10 +245,6 @@ export function* updateApplicationSaga(
       payload: {
         error,
       },
-    });
-    Toaster.show({
-      text: error,
-      variant: Variant.danger,
     });
   }
 }
@@ -317,12 +349,14 @@ export function* changeAppViewAccessSaga(
 export function* createApplicationSaga(
   action: ReduxAction<{
     applicationName: string;
+    icon: AppIconName;
+    color: AppColorCode;
     orgId: string;
     resolve: any;
     reject: any;
   }>,
 ) {
-  const { applicationName, orgId, reject } = action.payload;
+  const { applicationName, icon, color, orgId, reject } = action.payload;
   try {
     const userOrgs = yield select(getUserApplicationsOrgsList);
     const existingOrgs = userOrgs.filter(
@@ -348,6 +382,8 @@ export function* createApplicationSaga(
     } else {
       const request: CreateApplicationRequest = {
         name: applicationName,
+        icon: icon,
+        color: color,
         orgId,
       };
       const response: CreateApplicationResponse = yield call(

@@ -110,7 +110,7 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Configure SSL Successfully",
       "data": {
-          "os": "Ubuntu"
+          "os": "Ubuntu",
           "platform": "aws_ami"
        }
     }' > /dev/null

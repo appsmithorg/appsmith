@@ -455,7 +455,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
     const curlImportURL =
       getCurlImportPageURL(applicationId, pageId) + location.search;
 
-    const PROVIDER_CATEGORIES_OPTIONS = providerCategories.map(category => ({
+    const PROVIDER_CATEGORIES_OPTIONS = providerCategories.map((category) => ({
       label: category,
       value: category,
     }));
@@ -468,7 +468,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
               icon="search"
               input={{
                 onChange: this.handleSearchChange,
-                onFocus: e => {
+                onFocus: (e) => {
                   if (e.target.value) {
                     this.setState({ showSearchResults: true });
                   } else {
@@ -496,7 +496,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                   <div>
                     <p className="sectionHeadings">{"Providers"}</p>
                     {apiOrProviderSearchResults.providers.map(
-                      providerSearchResult => (
+                      (providerSearchResult) => (
                         <React.Fragment key={providerSearchResult.id}>
                           <p
                             className="providerSearchCard"

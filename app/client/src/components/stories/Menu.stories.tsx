@@ -14,20 +14,12 @@ import EditableText, {
   EditInteractionKind,
 } from "components/ads/EditableText";
 import { IconCollection, IconName } from "components/ads/Icon";
-import { theme, light, dark } from "constants/DefaultTheme";
+import { theme } from "constants/DefaultTheme";
 
 export default {
   title: "Menu",
   component: Menu,
   decorators: [withKnobs, withDesign],
-};
-
-const calls = (value: string, callback: any) => {
-  setTimeout(() => {
-    return callback(false, SavingState.SUCCESS);
-  }, 2000);
-
-  return callback(true);
 };
 
 const errorFunction = (name: string) => {
@@ -40,7 +32,7 @@ const errorFunction = (name: string) => {
 
 export const MenuStory = () => {
   const [selectedColor, setSelectedColor] = useState<string>(
-    light.appCardColors[0],
+    theme.colors.appCardColors[0],
   );
   const [savingState, SetSavingState] = useState<SavingState>(
     SavingState.NOT_STARTED,
@@ -99,7 +91,7 @@ export const MenuStory = () => {
         <ColorSelector
           onSelect={(value: string) => setSelectedColor(value)}
           fill={false}
-          colorPalette={light.appCardColors}
+          colorPalette={theme.colors.appCardColors}
         />
         <MenuDivider />
         <IconSelector

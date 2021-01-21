@@ -70,7 +70,7 @@ import {
   setActionsToExecuteOnPageLoad,
 } from "actions/actionActions";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
-import { clearEvalCache } from "./evaluationsSaga";
+import { clearEvalCache } from "./EvaluationsSaga";
 import { getQueryParams } from "utils/AppsmithUtils";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -95,7 +95,7 @@ export function* fetchPageListSaga(
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const orgId = response.data.organizationId;
-      const pages: PageListPayload = response.data.pages.map(page => ({
+      const pages: PageListPayload = response.data.pages.map((page) => ({
         pageName: page.name,
         pageId: page.id,
         isDefault: page.isDefault,
@@ -326,7 +326,7 @@ function* savePageSaga() {
         savePageResponse.data.layoutOnLoadActions.length > 0
       ) {
         for (const actionSet of savePageResponse.data.layoutOnLoadActions) {
-          yield put(setActionsToExecuteOnPageLoad(actionSet.map(a => a.id)));
+          yield put(setActionsToExecuteOnPageLoad(actionSet.map((a) => a.id)));
         }
       }
       yield put(savePageSuccess(savePageResponse));
@@ -341,6 +341,7 @@ function* savePageSaga() {
         failed: true,
       },
     );
+
     yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
       payload: {
@@ -510,6 +511,8 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
           dsl: extractCurrentDSL(response),
         },
       });
+
+      yield put(fetchActionsForPage(response.data.id));
 
       history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
     }

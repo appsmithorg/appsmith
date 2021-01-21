@@ -40,13 +40,6 @@ type DropTargetComponentProps = WidgetProps & {
   minHeight: number;
 };
 
-type DropTargetBounds = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
-
 const StyledDropTarget = styled.div`
   transition: height 100ms ease-in;
   width: 100%;
@@ -276,6 +269,7 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
           height,
           border,
         }}
+        className={"t--drop-target"}
       >
         {props.children}
         {!(childWidgets && childWidgets.length) &&

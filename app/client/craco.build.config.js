@@ -18,16 +18,25 @@ plugins.push(
 );
 
 if (env === "PRODUCTION" || env === "STAGING") {
-  plugins.push(
-    new SentryWebpackPlugin({
-      include: "build",
-      ignore: ["node_modules", "webpack.config.js"],
-      release: process.env.REACT_APP_SENTRY_RELEASE,
-      deploy: {
-        env: process.env.REACT_APP_SENTRY_ENVIRONMENT
-      }
-    })
-  );
+  if (
+    process.env.SENTRY_AUTH_TOKEN != null &&
+    process.env.SENTRY_AUTH_TOKEN !== ""
+  ) {
+    plugins.push(
+      new SentryWebpackPlugin({
+        include: "build",
+        ignore: ["node_modules", "webpack.config.js"],
+        release: process.env.REACT_APP_SENTRY_RELEASE,
+        deploy: {
+          env: process.env.REACT_APP_SENTRY_ENVIRONMENT
+        }
+      })
+    );
+  } else {
+    console.log(
+      "Sentry configuration missing in process environment. Sentry will be disabled.",
+    );
+  }
 }
 
 module.exports = merge(common, {

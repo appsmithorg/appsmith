@@ -26,12 +26,12 @@ const StyledDynamicInput = styled.div`
   &&& {
     input {
       border: none;
-      color: ${props => props.theme.colors.textOnDarkBG};
-      background: ${props => props.theme.colors.paneInputBG};
+      color: ${(props) => props.theme.colors.textOnDarkBG};
+      background: ${(props) => props.theme.colors.paneInputBG};
       &:focus {
         border: none;
-        color: ${props => props.theme.colors.textOnDarkBG};
-        background: ${props => props.theme.colors.paneInputBG};
+        color: ${(props) => props.theme.colors.textOnDarkBG};
+        background: ${(props) => props.theme.colors.paneInputBG};
       }
     }
   }
@@ -282,7 +282,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
       seriesName: string;
       data: string;
     }> = this.props.propertyValue;
-    chartData.push({ seriesName: "", data: '[{ x: "", y: "" }]' });
+    chartData.push({ seriesName: "", data: '[{ "x": "label", "y": 50 }]' });
     this.updateProperty(this.props.propertyName, chartData);
   };
 

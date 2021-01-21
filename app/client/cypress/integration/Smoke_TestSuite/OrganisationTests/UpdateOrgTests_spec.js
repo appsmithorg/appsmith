@@ -5,7 +5,7 @@ describe("Update Organization", function() {
 
   it("Open the org general settings and update org name. The update should reflect in the org. It should also reflect in the org names on the left side and the org dropdown.	", function() {
     cy.NavigateToHome();
-    cy.generateUUID().then(uid => {
+    cy.generateUUID().then((uid) => {
       orgid = uid;
       localStorage.setItem("OrgName", orgid);
       cy.createOrg(orgid);
@@ -19,7 +19,7 @@ describe("Update Organization", function() {
         });
       cy.get(homePage.orgSettingOption).click();
     });
-    cy.generateUUID().then(uid => {
+    cy.generateUUID().then((uid) => {
       orgid = uid;
       localStorage.setItem("OrgName", orgid);
       cy.get(homePage.orgNameInput).clear();
@@ -29,7 +29,7 @@ describe("Update Organization", function() {
     });
     cy.NavigateToHome();
     cy.get(homePage.leftPanelContainer).within(() => {
-      cy.get("span").should(item => {
+      cy.get("span").should((item) => {
         expect(item).to.contain.text(orgid);
       });
     });
@@ -55,6 +55,28 @@ describe("Update Organization", function() {
     cy.get(homePage.orgEmailInput).should(
       "have.value",
       Cypress.env("TESTUSERNAME2"),
+    );
+  });
+
+  it("Upload logo / delete logo and validate", function() {
+    const fixturePath = "appsmithlogo.png";
+    cy.xpath(homePage.uploadLogo).attachFile(fixturePath);
+    cy.wait("@updateLogo").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.xpath(homePage.membersTab).click({ force: true });
+    cy.xpath(homePage.generalTab).click({ force: true });
+    cy.get(homePage.removeLogo)
+      .last()
+      .should("be.hidden")
+      .invoke("show")
+      .click({ force: true });
+    cy.wait("@deleteLogo").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
     );
   });
 

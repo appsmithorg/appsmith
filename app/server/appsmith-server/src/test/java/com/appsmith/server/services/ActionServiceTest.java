@@ -3,6 +3,8 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.PaginationField;
+import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
@@ -51,7 +53,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeoutException;
 
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -102,6 +103,9 @@ public class ActionServiceTest {
 
     @Autowired
     DatasourceService datasourceService;
+
+    @Autowired
+    ActionCollectionService actionCollectionService;
 
     Application testApp = null;
 
@@ -168,6 +172,7 @@ public class ActionServiceTest {
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
         action.setPageId(testPage.getId());
+        action.setExecuteOnLoad(true);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
@@ -183,6 +188,7 @@ public class ActionServiceTest {
                     assertThat(createdAction.getId()).isNotEmpty();
                     assertThat(createdAction.getName()).isEqualTo(action.getName());
                     assertThat(createdAction.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy));
+                    assertThat(createdAction.getExecuteOnLoad()).isFalse();
                 })
                 .verifyComplete();
     }
@@ -196,7 +202,7 @@ public class ActionServiceTest {
         newPage.setName("Destination Page");
         newPage.setApplicationId(testApp.getId());
         PageDTO destinationPage = applicationPageService.createPage(newPage).block();
-        
+
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
         action.setPageId(testPage.getId());
@@ -508,7 +514,52 @@ public class ActionServiceTest {
                 })
                 .verifyComplete();
     }
-    
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testActionExecuteNullPaginationParameters() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("response-body");
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHeaders(List.of(
+                new Property("random-header-key", "random-header-value"),
+                new Property("", "")
+        ));
+        actionConfiguration.setPaginationType(PaginationType.URL);
+        actionConfiguration.setNext(null);
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecuteErrorResponse");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        action.setDatasource(datasource);
+        ActionDTO createdAction = newActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+        executeActionDTO.setPaginationField(PaginationField.NEXT);
+
+        AppsmithPluginException pluginException = new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR);
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.error(pluginException));
+        Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
+
+        Mono<ActionExecutionResult> executionResultMono = newActionService.executeAction(executeActionDTO);
+
+        StepVerifier.create(executionResultMono)
+                .assertNext(result -> {
+                    assertThat(result.getIsExecutionSuccess()).isFalse();
+                    assertThat(result.getStatusCode()).isEqualTo(pluginException.getAppErrorCode().toString());
+                })
+                .verifyComplete();
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteSecondaryStaleConnection() {
@@ -602,7 +653,7 @@ public class ActionServiceTest {
         action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
-        actionConfiguration.setBody("{{"+key+"}}");
+        actionConfiguration.setBody("{{" + key + "}}");
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
@@ -782,6 +833,53 @@ public class ActionServiceTest {
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getStatusCode()).isEqualTo("200");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateShouldNotResetUserSetOnLoad() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource externalDatasource = new Datasource();
+        externalDatasource.setName("updateShouldNotResetUserSetOnLoad Database");
+        externalDatasource.setOrganizationId(orgId);
+        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        externalDatasource.setPluginId(installed_plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("some url here");
+        externalDatasource.setDatasourceConfiguration(datasourceConfiguration);
+        Datasource savedDs = datasourceService.create(externalDatasource).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("updateShouldNotResetUserSetOnLoad");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(savedDs);
+
+        Mono<ActionDTO> newActionMono = newActionService
+                .createAction(action)
+                .cache();
+
+        Mono<ActionDTO> setExecuteOnLoadMono = newActionMono
+                .flatMap(savedAction -> layoutActionService.setExecuteOnLoad(savedAction.getId(), true));
+
+        Mono<ActionDTO> updateActionMono = newActionMono
+                .flatMap(preUpdateAction -> {
+                    ActionDTO actionUpdate = action;
+                    actionUpdate.getActionConfiguration().setBody("New Body");
+                    return actionCollectionService.updateAction(preUpdateAction.getId(), actionUpdate);
+                });
+
+        StepVerifier
+                .create(setExecuteOnLoadMono.then(updateActionMono))
+                .assertNext(updatedAction -> {
+                    assertThat(updatedAction).isNotNull();
+                    assertThat(updatedAction.getActionConfiguration().getBody()).isEqualTo("New Body");
+                    assertThat(updatedAction.getUserSetOnLoad()).isTrue();
                 })
                 .verifyComplete();
     }

@@ -14,7 +14,7 @@ import DropdownField from "components/editorComponents/form/fields/DropdownField
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
-import { PaginationType, RestAction } from "entities/Action";
+import { PaginationType, Action } from "entities/Action";
 import { Icon } from "@blueprintjs/core";
 import { HelpMap, HelpBaseURL } from "constants/HelpConstants";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
@@ -31,14 +31,14 @@ import { apiActionSettingsConfig } from "mockResponses/ActionSettings";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
   overflow: auto;
   width: 100%;
   ${FormLabel} {
-    padding: ${props => props.theme.spaces[3]}px;
+    padding: ${(props) => props.theme.spaces[3]}px;
   }
   ${FormRow} {
-    padding: ${props => props.theme.spaces[2]}px;
+    padding: ${(props) => props.theme.spaces[2]}px;
     & > * {
       margin-right: 10px;
     }
@@ -93,7 +93,7 @@ const TabbedViewContainer = styled.div`
 `;
 
 export const BindingText = styled.span`
-  color: ${props => props.theme.colors.bindingTextDark};
+  color: ${(props) => props.theme.colors.bindingTextDark};
   font-weight: 700;
 `;
 
@@ -140,7 +140,7 @@ interface APIFormProps {
   apiName: string;
 }
 
-type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;
+type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
 
 export const NameWrapper = styled.div`
   width: 49%;
@@ -309,7 +309,7 @@ export default connect((state: AppState) => {
     actionConfigurationHeaders,
   };
 })(
-  reduxForm<RestAction, APIFormProps>({
+  reduxForm<Action, APIFormProps>({
     form: API_EDITOR_FORM_NAME,
   })(ApiEditorForm),
 );

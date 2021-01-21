@@ -2,8 +2,9 @@ package com.appsmith.server.exceptions;
 
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.server.dtos.ResponseDTO;
+import io.sentry.Sentry;
+import io.sentry.SentryLevel;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
@@ -13,17 +14,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.ServerWebInputException;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-import io.sentry.Sentry;
-import io.sentry.SentryEvent;
-import io.sentry.SentryOptions;
-import io.sentry.SentryLevel;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.io.StringWriter;
-import java.io.PrintWriter;
 
 
 /**

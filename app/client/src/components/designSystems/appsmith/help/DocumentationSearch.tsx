@@ -287,6 +287,7 @@ const HelpFooter = styled.div`
   padding: 5px 10px;
   height: 30px;
   color: rgba(255, 255, 255, 0.7);
+  font-size: 6pt;
 `;
 
 const HelpBody = styled.div`
@@ -396,7 +397,7 @@ class DocumentationSearch extends React.Component<Props, State> {
                 <Hits hitComponent={Hit as any} />
               ) : (
                 <ul className="ais-Hits-list">
-                  {HELP_MENU_ITEMS.map(item => (
+                  {HELP_MENU_ITEMS.map((item) => (
                     <DefaultHelpMenuItem
                       key={item.label}
                       item={item}

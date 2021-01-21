@@ -11,6 +11,20 @@ export const API_REQUEST_HEADERS: APIHeaders = {
   "Content-Type": "application/json",
 };
 
+export enum API_STATUS_CODES {
+  REQUEST_NOT_AUTHORISED = 401,
+  RESOURCE_NOT_FOUND = 404,
+  SERVER_ERROR = 502,
+  SERVER_UNAVAILABLE = 503,
+}
+
+export enum ERROR_CODES {
+  PAGE_NOT_FOUND = "PAGE_NOT_FOUND",
+  SERVER_ERROR = "SERVER_ERROR",
+  REQUEST_NOT_AUTHORISED = "REQUEST_NOT_AUTHORIZED",
+  REQUEST_TIMEOUT = "REQUEST_TIMEOUT",
+}
+
 export const POSTMAN = "POSTMAN";
 export const CURL = "CURL";
 export const Swagger = "Swagger";

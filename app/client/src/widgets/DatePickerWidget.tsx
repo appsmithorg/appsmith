@@ -1,5 +1,4 @@
 import React from "react";
-import moment from "moment-timezone";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
@@ -14,7 +13,6 @@ import {
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
-import { DateRange } from "@blueprintjs/datetime";
 import withMeta, { WithMeta } from "./MetaHOC";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {

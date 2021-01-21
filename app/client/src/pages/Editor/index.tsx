@@ -2,10 +2,7 @@ import React, { Component } from "react";
 import { Helmet } from "react-helmet";
 import { connect } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import {
-  BuilderRouteParams,
-  getApplicationViewerPageURL,
-} from "constants/routes";
+import { BuilderRouteParams } from "constants/routes";
 import { AppState } from "reducers";
 import MainContainer from "./MainContainer";
 import { DndProvider } from "react-dnd";
@@ -14,19 +11,11 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
   getIsEditorInitialized,
-  getIsEditorInitializeError,
   getIsEditorLoading,
   getIsPublishingApplication,
   getPublishingError,
 } from "selectors/editorSelectors";
-import {
-  AnchorButton,
-  Classes,
-  Dialog,
-  Hotkey,
-  Hotkeys,
-  Spinner,
-} from "@blueprintjs/core";
+import { Hotkey, Hotkeys, Spinner } from "@blueprintjs/core";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import { initEditor } from "actions/initActions";
 import { editorInitializer } from "utils/EditorUtils";
@@ -46,7 +35,8 @@ import {
   pasteWidget,
 } from "actions/widgetActions";
 import { isMac } from "utils/helpers";
-import ServerTimeout from "../common/ServerTimeout";
+import { getSelectedWidget } from "selectors/ui";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -62,11 +52,33 @@ type EditorProps = {
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
   user?: User;
+  selectedWidget?: string;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
+
+const getSelectedText = () => {
+  if (typeof window.getSelection === "function") {
+    const selectionObj = window.getSelection();
+    return selectionObj && selectionObj.toString();
+  }
+};
+
 @HotkeysTarget
 class Editor extends Component<Props> {
+  public stopPropagationIfWidgetSelected(e: KeyboardEvent): boolean {
+    if (
+      this.props.selectedWidget &&
+      this.props.selectedWidget != MAIN_CONTAINER_WIDGET_ID &&
+      !getSelectedText()
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      return true;
+    }
+    return false;
+  }
+
   public renderHotkeys() {
     return (
       <Hotkeys>
@@ -93,32 +105,19 @@ class Editor extends Component<Props> {
           label="Copy Widget"
           group="Canvas"
           onKeyDown={(e: any) => {
-            this.props.copySelectedWidget();
+            if (this.stopPropagationIfWidgetSelected(e)) {
+              this.props.copySelectedWidget();
+            }
           }}
-          preventDefault
-          stopPropagation
         />
         <Hotkey
           global={true}
           combo="mod + v"
           label="Paste Widget"
           group="Canvas"
-          onKeyDown={(e: any) => {
+          onKeyDown={() => {
             this.props.pasteCopiedWidget();
           }}
-          preventDefault
-          stopPropagation
-        />
-        <Hotkey
-          global={true}
-          combo="del"
-          label="Delete Widget"
-          group="Canvas"
-          onKeyDown={(e: any) => {
-            if (!isMac()) this.props.deleteSelectedWidget();
-          }}
-          preventDefault
-          stopPropagation
         />
         <Hotkey
           global={true}
@@ -126,10 +125,10 @@ class Editor extends Component<Props> {
           label="Delete Widget"
           group="Canvas"
           onKeyDown={(e: any) => {
-            if (isMac()) this.props.deleteSelectedWidget();
+            if (this.stopPropagationIfWidgetSelected(e) && isMac()) {
+              this.props.deleteSelectedWidget();
+            }
           }}
-          preventDefault
-          stopPropagation
         />
         <Hotkey
           global={true}
@@ -137,10 +136,10 @@ class Editor extends Component<Props> {
           label="Delete Widget"
           group="Canvas"
           onKeyDown={(e: any) => {
-            this.props.deleteSelectedWidget();
+            if (this.stopPropagationIfWidgetSelected(e)) {
+              this.props.deleteSelectedWidget();
+            }
           }}
-          preventDefault
-          stopPropagation
         />
         <Hotkey
           global={true}
@@ -148,16 +147,15 @@ class Editor extends Component<Props> {
           label="Cut Widget"
           group="Canvas"
           onKeyDown={(e: any) => {
-            this.props.cutSelectedWidget();
+            if (this.stopPropagationIfWidgetSelected(e)) {
+              this.props.cutSelectedWidget();
+            }
           }}
-          preventDefault
-          stopPropagation
         />
       </Hotkeys>
     );
   }
   public state = {
-    isDialogOpen: false,
     registered: false,
   };
 
@@ -170,21 +168,8 @@ class Editor extends Component<Props> {
       this.props.initEditor(applicationId, pageId);
     }
   }
-  componentDidUpdate(previously: Props) {
-    if (
-      previously.isPublishing &&
-      !(this.props.isPublishing || this.props.errorPublishing)
-    ) {
-      this.setState({
-        isDialogOpen: true,
-      });
-    }
-  }
 
-  shouldComponentUpdate(
-    nextProps: Props,
-    nextState: { isDialogOpen: boolean; registered: boolean },
-  ) {
+  shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
     return (
       nextProps.currentPageId !== this.props.currentPageId ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
@@ -194,20 +179,11 @@ class Editor extends Component<Props> {
       nextProps.errorPublishing !== this.props.errorPublishing ||
       nextProps.isEditorInitializeError !==
         this.props.isEditorInitializeError ||
-      nextState.isDialogOpen !== this.state.isDialogOpen ||
       nextState.registered !== this.state.registered
     );
   }
 
-  handleDialogClose = () => {
-    this.setState({
-      isDialogOpen: false,
-    });
-  };
   public render() {
-    if (this.props.isEditorInitializeError) {
-      return <ServerTimeout />;
-    }
     if (!this.props.isEditorInitialized || !this.state.registered) {
       return (
         <CenteredWrapper style={{ height: "calc(100vh - 48px)" }}>
@@ -228,32 +204,6 @@ class Editor extends Component<Props> {
             <title>Editor | Appsmith</title>
           </Helmet>
           <MainContainer />
-          <Dialog
-            isOpen={this.state.isDialogOpen}
-            canOutsideClickClose={true}
-            canEscapeKeyClose={true}
-            title="Application Published"
-            onClose={this.handleDialogClose}
-            icon="tick-circle"
-          >
-            <div className={Classes.DIALOG_BODY}>
-              <p>
-                {"Your application is now published with the current changes!"}
-              </p>
-            </div>
-            <div className={Classes.DIALOG_FOOTER}>
-              <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-                <AnchorButton
-                  target={this.props.currentApplicationId}
-                  href={getApplicationViewerPageURL(
-                    this.props.currentApplicationId,
-                    this.props.currentPageId,
-                  )}
-                  text="View Application"
-                />
-              </div>
-            </div>
-          </Dialog>
         </div>
         <ConfirmRunModal />
       </DndProvider>
@@ -268,8 +218,8 @@ const mapStateToProps = (state: AppState) => ({
   isPublishing: getIsPublishingApplication(state),
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
-  isEditorInitializeError: getIsEditorInitializeError(state),
   user: getCurrentUser(state),
+  selectedWidget: getSelectedWidget(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

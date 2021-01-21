@@ -10,9 +10,13 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.external.connections.APIConnection;
+import com.external.connections.APIConnectionFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.bson.internal.Base64;
@@ -28,18 +32,23 @@ import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -63,17 +72,23 @@ public class RestApiPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class RestApiPluginExecutor implements PluginExecutor<Void> {
+    public static class RestApiPluginExecutor implements PluginExecutor<APIConnection> {
+
+        private final String IS_SEND_SESSION_ENABLED_KEY = "isSendSessionEnabled";
+        private final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
+        private final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
 
         @Override
-        public Mono<ActionExecutionResult> execute(Void ignored,
+        public Mono<ActionExecutionResult> execute(APIConnection apiConnection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
+            // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
             errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
             errorResult.setIsExecutionSuccess(false);
 
+            // Initializing request URL
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
             String url = datasourceConfiguration.getUrl() + path;
             String reqContentType = "";
@@ -91,10 +106,7 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
-            log.debug("Final URL is: " + uri.toString());
-
             ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, uri);
-            log.debug("request is : {}", actionExecutionRequest);
 
             if (httpMethod == null) {
                 errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage("HTTPMethod must be set."));
@@ -102,8 +114,10 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
+            // Initializing webClient to be used for http call
             WebClient.Builder webClientBuilder = WebClient.builder();
 
+            // Adding headers from datasource
             if (datasourceConfiguration.getHeaders() != null) {
                 reqContentType = addHeadersToRequestAndGetContentType(
                         webClientBuilder, datasourceConfiguration.getHeaders());
@@ -114,6 +128,7 @@ public class RestApiPlugin extends BasePlugin {
                         webClientBuilder, actionConfiguration.getHeaders());
             }
 
+            // Check for content type
             final String contentTypeError = verifyContentType(actionConfiguration.getHeaders());
             if (contentTypeError != null) {
                 errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage("Invalid value for Content-Type."));
@@ -121,16 +136,43 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
+            // Adding request body
             String requestBodyAsString = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
 
             if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
                     || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
-                requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData());
+                requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(), reqContentType);
             }
 
+            // If users have chosen to share the Appsmith signature in the header, calculate and add that
+            String secretKey;
+            try {
+                secretKey = getSignatureKey(datasourceConfiguration);
+            } catch (AppsmithPluginException e) {
+                return Mono.error(e);
+            }
 
-            WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
+            if (secretKey != null) {
+                final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+                final Instant now = Instant.now();
+                final String token = Jwts.builder()
+                        .setIssuer("Appsmith")
+                        .setIssuedAt(new Date(now.toEpochMilli()))
+                        .setExpiration(new Date(now.plusSeconds(600).toEpochMilli()))
+                        .signWith(key)
+                        .compact();
 
+                webClientBuilder.defaultHeader(SIGNATURE_HEADER_NAME, token);
+            }
+
+            // Right before building the webclient object, we populate it with whatever mutation the APIConnection object demands
+            if (apiConnection != null) {
+                webClientBuilder.filter(apiConnection);
+            }
+
+            WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).filter(logRequest()).build();
+
+            // Triggering the actual REST API call
             return httpCall(client, httpMethod, uri, requestBodyAsString, 0, reqContentType)
                     .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(stringResponseEntity -> {
@@ -197,20 +239,71 @@ public class RestApiPlugin extends BasePlugin {
                     });
         }
 
-        private String convertPropertyListToReqBody(List<Property> bodyFormData) {
+        private static ExchangeFilterFunction logRequest() {
+            return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
+                log.info("Request: {} {}", clientRequest.method(), clientRequest.url());
+                clientRequest.headers().forEach((name, values) -> values.forEach(value -> System.out.println(name + "=" + value)));
+                return Mono.just(clientRequest);
+            });
+        }
+
+        private String getSignatureKey(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+            if (!CollectionUtils.isEmpty(datasourceConfiguration.getProperties())) {
+                boolean isSendSessionEnabled = false;
+                String secretKey = null;
+
+                for (Property property : datasourceConfiguration.getProperties()) {
+                    if (IS_SEND_SESSION_ENABLED_KEY.equals(property.getKey())) {
+                        isSendSessionEnabled = "Y".equals(property.getValue());
+                    } else if (SESSION_SIGNATURE_KEY_KEY.equals(property.getKey())) {
+                        secretKey = property.getValue();
+                    }
+                }
+
+                if (isSendSessionEnabled) {
+                    if (StringUtils.isEmpty(secretKey) || secretKey.length() < 32) {
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Secret key is required when sending session details is switched on," +
+                                        " and should be at least 32 characters in length."
+                        );
+                    }
+                    return secretKey;
+                }
+            }
+
+            return null;
+        }
+
+        public String convertPropertyListToReqBody(List<Property> bodyFormData, String reqContentType) {
             if (bodyFormData == null || bodyFormData.isEmpty()) {
                 return "";
             }
 
             String reqBody = bodyFormData.stream()
-                    .map(property -> property.getKey() + "=" + property.getValue())
+                    .map(property -> {
+                        String key = property.getKey();
+                        String value = property.getValue();
+
+                        if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)) {
+                            try {
+                                value = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+                            } catch (UnsupportedEncodingException e) {
+                                throw new UnsupportedOperationException(e);
+                            }
+                        }
+
+                        return key + "=" + value;
+                    })
                     .collect(Collectors.joining("&"));
+
             return reqBody;
         }
 
         /**
          * If the headers list of properties contains a `Content-Type` header, verify if the value of that header is a
          * valid media type.
+         *
          * @param headers List of header Property objects to look for Content-Type headers in.
          * @return An error message string if the Content-Type value is invalid, otherwise `null`.
          */
@@ -287,6 +380,7 @@ public class RestApiPlugin extends BasePlugin {
          * type. However, only `Map` and `List` top-levels are supported. Note that the map or list may contain
          * anything, like booleans or number or even more maps or lists. It's only that the top-level type should be a
          * map / list.
+         *
          * @param jsonString A string that confirms to JSON syntax. Shouldn't be null.
          * @return An object of type `Map`, `List`, if applicable, or `null`.
          */
@@ -308,12 +402,12 @@ public class RestApiPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<Void> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.empty();
+        public Mono<APIConnection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            return APIConnectionFactory.createConnection(datasourceConfiguration.getAuthentication());
         }
 
         @Override
-        public void datasourceDestroy(Void connection) {
+        public void datasourceDestroy(APIConnection connection) {
             // REST API plugin doesn't have a datasource.
         }
 
@@ -332,6 +426,30 @@ public class RestApiPlugin extends BasePlugin {
             final String contentTypeError = verifyContentType(datasourceConfiguration.getHeaders());
             if (contentTypeError != null) {
                 invalids.add("Invalid Content-Type: " + contentTypeError);
+            }
+
+            if (!CollectionUtils.isEmpty(datasourceConfiguration.getProperties())) {
+                boolean isSendSessionEnabled = false;
+                String secretKey = null;
+
+                for (Property property : datasourceConfiguration.getProperties()) {
+                    if ("isSendSessionEnabled".equals(property.getKey())) {
+                        isSendSessionEnabled = "Y".equals(property.getValue());
+                    } else if ("sessionSignatureKey".equals(property.getKey())) {
+                        secretKey = property.getValue();
+                    }
+                }
+
+                if (isSendSessionEnabled && (StringUtils.isEmpty(secretKey) || secretKey.length() < 32)) {
+                    invalids.add("Secret key is required when sending session is switched on" +
+                            ", and should be at least 32 characters long.");
+                }
+            }
+
+            try {
+                getSignatureKey(datasourceConfiguration);
+            } catch (AppsmithPluginException e) {
+                invalids.add(e.getMessage());
             }
 
             return invalids;
@@ -387,7 +505,7 @@ public class RestApiPlugin extends BasePlugin {
         }
 
         private ActionExecutionRequest populateRequestFields(ActionConfiguration actionConfiguration,
-                                                            URI uri) {
+                                                             URI uri) {
 
             ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
 

@@ -18,10 +18,10 @@ const InputContainer = styled.div<{ focused: boolean; isValid: boolean }>`
     padding: 3px 6px;
     margin-left: 10px;
     transition: font-size 0.2s;
-    font-size: ${props => (props.focused ? "17px" : "18px")};
+    font-size: ${(props) => (props.focused ? "17px" : "18px")};
     border 1px solid;
     border-radius: 3px;
-    border-color: ${props => {
+    border-color: ${(props) => {
       let color = props.focused ? "hsl(0,0%,80%)" : "white";
       color = !props.isValid ? "red" : color;
       return color;
@@ -33,7 +33,7 @@ const InputContainer = styled.div<{ focused: boolean; isValid: boolean }>`
     text-overflow: ellipsis;
     :hover {
       border-color: hsl(0, 0 %, 80 %);
-      cursor: ${props => (props.focused ? "auto" : "pointer")};
+      cursor: ${(props) => (props.focused ? "auto" : "pointer")};
     }
   }
 `;
@@ -65,7 +65,7 @@ export function validateEntityName(name: string, allNames?: string[]) {
 
   if (
     allNames &&
-    allNames.findIndex(entityName => entityName === name) !== -1
+    allNames.findIndex((entityName) => entityName === name) !== -1
   ) {
     validation.isValid = false;
     validation.validationMessage += UNIQUE_NAME_ERROR;
@@ -139,7 +139,7 @@ class EntityNameComponent extends React.Component<
             value={value}
             placeholder={placeholder}
             onChange={onChange}
-            onKeyPress={e => {
+            onKeyPress={(e) => {
               if (e.key === "Enter") {
                 this.onPressEnter(e);
               }

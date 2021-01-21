@@ -154,9 +154,10 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           if (this.regex) {
             /*
             * break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags
-            * Example /appsmith/i will be split into ["/appsmith/gi", "/", "appsmith", "gi"]
+            * Example /test/i will be split into ["/test/gi", "/", "test", "gi"]
             */
             const regexParts = this.regex.match(/(\\/?)(.+)\\1([a-z]*)/i);
+
             if (!regexParts) {
               parsedRegex = new RegExp(this.regex);
             } else {
@@ -177,7 +178,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             return emailRegex.test(this.text);
           }
           else if (this.inputType === "NUMBER") {
-            return !isNaN(this.text)
+            if (parsedRegex) {
+              return parsedRegex.test(this.text);
+            }
+
+            return !isNaN(this.text);
           }
           else if (this.isRequired) {
             if(this.text && this.text.length) {

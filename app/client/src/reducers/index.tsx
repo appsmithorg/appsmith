@@ -1,7 +1,7 @@
 import { combineReducers } from "redux";
 import entityReducer from "./entityReducers";
 import uiReducer from "./uiReducers";
-import evaluationsReducer from "./evalutationReducers";
+import evaluationsReducer from "./evaluationReducers";
 import { reducer as formReducer } from "redux-form";
 import { CanvasWidgetsReduxState } from "./entityReducers/canvasWidgetsReducer";
 import { EditorReduxState } from "./uiReducers/editorReducer";
@@ -34,9 +34,12 @@ import { PageCanvasStructureReduxState } from "./uiReducers/pageCanvasStructure"
 import { ConfirmRunActionReduxState } from "./uiReducers/confirmRunActionReducer";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DatasourceNameReduxState } from "./uiReducers/datasourceNameReducer";
-import { EvaluatedTreeState } from "./evalutationReducers/treeReducer";
-import { EvaluationDependencyState } from "./evalutationReducers/dependencyReducer";
+import { EvaluatedTreeState } from "./evaluationReducers/treeReducer";
+import { EvaluationDependencyState } from "./evaluationReducers/dependencyReducer";
 import { PageWidgetsReduxState } from "./uiReducers/pageWidgetsReducer";
+import { OnboardingState } from "./uiReducers/onBoardingReducer";
+import { ReleasesState } from "./uiReducers/releasesReducer";
+import { LoadingEntitiesState } from "./evaluationReducers/loadingEntitiesReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -73,6 +76,8 @@ export interface AppState {
     confirmRunAction: ConfirmRunActionReduxState;
     datasourceName: DatasourceNameReduxState;
     theme: ThemeState;
+    onBoarding: OnboardingState;
+    releases: ReleasesState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
@@ -87,5 +92,6 @@ export interface AppState {
   evaluations: {
     tree: EvaluatedTreeState;
     dependencies: EvaluationDependencyState;
+    loadingEntities: LoadingEntitiesState;
   };
 }

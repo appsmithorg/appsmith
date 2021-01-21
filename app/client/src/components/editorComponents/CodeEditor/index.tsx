@@ -22,6 +22,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/modes";
 import {
   EditorConfig,
+  EditorModes,
   EditorSize,
   EditorTheme,
   EditorThemes,
@@ -140,6 +141,7 @@ class CodeEditor extends Component<Props, State> {
       this.editor.on("change", this.onChangeTigger);
       this.editor.on("keyup", this.handleAutocompleteHide);
       this.editor.on("focus", this.handleEditorFocus);
+      this.editor.on("cursorActivity", this.handleCursorMovement);
       this.editor.on("focus", this.onFocusTrigger);
       this.editor.on("blur", this.handleEditorBlur);
       if (this.props.height) {
@@ -192,27 +194,43 @@ class CodeEditor extends Component<Props, State> {
       // Update the dynamic bindings for autocomplete
       if (prevProps.dynamicData !== this.props.dynamicData) {
         this.hinters.forEach(
-          hinter => hinter.update && hinter.update(this.props.dynamicData),
+          (hinter) => hinter.update && hinter.update(this.props.dynamicData),
         );
       }
     }
   }
 
   startAutocomplete() {
-    this.hinters = this.props.hinting.map(helper => {
+    this.hinters = this.props.hinting.map((helper) => {
       return helper(this.editor, this.props.dynamicData);
     });
   }
 
   onFocusTrigger = (cm: CodeMirror.Editor) => {
     if (!cm.state.completionActive) {
-      this.hinters.forEach(hinter => hinter.trigger && hinter.trigger(cm));
+      this.hinters.forEach((hinter) => hinter.trigger && hinter.trigger(cm));
     }
   };
 
   onChangeTigger = (cm: CodeMirror.Editor) => {
     if (this.state.isFocused) {
-      this.hinters.forEach(hinter => hinter.trigger && hinter.trigger(cm));
+      this.hinters.forEach((hinter) => hinter.trigger && hinter.trigger(cm));
+    }
+  };
+
+  handleCursorMovement = (cm: CodeMirror.Editor) => {
+    // ignore if disabled
+    if (!this.props.input.onChange || this.props.disabled) {
+      return;
+    }
+    const mode = cm.getModeAt(cm.getCursor());
+    if (
+      mode &&
+      [EditorModes.JAVASCRIPT, EditorModes.JSON].includes(mode.name)
+    ) {
+      this.editor.setOption("matchBrackets", true);
+    } else {
+      this.editor.setOption("matchBrackets", false);
     }
   };
 
@@ -221,11 +239,6 @@ class CodeEditor extends Component<Props, State> {
     this.editor.refresh();
     if (this.props.size === EditorSize.COMPACT) {
       this.editor.setOption("lineWrapping", true);
-    }
-
-    // Highlight matching brackets only when focused and not in readonly mode
-    if (this.props.input.onChange && !this.props.disabled) {
-      this.editor.setOption("matchBrackets", true);
     }
   };
 
@@ -254,7 +267,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
-    this.hinters.forEach(hinter => hinter.showHint(cm));
+    this.hinters.forEach((hinter) => hinter.showHint(cm));
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
@@ -264,7 +277,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   updateMarkings = () => {
-    this.props.marking.forEach(helper => this.editor && helper(this.editor));
+    this.props.marking.forEach((helper) => this.editor && helper(this.editor));
   };
 
   updatePropertyValue(value: string, cursor?: number) {

@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.Datasource;
@@ -12,9 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
+import java.time.Instant;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 
@@ -38,7 +41,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.encryptionService = encryptionService;
-        this.datasourceContextMap = new HashMap<>();
+        this.datasourceContextMap = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -59,7 +62,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                 // the reactive flow interrupts, resulting in the destroy operation not completing.
                 && datasourceContextMap.get(datasourceId).getConnection() != null
                 && !isStale) {
-            log.debug("resource context exists. Returning the same.");
+            log.debug("Resource context exists. Returning the same.");
             return Mono.just(datasourceContextMap.get(datasourceId));
         }
 
@@ -114,6 +117,19 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
 
                     Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource1.getDatasourceConfiguration());
                     return connectionMono
+                            .flatMap(connection -> {
+                                Mono<Datasource> datasourceMono1 = Mono.just(datasource1);
+                                if (connection instanceof UpdatableConnection) {
+                                    datasource1.setUpdatedAt(Instant.now());
+                                    datasource1
+                                            .getDatasourceConfiguration()
+                                            .setAuthentication(
+                                                    ((UpdatableConnection) connection).getAuthenticationDTO(
+                                                            datasource1.getDatasourceConfiguration().getAuthentication()));
+                                    datasourceMono1 = datasourceService.update(datasource1.getId(), datasource1);
+                                }
+                                return datasourceMono1.thenReturn(connection);
+                            })
                             .map(connection -> {
                                 // When a connection object exists and makes sense for the plugin, we put it in the
                                 // context. Example, DB plugins.
@@ -170,10 +186,16 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
     }
 
     @Override
-    public AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authenticationDTO) {
-        if (authenticationDTO != null && authenticationDTO.getPassword() != null) {
-            authenticationDTO.setPassword(encryptionService.decryptString(authenticationDTO.getPassword()));
+    public AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authentication) {
+        if (authentication != null && authentication.isEncrypted()) {
+            Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
+                    .filter(e -> e.getValue() != null)
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            e -> encryptionService.decryptString(e.getValue())));
+            authentication.setEncryptionFields(decryptedFields);
+            authentication.setIsEncrypted(false);
         }
-        return authenticationDTO;
+        return authentication;
     }
 }

@@ -17,7 +17,7 @@ const StyledInput = styled.input`
   outline: none;
   text-overflow: ellipses;
   background: #272821;
-  color: ${props => props.theme.colors.textOnDarkBG};
+  color: ${(props) => props.theme.colors.textOnDarkBG};
 `;
 
 const { google } = getAppsmithConfigs();
@@ -76,6 +76,7 @@ const MapScriptWrapper = (props: MapScriptWrapperProps) => {
     AddScriptTo.HEAD,
   );
   const [title, setTitle] = useState("");
+
   return (
     <div data-standalone-searchbox="">
       {status === ScriptStatus.READY && (
@@ -89,8 +90,8 @@ const MapScriptWrapper = (props: MapScriptWrapperProps) => {
           <StyledInput
             type="text"
             placeholder="Enter location"
-            value={title || props.propertyValue.title}
-            onChange={ev => {
+            value={title || props.propertyValue?.title}
+            onChange={(ev) => {
               const val = ev.target.value;
               if (val === "") {
                 props.clearLocation();

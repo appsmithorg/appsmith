@@ -26,7 +26,7 @@ import { INPUT_WIDGET_DEFAULT_VALIDATION_ERROR } from "constants/messages";
  * All generic logic like max characters for phone numbers should be 10, should go in the widget
  */
 
-const InputComponentWrapper = styled(props => (
+const InputComponentWrapper = styled((props) => (
   <ControlGroup {..._.omit(props, ["hasError", "numeric"])} />
 ))<{
   numeric: boolean;
@@ -39,10 +39,10 @@ const InputComponentWrapper = styled(props => (
       border: 1px solid;
       border-color: ${({ hasError }) =>
         hasError ? IntentColors.danger : Colors.GEYSER_LIGHT};
-      border-radius: ${props => props.theme.radii[1]}px;
-      height: ${props => (props.multiline === "true" ? "100%" : "inherit")};
+      border-radius: ${(props) => props.theme.radii[1]}px;
+      height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
       width: 100%;
-      ${props =>
+      ${(props) =>
         props.numeric &&
         `
         border-top-right-radius: 0px;
