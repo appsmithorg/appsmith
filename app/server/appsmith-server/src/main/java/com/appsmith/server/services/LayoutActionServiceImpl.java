@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.ActionDependencyEdge;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
@@ -643,37 +644,196 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .then(Mono.just(pageId));
     }
 
-    // Trying to implement offline scheduler by using level by level traversal. Level i+1 actions would be dependent on Level i actions. All actions in a level can run independently
-    public DirectedAcyclicGraph<String, DefaultEdge> findPageLoadActionsSchedulingOrder() {
-        String[] actionNames = {"f", "a", "b", "c", "d", "e", "z"};
-        String[][] actionDependencies = {
-                {},
-                {"b", "r1", "r2"},
-                {"c", "d", "z", "r3"},
-                {"r4", "a"},
-                {"e"},
-                {},
-                {"r5"}
+    public Mono<Layout> computeAndReturnOnPageLoadActionsSetForLayout(Layout layout, String pageId) {
+        JSONObject dsl = layout.getDsl();
+        if (dsl == null) {
+            // There is no DSL here. No need to process anything. Return as is.
+            return Mono.just(layout);
+        }
 
-        };
+        Set<String> widgetNames = new HashSet<>();
+        Set<String> dynamicBindings = new HashSet<>();
+        try {
+            extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, dynamicBindings);
+        } catch (Throwable t) {
+            throw Exceptions.propagate(t);
+        }
+        layout.setWidgetNames(widgetNames);
 
+        // dynamicBindingNames is a set of all words extracted from mustaches which should also contain the names
+        // of the actions being used to read data from into the widget fields
+        Set<String> dynamicBindingNames = new HashSet<>();
+        if (!CollectionUtils.isEmpty(dynamicBindings)) {
+            for (String mustacheKey : dynamicBindings) {
+                // Extract all the words in the dynamic bindings
+                extractWordsAndAddToSet(dynamicBindingNames, mustacheKey);
+            }
+        }
+
+        Set<String> actionNames = new HashSet<>();
+        Set<ActionDependencyEdge> edges = new HashSet<>();
+        Set<ActionDTO> unpublishedActions = new HashSet<>();
+        Set<String> actionsUsedInDSL = new HashSet<>();
+
+        Mono<List<HashSet<DslActionDTO>>> allOnLoadActionsMono = findAllOnLoadActions(actionNames, pageId, edges, unpublishedActions, actionsUsedInDSL);
+
+        // Update these actions to be executed on load, unless the user has touched the executeOnLoad setting for this
+        Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = findAndUpdateOnLoadActionsInPage(dynamicBindingNames, pageId);
+
+        
+        return Mono.just(layout);
+    }
+
+    private Mono<List<HashSet<DslActionDTO>>> findAllOnLoadActions(Set<String> actionNames,
+                                      String pageId,
+                                      Set<ActionDependencyEdge> edges,
+                                      Set<ActionDTO> unpublishedActions,
+                                      Set<String> actionsUsedInDSL) {
+        Set<String> dynamicBindingNames = new HashSet<>();
+
+        return newActionService.findUnpublishedActionsInPageByNames(actionNames, pageId)
+                // First find all the actions used in the DSL and get the graph started
+                .map(action -> {
+                    // Found a word in mustache which matches an existing action name
+                    ActionDTO unpublishedAction = action.getUnpublishedAction();
+                    String name = unpublishedAction.getName();
+                    actionsUsedInDSL.add(name);
+                    extractAndSetActionNameAndBindingsForGraph(actionNames, edges, dynamicBindingNames, unpublishedAction);
+                    return unpublishedAction;
+                })
+                .collectMap(
+                        action -> {
+                            return action.getName();
+                            },
+                        action -> {
+                            return action;
+                            }
+                )
+                .flatMap(onLoadActionsMap -> recursivelyFindActionsAndTheirDependents(dynamicBindingNames, pageId, actionNames, edges, onLoadActionsMap))
+                .map(updatedMap -> {
+                    DirectedAcyclicGraph<String, DefaultEdge> directedAcyclicGraph = constructDAG(actionNames, edges);
+                    List<HashSet<String>> onPageLoadActionsSchedulingOrder = computeOnPageLoadActionsSchedulingOrder(directedAcyclicGraph);
+
+                    List<HashSet<DslActionDTO>> onPageLoadActions = new ArrayList<>();
+
+                    for (int i=0; i<onPageLoadActionsSchedulingOrder.size(); i++) {
+                        HashSet<DslActionDTO> actionsInLevel = new HashSet<>();
+
+                        HashSet<String> names = onPageLoadActionsSchedulingOrder.get(i);
+                        for (String name : names) {
+                            actionsInLevel.add(getDslAction(name, updatedMap));
+                        }
+
+                        onPageLoadActions.add(actionsInLevel);
+                    }
+
+                    return onPageLoadActions;
+
+                });
+    }
+
+    private DslActionDTO getDslAction (String name, Map<String, ActionDTO> onLoadActionsMap) {
+        ActionDTO action = onLoadActionsMap.get(name);
+        DslActionDTO actionDTO = new DslActionDTO();
+        actionDTO.setId(action.getId());
+        actionDTO.setPluginType(action.getPluginType());
+        actionDTO.setJsonPathKeys(action.getJsonPathKeys());
+        actionDTO.setName(action.getName());
+        if (action.getActionConfiguration() != null) {
+            actionDTO.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
+        }
+        return actionDTO;
+    }
+
+    private void extractAndSetActionNameAndBindingsForGraph(Set<String> actionNames,
+                                                            Set<ActionDependencyEdge> edges,
+                                                            Set<String> dynamicBindings,
+                                                            ActionDTO action) {
+        String name = action.getName();
+        actionNames.add(name);
+
+        Set<String> dynamicBindingNamesInAction = new HashSet<>();
+        Set<String> jsonPathKeys = action.getJsonPathKeys();
+        if (!CollectionUtils.isEmpty(jsonPathKeys)) {
+            for (String mustacheKey : jsonPathKeys) {
+                extractWordsAndAddToSet(dynamicBindingNamesInAction, mustacheKey);
+            }
+
+            // If the action refers to itself in the json path keys, remove the same to circumvent
+            // supposed circular dependency. This is possible in case of pagination with response url
+            // where the action refers to its own data to find the next and previous URLs.
+            dynamicBindingNamesInAction.remove(action.getName());
+
+            for (String target : dynamicBindingNamesInAction) {
+                ActionDependencyEdge edge = new ActionDependencyEdge();
+                edge.setSource(name);
+                edge.setTarget(target);
+                edges.add(edge);
+            }
+
+            // Update the global actions' dynamic bindings
+            dynamicBindings.addAll(dynamicBindingNamesInAction);
+
+        }
+    }
+
+    private Mono<Map<String, ActionDTO>> recursivelyFindActionsAndTheirDependents(Set<String> dynamicBindingNames,
+                                                          String pageId,
+                                                          Set<String> actionNames,
+                                                          Set<ActionDependencyEdge> edges,
+                                                          Map<String, ActionDTO> onLoadActionsInMap) {
+        if (dynamicBindingNames == null || dynamicBindingNames.isEmpty()) {
+            return Mono.just(onLoadActionsInMap);
+        }
+        Set<String> bindingNames = new HashSet<>();
+        // First fetch all the actions in the page whose name matches the words found in all the dynamic bindings
+        Mono<Map<String, ActionDTO>> updatedActionsMapMono = newActionService.findUnpublishedActionsInPageByNames(dynamicBindingNames, pageId)
+                .map(newAction -> {
+                    ActionDTO action = newAction.getUnpublishedAction();
+                    // Found a word in mustache which matches an existing action name
+                    String name = action.getName();
+                    extractAndSetActionNameAndBindingsForGraph(actionNames, edges, bindingNames, action);
+                    return action;
+                })
+                .collectMap(
+                        action -> {
+                            return action.getName();
+                        },
+                        action -> {
+                            return action;
+                        }
+                )
+                .map(newActionsMap -> {
+                    onLoadActionsInMap.putAll(newActionsMap);
+                    return onLoadActionsInMap;
+                });
+
+        return updatedActionsMapMono
+                .then(Mono.just(bindingNames))
+                .flatMap(bindings -> {
+                    // Now that the next set of bindings have been found, find recursively all actions by these names
+                    // and their bindings
+                    return recursivelyFindActionsAndTheirDependents(bindings, pageId, actionNames, edges, onLoadActionsInMap);
+                });
+    }
+
+    private DirectedAcyclicGraph<String, DefaultEdge> constructDAG(Set<String> actionNames, Set<ActionDependencyEdge> edges) {
         DirectedAcyclicGraph<String, DefaultEdge> actionSchedulingGraph =
                 new DirectedAcyclicGraph<>(DefaultEdge.class);
 
-        for (int i=0; i<actionNames.length; i++) {
-            actionSchedulingGraph.addVertex(actionNames[i]);
+        for (String name : actionNames) {
+            actionSchedulingGraph.addVertex(name);
         }
 
-
-        for (int i=0; i<actionNames.length; i++) {
-            for (int j=0; j<actionDependencies[i].length; j++) {
-                String providesUpdateToActionName = actionDependencies[i][j];
-                if ((providesUpdateToActionName != null || !providesUpdateToActionName.isEmpty()) && Set.of(actionNames).contains(providesUpdateToActionName)) {
-                    try {
-                        actionSchedulingGraph.addEdge(actionNames[i], actionDependencies[i][j]);
-                    } catch (IllegalArgumentException e) {
-                        log.debug("Ignoring the edge ({},{}) because {}", actionNames[i], providesUpdateToActionName, e.getMessage());
-                    }
+        for (ActionDependencyEdge edge : edges) {
+            // If the target of the edge is an action, only then add an edge
+            // At this point we are guaranteed to find the action in the set because we have recursively found all
+            // possible actions that should be on load
+            if (actionNames.contains(edge.getTarget())) {
+                try {
+                    actionSchedulingGraph.addEdge(edge.getSource(), edge.getTarget());
+                } catch (IllegalArgumentException e) {
+                    log.debug("Ignoring the edge ({},{}) because {}", edge.getSource(), edge.getTarget(), e.getMessage());
                 }
             }
         }
@@ -696,4 +856,78 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         return actionSchedulingGraph;
     }
+
+    private List<HashSet<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag) {
+        List<HashSet<String>> onPageLoadActions = new ArrayList<>();
+        BreadthFirstIterator<String, DefaultEdge> bfsIterator = new BreadthFirstIterator<>(dag);
+
+        while(bfsIterator.hasNext()) {
+            String vertex=bfsIterator.next();
+            int level = bfsIterator.getDepth(vertex);
+            if (onPageLoadActions.size() <= level) {
+                onPageLoadActions.add(new HashSet<>());
+            }
+            log.debug("vertex : {}, level : {}", vertex, level);
+
+            onPageLoadActions.get(level).add(vertex);
+        }
+
+        log.debug("On page load actions are : {}", onPageLoadActions);
+
+        return onPageLoadActions;
+    }
+
+//    // Trying to implement offline scheduler by using level by level traversal. Level i+1 actions would be dependent on Level i actions. All actions in a level can run independently
+//    public DirectedAcyclicGraph<String, DefaultEdge> findPageLoadActionsSchedulingOrder() {
+//        String[] actionNames = {"f", "a", "b", "c", "d", "e", "z"};
+//        String[][] actionDependencies = {
+//                {},
+//                {"b", "r1", "r2"},
+//                {"c", "d", "z", "r3"},
+//                {"r4", "a"},
+//                {"e"},
+//                {},
+//                {"r5"}
+//
+//        };
+//
+//        DirectedAcyclicGraph<String, DefaultEdge> actionSchedulingGraph =
+//                new DirectedAcyclicGraph<>(DefaultEdge.class);
+//
+//        for (int i=0; i<actionNames.length; i++) {
+//            actionSchedulingGraph.addVertex(actionNames[i]);
+//        }
+//
+//
+//        for (int i=0; i<actionNames.length; i++) {
+//            for (int j=0; j<actionDependencies[i].length; j++) {
+//                String providesUpdateToActionName = actionDependencies[i][j];
+//                if ((providesUpdateToActionName != null || !providesUpdateToActionName.isEmpty()) && Set.of(actionNames).contains(providesUpdateToActionName)) {
+//                    try {
+//                        actionSchedulingGraph.addEdge(actionNames[i], actionDependencies[i][j]);
+//                    } catch (IllegalArgumentException e) {
+//                        log.debug("Ignoring the edge ({},{}) because {}", actionNames[i], providesUpdateToActionName, e.getMessage());
+//                    }
+//                }
+//            }
+//        }
+//
+//        List<HashSet<String>> onPageLoadActions = new ArrayList<>();
+//        BreadthFirstIterator<String, DefaultEdge> bfsIterator = new BreadthFirstIterator<>(actionSchedulingGraph);
+//
+//        while(bfsIterator.hasNext()) {
+//            String vertex=bfsIterator.next();
+//            int level = bfsIterator.getDepth(vertex);
+//            if (onPageLoadActions.size() <= level) {
+//                onPageLoadActions.add(new HashSet<>());
+//            }
+//            log.debug("vertex : {}, level : {}", vertex, level);
+//
+//            onPageLoadActions.get(level).add(vertex);
+//        }
+//
+//        log.debug("On page load actions are : {}", onPageLoadActions);
+//
+//        return actionSchedulingGraph;
+//    }
 }
