@@ -118,7 +118,8 @@ public class PostgresPlugin extends BasePlugin {
                 String query = actionConfiguration.getBody();
                 // Check for query parameter before performing the probably expensive fetch connection from the pool op.
                 if (query == null) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
+                            "parameter: Query."));
                 }
                 
                 Connection connectionFromPool = null;
@@ -213,7 +214,7 @@ public class PostgresPlugin extends BasePlugin {
 
                 } catch (SQLException e) {
                     System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution error");
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
                 } finally {
                     idleConnections = poolProxy.getIdleConnections();
                     activeConnections = poolProxy.getActiveConnections();
@@ -503,7 +504,10 @@ public class PostgresPlugin extends BasePlugin {
                     }
 
                 } catch (SQLException throwable) {
-                    return Mono.error(throwable);
+                    return Mono.error(new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_ERROR,
+                            throwable.getMessage()
+                    ));
                 } finally {
                     idleConnections = poolProxy.getIdleConnections();
                     activeConnections = poolProxy.getActiveConnections();

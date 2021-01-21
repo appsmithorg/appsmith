@@ -179,7 +179,8 @@ public class MySqlPlugin extends BasePlugin {
             String query = actionConfiguration.getBody().trim();
 
             if (query == null) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
+                        "parameter: Query."));
             }
 
             boolean isSelectOrShowQuery = getIsSelectOrShowQuery(query);
@@ -277,8 +278,10 @@ public class MySqlPlugin extends BasePlugin {
 
             return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
                     .onErrorResume(exception -> {
-                        log.debug("Error when creating datasource.", exception);
-                        return Mono.error(Exceptions.propagate(exception));
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                exception
+                        ));
                     })
                     .subscribeOn(scheduler);
         }
@@ -527,10 +530,15 @@ public class MySqlPlugin extends BasePlugin {
 
                         return structure;
                     })
-                    .onErrorResume(error -> {
-                        log.debug("In getStructure function error mode.", error);
+                    .onErrorMap(e -> {
+                            if (!(e instanceof AppsmithPluginException)) {
+                                return new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_ERROR,
+                                        e.getMessage()
+                                );
+                            }
 
-                        return Mono.error(Exceptions.propagate(error));
+                            return e;
                     })
                     .subscribeOn(scheduler);
         }

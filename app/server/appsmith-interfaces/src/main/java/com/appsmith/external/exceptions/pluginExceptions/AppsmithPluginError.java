@@ -15,7 +15,11 @@ public enum AppsmithPluginError {
             "timeout duration in your action settings or check your backend action endpoint.", AppsmithErrorAction.DEFAULT),
     PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR(504, 5003, "Plugin timed out when fetching structure.",
             AppsmithErrorAction.DEFAULT),
-    PLUGIN_BAD_ARGUMENT_ERROR(500, 5004, "Plugin failed to connect to data source with error: {0}",
+    PLUGIN_DATASOURCE_ARGUMENT_ERROR(500, 5004, "Plugin failed to connect to data source with error: {0}",
+            AppsmithErrorAction.DEFAULT),
+    PLUGIN_EXECUTE_ARGUMENT_ERROR(500, 5005, "Plugin failed to execute query with error: {0}",
+            AppsmithErrorAction.DEFAULT),
+    PLUGIN_JSON_PARSE_ERROR(500, 5006, "Plugin failed to parse JSON \"{0}\" with error: {1}",
             AppsmithErrorAction.DEFAULT),
     ;
 

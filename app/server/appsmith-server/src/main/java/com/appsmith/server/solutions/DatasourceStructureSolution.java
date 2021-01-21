@@ -48,7 +48,7 @@ public class DatasourceStructureSolution {
                         IllegalArgumentException.class,
                         error ->
                                 new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_BAD_ARGUMENT_ERROR,
+                                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                         error.getMessage()
                                 )
                 )
@@ -99,7 +99,7 @@ public class DatasourceStructureSolution {
                         IllegalArgumentException.class,
                         error ->
                                 new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_BAD_ARGUMENT_ERROR,
+                                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                         error.getMessage()
                                 )
                 )

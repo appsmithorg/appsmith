@@ -78,7 +78,7 @@ public class DynamoPlugin extends BasePlugin {
                 final String action = actionConfiguration.getPath();
                 if (StringUtils.isEmpty(action)) {
                     return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             "Missing action name (like `ListTables`, `GetItem` etc.)."
                     ));
                 }
@@ -89,10 +89,10 @@ public class DynamoPlugin extends BasePlugin {
                     if (!StringUtils.isEmpty(body)) {
                         parameters = objectMapper.readValue(body, HashMap.class);
                     }
-                } catch (IOException e) {
+                } catch (Exception e) {
                     final String message = "Error parsing the JSON body: " + e.getMessage();
                     log.warn(message, e);
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, message));
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message));
                 }
 
                 final Class<?> requestClass;
@@ -141,7 +141,7 @@ public class DynamoPlugin extends BasePlugin {
                 final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
                 if (authentication == null || StringUtils.isEmpty(authentication.getDatabaseName())) {
                     return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_BAD_ARGUMENT_ERROR,
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                             "Missing region in datasource."
                     ));
                 }
@@ -246,7 +246,7 @@ public class DynamoPlugin extends BasePlugin {
                     });
                     if (setterMethod == null) {
                         throw new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 "Invalid attribute/value by name " + entry.getKey()
                         );
                     }

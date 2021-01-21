@@ -79,10 +79,10 @@ public class ElasticSearchPlugin extends BasePlugin {
                             for (Object object : commands) {
                                 ndJsonBuilder.append(objectMapper.writeValueAsString(object)).append("\n");
                             }
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             final String message = "Error converting array to ND-JSON: " + e.getMessage();
                             log.warn(message, e);
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, message));
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message));
                         }
                         body = ndJsonBuilder.toString();
                     }
@@ -125,7 +125,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                     try {
                         url = new URL(endpoint.getHost());
                     } catch (MalformedURLException e) {
-                        return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_BAD_ARGUMENT_ERROR,
+                        return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                 "Invalid host provided. It should be of the form http(s)://your-es-url.com"));
                     }
                     String scheme = "http";
