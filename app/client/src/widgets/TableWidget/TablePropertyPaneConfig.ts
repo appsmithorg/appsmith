@@ -39,6 +39,7 @@ const updateColumnStyles = (
                 },
               );
             }
+            console.log("something", { propertyPath }, { propertyValue });
             return {
               propertyPath,
               propertyValue,
@@ -53,6 +54,8 @@ const updateColumnStyles = (
         updatedDerivedColumns,
         (a, b) => JSON.stringify(a) !== JSON.stringify(b),
       );
+
+      console.log("something", { updates }, { updatedDerivedColumns });
       if (difference) {
         updates = [
           ...updates,
