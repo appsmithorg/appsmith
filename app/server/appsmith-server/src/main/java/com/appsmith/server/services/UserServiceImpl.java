@@ -441,6 +441,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         final String finalOriginHeader = originHeader;
 
+        final boolean isPublicSignUpDisabled = LoginSource.FORM.equals(user.getSource())
+                && commonConfig.isSignupDisabled()
+                && !commonConfig.getAdminEmails().contains(user.getEmail());
+
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
         return repository.findByEmail(user.getUsername())
                 .flatMap(savedUser -> {
@@ -467,7 +471,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, user.getUsername()));
                 })
                 .switchIfEmpty(
-                        commonConfig.isSignupDisabled() && !commonConfig.getAdminEmails().contains(user.getEmail())
+                        isPublicSignUpDisabled
                                 ? Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED))
                                 : userCreate(user)
                 )
