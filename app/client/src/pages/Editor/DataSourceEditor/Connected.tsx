@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { AppState } from "reducers";
 import { isNil } from "lodash";
-import { Position } from "@blueprintjs/core";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
@@ -22,7 +21,6 @@ import { ApiActionConfig, PluginType, QueryAction } from "entities/Action";
 import { renderDatasourceSection } from "./DatasourceSection";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { inOnboarding } from "sagas/OnboardingSagas";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
@@ -173,13 +171,8 @@ const Connected = () => {
             height={30}
             width={30}
           />
-          <OnboardingToolTip
-            position={Position.TOP_LEFT}
-            step={[OnboardingStep.EXAMPLE_DATABASE]}
-            offset={{ enabled: true, offset: "200, 0" }}
-          >
-            <div style={{ marginLeft: "12px" }}>Datasource Connected</div>
-          </OnboardingToolTip>
+
+          <div style={{ marginLeft: "12px" }}>Datasource Connected</div>
         </ConnectedText>
 
         <OnboardingIndicator step={OnboardingStep.EXAMPLE_DATABASE}>

@@ -4,26 +4,13 @@ import Spinner from "components/ads/Spinner";
 import { Classes } from "components/ads/common";
 
 const Wrapper = styled.div`
-  height: 100%;
-  padding: 85px 55px;
-  flex: 1;
+  height: calc(100vh - 48px);
+  width: 100%;
   display: flex;
-`;
-
-const Container = styled.div`
-  align-self: stretch;
-  flex: 1;
-  display: flex;
-  background-color: white;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 60px;
-`;
-
-const LoadingContainer = styled(Container)`
   justify-content: center;
-  padding: 0px;
+  align-items: center;
+  flex-direction: column;
+  background-color: white;
 
   .${Classes.SPINNER} {
     width: 43px;
@@ -43,10 +30,8 @@ const LoadingContainer = styled(Container)`
 const Welcome = () => {
   return (
     <Wrapper>
-      <LoadingContainer>
-        <Spinner />
-        <span>Creating an example Postgres database</span>
-      </LoadingContainer>
+      <Spinner />
+      <span>Connecting to an example Postgres database</span>
     </Wrapper>
   );
 };

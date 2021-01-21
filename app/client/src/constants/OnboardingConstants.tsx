@@ -3,14 +3,14 @@ import { showTooltip } from "actions/onboardingActions";
 
 export enum OnboardingStep {
   NONE = -1,
-  WELCOME = 0,
-  EXAMPLE_DATABASE = 1,
-  RUN_QUERY = 2,
-  RUN_QUERY_SUCCESS = 3,
-  ADD_WIDGET = 4,
-  SUCCESSFUL_BINDING = 5,
-  DEPLOY = 6,
-  FINISH = 7,
+  // WELCOME = 0,
+  EXAMPLE_DATABASE = 0,
+  RUN_QUERY = 1,
+  RUN_QUERY_SUCCESS = 2,
+  ADD_WIDGET = 3,
+  SUCCESSFUL_BINDING = 4,
+  DEPLOY = 5,
+  FINISH = 6,
 }
 
 export type OnboardingTooltip = {
@@ -42,26 +42,29 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       description: "",
     },
   },
-  [OnboardingStep.WELCOME]: {
-    name: "WELCOME",
-    setup: () => {
-      // To setup the state if any
-      // Return action that needs to be dispatched
-      return [
-        {
-          type: ReduxActionTypes.SHOW_WELCOME,
-        },
-      ];
-    },
-    tooltip: {
-      title: "",
-      description: "",
-    },
-  },
+  // [OnboardingStep.WELCOME]: {
+  //   name: "WELCOME",
+  //   setup: () => {
+  //     // To setup the state if any
+  //     // Return action that needs to be dispatched
+  //     return [
+  //       {
+  //         type: ReduxActionTypes.SHOW_WELCOME,
+  //       },
+  //     ];
+  //   },
+  //   tooltip: {
+  //     title: "",
+  //     description: "",
+  //   },
+  // },
   [OnboardingStep.EXAMPLE_DATABASE]: {
     name: "EXAMPLE_DATABASE",
     setup: () => {
       return [
+        {
+          type: ReduxActionTypes.SHOW_WELCOME,
+        },
         {
           type: ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_INIT,
         },

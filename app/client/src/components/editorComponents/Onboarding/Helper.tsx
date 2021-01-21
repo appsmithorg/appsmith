@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { AppState } from "reducers";
 import styled from "styled-components";
 import { getOnboardingWelcomeState } from "utils/storage";
 
@@ -52,6 +50,7 @@ const LetsGo = styled(Button)`
 
 const Helper = () => {
   const [showHelper, setShowHelper] = useState(false);
+
   useEffect(() => {
     const showWelcomeHelper = async () => {
       const inOnboarding = await getOnboardingWelcomeState();

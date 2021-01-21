@@ -38,9 +38,7 @@ import {
 } from "selectors/applicationSelectors";
 import EditableTextWrapper from "components/ads/EditableTextWrapper";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
-import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { OnboardingStep } from "constants/OnboardingConstants";
-import { Position } from "@blueprintjs/core";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
 
 const HeaderWrapper = styled(StyledHeader)`
@@ -274,34 +272,28 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         </Boxed>
         <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
           <DeploySection>
-            <OnboardingToolTip
-              step={[OnboardingStep.DEPLOY]}
-              position={Position.BOTTOM_RIGHT}
-              dismissOnOutsideClick={false}
+            <Indicator
+              step={OnboardingStep.SUCCESSFUL_BINDING}
+              offset={{ left: 10 }}
+              theme={"light"}
             >
-              <Indicator
-                step={OnboardingStep.SUCCESSFUL_BINDING}
-                offset={{ left: 10 }}
-                theme={"light"}
-              >
-                <DeployButton
-                  onClick={handlePublish}
-                  text="Deploy"
-                  loading={isPublishing}
-                  intent="primary"
-                  filled
-                  size="small"
-                  className="t--application-publish-btn"
-                  icon={
-                    <HeaderIcons.DEPLOY
-                      color={Colors.WHITE}
-                      width={13}
-                      height={13}
-                    />
-                  }
-                />
-              </Indicator>
-            </OnboardingToolTip>
+              <DeployButton
+                onClick={handlePublish}
+                text="Deploy"
+                loading={isPublishing}
+                intent="primary"
+                filled
+                size="small"
+                className="t--application-publish-btn"
+                icon={
+                  <HeaderIcons.DEPLOY
+                    color={Colors.WHITE}
+                    width={13}
+                    height={13}
+                  />
+                }
+              />
+            </Indicator>
             <DeployLinkButtonDialog
               trigger={
                 <DeployLinkButton icon="caret-down" filled intent="primary" />

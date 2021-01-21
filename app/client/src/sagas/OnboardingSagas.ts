@@ -159,6 +159,8 @@ function* createOnboardingDatasource() {
   AnalyticsUtil.logEvent("ONBOARDING_EXAMPLE_DATABASE");
 
   try {
+    yield take([ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS]);
+
     const organizationId = yield select(getCurrentOrgId);
     const plugins = yield select(getPlugins);
     const postgresPlugin = plugins.find(
@@ -269,7 +271,7 @@ function* listenForDeploySaga() {
 function* initiateOnboarding() {
   const currentOnboardingState = yield getOnboardingState();
   if (currentOnboardingState) {
-    AnalyticsUtil.logEvent("ONBOARDING_WELCOME");
+    // AnalyticsUtil.logEvent("ONBOARDING_WELCOME");
     yield put(setOnboardingReduxState(true));
     yield put({
       type: ReduxActionTypes.NEXT_ONBOARDING_STEP,
