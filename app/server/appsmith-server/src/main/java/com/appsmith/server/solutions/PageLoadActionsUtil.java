@@ -149,7 +149,7 @@ public class PageLoadActionsUtil {
                                                                                             Map<String, ActionDTO> onLoadActionsInMap) {
 
         //First fetch all the actions which have been tagged as on load by the user explicitly.
-        return newActionService.findUnpublishedOnLoadActionsInPage(pageId)
+        return newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(pageId)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 // Add the vertices and edges to the graph
                 .map(actionDTO -> {
@@ -259,7 +259,7 @@ public class PageLoadActionsUtil {
 
             onPageLoadActions.get(level).add(vertex);
         }
-        
+
         return onPageLoadActions;
     }
 
