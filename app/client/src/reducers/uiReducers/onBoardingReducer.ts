@@ -8,7 +8,7 @@ import { createReducer } from "utils/AppsmithUtils";
 
 const initialState: OnboardingState = {
   currentStep: OnboardingStep.NONE,
-  showWelcomeScreen: false,
+  showWelcomeHelper: false,
   creatingDatabase: false,
   showCompletionDialog: false,
   inOnboarding: false,
@@ -20,7 +20,7 @@ const initialState: OnboardingState = {
 
 export interface OnboardingState {
   currentStep: OnboardingStep;
-  showWelcomeScreen: boolean;
+  showWelcomeHelper: boolean;
   creatingDatabase: boolean;
   showCompletionDialog: boolean;
   inOnboarding: boolean;
@@ -33,7 +33,8 @@ export interface OnboardingState {
 
 const onboardingReducer = createReducer(initialState, {
   [ReduxActionTypes.SHOW_WELCOME]: (state: OnboardingState) => {
-    return { ...state, showWelcomeScreen: true };
+    console.log("called SHOW_WELCOME");
+    return { ...state, showWelcomeHelper: true };
   },
   [ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_INIT]: (
     state: OnboardingState,
@@ -46,7 +47,7 @@ const onboardingReducer = createReducer(initialState, {
     return {
       ...state,
       creatingDatabase: false,
-      showWelcomeScreen: false,
+      showWelcomeHelper: false,
       createdDBQuery: true,
     };
   },

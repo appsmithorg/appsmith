@@ -62,9 +62,6 @@ const WidgetsEditor = () => {
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
-  const showWelcomeScreen = useSelector(
-    (state: AppState) => state.ui.onBoarding.showWelcomeScreen,
-  );
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.EDITOR_MOUNT);
@@ -116,10 +113,6 @@ const WidgetsEditor = () => {
   }
   if (!isFetchingPage && widgets) {
     node = <Canvas dsl={widgets} />;
-  }
-
-  if (showWelcomeScreen) {
-    return <Welcome />;
   }
 
   log.debug("Canvas rendered");
