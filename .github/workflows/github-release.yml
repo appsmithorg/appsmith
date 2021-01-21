@@ -19,7 +19,6 @@ jobs:
 
     outputs:
       tag: ${{ steps.get_version.outputs.tag }}
-      version: ${{ steps.get_version.outputs.version }}
       is_beta: ${{ steps.get_version.outputs.is_beta }}
 
     steps:
@@ -34,7 +33,6 @@ jobs:
         id: get_version
         run: |
           tag="${GITHUB_REF#refs/tags/}"
-          echo "::set-output name=version::${tag#v}"
           echo "::set-output name=tag::$tag"
           if [[ $tag == *"beta"* ]]; then
             echo "::set-output name=is_beta::true"
@@ -83,7 +81,7 @@ jobs:
           REACT_APP_ENVIRONMENT: 'PRODUCTION'
           REACT_APP_FUSIONCHARTS_LICENSE_KEY: '${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }}'
           REACT_APP_SEGMENT_CE_KEY: '${{ secrets.APPSMITH_SEGMENT_CE_KEY }}'
-          REACT_APP_VERSION_ID: '${{ needs.prelude.outputs.version }}'
+          REACT_APP_VERSION_ID: '${{ needs.prelude.outputs.tag }}'
         run: 'REACT_APP_VERSION_RELEASE_DATE="$(date +%Y-%m-%d)" yarn build'
 
       # Build Docker image and push to Docker Hub
@@ -134,7 +132,7 @@ jobs:
       - name: Build without running any tests
         run: |
           mvn --batch-mode versions:set \
-            -DnewVersion=${{ needs.prelude.outputs.version }} \
+            -DnewVersion=${{ needs.prelude.outputs.tag }} \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
           mvn --batch-mode package -DskipTests

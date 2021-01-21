@@ -40,6 +40,8 @@ import { EvaluationDependencyState } from "./evaluationReducers/dependencyReduce
 import { PageWidgetsReduxState } from "./uiReducers/pageWidgetsReducer";
 import { OnboardingState } from "./uiReducers/onBoardingReducer";
 import { GlobalSearchReduxState } from "./uiReducers/globalSearchReducer";
+import { ReleasesState } from "./uiReducers/releasesReducer";
+import { LoadingEntitiesState } from "./evaluationReducers/loadingEntitiesReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -78,6 +80,7 @@ export interface AppState {
     theme: ThemeState;
     onBoarding: OnboardingState;
     globalSearch: GlobalSearchReduxState;
+    releases: ReleasesState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
@@ -93,5 +96,6 @@ export interface AppState {
   evaluations: {
     tree: EvaluatedTreeState;
     dependencies: EvaluationDependencyState;
+    loadingEntities: LoadingEntitiesState;
   };
 }
