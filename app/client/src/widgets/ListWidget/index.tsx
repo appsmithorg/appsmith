@@ -1,5 +1,5 @@
 import React from "react";
-import { get, set } from "lodash";
+import { get, set, fill } from "lodash";
 import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -77,9 +77,50 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * @param children
    */
   useNewValues = (children: ContainerWidgetProps<WidgetProps>[]) => {
-    return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
-      return child;
-    });
+    const { template, dynamicBindingPathList } = this.props;
+
+    for (let i = 0; i < children.length; i++) {
+      const container = children[i];
+
+      if (Array.isArray(container.children)) {
+        for (let j = 0; j < container.children.length; j++) {
+          const canvas = container.children[j];
+
+          if (Array.isArray(canvas.children)) {
+            for (let k = 0; k < canvas.children.length; k++) {
+              const child = canvas.children[k];
+
+              if (Array.isArray(dynamicBindingPathList)) {
+                const dynamicKeys = dynamicBindingPathList.map((path) =>
+                  path.key.split(".").pop(),
+                );
+
+                for (let l = 0; l < dynamicKeys.length; l++) {
+                  const key = dynamicKeys[l];
+
+                  console.log({
+                    index: i,
+                    child: get(
+                      children,
+                      `[${i}].children.[${j}].children[${k}].${key}`,
+                    ),
+                    value: get(template, `${child.widgetName}.${key}.[${i}]`),
+                  });
+
+                  set(
+                    children[i],
+                    `children.[${j}].children[${k}].${key}`,
+                    get(template, `${child.widgetName}.${key}.[${i}]`),
+                  );
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return children;
   };
 
   updateGridChildrenProps = (children: ContainerWidgetProps<WidgetProps>[]) => {
@@ -142,7 +183,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
       // here we are duplicating the template for each items in the data array
       // first item of the canvasChildren acts as a template
-      canvasChildren = new Array(numberOfItemsInGrid).fill(canvasChildren[0]);
+      const template = canvasChildren.slice(0, 1).shift();
+
+      for (let i = 0; i < numberOfItemsInGrid; i++) {
+        canvasChildren[i] = JSON.parse(JSON.stringify(template));
+      }
+
       canvasChildren = this.updateGridChildrenProps(canvasChildren);
       childCanvas.children = canvasChildren;
 
