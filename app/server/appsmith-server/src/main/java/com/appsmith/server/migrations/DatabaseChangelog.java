@@ -27,11 +27,10 @@ import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QDatasource;
 import com.appsmith.server.domains.QPlugin;
-import com.appsmith.server.domains.Query;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
-import com.appsmith.server.domains.Setting;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
@@ -99,7 +98,7 @@ public class DatabaseChangelog {
      * from an index with the fields `"organizationId", "name"`. If an index exists with the first ordering and we try
      * to **ensure** an index with the same name but the second ordering of fields, errors will show up and bad things
      * WILL happen.
-     *
+     * <p>
      * Also, please check out the following blog on how to best create indexes :
      * https://emptysqua.re/blog/optimizing-mongodb-compound-indexes/
      */
@@ -309,18 +308,8 @@ public class DatabaseChangelog {
                 makeIndex("packageName").unique()
         );
 
-        ensureIndexes(mongoTemplate, Query.class,
-                createdAtIndex,
-                makeIndex("name").unique()
-        );
-
         ensureIndexes(mongoTemplate, Role.class,
                 createdAtIndex
-        );
-
-        ensureIndexes(mongoTemplate, Setting.class,
-                createdAtIndex,
-                makeIndex("key").unique()
         );
 
         ensureIndexes(mongoTemplate, User.class,
@@ -975,7 +964,7 @@ public class DatabaseChangelog {
 
         ensureIndexes(mongoTemplate, PasswordResetToken.class,
                 makeIndex(FieldName.CREATED_AT)
-                    .expire(2, TimeUnit.DAYS),
+                        .expire(2, TimeUnit.DAYS),
                 makeIndex(FieldName.EMAIL).unique()
         );
     }
@@ -1233,8 +1222,8 @@ public class DatabaseChangelog {
 
         ensureIndexes(mongoTemplate, NewAction.class,
                 makeIndex("applicationId", "deleted", "unpublishedAction.pageId")
-                          .named("applicationId_deleted_unpublishedPageId_compound_index")
-                );
+                        .named("applicationId_deleted_unpublishedPageId_compound_index")
+        );
     }
 
     @ChangeSet(order = "042", id = "update-action-index-to-single-multiple-indices", author = "")
@@ -1563,6 +1552,30 @@ public class DatabaseChangelog {
             }
 
         }
+    }
 
+    @ChangeSet(order = "048", id = "add-redshift-plugin", author = "")
+    public void addRedshiftPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Redshift");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("redshift-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Redshift.png");
+        plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-redshift");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
+
+    @ChangeSet(order = "049", id = "clear-userdata-collection", author = "")
+    public void clearUserDataCollection(MongoTemplate mongoTemplate) {
+        mongoTemplate.dropCollection(UserData.class);
     }
 }

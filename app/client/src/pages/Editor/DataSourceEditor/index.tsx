@@ -19,7 +19,7 @@ import {
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import DatasourceHome from "./DatasourceHome";
 import DataSourceEditorForm from "./DBForm";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { RouteComponentProps } from "react-router";
 
 interface ReduxStateProps {

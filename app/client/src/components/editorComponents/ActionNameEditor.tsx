@@ -8,7 +8,7 @@ import EditableText, {
 } from "components/editorComponents/EditableText";
 import { removeSpecialChars, isNameValid } from "utils/helpers";
 import { AppState } from "reducers";
-import { RestAction } from "entities/Action";
+import { Action } from "entities/Action";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getExistingPageNames } from "sagas/selectors";
 
@@ -49,11 +49,11 @@ export const ActionNameEditor = () => {
     return isInOnboarding && currentStep < OnboardingStep.ADD_WIDGET;
   });
 
-  const actions: RestAction[] = useSelector((state: AppState) =>
+  const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
   );
 
-  const currentActionConfig: RestAction | undefined = actions.find(
+  const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
 

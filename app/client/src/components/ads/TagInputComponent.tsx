@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Classes, TagInput } from "@blueprintjs/core";
 import { Intent } from "constants/DefaultTheme";
-import { WrappedFieldMetaProps } from "redux-form";
 import { INVITE_USERS_VALIDATION_EMAIL_LIST } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
 const TagInputWrapper = styled.div<{ intent?: Intent }>`

@@ -29,7 +29,7 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
     cy.PublishtheApp();
     cy.get(publish.buttonWidget).click();
     cy.wait(500);
-    cy.get(publish.buttonWidget).should("not.be.visible");
+    cy.get(publish.buttonWidget).should("not.exist");
     cy.go("back");
     cy.get(publish.backToEditor)
       .first()

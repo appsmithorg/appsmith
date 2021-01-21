@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Form, reduxForm, InjectedFormProps } from "redux-form";
 import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
 import {
@@ -20,21 +20,42 @@ export const CreateApplicationForm = (
     onCancel: () => void;
   },
 ) => {
-  const { error, handleSubmit, pristine, submitting, invalid } = props;
+  const {
+    error,
+    handleSubmit,
+    pristine,
+    submitting,
+    invalid,
+    onCancel,
+  } = props;
+  const submitHandler = useCallback(
+    async (data, dispatch) => {
+      const result = await createOrganizationSubmitHandler(data, dispatch);
+      if (typeof onCancel === "function") onCancel(); // close after submit
+      return result;
+    },
+    [handleSubmit, onCancel],
+  );
+
   return (
-    <Form onSubmit={handleSubmit(createOrganizationSubmitHandler)}>
+    <Form onSubmit={handleSubmit(submitHandler)}>
       {error && !pristine && <FormMessage intent="danger" message={error} />}
       <FormGroup intent={error ? "danger" : "none"} helperText={error}>
-        <TextField name="name" placeholder="Name" validate={noSpaces} />
+        <TextField
+          name="name"
+          placeholder="Name"
+          validate={noSpaces}
+          autoFocus
+        />
       </FormGroup>
       <FormFooter
-        onCancel={props.onCancel}
+        onCancel={onCancel}
         divider
         data-cy="t--create-org-submit"
         submitOnEnter
         canSubmit={!invalid}
         submitText="Submit"
-        onSubmit={handleSubmit(createOrganizationSubmitHandler)}
+        onSubmit={handleSubmit(submitHandler)}
         size="small"
         submitting={submitting && !error}
       />

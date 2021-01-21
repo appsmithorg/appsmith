@@ -37,7 +37,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
   it("Validate NavigateTo Page functionality ", function() {
     cy.SearchEntityandOpen("Table1");
     cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "0").then(tabData => {
+    cy.readTabledataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("2736212");
       cy.log("the value is" + tabValue);
@@ -45,7 +45,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
         .first()
         .invoke("attr", "value")
         .should("contain", tabValue);
-      cy.get(widgetsPage.chartWidget).should("not.be.visible");
+      cy.get(widgetsPage.chartWidget).should("not.exist");
 
       cy.get(publish.inputGrp)
         .first()

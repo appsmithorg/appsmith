@@ -1,8 +1,0 @@
-# Specify commands for issues and pull requests
-# ---------------------------------------------
-
-# Actions taken when the `Datasources` label is added
-issues:
-  Datasources:
-    labels: ['Actions']
-    lock: true
