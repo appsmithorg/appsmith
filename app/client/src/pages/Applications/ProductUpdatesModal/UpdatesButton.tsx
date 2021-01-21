@@ -30,8 +30,7 @@ const StyledTag = styled.div`
   border-radius: 100px;
   text-align: center;
   color: ${Colors.WHITE};
-  max-width: 50px;
-  min-width: 25px;
+  width: 35px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
