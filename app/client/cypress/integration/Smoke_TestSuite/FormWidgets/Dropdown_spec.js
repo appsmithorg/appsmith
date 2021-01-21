@@ -62,7 +62,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.openPropertyPane("dropdownwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.dropdownWidget + " " + "input").should("not.be.visible");
+    cy.get(publish.dropdownWidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click();
   });
   it("Dropdown Functionality To Check Visible Widget", function() {

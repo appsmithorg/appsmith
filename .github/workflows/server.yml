@@ -2,15 +2,20 @@
 name: Appsmith Server Workflow
 
 on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+
   push:
     branches: [ release, master ]
     # Only trigger if files have changed in this specific path
     paths:
       - 'app/server/**'
+
   pull_request:
     branches: [ release, master ]
     paths:
       - 'app/server/**'
+
 # Change the working directory for all the jobs in this workflow
 defaults:
   run:
@@ -51,6 +56,20 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
+    # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+    # first 11 characters. This can be used to build images for several branches
+    # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
+    # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
+    - name: Get the version to tag the Docker image
+      id: vars
+      run: |
+        # Since this is an unreleased build, we set the version to incremented version number with a
+        # `-SNAPSHOT` suffix.
+        latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head)"
+        next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+        echo ::set-output name=version::$next_version-SNAPSHOT
+        echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
     # Build and test the code
     - name: Build and test
       env:
@@ -59,37 +78,36 @@ jobs:
         APPSMITH_ENCRYPTION_PASSWORD: "password"
         APPSMITH_ENCRYPTION_SALT: "salt"
         APPSMITH_IS_SELF_HOSTED: false
-      run: mvn -B package
-
-    # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
-    # first 11 characters. This can be used to build images for several branches
-    - name: Get the version to tag the Docker image
-      id: vars
-      run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+      run: |
+        mvn --batch-mode versions:set \
+          -DnewVersion=${{ steps.vars.outputs.version }} \
+          -DgenerateBackupPoms=false \
+          -DprocessAllModules=true
+        mvn --batch-mode package
 
     # Build release Docker image and push to Docker Hub
     - name: Push release image to Docker Hub
       if: success() && github.ref == 'refs/heads/release'
       run: |
-        docker build  --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith/appsmith-server:${{steps.vars.outputs.tag}} .
+        docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}} .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        # This command pushes all the tags on the machine to Docker hub. This has been written for ease of reading. Be very careful 
+        # This command pushes all the tags on the machine to Docker hub. This has been written for ease of reading. Be very careful
         # with this command
-        docker push appsmith/appsmith-server
+        docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server
 
     # Build master Docker image and push to Docker Hub
     - name: Push master image to Docker Hub with commit tag
       if: success() && github.ref == 'refs/heads/master'
       run: |
-        docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith/appsmith-server:${GITHUB_SHA} .
-        docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t appsmith/appsmith-server:nightly .
+        docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA} .
+        docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        # This command pushes all the tags on the machine to Docker hub. This has been written for ease of reading. Be very careful 
+        # This command pushes all the tags on the machine to Docker hub. This has been written for ease of reading. Be very careful
         # with this command
-        docker push appsmith/appsmith-server
-  
-  # These are dummy jobs in the CI build to satisfy required status checks for merging PRs. This is a hack because Github doesn't support conditional 
-  # required checks in monorepos. These jobs are a clone of similarly named jobs in client.yml. 
+        docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server
+
+  # These are dummy jobs in the CI build to satisfy required status checks for merging PRs. This is a hack because Github doesn't support conditional
+  # required checks in monorepos. These jobs are a clone of similarly named jobs in client.yml.
   #
   # Check support request at: https://github.community/t/feature-request-conditional-required-checks/16761
   ui-test:
@@ -98,25 +116,25 @@ jobs:
       fail-fast: false
       matrix:
         job: [0, 1, 2, 3, 4, 5, 6]
-    
+
     steps:
     # Checkout the code
     - uses: actions/checkout@v2
-    
+
     - name: Do nothing as this is a dummy step
       shell: bash
       run: |
         exit 0
-  
+
   package:
     runs-on: ubuntu-latest
 
     steps:
     # Checkout the code
     - uses: actions/checkout@v2
-    
+
     - name: Do nothing as this is a dummy step
       shell: bash
       run: |
         exit 0
-          
+

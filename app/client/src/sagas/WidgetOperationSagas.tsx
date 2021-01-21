@@ -370,6 +370,8 @@ export function* addChildrenSaga(
           defaultConfig.widgetName,
           widgetNames,
         );
+        // update the list of widget names for the next iteration
+        widgetNames.push(newWidgetName);
         widgets[child.widgetId] = {
           ...child,
           widgetName: newWidgetName,

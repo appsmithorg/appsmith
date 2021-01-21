@@ -43,15 +43,10 @@ public class PingScheduledTask {
     // Number of milliseconds between the start of each scheduled calls to this method.
     @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 6 * 60 * 60 * 1000 /* six hours */)
     public void pingSchedule() {
-        Mono.zip(getInstanceId(), getAddress())
+        Mono.zip(configService.getInstanceId(), getAddress())
                 .flatMap(tuple -> doPing(tuple.getT1(), tuple.getT2()))
                 .subscribeOn(Schedulers.single())
                 .subscribe();
-    }
-
-    private Mono<String> getInstanceId() {
-        return configService.getByName("instance-id")
-                .map(config -> config.getConfig().getAsString("value"));
     }
 
     /**

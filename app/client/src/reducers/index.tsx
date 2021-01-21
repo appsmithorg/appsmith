@@ -39,6 +39,7 @@ import { EvaluationDependencyState } from "./evaluationReducers/dependencyReduce
 import { PageWidgetsReduxState } from "./uiReducers/pageWidgetsReducer";
 import { OnboardingState } from "./uiReducers/onBoardingReducer";
 import { PropertyPaneEnhancementsReduxState } from "./uiReducers/propertyPaneEnhancementsReducer";
+import { LoadingEntitiesState } from "./evaluationReducers/loadingEntitiesReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -91,5 +92,6 @@ export interface AppState {
   evaluations: {
     tree: EvaluatedTreeState;
     dependencies: EvaluationDependencyState;
+    loadingEntities: LoadingEntitiesState;
   };
 }

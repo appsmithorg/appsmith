@@ -1,5 +1,5 @@
 import React from "react";
-import { get } from "lodash";
+import { get, set } from "lodash";
 import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -76,40 +76,16 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   /**
    * @param children
    */
-  setPathsForNewChildrenInGrid = (
-    children: ContainerWidgetProps<WidgetProps>[],
-  ) => {
-    const { dynamicBindingPathList } = this.props;
-    const templateChildrens = get(children, "0.children.0.children", []);
-
-    // const updatedDynamicBindingPathList: any = [];
-
-    // templateChildrens?.map((child: WidgetProps) => {
-    //   if (child.dynamicBindingPathList) {
-    //     child.dynamicBindingPathList?.map((item: { key: string }) => {
-    //       updatedDynamicBindingPathList.push({
-    //         key: `templateValues.template.${child.widgetName}.${item.key}`,
-    //       });
-    //     });
-    //   }
-    // });
-
-    // console.log({ updatedDynamicBindingPathList });
-
-    // super.updateWidgetProperty(
-    //   "dynamicBindingPathList",
-    //   dynamicBindingPathList?.concat(updatedDynamicBindingPathList),
-    // );
-
-    return children;
+  useNewValues = (children: ContainerWidgetProps<WidgetProps>[]) => {
+    return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
+      return child;
+    });
   };
 
   updateGridChildrenProps = (children: ContainerWidgetProps<WidgetProps>[]) => {
     let updatedChildren = this.updatePosition(children);
 
-    updatedChildren = this.setPathsForNewChildrenInGrid(updatedChildren);
-    // updatedChildren = this.replaceBindings(updatedChildren);
-    // updatedChildren = this.useNewValues(updatedChildren);
+    updatedChildren = this.useNewValues(updatedChildren);
     // Position all children based on alignment of the grid and gap
     // Replace bindings with value {{currentRow.email}} => email
     //

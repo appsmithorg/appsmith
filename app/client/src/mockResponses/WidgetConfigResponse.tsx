@@ -6,6 +6,7 @@ import { generateReactKey } from "utils/generators";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagas";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
 
 /**
  * this config sets the default values of properties being used in the widget
@@ -475,7 +476,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           propertyValue: any,
         ) => {
           let value = propertyValue;
-          value = `{{${parentWidgetName}.items.map((currentItem) => "${propertyValue}")}}`;
+
+          const { jsSnippets } = getDynamicBindings(propertyValue);
+          const modifiedAction = jsSnippets.reduce(
+            (prev: string, next: string) => {
+              return prev + `${next}`;
+            },
+            "",
+          );
+
+          value = `{{${parentWidgetName}.items.map((currentItem) => ${modifiedAction})}}`;
           const path = `template.${widgetName}.${propertyPath}`;
 
           return [
