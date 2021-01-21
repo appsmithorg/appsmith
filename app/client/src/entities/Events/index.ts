@@ -1,13 +1,17 @@
 import { ReduxAction } from "constants/ReduxActionConstants";
-import { BindingError } from "entities/Errors/binding";
-import { ActionError } from "entities/Errors/action";
-import { WidgetError } from "entities/Errors/widget";
-import { EvalError } from "entities/Errors/eval";
+import { BindingError } from "entities/Events/binding";
+import { ActionError } from "entities/Events/action";
+import { WidgetError } from "entities/Events/widget";
+import { EvalError } from "entities/Events/eval";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 export type ErrorType = BindingError | ActionError | WidgetError | EvalError;
 
-export enum ErrorSeverity {
+export enum EventSeverity {
+  // Everything, irrespective of what the user should see or not
+  DEBUG = "debug",
+  // Something the dev user should probably know about
+  INFO = "info",
   // Doesn't break the app, but can cause slowdowns / ux issues/ unexpected behaviour
   WARNING = "warning",
   // Can cause an error in some cases/ single widget, app will work in other cases
@@ -37,16 +41,13 @@ export interface SourceEntity {
 }
 
 export interface TimelineEvent {
+  severity: EventSeverity;
   // "when" did this event happen
   timestamp: Date;
   // "what": Human readable description of what happened.
   message: string;
-  // "where" propertyPath / function (widget/action) that triggered this event.
+  // "where" source entity and propertyPsath.
   source: SourceEntity;
-  // "Why" User action or parent that triggered this event.
-  // Walking back on previous events can be used to construct the timeline/trace of events.
-  previous: TimelineEvent | undefined;
-
   // Snapshot KV pair of scope variables or state associated with this event.
   state: Record<string, any>;
 }
@@ -55,12 +56,16 @@ export interface TimelineEvent {
  * Example:
  * "User clicked a button -> Triggered an API call -> Api timed out"
  * {
- *   id: 1,
  *   type: ActionError.EXECUTION_TIMEOUT,
  *   timeoutMs: 10000,
- *   severity: ErrorSeverity.ERROR,
+ *   severity: EventSeverity.ERROR,
  *   message: "Action execution timedout after 10 seconds",
- *   source: "Api1.run",
+ *   source: {
+ *     type: ENTITY_TYPE.ACTION,
+ *     name: "Api1",
+ *     id: "a12345",
+ *     propertyPath: "run",
+ *   },
  *   timestamp: new Date(),
  *   state: {},
  *   userActions: [
@@ -71,34 +76,12 @@ export interface TimelineEvent {
  *         payload: { actionId: "abcdef", value: 5000 },
  *       },
  *     },
- *   ],
- *   previous: {
- *     message: "Api1 started executing",
- *     source: "Api1.run",
- *     timestamp: new Date(),
- *     previous: {
- *       timestamp: new Date(),
- *       message: "Button1 clicked",
- *       source: "Button1.onClick",
- *       state: {},
- *       previous: undefined,
- *     },
- *     state: {
- *       "Dropdown1.selectedOptionValue": "VEG",
- *       executionParams: { name: "Piyush" }
- *     },
- *   }
+ *   ]
  * }
  */
 export interface ActionableError extends TimelineEvent {
-  // Identifier for this particular error, must be globally unique in this run
-  // Does not need to be shown to the user.
-  id: number;
-
   // Error type of the event.
   type: ErrorType;
-
-  severity: ErrorSeverity;
 
   // Actions a user can take to resolve this issue
   userActions: Array<UserAction>;

@@ -1,4 +1,4 @@
-import { ActionableError } from "entities/Errors";
+import { ActionableError } from "entities/Events";
 
 export enum BindingError {
   SYNTAX = "binding:syntax",
