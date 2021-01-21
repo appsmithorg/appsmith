@@ -12,8 +12,6 @@ import UserApi, {
   ForgotPasswordRequest,
   VerifyTokenRequest,
   TokenPasswordUpdateRequest,
-  SwitchUserOrgRequest,
-  AddUserToOrgRequest,
 } from "api/UserApi";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL, BASE_URL } from "constants/routes";
 import history from "utils/history";
@@ -308,54 +306,6 @@ export function* verifyUserInviteSaga(action: ReduxAction<VerifyTokenRequest>) {
   }
 }
 
-export function* switchUserOrgSaga(action: ReduxAction<SwitchUserOrgRequest>) {
-  try {
-    const request: SwitchUserOrgRequest = action.payload;
-    const response: ApiResponse = yield call(UserApi.switchUserOrg, request);
-    const isValidResponse = yield validateResponse(response);
-
-    if (isValidResponse) {
-      window.location.reload();
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.SWITCH_ORGANIZATION_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
-
-export function* addUserToOrgSaga(
-  action: ReduxAction<AddUserToOrgRequest & { switchToOrg?: boolean }>,
-) {
-  try {
-    const { orgId, switchToOrg } = action.payload;
-    const request: AddUserToOrgRequest = { orgId };
-    const response: ApiResponse = yield call(UserApi.addOrganization, request);
-    const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      if (switchToOrg) {
-        yield put({
-          type: ReduxActionTypes.SWITCH_ORGANIZATION_INIT,
-          payload: { orgId },
-        });
-      }
-      yield put({
-        type: ReduxActionTypes.ADD_USER_TO_ORG_SUCCESS,
-      });
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.ADD_USER_TO_ORG_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
-
 export function* logoutSaga() {
   try {
     const response: ApiResponse = yield call(UserApi.logoutUser);
@@ -389,7 +339,5 @@ export default function* userSagas() {
       ReduxActionTypes.INVITED_USER_SIGNUP_INIT,
       invitedUserSignupSaga,
     ),
-    takeLatest(ReduxActionTypes.SWITCH_ORGANIZATION_INIT, switchUserOrgSaga),
-    takeLatest(ReduxActionTypes.ADD_USER_TO_ORG_INIT, addUserToOrgSaga),
   ]);
 }
