@@ -12,7 +12,6 @@ const StyledUpdatesButton = styled.div`
   height: 38px;
   display: flex;
   align-items: center;
-  box-shadow: 0px 12px 34px rgba(0, 0, 0, 0.75);
   padding: 0 ${(props) => props.theme.spaces[5]}px;
   justify-content: space-between;
   cursor: pointer;
