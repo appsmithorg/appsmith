@@ -218,7 +218,6 @@ class ChartDataControl extends BaseControl<ControlProps> {
     );
 
     const evaluatedValue = this.getEvaluatedValue();
-
     return (
       <React.Fragment>
         {chartData.map((data, index) => {
@@ -236,13 +235,15 @@ class ChartDataControl extends BaseControl<ControlProps> {
             />
           );
         })}
-        <StyledPropertyPaneButton
-          text="Add Series"
-          icon="plus"
-          color="#FFFFFF"
-          minimal
-          onClick={this.addOption}
-        />
+        {this.props.widgetProperties.chartType !== "PIE_CHART" && (
+          <StyledPropertyPaneButton
+            text="Add Series"
+            icon="plus"
+            color="#FFFFFF"
+            minimal
+            onClick={this.addOption}
+          />
+        )}
       </React.Fragment>
     );
   }

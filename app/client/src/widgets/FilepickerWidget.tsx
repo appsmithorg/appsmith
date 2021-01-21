@@ -245,7 +245,7 @@ class FilePickerWidget extends BaseWidget<
       this.props.updateWidgetMetaProperty("files", updatedFiles);
     });
     this.uppy.on("file-added", (file: any) => {
-      const dslFiles = this.props.files || [];
+      const dslFiles = [...(this.props.files || [])];
       const reader = new FileReader();
 
       reader.readAsDataURL(file.data);
