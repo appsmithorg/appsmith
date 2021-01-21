@@ -30,6 +30,8 @@ public class PingScheduledTask {
 
     private final ConfigService configService;
 
+    private final ReleaseNotesService releaseNotesService;
+
     public static final URI GET_IP_URI = URI.create("https://api64.ipify.org");
 
     @Value("${segment.ce.key}")
@@ -45,7 +47,7 @@ public class PingScheduledTask {
     public void pingSchedule() {
         Mono.zip(configService.getInstanceId(), getAddress())
                 .flatMap(tuple -> doPing(tuple.getT1(), tuple.getT2()))
-                .subscribeOn(Schedulers.single())
+                .subscribeOn(Schedulers.elastic())
                 .subscribe();
     }
 
