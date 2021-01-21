@@ -14,8 +14,7 @@ export type FlattenedWidgetProps = WidgetProps & {
 };
 
 const canvasWidgetsReducer = createImmerReducer(initialState, {
-  // TODO Rename to INIT_LAYOUT
-  [ReduxActionTypes.UPDATE_CANVAS]: (
+  [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {

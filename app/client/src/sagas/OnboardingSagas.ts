@@ -43,6 +43,7 @@ import {
 } from "constants/OnboardingConstants";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { get } from "lodash";
+import { updateWidgetProperty } from "../actions/controlActions";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -85,14 +86,9 @@ function* listenForWidgetAdditions() {
       canvasWidgets[selectedWidget.widgetId]
     ) {
       if (selectedWidget.tableData === initialTableData) {
-        yield put({
-          type: "UPDATE_WIDGET_PROPERTY",
-          payload: {
-            widgetId: selectedWidget.widgetId,
-            propertyName: "tableData",
-            propertyValue: [],
-          },
-        });
+        yield put(
+          updateWidgetProperty(selectedWidget.widgetId, "tableData", []),
+        );
       }
 
       AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET");
