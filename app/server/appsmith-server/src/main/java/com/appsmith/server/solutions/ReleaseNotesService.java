@@ -10,11 +10,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -120,6 +122,18 @@ public class ReleaseNotesService {
         }
 
         return releaseNodesCache.get(0).getTagName();
+    }
+
+    /**
+     * Refresh the cached release notes every two hours.
+     */
+    // Number of milliseconds between the start of each scheduled calls to this method.
+    @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 2 * 60 * 60 * 1000 /* two hours */)
+    public void refreshReleaseNotes() {
+        cacheExpiryTime = null;  // Bust the release notes cache to force fetching again.
+        getReleaseNodes()
+                .subscribeOn(Schedulers.elastic())
+                .subscribe();
     }
 
 }
