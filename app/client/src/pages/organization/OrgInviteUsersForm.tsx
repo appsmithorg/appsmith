@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useState } from "react";
 import styled from "styled-components";
-import { useLocation } from "react-router-dom";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
@@ -22,7 +21,6 @@ import {
   INVITE_USERS_VALIDATION_EMAIL_LIST,
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
 } from "constants/messages";
-import history from "utils/history";
 import { isEmail } from "utils/formhelpers";
 import {
   isPermitted,
@@ -33,7 +31,6 @@ import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-co
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Button, { Size } from "components/ads/Button";
 import Text, { TextType } from "components/ads/Text";
-import Icon, { IconSize } from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
