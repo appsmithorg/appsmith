@@ -54,9 +54,7 @@ export const generatePropertyControl = (
   });
 };
 
-export const PropertyControlsGenerator = (
-  props: PropertyControlsGeneratorProps,
-) => {
+const PropertyControlsGenerator = (props: PropertyControlsGeneratorProps) => {
   const config = getPropertyPaneConfig(props.type);
   return <>{generatePropertyControl(config as PropertyPaneConfig[], props)}</>;
 };

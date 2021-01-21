@@ -21,6 +21,7 @@ import { ReactComponent as SortIcon } from "assets/icons/control/sort-icon.svg";
 import { ReactComponent as EditWhiteIcon } from "assets/icons/control/edit-white.svg";
 import { ReactComponent as LaunchIcon } from "assets/icons/control/launch.svg";
 import { ReactComponent as CopyIcon } from "assets/icons/control/copy.svg";
+import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -140,6 +141,11 @@ export const ControlIcons: {
   COPY_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
       <CopyIcon />
+    </IconWrapper>
+  ),
+  BACK_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BackIcon />
     </IconWrapper>
   ),
 };
