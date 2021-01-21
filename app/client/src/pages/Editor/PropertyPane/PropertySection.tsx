@@ -19,9 +19,9 @@ const SectionTitle = styled.div`
   grid-template-columns: 1fr 30px;
   cursor: pointer;
   & span {
-    color: ${props => props.theme.colors.paneSectionLabel};
-    padding: ${props => props.theme.spaces[2]}px 0;
-    font-size: ${props => props.theme.fontSizes[3]}px;
+    color: ${(props) => props.theme.colors.paneSectionLabel};
+    padding: ${(props) => props.theme.spaces[2]}px 0;
+    font-size: ${(props) => props.theme.fontSizes[3]}px;
     display: flex;
     font-weight: normal;
     justify-content: flex-start;
