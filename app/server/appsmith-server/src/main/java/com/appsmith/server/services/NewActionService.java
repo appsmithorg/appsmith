@@ -56,4 +56,6 @@ public interface NewActionService extends CrudService<NewAction, String> {
     Flux<NewAction> saveAll(List<NewAction> actions);
 
     Flux<NewAction> findByPageId(String pageId);
+
+    Mono<Boolean> setOnLoad(List<ActionDTO> actions);
 }

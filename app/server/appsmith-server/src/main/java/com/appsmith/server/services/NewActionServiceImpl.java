@@ -863,6 +863,30 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     @Override
+    public Mono<Boolean> setOnLoad(List<ActionDTO> actions) {
+        if (actions == null) {
+            return Mono.just(Boolean.FALSE);
+        }
+
+        List<ActionDTO> toUpdateActions = new ArrayList<>();
+
+        for (ActionDTO action : actions) {
+            // If a user has ever set execute on load, this field can not be changed automatically. It has to be
+            // explicitly changed by the user again. Add the action to update only if this condition is false.
+            if (!TRUE.equals(action.getUserSetOnLoad())) {
+                action.setExecuteOnLoad(TRUE);
+                toUpdateActions.add(action);
+            }
+        }
+
+        return Mono.just(toUpdateActions)
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(actionDTO -> updateUnpublishedAction(actionDTO.getId(), actionDTO))
+                .collectList()
+                .thenReturn(TRUE);
+    }
+
+    @Override
     public Mono<NewAction> delete(String id) {
         Mono<NewAction> actionMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));

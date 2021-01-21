@@ -12,15 +12,13 @@ import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MustacheHelper;
+import com.appsmith.server.solutions.PageLoadActionsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DirectedAcyclicGraph;
-import org.jgrapht.traverse.BreadthFirstIterator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -39,10 +37,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.helpers.MustacheHelper.extractWordsAndAddToSet;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -53,13 +51,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private final AnalyticsService analyticsService;
     private final NewPageService newPageService;
     private final NewActionService newActionService;
-    /*
-     * This pattern finds all the String which have been extracted from the mustache dynamic bindings.
-     * e.g. for the given JS function using action with name "fetchUsers"
-     * {{JSON.stringify(fetchUsers)}}
-     * This pattern should return ["JSON.stringify", "fetchUsers"]
-     */
-    private final Pattern pattern = Pattern.compile("[a-zA-Z_][a-zA-Z0-9._]*");
+    private final PageLoadActionsUtil pageLoadActionsUtil;
 
     /*
      * To replace fetchUsers in `{{JSON.stringify(fetchUsers)}}` with getUsers, the following regex is required :
@@ -72,182 +64,12 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     public LayoutActionServiceImpl(ObjectMapper objectMapper,
                                    AnalyticsService analyticsService,
                                    NewPageService newPageService,
-                                   NewActionService newActionService) {
+                                   NewActionService newActionService, PageLoadActionsUtil pageLoadActionsUtil) {
         this.objectMapper = objectMapper;
         this.analyticsService = analyticsService;
         this.newPageService = newPageService;
         this.newActionService = newActionService;
-    }
-
-    @Override
-    public Mono<Layout> updateLayout(String pageId, String layoutId, Layout layout) {
-        JSONObject dsl = layout.getDsl();
-        if (dsl == null) {
-            // There is no DSL here. No need to process anything. Return as is.
-            return Mono.just(layout);
-        }
-
-        return Mono.fromSupplier(() -> {
-                    Set<String> widgetNames = new HashSet<>();
-                    Set<String> dynamicBindings = new HashSet<>();
-                    try {
-                        extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, dynamicBindings);
-                    } catch (Throwable t) {
-                        throw Exceptions.propagate(t);
-                    }
-                    layout.setWidgetNames(widgetNames);
-
-                    // dynamicBindingNames is a set of all words extracted from mustaches which would also contain the names
-                    // of the actions being used to read data from into the widget fields
-                    Set<String> dynamicBindingNames = new HashSet<>();
-                    if (!CollectionUtils.isEmpty(dynamicBindings)) {
-                        for (String mustacheKey : dynamicBindings) {
-                            // Extract all the words in the dynamic bindings
-                            extractWordsAndAddToSet(dynamicBindingNames, mustacheKey);
-                        }
-                    }
-                    return dynamicBindingNames;
-                })
-                .flatMap(dynamicBindingNames -> {
-                    // Update these actions to be executed on load, unless the user has touched the executeOnLoad setting for this
-                    Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = findAndUpdateOnLoadActionsInPage(dynamicBindingNames, pageId);
-                    return onLoadActionsMono;
-                })
-                .zipWith(
-                        // Update the list of actions to be executed on load in the layout as well
-                        newPageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES, false)
-                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
-                                        FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId))))
-                .map(tuple -> {
-                    PageDTO page = tuple.getT2();
-                    List<HashSet<DslActionDTO>> onLoadActions = tuple.getT1();
-                    List<Layout> layoutList = page.getLayouts();
-                    //Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the layoutId here.
-                    for (Layout storedLayout : layoutList) {
-                        if (storedLayout.getId().equals(layoutId)) {
-                            //Update
-                            layout.setLayoutOnLoadActions(onLoadActions);
-                            BeanUtils.copyProperties(layout, storedLayout);
-                            storedLayout.setId(layoutId);
-
-                            break;
-                        }
-                    }
-                    page.setLayouts(layoutList);
-                    return page;
-                })
-                .flatMap(newPageService::saveUnpublishedPage)
-                .flatMap(page -> {
-                    List<Layout> layoutList = page.getLayouts();
-                    for (Layout storedLayout : layoutList) {
-                        if (storedLayout.getId().equals(layoutId)) {
-                            return Mono.just(storedLayout);
-                        }
-                    }
-                    return Mono.empty();
-                });
-    }
-
-    public Mono<List<HashSet<DslActionDTO>>> findAndUpdateOnLoadActionsInPage(Set<String> dynamicBindingNames, String pageId) {
-        Mono<List<HashSet<DslActionDTO>>> referencedActions = findAndUpdateOnLoadActionsInPage(new ArrayList<>(), dynamicBindingNames, pageId);
-        return referencedActions
-                // Currently, we do not pick action dependencies for actions that users have set to run
-                // on page load but haven't used on their application page.
-                // If such actions exist, they will inevitably fail because these actions are executed before any other
-                .zipWith(newActionService.findUnpublishedOnLoadActionsInPage(pageId)
-                        .flatMap(newAction -> {
-                            ActionDTO action = newAction.getUnpublishedAction();
-                            DslActionDTO actionDTO = new DslActionDTO();
-                            actionDTO.setId(newAction.getId());
-                            actionDTO.setPluginType(newAction.getPluginType());
-                            actionDTO.setJsonPathKeys(action.getJsonPathKeys());
-                            actionDTO.setName(action.getName());
-                            if (action.getActionConfiguration() != null) {
-                                actionDTO.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
-                            }
-                            return Mono.just(actionDTO);
-                        })
-                        .collect(Collectors.toCollection(HashSet::new)))
-                .map(tuple -> {
-                    List<HashSet<DslActionDTO>> actionList = tuple.getT1();
-                    if (!tuple.getT2().isEmpty()) {
-                        actionList.add(0, tuple.getT2());
-                    }
-                    return actionList;
-                });
-    }
-
-    private Mono<List<HashSet<DslActionDTO>>> findAndUpdateOnLoadActionsInPage(List<HashSet<DslActionDTO>> onLoadActions,
-                                                                               Set<String> dynamicBindingNames,
-                                                                               String pageId) {
-        if (dynamicBindingNames == null || dynamicBindingNames.isEmpty()) {
-            return Mono.just(onLoadActions);
-        }
-        Set<String> bindingNames = new HashSet<>();
-        // First fetch all the actions in the page whose name matches the words found in all the dynamic bindings
-        return newActionService.findUnpublishedActionsInPageByNames(dynamicBindingNames, pageId)
-                .flatMap(newAction -> {
-                    ActionDTO action = newAction.getUnpublishedAction();
-                    if (!CollectionUtils.isEmpty(action.getJsonPathKeys())) {
-                        for (String mustacheKey : action.getJsonPathKeys()) {
-                            extractWordsAndAddToSet(bindingNames, mustacheKey);
-                        }
-                        // If the action refers to itself in the json path keys, remove the same to circumvent
-                        // supposed circular dependency. This is possible in case of pagination with response url
-                        // where the action refers to its own data to find the next and previous URLs.
-                        bindingNames.remove(action.getName());
-                    }
-                    DslActionDTO actionDTO = new DslActionDTO();
-                    actionDTO.setId(newAction.getId());
-                    actionDTO.setPluginType(newAction.getPluginType());
-                    actionDTO.setJsonPathKeys(action.getJsonPathKeys());
-                    actionDTO.setName(action.getName());
-                    if (action.getActionConfiguration() != null) {
-                        actionDTO.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
-                    }
-
-                    // If the executeOnLoad field isn't true and the user hasn't explicitly set it so, set it to true at this point
-                    // This ensures that when the user opens the action settings, the user would know that this action
-                    // executes on page load
-                    if (!Boolean.TRUE.equals(action.getUserSetOnLoad()) && !Boolean.TRUE.equals(action.getExecuteOnLoad())) {
-                        action.setExecuteOnLoad(true);
-
-                        return newActionService.updateUnpublishedAction(newAction.getId(), action)
-                                .thenReturn(actionDTO);
-                    }
-                    // For all others, only pick ones where the execution on load was already set by the user
-                    if (Boolean.TRUE.equals(action.getExecuteOnLoad())) {
-                        return Mono.just(actionDTO);
-                    } else {
-                        return Mono.empty();
-                    }
-                })
-                .collect(toSet())
-                .flatMap(actions -> {
-                    HashSet<DslActionDTO> onLoadSet = new HashSet<>(actions);
-                    // If the resultant set of actions is empty, don't add it to the array list.
-                    if (!onLoadSet.isEmpty()) {
-                        onLoadActions.add(0, onLoadSet);
-                    }
-                    return findAndUpdateOnLoadActionsInPage(onLoadActions, bindingNames, pageId);
-                });
-    }
-
-    private void extractWordsAndAddToSet(Set<String> bindingNames, String mustacheKey) {
-        String key = mustacheKey.trim();
-
-        // Extract all the words in the dynamic bindings
-        Matcher matcher = pattern.matcher(key);
-
-        while (matcher.find()) {
-            String word = matcher.group();
-
-            String[] subStrings = word.split(Pattern.quote("."));
-            if (subStrings.length > 0) {
-                // We are only interested in the top level. e.g. if its Input1.text, we want just Input1
-                bindingNames.add(subStrings[0]);
-            }
-        }
+        this.pageLoadActionsUtil = pageLoadActionsUtil;
     }
 
     @Override
@@ -644,7 +466,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .then(Mono.just(pageId));
     }
 
-    public Mono<Layout> computeAndReturnOnPageLoadActionsSetForLayout(Layout layout, String pageId) {
+    @Override
+    public Mono<Layout> updateLayout(String pageId, String layoutId, Layout layout) {
         JSONObject dsl = layout.getDsl();
         if (dsl == null) {
             // There is no DSL here. No need to process anything. Return as is.
@@ -672,262 +495,58 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         Set<String> actionNames = new HashSet<>();
         Set<ActionDependencyEdge> edges = new HashSet<>();
-        Set<ActionDTO> unpublishedActions = new HashSet<>();
         Set<String> actionsUsedInDSL = new HashSet<>();
+        List<ActionDTO> flatmapPageLoadActions = new ArrayList<>();
 
-        Mono<List<HashSet<DslActionDTO>>> allOnLoadActionsMono = findAllOnLoadActions(actionNames, pageId, edges, unpublishedActions, actionsUsedInDSL);
+        Mono<List<HashSet<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
+                .findAllOnLoadActions(dynamicBindingNames, actionNames, pageId, edges, actionsUsedInDSL, flatmapPageLoadActions)
+                .cache();
 
         // Update these actions to be executed on load, unless the user has touched the executeOnLoad setting for this
-        Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = findAndUpdateOnLoadActionsInPage(dynamicBindingNames, pageId);
+        Mono<Boolean> actionsUpdatedMono = allOnLoadActionsMono
+                .then(newActionService.setOnLoad(flatmapPageLoadActions));
 
-        
-        return Mono.just(layout);
-    }
+        // First update the actions and set execute on load to true
+        return actionsUpdatedMono
+                .then(allOnLoadActionsMono)
+                .zipWith(newPageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES, false)
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId))))
+                // Now update the page layout with the page load actions and the graph.
+                .flatMap(tuple -> {
+                    List<HashSet<DslActionDTO>> onLoadActions = tuple.getT1();
+                    PageDTO page = tuple.getT2();
 
-    private Mono<List<HashSet<DslActionDTO>>> findAllOnLoadActions(Set<String> actionNames,
-                                      String pageId,
-                                      Set<ActionDependencyEdge> edges,
-                                      Set<ActionDTO> unpublishedActions,
-                                      Set<String> actionsUsedInDSL) {
-        Set<String> dynamicBindingNames = new HashSet<>();
+                    List<Layout> layoutList = page.getLayouts();
+                    //Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the layoutId here.
+                    for (Layout storedLayout : layoutList) {
+                        if (storedLayout.getId().equals(layoutId)) {
+                            //Update
+                            // Now that all the on load actions have been computed, set the vertices, edges, actions in DSL, etc.
+                            // in the layout for re-use to avoid computing DAG unnecessarily.
+                            layout.setLayoutOnLoadActions(onLoadActions);
+                            layout.setAllOnPageLoadActionNames(actionNames);
+                            layout.setAllOnPageLoadActionEdges(edges);
+                            layout.setActionsUsedInDynamicBindings(actionsUsedInDSL);
 
-        return newActionService.findUnpublishedActionsInPageByNames(actionNames, pageId)
-                // First find all the actions used in the DSL and get the graph started
-                .map(action -> {
-                    // Found a word in mustache which matches an existing action name
-                    ActionDTO unpublishedAction = action.getUnpublishedAction();
-                    String name = unpublishedAction.getName();
-                    actionsUsedInDSL.add(name);
-                    extractAndSetActionNameAndBindingsForGraph(actionNames, edges, dynamicBindingNames, unpublishedAction);
-                    return unpublishedAction;
-                })
-                .collectMap(
-                        action -> {
-                            return action.getName();
-                            },
-                        action -> {
-                            return action;
-                            }
-                )
-                .flatMap(onLoadActionsMap -> recursivelyFindActionsAndTheirDependents(dynamicBindingNames, pageId, actionNames, edges, onLoadActionsMap))
-                .map(updatedMap -> {
-                    DirectedAcyclicGraph<String, DefaultEdge> directedAcyclicGraph = constructDAG(actionNames, edges);
-                    List<HashSet<String>> onPageLoadActionsSchedulingOrder = computeOnPageLoadActionsSchedulingOrder(directedAcyclicGraph);
+                            BeanUtils.copyProperties(layout, storedLayout);
+                            storedLayout.setId(layoutId);
 
-                    List<HashSet<DslActionDTO>> onPageLoadActions = new ArrayList<>();
-
-                    for (int i=0; i<onPageLoadActionsSchedulingOrder.size(); i++) {
-                        HashSet<DslActionDTO> actionsInLevel = new HashSet<>();
-
-                        HashSet<String> names = onPageLoadActionsSchedulingOrder.get(i);
-                        for (String name : names) {
-                            actionsInLevel.add(getDslAction(name, updatedMap));
+                            break;
                         }
-
-                        onPageLoadActions.add(actionsInLevel);
                     }
-
-                    return onPageLoadActions;
-
-                });
-    }
-
-    private DslActionDTO getDslAction (String name, Map<String, ActionDTO> onLoadActionsMap) {
-        ActionDTO action = onLoadActionsMap.get(name);
-        DslActionDTO actionDTO = new DslActionDTO();
-        actionDTO.setId(action.getId());
-        actionDTO.setPluginType(action.getPluginType());
-        actionDTO.setJsonPathKeys(action.getJsonPathKeys());
-        actionDTO.setName(action.getName());
-        if (action.getActionConfiguration() != null) {
-            actionDTO.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
-        }
-        return actionDTO;
-    }
-
-    private void extractAndSetActionNameAndBindingsForGraph(Set<String> actionNames,
-                                                            Set<ActionDependencyEdge> edges,
-                                                            Set<String> dynamicBindings,
-                                                            ActionDTO action) {
-        String name = action.getName();
-        actionNames.add(name);
-
-        Set<String> dynamicBindingNamesInAction = new HashSet<>();
-        Set<String> jsonPathKeys = action.getJsonPathKeys();
-        if (!CollectionUtils.isEmpty(jsonPathKeys)) {
-            for (String mustacheKey : jsonPathKeys) {
-                extractWordsAndAddToSet(dynamicBindingNamesInAction, mustacheKey);
-            }
-
-            // If the action refers to itself in the json path keys, remove the same to circumvent
-            // supposed circular dependency. This is possible in case of pagination with response url
-            // where the action refers to its own data to find the next and previous URLs.
-            dynamicBindingNamesInAction.remove(action.getName());
-
-            for (String target : dynamicBindingNamesInAction) {
-                ActionDependencyEdge edge = new ActionDependencyEdge();
-                edge.setSource(name);
-                edge.setTarget(target);
-                edges.add(edge);
-            }
-
-            // Update the global actions' dynamic bindings
-            dynamicBindings.addAll(dynamicBindingNamesInAction);
-
-        }
-    }
-
-    private Mono<Map<String, ActionDTO>> recursivelyFindActionsAndTheirDependents(Set<String> dynamicBindingNames,
-                                                          String pageId,
-                                                          Set<String> actionNames,
-                                                          Set<ActionDependencyEdge> edges,
-                                                          Map<String, ActionDTO> onLoadActionsInMap) {
-        if (dynamicBindingNames == null || dynamicBindingNames.isEmpty()) {
-            return Mono.just(onLoadActionsInMap);
-        }
-        Set<String> bindingNames = new HashSet<>();
-        // First fetch all the actions in the page whose name matches the words found in all the dynamic bindings
-        Mono<Map<String, ActionDTO>> updatedActionsMapMono = newActionService.findUnpublishedActionsInPageByNames(dynamicBindingNames, pageId)
-                .map(newAction -> {
-                    ActionDTO action = newAction.getUnpublishedAction();
-                    // Found a word in mustache which matches an existing action name
-                    String name = action.getName();
-                    extractAndSetActionNameAndBindingsForGraph(actionNames, edges, bindingNames, action);
-                    return action;
+                    page.setLayouts(layoutList);
+                    return newPageService.saveUnpublishedPage(page);
                 })
-                .collectMap(
-                        action -> {
-                            return action.getName();
-                        },
-                        action -> {
-                            return action;
+                .flatMap(page -> {
+                    List<Layout> layoutList = page.getLayouts();
+                    for (Layout storedLayout : layoutList) {
+                        if (storedLayout.getId().equals(layoutId)) {
+                            return Mono.just(storedLayout);
                         }
-                )
-                .map(newActionsMap -> {
-                    onLoadActionsInMap.putAll(newActionsMap);
-                    return onLoadActionsInMap;
-                });
-
-        return updatedActionsMapMono
-                .then(Mono.just(bindingNames))
-                .flatMap(bindings -> {
-                    // Now that the next set of bindings have been found, find recursively all actions by these names
-                    // and their bindings
-                    return recursivelyFindActionsAndTheirDependents(bindings, pageId, actionNames, edges, onLoadActionsInMap);
+                    }
+                    return Mono.empty();
                 });
     }
 
-    private DirectedAcyclicGraph<String, DefaultEdge> constructDAG(Set<String> actionNames, Set<ActionDependencyEdge> edges) {
-        DirectedAcyclicGraph<String, DefaultEdge> actionSchedulingGraph =
-                new DirectedAcyclicGraph<>(DefaultEdge.class);
-
-        for (String name : actionNames) {
-            actionSchedulingGraph.addVertex(name);
-        }
-
-        for (ActionDependencyEdge edge : edges) {
-            // If the target of the edge is an action, only then add an edge
-            // At this point we are guaranteed to find the action in the set because we have recursively found all
-            // possible actions that should be on load
-            if (actionNames.contains(edge.getTarget())) {
-                try {
-                    actionSchedulingGraph.addEdge(edge.getSource(), edge.getTarget());
-                } catch (IllegalArgumentException e) {
-                    log.debug("Ignoring the edge ({},{}) because {}", edge.getSource(), edge.getTarget(), e.getMessage());
-                }
-            }
-        }
-
-        List<HashSet<String>> onPageLoadActions = new ArrayList<>();
-        BreadthFirstIterator<String, DefaultEdge> bfsIterator = new BreadthFirstIterator<>(actionSchedulingGraph);
-
-        while(bfsIterator.hasNext()) {
-            String vertex=bfsIterator.next();
-            int level = bfsIterator.getDepth(vertex);
-            if (onPageLoadActions.size() <= level) {
-                onPageLoadActions.add(new HashSet<>());
-            }
-            log.debug("vertex : {}, level : {}", vertex, level);
-
-            onPageLoadActions.get(level).add(vertex);
-        }
-
-        log.debug("On page load actions are : {}", onPageLoadActions);
-
-        return actionSchedulingGraph;
-    }
-
-    private List<HashSet<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag) {
-        List<HashSet<String>> onPageLoadActions = new ArrayList<>();
-        BreadthFirstIterator<String, DefaultEdge> bfsIterator = new BreadthFirstIterator<>(dag);
-
-        while(bfsIterator.hasNext()) {
-            String vertex=bfsIterator.next();
-            int level = bfsIterator.getDepth(vertex);
-            if (onPageLoadActions.size() <= level) {
-                onPageLoadActions.add(new HashSet<>());
-            }
-            log.debug("vertex : {}, level : {}", vertex, level);
-
-            onPageLoadActions.get(level).add(vertex);
-        }
-
-        log.debug("On page load actions are : {}", onPageLoadActions);
-
-        return onPageLoadActions;
-    }
-
-//    // Trying to implement offline scheduler by using level by level traversal. Level i+1 actions would be dependent on Level i actions. All actions in a level can run independently
-//    public DirectedAcyclicGraph<String, DefaultEdge> findPageLoadActionsSchedulingOrder() {
-//        String[] actionNames = {"f", "a", "b", "c", "d", "e", "z"};
-//        String[][] actionDependencies = {
-//                {},
-//                {"b", "r1", "r2"},
-//                {"c", "d", "z", "r3"},
-//                {"r4", "a"},
-//                {"e"},
-//                {},
-//                {"r5"}
-//
-//        };
-//
-//        DirectedAcyclicGraph<String, DefaultEdge> actionSchedulingGraph =
-//                new DirectedAcyclicGraph<>(DefaultEdge.class);
-//
-//        for (int i=0; i<actionNames.length; i++) {
-//            actionSchedulingGraph.addVertex(actionNames[i]);
-//        }
-//
-//
-//        for (int i=0; i<actionNames.length; i++) {
-//            for (int j=0; j<actionDependencies[i].length; j++) {
-//                String providesUpdateToActionName = actionDependencies[i][j];
-//                if ((providesUpdateToActionName != null || !providesUpdateToActionName.isEmpty()) && Set.of(actionNames).contains(providesUpdateToActionName)) {
-//                    try {
-//                        actionSchedulingGraph.addEdge(actionNames[i], actionDependencies[i][j]);
-//                    } catch (IllegalArgumentException e) {
-//                        log.debug("Ignoring the edge ({},{}) because {}", actionNames[i], providesUpdateToActionName, e.getMessage());
-//                    }
-//                }
-//            }
-//        }
-//
-//        List<HashSet<String>> onPageLoadActions = new ArrayList<>();
-//        BreadthFirstIterator<String, DefaultEdge> bfsIterator = new BreadthFirstIterator<>(actionSchedulingGraph);
-//
-//        while(bfsIterator.hasNext()) {
-//            String vertex=bfsIterator.next();
-//            int level = bfsIterator.getDepth(vertex);
-//            if (onPageLoadActions.size() <= level) {
-//                onPageLoadActions.add(new HashSet<>());
-//            }
-//            log.debug("vertex : {}, level : {}", vertex, level);
-//
-//            onPageLoadActions.get(level).add(vertex);
-//        }
-//
-//        log.debug("On page load actions are : {}", onPageLoadActions);
-//
-//        return actionSchedulingGraph;
-//    }
 }

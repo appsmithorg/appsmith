@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.ActionDependencyEdge;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
@@ -21,9 +20,6 @@ import com.appsmith.server.repositories.PluginRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DirectedAcyclicGraph;
-import org.jgrapht.traverse.BreadthFirstIterator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,13 +35,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -248,70 +240,6 @@ public class LayoutActionServiceTest {
                     assertThat(postNameChangeLayout.getDsl()).isEqualTo(dsl);
                 })
                 .verifyComplete();
-
     }
 
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void POC() {
-        DirectedAcyclicGraph pageLoadActionsDag = (DirectedAcyclicGraph) layoutActionService.findPageLoadActionsSchedulingOrder();
-        Layout layout = testPage.getLayouts().get(0);
-        newPageService
-                .findById(testPage.getId(), READ_PAGES)
-                .flatMap(page -> {
-                    page.getUnpublishedPage().getLayouts().get(0).setAllOnPageLoadActionNames(pageLoadActionsDag.vertexSet());
-                    Set<ActionDependencyEdge> edges = (Set<ActionDependencyEdge>) pageLoadActionsDag.edgeSet().stream()
-                            .map(edge -> {
-                                ActionDependencyEdge actionDependencyEdge = new ActionDependencyEdge();
-                                String source = (String) pageLoadActionsDag.getEdgeSource(edge);
-                                String target = (String) pageLoadActionsDag.getEdgeTarget(edge);
-                                actionDependencyEdge.setSource(source);
-                                actionDependencyEdge.setTarget(target);
-                                return actionDependencyEdge;
-                            })
-                            .collect(Collectors.toSet());
-                    page.getUnpublishedPage().getLayouts().get(0).setAllOnPageLoadActionEdges(edges);
-                    return newPageService.save(page);
-                })
-                .block();
-
-        Mono<Layout> layoutMono = layoutService.getLayout(testPage.getId(), layout.getId(), false);
-
-        StepVerifier
-                .create(layoutMono)
-                .assertNext(layout1 -> {
-                    DirectedAcyclicGraph onLoadActionsDAG = new DirectedAcyclicGraph(DefaultEdge.class);
-
-                    Set<String> actionNames = layout1.getAllOnPageLoadActionNames();
-                    for (String actionName : actionNames) {
-                        onLoadActionsDAG.addVertex(actionName);
-                    }
-
-                    Set<ActionDependencyEdge> actionDependencies = layout1.getAllOnPageLoadActionEdges();
-                    for (ActionDependencyEdge edge : actionDependencies) {
-                        onLoadActionsDAG.addEdge(edge.getSource(), edge.getTarget());
-                    }
-
-                    onLoadActionsDAG.addVertex("1");
-                    onLoadActionsDAG.addVertex("2");
-                    onLoadActionsDAG.addEdge("1", "2");
-
-                    List<HashSet<String>> onPageLoadActions = new ArrayList<>();
-                    BreadthFirstIterator<String, DefaultEdge> bfsIterator = new BreadthFirstIterator<>(onLoadActionsDAG);
-
-                    while(bfsIterator.hasNext()) {
-                        String vertex=bfsIterator.next();
-                        int level = bfsIterator.getDepth(vertex);
-                        if (onPageLoadActions.size() <= level) {
-                            onPageLoadActions.add(new HashSet<>());
-                        }
-                        log.debug("vertex : {}, level : {}", vertex, level);
-
-                        onPageLoadActions.get(level).add(vertex);
-                    }
-
-                    log.debug("On page load actions are : {}", onPageLoadActions);
-                })
-                .verifyComplete();
-    }
 }
