@@ -35,10 +35,8 @@ import {
 } from "actions/datasourceActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { GenericApiResponse } from "api/ApiResponses";
-import DatasourcesApi, {
-  CreateDatasourceConfig,
-  Datasource,
-} from "api/DatasourcesApi";
+import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import PluginApi, { DatasourceForm } from "api/PluginApi";
 
 import {

@@ -36,6 +36,7 @@ const CenterdIcon = styled(Icon)`
 `;
 
 const AddMoreAction = styled.div`
+  width: fit-content;
   cursor: pointer;
   display: flex;
   margin-top: 16px;

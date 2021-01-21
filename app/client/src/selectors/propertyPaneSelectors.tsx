@@ -10,7 +10,6 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import * as log from "loglevel";
 import { getCanvasWidgets } from "./entitiesSelector";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>

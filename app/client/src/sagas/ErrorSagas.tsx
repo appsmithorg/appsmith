@@ -14,6 +14,7 @@ import { AUTH_LOGIN_URL } from "constants/routes";
 import { ERROR_CODES } from "constants/ApiConstants";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { put, takeLatest, call, select } from "redux-saga/effects";
 import { ERROR_401, ERROR_500, ERROR_0 } from "constants/messages";
 import { DEFAULT_ERROR_MESSAGE, DEFAULT_ACTION_ERROR } from "constants/errors";
@@ -111,6 +112,7 @@ export function* errorSaga(
   if (show) {
     effects.push(ErrorEffectTypes.SHOW_ALERT);
   }
+
   if (error && error.crash) {
     effects.push(ErrorEffectTypes.SAFE_CRASH);
   }
@@ -166,7 +168,7 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
   // if user is not logged and the error is "PAGE_NOT_FOUND",
   // redirecting user to login page with redirecTo param
   if (
-    get(user, "email") === "anonymousUser" &&
+    get(user, "email") === ANONYMOUS_USERNAME &&
     code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
     window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;

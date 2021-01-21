@@ -40,7 +40,15 @@ const ContainerComponent = (props: ContainerComponentProps) => {
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!props.shouldScrollContents) {
-      containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+      const supportsNativeSmoothScroll =
+        "scrollBehavior" in document.documentElement.style;
+      if (supportsNativeSmoothScroll) {
+        containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        if (containerRef.current) {
+          containerRef.current.scrollTop = 0;
+        }
+      }
     }
   }, [props.shouldScrollContents]);
   return (

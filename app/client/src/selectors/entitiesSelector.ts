@@ -6,7 +6,7 @@ import {
 import { ActionResponse } from "api/ActionAPI";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { createSelector } from "reselect";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { Action } from "entities/Action";
 import { find } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
@@ -205,7 +205,7 @@ export const getActionsForCurrentPage = createSelector(
 export const getQueryActionsForCurrentPage = createSelector(
   getActionsForCurrentPage,
   (actions) => {
-    return actions.filter((action: ActionData) => {
+    return actions.filter((action) => {
       return action.config.pluginType === QUERY_CONSTANT;
     });
   },

@@ -88,7 +88,7 @@ const editorReducer = createReducer(initialState, {
     state.loadingStates.saving = false;
     return { ...state };
   },
-  [ReduxActionTypes.SAVE_PAGE_ERROR]: (state: EditorReduxState) => {
+  [ReduxActionErrorTypes.SAVE_PAGE_ERROR]: (state: EditorReduxState) => {
     state.loadingStates.saving = false;
     state.loadingStates.savingError = true;
     return { ...state };
