@@ -80,6 +80,88 @@ export enum OperatorTypes {
   AND = "AND",
 }
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText:
+              "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
+            propertyName: "tableData",
+            label: "Table Data",
+            controlType: "INPUT_TEXT",
+            placeholderText: 'Enter [{ "col1": "val1" }]',
+            inputType: "ARRAY",
+          },
+          {
+            propertyName: "defaultSearchText",
+            label: "Default Search Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter default search text",
+          },
+          {
+            helpText: "Selects the default selected row",
+            propertyName: "defaultSelectedRow",
+            label: "Default Selected Row",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter row index",
+          },
+          {
+            helpText:
+              "Bind the Table.pageNo property in your API and call it onPageChange",
+            propertyName: "serverSidePaginationEnabled",
+            label: "Server Side Pagination",
+            controlType: "SWITCH",
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            isJSConvertible: true,
+            label: "Visible",
+            controlType: "SWITCH",
+          },
+          {
+            propertyName: "multiRowSelection",
+            label: "Enable multi row selection",
+            controlType: "SWITCH",
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText:
+              "Adds a button action for every row. Reference the Table.selectedRow property in the action",
+            propertyName: "columnActions",
+            label: "Row Button",
+            controlType: "COLUMN_ACTION_SELECTOR",
+          },
+          {
+            helpText: "Triggers an action when a table row is selected",
+            propertyName: "onRowSelected",
+            label: "onRowSelected",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+          {
+            helpText: "Triggers an action when a table page is changed",
+            propertyName: "onPageChange",
+            label: "onPageChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+          {
+            propertyName: "onSearchTextChanged",
+            label: "onSearchTextChanged",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,

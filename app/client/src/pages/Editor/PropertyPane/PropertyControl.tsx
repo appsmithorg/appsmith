@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useCallback } from "react";
 import _ from "lodash";
 import {
   ControlPropertyLabelContainer,
@@ -7,29 +7,133 @@ import {
 } from "components/propertyControls/StyledControls";
 import { ControlIcons } from "icons/ControlIcons";
 import PropertyControlFactory from "utils/PropertyControlFactory";
-import { WidgetProps } from "widgets/BaseWidget";
-import { PropertyControlPropsType } from "components/propertyControls";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import FIELD_EXPECTED_VALUE from "constants/FieldExpectedValue";
+import { useDispatch, useSelector } from "react-redux";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  setWidgetDynamicProperty,
+  updateWidgetPropertyRequest,
+} from "actions/controlActions";
+import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+import { IPanelProps } from "@blueprintjs/core";
+import PanelPropertiesEditor from "./PanelPropertiesEditor";
+
 import {
   isPathADynamicProperty,
   isPathADynamicTrigger,
 } from "../../../utils/DynamicBindingUtils";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 
-type Props = {
-  widgetProperties: WidgetProps;
-  propertyConfig: PropertyControlPropsType;
-  toggleDynamicProperty: (propertyName: string, isDynamic: boolean) => void;
-  onPropertyChange: (propertyName: string, propertyValue: any) => void;
+type Props = PropertyPaneControlConfig & {
+  panel: IPanelProps;
 };
 
-const PropertyControl = (props: Props) => {
-  const {
-    widgetProperties,
-    propertyConfig,
-    toggleDynamicProperty,
-    onPropertyChange,
-  } = props;
+const PropertyControl = memo((props: Props) => {
+  const dispatch = useDispatch();
+  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
+
+  const toggleDynamicProperty = useCallback(
+    (propertyName: string, isDynamic: boolean) => {
+      AnalyticsUtil.logEvent("WIDGET_TOGGLE_JS_PROP", {
+        widgetType: widgetProperties.type,
+        widgetName: widgetProperties.widgetName,
+        propertyName: propertyName,
+        propertyState: !isDynamic ? "JS" : "NORMAL",
+      });
+      dispatch(
+        setWidgetDynamicProperty(
+          widgetProperties.widgetId,
+          propertyName,
+          !isDynamic,
+        ),
+      );
+    },
+    [
+      dispatch,
+      widgetProperties.widgetId,
+      widgetProperties.type,
+      widgetProperties.widgetName,
+    ],
+  );
+
+  const onPropertyChange = useCallback(
+    (propertyName: string, propertyValue: any, isDynamicTrigger?: boolean) => {
+      AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
+        widgetType: widgetProperties.type,
+        widgetName: widgetProperties.widgetName,
+        propertyName: propertyName,
+        updatedValue: propertyValue,
+      });
+      if (props.updateHook) {
+        const propertiesToUpdate:
+          | Array<{
+              propertyPath: string;
+              propertyValue: any;
+            }>
+          | undefined = props.updateHook(
+          widgetProperties,
+          propertyName,
+          propertyValue,
+        );
+        if (propertiesToUpdate) {
+          propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
+            dispatch(
+              updateWidgetPropertyRequest(
+                widgetProperties.widgetId,
+                propertyPath,
+                propertyValue,
+                RenderModes.CANVAS,
+                false,
+              ),
+            );
+          });
+        }
+      }
+      dispatch(
+        updateWidgetPropertyRequest(
+          widgetProperties.widgetId,
+          propertyName,
+          propertyValue,
+          RenderModes.CANVAS, // This seems to be not needed anymore.
+          isDynamicTrigger,
+        ),
+      );
+    },
+    [dispatch, widgetProperties],
+  );
+
+  const openPanel = useCallback(
+    (panelProps: any) => {
+      if (props.panelConfig) {
+        props.panel.openPanel({
+          component: PanelPropertiesEditor,
+          props: {
+            panelProps,
+            panelConfig: props.panelConfig,
+            onPropertyChange: onPropertyChange,
+            panelParentPropertyPath: props.propertyName,
+            panel: props.panel,
+          },
+        });
+      }
+    },
+    [props.panelConfig, onPropertyChange, props.propertyName],
+  );
+
+  // Do not render the control if it needs to be hidden
+  if (
+    props.hidden &&
+    props.hidden(
+      _.get(
+        widgetProperties,
+        props.propertyName.substr(0, props.propertyName.lastIndexOf(".")),
+      ),
+    )
+  ) {
+    return null;
+  }
 
   const getPropertyValidation = (
     propertyName: string,
@@ -49,9 +153,9 @@ const PropertyControl = (props: Props) => {
     return { isValid, validationMessage };
   };
 
-  const { propertyName, label } = propertyConfig;
+  const { propertyName, label } = props;
   if (widgetProperties) {
-    const propertyValue = widgetProperties[propertyName];
+    const propertyValue = _.get(widgetProperties, propertyName);
     const dataTreePath: any = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
     const evaluatedValue = _.get(
       widgetProperties,
@@ -59,14 +163,16 @@ const PropertyControl = (props: Props) => {
     );
     const { isValid, validationMessage } = getPropertyValidation(propertyName);
     const config = {
-      ...propertyConfig,
+      ...props,
       isValid,
       propertyValue,
       validationMessage,
       dataTreePath,
       evaluatedValue,
-      widgetProperties: widgetProperties,
-      expected: FIELD_EXPECTED_VALUE[widgetProperties.type][
+      widgetProperties,
+      parentPropertyName: propertyName,
+      parentPropertyValue: propertyValue,
+      expected: FIELD_EXPECTED_VALUE[widgetProperties.type as WidgetType][
         propertyName
       ] as any,
     };
@@ -82,8 +188,8 @@ const PropertyControl = (props: Props) => {
       widgetProperties,
       propertyName,
     );
-    const isConvertible = !!propertyConfig.isJSConvertible;
-    const className = propertyConfig.label
+    const isConvertible = !!props.isJSConvertible;
+    const className = props.label
       .split(" ")
       .join("")
       .toLowerCase();
@@ -99,10 +205,8 @@ const PropertyControl = (props: Props) => {
           }
         >
           <ControlPropertyLabelContainer>
-            <PropertyHelpLabel
-              tooltip={propertyConfig.helpText}
-              label={label}
-            />
+            <PropertyHelpLabel tooltip={props.helpText} label={label} />
+
             {isConvertible && (
               <JSToggleButton
                 active={isDynamic}
@@ -117,8 +221,10 @@ const PropertyControl = (props: Props) => {
             config,
             {
               onPropertyChange: onPropertyChange,
+              openNextPanel: openPanel,
             },
             isDynamic,
+            props.customJSControl,
           )}
         </ControlWrapper>
       );
@@ -128,6 +234,12 @@ const PropertyControl = (props: Props) => {
     }
   }
   return null;
+});
+
+PropertyControl.displayName = "PropertyControl";
+
+(PropertyControl as any).whyDidYouRender = {
+  logOnDifferentValues: false,
 };
 
 export default PropertyControl;

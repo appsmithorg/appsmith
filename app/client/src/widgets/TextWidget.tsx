@@ -19,6 +19,75 @@ const LINE_HEIGHTS: { [key in TextStyle]: number } = {
 };
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "text",
+            helpText: "Sets the text of the widget",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter text",
+          },
+          {
+            propertyName: "textAlign",
+            helpText: "Sets the alignments of the text",
+            label: "Text Align",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Left",
+                value: "LEFT",
+              },
+              {
+                label: "Center",
+                value: "CENTER",
+              },
+              {
+                label: "Right",
+                value: "RIGHT",
+              },
+            ],
+          },
+          {
+            propertyName: "textStyle",
+            helpText: "Sets the font and style of the text",
+            label: "Text Style",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Heading",
+                value: "HEADING",
+              },
+              {
+                label: "Label",
+                value: "LABEL",
+              },
+              {
+                label: "Body",
+                value: "BODY",
+              },
+            ],
+          },
+          {
+            propertyName: "shouldScroll",
+            label: "Enable Scroll",
+            helpText: "Allows scrolling text instead of truncation",
+            controlType: "SWITCH",
+          },
+          {
+            propertyName: "isVisible",
+            helpText: "Controls the visibility of the widget",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,

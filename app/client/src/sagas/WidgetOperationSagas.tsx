@@ -606,12 +606,12 @@ function* updateDynamicTriggers(
   widget: WidgetProps,
   propertyPath: string,
   propertyValue: string,
+  isDynamicTrigger?: boolean,
 ) {
-  // TODO WIDGETFACTORY
   const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
     widget.type,
   );
-  if (propertyPath in triggerProperties) {
+  if (propertyPath in triggerProperties || !!isDynamicTrigger) {
     let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
       widget,
     );
@@ -674,7 +674,7 @@ function* updateWidgetPropertySaga(
   updateAction: ReduxAction<UpdateWidgetPropertyRequestPayload>,
 ) {
   const {
-    payload: { propertyValue, propertyName, widgetId },
+    payload: { propertyValue, propertyName, widgetId, isDynamicTrigger },
   } = updateAction;
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
@@ -687,6 +687,7 @@ function* updateWidgetPropertySaga(
     widget,
     propertyName,
     propertyValue,
+    isDynamicTrigger,
   );
   if (!dynamicTriggersUpdated) {
     yield updateDynamicBindings(widget, propertyName, propertyValue);

@@ -37,6 +37,7 @@ import {
   WidgetDynamicPathListProps,
   WidgetEvaluatedProps,
 } from "../utils/DynamicBindingUtils";
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
 /***
  * BaseWidget
@@ -56,6 +57,9 @@ abstract class BaseWidget<
 > extends Component<T, K> {
   static contextType = EditorContext;
 
+  static getPropertyPaneConfig(): PropertyPaneConfig[] {
+    return [];
+  }
   // Needed to send a default no validation option. In case a widget needs
   // validation implement this in the widget class again
   static getPropertyValidationMap(): WidgetPropertyValidationType {
