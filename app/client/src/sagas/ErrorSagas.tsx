@@ -121,20 +121,6 @@ const getErrorMessageFromActionType = (
   return actionErrorMessage;
 };
 
-const getErrorMessageFromActionType = (
-  type: string,
-  error: ErrorPayloadType,
-): string => {
-  const actionErrorMessage = get(error, "message");
-  if (actionErrorMessage === undefined) {
-    if (type in ActionErrorDisplayMap) {
-      return ActionErrorDisplayMap[type](error);
-    }
-    return DEFAULT_ERROR_MESSAGE;
-  }
-  return actionErrorMessage;
-};
-
 enum ErrorEffectTypes {
   SHOW_ALERT = "SHOW_ALERT",
   SAFE_CRASH = "SAFE_CRASH",
