@@ -361,7 +361,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const columnKeys: string[] = getAllTableColumnKeys(this.props.tableData);
       const selectedRow: { [key: string]: any } = {};
       for (let i = 0; i < columnKeys.length; i++) {
-        selectedRow[columnKeys[i]] = undefined;
+        selectedRow[columnKeys[i]] = "";
       }
       return selectedRow;
     }
