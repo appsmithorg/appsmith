@@ -682,6 +682,7 @@ type ColorType = {
     separator: ShadeColor;
     title: ShadeColor;
     link: string;
+    hoverState: ShadeColor;
   };
   tagInput: {
     bg: ShadeColor;
@@ -961,6 +962,7 @@ export const dark: ColorType = {
     separator: darkShades[4],
     title: darkShades[8],
     link: "#F86A2B",
+    hoverState: darkShades[3],
   },
   tagInput: {
     bg: darkShades[0],
@@ -1244,6 +1246,7 @@ export const light: ColorType = {
     separator: lightShades[4],
     title: lightShades[8],
     link: "#F86A2B",
+    hoverState: lightShades[3],
   },
   tagInput: {
     bg: lightShades[2],
