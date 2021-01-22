@@ -367,7 +367,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const columnKeys: string[] = getAllTableColumnKeys(this.props.tableData);
       const selectedRow: { [key: string]: any } = {};
       for (let i = 0; i < columnKeys.length; i++) {
-        selectedRow[columnKeys[i]] = undefined;
+        selectedRow[columnKeys[i]] = "";
       }
       return selectedRow;
     }
@@ -597,7 +597,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             super.updateWidgetProperty("columnNameMap", columnNameMap);
           }}
           handleResizeColumn={(columnSizeMap: { [key: string]: number }) => {
-            super.updateWidgetProperty("columnSizeMap", columnSizeMap);
+            if (this.props.renderMode === RenderModes.CANVAS) {
+              super.updateWidgetProperty("columnSizeMap", columnSizeMap);
+            } else {
+              this.props.updateWidgetMetaProperty(
+                "columnSizeMap",
+                columnSizeMap,
+              );
+            }
           }}
           handleReorderColumn={(columnOrder: string[]) => {
             super.updateWidgetProperty("columnOrder", columnOrder);
@@ -614,11 +621,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
           updateCompactMode={(compactMode: CompactMode) => {
-            if (this.props.renderMode === RenderModes.CANVAS) {
-              this.props.updateWidgetMetaProperty("compactMode", compactMode);
-            } else {
-              this.props.updateWidgetMetaProperty("compactMode", compactMode);
-            }
+            this.props.updateWidgetMetaProperty("compactMode", compactMode);
           }}
           sortTableColumn={this.handleColumnSorting}
         />

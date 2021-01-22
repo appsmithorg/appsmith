@@ -43,12 +43,7 @@ export const TableWrapper = styled.div<{
     .tr {
       overflow: hidden;
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
-      :nth-child(even) {
-        background: ${Colors.ATHENS_GRAY_DARKER};
-      }
-      :nth-child(odd) {
-        background: ${Colors.WHITE};
-      }
+      background: ${Colors.WHITE};
       &.selected-row {
         background: ${Colors.POLAR};
         &:hover {
