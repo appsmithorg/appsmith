@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -475,19 +474,19 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         }
 
         Set<String> widgetNames = new HashSet<>();
-        Set<String> dynamicBindings = new HashSet<>();
+        Set<String> jsSnippetsInDynamicBindings = new HashSet<>();
         try {
-            extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, dynamicBindings);
+            extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, jsSnippetsInDynamicBindings);
         } catch (Throwable t) {
-            throw Exceptions.propagate(t);
+            return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, t.getMessage()));
         }
         layout.setWidgetNames(widgetNames);
 
-        // dynamicBindingNames is a set of all words extracted from mustaches which should also contain the names
-        // of the actions being used to read data from into the widget fields
+        // dynamicBindingNames is a set of all words extracted from js snippets which could also contain the names
+        // of the actions 
         Set<String> dynamicBindingNames = new HashSet<>();
-        if (!CollectionUtils.isEmpty(dynamicBindings)) {
-            for (String mustacheKey : dynamicBindings) {
+        if (!CollectionUtils.isEmpty(jsSnippetsInDynamicBindings)) {
+            for (String mustacheKey : jsSnippetsInDynamicBindings) {
                 // Extract all the words in the dynamic bindings
                 extractWordsAndAddToSet(dynamicBindingNames, mustacheKey);
             }
@@ -521,8 +520,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     //Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the layoutId here.
                     for (Layout storedLayout : layoutList) {
                         if (storedLayout.getId().equals(layoutId)) {
-                            //Update
-                            // Now that all the on load actions have been computed, set the vertices, edges, actions in DSL, etc.
+                            // Now that all the on load actions have been computed, set the vertices, edges, actions in DSL
                             // in the layout for re-use to avoid computing DAG unnecessarily.
                             layout.setLayoutOnLoadActions(onLoadActions);
                             layout.setAllOnPageLoadActionNames(actionNames);

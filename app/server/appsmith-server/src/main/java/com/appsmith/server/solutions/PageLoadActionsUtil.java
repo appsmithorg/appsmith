@@ -29,6 +29,23 @@ public class PageLoadActionsUtil {
 
     private final NewActionService newActionService;
 
+    /**
+     * This function takes all the words used in the DSL dynamic bindings and computes the sequenced on page load actions.
+     *
+     * !!!WARNING!!! : This function edits the parameters actionNames, edges, actionsUsedInDSL and flatPageLoadActions
+     * and the same are used by the caller function for further processing.
+     *
+     * @param bindings : words used in the DSL dynamic bindings
+     * @param actionNames : Set where this function adds all the on page load action names
+     * @param pageId : Argument used for fetching actions in this page
+     * @param edges : Set where this function adds all the relationships (dependencies) between actions
+     * @param actionsUsedInDSL : Set where this function adds all the actions directly used in the DSL
+     * @param flatPageLoadActions : A flat list of on page load actions (Not in the sequence in which these actions
+     *                            would be called on page load)
+     * @return : Returns page load actions which is a list of sets of actions. Inside a set, all actions can be
+     * parallely executed. But one set of actions MUST finish execution before the next set of actions can be executed
+     * in the list.
+     */
     public Mono<List<HashSet<DslActionDTO>>> findAllOnLoadActions(Set<String> bindings,
                                                                   Set<String> actionNames,
                                                                   String pageId,
@@ -73,7 +90,7 @@ public class PageLoadActionsUtil {
 
                     List<HashSet<DslActionDTO>> onPageLoadActions = new ArrayList<>();
 
-                    for (int i=0; i<onPageLoadActionsSchedulingOrder.size(); i++) {
+                    for (int i = 0; i < onPageLoadActionsSchedulingOrder.size(); i++) {
                         HashSet<DslActionDTO> actionsInLevel = new HashSet<>();
 
                         HashSet<String> names = onPageLoadActionsSchedulingOrder.get(i);
@@ -93,17 +110,17 @@ public class PageLoadActionsUtil {
                 });
     }
 
-    private DslActionDTO getDslAction (String name, Map<String, ActionDTO> onLoadActionsMap) {
-        ActionDTO action = onLoadActionsMap.get(name);
-        DslActionDTO actionDTO = new DslActionDTO();
-        actionDTO.setId(action.getId());
-        actionDTO.setPluginType(action.getPluginType());
-        actionDTO.setJsonPathKeys(action.getJsonPathKeys());
-        actionDTO.setName(action.getName());
-        if (action.getActionConfiguration() != null) {
-            actionDTO.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
+    private DslActionDTO getDslAction(String name, Map<String, ActionDTO> onLoadActionsMap) {
+        ActionDTO actionDTO = onLoadActionsMap.get(name);
+        DslActionDTO dslActionDTO = new DslActionDTO();
+        dslActionDTO.setId(actionDTO.getId());
+        dslActionDTO.setPluginType(actionDTO.getPluginType());
+        dslActionDTO.setJsonPathKeys(actionDTO.getJsonPathKeys());
+        dslActionDTO.setName(actionDTO.getName());
+        if (actionDTO.getActionConfiguration() != null) {
+            dslActionDTO.setTimeoutInMillisecond(actionDTO.getActionConfiguration().getTimeoutInMillisecond());
         }
-        return actionDTO;
+        return dslActionDTO;
     }
 
     private void extractAndSetActionNameAndBindingsForGraph(Set<String> actionNames,
@@ -250,8 +267,8 @@ public class PageLoadActionsUtil {
 
         // Implementation of offline scheduler by using level by level traversal. Level i+1 actions would be dependent
         // on Level i actions. All actions in a level can run independently and hence would get added to the same set.
-        while(bfsIterator.hasNext()) {
-            String vertex=bfsIterator.next();
+        while (bfsIterator.hasNext()) {
+            String vertex = bfsIterator.next();
             int level = bfsIterator.getDepth(vertex);
             if (onPageLoadActions.size() <= level) {
                 onPageLoadActions.add(new HashSet<>());

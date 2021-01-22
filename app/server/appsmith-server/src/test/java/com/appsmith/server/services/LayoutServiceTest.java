@@ -255,6 +255,14 @@ public class LayoutServiceTest {
                 .verifyComplete();
     }
 
+    /**
+     * This test adds some actions in the page and attaches a few of those in the dynamic bindings in the widgets
+     * in the layout. An action attached in the widget also has two dependencies on other actions. One of those
+     * has been explicitly marked to NOT run on page load. This test asserts the following :
+     * 1. All the actions which must be executed on page load have been recognized correctly
+     * 2. The sequence of the action execution takes into account the action dependencies
+     * 3. An action which has been marked to not execute on page load does not get added to the on page load order
+     */
     @Test
     @WithUserDetails(value = "api_user")
     public void getActionsExecuteOnLoad() {
@@ -294,7 +302,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.getActionConfiguration().setBody(
                             "this won't be auto-executed: {{aPostSecondaryAction.data}}, but this one will be: {{aPostTertiaryAction.data}}.");
-                        action.setJsonPathKeys(Set.of("aPostSecondaryAction.data", "aPostTertiaryAction.data"));
+                    action.setJsonPathKeys(Set.of("aPostSecondaryAction.data", "aPostTertiaryAction.data"));
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
