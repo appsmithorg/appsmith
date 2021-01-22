@@ -4,15 +4,18 @@ const pages = require("../../../locators/Pages.json");
 const apiPage = require("../../../locators/ApiEditor.json");
 const publishPage = require("../../../locators/publishWidgetspage.json");
 
+describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
+  it("Test_Add Paginate with Table Page No and Execute the Api", function () {
     /**Create an Api1 of Paginate with Table Page No */
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
   });
 
+  it("Table-Text, Validate Server Side Pagination of Paginate with Table Page No", function () {
     cy.SearchEntityandOpen("Table1");
     /**Bind Api1 with Table widget */
     cy.testJsontext("tabledata", "{{Api1.data.users}}");
@@ -21,6 +24,7 @@ const publishPage = require("../../../locators/publishWidgetspage.json");
     cy.SearchEntityandOpen("Text1");
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
     cy.SearchEntityandOpen("Table1");
+    cy.readTabledata("0", "0").then(tabData => {
       const tableData = tabData;
       localStorage.setItem("tableDataPage1", tableData);
     });
@@ -39,6 +43,7 @@ const publishPage = require("../../../locators/publishWidgetspage.json");
     //cy.ValidateTableData("11");
   });
 
+  it("Table-Text, Validate Publish Mode on Server Side Pagination of Paginate with Table Page No", function () {
     cy.PublishtheApp();
     cy.ValidatePublishTableData("1");
     cy.get(commonlocators.tableNextPage).click({ force: true });
@@ -52,6 +57,7 @@ const publishPage = require("../../../locators/publishWidgetspage.json");
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
+  it("Test_Add Paginate with Response URL and Execute the Api", function () {
     /** Create Api2 of Paginate with Response URL*/
     cy.createAndFillApi(this.data.paginationUrl, "users");
     cy.RunAPI();
@@ -73,6 +79,7 @@ const publishPage = require("../../../locators/publishWidgetspage.json");
     cy.callApi("Api2");
   });
 
+  it("Table-Text, Validate Server Side Pagination of Paginate with Response URL", function () {
     /**Validate Response data with Table data in Text Widget */
     cy.ValidatePaginateResponseUrlData(apiPage.apiPaginationPrevTest);
     cy.PublishtheApp();
