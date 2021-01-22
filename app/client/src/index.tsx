@@ -17,6 +17,11 @@ import { setThemeMode } from "actions/themeActions";
 import { ThemeMode } from "reducers/uiReducers/themeReducer";
 import { StyledToastContainer } from "components/ads/Toast";
 
+// enable autofreeze only in development
+import { setAutoFreeze } from "immer";
+const shouldAutoFreeze = process.env.NODE_ENV === "development";
+setAutoFreeze(shouldAutoFreeze);
+
 import AppErrorBoundary from "./AppErrorBoundry";
 appInitializer();
 
