@@ -1,3 +1,4 @@
+import { showIndicator } from "actions/onboardingActions";
 import { ReduxActionTypes } from "./ReduxActionConstants";
 
 export enum OnboardingStep {
@@ -13,11 +14,19 @@ export enum OnboardingStep {
 }
 
 export type OnboardingHelperConfig = {
+  step?: number;
   title: string;
   description?: string;
   skipLabel?: string;
   action: {
     label: string;
+    // action to be dispatched
+    action?: { type: string; payload?: any };
+    initialStep?: boolean;
+  };
+  cheatAction?: {
+    label: string;
+    action: { type: string; payload?: any };
   };
 };
 
@@ -52,6 +61,10 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       skipLabel: "No thanks",
       action: {
         label: "Let’s go",
+        action: {
+          type: "ONBOARDING_CREATE_APPLICATION",
+        },
+        initialStep: true,
       },
     },
   },
@@ -60,9 +73,6 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     setup: () => {
       return [
         {
-          type: ReduxActionTypes.SHOW_WELCOME,
-        },
-        {
           type: ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_INIT,
         },
         {
@@ -70,11 +80,39 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         },
       ];
     },
+    helper: {
+      step: 1,
+      title: "Create a New Query",
+      action: {
+        label: "Show Hint",
+        action: showIndicator(OnboardingStep.EXAMPLE_DATABASE),
+      },
+      cheatAction: {
+        label: "Cheat",
+        action: {
+          type: "ONBOARDING_CREATE_QUERY",
+        },
+      },
+    },
   },
   [OnboardingStep.RUN_QUERY]: {
     name: "RUN_QUERY",
     setup: () => {
       return [];
+    },
+    helper: {
+      step: 2,
+      title: "Run Query to get a response",
+      action: {
+        label: "Show Hint",
+        action: showIndicator(OnboardingStep.RUN_QUERY),
+      },
+      cheatAction: {
+        label: "Cheat",
+        action: {
+          type: "ONBOARDING_RUN_QUERY",
+        },
+      },
     },
   },
   [OnboardingStep.RUN_QUERY_SUCCESS]: {
@@ -89,17 +127,58 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         },
       ];
     },
+    helper: {
+      step: 3,
+      title: "Click Add widget to build a UI",
+      action: {
+        label: "Show Hint",
+        action: showIndicator(OnboardingStep.RUN_QUERY_SUCCESS),
+      },
+      cheatAction: {
+        label: "Cheat",
+        action: {
+          type: "ONBOARDING_ADD_WIDGET",
+        },
+      },
+    },
   },
   [OnboardingStep.ADD_WIDGET]: {
     name: "ADD_WIDGET",
     setup: () => {
       return [];
     },
+    helper: {
+      step: 4,
+      title: "Write a binding to connect TableData",
+      action: {
+        label: "Continue",
+      },
+      cheatAction: {
+        label: "Cheat",
+        action: {
+          type: "ONBOARDING_ADD_BINDING",
+        },
+      },
+    },
   },
   [OnboardingStep.SUCCESSFUL_BINDING]: {
     name: "SUCCESSFUL_BINDING",
     setup: () => {
       return [];
+    },
+    helper: {
+      step: 5,
+      title: "Deploy your app",
+      action: {
+        label: "Show Hint",
+        action: showIndicator(OnboardingStep.SUCCESSFUL_BINDING),
+      },
+      cheatAction: {
+        label: "Cheat",
+        action: {
+          type: "ONBOARDING_DEPLOY",
+        },
+      },
     },
   },
   [OnboardingStep.DEPLOY]: {

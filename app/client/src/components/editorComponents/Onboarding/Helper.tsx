@@ -1,5 +1,5 @@
 import { endOnboarding } from "actions/onboardingActions";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
 import styled from "styled-components";
@@ -19,12 +19,13 @@ const ImagePlaceholder = styled.div`
   width: 100%;
   height: 131px;
   background-color: grey;
+  margin-bottom: 6px;
 `;
 
 const Title = styled.div`
   font-size: 16px;
   font-weight: 500;
-  margin-top: 12px;
+  margin-top: 6px;
   color: #000000;
 `;
 
@@ -38,6 +39,7 @@ const Button = styled.button`
   padding: 6px 16px;
   cursor: pointer;
   border: none;
+  font-size: 14px;
 `;
 
 const SkipButton = styled(Button)`
@@ -46,10 +48,24 @@ const SkipButton = styled(Button)`
   color: #6d6d6d;
 `;
 
-const LetsGo = styled(Button)`
-  background-color: #df613c;
-  font-size: 14px;
+const ActionButton = styled(Button)<{ initialStep?: boolean }>`
+  background-color: ${(props) => (props.initialStep ? "#df613c" : "#457AE6")};
   color: white;
+  font-weight: 500;
+`;
+
+const CheatActionButton = styled(Button)`
+  background-color: #ffffff;
+  border: 1px solid #ed3049;
+  color: #ed3049;
+  font-weight: 500;
+`;
+
+const StepCount = styled.div`
+  font-size: 12px;
+  color: #6d6d6d;
+  font-weight: 500;
+  margin-top: 6px;
 `;
 
 const Helper = () => {
@@ -57,13 +73,18 @@ const Helper = () => {
   const helperConfig = useSelector(
     (state) => state.ui.onBoarding.helperStepConfig,
   );
+  const [cheatMode, setCheatMode] = useState(false);
   const dispatch = useDispatch();
+  useEffect(() => {
+    cheatMode && setCheatMode(false);
+  }, [helperConfig]);
 
   if (!showHelper) return null;
 
   return (
     <StyledContainer>
       <ImagePlaceholder />
+      {helperConfig.step && <StepCount>STEP {helperConfig.step}</StepCount>}
       <Title>{helperConfig.title}</Title>
       <Description>{helperConfig.description}</Description>
       <div
@@ -83,7 +104,31 @@ const Helper = () => {
             {helperConfig.skipLabel}
           </SkipButton>
         )}
-        <LetsGo>{helperConfig.action?.label}</LetsGo>
+        {!cheatMode && (
+          <ActionButton
+            initialStep={helperConfig.action.initialStep}
+            onClick={() => {
+              if (helperConfig.action.action) {
+                dispatch(helperConfig.action.action);
+              }
+
+              if (helperConfig.cheatAction) {
+                setCheatMode(true);
+              }
+            }}
+          >
+            {helperConfig.action?.label}
+          </ActionButton>
+        )}
+        {cheatMode && (
+          <CheatActionButton
+            onClick={() => {
+              dispatch(helperConfig.cheatAction?.action);
+            }}
+          >
+            {helperConfig.cheatAction?.label}
+          </CheatActionButton>
+        )}
       </div>
     </StyledContainer>
   );

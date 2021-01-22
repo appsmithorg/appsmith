@@ -29,12 +29,11 @@ import {
   setOnboardingWelcomeState,
 } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
-import { getSelectedWidget } from "./selectors";
+import { getSelectedWidget, getWidgets } from "./selectors";
 import {
   setCurrentStep,
   setOnboardingState as setOnboardingReduxState,
   showIndicator,
-  showTooltip,
 } from "actions/onboardingActions";
 import {
   changeDatasource,
@@ -47,6 +46,40 @@ import {
 } from "constants/OnboardingConstants";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { get } from "lodash";
+import { AppIconCollection } from "components/ads/AppIcon";
+import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
+import { getThemeDetails } from "selectors/themeSelectors";
+import { getRandomPaletteColor, getNextEntityName } from "utils/AppsmithUtils";
+import { getCurrentUser } from "selectors/usersSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { createActionRequest, runActionInit } from "actions/actionActions";
+import {
+  BUILDER_PAGE_URL,
+  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+} from "constants/routes";
+import { Action, QueryAction } from "entities/Action";
+import history from "utils/history";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
+import { getQueryIdFromURL } from "pages/Editor/Explorer/helpers";
+import {
+  calculateNewWidgetPosition,
+  getNextWidgetName,
+} from "./WidgetOperationSagas";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
+  WidgetTypes,
+} from "constants/WidgetConstants";
+import { WidgetProps } from "widgets/BaseWidget";
+import { generateReactKey } from "utils/generators";
+import { forceOpenPropertyPane } from "actions/widgetActions";
+import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/WidgetEntity";
+import { Toaster } from "@blueprintjs/core";
+import { action } from "@storybook/addon-actions";
+import { Variant } from "components/ads/common";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -99,7 +132,10 @@ function* listenForWidgetAdditions() {
       yield put({
         type: ReduxActionTypes.ADD_WIDGET_COMPLETE,
       });
-      yield put(showTooltip(OnboardingStep.ADD_WIDGET));
+      yield put({
+        type: ReduxActionTypes.SET_HELPER_CONFIG,
+        payload: getHelperConfig(OnboardingStep.ADD_WIDGET),
+      });
 
       return;
     }
@@ -136,17 +172,17 @@ function* listenForSuccessfullBinding() {
         }
 
         if (bindSuccessfull) {
-          yield put(showTooltip(OnboardingStep.NONE));
           AnalyticsUtil.logEvent("ONBOARDING_SUCCESSFUL_BINDING");
           yield put(setCurrentStep(OnboardingStep.SUCCESSFUL_BINDING));
 
-          // Show tooltip now
-          yield put(showTooltip(OnboardingStep.SUCCESSFUL_BINDING));
-          yield put(showIndicator(OnboardingStep.SUCCESSFUL_BINDING));
           yield delay(1000);
           playOnboardingAnimation();
 
           yield put(setCurrentStep(OnboardingStep.DEPLOY));
+          yield put({
+            type: ReduxActionTypes.SET_HELPER_CONFIG,
+            payload: getHelperConfig(OnboardingStep.SUCCESSFUL_BINDING),
+          });
           return;
         }
       }
@@ -215,8 +251,15 @@ function* createOnboardingDatasource() {
 
     // Navigate to that datasource page
     yield put(changeDatasource(onboardingDatasource));
-    yield put(showTooltip(OnboardingStep.EXAMPLE_DATABASE));
-    yield put(showIndicator(OnboardingStep.EXAMPLE_DATABASE));
+
+    yield put({
+      type: ReduxActionTypes.SET_HELPER_CONFIG,
+      payload: getHelperConfig(OnboardingStep.EXAMPLE_DATABASE),
+    });
+    yield put({
+      type: ReduxActionTypes.SHOW_ONBOARDING_HELPER,
+      payload: true,
+    });
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_ONBOARDING_DBQUERY_ERROR,
@@ -227,25 +270,28 @@ function* createOnboardingDatasource() {
 
 function* listenForCreateAction() {
   yield take([ReduxActionTypes.CREATE_ACTION_SUCCESS]);
+  yield put({
+    type: ReduxActionTypes.SET_HELPER_CONFIG,
+    payload: getHelperConfig(OnboardingStep.RUN_QUERY),
+  });
   AnalyticsUtil.logEvent("ONBOARDING_ADD_QUERY");
   yield put(setCurrentStep(OnboardingStep.RUN_QUERY));
-
-  yield put(showTooltip(OnboardingStep.RUN_QUERY));
-  yield put(showIndicator(OnboardingStep.RUN_QUERY));
 
   yield take([
     ReduxActionTypes.UPDATE_ACTION_INIT,
     ReduxActionTypes.QUERY_PANE_CHANGE,
     ReduxActionTypes.RUN_ACTION_INIT,
   ]);
-  yield put(showTooltip(OnboardingStep.NONE));
 
   yield take([ReduxActionTypes.RUN_ACTION_SUCCESS]);
   AnalyticsUtil.logEvent("ONBOARDING_RUN_QUERY");
+  yield put({
+    type: ReduxActionTypes.SET_HELPER_CONFIG,
+    payload: getHelperConfig(OnboardingStep.RUN_QUERY_SUCCESS),
+  });
+  yield put(showIndicator(OnboardingStep.NONE));
 
   yield put(setCurrentStep(OnboardingStep.RUN_QUERY_SUCCESS));
-  yield put(showTooltip(OnboardingStep.RUN_QUERY_SUCCESS));
-  yield put(showIndicator(OnboardingStep.RUN_QUERY_SUCCESS));
 }
 
 function* listenForDeploySaga() {
@@ -254,7 +300,6 @@ function* listenForDeploySaga() {
 
     yield take(ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS);
     AnalyticsUtil.logEvent("ONBOARDING_DEPLOY");
-    yield put(showTooltip(OnboardingStep.NONE));
 
     yield put(setCurrentStep(OnboardingStep.FINISH));
     yield put({
@@ -272,13 +317,9 @@ function* initiateOnboarding() {
   if (currentOnboardingState) {
     // AnalyticsUtil.logEvent("ONBOARDING_WELCOME");
     yield put(setOnboardingReduxState(true));
-    yield put({
-      type: ReduxActionTypes.SHOW_ONBOARDING_HELPER,
-      payload: true,
-    });
-    yield put({
-      type: ReduxActionTypes.NEXT_ONBOARDING_STEP,
-    });
+
+    yield put(setCurrentStep(OnboardingStep.WELCOME));
+    yield put(setCurrentStep(OnboardingStep.EXAMPLE_DATABASE));
   }
 }
 
@@ -314,6 +355,172 @@ function* skipOnboardingSaga() {
   }
 }
 
+// Cheat actions
+function* createApplication() {
+  const themeDetails = yield select(getThemeDetails);
+  const color = getRandomPaletteColor(themeDetails.theme.colors.appCardColors);
+  const icon =
+    AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
+
+  const currentUser = yield select(getCurrentUser);
+  const userOrgs = yield select(getUserApplicationsOrgs);
+  const examplesOrganizationId = currentUser.examplesOrganizationId;
+
+  const organization = userOrgs.filter(
+    (org: any) => org.organization.id === examplesOrganizationId,
+  );
+  const applicationList = organization[0].applications;
+
+  const applicationName = getNextEntityName(
+    "Untitled application ",
+    applicationList.map((el: any) => el.name),
+  );
+
+  yield put({
+    type: ReduxActionTypes.CREATE_APPLICATION_INIT,
+    payload: {
+      applicationName,
+      orgId: examplesOrganizationId,
+      icon,
+      color,
+    },
+  });
+}
+
+function* createQuery() {
+  const currentPageId = yield select(getCurrentPageId);
+  const applicationId = yield select(getCurrentApplicationId);
+  const datasources: Datasource[] = yield select(getDatasources);
+  const onboardingDatasource = datasources.find((datasource) => {
+    const host = get(datasource, "datasourceConfiguration.endpoints[0].host");
+
+    return host === "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com";
+  });
+
+  if (onboardingDatasource) {
+    const payload = {
+      name: "ExampleQuery",
+      pageId: currentPageId,
+      pluginId: onboardingDatasource?.pluginId,
+      datasource: {
+        id: onboardingDatasource?.id,
+      },
+      actionConfiguration: {
+        body: "select * from public.users limit 10",
+      },
+    } as Partial<QueryAction>;
+
+    yield put(createActionRequest(payload));
+    history.push(
+      QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+        applicationId,
+        currentPageId,
+        currentPageId,
+      ),
+    );
+  }
+}
+
+function* executeQuery() {
+  const queryId = getQueryIdFromURL();
+
+  if (queryId) {
+    yield put(runActionInit(queryId));
+  }
+}
+
+function* addWidget() {
+  try {
+    const columns = 8;
+    const rows = 7;
+    const widgets = yield select(getWidgets);
+    const widgetName = getNextWidgetName(widgets, "TABLE_WIDGET");
+
+    let newWidget = {
+      type: WidgetTypes.TABLE_WIDGET,
+      newWidgetId: generateReactKey(),
+      widgetId: "0",
+      topRow: 0,
+      bottomRow: rows,
+      leftColumn: 0,
+      rightColumn: columns,
+      columns,
+      rows,
+      parentId: "0",
+      widgetName,
+      renderMode: RenderModes.CANVAS,
+      parentRowSpace: 1,
+      parentColumnSpace: 1,
+      isLoading: false,
+      props: {
+        tableData: [],
+      },
+    };
+    const {
+      leftColumn,
+      topRow,
+      rightColumn,
+      bottomRow,
+    } = yield calculateNewWidgetPosition(newWidget, "0", widgets);
+
+    newWidget = {
+      ...newWidget,
+      leftColumn,
+      topRow,
+      rightColumn,
+      bottomRow,
+    };
+
+    yield put({
+      type: ReduxActionTypes.WIDGET_ADD_CHILD,
+      payload: newWidget,
+    });
+
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+
+    navigateToCanvas(
+      {
+        applicationId,
+        pageId,
+      },
+      window.location.pathname,
+      pageId,
+      newWidget.newWidgetId,
+    );
+    yield put({
+      type: ReduxActionTypes.SELECT_WIDGET,
+      payload: { widgetId: newWidget.newWidgetId },
+    });
+    yield put(forceOpenPropertyPane(newWidget.newWidgetId));
+  } catch (error) {}
+}
+
+function* addBinding() {
+  const selectedWidget = yield select(getSelectedWidget);
+
+  if (selectedWidget && selectedWidget.type === "TABLE_WIDGET") {
+    yield put({
+      type: "UPDATE_WIDGET_PROPERTY_REQUEST",
+      payload: {
+        widgetId: selectedWidget.widgetId,
+        propertyName: "tableData",
+        propertyValue: "{{ExampleQuery.data}}",
+      },
+    });
+  }
+}
+
+function* deploy() {
+  const applicationId = yield select(getCurrentApplicationId);
+  yield put({
+    type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
+    payload: {
+      applicationId,
+    },
+  });
+}
+
 export default function* onboardingSagas() {
   yield all([
     takeEvery(ReduxActionTypes.CREATE_APPLICATION_SUCCESS, initiateOnboarding),
@@ -330,6 +537,13 @@ export default function* onboardingSagas() {
     ),
     takeEvery(ReduxActionTypes.SET_CURRENT_STEP, setupOnboardingStep),
     takeEvery(ReduxActionTypes.LISTEN_FOR_DEPLOY, listenForDeploySaga),
+    // Cheat actions
+    takeEvery("ONBOARDING_CREATE_APPLICATION", createApplication),
+    takeEvery("ONBOARDING_CREATE_QUERY", createQuery),
+    takeEvery("ONBOARDING_RUN_QUERY", executeQuery),
+    takeEvery("ONBOARDING_ADD_WIDGET", addWidget),
+    takeEvery("ONBOARDING_ADD_BINDING", addBinding),
+    takeEvery("ONBOARDING_DEPLOY", deploy),
   ]);
 
   yield take(ReduxActionTypes.END_ONBOARDING);

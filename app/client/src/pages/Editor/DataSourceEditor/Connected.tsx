@@ -51,8 +51,8 @@ const Wrapper = styled.div`
 `;
 
 const ActionButton = styled(BaseButton)`
-  &&& {
-    max-width: 140px;
+  &&&& {
+    width: auto;
     align-self: center;
   }
 `;

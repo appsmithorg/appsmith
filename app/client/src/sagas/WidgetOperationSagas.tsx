@@ -887,7 +887,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
 }
 
-function calculateNewWidgetPosition(
+export function calculateNewWidgetPosition(
   widget: WidgetProps,
   parentId: string,
   canvasWidgets: FlattenedWidgetProps[],
@@ -913,7 +913,10 @@ function calculateNewWidgetPosition(
   };
 }
 
-function getNextWidgetName(widgets: CanvasWidgetsReduxState, type: WidgetType) {
+export function getNextWidgetName(
+  widgets: CanvasWidgetsReduxState,
+  type: WidgetType,
+) {
   // Compute the new widget's name
   const defaultConfig: any = WidgetConfigResponse.config[type];
   const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);

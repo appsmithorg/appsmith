@@ -1,13 +1,6 @@
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
-export const showTooltip = (payload: OnboardingStep) => {
-  return {
-    type: ReduxActionTypes.SHOW_ONBOARDING_TOOLTIP,
-    payload,
-  };
-};
-
 export const showIndicator = (payload: OnboardingStep) => {
   return {
     type: ReduxActionTypes.SHOW_ONBOARDING_INDICATOR,
