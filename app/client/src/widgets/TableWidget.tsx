@@ -136,6 +136,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     } = this.props;
     if (tableData.length) {
       const columnKeys: string[] = getAllTableColumnKeys(tableData);
+      const { componentWidth } = this.getComponentDimensions();
       const sortedColumn = this.props.sortedColumn;
       for (let index = 0; index < columnKeys.length; index++) {
         const i = columnKeys[index];
@@ -171,7 +172,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             inputFormat: columnType.inputFormat,
           },
           Cell: (props: any) => {
-            return renderCell(props.cell.value, columnType.type, isHidden);
+            return renderCell(
+              props.cell.value,
+              columnType.type,
+              isHidden,
+              componentWidth,
+            );
           },
         };
         if (isHidden) {
@@ -362,7 +368,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const columnKeys: string[] = getAllTableColumnKeys(this.props.tableData);
       const selectedRow: { [key: string]: any } = {};
       for (let i = 0; i < columnKeys.length; i++) {
-        selectedRow[columnKeys[i]] = undefined;
+        selectedRow[columnKeys[i]] = "";
       }
       return selectedRow;
     }
@@ -593,7 +599,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             super.updateWidgetProperty("columnNameMap", columnNameMap);
           }}
           handleResizeColumn={(columnSizeMap: { [key: string]: number }) => {
-            super.updateWidgetProperty("columnSizeMap", columnSizeMap);
+            if (this.props.renderMode === RenderModes.CANVAS) {
+              super.updateWidgetProperty("columnSizeMap", columnSizeMap);
+            } else {
+              this.props.updateWidgetMetaProperty(
+                "columnSizeMap",
+                columnSizeMap,
+              );
+            }
           }}
           handleReorderColumn={(columnOrder: string[]) => {
             super.updateWidgetProperty("columnOrder", columnOrder);
@@ -610,11 +623,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
           updateCompactMode={(compactMode: CompactMode) => {
-            if (this.props.renderMode === RenderModes.CANVAS) {
-              this.props.updateWidgetMetaProperty("compactMode", compactMode);
-            } else {
-              this.props.updateWidgetMetaProperty("compactMode", compactMode);
-            }
+            this.props.updateWidgetMetaProperty("compactMode", compactMode);
           }}
           sortTableColumn={this.handleColumnSorting}
         />

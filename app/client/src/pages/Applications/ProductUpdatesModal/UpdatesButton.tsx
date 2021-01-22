@@ -12,7 +12,6 @@ const StyledUpdatesButton = styled.div`
   height: 38px;
   display: flex;
   align-items: center;
-  box-shadow: 0px 12px 34px rgba(0, 0, 0, 0.75);
   padding: 0 ${(props) => props.theme.spaces[5]}px;
   justify-content: space-between;
   cursor: pointer;
@@ -30,6 +29,10 @@ const StyledTag = styled.div`
   border-radius: 100px;
   text-align: center;
   color: ${Colors.WHITE};
+  width: 35px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const UpdatesButtonTextContainer = styled.div`
