@@ -4,7 +4,7 @@ import { BatchAction, batchAction } from "actions/batchActions";
 
 export const updateWidgetPropertyRequest = (
   widgetId: string,
-  propertyName: string,
+  propertyPath: string,
   propertyValue: any,
   renderMode: RenderMode,
 ): ReduxAction<UpdateWidgetPropertyRequestPayload> => {
@@ -12,7 +12,7 @@ export const updateWidgetPropertyRequest = (
     type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
     payload: {
       widgetId,
-      propertyName,
+      propertyPath,
       propertyValue,
       renderMode,
     },
@@ -21,29 +21,27 @@ export const updateWidgetPropertyRequest = (
 
 export const updateWidgetProperty = (
   widgetId: string,
-  propertyName: string,
-  propertyValue: any,
+  updates: Record<string, unknown>,
 ): BatchAction<UpdateWidgetPropertyPayload> => {
   return batchAction({
     type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
     payload: {
       widgetId,
-      propertyName,
-      propertyValue,
+      updates,
     },
   });
 };
 
 export const setWidgetDynamicProperty = (
   widgetId: string,
-  propertyName: string,
+  propertyPath: string,
   isDynamic: boolean,
 ): ReduxAction<SetWidgetDynamicPropertyPayload> => {
   return {
     type: ReduxActionTypes.SET_WIDGET_DYNAMIC_PROPERTY,
     payload: {
       widgetId,
-      propertyName,
+      propertyPath,
       isDynamic,
     },
   };
@@ -51,19 +49,18 @@ export const setWidgetDynamicProperty = (
 
 export interface UpdateWidgetPropertyRequestPayload {
   widgetId: string;
-  propertyName: string;
+  propertyPath: string;
   propertyValue: any;
   renderMode: RenderMode;
 }
 
 export interface UpdateWidgetPropertyPayload {
   widgetId: string;
-  propertyName: string;
-  propertyValue: any;
+  updates: Record<string, unknown>;
 }
 
 export interface SetWidgetDynamicPropertyPayload {
   widgetId: string;
-  propertyName: string;
+  propertyPath: string;
   isDynamic: boolean;
 }

@@ -1,37 +1,37 @@
 import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
   ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
-  WidgetAddChild,
-  WidgetResize,
-  WidgetMove,
-  WidgetDelete,
   updateAndSaveLayout,
+  WidgetAddChild,
   WidgetAddChildren,
+  WidgetDelete,
+  WidgetMove,
+  WidgetResize,
 } from "actions/pageActions";
 import {
-  FlattenedWidgetProps,
   CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
-  getWidgets,
-  getWidget,
   getSelectedWidget,
+  getWidget,
   getWidgetMetaProps,
+  getWidgets,
 } from "./selectors";
 import {
   generateWidgetProps,
   updateWidgetPosition,
 } from "utils/WidgetPropsUtils";
 import {
+  all,
   call,
   put,
   select,
   takeEvery,
   takeLatest,
-  all,
 } from "redux-saga/effects";
 import { convertToString, getNextEntityName } from "utils/AppsmithUtils";
 import {
@@ -49,7 +49,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _ from "lodash";
+import _, { cloneDeep } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
@@ -58,24 +58,23 @@ import {
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import {
   GridDefaults,
-  WidgetTypes,
   MAIN_CONTAINER_WIDGET_ID,
-  WIDGET_DELETE_UNDO_TIMEOUT,
   RenderModes,
+  WIDGET_DELETE_UNDO_TIMEOUT,
   WidgetType,
+  WidgetTypes,
 } from "constants/WidgetConstants";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import {
+  flushDeletedWidgets,
+  getCopiedWidgets,
+  getDeletedWidgets,
   saveCopiedWidgets,
   saveDeletedWidgets,
-  flushDeletedWidgets,
-  getDeletedWidgets,
-  getCopiedWidgets,
 } from "utils/storage";
 import { generateReactKey } from "utils/generators";
 import { flashElementById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { cloneDeep } from "lodash";
 import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/WidgetEntity";
 import {
@@ -86,8 +85,8 @@ import { forceOpenPropertyPane } from "actions/widgetActions";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import {
-  validateProperty,
   clearEvalPropertyCacheOfWidget,
+  validateProperty,
 } from "./EvaluationsSaga";
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { Toaster } from "components/ads/Toast";
@@ -221,7 +220,7 @@ function* generateChildWidgets(
   // Add the parentId prop to this widget
   widget.parentId = parent.widgetId;
   // Remove the blueprint from the widget (if any)
-  // as blueprints are not useful beyont this point.
+  // as blueprints are not useful beyond this point.
   delete widget.blueprint;
   return { widgetId: widget.widgetId, widgets };
 }
@@ -466,7 +465,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
     (widget) => widget.widgetId === action.payload.widgetId,
   );
 
-  // If the deleted widget is infact available.
+  // If the deleted widget is in fact available.
   if (deletedWidget) {
     // Log an undo event
     AnalyticsUtil.logEvent("WIDGET_DELETE_UNDO", {
@@ -522,7 +521,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
         }
         let newChildren = [widget.widgetId];
         if (widgets[widget.parentId].children) {
-          // Concatenate the list of paren't children with the current widgetId
+          // Concatenate the list of parents children with the current widgetId
           newChildren = newChildren.concat(widgets[widget.parentId].children);
         }
         widgets = {
@@ -636,46 +635,32 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   }
 }
 
-function* updateDynamicTriggers(
+function getDynamicTriggerPathListUpdates(
   widget: WidgetProps,
   propertyPath: string,
   propertyValue: string,
-) {
-  // TODO WIDGETFACTORY
-  const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
-    widget.type,
+): DynamicPath[] {
+  let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
+    widget,
   );
-  if (propertyPath in triggerProperties) {
-    let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
-      widget,
-    );
-    if (propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
-      dynamicTriggerPathList.push({
-        key: propertyPath,
-      });
-    }
-    if (!propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
-      dynamicTriggerPathList = _.reject(dynamicTriggerPathList, {
-        key: propertyValue,
-      });
-    }
-    yield put(
-      updateWidgetProperty(
-        widget.widgetId,
-        "dynamicTriggerPathList",
-        dynamicTriggerPathList,
-      ),
-    );
-    return true;
+  if (propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
+    dynamicTriggerPathList.push({
+      key: propertyPath,
+    });
   }
-  return false;
+  if (!propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
+    dynamicTriggerPathList = _.reject(dynamicTriggerPathList, {
+      key: propertyValue,
+    });
+  }
+  return dynamicTriggerPathList;
 }
 
-function* updateDynamicBindings(
+function updateDynamicBindings(
   widget: WidgetProps,
   propertyName: string,
   propertyValue: any,
-) {
+): DynamicPath[] {
   let stringProp = propertyValue;
   if (_.isObject(propertyValue)) {
     // Stringify this because composite controls may have bindings in the sub controls
@@ -695,20 +680,14 @@ function* updateDynamicBindings(
       key: propertyName,
     });
   }
-  yield put(
-    updateWidgetProperty(
-      widget.widgetId,
-      "dynamicBindingPathList",
-      dynamicBindingPathList,
-    ),
-  );
+  return dynamicBindingPathList;
 }
 
 function* updateWidgetPropertySaga(
   updateAction: ReduxAction<UpdateWidgetPropertyRequestPayload>,
 ) {
   const {
-    payload: { propertyValue, propertyName, widgetId },
+    payload: { propertyValue, propertyPath, widgetId },
   } = updateAction;
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
@@ -717,55 +696,70 @@ function* updateWidgetPropertySaga(
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
   const widget = { ...stateWidget };
 
-  const dynamicTriggersUpdated = yield updateDynamicTriggers(
-    widget,
-    propertyName,
-    propertyValue,
+  // Holder object to collect all updates
+  const updates: Record<string, unknown> = {
+    [propertyPath]: propertyValue,
+  };
+
+  // Check if the path is a of a dynamic trigger property
+  const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
+    widget.type,
   );
-  if (!dynamicTriggersUpdated) {
-    yield updateDynamicBindings(widget, propertyName, propertyValue);
+  const isTriggerProperty = propertyPath in triggerProperties;
+  // If it is a trigger property, it will go in a different list than the general
+  // dynamicBindingPathList.
+  if (isTriggerProperty) {
+    updates.dynamicTriggerPathList = getDynamicTriggerPathListUpdates(
+      widget,
+      propertyPath,
+      propertyValue,
+    );
+  } else {
+    updates.dynamicBindingPathList = updateDynamicBindings(
+      widget,
+      propertyPath,
+      propertyValue,
+    );
   }
 
-  yield put(updateWidgetProperty(widgetId, propertyName, propertyValue));
+  // Send the updates
+  yield put(updateWidgetProperty(widgetId, updates));
+
   const stateWidgets = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
+
+  // Save the layout
   yield put(updateAndSaveLayout(widgets));
 }
 
 function* setWidgetDynamicPropertySaga(
   action: ReduxAction<SetWidgetDynamicPropertyPayload>,
 ) {
-  const { isDynamic, propertyName, widgetId } = action.payload;
+  const { isDynamic, propertyPath, widgetId } = action.payload;
   const widget: WidgetProps = yield select(getWidget, widgetId);
-  // const tree = yield select(evaluateDataTree);
-  const propertyValue = _.get(widget, propertyName);
+  const propertyValue = _.get(widget, propertyPath);
   let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
+  const propertyUpdates: Record<string, unknown> = {};
   if (isDynamic) {
     dynamicPropertyPathList.push({
-      key: propertyName,
+      key: propertyPath,
     });
-    const value = convertToString(propertyValue);
-    yield put(updateWidgetProperty(widgetId, propertyName, value));
+    propertyUpdates[propertyPath] = convertToString(propertyValue);
   } else {
     dynamicPropertyPathList = _.reject(dynamicPropertyPathList, {
-      key: propertyName,
+      key: propertyPath,
     });
     const { parsed } = yield call(
       validateProperty,
       widget.type,
-      propertyName,
+      propertyPath,
       propertyValue,
       widget,
     );
-    yield put(updateWidgetProperty(widgetId, propertyName, parsed));
+    propertyUpdates[propertyPath] = parsed;
   }
-  yield put(
-    updateWidgetProperty(
-      widgetId,
-      "dynamicPropertyPathList",
-      dynamicPropertyPathList,
-    ),
-  );
+  propertyUpdates.dynamicPropertyPathList = dynamicPropertyPathList;
+  yield put(updateWidgetProperty(widgetId, propertyUpdates));
 }
 
 function* getWidgetChildren(widgetId: string): any {
@@ -774,11 +768,13 @@ function* getWidgetChildren(widgetId: string): any {
   const { children } = widget;
   if (children && children.length) {
     for (const childIndex in children) {
-      const child = children[childIndex];
-      childrenIds.push(child);
-      const grandChildren = yield call(getWidgetChildren, child);
-      if (grandChildren.length) {
-        childrenIds.push(...grandChildren);
+      if (children.hasOwnProperty(childIndex)) {
+        const child = children[childIndex];
+        childrenIds.push(child);
+        const grandChildren = yield call(getWidgetChildren, child);
+        if (grandChildren.length) {
+          childrenIds.push(...grandChildren);
+        }
       }
     }
   }
@@ -843,7 +839,9 @@ function* updateCanvasSize(
     // TODO(abhinav): This considers that the topRow will always be zero
     // Check this out when non canvas widgets are updating snapRows
     // erstwhile: Math.round((rows * props.snapRowSpace) / props.parentRowSpace),
-    yield put(updateWidgetProperty(canvasWidgetId, "bottomRow", newBottomRow));
+    yield put(
+      updateWidgetProperty(canvasWidgetId, { bottomRow: newBottomRow }),
+    );
   }
 }
 
@@ -852,11 +850,9 @@ function* createWidgetCopy() {
   if (!selectedWidget) return;
   const widgets = yield select(getWidgets);
   const widgetsToStore = getAllWidgetsInTree(selectedWidget.widgetId, widgets);
-  const saveResult = yield saveCopiedWidgets(
+  return yield saveCopiedWidgets(
     JSON.stringify({ widgetId: selectedWidget.widgetId, list: widgetsToStore }),
   );
-
-  return saveResult;
 }
 
 function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
@@ -1232,7 +1228,7 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
 // in the entity explorer so that the selected widget is visible
-function* selectedWidgetAncestorySaga(
+function* selectedWidgetAncestrySaga(
   action: ReduxAction<{ widgetId: string }>,
 ) {
   try {
@@ -1259,7 +1255,7 @@ function* selectedWidgetAncestorySaga(
       payload: widgetIdsExpandList,
     });
   } catch (error) {
-    log.debug("Could not compute selected widget's ancestory", error);
+    log.debug("Could not compute selected widget's ancestry", error);
   }
 }
 
@@ -1291,6 +1287,6 @@ export default function* widgetOperationSagas() {
     takeEvery(ReduxActionTypes.UNDO_DELETE_WIDGET, undoDeleteSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
-    takeLatest(ReduxActionTypes.SELECT_WIDGET, selectedWidgetAncestorySaga),
+    takeLatest(ReduxActionTypes.SELECT_WIDGET, selectedWidgetAncestrySaga),
   ]);
 }
