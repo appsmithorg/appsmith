@@ -25,25 +25,5 @@ describe("Check for product updates button and modal", function() {
           cy.get("[data-cy=t--product-updates-btn]").should("not.exist");
         }
       });
-
-    // cy.get(homePage.applicationCard)
-    //   .first()
-    //   .trigger("mouseover");
-    // cy.get(homePage.appMoreIcon)
-    //   .first()
-    //   .click({ force: true });
-    // cy.get(homePage.duplicateApp).click({ force: true });
-
-    // cy.wait("@getPage").should(
-    //   "have.nested.property",
-    //   "response.body.responseMeta.status",
-    //   200,
-    // );
-    // cy.get("@getPage").then(httpResponse => {
-    //   const data = httpResponse.response.body.data;
-    //   duplicateApplicationDsl = data.layouts[0].dsl;
-
-    //   expect(duplicateApplicationDsl).to.deep.equal(dsl.dsl);
-    // });
   });
 });

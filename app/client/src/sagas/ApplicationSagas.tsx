@@ -51,7 +51,6 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { showCompletionDialog } from "./OnboardingSagas";
-import releases from "./releases.json";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -139,7 +138,7 @@ export function* getAllApplicationSaga() {
         type: ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS,
         payload: organizationApplication,
       });
-      const { newReleasesCount, releaseItems } = releases || {};
+      const { newReleasesCount, releaseItems } = response.data || {};
       yield put({
         type: ReduxActionTypes.FETCH_RELEASES_SUCCESS,
         payload: { newReleasesCount, releaseItems },
