@@ -14,7 +14,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.net.URI;
 import java.util.Map;
 
 /**
@@ -30,7 +29,7 @@ public class PingScheduledTask {
 
     private final ConfigService configService;
 
-    public static final URI GET_IP_URI = URI.create("https://api64.ipify.org");
+    private final IpAddress ipAddress;
 
     @Value("${segment.ce.key}")
     private String segmentCEKey;
@@ -43,24 +42,10 @@ public class PingScheduledTask {
     // Number of milliseconds between the start of each scheduled calls to this method.
     @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 6 * 60 * 60 * 1000 /* six hours */)
     public void pingSchedule() {
-        Mono.zip(configService.getInstanceId(), getAddress())
+        Mono.zip(configService.getInstanceId(), ipAddress.get())
                 .flatMap(tuple -> doPing(tuple.getT1(), tuple.getT2()))
                 .subscribeOn(Schedulers.single())
                 .subscribe();
-    }
-
-    /**
-     * This method hits an API endpoint that returns the external IP address of this server instance.
-     *
-     * @return A publisher that yields the IP address.
-     */
-    private Mono<String> getAddress() {
-        return WebClient
-                .create()
-                .get()
-                .uri(GET_IP_URI)
-                .retrieve()
-                .bodyToMono(String.class);
     }
 
     /**

@@ -33,6 +33,8 @@ public class ReleaseNotesService {
 
     private final ProjectProperties projectProperties;
 
+    private final IpAddress ipAddress;
+
     public final List<ReleaseNode> releaseNodesCache = new ArrayList<>();
 
     private Instant cacheExpiryTime = null;
@@ -72,10 +74,14 @@ public class ReleaseNotesService {
             return Mono.justOrEmpty(releaseNodesCache);
         }
 
-        return configService.getInstanceId()
-                .flatMap(instanceId -> WebClient
+        return Mono.zip(
+                configService.getInstanceId(),
+                ipAddress.get()
+        )
+                .flatMap(tuple -> WebClient
                         .create(
-                                baseUrl + "/api/v1/releases?instanceId=" + instanceId +
+                                baseUrl + "/api/v1/releases?instanceId=" + tuple.getT1() +
+                                        "&ip=" + tuple.getT2() +
                                         (StringUtils.isEmpty(repo) ? "" : ("&repo=" + repo))
                         )
                         .get()
