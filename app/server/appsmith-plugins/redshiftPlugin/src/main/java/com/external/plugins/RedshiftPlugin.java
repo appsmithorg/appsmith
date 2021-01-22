@@ -289,7 +289,7 @@ public class RedshiftPlugin extends BasePlugin {
             })
             .flatMap(obj -> obj)
             .onErrorMap(e -> {
-                if(!(e instanceof AppsmithPluginException)) {
+                if(!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
                     return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
                 }
 
@@ -609,7 +609,7 @@ public class RedshiftPlugin extends BasePlugin {
                 catch (SQLException e) {
                     return Mono.error(
                             new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
                                     e.getMessage()
                             )
                     );

@@ -193,6 +193,7 @@ public class MySqlPlugin extends BasePlugin {
                             return Flux.error(new StaleConnectionException());
                         }
                     });
+
             Mono<List<Map<String, Object>>> resultMono = null;
 
             if (isSelectOrShowQuery) {
@@ -502,7 +503,14 @@ public class MySqlPlugin extends BasePlugin {
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
-            return Flux.from(connection.createStatement(COLUMNS_QUERY).execute())
+            return Mono.from(connection.validate(ValidationDepth.REMOTE))
+                    .flatMapMany(isValid -> {
+                        if (isValid) {
+                            return connection.createStatement(COLUMNS_QUERY).execute();
+                        } else {
+                            return Flux.error(new StaleConnectionException());
+                        }
+                    })
                     .flatMap(result -> {
                         return result.map((row, meta) -> {
                             getTableInfo(row, meta, tablesByName);
@@ -531,7 +539,7 @@ public class MySqlPlugin extends BasePlugin {
                         return structure;
                     })
                     .onErrorMap(e -> {
-                            if (!(e instanceof AppsmithPluginException)) {
+                            if (!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
                                 return new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_ERROR,
                                         e.getMessage()

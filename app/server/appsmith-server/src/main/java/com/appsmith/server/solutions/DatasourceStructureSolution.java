@@ -54,7 +54,7 @@ public class DatasourceStructureSolution {
                 )
                 .onErrorMap(e -> {
                     if(!(e instanceof AppsmithPluginException)) {
-                        return new AppsmithPluginException(AppsmithPluginError.PLUGIN_STRUCTURE_ERROR, e.getMessage());
+                        return new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR, e.getMessage());
                     }
 
                     return e;
@@ -91,7 +91,7 @@ public class DatasourceStructureSolution {
                 .onErrorMap(
                         StaleConnectionException.class,
                         error -> new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_STRUCTURE_ERROR,
+                                AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
                                 "Secondary stale connection error."
                         )
                 )
@@ -107,7 +107,7 @@ public class DatasourceStructureSolution {
                     log.error("In the datasource structure error mode.", e);
 
                     if(!(e instanceof AppsmithPluginException)) {
-                        return new AppsmithPluginException(AppsmithPluginError.PLUGIN_STRUCTURE_ERROR, e.getMessage());
+                        return new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR, e.getMessage());
                     }
 
                     return e;

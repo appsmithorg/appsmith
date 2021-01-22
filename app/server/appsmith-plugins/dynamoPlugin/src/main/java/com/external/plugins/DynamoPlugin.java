@@ -203,7 +203,6 @@ public class DynamoPlugin extends BasePlugin {
                     )
                     .subscribeOn(scheduler);
         }
-
     }
 
     private static String toLowerCamelCase(String action) {
