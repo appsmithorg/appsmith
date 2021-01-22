@@ -4,39 +4,47 @@ import {
   EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Skin, Theme } from "constants/DefaultTheme";
+import {
+  scrollbarDark,
+  scrollbarLight,
+  Skin,
+  Theme,
+} from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 
-export const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
+export const HintStyles = createGlobalStyle<{
+  editorTheme: EditorTheme;
+  theme: Theme;
+}>`
   .CodeMirror-hints {
     position: absolute;
     z-index: 20;
     overflow: hidden;
     list-style: none;
-    margin: 0;
+    margin-top: ${(props) => props.theme.spaces[3]}px;
     padding: 0px 0px;
     font-size: 90%;
     font-family: monospace;
     max-height: 20em;
     overflow-y: auto;
     background: ${(props) =>
-      props.editorTheme === EditorTheme.DARK ? "#090A0F" : "#ffffff"};
-    border: 1px solid;
-    border-color: ${(props) =>
-      props.editorTheme === EditorTheme.DARK ? "#535B62" : "#EBEFF2"};
-    box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
-    border-radius: 1px;
+      props.theme.colors.codeMirror.background.defaultState};
+    box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
+    border-radius: 0px;
+    ${(props) =>
+      props.editorTheme === EditorTheme.LIGHT ? scrollbarLight : scrollbarDark};
   }
 
   .CodeMirror-hint {
-    height: 25px;
-    color: ${(props) =>
-      props.editorTheme === EditorTheme.DARK ? "#F4F4F4" : "#1E242B"};
+    height: 32px;
+    color: ${(props) => props.theme.colors.codeMirror.text};
     cursor: pointer;
     display: flex;
-    width: 250px;
+    width: 300px;
     align-items: center;
-    font-size: 13px;
+    font-size: 12px;
+    line-height: 15px;
+    letter-spacing: -0.24px;
   }
 
   .datasource-hint {
@@ -50,24 +58,75 @@ export const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
 
   li.CodeMirror-hint-active {
     background: ${(props) =>
-      props.editorTheme === EditorTheme.DARK
-        ? "rgba(244,244,244,0.2)"
-        : "rgba(128,136,141,0.2)"};
-    border-radius: 1px;
+      props.theme.colors.codeMirror.background.hoverState};
+    border-radius: 0px;
   }
   .CodeMirror-Tern-completion {
-    padding-left: 22px !important;
+    padding-left: ${(props) => props.theme.spaces[11]}px !important;
     &:hover{
       background: ${(props) =>
-        props.editorTheme === EditorTheme.DARK
-          ? "rgba(244,244,244,0.2)"
-          : "rgba(128,136,141,0.2)"};
+        props.theme.colors.codeMirror.background.hoverState};
     }
   }
   .CodeMirror-Tern-completion:before {
-    left: 4px !important;
-    bottom: 4px !important;
-    line-height: 15px !important;
+    left: 7px;
+    bottom: 10px;
+    height: 12px;
+    width: 12px;
+    border-radius: 0;
+    font-size: 10px;
+    line-height: 12px;
+    font-weight: normal;
+    text-align: center;
+    color: ${(props) => props.theme.colors.codeMirror.dataType.shortForm};
+    margin-right: ${(props) => props.theme.spaces[13]}px;
+  }
+  .CodeMirror-Tern-completion-fn:before {
+    background: ${(props) => props.theme.colors.dataTypeBg.function};
+  }
+  .CodeMirror-Tern-completion-object:before {
+    background: ${(props) => props.theme.colors.dataTypeBg.object};
+  }
+  .CodeMirror-Tern-completion-unknown:before {
+    background: ${(props) => props.theme.colors.dataTypeBg.unknown};
+  }
+  .CodeMirror-Tern-completion-array:before {
+    background: ${(props) => props.theme.colors.dataTypeBg.array};
+  }
+  .CodeMirror-Tern-completion-number:before, .CodeMirror-Tern-completion-string:before, .CodeMirror-Tern-completion-bool:before {
+    background: ${(props) => props.theme.colors.dataTypeBg.number};
+  }
+  .CodeMirror-Tern-completion:after {
+    position: absolute;
+    right: 8px;
+    bottom: 10px;
+    font-style: italic;
+    font-weight: normal;
+    font-size: 12px;
+    line-height: 15px;
+    letter-spacing: -0.24px;
+    color: ${(props) => props.theme.colors.codeMirror.dataType.fullForm};
+  }
+  .CodeMirror-Tern-completion-fn:after {
+    content: "Function";
+  }
+  .CodeMirror-Tern-completion-object:after {
+    content: "Object";
+  }
+  .CodeMirror-Tern-completion-unknown:after {
+    content: "Unknown";
+  }
+  .CodeMirror-Tern-completion-array:after {
+    content: "Array";
+  }
+  .CodeMirror-Tern-completion-number:after {
+    content: "Number";
+  }
+  .CodeMirror-Tern-completion-string:after {
+    content: "String";
+  } 
+  .CodeMirror-Tern-completion-bool:after {
+    content: "Boolean";
   }
   .CodeMirror-Tern-tooltip {
     z-index: 20 !important;

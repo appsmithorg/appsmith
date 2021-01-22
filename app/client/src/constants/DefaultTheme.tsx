@@ -783,6 +783,17 @@ type ColorType = {
       text: string;
     };
   };
+  codeMirror: {
+    background: {
+      defaultState: string;
+      hoverState: string;
+    };
+    text: string;
+    dataType: {
+      shortForm: string;
+      fullForm: string;
+    };
+  };
   floatingBtn: any;
 };
 
@@ -1110,6 +1121,17 @@ export const dark: ColorType = {
     },
     body: {
       text: "#6D6D6D",
+    },
+  },
+  codeMirror: {
+    background: {
+      defaultState: "#262626",
+      hoverState: "#1A191C",
+    },
+    text: "#FFFFFF",
+    dataType: {
+      shortForm: "#858282",
+      fullForm: "#6D6D6D",
     },
   },
   floatingBtn: {
@@ -1445,6 +1467,17 @@ export const light: ColorType = {
       text: "#A9A7A7",
     },
   },
+  codeMirror: {
+    background: {
+      defaultState: "#EBEBEB",
+      hoverState: "#FAFAFA",
+    },
+    text: "#090707",
+    dataType: {
+      shortForm: "#858282",
+      fullForm: "#6D6D6D",
+    },
+  },
   floatingBtn: {
     tagBackground: "#e22c2c",
     backgroundColor: lightShades[3],
@@ -1610,6 +1643,13 @@ export const theme: Theme = {
     lightningborder: Colors.ALABASTER,
     formButtonColor: Colors.WHITE,
     appCardColors: appColors,
+    dataTypeBg: {
+      function: "#BDB2FF",
+      object: "#FFD6A5",
+      unknown: "#4bb",
+      array: "#CDFFA5",
+      number: "#FFB2B2",
+    },
   },
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: {
@@ -1768,7 +1808,7 @@ export const theme: Theme = {
 };
 
 export const scrollbarLight = css<{ backgroundColor?: Color }>`
-  scrollbar-color: ${(props) => props.theme.colors.paneText}
+  scrollbar-color: ${(props) => props.theme.colors.paneText};
 
   scrollbar-width: thin;
   &::-webkit-scrollbar {
