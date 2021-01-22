@@ -135,6 +135,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     } = this.props;
     if (tableData.length) {
       const columnKeys: string[] = getAllTableColumnKeys(tableData);
+      const { componentWidth } = this.getComponentDimensions();
       const sortedColumn = this.props.sortedColumn;
       for (let index = 0; index < columnKeys.length; index++) {
         const i = columnKeys[index];
@@ -170,7 +171,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             inputFormat: columnType.inputFormat,
           },
           Cell: (props: any) => {
-            return renderCell(props.cell.value, columnType.type, isHidden);
+            return renderCell(
+              props.cell.value,
+              columnType.type,
+              isHidden,
+              componentWidth,
+            );
           },
         };
         if (isHidden) {
