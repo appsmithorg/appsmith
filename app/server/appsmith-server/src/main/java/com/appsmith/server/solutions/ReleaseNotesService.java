@@ -40,6 +40,12 @@ public class ReleaseNotesService {
     @Value("${github_repo}")
     private String repo;
 
+    @Value("${is.cloud-hosted:false}")
+    private boolean isCloudHosted;
+
+    @Value("${segment.ce.key}")
+    private String segmentKey;
+
     @Data
     static class Releases {
         private int totalCount;
@@ -76,6 +82,7 @@ public class ReleaseNotesService {
                 .flatMap(instanceId -> WebClient
                         .create(
                                 baseUrl + "/api/v1/releases?instanceId=" + instanceId +
+                                        "&isSourceInstall=" + (isCloudHosted || StringUtils.isEmpty(segmentKey)) +
                                         (StringUtils.isEmpty(repo) ? "" : ("&repo=" + repo))
                         )
                         .get()
