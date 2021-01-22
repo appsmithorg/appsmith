@@ -382,9 +382,9 @@ ask_telemetry() {
     echo -e ""
     if confirm y 'Would you like to share anonymous usage data and receive better support?'; then
         disable_telemetry="false"
-        echo "Please note that even though telemetry is disabled, your Appsmith server will connect to cloud to fetch release notes and to check for updates."
     else
         disable_telemetry="true"
+        echo "Please note that even though telemetry is disabled, your Appsmith server will connect to cloud to fetch release notes and to check for updates."
     fi
     echo "++++++++++++++++++++++++++++++++++++++++++++"
 
