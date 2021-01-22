@@ -68,7 +68,7 @@ install_docker() {
             sudo SUSEConnect -p sle-module-containers/$os_sp/$os_arch -r ''
         fi
         $zypper_cmd install docker docker-runc containerd
-        sudo systemctl enable docker.service 
+        sudo systemctl enable docker.service
     else
         yum_cmd="sudo yum --assumeyes --quiet"
         $yum_cmd install yum-utils
@@ -179,7 +179,7 @@ overwrite_file() {
     fi
 }
 
-# This function prompts the user for an input for a non-empty Mongo root password. 
+# This function prompts the user for an input for a non-empty Mongo root password.
 read_mongo_password() {
     read -srp 'Set the mongo password: ' mongo_root_password
     while [[ -z $mongo_root_password ]]; do
@@ -190,10 +190,10 @@ read_mongo_password() {
         echo "++++++++++++++++++++++++++++++++++++++++"
         echo ""
         read -srp 'Set the mongo password: ' mongo_root_password
-    done 
+    done
 }
 
-# This function prompts the user for an input for a non-empty Mongo username. 
+# This function prompts the user for an input for a non-empty Mongo username.
 read_mongo_username() {
     read -rp 'Set the mongo root user: ' mongo_root_user
     while [[ -z $mongo_root_user ]]; do
@@ -384,6 +384,7 @@ ask_telemetry() {
         disable_telemetry="false"
     else
         disable_telemetry="true"
+        echo "Please note that even though telemetry is disabled, your Appsmith server will connect to cloud to fetch release notes and to check for updates."
     fi
     echo "++++++++++++++++++++++++++++++++++++++++++++"
 
