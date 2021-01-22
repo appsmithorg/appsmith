@@ -1,4 +1,7 @@
-import { OnboardingStep } from "constants/OnboardingConstants";
+import {
+  OnboardingHelperConfig,
+  OnboardingStep,
+} from "constants/OnboardingConstants";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -14,8 +17,14 @@ const initialState: OnboardingState = {
   inOnboarding: false,
   createdDBQuery: false,
   addedWidget: false,
-  showingTooltip: OnboardingStep.NONE,
+  showHelper: false,
   showingIndicator: OnboardingStep.NONE,
+  helperStepConfig: {
+    title: "",
+    action: {
+      label: "",
+    },
+  },
 };
 
 export interface OnboardingState {
@@ -26,8 +35,8 @@ export interface OnboardingState {
   inOnboarding: boolean;
   createdDBQuery: boolean;
   addedWidget: boolean;
-  // Tooltip is shown when the step matches this value
-  showingTooltip: OnboardingStep;
+  showHelper: boolean;
+  helperStepConfig: OnboardingHelperConfig;
   showingIndicator: OnboardingStep;
 }
 
@@ -105,6 +114,24 @@ const onboardingReducer = createReducer(initialState, {
     return {
       ...state,
       showCompletionDialog: action.payload,
+    };
+  },
+  [ReduxActionTypes.SHOW_ONBOARDING_HELPER]: (
+    state: OnboardingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      showHelper: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_HELPER_CONFIG]: (
+    state: OnboardingState,
+    action: ReduxAction<OnboardingHelperConfig>,
+  ) => {
+    return {
+      ...state,
+      helperStepConfig: action.payload,
     };
   },
 });

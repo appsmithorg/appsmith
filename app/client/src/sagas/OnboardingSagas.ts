@@ -23,7 +23,11 @@ import {
 } from "selectors/entitiesSelector";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
-import { getOnboardingState, setOnboardingState } from "utils/storage";
+import {
+  getOnboardingState,
+  setOnboardingState,
+  setOnboardingWelcomeState,
+} from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
 import { getSelectedWidget } from "./selectors";
 import {
@@ -50,14 +54,6 @@ export const inOnboarding = (state: AppState) =>
   state.ui.onBoarding.inOnboarding;
 export const isAddWidgetComplete = (state: AppState) =>
   state.ui.onBoarding.addedWidget;
-export const getTooltipConfig = (state: AppState) => {
-  const showingTooltip = state.ui.onBoarding.showingTooltip;
-  if (showingTooltip >= 0) {
-    return OnboardingConfig[showingTooltip].tooltip;
-  }
-
-  return OnboardingConfig[OnboardingStep.NONE].tooltip;
-};
 export const showCompletionDialog = (state: AppState) => {
   const isInOnboarding = inOnboarding(state);
   const currentStep = getCurrentStep(state);
@@ -68,6 +64,9 @@ export const getInitialTableData = (state: AppState) => {
   const widgetConfig = state.entities.widgetConfig;
 
   return widgetConfig.config.TABLE_WIDGET.tableData;
+};
+export const getHelperConfig = (step: OnboardingStep) => {
+  return OnboardingConfig[step].helper;
 };
 
 function* listenForWidgetAdditions() {
@@ -274,6 +273,10 @@ function* initiateOnboarding() {
     // AnalyticsUtil.logEvent("ONBOARDING_WELCOME");
     yield put(setOnboardingReduxState(true));
     yield put({
+      type: ReduxActionTypes.SHOW_ONBOARDING_HELPER,
+      payload: true,
+    });
+    yield put({
       type: ReduxActionTypes.NEXT_ONBOARDING_STEP,
     });
   }
@@ -304,8 +307,9 @@ function* setupOnboardingStep() {
 
 function* skipOnboardingSaga() {
   const set = yield setOnboardingState(false);
+  const resetWelcomeState = yield setOnboardingWelcomeState(false);
 
-  if (set) {
+  if (set && resetWelcomeState) {
     yield put(setOnboardingReduxState(false));
   }
 }

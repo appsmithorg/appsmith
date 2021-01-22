@@ -1,34 +1,30 @@
-import { ReduxAction, ReduxActionTypes } from "./ReduxActionConstants";
-import { showTooltip } from "actions/onboardingActions";
+import { ReduxActionTypes } from "./ReduxActionConstants";
 
 export enum OnboardingStep {
   NONE = -1,
-  // WELCOME = 0,
-  EXAMPLE_DATABASE = 0,
-  RUN_QUERY = 1,
-  RUN_QUERY_SUCCESS = 2,
-  ADD_WIDGET = 3,
-  SUCCESSFUL_BINDING = 4,
-  DEPLOY = 5,
-  FINISH = 6,
+  WELCOME = 0,
+  EXAMPLE_DATABASE = 1,
+  RUN_QUERY = 2,
+  RUN_QUERY_SUCCESS = 3,
+  ADD_WIDGET = 4,
+  SUCCESSFUL_BINDING = 5,
+  DEPLOY = 6,
+  FINISH = 7,
 }
 
-export type OnboardingTooltip = {
+export type OnboardingHelperConfig = {
   title: string;
   description?: string;
-  action?: {
+  skipLabel?: string;
+  action: {
     label: string;
-    action?: ReduxAction<OnboardingStep>;
   };
-  onClickOutside?: ReduxAction<any>;
-  snippet?: string;
-  isFinalStep?: boolean;
 };
 
 export type OnboardingStepConfig = {
   name: string;
   setup: () => { type: string; payload?: any }[];
-  tooltip: OnboardingTooltip;
+  helper?: OnboardingHelperConfig;
 };
 
 export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
@@ -37,27 +33,28 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     setup: () => {
       return [];
     },
-    tooltip: {
+  },
+  [OnboardingStep.WELCOME]: {
+    name: "WELCOME",
+    setup: () => {
+      // To setup the state if any
+      // Return action that needs to be dispatched
+      return [
+        {
+          type: ReduxActionTypes.SHOW_WELCOME,
+        },
+      ];
+    },
+    helper: {
       title: "",
-      description: "",
+      description:
+        "Let’s get you started with Appsmith. We’d like to show you around by building an app that talks to a database. It’ll only take a minute or two.",
+      skipLabel: "No thanks",
+      action: {
+        label: "Let’s go",
+      },
     },
   },
-  // [OnboardingStep.WELCOME]: {
-  //   name: "WELCOME",
-  //   setup: () => {
-  //     // To setup the state if any
-  //     // Return action that needs to be dispatched
-  //     return [
-  //       {
-  //         type: ReduxActionTypes.SHOW_WELCOME,
-  //       },
-  //     ];
-  //   },
-  //   tooltip: {
-  //     title: "",
-  //     description: "",
-  //   },
-  // },
   [OnboardingStep.EXAMPLE_DATABASE]: {
     name: "EXAMPLE_DATABASE",
     setup: () => {
@@ -73,19 +70,11 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         },
       ];
     },
-    tooltip: {
-      title:
-        "We’ve connected to an example Postgres database. You can now query it.",
-    },
   },
   [OnboardingStep.RUN_QUERY]: {
     name: "RUN_QUERY",
     setup: () => {
       return [];
-    },
-    tooltip: {
-      title:
-        "This is where you query data. Here’s one that fetches a list of users stored in the DB.",
     },
   },
   [OnboardingStep.RUN_QUERY_SUCCESS]: {
@@ -100,32 +89,17 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         },
       ];
     },
-    tooltip: {
-      title:
-        "This is the response from your query. Now let’s connect it to a UI widget.",
-    },
   },
   [OnboardingStep.ADD_WIDGET]: {
     name: "ADD_WIDGET",
     setup: () => {
       return [];
     },
-    tooltip: {
-      title:
-        "Your first widget 🎉 Copy the snippet below and paste it inside TableData to see the magic",
-      snippet: "{{ExampleQuery.data}}",
-    },
   },
   [OnboardingStep.SUCCESSFUL_BINDING]: {
     name: "SUCCESSFUL_BINDING",
     setup: () => {
       return [];
-    },
-    tooltip: {
-      title: "Your widget is now talking to your data 👌👏",
-      description:
-        "You can access widgets and actions as JS variables anywhere inside {{ }}",
-      onClickOutside: showTooltip(OnboardingStep.DEPLOY),
     },
   },
   [OnboardingStep.DEPLOY]: {
@@ -137,19 +111,12 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         },
       ];
     },
-    tooltip: {
-      title: "You’re almost done! Just Hit Deploy",
-      isFinalStep: true,
-    },
   },
   // Final step
   [OnboardingStep.FINISH]: {
     name: "FINISH",
     setup: () => {
       return [];
-    },
-    tooltip: {
-      title: "",
     },
   },
 };

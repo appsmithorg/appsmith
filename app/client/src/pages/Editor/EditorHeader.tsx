@@ -38,6 +38,7 @@ import {
 } from "selectors/applicationSelectors";
 import EditableTextWrapper from "components/ads/EditableTextWrapper";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
+import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
 
@@ -304,6 +305,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         </Boxed>
       </HeaderSection>
       <HelpModal page={"Editor"} />
+      <OnboardingHelper />
     </HeaderWrapper>
   );
 };

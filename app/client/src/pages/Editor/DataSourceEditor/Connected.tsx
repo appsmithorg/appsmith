@@ -65,9 +65,6 @@ const Connected = () => {
 
   // Onboarding
   const isInOnboarding = useSelector(inOnboarding);
-  const showingTooltip = useSelector(
-    (state: AppState) => state.ui.onBoarding.showingTooltip,
-  );
 
   const dispatch = useDispatch();
   const actions = useSelector((state: AppState) => state.entities.actions);
@@ -96,10 +93,7 @@ const Connected = () => {
       },
     } as Partial<QueryAction>; // TODO: refactor later. Handle case for undefined datasource before we reach here.
     if (datasource)
-      if (
-        isInOnboarding &&
-        showingTooltip === OnboardingStep.EXAMPLE_DATABASE
-      ) {
+      if (isInOnboarding) {
         // If in onboarding and tooltip is being shown
         payload = Object.assign({}, payload, {
           name: "ExampleQuery",

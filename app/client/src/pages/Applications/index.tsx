@@ -67,6 +67,7 @@ import ProfileImage from "pages/common/ProfileImage";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { AppIconCollection } from "components/ads/AppIcon";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
+import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -758,7 +759,7 @@ const ApplicationsSection = (props: any) => {
     <ApplicationContainer className="t--applications-container">
       {organizationsListComponent}
       <HelpModal page={"Applications"} />
-      <OnboardingHelper />
+      <WelcomeHelper />
     </ApplicationContainer>
   );
 };

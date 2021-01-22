@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from "react";
+import { endOnboarding } from "actions/onboardingActions";
+import React from "react";
+import { useDispatch } from "react-redux";
+import { useSelector } from "store";
 import styled from "styled-components";
-import { getOnboardingWelcomeState } from "utils/storage";
 
 const StyledContainer = styled.div`
   position: fixed;
   bottom: 37px;
   left: 37px;
   z-index: 8;
-  color: white;
   padding: 12px;
-  background-color: ${(props) => props.theme.colors.homepageBackground};
+  background-color: white;
   border: 2px solid #df613c;
   width: 303px;
 `;
@@ -24,12 +25,13 @@ const Title = styled.div`
   font-size: 16px;
   font-weight: 500;
   margin-top: 12px;
+  color: #000000;
 `;
 
 const Description = styled.div`
   font-size: 14px;
-  font-weight: 500;
   margin-top: 12px;
+  color: #000000;
 `;
 
 const Button = styled.button`
@@ -40,39 +42,30 @@ const Button = styled.button`
 
 const SkipButton = styled(Button)`
   background-color: transparent;
-  color: white;
+  font-size: 14px;
+  color: #6d6d6d;
 `;
 
 const LetsGo = styled(Button)`
   background-color: #df613c;
+  font-size: 14px;
   color: white;
 `;
 
 const Helper = () => {
-  const [showHelper, setShowHelper] = useState(false);
-
-  useEffect(() => {
-    const showWelcomeHelper = async () => {
-      const inOnboarding = await getOnboardingWelcomeState();
-      if (inOnboarding) {
-        setShowHelper(true);
-      }
-    };
-
-    showWelcomeHelper();
-  }, []);
+  const showHelper = useSelector((state) => state.ui.onBoarding.showHelper);
+  const helperConfig = useSelector(
+    (state) => state.ui.onBoarding.helperStepConfig,
+  );
+  const dispatch = useDispatch();
 
   if (!showHelper) return null;
 
   return (
     <StyledContainer>
       <ImagePlaceholder />
-      <Title>Welcome, Aakash!</Title>
-      <Description>
-        Let’s get you started with Appsmith. We’d like to show you around by
-        building an app that talks to a database. It’ll only take a minute or
-        two.
-      </Description>
+      <Title>{helperConfig.title}</Title>
+      <Description>{helperConfig.description}</Description>
       <div
         style={{
           marginTop: 9,
@@ -81,8 +74,16 @@ const Helper = () => {
           flex: 1,
         }}
       >
-        <SkipButton>No thanks</SkipButton>
-        <LetsGo>Let’s go</LetsGo>
+        {helperConfig.skipLabel && (
+          <SkipButton
+            onClick={() => {
+              dispatch(endOnboarding());
+            }}
+          >
+            {helperConfig.skipLabel}
+          </SkipButton>
+        )}
+        <LetsGo>{helperConfig.action?.label}</LetsGo>
       </div>
     </StyledContainer>
   );
