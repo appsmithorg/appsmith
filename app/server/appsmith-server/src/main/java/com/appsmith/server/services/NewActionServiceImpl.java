@@ -365,6 +365,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private Mono<ActionDTO> setTransientFieldsInUnpublishedAction(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
 
+        // In case the action is deleted in edit mode (but still exists because this action has been published before
+        // drop the action and return empty
+        if (action.getDeletedAt() != null) {
+            return Mono.empty();
+        }
+
         // In case of an action which was imported from a 3P API, fill in the extra information of the provider required by the front end UI.
         Mono<ActionDTO> providerUpdateMono;
         if ((action.getTemplateId() != null) && (action.getProviderId() != null)) {

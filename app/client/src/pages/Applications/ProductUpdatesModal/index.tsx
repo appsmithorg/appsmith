@@ -37,7 +37,7 @@ const ViewInGithubLink = styled.a`
   cursor: pointer;
   text-decoration: none;
   :hover {
-    text-decoration: none;
+    text-decoration: underline;
     color: ${(props) => props.theme.colors.text.normal};
   }
   font-weight: ${(props) => props.theme.typography.releaseList.fontWeight};
@@ -53,6 +53,15 @@ const HeaderRight = styled.div`
   display: flex;
 `;
 
+const CloseIconContainer = styled.div`
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  &:hover {
+    background-color: ${(props) => props.theme.colors.modal.hoverState};
+  }
+`;
+
 const Header = withTheme(
   ({ onClose, theme }: { onClose: () => void; theme: any }) => (
     <>
@@ -65,13 +74,13 @@ const Header = withTheme(
           >
             View on Github
           </ViewInGithubLink>
-          <div onClick={onClose} style={{ cursor: "pointer" }}>
+          <CloseIconContainer onClick={onClose}>
             <CloseIcon
               height={20}
               width={20}
               color={theme.colors.text.normal as Color}
             />
-          </div>
+          </CloseIconContainer>
         </HeaderRight>
       </HeaderContents>
       <div style={{ padding: `0 ${theme.spaces[9]}px` }}>

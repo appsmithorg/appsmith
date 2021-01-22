@@ -2,6 +2,7 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.configurations.ProjectProperties;
+import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ConfigService;
 import lombok.Data;
@@ -29,6 +30,8 @@ public class ReleaseNotesService {
 
     private final CloudServicesConfig cloudServicesConfig;
 
+    private final SegmentConfig segmentConfig;
+
     private final ConfigService configService;
 
     private final ProjectProperties projectProperties;
@@ -39,6 +42,9 @@ public class ReleaseNotesService {
 
     @Value("${github_repo}")
     private String repo;
+
+    @Value("${is.cloud-hosted:false}")
+    private boolean isCloudHosted;
 
     @Data
     static class Releases {
@@ -76,6 +82,7 @@ public class ReleaseNotesService {
                 .flatMap(instanceId -> WebClient
                         .create(
                                 baseUrl + "/api/v1/releases?instanceId=" + instanceId +
+                                        "&isSourceInstall=" + (isCloudHosted || StringUtils.isEmpty(segmentConfig.getCeKey())) +
                                         (StringUtils.isEmpty(repo) ? "" : ("&repo=" + repo))
                         )
                         .get()
