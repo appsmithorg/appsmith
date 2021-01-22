@@ -87,9 +87,16 @@ public class RedshiftPluginTest {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithPluginException && throwable.getMessage()
-                        .equals(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error connecting" +
-                        " to Redshift.").getMessage()))
+                .expectErrorMatches(throwable ->
+                        throwable instanceof AppsmithPluginException &&
+                        throwable.getMessage().equals(
+                                new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                    "The connection attempt failed."
+                                )
+                                .getMessage()
+                        )
+                )
                 .verify();
     }
 
