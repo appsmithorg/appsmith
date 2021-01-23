@@ -381,6 +381,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                   <Pagination
                     onTestClick={props.onRunClick}
                     paginationType={props.paginationType}
+                    theme={theme}
                   />
                 ),
               },

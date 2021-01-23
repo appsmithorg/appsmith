@@ -602,6 +602,7 @@ type ColorType = {
   radio: {
     disable: ShadeColor;
     border: ShadeColor;
+    text: ShadeColor;
   };
   searchInput: {
     placeholder: ShadeColor;
@@ -782,6 +783,13 @@ type ColorType = {
     body: {
       text: string;
     };
+    pagination: {
+      label: ShadeColor;
+      description: ShadeColor;
+      stepTitle: ShadeColor;
+      exampleBg: ShadeColor;
+      bindingBg: ShadeColor;
+    };
   };
   codeMirror: {
     background: {
@@ -942,6 +950,7 @@ export const dark: ColorType = {
   radio: {
     disable: darkShades[5],
     border: darkShades[4],
+    text: lightShades[11],
   },
   searchInput: {
     placeholder: darkShades[5],
@@ -1122,6 +1131,13 @@ export const dark: ColorType = {
     body: {
       text: "#6D6D6D",
     },
+    pagination: {
+      label: darkShades[7],
+      description: darkShades[5],
+      stepTitle: darkShades[9],
+      exampleBg: darkShades[3],
+      bindingBg: darkShades[0],
+    },
   },
   codeMirror: {
     background: {
@@ -1286,6 +1302,7 @@ export const light: ColorType = {
   radio: {
     disable: lightShades[4],
     border: lightShades[3],
+    text: lightShades[10],
   },
   searchInput: {
     placeholder: lightShades[6],
@@ -1465,6 +1482,13 @@ export const light: ColorType = {
     },
     body: {
       text: "#A9A7A7",
+    },
+    pagination: {
+      label: lightShades[8],
+      description: darkShades[5],
+      stepTitle: lightShades[10],
+      exampleBg: lightShades[11],
+      bindingBg: lightShades[3],
     },
   },
   codeMirror: {
