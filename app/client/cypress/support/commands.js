@@ -1279,6 +1279,19 @@ Cypress.Commands.add("getAlert", (alertcss) => {
     .click({ force: true });
 });
 
+Cypress.Commands.add("addAPI", () => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .click({ force: true })
+    .get("ul.bp3-menu")
+    .children()
+    .contains("Call An API")
+    .click({ force: true })
+    .get("ul.bp3-menu")
+    .children()
+    .contains("Create API")
+    .click({ force: true });
+});
+
 Cypress.Commands.add("radioInput", (index, text) => {
   cy.get(widgetsPage.RadioInput)
     .eq(index)
