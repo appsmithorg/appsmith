@@ -54,6 +54,14 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
                 label: "Area Chart",
                 value: "AREA_CHART",
               },
+              {
+                label: "Custom FusionChart",
+                value: "CUSTOM_FUSION_CHART",
+              },
+              {
+                label: "Custom PlotlyChart",
+                value: "CUSTOM_PLOTLY_CHART",
+              },
             ],
             isJSConvertible: true,
           },
@@ -63,6 +71,26 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             placeholderText: 'Enter [{ "x": "val", "y": "val" }]',
             label: "Chart Data",
             controlType: "CHART_DATA",
+            hidden: (x: any) =>
+              ["CUSTOM_FUSION_CHART", "CUSTOM_PLOTLY_CHART"].includes(
+                x.chartType,
+              ),
+          },
+          {
+            helpText: "Manually configure a FusionChart, see fusioncharts.com",
+            propertyName: "customFusionChartConfig",
+            placeholderText: `Enter {type: "bar2d","dataSource": {}}`,
+            label: "Custom Fusion Chart Configuration",
+            controlType: "CUSTOM_FUSION_CHARTS_DATA",
+            hidden: (x: any) => x.chartType !== "CUSTOM_FUSION_CHART",
+          },
+          {
+            helpText: "Manually configure a PlotlyChart, see plotly.com",
+            propertyName: "customPlotlyChartConfig",
+            placeholderText: `Enter a plotly JSON configuration`,
+            label: "Custom Plotly Chart Configuration",
+            controlType: "CUSTOM_PLOTLY_CHARTS_DATA",
+            hidden: (x: any) => x.chartType !== "CUSTOM_PLOTLY_CHART",
           },
           {
             helpText: "Specifies the label of the x-axis",
@@ -70,6 +98,10 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             placeholderText: "Enter label text",
             label: "x-axis Label",
             controlType: "INPUT_TEXT",
+            hidden: (x: any) =>
+              ["CUSTOM_FUSION_CHART", "CUSTOM_PLOTLY_CHART"].includes(
+                x.chartType,
+              ),
           },
           {
             helpText: "Specifies the label of the y-axis",
@@ -77,12 +109,20 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             placeholderText: "Enter label text",
             label: "y-axis Label",
             controlType: "INPUT_TEXT",
+            hidden: (x: any) =>
+              ["CUSTOM_FUSION_CHART", "CUSTOM_PLOTLY_CHART"].includes(
+                x.chartType,
+              ),
           },
           {
             helpText: "Enables scrolling inside the chart",
             propertyName: "allowHorizontalScroll",
             label: "Allow horizontal scroll",
             controlType: "SWITCH",
+            hidden: (x: any) =>
+              ["CUSTOM_FUSION_CHART", "CUSTOM_PLOTLY_CHART"].includes(
+                x.chartType,
+              ),
           },
           {
             propertyName: "isVisible",
@@ -102,6 +142,8 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       chartName: VALIDATION_TYPES.TEXT,
       isVisible: VALIDATION_TYPES.BOOLEAN,
       chartData: VALIDATION_TYPES.CHART_DATA,
+      customFusionChartConfig: VALIDATION_TYPES.CUSTOM_FUSION_CHARTS_DATA,
+      customPlotlyChartConfig: VALIDATION_TYPES.CUSTOM_PLOTLY_CHARTS_DATA,
     };
   }
 
@@ -116,6 +158,8 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           yAxisName={this.props.yAxisName}
           chartName={this.props.chartName}
           chartData={this.props.chartData}
+          customFusionChartConfig={this.props.customFusionChartConfig}
+          customPlotlyChartConfig={this.props.customPlotlyChartConfig}
           widgetId={this.props.widgetId}
           allowHorizontalScroll={this.props.allowHorizontalScroll}
         />
@@ -134,7 +178,9 @@ export type ChartType =
   | "PIE_CHART"
   | "COLUMN_CHART"
   | "AREA_CHART"
-  | "SCATTER_CHART";
+  | "SCATTER_CHART"
+  | "CUSTOM_FUSION_CHART"
+  | "CUSTOM_PLOTLY_CHART";
 
 export interface ChartDataPoint {
   x: any;
@@ -146,9 +192,25 @@ export interface ChartData {
   data: ChartDataPoint[];
 }
 
+export interface CustomFusionChartConfig {
+  config: {
+    type: string;
+    dataSource?: any;
+  };
+}
+
+export interface CustomPlotlyChartConfig {
+  data: [];
+  layout: any;
+  config: any;
+  frames: [];
+}
+
 export interface ChartWidgetProps extends WidgetProps {
   chartType: ChartType;
   chartData: ChartData[];
+  customFusionChartConfig: CustomFusionChartConfig;
+  customPlotlyChartConfig: CustomPlotlyChartConfig;
   xAxisName: string;
   yAxisName: string;
   chartName: string;
