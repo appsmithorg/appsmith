@@ -37,6 +37,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -254,6 +255,14 @@ public class LayoutServiceTest {
                 .verifyComplete();
     }
 
+    /**
+     * This test adds some actions in the page and attaches a few of those in the dynamic bindings in the widgets
+     * in the layout. An action attached in the widget also has two dependencies on other actions. One of those
+     * has been explicitly marked to NOT run on page load. This test asserts the following :
+     * 1. All the actions which must be executed on page load have been recognized correctly
+     * 2. The sequence of the action execution takes into account the action dependencies
+     * 3. An action which has been marked to not execute on page load does not get added to the on page load order
+     */
     @Test
     @WithUserDetails(value = "api_user")
     public void getActionsExecuteOnLoad() {
@@ -408,11 +417,21 @@ public class LayoutServiceTest {
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
                     assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
+                    assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(5);
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
-                            .hasSameElementsAs(Set.of("aPostTertiaryAction"));
-                    assertThat(layout.getLayoutOnLoadActions().get(1)).hasSize(5);
+                            .hasSameElementsAs(Set.of("aPostTertiaryAction", "aGetAction", "aDBAction", "aTableAction", "anotherDBAction"));
+                    assertThat(layout.getLayoutOnLoadActions().get(1)).hasSize(1);
                     assertThat(layout.getLayoutOnLoadActions().get(1).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
-                            .hasSameElementsAs(Set.of("aGetAction", "aPostActionWithAutoExec", "aDBAction", "anotherDBAction", "aTableAction"));
+                            .hasSameElementsAs(Set.of("aPostActionWithAutoExec"));
+                    Set<DslActionDTO> flatOnLoadActions = new HashSet<>();
+                    for (Set<DslActionDTO> actions : layout.getLayoutOnLoadActions()) {
+                        flatOnLoadActions.addAll(actions);
+                    }
+                    for (DslActionDTO action : flatOnLoadActions) {
+                        assertThat(action.getId()).isNotBlank();
+                        assertThat(action.getName()).isNotBlank();
+                        assertThat(action.getTimeoutInMillisecond()).isNotZero();
+                    }
                 })
                 .verifyComplete();
     }

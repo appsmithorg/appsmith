@@ -67,6 +67,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 @Service
@@ -472,7 +473,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     // Now check for erroneous situations which would deter the execution of the action :
 
                     // Error out with in case of an invalid action
-                    if (Boolean.FALSE.equals(action.getIsValid())) {
+                    if (FALSE.equals(action.getIsValid())) {
                         return Mono.error(new AppsmithException(
                                 AppsmithError.INVALID_ACTION,
                                 action.getName(),
@@ -716,7 +717,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     @Override
-    public Flux<NewAction> findUnpublishedOnLoadActionsInPage(String pageId) {
+    public Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId) {
         return repository
                 .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, MANAGE_ACTIONS);
     }
@@ -866,6 +867,28 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     @Override
     public Flux<NewAction> findByPageId(String pageId) {
         return repository.findByPageId(pageId);
+    }
+
+    @Override
+    public Mono<Boolean> setOnLoad(List<ActionDTO> actions) {
+        if (actions == null) {
+            return Mono.just(FALSE);
+        }
+
+        List<ActionDTO> toUpdateActions = new ArrayList<>();
+
+        for (ActionDTO action : actions) {
+            // If a user has ever set execute on load, this field can not be changed automatically. It has to be
+            // explicitly changed by the user again. Add the action to update only if this condition is false.
+            if (FALSE.equals(action.getUserSetOnLoad())) {
+                action.setExecuteOnLoad(TRUE);
+                toUpdateActions.add(action);
+            }
+        }
+
+        return Flux.fromIterable(toUpdateActions)
+                .flatMap(actionDTO -> updateUnpublishedAction(actionDTO.getId(), actionDTO))
+                .then(Mono.just(TRUE));
     }
 
     @Override
