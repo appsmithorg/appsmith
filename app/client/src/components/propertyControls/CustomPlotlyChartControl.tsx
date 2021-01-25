@@ -3,7 +3,7 @@ import InputTextControl, { InputText } from "./InputTextControl";
 
 class CustomPlotlyChartControl extends InputTextControl {
   render() {
-    const expected = "{\n  type: string,\n  dataSource: Object\n}";
+    const expected = "{\n  layout: {},\n  data: []\n}";
     const {
       propertyValue,
       isValid,

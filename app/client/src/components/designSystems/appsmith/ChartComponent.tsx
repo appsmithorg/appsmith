@@ -11,17 +11,16 @@ import {
   CustomFusionChartConfig,
   CustomPlotlyChartConfig,
 } from "widgets/ChartWidget";
-
 import createPlotlyComponent from "react-plotly.js/factory";
-import Plotly from "plotly.js";
-import ReactDOM from "react-dom";
+const Plotly = window.Plotly;
+
+const Plot = createPlotlyComponent(Plotly);
 
 const FusionCharts = require("fusioncharts");
 const Charts = require("fusioncharts/fusioncharts.charts");
 const FusionTheme = require("fusioncharts/themes/fusioncharts.theme.fusion");
 
 const { fusioncharts } = getAppsmithConfigs();
-const Plot = createPlotlyComponent(Plotly);
 Charts(FusionCharts);
 FusionTheme(FusionCharts);
 
@@ -57,7 +56,7 @@ const CanvasContainer = styled.div<ChartComponentProps>`
 
 class ChartComponent extends React.Component<ChartComponentProps> {
   chartInstance = new FusionCharts();
-  plotlyInstance = { data: [], layout: {}, config: {}, frames: [] };
+
   getChartType = () => {
     const { chartType, allowHorizontalScroll, chartData } = this.props;
     const isMSChart = chartData.length > 1;
@@ -253,10 +252,6 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   createGraph = () => {
-    if (this.props.chartType === "CUSTOM_PLOTLY_CHART") {
-      this.plotlyInstance = this.props.customPlotlyChartConfig;
-      return;
-    }
     if (this.props.chartType === "CUSTOM_FUSION_CHART") {
       const chartConfig = {
         renderAt: this.props.widgetId + "chart-container",
@@ -285,21 +280,6 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   componentDidMount() {
     this.createGraph();
     if (this.props.chartType === "CUSTOM_PLOTLY_CHART") {
-      /*if (this.plotlyInstance) {
-        Plotly.react(
-          this.props.widgetId + "chart-container",
-          this.plotlyInstance.data || [],
-          this.plotlyInstance.layout || {},
-          this.plotlyInstance.config || {},
-        );
-      }*/
-      console.log("PLOTLYINSTANCE");
-      console.dir(this.plotlyInstance);
-      ReactDOM.render(
-        React.createElement(Plot, this.plotlyInstance),
-        document.getElementById(this.props.widgetId + "chart-container"),
-      );
-
       return;
     }
     FusionCharts.ready(() => {
@@ -323,16 +303,14 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   componentDidUpdate(prevProps: ChartComponentProps) {
     if (!_.isEqual(prevProps, this.props)) {
+      if (
+        prevProps.chartType === "CUSTOM_PLOTLY_CHART" &&
+        this.props.chartType !== "CUSTOM_PLOTLY_CHART" &&
+        this.chartInstance
+      ) {
+        this.chartInstance.render();
+      }
       if (this.props.chartType === "CUSTOM_PLOTLY_CHART") {
-        this.plotlyInstance = this.props.customPlotlyChartConfig;
-        /*if (this.plotlyInstance) {
-          Plotly.react(
-            this.props.widgetId + "chart-container",
-            this.plotlyInstance.data,
-            this.plotlyInstance.layout,
-            this.plotlyInstance.config,
-          );
-        }*/
         return;
       }
       if (this.props.chartType === "CUSTOM_FUSION_CHART") {
@@ -361,6 +339,15 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   }
 
   render() {
+    if (this.props.chartType === "CUSTOM_PLOTLY_CHART") {
+      return (
+        <Plot
+          data={[...this.props.customPlotlyChartConfig.data]}
+          layout={{ ...this.props.customPlotlyChartConfig.layout }}
+        />
+      );
+    }
+
     return (
       <CanvasContainer
         {...this.props}

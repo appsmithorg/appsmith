@@ -353,15 +353,37 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       props,
       dataTree,
     );
-    /*if (props.chartName && parsed.dataSource && parsed.dataSource.chart) {
-      parsed.dataSource.chart.caption = props.chartName;
-    }*/
     if (!isValid) {
       return {
         isValid,
         parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Custom Fusion Charts Data`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Custom Plotly Charts Data`,
       };
+    }
+    if (props.chartName && parsed.layout) {
+      parsed.layout.title = props.chartName;
+    }
+    if (parsed.layout && typeof parsed.layout !== "object") {
+      parsed.layout = {};
+      return {
+        isValid: false,
+        parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Custom Plotly Charts Data`,
+      };
+    }
+    if (parsed.data && !Array.isArray(parsed.data)) {
+      parsed.data = [];
+      return {
+        isValid: false,
+        parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Custom Plotly Charts Data`,
+      };
+    }
+    if (parsed && !parsed.layout) {
+      parsed.layout = {};
+    }
+    if (parsed && !parsed.data) {
+      parsed.data = [];
     }
     return { isValid, parsed, transformed: parsed };
   },
