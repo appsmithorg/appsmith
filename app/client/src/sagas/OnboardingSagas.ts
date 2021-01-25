@@ -56,30 +56,18 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { createActionRequest, runActionInit } from "actions/actionActions";
-import {
-  BUILDER_PAGE_URL,
-  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-} from "constants/routes";
-import { Action, QueryAction } from "entities/Action";
+import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
+import { QueryAction } from "entities/Action";
 import history from "utils/history";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getQueryIdFromURL } from "pages/Editor/Explorer/helpers";
 import {
   calculateNewWidgetPosition,
   getNextWidgetName,
 } from "./WidgetOperationSagas";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
-  WidgetTypes,
-} from "constants/WidgetConstants";
-import { WidgetProps } from "widgets/BaseWidget";
+import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
 import { generateReactKey } from "utils/generators";
 import { forceOpenPropertyPane } from "actions/widgetActions";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/WidgetEntity";
-import { Toaster } from "@blueprintjs/core";
-import { action } from "@storybook/addon-actions";
-import { Variant } from "components/ads/common";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;

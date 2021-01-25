@@ -41,6 +41,7 @@ import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
+import EndOnboardingTour from "components/editorComponents/Onboarding/EndTour";
 
 const HeaderWrapper = styled(StyledHeader)`
   background: ${Colors.BALTIC_SEA};
@@ -271,7 +272,10 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             }
           />
         </Boxed>
-        <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+        <Boxed
+          step={OnboardingStep.SUCCESSFUL_BINDING}
+          alternative={<EndOnboardingTour />}
+        >
           <DeploySection>
             <Indicator
               step={OnboardingStep.SUCCESSFUL_BINDING}
