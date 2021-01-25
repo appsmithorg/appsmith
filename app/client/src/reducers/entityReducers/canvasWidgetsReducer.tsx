@@ -5,7 +5,10 @@ import {
   ReduxAction,
 } from "constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import {
+  DeleteWidgetPropertyPayload,
+  UpdateWidgetPropertyPayload,
+} from "actions/controlActions";
 import _ from "lodash";
 
 const initialState: CanvasWidgetsReduxState = {};
@@ -38,6 +41,14 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
         _.set(state[action.payload.widgetId], propertyPath, propertyValue);
       },
     );
+  },
+  [ReduxActionTypes.DELETE_WIDGET_PROPERTY]: (
+    state: CanvasWidgetsReduxState,
+    action: ReduxAction<DeleteWidgetPropertyPayload>,
+  ) => {
+    action.payload.propertyPaths.forEach((propertyPath) => {
+      _.unset(state[action.payload.widgetId], propertyPath);
+    });
   },
 });
 
