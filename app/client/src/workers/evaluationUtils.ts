@@ -6,6 +6,7 @@ import { VALIDATORS } from "./validations";
 import { Diff } from "deep-diff";
 import {
   DataTree,
+  DataTreeAction,
   DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
@@ -119,7 +120,11 @@ export const isPropertyPathOrNestedPath = (
   path: string,
   comparePath: string,
 ): boolean => {
-  return path === comparePath || comparePath.startsWith(`${path}.`);
+  return (
+    path === comparePath ||
+    comparePath.startsWith(`${path}.`) ||
+    comparePath.startsWith(`${path}[`)
+  );
 };
 
 /*
@@ -148,7 +153,7 @@ export const addDependantsOfNestedPropertyPaths = (
   return [...withNestedPaths.values()];
 };
 
-export function isWidget(entity: DataTreeEntity): boolean {
+export function isWidget(entity: DataTreeEntity): entity is DataTreeWidget {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -156,7 +161,7 @@ export function isWidget(entity: DataTreeEntity): boolean {
   );
 }
 
-export function isAction(entity: DataTreeEntity): boolean {
+export function isAction(entity: DataTreeEntity): entity is DataTreeAction {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -203,7 +208,7 @@ export const makeParentsDependOnChild = (
 ): DependencyMap => {
   const result: DependencyMap = depMap;
   let curKey = child;
-  const rgx = /^(.*)\..*$/;
+  const rgx = /^(.*)(\..*|\[.*\])$/;
   let matches: Array<string> | null;
   // Note: The `=` is intentional
   // Stops looping when match is null

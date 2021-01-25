@@ -337,15 +337,15 @@ export class DataTreeEvaluator {
       subTreeSortOrder.map((path) => path.split(".")[0]),
     );
 
-    const validatedTree = getValidatedTree(
-      this.widgetConfigMap,
-      evaluatedTree,
-      updatedWidgets,
-    );
+    // const validatedTree = getValidatedTree(
+    //   this.widgetConfigMap,
+    //   evaluatedTree,
+    //   updatedWidgets,
+    // );
     const validateEnd = performance.now();
 
     // Remove functions
-    this.evalTree = removeFunctionsFromDataTree(validatedTree);
+    this.evalTree = removeFunctionsFromDataTree(evaluatedTree);
     const totalEnd = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
@@ -414,12 +414,13 @@ export class DataTreeEvaluator {
   ): Array<string> {
     // Use a set to ensure that we dont have duplicates
     const parents: Set<string> = new Set();
+    const rgx = /^(.*)(\..*|\[.*\])$/;
 
     propertyPaths.forEach((path) => {
-      const parentProperty = path.substr(0, path.lastIndexOf("."));
+      const matches = path.match(rgx);
 
-      if (parentProperty.length != 0) {
-        parents.add(parentProperty);
+      if (matches !== null) {
+        parents.add(matches[1]);
       } else {
         // We have reached the top of the path. No parent exists
       }
@@ -1105,19 +1106,7 @@ export class DataTreeEvaluator {
 
         // If this is a property path change, simply add for evaluation
         if (d.path.length > 1) {
-          const propertyPath = convertPathToString(d.path);
-          changePaths.add(propertyPath);
-
-          // If this is an array update, trim the array index and add it to the change paths for evaluation
-          // This is because sometimes inside an object of array time, if only a particular entry changes, the
-          // difference comes as propertyPath[0].fieldChanged. Another entity could depend on propertyPath and not
-          // propertyPath[0]. The said entity must be evaluated.
-          // To do this, we are trimming the array index
-          if (propertyPath.lastIndexOf("[") > 0) {
-            changePaths.add(
-              propertyPath.substr(0, propertyPath.lastIndexOf("[")),
-            );
-          }
+          changePaths.add(convertPathToString(d.path));
         } else if (d.path.length === 1) {
           /*
               When we see a new widget has been added or or delete an old widget ( d.path.length === 1)
