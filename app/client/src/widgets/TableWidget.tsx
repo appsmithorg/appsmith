@@ -163,6 +163,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           return pageSize;
         }()
       }}`,
+      triggerRowSelection: "{{!!this.onRowSelected}}",
     };
   }
 
@@ -594,6 +595,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columnNameMap={this.props.columnNameMap}
           columnTypeMap={this.props.columnTypeMap}
           columnOrder={this.props.columnOrder}
+          triggerRowSelection={this.props.triggerRowSelection}
           pageSize={Math.max(1, pageSize)}
           onCommandClick={this.onCommandClick}
           selectedRowIndex={
