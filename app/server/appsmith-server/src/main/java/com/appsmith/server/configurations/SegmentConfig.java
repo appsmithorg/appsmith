@@ -10,13 +10,16 @@ import org.springframework.context.annotation.Configuration;
 
 @Slf4j
 @Configuration
-@ConditionalOnExpression(value = "!'${segment.writeKey:}'.isEmpty()")
 public class SegmentConfig {
 
     @Value("${segment.writeKey}")
     private String writeKey;
 
+    @Value("${segment.ce.key}")
+    private String ceKey;
+
     @Bean
+    @ConditionalOnExpression(value = "!'${segment.writeKey:}'.isEmpty()")
     public Analytics analyticsRunner() {
         final Log logProcessor = new Log() {
             @Override
@@ -38,6 +41,10 @@ public class SegmentConfig {
         };
 
         return Analytics.builder(writeKey).log(logProcessor).build();
+    }
+
+    public String getCeKey() {
+        return ceKey;
     }
 
 }

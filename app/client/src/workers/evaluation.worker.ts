@@ -15,6 +15,7 @@ import {
   extraLibraries,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
+  isChildPropertyPath,
   isPathADynamicBinding,
   isPathADynamicTrigger,
   unsafeFunctionForEval,
@@ -33,7 +34,6 @@ import {
   CrashingError,
   DataTreeDiffEvent,
   getValidatedTree,
-  isChildPropertyPath,
   makeParentsDependOnChildren,
   removeFunctions,
   removeFunctionsFromDataTree,
@@ -129,9 +129,11 @@ ctx.addEventListener(
           executionParams,
         );
 
+        const cleanValues = removeFunctions(values);
+
         const errors = dataTreeEvaluator.errors;
         dataTreeEvaluator.clearErrors();
-        return { values, errors };
+        return { values: cleanValues, errors };
       }
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
         const { dynamicTrigger, callbackData, dataTree } = requestData;

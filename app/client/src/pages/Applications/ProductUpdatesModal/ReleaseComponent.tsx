@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import styled from "styled-components";
+import styled, { withTheme } from "styled-components";
 import moment from "moment";
 import "@github/g-emoji-element";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -75,39 +75,55 @@ enum ReleaseComponentViewState {
 }
 
 const StyledReadMore = styled.div`
+  padding: ${(props) => props.theme.spaces[2]}px;
+  &:hover {
+    background-color: ${(props) => props.theme.colors.modal.hoverState};
+  }
   font-weight: ${(props) => props.theme.typography.btnMedium.fontWeight};
   font-size: ${(props) => props.theme.typography.btnMedium.fontSize}px;
   line-height: ${(props) => props.theme.typography.btnMedium.lineHeight}px;
   letter-spacing: ${(props) =>
     props.theme.typography.btnMedium.letterSpacing}px;
   text-transform: uppercase;
-  padding: ${(props) => props.theme.spaces[8]}px 0;
   display: flex;
   cursor: pointer;
+  color: ${(props) => props.theme.colors.text.normal};
 `;
 
-const ReadMore = ({
-  currentState,
-  onClick,
-}: {
-  currentState: ReleaseComponentViewState;
-  onClick: () => void;
-}) => (
-  <StyledReadMore onClick={onClick}>
-    <div style={{ marginRight: 3 }}>
-      {currentState === ReleaseComponentViewState.collapsed
-        ? "read more"
-        : "read less"}
-    </div>
-    <Icon
-      name={
-        currentState === ReleaseComponentViewState.collapsed
-          ? "view-all"
-          : "view-less"
-      }
-      size={IconSize.XS}
-    />
-  </StyledReadMore>
+const ReadMoreContainer = styled.div`
+  display: flex;
+  padding: ${(props) => props.theme.spaces[8]}px 0;
+`;
+
+const ReadMore = withTheme(
+  ({
+    currentState,
+    onClick,
+    theme,
+  }: {
+    currentState: ReleaseComponentViewState;
+    onClick: () => void;
+    theme: any;
+  }) => (
+    <ReadMoreContainer>
+      <StyledReadMore onClick={onClick}>
+        <div style={{ marginRight: 3 }}>
+          {currentState === ReleaseComponentViewState.collapsed
+            ? "read more"
+            : "read less"}
+        </div>
+        <Icon
+          name={
+            currentState === ReleaseComponentViewState.collapsed
+              ? "view-all"
+              : "view-less"
+          }
+          size={IconSize.XS}
+          fillColor={theme.colors.text.normal}
+        />
+      </StyledReadMore>
+    </ReadMoreContainer>
+  ),
 );
 
 const ReleaseComponent = ({ release }: ReleaseProps) => {
