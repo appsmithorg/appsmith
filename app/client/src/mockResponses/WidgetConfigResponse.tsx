@@ -478,6 +478,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           let value = propertyValue;
 
           const { jsSnippets } = getDynamicBindings(propertyValue);
+
+          console.log({ jsSnippets });
           const modifiedAction = jsSnippets.reduce(
             (prev: string, next: string) => {
               return prev + `${next}`;

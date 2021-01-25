@@ -98,20 +98,15 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
                 for (let l = 0; l < dynamicKeys.length; l++) {
                   const key = dynamicKeys[l];
 
-                  console.log({
-                    index: i,
-                    child: get(
-                      children,
-                      `[${i}].children.[${j}].children[${k}].${key}`,
-                    ),
-                    value: get(template, `${child.widgetName}.${key}.[${i}]`),
-                  });
-
-                  set(
-                    children[i],
-                    `children.[${j}].children[${k}].${key}`,
-                    get(template, `${child.widgetName}.${key}.[${i}]`),
-                  );
+                  if (
+                    Array.isArray(get(template, `${child.widgetName}.${key}`))
+                  ) {
+                    set(
+                      children[i],
+                      `children.[${j}].children[${k}].${key}`,
+                      get(template, `${child.widgetName}.${key}.[${i}]`),
+                    );
+                  }
                 }
               }
             }
