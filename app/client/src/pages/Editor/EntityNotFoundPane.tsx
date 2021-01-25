@@ -62,7 +62,7 @@ const EntityNotFoundPane = () => {
           className="button-position"
           size={Size.large}
           category={Category.secondary}
-          onClick={() => history.goBack()}
+          onClick={history.goBack}
         />
       </div>
     </Wrapper>
