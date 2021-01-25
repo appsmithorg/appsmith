@@ -7,29 +7,30 @@ describe("FilePicker Widget Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  it("FilePicker Widget Functionality", function() {
-    cy.openPropertyPane("filepickerwidget");
-
-    //Checking the edit props for FilePicker and also the properties of FilePicker widget
-
-    cy.testCodeMirror("Upload Files");
-    cy.get(commonlocators.editPropCrossButton).click();
-  });
-
-  it("It checks the loading state of filepicker on call the action", function() {
-    cy.openPropertyPane("filepickerwidget");
-    const fixturePath = "testFile.mov";
-    cy.addAPI();
+  it("Create API to be used in Filepicker", function() {
+    cy.log("Login Successful");
+    cy.NavigateToAPI_Panel();
+    cy.log("Navigation to API Panel screen successful");
+    cy.CreateAPI("FirstAPI");
+    cy.log("Creation of FirstAPI Action successful");
     cy.enterDatasourceAndPath(
       this.data.paginationUrl,
       this.data.paginationParam,
     );
-    cy.get(".t--store-as-datasource-menu").click();
-    cy.get(".t--store-as-datasource").click();
-    cy.saveDatasource();
-    cy.contains(".datasource-highlight", this.data.paginationUrl);
     cy.SaveAndRunAPI();
+  });
+
+  it("FilePicker Widget Functionality", function() {
     cy.SearchEntityandOpen("FilePicker1");
+    cy.wait(1000);
+    //Checking the edit props for FilePicker and also the properties of FilePicker widget
+    cy.testCodeMirror("Upload Files");
+  });
+
+  it("It checks the loading state of filepicker on call the action", function() {
+    cy.SearchEntityandOpen("FilePicker1");
+    const fixturePath = "testFile.mov";
+    cy.addAPIFromLightningMenu("FirstAPI");
     cy.get(commonlocators.filePickerButton).click();
     cy.get(commonlocators.filePickerInput)
       .first()
