@@ -272,17 +272,17 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     }
   };
 
-  const handleResizeColumn = (columnId: string, columnWidth: number) => {
-    const columnSizeMap = props.columnSizeMap
-      ? {
-          ...props.columnSizeMap,
-          [columnId]: columnWidth,
-        }
-      : {
-          [columnId]: columnWidth,
-        };
-    props.handleResizeColumn(columnSizeMap);
-  };
+  // const handleResizeColumn = (columnId: string, columnWidth: number) => {
+  //   const columnSizeMap = props.columnSizeMap
+  //     ? {
+  //         ...props.columnSizeMap,
+  //         [columnId]: columnWidth,
+  //       }
+  //     : {
+  //         [columnId]: columnWidth,
+  //       };
+  //   props.handleResizeColumn(columnSizeMap);
+  // };
 
   const selectTableRow = (
     row: { original: Record<string, unknown>; index: number },
@@ -304,13 +304,14 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       searchKey={props.searchKey}
       columns={props.columns}
       hiddenColumns={props.hiddenColumns}
+      columnSizeMap={props.columnSizeMap}
       updateHiddenColumns={props.updateHiddenColumns}
       data={props.tableData}
       editMode={props.editMode}
       columnNameMap={props.columnNameMap}
       getColumnMenu={getColumnMenu}
       handleColumnNameUpdate={handleColumnNameUpdate}
-      handleResizeColumn={handleResizeColumn}
+      handleResizeColumn={props.handleResizeColumn}
       sortTableColumn={sortTableColumn}
       selectTableRow={selectTableRow}
       pageNo={props.pageNo - 1}

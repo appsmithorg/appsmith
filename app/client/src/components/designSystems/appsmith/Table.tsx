@@ -30,6 +30,7 @@ interface TableProps {
   widgetName: string;
   searchKey: string;
   isLoading: boolean;
+  columnSizeMap?: { [key: string]: number };
   columns: ReactTableColumnProps[];
   hiddenColumns?: string[];
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
@@ -39,7 +40,7 @@ interface TableProps {
   getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
   handleColumnNameUpdate: (columnIndex: number, columnName: string) => void;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  handleResizeColumn: (columnId: string, columnWidth: number) => void;
+  handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
   selectTableRow: (
     row: { original: Record<string, unknown>; index: number },
     isSelected: boolean,
@@ -69,9 +70,17 @@ const defaultColumn = {
 export const Table = (props: TableProps) => {
   const isResizingColumn = React.useRef(false);
   const handleResizeColumn = (columnWidths: Record<string, number>) => {
-    const columnId = Object.keys(columnWidths)[0];
-    const width = columnWidths[columnId];
-    props.handleResizeColumn(columnId, width);
+    const columnSizeMap = {
+      ...props.columnSizeMap,
+      ...columnWidths,
+    };
+    for (const i in columnSizeMap) {
+      if (columnSizeMap[i] < 60) {
+        columnSizeMap[i] = 60;
+      }
+    }
+    console.log({ columnWidths, columnSizeMap });
+    props.handleResizeColumn(columnSizeMap);
   };
   const data = React.useMemo(() => props.data, [props.data]);
   const columnString = JSON.stringify({
@@ -79,6 +88,7 @@ export const Table = (props: TableProps) => {
     actions: props.columnActions,
     columnActions: props.columnActions,
     compactMode: props.compactMode,
+    columnSizeMap: props.columnSizeMap,
   });
   const columns = React.useMemo(() => props.columns, [columnString]);
 
