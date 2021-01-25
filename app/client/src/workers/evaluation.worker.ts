@@ -148,9 +148,10 @@ ctx.addEventListener(
           true,
           callbackData,
         );
+        const cleanTriggers = removeFunctions(triggers);
         const errors = dataTreeEvaluator.errors;
         dataTreeEvaluator.clearErrors();
-        return { triggers, errors };
+        return { triggers: cleanTriggers, errors };
       }
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
         dataTreeEvaluator = undefined;
@@ -180,12 +181,14 @@ ctx.addEventListener(
           value,
           props,
         } = requestData;
-        return validateWidgetProperty(
-          widgetTypeConfigMap,
-          widgetType,
-          property,
-          value,
-          props,
+        return removeFunctions(
+          validateWidgetProperty(
+            widgetTypeConfigMap,
+            widgetType,
+            property,
+            value,
+            props,
+          ),
         );
       }
       default: {
