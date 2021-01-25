@@ -374,8 +374,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             if (layout.getWidgetNames() != null && layout.getWidgetNames().size() > 0) {
                                 return Mono.just(layout.getWidgetNames());
                             }
-                            // In case of no widget names (which implies that there is no DSL), return an error.
-                            return Mono.error(new AppsmithException(AppsmithError.NO_DSL_FOUND_IN_PAGE, pageId));
+                            // In case of no widget names (which implies that there is no DSL), return an empty set.
+                            return Mono.just(new HashSet<>());
                         }
                     }
                     return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.LAYOUT_ID, layoutId));

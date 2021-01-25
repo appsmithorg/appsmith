@@ -54,9 +54,6 @@ public class LayoutServiceTest {
     LayoutService layoutService;
 
     @Autowired
-    PageService pageService;
-
-    @Autowired
     LayoutActionService layoutActionService;
 
     @Autowired
