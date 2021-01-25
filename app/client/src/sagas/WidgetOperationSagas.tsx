@@ -803,6 +803,10 @@ function* resetEvaluatedWidgetMetaProperties(widgetIds: string[]) {
   for (const index in widgetIds) {
     const widgetId = widgetIds[index];
     const widget = _.find(evaluatedDataTree, { widgetId }) as DataTreeWidget;
+
+    // the widget was not found in the data tree, so don't do anything
+    if (!widget) continue;
+
     const widgetToUpdate = { ...widget };
     const metaPropsMap = WidgetFactory.getWidgetMetaPropertiesMap(widget.type);
     const defaultPropertiesMap = WidgetFactory.getWidgetDefaultPropertiesMap(

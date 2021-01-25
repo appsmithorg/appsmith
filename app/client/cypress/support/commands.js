@@ -1025,7 +1025,7 @@ Cypress.Commands.add("testJsontext", (endp, value) => {
         parseSpecialCharSequences: false,
       });
   });
-  cy.wait(200);
+  cy.wait(1000);
 });
 
 Cypress.Commands.add("selectShowMsg", (value) => {

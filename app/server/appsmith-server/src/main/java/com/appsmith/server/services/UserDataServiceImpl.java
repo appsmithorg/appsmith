@@ -1,9 +1,9 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.repositories.UserDataRepository;
+import com.appsmith.server.solutions.ReleaseNotesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -19,7 +19,7 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
 
     private final UserService userService;
 
-    private final ProjectProperties projectProperties;
+    private final ReleaseNotesService releaseNotesService;
 
     @Autowired
     public UserDataServiceImpl(Scheduler scheduler,
@@ -29,11 +29,11 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                                UserDataRepository repository,
                                AnalyticsService analyticsService,
                                UserService userService,
-                               ProjectProperties projectProperties
+                               ReleaseNotesService releaseNotesService
     ) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.userService = userService;
-        this.projectProperties = projectProperties;
+        this.releaseNotesService = releaseNotesService;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
 
     @Override
     public Mono<User> setViewedCurrentVersionReleaseNotes(User user) {
-        final String version = projectProperties.getVersion();
+        final String version = releaseNotesService.getReleasedVersion();
         if (StringUtils.isEmpty(version)) {
             return Mono.just(user);
         }
