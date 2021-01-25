@@ -110,7 +110,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     return onLoadActionsMono;
                 })
                 .zipWith(
-                        // Update the list of actions to be executed on load in the layout as well
                         newPageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES, false)
                                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
                                         FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId))))
@@ -549,8 +548,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             if (layout.getWidgetNames() != null && layout.getWidgetNames().size() > 0) {
                                 return Mono.just(layout.getWidgetNames());
                             }
-                            // In case of no widget names (which implies that there is no DSL), return an error.
-                            return Mono.error(new AppsmithException(AppsmithError.NO_DSL_FOUND_IN_PAGE, pageId));
+                            // In case of no widget names (which implies that there is no DSL), return an empty set.
+                            return Mono.just(new HashSet<>());
                         }
                     }
                     return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.LAYOUT_ID, layoutId));

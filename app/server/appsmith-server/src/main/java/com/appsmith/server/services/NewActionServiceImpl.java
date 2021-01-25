@@ -184,7 +184,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return newPageService
                 .findById(action.getPageId(), READ_PAGES)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page", action.getPageId())))
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
                 .flatMap(page -> {
 
                     // Inherit the action policies from the page.
@@ -476,7 +476,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         return Mono.error(new AppsmithException(
                                 AppsmithError.INVALID_ACTION,
                                 action.getName(),
-                                actionId,
                                 ArrayUtils.toString(action.getInvalids().toArray())
                         ));
                     }
@@ -520,7 +519,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     if (!CollectionUtils.isEmpty(invalids)) {
                         log.error("Unable to execute actionId: {} because it's datasource is not valid. Cause: {}",
                                 actionId, ArrayUtils.toString(invalids));
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE, ArrayUtils.toString(invalids)));
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE,
+                                datasource.getName(),
+                                ArrayUtils.toString(invalids)));
                     }
                     return pluginService.findById(datasource.getPluginId());
                 })
