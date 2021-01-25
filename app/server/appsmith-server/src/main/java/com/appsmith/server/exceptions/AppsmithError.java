@@ -26,7 +26,7 @@ public enum AppsmithError {
     INVALID_ACTION(400, 4012, "{0} is not correctly configured. Please fix the following and then re-run: \n{1}", AppsmithErrorAction.DEFAULT),
     INVALID_DATASOURCE(400, 4013, "{0} is not correctly configured. Please fix the following and then re-run: \n{1}", AppsmithErrorAction.DEFAULT),
     INVALID_ACTION_NAME(400, 4014, "Appsmith expects the action naming to follow variable naming conventions. "
-            + "It must be a single word contain any alphabets, numbers, or \"_\". \"-\" symbol is not allowed. "
+            + "It must be a single word contain any alphabets, numbers, or \"_\".  Hyphen (\"-\") symbol is not allowed. "
             + "Please change the name.", AppsmithErrorAction.DEFAULT),
     NO_CONFIGURATION_FOUND_IN_ACTION(400, 4016, "No configurations found in this action", AppsmithErrorAction.DEFAULT),
     NAME_CLASH_NOT_ALLOWED_IN_REFACTOR(400, 4017, "The new name {1} already exists in the current page. Choose another name.", AppsmithErrorAction.DEFAULT),
