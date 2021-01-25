@@ -43,25 +43,14 @@ export const batchUpdateWidgetProperty = (
   },
 });
 
-export const deleteWidgetPropertyRequest = (
-  widgetId: string,
-  propertyPath: string,
-): ReduxAction<DeleteWidgetPropertyPayloadRequest> => ({
-  type: ReduxActionTypes.DELETE_WIDGET_PROPERTY_REQUEST,
-  payload: {
-    widgetId,
-    propertyPath,
-  },
-});
-
 export const deleteWidgetProperty = (
   widgetId: string,
-  propertyPaths: string[],
+  propertyPath: string,
 ): ReduxAction<DeleteWidgetPropertyPayload> => ({
   type: ReduxActionTypes.DELETE_WIDGET_PROPERTY,
   payload: {
     widgetId,
-    propertyPaths,
+    propertyPath,
   },
 });
 
@@ -98,12 +87,7 @@ export interface SetWidgetDynamicPropertyPayload {
   isDynamic: boolean;
 }
 
-export interface DeleteWidgetPropertyPayloadRequest {
-  widgetId: string;
-  propertyPath: string;
-}
-
 export interface DeleteWidgetPropertyPayload {
   widgetId: string;
-  propertyPaths: string[];
+  propertyPath: string;
 }

@@ -35,8 +35,7 @@ import {
 } from "redux-saga/effects";
 import { convertToString, getNextEntityName } from "utils/AppsmithUtils";
 import {
-  deleteWidgetProperty,
-  DeleteWidgetPropertyPayloadRequest,
+  DeleteWidgetPropertyPayload,
   SetWidgetDynamicPropertyPayload,
   updateWidgetProperty,
   UpdateWidgetPropertyPayload,
@@ -874,7 +873,7 @@ function* batchUpdateWidgetPropertySaga(
 }
 
 function* deleteWidgetPropertySaga(
-  action: ReduxAction<DeleteWidgetPropertyPayloadRequest>,
+  action: ReduxAction<DeleteWidgetPropertyPayload>,
 ) {
   const { widgetId, propertyPath } = action.payload;
   if (!widgetId) {
@@ -882,8 +881,6 @@ function* deleteWidgetPropertySaga(
     return;
   }
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
-  const widget = { ...stateWidget };
-  const pathsToDelete: string[] = [propertyPath];
   const dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
     stateWidget,
   );
@@ -891,21 +888,24 @@ function* deleteWidgetPropertySaga(
     stateWidget,
   );
 
-  dynamicTriggerPathList.forEach((dynamicPath, index) => {
-    if (isChildPropertyPath(propertyPath, dynamicPath.key)) {
-      pathsToDelete.push(`dynamicTriggerPathList[${index}]`);
-    }
+  dynamicTriggerPathList.filter((dynamicPath) => {
+    return !isChildPropertyPath(propertyPath, dynamicPath.key);
   });
 
-  dynamicBindingPathList.forEach((dynamicPath, index) => {
-    if (isChildPropertyPath(propertyPath, dynamicPath.key)) {
-      pathsToDelete.push(`dynamicBindingPathList[${index}]`);
-    }
+  dynamicBindingPathList.forEach((dynamicPath) => {
+    return !isChildPropertyPath(propertyPath, dynamicPath.key);
   });
 
-  yield put(deleteWidgetProperty(widgetId, pathsToDelete));
+  yield put(
+    updateWidgetProperty(widgetId, {
+      dynamicTriggerPathList,
+      dynamicBindingPathList,
+    }),
+  );
 
   const stateWidgets = yield select(getWidgets);
+  const widget = { ...stateWidget };
+  _.unset(widget, propertyPath);
   const widgets = { ...stateWidgets, [widgetId]: widget };
 
   // Save the layout
