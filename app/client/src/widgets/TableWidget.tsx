@@ -120,6 +120,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       onRowSelected: true,
       onPageChange: true,
       onSearchTextChanged: true,
+      onPageSizeChange: true,
       columnActions: true,
     };
   }
@@ -555,7 +556,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageSize += 1;
 
     if (pageSize !== this.props.pageSize) {
-      this.props.updateWidgetMetaProperty("pageSize", pageSize);
+      this.props.updateWidgetMetaProperty("pageSize", pageSize, {
+        dynamicString: this.props.onPageSizeChange,
+        event: {
+          type: EventType.ON_PAGE_SIZE_CHANGE,
+        },
+      });
     }
 
     return (
