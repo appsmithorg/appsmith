@@ -132,7 +132,9 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
             selected={!option.isHidden}
             key={index}
             onClick={() => {
-              const hiddenColumns = props.hiddenColumns || [];
+              const hiddenColumns = Array.isArray(props.hiddenColumns)
+                ? props.hiddenColumns.slice()
+                : [];
               if (!option.isHidden) {
                 hiddenColumns.push(option.accessor);
               } else {

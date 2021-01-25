@@ -2,12 +2,19 @@ import React, { createRef, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import { CellWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
 import { CellLayoutProperties } from "components/designSystems/appsmith/TableComponent/Constants";
+import styled from "styled-components";
+
+const TooltipContentWrapper = styled.div<{ width: number }>`
+  word-break: break-all;
+  max-width: ${(props) => props.width}px;
+`;
 
 const AutoToolTipComponent = (props: {
   isHidden?: boolean;
   children: React.ReactNode;
   title: string;
   cellProperties?: CellLayoutProperties;
+  tableWidth?: number;
 }) => {
   const ref = createRef<HTMLDivElement>();
   const [useToolTip, updateToolTip] = useState(false);
@@ -29,7 +36,11 @@ const AutoToolTipComponent = (props: {
         <Tooltip
           autoFocus={false}
           hoverOpenDelay={1000}
-          content={props.title}
+          content={
+            <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
+              {props.title}
+            </TooltipContentWrapper>
+          }
           position="top"
         >
           {props.children}
