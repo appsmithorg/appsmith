@@ -1,21 +1,43 @@
 import React from "react";
 import styled from "styled-components";
-import Button from "components/editorComponents/Button";
-import PageUnavailableImage from "assets/images/404-image.png";
+import Button, { Size, Category } from "components/ads/Button";
+import PageUnavailableImage from "assets/images/invalid-page.png";
 import { useHistory } from "react-router-dom";
 
 const Wrapper = styled.div`
-  text-align: center;
-  padding-top: 5%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 15%;
+  background: #fcfcfc;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  .page-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 450px;
+  }
   .bold-text {
     font-weight: ${(props) => props.theme.fontWeights[3]};
     font-size: 24px;
+    margin-top: 20px;
+  }
+  .page-message {
+    margin-top: 14px;
+    color: #716e6e;
+    font-size: 14px;
+    line-height: 17px;
+    letter-spacing: 0.733333px;
   }
   .page-unavailable-img {
-    width: 35%;
+    width: 72px;
   }
   .button-position {
-    margin: auto;
+    margin-top: 14px;
   }
 `;
 
@@ -28,21 +50,18 @@ const EntityNotFoundPane = () => {
         alt="Page Unavailable"
         className="page-unavailable-img"
       />
-      <div>
-        <p className="bold-text">Entity not found</p>
-        <p>
-          Either this entity doesn&apos;t exist, or you don&apos;t have access
-          to <br />
-          this entity.
+      <div className="page-details">
+        <p className="bold-text">Invalid URL</p>
+        <p className="page-message">
+          The page you’re looking for either does not exist, or cannot be found
         </p>
         <Button
-          filled
+          tag="button"
           text="Go Back"
-          intent="primary"
-          icon="arrow-right"
-          iconAlignment="right"
-          size="small"
+          cypressSelector="t--invalid-page-go-back"
           className="button-position"
+          size={Size.large}
+          category={Category.secondary}
           onClick={() => history.goBack()}
         />
       </div>
