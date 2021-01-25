@@ -477,9 +477,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         ) => {
           let value = propertyValue;
 
+          if (!parentWidgetId) return [];
+
           const { jsSnippets } = getDynamicBindings(propertyValue);
 
-          console.log({ jsSnippets });
           const modifiedAction = jsSnippets.reduce(
             (prev: string, next: string) => {
               return prev + `${next}`;
@@ -566,6 +567,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 ...get(parent, "template", {}),
                 [widget.widgetName]: widget,
               };
+
+              console.log({ template });
 
               parent.template = template;
 
