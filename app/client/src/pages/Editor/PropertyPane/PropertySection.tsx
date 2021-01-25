@@ -67,10 +67,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
       return null;
     }
   }
-  const className = props.name
-    .split(" ")
-    .join("")
-    .toLowerCase();
+  const className = props.name.split(" ").join("").toLowerCase();
   return (
     <SectionWrapper>
       <SectionTitle

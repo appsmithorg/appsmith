@@ -184,10 +184,7 @@ const PropertyControl = memo((props: Props) => {
       propertyName,
     );
     const isConvertible = !!props.isJSConvertible;
-    const className = props.label
-      .split(" ")
-      .join("")
-      .toLowerCase();
+    const className = props.label.split(" ").join("").toLowerCase();
     try {
       return (
         <ControlWrapper
