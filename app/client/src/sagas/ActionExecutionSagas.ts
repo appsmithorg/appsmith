@@ -87,7 +87,7 @@ import {
 } from "./EvaluationsSaga";
 import copy from "copy-to-clipboard";
 
-enum NavigationTargetType {
+export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
   NEW_WINDOW = "NEW_WINDOW",
 }
