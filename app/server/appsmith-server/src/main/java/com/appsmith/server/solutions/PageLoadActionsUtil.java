@@ -110,56 +110,7 @@ public class PageLoadActionsUtil {
                 });
     }
 
-    private DslActionDTO getDslAction(String name, Map<String, ActionDTO> onLoadActionsMap) {
-        ActionDTO actionDTO = onLoadActionsMap.get(name);
-        DslActionDTO dslActionDTO = new DslActionDTO();
-        dslActionDTO.setId(actionDTO.getId());
-        dslActionDTO.setPluginType(actionDTO.getPluginType());
-        dslActionDTO.setJsonPathKeys(actionDTO.getJsonPathKeys());
-        dslActionDTO.setName(actionDTO.getName());
-        if (actionDTO.getActionConfiguration() != null) {
-            dslActionDTO.setTimeoutInMillisecond(actionDTO.getActionConfiguration().getTimeoutInMillisecond());
-        }
-        return dslActionDTO;
-    }
-
-    private void extractAndSetActionNameAndBindingsForGraph(Set<String> actionNames,
-                                                            Set<ActionDependencyEdge> edges,
-                                                            Set<String> dynamicBindings,
-                                                            ActionDTO action) {
-        String name = action.getName();
-        actionNames.add(name);
-
-        Set<String> dynamicBindingNamesInAction = new HashSet<>();
-        Set<String> jsonPathKeys = action.getJsonPathKeys();
-        if (!CollectionUtils.isEmpty(jsonPathKeys)) {
-            for (String mustacheKey : jsonPathKeys) {
-                extractWordsAndAddToSet(dynamicBindingNamesInAction, mustacheKey);
-            }
-
-            // If the action refers to itself in the json path keys, remove the same to circumvent
-            // supposed circular dependency. This is possible in case of pagination with response url
-            // where the action refers to its own data to find the next and previous URLs.
-            dynamicBindingNamesInAction.remove(action.getName());
-
-            // The relationship is represented as follows :
-            // If A depends on B aka B exists in the dynamic bindings of A,
-            // the corresponding edge would be B->A since B updates A and hence,
-            // B should be executed before A.
-            for (String source : dynamicBindingNamesInAction) {
-                ActionDependencyEdge edge = new ActionDependencyEdge();
-                edge.setSource(source);
-                edge.setTarget(name);
-                edges.add(edge);
-            }
-
-            // Update the global actions' dynamic bindings
-            dynamicBindings.addAll(dynamicBindingNamesInAction);
-
-        }
-    }
-
-    private Mono<Map<String, ActionDTO>> findExplicitUserSetOnLoadActionsAndTheirDependents(String pageId,
+        private Mono<Map<String, ActionDTO>> findExplicitUserSetOnLoadActionsAndTheirDependents(String pageId,
                                                                                             Set<String> actionNames,
                                                                                             Set<ActionDependencyEdge> edges,
                                                                                             Set<String> dynamicBindingNames,
@@ -187,6 +138,19 @@ public class PageLoadActionsUtil {
                 });
     }
 
+    /**
+     * This function gets a list of binding names that come from other actions. It looks for actions in the page with
+     * the same names as words in the binding names set. If yes, it creates a new set of dynamicBindingNames, adds these newly
+     * found actions' bindings in the set, adds the new actions and their bindings to actionNames and edges and
+     * recursively calls itself with the new set of dynamicBindingNames.
+     * This ensures that the DAG that we create is complete and contains all possible actions and their dependencies
+     * @param dynamicBindingNames
+     * @param pageId
+     * @param actionNames
+     * @param edges
+     * @param onLoadActionsInMap
+     * @return
+     */
     private Mono<Map<String, ActionDTO>> recursivelyFindActionsAndTheirDependents(Set<String> dynamicBindingNames,
                                                                                   String pageId,
                                                                                   Set<String> actionNames,
@@ -229,6 +193,68 @@ public class PageLoadActionsUtil {
                     // and their bindings
                     return recursivelyFindActionsAndTheirDependents(bindings, pageId, actionNames, edges, onLoadActionsInMap);
                 });
+    }
+
+    private DslActionDTO getDslAction(String name, Map<String, ActionDTO> onLoadActionsMap) {
+        ActionDTO actionDTO = onLoadActionsMap.get(name);
+        DslActionDTO dslActionDTO = new DslActionDTO();
+        dslActionDTO.setId(actionDTO.getId());
+        dslActionDTO.setPluginType(actionDTO.getPluginType());
+        dslActionDTO.setJsonPathKeys(actionDTO.getJsonPathKeys());
+        dslActionDTO.setName(actionDTO.getName());
+        if (actionDTO.getActionConfiguration() != null) {
+            dslActionDTO.setTimeoutInMillisecond(actionDTO.getActionConfiguration().getTimeoutInMillisecond());
+        }
+        return dslActionDTO;
+    }
+
+    private void extractAndSetActionNameAndBindingsForGraph(Set<String> actionNames,
+                                                            Set<ActionDependencyEdge> edges,
+                                                            Set<String> dynamicBindings,
+                                                            ActionDTO action) {
+
+        // Check if the action has been deleted in unpublished state. If yes, ignore it.
+        if (action.getDeletedAt() != null) {
+            return;
+        }
+
+        String name = action.getName();
+
+        // Check if the action has already been found (and exists in the global action names set of actionNames
+        // If yes, then we might have circular dependency scenario. Don't add the actions' bindings in the edges
+        if (actionNames.contains(name)) {
+            return;
+        }
+
+        actionNames.add(name);
+
+        Set<String> dynamicBindingNamesInAction = new HashSet<>();
+        Set<String> jsonPathKeys = action.getJsonPathKeys();
+        if (!CollectionUtils.isEmpty(jsonPathKeys)) {
+            for (String mustacheKey : jsonPathKeys) {
+                extractWordsAndAddToSet(dynamicBindingNamesInAction, mustacheKey);
+            }
+
+            // If the action refers to itself in the json path keys, remove the same to circumvent
+            // supposed circular dependency. This is possible in case of pagination with response url
+            // where the action refers to its own data to find the next and previous URLs.
+            dynamicBindingNamesInAction.remove(action.getName());
+
+            // The relationship is represented as follows :
+            // If A depends on B aka B exists in the dynamic bindings of A,
+            // the corresponding edge would be B->A since B updates A and hence,
+            // B should be executed before A.
+            for (String source : dynamicBindingNamesInAction) {
+                ActionDependencyEdge edge = new ActionDependencyEdge();
+                edge.setSource(source);
+                edge.setTarget(name);
+                edges.add(edge);
+            }
+
+            // Update the global actions' dynamic bindings
+            dynamicBindings.addAll(dynamicBindingNamesInAction);
+
+        }
     }
 
     private DirectedAcyclicGraph<String, DefaultEdge> constructDAG(Set<String> actionNames, Set<ActionDependencyEdge> edges) {
