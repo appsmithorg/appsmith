@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.Transient;
 
 import java.util.Collections;
 import java.util.Map;
@@ -15,7 +16,6 @@ import java.util.Set;
 @Setter
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.EXISTING_PROPERTY,
         visible = true,
         property = "type",
         defaultImpl = DBAuth.class)
@@ -27,6 +27,11 @@ public class AuthenticationDTO {
     // In principle, this class should've been abstract. However, when this class is abstract, Spring's deserialization
     // routines choke on identifying the correct class to instantiate and ends up trying to instantiate this abstract
     // class and fails.
+
+    @Transient
+    String type;
+
+    Set<Property> customAuthenticationParameters;
 
     @JsonIgnore
     private Boolean isEncrypted = false;

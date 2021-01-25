@@ -83,6 +83,17 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     @Override
+    public Mono<Datasource> getById(String s) {
+        return super.getById(s).flatMap(datasource -> {
+            if (datasource.getDatasourceConfiguration().getAuthentication() != null &&
+                    datasource.getDatasourceConfiguration().getAuthentication().isEncrypted()) {
+                datasource.getDatasourceConfiguration().setAuthentication(decryptSensitiveFields(datasource.getDatasourceConfiguration().getAuthentication()));
+            }
+            return Mono.just(datasource);
+        });
+    }
+
+    @Override
     public Mono<Datasource> create(@NotNull Datasource datasource) {
         if (datasource.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
@@ -255,24 +266,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             if (emptyFields != null && !emptyFields.isEmpty()) {
 
                 datasourceMono = getById(datasource.getId())
-                        // If datasource has encrypted fields, decrypt and set it in the datasource which is being tested
-                        .map(datasourceFromRepo -> {
-                            if (datasourceFromRepo.getDatasourceConfiguration() != null && datasourceFromRepo.getDatasourceConfiguration().getAuthentication() != null) {
-                                AuthenticationDTO authentication = datasourceFromRepo.getDatasourceConfiguration().getAuthentication();
-
-                                if (!authentication.getEncryptionFields().isEmpty()) {
-                                    Map<String, String> decryptedFields = authentication.getEncryptionFields();
-                                    decryptedFields = decryptedFields.entrySet().stream()
-                                            .collect(Collectors.toMap(
-                                                    Map.Entry::getKey,
-                                                    e -> encryptionService.decryptString(e.getValue())));
-                                    datasource.getDatasourceConfiguration().getAuthentication().setEncryptionFields(decryptedFields);
-                                    datasource.getDatasourceConfiguration().getAuthentication().setIsEncrypted(false);
-                                }
-
-                            }
-                            return datasource;
-                        })
                         .switchIfEmpty(Mono.just(datasource));
             }
         }
@@ -362,5 +355,19 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .flatMap(toDelete -> repository.archive(toDelete).thenReturn(toDelete))
                 .flatMap(analyticsService::sendDeleteEvent);
     }
+
+    private AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authentication) {
+        if (authentication != null && authentication.isEncrypted()) {
+            Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
+                    .filter(e -> e.getValue() != null)
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            e -> encryptionService.decryptString(e.getValue())));
+            authentication.setEncryptionFields(decryptedFields);
+            authentication.setIsEncrypted(false);
+        }
+        return authentication;
+    }
+
 
 }
