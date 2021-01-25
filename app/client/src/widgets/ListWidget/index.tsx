@@ -108,12 +108,30 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
                       get(template, `${child.widgetName}.${key}.[${i}]`),
                     );
 
-                    // assigning a random widgetId to items other than template item
+                    // disabled config options for items other than template
                     if (i > 0) {
                       set(
                         children[i],
                         `children.[${j}].children[${k}].widgetId`,
                         `list-widget-child-id`,
+                      );
+
+                      set(
+                        children[i],
+                        `children.[${j}].children[${k}].resizeEnabled`,
+                        false,
+                      );
+
+                      set(
+                        children[i],
+                        `children.[${j}].children[${k}].settingsControlEnabled`,
+                        false,
+                      );
+
+                      set(
+                        children[i],
+                        `children.[${j}].children[${k}].dragEnabled`,
+                        false,
                       );
                     }
                   }
