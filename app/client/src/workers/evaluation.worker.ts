@@ -1085,29 +1085,44 @@ export class DataTreeEvaluator {
     removedPaths: Array<string>,
   ) {
     const changePaths: Set<string> = new Set(dependenciesOfRemovedPaths);
-    differences.forEach((d) => {
-      if (d.path) {
-        // Apply the changes into the evalTree so that it gets the latest changes
-        applyChange(this.evalTree, undefined, d);
+    for (const d of differences) {
+      if (!Array.isArray(d.path) || d.path.length === 0) continue;
+      // Apply the changes into the evalTree so that it gets the latest changes
+      applyChange(this.evalTree, undefined, d);
 
-        // If this is a property path change, simply add for evaluation
-        if (d.path.length > 1) {
-          changePaths.add(convertPathToString(d.path));
-        } else if (d.path.length === 1) {
-          /**
-           * When we see a new widget has been added or or delete an old widget ( d.path.length === 1 )
-           * We want to add all the dependencies in the widgetValidationPaths to make
-           * sure all the bindings are evaluated and validated.
-           */
+      // If this is a property path change, simply add for evaluation and move on
+      if (d.path.length > 1) {
+        changePaths.add(convertPathToString(d.path));
+        continue;
+      }
+      // A top level entity (widget/action) has been added or deleted
+      if (d.path.length === 1) {
+        const entityName = d.path[0];
+        /**
+         * We want add all pre-existing dynamic bindings of this entity to get evaluated and validated.
+         * Example:
+         * - Table1.tableData = {{Api1.data}}
+         * - Api1 gets created.
+         * - This function gets called with a diff {path:["Api1"]}
+         * We want to add `Api.data` to changedPaths so that `Table1.tableData` can be discovered below.
+         */
+        for (const dependency of this.sortedDependencies) {
+          if (isChildPropertyPath(entityName, dependency)) {
+            changePaths.add(dependency);
+          }
+        }
 
-          if (d.path[0] in this.widgetValidationPaths) {
-            this.widgetValidationPaths[d.path[0]].forEach((dependency) => {
-              changePaths.add(dependency);
-            });
+        /**
+         * The above logic only works for pre-existing dynamic bindings.
+         * But widgets might have static properties that need to be validated and parsed.
+         */
+        if (entityName in this.widgetValidationPaths) {
+          for (const dependency of this.widgetValidationPaths[entityName]) {
+            changePaths.add(dependency);
           }
         }
       }
-    });
+    }
 
     // If a nested property path has changed and someone (say x) is dependent on the parent of the said property,
     // x must also be evaluated. For example, the following relationship exists in dependency map:
