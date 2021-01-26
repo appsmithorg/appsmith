@@ -1572,4 +1572,26 @@ public class DatabaseChangelog {
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
+
+    @ChangeSet(order = "049", id = "add-s3-plugin", author = "")
+    public void addS3Plugin (MongoTemplate mongoTemplate){
+        Plugin plugin = new Plugin();
+        plugin.setName("S3");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("s3-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        // TODO: fix it.
+        plugin.setIconLocation("https://www.cloudsavvyit.com/thumbcache/0/0/5398aa629b05ec6fef5a34171383daa7/p/uploads/2019/06/55634f08.png");
+        // TODO: fix it.
+        plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-redshift");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
 }

@@ -139,8 +139,10 @@ public class S3Plugin extends BasePlugin {
                 );
             }
 
-            //TODO: create a field to hold it. ?? endpoint.host()
-            Regions clientRegion = Regions.fromName("ap-south-1");
+            List<Property> properties = datasourceConfiguration.getProperties();
+            //TODO: remove it
+            //Regions clientRegion = Regions.fromName("ap-south-1");
+            Regions clientRegion = Regions.fromName(properties.get(0).getValue()); 
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             String accessKey = authentication.getUsername();
             String secretKey = authentication.getPassword();

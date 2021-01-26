@@ -1,0 +1,40 @@
+{
+  "form": [
+    {
+      "sectionName": "Details",
+      "id": 1,
+      "children": [
+        {
+          "label": "Access Key",
+          "configProperty": "datasourceConfiguration.authentication.username",
+          "controlType": "INPUT_TEXT",
+          "isRequired": true,
+          "initialValue": ""
+        },
+        {
+          "label": "Secret Key",
+          "configProperty": "datasourceConfiguration.authentication.password",
+          "controlType": "INPUT_TEXT",
+          "dataType": "PASSWORD",
+          "isRequired": true,
+          "initialValue": ""
+        },
+        {
+          "label": "Region",
+          "configProperty": "datasourceConfiguration.properties[0].value",
+          "controlType": "INPUT_TEXT",
+          "dataType": "PASSWORD",
+          "isRequired": true,
+          "initialValue": ""
+        },
+        {
+          "label": "Bucket Name",
+          "configProperty": "datasourceConfiguration.properties[1].value",
+          "controlType": "INPUT_TEXT",
+          "isRequired": true,
+          "placeholder": "https://your-project-id.firebaseio.com"
+        }
+      ]
+    }
+  ]
+}
