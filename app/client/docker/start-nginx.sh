@@ -10,7 +10,7 @@ if [ "$NGINX_TEMPLATE_VERSION" = "# Version=2.0" ]; then
     BACKEND_HOST_CMNT=""
     PLATFORM=${PLATFORM:-""}
 
-    if [[ $APPSMITH_SSL_ENABLED == true ]] && [[ -n $APPSMITH_DOMAIN ]]; then
+    if [ $APPSMITH_SSL_ENABLED == true ] && [ -n $APPSMITH_DOMAIN ]; then
         echo "Genereate file have SSL"
     else
         NGINX_SSL_CMNT="#"

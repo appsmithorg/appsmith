@@ -1,11 +1,11 @@
-FROM legodevops/appsmith as frontend
+FROM appsmith/appsmith-editor:latest as frontend
 
-FROM appsmith/appsmith-server
+FROM appsmith/appsmith-server:latest
 
 RUN mkdir -p /var/www/appsmith
-COPY --from=legodevops/appsmith /var/www/appsmith /var/www/appsmith
-COPY --from=legodevops/appsmith nginx-root.conf.template nginx-root.conf.template
-COPY --from=legodevops/appsmith nginx.conf.template nginx.conf.template
+COPY --from=frontend /var/www/appsmith /var/www/appsmith
+COPY --from=frontend nginx-root.conf.template nginx-root.conf.template
+COPY --from=frontend nginx.conf.template nginx.conf.template
 
 RUN apk add --update nginx && \ 
 	rm -rf /var/cache/apk/* && \
