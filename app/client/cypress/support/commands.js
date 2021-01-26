@@ -1424,15 +1424,8 @@ Cypress.Commands.add("fillMongoDatasourceForm", () => {
   cy.get(datasourceEditor["password"]).type(
     datasourceFormData["mongo-password"],
   );
-
-  cy.get(datasourceEditor.sectionSSL).click();
   cy.get(datasourceEditor["authenticationAuthtype"]).click();
   cy.contains(datasourceFormData["mongo-authenticationAuthtype"]).click({
-    force: true,
-  });
-
-  cy.get(datasourceEditor["sslAuthtype"]).click();
-  cy.contains(datasourceFormData["mongo-sslAuthtype"]).click({
     force: true,
   });
 });
