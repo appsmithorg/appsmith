@@ -128,40 +128,44 @@ check_os() {
     os_name="$(cat /etc/*-release | awk -F= '$1 == "NAME" { gsub(/"/, ""); print $2; exit }')"
 
     case "$os_name" in
-    Ubuntu*)
-        desired_os=1
-        os="ubuntu"
-        package_manager="apt-get"
-        ;;
-    Debian*)
-        desired_os=1
-        os="debian"
-        package_manager="apt-get"
-        ;;
-    Red\ Hat*)
-        desired_os=1
-        os="red hat"
-        package_manager="yum"
-        ;;
-    CentOS*)
-        desired_os=1
-        os="centos"
-        package_manager="yum"
-        ;;
-    SLES*)
-        desired_os=1
-        os="sles"
-        package_manager="zypper"
-        ;;
-    openSUSE*)
-        desired_os=1
-        os="opensuse"
-        package_manager="zypper"
-        ;;
-    *)
-        desired_os=0
-        os="Not Found"
-        ;;
+        Ubuntu*)
+            desired_os=1
+            os="ubuntu"
+            package_manager="apt-get"
+            ;;
+        Debian*)
+            desired_os=1
+            os="debian"
+            package_manager="apt-get"
+            ;;
+        Linux\ Mint*)
+            desired_os=1
+            os="linux mint"
+            package_manager="apt-get"
+            ;;
+        Red\ Hat*)
+            desired_os=1
+            os="red hat"
+            package_manager="yum"
+            ;;
+        CentOS*)
+            desired_os=1
+            os="centos"
+            package_manager="yum"
+            ;;
+        SLES*)
+            desired_os=1
+            os="sles"
+            package_manager="zypper"
+            ;;
+        openSUSE*)
+            desired_os=1
+            os="opensuse"
+            package_manager="zypper"
+            ;;
+        *)
+            desired_os=0
+            os="Not Found"
     esac
 }
 
@@ -388,6 +392,7 @@ ask_telemetry() {
         disable_telemetry="false"
     else
         disable_telemetry="true"
+        echo "Please note that even though telemetry is disabled, your Appsmith server will connect to cloud to fetch release notes and to check for updates."
     fi
     echo "++++++++++++++++++++++++++++++++++++++++++++"
 
@@ -428,7 +433,7 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
 
 if [[ $desired_os -eq 0 ]]; then
     echo ""
-    echo "This script is currently meant to install Appsmith on Mac OS X, Ubuntu, SLES or openSUSE machines."
+    echo "This script is currently meant to install Appsmith on Mac OS X, Ubuntu, Debian, Linux Mint, Red Hat, CentOS, SLES or openSUSE machines."
     echo_contact_support " if you wish to extend this support."
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
         --header 'Content-Type: text/plain' \

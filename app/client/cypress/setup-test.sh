@@ -10,7 +10,7 @@ serve -s build -p 3000 &
 
 # Substitute all the env variables in nginx
 vars_to_substitute=$(printf '\$%s,' $(env | grep -o "^APPSMITH_[A-Z0-9_]\+" | xargs))
-cat ./docker/templates/nginx-app.conf.template | sed -e "s|\$PORT|"80"|g" | sed -e "s|\$BACKEND_HOST_CMNT|""|g" | sed -e "s|\$NGINX_SSL_CMNT|""|g" | sed -e "s|\$APPSMITH_PORT|80|g" | sed -e "s|\$APPSMITH_DOMAIN|dev.appsmith.com|g" | sed -e "s|__APPSMITH_CLIENT_PROXY_PASS__|http://localhost:3000|g" | sed -e "s|__APPSMITH_SERVER_PROXY_PASS__|http://localhost:8080|g" | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx.conf
+cat ./docker/templates/nginx-test.conf.template | sed -e "s|__APPSMITH_CLIENT_PROXY_PASS__|http://localhost:3000|g" | sed -e "s|__APPSMITH_SERVER_PROXY_PASS__|http://localhost:8080|g" | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx.conf
 cat ./docker/templates/nginx-root.conf.template | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx-root.conf
 
 # Create the SSL files for Nginx. Required for service workers to work properly.
