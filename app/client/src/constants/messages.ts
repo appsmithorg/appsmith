@@ -18,10 +18,10 @@ export const ENTER_VIDEO_URL = "Please provide a valid url";
 export const FORM_VALIDATION_EMPTY_PASSWORD = "Please enter the password";
 export const FORM_VALIDATION_PASSWORD_RULE =
   "Please provide a password with a minimum of 6 characters";
-export const FORM_VALIDATION_INVALID_PASSWORD = "Please enter a valid password";
+export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
 export const LOGIN_PAGE_SUBTITLE = "Use your organization email";
-export const LOGIN_PAGE_TITLE = "Login";
+export const LOGIN_PAGE_TITLE = "Sign In to your account";
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = "Email";
 export const LOGIN_PAGE_PASSWORD_INPUT_LABEL = "Password";
 export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = "Email";
@@ -29,12 +29,13 @@ export const LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER = "Password";
 export const LOGIN_PAGE_INVALID_CREDS_ERROR =
   "It looks like you may have entered incorrect/invalid credentials. Please try again or reset password using the button below.";
 export const LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK = "Reset Password";
+export const NEW_TO_APPSMITH = "New to Appsmith?";
 
-export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = "Login";
+export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = "sign in";
 export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = "Forgot Password";
 export const LOGIN_PAGE_REMEMBER_ME_LABEL = "Remember";
-export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = "New to Appsmith? Sign up";
-export const SIGNUP_PAGE_TITLE = "Sign Up";
+export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = "Sign up";
+export const SIGNUP_PAGE_TITLE = "Create your free account";
 export const SIGNUP_PAGE_SUBTITLE = "Use your organization email";
 export const SIGNUP_PAGE_EMAIL_INPUT_LABEL = "Email";
 export const SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER = " Email";
@@ -42,16 +43,17 @@ export const SIGNUP_PAGE_NAME_INPUT_PLACEHOLDER = "Name";
 export const SIGNUP_PAGE_NAME_INPUT_LABEL = "Name";
 export const SIGNUP_PAGE_PASSWORD_INPUT_LABEL = "Password";
 export const SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER = "Password";
-export const SIGNUP_PAGE_LOGIN_LINK_TEXT = "Have an account? Login";
+export const SIGNUP_PAGE_LOGIN_LINK_TEXT = "Sign In";
 export const SIGNUP_PAGE_NAME_INPUT_SUBTEXT = "How should we call you?";
 export const SIGNUP_PAGE_SUBMIT_BUTTON_TEXT = "Sign Up";
+export const ALREADY_HAVE_AN_ACCOUNT = "Already have an account?";
 
 export const SIGNUP_PAGE_SUCCESS = "Awesome! You have successfully registered.";
 export const SIGNUP_PAGE_SUCCESS_LOGIN_BUTTON_TEXT = "Login";
 
 export const RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL = "New Password";
 export const RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER = "New Password";
-export const RESET_PASSWORD_LOGIN_LINK_TEXT = "Changed your mind? Login";
+export const RESET_PASSWORD_LOGIN_LINK_TEXT = "Back to Sign In";
 export const RESET_PASSWORD_PAGE_TITLE = "Reset Password";
 export const RESET_PASSWORD_SUBMIT_BUTTON_TEXT = "Reset";
 export const RESET_PASSWORD_PAGE_SUBTITLE =
@@ -129,7 +131,7 @@ export const DELETING_APPLICATION = "Deleting application...";
 export const DUPLICATING_APPLICATION = "Duplicating application...";
 
 export const CURL_IMPORT_SUCCESS = "Curl Import Successfull";
-export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = "Back to Login";
+export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = "Back to Sign In";
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = "Api added to page.";
 export const INPUT_WIDGET_DEFAULT_VALIDATION_ERROR = "Invalid input";
 
