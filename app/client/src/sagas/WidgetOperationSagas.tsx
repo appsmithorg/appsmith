@@ -250,7 +250,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     // const parent = Object.assign({}, stateParent);
     // Get all the widgets from the canvasWidgetsReducer
     const stateWidgets = yield select(getWidgets);
-    const widgets = Object.assign({}, stateWidgets);
+    let widgets = Object.assign({}, stateWidgets);
     // Generate the full WidgetProps of the widget to be added.
     const childWidgetPayload: GeneratedWidgetPayload = yield generateChildWidgets(
       stateParent,
@@ -271,41 +271,39 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     // some widgets need to update property of parent if they have CHILD_OPERATIONS
     // so here we are going up the tree till we get to MAIN_CONTAINER_WIDGET_ID
     // while travesring, if we find any widget which has CHILD_OPERATION, we will call the fn in it
-    const root = parent;
-    // console.log({ root });
-    // while (root.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
-    //   console.log("came here");
-    //   const parentConfig = {
-    //     ...(WidgetConfigResponse as any).config[root.type],
-    //   };
+    let root = parent;
+    while (root.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
+      const parentConfig = {
+        ...(WidgetConfigResponse as any).config[root.type],
+      };
 
-    //   // find the blueprint with type CHILD_OPERATIONS
-    //   const blueprintChildOperation = get(
-    //     parentConfig,
-    //     "blueprint.operations",
-    //     [],
-    //   ).find(
-    //     (operation: BlueprintOperation) =>
-    //       operation.type === BlueprintOperationTypes.CHILD_OPERATIONS,
-    //   );
+      // find the blueprint with type CHILD_OPERATIONS
+      const blueprintChildOperation = get(
+        parentConfig,
+        "blueprint.operations",
+        [],
+      ).find(
+        (operation: BlueprintOperation) =>
+          operation.type === BlueprintOperationTypes.CHILD_OPERATIONS,
+      );
 
-    //   // if there is blueprint operation with CHILD_OPERATION type, call the fn in it
-    //   if (blueprintChildOperation) {
-    //     const updatedWidgets = yield call(
-    //       executeWidgetBlueprintChildOperations,
-    //       blueprintChildOperation,
-    //       widgets,
-    //       addChildAction.payload.newWidgetId,
-    //       root.widgetId,
-    //     );
+      // if there is blueprint operation with CHILD_OPERATION type, call the fn in it
+      if (blueprintChildOperation) {
+        const updatedWidgets = yield call(
+          executeWidgetBlueprintChildOperations,
+          blueprintChildOperation,
+          widgets,
+          addChildAction.payload.newWidgetId,
+          root.widgetId,
+        );
 
-    //     if (updatedWidgets) {
-    //       widgets = updatedWidgets;
-    //     }
-    //   }
+        if (updatedWidgets) {
+          widgets = updatedWidgets;
+        }
+      }
 
-    //   root = widgets[root.parentId];
-    // }
+      root = widgets[root.parentId];
+    }
 
     yield put(updateAndSaveLayout(widgets));
 
