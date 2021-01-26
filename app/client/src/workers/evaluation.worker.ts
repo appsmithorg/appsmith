@@ -39,6 +39,7 @@ import {
   removeFunctionsFromDataTree,
   translateDiffEventToDataTreeDiffEvent,
   validateWidgetProperty,
+  getImmediateParentsOfPropertyPaths,
 } from "./evaluationUtils";
 import {
   EXECUTION_PARAM_KEY,
@@ -368,7 +369,7 @@ export class DataTreeEvaluator {
       // Add all the sorted nodes in the final list
       finalSortOrder = [...finalSortOrder, ...subSortOrderArray];
 
-      parents = this.getImmediateParentsOfPropertyPaths(subSortOrderArray);
+      parents = getImmediateParentsOfPropertyPaths(subSortOrderArray);
       // If we find parents of the property paths in the sorted array, we should continue finding all the nodes dependent
       // on the parents
       computeSortOrder = parents.length > 0;
@@ -391,28 +392,6 @@ export class DataTreeEvaluator {
     });
 
     return finalSortOrderArray;
-  }
-
-  // The idea is to find the immediate parents of the property paths
-  // e.g. For Table1.selectedRow.email, the parent is Table1.selectedRow
-  getImmediateParentsOfPropertyPaths(
-    propertyPaths: Array<string>,
-  ): Array<string> {
-    // Use a set to ensure that we dont have duplicates
-    const parents: Set<string> = new Set();
-    const rgx = /^(.*)(\..*|\[.*\])$/;
-
-    propertyPaths.forEach((path) => {
-      const matches = path.match(rgx);
-
-      if (matches !== null) {
-        parents.add(matches[1]);
-      } else {
-        // We have reached the top of the path. No parent exists
-      }
-    });
-
-    return Array.from(parents);
   }
 
   getEvaluationSortOrder(

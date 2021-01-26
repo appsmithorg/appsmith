@@ -1,4 +1,8 @@
-import { DependencyMap, isDynamicValue } from "../utils/DynamicBindingUtils";
+import {
+  DependencyMap,
+  isDynamicValue,
+  isChildPropertyPath,
+} from "../utils/DynamicBindingUtils";
 import { WidgetType } from "../constants/WidgetConstants";
 import { WidgetProps } from "../widgets/BaseWidget";
 import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
@@ -12,6 +16,11 @@ import {
   ENTITY_TYPE,
 } from "../entities/DataTree/dataTreeFactory";
 import _ from "lodash";
+
+// Dropdown1.options[1].value -> Dropdown1.options[1]
+// Dropdown1.options[1] -> Dropdown1.options
+// Dropdown1.options -> Dropdown1
+export const IMMEDIATE_PARENT_REGEX = /^(.*)(\..*|\[.*\])$/;
 
 export enum DataTreeDiffEvent {
   NEW = "NEW",
@@ -116,17 +125,6 @@ export const translateDiffEventToDataTreeDiffEvent = (
   return result;
 };
 
-export const isPropertyPathOrNestedPath = (
-  path: string,
-  comparePath: string,
-): boolean => {
-  return (
-    path === comparePath ||
-    comparePath.startsWith(`${path}.`) ||
-    comparePath.startsWith(`${path}[`)
-  );
-};
-
 /*
   Table1.selectedRow
   Table1.selectedRow.email: ["Input1.defaultText"]
@@ -142,7 +140,7 @@ export const addDependantsOfNestedPropertyPaths = (
     withNestedPaths.add(propertyPath);
     dependantNodes
       .filter((dependantNodePath) =>
-        isPropertyPathOrNestedPath(propertyPath, dependantNodePath),
+        isChildPropertyPath(propertyPath, dependantNodePath),
       )
       .forEach((dependantNodePath) => {
         inverseMap[dependantNodePath].forEach((path) => {
@@ -202,17 +200,18 @@ export const makeParentsDependOnChildren = (
   });
   return depMap;
 };
+
 export const makeParentsDependOnChild = (
   depMap: DependencyMap,
   child: string,
 ): DependencyMap => {
   const result: DependencyMap = depMap;
   let curKey = child;
-  const rgx = /^(.*)(\..*|\[.*\])$/;
+
   let matches: Array<string> | null;
   // Note: The `=` is intentional
   // Stops looping when match is null
-  while ((matches = curKey.match(rgx)) !== null) {
+  while ((matches = curKey.match(IMMEDIATE_PARENT_REGEX)) !== null) {
     const parentKey = matches[1];
     // Todo: switch everything to set.
     const existing = new Set(result[parentKey] || []);
@@ -221,6 +220,25 @@ export const makeParentsDependOnChild = (
     curKey = parentKey;
   }
   return result;
+};
+
+// The idea is to find the immediate parents of the property paths
+// e.g. For Table1.selectedRow.email, the parent is Table1.selectedRow
+export const getImmediateParentsOfPropertyPaths = (
+  propertyPaths: Array<string>,
+): Array<string> => {
+  // Use a set to ensure that we dont have duplicates
+  const parents: Set<string> = new Set();
+
+  propertyPaths.forEach((path) => {
+    const matches = path.match(IMMEDIATE_PARENT_REGEX);
+
+    if (matches !== null) {
+      parents.add(matches[1]);
+    }
+  });
+
+  return Array.from(parents);
 };
 
 export function validateWidgetProperty(
