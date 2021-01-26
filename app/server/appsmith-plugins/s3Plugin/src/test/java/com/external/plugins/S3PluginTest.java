@@ -3,14 +3,17 @@ package com.external.plugins;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Property;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -43,7 +46,6 @@ public class S3PluginTest {
     @Test
     public void sampleTest() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-
         Mono<AmazonS3> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         AmazonS3 conn = dsConnectionMono.block();
@@ -55,6 +57,24 @@ public class S3PluginTest {
         for (S3ObjectSummary os : objects) {
             System.out.println("* " + os.getKey());
         }
+    }
+
+    @Test
+    public void testExecuteUploadFileFromBody() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<AmazonS3> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        AmazonS3 conn = dsConnectionMono.block();
+        String bucket_name = "testbucketforappsmithinternaltesting";
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("test_upload_from_file.txt");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("action", "UPLOAD_FILE_FROM_BODY"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+        actionConfiguration.setBody("{key: test, value: test}");
+
+        pluginExecutor.execute(conn, dsConfig, actionConfiguration).block();
     }
 
 }
