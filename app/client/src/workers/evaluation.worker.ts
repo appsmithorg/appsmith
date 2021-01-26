@@ -205,6 +205,7 @@ export class DataTreeEvaluator {
   widgetConfigMap: WidgetTypeConfigMap = {};
   evalTree: DataTree = {};
   allKeys: Record<string, true> = {};
+  widgetValidationPaths: Record<string, Set<string>> = {};
   oldUnEvalTree: DataTree = {};
   errors: EvalError[] = [];
   parsedValueCache: Map<
@@ -327,22 +328,8 @@ export class DataTreeEvaluator {
     removedPaths.forEach((removedPath) => {
       _.unset(this.evalTree, removedPath);
     });
-
     const evaluatedTree = this.evaluateTree(this.evalTree, subTreeSortOrder);
     const evalStop = performance.now();
-
-    const validateStart = performance.now();
-    // Validate and parse updated widgets
-    const updatedWidgets = new Set(
-      subTreeSortOrder.map((path) => path.split(".")[0]),
-    );
-
-    // const validatedTree = getValidatedTree(
-    //   this.widgetConfigMap,
-    //   evaluatedTree,
-    //   updatedWidgets,
-    // );
-    const validateEnd = performance.now();
 
     // Remove functions
     this.evalTree = removeFunctionsFromDataTree(evaluatedTree);
@@ -360,7 +347,6 @@ export class DataTreeEvaluator {
         calculateSortOrderStop - calculateSortOrderStart
       ).toFixed(2),
       evaluate: (evalStop - evalStart).toFixed(2),
-      validate: (validateEnd - validateStart).toFixed(2),
     };
     LOGS.push({ timeTakenForSubTreeEval });
     return this.evalTree;
@@ -456,9 +442,30 @@ export class DataTreeEvaluator {
     return sortOrder;
   }
 
+  getWidgetValidationPaths(
+    unevalDataTree: DataTree,
+  ): Record<string, Set<string>> {
+    const result: Record<string, Set<string>> = {};
+    for (const key in unevalDataTree) {
+      const entity = unevalDataTree[key];
+      if (!isWidget(entity)) continue;
+      if (!this.widgetConfigMap[entity.type])
+        throw new CrashingError(
+          `${entity.widgetName} has unrecognised entity type: ${entity.type}`,
+        );
+      const { validations } = this.widgetConfigMap[entity.type];
+
+      result[entity.widgetName] = new Set(
+        Object.keys(validations).map((e) => `${entity.widgetName}.${e}`),
+      );
+    }
+    return result;
+  }
+
   createDependencyMap(unEvalTree: DataTree): DependencyMap {
     let dependencyMap: DependencyMap = {};
     this.allKeys = getAllPaths(unEvalTree);
+    this.widgetValidationPaths = this.getWidgetValidationPaths(unEvalTree);
     Object.keys(unEvalTree).forEach((entityName) => {
       const entity = unEvalTree[entityName];
       if (isAction(entity) || isWidget(entity)) {
@@ -909,12 +916,16 @@ export class DataTreeEvaluator {
     // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
     // TODO: Optimise by only getting paths of changed node
     this.allKeys = getAllPaths(unEvalDataTree);
+    this.widgetValidationPaths = this.getWidgetValidationPaths(unEvalDataTree);
     // Transform the diff library events to Appsmith evaluator events
     differences
       .map(translateDiffEventToDataTreeDiffEvent)
       .forEach((dataTreeDiff) => {
         const entityName = dataTreeDiff.payload.propertyPath.split(".")[0];
-        const entity = unEvalDataTree[entityName];
+        let entity = unEvalDataTree[entityName];
+        if (dataTreeDiff.event === DataTreeDiffEvent.DELETE) {
+          entity = this.oldUnEvalTree[entityName];
+        }
         const entityType = isValidEntity(entity) ? entity.ENTITY_TYPE : "noop";
 
         if (entityType !== "noop") {
@@ -957,13 +968,9 @@ export class DataTreeEvaluator {
               removedPaths.push(dataTreeDiff.payload.propertyPath);
               // If an existing widget was deleted, remove all the bindings from the global dependency map
               if (
-                entityType === ENTITY_TYPE.WIDGET &&
+                isWidget(entity) &&
                 dataTreeDiff.payload.propertyPath === entityName
               ) {
-                const entity: DataTreeWidget = unEvalDataTree[
-                  entityName
-                ] as DataTreeWidget;
-
                 const widgetBindings = this.listEntityDependencies(
                   entity,
                   entityName,
@@ -1108,16 +1115,17 @@ export class DataTreeEvaluator {
         if (d.path.length > 1) {
           changePaths.add(convertPathToString(d.path));
         } else if (d.path.length === 1) {
-          /*
-              When we see a new widget has been added or or delete an old widget ( d.path.length === 1)
-              We want to add all the dependencies in the sorted order to make
-              sure all the bindings are evaluated.
-            */
-          this.sortedDependencies.forEach((dependency) => {
-            if (d.path && dependency.split(".")[0] === d.path[0]) {
+          /**
+           * When we see a new widget has been added or or delete an old widget ( d.path.length === 1 )
+           * We want to add all the dependencies in the widgetValidationPaths to make
+           * sure all the bindings are evaluated and validated.
+           */
+
+          if (d.path[0] in this.widgetValidationPaths) {
+            this.widgetValidationPaths[d.path[0]].forEach((dependency) => {
               changePaths.add(dependency);
-            }
-          });
+            });
+          }
         }
       }
     });
