@@ -113,7 +113,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
                       set(
                         children[i],
                         `children.[${j}].children[${k}].widgetId`,
-                        `list-widget-child-id`,
+                        `list-widget-child-id-${i}`,
                       );
 
                       set(

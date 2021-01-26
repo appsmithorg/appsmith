@@ -511,6 +511,8 @@ export class DataTreeEvaluator {
     sortedDependencies: Array<string>,
   ): DataTree {
     const tree = _.cloneDeep(oldUnevalTree);
+
+    console.log({ sortedDependencies });
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, propertyPath: string) => {

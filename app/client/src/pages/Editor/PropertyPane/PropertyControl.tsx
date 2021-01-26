@@ -108,6 +108,7 @@ const PropertyControl = memo((props: Props) => {
         );
       }
 
+      console.log({ propertiesToUpdate });
       if (propertiesToUpdate) {
         propertiesToUpdate.forEach(
           ({ propertyPath, propertyValue, widgetId }) => {
