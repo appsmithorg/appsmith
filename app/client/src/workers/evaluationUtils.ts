@@ -268,14 +268,8 @@ export function validateWidgetProperty(
 export function getValidatedTree(
   widgetConfigMap: WidgetTypeConfigMap,
   tree: DataTree,
-  only?: Set<string>,
 ) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
-    if (only && only.size) {
-      if (!only.has(entityKey)) {
-        return tree;
-      }
-    }
     const entity = tree[entityKey] as DataTreeWidget;
     if (!isWidget(entity)) {
       return tree;
