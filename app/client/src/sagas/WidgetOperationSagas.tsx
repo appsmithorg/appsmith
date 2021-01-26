@@ -49,7 +49,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { get } from "lodash";
+import _, { get, remove } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   BlueprintOperationTypes,
@@ -471,6 +471,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       const widgets = { ...stateWidgets };
       const stateWidget = yield select(getWidget, widgetId);
       const widget = { ...stateWidget };
+      const enhancementsMap = yield select(getEnhancementsMap);
 
       const stateParent: FlattenedWidgetProps = yield select(
         getWidget,
@@ -527,10 +528,22 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
       yield call(clearEvalPropertyCacheOfWidget, widgetName);
 
-      const finalWidgets: CanvasWidgetsReduxState = _.omit(
+      let finalWidgets: CanvasWidgetsReduxState = _.omit(
         widgets,
         otherWidgetsToDelete.map((widgets) => widgets.widgetId),
       );
+
+      // updating widget property of list if there is a enhancmentMap exists for the deleting widget
+      if (widget.widgetId in enhancementsMap) {
+        if (enhancementsMap[widget.widgetId].type === WidgetTypes.LIST_WIDGET) {
+          finalWidgets = yield updateListWidgetPropertiesOnChildDelete(
+            finalWidgets,
+            widget.widgetId,
+            widget.widgetName,
+            enhancementsMap[widget.widgetId].parentId,
+          );
+        }
+      }
 
       // Note: mutates finalWidgets
       resizeCanvasToLowestWidget(finalWidgets, parentId);
@@ -546,6 +559,47 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       },
     });
   }
+}
+
+/**
+ * this saga clears out the enhancementMap, template and dynamicBindingPathList when a child
+ * is deleted in list widget
+ *
+ * @param widgets
+ * @param widgetId
+ * @param widgetName
+ * @param parentId
+ */
+export function* updateListWidgetPropertiesOnChildDelete(
+  widgets: CanvasWidgetsReduxState,
+  widgetId: string,
+  widgetName: string,
+  parentId: string,
+) {
+  const clone = JSON.parse(JSON.stringify(widgets));
+  const listWidget: WidgetProps = clone[parentId];
+
+  // delete widget in template of list
+  if (widgetName in listWidget.template) {
+    clone[parentId].template[widgetName] = undefined;
+  }
+
+  // delete dynamic binding path if any
+  remove(listWidget.dynamicBindingPathList || [], (path) =>
+    path.key.startsWith(`template.${widgetName}`),
+  );
+
+  // delete key in enhancement map
+  const enhancementsMap = yield select(getEnhancementsMap);
+
+  enhancementsMap[widgetId] = undefined;
+
+  yield put({
+    type: ReduxActionTypes.SET_PROPERTY_PANE_ENHANCEMENTS,
+    payload: enhancementsMap,
+  });
+
+  return clone;
 }
 
 export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
