@@ -200,15 +200,15 @@ function* createOnboardingDatasource() {
     );
     const datasources: Datasource[] = yield select(getDatasources);
     let onboardingDatasource = datasources.find((datasource) => {
-      const host = get(datasource, "datasourceConfiguration.endpoints[0].host");
+      const name = get(datasource, "name");
 
-      return host === "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com";
+      return name === "Super Updates DB";
     });
 
     if (!onboardingDatasource) {
       const datasourceConfig: any = {
         pluginId: postgresPlugin.id,
-        name: "ExampleDatabase",
+        name: "Super Updates DB",
         organizationId,
         datasourceConfiguration: {
           connection: {
@@ -394,21 +394,21 @@ function* createQuery() {
   const applicationId = yield select(getCurrentApplicationId);
   const datasources: Datasource[] = yield select(getDatasources);
   const onboardingDatasource = datasources.find((datasource) => {
-    const host = get(datasource, "datasourceConfiguration.endpoints[0].host");
+    const name = get(datasource, "name");
 
-    return host === "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com";
+    return name === "Super Updates DB";
   });
 
   if (onboardingDatasource) {
     const payload = {
-      name: "ExampleQuery",
+      name: "fetch_standup_updates",
       pageId: currentPageId,
       pluginId: onboardingDatasource?.pluginId,
       datasource: {
         id: onboardingDatasource?.id,
       },
       actionConfiguration: {
-        body: "select * from public.users limit 10",
+        body: " ",
       },
     } as Partial<QueryAction>;
 
