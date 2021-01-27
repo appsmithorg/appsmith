@@ -1,0 +1,105 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1224,
+    "snapColumns": 16,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1280,
+    "containerStyle": "none",
+    "snapRows": 33,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 9,
+    "minHeight": 1292,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "isVisible": true,
+        "backgroundColor": "transparent",
+        "gridType": "vertical",
+        "gridGap": 0,
+        "items": "[\n  {\n    \"id\": 1,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"first_name\": \"Michael\",\n    \"last_name\": \"Lawson\",\n    \"avatar\": \"https://reqres.in/img/faces/7-image.jpg\"\n  },\n  {\n    \"id\": 2,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"first_name\": \"Lindsay\",\n    \"last_name\": \"Ferguson\",\n    \"avatar\": \"https://reqres.in/img/faces/8-image.jpg\"\n  }\n]",
+        "widgetName": "List1",
+        "children": [
+          {
+            "isVisible": true,
+            "widgetName": "Canvas1",
+            "containerStyle": "none",
+            "canExtend": false,
+            "detachFromLayout": true,
+            "dropEnabled": false,
+            "children": [
+              {
+                "isVisible": true,
+                "backgroundColor": "white",
+                "widgetName": "Container1",
+                "containerStyle": "card",
+                "children": [
+                  {
+                    "isVisible": true,
+                    "widgetName": "Canvas2",
+                    "containerStyle": "none",
+                    "canExtend": false,
+                    "detachFromLayout": true,
+                    "children": [],
+                    "minHeight": null,
+                    "type": "CANVAS_WIDGET",
+                    "isLoading": false,
+                    "parentColumnSpace": 1,
+                    "parentRowSpace": 1,
+                    "leftColumn": 0,
+                    "rightColumn": null,
+                    "topRow": 0,
+                    "bottomRow": null,
+                    "parentId": "4ruj7xl5ri",
+                    "widgetId": "dinv2tsatk"
+                  }
+                ],
+                "dragEnabled": false,
+                "isDeletable": false,
+                "paddingEnabled": false,
+                "settingsControlEnabled": false,
+                "type": "CONTAINER_WIDGET",
+                "isLoading": false,
+                "leftColumn": 0,
+                "rightColumn": 16,
+                "topRow": 0,
+                "bottomRow": 4,
+                "parentId": "0pvmmqr77m",
+                "widgetId": "4ruj7xl5ri"
+              }
+            ],
+            "minHeight": 400,
+            "type": "CANVAS_WIDGET",
+            "isLoading": false,
+            "parentColumnSpace": 1,
+            "parentRowSpace": 1,
+            "leftColumn": 0,
+            "rightColumn": 592,
+            "topRow": 0,
+            "bottomRow": 400,
+            "parentId": "5bwz8xcvhj",
+            "widgetId": "0pvmmqr77m"
+          }
+        ],
+        "type": "LIST_WIDGET",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 0,
+        "rightColumn": 8,
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentId": "0",
+        "widgetId": "5bwz8xcvhj",
+        "dynamicBindingPathList": []
+      }
+    ]
+  }
+}

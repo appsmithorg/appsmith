@@ -580,19 +580,28 @@ export function* updateListWidgetPropertiesOnChildDelete(
   const listWidget: WidgetProps = clone[parentId];
 
   // delete widget in template of list
-  if (widgetName in listWidget.template) {
-    clone[parentId].template[widgetName] = undefined;
+  if (listWidget && widgetName in listWidget.template) {
+    listWidget.template[widgetName] = undefined;
   }
 
   // delete dynamic binding path if any
-  remove(listWidget.dynamicBindingPathList || [], (path) =>
+  remove(listWidget?.dynamicBindingPathList || [], (path) =>
     path.key.startsWith(`template.${widgetName}`),
   );
 
   // delete key in enhancement map
   const enhancementsMap = yield select(getEnhancementsMap);
 
-  enhancementsMap[widgetId] = undefined;
+  // if we are deleting the list widget itself, remove all children values in the map
+  Object.keys(enhancementsMap).map((id) => {
+    if (enhancementsMap[id].parentId === widgetId) {
+      enhancementsMap[id] = undefined;
+    }
+  });
+
+  if (enhancementsMap[widgetId]) {
+    enhancementsMap[widgetId] = undefined;
+  }
 
   yield put({
     type: ReduxActionTypes.SET_PROPERTY_PANE_ENHANCEMENTS,
