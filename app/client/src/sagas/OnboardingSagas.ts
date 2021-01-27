@@ -138,11 +138,19 @@ function* listenForSuccessfulBinding() {
 
       if (dataTree[selectedWidget.widgetName]) {
         const widgetProperties = dataTree[selectedWidget.widgetName];
+        console.log(
+          dataTree[selectedWidget.widgetName],
+          "dataTree[selectedWidget.widgetName]",
+        );
         const dynamicBindingPathList =
           dataTree[selectedWidget.widgetName].dynamicBindingPathList;
         const tableHasData = dataTree[selectedWidget.widgetName].tableData;
         const hasBinding =
-          dynamicBindingPathList && !!dynamicBindingPathList.length;
+          dynamicBindingPathList &&
+          !!dynamicBindingPathList.length &&
+          dynamicBindingPathList.some(
+            (item: { key: string }) => item.key === "tableData",
+          );
 
         bindSuccessful =
           bindSuccessful && hasBinding && tableHasData && tableHasData.length;
