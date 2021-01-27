@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 @Slf4j
 public class S3PluginTest {
@@ -23,6 +24,7 @@ public class S3PluginTest {
     private static String username;
     private static String password;
     private  static String dbName;
+    private static String region;
 
     S3Plugin.S3PluginExecutor pluginExecutor = new S3Plugin.S3PluginExecutor();
 
@@ -30,6 +32,7 @@ public class S3PluginTest {
     public static void setUp() {
         username = "AKIAVWHAAGIQE7N62Y36";
         password = "zJHTV4wsQVWW3iT5rDGLhnicy3y9rqkizdsk9MuE";
+        region = "ap-south-1";
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -40,6 +43,9 @@ public class S3PluginTest {
 
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setAuthentication(authDTO);
+        ArrayList<Property> properties = new ArrayList<Property>();
+        properties.add(new Property("region", region));
+        dsConfig.setProperties(properties);
         return dsConfig;
     }
 
@@ -68,9 +74,10 @@ public class S3PluginTest {
         String bucket_name = "testbucketforappsmithinternaltesting";
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setPath("test_upload_from_file.txt");
+        actionConfiguration.setPath("test_upload_from_file1.txt");
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
         pluginSpecifiedTemplates.add(new Property("action", "UPLOAD_FILE_FROM_BODY"));
+        pluginSpecifiedTemplates.add(new Property("bucket", bucket_name));
         actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
         actionConfiguration.setBody("{key: test, value: test}");
 

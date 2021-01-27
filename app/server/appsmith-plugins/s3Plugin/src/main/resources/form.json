@@ -26,13 +26,6 @@
           "dataType": "PASSWORD",
           "isRequired": true,
           "initialValue": ""
-        },
-        {
-          "label": "Bucket Name",
-          "configProperty": "datasourceConfiguration.properties[1].value",
-          "controlType": "INPUT_TEXT",
-          "isRequired": true,
-          "placeholder": "https://your-project-id.firebaseio.com"
         }
       ]
     }

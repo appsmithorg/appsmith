@@ -5,21 +5,14 @@
       "id": 1,
       "children": [
         {
-          "label": "Method Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].key",
-          "controlType": "INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "method"
-        },
-        {
-          "label": "Method",
+          "label": "Action",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
           "controlType": "DROP_DOWN",
           "isRequired": true,
           "initialValue": "READ",
           "options": [
             {
-              "label": "List all files",
+              "label": "List all files in bucket",
               "value": "LIST"
             },
             {
@@ -45,10 +38,16 @@
           ]
         },
         {
+          "label": "Bucket Name",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+          "controlType": "INPUT_TEXT",
+          "isRequired": true,
+          "initialValue": ""
+        },
+        {
           "label": "File Path",
           "configProperty": "actionConfiguration.path",
           "controlType": "INPUT_TEXT",
-          "isRequired": true,
           "initialValue": ""
         },
         {
