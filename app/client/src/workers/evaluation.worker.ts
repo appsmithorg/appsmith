@@ -1090,7 +1090,7 @@ export class DataTreeEvaluator {
   ) {
     const changePaths: Set<string> = new Set(dependenciesOfRemovedPaths);
     for (const d of differences) {
-      if (!Array.isArray(d.path) || d.path.length === 0) continue;
+      if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
       // Apply the changes into the evalTree so that it gets the latest changes
       applyChange(this.evalTree, undefined, d);
 
