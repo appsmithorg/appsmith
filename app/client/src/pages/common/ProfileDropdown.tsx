@@ -17,6 +17,7 @@ import ProfileImage from "./ProfileImage";
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
   userName?: string;
+  hideThemeSwitch?: boolean;
 };
 
 const ProfileMenuStyle = createGlobalStyle`
@@ -73,8 +74,12 @@ export default function ProfileDropdown(props: TagProps) {
           </div>
         </UserInformation>
         <MenuDivider />
-        <ThemeSwitcher />
-        <MenuDivider />
+        {!props.hideThemeSwitch && (
+          <>
+            <ThemeSwitcher />
+            <MenuDivider />
+          </>
+        )}
         <MenuItem
           icon="logout"
           text="Sign Out"

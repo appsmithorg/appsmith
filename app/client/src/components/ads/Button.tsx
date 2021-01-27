@@ -59,6 +59,7 @@ type ButtonProps = CommonComponentProps & {
   href?: string;
   tag?: "a" | "button";
   type?: "submit" | "reset" | "button";
+  target?: string;
 };
 
 const stateStyles = (

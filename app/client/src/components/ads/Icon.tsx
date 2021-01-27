@@ -99,7 +99,7 @@ export const IconCollection = [
 
 export type IconName = typeof IconCollection[number];
 
-const IconWrapper = styled.span<IconProps>`
+export const IconWrapper = styled.span<IconProps>`
   &:focus {
     outline: none;
   }

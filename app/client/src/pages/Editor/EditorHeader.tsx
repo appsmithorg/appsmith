@@ -9,13 +9,11 @@ import {
   getApplicationViewerPageURL,
 } from "constants/routes";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
-import Button from "components/editorComponents/Button";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import HelpModal from "components/designSystems/appsmith/help/HelpModal";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
-import { Colors } from "constants/Colors";
-import AppsmithLogo from "assets/images/appsmith_logo_white.png";
+import AppsmithLogo from "assets/images/appsmith_logo_square.svg";
 import { Link } from "react-router-dom";
 import { AppState } from "reducers";
 import {
@@ -36,19 +34,56 @@ import {
   getApplicationList,
   getIsSavingAppName,
 } from "selectors/applicationSelectors";
-import EditableTextWrapper from "components/ads/EditableTextWrapper";
+import EditableAppName from "./EditableAppName";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { Position } from "@blueprintjs/core";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
+import ProfileDropdown from "pages/common/ProfileDropdown";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import Button, { Size } from "components/ads/Button";
+import history from "utils/history";
+import { AUTH_LOGIN_URL } from "constants/routes";
+import { IconWrapper } from "components/ads/Icon";
+import { Profile } from "pages/common/ProfileImage";
+import { getTypographyByKey } from "constants/DefaultTheme";
+
+const Separator = styled.div`
+  width: 1px;
+  height: 24px;
+  background-color: ${(props) => props.theme.colors.header.separator};
+`;
 
 const HeaderWrapper = styled(StyledHeader)`
-  background: ${Colors.BALTIC_SEA};
-  height: 48px;
-  color: white;
+  padding-right: 0;
+  background: ${(props) => props.theme.colors.header.background};
+  height: ${(props) => props.theme.editorHeaderHeight};
   flex-direction: row;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
+  & .editable-application-name {
+    ${(props) => getTypographyByKey(props, "h4")}
+    color: ${(props) => props.theme.colors.header.appName};
+  }
+
+  & .header__application-share-btn {
+    background-color: ${(props) => props.theme.colors.header.background};
+    border-color: ${(props) => props.theme.colors.header.background};
+    margin-right: ${(props) => props.theme.spaces[1]}px;
+  }
+
+  & .header__application-share-btn:hover {
+    color: ${(props) => props.theme.colors.header.shareBtnHighlight};
+    ${IconWrapper} path {
+      fill: ${(props) => props.theme.colors.header.shareBtnHighlight};
+    }
+  }
+
+  & ${Profile} {
+    width: 24px;
+    height: 24px;
+  }
 `;
 
 const HeaderSection = styled.div`
@@ -59,21 +94,15 @@ const HeaderSection = styled.div`
     justify-content: flex-start;
   }
   :nth-child(2) {
-    justify-content: center;
-    flex-direction: column;
-  }
-  :nth-child(3) {
     justify-content: flex-end;
   }
 `;
 
 const AppsmithLogoImg = styled.img`
-  max-width: 110px;
+  margin-right: ${(props) => props.theme.spaces[6]}px;
 `;
 
 const SaveStatusContainer = styled.div`
-  margin: 0 10px;
-  border: 1px solid rgb(95, 105, 116);
   border-radius: 50%;
   width: 32px;
   height: 32px;
@@ -83,34 +112,22 @@ const SaveStatusContainer = styled.div`
 `;
 const DeploySection = styled.div`
   display: flex;
-  align-self: flex-end;
+  margin-left: ${(props) => props.theme.spaces[7]}px;
 `;
 
-const DeployButton = styled(Button)`
-  height: 32px;
-  margin: 5px 10px;
-  margin-right: 0;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+const ProfileDropdownContainer = styled.div`
+  margin: 0 ${(props) => props.theme.spaces[7]}px;
 `;
 
-const DeployLinkButton = styled(Button)`
-  height: 32px;
-  margin: 5px 10px;
-  margin-left: 0;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  min-width: 20px !important;
-  width: 20px !important;
-  background-color: rgb(42, 195, 157) !important;
-  border: none !important;
+const StyledDeployButton = styled(Button)`
+  height: ${(props) => props.theme.editorHeaderHeight};
+  ${(props) => getTypographyByKey(props, "btnLarge")}
 `;
 
-const ShareButton = styled(Button)`
-  height: 32px;
-  margin: 5px 10px;
-  color: white !important;
-  border-color: rgb(95, 105, 116) !important;
+const DeployBtnSeparator = styled.div`
+  width: 1px;
+  height: ${(props) => props.theme.editorHeaderHeight};
+  background-color: #fff;
 `;
 
 type EditorHeaderProps = {
@@ -132,7 +149,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     isSaving,
     pageSaveError,
     pageId,
-    isPublishing,
     orgId,
     applicationId,
     publishApplication,
@@ -141,6 +157,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
   const dispatch = useDispatch();
   const isSavingName = useSelector(getIsSavingAppName);
   const applicationList = useSelector(getApplicationList);
+  const user = useSelector(getCurrentUser);
 
   const handlePublish = () => {
     if (applicationId) {
@@ -196,71 +213,40 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             className="t--appsmith-logo"
           />
         </Link>
+        <Separator />
+        {currentApplication ? (
+          <EditableAppName
+            defaultValue={currentApplication.name || ""}
+            editInteractionKind={EditInteractionKind.SINGLE}
+            className="t--application-name editable-application-name"
+            fill={false}
+            savingState={
+              isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+            }
+            isNewApp={
+              applicationList.filter((el) => el.id === applicationId).length > 0
+            }
+            onBlur={(value: string) =>
+              updateApplicationDispatch(applicationId || "", {
+                name: value,
+                currentApp: true,
+              })
+            }
+          />
+        ) : null}
       </HeaderSection>
-      <Boxed step={OnboardingStep.FINISH}>
-        <HeaderSection flex-direction={"row"}>
-          {currentApplication ? (
-            <EditableTextWrapper
-              variant="UNDERLINE"
-              defaultValue={currentApplication.name || ""}
-              editInteractionKind={EditInteractionKind.SINGLE}
-              hideEditIcon={true}
-              className="t--application-name"
-              fill={false}
-              savingState={
-                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-              }
-              isNewApp={
-                applicationList.filter((el) => el.id === applicationId).length >
-                0
-              }
-              onBlur={(value: string) =>
-                updateApplicationDispatch(applicationId || "", {
-                  name: value,
-                  currentApp: true,
-                })
-              }
-            />
-          ) : null}
-          {/* <PageName>{pageName}&nbsp;</PageName> */}
-        </HeaderSection>
-      </Boxed>
       <HeaderSection>
         <Boxed step={OnboardingStep.FINISH}>
           <SaveStatusContainer className={"t--save-status-container"}>
             {saveStatusIcon}
           </SaveStatusContainer>
-          <ShareButton
-            target="_blank"
-            href="https://mail.google.com/mail/u/0/?view=cm&fs=1&to=feedback@appsmith.com&tf=1"
-            text="Feedback"
-            intent="none"
-            outline
-            size="small"
-            className="t--application-feedback-btn"
-            icon={
-              <HeaderIcons.FEEDBACK
-                color={Colors.WHITE}
-                width={13}
-                height={13}
-              />
-            }
-          />
           <FormDialogComponent
             trigger={
-              <ShareButton
-                text="Share"
-                intent="none"
-                outline
-                size="small"
-                className="t--application-share-btn"
-                icon={
-                  <HeaderIcons.SHARE
-                    color={Colors.WHITE}
-                    width={13}
-                    height={13}
-                  />
-                }
+              <Button
+                text={"Share"}
+                icon={"share"}
+                size={Size.small}
+                className="t--application-share-btn header__application-share-btn"
               />
             }
             canOutsideClickClose={true}
@@ -271,6 +257,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               currentApplication ? currentApplication.name : "Share Application"
             }
           />
+          <Separator />
         </Boxed>
         <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
           <DeploySection>
@@ -284,32 +271,36 @@ export const EditorHeader = (props: EditorHeaderProps) => {
                 offset={{ left: 10 }}
                 theme={"light"}
               >
-                <DeployButton
+                <StyledDeployButton
+                  fill
                   onClick={handlePublish}
-                  text="Deploy"
-                  loading={isPublishing}
-                  intent="primary"
-                  filled
-                  size="small"
+                  text={"Deploy"}
+                  size={Size.small}
                   className="t--application-publish-btn"
-                  icon={
-                    <HeaderIcons.DEPLOY
-                      color={Colors.WHITE}
-                      width={13}
-                      height={13}
-                    />
-                  }
                 />
               </Indicator>
             </OnboardingToolTip>
+            <DeployBtnSeparator />
             <DeployLinkButtonDialog
               trigger={
-                <DeployLinkButton icon="caret-down" filled intent="primary" />
+                <StyledDeployButton icon={"downArrow"} size={Size.small} />
               }
               link={getApplicationViewerPageURL(applicationId, pageId)}
             />
           </DeploySection>
         </Boxed>
+        <ProfileDropdownContainer>
+          {user && user.username === ANONYMOUS_USERNAME ? (
+            <Button
+              fill
+              text="Sign In"
+              size={Size.small}
+              onClick={() => history.push(AUTH_LOGIN_URL)}
+            />
+          ) : (
+            <ProfileDropdown userName={user?.username || ""} hideThemeSwitch />
+          )}
+        </ProfileDropdownContainer>
       </HeaderSection>
       <HelpModal page={"Editor"} />
     </HeaderWrapper>

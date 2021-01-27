@@ -6,6 +6,7 @@ import { Classes } from "@blueprintjs/core";
 import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
+import DeployLinkButton from "components/designSystems/appsmith/header/DeployLinkButton";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
 const {
@@ -285,6 +286,7 @@ export type Theme = {
   };
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
+  editorHeaderHeight: string;
   homePage: any;
   sidebarWidth: string;
   canvasPadding: string;
@@ -741,6 +743,14 @@ type ColorType = {
   floatingBtn: any;
   auth: any;
   formMessage: Record<string, Record<Intent, string>>;
+  header: {
+    separator: string;
+    appName: ShadeColor;
+    background: string;
+    deployToolTipBackground: string;
+    deployToolTipText: ShadeColor;
+    shareBtnHighlight: string;
+  };
 };
 
 const auth: any = {
@@ -770,6 +780,14 @@ const formMessage = {
 };
 
 export const dark: ColorType = {
+  header: {
+    separator: darkShades[4],
+    appName: darkShades[7],
+    background: darkShades[2],
+    deployToolTipBackground: lightShades[10],
+    deployToolTipText: darkShades[7],
+    shareBtnHighlight: "#F86A2B",
+  },
   button: {
     disabledText: darkShades[6],
   },
@@ -1056,6 +1074,14 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  header: {
+    separator: "#E0DEDE",
+    appName: lightShades[8],
+    background: lightShades[0],
+    deployToolTipText: lightShades[8],
+    deployToolTipBackground: "#FFF",
+    shareBtnHighlight: "#F86A2B",
+  },
   button: {
     disabledText: lightShades[6],
   },
@@ -1558,6 +1584,7 @@ export const theme: Theme = {
     },
   },
   headerHeight: "48px",
+  editorHeaderHeight: "35px",
   canvasPadding: "20px 0 200px 0",
   sideNav: {
     maxWidth: 220,
