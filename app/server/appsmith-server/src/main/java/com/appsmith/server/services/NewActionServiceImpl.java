@@ -567,30 +567,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                     )
                             );
 
-                    Mono<Void> analyticsMono;
-                    if (analyticsService.isActive()) {
-                        // Since we're loading the application from DB *only* for analytics, we check if analytics is
-                        // active before making the call to DB.
-                        analyticsMono = Mono.zip(
-                                actionMono,
-                                actionDTOMono,
-                                actionMono.flatMap(rawAction -> Mono
-                                        .justOrEmpty(rawAction.getApplicationId())
-                                        .flatMap(applicationService::findById)
-                                        .defaultIfEmpty(new Application())
-                                )
-                        )
-                                .flatMap(tuple1 -> analyticsService.sendActionExecutionEvent(
-                                        tuple1.getT1(),
-                                        tuple1.getT2(),
-                                        tuple1.getT3(),
-                                        executeActionDTO
-                                ));
-                    } else {
-                        analyticsMono = Mono.empty();
-                    }
-
-                    return analyticsMono
+                    return Mono.zip(actionMono, actionDTOMono)
+                            .flatMap(tuple1 -> getAnalyticsMono(tuple1.getT1(), tuple1.getT2(), executeActionDTO))
                             .then(executionMono)
                             .onErrorResume(StaleConnectionException.class, error -> {
                                 log.info("Looks like the connection is stale. Retrying with a fresh context.");
@@ -646,6 +624,25 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     );
                     return tuple.getT2();
                 });
+    }
+
+    private Mono<Void> getAnalyticsMono(NewAction action, ActionDTO actionDTO, ExecuteActionDTO executeActionDTO) {
+        if (!analyticsService.isActive()) {
+            return Mono.empty();
+
+        }
+
+        // Since we're loading the application from DB *only* for analytics, we check if analytics is
+        // active before making the call to DB.
+        return Mono.justOrEmpty(action.getApplicationId())
+                .flatMap(applicationService::findById)
+                .defaultIfEmpty(new Application())
+                .flatMap(application -> analyticsService.sendActionExecutionEvent(
+                        action,
+                        actionDTO,
+                        application,
+                        executeActionDTO
+                ));
     }
 
     private void prepareConfigurationsForExecution(ActionDTO action,
