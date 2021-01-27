@@ -1,20 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 
 import styled from "constants/DefaultTheme";
-import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import FormRow from "components/editorComponents/FormRow";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import CalloutComponent from "components/designSystems/blueprint/CalloutComponent";
 import { PaginationType } from "entities/Action";
+import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
+import Text, { Case, TextType } from "components/ads/Text";
+import Button, { Category, Size } from "components/ads/Button";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import Dropdown from "components/ads/Dropdown";
+import { Variant } from "components/ads/common";
 
 interface PaginationProps {
   onTestClick: (test?: "PREV" | "NEXT") => void;
   paginationType: PaginationType;
+  theme?: EditorTheme;
 }
 const PaginationFieldWrapper = styled.div`
   display: flex;
-  margin-bottom: 5px;
+  margin-bottom: ${(props) => props.theme.spaces[5]}px;
+
+  button {
+    margin-left: ${(props) => props.theme.spaces[5]}px;
+  }
 `;
 
 const ExampleApi = styled.p`
@@ -22,46 +31,85 @@ const ExampleApi = styled.p`
   font-family: ${(props) => props.theme.fonts.code};
 `;
 
-const StyledLabel = styled.label`
+const StyledLabel = styled(Text)`
   display: inline-block;
-  margin-bottom: 4px;
+  margin-bottom: ${(props) => props.theme.spaces[3]}px;
+  color: ${(props) => props.theme.colors.apiPane.pagination.label};
+`;
+
+const Description = styled(Text)`
+  display: block;
+  margin-bottom: ${(props) => props.theme.spaces[6]}px;
+  color: ${(props) => props.theme.colors.apiPane.pagination.description};
+`;
+
+const StepTitle = styled.div`
+  margin-bottom: ${(props) => props.theme.spaces[4]}px;
+  span {
+    color: ${(props) => props.theme.colors.apiPane.pagination.stepTitle};
+  }
+`;
+
+const TableRow = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: ${(props) => props.theme.spaces[8]}px;
+  button {
+    margin-left: ${(props) => props.theme.spaces[5]}px;
+    height: 34px;
+    padding: 0 ${(props) => props.theme.spaces[5]}px;
+  }
 `;
 
 const PaginationTypeView = styled.div`
-  padding: 0px 6px;
+  margin-left: 350px;
+  width: 100%;
 `;
 
-const StyledDynamicTextField = styled(DynamicTextField)`
-  &&&& {
-    margin-right: 5px;
+const PaginationSection = styled.div`
+  display: flex;
+  padding: ${(props) => props.theme.spaces[8]}px
+    ${(props) => props.theme.spaces[12]}px;
+`;
+
+const Example = styled.div<{ editorTheme?: EditorTheme }>`
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  ${(props) =>
+    props.editorTheme === EditorTheme.DARK
+      ? `
+padding: ${props.theme.spaces[4]}px ${props.theme.spaces[5]}px;
+  `
+      : null};
+  background: ${(props) => props.theme.colors.apiPane.pagination.exampleBg};
+  span {
+    color: ${(props) => props.theme.colors.apiPane.pagination.label};
   }
 `;
 
-const TestButton = styled(BaseButton)`
-  &&& {
-    margin: 0 5px;
-    min-height: 32px;
-    padding-right: 4px;
-  }
-
-  &&&& {
-    width: auto;
-  }
+const BindingKey = styled.div`
+  padding: ${(props) => props.theme.spaces[1] - 2}px
+    ${(props) => props.theme.spaces[1]}px;
+  margin-left: ${(props) => props.theme.spaces[4]}px;
+  background: ${(props) => props.theme.colors.apiPane.pagination.bindingBg};
 `;
 
 export default function Pagination(props: PaginationProps) {
+  const [selectedTable, setSelectedTable] = useState<string>("none");
+
   return (
-    <React.Fragment>
+    <PaginationSection>
       <FormRow
         style={{
-          marginBottom: 5,
+          position: "fixed",
         }}
       >
-        <DropdownField
+        <RadioFieldGroup
           placeholder="Method"
           name="actionConfiguration.paginationType"
           className="t--apiFormPaginationType"
-          width={223}
+          rows={3}
           options={[
             {
               label: "None",
@@ -84,36 +132,85 @@ export default function Pagination(props: PaginationProps) {
           props.paginationType !== PaginationType.URL ? "display-none" : ""
         }
       >
-        <StyledLabel>Previous url</StyledLabel>
+        <Description type={TextType.H6} case={Case.UPPERCASE}>
+          Pagination with response url
+        </Description>
+        <StepTitle>
+          <Text type={TextType.H5}>Step 1 - </Text>
+          <Text type={TextType.P1}>Configure Table for Pagination</Text>
+        </StepTitle>
+        <Description type={TextType.P3}>
+          Enable server side pagination and configure OnPageChange action
+        </Description>
+        <StyledLabel type={TextType.P3}>Select Table</StyledLabel>
+        <TableRow>
+          <Dropdown
+            options={[
+              { value: "UsersTable" },
+              { value: "InfoTable" },
+              { value: "DataTable" },
+            ]}
+            selected={{ value: "Select" }}
+            onSelect={(value?: string) => setSelectedTable(value || "none")}
+          />
+          {selectedTable === "none" ? (
+            <Button
+              category={Category.tertiary}
+              text={"Configure"}
+              size={Size.medium}
+              tag="button"
+            />
+          ) : (
+            <Button
+              category={Category.secondary}
+              variant={Variant.danger}
+              text={"Reset"}
+              size={Size.medium}
+              tag="button"
+            />
+          )}
+        </TableRow>
+        <StepTitle>
+          <Text type={TextType.H5}>Step 2 - </Text>
+          <Text type={TextType.P1}>Configure URL</Text>
+        </StepTitle>
+        <Description type={TextType.P3}>
+          Configure Next and Previous URL{" "}
+        </Description>
+        <StyledLabel type={TextType.P3}>Previous url</StyledLabel>
         <PaginationFieldWrapper>
-          <StyledDynamicTextField
+          <DynamicTextField
             className="t--apiFormPaginationPrev"
             name="actionConfiguration.prev"
+            theme={props.theme}
           />
-          <TestButton
+          <Button
             className="t--apiFormPaginationPrevTest"
-            accent="secondary"
+            category={Category.tertiary}
             onClick={() => {
               props.onTestClick("PREV");
             }}
             text={"Test"}
-            rightIcon={"play"}
+            size={Size.medium}
+            tag="button"
           />
         </PaginationFieldWrapper>
-        <StyledLabel>Next url</StyledLabel>
+        <StyledLabel type={TextType.P3}>Next url</StyledLabel>
         <PaginationFieldWrapper>
-          <StyledDynamicTextField
+          <DynamicTextField
             className="t--apiFormPaginationNext"
             name="actionConfiguration.next"
+            theme={props.theme}
           />
-          <TestButton
+          <Button
             className="t--apiFormPaginationNextTest"
-            accent="secondary"
+            category={Category.tertiary}
             onClick={() => {
               props.onTestClick("NEXT");
             }}
             text={"Test"}
-            rightIcon={"play"}
+            size={Size.medium}
+            tag="button"
           />
         </PaginationFieldWrapper>
       </PaginationTypeView>
@@ -122,7 +219,61 @@ export default function Pagination(props: PaginationProps) {
           props.paginationType !== PaginationType.PAGE_NO ? "display-none" : ""
         }
       >
-        <CalloutComponent>
+        <Description type={TextType.H6} case={Case.UPPERCASE}>
+          Pagination with Table Page number
+        </Description>
+        <StepTitle>
+          <Text type={TextType.H5}>Step 1 - </Text>
+          <Text type={TextType.P1}>Configure Table for Pagination</Text>
+        </StepTitle>
+        <Description type={TextType.P3}>
+          Enable server side pagination and configure OnPageChange action
+        </Description>
+        <StyledLabel type={TextType.P3}>Select Table</StyledLabel>
+        <TableRow>
+          <Dropdown
+            options={[
+              { value: "UsersTable" },
+              { value: "InfoTable" },
+              { value: "DataTable" },
+            ]}
+            selected={{ value: "Select" }}
+            onSelect={(value?: string) => setSelectedTable(value || "select")}
+          />
+          {selectedTable === "none" ? (
+            <Button
+              category={Category.tertiary}
+              text={"Configure"}
+              size={Size.medium}
+              tag="button"
+            />
+          ) : (
+            <Button
+              category={Category.secondary}
+              variant={Variant.danger}
+              text={"Reset"}
+              size={Size.medium}
+              tag="button"
+            />
+          )}
+        </TableRow>
+        <StepTitle>
+          <Text type={TextType.H5}>Step 2 - </Text>
+          <Text type={TextType.P1}>Configure Request Parameters</Text>
+        </StepTitle>
+        <Description type={TextType.P3}>
+          Map appropiate parameter or header in your request to UsersTable’s
+          page number property
+        </Description>
+        <Example editorTheme={props.theme}>
+          <Text type={TextType.P2}>
+            Example - Map key <i>pageNo</i> or similar to value
+          </Text>
+          <BindingKey>
+            <Text type={TextType.P2}>{"{{UsersTable.pageNo}}"}</Text>
+          </BindingKey>
+        </Example>
+        {/* <CalloutComponent>
           <p
             style={{
               marginBottom: "6px",
@@ -151,8 +302,8 @@ export default function Pagination(props: PaginationProps) {
           >
             3. Call this API onPageChange in Table1.
           </p>
-        </CalloutComponent>
+        </CalloutComponent> */}
       </PaginationTypeView>
-    </React.Fragment>
+    </PaginationSection>
   );
 }

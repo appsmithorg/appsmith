@@ -24,8 +24,8 @@ const LightningIconWrapper = styled.span<{
   svg path {
     fill: ${(props) => !props.isFocused && props.color};
   }
-  width: ${(props) => (props.skin === Skin.LIGHT ? 30 : 30)}px;
-  height: ${(props) => (props.skin === Skin.LIGHT ? 30 : 30)}px;
+  width: ${(props) => (props.skin === Skin.LIGHT ? 32 : 32)}px;
+  height: ${(props) => (props.skin === Skin.LIGHT ? 32 : 32)}px;
   z-index: 10;
   cursor: pointer;
   &:hover {
