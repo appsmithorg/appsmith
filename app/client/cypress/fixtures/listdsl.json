@@ -47,7 +47,25 @@
                     "containerStyle": "none",
                     "canExtend": false,
                     "detachFromLayout": true,
-                    "children": [],
+                    "children": [
+                      {
+                        "isVisible": true,
+                        "text": "Label",
+                        "textStyle": "LABEL",
+                        "textAlign": "LEFT",
+                        "widgetName": "Text1",
+                        "type": "TEXT_WIDGET",
+                        "isLoading": false,
+                        "parentColumnSpace": 32,
+                        "parentRowSpace": 40,
+                        "leftColumn": 2,
+                        "rightColumn": 6,
+                        "topRow": 0,
+                        "bottomRow": 1,
+                        "parentId": "dinv2tsatk",
+                        "widgetId": "k6ct7dxg4w"
+                      }
+                    ],
                     "minHeight": null,
                     "type": "CANVAS_WIDGET",
                     "isLoading": false,
@@ -94,11 +112,30 @@
         "parentRowSpace": 40,
         "leftColumn": 0,
         "rightColumn": 8,
-        "topRow": 1,
-        "bottomRow": 11,
+        "topRow": 0,
+        "bottomRow": 10,
         "parentId": "0",
         "widgetId": "5bwz8xcvhj",
-        "dynamicBindingPathList": []
+        "dynamicBindingPathList": [],
+        "template": {
+          "Text1": {
+            "isVisible": true,
+            "text": "Label",
+            "textStyle": "LABEL",
+            "textAlign": "LEFT",
+            "widgetName": "Text1",
+            "type": "TEXT_WIDGET",
+            "isLoading": false,
+            "parentColumnSpace": 32,
+            "parentRowSpace": 40,
+            "leftColumn": 0,
+            "rightColumn": 4,
+            "topRow": 0,
+            "bottomRow": 1,
+            "parentId": "dinv2tsatk",
+            "widgetId": "k6ct7dxg4w"
+          }
+        }
       }
     ]
   }
