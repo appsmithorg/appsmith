@@ -47,12 +47,12 @@ export const batchUpdateWidgetProperty = (
 
 export const deleteWidgetProperty = (
   widgetId: string,
-  propertyPath: string,
+  propertyPaths: string[],
 ): ReduxAction<DeleteWidgetPropertyPayload> => ({
   type: ReduxActionTypes.DELETE_WIDGET_PROPERTY,
   payload: {
     widgetId,
-    propertyPath,
+    propertyPaths,
   },
 });
 
@@ -92,5 +92,5 @@ export interface SetWidgetDynamicPropertyPayload {
 
 export interface DeleteWidgetPropertyPayload {
   widgetId: string;
-  propertyPath: string;
+  propertyPaths: string[];
 }

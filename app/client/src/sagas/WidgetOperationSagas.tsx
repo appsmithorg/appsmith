@@ -878,7 +878,7 @@ function* batchUpdateWidgetPropertySaga(
   );
 
   // Send the updates
-  yield put(updateWidgetProperty(widgetId, updates));
+  yield put(updateWidgetProperty(widgetId, propertyUpdates));
 
   const stateWidgets = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
@@ -890,26 +890,30 @@ function* batchUpdateWidgetPropertySaga(
 function* deleteWidgetPropertySaga(
   action: ReduxAction<DeleteWidgetPropertyPayload>,
 ) {
-  const { widgetId, propertyPath } = action.payload;
+  const { widgetId, propertyPaths } = action.payload;
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
     return;
   }
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
-  const dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
+  let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
     stateWidget,
   );
-  const dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
+  let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
     stateWidget,
   );
 
-  dynamicTriggerPathList.filter((dynamicPath) => {
-    return !isChildPropertyPath(propertyPath, dynamicPath.key);
+  propertyPaths.forEach((propertyPath) => {
+    dynamicTriggerPathList = dynamicTriggerPathList.filter((dynamicPath) => {
+      return !isChildPropertyPath(propertyPath, dynamicPath.key);
+    });
+
+    dynamicBindingPathList = dynamicBindingPathList.filter((dynamicPath) => {
+      return !isChildPropertyPath(propertyPath, dynamicPath.key);
+    });
   });
 
-  dynamicBindingPathList.forEach((dynamicPath) => {
-    return !isChildPropertyPath(propertyPath, dynamicPath.key);
-  });
+  console.log("Table log:", { dynamicBindingPathList });
 
   yield put(
     updateWidgetProperty(widgetId, {
@@ -919,8 +923,15 @@ function* deleteWidgetPropertySaga(
   );
 
   const stateWidgets = yield select(getWidgets);
-  const widget = { ...stateWidget };
-  _.unset(widget, propertyPath);
+  // Cloning because we probably froze the properties earlier
+  // TODO(abhinav): Check if we need to use immer to handle this.
+  const widget = _.cloneDeep(stateWidget);
+  propertyPaths.forEach((propertyPath) => {
+    _.unset(widget, propertyPath);
+  });
+
+  console.log("Table log:", { widget });
+
   const widgets = { ...stateWidgets, [widgetId]: widget };
 
   // Save the layout

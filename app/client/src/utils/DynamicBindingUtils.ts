@@ -254,7 +254,8 @@ export const isChildPropertyPath = (
   childPropertyPath: string,
 ): boolean => {
   const regexTest = new RegExp(
-    `^${parentPropertyPath.replace(".", "\\.")}(\\.\\S+)?$`,
+    `^${_.escapeRegExp(parentPropertyPath)}(\\.\\S+)?$`,
   );
+
   return regexTest.test(childPropertyPath);
 };
