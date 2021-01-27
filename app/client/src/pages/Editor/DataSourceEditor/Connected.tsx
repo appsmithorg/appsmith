@@ -96,9 +96,9 @@ const Connected = () => {
       if (isInOnboarding) {
         // If in onboarding and tooltip is being shown
         payload = Object.assign({}, payload, {
-          name: "ExampleQuery",
+          name: "fetch_standup_updates",
           actionConfiguration: {
-            body: "select * from public.users limit 10",
+            body: " ",
           },
         });
       }
