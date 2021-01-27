@@ -1376,10 +1376,11 @@ const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   withFunction.navigateTo = function(
     pageNameOrUrl: string,
     params: Record<string, string>,
+    target?: string,
   ) {
     return {
       type: "NAVIGATE_TO",
-      payload: { pageNameOrUrl, params },
+      payload: { pageNameOrUrl, params, target },
     };
   };
   withFunction.actionPaths.push("navigateTo");
