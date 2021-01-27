@@ -206,7 +206,7 @@ export class DataTreeEvaluator {
   widgetConfigMap: WidgetTypeConfigMap = {};
   evalTree: DataTree = {};
   allKeys: Record<string, true> = {};
-  widgetValidationPaths: Record<string, Set<string>> = {};
+  validationPaths: Record<string, Set<string>> = {};
   oldUnEvalTree: DataTree = {};
   errors: EvalError[] = [];
   parsedValueCache: Map<
@@ -421,22 +421,26 @@ export class DataTreeEvaluator {
     return sortOrder;
   }
 
-  getWidgetValidationPaths(
-    unevalDataTree: DataTree,
-  ): Record<string, Set<string>> {
+  getValidationPaths(unevalDataTree: DataTree): Record<string, Set<string>> {
     const result: Record<string, Set<string>> = {};
     for (const key in unevalDataTree) {
       const entity = unevalDataTree[key];
-      if (!isWidget(entity)) continue;
-      if (!this.widgetConfigMap[entity.type])
-        throw new CrashingError(
-          `${entity.widgetName} has unrecognised entity type: ${entity.type}`,
+      if (isAction(entity)) {
+        // TODO: add the properties to a global map somewhere
+        result[entity.name] = new Set(
+          ["config", "isLoading", "data"].map((e) => `${entity.name}.${e}`),
         );
-      const { validations } = this.widgetConfigMap[entity.type];
+      } else if (isWidget(entity)) {
+        if (!this.widgetConfigMap[entity.type])
+          throw new CrashingError(
+            `${entity.widgetName} has unrecognised entity type: ${entity.type}`,
+          );
+        const { validations } = this.widgetConfigMap[entity.type];
 
-      result[entity.widgetName] = new Set(
-        Object.keys(validations).map((e) => `${entity.widgetName}.${e}`),
-      );
+        result[entity.widgetName] = new Set(
+          Object.keys(validations).map((e) => `${entity.widgetName}.${e}`),
+        );
+      }
     }
     return result;
   }
@@ -444,7 +448,7 @@ export class DataTreeEvaluator {
   createDependencyMap(unEvalTree: DataTree): DependencyMap {
     let dependencyMap: DependencyMap = {};
     this.allKeys = getAllPaths(unEvalTree);
-    this.widgetValidationPaths = this.getWidgetValidationPaths(unEvalTree);
+    this.validationPaths = this.getValidationPaths(unEvalTree);
     Object.keys(unEvalTree).forEach((entityName) => {
       const entity = unEvalTree[entityName];
       if (isAction(entity) || isWidget(entity)) {
@@ -895,7 +899,7 @@ export class DataTreeEvaluator {
     // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
     // TODO: Optimise by only getting paths of changed node
     this.allKeys = getAllPaths(unEvalDataTree);
-    this.widgetValidationPaths = this.getWidgetValidationPaths(unEvalDataTree);
+    this.validationPaths = this.getValidationPaths(unEvalDataTree);
     // Transform the diff library events to Appsmith evaluator events
     differences
       .map(translateDiffEventToDataTreeDiffEvent)
@@ -1099,25 +1103,15 @@ export class DataTreeEvaluator {
       if (d.path.length === 1) {
         const entityName = d.path[0];
         /**
-         * We want add all pre-existing dynamic bindings of this entity to get evaluated and validated.
+         * We want to add all pre-existing dynamic and static bindings in dynamic paths of this entity to get evaluated and validated.
          * Example:
          * - Table1.tableData = {{Api1.data}}
          * - Api1 gets created.
          * - This function gets called with a diff {path:["Api1"]}
          * We want to add `Api.data` to changedPaths so that `Table1.tableData` can be discovered below.
          */
-        for (const dependency of this.sortedDependencies) {
-          if (isChildPropertyPath(entityName, dependency)) {
-            changePaths.add(dependency);
-          }
-        }
-
-        /**
-         * The above logic only works for pre-existing dynamic bindings.
-         * But widgets might have static properties that need to be validated and parsed.
-         */
-        if (entityName in this.widgetValidationPaths) {
-          for (const dependency of this.widgetValidationPaths[entityName]) {
+        if (entityName in this.validationPaths) {
+          for (const dependency of this.validationPaths[entityName]) {
             changePaths.add(dependency);
           }
         }

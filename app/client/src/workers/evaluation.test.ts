@@ -436,7 +436,7 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
 
 const BASE_WIDGET: DataTreeWidget = {
   widgetId: "randomID",
-  widgetName: "randomName",
+  widgetName: "randomWidgetName",
   bottomRow: 0,
   isLoading: false,
   leftColumn: 0,
@@ -452,7 +452,7 @@ const BASE_WIDGET: DataTreeWidget = {
 
 const BASE_ACTION: DataTreeAction = {
   actionId: "randomId",
-  name: "randomName",
+  name: "randomActionName",
   config: {
     timeoutInMillisecond: 10,
   },
@@ -645,6 +645,7 @@ describe("DataTreeEvaluator", () => {
       ...unEvalTree,
       Api1: {
         ...BASE_ACTION,
+        name: "Api1",
         data: [
           {
             test: "Hey",
@@ -708,6 +709,7 @@ describe("DataTreeEvaluator", () => {
       },
       Api1: {
         ...BASE_ACTION,
+        name: "Api1",
         data: [
           {
             test: "Hey",
