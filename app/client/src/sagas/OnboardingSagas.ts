@@ -298,6 +298,7 @@ function* listenForDeploySaga() {
     yield take(ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS);
     AnalyticsUtil.logEvent("ONBOARDING_DEPLOY");
 
+    yield setOnboardingWelcomeState(false);
     yield put(setCurrentStep(OnboardingStep.FINISH));
     yield put({
       type: ReduxActionTypes.SHOW_ONBOARDING_COMPLETION_DIALOG,
@@ -316,12 +317,9 @@ function* initiateOnboarding() {
   if (currentOnboardingState && onboardingWelcomeState) {
     // AnalyticsUtil.logEvent("ONBOARDING_WELCOME");
     yield put(setOnboardingReduxState(true));
-    yield setOnboardingWelcomeState(false);
 
     yield put(setCurrentStep(OnboardingStep.WELCOME));
     yield put(setCurrentStep(OnboardingStep.EXAMPLE_DATABASE));
-  } else {
-    yield put(endOnboarding());
   }
 }
 
@@ -386,6 +384,11 @@ function* createApplication() {
       icon,
       color,
     },
+  });
+
+  yield take(ReduxActionTypes.CREATE_APPLICATION_SUCCESS);
+  yield put({
+    type: "INITIATE_ONBOARDING",
   });
 }
 
@@ -526,7 +529,7 @@ function* deploy() {
 
 export default function* onboardingSagas() {
   yield all([
-    takeEvery(ReduxActionTypes.CREATE_APPLICATION_SUCCESS, initiateOnboarding),
+    takeEvery("INITIATE_ONBOARDING", initiateOnboarding),
     takeEvery(
       ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_INIT,
       createOnboardingDatasource,

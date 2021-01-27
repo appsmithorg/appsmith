@@ -124,6 +124,12 @@ const onboardingReducer = createReducer(initialState, {
       helperStepConfig: action.payload,
     };
   },
+  [ReduxActionTypes.CREATE_APPLICATION_SUCCESS]: (state: OnboardingState) => {
+    return {
+      ...state,
+      ...initialState,
+    };
+  },
 });
 
 export default onboardingReducer;
