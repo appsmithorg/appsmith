@@ -5,6 +5,7 @@ public enum AnalyticsEvents {
     UPDATE,
     DELETE,
     FIRST_LOGIN,
+    EXECUTE_ACTION,
     ;
 
     public String lowerName() {

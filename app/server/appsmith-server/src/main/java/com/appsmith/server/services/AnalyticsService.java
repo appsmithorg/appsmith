@@ -134,7 +134,7 @@ public class AnalyticsService {
         return sessionUserService.getCurrentUser()
                 .map(user -> {
                     analytics.enqueue(TrackMessage
-                            .builder("execute_ACTION")
+                            .builder(AnalyticsEvents.EXECUTE_ACTION.lowerName())
                             .userId(user.getUsername())
                             .properties(Map.of(
                                     "type", action.getPluginType(),
