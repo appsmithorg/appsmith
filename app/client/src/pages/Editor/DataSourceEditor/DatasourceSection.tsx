@@ -3,6 +3,7 @@ import React from "react";
 import { map, get } from "lodash";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
+import { isHidden } from "components/formControls/utils";
 
 const Key = styled.div`
   color: ${Colors.DOVE_GRAY};
@@ -37,7 +38,7 @@ export const renderDatasourceSection = (
         if ("children" in section) {
           return renderDatasourceSection(section, datasource);
         } else {
-          if (section.hidden) return null;
+          if (isHidden(datasource, section.hidden)) return null;
           try {
             const { label, configProperty, controlType } = section;
             const reactKey = datasource.id + "_" + label;
@@ -86,6 +87,17 @@ export const renderDatasourceSection = (
               );
             }
 
+            if (controlType === "DROP_DOWN") {
+              if (Array.isArray(section.options)) {
+                const option = section.options.find(
+                  (el: any) => el.value === value,
+                );
+                if (option && option.label) {
+                  value = option.label;
+                }
+              }
+            }
+
             return (
               <FieldWrapper key={reactKey}>
                 <Key>{label}: </Key> <Value>{value}</Value>
@@ -93,7 +105,7 @@ export const renderDatasourceSection = (
             );
           } catch (e) {}
         }
-      })}
+      }).filter((e) => !!e)}
     </React.Fragment>
   );
 };
