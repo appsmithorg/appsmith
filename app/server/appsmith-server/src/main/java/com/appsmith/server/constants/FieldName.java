@@ -59,4 +59,5 @@ public class FieldName {
     public static String ASSET = "asset";
     public static String APPLICATION = "application";
     public static String PUBLISHED_APPLICATION = "deployed application";
+    public static final String TOKEN = "token";
 }

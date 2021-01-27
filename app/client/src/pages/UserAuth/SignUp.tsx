@@ -2,25 +2,16 @@ import React from "react";
 import { reduxForm, InjectedFormProps } from "redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "constants/forms";
-import {
-  Link,
-  RouteComponentProps,
-  useLocation,
-  withRouter,
-} from "react-router-dom";
-import Divider from "components/editorComponents/Divider";
+import { RouteComponentProps, useLocation, withRouter } from "react-router-dom";
 import {
   AuthCardHeader,
-  AuthCardBody,
-  AuthCardFooter,
   AuthCardNavLink,
   SpacedSubmitForm,
   FormActions,
-  AuthCardContainer,
+  SignUpLinkSection,
 } from "./StyledComponents";
 import {
   SIGNUP_PAGE_TITLE,
-  SIGNUP_PAGE_SUBTITLE,
   SIGNUP_PAGE_EMAIL_INPUT_LABEL,
   SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER,
   SIGNUP_PAGE_PASSWORD_INPUT_LABEL,
@@ -31,15 +22,13 @@ import {
   FORM_VALIDATION_INVALID_EMAIL,
   FORM_VALIDATION_INVALID_PASSWORD,
   SIGNUP_PAGE_SUBMIT_BUTTON_TEXT,
-  PRIVACY_POLICY_LINK,
-  TERMS_AND_CONDITIONS_LINK,
-  FORM_VALIDATION_PASSWORD_RULE,
+  ALREADY_HAVE_AN_ACCOUNT,
 } from "constants/messages";
-import FormMessage from "components/editorComponents/form/FormMessage";
-import FormGroup from "components/editorComponents/form/FormGroup";
-import FormTextField from "components/editorComponents/form/FormTextField";
+import FormMessage from "components/ads/formFields/FormMessage";
+import FormGroup from "components/ads/formFields/FormGroup";
+import FormTextField from "components/ads/formFields/TextField";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
-import Button from "components/editorComponents/Button";
+import Button, { Size } from "components/ads/Button";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
@@ -54,28 +43,13 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { setOnboardingState } from "utils/storage";
-const {
-  enableGithubOAuth,
-  enableGoogleOAuth,
-  enableTNCPP,
-} = getAppsmithConfigs();
+const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 const SocialLoginList: string[] = [];
 if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
 if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
 
-export const TncPPLinks = () => {
-  if (!enableTNCPP) return null;
-  return (
-    <>
-      <Link target="_blank" to="/privacy-policy.html">
-        {PRIVACY_POLICY_LINK}
-      </Link>
-      <Link target="_blank" to="/terms-and-conditions.html">
-        {TERMS_AND_CONDITIONS_LINK}
-      </Link>
-    </>
-  );
-};
+import { withTheme } from "styled-components";
+import { Theme } from "constants/DefaultTheme";
 
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
@@ -93,7 +67,7 @@ const validate = (values: SignupFormValues) => {
 };
 
 type SignUpFormProps = InjectedFormProps<SignupFormValues> &
-  RouteComponentProps<{ email: string }>;
+  RouteComponentProps<{ email: string }> & { theme: Theme };
 
 export const SignUp = (props: SignUpFormProps) => {
   const { error, submitting, pristine, valid } = props;
@@ -115,71 +89,68 @@ export const SignUp = (props: SignUpFormProps) => {
   }
 
   return (
-    <AuthCardContainer>
+    <>
       {showError && <FormMessage intent="danger" message={errorMessage} />}
       <AuthCardHeader>
         <h1>{SIGNUP_PAGE_TITLE}</h1>
-        <h5>{SIGNUP_PAGE_SUBTITLE}</h5>
       </AuthCardHeader>
-      <AuthCardBody>
-        <SpacedSubmitForm method="POST" action={signupURL}>
-          <FormGroup
-            intent={error ? "danger" : "none"}
-            label={SIGNUP_PAGE_EMAIL_INPUT_LABEL}
-          >
-            <FormTextField
-              name="email"
-              type="email"
-              placeholder={SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER}
-              autoFocus
-            />
-          </FormGroup>
-          <FormGroup
-            intent={error ? "danger" : "none"}
-            label={SIGNUP_PAGE_PASSWORD_INPUT_LABEL}
-            helperText={FORM_VALIDATION_PASSWORD_RULE}
-          >
-            <FormTextField
-              type="password"
-              name="password"
-              placeholder={SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER}
-            />
-          </FormGroup>
-          <FormActions>
-            <Button
-              type="submit"
-              disabled={pristine || !valid}
-              loading={submitting}
-              text={SIGNUP_PAGE_SUBMIT_BUTTON_TEXT}
-              intent="primary"
-              filled
-              size="large"
-              onClick={() => {
-                AnalyticsUtil.logEvent("SIGNUP_CLICK", {
-                  signupMethod: "EMAIL",
-                });
-                PerformanceTracker.startTracking(
-                  PerformanceTransactionName.SIGN_UP,
-                );
-                setOnboardingState(true);
-              }}
-            />
-          </FormActions>
-        </SpacedSubmitForm>
-        {SocialLoginList.length > 0 && (
-          <>
-            <Divider />
-            <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
-          </>
-        )}
-      </AuthCardBody>
-      <AuthCardFooter>
-        <TncPPLinks />
-      </AuthCardFooter>
-      <AuthCardNavLink to={AUTH_LOGIN_URL}>
-        {SIGNUP_PAGE_LOGIN_LINK_TEXT}
-      </AuthCardNavLink>
-    </AuthCardContainer>
+      <SignUpLinkSection>
+        {ALREADY_HAVE_AN_ACCOUNT}
+        <AuthCardNavLink
+          to={AUTH_LOGIN_URL}
+          style={{ marginLeft: props.theme.spaces[3] }}
+        >
+          {SIGNUP_PAGE_LOGIN_LINK_TEXT}
+        </AuthCardNavLink>
+      </SignUpLinkSection>
+      {SocialLoginList.length > 0 && (
+        <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
+      )}
+      <SpacedSubmitForm method="POST" action={signupURL}>
+        <FormGroup
+          intent={error ? "danger" : "none"}
+          label={SIGNUP_PAGE_EMAIL_INPUT_LABEL}
+        >
+          <FormTextField
+            name="email"
+            type="email"
+            placeholder={SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER}
+            autoFocus
+          />
+        </FormGroup>
+        <FormGroup
+          intent={error ? "danger" : "none"}
+          label={SIGNUP_PAGE_PASSWORD_INPUT_LABEL}
+          // helperText={FORM_VALIDATION_PASSWORD_RULE}
+        >
+          <FormTextField
+            type="password"
+            name="password"
+            placeholder={SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER}
+          />
+        </FormGroup>
+        <FormActions>
+          <Button
+            tag="button"
+            type="submit"
+            disabled={pristine || !valid}
+            isLoading={submitting}
+            text={SIGNUP_PAGE_SUBMIT_BUTTON_TEXT}
+            fill
+            size={Size.large}
+            onClick={() => {
+              AnalyticsUtil.logEvent("SIGNUP_CLICK", {
+                signupMethod: "EMAIL",
+              });
+              PerformanceTracker.startTracking(
+                PerformanceTransactionName.SIGN_UP,
+              );
+              setOnboardingState(true);
+            }}
+          />
+        </FormActions>
+      </SpacedSubmitForm>
+    </>
   );
 };
 
@@ -195,5 +166,5 @@ export default connect((state: AppState, props: SignUpFormProps) => {
     validate,
     form: SIGNUP_FORM_NAME,
     touchOnBlur: true,
-  })(withRouter(SignUp)),
+  })(withRouter(withTheme(SignUp))),
 );

@@ -140,7 +140,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                 .anyMatch(policy -> policy.getPermission().equals(USER_MANAGE_ORGANIZATIONS.getValue()));
 
         if (!isManageOrgPolicyPresent) {
-            return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Create organization"));
         }
 
         if (organization.getEmail() == null) {
