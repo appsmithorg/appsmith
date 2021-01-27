@@ -6,7 +6,6 @@ import { Classes } from "@blueprintjs/core";
 import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
-import DeployLinkButton from "components/designSystems/appsmith/header/DeployLinkButton";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
 const {

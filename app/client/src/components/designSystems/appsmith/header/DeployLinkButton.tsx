@@ -1,6 +1,6 @@
 import React, { ReactNode, useState } from "react";
 import styled, { withTheme } from "styled-components";
-import { Icon, Popover, PopoverPosition, Tooltip } from "@blueprintjs/core";
+import { Icon, Popover, PopoverPosition } from "@blueprintjs/core";
 import { Theme } from "constants/DefaultTheme";
 
 const DeployLinkDialog = styled.div`
@@ -40,7 +40,6 @@ type Props = {
 
 export const DeployLinkButton = withTheme((props: Props) => {
   const [isOpen, setIsOpen] = useState(false);
-  const link = window.location.origin + props.link;
 
   const onClose = () => {
     setIsOpen(false);
