@@ -782,6 +782,9 @@ type ColorType = {
     body: {
       text: string;
     };
+    settings: {
+      textColor: ShadeColor;
+    };
   };
   codeMirror: {
     background: {
@@ -1121,6 +1124,9 @@ export const dark: ColorType = {
     },
     body: {
       text: "#6D6D6D",
+    },
+    settings: {
+      textColor: "#FFFFFF",
     },
   },
   codeMirror: {
@@ -1465,6 +1471,9 @@ export const light: ColorType = {
     },
     body: {
       text: "#A9A7A7",
+    },
+    settings: {
+      textColor: "#090707",
     },
   },
   codeMirror: {

@@ -1,10 +1,12 @@
 import React from "react";
 import { ControlProps } from "components/formControls/BaseControl";
 import FormControl from "./FormControl";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 interface ActionSettingsProps {
   actionSettingsConfig: any;
   formName: string;
+  theme?: EditorTheme;
 }
 
 const ActionSettings = (props: ActionSettingsProps): JSX.Element => {
@@ -25,7 +27,7 @@ const renderEachConfig = (section: any, formName: string): any => {
       try {
         const { configProperty } = formControlOrSection;
         return (
-          <div key={configProperty} style={{ marginTop: "18px" }}>
+          <div key={configProperty} style={{ marginBottom: "25px" }}>
             <FormControl config={formControlOrSection} formName={formName} />
           </div>
         );
