@@ -35,10 +35,10 @@ export const renderDatasourceSection = (
   return (
     <React.Fragment key={datasource.id}>
       {map(config.children, (section) => {
+        if (isHidden(datasource, section.hidden)) return null;
         if ("children" in section) {
           return renderDatasourceSection(section, datasource);
         } else {
-          if (isHidden(datasource, section.hidden)) return null;
           try {
             const { label, configProperty, controlType } = section;
             const reactKey = datasource.id + "_" + label;
