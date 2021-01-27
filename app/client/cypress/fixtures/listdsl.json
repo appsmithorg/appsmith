@@ -94,8 +94,8 @@
         "parentRowSpace": 40,
         "leftColumn": 0,
         "rightColumn": 8,
-        "topRow": 0,
-        "bottomRow": 10,
+        "topRow": 1,
+        "bottomRow": 11,
         "parentId": "0",
         "widgetId": "5bwz8xcvhj",
         "dynamicBindingPathList": []

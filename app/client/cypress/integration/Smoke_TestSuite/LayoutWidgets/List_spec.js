@@ -7,13 +7,13 @@ describe("Container Widget Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  it("Container Widget Functionality", function() {
+  it("checks if list shows correct no. of items", function() {
     cy.openPropertyPane("listwidget");
-    /**
-     * @param{Text} Random Text
-     * @param{ContainerWidget}Mouseover
-     * @param{ContainerPre Css} Assertion
-     */
+    const items = JSON.parse(dsl.dsl.children[0].items);
+
+    cy.get(commonlocators.containerWidget).then(function($lis) {
+      expect($lis).to.have.length(items.length);
+    });
   });
 
   afterEach(() => {
