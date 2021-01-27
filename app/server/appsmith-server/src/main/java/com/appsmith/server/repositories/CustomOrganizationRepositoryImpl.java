@@ -53,7 +53,7 @@ public class CustomOrganizationRepositoryImpl extends BaseAppsmithRepositoryImpl
                 .map(Organization::getSlug)
                 .collect(Collectors.toSet())
                 .map(slugs -> {
-                    if (slugs.isEmpty()) {
+                    if (slugs.isEmpty() || !slugs.contains(slugPrefix)) {
                         return 0L;
                     }
 
