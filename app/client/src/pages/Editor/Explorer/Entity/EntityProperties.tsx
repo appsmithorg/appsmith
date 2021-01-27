@@ -62,7 +62,7 @@ export const EntityProperties = memo(
                 actionProperty = actionProperty + "()";
               }
               if (actionProperty === "data") {
-                value = entity.data;
+                value = entity.data?.body;
               }
               return {
                 propertyName: actionProperty,
