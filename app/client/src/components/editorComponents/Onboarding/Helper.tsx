@@ -1,7 +1,7 @@
 import { endOnboarding } from "actions/onboardingActions";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useSelector } from "store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppState } from "reducers";
 import styled from "styled-components";
 
 const StyledContainer = styled.div`
@@ -33,6 +33,7 @@ const Description = styled.div`
   font-size: 14px;
   margin-top: 12px;
   color: #000000;
+  white-space: pre-wrap;
 `;
 
 const Button = styled.button`
@@ -85,9 +86,11 @@ const Stepper = styled.div<{ completed: boolean }>`
 `;
 
 const Helper = () => {
-  const showHelper = useSelector((state) => state.ui.onBoarding.showHelper);
+  const showHelper = useSelector(
+    (state: AppState) => state.ui.onBoarding.showHelper,
+  );
   const helperConfig = useSelector(
-    (state) => state.ui.onBoarding.helperStepConfig,
+    (state: AppState) => state.ui.onBoarding.helperStepConfig,
   );
   const steps = Array.from({ length: 6 }, (_, i) => i + 1);
   const [cheatMode, setCheatMode] = useState(false);

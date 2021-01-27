@@ -1,4 +1,4 @@
-import { showIndicator } from "actions/onboardingActions";
+import { endOnboarding, showIndicator } from "actions/onboardingActions";
 import { ReduxActionTypes } from "./ReduxActionConstants";
 
 export enum OnboardingStep {
@@ -189,6 +189,17 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
           type: ReduxActionTypes.LISTEN_FOR_DEPLOY,
         },
       ];
+    },
+    helper: {
+      step: 6,
+      title:
+        "Great Job! You built an active app that display data from a database.",
+      description:
+        "Simple isn’t it. You’ve learnt -\n- How to query a database.\n- How to connect response to widget.\n- Deploying your app.",
+      action: {
+        label: "End Tour",
+        action: endOnboarding(),
+      },
     },
   },
   // Final step

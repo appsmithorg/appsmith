@@ -25,6 +25,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import {
   getOnboardingState,
+  getOnboardingWelcomeState,
   setOnboardingState,
   setOnboardingWelcomeState,
 } from "utils/storage";
@@ -302,9 +303,11 @@ function* listenForDeploySaga() {
 
 function* initiateOnboarding() {
   const currentOnboardingState = yield getOnboardingState();
-  if (currentOnboardingState) {
+  const onboardingWelcomeState = yield getOnboardingWelcomeState();
+  if (currentOnboardingState && onboardingWelcomeState) {
     // AnalyticsUtil.logEvent("ONBOARDING_WELCOME");
     yield put(setOnboardingReduxState(true));
+    yield setOnboardingWelcomeState(false);
 
     yield put(setCurrentStep(OnboardingStep.WELCOME));
     yield put(setCurrentStep(OnboardingStep.EXAMPLE_DATABASE));
