@@ -10,7 +10,7 @@ import PerformanceTracker, {
 
 const SidebarWrapper = styled.div`
   background-color: ${Colors.MINE_SHAFT};
-  padding: 0px 0 0 6px;
+  padding: 0;
   width: ${(props) => props.theme.sidebarWidth};
   z-index: 3;
 
