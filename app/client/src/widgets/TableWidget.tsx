@@ -90,13 +90,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: VALIDATION_TYPES.TEXT,
       defaultSearchText: VALIDATION_TYPES.TEXT,
       defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
+      pageSize: VALIDATION_TYPES.NUMBER,
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
-      pageSize: undefined,
       selectedRowIndex: undefined,
       selectedRowIndices: undefined,
       searchText: undefined,
@@ -127,6 +127,43 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
+      pageSize: `{{function() {
+          const TABLE_SIZES = {
+           ${CompactModeTypes.DEFAULT}: {
+            COLUMN_HEADER_HEIGHT: 38,
+            TABLE_HEADER_HEIGHT: 42,
+            ROW_HEIGHT: 40,
+            ROW_FONT_SIZE: 14,
+           },
+           ${CompactModeTypes.SHORT}: {
+            COLUMN_HEADER_HEIGHT: 38,
+            TABLE_HEADER_HEIGHT: 42,
+            ROW_HEIGHT: 20,
+            ROW_FONT_SIZE: 12,
+           },
+           ${CompactModeTypes.TALL}: {
+            COLUMN_HEADER_HEIGHT: 38,
+            TABLE_HEADER_HEIGHT: 42,
+            ROW_HEIGHT: 60,
+            ROW_FONT_SIZE: 18,
+           },
+          };
+          const compactMode = this.compactMode || "${CompactModeTypes.DEFAULT}";
+          const componentHeight = (this.bottomRow - this.topRow) * this.parentRowSpace;
+          const tableSizes = TABLE_SIZES[compactMode];
+          let pageSize= Math.floor((componentHeight - tableSizes.TABLE_HEADER_HEIGHT - tableSizes.COLUMN_HEADER_HEIGHT) / tableSizes.ROW_HEIGHT);
+          if (
+            componentHeight -
+              (tableSizes.TABLE_HEADER_HEIGHT +
+                tableSizes.COLUMN_HEADER_HEIGHT +
+                tableSizes.ROW_HEIGHT * pageSize) >
+            0
+          ) {
+            pageSize += 1;
+          }
+          return pageSize;
+        }()
+      }}`,
       triggerRowSelection: "{{!!this.onRowSelected}}",
     };
   }
@@ -506,6 +543,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         );
       }
     }
+    if (this.props.pageSize !== prevProps.pageSize) {
+      super.executeAction({
+        dynamicString: this.props.onPageSizeChange,
+        event: {
+          type: EventType.ON_PAGE_SIZE_CHANGE,
+        },
+      });
+    }
   }
 
   getSelectedRowIndexes = (selectedRowIndices: string) => {
@@ -515,7 +560,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   getPageView() {
-    const { tableData, hiddenColumns, filteredTableData } = this.props;
+    const {
+      tableData,
+      hiddenColumns,
+      filteredTableData,
+      pageSize,
+    } = this.props;
     const computedSelectedRowIndices = Array.isArray(
       this.props.selectedRowIndices,
     )
@@ -537,33 +587,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("pageNo", pageNo);
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
-    const tableSizes =
-      TABLE_SIZES[this.props.compactMode || CompactModeTypes.DEFAULT];
-    let pageSize = Math.floor(
-      (componentHeight -
-        tableSizes.TABLE_HEADER_HEIGHT -
-        tableSizes.COLUMN_HEADER_HEIGHT) /
-        tableSizes.ROW_HEIGHT,
-    );
-
-    if (
-      componentHeight -
-        (tableSizes.TABLE_HEADER_HEIGHT +
-          tableSizes.COLUMN_HEADER_HEIGHT +
-          tableSizes.ROW_HEIGHT * pageSize) >
-      0
-    )
-      pageSize += 1;
-
-    if (pageSize !== this.props.pageSize) {
-      this.props.updateWidgetMetaProperty("pageSize", pageSize, {
-        dynamicString: this.props.onPageSizeChange,
-        event: {
-          type: EventType.ON_PAGE_SIZE_CHANGE,
-        },
-      });
-    }
-
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
