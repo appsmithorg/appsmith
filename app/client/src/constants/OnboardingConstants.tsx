@@ -55,9 +55,9 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       ];
     },
     helper: {
-      title: "",
+      title: "Welcome Fellow Appsmith!",
       description:
-        "Let’s get you started with Appsmith. We’d like to show you around by building an app that talks to a database. It’ll only take a minute or two.",
+        "We'd like to show you around by helping you build an app that saves the world from daily meetings. It'll only take a min or 2.",
       skipLabel: "No thanks",
       action: {
         label: "Let’s go",

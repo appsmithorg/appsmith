@@ -29,10 +29,7 @@ const WelcomeHelper = () => {
 
     dispatch({
       type: ReduxActionTypes.SET_HELPER_CONFIG,
-      payload: {
-        ...helperConfig,
-        title: `Welcome, ${currentUser?.name}!`,
-      },
+      payload: helperConfig,
     });
     showWelcomeHelper();
   }, [currentUser]);

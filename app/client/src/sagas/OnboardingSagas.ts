@@ -366,10 +366,10 @@ function* createApplication() {
 
   const currentUser = yield select(getCurrentUser);
   const userOrgs = yield select(getUserApplicationsOrgs);
-  const examplesOrganizationId = currentUser.examplesOrganizationId;
+  const currentOrganizationId = currentUser.currentOrganizationId;
 
   const organization = userOrgs.filter(
-    (org: any) => org.organization.id === examplesOrganizationId,
+    (org: any) => org.organization.id === currentOrganizationId,
   );
   const applicationList = organization[0].applications;
 
@@ -382,7 +382,7 @@ function* createApplication() {
     type: ReduxActionTypes.CREATE_APPLICATION_INIT,
     payload: {
       applicationName,
-      orgId: examplesOrganizationId,
+      orgId: currentOrganizationId,
       icon,
       color,
     },
