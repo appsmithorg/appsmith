@@ -169,7 +169,7 @@ export function isAction(entity: DataTreeEntity): boolean {
 export const removeFunctions = (value: any) => {
   if (_.isFunction(value)) {
     return "Function call";
-  } else if (_.isObject(value) && _.some(value, _.isFunction)) {
+  } else if (_.isObject(value)) {
     return JSON.parse(JSON.stringify(value));
   } else {
     return value;
@@ -297,13 +297,3 @@ export function getValidatedTree(
     return { ...tree, [entityKey]: parsedEntity };
   }, tree);
 }
-
-export const isChildPropertyPath = (
-  parentPropertyPath: string,
-  childPropertyPath: string,
-): boolean => {
-  const regexTest = new RegExp(
-    `^${parentPropertyPath.replace(".", "\\.")}(\\.\\S+)?$`,
-  );
-  return regexTest.test(childPropertyPath);
-};

@@ -29,6 +29,7 @@ import reactor.test.StepVerifier;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -258,6 +259,18 @@ public class MySqlPluginTest {
     }
 
     @Test
+    public void testValidateDatasource_NullHost() {
+        dsConfig.setEndpoints(List.of(new Endpoint()));
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertEquals(output.size(), 1);
+        assertTrue(output.contains("Host value cannot be empty"));
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost(address);
+        endpoint.setPort(port.longValue());
+        dsConfig.setEndpoints(List.of(endpoint));
+    }
+
+    @Test
     public void testValidateDatasourceInvalidEndpoint() {
         String hostname = "r2dbc:mysql://localhost";
         dsConfig.getEndpoints().get(0).setHost(hostname);
@@ -344,8 +357,8 @@ public class MySqlPluginTest {
      * 1. Add a test to check that mysql driver can interpret and read all the regular data types used in mysql.
      * 2. List of the data types is taken is from https://dev.mysql.com/doc/refman/8.0/en/data-types.html
      * 3. Data types tested here are: INTEGER, SMALLINT, TINYINT, MEDIUMINT, BIGINT, DECIMAL, FLOAT, DOUBLE, BIT,
-     *    DATE, DATETIME, TIMESTAMP, TIME, YEAR, CHAR, VARCHAR, BINARY, VARBINARY, TINYBLOB, BLOB, MEDIUMBLOB, LONGBLOB,
-     *    TINYTEXT, TEXT, MEDIUMTEXT, LONGTEXT, ENUM, SET, JSON, GEOMETRY, POINT    
+     * DATE, DATETIME, TIMESTAMP, TIME, YEAR, CHAR, VARCHAR, BINARY, VARBINARY, TINYBLOB, BLOB, MEDIUMBLOB, LONGBLOB,
+     * TINYTEXT, TEXT, MEDIUMTEXT, LONGTEXT, ENUM, SET, JSON, GEOMETRY, POINT
      */
     @Test
     public void testExecuteDataTypesExtensive() {
