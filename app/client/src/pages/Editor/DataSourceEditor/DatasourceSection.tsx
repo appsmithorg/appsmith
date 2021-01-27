@@ -37,6 +37,7 @@ export const renderDatasourceSection = (
         if ("children" in section) {
           return renderDatasourceSection(section, datasource);
         } else {
+          if (section.hidden) return null;
           try {
             const { label, configProperty, controlType } = section;
             const reactKey = datasource.id + "_" + label;
