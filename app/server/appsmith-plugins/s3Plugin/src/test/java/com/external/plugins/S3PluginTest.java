@@ -30,9 +30,9 @@ public class S3PluginTest {
 
     @BeforeClass
     public static void setUp() {
-        username = "AKIAVWHAAGIQE7N62Y36";
-        password = "zJHTV4wsQVWW3iT5rDGLhnicy3y9rqkizdsk9MuE";
-        region = "ap-south-1";
+        username = "";
+        password = "";
+        region = "";
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -55,7 +55,7 @@ public class S3PluginTest {
         Mono<AmazonS3> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         AmazonS3 conn = dsConnectionMono.block();
-        String bucket_name = "testbucketforappsmithinternaltesting";
+        String bucket_name = "";
 
         ListObjectsV2Result result = conn.listObjectsV2(bucket_name);
         List<S3ObjectSummary> objects = result.getObjectSummaries();
