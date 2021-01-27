@@ -168,7 +168,8 @@ export const Toaster = {
       />,
       {
         toastId: toastId,
-        pauseOnHover: true,
+        pauseOnHover: !config.dispatchableAction && !config.hideProgressBar,
+        pauseOnFocusLoss: !config.dispatchableAction && !config.hideProgressBar,
         autoClose: false,
         closeOnClick: false,
         hideProgressBar: config.hideProgressBar,
