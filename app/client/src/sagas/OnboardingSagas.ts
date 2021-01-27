@@ -32,6 +32,7 @@ import {
 import { validateResponse } from "./ErrorSagas";
 import { getSelectedWidget, getWidgets } from "./selectors";
 import {
+  endOnboarding,
   setCurrentStep,
   setOnboardingState as setOnboardingReduxState,
   showIndicator,
@@ -69,7 +70,10 @@ import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
 import { generateReactKey } from "utils/generators";
 import { forceOpenPropertyPane } from "actions/widgetActions";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/WidgetEntity";
-import { updateWidgetProperty } from "../actions/controlActions";
+import {
+  updateWidgetProperty,
+  updateWidgetPropertyRequest,
+} from "../actions/controlActions";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -308,6 +312,7 @@ function* listenForDeploySaga() {
 function* initiateOnboarding() {
   const currentOnboardingState = yield getOnboardingState();
   const onboardingWelcomeState = yield getOnboardingWelcomeState();
+
   if (currentOnboardingState && onboardingWelcomeState) {
     // AnalyticsUtil.logEvent("ONBOARDING_WELCOME");
     yield put(setOnboardingReduxState(true));
@@ -315,6 +320,8 @@ function* initiateOnboarding() {
 
     yield put(setCurrentStep(OnboardingStep.WELCOME));
     yield put(setCurrentStep(OnboardingStep.EXAMPLE_DATABASE));
+  } else {
+    yield put(endOnboarding());
   }
 }
 
@@ -444,11 +451,12 @@ function* addWidget() {
       parentId: "0",
       widgetName,
       renderMode: RenderModes.CANVAS,
-      parentRowSpace: 1,
+      parentRowSpace: 40,
       parentColumnSpace: 1,
       isLoading: false,
       props: {
         tableData: [],
+        pageSize: 5,
       },
     };
     const {
@@ -495,14 +503,14 @@ function* addBinding() {
   const selectedWidget = yield select(getSelectedWidget);
 
   if (selectedWidget && selectedWidget.type === "TABLE_WIDGET") {
-    yield put({
-      type: "UPDATE_WIDGET_PROPERTY_REQUEST",
-      payload: {
-        widgetId: selectedWidget.widgetId,
-        propertyName: "tableData",
-        propertyValue: "{{ExampleQuery.data}}",
-      },
-    });
+    yield put(
+      updateWidgetPropertyRequest(
+        selectedWidget.widgetId,
+        "tableData",
+        "{{ExampleQuery.data}}",
+        RenderModes.CANVAS,
+      ),
+    );
   }
 }
 
