@@ -2,6 +2,8 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
@@ -29,8 +31,12 @@ public class AnalyticsService {
         this.sessionUserService = sessionUserService;
     }
 
+    public boolean isActive() {
+        return analytics != null;
+    }
+
     public Mono<User> trackNewUser(User user) {
-        if (analytics == null) {
+        if (!isActive()) {
             return Mono.just(user);
         }
 
@@ -58,7 +64,7 @@ public class AnalyticsService {
     }
 
     public <T extends BaseDomain> Mono<T> sendEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties) {
-        if (analytics == null) {
+        if (!isActive()) {
             return Mono.just(object);
         }
 
@@ -120,7 +126,11 @@ public class AnalyticsService {
         return sendDeleteEvent(object, null);
     }
 
-    public Mono<Void> sendActionExecutionEvent(ActionDTO action, ExecuteActionDTO executeActionDTO) {
+    public Mono<Void> sendActionExecutionEvent(NewAction action, ActionDTO actionDTO, Application application, ExecuteActionDTO executeActionDTO) {
+        if (!isActive()) {
+            return Mono.empty();
+        }
+
         return sessionUserService.getCurrentUser()
                 .map(user -> {
                     analytics.enqueue(TrackMessage
@@ -128,12 +138,12 @@ public class AnalyticsService {
                             .userId(user.getUsername())
                             .properties(Map.of(
                                     "type", action.getPluginType(),
-                                    "name", action.getName(),
-                                    "pageId", action.getPageId(),
+                                    "name", actionDTO.getName(),
+                                    "pageId", actionDTO.getPageId(),
                                     "appId", action.getApplicationId(),
-                                    "appMode", executeActionDTO.getViewMode(),
-                                    "appName", "",
-                                    "isExampleApp", ""
+                                    "appMode", Boolean.TRUE.equals(executeActionDTO.getViewMode()) ? "view" : "edit",
+                                    "appName", application.getName(),
+                                    "isExampleApp", application.isAppIsExample()
                             ))
                     );
                     return user;

@@ -18,6 +18,7 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionProvider;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -81,6 +82,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private final MarketplaceService marketplaceService;
     private final PolicyGenerator policyGenerator;
     private final NewPageService newPageService;
+    private final ApplicationService applicationService;
 
     public NewActionServiceImpl(Scheduler scheduler,
                                 Validator validator,
@@ -94,7 +96,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 PluginExecutorHelper pluginExecutorHelper,
                                 MarketplaceService marketplaceService,
                                 PolicyGenerator policyGenerator,
-                                NewPageService newPageService) {
+                                NewPageService newPageService,
+                                ApplicationService applicationService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -104,6 +107,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         this.marketplaceService = marketplaceService;
         this.policyGenerator = policyGenerator;
         this.newPageService = newPageService;
+        this.applicationService = applicationService;
     }
 
     private Boolean validateActionName(String name) {
@@ -449,8 +453,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // Initialize the name to be empty value
         actionName.set("");
         // 2. Fetch the action from the DB and check if it can be executed
-        Mono<ActionDTO> actionMono = repository.findById(actionId, EXECUTE_ACTIONS)
+        Mono<NewAction> actionMono = repository.findById(actionId, EXECUTE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
+                .cache();
+
+        Mono<ActionDTO> actionDTOMono = actionMono
                 .flatMap(dbAction -> {
                     ActionDTO action;
                     if (TRUE.equals(executeActionDTO.getViewMode())) {
@@ -485,7 +492,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         // 3. Instantiate the implementation class based on the query type
 
-        Mono<Datasource> datasourceMono = actionMono
+        Mono<Datasource> datasourceMono = actionDTOMono
                 .flatMap(action -> {
                     // Global datasource requires us to fetch the datasource from DB.
                     if (action.getDatasource() != null && action.getDatasource().getId() != null) {
@@ -525,7 +532,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // 4. Execute the query
         Mono<ActionExecutionResult> actionExecutionResultMono = Mono
                 .zip(
-                        actionMono,
+                        actionDTOMono,
                         datasourceMono,
                         pluginExecutorMono
                 )
@@ -560,7 +567,30 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                     )
                             );
 
-                    return analyticsService.sendActionExecutionEvent(action, executeActionDTO)
+                    Mono<Void> analyticsMono;
+                    if (analyticsService.isActive()) {
+                        // Since we're loading the application from DB *only* for analytics, we check if analytics is
+                        // active before making the call to DB.
+                        analyticsMono = Mono.zip(
+                                actionMono,
+                                actionDTOMono,
+                                actionMono.flatMap(rawAction -> Mono
+                                        .justOrEmpty(rawAction.getApplicationId())
+                                        .flatMap(applicationService::findById)
+                                        .defaultIfEmpty(new Application())
+                                )
+                        )
+                                .flatMap(tuple1 -> analyticsService.sendActionExecutionEvent(
+                                        tuple1.getT1(),
+                                        tuple1.getT2(),
+                                        tuple1.getT3(),
+                                        executeActionDTO
+                                ));
+                    } else {
+                        analyticsMono = Mono.empty();
+                    }
+
+                    return analyticsMono
                             .then(executionMono)
                             .onErrorResume(StaleConnectionException.class, error -> {
                                 log.info("Looks like the connection is stale. Retrying with a fresh context.");
