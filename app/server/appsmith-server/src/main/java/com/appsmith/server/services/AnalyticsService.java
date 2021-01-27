@@ -12,6 +12,7 @@ import com.segment.analytics.messages.IdentifyMessage;
 import com.segment.analytics.messages.TrackMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -24,6 +25,9 @@ public class AnalyticsService {
 
     private final Analytics analytics;
     private final SessionUserService sessionUserService;
+
+    @Value("${is.cloud-hosted:false}")
+    private boolean isCloudHosted;
 
     @Autowired
     public AnalyticsService(@Autowired(required = false) Analytics analytics, SessionUserService sessionUserService) {
@@ -127,7 +131,7 @@ public class AnalyticsService {
     }
 
     public Mono<Void> sendActionExecutionEvent(NewAction action, ActionDTO actionDTO, Application application, ExecuteActionDTO executeActionDTO) {
-        if (!isActive()) {
+        if (!isCloudHosted || !isActive()) {
             return Mono.empty();
         }
 
