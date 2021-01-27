@@ -1,8 +1,11 @@
+import { Classes, Icon } from "@blueprintjs/core";
 import { endOnboarding } from "actions/onboardingActions";
-import React, { useEffect, useState } from "react";
+import { Colors } from "constants/Colors";
+import React, { MutableRefObject, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import styled from "styled-components";
+import useClipboard from "utils/hooks/useClipboard";
 
 const StyledContainer = styled.div`
   position: fixed;
@@ -85,6 +88,41 @@ const Stepper = styled.div<{ completed: boolean }>`
   background-color: ${(props) => (props.completed ? "#457AE6" : "#C4C4C4")};
 `;
 
+const Snippet = styled.div`
+  background-color: #e5e5e5;
+  color: white;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0px;
+  margin-right: 20px;
+  position: relative;
+  color: ${Colors.MINE_SHAFT};
+  cursor: pointer;
+  & > span {
+    padding: 6px;
+  }
+  & div.clipboard-message {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    z-index: 1;
+    &.success {
+      background: #e5e5e5;
+    }
+    &.error {
+      background: ${Colors.RED};
+    }
+  }
+  .${Classes.ICON} {
+    opacity: 0.7;
+  }
+`;
+
 const Helper = () => {
   const showHelper = useSelector(
     (state: AppState) => state.ui.onBoarding.showHelper,
@@ -98,8 +136,14 @@ const Helper = () => {
   useEffect(() => {
     cheatMode && setCheatMode(false);
   }, [helperConfig]);
+  const snippetRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
+  const write = useClipboard(snippetRef);
 
   if (!showHelper) return null;
+
+  const copyBindingToClipboard = () => {
+    helperConfig.snippet && write(helperConfig.snippet);
+  };
 
   return (
     <StyledContainer>
@@ -107,6 +151,12 @@ const Helper = () => {
       {helperConfig.step && <StepCount>STEP {helperConfig.step}</StepCount>}
       <Title>{helperConfig.title}</Title>
       <Description>{helperConfig.description}</Description>
+      {helperConfig.snippet && (
+        <Snippet onClick={copyBindingToClipboard} ref={snippetRef}>
+          <span>{helperConfig.snippet}</span>
+          <Icon icon="duplicate" iconSize={14} color={Colors.MINE_SHAFT} />
+        </Snippet>
+      )}
       <BottomContainer>
         <div style={{ display: "flex" }}>
           {helperConfig.step &&

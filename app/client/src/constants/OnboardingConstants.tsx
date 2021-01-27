@@ -18,6 +18,7 @@ export type OnboardingHelperConfig = {
   title: string;
   description?: string;
   skipLabel?: string;
+  snippet?: string;
   action: {
     label: string;
     // action to be dispatched
@@ -150,6 +151,9 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     helper: {
       step: 4,
       title: "Write a binding to connect TableData",
+      description:
+        "Use the snippet below to connect TableData to example query.",
+      snippet: "{{ExampleQuery.data}}",
       action: {
         label: "Continue",
       },
