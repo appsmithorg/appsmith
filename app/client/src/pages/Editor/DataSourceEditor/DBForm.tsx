@@ -27,6 +27,7 @@ import BackButton from "./BackButton";
 import { PluginType } from "entities/Action";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import { isHidden } from "components/formControls/utils";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -374,7 +375,7 @@ class DatasourceDBEditor extends React.Component<
         {!viewMode ? (
           <>
             {!_.isNil(sections)
-              ? _.map(sections, this.renderMainSection)
+              ? _.map(sections, this.renderMainSection).filter((e) => !!e)
               : undefined}
             <SaveButtonContainer>
               <ActionButton
@@ -412,6 +413,7 @@ class DatasourceDBEditor extends React.Component<
   };
 
   renderMainSection = (section: any, index: number) => {
+    if (isHidden(this.props.formData, section.hidden)) return null;
     return (
       <Collapsible title={section.sectionName} defaultIsOpen={index === 0}>
         {this.renderEachConfig(section)}
@@ -421,55 +423,50 @@ class DatasourceDBEditor extends React.Component<
 
   renderEachConfig(section: any) {
     const keyValueItems: any = [];
-
     return (
-      <div key={section.id}>
-        <div>
-          {_.map(section.children, (propertyControlOrSection: ControlProps) => {
-            if ("children" in propertyControlOrSection) {
-              return this.renderEachConfig(propertyControlOrSection);
-            } else {
-              try {
-                const {
-                  controlType,
-                  isRequired,
-                  configProperty,
-                } = propertyControlOrSection;
-                const config = { ...propertyControlOrSection };
-                const multipleConfig = keyValueItems;
+      <div key={section.sectionName}>
+        {_.map(section.children, (propertyControlOrSection: ControlProps) => {
+          if ("children" in propertyControlOrSection) {
+            return this.renderEachConfig(propertyControlOrSection);
+          } else {
+            try {
+              const {
+                controlType,
+                isRequired,
+                configProperty,
+              } = propertyControlOrSection;
+              const config = { ...propertyControlOrSection };
+              const multipleConfig = keyValueItems;
 
-                this.configDetails[configProperty] = controlType;
+              this.configDetails[configProperty] = controlType;
 
-                if (isRequired) {
-                  this.requiredFields[
-                    configProperty
-                  ] = propertyControlOrSection;
-                }
-
-                if (
-                  controlType === "KEYVALUE_ARRAY" &&
-                  keyValueItems.length < 2
-                ) {
-                  keyValueItems.push(config);
-
-                  if (keyValueItems.length < 2) return undefined;
-                }
-
-                return (
-                  <div key={configProperty} style={{ marginTop: "16px" }}>
-                    <FormControl
-                      config={config}
-                      formName={DATASOURCE_DB_FORM}
-                      multipleConfig={multipleConfig}
-                    />
-                  </div>
-                );
-              } catch (e) {
-                console.log(e);
+              if (isRequired) {
+                this.requiredFields[configProperty] = propertyControlOrSection;
               }
+
+              if (
+                controlType === "KEYVALUE_ARRAY" &&
+                keyValueItems.length < 2
+              ) {
+                keyValueItems.push(config);
+
+                if (keyValueItems.length < 2) return undefined;
+              }
+
+              return (
+                <div key={configProperty} style={{ marginTop: "16px" }}>
+                  <FormControl
+                    config={config}
+                    formName={DATASOURCE_DB_FORM}
+                    multipleConfig={multipleConfig}
+                  />
+                </div>
+              );
+            } catch (e) {
+              console.log(e);
             }
-          })}
-        </div>
+          }
+        })}
       </div>
     );
   }
