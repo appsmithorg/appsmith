@@ -390,7 +390,9 @@ function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
       (datasource: Datasource) => datasource.id === datasourceId,
     ),
   );
-  yield put(changeDatasource(datasource));
+  if (datasource) {
+    yield put(changeDatasource(datasource));
+  }
 }
 
 function* formValueChangeSaga(
