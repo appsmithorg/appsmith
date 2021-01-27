@@ -6,6 +6,7 @@ public class FieldName {
     public static final String DELETED = "deleted";
     public static final String CREATED_AT = "createdAt";
     public static final String DELETED_AT = "deletedAt";
+    public static final String CURL_CODE = "curlCode";
     public static String ORGANIZATION = "organization";
     public static String ID = "id";
     public static final String NAME = "name";
