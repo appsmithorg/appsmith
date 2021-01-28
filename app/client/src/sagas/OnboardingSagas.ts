@@ -9,6 +9,7 @@ import {
 import { AppState } from "reducers";
 import {
   all,
+  call,
   cancel,
   delay,
   put,
@@ -129,6 +130,29 @@ function* listenForWidgetAdditions() {
   }
 }
 
+function* listenForAddInputWidget() {
+  while (true) {
+    yield take();
+
+    const selectedWidget = yield select(getSelectedWidget);
+    const canvasWidgets = yield select(getCanvasWidgets);
+
+    if (
+      selectedWidget &&
+      selectedWidget.type === "INPUT_WIDGET" &&
+      canvasWidgets[selectedWidget.widgetId]
+    ) {
+      yield put(setCurrentStep(OnboardingStep.ADD_ONSUBMIT_BINDING));
+      yield put({
+        type: ReduxActionTypes.SET_HELPER_CONFIG,
+        payload: getHelperConfig(OnboardingStep.ADD_ONSUBMIT_BINDING),
+      });
+
+      return;
+    }
+  }
+}
+
 function* listenForSuccessfulBinding() {
   while (true) {
     yield take();
@@ -179,7 +203,6 @@ function* listenForSuccessfulBinding() {
           yield delay(1000);
           playOnboardingAnimation();
 
-          // yield put(setCurrentStep(OnboardingStep.DEPLOY));
           yield put({
             type: ReduxActionTypes.SET_HELPER_CONFIG,
             payload: getHelperConfig(OnboardingStep.ADD_INPUT_WIDGET),
@@ -439,33 +462,28 @@ function* executeQuery() {
   }
 }
 
-function* addWidget() {
+function* addWidget(widgetConfig: any) {
   try {
     const columns = 8;
     const rows = 7;
     const widgets = yield select(getWidgets);
-    const widgetName = "Standup_Table";
 
     let newWidget = {
       type: WidgetTypes.TABLE_WIDGET,
       newWidgetId: generateReactKey(),
       widgetId: "0",
       topRow: 0,
-      bottomRow: rows,
+      bottomRow: 7,
       leftColumn: 0,
       rightColumn: columns,
       columns,
       rows,
       parentId: "0",
-      widgetName,
       renderMode: RenderModes.CANVAS,
       parentRowSpace: 40,
       parentColumnSpace: 1,
       isLoading: false,
-      props: {
-        tableData: [],
-        pageSize: 5,
-      },
+      ...widgetConfig,
     };
     const {
       leftColumn,
@@ -507,6 +525,92 @@ function* addWidget() {
   } catch (error) {}
 }
 
+function* addTableWidget() {
+  yield call(addWidget, {
+    type: WidgetTypes.TABLE_WIDGET,
+    props: {
+      tableData: [],
+      pageSize: 5,
+    },
+    widgetName: "Standup_Table",
+  });
+}
+
+function* addInputWidget() {
+  yield call(addWidget, {
+    type: WidgetTypes.INPUT_WIDGET,
+    widgetName: "Standup_Input",
+    rows: 1,
+  });
+
+  yield put(setCurrentStep(OnboardingStep.DEPLOY));
+}
+
+function* addOnSubmitHandler() {
+  // Creating a query first
+  const currentPageId = yield select(getCurrentPageId);
+  const applicationId = yield select(getCurrentApplicationId);
+  const datasources: Datasource[] = yield select(getDatasources);
+  const onboardingDatasource = datasources.find((datasource) => {
+    const name = get(datasource, "name");
+
+    return name === "Super Updates DB";
+  });
+
+  if (onboardingDatasource) {
+    const payload = {
+      name: "add_standup_updates",
+      pageId: currentPageId,
+      pluginId: onboardingDatasource?.pluginId,
+      datasource: {
+        id: onboardingDatasource?.id,
+      },
+      actionConfiguration: {
+        body:
+          "Insert into standup_updates('hero_name', 'daily_update', 'date') values ('{{appsmith.user.email}}', '{{ Standup_Input.text }}', '{{moment()}}')",
+      },
+    } as Partial<QueryAction>;
+
+    yield put(createActionRequest(payload));
+
+    yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
+
+    const widgets = yield select(getWidgets);
+    const inputWidget = widgets.find(
+      (widget: any) => widget.type === "INPUT_WIDGET",
+    );
+
+    if (inputWidget) {
+      const applicationId = yield select(getCurrentApplicationId);
+      const pageId = yield select(getCurrentPageId);
+
+      navigateToCanvas(
+        {
+          applicationId,
+          pageId,
+        },
+        window.location.pathname,
+        pageId,
+        inputWidget.newWidgetId,
+      );
+      yield put({
+        type: ReduxActionTypes.SELECT_WIDGET,
+        payload: { widgetId: inputWidget.newWidgetId },
+      });
+      yield put(forceOpenPropertyPane(inputWidget.newWidgetId));
+
+      // yield put(
+      //   updateWidgetPropertyRequest(
+      //     inputWidget.widgetId,
+      //     "tableData",
+      //     "{{fetch_standup_updates.data}}",
+      //     RenderModes.CANVAS,
+      //   ),
+      // );
+    }
+  }
+}
+
 function* addBinding() {
   const selectedWidget = yield select(getSelectedWidget);
 
@@ -542,6 +646,7 @@ export default function* onboardingSagas() {
     takeEvery(ReduxActionTypes.NEXT_ONBOARDING_STEP, proceedOnboardingSaga),
     takeEvery(ReduxActionTypes.LISTEN_FOR_CREATE_ACTION, listenForCreateAction),
     takeEvery(ReduxActionTypes.LISTEN_FOR_ADD_WIDGET, listenForWidgetAdditions),
+    takeEvery("LISTEN_ADD_INPUT_WIDGET", listenForAddInputWidget),
     takeEvery(
       ReduxActionTypes.LISTEN_FOR_TABLE_WIDGET_BINDING,
       listenForSuccessfulBinding,
@@ -552,7 +657,9 @@ export default function* onboardingSagas() {
     takeEvery("ONBOARDING_CREATE_APPLICATION", createApplication),
     takeEvery("ONBOARDING_CREATE_QUERY", createQuery),
     takeEvery("ONBOARDING_RUN_QUERY", executeQuery),
-    takeEvery("ONBOARDING_ADD_WIDGET", addWidget),
+    takeEvery("ONBOARDING_ADD_TABLE_WIDGET", addTableWidget),
+    takeEvery("ONBOARDING_ADD_INPUT_WIDGET", addInputWidget),
+    takeEvery("ONBOARDING_ADD_ONSUBMIT_BINDING", addOnSubmitHandler),
     takeEvery("ONBOARDING_ADD_BINDING", addBinding),
     takeEvery("ONBOARDING_DEPLOY", deploy),
   ]);

@@ -8,8 +8,9 @@ export enum OnboardingStep {
   RUN_QUERY_SUCCESS = 2,
   SUCCESSFUL_BINDING = 3,
   ADD_INPUT_WIDGET = 4,
-  DEPLOY = 5,
-  FINISH = 6,
+  ADD_ONSUBMIT_BINDING = 5,
+  DEPLOY = 6,
+  FINISH = 7,
 }
 
 export type OnboardingHelperConfig = {
@@ -133,7 +134,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       cheatAction: {
         label: "Super Hack",
         action: {
-          type: "ONBOARDING_ADD_WIDGET",
+          type: "ONBOARDING_ADD_TABLE_WIDGET",
         },
       },
     },
@@ -165,7 +166,11 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
   },
   [OnboardingStep.ADD_INPUT_WIDGET]: {
     name: "ADD_INPUT_WIDGET",
-    setup: () => [],
+    setup: () => [
+      {
+        type: "LISTEN_ADD_INPUT_WIDGET",
+      },
+    ],
     helper: {
       step: 4,
       title: "Capture Hero Updates",
@@ -181,6 +186,28 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         label: "Super Hack",
         action: {
           type: "ONBOARDING_ADD_INPUT_WIDGET",
+        },
+      },
+    },
+  },
+  [OnboardingStep.ADD_ONSUBMIT_BINDING]: {
+    name: "ADD_ONSUBMIT_BINDING",
+    setup: () => [],
+    helper: {
+      step: 5,
+      title: "Update the super DB",
+      description: "Create a query to insert a standup_updates onSubmit",
+      image: {
+        src:
+          "https://res.cloudinary.com/drako999/image/upload/v1611815729/Appsmith/Onboarding/drag_input.gif",
+      },
+      action: {
+        label: "Continue",
+      },
+      cheatAction: {
+        label: "Super Hack",
+        action: {
+          type: "ONBOARDING_ADD_ONSUBMIT_BINDING",
         },
       },
     },

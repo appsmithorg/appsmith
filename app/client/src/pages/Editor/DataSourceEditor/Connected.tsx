@@ -98,7 +98,7 @@ const Connected = () => {
         payload = Object.assign({}, payload, {
           name: "fetch_standup_updates",
           actionConfiguration: {
-            body: " ",
+            body: "Select avatar, name, notes from standup_updates order by id",
           },
         });
       }
