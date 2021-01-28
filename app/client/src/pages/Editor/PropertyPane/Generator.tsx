@@ -12,7 +12,7 @@ import PropertySection from "./PropertySection";
 
 const getPropertyPaneConfig = (
   type: WidgetType,
-): PropertyPaneConfig[] | undefined => {
+): readonly PropertyPaneConfig[] | undefined => {
   return WidgetFactory.propertyPaneConfigsMap.get(type);
 };
 
@@ -22,7 +22,7 @@ export type PropertyControlsGeneratorProps = {
 };
 
 export const generatePropertyControl = (
-  propertyPaneConfig: PropertyPaneConfig[],
+  propertyPaneConfig: readonly PropertyPaneConfig[],
   props: PropertyControlsGeneratorProps,
 ) => {
   if (!propertyPaneConfig) return null;
@@ -58,7 +58,11 @@ export const PropertyControlsGenerator = (
   props: PropertyControlsGeneratorProps,
 ) => {
   const config = getPropertyPaneConfig(props.type);
-  return <>{generatePropertyControl(config as PropertyPaneConfig[], props)}</>;
+  return (
+    <>
+      {generatePropertyControl(config as readonly PropertyPaneConfig[], props)}
+    </>
+  );
 };
 
 export default PropertyControlsGenerator;
