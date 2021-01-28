@@ -249,6 +249,7 @@ function* createOnboardingDatasource() {
     // Navigate to that datasource page
     yield put(changeDatasource(onboardingDatasource));
 
+    yield take(ReduxActionTypes.SHOW_WELCOME);
     yield put({
       type: ReduxActionTypes.SET_HELPER_CONFIG,
       payload: getHelperConfig(OnboardingStep.EXAMPLE_DATABASE),

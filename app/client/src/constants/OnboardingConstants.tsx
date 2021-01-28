@@ -52,13 +52,14 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       return [
         {
           type: ReduxActionTypes.SHOW_WELCOME,
+          payload: true,
         },
       ];
     },
     helper: {
-      title: "Welcome Fellow Appsmith!",
+      title: "👋 Welcome to Appsmith!",
       description:
-        "We'd like to show you around by helping you build an app that saves the world from daily meetings. It'll only take a min or 2.",
+        "Let's build an app for remote teams to do async update meetings",
       skipLabel: "No thanks",
       action: {
         label: "Let’s go",

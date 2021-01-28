@@ -41,8 +41,11 @@ export interface OnboardingState {
 }
 
 const onboardingReducer = createReducer(initialState, {
-  [ReduxActionTypes.SHOW_WELCOME]: (state: OnboardingState) => {
-    return { ...state, showWelcomeHelper: true };
+  [ReduxActionTypes.SHOW_WELCOME]: (
+    state: OnboardingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return { ...state, showWelcomeHelper: action.payload };
   },
   [ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_INIT]: (
     state: OnboardingState,
@@ -55,7 +58,6 @@ const onboardingReducer = createReducer(initialState, {
     return {
       ...state,
       creatingDatabase: false,
-      showWelcomeHelper: false,
       createdDBQuery: true,
     };
   },
