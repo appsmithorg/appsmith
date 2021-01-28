@@ -4,7 +4,7 @@ import {
   SIGN_UP_URL,
   RESET_PASSWORD_URL,
   FORGOT_PASSWORD_URL,
-  BUILDER_URL_REGEX,
+  VIEWER_URL_REGEX,
 } from "constants/routes";
 import { theme, dark } from "constants/DefaultTheme";
 
@@ -16,7 +16,7 @@ const enforceDarkThemeRoutes = [
 ];
 const getShouldEnforceDarkTheme = () => {
   const currentPath = window.location.pathname;
-  const isBuilderPath = !!currentPath.match(BUILDER_URL_REGEX);
+  const isBuilderPath = !!currentPath.match(VIEWER_URL_REGEX);
   return (
     isBuilderPath ||
     enforceDarkThemeRoutes.some(
