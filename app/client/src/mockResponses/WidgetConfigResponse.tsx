@@ -111,6 +111,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
       primaryColumns: [],
+      derivedColumns: [],
       tableData: [
         {
           id: 2381224,

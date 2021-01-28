@@ -913,8 +913,6 @@ function* deleteWidgetPropertySaga(
     });
   });
 
-  console.log("Table log:", { dynamicBindingPathList });
-
   yield put(
     updateWidgetProperty(widgetId, {
       dynamicTriggerPathList,
@@ -929,8 +927,6 @@ function* deleteWidgetPropertySaga(
   propertyPaths.forEach((propertyPath) => {
     _.unset(widget, propertyPath);
   });
-
-  console.log("Table log:", { widget });
 
   const widgets = { ...stateWidgets, [widgetId]: widget };
 

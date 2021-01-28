@@ -113,7 +113,6 @@ abstract class BaseWidget<
   deleteWidgetProperty(propertyPaths: string[]): void {
     const { deleteWidgetProperty } = this.context;
     const { widgetId } = this.props;
-    console.log("Table log: deleting", { widgetId }, { propertyPaths });
     if (deleteWidgetProperty && widgetId) {
       deleteWidgetProperty(widgetId, propertyPaths);
     }
@@ -122,7 +121,6 @@ abstract class BaseWidget<
   batchUpdateWidgetProperty(updates: Record<string, unknown>): void {
     const { batchUpdateWidgetProperty } = this.context;
     const { widgetId } = this.props;
-    console.log("Table log: ", { widgetId }, { updates });
     if (batchUpdateWidgetProperty && widgetId) {
       batchUpdateWidgetProperty(widgetId, updates);
     }

@@ -23,6 +23,11 @@ abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
         isDynamicTrigger,
       );
   }
+  deleteProperties(propertyPaths: string[]) {
+    if (this.props.deleteProperties) {
+      this.props.deleteProperties(propertyPaths);
+    }
+  }
 }
 
 export interface ControlBuilder<T extends ControlProps> {
@@ -48,6 +53,7 @@ export interface ControlFunctions {
     isDynamicTrigger?: boolean,
   ) => void;
   openNextPanel: (props: any) => void;
+  deleteProperties: (propertyPaths: string[]) => void;
 }
 
 export default BaseControl;

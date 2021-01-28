@@ -1,4 +1,4 @@
-import { compact, get, xor, xorWith } from "lodash";
+import { compact, get, xorWith } from "lodash";
 import { Colors } from "constants/Colors";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableWidgetProps } from "./TableWidgetConstants";
@@ -39,7 +39,6 @@ const updateColumnStyles = (
                 },
               );
             }
-            console.log("something", { propertyPath }, { propertyValue });
             return {
               propertyPath,
               propertyValue,
@@ -55,7 +54,6 @@ const updateColumnStyles = (
         (a, b) => JSON.stringify(a) !== JSON.stringify(b),
       );
 
-      console.log("something", { updates }, { updatedDerivedColumns });
       if (difference) {
         updates = [
           ...updates,
@@ -110,58 +108,18 @@ const updateDerivedColumnsHook = (
   propertyPath: string,
   propertyValue: any,
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  if (
-    props &&
-    propertyValue &&
-    props[propertyPath] &&
-    propertyPath === "primaryColumns"
-  ) {
-    const propertiesToUpdate = [];
-    // Get old list of derviedcolumns
-    const oldDerivedColumns = props.derivedColumns || [];
-    // Get new list from the primarycolumns
-    const newDerivedColumns = propertyValue.filter(
-      (column: ColumnProperties) => column.isDerived,
-    );
-
-    // check if there is a difference in the two
-    const difference: ColumnProperties[] = xorWith(
-      oldDerivedColumns,
-      newDerivedColumns,
-      (a: ColumnProperties, b: ColumnProperties) =>
-        a.id === b.id && a.label === b.label,
-    );
-
-    if (difference.length > 0) {
-      propertiesToUpdate.push({
-        propertyPath: "derivedColumns",
-        propertyValue: newDerivedColumns,
-      });
-    }
+  if (props && propertyValue && /primaryColumns\[\d+\]/.test(propertyPath)) {
+    const derivedColumnIndex = props.derivedColumns.length;
+    const propertiesToUpdate = [
+      { propertyPath: `derivedColumns[${derivedColumnIndex}]`, propertyValue },
+    ];
 
     const oldColumnOrder = props.columnOrder || [];
-    const newColumnIds = propertyValue.map(
-      (column: ColumnProperties) => column.id,
-    );
-
-    // Check if we have deleted columns
-    const newColumnOrder = oldColumnOrder.filter((columnId: string) => {
-      return newColumnIds.indexOf(columnId) > -1;
+    const newColumnOrder = [...oldColumnOrder, propertyValue.id];
+    propertiesToUpdate.push({
+      propertyPath: "columnOrder",
+      propertyValue: newColumnOrder,
     });
-
-    // Check if we have added columns
-    newColumnIds.forEach((columnId: string) => {
-      if (newColumnOrder.indexOf(columnId) === -1) {
-        newColumnOrder.push(columnId);
-      }
-    });
-    if (xor(newColumnOrder, oldColumnOrder).length > 0) {
-      propertiesToUpdate.push({
-        propertyPath: "columnOrder",
-        propertyValue: newColumnOrder,
-      });
-    }
-
     if (propertiesToUpdate.length > 0) {
       return propertiesToUpdate;
     }

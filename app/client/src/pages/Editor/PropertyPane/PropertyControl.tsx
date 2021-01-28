@@ -14,6 +14,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   setWidgetDynamicProperty,
   updateWidgetPropertyRequest,
+  deleteWidgetProperty,
+  batchUpdateWidgetProperty,
 } from "actions/controlActions";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
@@ -60,6 +62,13 @@ const PropertyControl = memo((props: Props) => {
     ],
   );
 
+  const onDeleteProperties = useCallback(
+    (propertyPaths: string[]) => {
+      dispatch(deleteWidgetProperty(widgetProperties.widgetId, propertyPaths));
+    },
+    [dispatch, widgetProperties.widgetId],
+  );
+
   const onPropertyChange = useCallback(
     (propertyName: string, propertyValue: any, isDynamicTrigger?: boolean) => {
       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
@@ -68,40 +77,40 @@ const PropertyControl = memo((props: Props) => {
         propertyName: propertyName,
         updatedValue: propertyValue,
       });
+
+      let propertiesToUpdate:
+        | Array<{
+            propertyPath: string;
+            propertyValue: any;
+          }>
+        | undefined;
       if (props.updateHook) {
-        const propertiesToUpdate:
-          | Array<{
-              propertyPath: string;
-              propertyValue: any;
-            }>
-          | undefined = props.updateHook(
+        propertiesToUpdate = props.updateHook(
           widgetProperties,
           propertyName,
           propertyValue,
         );
-        if (propertiesToUpdate) {
-          propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
-            dispatch(
-              updateWidgetPropertyRequest(
-                widgetProperties.widgetId,
-                propertyPath,
-                propertyValue,
-                RenderModes.CANVAS,
-                false,
-              ),
-            );
-          });
-        }
       }
-      dispatch(
-        updateWidgetPropertyRequest(
-          widgetProperties.widgetId,
-          propertyName,
-          propertyValue,
-          RenderModes.CANVAS, // This seems to be not needed anymore.
-          isDynamicTrigger,
-        ),
-      );
+      if (propertiesToUpdate) {
+        const allUpdates: Record<string, unknown> = {};
+        propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
+          allUpdates[propertyPath] = propertyValue;
+        });
+        allUpdates[propertyName] = propertyValue;
+        dispatch(
+          batchUpdateWidgetProperty(widgetProperties.widgetId, allUpdates),
+        );
+      } else {
+        dispatch(
+          updateWidgetPropertyRequest(
+            widgetProperties.widgetId,
+            propertyName,
+            propertyValue,
+            RenderModes.CANVAS, // This seems to be not needed anymore.
+            isDynamicTrigger,
+          ),
+        );
+      }
     },
     [dispatch, widgetProperties],
   );
@@ -234,6 +243,7 @@ const PropertyControl = memo((props: Props) => {
               {
                 onPropertyChange: onPropertyChange,
                 openNextPanel: openPanel,
+                deleteProperties: onDeleteProperties,
               },
               isDynamic,
               props.customJSControl,

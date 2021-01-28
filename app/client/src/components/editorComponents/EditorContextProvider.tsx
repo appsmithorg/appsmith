@@ -121,7 +121,6 @@ const mapDispatchToProps = (dispatch: any) => {
       widgetId: string,
       updates: Record<string, unknown>,
     ) => {
-      console.log("Table log: batch", { widgetId }, { updates });
       dispatch(batchUpdatePropertyAction(widgetId, updates));
     },
   };

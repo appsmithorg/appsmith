@@ -161,7 +161,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const { sortedColumn, columnOrder, columnSizeMap } = this.props;
     const primaryColumns =
       this.props.primaryColumns && Array.isArray(this.props.primaryColumns)
-        ? this.props.primaryColumns
+        ? this.props.primaryColumns.filter(Boolean)
         : [];
     let allColumns = this.createTablePrimaryColumns() || primaryColumns;
     const sortColumn = sortedColumn?.column;
@@ -364,10 +364,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const derivedTableData: Array<Record<string, unknown>> = [...tableData];
     // If we've already computed the columns list
     if (this.props.primaryColumns) {
+      const primaryColumns = this.props.primaryColumns.filter(Boolean);
       // For each column in the table
-      for (let i = 0; i < this.props.primaryColumns.length; i++) {
+      for (let i = 0; i < primaryColumns.length; i++) {
         // Get the column properties
-        const column: ColumnProperties = this.props.primaryColumns[i];
+        const column: ColumnProperties = primaryColumns[i];
         const columnId = column.id;
         let computedValues: Array<unknown> = [];
 
@@ -526,7 +527,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   updateColumnProperties = (tableColumns?: ColumnProperties[]) => {
-    const { primaryColumns = [], columnOrder } = this.props;
+    let { primaryColumns = [] } = this.props;
+    const { columnOrder } = this.props;
+    primaryColumns = primaryColumns.filter(Boolean);
     if (tableColumns) {
       const previousColumnIds = primaryColumns.map(
         (column: ColumnProperties) => column.id,
@@ -535,18 +538,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         (column: ColumnProperties) => column.id,
       );
       if (xor(previousColumnIds, newColumnIds).length > 0) {
-        if (previousColumnIds.length > newColumnIds.length) {
-          const pathsToDelete: string[] = [];
-          let diff = previousColumnIds.length - newColumnIds.length;
-          while (diff > 0) {
-            pathsToDelete.push(
-              `primaryColumns[${newColumnIds.length + diff - 1}]`,
-            );
-            diff--;
-          }
-          super.deleteWidgetProperty(pathsToDelete);
-        }
-
         const propertiesToAdd: Record<string, unknown> = {};
 
         tableColumns.forEach((column: ColumnProperties, index: number) => {
@@ -559,27 +550,32 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         if (xor(newColumnIds, columnOrder).length > 0) {
           propertiesToAdd["columnOrder"] = newColumnIds;
         }
-        console.log("Table log: ", { propertiesToAdd });
+
         super.batchUpdateWidgetProperty(propertiesToAdd);
+        if (previousColumnIds.length > newColumnIds.length) {
+          const pathsToDelete: string[] = [];
+          let diff = previousColumnIds.length - newColumnIds.length;
+          while (diff > 0) {
+            pathsToDelete.push(
+              `primaryColumns[${newColumnIds.length + diff - 1}]`,
+            );
+            diff--;
+          }
+          super.deleteWidgetProperty(pathsToDelete);
+        }
       }
     }
   };
 
-  // getCompactPrimaryColumns = () => {
-  //   const { primaryColumns = [] } = this.props;
-  //   return primaryColumns
-  //     ?.map((column: ColumnProperties) => {
-  //       if (Array.isArray(column) && column.length === 0) {
-  //         return undefined;
-  //       }
-  //       return column;
-  //     })
-  //     .filter(Boolean);
-  // };
-
   componentDidMount() {
-    const newPrimaryColumns = this.createTablePrimaryColumns();
-    // const primaryColumns = this.getCompactPrimaryColumns();
+    const { tableData } = this.props;
+    let newPrimaryColumns;
+    // When we have tableData, the primaryColumns order is unlikely to change
+    // When we don't have tableData primaryColumns will not be available, so let's let it be.
+
+    if (tableData.length > 0) {
+      newPrimaryColumns = this.createTablePrimaryColumns();
+    }
     if (!newPrimaryColumns) {
       const filteredTableData = this.filterTableData();
       this.props.updateWidgetMetaProperty(
@@ -592,19 +588,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
-    console.log("Table log: new props", this.props);
     // Check if data is modifed by comparing the stringified versions of the previous and next tableData
     const tableDataModified =
       JSON.stringify(this.props.tableData) !==
       JSON.stringify(prevProps.tableData);
 
     let hasPrimaryColumnsComputedValueChanged = false;
-    const oldComputedValues = prevProps.primaryColumns?.map(
-      (column: ColumnProperties) => column.computedValue,
-    );
-    const newComputedValues = this.props.primaryColumns?.map(
-      (column: ColumnProperties) => column.computedValue,
-    );
+    const oldComputedValues = prevProps.primaryColumns
+      .filter(Boolean)
+      ?.map((column: ColumnProperties) => column.computedValue);
+    const newComputedValues = this.props.primaryColumns
+      .filter(Boolean)
+      ?.map((column: ColumnProperties) => column.computedValue);
     if (!isEqual(oldComputedValues, newComputedValues)) {
       hasPrimaryColumnsComputedValueChanged = true;
     }
@@ -793,9 +788,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           updateHiddenColumns={(hiddenColumns?: string[]) => {
             super.updateWidgetProperty("hiddenColumns", hiddenColumns);
           }}
-          handleReorderColumn={(columnOrder: string[]) => {
-            super.updateWidgetProperty("columnOrder", columnOrder);
-          }}
+          handleReorderColumn={this.handleReorderColumn}
           disableDrag={(disable: boolean) => {
             this.disableDrag(disable);
           }}
@@ -818,6 +811,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       </Suspense>
     );
   }
+
+  handleReorderColumn = (columnOrder: string[]) => {
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      super.updateWidgetProperty("columnOrder", columnOrder);
+    } else this.props.updateWidgetMetaProperty("columnOrder", columnOrder);
+  };
 
   handleColumnSorting = (column: string, asc: boolean) => {
     this.resetSelectedRowIndex();
