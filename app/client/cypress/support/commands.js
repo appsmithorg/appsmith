@@ -1262,7 +1262,9 @@ Cypress.Commands.add("togglebarDisable", (value) => {
 });
 
 Cypress.Commands.add("getAlert", (alertcss) => {
-  cy.get(commonlocators.dropdownSelectButton).click({ force: true });
+  cy.get(commonlocators.dropdownSelectButton)
+    .first()
+    .click({ force: true });
   cy.get(widgetsPage.menubar)
     .contains("Show Message")
     .click({ force: true })
