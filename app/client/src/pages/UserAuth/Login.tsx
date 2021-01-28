@@ -14,7 +14,6 @@ import {
   LOGIN_PAGE_PASSWORD_INPUT_LABEL,
   LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER,
   LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER,
-  FORM_VALIDATION_EMPTY_EMAIL,
   FORM_VALIDATION_EMPTY_PASSWORD,
   FORM_VALIDATION_INVALID_EMAIL,
   FORM_VALIDATION_INVALID_PASSWORD,
@@ -53,16 +52,14 @@ const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
   const errors: LoginFormValues = {};
-  const email = values[LOGIN_FORM_EMAIL_FIELD_NAME];
+  const email = values[LOGIN_FORM_EMAIL_FIELD_NAME] || "";
   const password = values[LOGIN_FORM_PASSWORD_FIELD_NAME];
   if (!password || isEmptyString(password)) {
     errors[LOGIN_FORM_PASSWORD_FIELD_NAME] = FORM_VALIDATION_EMPTY_PASSWORD;
   } else if (!isStrongPassword(password)) {
     errors[LOGIN_FORM_PASSWORD_FIELD_NAME] = FORM_VALIDATION_INVALID_PASSWORD;
   }
-  if (!email || isEmptyString(email)) {
-    errors[LOGIN_FORM_EMAIL_FIELD_NAME] = FORM_VALIDATION_EMPTY_EMAIL;
-  } else if (!isEmail(email)) {
+  if (!isEmptyString(email) && !isEmail(email)) {
     errors[LOGIN_FORM_EMAIL_FIELD_NAME] = FORM_VALIDATION_INVALID_EMAIL;
   }
 
@@ -81,7 +78,8 @@ if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
 if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
 
 export const Login = (props: LoginFormProps) => {
-  const { error, valid } = props;
+  const { error, valid, emailValue: email } = props;
+  const isFormValid = valid && email && !isEmptyString(email);
   const location = useLocation();
 
   const queryParams = new URLSearchParams(location.search);
@@ -160,7 +158,7 @@ export const Login = (props: LoginFormProps) => {
           <Button
             tag="button"
             type="submit"
-            disabled={!valid}
+            disabled={!isFormValid}
             text={LOGIN_PAGE_LOGIN_BUTTON_TEXT}
             fill
             size={Size.large}
