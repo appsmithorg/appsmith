@@ -258,7 +258,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
       ? "1px solid #DDDDDD"
       : "1px solid transparent";
 
-  const dropRef = props.dropEnabled ? drop : undefined;
+  const dropRef = !props.dropDisabled ? drop : undefined;
 
   return (
     <DropTargetContext.Provider

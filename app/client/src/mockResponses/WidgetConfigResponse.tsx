@@ -528,7 +528,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               containerStyle: "none",
               canExtend: false,
               detachFromLayout: true,
-              dropEnabled: false,
+              dropDisabled: true,
               children: [],
               blueprint: {
                 view: [

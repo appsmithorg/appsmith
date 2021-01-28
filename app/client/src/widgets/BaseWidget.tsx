@@ -306,7 +306,7 @@ abstract class BaseWidget<
     topRow: 0,
     leftColumn: 0,
     dragDisabled: false,
-    dropEnabled: true,
+    dropDisabled: false,
     isDeletable: true,
     resizeDisabled: false,
     paddingEnabled: true,
