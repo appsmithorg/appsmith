@@ -130,8 +130,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
                       set(
                         children[i],
-                        `children.[${j}].children[${k}].dragEnabled`,
-                        false,
+                        `children.[${j}].children[${k}].dragDisabled`,
+                        true,
                       );
                     }
                   }

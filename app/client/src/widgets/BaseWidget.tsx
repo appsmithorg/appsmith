@@ -205,7 +205,7 @@ abstract class BaseWidget<
 
   /**
    * wraps the widget in a draggable component.
-   * Note: widget drag can be disabled by setting `dragEnabled` prop to false
+   * Note: widget drag can be disabled by setting `dragDisabled` prop to true
    *
    * @param content
    */
@@ -305,7 +305,7 @@ abstract class BaseWidget<
     parentColumnSpace: 1,
     topRow: 0,
     leftColumn: 0,
-    dragEnabled: true,
+    dragDisabled: false,
     dropEnabled: true,
     isDeletable: true,
     resizeEnabled: true,

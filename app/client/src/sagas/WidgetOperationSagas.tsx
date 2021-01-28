@@ -594,7 +594,7 @@ export function* updateListWidgetPropertiesOnChildDelete(
 
   // if we are deleting the list widget itself, remove all children values in the map
   Object.keys(enhancementsMap).map((id) => {
-    if (enhancementsMap[id].parentId === widgetId) {
+    if (get(enhancementsMap, `${id}.parentId`) === widgetId) {
       enhancementsMap[id] = undefined;
     }
   });

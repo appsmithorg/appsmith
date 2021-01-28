@@ -79,7 +79,7 @@
                     "widgetId": "dinv2tsatk"
                   }
                 ],
-                "dragEnabled": false,
+                "dragDisabled": true,
                 "isDeletable": false,
                 "paddingEnabled": false,
                 "settingsControlEnabled": false,
