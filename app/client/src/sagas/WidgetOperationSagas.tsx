@@ -463,21 +463,21 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
   const deletedWidgets: FlattenedWidgetProps[] = yield getDeletedWidgets(
     action.payload.widgetId,
   );
-  // Find the parent in the list of deleted widgets
-  const deletedWidget = deletedWidgets.find(
-    (widget) => widget.widgetId === action.payload.widgetId,
-  );
+  if (deletedWidgets && Array.isArray(deletedWidgets)) {
+    // Find the parent in the list of deleted widgets
+    const deletedWidget = deletedWidgets.find(
+      (widget) => widget.widgetId === action.payload.widgetId,
+    );
 
-  // If the deleted widget is in fact available.
-  if (deletedWidget) {
-    // Log an undo event
-    AnalyticsUtil.logEvent("WIDGET_DELETE_UNDO", {
-      widgetName: deletedWidget.widgetName,
-      widgetType: deletedWidget.type,
-    });
-  }
+    // If the deleted widget is in fact available.
+    if (deletedWidget) {
+      // Log an undo event
+      AnalyticsUtil.logEvent("WIDGET_DELETE_UNDO", {
+        widgetName: deletedWidget.widgetName,
+        widgetType: deletedWidget.type,
+      });
+    }
 
-  if (deletedWidgets) {
     // Get the current list of widgets from reducer
     const stateWidgets = yield select(getWidgets);
     let widgets = { ...stateWidgets };

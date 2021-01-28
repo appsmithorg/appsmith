@@ -92,6 +92,9 @@ export const WIDGET_TYPE_VALIDATION_ERROR = "Value does not match type";
 export const URL_HTTP_VALIDATION_ERROR = "Please enter a valid URL";
 export const NAVIGATE_TO_VALIDATION_ERROR =
   "Please enter a valid URL or page name";
+export const PAGE_NOT_FOUND_ERROR =
+  "The page you’re looking for either does not exist, or cannot be found";
+export const INVALID_URL_ERROR = "Invalid URL";
 
 export const INVITE_USERS_VALIDATION_EMAIL_LIST =
   "Invalid Email address(es) found";
