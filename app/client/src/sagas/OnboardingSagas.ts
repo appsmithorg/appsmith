@@ -142,13 +142,17 @@ function* listenForAddInputWidget() {
       selectedWidget.type === "INPUT_WIDGET" &&
       canvasWidgets[selectedWidget.widgetId]
     ) {
-      // yield put(setCurrentStep(OnboardingStep.DEPLOY));
-      // yield put({
-      //   type: ReduxActionTypes.SET_HELPER_CONFIG,
-      //   payload: getHelperConfig(OnboardingStep.DEPLOY),
-      // });
+      const dynamicTriggerPathList = selectedWidget.dynamicTriggerPathList;
+      const hasOnSubmitHandler =
+        dynamicTriggerPathList &&
+        dynamicTriggerPathList.length &&
+        dynamicTriggerPathList.some(
+          (trigger: any) => trigger.key === "onSubmit",
+        );
 
-      return;
+      if (hasOnSubmitHandler) {
+        return;
+      }
     }
   }
 }

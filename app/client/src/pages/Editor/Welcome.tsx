@@ -5,6 +5,7 @@ import { Classes } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import Preview from "assets/images/preview.png";
 
 const Wrapper = styled.div`
   height: calc(100vh - 48px);
@@ -21,48 +22,32 @@ const Wrapper = styled.div`
     margin-top: 24px;
 
     circle {
-      stroke: #f3672a;
+      stroke: #457ae6;
     }
   }
 `;
 
-const Container = styled.div`
-  width: 481px;
-  padding: 20px;
-  border: 2px solid #df613c;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
+const Image = styled.img`
+  width: 601px;
+  height: 341px;
+  margin-top: 24px;
 `;
 
-const ImagePlaceholder = styled.div`
-  width: 100%;
-  height: 277px;
-  background-color: grey;
+const SubTitle = styled.div`
+  font-size: 12px;
+  text-align: center;
 `;
 
 const Title = styled.div`
-  font-size: 16px;
+  font-size: 24px;
   font-weight: 500;
-  margin-top: 24px;
   text-align: center;
 `;
 
 const Description = styled.div`
-  font-size: 14px;
-  margin-top: 17px;
-`;
-
-const LoadingMessage = styled.span`
-  font-size: 14px;
-  color: #9f9f9f;
-  margin-top: 11px;
-`;
-
-const SpinnerWrapper = styled.div`
-  flex-direction: column;
-  display: flex;
-  align-items: center;
+  font-size: 16px;
+  margin-top: 18px;
+  width: 601px;
 `;
 
 const StyledButton = styled.button`
@@ -84,34 +69,28 @@ const Welcome = () => {
 
   return (
     <Wrapper>
-      <Container>
-        <ImagePlaceholder />
-        <Title>Super-Standup App</Title>
-        <Description>
-          Superheroes much like engineers have to coordinate their daily plans
-          so that no villain (bug) gets away! However, all heroes hate morning
-          meetings so a daily standup app is just what we need.
-        </Description>
-        {datasourceCreated ? (
-          <StyledButton
-            onClick={() => {
-              dispatch({
-                type: ReduxActionTypes.SHOW_WELCOME,
-                payload: false,
-              });
-            }}
-          >
-            Start Building
-          </StyledButton>
-        ) : (
-          <SpinnerWrapper>
-            <Spinner />
-            <LoadingMessage>
-              Creating Database of Superhero Updates
-            </LoadingMessage>
-          </SpinnerWrapper>
-        )}
-      </Container>
+      <SubTitle>WHAT WE’LL BUILD</SubTitle>
+      <Title>Super Standup App</Title>
+      <Image src={Preview} />
+      <Description>
+        Superheroes much like engineers have to coordinate their daily plans so
+        that no villain (bug) gets away! However, all heroes hate morning
+        meetings so a daily standup app is just what we need.
+      </Description>
+      {datasourceCreated ? (
+        <StyledButton
+          onClick={() => {
+            dispatch({
+              type: ReduxActionTypes.SHOW_WELCOME,
+              payload: false,
+            });
+          }}
+        >
+          Start Building
+        </StyledButton>
+      ) : (
+        <Spinner />
+      )}
     </Wrapper>
   );
 };
