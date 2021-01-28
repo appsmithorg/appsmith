@@ -10,6 +10,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebExchange;
@@ -30,7 +31,8 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    public GlobalExceptionHandler() {}
+    public GlobalExceptionHandler() {
+    }
 
     private void doLog(Throwable error) {
         log.error("", error);
@@ -52,11 +54,10 @@ public class GlobalExceptionHandler {
         );
 
         if (error instanceof AppsmithException) {
-            if (((AppsmithException)error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
+            if (((AppsmithException) error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
                 Sentry.captureException(error);
             }
-        }
-        else {
+        } else {
             Sentry.captureException(error);
         }
     }
@@ -124,8 +125,15 @@ public class GlobalExceptionHandler {
         AppsmithError appsmithError = AppsmithError.GENERIC_BAD_REQUEST;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
+        String errorMessage = e.getReason();
+        if (e.getMethodParameter() != null) {
+            errorMessage = "Malformed parameter '" + e.getMethodParameter().getParameterName()
+                    + "' for " + e.getMethodParameter().getContainingClass().getSimpleName()
+                    + (e.getMethodParameter().getMethod() != null ? "." + e.getMethodParameter().getMethod().getName() : "");
+        }
+
         return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage(e.getReason()))));
+                appsmithError.getMessage(errorMessage))));
     }
 
     @ExceptionHandler
@@ -135,7 +143,7 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                e.getLocalizedMessage())));
+                e.getMessage())));
     }
 
     @ExceptionHandler

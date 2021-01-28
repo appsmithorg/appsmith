@@ -1262,7 +1262,9 @@ Cypress.Commands.add("togglebarDisable", (value) => {
 });
 
 Cypress.Commands.add("getAlert", (alertcss) => {
-  cy.get(commonlocators.dropdownSelectButton).click({ force: true });
+  cy.get(commonlocators.dropdownSelectButton)
+    .first()
+    .click({ force: true });
   cy.get(widgetsPage.menubar)
     .contains("Show Message")
     .click({ force: true })
@@ -1276,6 +1278,19 @@ Cypress.Commands.add("getAlert", (alertcss) => {
   cy.get(".t--open-dropdown-Select-type").click({ force: true });
   cy.get(".bp3-popover-content .bp3-menu li")
     .contains("Success")
+    .click({ force: true });
+});
+
+Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .click({ force: true })
+    .get("ul.bp3-menu")
+    .children()
+    .contains("Call An API")
+    .click({ force: true })
+    .get("ul.bp3-menu")
+    .children()
+    .contains(ApiName)
     .click({ force: true });
 });
 
@@ -1424,15 +1439,8 @@ Cypress.Commands.add("fillMongoDatasourceForm", () => {
   cy.get(datasourceEditor["password"]).type(
     datasourceFormData["mongo-password"],
   );
-
-  cy.get(datasourceEditor.sectionSSL).click();
   cy.get(datasourceEditor["authenticationAuthtype"]).click();
   cy.contains(datasourceFormData["mongo-authenticationAuthtype"]).click({
-    force: true,
-  });
-
-  cy.get(datasourceEditor["sslAuthtype"]).click();
-  cy.contains(datasourceFormData["mongo-sslAuthtype"]).click({
     force: true,
   });
 });

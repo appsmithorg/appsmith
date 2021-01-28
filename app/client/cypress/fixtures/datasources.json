@@ -5,7 +5,6 @@
     "mongo-username": "cypress-test",
     "mongo-password": "RaopEmky505xYV4p",
     "mongo-authenticationAuthtype": "SCRAM-SHA-1",
-    "mongo-sslAuthtype": "No SSL",
     "postgres-host": "postgres-test-db.cz8diybf9wdj.ap-south-1.rds.amazonaws.com",
     "postgres-port": 5432,
     "postgres-databaseName": "fakeapi",

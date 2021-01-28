@@ -15,6 +15,7 @@ import {
   extraLibraries,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
+  isChildPropertyPath,
   isPathADynamicBinding,
   isPathADynamicTrigger,
   unsafeFunctionForEval,
@@ -33,7 +34,6 @@ import {
   CrashingError,
   DataTreeDiffEvent,
   getValidatedTree,
-  isChildPropertyPath,
   makeParentsDependOnChildren,
   removeFunctions,
   removeFunctionsFromDataTree,
@@ -148,9 +148,10 @@ ctx.addEventListener(
           true,
           callbackData,
         );
+        const cleanTriggers = removeFunctions(triggers);
         const errors = dataTreeEvaluator.errors;
         dataTreeEvaluator.clearErrors();
-        return { triggers, errors };
+        return { triggers: cleanTriggers, errors };
       }
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
         dataTreeEvaluator = undefined;
@@ -180,12 +181,14 @@ ctx.addEventListener(
           value,
           props,
         } = requestData;
-        return validateWidgetProperty(
-          widgetTypeConfigMap,
-          widgetType,
-          property,
-          value,
-          props,
+        return removeFunctions(
+          validateWidgetProperty(
+            widgetTypeConfigMap,
+            widgetType,
+            property,
+            value,
+            props,
+          ),
         );
       }
       default: {
@@ -1373,10 +1376,11 @@ const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   withFunction.navigateTo = function(
     pageNameOrUrl: string,
     params: Record<string, string>,
+    target?: string,
   ) {
     return {
       type: "NAVIGATE_TO",
-      payload: { pageNameOrUrl, params },
+      payload: { pageNameOrUrl, params, target },
     };
   };
   withFunction.actionPaths.push("navigateTo");

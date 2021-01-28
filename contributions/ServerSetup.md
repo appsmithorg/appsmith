@@ -93,6 +93,12 @@ When using this command, the value of `APPSMITH_REDIS_URI` should be set to `red
 
 To run the project from within the IDE, you will need to make use of the run configuration that is part of the repository. The run configuration uses the [EnvFile](https://plugins.jetbrains.com/plugin/7861-envfile) plugin to include environment variables in the path. Any and all tests can be run within the IDE by cloning this run configuration.
 
+Please note when setting **Working directory** option. If the path is not correct, plugins will fail to load and cannot fetch data from mongo, redis
+
+example:
+
+![381611580157_ pic_hd](https://user-images.githubusercontent.com/4025839/105710505-2ead5300-5f52-11eb-9549-531e459e86ea.jpg)
+
 ## Need Assistance
 - If you are unable to resolve any issue while doing the setup, please initiate a Github discussion or send an email to support@appsmith.com. We'll be happy to help you.
 - In case you notice any discrepancy, please raise an issue on Github and/or send an email to support@appsmith.com.

@@ -269,13 +269,15 @@ export const EditableText = (props: EditableTextProps) => {
           onCancel={onConfirm}
         />
 
-        <IconWrapper className="icon-wrapper">
-          {savingState === SavingState.STARTED ? (
+        {savingState === SavingState.STARTED ? (
+          <IconWrapper className="icon-wrapper">
             <Spinner size={IconSize.XL} />
-          ) : value ? (
+          </IconWrapper>
+        ) : value && !props.hideEditIcon ? (
+          <IconWrapper className="icon-wrapper">
             <Icon name={iconName} size={IconSize.XL} />
-          ) : null}
-        </IconWrapper>
+          </IconWrapper>
+        ) : null}
       </TextContainer>
       {isEditing && !!isInvalid ? (
         <Text className="error-message" type={TextType.P2}>

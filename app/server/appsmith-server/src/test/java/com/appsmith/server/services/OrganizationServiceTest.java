@@ -234,21 +234,16 @@ public class OrganizationServiceTest {
     @WithUserDetails(value = "api_user")
     public void uniqueSlugs() {
         Organization organization = new Organization();
-        organization.setName("First slug org");
+        organization.setName("Slug org");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
 
-        Mono<String> uniqueSlug = organizationService.getNextUniqueSlug("slug-org")
-                .map(slug -> {
-                    organization.setSlug(slug);
-                    return organization;
-                })
-                .flatMap(organizationService::create)
-                .then(organizationService.getNextUniqueSlug("slug-org"));
+        Mono<String> uniqueSlug = organizationService.create(organization)
+                .flatMap(org -> organizationService.getNextUniqueSlug(org.getSlug()));
 
         StepVerifier.create(uniqueSlug)
                 .assertNext(slug -> {
-                    assertThat(slug).isNotEqualTo("slug-org");
+                    assertThat(slug).isEqualTo("slug-org1");
                 })
                 .verifyComplete();
     }
@@ -272,7 +267,7 @@ public class OrganizationServiceTest {
         StepVerifier.create(Mono.zip(firstOrgCreation, secondOrgCreation))
                 .assertNext(orgsTuple -> {
                     assertThat(orgsTuple.getT1().getSlug()).isEqualTo("really-good-org");
-                    assertThat(orgsTuple.getT2().getSlug()).isEqualTo("really-good-org2");
+                    assertThat(orgsTuple.getT2().getSlug()).isEqualTo("really-good-org1");
                 })
                 .verifyComplete();
     }

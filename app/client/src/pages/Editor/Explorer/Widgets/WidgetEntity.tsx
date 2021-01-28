@@ -17,7 +17,6 @@ import { useWidgetSelection } from "utils/hooks/dragResizeHooks";
 import { AppState } from "reducers";
 import { getWidgetIcon } from "../ExplorerIcons";
 
-import { noop } from "lodash";
 import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -133,7 +132,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
       name={props.widgetName}
       entityId={props.widgetId}
       step={props.step}
-      updateEntityName={props.pageId === pageId ? updateWidgetName : noop}
+      updateEntityName={props.pageId === pageId ? updateWidgetName : undefined}
       searchKeyword={props.searchKeyword}
       isDefaultExpanded={
         shouldExpand ||
