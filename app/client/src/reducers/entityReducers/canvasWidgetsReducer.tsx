@@ -6,6 +6,7 @@ import {
 } from "constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import _ from "lodash";
 
 const initialState: CanvasWidgetsReduxState = {};
 
@@ -14,8 +15,7 @@ export type FlattenedWidgetProps = WidgetProps & {
 };
 
 const canvasWidgetsReducer = createImmerReducer(initialState, {
-  // TODO Rename to INIT_LAYOUT
-  [ReduxActionTypes.UPDATE_CANVAS]: (
+  [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
@@ -31,8 +31,13 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateWidgetPropertyPayload>,
   ) => {
-    state[action.payload.widgetId][action.payload.propertyName] =
-      action.payload.propertyValue;
+    // We loop over all updates
+    Object.entries(action.payload.updates).forEach(
+      ([propertyPath, propertyValue]) => {
+        // since property paths could be nested, we use lodash set method
+        _.set(state[action.payload.widgetId], propertyPath, propertyValue);
+      },
+    );
   },
 });
 

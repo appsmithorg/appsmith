@@ -67,5 +67,7 @@
     "uploadLogo": "//div/form/input",
     "removeLogo": ".remove-button a span",
     "generalTab": "//li//span[text()='General']",
-    "membersTab": "//li//span[text()='Members']"
+    "membersTab": "//li//span[text()='Members']",
+    "cancelBtn": "//span[text()='Cancel']",
+    "submit": "button:contains('Submit')"
 }

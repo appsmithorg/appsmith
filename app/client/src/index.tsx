@@ -17,6 +17,11 @@ import { setThemeMode } from "actions/themeActions";
 import { ThemeMode } from "reducers/uiReducers/themeReducer";
 import { StyledToastContainer } from "components/ads/Toast";
 
+// enable autofreeze only in development
+import { setAutoFreeze } from "immer";
+const shouldAutoFreeze = process.env.NODE_ENV === "development";
+setAutoFreeze(shouldAutoFreeze);
+
 import AppErrorBoundary from "./AppErrorBoundry";
 appInitializer();
 
@@ -74,3 +79,8 @@ const ThemedAppWithProps = connect(
 )(ThemedApp);
 
 ReactDOM.render(<App />, document.getElementById("root"));
+
+// expose store when run in Cypress
+if ((window as any).Cypress) {
+  (window as any).store = store;
+}

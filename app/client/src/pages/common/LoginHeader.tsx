@@ -14,7 +14,7 @@ const StyledPageHeader = styled(StyledHeader)`
   height: 48px;
   background: ${Colors.BALTIC_SEA};
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
   padding: 0px ${(props) => props.theme.spaces[12]};
 `;

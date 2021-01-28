@@ -7,6 +7,7 @@ export const LOGIN_FORM_EMAIL_FIELD_NAME = "username";
 export const LOGIN_FORM_PASSWORD_FIELD_NAME = "password";
 
 export const SIGNUP_FORM_NAME = "SignupForm";
+export const SIGNUP_FORM_EMAIL_FIELD_NAME = "email";
 export const FORGOT_PASSWORD_FORM_NAME = "ForgotPasswordForm";
 export const RESET_PASSWORD_FORM_NAME = "ResetPasswordForm";
 export const CREATE_PASSWORD_FORM_NAME = "CreatePasswordForm";

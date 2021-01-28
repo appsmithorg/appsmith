@@ -43,6 +43,7 @@ import {
 } from "constants/OnboardingConstants";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { get } from "lodash";
+import { updateWidgetProperty } from "../actions/controlActions";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -85,14 +86,9 @@ function* listenForWidgetAdditions() {
       canvasWidgets[selectedWidget.widgetId]
     ) {
       if (selectedWidget.tableData === initialTableData) {
-        yield put({
-          type: "UPDATE_WIDGET_PROPERTY",
-          payload: {
-            widgetId: selectedWidget.widgetId,
-            propertyName: "tableData",
-            propertyValue: [],
-          },
-        });
+        yield put(
+          updateWidgetProperty(selectedWidget.widgetId, { tableData: [] }),
+        );
       }
 
       AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET");
@@ -107,11 +103,11 @@ function* listenForWidgetAdditions() {
   }
 }
 
-function* listenForSuccessfullBinding() {
+function* listenForSuccessfulBinding() {
   while (true) {
     yield take();
 
-    let bindSuccessfull = true;
+    let bindSuccessful = true;
     const selectedWidget = yield select(getSelectedWidget);
     if (selectedWidget && selectedWidget.type === "TABLE_WIDGET") {
       const dataTree = yield select(getDataTree);
@@ -124,19 +120,19 @@ function* listenForSuccessfullBinding() {
         const hasBinding =
           dynamicBindingPathList && !!dynamicBindingPathList.length;
 
-        bindSuccessfull =
-          bindSuccessfull && hasBinding && tableHasData && tableHasData.length;
+        bindSuccessful =
+          bindSuccessful && hasBinding && tableHasData && tableHasData.length;
 
         if (widgetProperties.invalidProps) {
-          bindSuccessfull =
-            bindSuccessfull &&
+          bindSuccessful =
+            bindSuccessful &&
             !(
               "tableData" in widgetProperties.invalidProps &&
               widgetProperties.invalidProps.tableData
             );
         }
 
-        if (bindSuccessfull) {
+        if (bindSuccessful) {
           yield put(showTooltip(OnboardingStep.NONE));
           AnalyticsUtil.logEvent("ONBOARDING_SUCCESSFUL_BINDING");
           yield put(setCurrentStep(OnboardingStep.SUCCESSFUL_BINDING));
@@ -320,7 +316,7 @@ export default function* onboardingSagas() {
     takeEvery(ReduxActionTypes.LISTEN_FOR_ADD_WIDGET, listenForWidgetAdditions),
     takeEvery(
       ReduxActionTypes.LISTEN_FOR_TABLE_WIDGET_BINDING,
-      listenForSuccessfullBinding,
+      listenForSuccessfulBinding,
     ),
     takeEvery(ReduxActionTypes.SET_CURRENT_STEP, setupOnboardingStep),
     takeEvery(ReduxActionTypes.LISTEN_FOR_DEPLOY, listenForDeploySaga),

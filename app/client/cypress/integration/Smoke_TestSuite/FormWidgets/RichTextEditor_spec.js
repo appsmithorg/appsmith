@@ -31,6 +31,15 @@ describe("RichTextEditor Widget Functionality", function() {
       "This is a Heading",
     );
 
+    // validate after reload
+    cy.reload(true);
+    cy.wait(2000);
+    cy.validateHTMLText(
+      formWidgetsPage.richTextEditorWidget,
+      "h1",
+      "This is a Heading",
+    );
+
     cy.PublishtheApp();
     cy.validateHTMLText(
       publishPage.richTextEditorWidget,

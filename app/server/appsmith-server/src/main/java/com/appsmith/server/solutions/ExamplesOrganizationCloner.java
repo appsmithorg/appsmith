@@ -342,7 +342,7 @@ public class ExamplesOrganizationCloner {
                 .flatMap(datasource -> {
                     final String templateDatasourceId = datasource.getId();
                     if (templateDatasourceId == null) {
-                        return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND));
+                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
                     }
                     makePristine(datasource);
                     datasource.setOrganizationId(toOrganizationId);
