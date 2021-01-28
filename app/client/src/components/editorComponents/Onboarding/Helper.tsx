@@ -21,8 +21,8 @@ const StyledContainer = styled.div`
 const ImagePlaceholder = styled.div`
   width: 100%;
   height: 131px;
-  background-color: grey;
   margin-bottom: 6px;
+  background-color: grey;
 `;
 
 const Title = styled.div`
@@ -123,6 +123,13 @@ const Snippet = styled.div`
   }
 `;
 
+const MissionImage = styled.img`
+  width: 100%;
+  height: 131px;
+  margin-bottom: 6px;
+  object-fit: contain;
+`;
+
 const Helper = () => {
   const showHelper = useSelector(
     (state: AppState) => state.ui.onBoarding.showHelper,
@@ -147,7 +154,12 @@ const Helper = () => {
 
   return (
     <StyledContainer>
-      <ImagePlaceholder />
+      {helperConfig.image ? (
+        <MissionImage src={helperConfig.image.src} />
+      ) : (
+        <ImagePlaceholder />
+      )}
+
       {helperConfig.step && <StepCount>Mission {helperConfig.step}</StepCount>}
       <Title>{helperConfig.title}</Title>
       <Description>{helperConfig.description}</Description>

@@ -18,6 +18,9 @@ export type OnboardingHelperConfig = {
   description?: string;
   skipLabel?: string;
   snippet?: string;
+  image?: {
+    src: string;
+  };
   action: {
     label: string;
     // action to be dispatched
@@ -86,6 +89,10 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       title: "Query the Super Updates DB",
       description:
         "A select query can fetch us updates from heroes all across the multiverse.",
+      image: {
+        src:
+          "https://res.cloudinary.com/drako999/image/upload/v1611815342/Appsmith/Onboarding/standup_query.gif",
+      },
       action: {
         label: "Show Hint",
         action: showIndicator(OnboardingStep.EXAMPLE_DATABASE),
@@ -115,6 +122,10 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       title: "Build the Standup Dashboard",
       description:
         "Drag a table so that heroes can view each other's updates and plan their crime-fighting days",
+      image: {
+        src:
+          "https://res.cloudinary.com/drako999/image/upload/v1611815393/Appsmith/Onboarding/table_drag.gif",
+      },
       action: {
         label: "Show Hint",
         action: showIndicator(OnboardingStep.RUN_QUERY_SUCCESS),

@@ -141,7 +141,9 @@ const WidgetSidebar = (props: IPanelProps) => {
           {filteredCards.map((card: WidgetCardProps) => (
             <Boxed
               step={OnboardingStep.ADD_WIDGET}
-              show={card.type === "TABLE_WIDGET"}
+              show={
+                card.type === "TABLE_WIDGET" || card.type === "INPUT_WIDGET"
+              }
               key={card.key}
             >
               <WidgetCard details={card} />

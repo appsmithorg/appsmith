@@ -32,7 +32,6 @@ import {
 import { validateResponse } from "./ErrorSagas";
 import { getSelectedWidget, getWidgets } from "./selectors";
 import {
-  endOnboarding,
   setCurrentStep,
   setOnboardingState as setOnboardingReduxState,
   showIndicator,
@@ -62,10 +61,7 @@ import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import { QueryAction } from "entities/Action";
 import history from "utils/history";
 import { getQueryIdFromURL } from "pages/Editor/Explorer/helpers";
-import {
-  calculateNewWidgetPosition,
-  getNextWidgetName,
-} from "./WidgetOperationSagas";
+import { calculateNewWidgetPosition } from "./WidgetOperationSagas";
 import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
 import { generateReactKey } from "utils/generators";
 import { forceOpenPropertyPane } from "actions/widgetActions";
@@ -112,7 +108,9 @@ function* listenForWidgetAdditions() {
     ) {
       if (selectedWidget.tableData === initialTableData) {
         yield put(
-          updateWidgetProperty(selectedWidget.widgetId, { tableData: [] }),
+          updateWidgetProperty(selectedWidget.widgetId, {
+            tableData: [],
+          }),
         );
       }
 
@@ -403,7 +401,7 @@ function* createQuery() {
         id: onboardingDatasource?.id,
       },
       actionConfiguration: {
-        body: "Select avatar, name, updates from standup_updates order by id",
+        body: "Select avatar, name, notes from standup_updates order by id",
       },
     } as Partial<QueryAction>;
 
@@ -436,7 +434,7 @@ function* addWidget() {
     const columns = 8;
     const rows = 7;
     const widgets = yield select(getWidgets);
-    const widgetName = getNextWidgetName(widgets, "TABLE_WIDGET");
+    const widgetName = "Standup_Table";
 
     let newWidget = {
       type: WidgetTypes.TABLE_WIDGET,
