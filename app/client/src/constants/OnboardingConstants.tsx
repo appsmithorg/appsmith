@@ -5,12 +5,11 @@ export enum OnboardingStep {
   NONE = -1,
   WELCOME = 0,
   EXAMPLE_DATABASE = 1,
-  RUN_QUERY = 2,
-  RUN_QUERY_SUCCESS = 3,
-  ADD_WIDGET = 4,
-  SUCCESSFUL_BINDING = 5,
-  DEPLOY = 6,
-  FINISH = 7,
+  RUN_QUERY_SUCCESS = 2,
+  ADD_WIDGET = 3,
+  SUCCESSFUL_BINDING = 4,
+  DEPLOY = 5,
+  FINISH = 6,
 }
 
 export type OnboardingHelperConfig = {
@@ -84,35 +83,17 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
     helper: {
       step: 1,
-      title: "Create a New Query",
+      title: "Query the Super Updates DB",
+      description:
+        "A select query can fetch us updates from heroes all across the multiverse.",
       action: {
         label: "Show Hint",
         action: showIndicator(OnboardingStep.EXAMPLE_DATABASE),
       },
       cheatAction: {
-        label: "Cheat",
+        label: "Super Hack",
         action: {
           type: "ONBOARDING_CREATE_QUERY",
-        },
-      },
-    },
-  },
-  [OnboardingStep.RUN_QUERY]: {
-    name: "RUN_QUERY",
-    setup: () => {
-      return [];
-    },
-    helper: {
-      step: 2,
-      title: "Run Query to get a response",
-      action: {
-        label: "Show Hint",
-        action: showIndicator(OnboardingStep.RUN_QUERY),
-      },
-      cheatAction: {
-        label: "Cheat",
-        action: {
-          type: "ONBOARDING_RUN_QUERY",
         },
       },
     },
@@ -130,14 +111,16 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       ];
     },
     helper: {
-      step: 3,
-      title: "Click Add widget to build a UI",
+      step: 2,
+      title: "Build the Standup Dashboard",
+      description:
+        "Drag a table so that heroes can view each other's updates and plan their crime-fighting days",
       action: {
         label: "Show Hint",
         action: showIndicator(OnboardingStep.RUN_QUERY_SUCCESS),
       },
       cheatAction: {
-        label: "Cheat",
+        label: "Super Hack",
         action: {
           type: "ONBOARDING_ADD_WIDGET",
         },
@@ -150,7 +133,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       return [];
     },
     helper: {
-      step: 4,
+      step: 3,
       title: "Write a binding to connect TableData",
       description:
         "Use the snippet below to connect TableData to example query.",
@@ -172,7 +155,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       return [];
     },
     helper: {
-      step: 5,
+      step: 4,
       title: "Deploy your app",
       action: {
         label: "Show Hint",
@@ -196,7 +179,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       ];
     },
     helper: {
-      step: 6,
+      step: 5,
       title:
         "Great Job! You built an active app that display data from a database.",
       description:

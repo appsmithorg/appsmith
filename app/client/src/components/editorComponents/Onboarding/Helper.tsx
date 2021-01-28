@@ -148,7 +148,7 @@ const Helper = () => {
   return (
     <StyledContainer>
       <ImagePlaceholder />
-      {helperConfig.step && <StepCount>STEP {helperConfig.step}</StepCount>}
+      {helperConfig.step && <StepCount>Mission {helperConfig.step}</StepCount>}
       <Title>{helperConfig.title}</Title>
       <Description>{helperConfig.description}</Description>
       {helperConfig.snippet && (

@@ -454,7 +454,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             </>
           ) : (
             <OnboardingIndicator
-              step={OnboardingStep.RUN_QUERY}
+              step={OnboardingStep.RUN_QUERY_SUCCESS}
               offset={{ left: -5 }}
             >
               <ActionButton

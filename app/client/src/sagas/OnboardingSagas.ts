@@ -142,10 +142,6 @@ function* listenForSuccessfulBinding() {
 
       if (dataTree[selectedWidget.widgetName]) {
         const widgetProperties = dataTree[selectedWidget.widgetName];
-        console.log(
-          dataTree[selectedWidget.widgetName],
-          "dataTree[selectedWidget.widgetName]",
-        );
         const dynamicBindingPathList =
           dataTree[selectedWidget.widgetName].dynamicBindingPathList;
         const tableHasData = dataTree[selectedWidget.widgetName].tableData;
@@ -268,12 +264,7 @@ function* createOnboardingDatasource() {
 
 function* listenForCreateAction() {
   yield take([ReduxActionTypes.CREATE_ACTION_SUCCESS]);
-  yield put({
-    type: ReduxActionTypes.SET_HELPER_CONFIG,
-    payload: getHelperConfig(OnboardingStep.RUN_QUERY),
-  });
   AnalyticsUtil.logEvent("ONBOARDING_ADD_QUERY");
-  yield put(setCurrentStep(OnboardingStep.RUN_QUERY));
 
   yield take([
     ReduxActionTypes.UPDATE_ACTION_INIT,
@@ -412,7 +403,7 @@ function* createQuery() {
         id: onboardingDatasource?.id,
       },
       actionConfiguration: {
-        body: " ",
+        body: "Select avatar, name, updates from standup_updates order by id",
       },
     } as Partial<QueryAction>;
 
@@ -424,6 +415,11 @@ function* createQuery() {
         currentPageId,
       ),
     );
+
+    yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
+    yield put({
+      type: "ONBOARDING_RUN_QUERY",
+    });
   }
 }
 

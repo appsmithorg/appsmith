@@ -1,6 +1,6 @@
 import { GridDefaults } from "constants/WidgetConstants";
 import lottie from "lottie-web";
-import confetti from "assets/lottie/confetti.json";
+import confetti from "assets/lottie/binding.json";
 import {
   DATA_TREE_KEYWORDS,
   JAVASCRIPT_KEYWORDS,
