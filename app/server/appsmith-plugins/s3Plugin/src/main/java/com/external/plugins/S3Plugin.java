@@ -409,7 +409,7 @@ public class S3Plugin extends BasePlugin {
                 }
 
                 if (org.springframework.util.StringUtils.isEmpty(authentication.getPassword())) {
-                    invalids.add("Missing Secret Key for authentication.");
+                    invalids.add("Missing AWS Secret Key for authentication.");
                 }
             }
 
