@@ -1501,6 +1501,19 @@ Cypress.Commands.add("getAlert", (alertcss) => {
     .click({ force: true });
 });
 
+Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .click({ force: true })
+    .get("ul.bp3-menu")
+    .children()
+    .contains("Call An API")
+    .click({ force: true })
+    .get("ul.bp3-menu")
+    .children()
+    .contains(ApiName)
+    .click({ force: true });
+});
+
 Cypress.Commands.add("radioInput", (index, text) => {
   cy.get(widgetsPage.RadioInput)
     .eq(index)
@@ -1646,15 +1659,8 @@ Cypress.Commands.add("fillMongoDatasourceForm", () => {
   cy.get(datasourceEditor["password"]).type(
     datasourceFormData["mongo-password"],
   );
-
-  cy.get(datasourceEditor.sectionSSL).click();
   cy.get(datasourceEditor["authenticationAuthtype"]).click();
   cy.contains(datasourceFormData["mongo-authenticationAuthtype"]).click({
-    force: true,
-  });
-
-  cy.get(datasourceEditor["sslAuthtype"]).click();
-  cy.contains(datasourceFormData["mongo-sslAuthtype"]).click({
     force: true,
   });
 });

@@ -98,8 +98,8 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
     @Override
     public Mono<String> getNextUniqueSlug(String initialSlug) {
-        return repository.countSlugsByPrefix(initialSlug)
-                .map(max -> initialSlug + (max == 0 ? "" : (max + 1)));
+        return repository.nextSlugNumber(initialSlug)
+                .map(number -> initialSlug + (number == 0 ? "" : number));
     }
 
     /**

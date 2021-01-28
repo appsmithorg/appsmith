@@ -111,43 +111,6 @@
               "value": "VERIFY_FULL"
             }
           ]
-        },
-        {
-          "sectionName": null,
-          "children": [
-            {
-              "label": "Key File",
-              "configProperty": "datasourceConfiguration.connection.ssl.keyFile",
-              "controlType": "FILE_PICKER"
-            },
-            {
-              "label": "Certificate",
-              "configProperty": "datasourceConfiguration.connection.ssl.certificateFile",
-              "controlType": "FILE_PICKER"
-            }
-          ]
-        },
-        {
-          "sectionName": null,
-          "children": [
-            {
-              "label": "CA Certificate",
-              "configProperty": "datasourceConfiguration.connection.ssl.caCertificateFile",
-              "controlType": "FILE_PICKER"
-            },
-            {
-              "label": "PEM Certificate",
-              "configProperty": "datasourceConfiguration.connection.ssl.pemCertificate.file",
-              "controlType": "FILE_PICKER"
-            },
-            {
-              "label": "PEM Passphrase",
-              "configProperty": "datasourceConfiguration.connection.ssl.pemCertificate.password",
-              "dataType": "PASSWORD",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "PEM Passphrase"
-            }
-          ]
         }
       ]
     }
