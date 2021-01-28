@@ -285,7 +285,7 @@ export type Theme = {
   };
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
-  editorHeaderHeight: string;
+  smallHeaderHeight: string;
   homePage: any;
   sidebarWidth: string;
   canvasPadding: string;
@@ -1584,7 +1584,7 @@ export const theme: Theme = {
     },
   },
   headerHeight: "48px",
-  editorHeaderHeight: "35px",
+  smallHeaderHeight: "35px",
   canvasPadding: "20px 0 200px 0",
   sideNav: {
     maxWidth: 220,

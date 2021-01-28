@@ -21,6 +21,8 @@ import { ReactComponent as ContextMenuIcon } from "assets/icons/ads/context-menu
 import { ReactComponent as DuplicateIcon } from "assets/icons/ads/duplicate.svg";
 import { ReactComponent as LogoutIcon } from "assets/icons/ads/logout.svg";
 import { ReactComponent as ManageIcon } from "assets/icons/ads/manage.svg";
+import { ReactComponent as ArrowLeft } from "assets/icons/ads/arrow-left.svg";
+import { ReactComponent as Fork } from "assets/icons/ads/fork.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -95,6 +97,8 @@ export const IconCollection = [
   "duplicate",
   "logout",
   "manage",
+  "arrow-left",
+  "fork",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -207,6 +211,12 @@ const Icon = forwardRef(
         break;
       case "warning":
         returnIcon = <WarningIcon />;
+        break;
+      case "arrow-left":
+        returnIcon = <ArrowLeft />;
+        break;
+      case "fork":
+        returnIcon = <Fork />;
         break;
       default:
         returnIcon = null;

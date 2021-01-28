@@ -44,8 +44,6 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import Button, { Size } from "components/ads/Button";
-import history from "utils/history";
-import { AUTH_LOGIN_URL } from "constants/routes";
 import { IconWrapper } from "components/ads/Icon";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -58,8 +56,8 @@ const Separator = styled.div`
 
 const HeaderWrapper = styled(StyledHeader)`
   padding-right: 0;
-  background: ${(props) => props.theme.colors.header.background};
-  height: ${(props) => props.theme.editorHeaderHeight};
+  background-color: ${(props) => props.theme.colors.header.background};
+  height: ${(props) => props.theme.smallHeaderHeight};
   flex-direction: row;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
   & .editable-application-name {
@@ -120,13 +118,13 @@ const ProfileDropdownContainer = styled.div`
 `;
 
 const StyledDeployButton = styled(Button)`
-  height: ${(props) => props.theme.editorHeaderHeight};
+  height: ${(props) => props.theme.smallHeaderHeight};
   ${(props) => getTypographyByKey(props, "btnLarge")}
 `;
 
 const DeployBtnSeparator = styled.div`
   width: 1px;
-  height: ${(props) => props.theme.editorHeaderHeight};
+  height: ${(props) => props.theme.smallHeaderHeight};
   background-color: #fff;
 `;
 
@@ -289,18 +287,11 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             />
           </DeploySection>
         </Boxed>
-        <ProfileDropdownContainer>
-          {user && user.username === ANONYMOUS_USERNAME ? (
-            <Button
-              fill
-              text="Sign In"
-              size={Size.small}
-              onClick={() => history.push(AUTH_LOGIN_URL)}
-            />
-          ) : (
+        {user && user.username !== ANONYMOUS_USERNAME && (
+          <ProfileDropdownContainer>
             <ProfileDropdown userName={user?.username || ""} hideThemeSwitch />
-          )}
-        </ProfileDropdownContainer>
+          </ProfileDropdownContainer>
+        )}
       </HeaderSection>
       <HelpModal page={"Editor"} />
     </HeaderWrapper>

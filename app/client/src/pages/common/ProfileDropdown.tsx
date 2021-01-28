@@ -13,11 +13,13 @@ import {
 } from "./CustomizedDropdown/dropdownHelpers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import ProfileImage from "./ProfileImage";
+import { PopperModifiers } from "@blueprintjs/core";
 
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
   userName?: string;
   hideThemeSwitch?: boolean;
+  modifiers?: PopperModifiers;
 };
 
 const ProfileMenuStyle = createGlobalStyle`
@@ -64,6 +66,7 @@ export default function ProfileDropdown(props: TagProps) {
         className="profile-menu"
         position={Position.BOTTOM}
         target={Profile}
+        modifiers={props.modifiers}
       >
         <UserInformation>
           <div className="user-image">{Profile}</div>

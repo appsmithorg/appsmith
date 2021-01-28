@@ -4,7 +4,6 @@ import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AppsmithLogo from "assets/images/appsmith_logo_white.png";
-import Button from "components/editorComponents/Button";
 import { EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
 import {
   isPermitted,
@@ -27,18 +26,24 @@ import { getPageList } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
-import { HeaderIcons } from "icons/HeaderIcons";
-import { Colors } from "constants/Colors";
+
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
+import { getTypographyByKey } from "constants/DefaultTheme";
+import { IconWrapper } from "components/ads/Icon";
+import Button, { Size } from "components/ads/Button";
+import ProfileDropdown from "pages/common/ProfileDropdown";
+import { Profile } from "pages/common/ProfileImage";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
-  background: ${Colors.BALTIC_SEA};
-  height: ${(props) => (props.hasPages ? "90px" : "48px")};
+  padding-right: 0;
+  background-color: ${(props) => props.theme.colors.header.background};
+  height: ${(props) =>
+    props.hasPages ? "70px" : props.theme.smallHeaderHeight};
   color: white;
   flex-direction: column;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
@@ -47,8 +52,34 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: #d4d4d4;
+    ${(props) => getTypographyByKey(props, "h4")}
+    color: ${(props) => props.theme.colors.header.appName};
   }
+
+  & .header__application-share-btn {
+    background-color: ${(props) => props.theme.colors.header.background};
+    border-color: ${(props) => props.theme.colors.header.background};
+    margin-right: ${(props) => props.theme.spaces[1]}px;
+  }
+
+  & .header__application-share-btn:hover {
+    color: ${(props) => props.theme.colors.header.shareBtnHighlight};
+    ${IconWrapper} path {
+      fill: ${(props) => props.theme.colors.header.shareBtnHighlight};
+    }
+  }
+
+  & ${Profile} {
+    width: 24px;
+    height: 24px;
+  }
+`;
+
+const Separator = styled.div`
+  margin-right: ${(props) => props.theme.spaces[7]}px;
+  width: 1px;
+  height: 24px;
+  background-color: ${(props) => props.theme.colors.header.separator};
 `;
 
 const HeaderRow = styled.div<{ justify: string }>`
@@ -70,25 +101,18 @@ const AppsmithLogoImg = styled.img`
   max-width: 110px;
 `;
 
-const BackToEditorButton = styled(Button)`
-  max-width: 200px;
-  height: 32px;
-  margin: 5px 10px;
+const Cta = styled(Button)`
+  height: ${(props) => props.theme.smallHeaderHeight};
 `;
 
-const ForkButton = styled(Button)`
-  max-width: 200px;
-  height: 32px;
-  margin: 5px 10px;
+const ForkButton = styled(Cta)`
   svg {
     transform: rotate(-90deg);
   }
 `;
 
-const ShareButton = styled(Button)`
-  height: 32px;
-  margin: 5px 10px;
-  color: white !important;
+const HeaderRightItemContainer = styled.div`
+  margin-right: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const PageTab = styled(NavLink)`
@@ -192,14 +216,11 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
 
   if (props.url && canEdit) {
     CTA = (
-      <BackToEditorButton
+      <Cta
         className="t--back-to-editor"
         href={props.url}
-        intent="primary"
         icon="arrow-left"
-        iconAlignment="left"
         text={EDIT_APP}
-        filled
       />
     );
   } else if (isExampleApp) {
@@ -207,26 +228,15 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
       <ForkButton
         className="t--fork-app"
         href={forkAppUrl}
-        intent="primary"
-        icon="fork"
-        iconAlignment="left"
         text={FORK_APP}
-        filled
+        icon="fork"
       />
     );
   } else if (
     currentApplicationDetails?.isPublic &&
     currentUser?.username === ANONYMOUS_USERNAME
   ) {
-    CTA = (
-      <ForkButton
-        className="t--fork-app"
-        href={loginAppUrl}
-        intent="primary"
-        text={SIGN_IN}
-        filled
-      />
-    );
+    CTA = <Cta className="t--fork-app" href={loginAppUrl} text={SIGN_IN} />;
   }
 
   return (
@@ -248,19 +258,11 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
             <>
               <FormDialogComponent
                 trigger={
-                  <ShareButton
-                    text="Share"
-                    intent="none"
-                    outline
-                    size="small"
-                    className="t--application-share-btn"
-                    icon={
-                      <HeaderIcons.SHARE
-                        color={Colors.WHITE}
-                        width={13}
-                        height={13}
-                      />
-                    }
+                  <Button
+                    text={"Share"}
+                    icon={"share"}
+                    size={Size.small}
+                    className="t--application-share-btn header__application-share-btn"
                   />
                 }
                 Form={AppInviteUsersForm}
@@ -269,8 +271,25 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
                 title={currentApplicationDetails.name}
                 canOutsideClickClose={true}
               />
-              {CTA}
+              <Separator />
+              {CTA && (
+                <HeaderRightItemContainer>{CTA}</HeaderRightItemContainer>
+              )}
             </>
+          )}
+          {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
+            <HeaderRightItemContainer>
+              <ProfileDropdown
+                userName={currentUser?.username || ""}
+                hideThemeSwitch
+                modifiers={{
+                  offset: {
+                    enabled: true,
+                    offset: `0, ${pages.length > 1 ? 35 : 0}`,
+                  },
+                }}
+              />
+            </HeaderRightItemContainer>
           )}
         </HeaderSection>
       </HeaderRow>
