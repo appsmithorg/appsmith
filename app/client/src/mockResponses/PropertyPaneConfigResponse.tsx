@@ -725,6 +725,15 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
           },
+          {
+            id: "5.11.3",
+            helpText:
+              "Triggers an action on submit (when the enter key is pressed)",
+            propertyName: "onSubmit",
+            label: "onSubmit",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
         ],
       },
     ],
