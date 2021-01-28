@@ -8,38 +8,40 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+
+import static org.mockito.Mockito.spy;
 
 @Slf4j
 public class S3PluginTest {
-    private static String address;
-    private static Integer port;
-    private static String username;
-    private static String password;
-    private  static String dbName;
+    private static String accessKey;
+    private static String secretKey;
     private static String region;
-
-    S3Plugin.S3PluginExecutor pluginExecutor = new S3Plugin.S3PluginExecutor();
 
     @BeforeClass
     public static void setUp() {
-        username = "";
-        password = "";
-        region = "";
+        accessKey = "access_key";
+        secretKey = "secret_key";
+        region = "region";
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
         DBAuth authDTO = new DBAuth();
         authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
-        authDTO.setUsername(username);
-        authDTO.setPassword(password);
+        authDTO.setUsername(accessKey);
+        authDTO.setPassword(secretKey);
 
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setAuthentication(authDTO);
@@ -50,38 +52,44 @@ public class S3PluginTest {
     }
 
     @Test
-    public void sampleTest() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<AmazonS3> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+    public void testValidateDatasourceWithMissingAccessKey() {
+        DBAuth authDTOWithEmptyAccessKey = new DBAuth();
+        authDTOWithEmptyAccessKey.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
+        authDTOWithEmptyAccessKey.setPassword(secretKey);
+        /* Do not configure Access Key */
 
-        AmazonS3 conn = dsConnectionMono.block();
-        String bucket_name = "";
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(authDTOWithEmptyAccessKey);
 
-        ListObjectsV2Result result = conn.listObjectsV2(bucket_name);
-        List<S3ObjectSummary> objects = result.getObjectSummaries();
-        System.out.println("devtest: printing bucket objects");
-        for (S3ObjectSummary os : objects) {
-            System.out.println("* " + os.getKey());
-        }
+        S3Plugin.S3PluginExecutor pluginExecutor = new S3Plugin.S3PluginExecutor();
+        Mono<S3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
+
+        StepVerifier.create(pluginExecutorMono)
+                .assertNext(executor -> {
+                    Set<String> res = executor.validateDatasource(datasourceConfiguration);
+                    Assert.assertNotEquals(0, res.size());
+                })
+                .verifyComplete();
     }
 
     @Test
-    public void testExecuteUploadFileFromBody() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<AmazonS3> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+    public void testValidateDatasourceWithMissingSecretKey() {
+        DBAuth authDTOWithEmptyAccessKey = new DBAuth();
+        authDTOWithEmptyAccessKey.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
+        authDTOWithEmptyAccessKey.setUsername(accessKey);
+        /* Do not configure Secret Key */
 
-        AmazonS3 conn = dsConnectionMono.block();
-        String bucket_name = "testbucketforappsmithinternaltesting";
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(authDTOWithEmptyAccessKey);
 
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setPath("test_upload_from_file1.txt");
-        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
-        pluginSpecifiedTemplates.add(new Property("action", "UPLOAD_FILE_FROM_BODY"));
-        pluginSpecifiedTemplates.add(new Property("bucket", bucket_name));
-        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
-        actionConfiguration.setBody("{key: test, value: test}");
+        S3Plugin.S3PluginExecutor pluginExecutor = new S3Plugin.S3PluginExecutor();
+        Mono<S3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
 
-        pluginExecutor.execute(conn, dsConfig, actionConfiguration).block();
+        StepVerifier.create(pluginExecutorMono)
+                .assertNext(executor -> {
+                    Set<String> res = executor.validateDatasource(datasourceConfiguration);
+                    Assert.assertNotEquals(0, res.size());
+                })
+                .verifyComplete();
     }
-
 }

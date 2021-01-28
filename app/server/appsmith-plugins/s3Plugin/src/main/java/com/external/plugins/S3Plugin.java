@@ -82,7 +82,8 @@ public class S3Plugin extends BasePlugin {
             if(objectListing == null) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
-                        "Error fetching file content from AWS S3 server"
+                        "Oops! Something went wrong. Appsmith server has encountered an error when fetching file " +
+                        "content from AWS S3 server. This should not have happened"
                 );
             }
 
@@ -102,7 +103,8 @@ public class S3Plugin extends BasePlugin {
             if(connection == null) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
-                        "Error when establishing connection with AWS S3 server"
+                        "Oops! Something went wrong. Appsmith server has encountered an error when establishing " +
+                        "connection with AWS S3 server. This should not have happened"
                 );
             }
 
@@ -152,7 +154,7 @@ public class S3Plugin extends BasePlugin {
                     fullObject.close();
                 }
             } catch (IOException e) {
-                System.out.println("Error when closing S3 read file connection: " + e.getMessage());
+                System.out.println("Error when closing AWS S3 connection after reading file: " + e.getMessage());
             }
 
             return result;
@@ -179,20 +181,20 @@ public class S3Plugin extends BasePlugin {
                 return Mono.error(
                         new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
-                            "Missing S3 action."
+                            "Oops! Something went wrong. Appsmith server has encountered an error when fetching query" +
+                            " configuration. This should not have happened"
                         )
                 );
             }
 
-            if ((s3Action == S3Action.UPLOAD_FILE_FROM_BODY ||
-                 s3Action == S3Action.READ_FILE             ||
-                 s3Action == S3Action.DELETE_FILE
-                )
-                && StringUtils.isBlank(path)) {
+            if ((s3Action == S3Action.UPLOAD_FILE_FROM_BODY || s3Action == S3Action.READ_FILE ||
+                 s3Action == S3Action.DELETE_FILE) && StringUtils.isBlank(path)) {
                 return Mono.error(
                         new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
-                            "File path cannot be empty with the selected action"
+                            "Oops! Something went wrong. Your query could not be executed. It seems that the 'File " +
+                            "Path' field in the query form is left empty. 'File Path' field cannot be left empty with" +
+                            " the chosen action"
                         )
                 );
             }
@@ -203,7 +205,8 @@ public class S3Plugin extends BasePlugin {
             if (bucketName == null) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
-                        "Missing bucket name."
+                        "Oops! Something went wrong. Appsmith server has encountered an error when reading AWS S3 " +
+                        "bucket name from the datasource configuration. This should not have happened."
                 ));
             }
 
@@ -213,16 +216,8 @@ public class S3Plugin extends BasePlugin {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
-                                "Error when fetching query body"
-                        )
-                );
-            }
-
-            if (s3Action == S3Action.UPLOAD_FILE_FROM_BODY && StringUtils.isBlank(path)) {
-                return Mono.error(
-                        new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Query body cannot be empty with the selected action"
+                                "Oops! Something went wrong. Appsmith server has encountered an error when reading " +
+                                "query body from the query form. This should not have happened."
                         )
                 );
             }
@@ -251,7 +246,8 @@ public class S3Plugin extends BasePlugin {
                         throw Exceptions.propagate(
                                 new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR,
-                                    "Invalid S3 action: " + s3Action.toString()
+                                        "Oops! Something went wrong. It seems that the query has requested an " +
+                                        "unsupported action: " + s3Action + ". This should not have happened"
                                 )
                         );
                 }
@@ -262,9 +258,7 @@ public class S3Plugin extends BasePlugin {
                 ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                 actionExecutionResult.setBody(objectMapper.valueToTree(rowsList));
                 actionExecutionResult.setIsExecutionSuccess(true);
-                System.out.println(
-                        Thread.currentThread().getName()
-                                + ": In the S3 Plugin, got action execution result");
+                System.out.println(Thread.currentThread().getName() + ": In the S3 Plugin, got action execution result");
                 return Mono.just(actionExecutionResult);
             })
             .onErrorResume(e -> {
@@ -275,7 +269,8 @@ public class S3Plugin extends BasePlugin {
                 return Mono.error(
                         new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
-                            "Error in S3 Plugin when executing action: " + s3Action + " : " + e.getMessage()
+                            "Oops! Something went wrong. Query execution failed in S3 Plugin when executing action: "
+                            + s3Action + " : " + e.getMessage()
                         )
                 );
             })
@@ -288,7 +283,8 @@ public class S3Plugin extends BasePlugin {
                 return Mono.error(
                   new AppsmithPluginException(
                           AppsmithPluginError.PLUGIN_ERROR,
-                          "datasource configuration is null"
+                          "Oops! Something went wrong. Appsmith server has encountered an error when reading " +
+                          "datasource configuration for S3 plugin. This should not have happened."
                   )
                 );
             }
@@ -299,7 +295,8 @@ public class S3Plugin extends BasePlugin {
                 return Mono.error(
                         new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
-                            "Error loading S3 driver class."
+                            "Oops! Something went wrong. Appsmith server has encountered an error when " +
+                            "loading AWS S3 driver class. This should not have happened."
                         )
                 );
             }
@@ -309,7 +306,8 @@ public class S3Plugin extends BasePlugin {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
-                                "Datasource not configured properly"
+                                "Oops! Something went wrong. Appsmith server has encountered an error when " +
+                                "fetching datasource properties. This should not have happened."
                         )
                 );
             }
@@ -322,8 +320,9 @@ public class S3Plugin extends BasePlugin {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR,
-                                    "Error when parsing region information from datasource configuration: "
-                                    + e.getMessage()
+                                    "Oops! Something went wrong. Appsmith server has encountered an error when " +
+                                    "parsing AWS S3 instance region from the AWS S3 datasource configuration " +
+                                    "provided: " + e.getMessage()
                             )
                     );
                 }
@@ -333,7 +332,8 @@ public class S3Plugin extends BasePlugin {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR,
-                                    "Datasource configuration authentication property is null"
+                                    "Oops! Something went wrong. Appsmith server has encountered an error when " +
+                                    "fetching authentication info from datasource. This should not have happened."
                             )
                     );
                 }
@@ -347,7 +347,8 @@ public class S3Plugin extends BasePlugin {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR,
-                                    "Error when creating AWS credentials from datasource credentials: " + e.getMessage()
+                                    "Oops! Something went wrong. Appsmith server has encountered an error when " +
+                                    "parsing AWS credentials from datasource: " + e.getMessage()
                             )
                     );
                 }
@@ -366,7 +367,8 @@ public class S3Plugin extends BasePlugin {
                         return Mono.error(
                                 new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_ERROR,
-                                        "Error connecting to Redshift: " + e.getMessage()
+                                        "Oops! Something went wrong. Appsmith server has encountered an error when " +
+                                        "connecting to AWS S3 server: " + e.getMessage()
                                 )
                         );
                     }
@@ -382,7 +384,6 @@ public class S3Plugin extends BasePlugin {
                         return connection;
                     })
                     .onErrorResume(exception -> {
-                        log.debug("In datasourceDestroy function error mode.", exception);
                         System.out.println("In datasourceDestroy function error mode: " + exception);
                         return Mono.empty();
                     })
@@ -396,36 +397,51 @@ public class S3Plugin extends BasePlugin {
             Set<String> invalids = new HashSet<>();
 
             if(datasourceConfiguration == null) {
-                invalids.add("datasource configuration is null.");
+                invalids.add("Oops! Something went wrong. Appsmith server has encountered an internal error when " +
+                        "fetching datasource configuration. This should not have happened.");
             }
 
             if (datasourceConfiguration.getAuthentication() == null) {
-                invalids.add("Missing authentication details.");
-
+                invalids.add("Oops! Something went wrong. Appsmith server has encountered an internal error when " +
+                        "fetching authentication info from datasource configuration. This should not have happened.");
             } else {
                 DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
                 if (org.springframework.util.StringUtils.isEmpty(authentication.getUsername())) {
-                    invalids.add("Missing Access Key for authentication.");
+                    invalids.add("Oops! Something went wrong. Mandatory parameter 'Access Key' is empty. Did you " +
+                            "forget to edit the 'Access Key' field in the datasource creation form ? You need to fill" +
+                            " your AWS Access Key here.");
                 }
 
                 if (org.springframework.util.StringUtils.isEmpty(authentication.getPassword())) {
-                    invalids.add("Missing AWS Secret Key for authentication.");
+                    invalids.add("Oops! Something went wrong. Mandatory parameter 'Secret Key' is empty. Did you " +
+                            "forget to edit the 'Secret Key' field in the datasource creation form ? You need to fill" +
+                            " it with your AWS Secret Key.");
                 }
             }
 
             List<Property> properties = datasourceConfiguration.getProperties();
             if(properties == null) {
-                invalids.add("datasource configuration properties list is null.");
+                invalids.add("Oops! Something went wrong. Appsmith server has encountered an internal error when " +
+                        "fetching datasource configuration properties. This should not have happened.");
             }
 
             if(CollectionUtils.isEmpty(properties)) {
-                invalids.add("Missing Region info for authentication");
+                invalids.add("Oops! Something went wrong. Appsmith server has encountered an internal error " +
+                        "when fetching contents of datasource configuration properties. This should not have happened" +
+                        ".");
             }
             else {
                 String region = properties.get(CLIENT_REGION_PROPERTY_INDEX).getValue();
 
                 if(region == null) {
-                    invalids.add("Region info is null");
+                    invalids.add("Oops! Something went wrong. Appsmith server has encountered an internal error " +
+                            "when fetching Region info from datasource configuration. This should not have happened.");
+                }
+
+                if (org.springframework.util.StringUtils.isEmpty(region)) {
+                    invalids.add("Oops! Something went wrong. Mandatory parameter 'Region' is empty. Did you forget " +
+                            "to edit the 'Region' field in the datasource creation form ? You need to fill it with " +
+                            "the region where your AWS instance is hosted");
                 }
             }
 
@@ -435,7 +451,9 @@ public class S3Plugin extends BasePlugin {
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             if(datasourceConfiguration == null) {
-                return Mono.just(new DatasourceTestResult("Datasource configuration is null"));
+                return Mono.just(new DatasourceTestResult("Oops! Something went wrong. Appsmith server has " +
+                        "encountered an internal error when fetching datasource configuration. This should not have " +
+                        "happened."));
             }
 
             return datasourceCreate(datasourceConfiguration)
