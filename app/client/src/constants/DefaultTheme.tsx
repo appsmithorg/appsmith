@@ -749,6 +749,10 @@ type ColorType = {
     deployToolTipBackground: string;
     deployToolTipText: ShadeColor;
     shareBtnHighlight: string;
+    shareBtn: string;
+    tabsHorizontalSeparator: string;
+    tabText: string;
+    activeTabBorderBottom: string;
   };
 };
 
@@ -787,6 +791,10 @@ export const dark: ColorType = {
     deployToolTipBackground: lightShades[10],
     deployToolTipText: darkShades[7],
     shareBtnHighlight: "#F86A2B",
+    shareBtn: "#fff",
+    tabsHorizontalSeparator: "#EFEFEF",
+    tabText: "#6F6D6D",
+    activeTabBorderBottom: "#FF6D2D",
   },
   button: {
     disabledText: darkShades[6],
@@ -1081,6 +1089,10 @@ export const light: ColorType = {
     deployToolTipText: lightShades[8],
     deployToolTipBackground: "#FFF",
     shareBtnHighlight: "#F86A2B",
+    shareBtn: "#4B4848",
+    tabsHorizontalSeparator: "#EFEFEF",
+    tabText: "#6F6D6D",
+    activeTabBorderBottom: "#FF6D2D",
   },
   button: {
     disabledText: lightShades[6],

@@ -3,7 +3,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import AppsmithLogo from "assets/images/appsmith_logo_white.png";
+import AppsmithLogo from "assets/images/appsmith_logo.png";
 import { EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
 import {
   isPermitted,
@@ -40,7 +40,7 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
-  padding-right: 0;
+  padding: 0;
   background-color: ${(props) => props.theme.colors.header.background};
   height: ${(props) =>
     props.hasPages ? "70px" : props.theme.smallHeaderHeight};
@@ -60,6 +60,10 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
     background-color: ${(props) => props.theme.colors.header.background};
     border-color: ${(props) => props.theme.colors.header.background};
     margin-right: ${(props) => props.theme.spaces[1]}px;
+    color: ${(props) => props.theme.colors.header.shareBtn};
+    ${IconWrapper} path {
+      fill: ${(props) => props.theme.colors.header.shareBtn};
+    }
   }
 
   & .header__application-share-btn:hover {
@@ -99,10 +103,12 @@ const HeaderSection = styled.div<{ justify: string }>`
 
 const AppsmithLogoImg = styled.img`
   max-width: 110px;
+  margin-left: 30px;
 `;
 
 const Cta = styled(Button)`
-  height: ${(props) => props.theme.smallHeaderHeight};
+  ${(props) => getTypographyByKey(props, "btnLarge")}
+  height: 100%;
 `;
 
 const ForkButton = styled(Cta)`
@@ -112,12 +118,21 @@ const ForkButton = styled(Cta)`
 `;
 
 const HeaderRightItemContainer = styled.div`
+  display: flex;
+  align-items: center;
   margin-right: ${(props) => props.theme.spaces[7]}px;
+  height: 100%;
+`;
+
+const TabsContainer = styled.div`
+  border-top: 1px solid
+    ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
+  width: 100%;
+  padding-left: 30px;
 `;
 
 const PageTab = styled(NavLink)`
   display: flex;
-  height: 30px;
   max-width: 170px;
   margin-right: 1px;
   align-self: flex-end;
@@ -125,46 +140,38 @@ const PageTab = styled(NavLink)`
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  background-color: rgb(49, 48, 51);
-  padding: 0px 10px;
-  && span {
-    font-weight: 500;
-    font-size: 12px;
-    line-height: 20px;
-    letter-spacing: 0.04em;
-    color: #fff;
+  padding: 0px ${(props) => props.theme.spaces[7]}px;
+  &:hover {
+    text-decoration: none;
+  }
+`;
+
+const StyleTabText = styled.div`
+  display: flex;
+  align-items: center;
+  ${(props) => getTypographyByKey(props, "h6")}
+  color: ${(props) => props.theme.colors.header.tabText};
+  height: ${(props) => `calc(${props.theme.smallHeaderHeight} - 2px)`};
+  border-bottom: 2px solid transparent;
+  ${PageTab}.is-active & {
+    border-color: ${(props) => props.theme.colors.header.activeTabBorderBottom};
+  }
+  & span {
     max-width: 150px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  &&&:hover {
-    text-decoration: none;
-    background-color: #fff;
-    span {
-      color: #2e3d49;
-    }
-  }
-  &&&.is-active {
-    background-color: white;
-    span {
-      color: #2e3d49;
-    }
-  }
 `;
-
-type AppViewerHeaderProps = {
-  url?: string;
-  currentApplicationDetails?: ApplicationPayload;
-  pages: PageListPayload;
-  currentOrgId: string;
-  currentUser?: User;
-};
 
 const PageTabName: React.FunctionComponent<{ name: string }> = ({ name }) => {
   const tabNameRef = useRef<HTMLSpanElement>(null);
   const [ellipsisActive, setEllipsisActive] = useState(false);
-  const tabNameText = <span ref={tabNameRef}>{name}</span>;
+  const tabNameText = (
+    <StyleTabText>
+      <span ref={tabNameRef}>{name}</span>
+    </StyleTabText>
+  );
 
   useEffect(() => {
     if (isEllipsisActive(tabNameRef?.current)) {
@@ -179,6 +186,14 @@ const PageTabName: React.FunctionComponent<{ name: string }> = ({ name }) => {
   ) : (
     <>{tabNameText}</>
   );
+};
+
+type AppViewerHeaderProps = {
+  url?: string;
+  currentApplicationDetails?: ApplicationPayload;
+  pages: PageListPayload;
+  currentOrgId: string;
+  currentUser?: User;
 };
 
 export const AppViewerHeader = (props: AppViewerHeaderProps) => {
@@ -295,21 +310,23 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
         </HeaderSection>
       </HeaderRow>
       {appPages.length > 1 && (
-        <HeaderRow justify={"flex-start"}>
-          {appPages.map((page) => (
-            <PageTab
-              key={page.pageId}
-              to={getApplicationViewerPageURL(
-                currentApplicationDetails?.id,
-                page.pageId,
-              )}
-              activeClassName="is-active"
-              className="t--page-switch-tab"
-            >
-              <PageTabName name={page.pageName} />
-            </PageTab>
-          ))}
-        </HeaderRow>
+        <TabsContainer>
+          <HeaderRow justify={"flex-start"}>
+            {appPages.map((page) => (
+              <PageTab
+                key={page.pageId}
+                to={getApplicationViewerPageURL(
+                  currentApplicationDetails?.id,
+                  page.pageId,
+                )}
+                activeClassName="is-active"
+                className="t--page-switch-tab"
+              >
+                <PageTabName name={page.pageName} />
+              </PageTab>
+            ))}
+          </HeaderRow>
+        </TabsContainer>
       )}
     </HeaderWrapper>
   );
