@@ -20,16 +20,8 @@
               "value": "UPLOAD_FILE_FROM_BODY"
             },
             {
-              "label": "Upload file from path",
-              "value": "UPLOAD_FILE_FROM_PATH"
-            },
-            {
               "label": "Read file at s3 path",
               "value": "READ_FILE"
-            },
-            {
-              "label": "Download file at s3 path",
-              "value": "DOWNLOAD_FILE"
             },
             {
               "label": "Delete file",

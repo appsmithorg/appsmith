@@ -62,6 +62,9 @@ import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 public class S3Plugin extends BasePlugin {
 
     private static final String S3_DRIVER = "com.amazonaws.services.s3.AmazonS3";
+    private static final int ACTION_PROPERTY_INDEX = 0;
+    private static final int BUCKET_NAME_PROPERTY_INDEX = 1;
+    private static final int CLIENT_REGION_PROPERTY_INDEX = 0;
 
     public S3Plugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -72,7 +75,17 @@ public class S3Plugin extends BasePlugin {
     public static class S3PluginExecutor implements PluginExecutor<AmazonS3> {
         private final Scheduler scheduler = Schedulers.elastic();
 
-        ArrayList<String> getFilenamesFromObjectListing(ObjectListing objectListing) {
+        /*
+         * - Exception thrown by this method is expected to be handled by the caller.
+         */
+        ArrayList<String> getFilenamesFromObjectListing(ObjectListing objectListing) throws AppsmithPluginException {
+            if(objectListing == null) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Error fetching file content from AWS S3 server"
+                );
+            }
+
             ArrayList<String> result = new ArrayList<>();
             List<S3ObjectSummary> objects = objectListing.getObjectSummaries();
             for (S3ObjectSummary os : objects) {
@@ -82,7 +95,17 @@ public class S3Plugin extends BasePlugin {
             return result;
         }
 
-        ArrayList<String> listAllFilesInBucket(AmazonS3 connection, String bucketName) {
+        /*
+         * - Exception thrown by this method is expected to be handled by the caller.
+         */
+        ArrayList<String> listAllFilesInBucket(AmazonS3 connection, String bucketName) throws AppsmithPluginException {
+            if(connection == null) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Error when establishing connection with AWS S3 server"
+                );
+            }
+
             ArrayList<String> fileList = new ArrayList<>();
             ObjectListing result = connection.listObjects(bucketName);
             fileList.addAll(getFilenamesFromObjectListing(result));
@@ -144,33 +167,39 @@ public class S3Plugin extends BasePlugin {
              * Hence, unable to do stale connection check.
              */
 
-            //TODO: add checks.
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
             final String path = actionConfiguration.getPath();
-
-            //TODO: make this check conditional.
-            /*if (StringUtils.isBlank(path)) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Document/Collection path cannot be empty"
-                ));
-            }*/
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             final com.external.plugins.S3Action s3Action = CollectionUtils.isEmpty(properties)
                                                            ? null
                                                            : com.external.plugins.S3Action
-                                                           .valueOf(properties.get(0).getValue());
+                                                           .valueOf(properties.get(ACTION_PROPERTY_INDEX).getValue());
             if (s3Action == null) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Missing S3 action."
-                ));
+                return Mono.error(
+                        new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_ERROR,
+                            "Missing S3 action."
+                        )
+                );
+            }
+
+            if ((s3Action == S3Action.UPLOAD_FILE_FROM_BODY ||
+                 s3Action == S3Action.READ_FILE             ||
+                 s3Action == S3Action.DELETE_FILE
+                )
+                && StringUtils.isBlank(path)) {
+                return Mono.error(
+                        new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_ERROR,
+                            "File path cannot be empty with the selected action"
+                        )
+                );
             }
 
             final String bucketName = CollectionUtils.isEmpty(properties)
                                       ? null
-                                      : properties.get(1).getValue();
+                                      : properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
             if (bucketName == null) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
@@ -180,11 +209,24 @@ public class S3Plugin extends BasePlugin {
 
             final String body = actionConfiguration.getBody();
 
-            if (body == null || StringUtils.isBlank(body)) {
-                //TODO: report error
+            if (body == null) {
+                return Mono.error(
+                        new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Error when fetching query body"
+                        )
+                );
             }
 
-            //TODO: handle error
+            if (s3Action == S3Action.UPLOAD_FILE_FROM_BODY && StringUtils.isBlank(path)) {
+                return Mono.error(
+                        new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Query body cannot be empty with the selected action"
+                        )
+                );
+            }
+
             return Mono.fromCallable(() -> {
                 switch (s3Action) {
                     case LIST:
@@ -224,7 +266,20 @@ public class S3Plugin extends BasePlugin {
                         Thread.currentThread().getName()
                                 + ": In the S3 Plugin, got action execution result");
                 return Mono.just(actionExecutionResult);
-            });
+            })
+            .onErrorResume(e -> {
+                if(e instanceof AppsmithPluginException) {
+                    return Mono.error(e);
+                }
+
+                return Mono.error(
+                        new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_ERROR,
+                            "Error in S3 Plugin when executing action: " + s3Action + " : " + e.getMessage()
+                        )
+                );
+            })
+            .subscribeOn(scheduler);
         }
 
         @Override
@@ -262,7 +317,7 @@ public class S3Plugin extends BasePlugin {
             return Mono.fromCallable(() -> {
                 Regions clientRegion = null;
                 try {
-                    clientRegion = Regions.fromName(properties.get(0).getValue());
+                    clientRegion = Regions.fromName(properties.get(CLIENT_REGION_PROPERTY_INDEX).getValue());
                 } catch (Exception e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -367,7 +422,7 @@ public class S3Plugin extends BasePlugin {
                 invalids.add("Missing Region info for authentication");
             }
             else {
-                String region = properties.get(0).getValue();
+                String region = properties.get(CLIENT_REGION_PROPERTY_INDEX).getValue();
 
                 if(region == null) {
                     invalids.add("Region info is null");

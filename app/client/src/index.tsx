@@ -19,7 +19,8 @@ import { StyledToastContainer } from "components/ads/Toast";
 
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
-const shouldAutoFreeze = process.env.NODE_ENV === "development";
+//const shouldAutoFreeze = process.env.NODE_ENV === "development";
+const shouldAutoFreeze = false;
 setAutoFreeze(shouldAutoFreeze);
 
 import AppErrorBoundary from "./AppErrorBoundry";
