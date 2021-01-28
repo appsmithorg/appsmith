@@ -19,6 +19,7 @@ import com.appsmith.server.services.PluginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -41,19 +42,25 @@ public class DatasourceStructureSolution {
 
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache) {
         return datasourceService.getById(datasourceId)
-                .flatMap(datasource -> getStructure(datasource, ignoreCache));
+                .flatMap(datasource -> getStructure(datasource, ignoreCache))
+                .defaultIfEmpty(new DatasourceStructure());
     }
 
-    public Mono<DatasourceStructure> getStructure(Datasource datasource, boolean ignoreCache) {
-        // This mono, when computed, will yield the cached structure if applicable, or resolve to an empty mono.
-        // If the structure is `null` inside the datasource, this will resolve to empty as well.
-        final Mono<DatasourceStructure> cachedStructureMono =
-                ignoreCache ? Mono.empty() : Mono.justOrEmpty(datasource.getStructure());
+    private Mono<DatasourceStructure> getStructure(Datasource datasource, boolean ignoreCache) {
+        if (!CollectionUtils.isEmpty(datasource.getInvalids())) {
+            // Don't attempt to get structure for invalid datasources.
+            return Mono.empty();
+        }
+
+        if (!ignoreCache && datasource.getStructure() != null) {
+            // Return the cached structure if available.
+            return Mono.just(datasource.getStructure());
+        }
 
         decryptEncryptedFieldsInDatasource(datasource);
 
         // This mono, when computed, will load the structure of the datasource by calling the plugin method.
-        final Mono<DatasourceStructure> loadStructureMono = pluginExecutorHelper
+        return pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())))
                 .flatMap(pluginExecutor -> datasourceContextService
@@ -79,10 +86,6 @@ public class DatasourceStructureSolution {
                         ? Mono.empty()
                         : datasourceRepository.saveStructure(datasource.getId(), structure).thenReturn(structure)
                 );
-
-        return cachedStructureMono
-                .switchIfEmpty(loadStructureMono)
-                .defaultIfEmpty(new DatasourceStructure());
     }
 
     private Datasource decryptEncryptedFieldsInDatasource(Datasource datasource) {

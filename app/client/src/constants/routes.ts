@@ -127,7 +127,9 @@ export const getApplicationViewerPageURL = (
   return url + queryParams;
 };
 
-function convertToQueryParams(params: Record<string, string> = {}): string {
+export function convertToQueryParams(
+  params: Record<string, string> = {},
+): string {
   const paramKeys = Object.keys(params);
   const queryParams: string[] = [];
   if (paramKeys) {
