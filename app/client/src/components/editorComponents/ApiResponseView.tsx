@@ -12,7 +12,6 @@ import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
-import FormActionButton from "./form/FormActionButton";
 import { RequestView } from "./RequestView";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
@@ -21,10 +20,12 @@ import {
   SHOW_REQUEST,
 } from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
-import Text, { TextType } from "components/ads/Text";
+import Text, { Case, TextType } from "components/ads/Text";
 import Icon from "components/ads/Icon";
-import { Classes } from "components/ads/common";
+import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
+import Callout from "components/ads/Callout";
+import Button from "components/ads/Button";
 
 const ResponseWrapper = styled.div`
   position: relative;
@@ -115,30 +116,6 @@ const EMPTY_RESPONSE: ActionResponse = {
   size: "",
 };
 
-const FailedMessageContainer = styled.div`
-  width: 100%;
-  background: #29cca3;
-  height: 77px;
-  position: absolute;
-  z-index: 10;
-  bottom: 0;
-  padding-top: 10px;
-  padding-bottom: 7px;
-  padding-left: 15px;
-  font-family: ${(props) => props.theme.fonts.text};
-  font-style: normal;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 16px;
-  p {
-    margin-bottom: 5px;
-    color: white;
-  }
-  // display: flex;
-  // justify-content: center;
-  // align-items: center;
-`;
-
 const TabbedViewWrapper = styled.div<{ isCentered: boolean }>`
   height: calc(100% - 30px);
 
@@ -160,14 +137,6 @@ const TabbedViewWrapper = styled.div<{ isCentered: boolean }>`
     }
   `
       : null}
-`;
-
-const StyledFormActionButton = styled(FormActionButton)`
-  &&& {
-    padding: 10px 12px 9px 9px;
-    margin-right: 9px;
-    border: 0;
-  }
 `;
 
 const SectionDivider = styled.div`
@@ -200,6 +169,25 @@ const NoResponseContainer = styled.div`
   }
 `;
 
+const FailedMessage = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
+  span {
+    color: ${Colors.Galliano};
+    cursor: pointer;
+  }
+  button {
+    margin-left: ${(props) => props.theme.spaces[9]}px;
+  }
+`;
+
 const ApiResponseView = (props: Props) => {
   const {
     match: {
@@ -228,39 +216,35 @@ const ApiResponseView = (props: Props) => {
       title: "Response Body",
       panelComponent: (
         <>
-          {hasFailed && !isRunning && requestDebugVisible === "true" && (
-            <FailedMessageContainer>
-              <p>{CHECK_REQUEST_BODY}</p>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                }}
-              >
-                <StyledFormActionButton
-                  intent={"danger"}
-                  style={{
-                    background: "white",
-                    color: "#29CCA3",
-                  }}
-                  text={DONT_SHOW_THIS_AGAIN}
-                  onClick={() => {
-                    setRequestDebugVisible(false);
-                  }}
-                />
-                <StyledFormActionButton
-                  style={{
-                    background: "#EF7541",
-                    color: "white",
-                  }}
-                  intent={"danger"}
-                  text={SHOW_REQUEST}
-                  onClick={() => {
-                    setSelectedIndex(1);
-                  }}
-                />
-              </div>
-            </FailedMessageContainer>
+          {hasFailed && !isRunning && requestDebugVisible && (
+            <Callout
+              variant={Variant.warning}
+              fill
+              label={
+                <FailedMessage>
+                  <Text type={TextType.P2}>{CHECK_REQUEST_BODY}</Text>
+                  <ButtonContainer>
+                    <Text
+                      type={TextType.H6}
+                      case={Case.UPPERCASE}
+                      onClick={() => {
+                        setRequestDebugVisible(false);
+                      }}
+                    >
+                      {DONT_SHOW_THIS_AGAIN}
+                    </Text>
+                    <Button
+                      tag="button"
+                      text={SHOW_REQUEST}
+                      variant={Variant.info}
+                      onClick={() => {
+                        setSelectedIndex(1);
+                      }}
+                    />
+                  </ButtonContainer>
+                </FailedMessage>
+              }
+            />
           )}
           {_.isEmpty(response.body) ? (
             <NoResponseContainer>

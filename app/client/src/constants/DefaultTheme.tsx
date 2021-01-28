@@ -1399,16 +1399,16 @@ export const light: ColorType = {
       bgColor: "#F8F3F0",
     },
     success: {
-      color: "#007340",
-      bgColor: "#D9FDED",
+      color: "#03B365",
+      bgColor: "#E4F4ED",
     },
     danger: {
-      color: "#C60707",
-      bgColor: "#FFE9E9",
+      color: "#F22B2B",
+      bgColor: "#F9E9E9",
     },
     warning: {
-      color: "#DCAD00",
-      bgColor: "#FAF6E6",
+      color: "#FEB811",
+      bgColor: "#FAF3E3",
     },
   },
   loader: {
