@@ -8,9 +8,12 @@ import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
@@ -40,8 +43,11 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -104,6 +110,31 @@ public class S3Plugin extends BasePlugin {
             return true;
         }
 
+        /*
+         * - Exception thrown here needs to be handled by the caller.
+         */
+        String readFile(AmazonS3 connection, String bucketName, String path) throws IOException {
+            S3Object fullObject = connection.getObject(new GetObjectRequest(bucketName, path));
+            S3ObjectInputStream content = fullObject.getObjectContent();
+
+            String result = "";
+            BufferedReader reader = new BufferedReader(new InputStreamReader(content));
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                result += line;
+            }
+
+            try {
+                if(fullObject != null) {
+                    fullObject.close();
+                }
+            } catch (IOException e) {
+                System.out.println("Error when closing S3 read file connection: " + e.getMessage());
+            }
+
+            return result;
+        }
+
         @Override
         public Mono<ActionExecutionResult> execute(AmazonS3 connection,
                                                    DatasourceConfiguration datasourceConfiguration,
@@ -163,9 +194,13 @@ public class S3Plugin extends BasePlugin {
                         }
                         break;
                     case UPLOAD_FILE_FROM_BODY:
-                         uploadFileFromBody(connection, bucketName, path, body);
-                         rowsList.add(Map.of("Action Status", "File uploaded successfully"));
-                         break;
+                        uploadFileFromBody(connection, bucketName, path, body);
+                        rowsList.add(Map.of("Action Status", "File uploaded successfully"));
+                        break;
+                    case READ_FILE:
+                        final String result = readFile(connection, bucketName, path);
+                        rowsList.add(Map.of("File Content", result));
+                        break;
                     case DELETE_FILE:
                         connection.deleteObject(bucketName, path);
                         rowsList.add(Map.of("Action Status", "File deleted successfully"));
