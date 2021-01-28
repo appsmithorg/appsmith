@@ -749,11 +749,12 @@ const auth: any = {
   btnPrimary: "#F86A2B",
   inputBackground: darkShades[1],
   headingText: "#FFF",
-  link: "#457AE6",
+  link: "#106ba3",
   text: darkShades[7],
   placeholder: darkShades[5],
   socialBtnText: darkShades[8],
   socialBtnBorder: darkShades[8],
+  socialBtnHighlight: darkShades[1],
 };
 
 const formMessage = {
@@ -1434,13 +1435,13 @@ export const theme: Theme = {
     authCardHeader: {
       fontStyle: "normal",
       fontWeight: 600,
-      fontSize: 24,
+      fontSize: 25,
       lineHeight: 20,
     },
     authCardSubheader: {
       fontStyle: "normal",
       fontWeight: "normal",
-      fontSize: 14,
+      fontSize: 15,
       lineHeight: 20,
     },
   },
@@ -1593,9 +1594,9 @@ export const theme: Theme = {
     },
   },
   authCard: {
-    width: 400,
+    width: 440,
     dividerSpacing: 32,
-    formMessageWidth: 352,
+    formMessageWidth: 370,
   },
   shadows: [
     /* 0. tab */
