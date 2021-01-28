@@ -4,6 +4,7 @@ import { map, get } from "lodash";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { isHidden } from "components/formControls/utils";
+import log from "loglevel";
 
 const Key = styled.div`
   color: ${Colors.DOVE_GRAY};
@@ -102,9 +103,11 @@ export const renderDatasourceSection = (
                 <Key>{label}: </Key> <Value>{value}</Value>
               </FieldWrapper>
             );
-          } catch (e) {}
+          } catch (e) {
+            log.error(e);
+          }
         }
-      }).filter((e) => !!e)}
+      })}
     </React.Fragment>
   );
 };

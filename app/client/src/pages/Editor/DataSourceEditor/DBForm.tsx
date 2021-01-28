@@ -28,6 +28,7 @@ import { PluginType } from "entities/Action";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { isHidden } from "components/formControls/utils";
+import log from "loglevel";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -375,7 +376,7 @@ class DatasourceDBEditor extends React.Component<
         {!viewMode ? (
           <>
             {!_.isNil(sections)
-              ? _.map(sections, this.renderMainSection).filter((e) => !!e)
+              ? _.map(sections, this.renderMainSection)
               : undefined}
             <SaveButtonContainer>
               <ActionButton
@@ -421,55 +422,74 @@ class DatasourceDBEditor extends React.Component<
     );
   };
 
-  renderEachConfig(section: any) {
-    const keyValueItems: any = [];
+  renderSingleConfig = (
+    config: ControlProps,
+    multipleConfig?: ControlProps[],
+  ) => {
+    multipleConfig = multipleConfig || [];
+    try {
+      this.setupConfig(config);
+      return (
+        <div key={config.configProperty} style={{ marginTop: "16px" }}>
+          <FormControl
+            config={config}
+            formName={DATASOURCE_DB_FORM}
+            multipleConfig={multipleConfig}
+          />
+        </div>
+      );
+    } catch (e) {
+      log.error(e);
+    }
+  };
+
+  setupConfig = (config: ControlProps) => {
+    const { controlType, isRequired, configProperty } = config;
+    this.configDetails[configProperty] = controlType;
+
+    if (isRequired) {
+      this.requiredFields[configProperty] = config;
+    }
+  };
+
+  renderEachConfig = (section: any) => {
     return (
       <div key={section.sectionName}>
         {_.map(section.children, (propertyControlOrSection: ControlProps) => {
+          if (isHidden(this.props.formData, section.hidden)) return null;
+
           if ("children" in propertyControlOrSection) {
+            // Todo: figure if the controlType can be moved to the parent.
+            const children: Array<ControlProps> =
+              propertyControlOrSection["children"];
+
+            const firstChild = children[0];
+            if (
+              firstChild &&
+              firstChild.controlType &&
+              firstChild.controlType === "KEYVALUE_ARRAY"
+            ) {
+              children.forEach((c) => {
+                try {
+                  this.setupConfig(c);
+                } catch (e) {
+                  log.error(e);
+                }
+              });
+              return this.renderSingleConfig(
+                propertyControlOrSection,
+                children,
+              );
+            }
+
             return this.renderEachConfig(propertyControlOrSection);
           } else {
-            try {
-              const {
-                controlType,
-                isRequired,
-                configProperty,
-              } = propertyControlOrSection;
-              const config = { ...propertyControlOrSection };
-              const multipleConfig = keyValueItems;
-
-              this.configDetails[configProperty] = controlType;
-
-              if (isRequired) {
-                this.requiredFields[configProperty] = propertyControlOrSection;
-              }
-
-              if (
-                controlType === "KEYVALUE_ARRAY" &&
-                keyValueItems.length < 2
-              ) {
-                keyValueItems.push(config);
-
-                if (keyValueItems.length < 2) return undefined;
-              }
-
-              return (
-                <div key={configProperty} style={{ marginTop: "16px" }}>
-                  <FormControl
-                    config={config}
-                    formName={DATASOURCE_DB_FORM}
-                    multipleConfig={multipleConfig}
-                  />
-                </div>
-              );
-            } catch (e) {
-              console.log(e);
-            }
+            return this.renderSingleConfig(propertyControlOrSection);
           }
         })}
       </div>
     );
-  }
+  };
 }
 
 export default reduxForm<Datasource, DatasourceDBEditorProps>({
