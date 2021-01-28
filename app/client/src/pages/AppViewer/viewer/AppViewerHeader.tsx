@@ -188,7 +188,8 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const canEdit = isPermitted(userPermissions, permissionRequired);
   const queryParams = new URLSearchParams(useLocation().search);
-  const hideHeader = !!queryParams.get("embed");
+  const isEmbed = queryParams.get("embed");
+  const hideHeader = !!isEmbed;
   const HtmlTitle = () => {
     if (!currentApplicationDetails?.name) return null;
     return (
