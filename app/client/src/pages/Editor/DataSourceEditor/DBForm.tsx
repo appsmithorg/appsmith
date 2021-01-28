@@ -452,36 +452,35 @@ class DatasourceDBEditor extends React.Component<
     }
   };
 
+  isKVArray = (children: Array<ControlProps>) => {
+    if (!Array.isArray(children) || children.length < 2) return false;
+    return (
+      children[0].controlType && children[0].controlType === "KEYVALUE_ARRAY"
+    );
+  };
+
+  renderKVArray = (children: Array<ControlProps>) => {
+    try {
+      // setup config for each child
+      children.forEach((c) => this.setupConfig(c));
+      // We pass last child for legacy reasons, to keep the logic here exactly same as before.
+      return this.renderSingleConfig(children[children.length - 1], children);
+    } catch (e) {
+      log.error(e);
+    }
+  };
+
   renderEachConfig = (section: any) => {
     return (
       <div key={section.sectionName}>
         {_.map(section.children, (propertyControlOrSection: ControlProps) => {
+          // If the section is hidden, skip rendering
           if (isHidden(this.props.formData, section.hidden)) return null;
-
           if ("children" in propertyControlOrSection) {
-            // Todo: figure if the controlType can be moved to the parent.
-            const children: Array<ControlProps> =
-              propertyControlOrSection["children"];
-
-            const firstChild = children[0];
-            if (
-              firstChild &&
-              firstChild.controlType &&
-              firstChild.controlType === "KEYVALUE_ARRAY"
-            ) {
-              children.forEach((c) => {
-                try {
-                  this.setupConfig(c);
-                } catch (e) {
-                  log.error(e);
-                }
-              });
-              return this.renderSingleConfig(
-                propertyControlOrSection,
-                children,
-              );
+            const { children } = propertyControlOrSection;
+            if (this.isKVArray(children)) {
+              return this.renderKVArray(children);
             }
-
             return this.renderEachConfig(propertyControlOrSection);
           } else {
             return this.renderSingleConfig(propertyControlOrSection);
