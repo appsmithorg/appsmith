@@ -164,7 +164,7 @@ abstract class BaseWidget<
 
   /**
    * this function is responsive for making the widget resizable.
-   * A widget can be made by non-resizable by passing resizeEnabled prop.
+   * A widget can be made by non-resizable by passing resizeDisabled prop.
    *
    * @param content
    */
@@ -220,7 +220,7 @@ abstract class BaseWidget<
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
         style={style}
-        resizeEnabled={this.props.resizeEnabled}
+        resizeDisabled={this.props.resizeDisabled}
       >
         {content}
       </PositionedContainer>
@@ -308,7 +308,7 @@ abstract class BaseWidget<
     dragDisabled: false,
     dropEnabled: true,
     isDeletable: true,
-    resizeEnabled: true,
+    resizeDisabled: false,
     paddingEnabled: true,
     settingsControlEnabled: true,
   };

@@ -67,7 +67,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         ...child,
         topRow: index * children[0].bottomRow,
         bottomRow: (index + 1) * children[0].bottomRow,
-        resizeEnabled: index === 0,
+        resizeDisabled: index > 0,
         isVisible: index === 0,
         widgetId: index > 0 ? generateReactKey() : child.widgetId,
       };
@@ -118,8 +118,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
                       set(
                         children[i],
-                        `children.[${j}].children[${k}].resizeEnabled`,
-                        false,
+                        `children.[${j}].children[${k}].resizeDisabled`,
+                        true,
                       );
 
                       set(
