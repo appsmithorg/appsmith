@@ -70,7 +70,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
         return repository.findById(id, READ_APPLICATIONS)
                 .flatMap(this::setTransientFields)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
     }
 
     @Override
@@ -141,7 +141,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
         return repository
                 .findById(id, MAKE_PUBLIC_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, id)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .flatMap(application -> {
 
                     if (application.getIsPublic().equals(applicationAccessDTO.getPublicAccess())) {

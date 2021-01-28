@@ -79,3 +79,8 @@ const ThemedAppWithProps = connect(
 )(ThemedApp);
 
 ReactDOM.render(<App />, document.getElementById("root"));
+
+// expose store when run in Cypress
+if ((window as any).Cypress) {
+  (window as any).store = store;
+}

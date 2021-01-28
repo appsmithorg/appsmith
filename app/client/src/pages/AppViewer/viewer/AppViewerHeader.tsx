@@ -33,6 +33,8 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
+import Text, { TextType } from "components/ads/Text";
+import { Classes } from "components/ads/common";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   background: ${Colors.BALTIC_SEA};
@@ -40,6 +42,13 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   color: white;
   flex-direction: column;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
+  .${Classes.TEXT} {
+    max-width: 194px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #d4d4d4;
+  }
 `;
 
 const HeaderRow = styled.div<{ justify: string }>`
@@ -80,13 +89,6 @@ const ShareButton = styled(Button)`
   height: 32px;
   margin: 5px 10px;
   color: white !important;
-`;
-
-const StyledApplicationName = styled.span`
-  font-size: 15px;
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 14px;
 `;
 
 const PageTab = styled(NavLink)`
@@ -236,11 +238,9 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
             <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
           </Link>
         </HeaderSection>
-        <HeaderSection justify={"center"}>
+        <HeaderSection justify={"center"} className="current-app-name">
           {currentApplicationDetails && (
-            <StyledApplicationName>
-              {currentApplicationDetails.name}
-            </StyledApplicationName>
+            <Text type={TextType.H4}>{currentApplicationDetails.name}</Text>
           )}
         </HeaderSection>
         <HeaderSection justify={"flex-end"}>

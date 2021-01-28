@@ -53,6 +53,7 @@ interface TableProps {
   selectedRowIndices: number[];
   disableDrag: () => void;
   enableDrag: () => void;
+  triggerRowSelection: boolean;
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
@@ -120,6 +121,7 @@ export const Table = (props: TableProps) => {
       height={props.height}
       tableSizes={tableSizes}
       id={`table${props.widgetId}`}
+      triggerRowSelection={props.triggerRowSelection}
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
     >
       <TableHeader

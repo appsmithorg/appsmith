@@ -359,6 +359,10 @@ public class FirestorePlugin extends BasePlugin {
         }
 
         private Object resultToMap(Object objResult) throws AppsmithPluginException {
+            return resultToMap(objResult, true);
+        }
+
+        private Object resultToMap(Object objResult, boolean isRoot) throws AppsmithPluginException {
             if (objResult instanceof WriteResult) {
                 WriteResult writeResult = (WriteResult) objResult;
                 Map<String, Object> resultMap = new HashMap<>();
@@ -377,7 +381,11 @@ public class FirestorePlugin extends BasePlugin {
                 QuerySnapshot querySnapshot = (QuerySnapshot) objResult;
                 List<Map<String, Object>> documents = new ArrayList<>();
                 for (QueryDocumentSnapshot documentSnapshot : querySnapshot.getDocuments()) {
-                    documents.add(documentSnapshot.getData());
+                    final Map<String, Object> data = documentSnapshot.getData();
+                    for (final Map.Entry<String, Object> entry : data.entrySet()) {
+                        data.put(entry.getKey(), resultToMap(entry.getValue(), false));
+                    }
+                    documents.add(data);
                 }
                 return documents;
 
@@ -388,13 +396,15 @@ public class FirestorePlugin extends BasePlugin {
                 resultMap.put("path", documentReference.getPath());
                 return resultMap;
 
-            } else {
+            } else if (isRoot) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
                         "Unable to serialize object of type " + objResult.getClass().getName() + "."
                 );
 
             }
+
+            return objResult;
         }
 
         @Override

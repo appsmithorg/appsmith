@@ -17,7 +17,9 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
   it("Input widget test with default value from table widget", function() {
     cy.openPropertyPane("inputwidget");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
-    cy.get(widgetsPage.actionSelect).click();
+    cy.get(widgetsPage.actionSelect)
+      .first()
+      .click();
     cy.get(commonlocators.chooseAction)
       .children()
       .contains("Navigate To")
