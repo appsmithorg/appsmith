@@ -6,8 +6,8 @@ export enum OnboardingStep {
   WELCOME = 0,
   EXAMPLE_DATABASE = 1,
   RUN_QUERY_SUCCESS = 2,
-  ADD_WIDGET = 3,
-  SUCCESSFUL_BINDING = 4,
+  SUCCESSFUL_BINDING = 3,
+  ADD_INPUT_WIDGET = 4,
   DEPLOY = 5,
   FINISH = 6,
 }
@@ -138,44 +138,49 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       },
     },
   },
-  [OnboardingStep.ADD_WIDGET]: {
-    name: "ADD_WIDGET",
-    setup: () => {
-      return [];
-    },
-    helper: {
-      step: 3,
-      title: "Write a binding to connect TableData",
-      description:
-        "Use the snippet below to connect TableData to example query.",
-      snippet: "{{ExampleQuery.data}}",
-      action: {
-        label: "Continue",
-      },
-      cheatAction: {
-        label: "Cheat",
-        action: {
-          type: "ONBOARDING_ADD_BINDING",
-        },
-      },
-    },
-  },
   [OnboardingStep.SUCCESSFUL_BINDING]: {
     name: "SUCCESSFUL_BINDING",
     setup: () => {
       return [];
     },
     helper: {
-      step: 4,
-      title: "Deploy your app",
+      step: 3,
+      title: "Connect Real Data",
+      description:
+        "Use your javascript superpowers to populate the static table data with live query results. {{ Access query variable here }}",
+      image: {
+        src:
+          "https://res.cloudinary.com/drako999/image/upload/v1611815341/Appsmith/Onboarding/binding.gif",
+      },
       action: {
-        label: "Show Hint",
-        action: showIndicator(OnboardingStep.SUCCESSFUL_BINDING),
+        label: "Continue",
       },
       cheatAction: {
-        label: "Cheat",
+        label: "Super Hack",
         action: {
-          type: "ONBOARDING_DEPLOY",
+          type: "ONBOARDING_ADD_BINDING",
+        },
+      },
+    },
+  },
+  [OnboardingStep.ADD_INPUT_WIDGET]: {
+    name: "ADD_INPUT_WIDGET",
+    setup: () => [],
+    helper: {
+      step: 4,
+      title: "Capture Hero Updates",
+      description: "Drag an input so that heroes can enter their daily updates",
+      image: {
+        src:
+          "https://res.cloudinary.com/drako999/image/upload/v1611815729/Appsmith/Onboarding/drag_input.gif",
+      },
+      action: {
+        label: "Continue",
+      },
+      cheatAction: {
+        label: "Super Hack",
+        action: {
+          type: "ONBOARDING_ADD_INPUT_WIDGET",
         },
       },
     },

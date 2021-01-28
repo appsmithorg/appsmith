@@ -46,7 +46,7 @@ export const ActionNameEditor = () => {
     const currentStep = getCurrentStep(state);
     const isInOnboarding = inOnboarding(state);
 
-    return isInOnboarding && currentStep < OnboardingStep.ADD_WIDGET;
+    return isInOnboarding && currentStep < OnboardingStep.SUCCESSFUL_BINDING;
   });
 
   const actions: Action[] = useSelector((state: AppState) =>

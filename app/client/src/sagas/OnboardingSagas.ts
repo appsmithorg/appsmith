@@ -115,13 +115,13 @@ function* listenForWidgetAdditions() {
       }
 
       AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET");
-      yield put(setCurrentStep(OnboardingStep.ADD_WIDGET));
+      yield put(setCurrentStep(OnboardingStep.SUCCESSFUL_BINDING));
       yield put({
         type: ReduxActionTypes.ADD_WIDGET_COMPLETE,
       });
       yield put({
         type: ReduxActionTypes.SET_HELPER_CONFIG,
-        payload: getHelperConfig(OnboardingStep.ADD_WIDGET),
+        payload: getHelperConfig(OnboardingStep.SUCCESSFUL_BINDING),
       });
 
       return;
@@ -163,16 +163,26 @@ function* listenForSuccessfulBinding() {
         }
 
         if (bindSuccessful) {
+          yield put(
+            updateWidgetProperty(selectedWidget.widgetId, {
+              columnTypeMap: {
+                avatar: {
+                  type: "image",
+                  format: "",
+                },
+              },
+            }),
+          );
           AnalyticsUtil.logEvent("ONBOARDING_SUCCESSFUL_BINDING");
-          yield put(setCurrentStep(OnboardingStep.SUCCESSFUL_BINDING));
+          yield put(setCurrentStep(OnboardingStep.ADD_INPUT_WIDGET));
 
           yield delay(1000);
           playOnboardingAnimation();
 
-          yield put(setCurrentStep(OnboardingStep.DEPLOY));
+          // yield put(setCurrentStep(OnboardingStep.DEPLOY));
           yield put({
             type: ReduxActionTypes.SET_HELPER_CONFIG,
-            payload: getHelperConfig(OnboardingStep.SUCCESSFUL_BINDING),
+            payload: getHelperConfig(OnboardingStep.ADD_INPUT_WIDGET),
           });
           return;
         }
@@ -505,7 +515,7 @@ function* addBinding() {
       updateWidgetPropertyRequest(
         selectedWidget.widgetId,
         "tableData",
-        "{{ExampleQuery.data}}",
+        "{{fetch_standup_updates.data}}",
         RenderModes.CANVAS,
       ),
     );
