@@ -595,10 +595,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       JSON.stringify(prevProps.tableData);
 
     let hasPrimaryColumnsComputedValueChanged = false;
-    const oldComputedValues = prevProps.primaryColumns
+    const oldComputedValues = (prevProps.primaryColumns || [])
       .filter(Boolean)
       ?.map((column: ColumnProperties) => column.computedValue);
-    const newComputedValues = this.props.primaryColumns
+    const newComputedValues = (this.props.primaryColumns || [])
       .filter(Boolean)
       ?.map((column: ColumnProperties) => column.computedValue);
     if (!isEqual(oldComputedValues, newComputedValues)) {
