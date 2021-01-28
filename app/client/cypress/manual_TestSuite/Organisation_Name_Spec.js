@@ -10,6 +10,7 @@ describe("Checking for error message on Organisation Name ", function()  {
         // Now click on "X" (Close icon) ensure the pop up closes
     }
     )
+
     it("Reuse the name of the deleted application name ", function() 
     {
         // Navigate to home Page 
@@ -22,6 +23,7 @@ describe("Checking for error message on Organisation Name ", function()  {
         // Ensure the application can be created with the same name 
     }
     )
+
     it("Adding Special Character ", function() 
     {
         // Navigate to home Page 
@@ -31,6 +33,7 @@ describe("Checking for error message on Organisation Name ", function()  {
         // Now click outside and ensure the pop up closes
     }
     )
+
     it("Reuse the name of the deleted application name on the other organisation", function() 
     {
         // Navigate to home Page 
@@ -63,8 +66,7 @@ describe("Checking for error message on Organisation Name ", function()  {
     }
     )
 
-
-    it("Cancel creating an Organisation when the Organisation name is dually filled", function() 
+    it("Cancel creating an Organisation when the Organisation name is dualy filled", function() 
     {
         // Navigate to home Page 
         // Click on the "Create Organisation" button 
