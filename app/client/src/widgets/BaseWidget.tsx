@@ -310,7 +310,7 @@ abstract class BaseWidget<
     isDeletable: true,
     resizeDisabled: false,
     paddingEnabled: true,
-    settingsControlDisabled: true,
+    settingsControlDisabled: false,
   };
 }
 
