@@ -1,5 +1,5 @@
 import React from "react";
-import { reduxForm, InjectedFormProps } from "redux-form";
+import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "constants/forms";
 import { RouteComponentProps, useLocation, withRouter } from "react-router-dom";
@@ -17,7 +17,6 @@ import {
   SIGNUP_PAGE_PASSWORD_INPUT_LABEL,
   SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER,
   SIGNUP_PAGE_LOGIN_LINK_TEXT,
-  FORM_VALIDATION_EMPTY_EMAIL,
   FORM_VALIDATION_EMPTY_PASSWORD,
   FORM_VALIDATION_INVALID_EMAIL,
   FORM_VALIDATION_INVALID_PASSWORD,
@@ -43,6 +42,9 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { setOnboardingState } from "utils/storage";
+
+import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "constants/forms";
+
 const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 const SocialLoginList: string[] = [];
 if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
@@ -58,19 +60,24 @@ const validate = (values: SignupFormValues) => {
   } else if (!isStrongPassword(values.password)) {
     errors.password = FORM_VALIDATION_INVALID_PASSWORD;
   }
-  if (!values.email || isEmptyString(values.email)) {
-    errors.email = FORM_VALIDATION_EMPTY_EMAIL;
-  } else if (!isEmail(values.email)) {
+
+  const email = values.email || "";
+  if (!isEmptyString(email) && !isEmail(email)) {
     errors.email = FORM_VALIDATION_INVALID_EMAIL;
   }
   return errors;
 };
 
-type SignUpFormProps = InjectedFormProps<SignupFormValues> &
-  RouteComponentProps<{ email: string }> & { theme: Theme };
+type SignUpFormProps = InjectedFormProps<
+  SignupFormValues,
+  { emailValue: string }
+> &
+  RouteComponentProps<{ email: string }> & { theme: Theme; emailValue: string };
 
 export const SignUp = (props: SignUpFormProps) => {
-  const { error, submitting, pristine, valid } = props;
+  const { error, submitting, pristine, valid, emailValue: email } = props;
+  const isFormValid = valid && email && !isEmptyString(email);
+
   const location = useLocation();
 
   let showError = false;
@@ -133,7 +140,7 @@ export const SignUp = (props: SignUpFormProps) => {
           <Button
             tag="button"
             type="submit"
-            disabled={pristine || !valid}
+            disabled={pristine || !isFormValid}
             isLoading={submitting}
             text={SIGNUP_PAGE_SUBMIT_BUTTON_TEXT}
             fill
@@ -154,15 +161,17 @@ export const SignUp = (props: SignUpFormProps) => {
   );
 };
 
+const selector = formValueSelector(SIGNUP_FORM_NAME);
 export default connect((state: AppState, props: SignUpFormProps) => {
   const queryParams = new URLSearchParams(props.location.search);
   return {
     initialValues: {
       email: queryParams.get("email"),
     },
+    emailValue: selector(state, SIGNUP_FORM_EMAIL_FIELD_NAME),
   };
 }, null)(
-  reduxForm<SignupFormValues>({
+  reduxForm<SignupFormValues, { emailValue: string }>({
     validate,
     form: SIGNUP_FORM_NAME,
     touchOnBlur: true,

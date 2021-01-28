@@ -63,24 +63,18 @@ client_proxy_pass="${default_client_proxy}"
 network_mode="bridge"
 case "${uname_out}" in
     Linux*)     machine=Linux
-
-        proc_version="$(cat /proc/version)"
-        case "$proc_version" in
-        *icrosoft*)
+	
+        source ../util/is_wsl.sh
+	      if [ $IS_WSL ]; then
             # ignore to continue using host.docker.internal
-        ;;
-        *WSL*)
-            # ignore to continue using host.docker.internal
-        ;;
-        *)
+	      else
             network_mode="host"
             client_proxy_pass=$default_linux_client_proxy
             # if no server was passed
             if [[ -z $1 ]]; then
                 server_proxy_pass=$default_linux_server_proxy
             fi
-            ;;
-        esac
+	      fi
                 echo "
     Starting nginx for Linux...
     "

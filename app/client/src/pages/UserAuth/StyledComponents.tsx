@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Form from "components/editorComponents/Form";
 import { Card } from "@blueprintjs/core";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import { Classes } from "@blueprintjs/core";
 
 export const AuthContainer = styled.section`
   position: absolute;
@@ -13,6 +14,10 @@ export const AuthContainer = styled.section`
   flex-direction: column;
   align-items: center;
   overflow: auto;
+
+  & .${Classes.FORM_GROUP} {
+    margin: 0 0 ${(props) => props.theme.spaces[2]}px;
+  }
 `;
 
 export const AuthCardContainer = styled.div`
@@ -67,7 +72,13 @@ export const AuthCardHeader = styled.header`
   }
 `;
 
-export const AuthCardNavLink = styled(Link)``;
+export const AuthCardNavLink = styled(Link)`
+  border-bottom: 1px solid transparent;
+  &:hover {
+    border-bottom: 1px solid ${(props) => props.theme.colors.auth.link};
+    text-decoration: none;
+  }
+`;
 
 export const AuthCardFooter = styled.footer`
   display: flex;
@@ -102,7 +113,7 @@ export const FormActions = styled.div`
   }
   justify-content: space-between;
   align-items: baseline;
-  margin-top: ${(props) => props.theme.spaces[2]}px;
+  margin-top: ${(props) => props.theme.spaces[5]}px;
   & > label {
     margin-right: ${(props) => props.theme.spaces[11]}px;
   }
