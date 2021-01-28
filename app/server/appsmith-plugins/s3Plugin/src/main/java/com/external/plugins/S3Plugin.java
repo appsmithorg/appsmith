@@ -141,8 +141,8 @@ public class S3Plugin extends BasePlugin {
             S3ObjectInputStream content = fullObject.getObjectContent();
 
             String result = "";
-            BufferedReader reader = new BufferedReader(new InputStreamReader(content));
             String line = null;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(content));
             while ((line = reader.readLine()) != null) {
                 result += line;
             }
@@ -440,17 +440,25 @@ public class S3Plugin extends BasePlugin {
 
             return datasourceCreate(datasourceConfiguration)
                     .map(connection -> {
+                        /*
+                         * - Please note that as of 28 Jan 2021, the way AmazonS3 client works, creating a connection
+                         *   object with wrong credentials does not throw any exception.
+                         * - Hence, adding a listBuckets() method call to test the connection.
+                         */
+                        connection.listBuckets();
                         try {
                             if (connection != null) {
                                 connection.shutdown();
                             }
                         } catch (Exception e) {
-                            log.warn("Error closing S3 connection that was made for testing.", e);
+                            System.out.println("Error closing S3 connection that was made for testing." + e);
+                            return new DatasourceTestResult(e.getMessage());
                         }
 
                         return new DatasourceTestResult();
                     })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
+                    .subscribeOn(scheduler);
         }
 
         @Override
