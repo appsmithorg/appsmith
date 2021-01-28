@@ -16,9 +16,9 @@ const enforceDarkThemeRoutes = [
 ];
 const getShouldEnforceDarkTheme = () => {
   const currentPath = window.location.pathname;
-  const isBuilderPath = !!currentPath.match(VIEWER_URL_REGEX);
+  const isBuilderOrViewerPath = !!currentPath.match(VIEWER_URL_REGEX);
   return (
-    isBuilderPath ||
+    isBuilderOrViewerPath ||
     enforceDarkThemeRoutes.some(
       (path: string) => currentPath.indexOf(path) !== -1,
     )
