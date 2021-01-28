@@ -79,7 +79,6 @@ export const Table = (props: TableProps) => {
         columnSizeMap[i] = 60;
       }
     }
-    console.log({ columnWidths, columnSizeMap });
     props.handleResizeColumn(columnSizeMap);
   };
   const data = React.useMemo(() => props.data, [props.data]);

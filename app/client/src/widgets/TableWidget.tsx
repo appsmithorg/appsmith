@@ -137,6 +137,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const columnKeys: string[] = getAllTableColumnKeys(tableData);
       const { componentWidth } = this.getComponentDimensions();
       const sortedColumn = this.props.sortedColumn;
+      let sizedColumns = 0;
+      let totalColumnSizes = 0;
+      for (const i in columnSizeMap) {
+        sizedColumns++;
+        totalColumnSizes += columnSizeMap[i];
+      }
       for (let index = 0; index < columnKeys.length; index++) {
         const i = columnKeys[index];
         const columnName: string =
@@ -149,14 +155,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columnTypeMap && columnTypeMap[i]
             ? columnTypeMap[i]
             : { type: ColumnTypes.TEXT };
-        const columnSize: number =
-          columnSizeMap && columnSizeMap[i] ? columnSizeMap[i] : 150;
         const isHidden =
           !!this.props.hiddenColumns && this.props.hiddenColumns.includes(i);
         const columnData = {
           Header: columnName,
           accessor: i,
-          width: columnSize,
+          width:
+            columnSizeMap && columnSizeMap[i] ? columnSizeMap[i] : undefined,
           minWidth: 60,
           draggable: true,
           isHidden: false,
@@ -205,6 +210,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             });
           },
         });
+      }
+      const remainingColumns = columns.length - sizedColumns;
+      if (remainingColumns) {
+        const widthDifference = componentWidth - totalColumnSizes;
+        for (let i = 0; i < columns.length; i++) {
+          if (columns[i].width === undefined) {
+            columns[i].width = Math.floor(widthDifference / remainingColumns);
+          }
+        }
       }
       if (
         hiddenColumns.length &&
@@ -798,7 +812,7 @@ export interface TableColumnMetaProps {
 export interface ReactTableColumnProps {
   Header: string;
   accessor: string;
-  width: number;
+  width?: number;
   minWidth: number;
   draggable: boolean;
   isHidden?: boolean;
