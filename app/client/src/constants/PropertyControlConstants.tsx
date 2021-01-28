@@ -15,6 +15,11 @@ export type PanelConfig = {
   titlePropertyName: string;
   panelIdPropertyName: string;
   children: PropertyPaneConfig[];
+  updateHook: (
+    props: any,
+    propertyPath: string,
+    propertyValue: any,
+  ) => Array<{ propertyPath: string; propertyValue: any }> | undefined;
 };
 
 export type PropertyPaneControlConfig = {

@@ -65,10 +65,10 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.hideColumn("userName");
     cy.hideColumn("productName");
     cy.hideColumn("orderAmount");
-    cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
+    cy.get(".draggable-header:contains('UpdatedColName')").should("be.visible");
     cy.readTabledataPublish("1", "2").then((tabData) => {
       const tabValue = tabData;
-      cy.readTabledataPublish("1", "1").then((tabData) => {
+      cy.readTabledataPublish("1", "2").then((tabData) => {
         cy.log("computed value of plain text " + tabData);
         expect(tabData).to.be.equal(tabValue);
       });

@@ -588,6 +588,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
+    // console.log("Table log:", this.props);
     // Check if data is modifed by comparing the stringified versions of the previous and next tableData
     const tableDataModified =
       JSON.stringify(this.props.tableData) !==

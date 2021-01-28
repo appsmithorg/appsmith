@@ -136,7 +136,27 @@ export const PanelPropertiesEditor = (
   );
 
   if (!widgetProperties) return null;
-
+  const updatePropertyTitle = (title: string) => {
+    if (panelConfig.titlePropertyName) {
+      const propertiesToUpdate: Record<string, unknown> = {};
+      propertiesToUpdate[
+        `${panelParentPropertyPath}[${currentIndex}].${panelConfig.titlePropertyName}`
+      ] = title;
+      if (panelConfig.updateHook) {
+        const additionalPropertiesToUpdate = panelConfig.updateHook(
+          widgetProperties,
+          `${panelParentPropertyPath}[${currentIndex}].${panelConfig.titlePropertyName}`,
+          title,
+        );
+        additionalPropertiesToUpdate?.forEach(
+          ({ propertyPath, propertyValue }) => {
+            propertiesToUpdate[propertyPath] = propertyValue;
+          },
+        );
+      }
+      props.onPropertiesChange(propertiesToUpdate);
+    }
+  };
   return (
     <>
       <PanelHeader
@@ -145,14 +165,7 @@ export const PanelPropertiesEditor = (
         hidePropertyPane={hidePropertyPane}
         closePanel={closePanel}
         title={panelProps[panelConfig.titlePropertyName]}
-        updatePropertyTitle={(title: string) => {
-          if (panelConfig.titlePropertyName) {
-            props.onPropertyChange(
-              `${panelParentPropertyPath}[${currentIndex}].${panelConfig.titlePropertyName}`,
-              title,
-            );
-          }
-        }}
+        updatePropertyTitle={updatePropertyTitle}
       />
       {panelConfigs &&
         generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
@@ -165,7 +178,7 @@ export const PanelPropertiesEditor = (
 
 interface PanelPropertiesEditorProps {
   panelProps: any;
-  onPropertyChange: (propertyName: string, propertyValue: any) => void;
+  onPropertiesChange: (updates: Record<string, unknown>) => void;
   panelParentPropertyPath: string;
 }
 

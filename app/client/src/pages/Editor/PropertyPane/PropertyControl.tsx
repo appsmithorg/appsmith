@@ -68,6 +68,13 @@ const PropertyControl = memo((props: Props) => {
     },
     [dispatch, widgetProperties.widgetId],
   );
+  const onBatchUpdateProperties = useCallback(
+    (allUpdates: Record<string, unknown>) =>
+      dispatch(
+        batchUpdateWidgetProperty(widgetProperties.widgetId, allUpdates),
+      ),
+    [widgetProperties.widgetId, dispatch],
+  );
 
   const onPropertyChange = useCallback(
     (propertyName: string, propertyValue: any, isDynamicTrigger?: boolean) => {
@@ -97,9 +104,7 @@ const PropertyControl = memo((props: Props) => {
           allUpdates[propertyPath] = propertyValue;
         });
         allUpdates[propertyName] = propertyValue;
-        dispatch(
-          batchUpdateWidgetProperty(widgetProperties.widgetId, allUpdates),
-        );
+        onBatchUpdateProperties(allUpdates);
       } else {
         dispatch(
           updateWidgetPropertyRequest(
@@ -123,7 +128,7 @@ const PropertyControl = memo((props: Props) => {
           props: {
             panelProps,
             panelConfig: props.panelConfig,
-            onPropertyChange: onPropertyChange,
+            onPropertiesChange: onBatchUpdateProperties,
             panelParentPropertyPath: props.propertyName,
             panel: props.panel,
           },

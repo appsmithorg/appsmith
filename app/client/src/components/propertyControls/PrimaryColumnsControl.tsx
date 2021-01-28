@@ -100,7 +100,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
     toggleVisibility,
     index,
   } = props;
-  const debouncedUpdate = debounce(updateOption, 500);
+  const debouncedUpdate = debounce(updateOption, 1000);
   const onChange = (index: number, value: string) => {
     setValue(value);
     debouncedUpdate(index, value);
