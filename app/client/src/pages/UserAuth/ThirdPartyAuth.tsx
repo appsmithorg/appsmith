@@ -35,6 +35,7 @@ const StyledSocialLoginButton = styled.a`
 
   &:hover {
     text-decoration: none;
+    background-color: ${(props) => props.theme.colors.auth.socialBtnHighlight};
   }
 
   & .login-method {
