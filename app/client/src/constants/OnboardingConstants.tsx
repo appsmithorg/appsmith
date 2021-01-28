@@ -8,9 +8,9 @@ export enum OnboardingStep {
   RUN_QUERY_SUCCESS = 2,
   SUCCESSFUL_BINDING = 3,
   ADD_INPUT_WIDGET = 4,
-  ADD_ONSUBMIT_BINDING = 5,
-  DEPLOY = 6,
-  FINISH = 7,
+  // ADD_ONSUBMIT_BINDING = 5,
+  DEPLOY = 5,
+  FINISH = 6,
 }
 
 export type OnboardingHelperConfig = {
@@ -89,7 +89,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       step: 1,
       title: "Query the Super Updates DB",
       description:
-        "A select query can fetch us updates from heroes all across the multiverse.",
+        "1. Create a new query on superDB. \n2. A select query can fetch us updates from heroes all across the multiverse.\n3. Run query and check response",
       image: {
         src:
           "https://res.cloudinary.com/drako999/image/upload/v1611815342/Appsmith/Onboarding/standup_query.gif",
@@ -122,7 +122,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       step: 2,
       title: "Build the Standup Dashboard",
       description:
-        "Drag a table so that heroes can view each other's updates and plan their crime-fighting days",
+        "1. Click on add widget button to view widgets panel. \n2. Click on add widget button to view widgets panel.",
       image: {
         src:
           "https://res.cloudinary.com/drako999/image/upload/v1611815393/Appsmith/Onboarding/table_drag.gif",
@@ -148,7 +148,8 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       step: 3,
       title: "Connect Real Data",
       description:
-        "Use your javascript superpowers to populate the static table data with live query results. {{ Access query variable here }}",
+        "1. Use your javascript superpowers to populate the static TableData with live query results.\n\nUse the snippet below inside TableData",
+      snippet: "{{fetch_standup_updates.data}}",
       image: {
         src:
           "https://res.cloudinary.com/drako999/image/upload/v1611815341/Appsmith/Onboarding/binding.gif",
@@ -173,11 +174,12 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     ],
     helper: {
       step: 4,
-      title: "Capture Hero Updates",
-      description: "Drag an input so that heroes can enter their daily updates",
+      title: "Capture Hero Updates and update superdb",
+      description:
+        "1. Drag an input so that heroes can enter their daily updates\n2. Create a query using OnSubmit action to insert a standup_update.",
       image: {
         src:
-          "https://res.cloudinary.com/drako999/image/upload/v1611815729/Appsmith/Onboarding/drag_input.gif",
+          "https://res.cloudinary.com/drako999/image/upload/v1611830618/Appsmith/Onboarding/onsubmit.gif",
       },
       action: {
         label: "Continue",
@@ -190,28 +192,28 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       },
     },
   },
-  [OnboardingStep.ADD_ONSUBMIT_BINDING]: {
-    name: "ADD_ONSUBMIT_BINDING",
-    setup: () => [],
-    helper: {
-      step: 5,
-      title: "Update the super DB",
-      description: "Create a query to insert a standup_updates onSubmit",
-      image: {
-        src:
-          "https://res.cloudinary.com/drako999/image/upload/v1611815729/Appsmith/Onboarding/drag_input.gif",
-      },
-      action: {
-        label: "Continue",
-      },
-      cheatAction: {
-        label: "Super Hack",
-        action: {
-          type: "ONBOARDING_ADD_ONSUBMIT_BINDING",
-        },
-      },
-    },
-  },
+  // [OnboardingStep.ADD_ONSUBMIT_BINDING]: {
+  //   name: "ADD_ONSUBMIT_BINDING",
+  //   setup: () => [],
+  //   helper: {
+  //     step: 5,
+  //     title: "Update the super DB",
+  //     description: "Create a query to insert a standup_updates onSubmit",
+  //     image: {
+  //       src:
+  //         "https://res.cloudinary.com/drako999/image/upload/v1611815729/Appsmith/Onboarding/drag_input.gif",
+  //     },
+  //     action: {
+  //       label: "Continue",
+  //     },
+  //     cheatAction: {
+  //       label: "Super Hack",
+  //       action: {
+  //         type: "ONBOARDING_ADD_ONSUBMIT_BINDING",
+  //       },
+  //     },
+  //   },
+  // },
   [OnboardingStep.DEPLOY]: {
     name: "DEPLOY",
     setup: () => {
@@ -223,8 +225,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
     helper: {
       step: 5,
-      title:
-        "Great Job! You built an active app that display data from a database.",
+      title: "Deploy the Standup Dashboard to save the world from meetings!",
       description:
         "Simple isn’t it. You’ve learnt -\n- How to query a database.\n- How to connect response to widget.\n- Deploying your app.",
       action: {

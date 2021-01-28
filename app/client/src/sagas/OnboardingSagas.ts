@@ -142,11 +142,11 @@ function* listenForAddInputWidget() {
       selectedWidget.type === "INPUT_WIDGET" &&
       canvasWidgets[selectedWidget.widgetId]
     ) {
-      yield put(setCurrentStep(OnboardingStep.ADD_ONSUBMIT_BINDING));
-      yield put({
-        type: ReduxActionTypes.SET_HELPER_CONFIG,
-        payload: getHelperConfig(OnboardingStep.ADD_ONSUBMIT_BINDING),
-      });
+      // yield put(setCurrentStep(OnboardingStep.DEPLOY));
+      // yield put({
+      //   type: ReduxActionTypes.SET_HELPER_CONFIG,
+      //   payload: getHelperConfig(OnboardingStep.DEPLOY),
+      // });
 
       return;
     }
