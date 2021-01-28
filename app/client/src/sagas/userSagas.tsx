@@ -12,8 +12,6 @@ import UserApi, {
   ForgotPasswordRequest,
   VerifyTokenRequest,
   TokenPasswordUpdateRequest,
-  SwitchUserOrgRequest,
-  AddUserToOrgRequest,
 } from "api/UserApi";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL, BASE_URL } from "constants/routes";
 import history from "utils/history";
@@ -36,6 +34,7 @@ import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { ERROR_CODES } from "constants/ApiConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 
@@ -116,6 +115,13 @@ export function* getCurrentUserSaga() {
       type: ReduxActionErrorTypes.FETCH_USER_DETAILS_ERROR,
       payload: {
         error,
+      },
+    });
+
+    yield put({
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+      payload: {
+        code: ERROR_CODES.SERVER_ERROR,
       },
     });
   }
@@ -211,13 +217,11 @@ export function* invitedUserSignupSaga(
 
 type InviteUserPayload = {
   email: string;
-  groupIds: string[];
+  orgId: string;
+  roleName: string;
 };
 
-export function* inviteUser(
-  payload: { email: string; orgId: string; roleName: string },
-  reject: any,
-) {
+export function* inviteUser(payload: InviteUserPayload, reject: any) {
   const response: ApiResponse = yield callAPI(UserApi.inviteUser, payload);
   const isValidResponse = yield validateResponse(response);
   if (!isValidResponse) {
@@ -302,54 +306,6 @@ export function* verifyUserInviteSaga(action: ReduxAction<VerifyTokenRequest>) {
   }
 }
 
-export function* switchUserOrgSaga(action: ReduxAction<SwitchUserOrgRequest>) {
-  try {
-    const request: SwitchUserOrgRequest = action.payload;
-    const response: ApiResponse = yield call(UserApi.switchUserOrg, request);
-    const isValidResponse = yield validateResponse(response);
-
-    if (isValidResponse) {
-      window.location.reload();
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.SWITCH_ORGANIZATION_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
-
-export function* addUserToOrgSaga(
-  action: ReduxAction<AddUserToOrgRequest & { switchToOrg?: boolean }>,
-) {
-  try {
-    const { orgId, switchToOrg } = action.payload;
-    const request: AddUserToOrgRequest = { orgId };
-    const response: ApiResponse = yield call(UserApi.addOrganization, request);
-    const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      if (switchToOrg) {
-        yield put({
-          type: ReduxActionTypes.SWITCH_ORGANIZATION_INIT,
-          payload: { orgId },
-        });
-      }
-      yield put({
-        type: ReduxActionTypes.ADD_USER_TO_ORG_SUCCESS,
-      });
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.ADD_USER_TO_ORG_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
-
 export function* logoutSaga() {
   try {
     const response: ApiResponse = yield call(UserApi.logoutUser);
@@ -383,7 +339,5 @@ export default function* userSagas() {
       ReduxActionTypes.INVITED_USER_SIGNUP_INIT,
       invitedUserSignupSaga,
     ),
-    takeLatest(ReduxActionTypes.SWITCH_ORGANIZATION_INIT, switchUserOrgSaga),
-    takeLatest(ReduxActionTypes.ADD_USER_TO_ORG_INIT, addUserToOrgSaga),
   ]);
 }

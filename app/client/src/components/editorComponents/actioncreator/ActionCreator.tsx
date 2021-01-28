@@ -25,6 +25,7 @@ import {
   createNewApiAction,
   createNewQueryAction,
 } from "actions/apiPaneActions";
+import { NavigationTargetType } from "../../../sagas/ActionExecutionSagas";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -45,6 +46,19 @@ const FILE_TYPE_OPTIONS = [
   { label: "JPEG", value: "'image/jpeg'", id: "image/jpeg" },
   { label: "PNG", value: "'image/png'", id: "image/png" },
   { label: "SVG", value: "'image/svg+xml'", id: "image/svg+xml" },
+];
+
+const NAVIGATION_TARGET_FIELD_OPTIONS = [
+  {
+    label: "Same window",
+    value: `'${NavigationTargetType.SAME_WINDOW}'`,
+    id: NavigationTargetType.SAME_WINDOW,
+  },
+  {
+    label: "New window",
+    value: `'${NavigationTargetType.NEW_WINDOW}'`,
+    id: NavigationTargetType.NEW_WINDOW,
+  },
 ];
 
 const FUNC_ARGS_REGEX = /((["][^"]*["])|([\[].*[\]])|([\{].*[\}])|(['][^']*['])|([\(].*[\)[=][>][{].*[}])|([^'",][^,"+]*[^'",]*))*/gi;
@@ -189,40 +203,6 @@ const enumTypeGetter = (
   return defaultValue;
 };
 
-const objectTypeSetter = (
-  obj: Object,
-  currentValue: string,
-  argNum: number,
-): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  let args: string[] = [];
-  if (matches.length) {
-    args = argsStringToArray(matches[0][2]);
-    args[argNum] = JSON.stringify(obj);
-  }
-  const result = currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
-  return result;
-};
-
-const objectTypeGetter = (
-  value: string,
-  argNum: number,
-  defaultValue = undefined,
-): Object | undefined => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length) {
-    const args = argsStringToArray(matches[0][2]);
-    const arg = args[argNum];
-    if (arg) {
-      return JSON.parse(arg.trim());
-    }
-  }
-  return defaultValue;
-};
-
 type ActionCreatorProps = {
   value: string;
   isValid: boolean;
@@ -350,6 +330,7 @@ const FieldType = {
   DOWNLOAD_FILE_NAME_FIELD: "DOWNLOAD_FILE_NAME_FIELD",
   DOWNLOAD_FILE_TYPE_FIELD: "DOWNLOAD_FILE_TYPE_FIELD",
   COPY_TEXT_FIELD: "COPY_TEXT_FIELD",
+  NAVIGATION_TARGET_FIELD: "NAVIGATION_TARGET_FIELD",
 };
 type FieldType = typeof FieldType[keyof typeof FieldType];
 
@@ -380,11 +361,7 @@ const fieldConfigs: FieldConfigs = {
       }
       return mainFuncSelectedValue;
     },
-    setter: (
-      option: TreeDropdownOption,
-      currentValue: string,
-      defaultValue?: string,
-    ) => {
+    setter: (option: TreeDropdownOption) => {
       const type: ActionType = option.type || option.value;
       let value = option.value;
       switch (type) {
@@ -443,6 +420,15 @@ const fieldConfigs: FieldConfigs = {
       return textSetter(value, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.NAVIGATION_TARGET_FIELD]: {
+    getter: (value: any) => {
+      return enumTypeGetter(value, 2, NavigationTargetType.SAME_WINDOW);
+    },
+    setter: (option: any, currentValue: string) => {
+      return enumTypeSetter(option.value, currentValue, 2);
+    },
+    view: ViewTypes.SELECTOR_VIEW,
   },
   [FieldType.ALERT_TEXT_FIELD]: {
     getter: (value: string) => {
@@ -666,6 +652,9 @@ function getFieldFromValue(
     fields.push({
       field: FieldType.QUERY_PARAMS_FIELD,
     });
+    fields.push({
+      field: FieldType.NAVIGATION_TARGET_FIELD,
+    });
   }
 
   if (value.indexOf("showModal") !== -1) {
@@ -756,6 +745,7 @@ function renderField(props: {
     case FieldType.PAGE_SELECTOR_FIELD:
     case FieldType.ALERT_TYPE_SELECTOR_FIELD:
     case FieldType.DOWNLOAD_FILE_TYPE_FIELD:
+    case FieldType.NAVIGATION_TARGET_FIELD:
       let label = "";
       let defaultText = "Select Action";
       let options = props.apiOptionTree;
@@ -813,6 +803,11 @@ function renderField(props: {
         label = "Type";
         options = FILE_TYPE_OPTIONS;
         defaultText = "Select file type (optional)";
+      }
+      if (fieldType === FieldType.NAVIGATION_TARGET_FIELD) {
+        label = "Target";
+        options = NAVIGATION_TARGET_FIELD_OPTIONS;
+        defaultText = "Navigation target";
       }
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
         options: options,

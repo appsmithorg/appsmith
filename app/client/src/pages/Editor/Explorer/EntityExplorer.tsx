@@ -9,7 +9,6 @@ import {
 } from "./hooks";
 import Search from "./ExplorerSearch";
 import ExplorerPageGroup from "./Pages/PageGroup";
-import { scrollbarDark } from "constants/DefaultTheme";
 import { NonIdealState, Classes, IPanelProps } from "@blueprintjs/core";
 import WidgetSidebar from "../WidgetSidebar";
 import { BUILDER_PAGE_URL } from "constants/routes";
@@ -22,11 +21,17 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { useSelector } from "react-redux";
 import { getPlugins } from "selectors/entitiesSelector";
+import ScrollIndicator from "components/designSystems/appsmith/ScrollIndicator";
 
 const Wrapper = styled.div`
   height: 100%;
-  overflow-y: scroll;
-  ${scrollbarDark};
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    width: 0px;
+    -webkit-appearance: none;
+  }
 `;
 
 const NoResult = styled(NonIdealState)`
@@ -41,6 +46,7 @@ const StyledDivider = styled(Divider)`
 
 const EntityExplorer = (props: IPanelProps) => {
   const { applicationId } = useParams<ExplorerURLParams>();
+
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
   );
@@ -99,6 +105,7 @@ const EntityExplorer = (props: IPanelProps) => {
       )}
       <StyledDivider />
       <JSDependencies />
+      <ScrollIndicator containerRef={explorerRef} />
     </Wrapper>
   );
 };

@@ -18,6 +18,7 @@ export enum EventType {
   ON_PAGE_LOAD = "ON_PAGE_LOAD",
   ON_PREV_PAGE = "ON_PREV_PAGE",
   ON_NEXT_PAGE = "ON_NEXT_PAGE",
+  ON_PAGE_SIZE_CHANGE = "ON_PAGE_SIZE_CHANGE",
   ON_ERROR = "ON_ERROR",
   ON_SUCCESS = "ON_SUCCESS",
   ON_ROW_SELECTED = "ON_ROW_SELECTED",
@@ -66,10 +67,13 @@ export interface ExecuteErrorPayload {
   actionId: string;
   error: any;
   isPageLoad?: boolean;
+  show?: boolean;
 }
 
 // Group 1 = datasource (https://www.domain.com)
 // Group 2 = path (/nested/path)
 // Group 3 = params (?param=123&param2=12)
 export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/\S*?)(\?\S*)?$/;
+
 export const EXECUTION_PARAM_KEY = "executionParams";
+export const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;

@@ -8,7 +8,8 @@ import {
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { compact, groupBy } from "lodash";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
+import { isStoredDatasource } from "entities/Action";
 import { debounce } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import log from "loglevel";
@@ -46,9 +47,17 @@ export const useFilteredDatasources = (searchKeyword?: string) => {
   const datasources = useMemo(() => {
     const datasourcesPageMap: Record<string, Datasource[]> = {};
     for (const [key, value] of Object.entries(actions)) {
-      const datasourceIds = value.map((action) => action.config.datasource?.id);
+      const datasourceIds = new Set();
+      value.forEach((action) => {
+        if (
+          isStoredDatasource(action.config.datasource) &&
+          action.config.datasource.id
+        ) {
+          datasourceIds.add(action.config.datasource.id);
+        }
+      });
       const activeDatasources = reducerDatasources.filter((datasource) =>
-        datasourceIds.includes(datasource.id),
+        datasourceIds.has(datasource.id),
       );
       datasourcesPageMap[key] = activeDatasources;
     }

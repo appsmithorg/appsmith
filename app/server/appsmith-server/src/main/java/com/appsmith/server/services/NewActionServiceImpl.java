@@ -67,6 +67,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 @Service
@@ -184,7 +185,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return newPageService
                 .findById(action.getPageId(), READ_PAGES)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page", action.getPageId())))
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
                 .flatMap(page -> {
 
                     // Inherit the action policies from the page.
@@ -365,6 +366,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private Mono<ActionDTO> setTransientFieldsInUnpublishedAction(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
 
+        // In case the action is deleted in edit mode (but still exists because this action has been published before
+        // drop the action and return empty
+        if (action.getDeletedAt() != null) {
+            return Mono.empty();
+        }
+
         // In case of an action which was imported from a 3P API, fill in the extra information of the provider required by the front end UI.
         Mono<ActionDTO> providerUpdateMono;
         if ((action.getTemplateId() != null) && (action.getProviderId() != null)) {
@@ -466,11 +473,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     // Now check for erroneous situations which would deter the execution of the action :
 
                     // Error out with in case of an invalid action
-                    if (Boolean.FALSE.equals(action.getIsValid())) {
+                    if (FALSE.equals(action.getIsValid())) {
                         return Mono.error(new AppsmithException(
                                 AppsmithError.INVALID_ACTION,
                                 action.getName(),
-                                actionId,
                                 ArrayUtils.toString(action.getInvalids().toArray())
                         ));
                     }
@@ -514,7 +520,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     if (!CollectionUtils.isEmpty(invalids)) {
                         log.error("Unable to execute actionId: {} because it's datasource is not valid. Cause: {}",
                                 actionId, ArrayUtils.toString(invalids));
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE, ArrayUtils.toString(invalids)));
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE,
+                                datasource.getName(),
+                                ArrayUtils.toString(invalids)));
                     }
                     return pluginService.findById(datasource.getPluginId());
                 })
@@ -684,7 +692,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                                                                DatasourceConfiguration datasourceConfiguration,
                                                                                PaginationField paginationField) {
         if (PaginationField.NEXT.equals(paginationField)) {
-            datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), StandardCharsets.UTF_8));
+            if (actionConfiguration.getNext() == null) {
+                datasourceConfiguration.setUrl(null);
+            } else {
+                datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), StandardCharsets.UTF_8));
+            }
         } else if (PaginationField.PREV.equals(paginationField)) {
             datasourceConfiguration.setUrl(actionConfiguration.getPrev());
         }
@@ -705,6 +717,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .flatMap(action -> generateActionByViewMode(action, false));
     }
 
+    @Override
+    public Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId) {
+        return repository
+                .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, MANAGE_ACTIONS);
+    }
+
     /**
      * Given a list of names of actions and pageId, find all the actions matching this criteria of names and pageId
      *
@@ -713,8 +731,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
      * @return A Flux of Actions that are identified to be executed on page-load.
      */
     @Override
-    public Flux<NewAction> findUnpublishedOnLoadActionsInPage(Set<String> names, String pageId) {
-        return repository.findUnpublishedActionsByNameInAndPageId(names, pageId, MANAGE_ACTIONS);
+    public Flux<NewAction> findUnpublishedActionsInPageByNames(Set<String> names, String pageId) {
+        return repository
+                .findUnpublishedActionsByNameInAndPageId(names, pageId, MANAGE_ACTIONS);
     }
 
     @Override
@@ -849,6 +868,28 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     @Override
     public Flux<NewAction> findByPageId(String pageId) {
         return repository.findByPageId(pageId);
+    }
+
+    @Override
+    public Mono<Boolean> setOnLoad(List<ActionDTO> actions) {
+        if (actions == null) {
+            return Mono.just(FALSE);
+        }
+
+        List<ActionDTO> toUpdateActions = new ArrayList<>();
+
+        for (ActionDTO action : actions) {
+            // If a user has ever set execute on load, this field can not be changed automatically. It has to be
+            // explicitly changed by the user again. Add the action to update only if this condition is false.
+            if (FALSE.equals(action.getUserSetOnLoad())) {
+                action.setExecuteOnLoad(TRUE);
+                toUpdateActions.add(action);
+            }
+        }
+
+        return Flux.fromIterable(toUpdateActions)
+                .flatMap(actionDTO -> updateUnpublishedAction(actionDTO.getId(), actionDTO))
+                .then(Mono.just(TRUE));
     }
 
     @Override

@@ -1,5 +1,6 @@
 import { GenericApiResponse } from "api/ApiResponses";
-import DatasourcesApi, { Datasource } from "api/DatasourcesApi";
+import DatasourcesApi from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import {
   ReduxActionErrorTypes,
@@ -42,6 +43,7 @@ import {
 } from "constants/OnboardingConstants";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { get } from "lodash";
+import { updateWidgetProperty } from "../actions/controlActions";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -84,16 +86,12 @@ function* listenForWidgetAdditions() {
       canvasWidgets[selectedWidget.widgetId]
     ) {
       if (selectedWidget.tableData === initialTableData) {
-        yield put({
-          type: "UPDATE_WIDGET_PROPERTY",
-          payload: {
-            widgetId: selectedWidget.widgetId,
-            propertyName: "tableData",
-            propertyValue: [],
-          },
-        });
+        yield put(
+          updateWidgetProperty(selectedWidget.widgetId, { tableData: [] }),
+        );
       }
 
+      AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET");
       yield put(setCurrentStep(OnboardingStep.ADD_WIDGET));
       yield put({
         type: ReduxActionTypes.ADD_WIDGET_COMPLETE,
@@ -105,11 +103,11 @@ function* listenForWidgetAdditions() {
   }
 }
 
-function* listenForSuccessfullBinding() {
+function* listenForSuccessfulBinding() {
   while (true) {
     yield take();
 
-    let bindSuccessfull = true;
+    let bindSuccessful = true;
     const selectedWidget = yield select(getSelectedWidget);
     if (selectedWidget && selectedWidget.type === "TABLE_WIDGET") {
       const dataTree = yield select(getDataTree);
@@ -118,25 +116,25 @@ function* listenForSuccessfullBinding() {
         const widgetProperties = dataTree[selectedWidget.widgetName];
         const dynamicBindingPathList =
           dataTree[selectedWidget.widgetName].dynamicBindingPathList;
+        const tableHasData = dataTree[selectedWidget.widgetName].tableData;
         const hasBinding =
           dynamicBindingPathList && !!dynamicBindingPathList.length;
 
-        if (hasBinding) {
-          yield put(showTooltip(OnboardingStep.NONE));
-        }
-
-        bindSuccessfull = bindSuccessfull && hasBinding;
+        bindSuccessful =
+          bindSuccessful && hasBinding && tableHasData && tableHasData.length;
 
         if (widgetProperties.invalidProps) {
-          bindSuccessfull =
-            bindSuccessfull &&
+          bindSuccessful =
+            bindSuccessful &&
             !(
               "tableData" in widgetProperties.invalidProps &&
               widgetProperties.invalidProps.tableData
             );
         }
 
-        if (bindSuccessfull) {
+        if (bindSuccessful) {
+          yield put(showTooltip(OnboardingStep.NONE));
+          AnalyticsUtil.logEvent("ONBOARDING_SUCCESSFUL_BINDING");
           yield put(setCurrentStep(OnboardingStep.SUCCESSFUL_BINDING));
 
           // Show tooltip now
@@ -154,6 +152,8 @@ function* listenForSuccessfullBinding() {
 }
 
 function* createOnboardingDatasource() {
+  AnalyticsUtil.logEvent("ONBOARDING_EXAMPLE_DATABASE");
+
   try {
     const organizationId = yield select(getCurrentOrgId);
     const plugins = yield select(getPlugins);
@@ -212,10 +212,6 @@ function* createOnboardingDatasource() {
     yield put(changeDatasource(onboardingDatasource));
     yield put(showTooltip(OnboardingStep.EXAMPLE_DATABASE));
     yield put(showIndicator(OnboardingStep.EXAMPLE_DATABASE));
-
-    // Need to hide this tooltip based on some events
-    yield take([ReduxActionTypes.QUERY_PANE_CHANGE]);
-    yield put(showTooltip(OnboardingStep.NONE));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_ONBOARDING_DBQUERY_ERROR,
@@ -226,6 +222,7 @@ function* createOnboardingDatasource() {
 
 function* listenForCreateAction() {
   yield take([ReduxActionTypes.CREATE_ACTION_SUCCESS]);
+  AnalyticsUtil.logEvent("ONBOARDING_ADD_QUERY");
   yield put(setCurrentStep(OnboardingStep.RUN_QUERY));
 
   yield put(showTooltip(OnboardingStep.RUN_QUERY));
@@ -239,25 +236,11 @@ function* listenForCreateAction() {
   yield put(showTooltip(OnboardingStep.NONE));
 
   yield take([ReduxActionTypes.RUN_ACTION_SUCCESS]);
+  AnalyticsUtil.logEvent("ONBOARDING_RUN_QUERY");
+
   yield put(setCurrentStep(OnboardingStep.RUN_QUERY_SUCCESS));
   yield put(showTooltip(OnboardingStep.RUN_QUERY_SUCCESS));
   yield put(showIndicator(OnboardingStep.RUN_QUERY_SUCCESS));
-}
-
-function* listenForWidgetUnselection() {
-  while (true) {
-    yield take();
-
-    yield take(ReduxActionTypes.HIDE_PROPERTY_PANE);
-    const currentStep = yield select(getCurrentStep);
-    const isinOnboarding = yield select(inOnboarding);
-
-    if (!isinOnboarding || currentStep !== OnboardingStep.DEPLOY) return;
-
-    yield delay(1000);
-    yield put(showTooltip(OnboardingStep.DEPLOY));
-    return;
-  }
 }
 
 function* listenForDeploySaga() {
@@ -265,6 +248,7 @@ function* listenForDeploySaga() {
     yield take();
 
     yield take(ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS);
+    AnalyticsUtil.logEvent("ONBOARDING_DEPLOY");
     yield put(showTooltip(OnboardingStep.NONE));
 
     yield put(setCurrentStep(OnboardingStep.FINISH));
@@ -304,9 +288,6 @@ function* proceedOnboardingSaga() {
 function* setupOnboardingStep() {
   const currentStep: OnboardingStep = yield select(getCurrentStep);
   const currentConfig = OnboardingConfig[currentStep];
-  if (currentConfig.eventName) {
-    AnalyticsUtil.logEvent(currentConfig.eventName);
-  }
   let actions = currentConfig.setup();
 
   if (actions.length) {
@@ -316,7 +297,6 @@ function* setupOnboardingStep() {
 }
 
 function* skipOnboardingSaga() {
-  AnalyticsUtil.logEvent("END_ONBOARDING");
   const set = yield setOnboardingState(false);
 
   if (set) {
@@ -336,11 +316,7 @@ export default function* onboardingSagas() {
     takeEvery(ReduxActionTypes.LISTEN_FOR_ADD_WIDGET, listenForWidgetAdditions),
     takeEvery(
       ReduxActionTypes.LISTEN_FOR_TABLE_WIDGET_BINDING,
-      listenForSuccessfullBinding,
-    ),
-    takeEvery(
-      ReduxActionTypes.LISTEN_FOR_WIDGET_UNSELECTION,
-      listenForWidgetUnselection,
+      listenForSuccessfulBinding,
     ),
     takeEvery(ReduxActionTypes.SET_CURRENT_STEP, setupOnboardingStep),
     takeEvery(ReduxActionTypes.LISTEN_FOR_DEPLOY, listenForDeploySaga),

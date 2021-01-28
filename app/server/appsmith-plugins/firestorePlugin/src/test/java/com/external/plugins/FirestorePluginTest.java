@@ -19,6 +19,7 @@ import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -56,7 +57,12 @@ public class FirestorePluginTest {
                 .getService();
 
         firestoreConnection.document("initial/one").set(Map.of("value", 1, "name", "one", "isPlural", false)).get();
-        firestoreConnection.document("initial/two").set(Map.of("value", 2, "name", "two", "isPlural", true)).get();
+        firestoreConnection.document("initial/two").set(Map.of(
+                "value", 2,
+                "name", "two",
+                "isPlural", true,
+                "ref", firestoreConnection.document("initial/one")
+        )).get();
         firestoreConnection.document("changing/to-update").set(Map.of("value", 1)).get();
         firestoreConnection.document("changing/to-delete").set(Map.of("value", 1)).get();
 
@@ -79,19 +85,11 @@ public class FirestorePluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
-                    assertTrue(((Map<String, Object>) result.getBody()).entrySet().stream().allMatch(entry -> {
-                        Object value = entry.getValue();
-                        switch (entry.getKey()) {
-                            case "name":
-                                return "one".equals(value);
-                            case "isPlural":
-                                return Boolean.FALSE.equals(value);
-                            case "value":
-                                return value.equals(1L);
-                            default:
-                                return false;
-                        }
-                    }));
+                    final Map<String, Object> first = (Map) result.getBody();
+                    assertEquals("one", first.remove("name"));
+                    assertFalse((Boolean) first.remove("isPlural"));
+                    assertEquals(1L, first.remove("value"));
+                    assertEquals(Collections.emptyMap(), first);
                 })
                 .verifyComplete();
     }
@@ -108,7 +106,22 @@ public class FirestorePluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
-                    assertEquals(2, ((List) result.getBody()).size());
+
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    assertEquals(2, results.size());
+
+                    final Map<String, Object> first = results.get(0);
+                    assertEquals("one", first.remove("name"));
+                    assertFalse((Boolean) first.remove("isPlural"));
+                    assertEquals(1L, first.remove("value"));
+                    assertEquals(Collections.emptyMap(), first);
+
+                    final Map<String, Object> second = results.get(1);
+                    assertEquals("two", second.remove("name"));
+                    assertTrue((Boolean) second.remove("isPlural"));
+                    assertEquals(2L, second.remove("value"));
+                    assertEquals(Map.of("path", "initial/one", "id", "one"), second.remove("ref"));
+                    assertEquals(Collections.emptyMap(), second);
                 })
                 .verifyComplete();
     }

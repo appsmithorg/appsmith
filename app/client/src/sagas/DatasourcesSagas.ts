@@ -35,10 +35,8 @@ import {
 } from "actions/datasourceActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { GenericApiResponse } from "api/ApiResponses";
-import DatasourcesApi, {
-  CreateDatasourceConfig,
-  Datasource,
-} from "api/DatasourcesApi";
+import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import PluginApi, { DatasourceForm } from "api/PluginApi";
 
 import {
@@ -392,7 +390,9 @@ function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
       (datasource: Datasource) => datasource.id === datasourceId,
     ),
   );
-  yield put(changeDatasource(datasource));
+  if (datasource) {
+    yield put(changeDatasource(datasource));
+  }
 }
 
 function* formValueChangeSaga(
