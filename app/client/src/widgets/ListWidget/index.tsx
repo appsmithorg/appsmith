@@ -124,8 +124,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
                       set(
                         children[i],
-                        `children.[${j}].children[${k}].settingsControlEnabled`,
-                        false,
+                        `children.[${j}].children[${k}].settingsControlDisabled`,
+                        true,
                       );
 
                       set(

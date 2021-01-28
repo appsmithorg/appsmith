@@ -181,7 +181,7 @@ abstract class BaseWidget<
 
   /**
    * this functions wraps the widget in a component that shows a setting control at the top right
-   * which gets shown on hover. A widget can enable/disable this by setting `settingsControlEnabled` prop
+   * which gets shown on hover. A widget can enable/disable this by setting `settingsControlDisabled` prop
    *
    * @param content
    * @param showControls
@@ -189,7 +189,7 @@ abstract class BaseWidget<
   showWidgetName(content: ReactNode, showControls = false) {
     return (
       <>
-        {this.props.settingsControlEnabled && (
+        {!this.props.settingsControlDisabled && (
           <WidgetNameComponent
             widgetName={this.props.widgetName}
             widgetId={this.props.widgetId}
@@ -310,7 +310,7 @@ abstract class BaseWidget<
     isDeletable: true,
     resizeDisabled: false,
     paddingEnabled: true,
-    settingsControlEnabled: true,
+    settingsControlDisabled: true,
   };
 }
 

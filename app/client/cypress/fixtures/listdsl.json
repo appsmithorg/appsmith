@@ -82,7 +82,7 @@
                 "dragDisabled": true,
                 "isDeletable": false,
                 "paddingEnabled": false,
-                "settingsControlEnabled": false,
+                "settingsControlDisabled": true,
                 "type": "CONTAINER_WIDGET",
                 "isLoading": false,
                 "leftColumn": 0,

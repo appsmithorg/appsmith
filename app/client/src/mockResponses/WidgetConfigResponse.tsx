@@ -542,7 +542,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       dragDisabled: true,
                       isDeletable: false,
                       paddingEnabled: false,
-                      settingsControlEnabled: false,
+                      settingsControlDisabled: true,
                     },
                   },
                 ],
