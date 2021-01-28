@@ -612,6 +612,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const columnIds: string[] = getAllTableColumnKeys(this.props.tableData);
       // Get column keys from columns except for derivedColumns
       const primaryColumnIds = (this.props.primaryColumns || [])
+        .filter(Boolean)
         .filter((column: ColumnProperties) => {
           return !column.isDerived; // Filter out the derived columns
         })

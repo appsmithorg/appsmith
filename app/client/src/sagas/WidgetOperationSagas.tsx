@@ -923,16 +923,41 @@ function* deleteWidgetPropertySaga(
   const stateWidgets = yield select(getWidgets);
   // Cloning because we probably froze the properties earlier
   // TODO(abhinav): Check if we need to use immer to handle this.
-  const widget = _.cloneDeep(stateWidget);
+  let widget = _.cloneDeep(stateWidget);
   propertyPaths.forEach((propertyPath) => {
-    _.unset(widget, propertyPath);
+    widget = unsetPropertyPath(widget, propertyPath) as WidgetProps;
   });
+
+  console.log("Table log:", { widget }, { propertyPaths });
 
   const widgets = { ...stateWidgets, [widgetId]: widget };
 
   // Save the layout
   yield put(updateAndSaveLayout(widgets));
 }
+
+//TODO(abhinav): Move this to helpers and add tests
+const unsetPropertyPath = (obj: Record<string, unknown>, path: string) => {
+  const regex = /(.*)\[\d+\]$/;
+  if (regex.test(path)) {
+    const matches = path.match(regex);
+    if (
+      matches &&
+      Array.isArray(matches) &&
+      matches[1] &&
+      matches[1].length > 0
+    ) {
+      _.unset(obj, path);
+      const arr = _.get(obj, matches[1]);
+      if (arr && Array.isArray(arr)) {
+        _.set(obj, matches[1], arr.filter(Boolean));
+      }
+    }
+  } else {
+    _.unset(obj, path);
+  }
+  return obj;
+};
 
 function* getWidgetChildren(widgetId: string): any {
   const childrenIds: string[] = [];
