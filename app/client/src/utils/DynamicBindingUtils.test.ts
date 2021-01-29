@@ -43,6 +43,9 @@ describe("isChildPropertyPath function", () => {
       ["Table1.selectedRow", "1Table1.selectedRow", false],
       ["Table1.selectedRow", "Table11selectedRow", false],
       ["Table1.selectedRow", "Table1.selectedRow", true],
+      ["Dropdown1.options", "Dropdown1.options[1]", true],
+      ["Dropdown1.options[1]", "Dropdown1.options[1].value", true],
+      ["Dropdown1", "Dropdown1.options[1].value", true],
     ];
     cases.forEach((testCase) => {
       const result = isChildPropertyPath(testCase[0], testCase[1]);
