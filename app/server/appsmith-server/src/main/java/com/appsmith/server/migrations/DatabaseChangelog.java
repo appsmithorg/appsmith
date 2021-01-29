@@ -1587,10 +1587,8 @@ public class DatabaseChangelog {
         plugin.setPackageName("s3-plugin");
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.TABLE);
-        // TODO: fix it.
-        plugin.setIconLocation("https://www.cloudsavvyit.com/thumbcache/0/0/5398aa629b05ec6fef5a34171383daa7/p/uploads/2019/06/55634f08.png");
-        // TODO: fix it.
-        plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-redshift");
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/aws_s3_logo.jpeg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-s3");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
