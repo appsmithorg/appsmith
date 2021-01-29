@@ -900,7 +900,6 @@ export class DataTreeEvaluator {
     // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
     // TODO: Optimise by only getting paths of changed node
     this.allKeys = getAllPaths(unEvalDataTree);
-    console.log(JSON.parse(JSON.stringify(this.allKeys)));
     this.validationPaths = this.getValidationPaths(unEvalDataTree);
     // Transform the diff library events to Appsmith evaluator events
     differences
@@ -1235,32 +1234,6 @@ export class DataTreeEvaluator {
     this.errors = [];
   }
 }
-
-// const getAllPaths = (
-//   tree: Record<string, any>,
-//   prefix = "",
-//   result: Record<string, true> = {},
-// ): Record<string, true> => {
-//   Object.keys(tree).forEach((el) => {
-//     if (Array.isArray(tree[el])) {
-//       const key = `${prefix}${el}`;
-//       result[key] = true;
-//       for (let i = 0; i < tree[el].length; i++) {
-//         debugger;
-//         getAllPaths(tree[el], `${key}[${i}]`, result);
-//         debugger;
-//       }
-//     } else if (typeof tree[el] === "object" && tree[el] !== null) {
-//       const key = `${prefix}${el}`;
-//       result[key] = true;
-//       getAllPaths(tree[el], `${key}.`, result);
-//     } else {
-//       const key = `${prefix}${el}`;
-//       result[key] = true;
-//     }
-//   });
-//   return result;
-// };
 
 const extractReferencesFromBinding = (
   path: string,
