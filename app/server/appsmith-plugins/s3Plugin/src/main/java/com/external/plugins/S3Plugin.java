@@ -384,7 +384,7 @@ public class S3Plugin extends BasePlugin {
                         return connection;
                     })
                     .onErrorResume(exception -> {
-                        System.out.println("In datasourceDestroy function error mode: " + exception);
+                        System.out.println("Error closing S3 connection: " + exception);
                         return Mono.empty();
                     })
                     .subscribeOn(scheduler)
