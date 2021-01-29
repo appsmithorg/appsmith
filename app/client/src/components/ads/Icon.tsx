@@ -25,6 +25,7 @@ import { ReactComponent as CloseModalIcon } from "assets/icons/ads/close-modal.s
 import { ReactComponent as NoResponseIcon } from "assets/icons/ads/no-response.svg";
 import { ReactComponent as LightningIcon } from "assets/icons/ads/lightning.svg";
 import { ReactComponent as AddMoreIcon } from "assets/icons/ads/add-more.svg";
+import { ReactComponent as RightArrowIcon } from "assets/icons/ads/right-arrow.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -83,6 +84,7 @@ export const IconCollection = [
   "billing",
   "edit",
   "error",
+  "danger",
   "success",
   "search",
   "close",
@@ -103,6 +105,7 @@ export const IconCollection = [
   "no-response",
   "lightning",
   "add-more",
+  "right-arrow",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -168,6 +171,9 @@ const Icon = forwardRef(
       case "error":
         returnIcon = <ErrorIcon />;
         break;
+      case "danger":
+        returnIcon = <ErrorIcon />;
+        break;
       case "success":
         returnIcon = <SuccessIcon />;
         break;
@@ -227,6 +233,9 @@ const Icon = forwardRef(
         break;
       case "add-more":
         returnIcon = <AddMoreIcon />;
+        break;
+      case "right-arrow":
+        returnIcon = <RightArrowIcon />;
         break;
       default:
         returnIcon = null;

@@ -390,13 +390,13 @@ const OrgInviteUsersForm = (props: any) => {
         <ErrorBox message={submitSucceeded || submitFailed}>
           {submitSucceeded && (
             <Callout
-              text={INVITE_USERS_SUBMIT_SUCCESS}
               variant={Variant.success}
               fill
+              text={INVITE_USERS_SUBMIT_SUCCESS}
             />
           )}
           {((submitFailed && error) || emailError) && (
-            <Callout text={error || emailError} variant={Variant.danger} fill />
+            <Callout variant={Variant.danger} fill text={error || emailError} />
           )}
         </ErrorBox>
         {!pathRegex.test(currentPath) && canManage && (

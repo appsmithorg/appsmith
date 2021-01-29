@@ -39,8 +39,10 @@ import Button, { Size } from "components/ads/Button";
 import { TabComponent } from "components/ads/Tabs";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import Text, { TextType } from "components/ads/Text";
-import { Classes } from "components/ads/common";
+import Text, { Case, TextType } from "components/ads/Text";
+import { Classes, Variant } from "components/ads/common";
+import Callout from "components/ads/Callout";
+import { useLocalStorage } from "utils/hooks/localstorage";
 
 const Form = styled.form`
   display: flex;
@@ -182,6 +184,25 @@ const NoBodyMessage = styled.div`
   }
 `;
 
+const CalloutContent = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const Link = styled.a`
+  display: flex;
+  margin-left: ${(props) => props.theme.spaces[1] + 1}px;
+  .${Classes.ICON} {
+    margin-left: ${(props) => props.theme.spaces[1] + 1}px;
+  }
+`;
+
+const HelpSection = styled.div`
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[12]}px 0px
+    ${(props) => props.theme.spaces[12]}px;
+`;
+
 interface APIFormProps {
   pluginId: string;
   onRunClick: (paginationField?: PaginationField) => void;
@@ -212,6 +233,10 @@ export const NameWrapper = styled.div`
 
 const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [
+    apiBindHelpSectionVisible,
+    setApiBindHelpSectionVisible,
+  ] = useLocalStorage("apiBindHelpSectionVisible", "true");
   const themeMode = useSelector(getThemeDetails).mode;
   const theme = useMemo(() => {
     if (themeMode === "LIGHT") {
@@ -315,17 +340,31 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 title: "Headers",
                 panelComponent: (
                   <TabSection>
-                    {/* <CollapsibleHelp>
-                      <span>{`Having trouble taking inputs from widget?`}</span>
-                      <a
-                        href={`${HelpBaseURL}${HelpMap["API_BINDING"].path}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {" Learn How "}
-                        <StyledOpenDocsIcon icon="document-open" />
-                      </a>
-                    </CollapsibleHelp> */}
+                    {apiBindHelpSectionVisible && (
+                      <HelpSection>
+                        <Callout
+                          text="Having trouble taking inputs from widgets?"
+                          label={
+                            <CalloutContent>
+                              <Link
+                                href={`${HelpBaseURL}${HelpMap["API_BINDING"].path}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Text type={TextType.H6} case={Case.UPPERCASE}>
+                                  Learn How
+                                </Text>
+                                <Icon name="right-arrow" />
+                              </Link>
+                            </CalloutContent>
+                          }
+                          variant={Variant.warning}
+                          fill
+                          closeButton
+                          onClose={() => setApiBindHelpSectionVisible(false)}
+                        />
+                      </HelpSection>
+                    )}
                     <KeyValueFieldArray
                       theme={theme}
                       name="actionConfiguration.headers"
