@@ -33,17 +33,16 @@ import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey, hideScrollbar } from "constants/DefaultTheme";
 import { IconWrapper } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
+  height: unset;
   padding: 0;
   background-color: ${(props) => props.theme.colors.header.background};
-  height: ${(props) =>
-    props.hasPages ? "70px" : props.theme.smallHeaderHeight};
   color: white;
   flex-direction: column;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
@@ -92,6 +91,7 @@ const HeaderRow = styled.div<{ justify: string }>`
   flex: 1;
   flex-direction: row;
   justify-content: ${(props) => props.justify};
+  height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
 `;
 
 const HeaderSection = styled.div<{ justify: string }>`
@@ -129,6 +129,9 @@ const TabsContainer = styled.div`
     ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
   width: 100%;
   padding-left: 30px;
+  display: flex;
+  overflow: auto;
+  ${hideScrollbar}
 `;
 
 const PageTab = styled(NavLink)`
@@ -147,11 +150,11 @@ const PageTab = styled(NavLink)`
 `;
 
 const StyleTabText = styled.div`
+  height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
   display: flex;
   align-items: center;
   ${(props) => getTypographyByKey(props, "h6")}
   color: ${(props) => props.theme.colors.header.tabText};
-  height: ${(props) => `calc(${props.theme.smallHeaderHeight} - 2px)`};
   border-bottom: 2px solid transparent;
   ${PageTab}.is-active & {
     border-color: ${(props) => props.theme.colors.header.activeTabBorderBottom};
@@ -205,6 +208,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const queryParams = new URLSearchParams(useLocation().search);
   const isEmbed = queryParams.get("embed");
   const hideHeader = !!isEmbed;
+
   const HtmlTitle = () => {
     if (!currentApplicationDetails?.name) return null;
     return (
@@ -311,21 +315,19 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
       </HeaderRow>
       {appPages.length > 1 && (
         <TabsContainer>
-          <HeaderRow justify={"flex-start"}>
-            {appPages.map((page) => (
-              <PageTab
-                key={page.pageId}
-                to={getApplicationViewerPageURL(
-                  currentApplicationDetails?.id,
-                  page.pageId,
-                )}
-                activeClassName="is-active"
-                className="t--page-switch-tab"
-              >
-                <PageTabName name={page.pageName} />
-              </PageTab>
-            ))}
-          </HeaderRow>
+          {appPages.map((page) => (
+            <PageTab
+              key={page.pageId}
+              to={getApplicationViewerPageURL(
+                currentApplicationDetails?.id,
+                page.pageId,
+              )}
+              activeClassName="is-active"
+              className="t--page-switch-tab"
+            >
+              <PageTabName name={page.pageName} />
+            </PageTab>
+          ))}
         </TabsContainer>
       )}
     </HeaderWrapper>

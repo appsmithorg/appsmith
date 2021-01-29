@@ -41,6 +41,15 @@ export enum Skin {
   DARK,
 }
 
+export const hideScrollbar = css`
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+    -webkit-appearance: none;
+  }
+`;
+
 export const scrollbarDark = css`
   scrollbar-color: ${(props) => props.theme.colors.paneCard}
     ${(props) => props.theme.colors.paneBG};
@@ -1706,7 +1715,6 @@ export const theme: Theme = {
 
 export const scrollbarLight = css<{ backgroundColor?: Color }>`
   scrollbar-color: ${(props) => props.theme.colors.paneText}
-
   scrollbar-width: thin;
   &::-webkit-scrollbar {
     width: 4px;
