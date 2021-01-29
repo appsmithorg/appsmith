@@ -404,6 +404,7 @@ function* handleCreateNewQueryActionSaga(
       if (currentStep === OnboardingStep.ADD_INPUT_WIDGET) {
         createActionPayload = {
           ...createActionPayload,
+          name: "add_standup_updates",
           actionConfiguration: {
             body: `Insert into standup_updates("name", "notes") values ('{{appsmith.user.email}}', '{{ Standup_Input.text }}')`,
           },

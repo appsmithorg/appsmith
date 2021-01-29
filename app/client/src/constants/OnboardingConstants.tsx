@@ -3,6 +3,7 @@ import { ReduxActionTypes } from "./ReduxActionConstants";
 import HandwaveGif from "assets/gifs/handwave.gif";
 import DeployGif from "assets/gifs/deploy_green.gif";
 import InputDragGif from "assets/gifs/input_drag.gif";
+import SuperHeroGif from "assets/gifs/super_hero.gif";
 
 export enum OnboardingStep {
   NONE = -1,
@@ -216,6 +217,9 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         "Great Job! You built an app that every hero needs, and in just a few minutes.",
       description:
         "WHAT YOU’VE LEARNT\n1. Query a database directly\n2. Build a dashboard without HTML/CSS\n3. Connect data to the UI using JS\n4. Deploy an app with a Click",
+      image: {
+        src: SuperHeroGif,
+      },
       action: {
         label: "End Tour",
         action: endOnboarding(),
