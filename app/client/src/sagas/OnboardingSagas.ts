@@ -332,7 +332,7 @@ function* listenForCreateAction() {
     type: ReduxActionTypes.SET_HELPER_CONFIG,
     payload: getHelperConfig(OnboardingStep.RUN_QUERY_SUCCESS),
   });
-  yield put(showIndicator(OnboardingStep.NONE));
+  yield put(showIndicator(OnboardingStep.RUN_QUERY_SUCCESS));
 
   yield put(setCurrentStep(OnboardingStep.RUN_QUERY_SUCCESS));
 }

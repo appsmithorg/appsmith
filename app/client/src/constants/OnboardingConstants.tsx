@@ -1,5 +1,7 @@
 import { endOnboarding, showIndicator } from "actions/onboardingActions";
 import { ReduxActionTypes } from "./ReduxActionConstants";
+import HandwaveGif from "assets/gifs/handwave.gif";
+import DeployGif from "assets/gifs/deploy_green.gif";
 
 export enum OnboardingStep {
   NONE = -1,
@@ -63,6 +65,9 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       description:
         "Let's build an app for remote teams to do async update meetings",
       skipLabel: "No thanks",
+      image: {
+        src: HandwaveGif,
+      },
       action: {
         label: "Let’s go",
         action: {
@@ -189,6 +194,9 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     helper: {
       step: 5,
       title: "Deploy the Standup Dashboard to save the world from meetings!",
+      image: {
+        src: DeployGif,
+      },
       cheatAction: {
         label: "Do it for me",
         action: {
