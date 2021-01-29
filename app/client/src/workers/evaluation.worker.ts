@@ -40,6 +40,7 @@ import {
   translateDiffEventToDataTreeDiffEvent,
   validateWidgetProperty,
   getImmediateParentsOfPropertyPaths,
+  getAllPaths,
 } from "./evaluationUtils";
 import {
   EXECUTION_PARAM_KEY,
@@ -1234,49 +1235,32 @@ export class DataTreeEvaluator {
   }
 }
 
-const getAllPaths = (
-  tree: Record<string, any>,
-  prefix = "",
-  result: Record<string, true> = {},
-): Record<string, true> => {
-  Object.keys(tree).forEach((el) => {
-    if (Array.isArray(tree[el])) {
-      const key = `${prefix}${el}`;
-      result[key] = true;
-    } else if (typeof tree[el] === "object" && tree[el] !== null) {
-      const key = `${prefix}${el}`;
-      result[key] = true;
-      getAllPaths(tree[el], `${key}.`, result);
-    } else {
-      const key = `${prefix}${el}`;
-      result[key] = true;
-    }
-  });
-  return result;
-};
-
 const extractReferencesFromBinding = (
   path: string,
   all: Record<string, true>,
 ): Array<string> => {
   const subDeps: Array<string> = [];
-  const identifiers = path.match(/[a-zA-Z_$][a-zA-Z_$0-9.]*/g) || [path];
+  const identifiers = path.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [path];
   identifiers.forEach((identifier: string) => {
+    // If the identifier exists directly, add it and return
     if (all.hasOwnProperty(identifier)) {
       subDeps.push(identifier);
-    } else {
-      const subIdentifiers =
-        identifier.match(/[a-zA-Z_$][a-zA-Z_$0-9]*/g) || [];
-      let current = "";
-      for (let i = 0; i < subIdentifiers.length; i++) {
-        const key = `${current}${current ? "." : ""}${subIdentifiers[i]}`;
-        if (key in all) {
-          current = key;
-        } else {
-          break;
-        }
+      return;
+    }
+    const subpaths = _.toPath(identifier);
+    let current = "";
+    // We want to keep going till we reach top level, but not add top level
+    // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
+    // This is mainly to avoid a lot of unnecessary evals, if we feel this is wrong
+    // we can remove the length requirement and it will still work
+    while (subpaths.length > 1) {
+      current = convertPathToString(subpaths);
+      // We've found the dep, add it and return
+      if (all.hasOwnProperty(current)) {
+        subDeps.push(current);
+        return;
       }
-      if (current && current.includes(".")) subDeps.push(current);
+      subpaths.pop();
     }
   });
   return _.uniq(subDeps);
