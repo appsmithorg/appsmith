@@ -314,3 +314,7 @@ export function getValidatedTree(
     return { ...tree, [entityKey]: parsedEntity };
   }, tree);
 }
+
+export const getAllPaths = (tree: any) => {
+  return {};
+};
