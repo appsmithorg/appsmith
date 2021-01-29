@@ -43,6 +43,7 @@ export type TextInputProps = CommonComponentProps & {
   validator?: (value: string) => { isValid: boolean; message: string };
   onChange?: (value: string) => void;
   readOnly?: boolean;
+  dataType?: string;
 };
 
 type boxReturnType = {
@@ -179,7 +180,7 @@ const TextInput = forwardRef(
     return (
       <InputWrapper>
         <StyledInput
-          type="text"
+          type={props.dataType || "text"}
           ref={ref}
           inputStyle={inputStyle}
           isValid={validation.isValid}

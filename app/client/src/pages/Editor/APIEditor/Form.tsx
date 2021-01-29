@@ -162,7 +162,8 @@ const RequestParamsWrapper = styled.div`
 `;
 
 const SettingsWrapper = styled.div`
-  padding-left: 15px;
+  padding: 16px 30px;
+  height: 100%;
   ${FormLabel} {
     padding: 0px;
   }
@@ -432,6 +433,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                     <ActionSettings
                       actionSettingsConfig={apiActionSettingsConfig}
                       formName={API_EDITOR_FORM_NAME}
+                      theme={theme}
                     />
                   </SettingsWrapper>
                 ),

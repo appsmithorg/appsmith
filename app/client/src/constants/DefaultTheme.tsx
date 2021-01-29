@@ -783,6 +783,9 @@ type ColorType = {
     body: {
       text: string;
     };
+    settings: {
+      textColor: ShadeColor;
+    };
     pagination: {
       label: ShadeColor;
       description: ShadeColor;
@@ -1130,6 +1133,9 @@ export const dark: ColorType = {
     },
     body: {
       text: "#6D6D6D",
+    },
+    settings: {
+      textColor: "#FFFFFF",
     },
     pagination: {
       label: darkShades[7],
@@ -1482,6 +1488,9 @@ export const light: ColorType = {
     },
     body: {
       text: "#A9A7A7",
+    },
+    settings: {
+      textColor: "#090707",
     },
     pagination: {
       label: lightShades[8],
