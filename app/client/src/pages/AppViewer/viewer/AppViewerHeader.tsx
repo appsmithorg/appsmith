@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useState } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
@@ -16,7 +16,6 @@ import {
 import {
   APPLICATIONS_URL,
   AUTH_LOGIN_URL,
-  getApplicationViewerPageURL,
   SIGN_UP_URL,
 } from "constants/routes";
 import { connect } from "react-redux";
@@ -29,15 +28,14 @@ import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
-import { isEllipsisActive } from "utils/helpers";
-import TooltipComponent from "components/ads/Tooltip";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
-import { getTypographyByKey, hideScrollbar } from "constants/DefaultTheme";
+import { getTypographyByKey } from "constants/DefaultTheme";
 import { IconWrapper } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
+import PageTabsContainer from "./PageTabsContainer";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   height: unset;
@@ -124,73 +122,6 @@ const HeaderRightItemContainer = styled.div`
   height: 100%;
 `;
 
-const TabsContainer = styled.div`
-  border-top: 1px solid
-    ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
-  width: 100%;
-  padding-left: 30px;
-  display: flex;
-  overflow: auto;
-  ${hideScrollbar}
-`;
-
-const PageTab = styled(NavLink)`
-  display: flex;
-  max-width: 170px;
-  margin-right: 1px;
-  align-self: flex-end;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  padding: 0px ${(props) => props.theme.spaces[7]}px;
-  &:hover {
-    text-decoration: none;
-  }
-`;
-
-const StyleTabText = styled.div`
-  height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
-  display: flex;
-  align-items: center;
-  ${(props) => getTypographyByKey(props, "h6")}
-  color: ${(props) => props.theme.colors.header.tabText};
-  border-bottom: 2px solid transparent;
-  ${PageTab}.is-active & {
-    border-color: ${(props) => props.theme.colors.header.activeTabBorderBottom};
-  }
-  & span {
-    max-width: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-`;
-
-const PageTabName: React.FunctionComponent<{ name: string }> = ({ name }) => {
-  const tabNameRef = useRef<HTMLSpanElement>(null);
-  const [ellipsisActive, setEllipsisActive] = useState(false);
-  const tabNameText = (
-    <StyleTabText>
-      <span ref={tabNameRef}>{name}</span>
-    </StyleTabText>
-  );
-
-  useEffect(() => {
-    if (isEllipsisActive(tabNameRef?.current)) {
-      setEllipsisActive(true);
-    }
-  }, [tabNameRef]);
-
-  return ellipsisActive ? (
-    <TooltipComponent maxWidth={400} content={name}>
-      {tabNameText}
-    </TooltipComponent>
-  ) : (
-    <>{tabNameText}</>
-  );
-};
-
 type AppViewerHeaderProps = {
   url?: string;
   currentApplicationDetails?: ApplicationPayload;
@@ -205,7 +136,8 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const canEdit = isPermitted(userPermissions, permissionRequired);
-  const queryParams = new URLSearchParams(useLocation().search);
+  const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const hideHeader = !!isEmbed;
 
@@ -218,16 +150,6 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
     );
   };
   if (hideHeader) return <HtmlTitle />;
-  // Mark default page as first page
-  const appPages = pages;
-  if (appPages.length > 1) {
-    appPages.forEach(function(item, i) {
-      if (item.isDefault) {
-        appPages.splice(i, 1);
-        appPages.unshift(item);
-      }
-    });
-  }
 
   const forkAppUrl = `${window.location.origin}${SIGN_UP_URL}?appId=${currentApplicationDetails?.id}`;
   const loginAppUrl = `${window.location.origin}${AUTH_LOGIN_URL}?appId=${currentApplicationDetails?.id}`;
@@ -313,23 +235,10 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
           )}
         </HeaderSection>
       </HeaderRow>
-      {appPages.length > 1 && (
-        <TabsContainer>
-          {appPages.map((page) => (
-            <PageTab
-              key={page.pageId}
-              to={getApplicationViewerPageURL(
-                currentApplicationDetails?.id,
-                page.pageId,
-              )}
-              activeClassName="is-active"
-              className="t--page-switch-tab"
-            >
-              <PageTabName name={page.pageName} />
-            </PageTab>
-          ))}
-        </TabsContainer>
-      )}
+      <PageTabsContainer
+        pages={pages}
+        currentApplicationDetails={currentApplicationDetails}
+      />
     </HeaderWrapper>
   );
 };
