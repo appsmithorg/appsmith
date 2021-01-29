@@ -81,8 +81,8 @@ const Welcome = () => {
         }
       />
       <Description>
-        Superheroes much like engineers have to coordinate their daily plans so
-        that no villain (bug) gets away! However, all heroes hate morning
+        🦸🏻‍♂️ Superheroes much like engineers have to coordinate their daily plans
+        so that no villain (bug) gets away! However, all heroes hate morning
         meetings so a daily standup app is just what we need.
       </Description>
       {datasourceCreated ? (
