@@ -8,6 +8,7 @@ export const TableWrapper = styled.div<{
   height: number;
   tableSizes: TableSizes;
   backgroundColor?: Color;
+  triggerRowSelection: boolean;
 }>`
   width: 100%;
   height: 100%;
@@ -41,6 +42,7 @@ export const TableWrapper = styled.div<{
     }
     .tr {
       overflow: hidden;
+      cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
       &.selected-row {
         background: ${Colors.POLAR};

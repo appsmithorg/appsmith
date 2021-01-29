@@ -190,7 +190,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         // Check if the user exists in our DB. If not, we will not send a password reset link to the user
         Mono<User> userMono = repository.findByEmail(email)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.USER_NOT_FOUND, email)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)));
 
         // Generate the password reset link for the user
         Mono<PasswordResetToken> passwordResetTokenMono = passwordResetTokenRepository.findByEmail(email)
@@ -247,7 +247,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         return passwordResetTokenRepository
                 .findByEmail(email)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "email", email)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.EMAIL, email)))
                 .flatMap(obj -> {
                     boolean matches = this.passwordEncoder.matches(token, obj.getTokenHash());
                     if (!matches) {
@@ -256,7 +256,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
                     return repository
                             .findByEmail(email)
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "user", email)))
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
                             .map(user -> {
                                 user.setPasswordResetInitiated(true);
                                 return user;
@@ -280,7 +280,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         return repository
                 .findByEmail(user.getEmail())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "user", user.getEmail())))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, user.getEmail())))
                 .flatMap(userFromDb -> {
                     if (!userFromDb.getPasswordResetInitiated()) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PASSWORD_RESET));
@@ -296,7 +296,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
                     return passwordResetTokenRepository
                             .findByEmail(user.getEmail())
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "token", token)))
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TOKEN, token)))
                             .flatMap(passwordResetTokenRepository::delete)
                             .then(repository.save(userFromDb))
                             .thenReturn(true);
@@ -326,7 +326,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         // permission on this app
         Mono<Application> applicationMono = applicationRepository
                 .findById(applicationId, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED,
+                        "Invite users to this application")));
 
         // Check if the new user is already a part of the appsmith ecosystem. If yes, then simply
         // add the user with the required permissions to the application
@@ -680,13 +681,15 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         // The current organization has no members. Clearly the current user is also not present
         if (userRoles == null || userRoles.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED));
+            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED,
+                    "Invite a user for the role " + invitedRoleName));
         }
 
         Optional<UserRole> optionalUserRole = userRoles.stream().filter(role -> role.getUsername().equals(username)).findFirst();
         // If the current user is not present in the organization, the user would also not be permitted to invite
         if (!optionalUserRole.isPresent()) {
-            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED));
+            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED,
+                    "Invite a user for the role " + invitedRoleName));
         }
 
         UserRole currentUserRole = optionalUserRole.get();
@@ -700,7 +703,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         // If the role for which users are being invited is not in the list of permissible roles that the
         // current user can invite for, throw an error
         if (!appsmithRoles.contains(invitedRole)) {
-            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED));
+            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED,
+                    "Invite a user for the role " + invitedRoleName));
         }
 
         return Mono.just(Boolean.TRUE);

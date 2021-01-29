@@ -51,7 +51,7 @@
       "value": "VEG"
     },
     {
-      "label": "{{Table1.tableData[1].email}}",
+      "label": "{{Table1.tableData[2].email}}",
       "value": "NONVEG"
     }
   ],

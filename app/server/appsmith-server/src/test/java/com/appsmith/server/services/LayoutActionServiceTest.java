@@ -37,7 +37,9 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -179,10 +181,10 @@ public class LayoutActionServiceTest {
                 .create(resultMono)
                 .assertNext(page -> {
                     assertThat(page.getLayouts()).hasSize(1);
-                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(2);
-                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(0)).hasSize(1);
-                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(0).stream().anyMatch(x -> x.getName().equalsIgnoreCase("query2"))).isTrue();
-                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(1).stream().anyMatch(x -> x.getName().equalsIgnoreCase("query1"))).isTrue();
+                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(1);
+                    Set<DslActionDTO> dslActionDTOS = page.getLayouts().get(0).getLayoutOnLoadActions().get(0);
+                    assertThat(dslActionDTOS).hasSize(2);
+                    assertThat(dslActionDTOS.stream().map(dto -> dto.getName()).collect(Collectors.toSet())).containsAll(Set.of("query1", "query2"));
                 })
                 .verifyComplete();
     }
@@ -240,6 +242,6 @@ public class LayoutActionServiceTest {
                     assertThat(postNameChangeLayout.getDsl()).isEqualTo(dsl);
                 })
                 .verifyComplete();
-
     }
+
 }

@@ -132,6 +132,16 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     return this.props.center || this.props.mapCenter || DefaultCenter;
   }
 
+  componentDidUpdate(prevProps: MapWidgetProps) {
+    //remove selectedMarker when map initial location is updated
+    if (
+      JSON.stringify(prevProps.center) !== JSON.stringify(this.props.center) &&
+      this.props.selectedMarker
+    ) {
+      this.unselectMarker();
+    }
+  }
+
   getPageView() {
     return (
       <>

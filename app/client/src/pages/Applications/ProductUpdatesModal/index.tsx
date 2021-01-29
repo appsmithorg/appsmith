@@ -74,7 +74,10 @@ const Header = withTheme(
           >
             View on Github
           </ViewInGithubLink>
-          <CloseIconContainer onClick={onClose}>
+          <CloseIconContainer
+            onClick={onClose}
+            data-cy="t--product-updates-close-btn"
+          >
             <CloseIcon
               height={20}
               width={20}
