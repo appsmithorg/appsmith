@@ -1,7 +1,7 @@
 import React from "react";
 import { CommonComponentProps } from "./common";
 import styled from "styled-components";
-import { Position, Tooltip, Classes } from "@blueprintjs/core";
+import { Position, Tooltip, Classes, PopperBoundary } from "@blueprintjs/core";
 import { Classes as CsClasses } from "./common";
 
 type Variant = "dark" | "light";
@@ -12,6 +12,8 @@ type TooltipProps = CommonComponentProps & {
   children: JSX.Element;
   variant?: Variant;
   maxWidth?: number;
+  usePortal?: boolean;
+  boundary?: PopperBoundary;
 };
 
 const TooltipWrapper = styled.div<{ variant?: Variant; maxWidth?: number }>`
@@ -53,6 +55,7 @@ const TooltipComponent = (props: TooltipProps) => {
         content={props.content}
         position={props.position}
         usePortal={false}
+        boundary={props.boundary || "scrollParent"}
       >
         {props.children}
       </Tooltip>

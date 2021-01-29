@@ -9,6 +9,7 @@ import { getApplicationViewerPageURL } from "constants/routes";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
 import { getTypographyByKey, hideScrollbar } from "constants/DefaultTheme";
+import { Position } from "@blueprintjs/core";
 
 const TabsContainer = styled.div`
   border-top: 1px solid
@@ -66,11 +67,16 @@ const PageTabName: React.FunctionComponent<{ name: string }> = ({ name }) => {
   }, [tabNameRef]);
 
   return ellipsisActive ? (
-    <TooltipComponent maxWidth={400} content={name}>
+    <TooltipComponent
+      maxWidth={400}
+      content={name}
+      position={Position.BOTTOM}
+      boundary="viewport"
+    >
       {tabNameText}
     </TooltipComponent>
   ) : (
-    <>{tabNameText}</>
+    tabNameText
   );
 };
 
