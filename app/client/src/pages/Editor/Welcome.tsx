@@ -30,6 +30,7 @@ const Image = styled.img`
   width: 601px;
   height: 341px;
   margin-top: 24px;
+  object-fit: scale-down;
 
   @media only screen and (min-height: 800px) {
     height: 441px;
@@ -51,7 +52,12 @@ const Title = styled.div`
 const Description = styled.div`
   font-size: 16px;
   margin-top: 18px;
-  width: 601px;
+  width: 490px;
+  margin-top: 24px;
+
+  @media only screen and (min-height: 800px) {
+    width: 630px;
+  }
 `;
 
 const StyledButton = styled.button`
