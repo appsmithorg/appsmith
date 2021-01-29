@@ -139,7 +139,7 @@ public class S3Plugin extends BasePlugin {
          * - Exception thrown here needs to be handled by the caller.
          */
         String readFile(AmazonS3 connection, String bucketName, String path) throws IOException {
-            S3Object fullObject = connection.getObject(new GetObjectRequest(bucketName, path));
+            S3Object fullObject = connection.getObject(bucketName, path);
             S3ObjectInputStream content = fullObject.getObjectContent();
 
             String result = "";
