@@ -233,11 +233,10 @@ export const NameWrapper = styled.div`
 
 const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [showHelp, setShowHelp] = useState(true);
-  const [helpSectionVisible, setHelpSectionVisible] = useLocalStorage(
-    "helpSectionVisible",
-    "true",
-  );
+  const [
+    apiBindHelpSectionVisible,
+    setApiBindHelpSectionVisible,
+  ] = useLocalStorage("apiBindHelpSectionVisible", "true");
   const themeMode = useSelector(getThemeDetails).mode;
   const theme = useMemo(() => {
     if (themeMode === "LIGHT") {
@@ -341,7 +340,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 title: "Headers",
                 panelComponent: (
                   <TabSection>
-                    {helpSectionVisible ? (
+                    {apiBindHelpSectionVisible && (
                       <HelpSection>
                         <Callout
                           text="Having trouble taking inputs from widgets?"
@@ -362,10 +361,10 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                           variant={Variant.warning}
                           fill
                           closeButton
-                          onClose={() => setHelpSectionVisible(false)}
+                          onClose={() => setApiBindHelpSectionVisible(false)}
                         />
                       </HelpSection>
-                    ) : null}
+                    )}
                     <KeyValueFieldArray
                       theme={theme}
                       name="actionConfiguration.headers"
