@@ -151,6 +151,12 @@ function* listenForAddInputWidget() {
         );
 
       if (hasOnSubmitHandler) {
+        yield put(setCurrentStep(OnboardingStep.DEPLOY));
+        yield put({
+          type: ReduxActionTypes.SET_HELPER_CONFIG,
+          payload: getHelperConfig(OnboardingStep.DEPLOY),
+        });
+
         return;
       }
     }
@@ -547,13 +553,12 @@ function* addInputWidget() {
     rows: 1,
   });
 
-  yield put(setCurrentStep(OnboardingStep.DEPLOY));
+  yield call(addOnSubmitHandler);
 }
 
 function* addOnSubmitHandler() {
   // Creating a query first
   const currentPageId = yield select(getCurrentPageId);
-  const applicationId = yield select(getCurrentApplicationId);
   const datasources: Datasource[] = yield select(getDatasources);
   const onboardingDatasource = datasources.find((datasource) => {
     const name = get(datasource, "name");
@@ -580,11 +585,13 @@ function* addOnSubmitHandler() {
     yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
 
     const widgets = yield select(getWidgets);
-    const inputWidget = widgets.find(
+    const inputWidget: any = Object.values(widgets).find(
       (widget: any) => widget.type === "INPUT_WIDGET",
     );
 
     if (inputWidget) {
+      yield delay(1000);
+
       const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
 
@@ -595,22 +602,22 @@ function* addOnSubmitHandler() {
         },
         window.location.pathname,
         pageId,
-        inputWidget.newWidgetId,
+        inputWidget.widgetId,
       );
       yield put({
         type: ReduxActionTypes.SELECT_WIDGET,
-        payload: { widgetId: inputWidget.newWidgetId },
+        payload: { widgetId: inputWidget.widgetId },
       });
-      yield put(forceOpenPropertyPane(inputWidget.newWidgetId));
+      yield put(forceOpenPropertyPane(inputWidget.widgetId));
 
-      // yield put(
-      //   updateWidgetPropertyRequest(
-      //     inputWidget.widgetId,
-      //     "tableData",
-      //     "{{fetch_standup_updates.data}}",
-      //     RenderModes.CANVAS,
-      //   ),
-      // );
+      yield put(
+        updateWidgetPropertyRequest(
+          inputWidget.widgetId,
+          "onSubmit",
+          "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
+          RenderModes.CANVAS,
+        ),
+      );
     }
   }
 }

@@ -56,6 +56,8 @@ import PerformanceTracker, {
 import { EventLocation } from "utils/AnalyticsUtil";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import { getCurrentStep, inOnboarding } from "./OnboardingSagas";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -381,21 +383,36 @@ function* handleCreateNewQueryActionSaga(
       .map((a: ActionData) => a.config.name);
     const newQueryName = getNextEntityName("Query", pageApiNames);
     const dataSourceId = validDataSources[0].id;
-    yield put(
-      createActionRequest({
-        name: newQueryName,
-        pageId,
-        datasource: {
-          id: dataSourceId,
-        },
-        eventData: {
-          actionType: "Query",
-          from: action.payload.from,
-          dataSource: validDataSources[0].name,
-        },
-        actionConfiguration: {},
-      }),
-    );
+    let createActionPayload = {
+      name: newQueryName,
+      pageId,
+      datasource: {
+        id: dataSourceId,
+      },
+      eventData: {
+        actionType: "Query",
+        from: action.payload.from,
+        dataSource: validDataSources[0].name,
+      },
+      actionConfiguration: {},
+    };
+
+    //For onboarding
+    const isInOnboarding = yield select(inOnboarding);
+    if (isInOnboarding) {
+      const currentStep = yield select(getCurrentStep);
+      if (currentStep === OnboardingStep.ADD_INPUT_WIDGET) {
+        createActionPayload = {
+          ...createActionPayload,
+          actionConfiguration: {
+            body:
+              "Insert into standup_updates('hero_name', 'daily_update', 'date') values ('{{appsmith.user.email}}', '{{ Standup_Input.text }}', '{{moment()}}')",
+          },
+        };
+      }
+    }
+
+    yield put(createActionRequest(createActionPayload));
     history.push(
       QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
     );

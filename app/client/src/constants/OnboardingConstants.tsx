@@ -8,7 +8,6 @@ export enum OnboardingStep {
   RUN_QUERY_SUCCESS = 2,
   SUCCESSFUL_BINDING = 3,
   ADD_INPUT_WIDGET = 4,
-  // ADD_ONSUBMIT_BINDING = 5,
   DEPLOY = 5,
   FINISH = 6,
 }
@@ -99,7 +98,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         action: showIndicator(OnboardingStep.EXAMPLE_DATABASE),
       },
       cheatAction: {
-        label: "Super Hack",
+        label: "Do it for me",
         action: {
           type: "ONBOARDING_CREATE_QUERY",
         },
@@ -132,7 +131,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         action: showIndicator(OnboardingStep.RUN_QUERY_SUCCESS),
       },
       cheatAction: {
-        label: "Super Hack",
+        label: "Do it for me",
         action: {
           type: "ONBOARDING_ADD_TABLE_WIDGET",
         },
@@ -158,7 +157,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         label: "Continue",
       },
       cheatAction: {
-        label: "Super Hack",
+        label: "Do it for me",
         action: {
           type: "ONBOARDING_ADD_BINDING",
         },
@@ -185,35 +184,13 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         label: "Continue",
       },
       cheatAction: {
-        label: "Super Hack",
+        label: "Do it for me",
         action: {
           type: "ONBOARDING_ADD_INPUT_WIDGET",
         },
       },
     },
   },
-  // [OnboardingStep.ADD_ONSUBMIT_BINDING]: {
-  //   name: "ADD_ONSUBMIT_BINDING",
-  //   setup: () => [],
-  //   helper: {
-  //     step: 5,
-  //     title: "Update the super DB",
-  //     description: "Create a query to insert a standup_updates onSubmit",
-  //     image: {
-  //       src:
-  //         "https://res.cloudinary.com/drako999/image/upload/v1611815729/Appsmith/Onboarding/drag_input.gif",
-  //     },
-  //     action: {
-  //       label: "Continue",
-  //     },
-  //     cheatAction: {
-  //       label: "Super Hack",
-  //       action: {
-  //         type: "ONBOARDING_ADD_ONSUBMIT_BINDING",
-  //       },
-  //     },
-  //   },
-  // },
   [OnboardingStep.DEPLOY]: {
     name: "DEPLOY",
     setup: () => {
@@ -226,11 +203,14 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     helper: {
       step: 5,
       title: "Deploy the Standup Dashboard to save the world from meetings!",
-      description:
-        "Simple isn’t it. You’ve learnt -\n- How to query a database.\n- How to connect response to widget.\n- Deploying your app.",
       action: {
-        label: "End Tour",
-        action: endOnboarding(),
+        label: "Continue",
+      },
+      cheatAction: {
+        label: "Do it for me",
+        action: {
+          type: "ONBOARDING_DEPLOY",
+        },
       },
     },
   },
@@ -239,6 +219,16 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     name: "FINISH",
     setup: () => {
       return [];
+    },
+    helper: {
+      title:
+        "Great Job! You built an app that every hero needs, and in just a few minutes.",
+      description:
+        "WHAT YOU’VE LEARNT\n1. Query a database directly\n2. Build a dashboard without HTML/CSS\n3. Connect data to the UI using JS\n4. Deploy an app with a Click",
+      action: {
+        label: "End Tour",
+        action: endOnboarding(),
+      },
     },
   },
 };

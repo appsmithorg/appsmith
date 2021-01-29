@@ -17,7 +17,7 @@ const EndTourHelper = () => {
       if (params.onboardingComplete && inOnboarding) {
         dispatch({
           type: ReduxActionTypes.SET_HELPER_CONFIG,
-          payload: getHelperConfig(OnboardingStep.DEPLOY),
+          payload: getHelperConfig(OnboardingStep.FINISH),
         });
         setTimeout(() => {
           dispatch({
