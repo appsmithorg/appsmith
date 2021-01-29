@@ -56,6 +56,15 @@ const ActionButton = styled(Button)<{ initialStep?: boolean }>`
   background-color: ${(props) => (props.initialStep ? "#df613c" : "#457AE6")};
   color: white;
   font-weight: 500;
+  border: 1px solid ${(props) => (props.initialStep ? "#df613c" : "#457AE6")};
+  margin-left: 8px;
+`;
+
+const SecondaryActionButton = styled(Button)`
+  color: #4b4848;
+  border: 1px solid #4b4848;
+  font-weight: 500;
+  background-color: transparent;
 `;
 
 const CheatActionButton = styled(Button)`
@@ -192,6 +201,13 @@ const Helper = () => {
             >
               {helperConfig.skipLabel}
             </SkipButton>
+          )}
+          {helperConfig.secondaryAction && (
+            <SecondaryActionButton
+              onClick={helperConfig.secondaryAction.action}
+            >
+              {helperConfig.secondaryAction.label}
+            </SecondaryActionButton>
           )}
           {!cheatMode && helperConfig.action && (
             <ActionButton

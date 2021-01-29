@@ -30,6 +30,11 @@ const Image = styled.img`
   width: 601px;
   height: 341px;
   margin-top: 24px;
+
+  @media only screen and (min-height: 800px) {
+    height: 441px;
+    width: 801px;
+  }
 `;
 
 const SubTitle = styled.div`

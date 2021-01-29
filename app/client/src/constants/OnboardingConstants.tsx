@@ -31,6 +31,10 @@ export type OnboardingHelperConfig = {
     action?: { type: string; payload?: any };
     initialStep?: boolean;
   };
+  secondaryAction?: {
+    label: string;
+    action?: () => void;
+  };
   cheatAction?: {
     label: string;
     action: { type: string; payload?: any };
@@ -220,8 +224,14 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       image: {
         src: SuperHeroGif,
       },
+      secondaryAction: {
+        label: "Next Mission",
+        action: () => {
+          window.open("https://docs.appsmith.com/", "_blank");
+        },
+      },
       action: {
-        label: "End Tour",
+        label: "Back Home",
         action: endOnboarding(),
       },
     },
