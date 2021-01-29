@@ -8,7 +8,7 @@
           "label": "Region",
           "configProperty": "datasourceConfiguration.authentication.databaseName",
           "controlType": "DROP_DOWN",
-          "initialValue": "AP_SOUTH_1",
+          "initialValue": "ap-south-1",
           "options": [
             {
               "label": "ap-south-1",
@@ -137,18 +137,22 @@
           ]
         },
         {
-          "label": "Host Address (for overriding endpoint only)",
-          "configProperty": "datasourceConfiguration.endpoints[*].host",
-          "controlType": "KEYVALUE_ARRAY",
-          "isRequired": true,
-          "validationMessage": "Please enter a valid host",
-          "validationRegex": "^((?![/:]).)*$"
-        },
-        {
-          "label": "Port",
-          "configProperty": "datasourceConfiguration.endpoints[*].port",
-          "dataType": "NUMBER",
-          "controlType": "KEYVALUE_ARRAY"
+          "sectionName": "",
+          "children": [
+            {
+              "label": "Host Address (for overriding endpoint only)",
+              "configProperty": "datasourceConfiguration.endpoints[*].host",
+              "controlType": "KEYVALUE_ARRAY",
+              "validationMessage": "Please enter a valid host",
+              "validationRegex": "^((?![/:]).)*$"
+            },
+            {
+              "label": "Port",
+              "configProperty": "datasourceConfiguration.endpoints[*].port",
+              "dataType": "NUMBER",
+              "controlType": "KEYVALUE_ARRAY"
+            }
+          ]
         }
       ]
     },

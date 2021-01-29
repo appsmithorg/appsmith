@@ -88,7 +88,7 @@ public class RedshiftPluginTest {
 
         StepVerifier.create(dsConnectionMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithPluginException && throwable.getMessage()
-                        .equals(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error connecting" +
+                        .equals(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_CREATE_ERROR, "Error connecting" +
                         " to Redshift.").getMessage()))
                 .verify();
     }
