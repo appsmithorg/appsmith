@@ -406,13 +406,13 @@ public class S3Plugin extends BasePlugin {
                         "fetching authentication info from datasource configuration. This should not have happened.");
             } else {
                 DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-                if (org.springframework.util.StringUtils.isEmpty(authentication.getUsername())) {
+                if (StringUtils.isBlank(authentication.getUsername())) {
                     invalids.add("Oops! Something went wrong. Mandatory parameter 'Access Key' is empty. Did you " +
                             "forget to edit the 'Access Key' field in the datasource creation form ? You need to fill" +
                             " your AWS Access Key here.");
                 }
 
-                if (org.springframework.util.StringUtils.isEmpty(authentication.getPassword())) {
+                if (StringUtils.isBlank(authentication.getPassword())) {
                     invalids.add("Oops! Something went wrong. Mandatory parameter 'Secret Key' is empty. Did you " +
                             "forget to edit the 'Secret Key' field in the datasource creation form ? You need to fill" +
                             " it with your AWS Secret Key.");
@@ -438,7 +438,7 @@ public class S3Plugin extends BasePlugin {
                             "when fetching Region info from datasource configuration. This should not have happened.");
                 }
 
-                if (org.springframework.util.StringUtils.isEmpty(region)) {
+                if (StringUtils.isBlank(region)) {
                     invalids.add("Oops! Something went wrong. Mandatory parameter 'Region' is empty. Did you forget " +
                             "to edit the 'Region' field in the datasource creation form ? You need to fill it with " +
                             "the region where your AWS instance is hosted");
