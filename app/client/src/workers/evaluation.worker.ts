@@ -1242,21 +1242,17 @@ const extractReferencesFromBinding = (
   const subDeps: Array<string> = [];
   const identifiers = path.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [path];
   identifiers.forEach((identifier: string) => {
-    if (all.hasOwnProperty(identifier)) {
-      subDeps.push(identifier);
-    } else {
-      const subIdentifiers =
-        identifier.match(/[a-zA-Z_$][a-zA-Z_$0-9\[\]]*/g) || [];
-      let current = "";
-      for (let i = 0; i < subIdentifiers.length; i++) {
-        const key = `${current}${current ? "." : ""}${subIdentifiers[i]}`;
-        if (key in all) {
-          current = key;
-        } else {
-          break;
-        }
+    const subpaths = _.toPath(identifier);
+    let current = "";
+    while (subpaths.length > 1) {
+      current = convertPathToString(subpaths);
+      if (all.hasOwnProperty(current)) {
+        break;
       }
-      if (current && current.includes(".")) subDeps.push(current);
+      subpaths.pop();
+    }
+    if (subpaths && subpaths.length > 1) {
+      subDeps.push(current);
     }
   });
   return _.uniq(subDeps);
