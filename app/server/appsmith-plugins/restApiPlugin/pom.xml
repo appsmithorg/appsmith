@@ -42,6 +42,14 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <version>5.2.3.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>5.2.3.RELEASE</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -52,6 +60,10 @@
                 <exclusion>
                     <groupId>io.projectreactor</groupId>
                     <artifactId>reactor-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-core</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.springframework</groupId>
@@ -195,10 +207,6 @@
                         <configuration>
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>
                             <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.springframework</groupId>
-                                    <artifactId>spring-webflux</artifactId>
-                                </artifactItem>
                                 <artifactItem>
                                     <groupId>io.jsonwebtoken</groupId>
                                     <artifactId>jjwt-api</artifactId>
