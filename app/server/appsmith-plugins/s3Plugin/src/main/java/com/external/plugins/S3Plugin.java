@@ -169,7 +169,7 @@ public class S3Plugin extends BasePlugin {
              * Hence, unable to do stale connection check.
              */
 
-            final List<Map<String, Object>> rowsList = new ArrayList<>(50);
+            final List<Map<String, Object>> rowsList = new ArrayList<>();
             final String path = actionConfiguration.getPath();
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
@@ -484,7 +484,7 @@ public class S3Plugin extends BasePlugin {
             /*
              * Not sure if it make sense to list all buckets as part of structure ? Leaving it empty for now.
              */
-            return null;
+            return Mono.empty();
         }
     }
 }
