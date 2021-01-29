@@ -588,8 +588,7 @@ function* addOnSubmitHandler() {
         id: onboardingDatasource?.id,
       },
       actionConfiguration: {
-        body:
-          "Insert into standup_updates('hero_name', 'daily_update', 'date') values ('{{appsmith.user.email}}', '{{ Standup_Input.text }}', '{{moment()}}')",
+        body: `Insert into standup_updates("name", "notes") values ('{{appsmith.user.email}}', '{{ Standup_Input.text }}')`,
       },
     } as Partial<QueryAction>;
 
