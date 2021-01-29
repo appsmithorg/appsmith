@@ -111,6 +111,9 @@ export const TableWrapper = styled.div<{
   }
   .draggable-header {
     cursor: pointer;
+    display: inline-block;
+    width: calc(100% - 20px);
+    height: 38px;
     &.reorder-line {
       width: 1px;
       height: 100%;
@@ -336,9 +339,10 @@ export const TableIconWrapper = styled.div<{
   }
 `;
 
-export const SortIconWrapper = styled.div<{ rotate: string }>`
-  transform: ${(props) =>
-    props.rotate === "true" ? "rotate(180deg)" : "none"};
+export const SortIconWrapper = styled.div`
+  display: inline-block;
+  height: 38px;
+  line-height: 38px;
 `;
 
 export const RenderOptionWrapper = styled.div<{ selected: boolean }>`

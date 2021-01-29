@@ -2,7 +2,7 @@ import React from "react";
 import {
   useTable,
   usePagination,
-  useFlexLayout,
+  useBlockLayout,
   useResizeColumns,
   useRowSelect,
 } from "react-table";
@@ -113,7 +113,7 @@ export const Table = (props: TableProps) => {
       manualPagination: true,
       pageCount,
     },
-    useFlexLayout,
+    useBlockLayout,
     useResizeColumns,
     usePagination,
     useRowSelect,

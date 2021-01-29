@@ -676,10 +676,23 @@ export const renderEmptyRows = (
   );
 };
 
-const SortIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
+const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   padding: 0;
   position: relative;
-  top: 3px;
+  top: 6px;
+  cursor: pointer;
+  transform: rotate(180deg);
+  svg {
+    path {
+      fill: ${(props) => props.theme.colors.secondary};
+    }
+  }
+`;
+
+const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
+  padding: 0;
+  position: relative;
+  top: -9px;
   cursor: pointer;
   svg {
     path {
@@ -723,8 +736,12 @@ export const TableHeaderCell = (props: {
       onClick={handleSortColumn}
     >
       {props.isAscOrder !== undefined ? (
-        <SortIconWrapper rotate={props.isAscOrder.toString()}>
-          <SortIcon height={16} width={16} />
+        <SortIconWrapper>
+          {props.isAscOrder ? (
+            <AscendingIcon height={16} width={16} />
+          ) : (
+            <DescendingIcon height={16} width={16} />
+          )}
         </SortIconWrapper>
       ) : null}
       {renameColumn && (
