@@ -33,7 +33,6 @@ describe("getAllPaths", () => {
       "WidgetName.objectProperty.childObjectProperty[3]": true,
       "WidgetName.objectProperty.childObjectProperty[3][0]": true,
       "WidgetName.objectProperty.childObjectProperty[3][1]": true,
-      "WidgetName.objectProperty.childObjectProperty[3][2]": true,
     };
 
     const actual = getAllPaths(myTree);
