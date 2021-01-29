@@ -192,7 +192,7 @@ public class S3Plugin extends BasePlugin {
                 return Mono.error(
                         new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
-                            "Oops! Something went wrong. Your query could not be executed. It seems that the 'File " +
+                            "Your query could not be executed. It seems that the 'File " +
                             "Path' field in the query form is left empty. 'File Path' field cannot be left empty with" +
                             " the chosen action"
                         )
