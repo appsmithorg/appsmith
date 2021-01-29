@@ -2,30 +2,27 @@
   "form": [
     {
       "sectionName": "Connection",
+      "id": 1,
       "children": [
         {
-          "sectionName": null,
-          "children": [
-            {
-              "label": "Host URL",
-              "configProperty": "datasourceConfiguration.endpoints[*].host",
-              "controlType": "KEYVALUE_ARRAY",
-              "validationMessage": "Please enter a valid host URL",
-              "validationRegex": "^(http|https)://"
-            },
-            {
-              "label": "Port",
-              "configProperty": "datasourceConfiguration.endpoints[*].port",
-              "dataType": "NUMBER",
-              "controlType": "KEYVALUE_ARRAY"
-            }
-          ]
+          "label": "Host URL",
+          "configProperty": "datasourceConfiguration.endpoints[*].host",
+          "controlType": "KEYVALUE_ARRAY",
+          "validationMessage": "Please enter a valid host URL",
+          "validationRegex": "^(http|https)://"
+        },
+        {
+          "label": "Port",
+          "configProperty": "datasourceConfiguration.endpoints[*].port",
+          "dataType": "NUMBER",
+          "controlType": "KEYVALUE_ARRAY"
         }
       ]
     },
     {
       "sectionName": "Authentication",
-       "children": [
+      "id": 2,
+      "children": [
         {
           "label": "Username for Basic Auth",
           "configProperty": "datasourceConfiguration.authentication.username",

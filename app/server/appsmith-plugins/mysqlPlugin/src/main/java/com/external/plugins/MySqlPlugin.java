@@ -238,7 +238,6 @@ public class MySqlPlugin extends BasePlugin {
         @Override
         public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
 
             StringBuilder urlBuilder = new StringBuilder();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
@@ -277,10 +276,10 @@ public class MySqlPlugin extends BasePlugin {
             ob = ob.option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
 
             return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
-                    .onErrorResume(exception -> {
-                        log.debug("Error when creating datasource.", exception);
-                        return Mono.error(Exceptions.propagate(exception));
-                    })
+                    .onErrorResume(exception ->
+                            Mono.error(
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_DATASOURCE_CREATE_ERROR, exception.getMessage())))
                     .subscribeOn(scheduler);
         }
 
@@ -290,7 +289,7 @@ public class MySqlPlugin extends BasePlugin {
             if (connection != null) {
                 Mono.from(connection.close())
                         .onErrorResume(exception -> {
-                            log.debug("In datasourceDestroy function error mode.", exception);
+                            System.out.println("In datasourceDestroy function error mode." + exception.getMessage());
                             return Mono.empty();
                         })
                         .subscribeOn(scheduler)
@@ -344,14 +343,9 @@ public class MySqlPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             return datasourceCreate(datasourceConfiguration)
-                    .flatMap(connection -> {
-                        return Mono.from(connection.close());
-                    })
+                    .flatMap(connection -> Mono.from(connection.close()))
                     .then(Mono.just(new DatasourceTestResult()))
-                    .onErrorResume(error -> {
-                        log.error("Error when testing MySQL datasource.", error);
-                        return Mono.just(new DatasourceTestResult(error.getMessage()));
-                    })
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
                     .subscribeOn(scheduler);
 
         }
@@ -530,11 +524,8 @@ public class MySqlPlugin extends BasePlugin {
 
                         return structure;
                     })
-                    .onErrorResume(error -> {
-                        log.debug("In getStructure function error mode.", error);
-
-                        return Mono.error(Exceptions.propagate(error));
-                    })
+                    .onErrorResume(error ->
+                            Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_STRUCTURE_ERROR, error.getMessage())))
                     .subscribeOn(scheduler);
         }
     }

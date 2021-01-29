@@ -53,10 +53,10 @@ public class DynamoPlugin extends BasePlugin {
     /**
      * Dynamo plugin receives the query as json of the following format:
      * {
-     *     "action": "GetItem",
-     *     "parameters": {...}  // Depends on the action above.
+     * "action": "GetItem",
+     * "parameters": {...}  // Depends on the action above.
      * }
-     *
+     * <p>
      * DynamoDB actions and parameters reference:
      * https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Operations_Amazon_DynamoDB.html
      */
@@ -90,15 +90,14 @@ public class DynamoPlugin extends BasePlugin {
                         parameters = objectMapper.readValue(body, HashMap.class);
                     }
                 } catch (IOException e) {
-                    final String message = "Error parsing the JSON body: " + e.getMessage();
-                    log.warn(message, e);
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, message));
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                 }
 
                 final Class<?> requestClass;
                 try {
                     requestClass = Class.forName("software.amazon.awssdk.services.dynamodb.model." + action + "Request");
                 } catch (ClassNotFoundException e) {
+                    System.out.println(e);
                     return Mono.error(new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
                             "Unknown action: `" + action + "`. Note that action names are case-sensitive."
@@ -114,9 +113,8 @@ public class DynamoPlugin extends BasePlugin {
                     final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, plainToSdk(parameters, requestClass));
                     result.setBody(sdkToPlain(response));
                 } catch (AppsmithPluginException | InvocationTargetException | IllegalAccessException | NoSuchMethodException | ClassNotFoundException e) {
-                    final String message = "Error executing the DynamoDB Action: " + (e.getCause() == null ? e : e.getCause()).getMessage();
-                    log.warn(message, e);
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, message));
+                    System.out.println(e);
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, (e.getCause() == null ? e : e.getCause()).getMessage()));
                 }
 
                 result.setIsExecutionSuccess(true);
@@ -141,7 +139,7 @@ public class DynamoPlugin extends BasePlugin {
                 final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
                 if (authentication == null || StringUtils.isEmpty(authentication.getDatabaseName())) {
                     return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
+                            AppsmithPluginError.PLUGIN_DATASOURCE_CREATE_ERROR,
                             "Missing region in datasource."
                     ));
                 }
@@ -213,14 +211,15 @@ public class DynamoPlugin extends BasePlugin {
     /**
      * Given a map that conforms to what a valid DynamoDB request should look like, this function will convert into
      * a DynamoDBRequest object from AWS SDK. This is done using Java's reflection API.
+     *
      * @param mapping Mapping object representing the request details.
-     * @param type Request type that should be created. Eg., ListTablesRequest.class, PutItemRequest.class etc.
-     * @param <T> Type param of the request class.
+     * @param type    Request type that should be created. Eg., ListTablesRequest.class, PutItemRequest.class etc.
+     * @param <T>     Type param of the request class.
      * @return An object of the request class, containing details of the request from the mapping.
-     * @throws IllegalAccessException Thrown if any of the SDK methods' contracts change.
+     * @throws IllegalAccessException    Thrown if any of the SDK methods' contracts change.
      * @throws InvocationTargetException Thrown if any of the SDK methods' contracts change.
-     * @throws NoSuchMethodException Thrown if any of the SDK methods' contracts change.
-     * @throws ClassNotFoundException Thrown if any of the builder class could not be found corresponding to the action class.
+     * @throws NoSuchMethodException     Thrown if any of the SDK methods' contracts change.
+     * @throws ClassNotFoundException    Thrown if any of the builder class could not be found corresponding to the action class.
      */
     public static <T> T plainToSdk(Map<String, Object> mapping, Class<T> type)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException,
@@ -323,6 +322,7 @@ public class DynamoPlugin extends BasePlugin {
 
     /**
      * Computes the name of the setter method in AWS SDK that will set the value of the field given by the argument.
+     *
      * @param key Name of the field for which to compute the setter method's name.
      * @return Name of the setter method that will set the value of the given `key` field.
      */

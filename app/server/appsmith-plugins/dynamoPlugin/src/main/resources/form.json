@@ -1,14 +1,13 @@
 {
   "form": [
     {
-      "sectionName": "Details",
+      "sectionName": "Connection",
       "id": 1,
       "children": [
         {
           "label": "Region",
           "configProperty": "datasourceConfiguration.authentication.databaseName",
           "controlType": "DROP_DOWN",
-          "isRequired": true,
           "initialValue": "AP_SOUTH_1",
           "options": [
             {
@@ -138,23 +137,25 @@
           ]
         },
         {
-          "sectionName": "Endpoint Override (Overrides above region)",
-          "children": [
-            {
-              "label": "Host Address (for overriding endpoint only)",
-              "configProperty": "datasourceConfiguration.endpoints[*].host",
-              "controlType": "KEYVALUE_ARRAY",
-              "validationMessage": "Please enter a valid host",
-              "validationRegex": "^((?![/:]).)*$"
-            },
-            {
-              "label": "Port",
-              "configProperty": "datasourceConfiguration.endpoints[*].port",
-              "dataType": "NUMBER",
-              "controlType": "KEYVALUE_ARRAY"
-            }
-          ]
+          "label": "Host Address (for overriding endpoint only)",
+          "configProperty": "datasourceConfiguration.endpoints[*].host",
+          "controlType": "KEYVALUE_ARRAY",
+          "isRequired": true,
+          "validationMessage": "Please enter a valid host",
+          "validationRegex": "^((?![/:]).)*$"
         },
+        {
+          "label": "Port",
+          "configProperty": "datasourceConfiguration.endpoints[*].port",
+          "dataType": "NUMBER",
+          "controlType": "KEYVALUE_ARRAY"
+        }
+      ]
+    },
+    {
+      "sectionName": "Authentication",
+      "id": 2,
+      "children": [
         {
           "label": "AWS Access Key ID",
           "configProperty": "datasourceConfiguration.authentication.username",
@@ -169,7 +170,8 @@
           "controlType": "INPUT_TEXT",
           "isRequired": true,
           "placeholderText": "",
-          "initialValue": ""
+          "initialValue": "",
+          "dataType": "PASSWORD"
         }
       ]
     }

@@ -71,13 +71,13 @@ public class MssqlPlugin extends BasePlugin {
             return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
                 try {
                     if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
-                        log.info("Encountered stale connection in MsSQL plugin. Reporting back.");
+                        System.out.println("Encountered stale connection in MsSQL plugin. Reporting back.");
                         return Mono.error(new StaleConnectionException());
                     }
                 } catch (SQLException error) {
                     // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
                     // here, this should never happen.
-                    log.error("Error checking validity of MsSQL connection.", error);
+                    System.out.println("Error checking validity of MsSQL connection." + error);
                 }
 
                 String query = actionConfiguration.getBody();
@@ -159,7 +159,7 @@ public class MssqlPlugin extends BasePlugin {
                         try {
                             resultSet.close();
                         } catch (SQLException e) {
-                            log.warn("Error closing MsSQL ResultSet", e);
+                            System.out.println("Error closing MsSQL ResultSet. " + e);
                         }
                     }
 
@@ -167,7 +167,7 @@ public class MssqlPlugin extends BasePlugin {
                         try {
                             statement.close();
                         } catch (SQLException e) {
-                            log.warn("Error closing MsSQL Statement", e);
+                            System.out.println("Error closing MsSQL Statement. " + e);
                         }
                     }
 
@@ -191,7 +191,7 @@ public class MssqlPlugin extends BasePlugin {
                     Class.forName(JDBC_DRIVER);
                 } catch (ClassNotFoundException e) {
                     return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
+                            AppsmithPluginError.PLUGIN_DATASOURCE_CREATE_ERROR,
                             "Error loading MsSQL JDBC Driver class."
                     ));
                 }
@@ -248,8 +248,8 @@ public class MssqlPlugin extends BasePlugin {
 
                 } catch (SQLException e) {
                     return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
-                            "Error connecting to MsSQL: " + e.getMessage()
+                            AppsmithPluginError.PLUGIN_DATASOURCE_CREATE_ERROR,
+                            e.getMessage()
                     ));
 
                 }
@@ -265,7 +265,7 @@ public class MssqlPlugin extends BasePlugin {
                     connection.close();
                 }
             } catch (SQLException e) {
-                log.error("Error closing MsSQL Connection.", e);
+                System.out.println("Error closing MsSQL Connection." + e);
             }
         }
 
@@ -309,7 +309,7 @@ public class MssqlPlugin extends BasePlugin {
                                 connection.close();
                             }
                         } catch (SQLException e) {
-                            log.warn("Error closing MsSQL connection that was made for testing.", e);
+                            System.out.println("Error closing MsSQL connection that was made for testing." + e);
                         }
 
                         return new DatasourceTestResult();

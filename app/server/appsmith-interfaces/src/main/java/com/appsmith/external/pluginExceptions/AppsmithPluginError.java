@@ -10,6 +10,8 @@ public enum AppsmithPluginError {
     PLUGIN_ERROR(500, 5000, "{0}"),
     PLUGIN_STRUCTURE_ERROR(500, 5001, "Failed to get database structure with error {0}"),
     PLUGIN_TIMEOUT_ERROR(504, 5002, "{0} timed out in {1} milliseconds. Please increase timeout. This can be found in Settings tab of {0}."),
+    PLUGIN_DATASOURCE_CREATE_ERROR(500, 5003, "Error creating datasource: {0}"),
+    PLUGIN_DATASOURCE_TEST_ERROR(500, 5004, "Error testing datasource: {0}"),
     ;
 
     private final Integer httpErrorCode;

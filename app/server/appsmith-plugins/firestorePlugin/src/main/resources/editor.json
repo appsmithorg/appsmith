@@ -103,7 +103,7 @@
               "initialValue": "fieldPath"
             },
             {
-              "label": "Where Condition: Field Path (leave emtpy to not apply any conditions)",
+              "label": "Where Condition: Field Path",
               "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
               "controlType": "INPUT_TEXT",
               "hidden": {
@@ -111,7 +111,8 @@
                 "comparison": "NOT_EQUALS",
                 "value": "GET_COLLECTION"
               },
-              "initialValue": ""
+              "initialValue": "",
+              "placeHolder": "Leave empty to not apply any conditions"
             },
             {
               "label": "Operator Key",

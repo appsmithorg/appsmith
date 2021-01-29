@@ -29,6 +29,7 @@ import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -80,9 +81,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                                 ndJsonBuilder.append(objectMapper.writeValueAsString(object)).append("\n");
                             }
                         } catch (IOException e) {
-                            final String message = "Error converting array to ND-JSON: " + e.getMessage();
-                            log.warn(message, e);
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, message));
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                         }
                         body = ndJsonBuilder.toString();
                     }
@@ -97,9 +96,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                             client.performRequest(request).getEntity().getContent().readAllBytes());
                     result.setBody(objectMapper.readValue(responseBody, HashMap.class));
                 } catch (IOException e) {
-                    final String message = "Error performing request: " + e.getMessage();
-                    log.warn(message, e);
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, message));
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                 }
 
                 result.setIsExecutionSuccess(true);
@@ -125,7 +122,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                     try {
                         url = new URL(endpoint.getHost());
                     } catch (MalformedURLException e) {
-                        return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Invalid host provided. It should be of the form http(s)://your-es-url.com"));
+                        return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_CREATE_ERROR, "Invalid host provided. It should be of the form http(s)://your-es-url.com"));
                     }
                     String scheme = "http";
                     if (url.getProtocol() != null) {
@@ -174,7 +171,7 @@ public class ElasticSearchPlugin extends BasePlugin {
             try {
                 client.close();
             } catch (IOException e) {
-                log.warn("Error closing connection to ElasticSearch.", e);
+                System.out.println("In datasourceDestroy function error mode." + e.getMessage());
             }
         }
 
@@ -185,7 +182,7 @@ public class ElasticSearchPlugin extends BasePlugin {
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                 invalids.add("No endpoint provided. Please provide a host:port where ElasticSearch is reachable.");
             } else {
-                for(Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
                     if (endpoint.getHost() == null) {
                         invalids.add("Missing host for endpoint");
                     } else {
@@ -210,7 +207,9 @@ public class ElasticSearchPlugin extends BasePlugin {
             return datasourceCreate(datasourceConfiguration)
                     .map(client -> {
                         if (client == null) {
-                            return new DatasourceTestResult("Null client object to ElasticSearch.");
+                            throw Exceptions.propagate(
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_DATASOURCE_TEST_ERROR, "Null client object to ElasticSearch."));
                         }
 
                         // This HEAD request is to check if an index exists. It response with 200 if the index exists,
@@ -222,7 +221,9 @@ public class ElasticSearchPlugin extends BasePlugin {
                         try {
                             response = client.performRequest(request);
                         } catch (IOException e) {
-                            return new DatasourceTestResult("Error running HEAD request: " + e.getMessage());
+                            throw Exceptions.propagate(
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_DATASOURCE_TEST_ERROR, e.getMessage()));
                         }
 
                         final StatusLine statusLine = response.getStatusLine();
@@ -230,12 +231,13 @@ public class ElasticSearchPlugin extends BasePlugin {
                         try {
                             client.close();
                         } catch (IOException e) {
-                            log.warn("Error closing ElasticSearch client that was made for testing.", e);
+                            System.out.println("Error closing ElasticSearch client that was made for testing." + e.getMessage());
                         }
 
                         if (statusLine.getStatusCode() != 404 && statusLine.getStatusCode() != 200) {
-                            return new DatasourceTestResult(
-                                    "Unexpected response from ElasticSearch: " + statusLine);
+                            throw Exceptions.propagate(
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_DATASOURCE_TEST_ERROR, "Unexpected response from ElasticSearch. " + statusLine));
                         }
 
                         return new DatasourceTestResult();

@@ -125,14 +125,14 @@ public class RedshiftPlugin extends BasePlugin {
                 "         kcu.ordinal_position;\n";
 
         private void checkResultSetValidity(ResultSet resultSet) throws AppsmithPluginException {
-            if(resultSet == null) {
+            if (resultSet == null) {
                 System.out.println(
                         Thread.currentThread().getName() + ": " +
                                 "Redshift plugin: getRow: driver failed to fetch result: resultSet is null."
                 );
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
-                        "redshift driver failed to fetch result: resultSet is null."
+                        "Redshift driver failed to fetch result: resultSet is null."
                 );
             }
         }
@@ -146,18 +146,17 @@ public class RedshiftPlugin extends BasePlugin {
              * 1. Ideally metaData is never supposed to be null. Redshift JDBC driver does null check before returning
              *    ResultSetMetaData.
              */
-            if(metaData == null) {
+            if (metaData == null) {
                 System.out.println(
                         Thread.currentThread().getName() + ": " +
-                        "Redshift plugin: getRow: metaData is null. Ideally this is never supposed to " +
-                        "happen as the Redshift JDBC driver does a null check before passing this object. This means " +
-                        "that something has gone wrong while processing the query result."
+                                "Redshift plugin: getRow: metaData is null. Ideally this is never supposed to " +
+                                "happen as the Redshift JDBC driver does a null check before passing this object. This means " +
+                                "that something has gone wrong while processing the query result."
                 );
+                // Ideally this is never supposed to happen as the Redshift JDBC driver does a null check before passing this object.
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
-                        "metaData is null. Ideally this is never supposed to happen as the Redshift JDBC driver " +
-                        "does a null check before passing this object. This means that something has gone wrong " +
-                        "while processing the query result"
+                        "Something went wrong while processing the query result. metaData is null."
                 );
             }
 
@@ -187,8 +186,7 @@ public class RedshiftPlugin extends BasePlugin {
                     value = DateTimeFormatter.ISO_DATE_TIME.format(
                             resultSet.getObject(i, OffsetDateTime.class)
                     );
-                }
-                else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
+                } else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
                     value = resultSet.getString(i);
                 } else {
                     value = resultSet.getObject(i);
@@ -269,7 +267,7 @@ public class RedshiftPlugin extends BasePlugin {
                         try {
                             resultSet.close();
                         } catch (SQLException e) {
-                            log.warn("Error closing Redshift ResultSet", e);
+                            System.out.println("Error closing Redshift ResultSet" + e);
                         }
                     }
 
@@ -277,7 +275,7 @@ public class RedshiftPlugin extends BasePlugin {
                         try {
                             statement.close();
                         } catch (SQLException e) {
-                            log.warn("Error closing Redshift Statement", e);
+                            System.out.println("Error closing Redshift Statement" + e);
                         }
                     }
                 }
@@ -287,12 +285,12 @@ public class RedshiftPlugin extends BasePlugin {
                 result.setIsExecutionSuccess(true);
                 System.out.println(
                         Thread.currentThread().getName() + ": " +
-                        "In RedshiftPlugin, got action execution result"
+                                "In RedshiftPlugin, got action execution result"
                 );
                 return Mono.just(result);
             })
-            .flatMap(obj -> obj)
-            .subscribeOn(scheduler);
+                    .flatMap(obj -> obj)
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -348,13 +346,13 @@ public class RedshiftPlugin extends BasePlugin {
                             configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
                     return Mono.just(connection);
                 } catch (SQLException e) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error connecting" +
-                            " to Redshift.", e));
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_CREATE_ERROR,
+                            "Error connecting to Redshift.", e));
                 }
             })
-            .flatMap(obj -> obj)
-            .map(conn -> (Connection) conn)
-            .subscribeOn(scheduler);
+                    .flatMap(obj -> obj)
+                    .map(conn -> (Connection) conn)
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -365,7 +363,6 @@ public class RedshiftPlugin extends BasePlugin {
                 }
             } catch (SQLException e) {
                 System.out.println(Thread.currentThread().getName() + ": Error closing Redshift Connection. " + e);
-                log.error("Error closing Redshift Connection.", e);
             }
         }
 
@@ -420,7 +417,7 @@ public class RedshiftPlugin extends BasePlugin {
                                 connection.close();
                             }
                         } catch (SQLException e) {
-                            log.warn("Error closing Redshift connection that was made for testing.", e);
+                            System.out.println("Error closing Redshift connection that was made for testing." + e);
                         }
 
                         return new DatasourceTestResult();
@@ -576,7 +573,7 @@ public class RedshiftPlugin extends BasePlugin {
                 String error_msg = "Error checking validity of Redshift connection. " + error;
                 System.out.println(Thread.currentThread().getName() + ": " + error_msg);
 
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, error_msg));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_STRUCTURE_ERROR, error));
             }
 
             final DatasourceStructure structure = new DatasourceStructure();
@@ -603,7 +600,9 @@ public class RedshiftPlugin extends BasePlugin {
                     // Get templates for each table and put those in.
                     getTemplates(tablesByName);
                 } catch (SQLException | AppsmithPluginException throwable) {
-                    return Mono.error(throwable);
+                    return Mono.error(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_STRUCTURE_ERROR, throwable.getMessage()));
                 }
 
                 structure.setTables(new ArrayList<>(tablesByName.values()));
@@ -614,8 +613,8 @@ public class RedshiftPlugin extends BasePlugin {
 
                 return structure;
             })
-            .map(resultStructure -> (DatasourceStructure) resultStructure)
-            .subscribeOn(scheduler);
+                    .map(resultStructure -> (DatasourceStructure) resultStructure)
+                    .subscribeOn(scheduler);
         }
     }
 }

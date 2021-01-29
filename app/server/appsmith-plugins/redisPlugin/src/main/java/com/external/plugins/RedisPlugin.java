@@ -106,7 +106,7 @@ public class RedisPlugin extends BasePlugin {
 
             return (Mono<Jedis>) Mono.fromCallable(() -> {
                 if (datasourceConfiguration.getEndpoints().isEmpty()) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "No endpoint(s) configured"));
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_CREATE_ERROR, "No endpoint(s) configured"));
                 }
 
                 Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
@@ -177,11 +177,11 @@ public class RedisPlugin extends BasePlugin {
             try {
                 pingResponse = jedis.ping();
             } catch (Exception exc) {
-                return Mono.error(exc);
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_TEST_ERROR, exc.getMessage()));
             }
 
             if (!"PONG".equals(pingResponse)) {
-                return Mono.error(new RuntimeException(
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_TEST_ERROR,
                         String.format("Expected PONG in response of PING but got %s", pingResponse)));
             }
 
@@ -193,12 +193,12 @@ public class RedisPlugin extends BasePlugin {
 
             return Mono.fromCallable(() ->
                     datasourceCreate(datasourceConfiguration)
-                    .map(jedis -> {
-                        verifyPing(jedis).block();
-                        datasourceDestroy(jedis);
-                        return new DatasourceTestResult();
-                    })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage()))))
+                            .map(jedis -> {
+                                verifyPing(jedis).block();
+                                datasourceDestroy(jedis);
+                                return new DatasourceTestResult();
+                            })
+                            .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage()))))
                     .flatMap(obj -> obj)
                     .subscribeOn(scheduler);
         }

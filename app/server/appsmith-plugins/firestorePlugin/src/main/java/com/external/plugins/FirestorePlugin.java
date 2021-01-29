@@ -11,6 +11,7 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.CollectionReference;
@@ -413,22 +414,28 @@ public class FirestorePlugin extends BasePlugin {
 
             final Set<String> errors = validateDatasource(datasourceConfiguration);
             if (!CollectionUtils.isEmpty(errors)) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, errors.iterator().next()));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_CREATE_ERROR, errors.iterator().next()));
             }
 
             final String projectId = authentication.getUsername();
             final String clientJson = authentication.getPassword();
 
-            InputStream serviceAccount = new ByteArrayInputStream(clientJson.getBytes());
 
             return Mono
                     .fromSupplier(() -> {
                         GoogleCredentials credentials;
                         try {
+                            InputStream serviceAccount = new ByteArrayInputStream(clientJson.getBytes());
                             credentials = GoogleCredentials.fromStream(serviceAccount);
-                        } catch (IOException e) {
+                        } catch (JsonParseException e) {
                             throw Exceptions.propagate(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_CREATE_ERROR,
+                                    "Could not parse Service Account Credentials."
+                            ));
+                        }
+                        catch (IOException e) {
+                            throw Exceptions.propagate(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_CREATE_ERROR,
                                     e.getMessage()
                             ));
                         }
@@ -464,15 +471,15 @@ public class FirestorePlugin extends BasePlugin {
             Set<String> invalids = new HashSet<>();
 
             if (authentication == null) {
-                invalids.add("Missing ProjectID and ClientJSON in datasource.");
+                invalids.add("Missing Project Id and Service Account Credentials in datasource.");
 
             } else {
                 if (StringUtils.isEmpty(authentication.getUsername())) {
-                    invalids.add("Missing ProjectID in datasource.");
+                    invalids.add("Missing Project Id in datasource.");
                 }
 
                 if (StringUtils.isEmpty(authentication.getPassword())) {
-                    invalids.add("Missing ClientJSON in datasource.");
+                    invalids.add("Missing Service Account Credentials in datasource.");
                 }
 
             }
