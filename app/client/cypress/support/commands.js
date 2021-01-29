@@ -287,6 +287,11 @@ Cypress.Commands.add("DeleteApp", (appName) => {
 });
 
 Cypress.Commands.add("LogintoApp", (uname, pword) => {
+  cy.window()
+    .its("store")
+    .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+  cy.wait("@postLogout");
+
   cy.visit("/user/login");
   cy.get(loginPage.username).should("be.visible");
   cy.get(loginPage.username).type(uname);
