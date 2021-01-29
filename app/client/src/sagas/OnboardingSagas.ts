@@ -304,8 +304,21 @@ function* createOnboardingDatasource() {
 }
 
 function* listenForCreateAction() {
+  const helperConfig = getHelperConfig(OnboardingStep.EXAMPLE_DATABASE);
+  yield put(showIndicator(OnboardingStep.EXAMPLE_DATABASE));
+
   yield take([ReduxActionTypes.CREATE_ACTION_SUCCESS]);
   AnalyticsUtil.logEvent("ONBOARDING_ADD_QUERY");
+  yield put({
+    type: ReduxActionTypes.SET_HELPER_CONFIG,
+    payload: {
+      ...helperConfig,
+      image: {
+        src:
+          "https://res.cloudinary.com/drako999/image/upload/v1611839705/Appsmith/Onboarding/run.gif",
+      },
+    },
+  });
 
   yield take([
     ReduxActionTypes.UPDATE_ACTION_INIT,

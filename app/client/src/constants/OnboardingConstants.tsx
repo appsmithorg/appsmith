@@ -21,7 +21,7 @@ export type OnboardingHelperConfig = {
   image?: {
     src: string;
   };
-  action: {
+  action?: {
     label: string;
     // action to be dispatched
     action?: { type: string; payload?: any };
@@ -91,11 +91,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         "1. Create a new query on superDB. \n2. A select query can fetch us updates from heroes all across the multiverse.\n3. Run query and check response",
       image: {
         src:
-          "https://res.cloudinary.com/drako999/image/upload/v1611815342/Appsmith/Onboarding/standup_query.gif",
-      },
-      action: {
-        label: "Show Hint",
-        action: showIndicator(OnboardingStep.EXAMPLE_DATABASE),
+          "https://res.cloudinary.com/drako999/image/upload/v1611839705/Appsmith/Onboarding/new_query.gif",
       },
       cheatAction: {
         label: "Do it for me",
@@ -121,14 +117,10 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       step: 2,
       title: "Build the Standup Dashboard",
       description:
-        "1. Click on add widget button to view widgets panel. \n2. Click on add widget button to view widgets panel.",
+        "1. Click on add widget button to view widgets panel. \n2. Drag a table where heroes can view each other's updates.",
       image: {
         src:
-          "https://res.cloudinary.com/drako999/image/upload/v1611815393/Appsmith/Onboarding/table_drag.gif",
-      },
-      action: {
-        label: "Show Hint",
-        action: showIndicator(OnboardingStep.RUN_QUERY_SUCCESS),
+          "https://res.cloudinary.com/drako999/image/upload/v1611839705/Appsmith/Onboarding/addwidget.gif",
       },
       cheatAction: {
         label: "Do it for me",
@@ -152,9 +144,6 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       image: {
         src:
           "https://res.cloudinary.com/drako999/image/upload/v1611815341/Appsmith/Onboarding/binding.gif",
-      },
-      action: {
-        label: "Continue",
       },
       cheatAction: {
         label: "Do it for me",
@@ -180,9 +169,6 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         src:
           "https://res.cloudinary.com/drako999/image/upload/v1611830618/Appsmith/Onboarding/onsubmit.gif",
       },
-      action: {
-        label: "Continue",
-      },
       cheatAction: {
         label: "Do it for me",
         action: {
@@ -203,9 +189,6 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     helper: {
       step: 5,
       title: "Deploy the Standup Dashboard to save the world from meetings!",
-      action: {
-        label: "Continue",
-      },
       cheatAction: {
         label: "Do it for me",
         action: {

@@ -193,11 +193,11 @@ const Helper = () => {
               {helperConfig.skipLabel}
             </SkipButton>
           )}
-          {!cheatMode && (
+          {!cheatMode && helperConfig.action && (
             <ActionButton
               initialStep={helperConfig.action.initialStep}
               onClick={() => {
-                if (helperConfig.action.action) {
+                if (helperConfig.action && helperConfig.action.action) {
                   dispatch(helperConfig.action.action);
                 }
 
@@ -209,7 +209,7 @@ const Helper = () => {
               {helperConfig.action?.label}
             </ActionButton>
           )}
-          {cheatMode && (
+          {(cheatMode || !helperConfig.action) && (
             <CheatActionButton
               onClick={() => {
                 dispatch(helperConfig.cheatAction?.action);

@@ -5,7 +5,6 @@ import { Classes } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import Preview from "assets/images/preview.png";
 
 const Wrapper = styled.div`
   height: calc(100vh - 48px);
@@ -71,7 +70,11 @@ const Welcome = () => {
     <Wrapper>
       <SubTitle>WHAT WE’LL BUILD</SubTitle>
       <Title>Super Standup App</Title>
-      <Image src={Preview} />
+      <Image
+        src={
+          "https://res.cloudinary.com/drako999/image/upload/v1611859209/Appsmith/Onboarding/standup_app.gif"
+        }
+      />
       <Description>
         Superheroes much like engineers have to coordinate their daily plans so
         that no villain (bug) gets away! However, all heroes hate morning
