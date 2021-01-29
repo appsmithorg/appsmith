@@ -1018,6 +1018,8 @@ function* createWidgetCopy() {
   if (!selectedWidget) return;
   const widgets = yield select(getWidgets);
   const widgetsToStore = getAllWidgetsInTree(selectedWidget.widgetId, widgets);
+
+  console.log({ widgetsToStore });
   const saveResult = yield saveCopiedWidgets(
     JSON.stringify({ widgetId: selectedWidget.widgetId, list: widgetsToStore }),
   );
@@ -1086,6 +1088,9 @@ function getNextWidgetName(widgets: CanvasWidgetsReduxState, type: WidgetType) {
   return getNextEntityName(defaultConfig.widgetName, widgetNames);
 }
 
+/**
+ * this saga create a new widget from the copied one to store
+ */
 function* pasteWidgetSaga() {
   const copiedWidgets: {
     widgetId: string;
@@ -1202,6 +1207,11 @@ function* pasteWidgetSaga() {
         });
       }
 
+      // Update the template and enhancement map for list widget
+      if (widget.type === WidgetTypes.LIST_WIDGET) {
+        delete widget.template;
+      }
+
       // Update the tabs for the tabs widget.
       if (widget.tabs && widget.type === WidgetTypes.TABS_WIDGET) {
         try {
@@ -1303,6 +1313,8 @@ function* pasteWidgetSaga() {
       // Add the new widget to the canvas widgets
       widgets[widget.widgetId] = widget;
     });
+
+    console.log({ widgets });
 
     // save the new DSL
     yield put(updateAndSaveLayout(widgets));

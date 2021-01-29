@@ -46,9 +46,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.canExtend = this.props.shouldScrollContents;
     childWidgetData.bottomRow = childWidgetData.bottomRow;
     childWidgetData.isVisible = this.props.isVisible;
-    childWidgetData.containerStyle = "card";
     childWidgetData.minHeight = componentHeight;
-    childWidgetData.rightColumn = childWidgetData.rightColumn;
+    childWidgetData.rightColumn = componentWidth;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
@@ -198,6 +197,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   renderChildren = () => {
     const numberOfItemsInGrid = this.props.items.length;
 
+    console.log({ props: this.props });
     if (this.props.children && this.props.children.length > 0) {
       const children = removeFalsyEntries(this.props.children);
 
