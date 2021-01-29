@@ -39,9 +39,9 @@ export function notEmptyValidator(value: string) {
 export type TextInputProps = CommonComponentProps & {
   placeholder?: string;
   fill?: boolean;
-  defaultValue?: any;
+  defaultValue?: string;
   validator?: (value: string) => { isValid: boolean; message: string };
-  onChange?: (value: any) => void;
+  onChange?: (value: string) => void;
   readOnly?: boolean;
   dataType?: string;
 };

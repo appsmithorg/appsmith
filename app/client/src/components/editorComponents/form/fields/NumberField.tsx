@@ -17,8 +17,8 @@ const RenderComponent = (props: RenderComponentProps) => {
   return (
     <TextInput
       dataType={props.dataType}
-      defaultValue={props.input?.value}
-      onChange={(value: number) => onChangeHandler(value)}
+      defaultValue={props.input?.value?.toString()}
+      onChange={(value: string) => onChangeHandler(Number(value))}
     />
   );
 };
