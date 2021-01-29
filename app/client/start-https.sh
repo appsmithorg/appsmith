@@ -65,16 +65,16 @@ case "${uname_out}" in
     Linux*)     machine=Linux
 	
         source ../util/is_wsl.sh
-	      if [ $IS_WSL ]; then
-            # ignore to continue using host.docker.internal
-	      else
+        if [ $IS_WSL ]; then
+            : # ignore to continue using host.docker.internal
+        else
             network_mode="host"
             client_proxy_pass=$default_linux_client_proxy
             # if no server was passed
             if [[ -z $1 ]]; then
                 server_proxy_pass=$default_linux_server_proxy
             fi
-	      fi
+        fi
                 echo "
     Starting nginx for Linux...
     "
