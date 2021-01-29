@@ -136,16 +136,19 @@ function* listenForWidgetAdditions() {
 function* listenForAddInputWidget() {
   while (true) {
     yield take();
-
-    const selectedWidget = yield select(getSelectedWidget);
     const canvasWidgets = yield select(getCanvasWidgets);
     const currentPageId = yield select(getCurrentPageId);
     const applicationId = yield select(getCurrentApplicationId);
+    const widgets = yield select(getWidgets);
+
+    const inputWidget: any = Object.values(widgets).find(
+      (widget: any) => widget.type === "INPUT_WIDGET",
+    );
 
     if (
-      selectedWidget &&
-      selectedWidget.type === "INPUT_WIDGET" &&
-      canvasWidgets[selectedWidget.widgetId]
+      inputWidget &&
+      inputWidget.type === "INPUT_WIDGET" &&
+      canvasWidgets[inputWidget.widgetId]
     ) {
       if (
         !window.location.pathname.includes(
@@ -173,7 +176,11 @@ function* listenForAddInputWidget() {
         });
       }
 
-      const dynamicTriggerPathList = selectedWidget.dynamicTriggerPathList;
+      yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
+      const dataTree = yield select(getDataTree);
+
+      const updatedInputWidget = dataTree[inputWidget.widgetName];
+      const dynamicTriggerPathList = updatedInputWidget.dynamicTriggerPathList;
       const hasOnSubmitHandler =
         dynamicTriggerPathList &&
         dynamicTriggerPathList.length &&
@@ -182,6 +189,15 @@ function* listenForAddInputWidget() {
         );
 
       if (hasOnSubmitHandler) {
+        yield put(
+          updateWidgetPropertyRequest(
+            inputWidget.widgetId,
+            "onSubmit",
+            "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
+            RenderModes.CANVAS,
+          ),
+        );
+
         yield put(setCurrentStep(OnboardingStep.DEPLOY));
         yield put({
           type: ReduxActionTypes.SET_HELPER_CONFIG,
@@ -661,6 +677,12 @@ function* addOnSubmitHandler() {
           RenderModes.CANVAS,
         ),
       );
+
+      yield put(setCurrentStep(OnboardingStep.DEPLOY));
+      yield put({
+        type: ReduxActionTypes.SET_HELPER_CONFIG,
+        payload: getHelperConfig(OnboardingStep.DEPLOY),
+      });
     }
   }
 }
