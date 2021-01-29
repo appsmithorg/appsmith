@@ -20,7 +20,8 @@ describe("getAllPaths", () => {
       },
     };
     const result = {
-      1: true,
+      WidgetName: true,
+      "WidgetName.1": true,
       "WidgetName.name": true,
       "WidgetName.objectProperty": true,
       "WidgetName.objectProperty.childObjectProperty": true,
@@ -30,11 +31,12 @@ describe("getAllPaths", () => {
       "WidgetName.objectProperty.childObjectProperty[2].key": true,
       "WidgetName.objectProperty.childObjectProperty[2].2": true,
       "WidgetName.objectProperty.childObjectProperty[3]": true,
+      "WidgetName.objectProperty.childObjectProperty[3][0]": true,
       "WidgetName.objectProperty.childObjectProperty[3][1]": true,
       "WidgetName.objectProperty.childObjectProperty[3][2]": true,
     };
 
     const actual = getAllPaths(myTree);
-    expect(actual).toBe(result);
+    expect(actual).toStrictEqual(result);
   });
 });

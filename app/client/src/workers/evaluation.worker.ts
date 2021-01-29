@@ -40,6 +40,7 @@ import {
   translateDiffEventToDataTreeDiffEvent,
   validateWidgetProperty,
   getImmediateParentsOfPropertyPaths,
+  getAllPaths,
 } from "./evaluationUtils";
 import {
   EXECUTION_PARAM_KEY,
