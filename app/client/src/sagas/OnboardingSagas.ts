@@ -58,7 +58,10 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { createActionRequest, runActionInit } from "actions/actionActions";
-import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
+import {
+  BUILDER_PAGE_URL,
+  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+} from "constants/routes";
 import { QueryAction } from "entities/Action";
 import history from "utils/history";
 import { getQueryIdFromURL } from "pages/Editor/Explorer/helpers";
@@ -136,12 +139,40 @@ function* listenForAddInputWidget() {
 
     const selectedWidget = yield select(getSelectedWidget);
     const canvasWidgets = yield select(getCanvasWidgets);
+    const currentPageId = yield select(getCurrentPageId);
+    const applicationId = yield select(getCurrentApplicationId);
 
     if (
       selectedWidget &&
       selectedWidget.type === "INPUT_WIDGET" &&
       canvasWidgets[selectedWidget.widgetId]
     ) {
+      if (
+        !window.location.pathname.includes(
+          BUILDER_PAGE_URL(applicationId, currentPageId),
+        )
+      ) {
+        yield cancel();
+      }
+
+      const helperConfig = yield select(
+        (state) => state.ui.onBoarding.helperStepConfig,
+      );
+      const onSubmitGifUrl =
+        "https://res.cloudinary.com/drako999/image/upload/v1611830618/Appsmith/Onboarding/onsubmit.gif";
+
+      if (helperConfig?.image.src !== onSubmitGifUrl) {
+        yield put({
+          type: ReduxActionTypes.SET_HELPER_CONFIG,
+          payload: {
+            ...helperConfig,
+            image: {
+              src: onSubmitGifUrl,
+            },
+          },
+        });
+      }
+
       const dynamicTriggerPathList = selectedWidget.dynamicTriggerPathList;
       const hasOnSubmitHandler =
         dynamicTriggerPathList &&

@@ -16,7 +16,7 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
-  padding: 0 10px 20px 10px;
+  padding: 10px 10px 20px 10px;
   height: 100%;
   overflow-y: auto;
 
@@ -117,12 +117,14 @@ const WidgetSidebar = (props: IPanelProps) => {
   }, [searchInputRef, search]);
   return (
     <>
-      <ExplorerSearch
-        ref={searchInputRef}
-        clear={clearSearchInput}
-        placeholder="Search widgets..."
-        autoFocus={true}
-      />
+      <Boxed step={OnboardingStep.DEPLOY}>
+        <ExplorerSearch
+          ref={searchInputRef}
+          clear={clearSearchInput}
+          placeholder="Search widgets..."
+          autoFocus={true}
+        />
+      </Boxed>
 
       <MainWrapper>
         <Header>
@@ -140,7 +142,7 @@ const WidgetSidebar = (props: IPanelProps) => {
         <CardsWrapper>
           {filteredCards.map((card: WidgetCardProps) => (
             <Boxed
-              step={OnboardingStep.SUCCESSFUL_BINDING}
+              step={OnboardingStep.DEPLOY}
               show={
                 card.type === "TABLE_WIDGET" || card.type === "INPUT_WIDGET"
               }

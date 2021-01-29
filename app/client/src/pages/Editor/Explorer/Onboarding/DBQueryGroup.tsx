@@ -3,13 +3,16 @@ import OnboardingIndicator from "components/editorComponents/Onboarding/Indicato
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { PluginType } from "entities/Action";
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
+import { getHelperConfig } from "sagas/OnboardingSagas";
 import { getPlugins } from "selectors/entitiesSelector";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPluginGroups, ACTION_PLUGIN_MAP } from "../Actions/helpers";
 import { useActions, useFilteredDatasources } from "../hooks";
+import DragTableGif from "assets/gifs/table_drag.gif";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const AddWidget = styled.button`
   margin-bottom: 25px;
@@ -41,6 +44,8 @@ const DBQueryGroup = (props: any) => {
   const dbPluginMap = ACTION_PLUGIN_MAP.filter(
     (plugin) => plugin?.type === PluginType.DB,
   );
+  const dispatch = useDispatch();
+  const helperConfig = getHelperConfig(OnboardingStep.RUN_QUERY_SUCCESS);
 
   return (
     <Wrapper>
@@ -55,6 +60,15 @@ const DBQueryGroup = (props: any) => {
               className="t--add-widget"
               onClick={() => {
                 AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET_CLICK");
+                dispatch({
+                  type: ReduxActionTypes.SET_HELPER_CONFIG,
+                  payload: {
+                    ...helperConfig,
+                    image: {
+                      src: DragTableGif,
+                    },
+                  },
+                });
                 props.showWidgetsSidebar();
               }}
             >

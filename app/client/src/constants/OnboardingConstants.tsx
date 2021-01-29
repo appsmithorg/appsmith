@@ -1,7 +1,8 @@
-import { endOnboarding, showIndicator } from "actions/onboardingActions";
+import { endOnboarding } from "actions/onboardingActions";
 import { ReduxActionTypes } from "./ReduxActionConstants";
 import HandwaveGif from "assets/gifs/handwave.gif";
 import DeployGif from "assets/gifs/deploy_green.gif";
+import InputDragGif from "assets/gifs/input_drag.gif";
 
 export enum OnboardingStep {
   NONE = -1,
@@ -148,7 +149,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       snippet: "{{fetch_standup_updates.data}}",
       image: {
         src:
-          "https://res.cloudinary.com/drako999/image/upload/v1611815341/Appsmith/Onboarding/binding.gif",
+          "https://res.cloudinary.com/drako999/image/upload/v1611906837/Appsmith/Onboarding/property_pane.gif",
       },
       cheatAction: {
         label: "Do it for me",
@@ -171,8 +172,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       description:
         "1. Drag an input so that heroes can enter their daily updates\n2. Create a query using OnSubmit action to insert a standup_update.",
       image: {
-        src:
-          "https://res.cloudinary.com/drako999/image/upload/v1611830618/Appsmith/Onboarding/onsubmit.gif",
+        src: InputDragGif,
       },
       cheatAction: {
         label: "Do it for me",
