@@ -1242,6 +1242,10 @@ const extractReferencesFromBinding = (
   const subDeps: Array<string> = [];
   const identifiers = path.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [path];
   identifiers.forEach((identifier: string) => {
+    if (all.hasOwnProperty(identifier)) {
+      subDeps.push(identifier);
+      return;
+    }
     const subpaths = _.toPath(identifier);
     let current = "";
     while (subpaths.length > 1) {
