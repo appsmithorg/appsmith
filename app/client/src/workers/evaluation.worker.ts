@@ -39,6 +39,7 @@ import {
   removeFunctionsFromDataTree,
   translateDiffEventToDataTreeDiffEvent,
   validateWidgetProperty,
+  getImmediateParentsOfPropertyPaths,
 } from "./evaluationUtils";
 import {
   EXECUTION_PARAM_KEY,
@@ -205,6 +206,7 @@ export class DataTreeEvaluator {
   widgetConfigMap: WidgetTypeConfigMap = {};
   evalTree: DataTree = {};
   allKeys: Record<string, true> = {};
+  validationPaths: Record<string, Set<string>> = {};
   oldUnEvalTree: DataTree = {};
   errors: EvalError[] = [];
   parsedValueCache: Map<
@@ -327,25 +329,11 @@ export class DataTreeEvaluator {
     removedPaths.forEach((removedPath) => {
       _.unset(this.evalTree, removedPath);
     });
-
     const evaluatedTree = this.evaluateTree(this.evalTree, subTreeSortOrder);
     const evalStop = performance.now();
 
-    const validateStart = performance.now();
-    // Validate and parse updated widgets
-    const updatedWidgets = new Set(
-      subTreeSortOrder.map((path) => path.split(".")[0]),
-    );
-
-    const validatedTree = getValidatedTree(
-      this.widgetConfigMap,
-      evaluatedTree,
-      updatedWidgets,
-    );
-    const validateEnd = performance.now();
-
     // Remove functions
-    this.evalTree = removeFunctionsFromDataTree(validatedTree);
+    this.evalTree = removeFunctionsFromDataTree(evaluatedTree);
     const totalEnd = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
@@ -360,7 +348,6 @@ export class DataTreeEvaluator {
         calculateSortOrderStop - calculateSortOrderStart
       ).toFixed(2),
       evaluate: (evalStop - evalStart).toFixed(2),
-      validate: (validateEnd - validateStart).toFixed(2),
     };
     LOGS.push({ timeTakenForSubTreeEval });
     return this.evalTree;
@@ -382,7 +369,7 @@ export class DataTreeEvaluator {
       // Add all the sorted nodes in the final list
       finalSortOrder = [...finalSortOrder, ...subSortOrderArray];
 
-      parents = this.getImmediateParentsOfPropertyPaths(subSortOrderArray);
+      parents = getImmediateParentsOfPropertyPaths(subSortOrderArray);
       // If we find parents of the property paths in the sorted array, we should continue finding all the nodes dependent
       // on the parents
       computeSortOrder = parents.length > 0;
@@ -405,27 +392,6 @@ export class DataTreeEvaluator {
     });
 
     return finalSortOrderArray;
-  }
-
-  // The idea is to find the immediate parents of the property paths
-  // e.g. For Table1.selectedRow.email, the parent is Table1.selectedRow
-  getImmediateParentsOfPropertyPaths(
-    propertyPaths: Array<string>,
-  ): Array<string> {
-    // Use a set to ensure that we dont have duplicates
-    const parents: Set<string> = new Set();
-
-    propertyPaths.forEach((path) => {
-      const parentProperty = path.substr(0, path.lastIndexOf("."));
-
-      if (parentProperty.length != 0) {
-        parents.add(parentProperty);
-      } else {
-        // We have reached the top of the path. No parent exists
-      }
-    });
-
-    return Array.from(parents);
   }
 
   getEvaluationSortOrder(
@@ -455,9 +421,34 @@ export class DataTreeEvaluator {
     return sortOrder;
   }
 
+  getValidationPaths(unevalDataTree: DataTree): Record<string, Set<string>> {
+    const result: Record<string, Set<string>> = {};
+    for (const key in unevalDataTree) {
+      const entity = unevalDataTree[key];
+      if (isAction(entity)) {
+        // TODO: add the properties to a global map somewhere
+        result[entity.name] = new Set(
+          ["config", "isLoading", "data"].map((e) => `${entity.name}.${e}`),
+        );
+      } else if (isWidget(entity)) {
+        if (!this.widgetConfigMap[entity.type])
+          throw new CrashingError(
+            `${entity.widgetName} has unrecognised entity type: ${entity.type}`,
+          );
+        const { validations } = this.widgetConfigMap[entity.type];
+
+        result[entity.widgetName] = new Set(
+          Object.keys(validations).map((e) => `${entity.widgetName}.${e}`),
+        );
+      }
+    }
+    return result;
+  }
+
   createDependencyMap(unEvalTree: DataTree): DependencyMap {
     let dependencyMap: DependencyMap = {};
     this.allKeys = getAllPaths(unEvalTree);
+    this.validationPaths = this.getValidationPaths(unEvalTree);
     Object.keys(unEvalTree).forEach((entityName) => {
       const entity = unEvalTree[entityName];
       if (isAction(entity) || isWidget(entity)) {
@@ -908,12 +899,16 @@ export class DataTreeEvaluator {
     // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
     // TODO: Optimise by only getting paths of changed node
     this.allKeys = getAllPaths(unEvalDataTree);
+    this.validationPaths = this.getValidationPaths(unEvalDataTree);
     // Transform the diff library events to Appsmith evaluator events
     differences
       .map(translateDiffEventToDataTreeDiffEvent)
       .forEach((dataTreeDiff) => {
         const entityName = dataTreeDiff.payload.propertyPath.split(".")[0];
-        const entity = unEvalDataTree[entityName];
+        let entity = unEvalDataTree[entityName];
+        if (dataTreeDiff.event === DataTreeDiffEvent.DELETE) {
+          entity = this.oldUnEvalTree[entityName];
+        }
         const entityType = isValidEntity(entity) ? entity.ENTITY_TYPE : "noop";
 
         if (entityType !== "noop") {
@@ -956,13 +951,9 @@ export class DataTreeEvaluator {
               removedPaths.push(dataTreeDiff.payload.propertyPath);
               // If an existing widget was deleted, remove all the bindings from the global dependency map
               if (
-                entityType === ENTITY_TYPE.WIDGET &&
+                isWidget(entity) &&
                 dataTreeDiff.payload.propertyPath === entityName
               ) {
-                const entity: DataTreeWidget = unEvalDataTree[
-                  entityName
-                ] as DataTreeWidget;
-
                 const widgetBindings = this.listEntityDependencies(
                   entity,
                   entityName,
@@ -1098,40 +1089,34 @@ export class DataTreeEvaluator {
     removedPaths: Array<string>,
   ) {
     const changePaths: Set<string> = new Set(dependenciesOfRemovedPaths);
-    differences.forEach((d) => {
-      if (d.path) {
-        // Apply the changes into the evalTree so that it gets the latest changes
-        applyChange(this.evalTree, undefined, d);
+    for (const d of differences) {
+      if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
+      // Apply the changes into the evalTree so that it gets the latest changes
+      applyChange(this.evalTree, undefined, d);
 
-        // If this is a property path change, simply add for evaluation
-        if (d.path.length > 1) {
-          const propertyPath = convertPathToString(d.path);
-          changePaths.add(propertyPath);
-
-          // If this is an array update, trim the array index and add it to the change paths for evaluation
-          // This is because sometimes inside an object of array time, if only a particular entry changes, the
-          // difference comes as propertyPath[0].fieldChanged. Another entity could depend on propertyPath and not
-          // propertyPath[0]. The said entity must be evaluated.
-          // To do this, we are trimming the array index
-          if (propertyPath.lastIndexOf("[") > 0) {
-            changePaths.add(
-              propertyPath.substr(0, propertyPath.lastIndexOf("[")),
-            );
+      // If this is a property path change, simply add for evaluation and move on
+      if (d.path.length > 1) {
+        changePaths.add(convertPathToString(d.path));
+        continue;
+      }
+      // A top level entity (widget/action) has been added or deleted
+      if (d.path.length === 1) {
+        const entityName = d.path[0];
+        /**
+         * We want to add all pre-existing dynamic and static bindings in dynamic paths of this entity to get evaluated and validated.
+         * Example:
+         * - Table1.tableData = {{Api1.data}}
+         * - Api1 gets created.
+         * - This function gets called with a diff {path:["Api1"]}
+         * We want to add `Api.data` to changedPaths so that `Table1.tableData` can be discovered below.
+         */
+        if (entityName in this.validationPaths) {
+          for (const dependency of this.validationPaths[entityName]) {
+            changePaths.add(dependency);
           }
-        } else if (d.path.length === 1) {
-          /*
-              When we see a new widget has been added or or delete an old widget ( d.path.length === 1)
-              We want to add all the dependencies in the sorted order to make
-              sure all the bindings are evaluated.
-            */
-          this.sortedDependencies.forEach((dependency) => {
-            if (d.path && dependency.split(".")[0] === d.path[0]) {
-              changePaths.add(dependency);
-            }
-          });
         }
       }
-    });
+    }
 
     // If a nested property path has changed and someone (say x) is dependent on the parent of the said property,
     // x must also be evaluated. For example, the following relationship exists in dependency map:
