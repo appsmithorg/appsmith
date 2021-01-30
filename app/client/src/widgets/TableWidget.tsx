@@ -183,9 +183,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const sortedColumn = this.props.sortedColumn;
       let sizedColumns = 0;
       let totalColumnSizes = 0;
+      let defaultWidth: number | undefined = 150;
       for (const i in columnSizeMap) {
         sizedColumns++;
         totalColumnSizes += columnSizeMap[i];
+      }
+      if (componentWidth > totalColumnSizes) {
+        defaultWidth = undefined;
       }
       for (let index = 0; index < columnKeys.length; index++) {
         const i = columnKeys[index];
@@ -205,7 +209,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           Header: columnName,
           accessor: i,
           width:
-            columnSizeMap && columnSizeMap[i] ? columnSizeMap[i] : undefined,
+            columnSizeMap && columnSizeMap[i] ? columnSizeMap[i] : defaultWidth,
           minWidth: 60,
           draggable: true,
           isHidden: false,
