@@ -195,7 +195,7 @@ public class S3Plugin extends BasePlugin {
                 );
             }
 
-            if(properties.get(ACTION_PROPERTY_INDEX).getValue() == null) {
+            if(properties.get(ACTION_PROPERTY_INDEX) == null) {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
@@ -227,13 +227,23 @@ public class S3Plugin extends BasePlugin {
                 );
             }
 
+            if(properties.get(BUCKET_NAME_PROPERTY_INDEX) == null) {
+                return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Appsmith server has encountered an unexpected error when reading bucket name from the " +
+                                "datasource configuration. Please reach out to Appsmith customer support to resolve this."
+                        )
+                );
+            }
+
             final String bucketName = properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
             if (bucketName == null) {
                 return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Appsmith server has encountered an unexpected error when reading bucket name from the " +
-                        "datasource configuration. Please reach out to Appsmith customer support to resolve this."
-                ));
+                            AppsmithPluginError.PLUGIN_ERROR,
+                            "Appsmith server has encountered an unexpected error when reading bucket name from the " +
+                            "datasource configuration. Please reach out to Appsmith customer support to resolve this."
+                        )
+                );
             }
 
             final String body = actionConfiguration.getBody();
@@ -338,6 +348,17 @@ public class S3Plugin extends BasePlugin {
             }
 
             return Mono.fromCallable(() -> {
+                if(properties.get(CLIENT_REGION_PROPERTY_INDEX) == null) {
+                    throw Exceptions.propagate(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    "Appsmith server has encountered an unexpected error when fetching region " +
+                                    "property for S3 execute action method. Please reach out to Appsmith customer " +
+                                    "support to resolve this."
+                            )
+                    );
+                }
+
                 Regions clientRegion = null;
                 try {
                     clientRegion = Regions.fromName(properties.get(CLIENT_REGION_PROPERTY_INDEX).getValue());
@@ -452,8 +473,18 @@ public class S3Plugin extends BasePlugin {
                              " to validate datasource. Please reach out to Appsmith customer support to resolve this.");
             }
             else {
-                String region = properties.get(CLIENT_REGION_PROPERTY_INDEX).getValue();
+                if(properties.get(CLIENT_REGION_PROPERTY_INDEX) == null) {
+                    throw Exceptions.propagate(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    "Appsmith server has encountered an unexpected error when fetching region " +
+                                    "property to validate S3 datasource. Please reach out to Appsmith customer " +
+                                    "support to resolve this."
+                            )
+                    );
+                }
 
+                String region = properties.get(CLIENT_REGION_PROPERTY_INDEX).getValue();
                 if(region == null) {
                     invalids.add("Appsmith server has encountered an unexpected error when fetching Region info from " +
                                  "datasource configuration. Please reach out to Appsmith customer support to resolve " +
