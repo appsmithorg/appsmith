@@ -436,7 +436,7 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
 
 const BASE_WIDGET: DataTreeWidget = {
   widgetId: "randomID",
-  widgetName: "randomName",
+  widgetName: "randomWidgetName",
   bottomRow: 0,
   isLoading: false,
   leftColumn: 0,
@@ -452,7 +452,7 @@ const BASE_WIDGET: DataTreeWidget = {
 
 const BASE_ACTION: DataTreeAction = {
   actionId: "randomId",
-  name: "randomName",
+  name: "randomActionName",
   config: {
     timeoutInMillisecond: 10,
   },
@@ -645,6 +645,7 @@ describe("DataTreeEvaluator", () => {
       ...unEvalTree,
       Api1: {
         ...BASE_ACTION,
+        name: "Api1",
         data: [
           {
             test: "Hey",
@@ -669,7 +670,6 @@ describe("DataTreeEvaluator", () => {
     ]);
     expect(updatedDependencyMap).toStrictEqual({
       Api1: ["Api1.data"],
-      Input1: ["Input1.text"],
       Text1: ["Text1.text"],
       Text2: ["Text2.text"],
       Text3: ["Text3.text"],
@@ -693,7 +693,6 @@ describe("DataTreeEvaluator", () => {
       "Table1.selectedRowIndex": [],
       "Table1.selectedRowIndices": [],
       "Text4.text": [],
-      "Input1.text": [],
     });
   });
 
@@ -710,6 +709,7 @@ describe("DataTreeEvaluator", () => {
       },
       Api1: {
         ...BASE_ACTION,
+        name: "Api1",
         data: [
           {
             test: "Hey",
@@ -751,7 +751,6 @@ describe("DataTreeEvaluator", () => {
         "Dropdown1.selectedOptionValue",
         "Dropdown1.selectedOptionValueArr",
       ],
-      Input1: ["Input1.text"],
       "Text2.text": ["Text1.text"],
       "Text3.text": ["Text1.text"],
       "Dropdown1.selectedOptionValue": [],
@@ -761,7 +760,6 @@ describe("DataTreeEvaluator", () => {
       "Table1.selectedRowIndex": [],
       "Table1.selectedRowIndices": [],
       "Text4.text": ["Table1.selectedRow.test"],
-      "Input1.text": [],
     });
   });
 });

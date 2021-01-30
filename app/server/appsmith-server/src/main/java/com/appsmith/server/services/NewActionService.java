@@ -31,7 +31,7 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission);
 
-    Flux<NewAction> findUnpublishedOnLoadActionsInPage(String pageId);
+    Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId);
 
     Flux<NewAction> findUnpublishedActionsInPageByNames(Set<String> names, String pageId);
 
@@ -56,4 +56,6 @@ public interface NewActionService extends CrudService<NewAction, String> {
     Flux<NewAction> saveAll(List<NewAction> actions);
 
     Flux<NewAction> findByPageId(String pageId);
+
+    Mono<Boolean> setOnLoad(List<ActionDTO> actions);
 }
