@@ -52,7 +52,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, compact } from "lodash";
+import _, { cloneDeep } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
@@ -94,8 +94,6 @@ import {
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { getActions } from "selectors/entitiesSelector";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -111,11 +109,11 @@ function* getChildWidgetProps(
   };
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-    const actionNames = yield call(getActionNames);
+    const entityNames = yield call(getEntityNames);
 
     widgetName = getNextEntityName(restDefaultConfig.widgetName, [
       ...widgetNames,
-      ...actionNames,
+      ...entityNames,
     ]);
   }
   if (type === WidgetTypes.CANVAS_WIDGET) {
@@ -287,13 +285,8 @@ export function* addChildrenSaga(
     const stateWidgets = yield select(getWidgets);
     const widgets = { ...stateWidgets };
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-    const stateActions = yield select(getActions);
-    const currentPageId = yield select(getCurrentPageId);
-    const actionNames = compact(
-      stateActions.map((action: ActionData) =>
-        action.config.pageId === currentPageId ? action.config.name : undefined,
-      ),
-    );
+    const evalTree = yield select(getDataTree);
+    const entityNames = Object.keys(evalTree);
 
     children.forEach((child) => {
       // Create only if it doesn't already exist
@@ -301,7 +294,7 @@ export function* addChildrenSaga(
         const defaultConfig: any = WidgetConfigResponse.config[child.type];
         const newWidgetName = getNextEntityName(defaultConfig.widgetName, [
           ...widgetNames,
-          ...actionNames,
+          ...entityNames,
         ]);
         // update the list of widget names for the next iteration
         widgetNames.push(newWidgetName);
@@ -1077,35 +1070,24 @@ function calculateNewWidgetPosition(
   };
 }
 
-function* getActionNames() {
-  const actions = yield select(getActions);
-  const currentPageId = yield select(getCurrentPageId);
-  return yield actions
-    .map((action: ActionData) =>
-      action.config.pageId === currentPageId ? action.config.name : undefined,
-    )
-    .filter(Boolean);
+function* getEntityNames() {
+  const evalTree = yield select(getDataTree);
+  return Object.keys(evalTree);
 }
 
 function getNextWidgetName(
   widgets: CanvasWidgetsReduxState,
   type: WidgetType,
-  actions: ActionData[],
-  currentPageId: string,
+  evalTree: Record<string, unknown>,
 ) {
   // Compute the new widget's name
   const defaultConfig: any = WidgetConfigResponse.config[type];
   const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-
-  const actionNames = compact(
-    actions.map((action: ActionData) =>
-      action.config.pageId === currentPageId ? action.config.name : undefined,
-    ),
-  );
+  const entityNames = Object.keys(evalTree);
 
   return getNextEntityName(defaultConfig.widgetName, [
     ...widgetNames,
-    ...actionNames,
+    ...entityNames,
   ]);
 }
 
@@ -1198,8 +1180,7 @@ function* pasteWidgetSaga() {
       widgets,
     );
 
-    const actions = yield select(getActions);
-    const currentPageId = yield select(getCurrentPageId);
+    const evalTree = yield select(getDataTree);
 
     // Get a flat list of all the widgets to be updated
     const widgetList = copiedWidgets.list;
@@ -1296,12 +1277,7 @@ function* pasteWidgetSaga() {
         if (newParentId) widget.parentId = newParentId;
       }
       // Generate a new unique widget name
-      widget.widgetName = getNextWidgetName(
-        widgets,
-        widget.type,
-        actions,
-        currentPageId,
-      );
+      widget.widgetName = getNextWidgetName(widgets, widget.type, evalTree);
       // Add the new widget to the canvas widgets
       widgets[widget.widgetId] = widget;
     });
@@ -1358,14 +1334,8 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
     const rows = 7;
     const queryName = action.payload;
     const widgets = yield select(getWidgets);
-    const actions = yield select(getActions);
-    const currentPageId = yield select(getCurrentPageId);
-    const widgetName = getNextWidgetName(
-      widgets,
-      "TABLE_WIDGET",
-      actions,
-      currentPageId,
-    );
+    const evalTree = yield select(getDataTree);
+    const widgetName = getNextWidgetName(widgets, "TABLE_WIDGET", evalTree);
 
     let newWidget = {
       type: WidgetTypes.TABLE_WIDGET,
