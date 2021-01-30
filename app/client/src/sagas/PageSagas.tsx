@@ -18,7 +18,7 @@ import {
   fetchPublishedPageSuccess,
   savePageSuccess,
   setUrlData,
-  updateCanvas,
+  initCanvasLayout,
   updateCurrentPage,
   updateWidgetNameSuccess,
 } from "actions/pageActions";
@@ -186,7 +186,7 @@ export function* fetchPageSaga(
       // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
       // Update the canvas
-      yield put(updateCanvas(canvasWidgetsPayload));
+      yield put(initCanvasLayout(canvasWidgetsPayload));
       // set current page
       yield put(updateCurrentPage(id));
       // dispatch fetch page success
@@ -254,7 +254,7 @@ export function* fetchPublishedPageSaga(
       // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
       // Update the canvas
-      yield put(updateCanvas(canvasWidgetsPayload));
+      yield put(initCanvasLayout(canvasWidgetsPayload));
       // set current page
       yield put(updateCurrentPage(pageId));
       // dispatch fetch page success
@@ -625,7 +625,7 @@ export function* updateCanvasWithDSL(
     pageActions: data.layoutOnLoadActions,
     widgets: normalizedWidgets.entities.canvasWidgets,
   };
-  yield put(updateCanvas(canvasWidgetsPayload));
+  yield put(initCanvasLayout(canvasWidgetsPayload));
   yield put(fetchActionsForPage(pageId));
 }
 

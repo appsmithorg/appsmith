@@ -14,6 +14,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   setWidgetDynamicProperty,
   updateWidgetPropertyRequest,
+  deleteWidgetProperty,
+  batchUpdateWidgetProperty,
 } from "actions/controlActions";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
@@ -66,6 +68,26 @@ const PropertyControl = memo((props: Props) => {
     ],
   );
 
+  const onDeleteProperties = useCallback(
+    (propertyPaths: string[]) => {
+      dispatch(deleteWidgetProperty(widgetProperties.widgetId, propertyPaths));
+    },
+    [dispatch, widgetProperties.widgetId],
+  );
+  const onBatchUpdateProperties = useCallback(
+    (allUpdates: Record<string, unknown>) =>
+      dispatch(
+        batchUpdateWidgetProperty(widgetProperties.widgetId, allUpdates),
+      ),
+    [widgetProperties.widgetId, dispatch],
+  );
+  // this function updates the properties of widget passed
+  const onBatchUpdatePropertiesOfWidget = useCallback(
+    (allUpdates: Record<string, unknown>, widgetId: string) =>
+      dispatch(batchUpdateWidgetProperty(widgetId, allUpdates)),
+    [dispatch],
+  );
+
   /**
    * this function is called whenever we change any property in the property pane
    * it updates the widget property by updateWidgetPropertyRequest
@@ -83,9 +105,8 @@ const PropertyControl = memo((props: Props) => {
         | Array<{
             propertyPath: string;
             propertyValue: any;
-            widgetId?: string;
           }>
-        | undefined = undefined;
+        | undefined;
       if (props.updateHook) {
         propertiesToUpdate = props.updateHook(
           widgetProperties,
@@ -99,39 +120,49 @@ const PropertyControl = memo((props: Props) => {
       // is changed on propertypane. For e.g - set/update parent property
       if (props.enhancements?.beforeChildPropertyUpdate) {
         // TODO: Concat if exists, else replace
-        propertiesToUpdate = props.enhancements.beforeChildPropertyUpdate(
+        const hookPropertiesUpdates = props.enhancements.beforeChildPropertyUpdate(
           widgetProperties.widgetName,
           get(enhancementsMap[widgetProperties.widgetId], "parentId", ""),
           get(enhancementsMap[widgetProperties.widgetId], "parentWidgetName"),
           propertyName,
           propertyValue,
         );
+
+        if (
+          Array.isArray(hookPropertiesUpdates) &&
+          hookPropertiesUpdates.length > 0
+        ) {
+          const allUpdates: Record<string, unknown> = {};
+          hookPropertiesUpdates.forEach(({ propertyPath, propertyValue }) => {
+            allUpdates[propertyPath] = propertyValue;
+          });
+          allUpdates[propertyName] = propertyValue;
+
+          onBatchUpdatePropertiesOfWidget(
+            allUpdates,
+            get(enhancementsMap[widgetProperties.widgetId], "parentId", ""),
+          );
+        }
       }
 
       if (propertiesToUpdate) {
-        propertiesToUpdate.forEach(
-          ({ propertyPath, propertyValue, widgetId }) => {
-            dispatch(
-              updateWidgetPropertyRequest(
-                widgetId || widgetProperties.widgetId,
-                propertyPath,
-                propertyValue,
-                RenderModes.CANVAS,
-                false,
-              ),
-            );
-          },
+        const allUpdates: Record<string, unknown> = {};
+        propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
+          allUpdates[propertyPath] = propertyValue;
+        });
+        allUpdates[propertyName] = propertyValue;
+        onBatchUpdateProperties(allUpdates);
+      } else {
+        dispatch(
+          updateWidgetPropertyRequest(
+            widgetProperties.widgetId,
+            propertyName,
+            propertyValue,
+            RenderModes.CANVAS, // This seems to be not needed anymore.
+            isDynamicTrigger,
+          ),
         );
       }
-      dispatch(
-        updateWidgetPropertyRequest(
-          widgetProperties.widgetId,
-          propertyName,
-          propertyValue,
-          RenderModes.CANVAS, // This seems to be not needed anymore.
-          isDynamicTrigger,
-        ),
-      );
     },
     [dispatch, widgetProperties],
   );
@@ -144,7 +175,7 @@ const PropertyControl = memo((props: Props) => {
           props: {
             panelProps,
             panelConfig: props.panelConfig,
-            onPropertyChange: onPropertyChange,
+            onPropertiesChange: onBatchUpdateProperties,
             panelParentPropertyPath: props.propertyName,
             panel: props.panel,
           },
@@ -264,6 +295,7 @@ const PropertyControl = memo((props: Props) => {
               {
                 onPropertyChange: onPropertyChange,
                 openNextPanel: openPanel,
+                deleteProperties: onDeleteProperties,
               },
               isDynamic,
               props.customJSControl,

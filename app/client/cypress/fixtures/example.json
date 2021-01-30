@@ -173,5 +173,21 @@
     "Test3"
   ],
   "paginationUrl": "https://mock-api.appsmith.com/",
-  "paginationParam": "users?page={{Table1.pageNo}}&size={{Table1.pageSize }}"
+  "paginationParam": "users?page={{Table1.pageNo}}&size={{Table1.pageSize }}",
+  "TableInputUpdate": [
+    {
+      "id": 2381224,
+      "email": "michael.lawson@reqres.in",
+      "userName": "Michael Lawson",
+      "productName": "Chicken Sandwich",
+      "orderAmount": 4.99
+    },
+    {
+      "id": 2736212,
+      "email": "lindsay.ferguson@reqres.in",
+      "userName": "Lindsay Ferguson",
+      "productName": "Tuna Salad",
+      "orderAmount": 9.99
+    }
+  ]
 }

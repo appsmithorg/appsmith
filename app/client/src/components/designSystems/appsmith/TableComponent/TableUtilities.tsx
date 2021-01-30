@@ -435,7 +435,7 @@ export function getDefaultColumnProperties(
   widgetName: string,
   isDerived?: boolean,
 ): ColumnProperties {
-  return {
+  const columnProps = {
     index: index,
     width: 150,
     id: accessor,
@@ -454,6 +454,8 @@ export function getDefaultColumnProperties(
       ? ""
       : `{{${widgetName}.tableData.map((currentRow) => (currentRow.${accessor}))}}`,
   };
+
+  return columnProps;
 }
 
 export function getTableStyles(props: TableStyles) {

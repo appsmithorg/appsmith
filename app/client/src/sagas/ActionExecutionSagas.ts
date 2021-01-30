@@ -38,6 +38,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import {
   BUILDER_PAGE_URL,
+  convertToQueryParams,
   getApplicationViewerPageURL,
 } from "constants/routes";
 import {
@@ -86,42 +87,61 @@ import {
 } from "./EvaluationsSaga";
 import copy from "copy-to-clipboard";
 
+export enum NavigationTargetType {
+  SAME_WINDOW = "SAME_WINDOW",
+  NEW_WINDOW = "NEW_WINDOW",
+}
+
 function* navigateActionSaga(
-  action: { pageNameOrUrl: string; params: Record<string, string> },
+  action: {
+    pageNameOrUrl: string;
+    params: Record<string, string>;
+    target?: NavigationTargetType;
+  },
   event: ExecuteActionPayloadEvent,
 ) {
   const pageList = yield select(getPageList);
   const applicationId = yield select(getCurrentApplicationId);
+  const {
+    pageNameOrUrl,
+    params,
+    target = NavigationTargetType.SAME_WINDOW,
+  } = action;
   const page = _.find(
     pageList,
-    (page: Page) => page.pageName === action.pageNameOrUrl,
+    (page: Page) => page.pageName === pageNameOrUrl,
   );
   if (page) {
     AnalyticsUtil.logEvent("NAVIGATE", {
-      pageName: action.pageNameOrUrl,
-      pageParams: action.params,
+      pageName: pageNameOrUrl,
+      pageParams: params,
     });
-    // TODO need to make this check via RENDER_MODE;
+    const appMode = yield select(getAppMode);
     const path =
-      history.location.pathname.indexOf("/edit") !== -1
-        ? BUILDER_PAGE_URL(applicationId, page.pageId, action.params)
-        : getApplicationViewerPageURL(
-            applicationId,
-            page.pageId,
-            action.params,
-          );
-    history.push(path);
+      appMode === APP_MODE.EDIT
+        ? BUILDER_PAGE_URL(applicationId, page.pageId, params)
+        : getApplicationViewerPageURL(applicationId, page.pageId, params);
+    if (target === NavigationTargetType.SAME_WINDOW) {
+      history.push(path);
+    } else if (target === NavigationTargetType.NEW_WINDOW) {
+      window.open(path, "_blank");
+    }
     if (event.callback) event.callback({ success: true });
   } else {
     AnalyticsUtil.logEvent("NAVIGATE", {
-      navUrl: action.pageNameOrUrl,
+      navUrl: pageNameOrUrl,
     });
     // Add a default protocol if it doesn't exist.
-    let url = action.pageNameOrUrl;
+    let url = pageNameOrUrl + convertToQueryParams(params);
     if (url.indexOf("://") === -1) {
       url = "https://" + url;
     }
-    window.location.assign(url);
+    if (target === NavigationTargetType.SAME_WINDOW) {
+      window.location.assign(url);
+    } else if (target === NavigationTargetType.NEW_WINDOW) {
+      window.open(url, "_blank");
+    }
+    if (event.callback) event.callback({ success: true });
   }
 }
 

@@ -8,7 +8,10 @@ import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
-import { WidgetPropertyValidationType } from "utils/WidgetValidation";
+import {
+  BASE_WIDGET_VALIDATION,
+  WidgetPropertyValidationType,
+} from "utils/WidgetValidation";
 import GridComponent from "components/designSystems/appsmith/GridComponent";
 import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
 import { generateReactKey } from "utils/generators";
@@ -18,10 +21,14 @@ import propertyPaneConfig from "./ListPropertyPaneConfig";
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
-      items: VALIDATION_TYPES.GRID_DATA,
+      ...BASE_WIDGET_VALIDATION,
+      items: VALIDATION_TYPES.LIST_DATA,
     };
   }
 
+  /**
+   * returns the property pane config of the widget
+   */
   static getPropertyPaneConfig() {
     return propertyPaneConfig;
   }

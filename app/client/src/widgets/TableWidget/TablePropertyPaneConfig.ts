@@ -1,4 +1,4 @@
-import { compact, get, xor, xorWith } from "lodash";
+import { compact, xorWith } from "lodash";
 import { Colors } from "constants/Colors";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableWidgetProps } from "./TableWidgetConstants";
@@ -53,6 +53,7 @@ const updateColumnStyles = (
         updatedDerivedColumns,
         (a, b) => JSON.stringify(a) !== JSON.stringify(b),
       );
+
       if (difference) {
         updates = [
           ...updates,
@@ -73,32 +74,41 @@ const updateDerivedColumnHook = (
   propertyPath: string,
   propertyValue: any,
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  const derivedColumns = props.derivedColumns || [];
-  const propertyPathSplitted = propertyPath.split(".");
-  // The column property being updated currently
-  const columnProperty = propertyPathSplitted.pop();
-  if (columnProperty && propertyPathSplitted[0]) {
-    //Get column id from primaryColumns based on propertyPath of column
-    const columnId = get(props, propertyPathSplitted[0])?.id;
-    const updatedDerivedColumns = derivedColumns.map(
-      (column: ColumnProperties) => {
-        if (column.id === columnId) {
-          column = {
-            ...column,
-            [columnProperty]: propertyValue,
-          };
-        }
-        return column;
-      },
-    );
-
-    return [
-      {
-        propertyPath: "derivedColumns",
-        propertyValue: updatedDerivedColumns,
-      },
-    ];
+  console.log("Table log:", { propertyPath }, { propertyValue });
+  const regex = /primaryColumns\[(\d+)\]\.(.*)/;
+  let updatedPrimaryColumnIndex = -1;
+  let columnPropertyBeingUpdated: string | undefined = undefined;
+  if (regex.test(propertyPath)) {
+    const matches = propertyPath.match(regex);
+    if (matches && Array.isArray(matches)) {
+      if (matches[1] && matches[1].length > 0)
+        updatedPrimaryColumnIndex = parseInt(matches[1], 10);
+      if (matches[2] && matches[2].length > 0)
+        columnPropertyBeingUpdated = matches[2];
+    }
   }
+  if (updatedPrimaryColumnIndex > -1) {
+    const updatedPrimaryColumn =
+      props.primaryColumns[updatedPrimaryColumnIndex];
+    if (updatedPrimaryColumn && updatedPrimaryColumn.isDerived) {
+      const derivedColumnIndex = props.derivedColumns?.findIndex(
+        (column: ColumnProperties) => column.id === updatedPrimaryColumn.id,
+      );
+      if (derivedColumnIndex > -1 && columnPropertyBeingUpdated) {
+        const derivedColumn = { ...props.derivedColumns[derivedColumnIndex] };
+        derivedColumn[columnPropertyBeingUpdated] = propertyValue;
+        const derivedColumns = [...(props.derivedColumns || [])];
+        derivedColumns[derivedColumnIndex] = derivedColumn;
+        return [
+          {
+            propertyPath: `derivedColumns`,
+            propertyValue: derivedColumns,
+          },
+        ];
+      }
+    }
+  }
+
   return [];
 };
 
@@ -107,60 +117,50 @@ const updateDerivedColumnsHook = (
   propertyPath: string,
   propertyValue: any,
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  if (
-    props &&
-    propertyValue &&
-    props[propertyPath] &&
-    propertyPath === "primaryColumns"
-  ) {
-    const propertiesToUpdate = [];
-    // Get old list of derviedcolumns
-    const oldDerivedColumns = props.derivedColumns || [];
-    // Get new list from the primarycolumns
-    const newDerivedColumns = propertyValue.filter(
-      (column: ColumnProperties) => column.isDerived,
-    );
+  if (props && propertyValue) {
+    // If we're adding a column, we need to add it to the `derivedColumns` property as well
+    if (/primaryColumns\[\d+\]$/.test(propertyPath)) {
+      const derivedColumnIndex = props.derivedColumns.length;
+      const propertiesToUpdate = [
+        {
+          propertyPath: `derivedColumns[${derivedColumnIndex}]`,
+          propertyValue,
+        },
+      ];
 
-    // check if there is a difference in the two
-    const difference: ColumnProperties[] = xorWith(
-      oldDerivedColumns,
-      newDerivedColumns,
-      (a: ColumnProperties, b: ColumnProperties) =>
-        a.id === b.id && a.label === b.label,
-    );
-
-    if (difference.length > 0) {
-      propertiesToUpdate.push({
-        propertyPath: "derivedColumns",
-        propertyValue: newDerivedColumns,
-      });
-    }
-
-    const oldColumnOrder = props.columnOrder || [];
-    const newColumnIds = propertyValue.map(
-      (column: ColumnProperties) => column.id,
-    );
-
-    // Check if we have deleted columns
-    const newColumnOrder = oldColumnOrder.filter((columnId: string) => {
-      return newColumnIds.indexOf(columnId) > -1;
-    });
-
-    // Check if we have added columns
-    newColumnIds.forEach((columnId: string) => {
-      if (newColumnOrder.indexOf(columnId) === -1) {
-        newColumnOrder.push(columnId);
-      }
-    });
-    if (xor(newColumnOrder, oldColumnOrder).length > 0) {
+      const oldColumnOrder = props.columnOrder || [];
+      const newColumnOrder = [...oldColumnOrder, propertyValue.id];
       propertiesToUpdate.push({
         propertyPath: "columnOrder",
         propertyValue: newColumnOrder,
       });
+      if (propertiesToUpdate.length > 0) {
+        return propertiesToUpdate;
+      }
     }
+    // If we're updating a columns' name, we need to update the `derivedColumns` property as well.
+    const regex = /primaryColumns\[(\d+)\]\.(.*)$/;
+    if (regex.test(propertyPath)) {
+      const matches = propertyPath.match(regex);
+      if (matches && matches.length === 3) {
+        const primaryColumnIndex = parseInt(matches[1]);
+        const columnProperty = matches[2];
+        const primaryColumn = props.primaryColumns[primaryColumnIndex];
+        const derivedColumnIndex = props.derivedColumns?.findIndex(
+          (column: ColumnProperties) => {
+            return column.id === primaryColumn.id;
+          },
+        );
 
-    if (propertiesToUpdate.length > 0) {
-      return propertiesToUpdate;
+        if (derivedColumnIndex > -1) {
+          return [
+            {
+              propertyPath: `derivedColumns[${derivedColumnIndex}].${columnProperty}`,
+              propertyValue: propertyValue,
+            },
+          ];
+        }
+      }
     }
   }
   return;
@@ -178,7 +178,6 @@ export default [
         controlType: "INPUT_TEXT",
         placeholderText: 'Enter [{ "col1": "val1" }]',
         inputType: "ARRAY",
-        // updateHook: updateColumnsHook,
       },
       {
         helpText: "Columns",
@@ -190,6 +189,7 @@ export default [
           editableTitle: true,
           titlePropertyName: "label",
           panelIdPropertyName: "id",
+          updateHook: updateDerivedColumnHook,
           children: [
             {
               sectionName: "Column Control",

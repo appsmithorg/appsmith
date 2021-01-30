@@ -305,7 +305,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
       ...chartData,
       {
         seriesName: "",
-        data: JSON.stringify([{ x: "", y: "" }]),
+        data: JSON.stringify([{ x: "label", y: 50 }]),
       },
     ];
     this.updateProperty(this.props.propertyName, updatedChartData);

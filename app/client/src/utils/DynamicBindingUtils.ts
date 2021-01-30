@@ -249,3 +249,13 @@ export const unsafeFunctionForEval = [
   "setInterval",
   "Promise",
 ];
+export const isChildPropertyPath = (
+  parentPropertyPath: string,
+  childPropertyPath: string,
+): boolean => {
+  const regexTest = new RegExp(
+    `^${_.escapeRegExp(parentPropertyPath)}(\\.\\S+)?$`,
+  );
+
+  return regexTest.test(childPropertyPath);
+};

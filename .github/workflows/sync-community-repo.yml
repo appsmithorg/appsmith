@@ -2,6 +2,7 @@
 name: Sync Community workflow
 
 on:
+  workflow_dispatch:
   schedule:
   - cron: "0 * * * *"
 

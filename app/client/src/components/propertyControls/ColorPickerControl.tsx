@@ -151,7 +151,6 @@ const ColorPicker = (props: ColorPickerProps) => {
     debouncedOnChange(value);
     setColor(value);
   };
-  console.log({ color });
   return (
     <Popover
       minimal

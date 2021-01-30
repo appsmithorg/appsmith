@@ -218,12 +218,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
-  [VALIDATION_TYPES.GRID_DATA]: (
+  [VALIDATION_TYPES.LIST_DATA]: (
     value: any,
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+    const { isValid, transformed, parsed } = VALIDATORS.ARRAY(
       value,
       props,
       dataTree,
@@ -231,14 +231,25 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     if (!isValid) {
       return {
         isValid,
-        parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: grid Data`,
+        parsed: [],
+        transformed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "key1" : "val1", "key2" : "val2" }]`,
       };
-    } else if (!every(parsed, (datum) => isObject(datum))) {
+    }
+
+    const isValidListData = every(parsed, (datum) => {
+      return (
+        isObject(datum) &&
+        Object.keys(datum).filter((key) => isString(key) && key.length === 0)
+          .length === 0
+      );
+    });
+    if (!isValidListData) {
       return {
         isValid: false,
         parsed: [],
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: grid Data`,
+        transformed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "key1" : "val1", "key2" : "val2" }]`,
       };
     }
     return { isValid, parsed };
@@ -351,7 +362,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Marker Data`,
       };
-    } else if (!every(parsed, (datum) => isObject(datum))) {
+    } else if (
+      !every(
+        parsed,
+        (datum) => VALIDATORS[VALIDATION_TYPES.LAT_LONG](datum, props).isValid,
+      )
+    ) {
       return {
         isValid: false,
         parsed: [],
@@ -722,5 +738,38 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
     return { isValid, parsed, transformed: parsed };
+  },
+  [VALIDATION_TYPES.LAT_LONG]: (unparsedValue: {
+    lat?: number;
+    long?: number;
+    [x: string]: any;
+  }): ValidationResponse => {
+    let value = unparsedValue;
+    const invalidResponse = {
+      isValid: false,
+      parsed: undefined,
+      message: `${WIDGET_TYPE_VALIDATION_ERROR}: { lat: number, long: number }`,
+    };
+
+    if (isString(unparsedValue)) {
+      try {
+        value = JSON.parse(unparsedValue);
+      } catch (e) {
+        console.error(`Error when parsing string as object`);
+      }
+    }
+
+    const { lat, long } = value || {};
+    const validLat = typeof lat === "number" && lat <= 90 && lat >= -90;
+    const validLong = typeof long === "number" && long <= 180 && long >= -180;
+
+    if (!validLat || !validLong) {
+      return invalidResponse;
+    }
+
+    return {
+      isValid: true,
+      parsed: value,
+    };
   },
 };

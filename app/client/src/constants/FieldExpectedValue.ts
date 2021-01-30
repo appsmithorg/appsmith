@@ -99,6 +99,7 @@ const FIELD_VALUES: Record<
     // onClick: "Function Call",
   },
   MAP_WIDGET: {
+    mapCenter: "{ lat: number, long: number }",
     defaultMarkers: "Array<{ lat: number, long: number }>",
     enableSearch: "boolean",
     enablePickLocation: "boolean",

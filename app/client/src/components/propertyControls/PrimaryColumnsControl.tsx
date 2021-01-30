@@ -19,8 +19,7 @@ import {
   reorderColumns,
   getTableStyles,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
-import produce from "immer";
-import { compact, debounce } from "lodash";
+import { debounce } from "lodash";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -73,23 +72,6 @@ type RenderComponentProps = {
   toggleVisibility?: (index: number) => void;
 };
 
-const removeDynamicPaths = (paths: Array<{ key: string }>, index: number) => {
-  if (!paths || paths.length === 0) return false;
-  const finalPaths = compact(
-    paths.map((path: { key: string }) => {
-      const pathStringStub = `primaryColumns[${index}]`;
-      if (path.key.indexOf(pathStringStub) === 0) {
-        return;
-      }
-      return path;
-    }),
-  );
-  if (finalPaths.length < paths.length) {
-    return finalPaths;
-  }
-  return false;
-};
-
 const getOriginalColumnIndex = (
   columns: ColumnProperties[],
   index: number,
@@ -118,7 +100,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
     toggleVisibility,
     index,
   } = props;
-  const debouncedUpdate = debounce(updateOption, 500);
+  const debouncedUpdate = debounce(updateOption, 1000);
   const onChange = (index: number, value: string) => {
     setValue(value);
     debouncedUpdate(index, value);
@@ -177,7 +159,15 @@ function ColumnControlComponent(props: RenderComponentProps) {
 class PrimaryColumnsControl extends BaseControl<ControlProps> {
   render() {
     // Get columns from widget properties
-    const columns = this.props.propertyValue || [];
+    let columns = this.props.propertyValue || [];
+    columns = columns
+      ?.map((column: ColumnProperties) => {
+        if (Array.isArray(column) && column.length === 0) {
+          return undefined;
+        }
+        return column;
+      })
+      .filter(Boolean);
     // If there are no columns, show empty state
     if (columns.length === 0) {
       return <EmptyDataState />;
@@ -241,10 +231,11 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       buttonLabelColor: "#FFFFFF",
       ...tableStyles,
     };
-    const updatedColumns: ColumnProperties[] = produce(columns, (draft) => {
-      draft.push(column);
-    });
-    this.updateProperty(this.props.propertyName, updatedColumns);
+
+    this.updateProperty(
+      `${this.props.propertyName}[${columns.length}]`,
+      column,
+    );
   };
 
   onEdit = (index: number) => {
@@ -273,47 +264,37 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       index,
       this.props.widgetProperties.columnOrder,
     );
-    const updatedColumns: ColumnProperties[] = produce(
-      columns,
-      (draft: ColumnProperties[]) => {
-        draft[originalColumnIndex].isVisible = !draft[originalColumnIndex]
-          .isVisible;
-      },
+
+    this.updateProperty(
+      `${this.props.propertyName}[${originalColumnIndex}].isVisible`,
+      !columns[originalColumnIndex].isVisible,
     );
-    this.updateProperty(this.props.propertyName, updatedColumns);
   };
 
   deleteOption = (index: number) => {
     const columns: ColumnProperties[] = this.props.propertyValue || [];
-    const updatedColumns: ColumnProperties[] = [...columns];
+
     const originalColumnIndex = getOriginalColumnIndex(
       columns,
       index,
       this.props.widgetProperties.columnOrder,
     );
-    const removeDynamicBindingPaths = removeDynamicPaths(
-      this.props.widgetProperties.dynamicBindingPathList,
-      originalColumnIndex,
+    const propertiesToDelete = [
+      `${this.props.propertyName}[${originalColumnIndex}]`,
+    ];
+    const originalColumn = columns[originalColumnIndex];
+    const derivedColumnIndex = this.props.widgetProperties.derivedColumns?.findIndex(
+      (column: ColumnProperties) => column.id === originalColumn?.id,
     );
-    if (removeDynamicBindingPaths) {
-      this.updateProperty("dynamicBindingPathList", removeDynamicBindingPaths);
+    if (derivedColumnIndex > -1) {
+      propertiesToDelete.push(`derivedColumns[${derivedColumnIndex}]`);
     }
-    const removeDynamicTriggers = removeDynamicPaths(
-      this.props.widgetProperties.dynamicTriggers,
-      originalColumnIndex,
+    const columnOrderIndex = this.props.widgetProperties.columnOrder.findIndex(
+      (column: string) => column === originalColumn.id,
     );
-    if (removeDynamicTriggers) {
-      this.updateProperty("dynamicTriggers", removeDynamicTriggers);
-    }
-    const removeDynamicProperties = removeDynamicPaths(
-      this.props.widgetProperties.dynamicPropertyPathList,
-      originalColumnIndex,
-    );
-    if (removeDynamicProperties) {
-      this.updateProperty("dynamicPropertyPathList", removeDynamicProperties);
-    }
-    updatedColumns.splice(originalColumnIndex, 1);
-    this.updateProperty(this.props.propertyName, updatedColumns);
+    propertiesToDelete.push(`columnOrder[${columnOrderIndex}]`);
+
+    this.deleteProperties(propertiesToDelete);
   };
 
   updateOption = (index: number, updatedLabel: string) => {
@@ -323,14 +304,11 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       index,
       this.props.widgetProperties.columnOrder,
     );
-    const updatedColumns: ColumnProperties[] = produce(
-      columns,
-      (draft: ColumnProperties[]) => {
-        draft[originalColumnIndex].label = updatedLabel;
-      },
-    );
 
-    this.updateProperty(this.props.propertyName, updatedColumns);
+    this.updateProperty(
+      `${this.props.propertyName}[${originalColumnIndex}].label`,
+      updatedLabel,
+    );
   };
 
   static getControlType() {

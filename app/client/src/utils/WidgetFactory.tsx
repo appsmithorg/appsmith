@@ -42,7 +42,7 @@ const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
 
       (sectionOrControlConfig as PropertyPaneControlConfig) = config;
     }
-    return Object.freeze(sectionOrControlConfig);
+    return sectionOrControlConfig;
   });
 };
 class WidgetFactory {
@@ -73,7 +73,7 @@ class WidgetFactory {
   static metaPropertiesMap: Map<WidgetType, Record<string, any>> = new Map();
   static propertyPaneConfigsMap: Map<
     WidgetType,
-    PropertyPaneConfig[]
+    readonly PropertyPaneConfig[]
   > = new Map();
 
   static registerWidgetBuilder(
@@ -96,7 +96,7 @@ class WidgetFactory {
     propertyPaneConfig &&
       this.propertyPaneConfigsMap.set(
         widgetType,
-        addPropertyConfigIds(propertyPaneConfig),
+        Object.freeze(addPropertyConfigIds(propertyPaneConfig)),
       );
   }
 

@@ -59,6 +59,7 @@ interface ReactTableComponentProps {
   multiRowSelection?: boolean;
   hiddenColumns?: string[];
   columnNameMap?: { [key: string]: string };
+  triggerRowSelection: boolean;
   columnTypeMap?: {
     [key: string]: {
       type: string;
@@ -213,6 +214,8 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       selectTableRow={selectTableRow}
       pageNo={props.pageNo - 1}
       updatePageNo={props.updatePageNo}
+      // columnActions={props.columnActions}
+      triggerRowSelection={props.triggerRowSelection}
       nextPageClick={() => {
         props.nextPageClick();
       }}
