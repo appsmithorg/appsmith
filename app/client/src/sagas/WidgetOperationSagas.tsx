@@ -288,8 +288,11 @@ export function* addChildrenSaga(
     const widgets = { ...stateWidgets };
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
     const stateActions = yield select(getActions);
-    const actionNames = stateActions.map(
-      (action: ActionData) => action.config.name,
+    const currentPageId = yield select(getCurrentPageId);
+    const actionNames = compact(
+      stateActions.map((action: ActionData) =>
+        action.config.pageId === currentPageId ? action.config.name : undefined,
+      ),
     );
 
     children.forEach((child) => {
