@@ -242,8 +242,11 @@ public class S3Plugin extends BasePlugin {
                 );
             }
 
+            /*
+             * - Allow users to upload empty file. Hence, only check for null value.
+             */
             final String body = actionConfiguration.getBody();
-            if (s3Action == S3Action.UPLOAD_FILE_FROM_BODY && StringUtils.isEmpty(body)) {
+            if (s3Action == S3Action.UPLOAD_FILE_FROM_BODY && body == null) {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
