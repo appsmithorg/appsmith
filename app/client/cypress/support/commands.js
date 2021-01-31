@@ -800,6 +800,18 @@ Cypress.Commands.add("CopyAPIToHome", () => {
   );
 });
 
+Cypress.Commands.add("RenameEntity", (value) => {
+  cy.xpath(apiwidget.popover)
+    .last()
+    .click({ force: true });
+  cy.get(apiwidget.renameEntity).click({ force: true });
+  cy.wait(2000);
+  cy.get(explorer.editEntity)
+    .last()
+    .type(value, { force: true });
+  cy.wait(3000);
+});
+
 Cypress.Commands.add("DeleteAPIFromSideBar", () => {
   cy.deleteEntity();
   cy.wait("@deleteAction").should(
