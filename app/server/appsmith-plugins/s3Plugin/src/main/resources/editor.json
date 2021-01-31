@@ -43,7 +43,7 @@
           "initialValue": ""
         },
         {
-          "label": "Body",
+          "label": "Content",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "initialValue": ""
