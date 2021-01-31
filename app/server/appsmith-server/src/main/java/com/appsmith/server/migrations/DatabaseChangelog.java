@@ -1587,7 +1587,7 @@ public class DatabaseChangelog {
         plugin.setPackageName("s3-plugin");
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.TABLE);
-        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/aws_s3_logo.jpeg");
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/AmazonS3.jpeg");
         plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-s3");
         plugin.setDefaultInstall(true);
         try {
