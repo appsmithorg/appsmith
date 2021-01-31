@@ -285,12 +285,12 @@ public class S3Plugin extends BasePlugin {
 
                 return rowsList;
             })
-            .flatMap(result -> {
+            .map(result -> {
                 ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                 actionExecutionResult.setBody(objectMapper.valueToTree(rowsList));
                 actionExecutionResult.setIsExecutionSuccess(true);
                 System.out.println(Thread.currentThread().getName() + ": In the S3 Plugin, got action execution result");
-                return Mono.just(actionExecutionResult);
+                return actionExecutionResult;
             })
             .onErrorResume(e -> {
                 if(e instanceof AppsmithPluginException) {
@@ -398,6 +398,7 @@ public class S3Plugin extends BasePlugin {
                                 .withRegion(clientRegion)
                                 .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                                 .build();
+
             })
             .onErrorResume(e -> {
                         if(e instanceof AppsmithPluginException) {
