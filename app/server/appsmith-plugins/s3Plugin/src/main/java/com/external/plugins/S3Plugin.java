@@ -25,6 +25,7 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.mysema.commons.lang.Assert;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.pf4j.Extension;
@@ -164,9 +165,8 @@ public class S3Plugin extends BasePlugin {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
-                                "Appsmith server has encountered an unexpected error when reading datasource configuration " +
-                                "for S3 plugin execute action method. Please reach out to Appsmith customer support to resolve" +
-                                " this."
+                                "At least one of the mandatory fields in S3 datasource creation form is empty - " +
+                                "'Access Key'/'Secret Key'/'Region'. Please fill all the mandatory fields and try again."
                         )
                 );
             }
@@ -175,9 +175,9 @@ public class S3Plugin extends BasePlugin {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
-                                "Appsmith server has encountered an unexpected error when reading action configuration " +
-                                "for S3 plugin execute action method. Please reach out to Appsmith customer support to resolve" +
-                                " this."
+                                "At least one of the mandatory fields in S3 query creation form is empty - 'Action'/" +
+                                "'Bucket Name'/'File Path'/'Content'. Please fill all the mandatory fields and try " +
+                                "again."
                         )
                 );
             }
@@ -189,8 +189,8 @@ public class S3Plugin extends BasePlugin {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
-                                "Appsmith server has encountered an unexpected error when fetching query" +
-                                " properties. Please reach out to Appsmith customer support to resolve this."
+                                "Mandatory parameters 'Action' and 'Bucket Name' are missing. Did you forget to edit " +
+                                "the 'Action' and 'Bucket Name' fields in the query form ?"
                         )
                 );
             }
@@ -227,32 +227,28 @@ public class S3Plugin extends BasePlugin {
                 );
             }
 
-            if(properties.get(BUCKET_NAME_PROPERTY_INDEX) == null) {
+            final String bucketName;
+            try {
+                bucketName = properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
+                if(StringUtils.isEmpty(bucketName)) {
+                    throw new Exception();
+                }
+            } catch (Exception e) {
                 return Mono.error(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
-                                "Appsmith server has encountered an unexpected error when reading bucket name from the " +
-                                "datasource configuration. Please reach out to Appsmith customer support to resolve this."
-                        )
-                );
-            }
-
-            final String bucketName = properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
-            if (bucketName == null) {
-                return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
-                            "Appsmith server has encountered an unexpected error when reading bucket name from the " +
-                            "datasource configuration. Please reach out to Appsmith customer support to resolve this."
+                                "Mandatory parameter 'Bucket Name' is missing. Did you forget to edit the 'Bucket " +
+                                "Name' field in the query form ?"
                         )
                 );
             }
 
             final String body = actionConfiguration.getBody();
-            if (body == null) {
+            if (s3Action == S3Action.UPLOAD_FILE_FROM_BODY && StringUtils.isEmpty(body)) {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
-                                "Appsmith server has encountered an unexpected error when reading query body from the" +
-                                " query form. Please reach out to Appsmith customer support to resolve this."
+                                "Mandatory parameter 'Content' is missing. Did you forget to edit the 'Content' " +
+                                "field in the query form ?"
                         )
                 );
             }
@@ -318,8 +314,8 @@ public class S3Plugin extends BasePlugin {
                 return Mono.error(
                   new AppsmithPluginException(
                           AppsmithPluginError.PLUGIN_ERROR,
-                          "Appsmith server has encountered an unexpected error when reading datasource configuration " +
-                          "for S3 plugin. Please reach out to Appsmith customer support to resolve this."
+                          "Mandatory parameters 'Access Key', 'Secret Key', 'Region' missing. Did you forget to edit " +
+                          "the 'Access Key'/'Secret Key'/'Region' fields in the datasource creation form ?"
                   )
                 );
             }
@@ -336,32 +332,28 @@ public class S3Plugin extends BasePlugin {
                 );
             }
 
-            List<Property> properties = datasourceConfiguration.getProperties();
-            if (CollectionUtils.isEmpty(properties)) {
-                return Mono.error(
-                        new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Appsmith server has encountered an unexpected error when fetching datasource " +
-                                "properties. Please reach out to Appsmith customer support to resolve this."
-                        )
-                );
-            }
-
             return Mono.fromCallable(() -> {
-                if(properties.get(CLIENT_REGION_PROPERTY_INDEX) == null) {
+                final String region;
+                try {
+                    List<Property> properties = datasourceConfiguration.getProperties();
+                    region = properties.get(CLIENT_REGION_PROPERTY_INDEX).getValue();
+                    if(StringUtils.isEmpty(region)) {
+                        throw new Exception();
+                    }
+                } catch (Exception e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR,
-                                    "Appsmith server has encountered an unexpected error when fetching region " +
-                                    "property for S3 execute action method. Please reach out to Appsmith customer " +
-                                    "support to resolve this."
+                                    "Mandatory parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
+                                    " in the datasource creation form ? You need to fill it with the region where " +
+                                    "your AWS instance is hosted."
                             )
                     );
                 }
 
-                Regions clientRegion = null;
+                final Regions clientRegion;
                 try {
-                    clientRegion = Regions.fromName(properties.get(CLIENT_REGION_PROPERTY_INDEX).getValue());
+                    clientRegion = Regions.fromName(region);
                 } catch (Exception e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -374,13 +366,14 @@ public class S3Plugin extends BasePlugin {
                 }
 
                 DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-                if(authentication == null) {
+                if(authentication == null
+                   || StringUtils.isEmpty(authentication.getUsername())
+                   || StringUtils.isEmpty(authentication.getPassword())) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR,
-                                    "Appsmith server has encountered an unexpected error when fetching authentication" +
-                                    " info from datasource configuration. Please reach out to Appsmith customer " +
-                                    "support to resolve this."
+                                    "Mandatory parameters 'Access Key' and/or 'Secret Key' are missing. Did you " +
+                                    "forget to edit the 'Access Key'/'Secret Key' fields in the datasource creation form ?"
                             )
                     );
                 }
@@ -443,15 +436,9 @@ public class S3Plugin extends BasePlugin {
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
 
-            if(datasourceConfiguration == null) {
-                invalids.add("Appsmith server has encountered an unexpected error when fetching datasource " +
-                             "configuration to validate datasource. Please reach out to Appsmith " +
-                             "customer support to resolve this.");
-            }
-
-            if (datasourceConfiguration.getAuthentication() == null) {
-                invalids.add("Appsmith server has encountered an unexpected error when fetching authentication info " +
-                             "to validate datasource. Please reach out to Appsmith customer support to resolve this.");
+            if (datasourceConfiguration == null || datasourceConfiguration.getAuthentication() == null) {
+                invalids.add("At least one of the mandatory fields in S3 datasource creation form is empty - " +
+                             "'Access Key'/'Secret Key'/'Region'. Please fill all the mandatory fields and try again.");
             } else {
                 DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
                 if (StringUtils.isBlank(authentication.getUsername())) {
@@ -468,34 +455,14 @@ public class S3Plugin extends BasePlugin {
             }
 
             List<Property> properties = datasourceConfiguration.getProperties();
-            if(CollectionUtils.isEmpty(properties)) {
-                invalids.add("Appsmith server has encountered an unexpected error when fetching datasource properties" +
-                             " to validate datasource. Please reach out to Appsmith customer support to resolve this.");
-            }
-            else {
-                if(properties.get(CLIENT_REGION_PROPERTY_INDEX) == null) {
-                    throw Exceptions.propagate(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
-                                    "Appsmith server has encountered an unexpected error when fetching region " +
-                                    "property to validate S3 datasource. Please reach out to Appsmith customer " +
-                                    "support to resolve this."
-                            )
-                    );
+            try {
+                if(StringUtils.isBlank(properties.get(CLIENT_REGION_PROPERTY_INDEX).getValue())) {
+                    throw new Exception();
                 }
-
-                String region = properties.get(CLIENT_REGION_PROPERTY_INDEX).getValue();
-                if(region == null) {
-                    invalids.add("Appsmith server has encountered an unexpected error when fetching Region info from " +
-                                 "datasource configuration. Please reach out to Appsmith customer support to resolve " +
-                                 "this.");
-                }
-
-                if (StringUtils.isBlank(region)) {
-                    invalids.add("Mandatory parameter 'Region' is empty. Did you forget to edit the 'Region' field in" +
-                                 " the datasource creation form ? You need to fill it with the region where your AWS " +
-                                 "instance is hosted.");
-                }
+            } catch (Exception e) {
+                invalids.add("Mandatory parameter 'Region' is empty. Did you forget to edit the 'Region' field in" +
+                             " the datasource creation form ? You need to fill it with the region where your AWS " +
+                             "instance is hosted.");
             }
 
             return invalids;
@@ -504,9 +471,12 @@ public class S3Plugin extends BasePlugin {
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             if(datasourceConfiguration == null) {
-                return Mono.just(new DatasourceTestResult("Appsmith server has " +
-                        "encountered an unexpected error when fetching datasource configuration. This should not have " +
-                        "happened."));
+                return Mono.just(
+                        new DatasourceTestResult(
+                    "At least one of the mandatory fields in S3 datasource creation form is empty - " +
+                            "'Access Key'/'Secret Key'/'Region'. Please fill all the mandatory fields and try again."
+                        )
+                );
             }
 
             return datasourceCreate(datasourceConfiguration)
