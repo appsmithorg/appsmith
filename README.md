@@ -58,19 +58,18 @@ But if you’d rather check out some real applications that can be built with Ap
 ## 🏃‍♀️ Quickstart
 
 The following steps introduce you to building a simple user-list dashboard on Appsmith.
-1. [Sign up on Appsmith Cloud](https://bit.ly/appsmith-signup-github) or [Deploy Appsmith](https://docs.appsmith.com/getting-started/setting-up).
+1. [Sign up on Appsmith Cloud](https://bit.ly/appsmith-signup-github) or [Deploy Appsmith](https://docs.appsmith.com/setup).
 2. Create a new app within the organization that has already been created for you.
 3. Click on the `+` icon next to the `Queries` section to add a new query in the mock database
     1. Name the query `usersQuery`.
     2. Write the query `select * from users limit 5;`.
     3. Run the query.
-    4. In query window, switch to the `Settings` tab, and enable `Run Query on Page Load`.
 4. Click on the `+` icon next to the `Widgets` section and drag a table onto the screen
 5. Link the table data property to the `usersQuery` using JavaScript `{{usersQuery.data}}`
 6. Hit the Deploy button and checkout the view mode of the app.
 
 Congratulations 🎉 You just built your first app on Appsmith! 
-Connect your own data to build apps for your team. [Read more here.](https://docs.appsmith.com/core-concepts/connecting-to-databases)
+Connect your own data to build apps for your team. [Read more here.](https://docs.appsmith.com/core-concepts)
 
 ## 📕 Support & Troubleshooting
 
