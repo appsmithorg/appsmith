@@ -688,7 +688,7 @@ function getDynamicBindingPathListUpdate(
 
   //TODO(abhinav): This is not appropriate from the platform's archtecture's point of view.
   // Figure out a holistic solutions where we donot have to stringify above.
-  if (propertyPath === "primaryColumns") {
+  if (propertyPath === "primaryColumns" || propertyPath === "derivedColumns") {
     return {
       propertyPath,
       effect: DynamicPathUpdateEffectEnum.NOOP,
@@ -749,7 +749,8 @@ function* updateWidgetPropertySaga(
   const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
     widget.type,
   );
-  const isTriggerProperty = propertyPath in triggerProperties;
+  const isTriggerProperty =
+    propertyPath in triggerProperties || isDynamicTrigger;
   // If it is a trigger property, it will go in a different list than the general
   // dynamicBindingPathList.
   if (isTriggerProperty) {
@@ -927,8 +928,6 @@ function* deleteWidgetPropertySaga(
   propertyPaths.forEach((propertyPath) => {
     widget = unsetPropertyPath(widget, propertyPath) as WidgetProps;
   });
-
-  console.log("Table log:", { widget }, { propertyPaths });
 
   const widgets = { ...stateWidgets, [widgetId]: widget };
 

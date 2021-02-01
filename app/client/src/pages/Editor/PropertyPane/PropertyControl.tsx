@@ -98,14 +98,16 @@ const PropertyControl = memo((props: Props) => {
           propertyValue,
         );
       }
+      console.log("Table log:", { propertiesToUpdate });
       if (propertiesToUpdate) {
         const allUpdates: Record<string, unknown> = {};
         propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
           allUpdates[propertyPath] = propertyValue;
         });
-        allUpdates[propertyName] = propertyValue;
+        if (!isDynamicTrigger) allUpdates[propertyName] = propertyValue;
         onBatchUpdateProperties(allUpdates);
-      } else {
+      }
+      if (!propertiesToUpdate || isDynamicTrigger) {
         dispatch(
           updateWidgetPropertyRequest(
             widgetProperties.widgetId,
