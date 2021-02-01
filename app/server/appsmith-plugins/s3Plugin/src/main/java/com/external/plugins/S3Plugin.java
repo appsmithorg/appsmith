@@ -231,10 +231,17 @@ public class S3Plugin extends BasePlugin {
             try {
                 bucketName = properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
                 if(StringUtils.isEmpty(bucketName)) {
-                    throw new Exception();
+                    return Mono.error(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    "Mandatory parameter 'Bucket Name' is missing. Did you forget to edit the 'Bucket " +
+                                    "Name' field in the query form ?"
+                            )
+                    );
                 }
             } catch (Exception e) {
-                return Mono.error(new AppsmithPluginException(
+                return Mono.error(
+                        new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
                                 "Mandatory parameter 'Bucket Name' is missing. Did you forget to edit the 'Bucket " +
                                 "Name' field in the query form ?"
@@ -341,7 +348,14 @@ public class S3Plugin extends BasePlugin {
                     List<Property> properties = datasourceConfiguration.getProperties();
                     region = properties.get(CLIENT_REGION_PROPERTY_INDEX).getValue();
                     if(StringUtils.isEmpty(region)) {
-                        throw new Exception();
+                        throw Exceptions.propagate(
+                                new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_ERROR,
+                                        "Mandatory parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
+                                        " in the datasource creation form ? You need to fill it with the region where " +
+                                        "your AWS instance is hosted."
+                                )
+                        );
                     }
                 } catch (Exception e) {
                     throw Exceptions.propagate(
@@ -461,7 +475,9 @@ public class S3Plugin extends BasePlugin {
             List<Property> properties = datasourceConfiguration.getProperties();
             try {
                 if(StringUtils.isBlank(properties.get(CLIENT_REGION_PROPERTY_INDEX).getValue())) {
-                    throw new Exception();
+                    invalids.add("Mandatory parameter 'Region' is empty. Did you forget to edit the 'Region' field in" +
+                                 " the datasource creation form ? You need to fill it with the region where your AWS " +
+                                 "instance is hosted.");
                 }
             } catch (Exception e) {
                 invalids.add("Mandatory parameter 'Region' is empty. Did you forget to edit the 'Region' field in" +
