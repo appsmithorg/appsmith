@@ -69,6 +69,10 @@ const DBQueryGroup = (props: any) => {
                     },
                   },
                 });
+                dispatch({
+                  type: "SET_CURRENT_SUBSTEP",
+                  payload: 2,
+                });
                 props.showWidgetsSidebar();
               }}
             >

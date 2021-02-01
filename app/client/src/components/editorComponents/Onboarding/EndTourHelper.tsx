@@ -19,6 +19,10 @@ const EndTourHelper = () => {
           type: ReduxActionTypes.SET_HELPER_CONFIG,
           payload: getHelperConfig(OnboardingStep.FINISH),
         });
+        dispatch({
+          type: "SET_CURRENT_SUBSTEP",
+          payload: 5,
+        });
         setTimeout(() => {
           dispatch({
             type: ReduxActionTypes.SHOW_ONBOARDING_HELPER,

@@ -167,6 +167,10 @@ function* listenForAddInputWidget() {
             RenderModes.CANVAS,
           ),
         );
+        yield put({
+          type: "SET_CURRENT_SUBSTEP",
+          payload: 2,
+        });
       }
 
       const helperConfig = yield select(
@@ -190,7 +194,7 @@ function* listenForAddInputWidget() {
       yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
       const dataTree = yield select(getDataTree);
 
-      const updatedInputWidget = dataTree[inputWidget.widgetName];
+      const updatedInputWidget = dataTree["Standup_Input"];
       const dynamicTriggerPathList = updatedInputWidget.dynamicTriggerPathList;
       const hasOnSubmitHandler =
         dynamicTriggerPathList &&
@@ -366,7 +370,7 @@ function* listenForCreateAction() {
   yield put(showIndicator(OnboardingStep.EXAMPLE_DATABASE));
 
   yield take([ReduxActionTypes.CREATE_ACTION_SUCCESS]);
-  AnalyticsUtil.logEvent("ONBOARDING_ADD_QUERY");
+  // AnalyticsUtil.logEvent("ONBOARDING_ADD_QUERY");
   yield put({
     type: ReduxActionTypes.SET_HELPER_CONFIG,
     payload: {
@@ -376,6 +380,10 @@ function* listenForCreateAction() {
           "https://res.cloudinary.com/drako999/image/upload/v1611839705/Appsmith/Onboarding/run.gif",
       },
     },
+  });
+  yield put({
+    type: "SET_CURRENT_SUBSTEP",
+    payload: 3,
   });
 
   yield take([

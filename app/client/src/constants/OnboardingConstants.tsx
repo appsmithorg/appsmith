@@ -21,6 +21,7 @@ export type OnboardingHelperConfig = {
   step?: number;
   title: string;
   description?: string;
+  subSteps?: { description: string }[];
   skipLabel?: string;
   hint?: {
     description: string;
@@ -106,8 +107,18 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     helper: {
       step: 1,
       title: "Query the Super Updates DB",
-      description:
-        "1. Create a new query on superDB. \n2. A select query can fetch us updates from heroes all across the multiverse.\n3. Run query and check response",
+      subSteps: [
+        {
+          description: "Create a new query on superDB.",
+        },
+        {
+          description:
+            "A select query can fetch us updates from heroes all across the multiverse.",
+        },
+        {
+          description: "Run query and check response",
+        },
+      ],
       image: {
         src:
           "https://res.cloudinary.com/drako999/image/upload/v1611839705/Appsmith/Onboarding/new_query.gif",
@@ -135,8 +146,15 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     helper: {
       step: 2,
       title: "Build the Standup Dashboard",
-      description:
-        "1. Click on add widget button to view widgets panel. \n2. Drag a table where heroes can view each other's updates.",
+      subSteps: [
+        {
+          description: "Click on add widget button to view widgets panel.",
+        },
+        {
+          description:
+            "Drag a table so that heroes can view each other's updates.",
+        },
+      ],
       image: {
         src:
           "https://res.cloudinary.com/drako999/image/upload/v1611839705/Appsmith/Onboarding/addwidget.gif",
@@ -157,8 +175,12 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     helper: {
       step: 3,
       title: "Connect Real Data",
-      description:
-        "1. Use your javascript superpowers to populate the static TableData with live query results.",
+      subSteps: [
+        {
+          description:
+            "Use your javascript superpowers to populate the static TableData with live query results.",
+        },
+      ],
       hint: {
         description: "Use the snippet below inside TableData",
         snippet: "{{fetch_standup_updates.data}}",
@@ -188,8 +210,16 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     helper: {
       step: 4,
       title: "Capture Hero Updates and update superdb",
-      description:
-        "1. Drag an input so that heroes can enter their daily updates\n2. Create a query using OnSubmit action to insert a standup_update.",
+      subSteps: [
+        {
+          description:
+            "Drag an input so that heroes can enter their daily updates.",
+        },
+        {
+          description:
+            "Create a query using OnSubmit action to insert a standup_update.",
+        },
+      ],
       image: {
         src: InputDragGif,
       },
@@ -233,8 +263,21 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     helper: {
       title:
         "Great Job! You built an app that every hero needs, and in just a few minutes.",
-      description:
-        "WHAT YOU’VE LEARNT\n1. Query a database directly\n2. Build a dashboard without HTML/CSS\n3. Connect data to the UI using JS\n4. Deploy an app with a Click",
+      description: "WHAT YOU’VE LEARNT",
+      subSteps: [
+        {
+          description: "Query a database directly",
+        },
+        {
+          description: "Build a dashboard without HTML/CSS",
+        },
+        {
+          description: "Connect data to the UI using JS",
+        },
+        {
+          description: "Deploy an app with a Click",
+        },
+      ],
       image: {
         src: SuperHeroGif,
       },

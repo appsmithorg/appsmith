@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import styled from "styled-components";
 import useClipboard from "utils/hooks/useClipboard";
+import TickIcon from "assets/images/tick.svg";
 
 const StyledContainer = styled.div`
   position: fixed;
@@ -41,6 +42,7 @@ const Description = styled.div`
 
 const HintDescription = styled(Description)`
   margin-top: 9px;
+  color: #4b4848;
 `;
 
 const Button = styled.button`
@@ -143,12 +145,26 @@ const MissionImage = styled.img`
   object-fit: contain;
 `;
 
+const SubStepCount = styled.div<{ done: boolean }>`
+  width: 17px;
+  height: 17px;
+  background-color: ${(props) => (props.done ? "#03B365" : "#6D6D6D")};
+  border-radius: 50%;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+`;
+
 const Helper = () => {
   const showHelper = useSelector(
     (state: AppState) => state.ui.onBoarding.showHelper,
   );
   const helperConfig = useSelector(
     (state: AppState) => state.ui.onBoarding.helperStepConfig,
+  );
+  const currentSubstep = useSelector(
+    (state: AppState) => state.ui.onBoarding.currentSubstep,
   );
   const steps = Array.from({ length: 6 }, (_, i) => i + 1);
   const [cheatMode, setCheatMode] = useState(false);
@@ -175,15 +191,48 @@ const Helper = () => {
       {helperConfig.step && <StepCount>Mission {helperConfig.step}</StepCount>}
       <Title>{helperConfig.title}</Title>
       <Description>{helperConfig.description}</Description>
-      {helperConfig.hint && cheatMode && (
-        <>
-          <HintDescription>{helperConfig.hint.description}</HintDescription>
-          <Snippet onClick={copyBindingToClipboard} ref={snippetRef}>
-            <span>{helperConfig.hint?.snippet}</span>
-            <Icon icon="duplicate" iconSize={14} color={Colors.MINE_SHAFT} />
-          </Snippet>
-        </>
-      )}
+      {helperConfig.subSteps &&
+        helperConfig.subSteps.map((subStep, index) => {
+          const subStepCount = index + 1;
+          const done = currentSubstep > subStepCount;
+
+          return (
+            <div
+              key={`substep-${index}`}
+              style={{ display: "flex", marginTop: "10px" }}
+            >
+              <SubStepCount done={done}>
+                {done ? (
+                  <img src={TickIcon} />
+                ) : (
+                  <span style={{ fontSize: "12px", color: "white" }}>
+                    {subStepCount}
+                  </span>
+                )}
+              </SubStepCount>
+              <div style={{ marginLeft: 7 }}>
+                <div style={{ color: "#4B4848", fontSize: "14px" }}>
+                  {subStep.description}
+                </div>
+                {helperConfig.hint && cheatMode && (
+                  <>
+                    <HintDescription>
+                      {helperConfig.hint.description}
+                    </HintDescription>
+                    <Snippet onClick={copyBindingToClipboard} ref={snippetRef}>
+                      <span>{helperConfig.hint?.snippet}</span>
+                      <Icon
+                        icon="duplicate"
+                        iconSize={14}
+                        color={Colors.MINE_SHAFT}
+                      />
+                    </Snippet>
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        })}
       <BottomContainer>
         <div style={{ display: "flex" }}>
           {helperConfig.step &&
