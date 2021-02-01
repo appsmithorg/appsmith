@@ -32,6 +32,7 @@ import java.util.Set;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNull;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -102,7 +103,7 @@ public class UserServiceWithDisabledSignupTest {
                     assertThat(user).isNotNull();
                     assertThat(user.getId()).isNotNull();
                     assertThat(user.getEmail()).isEqualTo("dummy_admin@appsmith.com");
-                    assertThat(user.getName()).isEqualTo("dummy_admin@appsmith.com");
+                    assertNull(user.getName());
                     assertThat(user.getPolicies()).isNotEmpty();
                     assertThat(user.getOrganizationIds()).isNullOrEmpty();
                 })
@@ -123,7 +124,7 @@ public class UserServiceWithDisabledSignupTest {
                     assertThat(user).isNotNull();
                     assertThat(user.getId()).isNotNull();
                     assertThat(user.getEmail()).isEqualTo("dummy2@appsmith.com");
-                    assertThat(user.getName()).isEqualTo("dummy2@appsmith.com");
+                    assertNull(user.getName());
                     assertThat(user.getPolicies()).isNotEmpty();
                     assertThat(user.getOrganizationIds()).isNullOrEmpty();
                 })
