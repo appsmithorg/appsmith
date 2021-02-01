@@ -29,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -132,7 +131,7 @@ public class S3Plugin extends BasePlugin {
             String line = null;
             BufferedReader reader = new BufferedReader(new InputStreamReader(content));
             while ((line = reader.readLine()) != null) {
-                result += line;
+                result += line + "\n";
             }
 
             try {
