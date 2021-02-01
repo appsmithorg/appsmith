@@ -37,8 +37,10 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
     public Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission) {
         Criteria nameCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.name)).is(name);
         Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
+        // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would exist. To handle this, only fetch non-deleted actions
+        Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.deletedAt)).is(null);
 
-        return queryOne(List.of(nameCriteria, pageCriteria), aclPermission);
+        return queryOne(List.of(nameCriteria, pageCriteria, deletedCriteria), aclPermission);
     }
 
     @Override

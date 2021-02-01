@@ -46,7 +46,12 @@ public class CustomNewPageRepositoryImpl extends BaseAppsmithRepositoryImpl<NewP
 
         Criteria layoutCriterion = where(layoutsIdKey).is(layoutId);
 
-        List<Criteria> criteria = List.of(idCriterion, layoutCriterion);
+        // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would exist. To handle this, only fetch non-deleted pages
+        Criteria deletedCriteria = where (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.deletedAt)).is(null);
+
+        List<Criteria> criteria = List.of(idCriterion, layoutCriterion, deletedCriteria);
+
+
         return queryOne(criteria, aclPermission);
     }
 
@@ -54,7 +59,10 @@ public class CustomNewPageRepositoryImpl extends BaseAppsmithRepositoryImpl<NewP
     public Mono<NewPage> findByNameAndViewMode(String name, AclPermission aclPermission, Boolean viewMode) {
         Criteria nameCriterion = getNameCriterion(name, viewMode);
 
-        return queryOne(List.of(nameCriterion), aclPermission);
+        // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would exist. To handle this, only fetch non-deleted pages
+        Criteria deletedCriteria = where (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.deletedAt)).is(null);
+
+        return queryOne(List.of(nameCriterion, deletedCriteria), aclPermission);
     }
 
     @Override
@@ -63,7 +71,10 @@ public class CustomNewPageRepositoryImpl extends BaseAppsmithRepositoryImpl<NewP
 
         Criteria applicationIdCriterion = where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
 
-        return queryOne(List.of(nameCriterion, applicationIdCriterion), aclPermission);
+        // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would exist. To handle this, only fetch non-deleted pages
+        Criteria deletedCriteria = where (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.deletedAt)).is(null);
+
+        return queryOne(List.of(nameCriterion, applicationIdCriterion, deletedCriteria), aclPermission);
     }
 
     @Override
