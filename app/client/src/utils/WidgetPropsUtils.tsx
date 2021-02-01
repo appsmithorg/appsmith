@@ -580,9 +580,10 @@ export const generateWidgetProps = (
   parentRowSpace: number,
   parentColumnSpace: number,
   widgetName: string,
-  widgetConfig: { widgetId: string; renderMode: RenderMode } & Partial<
-    WidgetProps
-  >,
+  widgetConfig: {
+    widgetId: string;
+    renderMode: RenderMode;
+  } & Partial<WidgetProps>,
 ): ContainerWidgetProps<WidgetProps> => {
   if (parent) {
     const sizes = {
