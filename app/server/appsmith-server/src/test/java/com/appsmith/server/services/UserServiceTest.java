@@ -43,7 +43,6 @@ import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.USER_READ_ORGANIZATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNull;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -169,7 +168,7 @@ public class UserServiceTest {
                     assertThat(user).isNotNull();
                     assertThat(user.getId()).isNotNull();
                     assertThat(user.getEmail()).isEqualTo("new-user-email@email.com");
-                    assertNull(user.getName());
+                    assertThat(user.getName()).isNullOrEmpty();
                     assertThat(user.getPolicies()).isNotEmpty();
                     assertThat(user.getPolicies()).containsAll(Set.of(manageUserPolicy, manageUserOrgPolicy, readUserPolicy, readUserOrgPolicy));
                     // Since there is a template organization, the user won't have an empty default organization. They
