@@ -158,6 +158,17 @@ function* listenForAddInputWidget() {
         yield cancel();
       }
 
+      if (inputWidget.widgetName !== "Standup_Input") {
+        yield put(
+          updateWidgetPropertyRequest(
+            inputWidget.widgetId,
+            "widgetName",
+            "Standup_Input",
+            RenderModes.CANVAS,
+          ),
+        );
+      }
+
       const helperConfig = yield select(
         (state) => state.ui.onBoarding.helperStepConfig,
       );
