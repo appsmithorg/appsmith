@@ -4,6 +4,7 @@ import HandwaveGif from "assets/gifs/handwave.gif";
 import DeployGif from "assets/gifs/deploy_green.gif";
 import InputDragGif from "assets/gifs/input_drag.gif";
 import SuperHeroGif from "assets/gifs/super_hero.gif";
+import { Dispatch } from "redux";
 
 export enum OnboardingStep {
   NONE = -1,
@@ -31,12 +32,12 @@ export type OnboardingHelperConfig = {
   action?: {
     label: string;
     // action to be dispatched
-    action?: { type: string; payload?: any };
+    action?: (dispatch?: Dispatch<any>) => void;
     initialStep?: boolean;
   };
   secondaryAction?: {
     label: string;
-    action?: () => void;
+    action?: { type: string; payload?: any };
   };
   cheatAction?: {
     label: string;
@@ -79,8 +80,12 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       },
       action: {
         label: "Let’s go",
-        action: {
-          type: "ONBOARDING_CREATE_APPLICATION",
+        action: (dispatch) => {
+          if (dispatch) {
+            dispatch({
+              type: "ONBOARDING_CREATE_APPLICATION",
+            });
+          }
         },
         initialStep: true,
       },
@@ -234,14 +239,14 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         src: SuperHeroGif,
       },
       secondaryAction: {
+        label: "Back Home",
+        action: endOnboarding(),
+      },
+      action: {
         label: "Next Mission",
         action: () => {
           window.open("https://docs.appsmith.com/", "_blank");
         },
-      },
-      action: {
-        label: "Back Home",
-        action: endOnboarding(),
       },
     },
   },

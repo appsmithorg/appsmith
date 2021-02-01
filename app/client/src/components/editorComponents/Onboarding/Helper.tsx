@@ -210,7 +210,7 @@ const Helper = () => {
           )}
           {helperConfig.secondaryAction && (
             <SecondaryActionButton
-              onClick={helperConfig.secondaryAction.action}
+              onClick={() => dispatch(helperConfig.secondaryAction?.action)}
             >
               {helperConfig.secondaryAction.label}
             </SecondaryActionButton>
@@ -220,7 +220,7 @@ const Helper = () => {
               initialStep={helperConfig.action.initialStep}
               onClick={() => {
                 if (helperConfig.action && helperConfig.action.action) {
-                  dispatch(helperConfig.action.action);
+                  helperConfig.action.action(dispatch);
                 }
 
                 if (helperConfig.cheatAction) {
