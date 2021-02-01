@@ -273,7 +273,7 @@ public class S3PluginTest {
         AmazonS3 mockConnection = mock(AmazonS3.class);
         when(mockConnection.getObject(anyString(), anyString())).thenReturn(mockS3Object);
 
-        String dummyContent = "Hello World !!!";
+        String dummyContent = "Hello World !!!\n";
         InputStream dummyInputStream = new ByteArrayInputStream(dummyContent.getBytes());
         S3ObjectInputStream dummyS3ObjectInputStream = new S3ObjectInputStream(dummyInputStream, null);
         when(mockS3Object.getObjectContent()).thenReturn(dummyS3ObjectInputStream);
