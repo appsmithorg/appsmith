@@ -402,6 +402,13 @@ public class LayoutServiceTest {
                     ));
 
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
+
+                    JSONArray dynamicTriggerPathList = new JSONArray();
+                    dynamicTriggerPathList.addAll(List.of(
+                            new JSONObject(Map.of("key", "dynamicDB2.0"))
+                    ));
+
+                    obj.put("dynamicTriggerPathList", dynamicTriggerPathList);
                     newLayout.setDsl(obj);
 
                     return layoutActionService.updateLayout(page1.getId(), layout.getId(), newLayout);
@@ -414,9 +421,9 @@ public class LayoutServiceTest {
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
                     assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
-                    assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(5);
+                    assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(4);
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
-                            .hasSameElementsAs(Set.of("aPostTertiaryAction", "aGetAction", "aDBAction", "aTableAction", "anotherDBAction"));
+                            .hasSameElementsAs(Set.of("aPostTertiaryAction", "aGetAction", "aDBAction", "aTableAction"));
                     assertThat(layout.getLayoutOnLoadActions().get(1)).hasSize(1);
                     assertThat(layout.getLayoutOnLoadActions().get(1).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
                             .hasSameElementsAs(Set.of("aPostActionWithAutoExec"));

@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.helpers.MustacheHelper.extractWordsAndAddToSet;
+import static com.appsmith.server.helpers.MustacheHelper.extractWordsAndRemoveFromSet;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -275,8 +276,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      * @param dsl
      * @param widgetNames
      * @param dynamicBindings
+     * @param dynamicTriggers
      */
-    private void extractAllWidgetNamesAndDynamicBindingsFromDSL(JSONObject dsl, Set<String> widgetNames, Set<String> dynamicBindings) throws AppsmithException {
+    private void extractAllWidgetNamesAndDynamicBindingsFromDSL(JSONObject dsl, Set<String> widgetNames, Set<String> dynamicBindings, Set<String> dynamicTriggers) throws AppsmithException {
         if (dsl.get(FieldName.WIDGET_NAME) == null) {
             // This isnt a valid widget configuration. No need to traverse this.
             return;
@@ -288,6 +290,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         // Start by picking all fields where we expect to find dynamic bindings for this particular widget
         ArrayList<Object> dynamicallyBoundedPathList = (ArrayList<Object>) dsl.get(FieldName.DYNAMIC_BINDING_PATH_LIST);
+        ArrayList<Object> dynamicallyTriggeredPathList = (ArrayList<Object>) dsl.get(FieldName.DYNAMIC_TRIGGER_PATH_LIST);
 
         // Widgets will not have FieldName.DYNAMIC_BINDING_PATH_LIST if there are no bindings in that widget.
         // Hence we skip over the extraction of the bindings from that widget.
@@ -324,6 +327,41 @@ public class LayoutActionServiceImpl implements LayoutActionService {
             }
         }
 
+        // Widgets will not have FieldName.DYNAMIC_TRIGGER_PATH_LIST if there are no triggers in that widget.
+        // Hence we skip over the extraction of the triggers from that widget.
+        if (dynamicallyTriggeredPathList != null) {
+            // Each of these might have nested structures, so we iterate through them to find the leaf node for each
+            for (Object x : dynamicallyTriggeredPathList) {
+                final String fieldPath = String.valueOf(((Map) x).get(FieldName.KEY));
+                String[] fields = fieldPath.split("[].\\[]");
+                // For nested fields, the parent dsl to search in would shift by one level every iteration
+                Object parent = dsl;
+                Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
+                // This loop will end at either a leaf node, or the last identified JSON field (by throwing an exception)
+                // Valid forms of the fieldPath for this search could be:
+                // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
+                while (fieldsIterator.hasNext()) {
+                    String nextKey = fieldsIterator.next();
+                    if (parent instanceof JSONObject) {
+                        parent = ((JSONObject) parent).get(nextKey);
+                    } else if (parent instanceof List) {
+                        if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
+                            parent = ((List) parent).get(Integer.parseInt(nextKey));
+                        } else {
+                            throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_TRIGGER_REFERENCE, nextKey);
+                        }
+                    }
+                    if (parent == null) {
+                        log.error("Unable to find dynamically triggered key {} for the widget with id {}", nextKey, dsl.get(FieldName.WIDGET_ID));
+                        break;
+                    }
+                }
+                if (parent != null) {
+                    dynamicTriggers.addAll(MustacheHelper.extractMustacheKeysFromFields(parent));
+                }
+            }
+        }
+
         // Fetch the children of the current node in the DSL and recursively iterate over them to extract bindings
         ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
         if (children != null) {
@@ -333,7 +371,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 // If the children tag exists and there are entries within it
                 if (!CollectionUtils.isEmpty(data)) {
                     object.putAll(data);
-                    extractAllWidgetNamesAndDynamicBindingsFromDSL(object, widgetNames, dynamicBindings);
+                    extractAllWidgetNamesAndDynamicBindingsFromDSL(object, widgetNames, dynamicBindings, dynamicTriggers);
                 }
             }
         }
@@ -475,8 +513,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         Set<String> widgetNames = new HashSet<>();
         Set<String> jsSnippetsInDynamicBindings = new HashSet<>();
+        Set<String> jsSnippetsInDynamicTriggers = new HashSet<>();
         try {
-            extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, jsSnippetsInDynamicBindings);
+            extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, jsSnippetsInDynamicBindings, jsSnippetsInDynamicTriggers);
         } catch (Throwable t) {
             return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, t.getMessage()));
         }
@@ -489,6 +528,14 @@ public class LayoutActionServiceImpl implements LayoutActionService {
             for (String mustacheKey : jsSnippetsInDynamicBindings) {
                 // Extract all the words in the dynamic bindings
                 extractWordsAndAddToSet(dynamicBindingNames, mustacheKey);
+            }
+        }
+
+        // From this populated set, we remove all action names that are meant to be dynamically triggered
+        if (!CollectionUtils.isEmpty(jsSnippetsInDynamicTriggers)) {
+            for (String mustacheKey : jsSnippetsInDynamicTriggers) {
+                // Extract all the words in the dynamic triggers
+                extractWordsAndRemoveFromSet(dynamicBindingNames, mustacheKey);
             }
         }
 

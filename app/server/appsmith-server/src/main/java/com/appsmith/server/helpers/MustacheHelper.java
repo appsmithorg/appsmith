@@ -316,4 +316,21 @@ public class MustacheHelper {
         }
     }
 
+    public static void extractWordsAndRemoveFromSet(Set<String> bindingNames, String mustacheKey) {
+        String key = mustacheKey.trim();
+
+        // Extract all the words in the dynamic bindings
+        Matcher matcher = pattern.matcher(key);
+
+        while (matcher.find()) {
+            String word = matcher.group();
+
+            String[] subStrings = word.split(Pattern.quote("."));
+            if (subStrings.length > 0) {
+                // We are only interested in the top level. e.g. if its Input1.text, we want just Input1
+                bindingNames.remove(subStrings[0]);
+            }
+        }
+    }
+
 }

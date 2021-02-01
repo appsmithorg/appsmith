@@ -33,6 +33,7 @@ public enum AppsmithError {
     PAGE_DOESNT_BELONG_TO_APPLICATION(400, 4018, "Unexpected state. Page {0} does not seem belong to the application {1}. Please reach out to Appsmith customer support to resolve this.",
             AppsmithErrorAction.LOG_EXTERNALLY),
     INVALID_DYNAMIC_BINDING_REFERENCE(400, 4022, "Unexpected state. The dynamically bounded key {0} referred was not found. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY),
+    INVALID_DYNAMIC_TRIGGER_REFERENCE(400, 4022, "Unexpected state. The dynamically triggered key {0} referred was not found. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY),
     USER_ALREADY_EXISTS_IN_ORGANIZATION(400, 4021, "The user {0} has already been added to the organization with role {1}. To change the role, please navigate to `Manage Users` page.", AppsmithErrorAction.DEFAULT),
     UNAUTHORIZED_DOMAIN(401, 4019, "Invalid email domain {0} used for sign in/sign up. Please contact the administrator to configure this domain if this is unexpected.", AppsmithErrorAction.DEFAULT),
     USER_NOT_SIGNED_IN(401, 4020, "You are not logged in. Please sign in with the registered email ID or sign up",

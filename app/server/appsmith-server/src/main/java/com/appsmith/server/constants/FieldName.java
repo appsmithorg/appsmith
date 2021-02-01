@@ -22,6 +22,7 @@ public class FieldName {
     public static String WIDGET_NAME = "widgetName";
     public static String DYNAMIC_BINDINGS = "dynamicBindings";
     public static String DYNAMIC_BINDING_PATH_LIST = "dynamicBindingPathList";
+    public static String DYNAMIC_TRIGGER_PATH_LIST = "dynamicTriggerPathList";
     public static String KEY = "key";
     public static String CHILDREN = "children";
     public static String ORIGIN = "origin";
