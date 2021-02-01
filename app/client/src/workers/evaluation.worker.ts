@@ -284,7 +284,9 @@ export class DataTreeEvaluator {
     const dynamicPaths = new Set(
       getEntityDynamicBindingPathList(entity).map((e) => e.key),
     );
-    return dynamicPaths.has(convertPathToString(propPathEls));
+    if (dynamicPaths.has(convertPathToString(propPathEls))) return true;
+    if (!(entityName in this.validationPaths)) return false;
+    return this.validationPaths[entityName].has(propertyPath);
   }
 
   updateDataTree(unEvalTree: DataTree) {
