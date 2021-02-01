@@ -65,9 +65,9 @@ class DatePickerControl extends BaseControl<
   render() {
     const dateFormat =
       this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
-    const isValid = this.validateDate(
-      moment(this.state.selectedDate, dateFormat).toDate(),
-    );
+    const isValid = this.state.selectedDate
+      ? this.validateDate(moment(this.state.selectedDate, dateFormat).toDate())
+      : true;
     return (
       <DatePickerControlWrapper isValid={isValid}>
         <StyledDatePicker
