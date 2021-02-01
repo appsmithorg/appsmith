@@ -156,7 +156,7 @@ public class S3Plugin extends BasePlugin {
              * - If connection object is null, then assume stale connection.
              */
             if(connection == null) {
-                throw new StaleConnectionException();
+                return Mono.error(new StaleConnectionException());
             }
 
             if(datasourceConfiguration == null) {
