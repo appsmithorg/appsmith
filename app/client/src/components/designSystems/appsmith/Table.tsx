@@ -78,6 +78,10 @@ export const Table = (props: TableProps) => {
     for (const i in columnSizeMap) {
       if (columnSizeMap[i] < 60) {
         columnSizeMap[i] = 60;
+      } else if (columnSizeMap[i] === undefined) {
+        const columnCounts = props.columns.filter((column) => !column.isHidden)
+          .length;
+        columnSizeMap[i] = props.width / columnCounts;
       }
     }
     props.handleResizeColumn(columnSizeMap);
