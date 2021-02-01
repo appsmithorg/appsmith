@@ -139,6 +139,7 @@ The Appsmith platform is available under the [Apache License 2.0](https://www.ap
   <tr>
     <td align="center"><a href="https://github.com/vicky-primathon"><img src="https://avatars2.githubusercontent.com/u/67091118?v=4?s=100" width="100px;" alt=""/><br /><sub><b>vicky-primathon</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=vicky-primathon" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/devrk96"><img src="https://avatars0.githubusercontent.com/u/68607686?v=4?s=100" width="100px;" alt=""/><br /><sub><b>devrk96</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=devrk96" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/trdillon"><img src="https://avatars.githubusercontent.com/u/26350151?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Tim Dillon</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=trdillon" title="Code">💻</a></td>
   </tr>
 </table>
 
