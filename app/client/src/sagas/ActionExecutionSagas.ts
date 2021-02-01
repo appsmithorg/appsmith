@@ -86,6 +86,14 @@ import {
   evaluateActionBindings,
 } from "./EvaluationsSaga";
 import copy from "copy-to-clipboard";
+import {
+  ACTION_RUN_SUCCESS,
+  createMessage,
+  ERROR_ACTION_EXECUTE_FAIL,
+  ERROR_API_EXECUTE,
+  ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
+  ERROR_WIDGET_DOWNLOAD,
+} from "constants/messages";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -185,7 +193,10 @@ async function downloadSaga(
     const { data, name, type } = action;
     if (!name) {
       Toaster.show({
-        text: "Download failed. File name was not provided",
+        text: createMessage(
+          ERROR_WIDGET_DOWNLOAD,
+          "File name was not provided",
+        ),
         variant: Variant.danger,
       });
 
@@ -202,7 +213,7 @@ async function downloadSaga(
     if (event.callback) event.callback({ success: true });
   } catch (err) {
     Toaster.show({
-      text: `Download failed. ${err}`,
+      text: createMessage(ERROR_WIDGET_DOWNLOAD, err),
       variant: Variant.danger,
     });
     if (event.callback) event.callback({ success: false });
@@ -447,7 +458,7 @@ export function* executeActionSaga(
         }
       }
       Toaster.show({
-        text: api.name + " failed to execute. Please check it's configuration",
+        text: createMessage(ERROR_API_EXECUTE, api.name),
         variant: Variant.danger,
       });
     } else {
@@ -475,6 +486,7 @@ export function* executeActionSaga(
     }
     return response;
   } catch (error) {
+    const api: Action = yield select(getAction, actionId);
     yield put(
       executeActionError({
         actionId: actionId,
@@ -482,7 +494,7 @@ export function* executeActionSaga(
       }),
     );
     Toaster.show({
-      text: "Action execution failed",
+      text: createMessage(ERROR_API_EXECUTE, api.name),
       variant: Variant.danger,
     });
     if (onError) {
@@ -653,12 +665,12 @@ function* runActionSaga(
       });
       if (payload.isExecutionSuccess) {
         Toaster.show({
-          text: "Action ran successfully",
+          text: createMessage(ACTION_RUN_SUCCESS),
           variant: Variant.success,
         });
       } else {
         Toaster.show({
-          text: "Action returned an error response",
+          text: createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name),
           variant: Variant.warning,
         });
       }
@@ -805,7 +817,7 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     log.error(e);
 
     Toaster.show({
-      text: "Failed to load onPageLoad actions",
+      text: createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS),
       variant: Variant.danger,
     });
   }

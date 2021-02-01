@@ -7,6 +7,11 @@ import { TimePrecision } from "@blueprintjs/datetime";
 import { WidgetProps } from "widgets/BaseWidget";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import {
+  createMessage,
+  ERROR_DATEPICKER_MAX_DATE,
+  ERROR_DATEPICKER_MIN_DATE,
+} from "constants/messages";
 
 const DatePickerControlWrapper = styled.div<{ isValid: boolean }>`
   display: flex;
@@ -126,7 +131,7 @@ class DatePickerControl extends BaseControl<
           parsedWidgetDate.isBefore(parsedSelectedDate)
         ) {
           Toaster.show({
-            text: "Min date cannot be greater than current widget value.",
+            text: createMessage(ERROR_DATEPICKER_MIN_DATE),
             variant: Variant.danger,
           });
 
@@ -141,7 +146,7 @@ class DatePickerControl extends BaseControl<
           parsedWidgetDate.isAfter(parsedSelectedDate)
         ) {
           Toaster.show({
-            text: "Max date cannot be less than current widget value.",
+            text: createMessage(ERROR_DATEPICKER_MAX_DATE),
             variant: Variant.danger,
           });
 

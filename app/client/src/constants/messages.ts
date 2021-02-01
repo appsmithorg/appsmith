@@ -1,8 +1,15 @@
+const util = require("util");
+
 export const ERROR_MESSAGE_SELECT_ACTION = "Please select an action";
 export const ERROR_MESSAGE_SELECT_ACTION_TYPE = "Please select an action type";
+export const ACTION_CREATED_SUCCESS = "%s action created successfully";
+export const ERROR_ADD_API_INVALID_URL =
+  "Unable to create API. Try adding a URL to the datasource";
 export const ERROR_MESSAGE_NAME_EMPTY = "Please select a name";
 export const ERROR_MESSAGE_CREATE_APPLICATION =
   "We could not create the Application";
+export const APPLICATION_NAME_UPDATE = "Application name updated";
+export const ERROR_EMPTY_APPLICATION_NAME = "Application name can't be empty";
 export const API_PATH_START_WITH_SLASH_ERROR = "Path cannot start with /";
 export const FIELD_REQUIRED_ERROR = "This field is required";
 export const VALID_FUNCTION_NAME_ERROR =
@@ -133,9 +140,9 @@ export const CREATE_PASSWORD_INVALID_TOKEN =
 export const DELETING_APPLICATION = "Deleting application...";
 export const DUPLICATING_APPLICATION = "Duplicating application...";
 
-export const CURL_IMPORT_SUCCESS = "Curl Import Successfull";
+export const CURL_IMPORT_SUCCESS = "Curl command imported successfully";
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = "Back to Sign In";
-export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = "Api added to page.";
+export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = "%s API added to page";
 export const INPUT_WIDGET_DEFAULT_VALIDATION_ERROR = "Invalid input";
 
 export const AUTOFIT_ALL_COLUMNS = "Autofit all columns";
@@ -177,3 +184,45 @@ export const GOOGLE_RECAPTCHA_DOMAIN_ERROR =
 export const SERVER_API_TIMEOUT_ERROR =
   "Appsmith server is taking too long to respond. Please try again after some time";
 export const DEFAULT_ERROR_MESSAGE = "There was an unexpected error";
+
+export const ERROR_FILE_TOO_LARGE = "File size should be less than %s!";
+export const ERROR_DATEPICKER_MIN_DATE =
+  "Min date cannot be greater than current widget value";
+export const ERROR_DATEPICKER_MAX_DATE =
+  "Min date cannot be greater than current widget value";
+export const ERROR_WIDGET_DOWNLOAD = "Download failed. %s";
+export const ERROR_API_EXECUTE =
+  "%s failed to execute. Please check it's configuration";
+export const ERROR_FAIL_ON_PAGE_LOAD_ACTIONS =
+  "Failed to execute actions during page load";
+export const ACTION_RUN_SUCCESS = "Action ran successfully";
+export const ERROR_ACTION_EXECUTE_FAIL = "%s action returned an error response";
+export const ACTION_DELETE_SUCCESS = "%s action deleted successfully";
+export const ACTION_MOVE_SUCCESS = "%s action moved to page %s successfully";
+export const ERROR_ACTION_MOVE_FAIL = "Error while moving action %s";
+export const ACTION_COPY_SUCCESS = "%s action copied to page %s successfully";
+export const ERROR_ACTION_COPY_FAIL = "Error while copying action %s";
+export const ERROR_ACTION_RENAME_FAIL = "Unable to update action name to %s";
+
+export const DATASOURCE_CREATE = "%s datasource created";
+export const DATASOURCE_DELETE = "%s datasource deleted successfully";
+export const DATASOURCE_UPDATE = "%s datasource updated successfully";
+export const DATASOURCE_VALID = "%s datasource is valid";
+
+export const ERROR_EVAL_ERROR_GENERIC =
+  "Unexpected error occurred while evaluating the application";
+
+export const WIDGET_DELETE = "%s widget deleted";
+export const WIDGET_COPY = "Copied %s";
+export const ERROR_WIDGET_COPY_NO_WIDGET_SELECTED =
+  "Please select a widget to copy";
+export const WIDGET_CUT = "Cut %s";
+export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED =
+  "Please select a widget to cut";
+export const ERROR_ADD_WIDGET_FROM_QUERY = "Failed to add widget";
+
+export function createMessage(format: string, ...args: any[]) {
+  const str = util.format(format, ...args);
+  console.log("Got the formatting string: ", str);
+  return str;
+}

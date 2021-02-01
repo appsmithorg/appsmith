@@ -26,6 +26,7 @@ import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { inOnboarding } from "sagas/OnboardingSagas";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
+import { createMessage, ERROR_ADD_API_INVALID_URL } from "constants/messages";
 
 const ConnectedText = styled.div`
   color: ${Colors.OXFORD_BLUE};
@@ -131,7 +132,7 @@ const Connected = () => {
 
     if (!datasource?.datasourceConfiguration?.url) {
       Toaster.show({
-        text: "Unable to create API. Try adding a url to the datasource",
+        text: createMessage(ERROR_ADD_API_INVALID_URL),
         variant: Variant.danger,
       });
 

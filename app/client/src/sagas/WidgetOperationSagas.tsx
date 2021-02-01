@@ -94,6 +94,15 @@ import {
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import {
+  createMessage,
+  ERROR_ADD_WIDGET_FROM_QUERY,
+  ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
+  ERROR_WIDGET_CUT_NO_WIDGET_SELECTED,
+  WIDGET_COPY,
+  WIDGET_CUT,
+  WIDGET_DELETE,
+} from "constants/messages";
 
 function getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -420,7 +429,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       }
       if (saveStatus && !disallowUndo) {
         Toaster.show({
-          text: `${widgetName} deleted`,
+          text: createMessage(WIDGET_DELETE, widgetName),
           hideProgressBar: false,
           variant: Variant.success,
           dispatchableAction: {
@@ -1013,7 +1022,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   const selectedWidget = yield select(getSelectedWidget);
   if (!selectedWidget) {
     Toaster.show({
-      text: `Please select a widget to copy`,
+      text: createMessage(ERROR_WIDGET_COPY_NO_WIDGET_SELECTED),
       variant: Variant.info,
     });
     return;
@@ -1031,7 +1040,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
 
   if (saveResult) {
     Toaster.show({
-      text: `Copied ${selectedWidget.widgetName}`,
+      text: createMessage(WIDGET_COPY, selectedWidget.widgetName),
       variant: Variant.success,
     });
   }
@@ -1275,7 +1284,7 @@ function* cutWidgetSaga() {
   const selectedWidget = yield select(getSelectedWidget);
   if (!selectedWidget) {
     Toaster.show({
-      text: `Please select a widget to cut`,
+      text: createMessage(ERROR_WIDGET_CUT_NO_WIDGET_SELECTED),
       variant: Variant.info,
     });
     return;
@@ -1291,7 +1300,7 @@ function* cutWidgetSaga() {
 
   if (saveResult) {
     Toaster.show({
-      text: `Cut ${selectedWidget.widgetName}`,
+      text: createMessage(WIDGET_CUT, selectedWidget.widgetName),
       variant: Variant.success,
     });
   }
@@ -1373,7 +1382,7 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
     yield put(forceOpenPropertyPane(newWidget.newWidgetId));
   } catch (error) {
     Toaster.show({
-      text: "Failed to add the widget",
+      text: createMessage(ERROR_ADD_WIDGET_FROM_QUERY),
       variant: Variant.danger,
     });
   }

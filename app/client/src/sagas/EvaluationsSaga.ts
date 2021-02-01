@@ -33,6 +33,7 @@ import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 import { Action } from "redux";
 import _ from "lodash";
+import { createMessage, ERROR_EVAL_ERROR_GENERIC } from "constants/messages";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -49,7 +50,7 @@ const evalErrorHandler = (errors: EvalError[]) => {
     }
     if (error.type === EvalErrorTypes.EVAL_TREE_ERROR) {
       Toaster.show({
-        text: "Unexpected error occurred while evaluating the app",
+        text: createMessage(ERROR_EVAL_ERROR_GENERIC),
         variant: Variant.danger,
       });
     }
