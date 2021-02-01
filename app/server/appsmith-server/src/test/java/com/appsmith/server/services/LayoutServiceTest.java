@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -283,6 +284,9 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
+                    action.getActionConfiguration().setBody(
+                            "Testing with reference in body {{aTriggeredActionThatIsExternallyReferred.data}}");
+                    action.setJsonPathKeys(Set.of("aTriggeredActionThatIsExternallyReferred.data"));
                     monos.add(newActionService.createAction(action));
 
                     action = new ActionDTO();
@@ -358,6 +362,15 @@ public class LayoutServiceTest {
                     action.setPluginType(PluginType.DB);
                     monos.add(newActionService.createAction(action));
 
+                    action = new ActionDTO();
+                    action.setName("aTriggeredActionThatIsExternallyReferred");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.setPageId(page1.getId());
+                    action.setExecuteOnLoad(true);
+                    action.setDatasource(datasource);
+                    action.setPluginType(PluginType.DB);
+                    monos.add(newActionService.createAction(action));
+
                     return Mono.zip(monos, objects -> page1);
                 })
                 .zipWhen(page1 -> {
@@ -383,7 +396,8 @@ public class LayoutServiceTest {
                             "dynamicGet", "some dynamic {{aGetAction.data}}",
                             "dynamicPost", "some dynamic {{aPostAction.data}}",
                             "dynamicPostWithAutoExec", "some dynamic {{aPostActionWithAutoExec.data}}",
-                            "dynamicDelete", "some dynamic {{aDeleteAction.data}}"
+                            "dynamicDelete", "some dynamic {{aDeleteAction.data}}",
+                            "aTriggeredWidget", "some JS {{aTriggeredActionThatIsExternallyReferred.data}}"
                     ));
                     obj.put("dynamicDB", new JSONObject(Map.of("test", "child path {{aDBAction.irrelevant}}")));
                     obj.put("dynamicDB2", List.of("{{ anotherDBAction.optional }}"));
@@ -398,14 +412,16 @@ public class LayoutServiceTest {
                             new JSONObject(Map.of("key", "dynamicPostWithAutoExec")),
                             new JSONObject(Map.of("key", "dynamicDB.test")),
                             new JSONObject(Map.of("key", "dynamicDB2.0")),
-                            new JSONObject(Map.of("key", "tableWidget.test[0].content.child"))
+                            new JSONObject(Map.of("key", "tableWidget.test[0].content.child")),
+                            new JSONObject(Map.of("key", "aTriggeredWidget"))
                     ));
 
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
 
                     JSONArray dynamicTriggerPathList = new JSONArray();
                     dynamicTriggerPathList.addAll(List.of(
-                            new JSONObject(Map.of("key", "dynamicDB2.0"))
+                            new JSONObject(Map.of("key", "dynamicDB2.0")),
+                            new JSONObject(Map.of("key", "aTriggeredWidget"))
                     ));
 
                     obj.put("dynamicTriggerPathList", dynamicTriggerPathList);
@@ -423,10 +439,10 @@ public class LayoutServiceTest {
                     assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
                     assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(4);
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
-                            .hasSameElementsAs(Set.of("aPostTertiaryAction", "aGetAction", "aDBAction", "aTableAction"));
-                    assertThat(layout.getLayoutOnLoadActions().get(1)).hasSize(1);
+                            .hasSameElementsAs(Set.of("aPostTertiaryAction", "aDBAction", "aTableAction", "aTriggeredActionThatIsExternallyReferred"));
+                    assertThat(layout.getLayoutOnLoadActions().get(1)).hasSize(2);
                     assertThat(layout.getLayoutOnLoadActions().get(1).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
-                            .hasSameElementsAs(Set.of("aPostActionWithAutoExec"));
+                            .hasSameElementsAs(Set.of("aGetAction", "aPostActionWithAutoExec"));
                     Set<DslActionDTO> flatOnLoadActions = new HashSet<>();
                     for (Set<DslActionDTO> actions : layout.getLayoutOnLoadActions()) {
                         flatOnLoadActions.addAll(actions);
