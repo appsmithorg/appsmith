@@ -63,6 +63,13 @@ public class FirestorePluginTest {
                 "isPlural", true,
                 "ref", firestoreConnection.document("initial/one")
         )).get();
+        firestoreConnection.document("initial/inner-ref").set(Map.of(
+                "data", Map.of(
+                        "ref", firestoreConnection.document("initial/one"),
+                        "isAwesome", false,
+                        "anotherRef", firestoreConnection.document("initial/two")
+                )
+        )).get();
         firestoreConnection.document("changing/to-update").set(Map.of("value", 1)).get();
         firestoreConnection.document("changing/to-delete").set(Map.of("value", 1)).get();
 
@@ -95,6 +102,51 @@ public class FirestorePluginTest {
     }
 
     @Test
+    public void testGetSingleDocument2() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("initial/two");
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_DOCUMENT")));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .execute(firestoreConnection, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    final Map<String, Object> doc = (Map) result.getBody();
+                    assertEquals("two", doc.remove("name"));
+                    assertTrue((Boolean) doc.remove("isPlural"));
+                    assertEquals(2L, doc.remove("value"));
+                    assertEquals(Map.of("path", "initial/one", "id", "one"), doc.remove("ref"));
+                    assertEquals(Collections.emptyMap(), doc);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetSingleDocument3() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("initial/inner-ref");
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_DOCUMENT")));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .execute(firestoreConnection, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    final Map<String, Object> doc = (Map) result.getBody();
+                    assertEquals(Map.of(
+                            "ref", Map.of("path", "initial/one", "id", "one"),
+                            "isAwesome", false,
+                            "anotherRef", Map.of("path", "initial/two", "id", "two")
+                    ), doc.remove("data"));
+                    assertEquals(Collections.emptyMap(), doc);
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testGetDocumentsInCollection() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPath("initial");
@@ -108,15 +160,17 @@ public class FirestorePluginTest {
                     assertTrue(result.getIsExecutionSuccess());
 
                     List<Map<String, Object>> results = (List) result.getBody();
-                    assertEquals(2, results.size());
+                    assertEquals(3, results.size());
 
-                    final Map<String, Object> first = results.get(0);
+                    final Map<String, Object> first = results.stream().filter(d -> "one".equals(d.get("name"))).findFirst().orElse(null);
+                    assertNotNull(first);
                     assertEquals("one", first.remove("name"));
                     assertFalse((Boolean) first.remove("isPlural"));
                     assertEquals(1L, first.remove("value"));
                     assertEquals(Collections.emptyMap(), first);
 
-                    final Map<String, Object> second = results.get(1);
+                    final Map<String, Object> second = results.stream().filter(d -> "two".equals(d.get("name"))).findFirst().orElse(null);
+                    assertNotNull(second);
                     assertEquals("two", second.remove("name"));
                     assertTrue((Boolean) second.remove("isPlural"));
                     assertEquals(2L, second.remove("value"));
