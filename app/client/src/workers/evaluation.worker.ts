@@ -281,10 +281,13 @@ export class DataTreeEvaluator {
     if (!isAction(entity) && !isWidget(entity)) return false;
 
     // TODO: this is not a complete requirement
-    const dynamicPaths = new Set(
-      getEntityDynamicBindingPathList(entity).map((e) => e.key),
-    );
-    if (dynamicPaths.has(convertPathToString(propPathEls))) return true;
+    const dynamicPaths = getEntityDynamicBindingPathList(entity);
+    const relativePropPath = convertPathToString(propPathEls);
+    for (const path of dynamicPaths) {
+      if (path.key === relativePropPath) {
+        return true;
+      }
+    }
     if (!(entityName in this.validationPaths)) return false;
     return this.validationPaths[entityName].has(propertyPath);
   }
