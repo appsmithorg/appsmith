@@ -99,7 +99,7 @@ const isValidUrlScheme = (url: string): boolean => {
     // Secure http call
     url.startsWith("https://") ||
     // Mail url to directly open email app prefilled
-    url.startsWith("mailto://") ||
+    url.startsWith("mailto:") ||
     // Tel url to directly open phone app prefilled
     url.startsWith("tel:")
   );
