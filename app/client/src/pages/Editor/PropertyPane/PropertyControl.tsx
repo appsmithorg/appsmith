@@ -98,7 +98,6 @@ const PropertyControl = memo((props: Props) => {
           propertyValue,
         );
       }
-      console.log("Table log:", { propertiesToUpdate });
       if (propertiesToUpdate) {
         const allUpdates: Record<string, unknown> = {};
         propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {

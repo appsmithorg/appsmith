@@ -1208,10 +1208,11 @@ Cypress.Commands.add("addColumn", (colId) => {
   cy.get(widgetsPage.addColumn)
     .should("be.visible")
     .click({ force: true });
+  cy.wait(1000);
   cy.get(widgetsPage.defaultColName).clear({
     force: true,
   });
-  cy.get(widgetsPage.defaultColName).type(colId, { force: true, delay: 700 });
+  cy.get(widgetsPage.defaultColName).type(colId, { force: true });
 });
 
 Cypress.Commands.add("editColumn", (colId) => {
