@@ -68,6 +68,10 @@ class DatePickerControl extends BaseControl<
     const isValid = this.state.selectedDate
       ? this.validateDate(moment(this.state.selectedDate, dateFormat).toDate())
       : true;
+    const maxDate =
+      this.props.widgetProperties?.evaluatedValues?.maxDate ?? this.maxDate;
+    const minDate =
+      this.props.widgetProperties?.evaluatedValues?.minDate ?? this.minDate;
     return (
       <DatePickerControlWrapper isValid={isValid}>
         <StyledDatePicker
@@ -78,8 +82,8 @@ class DatePickerControl extends BaseControl<
           timePrecision={TimePrecision.MINUTE}
           closeOnSelection
           onChange={this.onDateSelected}
-          maxDate={this.maxDate}
-          minDate={this.minDate}
+          maxDate={moment(maxDate, dateFormat).toDate()}
+          minDate={moment(minDate, dateFormat).toDate()}
           value={
             this.props.propertyValue
               ? this.parseDate(this.props.propertyValue)
@@ -97,15 +101,17 @@ class DatePickerControl extends BaseControl<
    *
    * @param date
    */
-  onDateSelected = (date: Date): void => {
-    const selectedDate = date ? this.formatDate(date) : undefined;
-    const isValid = this.validateDate(date);
+  onDateSelected = (date: Date, isUserChange: boolean): void => {
+    if (isUserChange) {
+      const selectedDate = date ? this.formatDate(date) : undefined;
+      const isValid = this.validateDate(date);
 
-    if (!isValid) return;
+      if (!isValid) return;
 
-    // if everything is ok, put date in state
-    this.setState({ selectedDate: selectedDate });
-    this.updateProperty(this.props.propertyName, selectedDate);
+      // if everything is ok, put date in state
+      this.setState({ selectedDate: selectedDate });
+      this.updateProperty(this.props.propertyName, selectedDate);
+    }
   };
 
   /**

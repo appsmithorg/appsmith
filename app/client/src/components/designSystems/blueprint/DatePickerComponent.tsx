@@ -160,16 +160,18 @@ class DatePickerComponent extends React.Component<
    *
    * @param selectedDate
    */
-  onDateSelected = (selectedDate: Date) => {
-    const { onDateSelected } = this.props;
+  onDateSelected = (selectedDate: Date, isUserChange: boolean) => {
+    if (isUserChange) {
+      const { onDateSelected } = this.props;
 
-    const date = selectedDate ? this.formatDate(selectedDate) : "";
-    this.setState({ selectedDate: date });
+      const date = selectedDate ? this.formatDate(selectedDate) : "";
+      this.setState({ selectedDate: date });
 
-    // if date is null ( if date is cleared ), don't call onDateSelected
-    if (!selectedDate) return false;
+      // if date is null ( if date is cleared ), don't call onDateSelected
+      if (!selectedDate) return false;
 
-    onDateSelected(date);
+      onDateSelected(date);
+    }
   };
 }
 
