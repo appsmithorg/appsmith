@@ -10,6 +10,8 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
@@ -142,6 +144,23 @@ public class S3PluginTest {
                     assertTrue(errorList.get(0).contains("The AWS Access Key Id you provided does not exist in our records"));
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testStaleConnectionExceptionFromExecuteMethod() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        Mono<S3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(new S3Plugin.S3PluginExecutor());
+        Mono<ActionExecutionResult> resultMono = pluginExecutorMono
+                                                 .flatMap(executor -> {
+                                                     return executor.execute(
+                                                             null,
+                                                             datasourceConfiguration,
+                                                             actionConfiguration);
+                                                 });
+
+        StepVerifier.create(resultMono)
+                .verifyError(StaleConnectionException.class);
     }
     
     @Test

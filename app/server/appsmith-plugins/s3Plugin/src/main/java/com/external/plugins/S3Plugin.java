@@ -153,7 +153,7 @@ public class S3Plugin extends BasePlugin {
             /*
              * - AmazonS3 API collection does not seem to provide any API to test connection validity or staleness.
              *   Hence, unable to do stale connection check explicitly.
-             * - If connection is object is null, then assume stale connection.
+             * - If connection object is null, then assume stale connection.
              */
             if(connection == null) {
                 throw new StaleConnectionException();
@@ -282,7 +282,7 @@ public class S3Plugin extends BasePlugin {
                         rowsList.add(Map.of("Action Status", "File deleted successfully"));
                         break;
                     default:
-                        throw Exceptions.propagate(
+                        return Mono.error(
                                 new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR,
                                     "It seems that the query has requested an unsupported action: " + s3Action + 
@@ -323,7 +323,7 @@ public class S3Plugin extends BasePlugin {
                 return Mono.error(
                   new AppsmithPluginException(
                           AppsmithPluginError.PLUGIN_ERROR,
-                          "Mandatory parameters 'Access Key', 'Secret Key', 'Region' missing. Did you forget to edit " +
+                          "Mandatory fields 'Access Key', 'Secret Key', 'Region' missing. Did you forget to edit " +
                           "the 'Access Key'/'Secret Key'/'Region' fields in the datasource creation form ?"
                   )
                 );
@@ -343,10 +343,20 @@ public class S3Plugin extends BasePlugin {
 
             return (Mono<AmazonS3>) Mono.fromCallable(() -> {
 
-                final String region;
 
                 List<Property> properties = datasourceConfiguration.getProperties();
-                region = properties.get(CLIENT_REGION_PROPERTY_INDEX).getValue();
+                if(properties == null || properties.get(CLIENT_REGION_PROPERTY_INDEX) == null) {
+                    return Mono.error(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    "Mandatory parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
+                                    " in the datasource creation form ? You need to fill it with the region where " +
+                                    "your AWS instance is hosted."
+                            )
+                    );
+                }
+
+                final String region = properties.get(CLIENT_REGION_PROPERTY_INDEX).getValue();
                 if(StringUtils.isEmpty(region)) {
                     return Mono.error(
                             new AppsmithPluginException(
