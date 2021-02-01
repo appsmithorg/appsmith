@@ -285,8 +285,7 @@ export function* addChildrenSaga(
     const stateWidgets = yield select(getWidgets);
     const widgets = { ...stateWidgets };
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-    const evalTree = yield select(getDataTree);
-    const entityNames = Object.keys(evalTree);
+    const entityNames = yield call(getEntityNames);
 
     children.forEach((child) => {
       // Create only if it doesn't already exist
