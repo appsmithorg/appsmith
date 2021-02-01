@@ -288,8 +288,8 @@
       "contributions": [
         "code"
       ]
-    },
-  ],
+    }
+  ]
   "contributorsPerLine": 7,
   "projectName": "appsmith",
   "projectOwner": "appsmithorg",
