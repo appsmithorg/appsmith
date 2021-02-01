@@ -373,7 +373,16 @@ public class FirestorePlugin extends BasePlugin {
                 DocumentSnapshot documentSnapshot = (DocumentSnapshot) objResult;
                 Map<String, Object> resultMap = new HashMap<>();
                 if (documentSnapshot.getData() != null) {
-                    resultMap = documentSnapshot.getData();
+                    for (final Map.Entry<String, Object> entry : documentSnapshot.getData().entrySet()) {
+                        resultMap.put(entry.getKey(), resultToMap(entry.getValue(), false));
+                    }
+                }
+                return resultMap;
+
+            } else if (objResult instanceof Map) {
+                Map<String, Object> resultMap = (Map) objResult;
+                for (final Map.Entry<String, Object> entry : resultMap.entrySet()) {
+                    resultMap.put(entry.getKey(), resultToMap(entry.getValue(), false));
                 }
                 return resultMap;
 
