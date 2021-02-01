@@ -343,50 +343,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed, transformed: parsed };
   },
-  [VALIDATION_TYPES.CUSTOM_PLOTLY_CHARTS_DATA]: (
-    value: any,
-    props: WidgetProps,
-    dataTree?: DataTree,
-  ): ValidationResponse => {
-    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.OBJECT](
-      value,
-      props,
-      dataTree,
-    );
-    if (!isValid) {
-      return {
-        isValid,
-        parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Custom Plotly Charts Data`,
-      };
-    }
-    if (props.chartName && parsed.layout) {
-      parsed.layout.title = props.chartName;
-    }
-    if (parsed.layout && typeof parsed.layout !== "object") {
-      parsed.layout = {};
-      return {
-        isValid: false,
-        parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Custom Plotly Charts Data`,
-      };
-    }
-    if (parsed.data && !Array.isArray(parsed.data)) {
-      parsed.data = [];
-      return {
-        isValid: false,
-        parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Custom Plotly Charts Data`,
-      };
-    }
-    if (parsed && !parsed.layout) {
-      parsed.layout = {};
-    }
-    if (parsed && !parsed.data) {
-      parsed.data = [];
-    }
-    return { isValid, parsed, transformed: parsed };
-  },
   [VALIDATION_TYPES.MARKERS]: (
     value: any,
     props: WidgetProps,

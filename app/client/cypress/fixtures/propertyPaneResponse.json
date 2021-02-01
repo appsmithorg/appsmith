@@ -351,10 +351,6 @@
                                 {
                                     "label": "Custom Fusion Chart",
                                     "value": "CUSTOM_FUSION_CHART"
-                                },
-                                {
-                                    "label": "Custom Plotly Chart",
-                                    "value": "CUSTOM_PLOTLY_CHART"
                                 }
                             ],
                             "isJSConvertible": true

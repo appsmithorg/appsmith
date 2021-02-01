@@ -30,7 +30,6 @@ import MultiSwitchControl, {
   MultiSwitchControlProps,
 } from "components/propertyControls/MultiSwitchControl";
 import CustomFusionChartControl from "./CustomFusionChartControl";
-import CustomPlotlyChartControl from "./CustomPlotlyChartControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -45,7 +44,6 @@ export const PropertyControls = {
   MultiSwitchControl,
   ChartDataControl,
   CustomFusionChartControl,
-  CustomPlotlyChartControl,
   LocationSearchControl,
   StepControl,
   TabControl,

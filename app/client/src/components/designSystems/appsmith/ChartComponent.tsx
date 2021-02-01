@@ -9,12 +9,7 @@ import {
   ChartDataPoint,
   ChartType,
   CustomFusionChartConfig,
-  CustomPlotlyChartConfig,
 } from "widgets/ChartWidget";
-import createPlotlyComponent from "react-plotly.js/factory";
-const Plotly = window.Plotly;
-
-const Plot = createPlotlyComponent(Plotly);
 
 const FusionCharts = require("fusioncharts");
 const Charts = require("fusioncharts/fusioncharts.charts");
@@ -33,7 +28,6 @@ export interface ChartComponentProps {
   chartType: ChartType;
   chartData: ChartData[];
   customFusionChartConfig: CustomFusionChartConfig;
-  customPlotlyChartConfig: CustomPlotlyChartConfig;
   xAxisName: string;
   yAxisName: string;
   chartName: string;
@@ -279,9 +273,6 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   componentDidMount() {
     this.createGraph();
-    if (this.props.chartType === "CUSTOM_PLOTLY_CHART") {
-      return;
-    }
     FusionCharts.ready(() => {
       /* Component could be unmounted before FusionCharts is ready,
       this check ensure we don't render on unmounted component */
@@ -303,16 +294,6 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   componentDidUpdate(prevProps: ChartComponentProps) {
     if (!_.isEqual(prevProps, this.props)) {
-      if (
-        prevProps.chartType === "CUSTOM_PLOTLY_CHART" &&
-        this.props.chartType !== "CUSTOM_PLOTLY_CHART" &&
-        this.chartInstance
-      ) {
-        this.chartInstance.render();
-      }
-      if (this.props.chartType === "CUSTOM_PLOTLY_CHART") {
-        return;
-      }
       if (this.props.chartType === "CUSTOM_FUSION_CHART") {
         const chartConfig = {
           type: this.getChartType(),
@@ -339,15 +320,6 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   }
 
   render() {
-    if (this.props.chartType === "CUSTOM_PLOTLY_CHART") {
-      return (
-        <Plot
-          data={[...this.props.customPlotlyChartConfig.data]}
-          layout={{ ...this.props.customPlotlyChartConfig.layout }}
-        />
-      );
-    }
-
     return (
       <CanvasContainer
         {...this.props}

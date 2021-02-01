@@ -62,7 +62,7 @@ const FIELD_VALUES: Record<
   CHART_WIDGET: {
     chartName: "string",
     chartType:
-      "LINE_CHART | BAR_CHART | PIE_CHART | COLUMN_CHART | AREA_CHART | CUSTOM_FUSION_CHART | CUSTOM_PLOTLY_CHART",
+      "LINE_CHART | BAR_CHART | PIE_CHART | COLUMN_CHART | AREA_CHART | CUSTOM_FUSION_CHART",
     xAxisName: "string",
     yAxisName: "string",
     isVisible: "boolean",
