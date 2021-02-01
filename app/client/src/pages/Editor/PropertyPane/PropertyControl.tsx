@@ -136,7 +136,6 @@ const PropertyControl = memo((props: Props) => {
           hookPropertiesUpdates.forEach(({ propertyPath, propertyValue }) => {
             allUpdates[propertyPath] = propertyValue;
           });
-          allUpdates[propertyName] = propertyValue;
 
           onBatchUpdatePropertiesOfWidget(
             allUpdates,

@@ -1392,6 +1392,7 @@ function* pasteWidgetSaga() {
 
       // Update the template and enhancement map for list widget
       if (widget.type === WidgetTypes.LIST_WIDGET) {
+        console.log({ widget });
         // update template
         // hydrate enhancement map
         // update dynamicBindingPathList
