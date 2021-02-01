@@ -17,19 +17,23 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
   it("Input widget test with default value from table widget", function() {
     cy.openPropertyPane("inputwidget");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
-    cy.get(widgetsPage.actionSelect).click();
+    cy.get(widgetsPage.actionSelect)
+      .first()
+      .click();
     cy.get(commonlocators.chooseAction)
       .children()
       .contains("Navigate To")
       .click();
     cy.enterNavigatePageName(pageid);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(300);
   });
 
   it("Create MyPage and valdiate if its successfully created", function() {
     cy.Createpage(pageid);
     cy.addDsl(dsl2);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
   });
