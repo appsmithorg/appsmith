@@ -524,7 +524,8 @@ function* createQuery() {
         id: onboardingDatasource?.id,
       },
       actionConfiguration: {
-        body: "Select avatar, name, notes from standup_updates order by id",
+        body:
+          "Select avatar, name, notes from standup_updates order by id desc",
       },
     } as Partial<QueryAction>;
 
