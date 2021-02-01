@@ -224,19 +224,18 @@ public class S3Plugin extends BasePlugin {
                 );
             }
 
-            final String bucketName;
-            try {
-                bucketName = properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
-                if(StringUtils.isEmpty(bucketName)) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
-                                    "Mandatory parameter 'Bucket Name' is missing. Did you forget to edit the 'Bucket " +
-                                    "Name' field in the query form ?"
-                            )
-                    );
-                }
-            } catch (Exception e) {
+            if(properties.get(BUCKET_NAME_PROPERTY_INDEX) == null) {
+                return Mono.error(
+                        new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Mandatory parameter 'Bucket Name' is missing. Did you forget to edit the 'Bucket " +
+                                "Name' field in the query form ?"
+                        )
+                );
+            }
+
+            final String bucketName = properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
+            if(StringUtils.isEmpty(bucketName)) {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
@@ -250,7 +249,7 @@ public class S3Plugin extends BasePlugin {
              * - Allow users to upload empty file. Hence, only check for null value.
              */
             final String body = actionConfiguration.getBody();
-            if (s3Action == S3Action.UPLOAD_FILE_FROM_BODY && body == null) {
+            if(s3Action == S3Action.UPLOAD_FILE_FROM_BODY && body == null) {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
