@@ -90,13 +90,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: VALIDATION_TYPES.TEXT,
       defaultSearchText: VALIDATION_TYPES.TEXT,
       defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
+      pageSize: VALIDATION_TYPES.NUMBER,
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
-      pageSize: undefined,
       selectedRowIndex: undefined,
       selectedRowIndices: undefined,
       searchText: undefined,
@@ -120,7 +120,51 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       onRowSelected: true,
       onPageChange: true,
       onSearchTextChanged: true,
+      onPageSizeChange: true,
       columnActions: true,
+    };
+  }
+
+  static getDerivedPropertiesMap() {
+    return {
+      pageSize: `{{function() {
+          const TABLE_SIZES = {
+           ${CompactModeTypes.DEFAULT}: {
+            COLUMN_HEADER_HEIGHT: 38,
+            TABLE_HEADER_HEIGHT: 42,
+            ROW_HEIGHT: 40,
+            ROW_FONT_SIZE: 14,
+           },
+           ${CompactModeTypes.SHORT}: {
+            COLUMN_HEADER_HEIGHT: 38,
+            TABLE_HEADER_HEIGHT: 42,
+            ROW_HEIGHT: 20,
+            ROW_FONT_SIZE: 12,
+           },
+           ${CompactModeTypes.TALL}: {
+            COLUMN_HEADER_HEIGHT: 38,
+            TABLE_HEADER_HEIGHT: 42,
+            ROW_HEIGHT: 60,
+            ROW_FONT_SIZE: 18,
+           },
+          };
+          const compactMode = this.compactMode || "${CompactModeTypes.DEFAULT}";
+          const componentHeight = (this.bottomRow - this.topRow) * this.parentRowSpace;
+          const tableSizes = TABLE_SIZES[compactMode];
+          let pageSize= Math.floor((componentHeight - tableSizes.TABLE_HEADER_HEIGHT - tableSizes.COLUMN_HEADER_HEIGHT) / tableSizes.ROW_HEIGHT);
+          if (
+            componentHeight -
+              (tableSizes.TABLE_HEADER_HEIGHT +
+                tableSizes.COLUMN_HEADER_HEIGHT +
+                tableSizes.ROW_HEIGHT * pageSize) >
+            0
+          ) {
+            pageSize += 1;
+          }
+          return pageSize;
+        }()
+      }}`,
+      triggerRowSelection: "{{!!this.onRowSelected}}",
     };
   }
 
@@ -135,6 +179,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     } = this.props;
     if (tableData.length) {
       const columnKeys: string[] = getAllTableColumnKeys(tableData);
+      const { componentWidth } = this.getComponentDimensions();
       const sortedColumn = this.props.sortedColumn;
       for (let index = 0; index < columnKeys.length; index++) {
         const i = columnKeys[index];
@@ -170,7 +215,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             inputFormat: columnType.inputFormat,
           },
           Cell: (props: any) => {
-            return renderCell(props.cell.value, columnType.type, isHidden);
+            return renderCell(
+              props.cell.value,
+              columnType.type,
+              isHidden,
+              componentWidth,
+            );
           },
         };
         if (isHidden) {
@@ -361,7 +411,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const columnKeys: string[] = getAllTableColumnKeys(this.props.tableData);
       const selectedRow: { [key: string]: any } = {};
       for (let i = 0; i < columnKeys.length; i++) {
-        selectedRow[columnKeys[i]] = undefined;
+        selectedRow[columnKeys[i]] = "";
       }
       return selectedRow;
     }
@@ -493,6 +543,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         );
       }
     }
+    if (this.props.pageSize !== prevProps.pageSize) {
+      super.executeAction({
+        dynamicString: this.props.onPageSizeChange,
+        event: {
+          type: EventType.ON_PAGE_SIZE_CHANGE,
+        },
+      });
+    }
   }
 
   getSelectedRowIndexes = (selectedRowIndices: string) => {
@@ -502,7 +560,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   getPageView() {
-    const { tableData, hiddenColumns, filteredTableData } = this.props;
+    const {
+      tableData,
+      hiddenColumns,
+      filteredTableData,
+      pageSize,
+    } = this.props;
     const computedSelectedRowIndices = Array.isArray(
       this.props.selectedRowIndices,
     )
@@ -524,28 +587,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("pageNo", pageNo);
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
-    const tableSizes =
-      TABLE_SIZES[this.props.compactMode || CompactModeTypes.DEFAULT];
-    let pageSize = Math.floor(
-      (componentHeight -
-        tableSizes.TABLE_HEADER_HEIGHT -
-        tableSizes.COLUMN_HEADER_HEIGHT) /
-        tableSizes.ROW_HEIGHT,
-    );
-
-    if (
-      componentHeight -
-        (tableSizes.TABLE_HEADER_HEIGHT +
-          tableSizes.COLUMN_HEADER_HEIGHT +
-          tableSizes.ROW_HEIGHT * pageSize) >
-      0
-    )
-      pageSize += 1;
-
-    if (pageSize !== this.props.pageSize) {
-      this.props.updateWidgetMetaProperty("pageSize", pageSize);
-    }
-
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
@@ -563,6 +604,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columnNameMap={this.props.columnNameMap}
           columnTypeMap={this.props.columnTypeMap}
           columnOrder={this.props.columnOrder}
+          triggerRowSelection={this.props.triggerRowSelection}
           pageSize={Math.max(1, pageSize)}
           onCommandClick={this.onCommandClick}
           selectedRowIndex={
@@ -590,7 +632,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             super.updateWidgetProperty("columnNameMap", columnNameMap);
           }}
           handleResizeColumn={(columnSizeMap: { [key: string]: number }) => {
-            super.updateWidgetProperty("columnSizeMap", columnSizeMap);
+            if (this.props.renderMode === RenderModes.CANVAS) {
+              super.updateWidgetProperty("columnSizeMap", columnSizeMap);
+            } else {
+              this.props.updateWidgetMetaProperty(
+                "columnSizeMap",
+                columnSizeMap,
+              );
+            }
           }}
           handleReorderColumn={(columnOrder: string[]) => {
             super.updateWidgetProperty("columnOrder", columnOrder);
@@ -607,11 +656,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
           updateCompactMode={(compactMode: CompactMode) => {
-            if (this.props.renderMode === RenderModes.CANVAS) {
-              this.props.updateWidgetMetaProperty("compactMode", compactMode);
-            } else {
-              this.props.updateWidgetMetaProperty("compactMode", compactMode);
-            }
+            this.props.updateWidgetMetaProperty("compactMode", compactMode);
           }}
           sortTableColumn={this.handleColumnSorting}
         />

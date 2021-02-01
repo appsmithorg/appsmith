@@ -38,6 +38,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import {
   BUILDER_PAGE_URL,
+  convertToQueryParams,
   getApplicationViewerPageURL,
 } from "constants/routes";
 import {
@@ -86,42 +87,74 @@ import {
 } from "./EvaluationsSaga";
 import copy from "copy-to-clipboard";
 
+export enum NavigationTargetType {
+  SAME_WINDOW = "SAME_WINDOW",
+  NEW_WINDOW = "NEW_WINDOW",
+}
+
+const isValidUrlScheme = (url: string): boolean => {
+  return (
+    // Standard http call
+    url.startsWith("http://") ||
+    // Secure http call
+    url.startsWith("https://") ||
+    // Mail url to directly open email app prefilled
+    url.startsWith("mailto:") ||
+    // Tel url to directly open phone app prefilled
+    url.startsWith("tel:")
+  );
+};
+
 function* navigateActionSaga(
-  action: { pageNameOrUrl: string; params: Record<string, string> },
+  action: {
+    pageNameOrUrl: string;
+    params: Record<string, string>;
+    target?: NavigationTargetType;
+  },
   event: ExecuteActionPayloadEvent,
 ) {
   const pageList = yield select(getPageList);
   const applicationId = yield select(getCurrentApplicationId);
+  const {
+    pageNameOrUrl,
+    params,
+    target = NavigationTargetType.SAME_WINDOW,
+  } = action;
   const page = _.find(
     pageList,
-    (page: Page) => page.pageName === action.pageNameOrUrl,
+    (page: Page) => page.pageName === pageNameOrUrl,
   );
   if (page) {
     AnalyticsUtil.logEvent("NAVIGATE", {
-      pageName: action.pageNameOrUrl,
-      pageParams: action.params,
+      pageName: pageNameOrUrl,
+      pageParams: params,
     });
-    // TODO need to make this check via RENDER_MODE;
+    const appMode = yield select(getAppMode);
     const path =
-      history.location.pathname.indexOf("/edit") !== -1
-        ? BUILDER_PAGE_URL(applicationId, page.pageId, action.params)
-        : getApplicationViewerPageURL(
-            applicationId,
-            page.pageId,
-            action.params,
-          );
-    history.push(path);
+      appMode === APP_MODE.EDIT
+        ? BUILDER_PAGE_URL(applicationId, page.pageId, params)
+        : getApplicationViewerPageURL(applicationId, page.pageId, params);
+    if (target === NavigationTargetType.SAME_WINDOW) {
+      history.push(path);
+    } else if (target === NavigationTargetType.NEW_WINDOW) {
+      window.open(path, "_blank");
+    }
     if (event.callback) event.callback({ success: true });
   } else {
     AnalyticsUtil.logEvent("NAVIGATE", {
-      navUrl: action.pageNameOrUrl,
+      navUrl: pageNameOrUrl,
     });
+    let url = pageNameOrUrl + convertToQueryParams(params);
     // Add a default protocol if it doesn't exist.
-    let url = action.pageNameOrUrl;
-    if (url.indexOf("://") === -1) {
+    if (!isValidUrlScheme(url)) {
       url = "https://" + url;
     }
-    window.location.assign(url);
+    if (target === NavigationTargetType.SAME_WINDOW) {
+      window.location.assign(url);
+    } else if (target === NavigationTargetType.NEW_WINDOW) {
+      window.open(url, "_blank");
+    }
+    if (event.callback) event.callback({ success: true });
   }
 }
 

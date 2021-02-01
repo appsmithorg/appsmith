@@ -7,9 +7,9 @@ import java.text.MessageFormat;
 @Getter
 public enum AppsmithPluginError {
 
-    PLUGIN_ERROR(500, 5000, "PluginExecution failed with error {0}"),
-    PLUGIN_STRUCTURE_ERROR(500, 5001, "Plugin failed to get structure with error {0}"),
-    PLUGIN_TIMEOUT_ERROR(504, 5002, "Plugin execution for query \"{0}\" timed out in {1}ms. Please increase timeout duration in your action settings or check your backend action endpoint."),
+    PLUGIN_ERROR(500, 5000, "{0}"),
+    PLUGIN_STRUCTURE_ERROR(500, 5001, "Failed to get database structure with error {0}"),
+    PLUGIN_TIMEOUT_ERROR(504, 5002, "{0} timed out in {1} milliseconds. Please increase timeout. This can be found in Settings tab of {0}."),
     ;
 
     private final Integer httpErrorCode;
