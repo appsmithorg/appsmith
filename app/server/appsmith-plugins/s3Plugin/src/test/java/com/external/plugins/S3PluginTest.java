@@ -77,7 +77,10 @@ public class S3PluginTest {
         StepVerifier.create(pluginExecutorMono)
                 .assertNext(executor -> {
                     Set<String> res = executor.validateDatasource(datasourceConfiguration);
-                    Assert.assertNotEquals(0, res.size());
+                    assertNotEquals(0, res.size());
+
+                    List<String> errorList = new ArrayList<>(res);
+                    assertTrue(errorList.get(0).contains("Mandatory parameter 'Access Key' is empty"));
                 })
                 .verifyComplete();
     }
@@ -99,6 +102,9 @@ public class S3PluginTest {
                 .assertNext(executor -> {
                     Set<String> res = executor.validateDatasource(datasourceConfiguration);
                     Assert.assertNotEquals(0, res.size());
+
+                    List<String> errorList = new ArrayList<>(res);
+                    assertTrue(errorList.get(0).contains("Mandatory parameter 'Secret Key' is empty"));
                 })
                 .verifyComplete();
     }
@@ -117,6 +123,9 @@ public class S3PluginTest {
                 .assertNext(executor -> {
                     Set<String> res = executor.validateDatasource(datasourceConfiguration);
                     Assert.assertNotEquals(0, res.size());
+
+                    List<String> errorList = new ArrayList<>(res);
+                    assertTrue(errorList.get(0).contains("Mandatory parameter 'Region' is empty"));
                 })
                 .verifyComplete();
     }
@@ -128,6 +137,9 @@ public class S3PluginTest {
         StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
                 .assertNext(datasourceTestResult -> {
                     assertNotEquals(0, datasourceTestResult.getInvalids().size());
+
+                    List<String> errorList = new ArrayList<>(datasourceTestResult.getInvalids());
+                    assertTrue(errorList.get(0).contains("The AWS Access Key Id you provided does not exist in our records"));
                 })
                 .verifyComplete();
     }

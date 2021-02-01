@@ -24,7 +24,7 @@
           "configProperty": "datasourceConfiguration.properties[0].value",
           "controlType": "DROP_DOWN",
           "isRequired": true,
-          "initialValue": "AP_SOUTH_1",
+          "initialValue": "ap-south-1",
           "options": [
             {
               "label": "ap-south-1",
