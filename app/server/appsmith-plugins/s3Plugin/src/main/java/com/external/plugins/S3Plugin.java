@@ -5,7 +5,6 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
@@ -25,7 +24,6 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.mysema.commons.lang.Assert;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.pf4j.Extension;
@@ -320,6 +318,7 @@ public class S3Plugin extends BasePlugin {
 
         @Override
         public Mono<AmazonS3> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+
             if(datasourceConfiguration == null) {
                 return Mono.error(
                   new AppsmithPluginException(
@@ -342,23 +341,14 @@ public class S3Plugin extends BasePlugin {
                 );
             }
 
-            return Mono.fromCallable(() -> {
+            return (Mono<AmazonS3>) Mono.fromCallable(() -> {
+
                 final String region;
-                try {
-                    List<Property> properties = datasourceConfiguration.getProperties();
-                    region = properties.get(CLIENT_REGION_PROPERTY_INDEX).getValue();
-                    if(StringUtils.isEmpty(region)) {
-                        throw Exceptions.propagate(
-                                new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_ERROR,
-                                        "Mandatory parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
-                                        " in the datasource creation form ? You need to fill it with the region where " +
-                                        "your AWS instance is hosted."
-                                )
-                        );
-                    }
-                } catch (Exception e) {
-                    throw Exceptions.propagate(
+
+                List<Property> properties = datasourceConfiguration.getProperties();
+                region = properties.get(CLIENT_REGION_PROPERTY_INDEX).getValue();
+                if(StringUtils.isEmpty(region)) {
+                    return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR,
                                     "Mandatory parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
@@ -371,8 +361,8 @@ public class S3Plugin extends BasePlugin {
                 final Regions clientRegion;
                 try {
                     clientRegion = Regions.fromName(region);
-                } catch (Exception e) {
-                    throw Exceptions.propagate(
+                } catch (IllegalArgumentException e) {
+                    return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR,
                                     "Appsmith server has encountered an error when " +
@@ -386,7 +376,7 @@ public class S3Plugin extends BasePlugin {
                 if(authentication == null
                    || StringUtils.isEmpty(authentication.getUsername())
                    || StringUtils.isEmpty(authentication.getPassword())) {
-                    throw Exceptions.propagate(
+                    return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR,
                                     "Mandatory parameters 'Access Key' and/or 'Secret Key' are missing. Did you " +
@@ -400,8 +390,8 @@ public class S3Plugin extends BasePlugin {
                 BasicAWSCredentials awsCreds = null;
                 try {
                     awsCreds = new BasicAWSCredentials(accessKey, secretKey);
-                } catch (Exception e) {
-                    throw Exceptions.propagate(
+                } catch (IllegalArgumentException e) {
+                    return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR,
                                     "Appsmith server has encountered an error when " +
@@ -410,13 +400,14 @@ public class S3Plugin extends BasePlugin {
                     );
                 }
 
-                return AmazonS3ClientBuilder
+                return Mono.just(AmazonS3ClientBuilder
                                 .standard()
                                 .withRegion(clientRegion)
                                 .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                                .build();
+                                .build());
 
             })
+            .flatMap(obj -> obj)
             .onErrorResume(e -> {
                         if(e instanceof AppsmithPluginException) {
                             return Mono.error(e);
