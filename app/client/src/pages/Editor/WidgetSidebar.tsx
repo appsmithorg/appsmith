@@ -3,7 +3,11 @@ import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
 import { WidgetCardProps } from "widgets/BaseWidget";
-import { getWidgetCards } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+  getWidgetCards,
+} from "selectors/editorSelectors";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { IPanelProps, Icon, Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
@@ -13,6 +17,8 @@ import produce from "immer";
 import { WIDGET_SIDEBAR_CAPTION } from "constants/messages";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import { getCurrentStep } from "sagas/OnboardingSagas";
+import { BUILDER_PAGE_URL } from "constants/routes";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
@@ -101,6 +107,18 @@ const WidgetSidebar = (props: IPanelProps) => {
     }
     filterCards("");
   };
+
+  // For onboarding
+  const currentStep = useSelector(getCurrentStep);
+  const applicationId = useSelector(getCurrentApplicationId);
+  const pageId = useSelector(getCurrentPageId);
+  const onCanvas =
+    BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname;
+  useEffect(() => {
+    if (currentStep === OnboardingStep.DEPLOY && !onCanvas) {
+      props.closePanel();
+    }
+  }, [currentStep, onCanvas]);
 
   const search = debounce((e: any) => {
     filterCards(e.target.value.toLowerCase());

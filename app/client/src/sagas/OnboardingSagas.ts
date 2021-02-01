@@ -406,6 +406,7 @@ function* listenForCreateAction() {
 function* listenForDeploySaga() {
   while (true) {
     yield take();
+    yield put(showIndicator(OnboardingStep.DEPLOY));
 
     yield take(ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS);
     AnalyticsUtil.logEvent("ONBOARDING_DEPLOY");

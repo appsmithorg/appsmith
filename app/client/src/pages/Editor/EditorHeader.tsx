@@ -278,7 +278,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         >
           <DeploySection>
             <Indicator
-              step={OnboardingStep.SUCCESSFUL_BINDING}
+              step={OnboardingStep.DEPLOY}
               offset={{ left: 10 }}
               theme={"light"}
             >
