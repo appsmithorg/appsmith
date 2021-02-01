@@ -342,8 +342,6 @@ public class S3Plugin extends BasePlugin {
             }
 
             return (Mono<AmazonS3>) Mono.fromCallable(() -> {
-
-
                 List<Property> properties = datasourceConfiguration.getProperties();
                 if(properties == null || properties.get(CLIENT_REGION_PROPERTY_INDEX) == null) {
                     return Mono.error(
