@@ -48,14 +48,9 @@ import { IconWrapper } from "components/ads/Icon";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
-const Separator = styled.div`
-  width: 1px;
-  height: 24px;
-  background-color: ${(props) => props.theme.colors.header.separator};
-`;
-
 const HeaderWrapper = styled(StyledHeader)`
   padding-right: 0;
+  padding-left: ${(props) => props.theme.spaces[7]}px;
   background-color: ${(props) => props.theme.colors.header.background};
   height: ${(props) => props.theme.smallHeaderHeight};
   flex-direction: row;
@@ -110,7 +105,7 @@ const SaveStatusContainer = styled.div`
 `;
 const DeploySection = styled.div`
   display: flex;
-  margin-left: ${(props) => props.theme.spaces[7]}px;
+  margin-left: ${(props) => props.theme.spaces[5]}px;
 `;
 
 const ProfileDropdownContainer = styled.div`
@@ -120,12 +115,6 @@ const ProfileDropdownContainer = styled.div`
 const StyledDeployButton = styled(Button)`
   height: ${(props) => props.theme.smallHeaderHeight};
   ${(props) => getTypographyByKey(props, "btnLarge")}
-`;
-
-const DeployBtnSeparator = styled.div`
-  width: 1px;
-  height: ${(props) => props.theme.smallHeaderHeight};
-  background-color: #fff;
 `;
 
 type EditorHeaderProps = {
@@ -211,7 +200,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             className="t--appsmith-logo"
           />
         </Link>
-        <Separator />
         {currentApplication ? (
           <EditableAppName
             defaultValue={currentApplication.name || ""}
@@ -255,7 +243,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               currentApplication ? currentApplication.name : "Share Application"
             }
           />
-          <Separator />
         </Boxed>
         <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
           <DeploySection>
@@ -278,10 +265,9 @@ export const EditorHeader = (props: EditorHeaderProps) => {
                 />
               </Indicator>
             </OnboardingToolTip>
-            <DeployBtnSeparator />
             <DeployLinkButtonDialog
               trigger={
-                <StyledDeployButton icon={"downArrow"} size={Size.small} />
+                <StyledDeployButton icon={"downArrow"} size={Size.xxs} />
               }
               link={getApplicationViewerPageURL(applicationId, pageId)}
             />

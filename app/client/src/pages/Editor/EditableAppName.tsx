@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import { Classes } from "@blueprintjs/core";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 type EditableTextWrapperProps = EditableTextProps & {
   isNewApp: boolean;
@@ -11,6 +13,22 @@ type EditableTextWrapperProps = EditableTextProps & {
 const Container = styled.div`
   & .bp3-editable-text-content:hover {
     text-decoration: underline;
+  }
+  & .${Classes.EDITABLE_TEXT} {
+    height: ${(props) => props.theme.smallHeaderHeight} !important;
+    display: flex;
+    align-items: center;
+  }
+  &&&& .${Classes.EDITABLE_TEXT}, &&&& .${Classes.EDITABLE_TEXT_EDITING} {
+    padding: 0 ${(props) => props.theme.spaces[0]}px;
+  }
+  &&&& .${Classes.EDITABLE_TEXT_CONTENT}, &&&& .${Classes.EDITABLE_TEXT_INPUT} {
+    display: inline;
+    ${(props) => getTypographyByKey(props, "h4")};
+    line-height: unset !important;
+    padding: 0;
+    min-width: 0;
+    height: unset;
   }
 `;
 

@@ -52,7 +52,7 @@ export const DeployLinkButton = withTheme((props: Props) => {
         content={
           <DeployLinkDialog>
             <DeployLink target="_blank" href={props.link}>
-              <DeployUrl>Deploy Preview</DeployUrl>
+              <DeployUrl>Current deployed version</DeployUrl>
               <Icon
                 icon="share"
                 color={props.theme.colors.header.deployToolTipText}

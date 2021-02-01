@@ -11,18 +11,32 @@ import useThrottledRAF from "utils/hooks/useThrottledRAF";
 const Container = styled.div`
   width: 100%;
   display: flex;
-  padding: 0 30px;
+  padding-right: ${(props) => props.theme.spaces[7]}px;
   align-items: center;
   & {
     svg path,
     svg:hover path {
       fill: transparent;
+      stroke: ${(props) => props.theme.colors.header.tabText};
     }
   }
 `;
 
-const ScrollBtnContainer = styled.div`
+const ScrollBtnContainer = styled.div<{ visible: boolean }>`
   padding: ${(props) => props.theme.spaces[2]}px;
+  cursor: pointer;
+  ${(props) =>
+    props.visible
+      ? `
+      visibility: visible;
+      opacity: 1;
+      transition: visibility 0s linear 0s, opacity 300ms;
+  `
+      : `
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s linear 300ms, opacity 300ms;
+  `}
 `;
 
 type AppViewerHeaderProps = {
@@ -48,11 +62,21 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
   const [tabsScrollable, setTabsScrollable] = useState(false);
   const [shouldShowLeftArrow, setShouldShowLeftArrow] = useState(false);
   const [shouldShowRightArrow, setShouldShowRightArrow] = useState(true);
+
+  const setShowScrollArrows = useCallback((node) => {
+    if (node) {
+      const { scrollWidth, offsetWidth, scrollLeft } = node;
+      setShouldShowLeftArrow(scrollLeft > 0);
+      setShouldShowRightArrow(scrollLeft + offsetWidth < scrollWidth);
+    }
+  }, []);
+
   const measuredTabsRef = useCallback((node) => {
     tabsRef.current = node;
     if (node !== null) {
       const { scrollWidth, offsetWidth } = node;
       setTabsScrollable(scrollWidth > offsetWidth);
+      setShowScrollArrows(node);
     }
   }, []);
 
@@ -66,8 +90,10 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
       tabsRef.current.scrollLeft = isScrollingLeft
         ? currentOffset - 5
         : currentOffset + 5;
+      setShowScrollArrows(tabsRef.current);
     }
   }, [tabsRef.current, isScrollingLeft]);
+  // eslint-disable-next-line
   const [_intervalRef, _rafRef, requestAF] = useThrottledRAF(scroll, 10);
 
   const stopScrolling = () => {
@@ -90,31 +116,28 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
 
   return appPages.length > 1 ? (
     <Container>
-      {tabsScrollable && (
-        <ScrollBtnContainer
-          onMouseDown={() => startScrolling(true)}
-          onMouseUp={stopScrolling}
-          onMouseLeave={stopScrolling}
-          style={{ visibility: "hidden" }}
-        >
-          <Icon name="chevron-left" />
-        </ScrollBtnContainer>
-      )}
+      <ScrollBtnContainer
+        onMouseDown={() => startScrolling(true)}
+        onMouseUp={stopScrolling}
+        onMouseLeave={stopScrolling}
+        visible={shouldShowLeftArrow}
+      >
+        <Icon name="chevron-left" />
+      </ScrollBtnContainer>
       <PageTabs
         measuredTabsRef={measuredTabsRef}
         appPages={appPages}
         currentApplicationDetails={currentApplicationDetails}
         tabsScrollable={tabsScrollable}
       />
-      {tabsScrollable && (
-        <ScrollBtnContainer
-          onMouseDown={() => startScrolling(false)}
-          onMouseUp={stopScrolling}
-          onMouseLeave={stopScrolling}
-        >
-          <Icon name="chevron-right" />
-        </ScrollBtnContainer>
-      )}
+      <ScrollBtnContainer
+        onMouseDown={() => startScrolling(false)}
+        onMouseUp={stopScrolling}
+        onMouseLeave={stopScrolling}
+        visible={shouldShowRightArrow}
+      >
+        <Icon name="chevron-right" />
+      </ScrollBtnContainer>
     </Container>
   ) : null;
 };

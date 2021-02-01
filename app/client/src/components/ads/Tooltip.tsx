@@ -26,6 +26,16 @@ const TooltipWrapper = styled.div<{ variant?: Variant; maxWidth?: number }>`
         : props.theme.colors.tooltip.lightBg};
   }
   div.${Classes.POPOVER_ARROW} {
+    path {
+      fill: ${(props) =>
+        props.variant === "dark"
+          ? props.theme.colors.tooltip.darkBg
+          : props.theme.colors.tooltip.lightBg};
+      stroke: ${(props) =>
+        props.variant === "dark"
+          ? props.theme.colors.tooltip.darkBg
+          : props.theme.colors.tooltip.lightBg};
+    }
     display: block;
   }
   .${Classes.TOOLTIP} {

@@ -12,8 +12,8 @@ import { getTypographyByKey, hideScrollbar } from "constants/DefaultTheme";
 import { Position } from "@blueprintjs/core";
 
 const TabsContainer = styled.div`
-  border-top: 1px solid
-    ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
+  // border-top: 1px solid
+  //   ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
   width: 100%;
   display: flex;
   overflow: auto;
@@ -42,6 +42,7 @@ const StyleTabText = styled.div`
   height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
   ${PageTab}.is-active & {
     border-color: ${(props) => props.theme.colors.header.activeTabBorderBottom};
+    color: ${(props) => props.theme.colors.header.activeTabText};
   }
   & span {
     max-width: 138px;

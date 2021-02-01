@@ -520,7 +520,7 @@ type ColorType = {
   text: {
     normal: ShadeColor;
     heading: ShadeColor;
-    hightlight: ShadeColor;
+    highlight: ShadeColor;
   };
   icon: {
     normal: ShadeColor;
@@ -762,6 +762,7 @@ type ColorType = {
     tabsHorizontalSeparator: string;
     tabText: string;
     activeTabBorderBottom: string;
+    activeTabText: string;
   };
 };
 
@@ -804,6 +805,7 @@ export const dark: ColorType = {
     tabsHorizontalSeparator: "#EFEFEF",
     tabText: "#6F6D6D",
     activeTabBorderBottom: "#FF6D2D",
+    activeTabText: "#000",
   },
   button: {
     disabledText: darkShades[6],
@@ -853,7 +855,7 @@ export const dark: ColorType = {
   text: {
     normal: darkShades[6],
     heading: darkShades[7],
-    hightlight: darkShades[9],
+    highlight: darkShades[9],
   },
   icon: {
     normal: darkShades[6],
@@ -1102,6 +1104,7 @@ export const light: ColorType = {
     tabsHorizontalSeparator: "#EFEFEF",
     tabText: "#6F6D6D",
     activeTabBorderBottom: "#FF6D2D",
+    activeTabText: "#000",
   },
   button: {
     disabledText: lightShades[6],
@@ -1151,7 +1154,7 @@ export const light: ColorType = {
   text: {
     normal: lightShades[8],
     heading: lightShades[9],
-    hightlight: lightShades[11],
+    highlight: lightShades[11],
   },
   icon: {
     normal: lightShades[4],

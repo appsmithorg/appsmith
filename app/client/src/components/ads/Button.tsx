@@ -18,6 +18,8 @@ export enum Category {
 }
 
 export enum Size {
+  xxs = "xxs",
+  xs = "xs",
   small = "small",
   medium = "medium",
   large = "large",
@@ -241,6 +243,13 @@ const btnFontStyles = (props: ThemeProp & ButtonProps): BtnFontType => {
           ? `0px ${props.theme.spaces[3]}px`
           : `0px ${props.theme.spaces[12] - 4}px`;
       break;
+    default:
+      buttonFont = smallButton;
+      height = 20;
+      padding =
+        !props.text && props.icon
+          ? `0px ${props.theme.spaces[1]}px`
+          : `0px ${props.theme.spaces[3]}px`;
   }
   return { buttonFont, padding, height };
 };
@@ -319,7 +328,11 @@ export const VisibilityWrapper = styled.div`
 `;
 
 const IconSizeProp = (size?: Size) => {
-  if (size === Size.small) {
+  if (size === Size.xxs) {
+    return IconSize.XXS;
+  } else if (size === Size.xs) {
+    return IconSize.XS;
+  } else if (size === Size.small) {
     return IconSize.SMALL;
   } else if (size === Size.medium) {
     return IconSize.MEDIUM;

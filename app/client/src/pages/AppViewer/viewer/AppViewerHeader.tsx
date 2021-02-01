@@ -40,10 +40,10 @@ import PageTabsContainer from "./PageTabsContainer";
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   height: unset;
   padding: 0;
+  padding-left: ${(props) => props.theme.spaces[7]}px;
   background-color: ${(props) => props.theme.colors.header.background};
   color: white;
   flex-direction: column;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
   .${Classes.TEXT} {
     max-width: 194px;
     overflow: hidden;
@@ -76,13 +76,6 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   }
 `;
 
-const Separator = styled.div`
-  margin-right: ${(props) => props.theme.spaces[7]}px;
-  width: 1px;
-  height: 24px;
-  background-color: ${(props) => props.theme.colors.header.separator};
-`;
-
 const HeaderRow = styled.div<{ justify: string }>`
   width: 100%;
   display: flex;
@@ -101,12 +94,12 @@ const HeaderSection = styled.div<{ justify: string }>`
 
 const AppsmithLogoImg = styled.img`
   max-width: 110px;
-  margin-left: 30px;
 `;
 
 const Cta = styled(Button)`
   ${(props) => getTypographyByKey(props, "btnLarge")}
   height: 100%;
+  margin-left: ${(props) => props.theme.spaces[5]}px;
 `;
 
 const ForkButton = styled(Cta)`
@@ -213,7 +206,6 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
                 title={currentApplicationDetails.name}
                 canOutsideClickClose={true}
               />
-              <Separator />
               {CTA && (
                 <HeaderRightItemContainer>{CTA}</HeaderRightItemContainer>
               )}
