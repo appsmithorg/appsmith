@@ -39,6 +39,10 @@ const Description = styled.div`
   white-space: pre-wrap;
 `;
 
+const HintDescription = styled(Description)`
+  margin-top: 9px;
+`;
+
 const Button = styled.button`
   padding: 6px 16px;
   cursor: pointer;
@@ -158,7 +162,7 @@ const Helper = () => {
   if (!showHelper) return null;
 
   const copyBindingToClipboard = () => {
-    helperConfig.snippet && write(helperConfig.snippet);
+    helperConfig.hint?.snippet && write(helperConfig.hint.snippet);
   };
 
   return (
@@ -168,15 +172,17 @@ const Helper = () => {
       ) : (
         <ImagePlaceholder />
       )}
-
       {helperConfig.step && <StepCount>Mission {helperConfig.step}</StepCount>}
       <Title>{helperConfig.title}</Title>
       <Description>{helperConfig.description}</Description>
-      {helperConfig.snippet && (
-        <Snippet onClick={copyBindingToClipboard} ref={snippetRef}>
-          <span>{helperConfig.snippet}</span>
-          <Icon icon="duplicate" iconSize={14} color={Colors.MINE_SHAFT} />
-        </Snippet>
+      {helperConfig.hint && cheatMode && (
+        <>
+          <HintDescription>{helperConfig.hint.description}</HintDescription>
+          <Snippet onClick={copyBindingToClipboard} ref={snippetRef}>
+            <span>{helperConfig.hint?.snippet}</span>
+            <Icon icon="duplicate" iconSize={14} color={Colors.MINE_SHAFT} />
+          </Snippet>
+        </>
       )}
       <BottomContainer>
         <div style={{ display: "flex" }}>

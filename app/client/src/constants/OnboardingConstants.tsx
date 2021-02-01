@@ -21,7 +21,10 @@ export type OnboardingHelperConfig = {
   title: string;
   description?: string;
   skipLabel?: string;
-  snippet?: string;
+  hint?: {
+    description: string;
+    snippet: string;
+  };
   image?: {
     src: string;
   };
@@ -150,11 +153,17 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       step: 3,
       title: "Connect Real Data",
       description:
-        "1. Use your javascript superpowers to populate the static TableData with live query results.\n\nUse the snippet below inside TableData",
-      snippet: "{{fetch_standup_updates.data}}",
+        "1. Use your javascript superpowers to populate the static TableData with live query results.",
+      hint: {
+        description: "Use the snippet below inside TableData",
+        snippet: "{{fetch_standup_updates.data}}",
+      },
       image: {
         src:
           "https://res.cloudinary.com/drako999/image/upload/v1611906837/Appsmith/Onboarding/property_pane.gif",
+      },
+      action: {
+        label: "Show me how",
       },
       cheatAction: {
         label: "Do it for me",
