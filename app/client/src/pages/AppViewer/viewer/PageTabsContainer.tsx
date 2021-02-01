@@ -6,6 +6,7 @@ import {
 } from "constants/ReduxActionConstants";
 import Icon from "components/ads/Icon";
 import PageTabs from "./PageTabs";
+import useThrottledRAF from "utils/hooks/useThrottledRAF";
 
 const Container = styled.div`
   width: 100%;
@@ -43,10 +44,8 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
     });
   }
 
-  const animationFrameRef = useRef<number | null>();
-
-  const [tabsScrollable, setTabsScrollable] = useState(false);
   const tabsRef = useRef<HTMLElement | null>(null);
+  const [tabsScrollable, setTabsScrollable] = useState(false);
   const measuredTabsRef = useCallback((node) => {
     tabsRef.current = node;
     if (node !== null) {
@@ -55,39 +54,43 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
     }
   }, []);
 
-  const _cancelAnimationFrame = useCallback(() => {
-    if (animationFrameRef.current) {
-      window.cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [isScrollingLeft, setIsScrollingLeft] = useState(false);
+  const scroll = useCallback(() => {
+    const currentOffset = tabsRef.current?.scrollLeft || 0;
+    if (tabsRef.current) {
+      tabsRef.current.scrollLeft = isScrollingLeft
+        ? currentOffset - 5
+        : currentOffset + 5;
     }
-  }, [animationFrameRef.current]);
+  }, [tabsRef.current, isScrollingLeft]);
+  const [_intervalRef, _rafRef, requestAF] = useThrottledRAF(scroll, 10);
 
-  const onMouseDown = useCallback(
-    (isLeft: boolean) => {
-      const currentOffset = tabsRef.current?.scrollLeft || 0;
-      if (tabsRef.current) {
-        tabsRef.current.scrollLeft = isLeft
-          ? currentOffset - 5
-          : currentOffset + 5;
-      }
-      animationFrameRef.current = requestAnimationFrame(() =>
-        onMouseDown(isLeft),
-      );
-    },
-    [animationFrameRef.current],
-  );
+  const stopScrolling = () => {
+    setIsScrolling(false);
+    setIsScrollingLeft(false);
+  };
+
+  const startScrolling = (isLeft: boolean) => {
+    setIsScrolling(true);
+    setIsScrollingLeft(isLeft);
+  };
 
   useEffect(() => {
-    return _cancelAnimationFrame;
-  }, []);
+    let clear;
+    if (isScrolling) {
+      clear = requestAF();
+    }
+    return clear;
+  }, [isScrolling, isScrollingLeft]);
 
   return appPages.length > 1 ? (
     <Container>
       {tabsScrollable && (
         <ScrollBtnContainer
-          onMouseDown={() => onMouseDown(true)}
-          onMouseUp={_cancelAnimationFrame}
-          onMouseLeave={_cancelAnimationFrame}
+          onMouseDown={() => startScrolling(true)}
+          onMouseUp={stopScrolling}
+          onMouseLeave={stopScrolling}
         >
           <Icon name="chevron-left" />
         </ScrollBtnContainer>
@@ -96,12 +99,13 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
         measuredTabsRef={measuredTabsRef}
         appPages={appPages}
         currentApplicationDetails={currentApplicationDetails}
+        tabsScrollable={tabsScrollable}
       />
       {tabsScrollable && (
         <ScrollBtnContainer
-          onMouseDown={() => onMouseDown(false)}
-          onMouseUp={_cancelAnimationFrame}
-          onMouseLeave={_cancelAnimationFrame}
+          onMouseDown={() => startScrolling(false)}
+          onMouseUp={stopScrolling}
+          onMouseLeave={stopScrolling}
         >
           <Icon name="chevron-right" />
         </ScrollBtnContainer>

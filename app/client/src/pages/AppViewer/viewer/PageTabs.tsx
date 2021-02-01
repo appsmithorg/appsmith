@@ -83,15 +83,17 @@ const PageTabName: React.FunctionComponent<{ name: string }> = ({ name }) => {
 const PageTabContainer = ({
   children,
   isTabActive,
+  tabsScrollable,
 }: {
   children: React.ReactNode;
   isTabActive: boolean;
+  tabsScrollable: boolean;
 }) => {
   const tabContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isTabActive) tabContainerRef.current?.scrollIntoView(false);
-  }, [isTabActive]);
+  }, [isTabActive, tabsScrollable]);
 
   return <div ref={tabContainerRef}>{children}</div>;
 };
@@ -100,6 +102,7 @@ type Props = {
   currentApplicationDetails?: ApplicationPayload;
   appPages: PageListPayload;
   measuredTabsRef: (ref: HTMLElement | null) => void;
+  tabsScrollable: boolean;
 };
 
 export const PageTabs = (props: Props) => {
@@ -118,6 +121,7 @@ export const PageTabs = (props: Props) => {
               page.pageId,
             )
           }
+          tabsScrollable={props.tabsScrollable}
         >
           <PageTab
             to={getApplicationViewerPageURL(
