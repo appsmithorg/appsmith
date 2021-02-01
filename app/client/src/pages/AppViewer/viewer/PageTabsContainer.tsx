@@ -46,6 +46,8 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
 
   const tabsRef = useRef<HTMLElement | null>(null);
   const [tabsScrollable, setTabsScrollable] = useState(false);
+  const [shouldShowLeftArrow, setShouldShowLeftArrow] = useState(false);
+  const [shouldShowRightArrow, setShouldShowRightArrow] = useState(true);
   const measuredTabsRef = useCallback((node) => {
     tabsRef.current = node;
     if (node !== null) {
@@ -56,8 +58,10 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
 
   const [isScrolling, setIsScrolling] = useState(false);
   const [isScrollingLeft, setIsScrollingLeft] = useState(false);
+
   const scroll = useCallback(() => {
     const currentOffset = tabsRef.current?.scrollLeft || 0;
+
     if (tabsRef.current) {
       tabsRef.current.scrollLeft = isScrollingLeft
         ? currentOffset - 5
@@ -91,6 +95,7 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
           onMouseDown={() => startScrolling(true)}
           onMouseUp={stopScrolling}
           onMouseLeave={stopScrolling}
+          style={{ visibility: "hidden" }}
         >
           <Icon name="chevron-left" />
         </ScrollBtnContainer>
