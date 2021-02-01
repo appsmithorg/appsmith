@@ -7,7 +7,7 @@ const updateColumnStyles = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
-): Array<{ propertyPath: string; propertyValue: any }> => {
+): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
   // TODO: Figure out how propertyPaths will work when a nested property control is updating another property
   if (props.primaryColumns) {
     // The style being updated currently
@@ -66,7 +66,7 @@ const updateColumnStyles = (
       return updates;
     }
   }
-  return [];
+  return;
 };
 
 const updateDerivedColumnHook = (
@@ -74,7 +74,6 @@ const updateDerivedColumnHook = (
   propertyPath: string,
   propertyValue: any,
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  console.log("Table log:", { propertyPath }, { propertyValue });
   const regex = /primaryColumns\[(\d+)\]\.(.*)/;
   let updatedPrimaryColumnIndex = -1;
   let columnPropertyBeingUpdated: string | undefined = undefined;
@@ -108,8 +107,7 @@ const updateDerivedColumnHook = (
       }
     }
   }
-
-  return [];
+  return;
 };
 
 const updateDerivedColumnsHook = (

@@ -150,9 +150,10 @@ const PropertyControl = memo((props: Props) => {
         propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
           allUpdates[propertyPath] = propertyValue;
         });
-        allUpdates[propertyName] = propertyValue;
+        if (!isDynamicTrigger) allUpdates[propertyName] = propertyValue;
         onBatchUpdateProperties(allUpdates);
-      } else {
+      }
+      if (!propertiesToUpdate || isDynamicTrigger) {
         dispatch(
           updateWidgetPropertyRequest(
             widgetProperties.widgetId,
