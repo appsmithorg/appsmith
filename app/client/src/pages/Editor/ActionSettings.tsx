@@ -1,7 +1,7 @@
 import React from "react";
 import { ControlProps } from "components/formControls/BaseControl";
 import FormControl from "./FormControl";
-
+import log from "loglevel";
 interface ActionSettingsProps {
   actionSettingsConfig: any;
   formName: string;
@@ -30,7 +30,7 @@ const renderEachConfig = (section: any, formName: string): any => {
           </div>
         );
       } catch (e) {
-        console.log(e);
+        log.error(e);
       }
     }
     return null;

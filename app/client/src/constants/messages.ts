@@ -222,7 +222,5 @@ export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED =
 export const ERROR_ADD_WIDGET_FROM_QUERY = "Failed to add widget";
 
 export function createMessage(format: string, ...args: any[]) {
-  const str = util.format(format, ...args);
-  console.log("Got the formatting string: ", str);
-  return str;
+  return util.format(format, ...args);
 }

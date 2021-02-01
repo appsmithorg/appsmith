@@ -41,6 +41,7 @@ import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
+import log from "loglevel";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -615,7 +616,7 @@ const renderEachConfig = (section: any): any => {
           </FieldWrapper>
         );
       } catch (e) {
-        console.log(e);
+        log.error(e);
       }
     }
     return null;

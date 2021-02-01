@@ -30,6 +30,7 @@ import {
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { updateWidgetMetaProperty } from "actions/metaActions";
 import { focusWidget } from "actions/widgetActions";
+import log from "loglevel";
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
   try {
@@ -57,7 +58,7 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
       payload: { modalId: modalWidgetId },
     });
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield put({
       type: ReduxActionErrorTypes.CREATE_MODAL_ERROR,
       payload: { error },
@@ -165,7 +166,7 @@ export function* closeModalSaga(
       );
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
   }
 }
 
