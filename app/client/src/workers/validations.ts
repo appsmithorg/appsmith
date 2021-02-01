@@ -426,7 +426,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       .second(0)
       .millisecond(0);
     const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
-
     const todayDateString = today.format(dateFormat);
     if (dateString === undefined) {
       return {
@@ -460,9 +459,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         isValid = false;
       }
     }
-
     const parsed = isValid ? dateString : todayDateString;
-
     return {
       isValid,
       parsed,
