@@ -79,17 +79,26 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission) {
-        Criteria pageCriteria;
+
+        List<Criteria> criteria = new ArrayList<>();
+
+        Criteria pageCriterion;
 
         // Fetch published actions
         if (Boolean.TRUE.equals(viewMode)) {
-            pageCriteria = where(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.pageId)).is(pageId);
+            pageCriterion = where(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.pageId)).is(pageId);
+            criteria.add(pageCriterion);
         }
         // Fetch unpublished actions
         else {
-            pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
+            pageCriterion = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
+            criteria.add(pageCriterion);
+
+            // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would exist. To handle this, only fetch non-deleted actions
+            Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.deletedAt)).is(null);
+            criteria.add(deletedCriteria);
         }
-        return queryAll(List.of(pageCriteria), aclPermission);
+        return queryAll(criteria, aclPermission);
     }
 
     @Override
@@ -165,6 +174,10 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
                 Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId)).in(pageIds);
                 criteriaList.add(pageCriteria);
             }
+
+            // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would exist. To handle this, only fetch non-deleted actions
+            Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.deletedAt)).is(null);
+            criteriaList.add(deletedCriteria);
         }
 
         return queryAll(criteriaList, aclPermission, sort);
@@ -185,18 +198,27 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria executeOnLoadCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.executeOnLoad)).is(Boolean.TRUE);
         criteriaList.add(executeOnLoadCriteria);
 
+        // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would exist. To handle this, only fetch non-deleted actions
+        Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.deletedAt)).is(null);
+        criteriaList.add(deletedCriteria);
+
         return queryAll(criteriaList, permission);
     }
 
     @Override
     public Flux<NewAction> findUnpublishedActionsByNameInAndPageId(Set<String> names, String pageId, AclPermission permission) {
         List<Criteria> criteriaList = new ArrayList<>();
+
         if (names != null) {
             Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.name)).in(names);
             criteriaList.add(namesCriteria);
         }
         Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
         criteriaList.add(pageCriteria);
+
+        // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would exist. To handle this, only fetch non-deleted actions
+        Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.deletedAt)).is(null);
+        criteriaList.add(deletedCriteria);
 
         return queryAll(criteriaList, permission);
     }
@@ -214,6 +236,10 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
         criteriaList.add(pageCriteria);
 
+        // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would exist. To handle this, only fetch non-deleted actions
+        Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.deletedAt)).is(null);
+        criteriaList.add(deletedCriteria);
+
         return queryAll(criteriaList, permission);
     }
 
@@ -230,9 +256,18 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
                                                           Boolean viewMode,
                                                           AclPermission aclPermission) {
 
-        Criteria applicationCriteria = where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
+        List<Criteria> criteria = new ArrayList<>();
 
-        return queryAll(List.of(applicationCriteria), aclPermission);
+        Criteria applicationCriterion = where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
+        criteria.add(applicationCriterion);
+
+        if (Boolean.FALSE.equals(viewMode)) {
+            // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would exist. To handle this, only fetch non-deleted actions
+            Criteria deletedCriterion = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.deletedAt)).is(null);
+            criteria.add(deletedCriterion);
+        }
+
+        return queryAll(criteria, aclPermission);
     }
 
     @Override
