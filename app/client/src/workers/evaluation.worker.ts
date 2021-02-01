@@ -270,6 +270,23 @@ export class DataTreeEvaluator {
     LOGS.push({ timeTakenForFirstTree });
   }
 
+  isDynamicLeaf(unEvalTree: DataTree, propertyPath: string) {
+    const [entityName, ...propPathEls] = _.toPath(propertyPath);
+    // Framework feature: Top level items are never leafs
+    if (entityName === propertyPath) return false;
+    // Ignore if this was a delete op
+    if (!(entityName in unEvalTree)) return false;
+
+    const entity = unEvalTree[entityName];
+    if (!isAction(entity) && !isWidget(entity)) return false;
+
+    // TODO: this is not a complete requirement
+    const dynamicPaths = new Set(
+      getEntityDynamicBindingPathList(entity).map((e) => e.key),
+    );
+    return dynamicPaths.has(convertPathToString(propPathEls));
+  }
+
   updateDataTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
     // Add appsmith internal functions to the tree ex. navigateTo / showModal
@@ -317,11 +334,8 @@ export class DataTreeEvaluator {
     // We are setting all values from our uneval tree to the old eval tree we have
     // this way we can get away with just evaluating the sort order and nothing else
     subTreeSortOrder.forEach((propertyPath) => {
-      const lastIndexOfDot = propertyPath.lastIndexOf(".");
-      // Only do this for property paths and not the entity themselves
-      if (lastIndexOfDot !== -1) {
+      if (this.isDynamicLeaf(unEvalTree, propertyPath)) {
         const unEvalPropValue = _.get(unEvalTree, propertyPath);
-        // TODO Optimise: Required only if unEvalPropValue is a binding that needs eval
         _.set(this.evalTree, propertyPath, unEvalPropValue);
       }
     });
