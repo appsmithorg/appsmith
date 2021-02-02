@@ -60,6 +60,7 @@ import {
 } from "selectors/editorSelectors";
 import { createActionRequest, runActionInit } from "actions/actionActions";
 import {
+  APPLICATIONS_URL,
   BUILDER_PAGE_URL,
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
 } from "constants/routes";
@@ -481,10 +482,8 @@ function* skipOnboardingSaga() {
 }
 
 function* returnHomeSaga() {
-  const editorUrl = yield select(getEditorURL);
-
   yield put(endOnboarding());
-  history.push(editorUrl);
+  history.push(APPLICATIONS_URL);
 }
 
 // Cheat actions
