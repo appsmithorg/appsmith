@@ -35,12 +35,12 @@ const ScrollBtnContainer = styled.div<{ visible: boolean }>`
       visibility: visible;
       opacity: 1;
       transition: visibility 0s linear 0s, opacity 300ms;
-  `
+    `
       : `
     visibility: hidden;
     opacity: 0;
     transition: visibility 0s linear 300ms, opacity 300ms;
-  `}
+    `}
 `;
 
 type AppViewerHeaderProps = {

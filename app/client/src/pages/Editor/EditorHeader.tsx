@@ -201,7 +201,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             className="t--appsmith-logo"
           />
         </Link>
-        {currentApplication ? (
+        {currentApplication && (
           <EditableAppName
             defaultValue={currentApplication.name || ""}
             editInteractionKind={EditInteractionKind.SINGLE}
@@ -220,7 +220,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               })
             }
           />
-        ) : null}
+        )}
       </HeaderSection>
       <HeaderSection>
         <Boxed step={OnboardingStep.FINISH}>
