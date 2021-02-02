@@ -11,6 +11,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
+import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -216,7 +217,7 @@ public class LayoutActionServiceTest {
 
         ActionDTO createdAction = newActionService.createAction(action).block();
 
-        Layout firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 
 
         RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
@@ -225,7 +226,7 @@ public class LayoutActionServiceTest {
         refactorNameDTO.setOldName("beforeNameChange");
         refactorNameDTO.setNewName("PostNameChange");
 
-        Layout postNameChangeLayout = layoutActionService.refactorActionName(refactorNameDTO).block();
+        LayoutDTO postNameChangeLayout = layoutActionService.refactorActionName(refactorNameDTO).block();
 
         Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), READ_ACTIONS);
 

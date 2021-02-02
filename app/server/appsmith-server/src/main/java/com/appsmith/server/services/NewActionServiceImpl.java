@@ -27,6 +27,7 @@ import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
+import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MustacheHelper;
@@ -39,6 +40,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -54,6 +56,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -870,25 +873,134 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return repository.findByPageId(pageId);
     }
 
+    /**
+     * !!!WARNING!!! This function edits the parameter actionUpdates which is eventually returned back to the caller
+     * @param onLoadActions : All the actions which have been found to be on page load
+     * @param pageId
+     * @param actionUpdates : Empty array list which would be set in this function with all the page actions whose
+     *                      execute on load setting has changed.
+     * @param messages : Empty array list which would be set in this function with all the messages that should be
+     *                 displayed to the developer user.
+     * @return
+     */
     @Override
-    public Mono<Boolean> setOnLoad(List<ActionDTO> actions) {
-        if (actions == null) {
-            return Mono.just(FALSE);
-        }
+    public Mono<Boolean> updateActionsExecuteOnLoad(List<ActionDTO> onLoadActions,
+                                                    String pageId,
+                                                    List<LayoutActionUpdateDTO> actionUpdates,
+                                                    List<String> messages) {
 
         List<ActionDTO> toUpdateActions = new ArrayList<>();
-        for (ActionDTO action : actions) {
-            // If a user has ever set execute on load, this field can not be changed automatically. It has to be
-            // explicitly changed by the user again. Add the action to update only if this condition is false.
-            if (FALSE.equals(action.getUserSetOnLoad())) {
-                action.setExecuteOnLoad(TRUE);
-                toUpdateActions.add(action);
-            }
-        }
 
-        return Flux.fromIterable(toUpdateActions)
-                .flatMap(actionDTO -> updateUnpublishedAction(actionDTO.getId(), actionDTO))
-                .then(Mono.just(TRUE));
+        MultiValueMap<String, String> params = CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
+        params.add(FieldName.PAGE_ID, pageId);
+
+        Flux<ActionDTO> pageActionsFlux = this.getUnpublishedActions(params).cache();
+
+        Mono<List<ActionDTO>> existingOnPageLoadActionsMono = pageActionsFlux
+                .flatMap(action -> {
+                    if (TRUE.equals(action.getExecuteOnLoad())) {
+                        return Mono.just(action);
+                    }
+                    return Mono.empty();
+                })
+                .collectList();
+
+        return existingOnPageLoadActionsMono
+                .zipWith(pageActionsFlux.collectList())
+                .flatMap( tuple -> {
+                    List<ActionDTO> existingOnPageLoadActions = tuple.getT1();
+                    List<ActionDTO> pageActions = tuple.getT2();
+
+                    // There are no actions in this page. No need to
+                    if (pageActions.isEmpty()) {
+                        return Mono.just(FALSE);
+                    }
+
+                    // No actions require an update because newly found on page load actions and existing on load page
+                    // actions are empty
+                    if (existingOnPageLoadActions.isEmpty() && (onLoadActions == null || onLoadActions.isEmpty())) {
+                        return Mono.just(FALSE);
+                    }
+
+                    Set<String> existingOnPageLoadActionNames = existingOnPageLoadActions.stream().map(action -> action.getName()).collect(Collectors.toSet());
+                    Set<String> newOnLoadActionNames = onLoadActions.stream().map(action -> action.getName()).collect(Collectors.toSet());
+
+
+                    List<String> turnedOffActionNames = existingOnPageLoadActionNames
+                            .stream()
+                            .filter(existing -> !newOnLoadActionNames.contains(existing))
+                            .collect(Collectors.toList());
+
+
+                    List<String> turnedOnActionNames = newOnLoadActionNames
+                            .stream()
+                            .filter(actionName -> !existingOnPageLoadActionNames.contains(actionName))
+                            .collect(Collectors.toList());
+
+                    for (ActionDTO action : pageActions) {
+
+                        String actionName = action.getName();
+                        // If a user has ever set execute on load, this field can not be changed automatically. It has to be
+                        // explicitly changed by the user again. Add the action to update only if this condition is false.
+                        if (FALSE.equals(action.getUserSetOnLoad())) {
+
+                            // If this action is no longer an onload action, turn the execute on load to false
+                            if (turnedOffActionNames.contains(actionName)) {
+                                action.setExecuteOnLoad(FALSE);
+                                toUpdateActions.add(action);
+                            }
+
+                            // If this action is newly found to be on load, turn execute on load to true
+                            if (turnedOnActionNames.contains(actionName)) {
+                                action.setExecuteOnLoad(TRUE);
+                                toUpdateActions.add(action);
+                            }
+                        } else {
+                            // Remove the action name from the lists because this wouldnt have been updated
+                            turnedOnActionNames.remove(actionName);
+                            turnedOffActionNames.remove(actionName);
+                        }
+                    }
+
+                    // Add newly turned on page actions to report back to the caller
+                    actionUpdates.addAll(
+                           addActionUpdatesForActionNames(pageActions, turnedOnActionNames)
+                    );
+
+                    // Add newly turned off page actions to report back to the caller
+                    actionUpdates.addAll(
+                            addActionUpdatesForActionNames(pageActions, turnedOffActionNames)
+                    );
+
+                    if (!turnedOffActionNames.isEmpty()) {
+                        messages.add(turnedOffActionNames.toString() + " : Would no longer be executed on page load");
+                    }
+
+                    if (!turnedOnActionNames.isEmpty()) {
+                        messages.add(turnedOnActionNames.toString() + " : Would now be executed automatically on page load");
+                    }
+
+                    // Now update the actions which require an update
+                    return Flux.fromIterable(toUpdateActions)
+                            .flatMap(actionDTO -> updateUnpublishedAction(actionDTO.getId(), actionDTO))
+                            .then(Mono.just(TRUE));
+                });
+    }
+
+    private List<LayoutActionUpdateDTO> addActionUpdatesForActionNames(List<ActionDTO> pageActions,
+                                                                       List<String> actionNames) {
+
+        return pageActions
+                        .stream()
+                        .filter(pageAction -> actionNames.contains(pageAction.getName()))
+                        .map(pageAction -> {
+                            LayoutActionUpdateDTO layoutActionUpdateDTO = new LayoutActionUpdateDTO();
+                            layoutActionUpdateDTO.setId(pageAction.getId());
+                            layoutActionUpdateDTO.setName(pageAction.getName());
+                            layoutActionUpdateDTO.setExecuteOnLoad(pageAction.getExecuteOnLoad());
+                            return layoutActionUpdateDTO;
+                        })
+                        .collect(Collectors.toList());
     }
 
     @Override
