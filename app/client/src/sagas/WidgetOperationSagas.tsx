@@ -1377,6 +1377,7 @@ function* pasteWidgetSaga() {
       newWidget.widgetId = generateReactKey();
       // Add the new widget id so that it maps the previous widget id
       widgetIdMap[widget.widgetId] = newWidget.widgetId;
+
       // Add the new widget to the list
       newWidgetList.push(newWidget);
     });
@@ -1436,6 +1437,36 @@ function* pasteWidgetSaga() {
       } else {
         // Generate a new unique widget name
         widget.widgetName = getNextWidgetName(widgets, widget.type);
+      }
+
+      // Update the template and enhancement map for list widget
+      if (widget.type === WidgetTypes.LIST_WIDGET) {
+        // update template
+        Object.keys(widget.template).map((widgetName) => {
+          const oldWidgetName = widgetName;
+          const newWidgetName = getNextWidgetName(
+            widgets,
+            widget.template[widgetName].type,
+          );
+
+          const newWidget = newWidgetList.find(
+            (w: any) =>
+              w.widgetName === newWidgetName || w.widgetName === oldWidgetName,
+          );
+
+          if (newWidget) {
+            newWidget.widgetName = newWidgetName;
+
+            if (widgetName === oldWidgetName) {
+              widget.template[newWidgetName] = newWidget;
+
+              delete widget.template[oldWidgetName];
+            }
+          }
+        });
+
+        // update dynamicBindingPathList
+        // update evaluated values
       }
 
       // If it is the copied widget, update position properties
@@ -1501,8 +1532,6 @@ function* pasteWidgetSaga() {
     // hydrating enhancements map after save layout so that enhancement map
     // for newly copied widget is hydrated
     yield hydrateEnhancementsMap();
-
-    console.log({ newWidgetId });
 
     // Flash the newly pasted widget once the DSL is re-rendered
     setTimeout(() => flashElementById(newWidgetId), 100);
