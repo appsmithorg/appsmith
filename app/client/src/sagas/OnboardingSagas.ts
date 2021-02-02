@@ -33,6 +33,7 @@ import {
 import { validateResponse } from "./ErrorSagas";
 import { getSelectedWidget, getWidgets } from "./selectors";
 import {
+  endOnboarding,
   setCurrentStep,
   setOnboardingState as setOnboardingReduxState,
   showIndicator,
@@ -74,6 +75,7 @@ import {
   updateWidgetProperty,
   updateWidgetPropertyRequest,
 } from "../actions/controlActions";
+import { getEditorURL } from "selectors/appViewSelectors";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -478,6 +480,13 @@ function* skipOnboardingSaga() {
   }
 }
 
+function* returnHomeSaga() {
+  const editorUrl = yield select(getEditorURL);
+
+  yield put(endOnboarding());
+  history.push(editorUrl);
+}
+
 // Cheat actions
 function* createApplication() {
   const themeDetails = yield select(getThemeDetails);
@@ -760,6 +769,7 @@ export default function* onboardingSagas() {
     ),
     takeEvery(ReduxActionTypes.SET_CURRENT_STEP, setupOnboardingStep),
     takeEvery(ReduxActionTypes.LISTEN_FOR_DEPLOY, listenForDeploySaga),
+    takeEvery("ONBOARDING_RETURN_HOME", returnHomeSaga),
     // Cheat actions
     takeEvery("ONBOARDING_CREATE_APPLICATION", createApplication),
     takeEvery("ONBOARDING_CREATE_QUERY", createQuery),

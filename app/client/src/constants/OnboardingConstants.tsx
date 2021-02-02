@@ -1,4 +1,3 @@
-import { endOnboarding } from "actions/onboardingActions";
 import { ReduxActionTypes } from "./ReduxActionConstants";
 import HandwaveGif from "assets/gifs/handwave.gif";
 import DeployGif from "assets/gifs/deploy_green.gif";
@@ -283,7 +282,9 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       },
       secondaryAction: {
         label: "Back Home",
-        action: endOnboarding(),
+        action: {
+          type: "ONBOARDING_RETURN_HOME",
+        },
       },
       action: {
         label: "Next Mission",
