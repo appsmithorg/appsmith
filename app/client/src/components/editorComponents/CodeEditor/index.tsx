@@ -76,6 +76,7 @@ export type EditorStyleProps = {
   borderLess?: boolean;
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
+  fill?: boolean;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -322,6 +323,7 @@ class CodeEditor extends Component<Props, State> {
       borderLess,
       border,
       hoverInteraction,
+      fill,
     } = this.props;
     const hasError = !!(meta && meta.error);
     let evaluated = evaluatedValue;
@@ -378,6 +380,7 @@ class CodeEditor extends Component<Props, State> {
             border={border}
             isNotHover={this.state.isFocused || this.state.isOpened}
             hoverInteraction={hoverInteraction}
+            fill={fill}
           >
             <HintStyles editorTheme={theme || EditorTheme.LIGHT} />
             {this.props.leftIcon && (

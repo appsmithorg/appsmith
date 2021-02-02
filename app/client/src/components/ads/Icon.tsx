@@ -26,6 +26,7 @@ import { ReactComponent as NoResponseIcon } from "assets/icons/ads/no-response.s
 import { ReactComponent as LightningIcon } from "assets/icons/ads/lightning.svg";
 import { ReactComponent as AddMoreIcon } from "assets/icons/ads/add-more.svg";
 import { ReactComponent as RightArrowIcon } from "assets/icons/ads/right-arrow.svg";
+import { ReactComponent as DatasourceIcon } from "assets/icons/ads/datasource.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -106,6 +107,7 @@ export const IconCollection = [
   "lightning",
   "add-more",
   "right-arrow",
+  "datasource",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -236,6 +238,9 @@ const Icon = forwardRef(
         break;
       case "right-arrow":
         returnIcon = <RightArrowIcon />;
+        break;
+      case "datasource":
+        returnIcon = <DatasourceIcon />;
         break;
       default:
         returnIcon = null;
