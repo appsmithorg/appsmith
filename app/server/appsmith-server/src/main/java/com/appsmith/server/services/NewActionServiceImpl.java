@@ -973,11 +973,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     );
 
                     if (!turnedOffActionNames.isEmpty()) {
-                        messages.add(turnedOffActionNames.toString() + " : Would no longer be executed on page load");
+                        messages.add(turnedOffActionNames.toString() + " will no longer be executed on page load");
                     }
 
                     if (!turnedOnActionNames.isEmpty()) {
-                        messages.add(turnedOnActionNames.toString() + " : Would now be executed automatically on page load");
+                        messages.add(turnedOnActionNames.toString() + " will be executed automatically on page load");
                     }
 
                     // Now update the actions which require an update
