@@ -1579,16 +1579,16 @@ public class DatabaseChangelog {
         mongoTemplate.dropCollection(UserData.class);
     }
 
-    @ChangeSet(order = "050", id = "add-s3-plugin", author = "")
-    public void addS3Plugin (MongoTemplate mongoTemplate) {
+    @ChangeSet(order = "050", id = "add-amazons3-plugin", author = "")
+    public void addAmazonS3Plugin (MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
-        plugin.setName("S3");
+        plugin.setName("Amazon S3");
         plugin.setType(PluginType.DB);
-        plugin.setPackageName("s3-plugin");
+        plugin.setPackageName("amazons3-plugin");
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.TABLE);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/AmazonS3.jpeg");
-        plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-s3");
+        plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-amazons3");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);

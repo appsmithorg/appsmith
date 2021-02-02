@@ -44,14 +44,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class S3Plugin extends BasePlugin {
+public class AmazonS3Plugin extends BasePlugin {
 
     private static final String S3_DRIVER = "com.amazonaws.services.s3.AmazonS3";
     private static final int ACTION_PROPERTY_INDEX = 0;
     private static final int BUCKET_NAME_PROPERTY_INDEX = 1;
     private static final int CLIENT_REGION_PROPERTY_INDEX = 0;
 
-    public S3Plugin(PluginWrapper wrapper) {
+    public AmazonS3Plugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
@@ -202,7 +202,7 @@ public class S3Plugin extends BasePlugin {
                 );
             }
 
-            S3Action s3Action = S3Action.valueOf(properties.get(ACTION_PROPERTY_INDEX).getValue());
+            AmazonS3Action s3Action = AmazonS3Action.valueOf(properties.get(ACTION_PROPERTY_INDEX).getValue());
             if (s3Action == null) {
                 return Mono.error(
                         new AppsmithPluginException(
@@ -213,8 +213,8 @@ public class S3Plugin extends BasePlugin {
                 );
             }
 
-            if ((s3Action == S3Action.UPLOAD_FILE_FROM_BODY || s3Action == S3Action.READ_FILE ||
-                 s3Action == S3Action.DELETE_FILE) && StringUtils.isBlank(path)) {
+            if ((s3Action == AmazonS3Action.UPLOAD_FILE_FROM_BODY || s3Action == AmazonS3Action.READ_FILE ||
+                 s3Action == AmazonS3Action.DELETE_FILE) && StringUtils.isBlank(path)) {
                 return Mono.error(
                         new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
@@ -249,7 +249,7 @@ public class S3Plugin extends BasePlugin {
              * - Allow users to upload empty file. Hence, only check for null value.
              */
             final String body = actionConfiguration.getBody();
-            if(s3Action == S3Action.UPLOAD_FILE_FROM_BODY && body == null) {
+            if(s3Action == AmazonS3Action.UPLOAD_FILE_FROM_BODY && body == null) {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,

@@ -1,6 +1,6 @@
 package com.external.plugins;
 
-enum S3Action {
+enum AmazonS3Action {
     LIST,
     UPLOAD_FILE_FROM_BODY,
     READ_FILE,

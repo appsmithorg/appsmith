@@ -36,7 +36,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Slf4j
-public class S3PluginTest {
+public class AmazonS3PluginTest {
     private static String accessKey;
     private static String secretKey;
     private static String region;
@@ -72,8 +72,8 @@ public class S3PluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.setAuthentication(authDTOWithEmptyAccessKey);
 
-        S3Plugin.S3PluginExecutor pluginExecutor = new S3Plugin.S3PluginExecutor();
-        Mono<S3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
 
         StepVerifier.create(pluginExecutorMono)
                 .assertNext(executor -> {
@@ -96,8 +96,8 @@ public class S3PluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.setAuthentication(authDTOWithEmptyAccessKey);
 
-        S3Plugin.S3PluginExecutor pluginExecutor = new S3Plugin.S3PluginExecutor();
-        Mono<S3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
 
         StepVerifier.create(pluginExecutorMono)
                 .assertNext(executor -> {
@@ -117,8 +117,8 @@ public class S3PluginTest {
         properties.add(new Property("region", ""));
         datasourceConfiguration.setProperties(properties);
 
-        S3Plugin.S3PluginExecutor pluginExecutor = new S3Plugin.S3PluginExecutor();
-        Mono<S3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
 
         StepVerifier.create(pluginExecutorMono)
                 .assertNext(executor -> {
@@ -134,7 +134,7 @@ public class S3PluginTest {
     @Test
     public void testTestDatasourceWithFalseCredentials() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        S3Plugin.S3PluginExecutor pluginExecutor = new S3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
         StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
                 .assertNext(datasourceTestResult -> {
                     assertNotEquals(0, datasourceTestResult.getInvalids().size());
@@ -149,7 +149,7 @@ public class S3PluginTest {
     public void testStaleConnectionExceptionFromExecuteMethod() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        Mono<S3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(new S3Plugin.S3PluginExecutor());
+        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(new AmazonS3Plugin.S3PluginExecutor());
         Mono<ActionExecutionResult> resultMono = pluginExecutorMono
                                                  .flatMap(executor -> {
                                                      return executor.execute(
@@ -165,7 +165,7 @@ public class S3PluginTest {
     @Test
     public void testListFilesInBucket() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        S3Plugin.S3PluginExecutor pluginExecutor = new S3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         String dummyBody = "";
@@ -224,7 +224,7 @@ public class S3PluginTest {
     @Test
     public void testUploadFileFromBodyWithFalseCredentials() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        S3Plugin.S3PluginExecutor pluginExecutor = new S3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         String dummyBody = "";
@@ -255,7 +255,7 @@ public class S3PluginTest {
     @Test
     public void testReadFileFromPath() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        S3Plugin.S3PluginExecutor pluginExecutor = new S3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         String dummyBody = "";
@@ -296,7 +296,7 @@ public class S3PluginTest {
     @Test
     public void testDeleteFile() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        S3Plugin.S3PluginExecutor pluginExecutor = new S3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         String dummyBody = "";
