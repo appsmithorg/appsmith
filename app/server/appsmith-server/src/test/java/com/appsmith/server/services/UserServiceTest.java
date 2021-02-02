@@ -168,7 +168,7 @@ public class UserServiceTest {
                     assertThat(user).isNotNull();
                     assertThat(user.getId()).isNotNull();
                     assertThat(user.getEmail()).isEqualTo("new-user-email@email.com");
-                    assertThat(user.getName()).isEqualTo("new-user-email@email.com");
+                    assertThat(user.getName()).isNullOrEmpty();
                     assertThat(user.getPolicies()).isNotEmpty();
                     assertThat(user.getPolicies()).containsAll(Set.of(manageUserPolicy, manageUserOrgPolicy, readUserPolicy, readUserOrgPolicy));
                     // Since there is a template organization, the user won't have an empty default organization. They
@@ -396,4 +396,3 @@ public class UserServiceTest {
         }
     }
 }
-

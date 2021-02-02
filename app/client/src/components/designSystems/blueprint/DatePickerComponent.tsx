@@ -68,11 +68,10 @@ class DatePickerComponent extends React.Component<
   }
 
   componentDidUpdate(prevProps: DatePickerComponentProps) {
-    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
     if (
       this.props.selectedDate !== this.state.selectedDate &&
-      !moment(this.props.selectedDate, dateFormat).isSame(
-        moment(prevProps.selectedDate, dateFormat),
+      !moment(this.props.selectedDate).isSame(
+        moment(prevProps.selectedDate),
         "seconds",
       )
     ) {
@@ -83,13 +82,18 @@ class DatePickerComponent extends React.Component<
   render() {
     const now = moment();
     const year = now.get("year");
-    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
     const minDate = this.props.minDate
-      ? moment(this.props.minDate, dateFormat)
-      : now.clone().set({ month: 0, date: 1, year: year - 100 });
+      ? new Date(this.props.minDate)
+      : now
+          .clone()
+          .set({ month: 0, date: 1, year: year - 100 })
+          .toDate();
     const maxDate = this.props.maxDate
-      ? moment(this.props.maxDate, dateFormat)
-      : now.clone().set({ month: 11, date: 31, year: year + 20 });
+      ? new Date(this.props.maxDate)
+      : now
+          .clone()
+          .set({ month: 11, date: 31, year: year + 20 })
+          .toDate();
     return (
       <StyledControlGroup
         fill
@@ -120,12 +124,10 @@ class DatePickerComponent extends React.Component<
             closeOnSelection
             onChange={this.onDateSelected}
             value={
-              this.state.selectedDate
-                ? this.parseDate(this.state.selectedDate)
-                : null
+              this.state.selectedDate ? new Date(this.state.selectedDate) : null
             }
-            minDate={minDate.toDate()}
-            maxDate={maxDate.toDate()}
+            minDate={minDate}
+            maxDate={maxDate}
           />
         ) : (
           <DateRangeInput
@@ -134,8 +136,8 @@ class DatePickerComponent extends React.Component<
             disabled={this.props.isDisabled}
             contiguousCalendarMonths={false}
             formatDate={this.formatDate}
-            minDate={minDate.toDate()}
-            maxDate={maxDate.toDate()}
+            minDate={minDate}
+            maxDate={maxDate}
             closeOnSelection={true}
           />
         )}
@@ -164,7 +166,7 @@ class DatePickerComponent extends React.Component<
     if (isUserChange) {
       const { onDateSelected } = this.props;
 
-      const date = selectedDate ? this.formatDate(selectedDate) : "";
+      const date = selectedDate ? selectedDate.toISOString() : "";
       this.setState({ selectedDate: date });
 
       // if date is null ( if date is cleared ), don't call onDateSelected
