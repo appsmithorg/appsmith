@@ -9,7 +9,7 @@ import { AppState } from "reducers";
 import {
   getRolesForField,
   getAllUsers,
-  getCurrentOrg,
+  getCurrentAppOrg,
 } from "selectors/organizationSelectors";
 import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -217,9 +217,8 @@ const OrgInviteUsersForm = (props: any) => {
     isLoading,
   } = props;
 
-  const currentOrg = useSelector(getCurrentOrg).filter(
-    (el) => el.id === props.orgId,
-  )[0];
+  const currentOrg = useSelector(getCurrentAppOrg);
+
   const userOrgPermissions = currentOrg?.userPermissions ?? [];
   const canManage = isPermitted(
     userOrgPermissions,

@@ -57,11 +57,6 @@ const AppInviteUsersForm = (props: any) => {
     PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
   );
 
-  const canManage = isPermitted(
-    userOrgPermissions,
-    PERMISSION_TYPE.MANAGE_ORGANIZATION,
-  );
-
   const getViewApplicationURL = () => {
     const appViewEndPoint = getApplicationViewerPageURL(
       applicationId,
@@ -74,7 +69,7 @@ const AppInviteUsersForm = (props: any) => {
     if (currentUser.name !== ANONYMOUS_USERNAME) {
       fetchCurrentOrg(props.orgId);
     }
-  }, [props.orgId, fetchCurrentOrg, currentUser.name]);
+  }, [props.orgId, fetchCurrentOrg, currentUser?.name]);
 
   return (
     <>
@@ -110,7 +105,6 @@ const AppInviteUsersForm = (props: any) => {
       {canInviteToOrg && (
         <OrgInviteUsersForm orgId={props.orgId} isApplicationInvite={true} />
       )}
-      {canManage && <ManageUsers orgId={props.orgId} />}
     </>
   );
 };
