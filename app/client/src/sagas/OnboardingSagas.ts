@@ -12,10 +12,11 @@ import {
   call,
   cancel,
   delay,
+  fork,
   put,
   select,
   take,
-  takeEvery,
+  takeLatest,
 } from "redux-saga/effects";
 import {
   getCanvasWidgets,
@@ -26,7 +27,6 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import {
   getOnboardingState,
-  getOnboardingWelcomeState,
   setOnboardingState,
   setOnboardingWelcomeState,
 } from "utils/storage";
@@ -76,7 +76,6 @@ import {
   updateWidgetProperty,
   updateWidgetPropertyRequest,
 } from "../actions/controlActions";
-import { getEditorURL } from "selectors/appViewSelectors";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -438,7 +437,6 @@ function* listenForDeploySaga() {
 
 function* initiateOnboarding() {
   const currentOnboardingState = yield getOnboardingState();
-  const onboardingWelcomeState = yield getOnboardingWelcomeState();
 
   if (currentOnboardingState) {
     // AnalyticsUtil.logEvent("ONBOARDING_WELCOME");
@@ -473,8 +471,8 @@ function* setupOnboardingStep() {
 }
 
 function* skipOnboardingSaga() {
-  const set = yield setOnboardingState(false);
-  const resetWelcomeState = yield setOnboardingWelcomeState(false);
+  const set = yield call(setOnboardingState, false);
+  const resetWelcomeState = yield call(setOnboardingWelcomeState, false);
 
   if (set && resetWelcomeState) {
     yield put(setOnboardingReduxState(false));
@@ -482,8 +480,8 @@ function* skipOnboardingSaga() {
 }
 
 function* returnHomeSaga() {
-  yield put(endOnboarding());
   history.push(APPLICATIONS_URL);
+  yield put(endOnboarding());
 }
 
 // Cheat actions
@@ -752,35 +750,47 @@ function* deploy() {
 }
 
 export default function* onboardingSagas() {
+  while (true) {
+    const task = yield fork(onboardingActionSagas);
+
+    yield take(ReduxActionTypes.END_ONBOARDING);
+    yield cancel(task);
+    yield call(skipOnboardingSaga);
+  }
+}
+
+function* onboardingActionSagas() {
   yield all([
-    takeEvery("INITIATE_ONBOARDING", initiateOnboarding),
-    takeEvery(
+    takeLatest("INITIATE_ONBOARDING", initiateOnboarding),
+    takeLatest(
       ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_INIT,
       createOnboardingDatasource,
     ),
-    takeEvery(ReduxActionTypes.NEXT_ONBOARDING_STEP, proceedOnboardingSaga),
-    takeEvery(ReduxActionTypes.LISTEN_FOR_CREATE_ACTION, listenForCreateAction),
-    takeEvery(ReduxActionTypes.LISTEN_FOR_ADD_WIDGET, listenForWidgetAdditions),
-    takeEvery("LISTEN_ADD_INPUT_WIDGET", listenForAddInputWidget),
-    takeEvery(
+    takeLatest(ReduxActionTypes.NEXT_ONBOARDING_STEP, proceedOnboardingSaga),
+    takeLatest(
+      ReduxActionTypes.LISTEN_FOR_CREATE_ACTION,
+      listenForCreateAction,
+    ),
+    takeLatest(
+      ReduxActionTypes.LISTEN_FOR_ADD_WIDGET,
+      listenForWidgetAdditions,
+    ),
+    takeLatest("LISTEN_ADD_INPUT_WIDGET", listenForAddInputWidget),
+    takeLatest(
       ReduxActionTypes.LISTEN_FOR_TABLE_WIDGET_BINDING,
       listenForSuccessfulBinding,
     ),
-    takeEvery(ReduxActionTypes.SET_CURRENT_STEP, setupOnboardingStep),
-    takeEvery(ReduxActionTypes.LISTEN_FOR_DEPLOY, listenForDeploySaga),
-    takeEvery("ONBOARDING_RETURN_HOME", returnHomeSaga),
+    takeLatest(ReduxActionTypes.SET_CURRENT_STEP, setupOnboardingStep),
+    takeLatest(ReduxActionTypes.LISTEN_FOR_DEPLOY, listenForDeploySaga),
+    takeLatest("ONBOARDING_RETURN_HOME", returnHomeSaga),
     // Cheat actions
-    takeEvery("ONBOARDING_CREATE_APPLICATION", createApplication),
-    takeEvery("ONBOARDING_CREATE_QUERY", createQuery),
-    takeEvery("ONBOARDING_RUN_QUERY", executeQuery),
-    takeEvery("ONBOARDING_ADD_TABLE_WIDGET", addTableWidget),
-    takeEvery("ONBOARDING_ADD_INPUT_WIDGET", addInputWidget),
-    takeEvery("ONBOARDING_ADD_ONSUBMIT_BINDING", addOnSubmitHandler),
-    takeEvery("ONBOARDING_ADD_BINDING", addBinding),
-    takeEvery("ONBOARDING_DEPLOY", deploy),
+    takeLatest("ONBOARDING_CREATE_QUERY", createQuery),
+    takeLatest("ONBOARDING_RUN_QUERY", executeQuery),
+    takeLatest("ONBOARDING_ADD_TABLE_WIDGET", addTableWidget),
+    takeLatest("ONBOARDING_ADD_INPUT_WIDGET", addInputWidget),
+    takeLatest("ONBOARDING_ADD_ONSUBMIT_BINDING", addOnSubmitHandler),
+    takeLatest("ONBOARDING_ADD_BINDING", addBinding),
+    takeLatest("ONBOARDING_DEPLOY", deploy),
+    takeLatest("ONBOARDING_CREATE_APPLICATION", createApplication),
   ]);
-
-  yield take(ReduxActionTypes.END_ONBOARDING);
-  yield skipOnboardingSaga();
-  yield cancel();
 }
