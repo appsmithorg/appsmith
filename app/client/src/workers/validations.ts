@@ -420,7 +420,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
-    console.log(dateString, props);
     if (dateString === undefined) {
       return {
         isValid: false,

@@ -92,6 +92,19 @@ export enum NavigationTargetType {
   NEW_WINDOW = "NEW_WINDOW",
 }
 
+const isValidUrlScheme = (url: string): boolean => {
+  return (
+    // Standard http call
+    url.startsWith("http://") ||
+    // Secure http call
+    url.startsWith("https://") ||
+    // Mail url to directly open email app prefilled
+    url.startsWith("mailto:") ||
+    // Tel url to directly open phone app prefilled
+    url.startsWith("tel:")
+  );
+};
+
 function* navigateActionSaga(
   action: {
     pageNameOrUrl: string;
@@ -131,9 +144,9 @@ function* navigateActionSaga(
     AnalyticsUtil.logEvent("NAVIGATE", {
       navUrl: pageNameOrUrl,
     });
-    // Add a default protocol if it doesn't exist.
     let url = pageNameOrUrl + convertToQueryParams(params);
-    if (url.indexOf("://") === -1) {
+    // Add a default protocol if it doesn't exist.
+    if (!isValidUrlScheme(url)) {
       url = "https://" + url;
     }
     if (target === NavigationTargetType.SAME_WINDOW) {
