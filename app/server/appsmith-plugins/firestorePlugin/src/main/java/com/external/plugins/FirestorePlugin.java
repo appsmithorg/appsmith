@@ -379,13 +379,6 @@ public class FirestorePlugin extends BasePlugin {
                 }
                 return resultMap;
 
-            } else if (objResult instanceof Map) {
-                Map<String, Object> resultMap = (Map) objResult;
-                for (final Map.Entry<String, Object> entry : resultMap.entrySet()) {
-                    resultMap.put(entry.getKey(), resultToMap(entry.getValue(), false));
-                }
-                return resultMap;
-
             } else if (objResult instanceof QuerySnapshot) {
                 QuerySnapshot querySnapshot = (QuerySnapshot) objResult;
                 List<Map<String, Object>> documents = new ArrayList<>();
@@ -404,6 +397,21 @@ public class FirestorePlugin extends BasePlugin {
                 resultMap.put("id", documentReference.getId());
                 resultMap.put("path", documentReference.getPath());
                 return resultMap;
+
+            } else if (objResult instanceof Map) {
+                Map<String, Object> resultMap = (Map) objResult;
+                for (final Map.Entry<String, Object> entry : resultMap.entrySet()) {
+                    resultMap.put(entry.getKey(), resultToMap(entry.getValue(), false));
+                }
+                return resultMap;
+
+            } else if (objResult instanceof List) {
+                List<Object> original = (List) objResult;
+                List<Object> converted = new ArrayList<>();
+                for (final Object item : original) {
+                    converted.add(resultToMap(item, false));
+                }
+                return converted;
 
             } else if (isRoot) {
                 throw new AppsmithPluginException(
