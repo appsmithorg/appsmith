@@ -11,7 +11,7 @@ import useThrottledRAF from "utils/hooks/useThrottledRAF";
 const Container = styled.div`
   width: 100%;
   display: flex;
-  padding-right: ${(props) => props.theme.spaces[7]}px;
+  padding: 0 ${(props) => props.theme.spaces[7]}px;
   align-items: center;
   & {
     svg path,
@@ -20,6 +20,10 @@ const Container = styled.div`
       stroke: ${(props) => props.theme.colors.header.tabText};
     }
   }
+  border-top: 1px solid
+    ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
+  border-bottom: 1px solid
+    ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
 `;
 
 const ScrollBtnContainer = styled.div<{ visible: boolean }>`
@@ -63,20 +67,20 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
   const [shouldShowLeftArrow, setShouldShowLeftArrow] = useState(false);
   const [shouldShowRightArrow, setShouldShowRightArrow] = useState(true);
 
-  const setShowScrollArrows = useCallback((node) => {
-    if (node) {
-      const { scrollWidth, offsetWidth, scrollLeft } = node;
+  const setShowScrollArrows = useCallback(() => {
+    if (tabsRef.current) {
+      const { scrollWidth, offsetWidth, scrollLeft } = tabsRef.current;
       setShouldShowLeftArrow(scrollLeft > 0);
       setShouldShowRightArrow(scrollLeft + offsetWidth < scrollWidth);
     }
-  }, []);
+  }, [tabsRef.current]);
 
   const measuredTabsRef = useCallback((node) => {
     tabsRef.current = node;
     if (node !== null) {
       const { scrollWidth, offsetWidth } = node;
       setTabsScrollable(scrollWidth > offsetWidth);
-      setShowScrollArrows(node);
+      setShowScrollArrows();
     }
   }, []);
 
@@ -90,7 +94,7 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
       tabsRef.current.scrollLeft = isScrollingLeft
         ? currentOffset - 5
         : currentOffset + 5;
-      setShowScrollArrows(tabsRef.current);
+      setShowScrollArrows();
     }
   }, [tabsRef.current, isScrollingLeft]);
   // eslint-disable-next-line
@@ -129,6 +133,7 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
         appPages={appPages}
         currentApplicationDetails={currentApplicationDetails}
         tabsScrollable={tabsScrollable}
+        setShowScrollArrows={setShowScrollArrows}
       />
       <ScrollBtnContainer
         onMouseDown={() => startScrolling(false)}

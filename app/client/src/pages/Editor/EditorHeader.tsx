@@ -13,7 +13,7 @@ import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import HelpModal from "components/designSystems/appsmith/help/HelpModal";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
-import AppsmithLogo from "assets/images/appsmith_logo_square.svg";
+import AppsmithLogo from "assets/images/appsmith_logo_square.png";
 import { Link } from "react-router-dom";
 import { AppState } from "reducers";
 import {
@@ -63,7 +63,7 @@ const HeaderWrapper = styled(StyledHeader)`
   & .header__application-share-btn {
     background-color: ${(props) => props.theme.colors.header.background};
     border-color: ${(props) => props.theme.colors.header.background};
-    margin-right: ${(props) => props.theme.spaces[1]}px;
+    // margin-right: ${(props) => props.theme.spaces[1]}px;
   }
 
   & .header__application-share-btn:hover {
@@ -93,6 +93,7 @@ const HeaderSection = styled.div`
 
 const AppsmithLogoImg = styled.img`
   margin-right: ${(props) => props.theme.spaces[6]}px;
+  height: 24px;
 `;
 
 const SaveStatusContainer = styled.div`
@@ -105,7 +106,6 @@ const SaveStatusContainer = styled.div`
 `;
 const DeploySection = styled.div`
   display: flex;
-  margin-left: ${(props) => props.theme.spaces[5]}px;
 `;
 
 const ProfileDropdownContainer = styled.div`
@@ -115,6 +115,7 @@ const ProfileDropdownContainer = styled.div`
 const StyledDeployButton = styled(Button)`
   height: ${(props) => props.theme.smallHeaderHeight};
   ${(props) => getTypographyByKey(props, "btnLarge")}
+  padding: ${(props) => props.theme.spaces[2]}px;
 `;
 
 type EditorHeaderProps = {
@@ -193,7 +194,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
   return (
     <HeaderWrapper>
       <HeaderSection>
-        <Link to={APPLICATIONS_URL}>
+        <Link to={APPLICATIONS_URL} style={{ height: 24 }}>
           <AppsmithLogoImg
             src={AppsmithLogo}
             alt="Appsmith logo"

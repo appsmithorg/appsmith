@@ -25,10 +25,12 @@ const Container = styled.div`
   &&&& .${Classes.EDITABLE_TEXT_CONTENT}, &&&& .${Classes.EDITABLE_TEXT_INPUT} {
     display: inline;
     ${(props) => getTypographyByKey(props, "h4")};
-    line-height: unset !important;
+    line-height: 19px !important;
     padding: 0;
     min-width: 0;
-    height: unset;
+    height: unset !important;
+    position: relative;
+    top: 1px;
   }
 `;
 

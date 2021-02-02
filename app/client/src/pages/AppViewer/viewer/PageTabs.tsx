@@ -12,8 +12,6 @@ import { getTypographyByKey, hideScrollbar } from "constants/DefaultTheme";
 import { Position } from "@blueprintjs/core";
 
 const TabsContainer = styled.div`
-  // border-top: 1px solid
-  //   ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
   width: 100%;
   display: flex;
   overflow: auto;
@@ -32,24 +30,50 @@ const PageTab = styled(NavLink)`
   }
 `;
 
+const StyledBottomBorder = styled.div`
+  position: relative;
+  transition: all 0.3s ease-in-out;
+  height: 2px;
+  width: 100%;
+  left: -100%;
+  background-color: ${(props) =>
+    props.theme.colors.header.activeTabBorderBottom};
+  ${PageTab}:hover & {
+    position: relative;
+    width: 100%;
+    left: 0;
+  }
+`;
+
 const StyleTabText = styled.div`
+  overflow: hidden;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   ${(props) => getTypographyByKey(props, "h6")}
   color: ${(props) => props.theme.colors.header.tabText};
-  border-bottom: 2px solid transparent;
   height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
-  ${PageTab}.is-active & {
-    border-color: ${(props) => props.theme.colors.header.activeTabBorderBottom};
-    color: ${(props) => props.theme.colors.header.activeTabText};
-  }
   & span {
     max-width: 138px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  ${PageTab}.is-active & {
+    color: ${(props) => props.theme.colors.header.activeTabText};
+    ${StyledBottomBorder} {
+      left: 0;
+    }
+  }
+`;
+
+const CenterTabNameContainer = styled.div`
+  position: relative;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const PageTabName: React.FunctionComponent<{ name: string }> = ({ name }) => {
@@ -57,7 +81,10 @@ const PageTabName: React.FunctionComponent<{ name: string }> = ({ name }) => {
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = (
     <StyleTabText>
-      <span ref={tabNameRef}>{name}</span>
+      <CenterTabNameContainer>
+        <span ref={tabNameRef}>{name}</span>
+      </CenterTabNameContainer>
+      <StyledBottomBorder />
     </StyleTabText>
   );
 
@@ -85,15 +112,20 @@ const PageTabContainer = ({
   children,
   isTabActive,
   tabsScrollable,
+  setShowScrollArrows,
 }: {
   children: React.ReactNode;
   isTabActive: boolean;
   tabsScrollable: boolean;
+  setShowScrollArrows: () => void;
 }) => {
   const tabContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (isTabActive) tabContainerRef.current?.scrollIntoView(false);
+    if (isTabActive) {
+      tabContainerRef.current?.scrollIntoView(false);
+      setShowScrollArrows();
+    }
   }, [isTabActive, tabsScrollable]);
 
   return <div ref={tabContainerRef}>{children}</div>;
@@ -104,6 +136,7 @@ type Props = {
   appPages: PageListPayload;
   measuredTabsRef: (ref: HTMLElement | null) => void;
   tabsScrollable: boolean;
+  setShowScrollArrows: () => void;
 };
 
 export const PageTabs = (props: Props) => {
@@ -123,6 +156,7 @@ export const PageTabs = (props: Props) => {
             )
           }
           tabsScrollable={props.tabsScrollable}
+          setShowScrollArrows={props.setShowScrollArrows}
         >
           <PageTab
             to={getApplicationViewerPageURL(

@@ -38,9 +38,9 @@ import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
+  box-shadow: unset;
   height: unset;
   padding: 0;
-  padding-left: ${(props) => props.theme.spaces[7]}px;
   background-color: ${(props) => props.theme.colors.header.background};
   color: white;
   flex-direction: column;
@@ -56,7 +56,6 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   & .header__application-share-btn {
     background-color: ${(props) => props.theme.colors.header.background};
     border-color: ${(props) => props.theme.colors.header.background};
-    margin-right: ${(props) => props.theme.spaces[1]}px;
     color: ${(props) => props.theme.colors.header.shareBtn};
     ${IconWrapper} path {
       fill: ${(props) => props.theme.colors.header.shareBtn};
@@ -93,13 +92,13 @@ const HeaderSection = styled.div<{ justify: string }>`
 `;
 
 const AppsmithLogoImg = styled.img`
+  padding-left: ${(props) => props.theme.spaces[7]}px;
   max-width: 110px;
 `;
 
 const Cta = styled(Button)`
   ${(props) => getTypographyByKey(props, "btnLarge")}
   height: 100%;
-  margin-left: ${(props) => props.theme.spaces[5]}px;
 `;
 
 const ForkButton = styled(Cta)`
@@ -179,7 +178,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
       <HtmlTitle />
       <HeaderRow justify={"space-between"}>
         <HeaderSection justify={"flex-start"}>
-          <Link to={APPLICATIONS_URL}>
+          <Link to={APPLICATIONS_URL} style={{ display: "flex" }}>
             <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
           </Link>
         </HeaderSection>
