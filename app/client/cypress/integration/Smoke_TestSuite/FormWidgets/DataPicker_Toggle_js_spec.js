@@ -14,6 +14,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
   });
 
   it("Datepicker default date validation with js binding", function() {
+    cy.get(".t--property-control-defaultdate .bp3-input").clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
     cy.testJsontext(
       "defaultdate",
