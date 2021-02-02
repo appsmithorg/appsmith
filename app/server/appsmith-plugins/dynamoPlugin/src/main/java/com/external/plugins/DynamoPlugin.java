@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -359,6 +360,16 @@ public class DynamoPlugin extends BasePlugin {
                 }
                 value = plainMap;
 
+            } else if (value instanceof List) {
+                final List<Object> valueAsList = (List) value;
+                final List<Object> plainList = new ArrayList<>();
+                for (Object item : valueAsList) {
+                    if (item instanceof SdkPojo) {
+                        item = sdkToPlain((SdkPojo) item);
+                    }
+                    plainList.add(item);
+                }
+                value = plainList;
             }
 
             plain.put(field.memberName(), value);

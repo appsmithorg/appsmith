@@ -249,3 +249,11 @@ export const unsafeFunctionForEval = [
   "setInterval",
   "Promise",
 ];
+
+export const isChildPropertyPath = (
+  parentPropertyPath: string,
+  childPropertyPath: string,
+): boolean =>
+  parentPropertyPath === childPropertyPath ||
+  childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
+  childPropertyPath.startsWith(`${parentPropertyPath}[`);

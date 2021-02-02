@@ -4,7 +4,7 @@ import {
   getSocialLoginButtonProps,
   SocialLoginType,
 } from "constants/SocialLogin";
-import { IntentColors, getBorderCSSShorthand } from "constants/DefaultTheme";
+import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import { useLocation } from "react-router-dom";
 import PerformanceTracker, {
@@ -15,50 +15,40 @@ import { setOnboardingState } from "utils/storage";
 const ThirdPartyAuthWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-end;
-  margin-left: ${(props) => props.theme.authCard.dividerSpacing}px;
 `;
 
 //TODO(abhinav): Port this to use themes.
 const StyledSocialLoginButton = styled.a`
-  width: 200px;
   display: flex;
   align-items: center;
-  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-  padding: 8px;
-  color: ${(props) => props.theme.colors.textDefault};
-  border-radius: ${(props) => props.theme.radii[1]}px;
-  position: relative;
-  height: 42px;
+  justify-content: center;
+  border: solid 1px ${(props) => props.theme.colors.auth.socialBtnBorder};
+  padding: ${(props) => props.theme.spaces[2]}px;
+
+  &:first-child {
+    margin-bottom: ${(props) => props.theme.spaces[4]}px;
+  }
+
+  &:only-child {
+    margin-bottom: 0;
+  }
 
   &:hover {
     text-decoration: none;
-    background: ${IntentColors.success};
-    color: ${(props) => props.theme.colors.textOnDarkBG};
+    background-color: ${(props) => props.theme.colors.auth.socialBtnHighlight};
   }
-  & > div {
-    width: 36px;
-    height: 36px;
-    padding: ${(props) => props.theme.radii[1]}px;
-    position: absolute;
-    left: 2px;
-    top: 2px;
-    background: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    & img {
-      width: 80%;
-      height: 80%;
-    }
+
+  & .login-method {
+    ${(props) => getTypographyByKey(props, "btnLarge")}
+    color: ${(props) => props.theme.colors.auth.socialBtnText};
+    text-transform: uppercase;
   }
-  & p {
-    display: block;
-    margin: 0 0 0 36px;
-    font-size: ${(props) => props.theme.fontSizes[3]}px;
-    font-weight: ${(props) => props.theme.fontWeights[3]};
-  }
+`;
+
+const ButtonLogo = styled.img`
+  margin: ${(props) => props.theme.spaces[2]}px;
+  width: 14px;
+  height: 14px;
 `;
 
 export const SocialLoginTypes: Record<string, string> = {
@@ -102,10 +92,8 @@ const SocialLoginButton = (props: {
         });
       }}
     >
-      <div>
-        <img alt={` ${props.name} login`} src={props.logo} />
-      </div>
-      <p>{`Sign in with ${props.name}`}</p>
+      <ButtonLogo alt={` ${props.name} login`} src={props.logo} />
+      <div className="login-method">{`continue with ${props.name}`}</div>
     </StyledSocialLoginButton>
   );
 };

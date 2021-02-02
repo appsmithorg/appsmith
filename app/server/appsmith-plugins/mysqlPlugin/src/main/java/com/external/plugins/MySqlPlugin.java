@@ -313,7 +313,9 @@ public class MySqlPlugin extends BasePlugin {
                 invalids.add("Missing endpoint and url");
             } else if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                 for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                    if (endpoint.getHost().contains("/") || endpoint.getHost().contains(":")) {
+                    if (endpoint.getHost() == null || endpoint.getHost().isBlank()) {
+                        invalids.add("Host value cannot be empty");
+                    } else if (endpoint.getHost().contains("/") || endpoint.getHost().contains(":")) {
                         invalids.add("Host value cannot contain `/` or `:` characters. Found `" + endpoint.getHost() + "`.");
                     }
                 }
