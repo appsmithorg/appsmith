@@ -498,16 +498,14 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         List<ActionDTO> flatmapPageLoadActions = new ArrayList<>();
 
         Mono<List<HashSet<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
-                .findAllOnLoadActions(dynamicBindingNames, actionNames, pageId, edges, actionsUsedInDSL, flatmapPageLoadActions)
-                .cache();
-
-        // Update these actions to be executed on load, unless the user has touched the executeOnLoad setting for this
-        Mono<Boolean> actionsUpdatedMono = allOnLoadActionsMono
-                .then(newActionService.setOnLoad(flatmapPageLoadActions));
+                .findAllOnLoadActions(dynamicBindingNames, actionNames, pageId, edges, actionsUsedInDSL, flatmapPageLoadActions);
 
         // First update the actions and set execute on load to true
-        return actionsUpdatedMono
-                .then(allOnLoadActionsMono)
+        return allOnLoadActionsMono
+                .flatMap(allOnLoadActions -> {
+                    // Update these actions to be executed on load, unless the user has touched the executeOnLoad setting for this
+                    return newActionService.setOnLoad((flatmapPageLoadActions)).thenReturn(allOnLoadActions);
+                })
                 .zipWith(newPageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES, false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
                                 FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId))))
