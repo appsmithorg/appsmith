@@ -82,8 +82,16 @@ class DatePickerControl extends BaseControl<
           timePrecision={TimePrecision.MINUTE}
           closeOnSelection
           onChange={this.onDateSelected}
-          maxDate={moment(maxDate, dateFormat).toDate()}
-          minDate={moment(minDate, dateFormat).toDate()}
+          maxDate={
+            this.props.propertyName === "defaultDate"
+              ? moment(maxDate, dateFormat).toDate()
+              : undefined
+          }
+          minDate={
+            this.props.propertyName === "defaultDate"
+              ? moment(minDate, dateFormat).toDate()
+              : undefined
+          }
           value={
             this.props.propertyValue
               ? this.parseDate(this.props.propertyValue)
