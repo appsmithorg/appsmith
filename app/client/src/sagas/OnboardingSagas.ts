@@ -119,13 +119,13 @@ function* listenForWidgetAdditions() {
         yield put(
           updateWidgetProperty(selectedWidget.widgetId, {
             tableData: [],
-            bottomRow: 19,
+            bottomRow: 16,
             columnSizeMap: {
-              avatar: 60,
-              name: 60,
+              avatar: 20,
+              name: 30,
             },
             parentRowSpace: 40,
-            rightColumn: 16,
+            rightColumn: 14,
           }),
         );
       }

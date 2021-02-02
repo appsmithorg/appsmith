@@ -80,15 +80,15 @@ const Welcome = () => {
   return (
     <Wrapper>
       <SubTitle>WHAT WE’LL BUILD</SubTitle>
-      <Title>Super Standup App</Title>
+      <Title>🦸🏻‍♂ Super Standup App</Title>
       <Image
         src={
           "https://res.cloudinary.com/drako999/image/upload/v1611859209/Appsmith/Onboarding/standup_app.gif"
         }
       />
       <Description>
-        🦸🏻‍♂️ Superheroes much like engineers have to coordinate their daily plans
-        so that no villain (bug) gets away! However, all heroes hate morning
+        Superheroes much like engineers have to coordinate their daily plans so
+        that no villain (bug) gets away! However, all heroes hate morning
         meetings so a daily standup app is just what we need.
       </Description>
       {datasourceCreated ? (

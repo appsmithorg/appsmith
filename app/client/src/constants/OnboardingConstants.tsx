@@ -110,14 +110,11 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       title: "Query the Super Updates DB",
       subSteps: [
         {
-          description: "Create a new query on superDB.",
-        },
-        {
           description:
-            "A select query can fetch us updates from heroes all across the multiverse.",
+            "Create a new query that can fetch standup updates from across the multiverse",
         },
         {
-          description: "Run query and check response",
+          description: "Hit Run to check it's response",
         },
       ],
       image: {
@@ -149,7 +146,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       title: "Build the Standup Dashboard",
       subSteps: [
         {
-          description: "Click on add widget button to view widgets panel.",
+          description: "Click the add widget button to open the widgets panel",
         },
         {
           description:
@@ -218,7 +215,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         },
         {
           description:
-            "Create a query using OnSubmit action to insert a standup_update.",
+            "Create a query in the OnSubmit action to insert a standup_update.",
         },
       ],
       image: {
@@ -263,7 +260,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     },
     helper: {
       title:
-        "Great Job! You built an app that every hero needs, and in just a few minutes.",
+        "Great Job! You built an app that saves your team from boring meetings",
       description: "WHAT YOU’VE LEARNT",
       subSteps: [
         {
@@ -273,7 +270,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
           description: "Build a dashboard without HTML/CSS",
         },
         {
-          description: "Connect data to the UI using JS",
+          description: "Read/Write data to the UI using JS",
         },
         {
           description: "Deploy an app with a Click",
