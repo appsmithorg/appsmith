@@ -26,6 +26,8 @@ import {
   createNewQueryAction,
 } from "actions/apiPaneActions";
 import { NavigationTargetType } from "../../../sagas/ActionExecutionSagas";
+import { getCurrentStep, inOnboarding } from "sagas/OnboardingSagas";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -525,7 +527,6 @@ const baseOptions: any = [
     label: "Execute a DB Query",
     value: ActionType.query,
   },
-
   {
     label: "Navigate To",
     value: ActionType.navigateTo,
@@ -1029,7 +1030,18 @@ function useApiOptionTree() {
   const actions = useSelector(getActionsForCurrentPage).filter(
     (action) => action.config.pluginType === "API",
   );
-  const apiOptionTree = getOptionsWithChildren(baseOptions, actions, {
+  let filteredBaseOptions = baseOptions;
+
+  // For onboarding
+  const isInOnboarding = useSelector(inOnboarding);
+  const currentStep = useSelector(getCurrentStep);
+  if (isInOnboarding && currentStep === OnboardingStep.ADD_INPUT_WIDGET) {
+    filteredBaseOptions = baseOptions.filter(
+      (item: any) => item.value === ActionType.query,
+    );
+  }
+
+  const apiOptionTree = getOptionsWithChildren(filteredBaseOptions, actions, {
     label: "Create API",
     value: "api",
     id: "create",
