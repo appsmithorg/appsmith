@@ -646,7 +646,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     final Application application = tuple.getT1();
                     final User user = tuple.getT2();
                     analyticsService.sendEvent(
-                            AnalyticsEvents.EXECUTE_ACTION.lowerName(),
+                            AnalyticsEvents.EXECUTE_ACTION.getEventName(),
                             user.getUsername(),
                             Map.of(
                                     "type", action.getPluginType(),

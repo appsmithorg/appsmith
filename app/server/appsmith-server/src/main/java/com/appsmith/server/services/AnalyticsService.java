@@ -79,7 +79,7 @@ public class AnalyticsService {
             return Mono.just(object);
         }
 
-        final String eventTag = event.lowerName() + "_" + object.getClass().getSimpleName().toUpperCase();
+        final String eventTag = event.getEventName() + "_" + object.getClass().getSimpleName().toUpperCase();
 
         // We will create an anonymous user object for event tracking if no user is present
         // Without this, a lot of flows meant for anonymous users will error out
