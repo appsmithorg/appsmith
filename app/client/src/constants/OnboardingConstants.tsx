@@ -208,7 +208,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     ],
     helper: {
       step: 4,
-      title: "Capture Hero Updates and update superdb",
+      title: "Capture Hero Updates",
       subSteps: [
         {
           description:
