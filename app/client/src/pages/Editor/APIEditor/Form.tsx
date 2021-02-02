@@ -15,7 +15,6 @@ import Pagination from "./Pagination";
 import { PaginationType, Action } from "entities/Action";
 import { Icon as BlueprintIcon } from "@blueprintjs/core";
 import { HelpMap, HelpBaseURL } from "constants/HelpConstants";
-import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
@@ -27,7 +26,6 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import { apiActionSettingsConfig } from "mockResponses/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
-import { EntityClassNames } from "../Explorer/Entity";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -328,6 +326,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               name="actionConfiguration.path"
               pluginId={pluginId}
               placeholder="https://mock-api.appsmith.com/users"
+              theme={theme}
             />
           </DatasourceWrapper>
         </FormRow>

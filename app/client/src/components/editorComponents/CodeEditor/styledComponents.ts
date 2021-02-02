@@ -48,12 +48,12 @@ export const HintStyles = createGlobalStyle<{
   }
 
   .datasource-hint {
-    padding: 5px;
+    padding: 10px;
     display: block;
     width: 500px;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; 
+    text-overflow: ellipsis;
   }
 
   li.CodeMirror-hint-active {
@@ -198,6 +198,7 @@ export const EditorWrapper = styled.div<{
   isNotHover?: boolean;
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
+  fill?: boolean;
 }>`
   width: 100%;
   ${(props) =>
@@ -267,7 +268,7 @@ export const EditorWrapper = styled.div<{
           ? `border-bottom: 1px solid ${Colors.MERCURY}`
           : `border: 1px solid ${Colors.MERCURY}`};
       background: ${(props) =>
-        props.isFocused ? Colors.MERCURY : Colors.WHITE};
+        props.isFocused || props.fill ? Colors.MERCURY : Colors.WHITE};
       color: ${Colors.CHARCOAL};
       & {
         span.cm-operator {
@@ -287,7 +288,7 @@ export const EditorWrapper = styled.div<{
           ? `border-bottom: 1px solid ${Colors.NERO}`
           : `border: 1px solid ${Colors.NERO}`};
       background: ${(props) =>
-        props.isFocused ? Colors.NERO : Colors.BALTIC_SEA};
+        props.isFocused || props.fill ? Colors.NERO : Colors.BALTIC_SEA};
       color: ${Colors.LIGHT_GREY};
     }
     .cm-s-duotone-light .CodeMirror-linenumber,
@@ -316,8 +317,11 @@ export const EditorWrapper = styled.div<{
       background-color: #a74444;
     }
     .datasource-highlight {
-      background-color: rgba(104, 113, 239, 0.1);
-      border: 1px solid rgba(104, 113, 239, 0.5);
+      background: ${(props) =>
+        props.editorTheme === EditorTheme.DARK ? "#002B54" : "#e7f3ff"};
+      border: 1px solid
+        ${(props) =>
+          props.editorTheme === EditorTheme.DARK ? "#10569A" : "#69b5ff"};
       padding: 2px;
       border-radius: 2px;
       margin-right: 2px;
