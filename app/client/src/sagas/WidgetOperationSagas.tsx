@@ -1368,6 +1368,7 @@ function* pasteWidgetSaga() {
     // Get a flat list of all the widgets to be updated
     const widgetList = copiedWidgets.list;
     const widgetIdMap: Record<string, string> = {};
+    const widgetNameMap: Record<string, string> = {};
     const newWidgetList: FlattenedWidgetProps[] = [];
     let newWidgetId: string = copiedWidget.widgetId;
     // Generate new widgetIds for the flat list of all the widgets to be updated
@@ -1385,6 +1386,8 @@ function* pasteWidgetSaga() {
     // For each of the new widgets generated
     for (let i = 0; i < newWidgetList.length; i++) {
       const widget = newWidgetList[i];
+      const oldWidgetName = widget.widgetName;
+
       // Update the children widgetIds if it has children
       if (widget.children && widget.children.length > 0) {
         widget.children.forEach((childWidgetId: string, index: number) => {
@@ -1439,35 +1442,7 @@ function* pasteWidgetSaga() {
         widget.widgetName = getNextWidgetName(widgets, widget.type);
       }
 
-      // Update the template and enhancement map for list widget
-      if (widget.type === WidgetTypes.LIST_WIDGET) {
-        // update template
-        Object.keys(widget.template).map((widgetName) => {
-          const oldWidgetName = widgetName;
-          const newWidgetName = getNextWidgetName(
-            widgets,
-            widget.template[widgetName].type,
-          );
-
-          const newWidget = newWidgetList.find(
-            (w: any) =>
-              w.widgetName === newWidgetName || w.widgetName === oldWidgetName,
-          );
-
-          if (newWidget) {
-            newWidget.widgetName = newWidgetName;
-
-            if (widgetName === oldWidgetName) {
-              widget.template[newWidgetName] = newWidget;
-
-              delete widget.template[oldWidgetName];
-            }
-          }
-        });
-
-        // update dynamicBindingPathList
-        // update evaluated values
-      }
+      widgetNameMap[oldWidgetName] = widget.widgetName;
 
       // If it is the copied widget, update position properties
       if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
@@ -1524,6 +1499,35 @@ function* pasteWidgetSaga() {
 
       // Add the new widget to the canvas widgets
       widgets[widget.widgetId] = widget;
+    }
+
+    // updating template in the copied widget and deleting old template associations
+    for (let i = 0; i < newWidgetList.length; i++) {
+      const widget = newWidgetList[i];
+
+      if (widget.type === WidgetTypes.LIST_WIDGET) {
+        // update template
+        Object.keys(widget.template).map((widgetName) => {
+          const oldWidgetName = widgetName;
+          const newWidgetName = widgetNameMap[oldWidgetName];
+
+          const newWidget = newWidgetList.find(
+            (w: any) => w.widgetName === newWidgetName,
+          );
+
+          if (newWidget) {
+            newWidget.widgetName = newWidgetName;
+
+            if (widgetName === oldWidgetName) {
+              widget.template[newWidgetName] = newWidget;
+
+              delete widget.template[oldWidgetName];
+            }
+          }
+        });
+
+        widgets[widget.widgetId] = widget;
+      }
     }
 
     // save the new DSL
