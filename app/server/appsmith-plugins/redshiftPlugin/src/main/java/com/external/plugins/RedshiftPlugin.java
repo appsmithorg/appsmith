@@ -232,7 +232,7 @@ public class RedshiftPlugin extends BasePlugin {
                  */
                 try {
                     checkConnectionValidity(connection);
-                } catch (Exception e) {
+                } catch (SQLException e) {
                     return Mono.error(new StaleConnectionException());
                 }
 
@@ -578,7 +578,7 @@ public class RedshiftPlugin extends BasePlugin {
              */
             try {
                 checkConnectionValidity(connection);
-            } catch (Exception e) {
+            } catch (SQLException e) {
                 return Mono.error(new StaleConnectionException());
             }
 

@@ -113,7 +113,7 @@ public class FirestorePlugin extends BasePlugin {
 
                         try {
                             return Mono.just(objectMapper.readValue(strBody, HashMap.class));
-                        } catch (Exception e) {
+                        } catch (IOException e) {
                             return Mono.error(new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     e.getMessage()

@@ -79,7 +79,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                             for (Object object : commands) {
                                 ndJsonBuilder.append(objectMapper.writeValueAsString(object)).append("\n");
                             }
-                        } catch (Exception e) {
+                        } catch (IOException e) {
                             final String message = "Error converting array to ND-JSON: " + e.getMessage();
                             log.warn(message, e);
                             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message));
