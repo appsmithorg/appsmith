@@ -14,6 +14,7 @@ import {
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import moment from "moment";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -36,7 +37,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? !!this.selectedDate : true }}`,
-      value: `{{ this.selectedDate }}`,
+      selectedDate: `{{ this.value ? moment(this.value).format(this.dateFormat) : moment(this.defaultDate).format(this.dateFormat) }}`,
     };
   }
 
@@ -48,13 +49,13 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      selectedDate: "defaultDate",
+      value: "defaultDate",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      selectedDate: undefined,
+      value: undefined,
     };
   }
 
@@ -67,7 +68,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
         isDisabled={this.props.isDisabled}
         datePickerType={"DATE_PICKER"}
         onDateSelected={this.onDateSelected}
-        selectedDate={this.props.selectedDate}
+        selectedDate={this.props.value}
         isLoading={this.props.isLoading}
         minDate={this.props.minDate}
         maxDate={this.props.maxDate}
@@ -76,7 +77,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   }
 
   onDateSelected = (selectedDate: string) => {
-    this.props.updateWidgetMetaProperty("selectedDate", selectedDate, {
+    this.props.updateWidgetMetaProperty("value", selectedDate, {
       dynamicString: this.props.onDateSelected,
       event: {
         type: EventType.ON_DATE_SELECTED,

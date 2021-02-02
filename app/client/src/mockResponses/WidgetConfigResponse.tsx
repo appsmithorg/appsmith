@@ -91,7 +91,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       dateFormat: "DD/MM/YYYY HH:mm",
       columns: 5,
       widgetName: "DatePicker",
-      defaultDate: moment().format("DD/MM/YYYY HH:mm"),
+      defaultDate: moment().toISOString(),
     },
 
     VIDEO_WIDGET: {
