@@ -1528,7 +1528,8 @@ function* pasteWidgetSaga() {
       widgets[widget.widgetId] = widget;
     }
 
-    // updating template in the copied widget and deleting old template associations
+    // 1. updating template in the copied widget and deleting old template associations
+    // 2. updating dynamicBindingPathList in the copied grid widget
     for (let i = 0; i < newWidgetList.length; i++) {
       const widget = newWidgetList[i];
 
@@ -1551,6 +1552,22 @@ function* pasteWidgetSaga() {
               delete widget.template[oldWidgetName];
             }
           }
+
+          // updating dynamicBindingPath in copied widget if the copied widge thas reference to oldWidgetNames
+          widget.dynamicBindingPathList = (
+            widget.dynamicBindingPathList || []
+          ).map((path) => {
+            if (path.key.startsWith(`template.${oldWidgetName}`)) {
+              return {
+                key: path.key.replace(
+                  `template.${oldWidgetName}`,
+                  `template.${newWidgetName}`,
+                ),
+              };
+            }
+
+            return path;
+          });
         });
 
         widgets[widget.widgetId] = widget;
