@@ -64,7 +64,7 @@ const TooltipComponent = (props: TooltipProps) => {
       <Tooltip
         content={props.content}
         position={props.position}
-        usePortal={false}
+        usePortal={!!props.usePortal}
         boundary={props.boundary || "scrollParent"}
       >
         {props.children}
