@@ -68,6 +68,10 @@ public class FirestorePluginTest {
                         "ref", firestoreConnection.document("initial/one"),
                         "isAwesome", false,
                         "anotherRef", firestoreConnection.document("initial/two")
+                ),
+                "ref-list", List.of(
+                        firestoreConnection.document("initial/one"),
+                        firestoreConnection.document("initial/two")
                 )
         )).get();
         firestoreConnection.document("changing/to-update").set(Map.of("value", 1)).get();
@@ -141,6 +145,10 @@ public class FirestorePluginTest {
                             "isAwesome", false,
                             "anotherRef", Map.of("path", "initial/two", "id", "two")
                     ), doc.remove("data"));
+                    assertEquals(List.of(
+                            Map.of("path", "initial/one", "id", "one"),
+                            Map.of("path", "initial/two", "id", "two")
+                    ), doc.remove("ref-list"));
                     assertEquals(Collections.emptyMap(), doc);
                 })
                 .verifyComplete();
