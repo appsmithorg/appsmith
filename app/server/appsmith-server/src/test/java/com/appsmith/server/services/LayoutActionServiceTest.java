@@ -241,7 +241,6 @@ public class LayoutActionServiceTest {
                     DslActionDTO actionDTO = postNameChangeLayout.getLayoutOnLoadActions().get(0).iterator().next();
                     assertThat(actionDTO.getName()).isEqualTo("PostNameChange");
 
-//                    JSONObject newDsl = new JSONObject(Map.of("widgetName", "firstWidget", "mustacheProp", "{{ PostNameChange.data }}"));
                     dsl.put("testField", "{{ PostNameChange.data }}");
                     assertThat(postNameChangeLayout.getDsl()).isEqualTo(dsl);
                 })
@@ -250,7 +249,7 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void getActionsExecuteOnLoad() {
+    public void actionExecuteOnLoadChangeOnUpdateLayout() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action1 = new ActionDTO();

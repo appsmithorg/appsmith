@@ -874,13 +874,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     /**
-     * !!!WARNING!!! This function edits the parameter actionUpdates which is eventually returned back to the caller
+     * !!!WARNING!!! This function edits the parameters actionUpdates and messages which are eventually returned back to
+     * the caller with the updates values.
      * @param onLoadActions : All the actions which have been found to be on page load
      * @param pageId
      * @param actionUpdates : Empty array list which would be set in this function with all the page actions whose
-     *                      execute on load setting has changed.
+     *                      execute on load setting has changed (whether flipped from true to false, or vice versa)
      * @param messages : Empty array list which would be set in this function with all the messages that should be
-     *                 displayed to the developer user.
+     *                 displayed to the developer user communicating the action executeOnLoad changes.
      * @return
      */
     @Override
@@ -894,8 +895,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         MultiValueMap<String, String> params = CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
         params.add(FieldName.PAGE_ID, pageId);
 
+        // Fetch all the actions which exist in this page.
         Flux<ActionDTO> pageActionsFlux = this.getUnpublishedActions(params).cache();
 
+        // Before we update the actions, fetch all the actions which are currently set to execute on load.
         Mono<List<ActionDTO>> existingOnPageLoadActionsMono = pageActionsFlux
                 .flatMap(action -> {
                     if (TRUE.equals(action.getExecuteOnLoad())) {
@@ -911,27 +914,36 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     List<ActionDTO> existingOnPageLoadActions = tuple.getT1();
                     List<ActionDTO> pageActions = tuple.getT2();
 
-                    // There are no actions in this page. No need to
+                    // There are no actions in this page. No need to proceed further since no actions would get updated
                     if (pageActions.isEmpty()) {
                         return Mono.just(FALSE);
                     }
 
-                    // No actions require an update because newly found on page load actions and existing on load page
-                    // actions are empty
+                    // No actions require an update if no actions have been found as page load actions as well as
+                    // existing on load page actions are empty
                     if (existingOnPageLoadActions.isEmpty() && (onLoadActions == null || onLoadActions.isEmpty())) {
                         return Mono.just(FALSE);
                     }
 
-                    Set<String> existingOnPageLoadActionNames = existingOnPageLoadActions.stream().map(action -> action.getName()).collect(Collectors.toSet());
-                    Set<String> newOnLoadActionNames = onLoadActions.stream().map(action -> action.getName()).collect(Collectors.toSet());
+                    // Extract names of existing pageload actions and new page load actions for quick lookup.
+                    Set<String> existingOnPageLoadActionNames = existingOnPageLoadActions
+                            .stream()
+                            .map(action -> action.getName())
+                            .collect(Collectors.toSet());
+
+                    Set<String> newOnLoadActionNames = onLoadActions
+                            .stream()
+                            .map(action -> action.getName())
+                            .collect(Collectors.toSet());
 
 
+                    // Calculate the actions which would need to be updated from execute on load TRUE to FALSE.
                     List<String> turnedOffActionNames = existingOnPageLoadActionNames
                             .stream()
                             .filter(existing -> !newOnLoadActionNames.contains(existing))
                             .collect(Collectors.toList());
 
-
+                    // Calculate the actions which would need to be updated from execute on load FALSE to TRUE
                     List<String> turnedOnActionNames = newOnLoadActionNames
                             .stream()
                             .filter(actionName -> !existingOnPageLoadActionNames.contains(actionName))
@@ -956,7 +968,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 toUpdateActions.add(action);
                             }
                         } else {
-                            // Remove the action name from the lists because this wouldnt have been updated
+                            // Remove the action name from either of the lists (if present) because this action should
+                            // not be updated
                             turnedOnActionNames.remove(actionName);
                             turnedOffActionNames.remove(actionName);
                         }
@@ -972,6 +985,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             addActionUpdatesForActionNames(pageActions, turnedOffActionNames)
                     );
 
+                    // Now add messages that would eventually be displayed to the developer user informing them
+                    // about the action setting change.
                     if (!turnedOffActionNames.isEmpty()) {
                         messages.add(turnedOffActionNames.toString() + " will no longer be executed on page load");
                     }
@@ -980,7 +995,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         messages.add(turnedOnActionNames.toString() + " will be executed automatically on page load");
                     }
 
-                    // Now update the actions which require an update
+                    // Finally update the actions which require an update
                     return Flux.fromIterable(toUpdateActions)
                             .flatMap(actionDTO -> updateUnpublishedAction(actionDTO.getId(), actionDTO))
                             .then(Mono.just(TRUE));

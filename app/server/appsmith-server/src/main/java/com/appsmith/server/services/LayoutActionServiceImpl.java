@@ -553,9 +553,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     LayoutDTO layoutDTO = generateResponseDTO(savedLayout);
                     layoutDTO.setActionUpdates(actionUpdates);
                     layoutDTO.setMessages(messages);
-
-                    log.debug("Action Update Messages : {}", messages);
-
                     return layoutDTO;
                 });
     }
