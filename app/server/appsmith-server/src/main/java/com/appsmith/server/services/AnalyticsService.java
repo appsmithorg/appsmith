@@ -13,6 +13,7 @@ import com.segment.analytics.messages.TrackMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -59,11 +60,21 @@ public class AnalyticsService {
                 });
     }
 
-    public <T extends BaseDomain> Mono<T> sendEvent(AnalyticsEvents event, T object) {
-        return sendEvent(event, object, null);
+    public void sendEvent(String event, String userId) {
+        sendEvent(event, userId, null);
     }
 
-    public <T extends BaseDomain> Mono<T> sendEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties) {
+    private void sendEvent(String event, String userId, Map<String, Object> properties) {
+        TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userId);
+
+        if (!CollectionUtils.isEmpty(properties)) {
+            messageBuilder = messageBuilder.properties(properties);
+        }
+
+        analytics.enqueue(messageBuilder);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties) {
         if (!isActive()) {
             return Mono.just(object);
         }
@@ -92,18 +103,13 @@ public class AnalyticsService {
                         analyticsProperties.putAll(extraProperties);
                     }
 
-                    analytics.enqueue(
-                            TrackMessage.builder(eventTag)
-                                    .userId(username)
-                                    .properties(analyticsProperties)
-                    );
-
+                    sendEvent(eventTag, username, analyticsProperties);
                     return object;
                 });
     }
 
     public <T extends BaseDomain> Mono<T> sendCreateEvent(T object, Map<String, Object> extraProperties) {
-        return sendEvent(AnalyticsEvents.CREATE, object, extraProperties);
+        return sendObjectEvent(AnalyticsEvents.CREATE, object, extraProperties);
     }
 
     public <T extends BaseDomain> Mono<T> sendCreateEvent(T object) {
@@ -111,7 +117,7 @@ public class AnalyticsService {
     }
 
     public <T extends BaseDomain> Mono<T> sendUpdateEvent(T object, Map<String, Object> extraProperties) {
-        return sendEvent(AnalyticsEvents.UPDATE, object, extraProperties);
+        return sendObjectEvent(AnalyticsEvents.UPDATE, object, extraProperties);
     }
 
     public <T extends BaseDomain> Mono<T> sendUpdateEvent(T object) {
@@ -119,7 +125,7 @@ public class AnalyticsService {
     }
 
     public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object, Map<String, Object> extraProperties) {
-        return sendEvent(AnalyticsEvents.DELETE, object, extraProperties);
+        return sendObjectEvent(AnalyticsEvents.DELETE, object, extraProperties);
     }
 
     public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object) {
@@ -133,10 +139,10 @@ public class AnalyticsService {
 
         return sessionUserService.getCurrentUser()
                 .map(user -> {
-                    analytics.enqueue(TrackMessage
-                            .builder(AnalyticsEvents.EXECUTE_ACTION.lowerName())
-                            .userId(user.getUsername())
-                            .properties(Map.of(
+                    sendEvent(
+                            AnalyticsEvents.EXECUTE_ACTION.lowerName(),
+                            user.getUsername(),
+                            Map.of(
                                     "type", action.getPluginType(),
                                     "name", actionDTO.getName(),
                                     "pageId", actionDTO.getPageId(),
@@ -144,7 +150,7 @@ public class AnalyticsService {
                                     "appMode", Boolean.TRUE.equals(executeActionDTO.getViewMode()) ? "view" : "edit",
                                     "appName", application.getName(),
                                     "isExampleApp", application.isAppIsExample()
-                            ))
+                            )
                     );
                     return user;
                 })
