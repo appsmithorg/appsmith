@@ -84,7 +84,7 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
                 DefaultOidcUser userPrincipal = (DefaultOidcUser) principal.getPrincipal();
                 domain = (String) userPrincipal.getAttributes().getOrDefault("hd", "");
                 if (!commonConfig.getAllowedDomains().contains(domain)) {
-                    return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_DOMAIN));
+                    return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_DOMAIN, domain));
                 }
             }
         }

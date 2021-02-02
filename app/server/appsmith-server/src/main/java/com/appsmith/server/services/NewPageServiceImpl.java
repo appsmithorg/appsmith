@@ -162,7 +162,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                 .flatMap(application -> {
                     if (Boolean.TRUE.equals(view)) {
                         if (application.getPublishedPages() == null || application.getPublishedPages().isEmpty()) {
-                            // We are trying to fetch published pages but they doesnt exist because the application
+                            // We are trying to fetch published pages but they don't exist because the application
                             // hasn't been published yet
                             return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
                                     FieldName.PUBLISHED_APPLICATION, application.getId()));

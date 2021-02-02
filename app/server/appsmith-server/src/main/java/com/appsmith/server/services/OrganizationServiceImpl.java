@@ -98,8 +98,8 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
     @Override
     public Mono<String> getNextUniqueSlug(String initialSlug) {
-        return repository.countSlugsByPrefix(initialSlug)
-                .map(max -> initialSlug + (max == 0 ? "" : (max + 1)));
+        return repository.nextSlugNumber(initialSlug)
+                .map(number -> initialSlug + (number == 0 ? "" : number));
     }
 
     /**
@@ -140,7 +140,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                 .anyMatch(policy -> policy.getPermission().equals(USER_MANAGE_ORGANIZATIONS.getValue()));
 
         if (!isManageOrgPolicyPresent) {
-            return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Create organization"));
         }
 
         if (organization.getEmail() == null) {

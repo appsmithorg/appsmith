@@ -1,6 +1,7 @@
 import React, { Component, Fragment, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { connect, useSelector, useDispatch } from "react-redux";
+import { useLocation } from "react-router-dom";
 import { AppState } from "reducers";
 import { Card, Dialog, Classes as BlueprintClasses } from "@blueprintjs/core";
 import {
@@ -204,6 +205,7 @@ const ApplicationContainer = styled.div`
         props.theme.homePage.leftPane.rightMargin +
         props.theme.homePage.leftPane.leftPadding}px
   );
+  scroll-behavior: smooth;
 `;
 
 const ItemWrapper = styled.div`
@@ -346,9 +348,30 @@ const ApplicationAddCardWrapper = styled(Card)`
   }}
 `;
 
-function LeftPane() {
+const OrgMenuItem = ({ org, isFetchingApplications, selected }: any) => {
   const menuRef = useRef<HTMLAnchorElement>(null);
-  const [selectedOrg, setSelectedOrg] = useState<string>("");
+  useEffect(() => {
+    if (selected) {
+      menuRef.current?.scrollIntoView({ behavior: "smooth" });
+      menuRef.current?.click();
+    }
+  }, [selected]);
+
+  return (
+    <MenuItem
+      ref={menuRef}
+      className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+      icon="workspace"
+      key={org.organization.slug}
+      href={`${window.location.pathname}#${org.organization.slug}`}
+      text={org.organization.name}
+      ellipsize={20}
+      selected={selected}
+    />
+  );
+};
+
+function LeftPane() {
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const NewWorkspaceTrigger = (
@@ -368,19 +391,8 @@ function LeftPane() {
     userOrgs = loadingUserOrgs as any;
   }
 
-  const urlHash = decodeURI(
-    window.location.hash.substring(1, window.location.hash.length),
-  );
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (menuRef && menuRef.current) {
-        menuRef.current.scrollIntoView({ behavior: "smooth" });
-        menuRef.current.click();
-      }
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [fetchedUserOrgs]);
+  const location = useLocation();
+  const urlHash = location.hash.slice(1);
 
   return (
     <LeftPaneWrapper>
@@ -397,21 +409,11 @@ function LeftPane() {
           {/* {CreateOrg} */}
           {userOrgs &&
             userOrgs.map((org: any) => (
-              <MenuItem
-                {...(urlHash === org.organization.name ? { ref: menuRef } : {})}
-                className={
-                  isFetchingApplications ? BlueprintClasses.SKELETON : ""
-                }
-                icon="workspace"
-                key={org.organization.id}
-                href={`${window.location.pathname}#${org.organization.name}`}
-                text={org.organization.name}
-                ellipsize={20}
-                onSelect={() => setSelectedOrg(org.organization.id)}
-                selected={
-                  selectedOrg === org.organization.id &&
-                  urlHash === org.organization.name
-                }
+              <OrgMenuItem
+                key={org.organization.slug}
+                org={org}
+                isFetchingApplications={isFetchingApplications}
+                selected={urlHash === org.organization.slug}
               />
             ))}
         </WorkpsacesNavigator>
@@ -504,12 +506,16 @@ const ApplicationsSection = (props: any) => {
     );
   };
 
-  const OrgMenuTarget = (props: { orgName: string; disabled?: boolean }) => {
-    const { orgName, disabled } = props;
+  const OrgMenuTarget = (props: {
+    orgName: string;
+    disabled?: boolean;
+    orgSlug: string;
+  }) => {
+    const { orgName, disabled, orgSlug } = props;
 
     const OrgName = (
       <OrgNameWrapper disabled={disabled} className="t--org-name">
-        <StyledAnchor id={orgName}></StyledAnchor>
+        <StyledAnchor id={orgSlug}></StyledAnchor>
         <OrgNameHolder
           type={TextType.H1}
           className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
@@ -583,6 +589,7 @@ const ApplicationsSection = (props: any) => {
                   target={OrgMenuTarget({
                     orgName: organization.name,
                     disabled: !hasManageOrgPermissions,
+                    orgSlug: organization.slug,
                   })}
                   position={Position.BOTTOM_RIGHT}
                   className="t--org-name"

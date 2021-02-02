@@ -44,6 +44,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {
       onTextChanged: true,
+      onSubmit: true,
     };
   }
 
@@ -136,6 +137,22 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("isFocused", focusState);
   };
 
+  handleKeyDown = (
+    e:
+      | React.KeyboardEvent<HTMLTextAreaElement>
+      | React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    const isEnterKey = e.key === "Enter" || e.keyCode === 13;
+    if (isEnterKey && this.props.onSubmit) {
+      super.executeAction({
+        dynamicString: this.props.onSubmit,
+        event: {
+          type: EventType.ON_SUBMIT,
+        },
+      });
+    }
+  };
+
   getPageView() {
     const value = this.props.text || "";
     const isInvalid =
@@ -149,6 +166,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     if (this.props.maxChars) conditionalProps.maxChars = this.props.maxChars;
     if (this.props.maxNum) conditionalProps.maxNum = this.props.maxNum;
     if (this.props.minNum) conditionalProps.minNum = this.props.minNum;
+
     return (
       <InputComponent
         value={value}
@@ -168,6 +186,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         stepSize={1}
         onFocusChange={this.handleFocusChange}
         showError={!!this.props.isFocused}
+        disableNewLineOnPressEnterKey={!!this.props.onSubmit}
+        onKeyDown={this.handleKeyDown}
         {...conditionalProps}
       />
     );
@@ -215,6 +235,7 @@ export interface InputWidgetProps extends WidgetProps, WithMeta {
   isRequired?: boolean;
   isFocused?: boolean;
   isDirty?: boolean;
+  onSubmit?: string;
 }
 
 export default InputWidget;
