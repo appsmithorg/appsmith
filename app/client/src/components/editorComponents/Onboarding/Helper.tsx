@@ -42,7 +42,8 @@ const Description = styled.div`
 
 const HintDescription = styled(Description)`
   margin-top: 9px;
-  color: #4b4848;
+  color: #000000;
+  font-size: 12px;
 `;
 
 const Button = styled.button`
