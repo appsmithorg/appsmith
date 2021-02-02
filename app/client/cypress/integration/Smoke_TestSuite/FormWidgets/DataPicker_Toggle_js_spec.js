@@ -31,12 +31,12 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     );
     cy.get(formWidgetsPage.datepickerWidget + " .bp3-input").should(
       "contain.value",
-      "Invalid date",
+      "14/02/2021",
     );
     cy.PublishtheApp();
     cy.get(publishPage.datepickerWidget + " .bp3-input").should(
       "contain.value",
-      "Invalid date",
+      "14/02/2021",
     );
   });
 
