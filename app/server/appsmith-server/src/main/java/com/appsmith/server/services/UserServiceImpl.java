@@ -394,10 +394,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
 
-        if (!StringUtils.hasText(user.getName())) {
-            user.setName(user.getEmail());
-        }
-
         // Set the permissions for the user
         user.getPolicies().addAll(crudUserPolicy(user));
 
