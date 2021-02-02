@@ -11,12 +11,16 @@ import OnboardingHelper from "./Helper";
 const WelcomeHelper = () => {
   const [showHelper, setShowHelper] = useState(false);
   const currentUser = useSelector(getCurrentUser);
+  const showWelcomeHelper = useSelector(
+    (state) => state.ui.onBoarding.showWelcomeHelper,
+  );
   const helperConfig = getHelperConfig(OnboardingStep.WELCOME);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const showWelcomeHelper = async () => {
+    const isInOnboarding = async () => {
       const inOnboarding = await getOnboardingWelcomeState();
+
       if (inOnboarding && currentUser) {
         dispatch({
           type: ReduxActionTypes.SHOW_ONBOARDING_HELPER,
@@ -31,8 +35,8 @@ const WelcomeHelper = () => {
       type: ReduxActionTypes.SET_HELPER_CONFIG,
       payload: helperConfig,
     });
-    showWelcomeHelper();
-  }, [currentUser]);
+    isInOnboarding();
+  }, [currentUser, showWelcomeHelper]);
 
   if (!showHelper) return null;
 

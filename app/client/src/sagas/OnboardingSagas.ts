@@ -361,7 +361,7 @@ function* createOnboardingDatasource() {
     // Navigate to that datasource page
     yield put(changeDatasource(onboardingDatasource));
 
-    yield take(ReduxActionTypes.SHOW_WELCOME);
+    yield take(ReduxActionTypes.SHOW_ONBOARDING_LOADER);
     yield put({
       type: ReduxActionTypes.SET_HELPER_CONFIG,
       payload: getHelperConfig(OnboardingStep.EXAMPLE_DATABASE),
@@ -440,7 +440,7 @@ function* initiateOnboarding() {
   const currentOnboardingState = yield getOnboardingState();
   const onboardingWelcomeState = yield getOnboardingWelcomeState();
 
-  if (currentOnboardingState && onboardingWelcomeState) {
+  if (currentOnboardingState) {
     // AnalyticsUtil.logEvent("ONBOARDING_WELCOME");
     yield put(setOnboardingReduxState(true));
 

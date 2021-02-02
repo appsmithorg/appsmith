@@ -4,6 +4,7 @@ import DeployGif from "assets/gifs/deploy_green.gif";
 import InputDragGif from "assets/gifs/input_drag.gif";
 import SuperHeroGif from "assets/gifs/super_hero.gif";
 import { Dispatch } from "redux";
+import { setOnboardingWelcomeState } from "utils/storage";
 
 export enum OnboardingStep {
   NONE = -1,
@@ -65,7 +66,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       // Return action that needs to be dispatched
       return [
         {
-          type: ReduxActionTypes.SHOW_WELCOME,
+          type: ReduxActionTypes.SHOW_ONBOARDING_LOADER,
           payload: true,
         },
       ];
@@ -86,6 +87,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
               type: "ONBOARDING_CREATE_APPLICATION",
             });
           }
+          setOnboardingWelcomeState(false);
         },
         initialStep: true,
       },

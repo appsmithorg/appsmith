@@ -228,7 +228,7 @@ const mapStateToProps = (state: AppState) => ({
   isEditorInitialized: getIsEditorInitialized(state),
   user: getCurrentUser(state),
   selectedWidget: getSelectedWidget(state),
-  creatingOnboardingDatabase: state.ui.onBoarding.showWelcomeHelper,
+  creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

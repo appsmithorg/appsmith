@@ -69,6 +69,7 @@ import { getThemeDetails } from "selectors/themeSelectors";
 import { AppIconCollection } from "components/ads/AppIcon";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
+import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -284,7 +285,9 @@ const StyledAnchor = styled.a`
 
 const WorkpsacesNavigator = styled.div`
   overflow: auto;
-  height: calc(100vh - ${(props) => props.theme.homePage.header + 36 + 25}px);
+  height: calc(
+    100vh - ${(props) => props.theme.homePage.header + 36 + 25 + 200}px
+  );
 `;
 
 const textIconStyles = (props: { color: string; hover: string }) => {
@@ -396,6 +399,8 @@ function LeftPane() {
   const location = useLocation();
   const urlHash = location.hash.slice(1);
 
+  const initiateOnboarding = useIntiateOnboarding();
+
   return (
     <LeftPaneWrapper>
       <LeftPaneSection
@@ -408,7 +413,6 @@ function LeftPane() {
             Form={CreateOrganizationForm}
             title={CREATE_ORGANIZATION_FORM_NAME}
           />
-          {/* {CreateOrg} */}
           {userOrgs &&
             userOrgs.map((org: any) => (
               <OrgMenuItem
@@ -419,6 +423,25 @@ function LeftPane() {
               />
             ))}
         </WorkpsacesNavigator>
+      </LeftPaneSection>
+      <LeftPaneSection
+        heading="GETTING STARTED"
+        isFetchingApplications={isFetchingApplications}
+      >
+        <MenuItem
+          className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+          icon="book"
+          text={"Documentation"}
+          onSelect={() => {
+            window.open("https://docs.appsmith.com/", "_blank");
+          }}
+        />
+        <MenuItem
+          className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+          icon="shine"
+          text={"Welcome Tour"}
+          onSelect={() => initiateOnboarding()}
+        />
       </LeftPaneSection>
     </LeftPaneWrapper>
   );

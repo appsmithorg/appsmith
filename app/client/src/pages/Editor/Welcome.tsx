@@ -95,7 +95,7 @@ const Welcome = () => {
         <StyledButton
           onClick={() => {
             dispatch({
-              type: ReduxActionTypes.SHOW_WELCOME,
+              type: ReduxActionTypes.SHOW_ONBOARDING_LOADER,
               payload: false,
             });
           }}
