@@ -877,7 +877,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
 
         List<ActionDTO> toUpdateActions = new ArrayList<>();
-
         for (ActionDTO action : actions) {
             // If a user has ever set execute on load, this field can not be changed automatically. It has to be
             // explicitly changed by the user again. Add the action to update only if this condition is false.
