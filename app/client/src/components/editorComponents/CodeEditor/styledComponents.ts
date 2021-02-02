@@ -317,8 +317,11 @@ export const EditorWrapper = styled.div<{
       background-color: #a74444;
     }
     .datasource-highlight {
-      background: #e7f3ff;
-      border: 1px solid #69b5ff;
+      background: ${(props) =>
+        props.editorTheme === EditorTheme.DARK ? "#002B54" : "#e7f3ff"};
+      border: 1px solid
+        ${(props) =>
+          props.editorTheme === EditorTheme.DARK ? "#10569A" : "#69b5ff"};
       padding: 2px;
       border-radius: 2px;
       margin-right: 2px;

@@ -326,6 +326,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               name="actionConfiguration.path"
               pluginId={pluginId}
               placeholder="https://mock-api.appsmith.com/users"
+              theme={theme}
             />
           </DatasourceWrapper>
         </FormRow>

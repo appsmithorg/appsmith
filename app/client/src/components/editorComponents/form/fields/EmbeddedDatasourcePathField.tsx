@@ -223,7 +223,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       ...this.props,
       input,
       mode: EditorModes.TEXT_WITH_BINDING,
-      theme: EditorTheme.LIGHT,
+      theme: this.props.theme,
       tabBehaviour: TabBehaviour.INPUT,
       size: EditorSize.COMPACT,
       marking: [bindingMarker, this.handleDatasourceHighlight()],
@@ -302,7 +302,11 @@ const EmbeddedDatasourcePathConnectedComponent = connect(
 )(EmbeddedDatasourcePathComponent);
 
 const EmbeddedDatasourcePathField = (
-  props: BaseFieldProps & { pluginId: string; placeholder?: string },
+  props: BaseFieldProps & {
+    pluginId: string;
+    placeholder?: string;
+    theme: EditorTheme;
+  },
 ) => {
   return (
     <Field component={EmbeddedDatasourcePathConnectedComponent} {...props} />
