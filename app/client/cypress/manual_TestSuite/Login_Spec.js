@@ -31,3 +31,4 @@ describe("Onboarding flow", function()
     }
     )
 }
+)
