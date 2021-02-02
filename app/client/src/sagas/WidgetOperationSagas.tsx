@@ -1273,7 +1273,11 @@ function* pasteWidgetSaga() {
       if (widget.type === WidgetTypes.TABLE_WIDGET) {
         try {
           const oldWidgetName = widget.widgetName;
-          const newWidgetName = getNextWidgetName(widgets, widget.type);
+          const newWidgetName = getNextWidgetName(
+            widgets,
+            widget.type,
+            evalTree,
+          );
           // If the primaryColumns of the table exist
           if (widget.primaryColumns && Array.isArray(widget.primaryColumns)) {
             // Map all the primaryColumns of the widget
@@ -1296,7 +1300,7 @@ function* pasteWidgetSaga() {
         }
       } else {
         // Generate a new unique widget name
-        widget.widgetName = getNextWidgetName(widgets, widget.type);
+        widget.widgetName = getNextWidgetName(widgets, widget.type, evalTree);
       }
 
       // If it is the copied widget, update position properties
