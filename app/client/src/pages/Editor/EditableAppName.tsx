@@ -27,10 +27,13 @@ const Container = styled.div`
     ${(props) => getTypographyByKey(props, "h4")};
     line-height: 19px !important;
     padding: 0;
-    min-width: 0;
     height: unset !important;
     position: relative;
     top: 1px;
+    width: unset !important;
+  }
+  &&&& .${Classes.EDITABLE_TEXT_CONTENT} {
+    min-width: 0;
   }
 `;
 
