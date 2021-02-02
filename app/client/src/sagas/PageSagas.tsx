@@ -697,7 +697,7 @@ export function* populatePageDSLsSaga() {
 /**
  * this saga hydrates the enhancmentsMap for each widget and children in canvasWidgets
  */
-function* hydrateEnhancementsMap() {
+export function* hydrateEnhancementsMap() {
   const widgets = yield select(getCanvasWidgets);
   const widgetIds = Object.keys(widgets);
   let enhancementsMap = {};

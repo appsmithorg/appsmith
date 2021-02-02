@@ -98,6 +98,7 @@ import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getEnhancementsMap } from "selectors/propertyPaneSelectors";
+import { hydrateEnhancementsMap } from "sagas/PageSagas";
 import { PropertyPaneEnhancementsDataState } from "reducers/uiReducers/propertyPaneEnhancementsReducer";
 
 function getChildWidgetProps(
@@ -1296,6 +1297,7 @@ function* pasteWidgetSaga() {
     let widgets = { ...stateWidgets };
 
     const selectedWidget = yield select(getSelectedWidget);
+    const enhancementsMap = yield select(getEnhancementsMap);
     let newWidgetParentId = MAIN_CONTAINER_WIDGET_ID;
     let parentWidget = widgets[MAIN_CONTAINER_WIDGET_ID];
 
@@ -1380,7 +1382,8 @@ function* pasteWidgetSaga() {
     });
 
     // For each of the new widgets generated
-    newWidgetList.forEach((widget) => {
+    for (let i = 0; i < newWidgetList.length; i++) {
+      const widget = newWidgetList[i];
       // Update the children widgetIds if it has children
       if (widget.children && widget.children.length > 0) {
         widget.children.forEach((childWidgetId: string, index: number) => {
@@ -1388,15 +1391,6 @@ function* pasteWidgetSaga() {
             widget.children[index] = widgetIdMap[childWidgetId];
           }
         });
-      }
-
-      // Update the template and enhancement map for list widget
-      if (widget.type === WidgetTypes.LIST_WIDGET) {
-        console.log({ widget });
-        // update template
-        // hydrate enhancement map
-        // update dynamicBindingPathList
-        // update evaluated values
       }
 
       // Update the tabs for the tabs widget.
@@ -1499,12 +1493,16 @@ function* pasteWidgetSaga() {
 
       // Add the new widget to the canvas widgets
       widgets[widget.widgetId] = widget;
-    });
-
-    console.log({ widgets });
+    }
 
     // save the new DSL
     yield put(updateAndSaveLayout(widgets));
+
+    // hydrating enhancements map after save layout so that enhancement map
+    // for newly copied widget is hydrated
+    yield hydrateEnhancementsMap();
+
+    console.log({ newWidgetId });
 
     // Flash the newly pasted widget once the DSL is re-rendered
     setTimeout(() => flashElementById(newWidgetId), 100);
