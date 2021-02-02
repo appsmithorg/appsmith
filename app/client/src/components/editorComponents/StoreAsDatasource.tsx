@@ -8,7 +8,7 @@ import { Classes } from "components/ads/common";
 
 export const DatasourceIcon = styled.div`
   position: absolute;
-  right: -150px;
+  right: -155px;
   top: 7px;
   display: flex;
   align-items: center;

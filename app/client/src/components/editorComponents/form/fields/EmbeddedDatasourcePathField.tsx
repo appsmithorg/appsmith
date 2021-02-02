@@ -56,10 +56,10 @@ type Props = EditorProps &
     pluginId: string;
   };
 
-const DatasourceContainer = styled.div<{ fill: boolean }>`
+const DatasourceContainer = styled.div`
   display: flex;
   position: relative;
-  width: ${(props) => (!props.fill ? "100%" : "calc(100% - 150px)")};
+  width: calc(100% - 155px);
 `;
 class EmbeddedDatasourcePathComponent extends React.Component<Props> {
   handleDatasourceUrlUpdate = (datasourceUrl: string) => {
@@ -233,7 +233,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     };
 
     return (
-      <DatasourceContainer fill={!!displayValue}>
+      <DatasourceContainer>
         <CodeEditor {...props} />
         {datasource && !("id" in datasource) && !!displayValue ? (
           <StoreAsDatasource />
