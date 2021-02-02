@@ -110,10 +110,20 @@ function* listenForWidgetAdditions() {
       selectedWidget.type === "TABLE_WIDGET" &&
       canvasWidgets[selectedWidget.widgetId]
     ) {
-      if (selectedWidget.tableData === initialTableData) {
+      if (
+        selectedWidget.widgetName === "Standup_Table" ||
+        selectedWidget.tableData === initialTableData
+      ) {
         yield put(
           updateWidgetProperty(selectedWidget.widgetId, {
             tableData: [],
+            bottomRow: 19,
+            columnSizeMap: {
+              avatar: 60,
+              name: 60,
+            },
+            parentRowSpace: 40,
+            rightColumn: 16,
           }),
         );
       }
@@ -576,6 +586,7 @@ function* addWidget(widgetConfig: any) {
       isLoading: false,
       ...widgetConfig,
     };
+
     const {
       leftColumn,
       topRow,
@@ -619,11 +630,10 @@ function* addWidget(widgetConfig: any) {
 function* addTableWidget() {
   yield call(addWidget, {
     type: WidgetTypes.TABLE_WIDGET,
+    widgetName: "Standup_Table",
     props: {
       tableData: [],
-      pageSize: 5,
     },
-    widgetName: "Standup_Table",
   });
 }
 
