@@ -201,26 +201,29 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             className="t--appsmith-logo"
           />
         </Link>
-        {currentApplication && (
-          <EditableAppName
-            defaultValue={currentApplication.name || ""}
-            editInteractionKind={EditInteractionKind.SINGLE}
-            className="t--application-name editable-application-name"
-            fill={false}
-            savingState={
-              isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-            }
-            isNewApp={
-              applicationList.filter((el) => el.id === applicationId).length > 0
-            }
-            onBlur={(value: string) =>
-              updateApplicationDispatch(applicationId || "", {
-                name: value,
-                currentApp: true,
-              })
-            }
-          />
-        )}
+        <Boxed step={OnboardingStep.FINISH}>
+          {currentApplication && (
+            <EditableAppName
+              defaultValue={currentApplication.name || ""}
+              editInteractionKind={EditInteractionKind.SINGLE}
+              className="t--application-name editable-application-name"
+              fill={false}
+              savingState={
+                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+              }
+              isNewApp={
+                applicationList.filter((el) => el.id === applicationId).length >
+                0
+              }
+              onBlur={(value: string) =>
+                updateApplicationDispatch(applicationId || "", {
+                  name: value,
+                  currentApp: true,
+                })
+              }
+            />
+          )}
+        </Boxed>
       </HeaderSection>
       <HeaderSection>
         <Boxed step={OnboardingStep.FINISH}>
