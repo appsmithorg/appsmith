@@ -12,6 +12,7 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 const Container = styled.div`
   display: flex;
   height: calc(100vh - ${(props) => props.theme.headerHeight});
+  background-color: #ebeff2;
 `;
 
 const EditorContainer = styled.div`

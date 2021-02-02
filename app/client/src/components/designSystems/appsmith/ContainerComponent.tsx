@@ -18,7 +18,7 @@ const StyledContainerComponent = styled.div<
   ${(props) =>
     props.containerStyle !== "none"
       ? `
-  border: none;
+  border: 1px solid #e1e1e1;
   border-radius: ${
     props.containerStyle === "card" || props.containerStyle === "rounded-border"
       ? props.theme.radii[1]
@@ -28,8 +28,6 @@ const StyledContainerComponent = styled.div<
   height: 100%;
   width: 100%;
   background: ${(props) => props.backgroundColor};
-  box-shadow: ${(props) =>
-    props.containerStyle === "card" ? props.theme.shadows[2] : "none"};
   ${(props) => (!props.isVisible ? invisible : "")};
   overflow: hidden;
   ${(props) => (props.shouldScrollContents ? scrollContents : "")}

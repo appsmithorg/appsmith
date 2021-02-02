@@ -63,3 +63,11 @@ div.bp3-popover-arrow {
   z-index: 10;
 }
 
+.bp3-popover.bp3-minimal {
+  margin-top: 8px !important;
+}
+
+.bp3-popover {
+  box-shadow: 0px 0px 3px #e1e1e1;
+  border: 1px solid #e1e1e1;
+}
