@@ -15,11 +15,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.appsmith.server.helpers.BeanCopyUtils.isDomainModel;
 
 @Slf4j
 public class MustacheHelper {
+
+    /*
+     * This pattern finds all the String which have been extracted from the mustache dynamic bindings.
+     * e.g. for the given JS function using action with name "fetchUsers"
+     * {{JSON.stringify(fetchUsers)}}
+     * This pattern should return ["JSON.stringify", "fetchUsers"]
+     */
+    private final static Pattern pattern = Pattern.compile("[a-zA-Z_][a-zA-Z0-9._]*");
+
 
     /**
      * Tokenize a Mustache template string into a list of plain text and Mustache interpolations.
@@ -286,6 +297,23 @@ public class MustacheHelper {
         }
 
         return StringEscapeUtils.unescapeHtml4(rendered.toString());
+    }
+
+    public static void extractWordsAndAddToSet(Set<String> bindingNames, String mustacheKey) {
+        String key = mustacheKey.trim();
+
+        // Extract all the words in the dynamic bindings
+        Matcher matcher = pattern.matcher(key);
+
+        while (matcher.find()) {
+            String word = matcher.group();
+
+            String[] subStrings = word.split(Pattern.quote("."));
+            if (subStrings.length > 0) {
+                // We are only interested in the top level. e.g. if its Input1.text, we want just Input1
+                bindingNames.add(subStrings[0]);
+            }
+        }
     }
 
 }

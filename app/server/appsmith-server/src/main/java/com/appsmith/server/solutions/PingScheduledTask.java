@@ -1,10 +1,10 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.services.ConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,10 +30,9 @@ public class PingScheduledTask {
 
     private final ConfigService configService;
 
-    public static final URI GET_IP_URI = URI.create("https://api64.ipify.org");
+    private final SegmentConfig segmentConfig;
 
-    @Value("${segment.ce.key}")
-    private String segmentCEKey;
+    public static final URI GET_IP_URI = URI.create("https://api64.ipify.org");
 
     /**
      * Gets the external IP address of this server and pings a data point to indicate that this server instance is live.
@@ -75,7 +74,8 @@ public class PingScheduledTask {
         // Note: Hard-coding Segment auth header and the event name intentionally. These are not intended to be
         // environment specific values, instead, they are common values for all self-hosted environments. As such, they
         // are not intended to be configurable.
-        if (StringUtils.isEmpty(segmentCEKey)) {
+        final String ceKey = segmentConfig.getCeKey();
+        if (StringUtils.isEmpty(ceKey)) {
             log.error("The segment key is null");
         }
 
@@ -83,7 +83,7 @@ public class PingScheduledTask {
                 .create("https://api.segment.io")
                 .post()
                 .uri("/v1/track")
-                .headers(headers -> headers.setBasicAuth(segmentCEKey, ""))
+                .headers(headers -> headers.setBasicAuth(ceKey, ""))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(Map.of(
                         "userId", ipAddress,
