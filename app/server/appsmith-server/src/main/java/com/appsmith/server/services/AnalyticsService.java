@@ -2,11 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.AnalyticsEvents;
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.ActionDTO;
-import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
 import com.segment.analytics.messages.TrackMessage;
@@ -64,7 +60,11 @@ public class AnalyticsService {
         sendEvent(event, userId, null);
     }
 
-    private void sendEvent(String event, String userId, Map<String, Object> properties) {
+    public void sendEvent(String event, String userId, Map<String, Object> properties) {
+        if (!isActive()) {
+            return;
+        }
+
         TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userId);
 
         if (!CollectionUtils.isEmpty(properties)) {
@@ -132,28 +132,4 @@ public class AnalyticsService {
         return sendDeleteEvent(object, null);
     }
 
-    public Mono<Void> sendActionExecutionEvent(NewAction action, ActionDTO actionDTO, Application application, ExecuteActionDTO executeActionDTO) {
-        if (!isActive()) {
-            return Mono.empty();
-        }
-
-        return sessionUserService.getCurrentUser()
-                .map(user -> {
-                    sendEvent(
-                            AnalyticsEvents.EXECUTE_ACTION.lowerName(),
-                            user.getUsername(),
-                            Map.of(
-                                    "type", action.getPluginType(),
-                                    "name", actionDTO.getName(),
-                                    "pageId", actionDTO.getPageId(),
-                                    "appId", action.getApplicationId(),
-                                    "appMode", Boolean.TRUE.equals(executeActionDTO.getViewMode()) ? "view" : "edit",
-                                    "appName", application.getName(),
-                                    "isExampleApp", application.isAppIsExample()
-                            )
-                    );
-                    return user;
-                })
-                .then();
-    }
 }

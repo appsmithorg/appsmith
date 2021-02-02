@@ -15,6 +15,7 @@ import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionProvider;
@@ -25,6 +26,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
@@ -83,6 +85,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private final PolicyGenerator policyGenerator;
     private final NewPageService newPageService;
     private final ApplicationService applicationService;
+    private final SessionUserService sessionUserService;
 
     public NewActionServiceImpl(Scheduler scheduler,
                                 Validator validator,
@@ -97,7 +100,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 MarketplaceService marketplaceService,
                                 PolicyGenerator policyGenerator,
                                 NewPageService newPageService,
-                                ApplicationService applicationService) {
+                                ApplicationService applicationService,
+                                SessionUserService sessionUserService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -108,6 +112,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         this.policyGenerator = policyGenerator;
         this.newPageService = newPageService;
         this.applicationService = applicationService;
+        this.sessionUserService = sessionUserService;
     }
 
     private Boolean validateActionName(String name) {
@@ -627,22 +632,35 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     private Mono<Void> getAnalyticsMono(NewAction action, ActionDTO actionDTO, ExecuteActionDTO executeActionDTO) {
-        if (!analyticsService.isActive()) {
-            return Mono.empty();
-
-        }
-
         // Since we're loading the application from DB *only* for analytics, we check if analytics is
         // active before making the call to DB.
+        if (!analyticsService.isActive()) {
+            return Mono.empty();
+        }
+
         return Mono.justOrEmpty(action.getApplicationId())
                 .flatMap(applicationService::findById)
                 .defaultIfEmpty(new Application())
-                .flatMap(application -> analyticsService.sendActionExecutionEvent(
-                        action,
-                        actionDTO,
-                        application,
-                        executeActionDTO
-                ));
+                .zipWith(sessionUserService.getCurrentUser())
+                .map(tuple -> {
+                    final Application application = tuple.getT1();
+                    final User user = tuple.getT2();
+                    analyticsService.sendEvent(
+                            AnalyticsEvents.EXECUTE_ACTION.lowerName(),
+                            user.getUsername(),
+                            Map.of(
+                                    "type", action.getPluginType(),
+                                    "name", actionDTO.getName(),
+                                    "pageId", actionDTO.getPageId(),
+                                    "appId", action.getApplicationId(),
+                                    "appMode", Boolean.TRUE.equals(executeActionDTO.getViewMode()) ? "view" : "edit",
+                                    "appName", application.getName(),
+                                    "isExampleApp", application.isAppIsExample()
+                            )
+                    );
+                    return user;
+                })
+                .then();
     }
 
     private void prepareConfigurationsForExecution(ActionDTO action,
