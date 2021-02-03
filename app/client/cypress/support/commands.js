@@ -1834,8 +1834,10 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
   cy.RunAPI();
   cy.get(ApiEditor.apiPaginationNextTest).click();
   cy.wait("@postExecute");
+  cy.wait(2000);
   cy.get(runTestCss).click();
   cy.wait("@postExecute");
+  cy.wait(2000);
   cy.get(ApiEditor.formActionButtons).should("be.visible");
   cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
   cy.get(ApiEditor.responseBody)
