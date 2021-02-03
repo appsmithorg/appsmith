@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 GIT_SHA=$(eval git rev-parse HEAD)
 echo $GIT_SHA
 echo "Sentry Auth Token: $SENTRY_AUTH_TOKEN"

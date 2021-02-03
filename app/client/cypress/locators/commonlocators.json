@@ -89,5 +89,6 @@
   "filePickerInput": ".uppy-Dashboard-input",
   "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",
   "filePickerOnFilesSelected": ".t--property-control-onfilesselected",
-  "dataType": ".t--property-control-datatype"
+  "dataType": ".t--property-control-datatype",
+  "evaluateMsg": ".t--CodeEditor-evaluatedValue p"
 }

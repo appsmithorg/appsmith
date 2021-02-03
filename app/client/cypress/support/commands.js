@@ -1028,6 +1028,17 @@ Cypress.Commands.add("testJsontext", (endp, value) => {
   cy.wait(1000);
 });
 
+Cypress.Commands.add("evaluateErrorMessage", (value) => {
+  cy.get(commonlocators.evaluateMsg)
+    .first()
+    .click()
+    .invoke("text")
+    .then((text) => {
+      const someText = text;
+      expect(someText).to.equal(value);
+    });
+});
+
 Cypress.Commands.add("selectShowMsg", (value) => {
   cy.get(commonlocators.chooseAction)
     .children()
