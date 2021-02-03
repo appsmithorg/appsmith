@@ -1588,7 +1588,7 @@ public class DatabaseChangelog {
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.TABLE);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/AmazonS3.jpeg");
-        plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-amazon-s3");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-amazon-s3");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
