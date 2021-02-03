@@ -98,5 +98,8 @@
   "defaultInputBinding": "{{Input2.text",
   "tabBinding": "{{Tabs1.selectedTab",
   "pageloadBinding": "{{PageLoadApi.data.data[1].id}}{{Input1.text}}",
-  "defaultRowIndexBinding": "{{Table1.selectedRowIndex"
+  "defaultRowIndexBinding": "{{Table1.selectedRowIndex",
+  "defaultdataBinding": "{'Test','This'}",
+  "dropdownErrorMsg": "This value does not evaluate to type \"Array<{ label: string, value: string }>\". Transform it using JS inside '{{ }}'",
+  "tableWidgetErrorMsg": "This value does not evaluate to type \"Array<Object>\". Transform it using JS inside '{{ }}'"
 }
