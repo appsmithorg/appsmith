@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { labelStyle } from "constants/DefaultTheme";
 import { ControlGroup, Classes, Label } from "@blueprintjs/core";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
-import { DateInput, DateRangeInput } from "@blueprintjs/datetime";
+import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import { DatePickerType } from "widgets/DatePickerWidget";
@@ -79,17 +79,28 @@ class DatePickerComponent extends React.Component<
       this.setState({ selectedDate: this.props.selectedDate });
     }
   }
+  getValidDate = (date: string, format: string) => {
+    const _date = moment(date, format);
+    return _date.isValid() ? _date.toDate() : undefined;
+  };
 
   render() {
     const now = moment();
     const year = now.get("year");
     const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
     const minDate = this.props.minDate
-      ? moment(this.props.minDate, dateFormat)
-      : now.clone().set({ month: 0, date: 1, year: year - 100 });
+      ? this.getValidDate(this.props.minDate, dateFormat)
+      : now
+          .clone()
+          .set({ month: 0, date: 1, year: year - 100 })
+          .toDate();
     const maxDate = this.props.maxDate
-      ? moment(this.props.maxDate, dateFormat)
-      : now.clone().set({ month: 11, date: 31, year: year + 20 });
+      ? this.getValidDate(this.props.maxDate, dateFormat)
+      : now
+          .clone()
+          .set({ month: 11, date: 31, year: year + 20 })
+          .toDate();
+
     return (
       <StyledControlGroup
         fill
@@ -108,7 +119,7 @@ class DatePickerComponent extends React.Component<
             {this.props.label}
           </Label>
         )}
-        {this.props.datePickerType === "DATE_PICKER" ? (
+        {
           <DateInput
             className={this.props.isLoading ? "bp3-skeleton" : ""}
             formatDate={this.formatDate}
@@ -124,21 +135,10 @@ class DatePickerComponent extends React.Component<
                 ? this.parseDate(this.state.selectedDate)
                 : null
             }
-            minDate={minDate.toDate()}
-            maxDate={maxDate.toDate()}
+            minDate={minDate}
+            maxDate={maxDate}
           />
-        ) : (
-          <DateRangeInput
-            className={this.props.isLoading ? "bp3-skeleton" : ""}
-            allowSingleDayRange={true}
-            disabled={this.props.isDisabled}
-            contiguousCalendarMonths={false}
-            formatDate={this.formatDate}
-            minDate={minDate.toDate()}
-            maxDate={maxDate.toDate()}
-            closeOnSelection={true}
-          />
-        )}
+        }
       </StyledControlGroup>
     );
   }
@@ -150,7 +150,10 @@ class DatePickerComponent extends React.Component<
 
   parseDate = (dateStr: string): Date => {
     const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
-    return moment(dateStr, dateFormat).toDate();
+    const date = moment(dateStr, dateFormat);
+
+    if (date.isValid()) return moment(dateStr, dateFormat).toDate();
+    else return moment().toDate();
   };
 
   /**
