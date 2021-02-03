@@ -62,7 +62,7 @@ const ToastBody = styled.div<{
   .${Classes.ICON} {
     cursor: auto;
     margin-right: ${(props) => props.theme.spaces[3]}px;
-    margin-top: 2px;
+    margin-top: ${(props) => props.theme.spaces[1] / 2}px;
     svg {
       path {
         fill: ${(props) =>
