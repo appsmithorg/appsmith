@@ -15,7 +15,6 @@ import { AppState } from "reducers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import FIELD_VALUES from "constants/FieldExpectedValue";
 import {
-  CodeEditorBorder,
   EditorModes,
   EditorSize,
   EditorTheme,

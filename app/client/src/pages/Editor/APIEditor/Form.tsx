@@ -8,12 +8,10 @@ import {
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { PaginationField } from "api/ActionAPI";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import Pagination from "./Pagination";
 import { PaginationType, Action } from "entities/Action";
-import { Icon as BlueprintIcon } from "@blueprintjs/core";
 import { HelpMap, HelpBaseURL } from "constants/HelpConstants";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
@@ -94,16 +92,6 @@ const ActionButtons = styled.div`
   }
 `;
 
-const ActionButton = styled(BaseButton)`
-  &&& {
-    max-width: 72px;
-    &:last-of-type {
-      margin-left: 16px;
-    }
-    min-height: 32px;
-  }
-`;
-
 const DatasourceWrapper = styled.div`
   width: 100%;
 `;
@@ -141,22 +129,6 @@ const TabbedViewContainer = styled.div`
 export const BindingText = styled.span`
   color: ${(props) => props.theme.colors.bindingTextDark};
   font-weight: 700;
-`;
-
-const StyledOpenDocsIcon = styled(BlueprintIcon)`
-  svg {
-    width: 12px;
-    height: 18px;
-  }
-`;
-const RequestParamsWrapper = styled.div`
-  flex: 4;
-  border-right: 1px solid #d0d7dd;
-  height: 100%;
-  overflow-y: auto;
-  padding-top: 6px;
-  padding-left: 17px;
-  padding-right: 10px;
 `;
 
 const SettingsWrapper = styled.div`
@@ -247,10 +219,8 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
 
   const {
     pluginId,
-    onDeleteClick,
     onRunClick,
     handleSubmit,
-    isDeleting,
     isRunning,
     actionConfigurationHeaders,
     actionConfigurationBody,

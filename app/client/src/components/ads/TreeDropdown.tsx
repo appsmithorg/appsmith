@@ -5,7 +5,6 @@ import {
   PopoverInteractionKind,
   PopoverPosition,
   IPopoverSharedProps,
-  Classes,
   MenuItem,
   Popover,
   Menu,
@@ -38,7 +37,7 @@ type TreeDropdownProps = {
   modifiers?: IPopoverSharedProps["modifiers"];
 };
 
-const MoreActionablesContainer = styled.div<{ isOpen: boolean }>`
+const MoreActionableContainer = styled.div<{ isOpen: boolean }>`
   width: 34px;
   height: 30px;
   cursor: pointer;
@@ -165,9 +164,6 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     optionTree,
     onSelect,
     getDefaults,
-    selectedLabelModifier,
-    displayValue,
-    toggle,
   } = props;
   const selectedOption = getSelectedOption(
     selectedValue,
@@ -222,9 +218,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   const list = optionTree.map(renderTreeOption);
   const menuItems = <Menu>{list}</Menu>;
   const defaultToggle = (
-    <MoreActionablesContainer isOpen={isOpen} className={props.className}>
-      <Icon name="context-menu" size={IconSize.XXXL}></Icon>
-    </MoreActionablesContainer>
+    <MoreActionableContainer isOpen={isOpen} className={props.className}>
+      <Icon name="context-menu" size={IconSize.XXXL} />
+    </MoreActionableContainer>
   );
   return (
     <StyledPopover>

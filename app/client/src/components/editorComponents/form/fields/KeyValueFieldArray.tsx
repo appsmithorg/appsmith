@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import { FieldArray, WrappedFieldArrayProps } from "redux-form";
 import styled from "styled-components";
 import DynamicTextField from "./DynamicTextField";
@@ -30,7 +30,7 @@ const FormRowWithLabel = styled(FormRow)`
   }
 `;
 
-const CenterdIcon = styled(Icon)`
+const CenteredIcon = styled(Icon)`
   align-self: center;
   margin-left: 15px;
 `;
@@ -175,10 +175,8 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                         )
                       }
                       showLightningMenu={
-                        !!(
-                          props.actionConfig[index].editable ||
-                          props.actionConfig[index].editable === undefined
-                        )
+                        props.actionConfig[index].editable ||
+                        props.actionConfig[index].editable === undefined
                       }
                       {...otherProps}
                       hoverInteraction={true}
@@ -187,7 +185,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                   </Flex>
                 )}
                 {props.addOrDeleteFields !== false && (
-                  <CenterdIcon
+                  <CenteredIcon
                     name="delete"
                     size={IconSize.LARGE}
                     onClick={() => props.fields.remove(index)}

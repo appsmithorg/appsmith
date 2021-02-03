@@ -124,7 +124,7 @@ export const HintStyles = createGlobalStyle<{
   }
   .CodeMirror-Tern-completion-string:after {
     content: "String";
-  } 
+  }
   .CodeMirror-Tern-completion-bool:after {
     content: "Boolean";
   }
@@ -277,7 +277,7 @@ export const EditorWrapper = styled.div<{
       }
     }
     .cm-s-duotone-light .CodeMirror-gutters {
-      background: ${(props) => Colors.Gallery};
+      background: ${() => Colors.Gallery};
     }
     .cm-s-duotone-dark.CodeMirror {
       border-radius: 0px;
@@ -296,7 +296,7 @@ export const EditorWrapper = styled.div<{
       color: ${Colors.DOVE_GRAY};
     }
     .cm-s-duotone-dark .CodeMirror-gutters {
-      background: ${(props) => Colors.SHARK2};
+      background: ${() => Colors.SHARK2};
     }
     .binding-brackets {
       ${(props) =>
