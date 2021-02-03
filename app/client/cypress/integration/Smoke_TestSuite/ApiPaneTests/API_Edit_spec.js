@@ -7,7 +7,7 @@ describe("API Panel Test Functionality", function() {
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("FirstAPI");
-    cy.xpath(apiwidget.searchInputPlaceholder).should(
+    cy.get("textarea").should(
       "have.attr",
       "placeholder",
       "https://mock-api.appsmith.com/users",
