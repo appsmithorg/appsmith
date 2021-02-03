@@ -111,41 +111,6 @@
           ]
         }
       ]
-    },
-    {
-      "sectionName": "SSL (optional)",
-      "children": [
-        {
-          "label": "Authentication Mechanism",
-          "configProperty": "datasourceConfiguration.connection.ssl.authType",
-          "controlType": "DROP_DOWN",
-          "initialValue": "NO_SSL",
-          "options": [
-            {
-              "label": "No SSL",
-              "value": "NO_SSL"
-            },
-            {
-              "label": "CA Certificate",
-              "value": "CA_CERTIFICATE"
-            },
-            {
-              "label": "Self Signed Certificate",
-              "value": "SELF_SIGNED_CERTIFICATE"
-            }
-          ]
-        },
-        {
-          "label": "CA Certificate",
-          "configProperty": "datasourceConfiguration.connection.ssl.caCertificate",
-          "controlType": "FILE_PICKER"
-        },
-        {
-          "label": "PEM Certificate",
-          "configProperty": "datasourceConfiguration.connection.ssl.pemCertificate",
-          "controlType": "FILE_PICKER"
-        }
-      ]
     }
   ]
 }

@@ -92,6 +92,14 @@ const StyledInput = styled.input<
   background-color: ${(props) => props.inputStyle.bgColor};
   color: ${(props) => props.inputStyle.color};
 
+  &:-internal-autofill-selected,
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 30px ${(props) => props.inputStyle.bgColor} inset !important;
+    -webkit-text-fill-color: ${(props) => props.inputStyle.color} !important;
+  }
+
   &::placeholder {
     color: ${(props) => props.theme.colors.textInput.placeholder};
   }
@@ -200,3 +208,5 @@ const TextInput = forwardRef(
 TextInput.displayName = "TextInput";
 
 export default TextInput;
+
+export type InputType = "text" | "password" | "number" | "email" | "tel";

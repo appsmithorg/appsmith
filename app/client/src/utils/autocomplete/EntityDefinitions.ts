@@ -231,7 +231,7 @@ export const GLOBAL_DEFS = {
 export const GLOBAL_FUNCTIONS = {
   navigateTo: {
     "!doc": "Action to navigate the user to another page or url",
-    "!type": "fn(pageNameOrUrl: string, params: {}) -> void",
+    "!type": "fn(pageNameOrUrl: string, params: {}, target?: string) -> void",
   },
   showAlert: {
     "!doc": "Show a temporary notification style message to the user",

@@ -35,4 +35,27 @@ describe("Checking for error message on Organisation Name ", function() {
     // Enter the name "XYZ"
     // Ensure the application can be created with the same name
   });
+
+  it("User must not be able to add empty organisation name", function() {
+    // Navigate to home Page
+    // Click on the "Create Organisation" button
+    // Ensure "Organisation Name" field is empty
+    // Ensure "Submit" is inactive
+  });
+
+  it("Cancel creating an Organisation when the Organisation name is empty", function() {
+    // Navigate to home Page
+    // Click on the "Create Organisation" button
+    // Ensure "Organisation Name" field is empty
+    // Click on "Cancel" option
+    // Observe the organisation is not created
+  });
+
+  it("Cancel creating an Organisation when the Organisation name is dually filled", function() {
+    // Navigate to home Page
+    // Click on the "Create Organisation" button
+    // Ensure "Organisation Name" field is enterd respectively
+    // Click on "Cancel" option
+    // Observe the organisation is not created
+  });
 });

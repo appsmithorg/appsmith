@@ -60,6 +60,13 @@ export const scrollbarDark = css`
   }
 `;
 
+export const getTypographyByKey = (props: Record<string, any>, key: string) => `
+  font-weight: ${props.theme.typography[key].fontWeight};
+  font-size: ${props.theme.typography[key].fontSize}px;
+  line-height: ${props.theme.typography[key].lineHeight}px;
+  letter-spacing: ${props.theme.typography[key].letterSpacing}px;
+`;
+
 export const BlueprintControlTransform = css`
   && {
     .${Classes.CONTROL} {
@@ -308,15 +315,13 @@ export type Theme = {
       inActiveBG: ShadeColor;
       inActiveText: ShadeColor;
       border: Color;
+      background: Color;
     };
   };
   authCard: {
     width: number;
-    borderRadius: number;
-    background: Color;
-    padding: number;
     dividerSpacing: number;
-    shadow: string;
+    formMessageWidth: number;
   };
   shadows: string[];
   widgets: {
@@ -683,6 +688,7 @@ type ColorType = {
     separator: ShadeColor;
     title: ShadeColor;
     link: string;
+    hoverState: ShadeColor;
   };
   tagInput: {
     bg: ShadeColor;
@@ -806,6 +812,35 @@ type ColorType = {
     };
   };
   floatingBtn: any;
+  auth: any;
+  formMessage: Record<string, Record<Intent, string>>;
+};
+
+const auth: any = {
+  background: darkShades[1],
+  cardBackground: lightShades[10],
+  btnPrimary: "#F86A2B",
+  inputBackground: darkShades[1],
+  headingText: "#FFF",
+  link: "#106ba3",
+  text: darkShades[7],
+  placeholder: darkShades[5],
+  socialBtnText: darkShades[8],
+  socialBtnBorder: darkShades[8],
+  socialBtnHighlight: darkShades[1],
+};
+
+const formMessage = {
+  background: {
+    danger: "rgba(226,44,44,0.08)",
+    success: "#172320",
+    warning: "rgba(224, 179, 14, 0.08)",
+  },
+  text: {
+    danger: "#E22C2C",
+    success: "#03B365",
+    warning: "#E0B30E",
+  },
 };
 
 export const dark: ColorType = {
@@ -933,9 +968,9 @@ export const dark: ColorType = {
       border: darkShades[2],
     },
     normal: {
-      bg: lightShades[10],
-      text: darkShades[9],
+      bg: darkShades[0],
       border: darkShades[0],
+      text: darkShades[7],
     },
     placeholder: darkShades[5],
     readOnly: {
@@ -1034,6 +1069,7 @@ export const dark: ColorType = {
     separator: darkShades[4],
     title: darkShades[8],
     link: "#F86A2B",
+    hoverState: darkShades[3],
   },
   tagInput: {
     bg: "#090707",
@@ -1161,6 +1197,8 @@ export const dark: ColorType = {
     backgroundColor: darkShades[3],
     iconColor: darkShades[6],
   },
+  auth,
+  formMessage,
 };
 
 export const light: ColorType = {
@@ -1389,6 +1427,7 @@ export const light: ColorType = {
     separator: lightShades[4],
     title: lightShades[8],
     link: "#F86A2B",
+    hoverState: lightShades[3],
   },
   tagInput: {
     bg: lightShades[2],
@@ -1516,6 +1555,8 @@ export const light: ColorType = {
     backgroundColor: lightShades[3],
     iconColor: lightShades[7],
   },
+  auth,
+  formMessage,
 };
 
 export const theme: Theme = {
@@ -1607,6 +1648,18 @@ export const theme: Theme = {
       lineHeight: 23,
       letterSpacing: -0.24,
       fontWeight: "normal",
+    },
+    authCardHeader: {
+      fontStyle: "normal",
+      fontWeight: 600,
+      fontSize: 25,
+      lineHeight: 20,
+    },
+    authCardSubheader: {
+      fontStyle: "normal",
+      fontWeight: "normal",
+      fontSize: 15,
+      lineHeight: 20,
     },
   },
   iconSizes: {
@@ -1762,15 +1815,13 @@ export const theme: Theme = {
       inActiveBG: darkShades[2],
       inActiveText: darkShades[7],
       border: Colors.TROUT_DARK,
+      background: darkShades[4],
     },
   },
   authCard: {
-    width: 612,
-    borderRadius: 16,
-    background: Colors.WHITE,
-    padding: 40,
+    width: 440,
     dividerSpacing: 32,
-    shadow: "0px 4px 8px rgba(9, 30, 66, 0.25)",
+    formMessageWidth: 370,
   },
   shadows: [
     /* 0. tab */

@@ -151,8 +151,11 @@ const TableFilters = (props: TableFilterProps) => {
       };
     },
   );
-  const showAddFilter =
-    filters.length >= 1 && filters[0].column && filters[0].condition;
+  const hasAnyFilters = !!(
+    filters.length >= 1 &&
+    filters[0].column &&
+    filters[0].condition
+  );
   return (
     <Popover
       minimal
@@ -170,7 +173,7 @@ const TableFilters = (props: TableFilterProps) => {
         className="t--table-filter-toggle-btn"
         selected={selected}
         icon={
-          showAddFilter ? (
+          hasAnyFilters ? (
             <SelectedFilterWrapper>{filters.length}</SelectedFilterWrapper>
           ) : null
         }
@@ -194,6 +197,7 @@ const TableFilters = (props: TableFilterProps) => {
                 condition={filter.condition}
                 value={filter.value}
                 columns={columns}
+                hasAnyFilters={hasAnyFilters}
                 applyFilter={(filter: ReactTableFilter, index: number) => {
                   const updatedFilters = props.filters
                     ? [...props.filters]
@@ -215,7 +219,7 @@ const TableFilters = (props: TableFilterProps) => {
               />
             );
           })}
-          {showAddFilter ? (
+          {hasAnyFilters ? (
             <ButtonWrapper className={Classes.POPOVER_DISMISS}>
               <Button
                 intent="primary"

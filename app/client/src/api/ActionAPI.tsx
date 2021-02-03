@@ -5,7 +5,7 @@ import {
   DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
 } from "constants/ApiConstants";
 import axios, { AxiosPromise, CancelTokenSource } from "axios";
-import { Action } from "entities/Action";
+import { Action, ActionViewMode } from "entities/Action";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -127,7 +127,7 @@ class ActionAPI extends API {
 
   static fetchActionsForViewMode(
     applicationId: string,
-  ): AxiosPromise<GenericApiResponse<Action[]>> {
+  ): AxiosPromise<GenericApiResponse<ActionViewMode[]>> {
     return API.get(`${ActionAPI.url}/view`, { applicationId });
   }
 
