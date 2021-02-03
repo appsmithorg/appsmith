@@ -43,6 +43,7 @@ const RadioGroupWrapper = (props: RadioGroupWrapperProps) => {
       columns={props.columns}
       options={props.options}
       onSelect={(value: string) => onSelectHandler(value)}
+      className={props.className}
     />
   );
 };

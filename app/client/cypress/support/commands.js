@@ -664,9 +664,6 @@ Cypress.Commands.add("switchToAPIInputTab", () => {
 });
 
 Cypress.Commands.add("selectPaginationType", (option) => {
-  cy.get(apiwidget.paginationOption)
-    .first()
-    .click({ force: true });
   cy.xpath(option).click({ force: true });
 });
 
@@ -1807,11 +1804,7 @@ Cypress.Commands.add("NavigateToPaginationTab", () => {
   cy.get(ApiEditor.apiTab)
     .contains("Pagination")
     .click();
-  cy.get(ApiEditor.apiPaginationTab).click();
-  cy.get(ApiEditor.apiPaginationTab + " input")
-    .first()
-    .type("Paginate with Response Url", { force: true })
-    .type("{enter}");
+  cy.xpath(apiwidget.paginationWithUrl).click({ force: true });
 });
 
 Cypress.Commands.add("ValidateTableData", (value) => {

@@ -7,6 +7,7 @@ type RenderComponentProps = CheckboxProps & {
     onChange?: (value: boolean) => void;
     value?: boolean;
     checked?: boolean;
+    name?: string;
   };
 };
 
@@ -21,6 +22,7 @@ const RenderComponent = (props: RenderComponentProps) => {
       label={props.label}
       onCheckChange={onChangeHandler}
       info={props.info}
+      cypressSelector={props.input?.name}
     />
   );
 };

@@ -133,6 +133,7 @@ export default function RadioComponent(props: RadioProps) {
       rows={props.rows}
       columns={props.columns}
       onChange={(e: any) => onChangeHandler(e.target.value)}
+      className={props.className}
     >
       {props.options.map((option: OptionProps, index: number) => (
         <Radio
