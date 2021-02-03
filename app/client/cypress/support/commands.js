@@ -224,7 +224,7 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
     .scrollIntoView()
     .should("be.visible")
-    .click();
+    .click({ force: true });
   cy.wait("@createNewApplication").should(
     "have.nested.property",
     "response.body.responseMeta.status",
