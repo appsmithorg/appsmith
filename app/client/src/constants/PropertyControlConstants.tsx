@@ -6,7 +6,7 @@ export type PropertyPaneSectionConfig = {
   sectionName: string;
   id?: string;
   children: PropertyPaneConfig[];
-  hidden?: (props: any) => boolean;
+  hidden?: (props: any, propertyPath: string) => boolean;
   propertySectionPath?: string;
 };
 
@@ -39,7 +39,7 @@ export type PropertyPaneControlConfig = {
     propertyName: string,
     propertyValue: any,
   ) => Array<{ propertyPath: string; propertyValue: any }> | undefined;
-  hidden?: (props: any) => boolean;
+  hidden?: (props: any, propertyPath: string) => boolean;
 };
 
 export type PropertyPaneConfig =

@@ -1,4 +1,4 @@
-import { compact, xorWith } from "lodash";
+import { compact, get, xorWith } from "lodash";
 import { Colors } from "constants/Colors";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableWidgetProps } from "./TableWidgetConstants";
@@ -163,6 +163,21 @@ const updateDerivedColumnsHook = (
   }
   return;
 };
+// Gets the base property path excluding the current property.
+// For example, for  `primaryColumns[5].computedValue` it will return
+// `primaryColumns[5]`
+const getBasePropertyPath = (propertyPath: string): string | undefined => {
+  try {
+    const propertyPathRegex = /^(.*)\.\w+$/g;
+    const matches = [...propertyPath.matchAll(propertyPathRegex)][0];
+    if (matches && Array.isArray(matches) && matches.length === 2) {
+      return matches[1];
+    }
+    return;
+  } catch (e) {
+    return;
+  }
+};
 
 export default [
   {
@@ -258,8 +273,14 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   updateHook: updateDerivedColumnHook,
-                  hidden: (props: ColumnProperties) => {
-                    return props.columnType !== "date";
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType !== "date";
                   },
                 },
                 {
@@ -303,8 +324,14 @@ export default [
                     },
                   ],
                   updateHook: updateDerivedColumnHook,
-                  hidden: (props: ColumnProperties) => {
-                    return props.columnType !== "date";
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType !== "date";
                   },
                 },
                 {
@@ -312,19 +339,29 @@ export default [
                   label: "Computed Value",
                   controlType: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnHook,
-                  hidden: (props: ColumnProperties) => {
-                    return props.columnType === "button";
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnT dype`,
+                      "",
+                    );
+                    return columnType === "button";
                   },
                 },
               ],
             },
             {
               sectionName: "Styles",
-              hidden: (props: ColumnProperties) => {
-                return (
-                  props.columnType === "button" ||
-                  props.columnType === "dropdown"
+              hidden: (props: TableWidgetProps, propertyPath: string) => {
+                const baseProperty = getBasePropertyPath(propertyPath);
+
+                const columnType = get(
+                  props,
+                  `${baseProperty || propertyPath}.columnType`,
+                  "",
                 );
+                return columnType === "button" || columnType === "dropdown";
               },
               children: [
                 {
@@ -451,8 +488,14 @@ export default [
             },
             {
               sectionName: "Button Properties",
-              hidden: (props: ColumnProperties) => {
-                return props.columnType !== "button";
+              hidden: (props: TableWidgetProps, propertyPath: string) => {
+                const baseProperty = getBasePropertyPath(propertyPath);
+                const columnType = get(
+                  props,
+                  `${baseProperty || propertyPath}.columnType`,
+                  "",
+                );
+                return columnType !== "button";
               },
               children: [
                 {
