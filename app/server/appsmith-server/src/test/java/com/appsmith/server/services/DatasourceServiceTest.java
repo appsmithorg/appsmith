@@ -40,6 +40,7 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -682,6 +683,36 @@ public class DatasourceServiceTest {
 
                     assertThat(createdDatasource.getPolicies()).isNotEmpty();
                     assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createDatasourceWithHostnameStartingWithSpace() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByPackageName("installed-db-plugin");
+        Datasource datasource = new Datasource();
+        datasource.setName("test datasource name with hostname starting/ending with space");
+        datasource.setOrganizationId(orgId);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setEndpoints(new ArrayList<>());
+        datasourceConfiguration.getEndpoints().add(new Endpoint(" hostname ", 5432L));
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create);
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(createdDatasource -> {
+                    assertThat(createdDatasource.getId()).isNotEmpty();
+                    assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
+                    assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
+                    assertThat(createdDatasource.getInvalids()).isEmpty();
+                    assertThat(createdDatasource.getDatasourceConfiguration().getEndpoints()).isEqualTo(List.of(new Endpoint("hostname", 5432L)));
                 })
                 .verifyComplete();
     }

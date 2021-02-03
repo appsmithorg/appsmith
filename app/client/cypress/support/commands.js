@@ -224,7 +224,7 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
     .scrollIntoView()
     .should("be.visible")
-    .click();
+    .click({ force: true });
   cy.wait("@createNewApplication").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -287,6 +287,11 @@ Cypress.Commands.add("DeleteApp", (appName) => {
 });
 
 Cypress.Commands.add("LogintoApp", (uname, pword) => {
+  cy.window()
+    .its("store")
+    .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+  cy.wait("@postLogout");
+
   cy.visit("/user/login");
   cy.get(loginPage.username).should("be.visible");
   cy.get(loginPage.username).type(uname);
@@ -1026,6 +1031,17 @@ Cypress.Commands.add("testJsontext", (endp, value) => {
       });
   });
   cy.wait(1000);
+});
+
+Cypress.Commands.add("evaluateErrorMessage", (value) => {
+  cy.get(commonlocators.evaluateMsg)
+    .first()
+    .click()
+    .invoke("text")
+    .then((text) => {
+      const someText = text;
+      expect(someText).to.equal(value);
+    });
 });
 
 Cypress.Commands.add("selectShowMsg", (value) => {

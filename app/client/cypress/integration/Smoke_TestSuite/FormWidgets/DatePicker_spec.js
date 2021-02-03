@@ -101,18 +101,18 @@ describe("DatePicker Widget Functionality", function() {
     );
   });
 
-  it("Datepicker default date validation", function() {
-    cy.get(formWidgetsPage.defaultDate).click();
-    cy.wait(1000);
-    cy.setDate(-2, "ddd MMM DD YYYY");
-    cy.get(formWidgetsPage.defaultDate).should(
-      "have.css",
-      "border",
-      "1px solid rgb(206, 66, 87)",
-    );
+  // it("Datepicker default date validation", function() {
+  //   cy.get(formWidgetsPage.defaultDate).click();
+  //   cy.wait(1000);
+  //   cy.setDate(-2, "ddd MMM DD YYYY");
+  //   cy.get(formWidgetsPage.defaultDate).should(
+  //     "have.css",
+  //     "border",
+  //     "1px solid rgb(206, 66, 87)",
+  //   );
 
-    cy.PublishtheApp();
-  });
+  //   cy.PublishtheApp();
+  // });
 
   // it("DatePicker-check Required field validation", function() {
   //   // Check the required checkbox

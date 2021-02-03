@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useState } from "react";
 import styled from "styled-components";
-import { useLocation } from "react-router-dom";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
@@ -10,7 +9,7 @@ import { AppState } from "reducers";
 import {
   getRolesForField,
   getAllUsers,
-  getCurrentOrg,
+  getCurrentAppOrg,
 } from "selectors/organizationSelectors";
 import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -22,7 +21,6 @@ import {
   INVITE_USERS_VALIDATION_EMAIL_LIST,
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
 } from "constants/messages";
-import history from "utils/history";
 import { isEmail } from "utils/formhelpers";
 import {
   isPermitted,
@@ -33,13 +31,13 @@ import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-co
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Button, { Size } from "components/ads/Button";
 import Text, { TextType } from "components/ads/Text";
-import Icon, { IconSize } from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { scrollbarDark } from "constants/DefaultTheme";
 import ProfileImage from "pages/common/ProfileImage";
+import ManageUsers from "./ManageUsers";
 
 const OrgInviteTitle = styled.div`
   padding: 10px 0px;
@@ -60,35 +58,6 @@ const StyledForm = styled.form`
     }
     .bp3-button {
       padding-top: 5px;
-    }
-  }
-`;
-
-const ManageUsers = styled("a")`
-  margin-top: 20px;
-  display: inline-flex;
-  &&&& {
-    text-decoration: none;
-  }
-
-  .${Classes.TEXT} {
-    color: ${(props) => props.theme.colors.modal.manageUser};
-    margin-right: ${(props) => props.theme.spaces[1]}px;
-  }
-  .${Classes.ICON} {
-    svg path {
-      fill: ${(props) => props.theme.colors.modal.manageUser};
-    }
-  }
-
-  &:hover {
-    .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.modal.headerText};
-    }
-    .${Classes.ICON} {
-      svg path {
-        fill: ${(props) => props.theme.colors.modal.headerText};
-      }
     }
   }
 `;
@@ -248,11 +217,8 @@ const OrgInviteUsersForm = (props: any) => {
     isLoading,
   } = props;
 
-  const currentPath = useLocation().pathname;
-  const pathRegex = /(?:\/org\/)\w+(?:\/settings)/;
-  const currentOrg = useSelector(getCurrentOrg).filter(
-    (el) => el.id === props.orgId,
-  )[0];
+  const currentOrg = useSelector(getCurrentAppOrg);
+
   const userOrgPermissions = currentOrg?.userPermissions ?? [];
   const canManage = isPermitted(
     userOrgPermissions,
@@ -399,17 +365,7 @@ const OrgInviteUsersForm = (props: any) => {
             <Callout text={error || emailError} variant={Variant.danger} fill />
           )}
         </ErrorBox>
-        {!pathRegex.test(currentPath) && canManage && (
-          <ManageUsers
-            className="manageUsers"
-            onClick={() => {
-              history.push(`/org/${props.orgId}/settings/members`);
-            }}
-          >
-            <Text type={TextType.H6}>MANAGE USERS</Text>
-            <Icon name="manage" size={IconSize.XXS} />
-          </ManageUsers>
-        )}
+        {canManage && <ManageUsers orgId={props.orgId} />}
       </StyledForm>
     </>
   );
