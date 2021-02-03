@@ -14,6 +14,7 @@ import {
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import moment from "moment";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -56,6 +57,33 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
     return {
       selectedDate: undefined,
     };
+  }
+
+  componentDidUpdate(prevProps: DatePickerWidgetProps) {
+    if (this.props.dateFormat !== prevProps.dateFormat) {
+      if (this.props.defaultDate) {
+        const defaultDate = moment(
+          this.props.defaultDate,
+          this.props.dateFormat,
+        );
+        if (!defaultDate.isValid()) {
+          super.updateWidgetProperty("defaultDate", "");
+        } else {
+          if (this.props.minDate) {
+            const minDate = moment(this.props.minDate, this.props.dateFormat);
+            if (!minDate.isValid() || defaultDate.isBefore(minDate)) {
+              super.updateWidgetProperty("defaultDate", "");
+            }
+          }
+          if (this.props.maxDate) {
+            const maxDate = moment(this.props.maxDate, this.props.dateFormat);
+            if (!maxDate.isValid() || defaultDate.isAfter(maxDate)) {
+              super.updateWidgetProperty("defaultDate", "");
+            }
+          }
+        }
+      }
+    }
   }
 
   getPageView() {

@@ -72,6 +72,7 @@ class DatePickerControl extends BaseControl<
       this.props.widgetProperties?.evaluatedValues?.maxDate ?? this.maxDate;
     const minDate =
       this.props.widgetProperties?.evaluatedValues?.minDate ?? this.minDate;
+
     return (
       <DatePickerControlWrapper isValid={isValid}>
         <StyledDatePicker
@@ -93,7 +94,8 @@ class DatePickerControl extends BaseControl<
               : undefined
           }
           value={
-            this.props.propertyValue
+            this.props.propertyValue &&
+            (this.props.propertyName !== "defaultDate" || isValid)
               ? this.parseDate(this.props.propertyValue)
               : null
           }
@@ -113,7 +115,6 @@ class DatePickerControl extends BaseControl<
     if (isUserChange) {
       const selectedDate = date ? this.formatDate(date) : undefined;
       const isValid = this.validateDate(date);
-
       if (!isValid) return;
 
       // if everything is ok, put date in state
