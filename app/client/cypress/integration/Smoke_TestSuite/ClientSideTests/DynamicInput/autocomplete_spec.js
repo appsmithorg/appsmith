@@ -15,7 +15,7 @@ describe("Dynamic input autocomplete", () => {
       .first()
       .focus()
       .type("{ctrl}{shift}{downarrow}")
-      .then($cm => {
+      .then(($cm) => {
         if ($cm.val() !== "") {
           cy.get(dynamicInputLocators.input)
             .first()

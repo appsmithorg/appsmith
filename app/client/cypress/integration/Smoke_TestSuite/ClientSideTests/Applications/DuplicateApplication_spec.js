@@ -28,7 +28,7 @@ describe("Duplicate application", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get("@getPage").then(httpResponse => {
+    cy.get("@getPage").then((httpResponse) => {
       const data = httpResponse.response.body.data;
       duplicateApplicationDsl = data.layouts[0].dsl;
 

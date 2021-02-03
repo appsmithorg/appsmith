@@ -37,7 +37,7 @@ describe("Update Application", function() {
       .first()
       .click();
     cy.wait("@updateApplication")
-      .then(xhr => {
+      .then((xhr) => {
         iconname = xhr.response.body.data.icon;
       })
       .should("have.nested.property", "response.body.responseMeta.status", 200);

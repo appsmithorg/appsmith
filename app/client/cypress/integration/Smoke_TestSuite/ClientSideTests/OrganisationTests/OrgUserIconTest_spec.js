@@ -7,7 +7,7 @@ describe("Check if org has user icons on homepage", function() {
 
   it("create org and check if user icons exists in that org on homepage", function() {
     cy.NavigateToHome();
-    cy.generateUUID().then(uid => {
+    cy.generateUUID().then((uid) => {
       orgid = uid;
       localStorage.setItem("OrgName", orgid);
       cy.createOrg(orgid);
