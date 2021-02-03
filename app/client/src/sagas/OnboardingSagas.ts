@@ -395,7 +395,7 @@ function* listenForCreateAction() {
   });
   yield put({
     type: "SET_CURRENT_SUBSTEP",
-    payload: 3,
+    payload: 2,
   });
 
   yield take([
