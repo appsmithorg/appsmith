@@ -8,7 +8,19 @@ export const contexts = [
     components: [ThemeProvider],
     params: [
       {
-        name: "default",
+        name: "lightTheme",
+        props: {
+          theme: {
+            ...theme,
+            colors: {
+              ...theme.colors,
+              ...light,
+            },
+          },
+        },
+      },
+      {
+        name: "darkTheme",
         props: {
           theme: {
             ...theme,
