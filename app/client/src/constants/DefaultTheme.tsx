@@ -325,6 +325,7 @@ export type Theme = {
       inActiveBG: Color;
       inActiveText: Color;
       border: Color;
+      background: Color;
     };
   };
   authCard: {
@@ -1641,6 +1642,7 @@ export const theme: Theme = {
       inActiveBG: Colors.BLUE_CHARCOAL,
       inActiveText: Colors.WHITE,
       border: Colors.TROUT_DARK,
+      background: darkShades[4],
     },
   },
   authCard: {

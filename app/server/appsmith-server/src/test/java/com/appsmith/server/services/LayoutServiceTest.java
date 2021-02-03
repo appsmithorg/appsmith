@@ -7,6 +7,8 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
@@ -35,6 +37,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -405,8 +408,8 @@ public class LayoutServiceTest {
                     newLayout.setDsl(obj);
 
                     return layoutActionService.updateLayout(page1.getId(), layout.getId(), newLayout);
-                });
 
+                });
         StepVerifier
                 .create(testMono)
                 .assertNext(layout -> {
@@ -429,6 +432,20 @@ public class LayoutServiceTest {
                         assertThat(action.getName()).isNotBlank();
                         assertThat(action.getTimeoutInMillisecond()).isNotZero();
                     }
+                })
+                .verifyComplete();
+
+        Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> {
+            return newActionService.findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
+                    .zipWith(newActionService.findByUnpublishedNameAndPageId("aPostAction", page.getId(), AclPermission.MANAGE_ACTIONS));
+        });
+
+        StepVerifier
+                .create(actionDTOMono)
+                .assertNext(tuple -> {
+                    assertThat(tuple.getT1().getExecuteOnLoad()).isTrue();
+                    assertThat(tuple.getT2().getExecuteOnLoad()).isNotEqualTo(Boolean.TRUE);
+
                 })
                 .verifyComplete();
     }
