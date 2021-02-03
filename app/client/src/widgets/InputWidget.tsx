@@ -139,7 +139,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   };
 
   onSubmitSuccess = (result: ExecutionResult) => {
-    if (result && this.props.resetOnSubmit) {
+    if (result.success && this.props.resetOnSubmit) {
       this.props.updateWidgetMetaProperty("text", "", {
         dynamicString: this.props.onTextChanged,
         event: {
