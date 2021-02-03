@@ -10,6 +10,7 @@ import { DatePickerType } from "widgets/DatePickerWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { TimePrecision } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
+import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 
 const StyledControlGroup = styled(ControlGroup)`
   &&& {
@@ -67,10 +68,11 @@ class DatePickerComponent extends React.Component<
   }
 
   componentDidUpdate(prevProps: DatePickerComponentProps) {
+    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
     if (
       this.props.selectedDate !== this.state.selectedDate &&
-      !moment(this.props.selectedDate, this.props.dateFormat).isSame(
-        moment(prevProps.selectedDate, this.props.dateFormat),
+      !moment(this.props.selectedDate, dateFormat).isSame(
+        moment(prevProps.selectedDate, dateFormat),
         "seconds",
       )
     ) {
@@ -81,13 +83,13 @@ class DatePickerComponent extends React.Component<
   render() {
     const now = moment();
     const year = now.get("year");
+    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
     const minDate = this.props.minDate
-      ? moment(this.props.minDate)
+      ? moment(this.props.minDate, dateFormat)
       : now.clone().set({ month: 0, date: 1, year: year - 100 });
     const maxDate = this.props.maxDate
-      ? moment(this.props.maxDate)
+      ? moment(this.props.maxDate, dateFormat)
       : now.clone().set({ month: 11, date: 31, year: year + 20 });
-
     return (
       <StyledControlGroup
         fill
@@ -142,11 +144,13 @@ class DatePickerComponent extends React.Component<
   }
 
   formatDate = (date: Date): string => {
-    return moment(date).format(this.props.dateFormat);
+    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
+    return moment(date).format(dateFormat);
   };
 
   parseDate = (dateStr: string): Date => {
-    return moment(dateStr, this.props.dateFormat).toDate();
+    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
+    return moment(dateStr, dateFormat).toDate();
   };
 
   /**
@@ -156,16 +160,18 @@ class DatePickerComponent extends React.Component<
    *
    * @param selectedDate
    */
-  onDateSelected = (selectedDate: Date) => {
-    const { onDateSelected } = this.props;
+  onDateSelected = (selectedDate: Date, isUserChange: boolean) => {
+    if (isUserChange) {
+      const { onDateSelected } = this.props;
 
-    const date = selectedDate ? this.formatDate(selectedDate) : "";
-    this.setState({ selectedDate: date });
+      const date = selectedDate ? this.formatDate(selectedDate) : "";
+      this.setState({ selectedDate: date });
 
-    // if date is null ( if date is cleared ), don't call onDateSelected
-    if (!selectedDate) return false;
+      // if date is null ( if date is cleared ), don't call onDateSelected
+      if (!selectedDate) return false;
 
-    onDateSelected(date);
+      onDateSelected(date);
+    }
   };
 }
 
