@@ -1534,9 +1534,9 @@ function* pasteWidgetSaga() {
       const widget = newWidgetList[i];
 
       if (widget.type === WidgetTypes.LIST_WIDGET) {
-        // update template
         Object.keys(widget.template).map((widgetName) => {
           const oldWidgetName = widgetName;
+          console.log({});
           const newWidgetName = widgetNameMap[oldWidgetName];
 
           const newWidget = newWidgetList.find(
@@ -1547,7 +1547,11 @@ function* pasteWidgetSaga() {
             newWidget.widgetName = newWidgetName;
 
             if (widgetName === oldWidgetName) {
-              widget.template[newWidgetName] = newWidget;
+              widget.template[newWidgetName] = {
+                ...widget.template[oldWidgetName],
+                widgetId: newWidget.widgetId,
+                widgetName: newWidget.widgetName,
+              };
 
               delete widget.template[oldWidgetName];
             }
