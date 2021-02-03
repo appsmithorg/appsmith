@@ -54,7 +54,7 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
   // Mark default page as first page
   const appPages = pages;
   if (appPages.length > 1) {
-    appPages.forEach(function(item, i) {
+    appPages.forEach((item, i) => {
       if (item.isDefault) {
         appPages.splice(i, 1);
         appPages.unshift(item);
