@@ -1,12 +1,5 @@
 import React from "react";
-import { useSelector } from "react-redux";
-import {
-  Switch,
-  useRouteMatch,
-  useLocation,
-  Route,
-  Redirect,
-} from "react-router-dom";
+import { Switch, useRouteMatch, useLocation, Route } from "react-router-dom";
 import Login from "./Login";
 import { AuthContainer, AuthCard, AuthCardContainer } from "./StyledComponents";
 import SignUp from "./SignUp";
@@ -17,18 +10,11 @@ import FooterLinks from "./FooterLinks";
 import * as Sentry from "@sentry/react";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-import { getCurrentUser } from "selectors/usersSelectors";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { APPLICATIONS_URL } from "constants/routes";
+import requiresAuthHOC from "./requiresAuthHOC";
 
 export const UserAuth = () => {
   const { path } = useRouteMatch();
   const location = useLocation();
-  const user = useSelector(getCurrentUser);
-
-  if (user?.email && user?.email !== ANONYMOUS_USERNAME) {
-    return <Redirect to={APPLICATIONS_URL} />;
-  }
 
   return (
     <AuthContainer>
@@ -56,4 +42,4 @@ export const UserAuth = () => {
   );
 };
 
-export default UserAuth;
+export default requiresAuthHOC(UserAuth);
