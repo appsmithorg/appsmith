@@ -108,4 +108,13 @@ export interface QueryAction extends BaseAction {
   datasource: StoredDatasource;
 }
 
+export type ActionViewMode = {
+  id: string;
+  name: string;
+  pageId: string;
+  jsonPathKeys: string[];
+  confirmBeforeExecute?: boolean;
+  timeoutInMillisecond?: number;
+};
+
 export type Action = ApiAction | QueryAction;

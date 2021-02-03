@@ -9,6 +9,7 @@ import com.segment.analytics.messages.TrackMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -27,8 +28,12 @@ public class AnalyticsService {
         this.sessionUserService = sessionUserService;
     }
 
+    public boolean isActive() {
+        return analytics != null;
+    }
+
     public Mono<User> trackNewUser(User user) {
-        if (analytics == null) {
+        if (!isActive()) {
             return Mono.just(user);
         }
 
@@ -51,16 +56,30 @@ public class AnalyticsService {
                 });
     }
 
-    public <T extends BaseDomain> Mono<T> sendEvent(AnalyticsEvents event, T object) {
-        return sendEvent(event, object, null);
+    public void sendEvent(String event, String userId) {
+        sendEvent(event, userId, null);
     }
 
-    public <T extends BaseDomain> Mono<T> sendEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties) {
-        if (analytics == null) {
+    public void sendEvent(String event, String userId, Map<String, Object> properties) {
+        if (!isActive()) {
+            return;
+        }
+
+        TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userId);
+
+        if (!CollectionUtils.isEmpty(properties)) {
+            messageBuilder = messageBuilder.properties(properties);
+        }
+
+        analytics.enqueue(messageBuilder);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties) {
+        if (!isActive()) {
             return Mono.just(object);
         }
 
-        final String eventTag = event.lowerName() + "_" + object.getClass().getSimpleName().toUpperCase();
+        final String eventTag = event.getEventName() + "_" + object.getClass().getSimpleName().toUpperCase();
 
         // We will create an anonymous user object for event tracking if no user is present
         // Without this, a lot of flows meant for anonymous users will error out
@@ -84,18 +103,13 @@ public class AnalyticsService {
                         analyticsProperties.putAll(extraProperties);
                     }
 
-                    analytics.enqueue(
-                            TrackMessage.builder(eventTag)
-                                    .userId(username)
-                                    .properties(analyticsProperties)
-                    );
-
+                    sendEvent(eventTag, username, analyticsProperties);
                     return object;
                 });
     }
 
     public <T extends BaseDomain> Mono<T> sendCreateEvent(T object, Map<String, Object> extraProperties) {
-        return sendEvent(AnalyticsEvents.CREATE, object, extraProperties);
+        return sendObjectEvent(AnalyticsEvents.CREATE, object, extraProperties);
     }
 
     public <T extends BaseDomain> Mono<T> sendCreateEvent(T object) {
@@ -103,7 +117,7 @@ public class AnalyticsService {
     }
 
     public <T extends BaseDomain> Mono<T> sendUpdateEvent(T object, Map<String, Object> extraProperties) {
-        return sendEvent(AnalyticsEvents.UPDATE, object, extraProperties);
+        return sendObjectEvent(AnalyticsEvents.UPDATE, object, extraProperties);
     }
 
     public <T extends BaseDomain> Mono<T> sendUpdateEvent(T object) {
@@ -111,10 +125,11 @@ public class AnalyticsService {
     }
 
     public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object, Map<String, Object> extraProperties) {
-        return sendEvent(AnalyticsEvents.DELETE, object, extraProperties);
+        return sendObjectEvent(AnalyticsEvents.DELETE, object, extraProperties);
     }
 
     public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object) {
         return sendDeleteEvent(object, null);
     }
+
 }

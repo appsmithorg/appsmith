@@ -102,7 +102,7 @@ public class UserServiceWithDisabledSignupTest {
                     assertThat(user).isNotNull();
                     assertThat(user.getId()).isNotNull();
                     assertThat(user.getEmail()).isEqualTo("dummy_admin@appsmith.com");
-                    assertThat(user.getName()).isEqualTo("dummy_admin@appsmith.com");
+                    assertThat(user.getName()).isNullOrEmpty();
                     assertThat(user.getPolicies()).isNotEmpty();
                     assertThat(user.getOrganizationIds()).isNullOrEmpty();
                 })
@@ -123,7 +123,7 @@ public class UserServiceWithDisabledSignupTest {
                     assertThat(user).isNotNull();
                     assertThat(user.getId()).isNotNull();
                     assertThat(user.getEmail()).isEqualTo("dummy2@appsmith.com");
-                    assertThat(user.getName()).isEqualTo("dummy2@appsmith.com");
+                    assertThat(user.getName()).isNullOrEmpty();
                     assertThat(user.getPolicies()).isNotEmpty();
                     assertThat(user.getOrganizationIds()).isNullOrEmpty();
                 })

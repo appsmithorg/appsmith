@@ -22,8 +22,7 @@ describe("Binding the multiple widgets and validating default data", function() 
     );
   });
 
-  /*
-  To be enabled once the single select multi select issues are resolved
+  //To be enabled once the single select multi select issues are resolved
   it("Dropdown widget test with default value from table widget", function() {
     cy.openPropertyPane("dropdownwidget");
     cy.testJsontext("options", JSON.stringify(testdata.deafultDropDownWidget));
@@ -34,11 +33,10 @@ describe("Binding the multiple widgets and validating default data", function() 
       200,
     );
   });
-*/
 
   it("validation of default data displayed in all widgets based on row selected", function() {
     cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "0").then(tabData => {
+    cy.readTabledataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("2736212");
       cy.log("the value is" + tabValue);
@@ -48,18 +46,17 @@ describe("Binding the multiple widgets and validating default data", function() 
         .invoke("attr", "value")
         .should("contain", tabValue);
     });
-    /*
-    cy.readTabledataPublish("1", "1").then(tabData => {
+
+    cy.readTabledataPublish("1", "1").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("lindsay.ferguson@reqres.in");
       cy.log("the value is" + tabValue);
       cy.get(widgetsPage.defaultSingleSelectValue)
         .invoke("text")
-        .then(text => {
+        .then((text) => {
           const someText = text;
           expect(someText).to.equal(tabValue);
         });
     });
-    */
   });
 });
