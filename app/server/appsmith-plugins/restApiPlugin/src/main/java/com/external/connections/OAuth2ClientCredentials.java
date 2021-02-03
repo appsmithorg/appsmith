@@ -29,24 +29,25 @@ import java.util.Map;
 
 @Setter
 @Getter
-public class OAuth2Connection extends APIConnection implements UpdatableConnection {
+public class OAuth2ClientCredentials extends APIConnection implements UpdatableConnection {
 
     private final Clock clock = Clock.systemUTC();
     private String token;
     private String headerPrefix;
     private boolean isHeader;
     private Instant expiresAt;
+    private Object tokenResponse;
     private static final int MAX_IN_MEMORY_SIZE = 10 * 1024 * 1024; // 10 MB
 
-    private OAuth2Connection() {
+    private OAuth2ClientCredentials() {
     }
 
-    public static Mono<OAuth2Connection> create(OAuth2 oAuth2) {
+    public static Mono<OAuth2ClientCredentials> create(OAuth2 oAuth2) {
         if (oAuth2 == null) {
             return Mono.empty();
         }
         // Create OAuth2Connection
-        OAuth2Connection connection = new OAuth2Connection();
+        OAuth2ClientCredentials connection = new OAuth2ClientCredentials();
 
         return Mono.just(oAuth2)
                 // Validate existing token
@@ -65,6 +66,7 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
                     connection.setHeader(token.getIsTokenHeader());
                     connection.setHeaderPrefix(token.getHeaderPrefix());
                     connection.setExpiresAt(token.getExpiresAt());
+                    connection.setTokenResponse(token.getTokenResponse());
                     return Mono.just(connection);
                 });
     }
@@ -95,7 +97,7 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
                     // Default issuedAt to current time
                     Instant issuedAt = Instant.now();
                     if (issuedAtResponse != null) {
-                        issuedAt = Instant.ofEpochMilli(Long.parseLong((String) issuedAtResponse));
+                        issuedAt = Instant.ofEpochSecond(Long.parseLong((String) issuedAtResponse));
                     }
 
                     // We expect at least one of the following to be present
@@ -103,9 +105,9 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
                     Object expiresInResponse = mappedResponse.get("expires_in");
                     Instant expiresAt = null;
                     if (expiresAtResponse != null) {
-                        expiresAt = Instant.ofEpochMilli(Long.parseLong((String) expiresAtResponse));
+                        expiresAt = Instant.ofEpochSecond(Long.parseLong((String) expiresAtResponse));
                     } else if (expiresInResponse != null) {
-                        expiresAt = issuedAt.plusMillis(Long.parseLong((String) expiresInResponse));
+                        expiresAt = issuedAt.plusSeconds(Long.valueOf((Integer) expiresInResponse));
                     }
                     oAuth2.setExpiresAt(expiresAt);
                     oAuth2.setIssuedAt(issuedAt);
@@ -169,6 +171,8 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
         oAuth2.setToken(this.token);
         oAuth2.setHeaderPrefix(this.headerPrefix);
         oAuth2.setIsTokenHeader(this.isHeader);
+        oAuth2.setExpiresAt(this.expiresAt);
+        oAuth2.setTokenResponse(this.tokenResponse);
 
         return oAuth2;
     }

@@ -85,7 +85,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     @Override
     public Mono<Datasource> getById(String s) {
         return super.getById(s).flatMap(datasource -> {
-            if (datasource.getDatasourceConfiguration().getAuthentication().isEncrypted()) {
+            if (datasource.getDatasourceConfiguration().getAuthentication() != null &&
+                    datasource.getDatasourceConfiguration().getAuthentication().isEncrypted()) {
                 datasource.getDatasourceConfiguration().setAuthentication(decryptSensitiveFields(datasource.getDatasourceConfiguration().getAuthentication()));
             }
             return Mono.just(datasource);

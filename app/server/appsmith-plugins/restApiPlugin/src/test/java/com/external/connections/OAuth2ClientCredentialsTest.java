@@ -20,12 +20,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(OAuth2Connection.class)
-public class OAuth2ConnectionTest {
+@PrepareForTest(OAuth2ClientCredentials.class)
+public class OAuth2ClientCredentialsTest {
 
     @Test
     public void testNullConnection() {
-        APIConnection connection = OAuth2Connection.create(null).block(Duration.ofMillis(100));
+        APIConnection connection = OAuth2ClientCredentials.create(null).block(Duration.ofMillis(100));
         assertThat(connection).isNull();
     }
 
@@ -36,7 +36,7 @@ public class OAuth2ConnectionTest {
         oAuth2.setToken("SomeToken");
         oAuth2.setIsEncrypted(false);
         oAuth2.setExpiresAt(Instant.now().plusSeconds(1200));
-        OAuth2Connection connection = OAuth2Connection.create(oAuth2).block(Duration.ofMillis(100));
+        OAuth2ClientCredentials connection = OAuth2ClientCredentials.create(oAuth2).block(Duration.ofMillis(100));
         assertThat(connection).isNotNull();
         assertThat(connection.getExpiresAt()).isEqualTo(oAuth2.getExpiresAt());
         assertThat(connection.getHeaderPrefix()).isEqualTo("Bearer");
@@ -50,7 +50,7 @@ public class OAuth2ConnectionTest {
         oAuth2.setToken("SomeToken");
         oAuth2.setIsEncrypted(false);
         oAuth2.setExpiresAt(Instant.now().plusSeconds(1200));
-        OAuth2Connection connection = OAuth2Connection.create(oAuth2).block(Duration.ofMillis(100));
+        OAuth2ClientCredentials connection = OAuth2ClientCredentials.create(oAuth2).block(Duration.ofMillis(100));
         connection.setExpiresAt(Instant.now());
 
         Mono<ClientResponse> response = connection.filter(Mockito.mock(ClientRequest.class), Mockito.mock(ExchangeFunction.class));

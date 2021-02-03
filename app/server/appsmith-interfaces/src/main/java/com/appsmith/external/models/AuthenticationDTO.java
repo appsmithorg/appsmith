@@ -17,7 +17,7 @@ import java.util.Set;
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         visible = true,
-        property = "type",
+        property = "authenticationType",
         defaultImpl = DBAuth.class)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = DBAuth.class, name = AuthType.DB_AUTH),
@@ -29,7 +29,9 @@ public class AuthenticationDTO {
     // class and fails.
 
     @Transient
-    String type;
+    String authenticationType;
+
+    Set<Property> customAuthenticationParameters;
 
     @JsonIgnore
     private Boolean isEncrypted = false;

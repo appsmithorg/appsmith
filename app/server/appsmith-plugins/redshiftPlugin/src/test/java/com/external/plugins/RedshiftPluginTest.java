@@ -66,7 +66,7 @@ public class RedshiftPluginTest {
 
     private DatasourceConfiguration createDatasourceConfiguration() {
         DBAuth authDTO = new DBAuth();
-        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
+        authDTO.setAuthenticationMechanism(DBAuth.Type.USERNAME_PASSWORD);
         authDTO.setUsername(username);
         authDTO.setPassword(password);
         authDTO.setDatabaseName(dbName);

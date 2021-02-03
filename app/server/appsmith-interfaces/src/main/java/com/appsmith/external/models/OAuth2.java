@@ -30,16 +30,22 @@ public class OAuth2 extends AuthenticationDTO {
     public enum Type {
         @JsonProperty("client_credentials")
         CLIENT_CREDENTIALS,
+        @JsonProperty("authorization_code")
+        AUTHORIZATION_CODE
     }
 
     Type grantType;
 
     Boolean isTokenHeader = false;
 
+    Boolean isAuthorizationHeader = false;
+
     String clientId;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String clientSecret;
+
+    String authorizationUrl;
 
     String accessTokenUrl;
 
@@ -53,8 +59,13 @@ public class OAuth2 extends AuthenticationDTO {
     @JsonIgnore
     Object tokenResponse;
 
+    Set<Property> customTokenParameters;
+
     @JsonIgnore
     String token;
+
+    @JsonIgnore
+    String refreshToken;
 
     @JsonIgnore
     Instant issuedAt;
@@ -63,9 +74,11 @@ public class OAuth2 extends AuthenticationDTO {
     Instant expiresAt;
 
     public String getScopeString() {
-        if (this.scope != null && !this.scope.isEmpty()) {
+        if (scopeString != null && !scopeString.isBlank()) {
+            return scopeString;
+        } else if (this.scope != null && !this.scope.isEmpty()) {
             return Strings.join(this.scope, ',');
-        } else return scopeString;
+        } else return null;
     }
 
     public void setScopeString(String scopeString) {
@@ -84,6 +97,9 @@ public class OAuth2 extends AuthenticationDTO {
         if (this.token != null) {
             map.put(FieldName.TOKEN, this.token);
         }
+        if (this.refreshToken != null) {
+            map.put(FieldName.REFRESH_TOKEN, this.refreshToken);
+        }
         if (this.tokenResponse != null) {
             map.put(FieldName.TOKEN_RESPONSE, String.valueOf(this.tokenResponse));
         }
@@ -98,6 +114,9 @@ public class OAuth2 extends AuthenticationDTO {
             }
             if (encryptedFields.containsKey(FieldName.TOKEN)) {
                 this.token = encryptedFields.get(FieldName.TOKEN);
+            }
+            if (encryptedFields.containsKey(FieldName.REFRESH_TOKEN)) {
+                this.refreshToken = encryptedFields.get(FieldName.REFRESH_TOKEN);
             }
             if (encryptedFields.containsKey(FieldName.TOKEN_RESPONSE)) {
                 this.tokenResponse = encryptedFields.get(FieldName.TOKEN_RESPONSE);
@@ -114,10 +133,14 @@ public class OAuth2 extends AuthenticationDTO {
         if (this.token == null || this.token.isEmpty()) {
             set.add(FieldName.TOKEN);
         }
+        if (this.refreshToken == null || this.refreshToken.isEmpty()) {
+            set.add(FieldName.REFRESH_TOKEN);
+        }
         if (this.tokenResponse == null || (String.valueOf(this.token)).isEmpty()) {
             set.add(FieldName.TOKEN_RESPONSE);
         }
         return set;
     }
+
 
 }

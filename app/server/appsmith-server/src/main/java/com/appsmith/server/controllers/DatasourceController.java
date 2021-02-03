@@ -6,6 +6,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.solutions.AuthenticationService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
@@ -26,12 +27,15 @@ import reactor.core.publisher.Mono;
 public class DatasourceController extends BaseController<DatasourceService, Datasource, String> {
 
     private final DatasourceStructureSolution datasourceStructureSolution;
+    private final AuthenticationService authenticationService;
 
     @Autowired
     public DatasourceController(DatasourceService service,
-                                DatasourceStructureSolution datasourceStructureSolution) {
+                                DatasourceStructureSolution datasourceStructureSolution,
+                                AuthenticationService authenticationService) {
         super(service);
         this.datasourceStructureSolution = datasourceStructureSolution;
+        this.authenticationService = authenticationService;
     }
 
     @PostMapping("/test")
@@ -49,4 +53,16 @@ public class DatasourceController extends BaseController<DatasourceService, Data
                 .map(structure -> new ResponseDTO<>(HttpStatus.OK.value(), structure, null));
     }
 
+    @GetMapping("/{datasourceId}/code")
+    public Mono<ResponseDTO<String>> getTokenRequestUrl(@PathVariable String datasourceId) {
+        log.debug("Going to retrieve token request URL for datasource with id: {}", datasourceId);
+        return authenticationService.getAuthorizationCodeURL(datasourceId)
+                .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null));
+    }
+
+    @PostMapping("/authorize")
+    public Mono<ResponseDTO<Datasource>> getAccessToken(@RequestParam String code, @RequestParam String state, @RequestParam String scope) {
+        return authenticationService.getAccessToken(code, state, scope)
+                .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
+    }
 }

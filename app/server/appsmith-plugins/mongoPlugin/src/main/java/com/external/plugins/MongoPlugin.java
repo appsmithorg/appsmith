@@ -254,8 +254,8 @@ public class MongoPlugin extends BasePlugin {
                 queryParams.add("ssl=true");
             }
 
-            if (authentication != null && authentication.getAuthType() != null) {
-                queryParams.add("authMechanism=" + authentication.getAuthType().name().replace('_', '-'));
+            if (authentication != null && authentication.getAuthenticationMechanism() != null) {
+                queryParams.add("authMechanism=" + authentication.getAuthenticationMechanism().name().replace('_', '-'));
             }
 
             if (!queryParams.isEmpty()) {
@@ -298,7 +298,7 @@ public class MongoPlugin extends BasePlugin {
                 invalids.add("Missing authentication details.");
 
             } else {
-                DBAuth.Type authType = authentication.getAuthType();
+                DBAuth.Type authType = authentication.getAuthenticationMechanism();
 
                 if (authType != null && VALID_AUTH_TYPES.contains(authType)) {
 
