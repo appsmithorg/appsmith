@@ -92,7 +92,7 @@ export const ForgotPassword = withTheme(
               }
               actions={[
                 {
-                  url: "https://docs.appsmith.com/third-party-services/email",
+                  url: "https://docs.appsmith.com/v/v1.2.1/setup/docker/email",
                   text: "Configure Email service",
                   intent: "primary",
                 },
