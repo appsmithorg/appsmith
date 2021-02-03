@@ -22,6 +22,7 @@ describe("Page Load tests", () => {
       .contains("Page2")
       .parent()
       .parent()
+      .parent()
       .should("have.class", "is-active");
     // Assert active page DSL
     cy.get(commonlocators.headingTextStyle).should(
@@ -33,6 +34,7 @@ describe("Page Load tests", () => {
     // Assert active page tab
     cy.get(".t--page-switch-tab")
       .contains("Page2")
+      .parent()
       .parent()
       .parent()
       .should("have.class", "is-active");
@@ -48,6 +50,7 @@ describe("Page Load tests", () => {
     // Assert active page tab
     cy.get(".t--page-switch-tab")
       .contains("Page1")
+      .parent()
       .parent()
       .parent()
       .should("have.class", "is-active");
