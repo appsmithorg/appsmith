@@ -4,7 +4,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import InputComponent, {
   InputComponentProps,
 } from "components/designSystems/blueprint/InputComponent";
-import { EventType } from "constants/ActionConstants";
+import { EventType, ExecutionResult } from "constants/ActionConstants";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
@@ -138,8 +138,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("isFocused", focusState);
   };
 
-  onSubmitSuccess = () => {
-    if (this.props.resetOnSubmit) {
+  onSubmitSuccess = (result: ExecutionResult) => {
+    if (result && this.props.resetOnSubmit) {
       this.props.updateWidgetMetaProperty("text", "", {
         dynamicString: this.props.onTextChanged,
         event: {
