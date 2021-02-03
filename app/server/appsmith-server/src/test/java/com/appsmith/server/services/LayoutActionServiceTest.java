@@ -164,6 +164,7 @@ public class LayoutActionServiceTest {
                     updates.setExecuteOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
+                    updates.setDatasource(datasource);
                     return layoutActionService.updateAction(savedAction.getId(), updates);
                 })
                 .flatMap(savedAction -> newActionService.createAction(unreferencedAction))
