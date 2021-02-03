@@ -15,7 +15,6 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import Text, { TextType } from "components/ads/Text";
 import Toggle from "components/ads/Toggle";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import ManageUsers from "./ManageUsers";
 
 const Title = styled.div`
   padding: 10px 0px;
