@@ -383,7 +383,7 @@ ask_telemetry() {
     echo "+++++++++++ IMPORTANT ++++++++++++++++++++++"
     echo -e "Thank you for installing appsmith! We want to be transparent and request that you share anonymous usage data with us."
     echo -e "This data is purely statistical in nature and helps us understand your needs & provide better support to your self-hosted instance."
-    echo -e "You can read more about what information is collected in our documentation https://docs.appsmith.com/telemetry/telemetry"
+    echo -e "You can read more about what information is collected in our documentation https://docs.appsmith.com/v/v1.2.1/setup/telemetry"
     echo -e ""
     if confirm y 'Would you like to share anonymous usage data and receive better support?'; then
         disable_telemetry="false"
@@ -611,7 +611,7 @@ if confirm n "Do you have a custom domain that you would like to link? (Only for
     echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
     echo "Please update your DNS records with your domain registrar"
     echo "You can read more about this in our Documentation"
-    echo "https://docs.appsmith.com/v/v1.1/quick-start#custom-domains"
+    echo "https://docs.appsmith.com/v/v1.2.1/setup#custom-domains"
     echo "+++++++++++++++++++++++++++++++++++++++++++++++"
     echo ""
     echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
