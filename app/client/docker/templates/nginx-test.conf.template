@@ -1,19 +1,32 @@
+server {
+    listen 80;
+    server_name dev.appsmith.com;
+
+    return 301 https://$host$request_uri;
+}
 
 server {
-
-  listen $PORT default_server;
+    listen 443 ssl http2;
+    server_name dev.appsmith.com;
     client_max_body_size 10m;
 
+    ssl_certificate /etc/certificate/dev.appsmith.com.pem;
+    ssl_certificate_key /etc/certificate/dev.appsmith.com-key.pem;
+
+    # include /etc/letsencrypt/options-ssl-nginx.conf;
+    # ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
     gzip on;
 
-    root /var/www/appsmith;
-    index index.html index.htm;
-
-    proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+    proxy_ssl_server_name on;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header Accept-Encoding "";
 
+    sub_filter_once off;
     location / {
-        try_files $uri /index.html =404;
+        proxy_pass __APPSMITH_CLIENT_PROXY_PASS__;
         sub_filter __APPSMITH_SENTRY_DSN__ '${APPSMITH_SENTRY_DSN}';
         sub_filter __APPSMITH_SMART_LOOK_ID__ '${APPSMITH_SMART_LOOK_ID}';
         sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}';
@@ -27,6 +40,8 @@ server {
         sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '${APPSMITH_CLIENT_LOG_LEVEL}';
         sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '${APPSMITH_GOOGLE_MAPS_API_KEY}';
         sub_filter __APPSMITH_TNC_PP__ '${APPSMITH_TNC_PP}';
+        sub_filter __APPSMITH_SENTRY_RELEASE__ '${APPSMITH_SENTRY_RELEASE}';
+        sub_filter __APPSMITH_SENTRY_ENVIRONMENT__ '${APPSMITH_SENTRY_ENVIRONMENT}';
         sub_filter __APPSMITH_VERSION_ID__ '${APPSMITH_VERSION_ID}';
         sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '${APPSMITH_VERSION_RELEASE_DATE}';
         sub_filter __APPSMITH_INTERCOM_APP_ID__ '${APPSMITH_INTERCOM_APP_ID}';
@@ -39,15 +54,21 @@ server {
     }
 
     location /api {
-        proxy_pass http://localhost:8080;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_pass __APPSMITH_SERVER_PROXY_PASS__;
     }
 
     location /oauth2 {
-        proxy_pass http://localhost:8080;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_pass __APPSMITH_SERVER_PROXY_PASS__;
     }
 
     location /login {
-        proxy_pass http://localhost:8080;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_pass __APPSMITH_SERVER_PROXY_PASS__;
     }
-
 }
+

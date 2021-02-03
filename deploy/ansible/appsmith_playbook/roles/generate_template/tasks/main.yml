@@ -5,11 +5,11 @@
     path: "{{ install_dir }}"
     state: directory
 
-- name: reate mongo and nginx folder if they don't exist
+- name: Create mongo folder if they don't exist
   file:
     path: "{{ install_dir }}/data/{{ item }}"
     state: directory
-  loop: ["nginx", "mongo"]
+  loop: ["mongo"]
 
 - name: Check for encryption.env
   stat: 
@@ -33,8 +33,3 @@
 
 - set_fact:
     ssl_cmt: "{% if ssl_enable == 'false' %}#{% endif %}"
-
-- name: Copy nginx template file
-  template: src="nginx-app.conf.j2" dest="{{ install_dir }}/data/nginx/app.conf.template"
-  become: yes
-

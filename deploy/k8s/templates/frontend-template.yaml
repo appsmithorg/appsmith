@@ -31,11 +31,3 @@ spec:
         envFrom:
           - configMapRef:
               name: application-config
-        volumeMounts:
-          - name: nginx-config-template
-            mountPath: /nginx.conf.template
-            subPath: nginx.conf.template
-      volumes:
-      - name: nginx-config-template
-        configMap:
-          name: nginx-config-template
