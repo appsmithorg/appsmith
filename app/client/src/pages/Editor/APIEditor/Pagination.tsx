@@ -3,7 +3,6 @@ import DynamicTextField from "components/editorComponents/form/fields/DynamicTex
 
 import styled from "constants/DefaultTheme";
 import FormRow from "components/editorComponents/FormRow";
-import CalloutComponent from "components/designSystems/blueprint/CalloutComponent";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
 import Text, { Case, TextType } from "components/ads/Text";
@@ -24,11 +23,6 @@ const PaginationFieldWrapper = styled.div`
   button {
     margin-left: ${(props) => props.theme.spaces[5]}px;
   }
-`;
-
-const ExampleApi = styled.p`
-  color: #ef7b63;
-  font-family: ${(props) => props.theme.fonts.code};
 `;
 
 const StyledLabel = styled(Text)`

@@ -5,7 +5,6 @@ import {
   PopoverInteractionKind,
   PopoverPosition,
   IPopoverSharedProps,
-  Classes,
   MenuItem,
   Popover,
   Menu,
@@ -165,9 +164,6 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     optionTree,
     onSelect,
     getDefaults,
-    selectedLabelModifier,
-    displayValue,
-    toggle,
   } = props;
   const selectedOption = getSelectedOption(
     selectedValue,
