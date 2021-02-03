@@ -1,11 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
-import ReactDOM from "react-dom";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import { Hotkey, Hotkeys } from "@blueprintjs/core";
-import styled from "styled-components";
 import { HelpBaseURL } from "constants/HelpConstants";
-import Container from "./Container";
 import { AppState } from "reducers";
 
 import {
@@ -13,18 +10,7 @@ import {
   updateActiveItemIndex,
 } from "actions/globalSearchActions";
 
-const StyledDocsSearchModal = styled.div`
-  position: absolute;
-  top: 100px;
-  left: 100px;
-  z-index: 12;
-`;
-
-const DocsSearchModal = () => (
-  <StyledDocsSearchModal>
-    <Container />
-  </StyledDocsSearchModal>
-);
+import DocsSearchModal from "./DocsSearchModal";
 
 type Props = {
   updateActiveItemIndex: (index: number) => void;
@@ -44,19 +30,32 @@ class DocsSearch extends React.Component<Props> {
         combo: "shift + o",
         onKeyDown: this.toggleShow,
         hideWhenModalClosed: false,
+        allowInInput: false,
       },
-      { combo: "up", onKeyDown: this.handleUpKey, hideWhenModalClosed: true },
+      {
+        combo: "up",
+        onKeyDown: this.handleUpKey,
+        hideWhenModalClosed: true,
+        allowInInput: true,
+      },
       {
         combo: "down",
         onKeyDown: this.handleDownKey,
         hideWhenModalClosed: true,
+        allowInInput: true,
       },
       {
         combo: "return",
         onKeyDown: this.handleOpenDocumentation,
         hideWhenModalClosed: true,
+        allowInInput: true,
       },
-      { combo: "esc", onKeyDown: this.toggleShow, hideWhenModalClosed: true },
+      {
+        combo: "esc",
+        onKeyDown: this.toggleShow,
+        hideWhenModalClosed: true,
+        allowInInput: true,
+      },
     ].filter(
       ({ hideWhenModalClosed }) =>
         !hideWhenModalClosed || (hideWhenModalClosed && this.props.modalOpen),
@@ -66,13 +65,14 @@ class DocsSearch extends React.Component<Props> {
   renderHotkeys() {
     return (
       <Hotkeys>
-        {this.hotKeysConfig.map(({ combo, onKeyDown }, index) => (
+        {this.hotKeysConfig.map(({ combo, onKeyDown, allowInInput }, index) => (
           <Hotkey
             key={index}
             global={true}
             combo={combo}
             onKeyDown={onKeyDown}
             label=""
+            allowInInput={allowInInput}
           />
         ))}
       </Hotkeys>
@@ -114,7 +114,7 @@ class DocsSearch extends React.Component<Props> {
     return (
       <>
         <div onClick={this.toggleShow}>shift + o</div>
-        {modalOpen && ReactDOM.createPortal(<DocsSearchModal />, document.body)}
+        <DocsSearchModal modalOpen={modalOpen} toggleShow={this.toggleShow} />
       </>
     );
   }

@@ -1669,7 +1669,7 @@ export const theme: Theme = {
 };
 
 export const scrollbarLight = css<{ backgroundColor?: Color }>`
-  scrollbar-color: ${(props) => props.theme.colors.paneText}
+  scrollbar-color: ${(props) => props.theme.colors.paneText};
 
   scrollbar-width: thin;
   &::-webkit-scrollbar {

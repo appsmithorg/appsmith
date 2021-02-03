@@ -1,5 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import styled from "styled-components";
 import algoliasearch from "algoliasearch/lite";
 import { InstantSearch } from "react-instantsearch-dom";
 import "instantsearch.css/themes/algolia.css";
@@ -8,9 +9,21 @@ import { AppState } from "reducers";
 
 import SearchBox from "./SearchBox";
 import SearchResults from "./SearchResults";
+import ContentView from "./ContentView";
 
 const { algolia } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
+
+const StyledContainer = styled.div`
+  width: 100%;
+  max-width: 660px;
+  height: 40vh;
+  background-color: #e0e0e0;
+  & .main {
+    display: flex;
+    overflow: hidden;
+  }
+`;
 
 const Search = () => {
   const query = useSelector((state: AppState) => state.ui.globalSearch.query);
@@ -21,8 +34,13 @@ const Search = () => {
       indexName={algolia.indexName}
       searchClient={searchClient}
     >
-      <SearchBox />
-      <SearchResults />
+      <StyledContainer>
+        <SearchBox />
+        <div className="main">
+          <SearchResults />
+          <ContentView />
+        </div>
+      </StyledContainer>
     </InstantSearch>
   );
 };

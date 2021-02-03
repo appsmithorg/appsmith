@@ -17,6 +17,7 @@ type HitProps = {
 
 const HitContainer = styled.div<{ activeItem: boolean }>`
   background-color: ${(props) => (props.activeItem ? "grey" : "white")};
+  color: black;
 `;
 
 const Hit = (props: HitProps) => {
@@ -48,7 +49,7 @@ const Hits = ({ hits }: { hits: Array<IHit> }) => {
   );
 
   return (
-    <>
+    <div>
       {helpResults.map((hit, index) => (
         <Hit
           key={index}
@@ -57,7 +58,7 @@ const Hits = ({ hits }: { hits: Array<IHit> }) => {
           activeItemIndex={activeItemIndex}
         />
       ))}
-    </>
+    </div>
   );
 };
 

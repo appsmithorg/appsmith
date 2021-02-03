@@ -3,7 +3,9 @@ import styled from "styled-components";
 import Search from "./Search";
 
 const StyledContainer = styled.div`
-  background: white;
+  height: 30vh;
+  width: 100%;
+  max-width: 600px;
 `;
 
 const Container = () => {

@@ -20,6 +20,7 @@ const SearchBox = ({
         type="search"
         value={currentRefinement}
         onChange={(event) => updateSearchQuery(event.currentTarget.value)}
+        autoFocus
       />
       <button onClick={() => refine("")}>Reset query</button>
       {isSearchStalled ? "My search is stalled" : ""}
