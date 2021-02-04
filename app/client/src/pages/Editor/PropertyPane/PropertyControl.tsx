@@ -17,7 +17,11 @@ import {
   deleteWidgetProperty,
   batchUpdateWidgetProperty,
 } from "actions/controlActions";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import {
+  RenderModes,
+  WidgetType,
+  WidgetTypes,
+} from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
@@ -258,6 +262,24 @@ const PropertyControl = memo((props: Props) => {
       .join("")
       .toLowerCase();
 
+    const isListOrChildOfList =
+      get(get(enhancementsMap, `${widgetProperties.widgetId}`), "type") ===
+      WidgetTypes.LIST_WIDGET;
+
+    /**
+     * if there is customJSControl being passed, use that,
+     * if the current widget is associated with list widget, use "COMPUTE_LIST_VALUE"
+     *
+     * Note: "COMPUTE_LIST_VALUE" helps in showing currentItem automcomplete in property pane
+     */
+    const getCustomJSControl = () => {
+      if (props.customJSControl) return props.customJSControl;
+
+      if (isListOrChildOfList) {
+        return "COMPUTE_LIST_VALUE";
+      }
+    };
+
     try {
       return (
         <ControlWrapper
@@ -298,7 +320,7 @@ const PropertyControl = memo((props: Props) => {
                 deleteProperties: onDeleteProperties,
               },
               isDynamic,
-              props.customJSControl,
+              getCustomJSControl(),
             )}
           </OnboardingToolTip>
         </ControlWrapper>

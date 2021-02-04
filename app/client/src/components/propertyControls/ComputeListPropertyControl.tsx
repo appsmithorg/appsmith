@@ -1,4 +1,5 @@
 import React from "react";
+import { get } from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import CodeEditor from "components/editorComponents/CodeEditor";
@@ -78,8 +79,8 @@ export function InputText(props: {
   );
 }
 
-class ComputeTablePropertyControl extends BaseControl<
-  ComputeTablePropertyControlProps
+class ComputeListPropertyControl extends BaseControl<
+  ComputeListPropertyControlProps
 > {
   render() {
     const {
@@ -100,12 +101,28 @@ class ComputeTablePropertyControl extends BaseControl<
         : defaultValue;
     const evaluatedProperties = this.props.widgetProperties;
 
-    const columns: ColumnProperties[] =
-      evaluatedProperties.primaryColumns || [];
-    const currentRow: { [key: string]: any } = {};
-    for (let i = 0; i < columns.length; i++) {
-      currentRow[columns[i].id] = undefined;
-    }
+    const items = [
+      {
+        id: 1,
+        email: "michael.lawson@reqres.in",
+        first_name: "Michael",
+        last_name: "Lawson",
+        avatar: "https://reqres.in/img/faces/7-image.jpg",
+      },
+      {
+        id: 2,
+        email: "lindsay.ferguson@reqres.in",
+        first_name: "Lindsay",
+        last_name: "Ferguson",
+        avatar: "https://reqres.in/img/faces/8-image.jpg",
+      },
+    ];
+
+    const currentItem: { [key: string]: any } = {};
+    Object.keys(get(items, "0", {})).forEach(
+      (key: string) => (currentItem[key] = ""),
+    );
+
     return (
       <InputText
         label={label}
@@ -116,7 +133,7 @@ class ComputeTablePropertyControl extends BaseControl<
         expected={expected}
         dataTreePath={dataTreePath}
         additionalDynamicData={{
-          currentRow,
+          currentItem,
         }}
       />
     );
@@ -124,7 +141,7 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getInputComputedValue = (propertyValue: string, tableId: string) => {
     const value = `${propertyValue.substring(
-      `{{${tableId}.items.map((currentItem) => `.length,
+      `{{${tableId}.tableData.map((currentRow) => `.length,
       propertyValue.length - 3,
     )}`;
     const stringValue = JSToString(value);
@@ -134,7 +151,7 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getComputedValue = (value: string, tableId: string) => {
     const stringToEvaluate = stringToJS(value);
-    return `{{${tableId}.items.map((currentRow) => ${stringToEvaluate})}}`;
+    return `{{${tableId}.tableData.map((currentRow) => ${stringToEvaluate})}}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
@@ -157,12 +174,12 @@ class ComputeTablePropertyControl extends BaseControl<
   };
 
   static getControlType() {
-    return "COMPUTE_VALUE";
+    return "COMPUTE_LIST_VALUE";
   }
 }
 
-export interface ComputeTablePropertyControlProps extends ControlProps {
+export interface ComputeListPropertyControlProps extends ControlProps {
   defaultValue?: string;
 }
 
-export default ComputeTablePropertyControl;
+export default ComputeListPropertyControl;
