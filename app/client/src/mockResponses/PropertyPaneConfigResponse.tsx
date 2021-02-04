@@ -281,6 +281,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
           },
           {
             id: "7.2.4",
+            helpText: "Triggers an action when a table page size is changed",
+            propertyName: "onPageSizeChange",
+            label: "onPageSizeChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+          {
+            id: "7.2.5",
             propertyName: "onSearchTextChanged",
             label: "onSearchTextChanged",
             controlType: "ACTION_SELECTOR",
@@ -703,6 +711,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "SWITCH",
             isJSConvertible: true,
           },
+          {
+            id: "4.2.0",
+            helpText: "Clears the input value after submit",
+            propertyName: "resetOnSubmit",
+            label: "Reset on submit",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
         ],
       },
       {
@@ -714,6 +730,15 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             helpText: "Triggers an action when the text is changed",
             propertyName: "onTextChanged",
             label: "onTextChanged",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+          {
+            id: "5.11.3",
+            helpText:
+              "Triggers an action on submit (when the enter key is pressed)",
+            propertyName: "onSubmit",
+            label: "onSubmit",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
           },

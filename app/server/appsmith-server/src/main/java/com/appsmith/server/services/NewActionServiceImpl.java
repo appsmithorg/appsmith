@@ -9,21 +9,24 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionProvider;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
@@ -67,6 +70,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 @Service
@@ -81,6 +85,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private final MarketplaceService marketplaceService;
     private final PolicyGenerator policyGenerator;
     private final NewPageService newPageService;
+    private final ApplicationService applicationService;
+    private final SessionUserService sessionUserService;
 
     public NewActionServiceImpl(Scheduler scheduler,
                                 Validator validator,
@@ -94,7 +100,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 PluginExecutorHelper pluginExecutorHelper,
                                 MarketplaceService marketplaceService,
                                 PolicyGenerator policyGenerator,
-                                NewPageService newPageService) {
+                                NewPageService newPageService,
+                                ApplicationService applicationService,
+                                SessionUserService sessionUserService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -104,6 +112,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         this.marketplaceService = marketplaceService;
         this.policyGenerator = policyGenerator;
         this.newPageService = newPageService;
+        this.applicationService = applicationService;
+        this.sessionUserService = sessionUserService;
     }
 
     private Boolean validateActionName(String name) {
@@ -184,7 +194,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return newPageService
                 .findById(action.getPageId(), READ_PAGES)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page", action.getPageId())))
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
                 .flatMap(page -> {
 
                     // Inherit the action policies from the page.
@@ -365,6 +375,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private Mono<ActionDTO> setTransientFieldsInUnpublishedAction(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
 
+        // In case the action is deleted in edit mode (but still exists because this action has been published before
+        // drop the action and return empty
+        if (action.getDeletedAt() != null) {
+            return Mono.empty();
+        }
+
         // In case of an action which was imported from a 3P API, fill in the extra information of the provider required by the front end UI.
         Mono<ActionDTO> providerUpdateMono;
         if ((action.getTemplateId() != null) && (action.getProviderId() != null)) {
@@ -403,7 +419,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
 
         // The client does not know about this field. Hence the default value takes over. Set this to null to ensure
-        // the update doesn't lead to resetting of this field. 
+        // the update doesn't lead to resetting of this field.
         action.setUserSetOnLoad(null);
 
         Mono<NewAction> updatedActionMono = repository.findById(id, MANAGE_ACTIONS)
@@ -449,8 +465,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // Initialize the name to be empty value
         actionName.set("");
         // 2. Fetch the action from the DB and check if it can be executed
-        Mono<ActionDTO> actionMono = repository.findById(actionId, EXECUTE_ACTIONS)
+        Mono<NewAction> actionMono = repository.findById(actionId, EXECUTE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
+                .cache();
+
+        Mono<ActionDTO> actionDTOMono = actionMono
                 .flatMap(dbAction -> {
                     ActionDTO action;
                     if (TRUE.equals(executeActionDTO.getViewMode())) {
@@ -466,11 +485,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     // Now check for erroneous situations which would deter the execution of the action :
 
                     // Error out with in case of an invalid action
-                    if (Boolean.FALSE.equals(action.getIsValid())) {
+                    if (FALSE.equals(action.getIsValid())) {
                         return Mono.error(new AppsmithException(
                                 AppsmithError.INVALID_ACTION,
                                 action.getName(),
-                                actionId,
                                 ArrayUtils.toString(action.getInvalids().toArray())
                         ));
                     }
@@ -485,7 +503,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         // 3. Instantiate the implementation class based on the query type
 
-        Mono<Datasource> datasourceMono = actionMono
+        Mono<Datasource> datasourceMono = actionDTOMono
                 .flatMap(action -> {
                     // Global datasource requires us to fetch the datasource from DB.
                     if (action.getDatasource() != null && action.getDatasource().getId() != null) {
@@ -514,7 +532,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     if (!CollectionUtils.isEmpty(invalids)) {
                         log.error("Unable to execute actionId: {} because it's datasource is not valid. Cause: {}",
                                 actionId, ArrayUtils.toString(invalids));
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE, ArrayUtils.toString(invalids)));
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE,
+                                datasource.getName(),
+                                ArrayUtils.toString(invalids)));
                     }
                     return pluginService.findById(datasource.getPluginId());
                 })
@@ -525,7 +545,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // 4. Execute the query
         Mono<ActionExecutionResult> actionExecutionResultMono = Mono
                 .zip(
-                        actionMono,
+                        actionDTOMono,
                         datasourceMono,
                         pluginExecutorMono
                 )
@@ -560,7 +580,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                     )
                             );
 
-                    return executionMono
+                    return Mono.zip(actionMono, actionDTOMono)
+                            .flatMap(tuple1 -> getAnalyticsMono(tuple1.getT1(), tuple1.getT2(), executeActionDTO))
+                            .then(executionMono)
                             .onErrorResume(StaleConnectionException.class, error -> {
                                 log.info("Looks like the connection is stale. Retrying with a fresh context.");
                                 return datasourceContextService
@@ -570,7 +592,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             .timeout(Duration.ofMillis(timeoutDuration))
                             .onErrorMap(TimeoutException.class,
                                     error -> new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_TIMEOUT_ERROR,
+                                            AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
                                             action.getName(), timeoutDuration
                                     )
                             )
@@ -615,6 +637,38 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     );
                     return tuple.getT2();
                 });
+    }
+
+    private Mono<Void> getAnalyticsMono(NewAction action, ActionDTO actionDTO, ExecuteActionDTO executeActionDTO) {
+        // Since we're loading the application from DB *only* for analytics, we check if analytics is
+        // active before making the call to DB.
+        if (!analyticsService.isActive()) {
+            return Mono.empty();
+        }
+
+        return Mono.justOrEmpty(action.getApplicationId())
+                .flatMap(applicationService::findById)
+                .defaultIfEmpty(new Application())
+                .zipWith(sessionUserService.getCurrentUser())
+                .map(tuple -> {
+                    final Application application = tuple.getT1();
+                    final User user = tuple.getT2();
+                    analyticsService.sendEvent(
+                            AnalyticsEvents.EXECUTE_ACTION.getEventName(),
+                            user.getUsername(),
+                            Map.of(
+                                    "type", action.getPluginType(),
+                                    "name", actionDTO.getName(),
+                                    "pageId", actionDTO.getPageId(),
+                                    "appId", action.getApplicationId(),
+                                    "appMode", Boolean.TRUE.equals(executeActionDTO.getViewMode()) ? "view" : "edit",
+                                    "appName", application.getName(),
+                                    "isExampleApp", application.isAppIsExample()
+                            )
+                    );
+                    return user;
+                })
+                .then();
     }
 
     private void prepareConfigurationsForExecution(ActionDTO action,
@@ -710,7 +764,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     @Override
-    public Flux<NewAction> findUnpublishedOnLoadActionsInPage(String pageId) {
+    public Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId) {
         return repository
                 .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, MANAGE_ACTIONS);
     }
@@ -860,6 +914,27 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     @Override
     public Flux<NewAction> findByPageId(String pageId) {
         return repository.findByPageId(pageId);
+    }
+
+    @Override
+    public Mono<Boolean> setOnLoad(List<ActionDTO> actions) {
+        if (actions == null) {
+            return Mono.just(FALSE);
+        }
+
+        List<ActionDTO> toUpdateActions = new ArrayList<>();
+        for (ActionDTO action : actions) {
+            // If a user has ever set execute on load, this field can not be changed automatically. It has to be
+            // explicitly changed by the user again. Add the action to update only if this condition is false.
+            if (FALSE.equals(action.getUserSetOnLoad())) {
+                action.setExecuteOnLoad(TRUE);
+                toUpdateActions.add(action);
+            }
+        }
+
+        return Flux.fromIterable(toUpdateActions)
+                .flatMap(actionDTO -> updateUnpublishedAction(actionDTO.getId(), actionDTO))
+                .then(Mono.just(TRUE));
     }
 
     @Override

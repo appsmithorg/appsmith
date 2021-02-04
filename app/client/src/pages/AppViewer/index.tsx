@@ -9,7 +9,10 @@ import {
   BuilderRouteParams,
   getApplicationViewerPageURL,
 } from "constants/routes";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  PageListPayload,
+  ReduxActionTypes,
+} from "constants/ReduxActionConstants";
 import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeAction } from "actions/widgetActions";
 import { ExecuteActionPayload } from "constants/ActionConstants";
@@ -24,15 +27,19 @@ import {
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
+import { getPageList } from "selectors/editorSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-const AppViewerBody = styled.section`
+const AppViewerBody = styled.section<{ hasPages: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  height: calc(
+    100vh -
+      ${(props) => (!props.hasPages ? props.theme.smallHeaderHeight : "72px")}
+  );
 `;
 
 export type AppViewerProps = {
@@ -51,6 +58,7 @@ export type AppViewerProps = {
     propertyValue: any,
   ) => void;
   resetChildrenMetaProperty: (widgetId: string) => void;
+  pages: PageListPayload;
 } & RouteComponentProps<BuilderRouteParams>;
 
 class AppViewer extends Component<
@@ -85,7 +93,7 @@ class AppViewer extends Component<
           resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
         }}
       >
-        <AppViewerBody>
+        <AppViewerBody hasPages={this.props.pages.length > 1}>
           {isInitialized && this.state.registered && (
             <Switch>
               <SentryRoute
@@ -103,6 +111,7 @@ class AppViewer extends Component<
 
 const mapStateToProps = (state: AppState) => ({
   isInitialized: getIsInitialized(state),
+  pages: getPageList(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

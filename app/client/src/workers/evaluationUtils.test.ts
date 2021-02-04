@@ -1,17 +1,41 @@
-import { isChildPropertyPath } from "./evaluationUtils";
+import { getAllPaths } from "./evaluationUtils";
 
-describe("isChildPropertyPath function", () => {
-  it("works", () => {
-    const cases: Array<[string, string, boolean]> = [
-      ["Table1.selectedRow", "Table1.selectedRows", false],
-      ["Table1.selectedRow", "Table1.selectedRow.email", true],
-      ["Table1.selectedRow", "1Table1.selectedRow", false],
-      ["Table1.selectedRow", "Table11selectedRow", false],
-      ["Table1.selectedRow", "Table1.selectedRow", true],
-    ];
-    cases.forEach((testCase) => {
-      const result = isChildPropertyPath(testCase[0], testCase[1]);
-      expect(result).toBe(testCase[2]);
-    });
+describe("getAllPaths", () => {
+  it("getsAllPaths", () => {
+    const myTree = {
+      WidgetName: {
+        1: "yo",
+        name: "WidgetName",
+        objectProperty: {
+          childObjectProperty: [
+            "1",
+            1,
+            {
+              key: "value",
+              2: 1,
+            },
+            ["1", "2"],
+          ],
+        },
+      },
+    };
+    const result = {
+      WidgetName: true,
+      "WidgetName.1": true,
+      "WidgetName.name": true,
+      "WidgetName.objectProperty": true,
+      "WidgetName.objectProperty.childObjectProperty": true,
+      "WidgetName.objectProperty.childObjectProperty[0]": true,
+      "WidgetName.objectProperty.childObjectProperty[1]": true,
+      "WidgetName.objectProperty.childObjectProperty[2]": true,
+      "WidgetName.objectProperty.childObjectProperty[2].key": true,
+      "WidgetName.objectProperty.childObjectProperty[2].2": true,
+      "WidgetName.objectProperty.childObjectProperty[3]": true,
+      "WidgetName.objectProperty.childObjectProperty[3][0]": true,
+      "WidgetName.objectProperty.childObjectProperty[3][1]": true,
+    };
+
+    const actual = getAllPaths(myTree);
+    expect(actual).toStrictEqual(result);
   });
 });

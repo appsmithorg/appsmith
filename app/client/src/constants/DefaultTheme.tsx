@@ -41,6 +41,15 @@ export enum Skin {
   DARK,
 }
 
+export const hideScrollbar = css`
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+    -webkit-appearance: none;
+  }
+`;
+
 export const scrollbarDark = css`
   scrollbar-color: ${(props) => props.theme.colors.paneCard}
     ${(props) => props.theme.colors.paneBG};
@@ -58,6 +67,13 @@ export const scrollbarDark = css`
     background-color: ${(props) => props.theme.colors.paneCard};
     border-radius: ${(props) => props.theme.radii[1]}px;
   }
+`;
+
+export const getTypographyByKey = (props: Record<string, any>, key: string) => `
+  font-weight: ${props.theme.typography[key].fontWeight};
+  font-size: ${props.theme.typography[key].fontSize}px;
+  line-height: ${props.theme.typography[key].lineHeight}px;
+  letter-spacing: ${props.theme.typography[key].letterSpacing}px;
 `;
 
 export const BlueprintControlTransform = css`
@@ -278,6 +294,7 @@ export type Theme = {
   };
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
+  smallHeaderHeight: string;
   homePage: any;
   sidebarWidth: string;
   canvasPadding: string;
@@ -308,15 +325,13 @@ export type Theme = {
       inActiveBG: Color;
       inActiveText: Color;
       border: Color;
+      background: Color;
     };
   };
   authCard: {
     width: number;
-    borderRadius: number;
-    background: Color;
-    padding: number;
     dividerSpacing: number;
-    shadow: string;
+    formMessageWidth: number;
   };
   shadows: string[];
   widgets: {
@@ -506,7 +521,7 @@ type ColorType = {
   text: {
     normal: ShadeColor;
     heading: ShadeColor;
-    hightlight: ShadeColor;
+    highlight: ShadeColor;
   };
   icon: {
     normal: ShadeColor;
@@ -682,6 +697,7 @@ type ColorType = {
     separator: ShadeColor;
     title: ShadeColor;
     link: string;
+    hoverState: ShadeColor;
   };
   tagInput: {
     bg: ShadeColor;
@@ -734,9 +750,64 @@ type ColorType = {
     bg: ShadeColor;
   };
   floatingBtn: any;
+  auth: any;
+  formMessage: Record<string, Record<Intent, string>>;
+  header: {
+    separator: string;
+    appName: ShadeColor;
+    background: string;
+    deployToolTipBackground: string;
+    deployToolTipText: ShadeColor;
+    shareBtnHighlight: string;
+    shareBtn: string;
+    tabsHorizontalSeparator: string;
+    tabText: string;
+    activeTabBorderBottom: string;
+    activeTabText: string;
+  };
+};
+
+const auth: any = {
+  background: darkShades[1],
+  cardBackground: lightShades[10],
+  btnPrimary: "#F86A2B",
+  inputBackground: darkShades[1],
+  headingText: "#FFF",
+  link: "#106ba3",
+  text: darkShades[7],
+  placeholder: darkShades[5],
+  socialBtnText: darkShades[8],
+  socialBtnBorder: darkShades[8],
+  socialBtnHighlight: darkShades[1],
+};
+
+const formMessage = {
+  background: {
+    danger: "rgba(226,44,44,0.08)",
+    success: "#172320",
+    warning: "rgba(224, 179, 14, 0.08)",
+  },
+  text: {
+    danger: "#E22C2C",
+    success: "#03B365",
+    warning: "#E0B30E",
+  },
 };
 
 export const dark: ColorType = {
+  header: {
+    separator: darkShades[4],
+    appName: darkShades[7],
+    background: darkShades[2],
+    deployToolTipBackground: lightShades[10],
+    deployToolTipText: darkShades[7],
+    shareBtnHighlight: "#F86A2B",
+    shareBtn: "#fff",
+    tabsHorizontalSeparator: "#EFEFEF",
+    tabText: "#6F6D6D",
+    activeTabBorderBottom: "#FF6D2D",
+    activeTabText: "#000",
+  },
   button: {
     disabledText: darkShades[6],
   },
@@ -785,7 +856,7 @@ export const dark: ColorType = {
   text: {
     normal: darkShades[6],
     heading: darkShades[7],
-    hightlight: darkShades[9],
+    highlight: darkShades[9],
   },
   icon: {
     normal: darkShades[6],
@@ -861,9 +932,9 @@ export const dark: ColorType = {
       border: darkShades[2],
     },
     normal: {
-      bg: lightShades[10],
-      text: darkShades[9],
+      bg: darkShades[0],
       border: darkShades[0],
+      text: darkShades[7],
     },
     placeholder: darkShades[5],
     readOnly: {
@@ -961,6 +1032,7 @@ export const dark: ColorType = {
     separator: darkShades[4],
     title: darkShades[8],
     link: "#F86A2B",
+    hoverState: darkShades[3],
   },
   tagInput: {
     bg: darkShades[0],
@@ -1017,9 +1089,24 @@ export const dark: ColorType = {
     backgroundColor: darkShades[3],
     iconColor: darkShades[6],
   },
+  auth,
+  formMessage,
 };
 
 export const light: ColorType = {
+  header: {
+    separator: "#E0DEDE",
+    appName: lightShades[8],
+    background: lightShades[0],
+    deployToolTipText: lightShades[8],
+    deployToolTipBackground: "#FFF",
+    shareBtnHighlight: "#F86A2B",
+    shareBtn: "#4B4848",
+    tabsHorizontalSeparator: "#EFEFEF",
+    tabText: "#6F6D6D",
+    activeTabBorderBottom: "#FF6D2D",
+    activeTabText: "#000",
+  },
   button: {
     disabledText: lightShades[6],
   },
@@ -1068,7 +1155,7 @@ export const light: ColorType = {
   text: {
     normal: lightShades[8],
     heading: lightShades[9],
-    hightlight: lightShades[11],
+    highlight: lightShades[11],
   },
   icon: {
     normal: lightShades[4],
@@ -1244,6 +1331,7 @@ export const light: ColorType = {
     separator: lightShades[4],
     title: lightShades[8],
     link: "#F86A2B",
+    hoverState: lightShades[3],
   },
   tagInput: {
     bg: lightShades[2],
@@ -1300,6 +1388,8 @@ export const light: ColorType = {
     backgroundColor: lightShades[3],
     iconColor: lightShades[7],
   },
+  auth,
+  formMessage,
 };
 
 export const theme: Theme = {
@@ -1391,6 +1481,18 @@ export const theme: Theme = {
       lineHeight: 23,
       letterSpacing: -0.24,
       fontWeight: "normal",
+    },
+    authCardHeader: {
+      fontStyle: "normal",
+      fontWeight: 600,
+      fontSize: 25,
+      lineHeight: 20,
+    },
+    authCardSubheader: {
+      fontStyle: "normal",
+      fontWeight: "normal",
+      fontSize: 15,
+      lineHeight: 20,
     },
   },
   iconSizes: {
@@ -1507,6 +1609,7 @@ export const theme: Theme = {
     },
   },
   headerHeight: "48px",
+  smallHeaderHeight: "35px",
   canvasPadding: "20px 0 200px 0",
   sideNav: {
     maxWidth: 220,
@@ -1539,15 +1642,13 @@ export const theme: Theme = {
       inActiveBG: Colors.BLUE_CHARCOAL,
       inActiveText: Colors.WHITE,
       border: Colors.TROUT_DARK,
+      background: darkShades[4],
     },
   },
   authCard: {
-    width: 612,
-    borderRadius: 16,
-    background: Colors.WHITE,
-    padding: 40,
+    width: 440,
     dividerSpacing: 32,
-    shadow: "0px 4px 8px rgba(9, 30, 66, 0.25)",
+    formMessageWidth: 370,
   },
   shadows: [
     /* 0. tab */
@@ -1619,7 +1720,6 @@ export const theme: Theme = {
 
 export const scrollbarLight = css<{ backgroundColor?: Color }>`
   scrollbar-color: ${(props) => props.theme.colors.paneText}
-
   scrollbar-width: thin;
   &::-webkit-scrollbar {
     width: 4px;

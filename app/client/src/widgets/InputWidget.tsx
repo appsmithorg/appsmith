@@ -4,7 +4,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import InputComponent, {
   InputComponentProps,
 } from "components/designSystems/blueprint/InputComponent";
-import { EventType } from "constants/ActionConstants";
+import { EventType, ExecutionResult } from "constants/ActionConstants";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
@@ -39,11 +39,13 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       // onTextChanged: VALIDATION_TYPES.ACTION_SELECTOR,
       isRequired: VALIDATION_TYPES.BOOLEAN,
       isValid: VALIDATION_TYPES.BOOLEAN,
+      resetOnSubmit: VALIDATION_TYPES.BOOLEAN,
     };
   }
   static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {
       onTextChanged: true,
+      onSubmit: true,
     };
   }
 
@@ -136,6 +138,34 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("isFocused", focusState);
   };
 
+  onSubmitSuccess = (result: ExecutionResult) => {
+    if (result.success && this.props.resetOnSubmit) {
+      this.props.updateWidgetMetaProperty("text", "", {
+        dynamicString: this.props.onTextChanged,
+        event: {
+          type: EventType.ON_TEXT_CHANGE,
+        },
+      });
+    }
+  };
+
+  handleKeyDown = (
+    e:
+      | React.KeyboardEvent<HTMLTextAreaElement>
+      | React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    const isEnterKey = e.key === "Enter" || e.keyCode === 13;
+    if (isEnterKey && this.props.onSubmit) {
+      super.executeAction({
+        dynamicString: this.props.onSubmit,
+        event: {
+          type: EventType.ON_SUBMIT,
+          callback: this.onSubmitSuccess,
+        },
+      });
+    }
+  };
+
   getPageView() {
     const value = this.props.text || "";
     const isInvalid =
@@ -149,6 +179,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     if (this.props.maxChars) conditionalProps.maxChars = this.props.maxChars;
     if (this.props.maxNum) conditionalProps.maxNum = this.props.maxNum;
     if (this.props.minNum) conditionalProps.minNum = this.props.minNum;
+
     return (
       <InputComponent
         value={value}
@@ -168,6 +199,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         stepSize={1}
         onFocusChange={this.handleFocusChange}
         showError={!!this.props.isFocused}
+        disableNewLineOnPressEnterKey={!!this.props.onSubmit}
+        onKeyDown={this.handleKeyDown}
         {...conditionalProps}
       />
     );
@@ -215,6 +248,7 @@ export interface InputWidgetProps extends WidgetProps, WithMeta {
   isRequired?: boolean;
   isFocused?: boolean;
   isDirty?: boolean;
+  onSubmit?: string;
 }
 
 export default InputWidget;

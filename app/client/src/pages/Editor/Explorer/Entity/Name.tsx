@@ -14,6 +14,7 @@ import { removeSpecialChars } from "utils/helpers";
 import { AppState } from "reducers";
 import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
+import { WidgetTypes } from "constants/WidgetConstants";
 
 const searchHighlightSpanClassName = "token";
 const searchTokenizationDelimiter = "!!";
@@ -71,6 +72,24 @@ export interface EntityNameProps {
 export const EntityName = forwardRef(
   (props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
     const { name, updateEntityName, searchKeyword } = props;
+    const tabs:
+      | Array<{ id: string; widgetId: string; label: string }>
+      | undefined = useSelector((state: AppState) => {
+      if (state.entities.canvasWidgets.hasOwnProperty(props.entityId)) {
+        const widget = state.entities.canvasWidgets[props.entityId];
+        if (
+          widget.parentId &&
+          state.entities.canvasWidgets.hasOwnProperty(widget.parentId)
+        ) {
+          const parent = state.entities.canvasWidgets[widget.parentId];
+          if (parent.type === WidgetTypes.TABS_WIDGET) {
+            return parent.tabs;
+          }
+        }
+      }
+      return;
+    });
+
     const nameUpdateError = useSelector((state: AppState) => {
       return state.ui.explorer.updateEntityError === props.entityId;
     });
@@ -99,12 +118,20 @@ export const EntityName = forwardRef(
     );
 
     const hasNameConflict = useCallback(
-      (newName: string) =>
-        !(
-          existingPageNames.indexOf(newName) === -1 &&
-          existingActionNames.indexOf(newName) === -1 &&
-          existingWidgetNames.indexOf(newName) === -1
-        ),
+      (
+        newName: string,
+        tabs?: Array<{ id: string; widgetId: string; label: string }>,
+      ) => {
+        if (tabs === undefined) {
+          return !(
+            existingPageNames.indexOf(newName) === -1 &&
+            existingActionNames.indexOf(newName) === -1 &&
+            existingWidgetNames.indexOf(newName) === -1
+          );
+        } else {
+          return tabs.findIndex((tab) => tab.label === newName) > -1;
+        }
+      },
       [existingPageNames, existingActionNames, existingWidgetNames],
     );
 
@@ -112,7 +139,7 @@ export const EntityName = forwardRef(
       (newName: string): string | boolean => {
         if (!newName || newName.trim().length === 0) {
           return "Please enter a name";
-        } else if (newName !== name && hasNameConflict(newName)) {
+        } else if (newName !== name && hasNameConflict(newName, tabs)) {
           return `${newName} is already being used.`;
         }
         return false;

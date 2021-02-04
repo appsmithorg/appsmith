@@ -2,9 +2,9 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
@@ -19,10 +19,13 @@ import com.appsmith.server.services.PluginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
+import java.net.UnknownHostException;
 import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 @Component
@@ -41,19 +44,40 @@ public class DatasourceStructureSolution {
 
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache) {
         return datasourceService.getById(datasourceId)
-                .flatMap(datasource -> getStructure(datasource, ignoreCache));
+                .flatMap(datasource -> getStructure(datasource, ignoreCache))
+                .defaultIfEmpty(new DatasourceStructure())
+                .onErrorMap(
+                        IllegalArgumentException.class,
+                        error ->
+                                new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                        error.getMessage()
+                                )
+                )
+                .onErrorMap(e -> {
+                    if(!(e instanceof AppsmithPluginException)) {
+                        return new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR, e.getMessage());
+                    }
+
+                    return e;
+                });
     }
 
-    public Mono<DatasourceStructure> getStructure(Datasource datasource, boolean ignoreCache) {
-        // This mono, when computed, will yield the cached structure if applicable, or resolve to an empty mono.
-        // If the structure is `null` inside the datasource, this will resolve to empty as well.
-        final Mono<DatasourceStructure> cachedStructureMono =
-                ignoreCache ? Mono.empty() : Mono.justOrEmpty(datasource.getStructure());
+    private Mono<DatasourceStructure> getStructure(Datasource datasource, boolean ignoreCache) {
+        if (!CollectionUtils.isEmpty(datasource.getInvalids())) {
+            // Don't attempt to get structure for invalid datasources.
+            return Mono.empty();
+        }
+
+        if (!ignoreCache && datasource.getStructure() != null) {
+            // Return the cached structure if available.
+            return Mono.just(datasource.getStructure());
+        }
 
         decryptEncryptedFieldsInDatasource(datasource);
 
         // This mono, when computed, will load the structure of the datasource by calling the plugin method.
-        final Mono<DatasourceStructure> loadStructureMono = pluginExecutorHelper
+        return pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())))
                 .flatMap(pluginExecutor -> datasourceContextService
@@ -65,24 +89,40 @@ public class DatasourceStructureSolution {
                 )
                 .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS))
                 .onErrorMap(
+                        TimeoutException.class,
+                        error -> new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR,
+                                "Timed out when fetching structure"
+                        )
+                )
+                .onErrorMap(
                         StaleConnectionException.class,
                         error -> new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
                                 "Secondary stale connection error."
                         )
                 )
+                .onErrorMap(
+                        IllegalArgumentException.class,
+                        error ->
+                                new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                        error.getMessage()
+                                )
+                )
                 .onErrorMap(e -> {
                     log.error("In the datasource structure error mode.", e);
-                    return new AppsmithPluginException(AppsmithPluginError.PLUGIN_STRUCTURE_ERROR, e.getMessage());
+
+                    if(!(e instanceof AppsmithPluginException)) {
+                        return new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR, e.getMessage());
+                    }
+
+                    return e;
                 })
                 .flatMap(structure -> datasource.getId() == null
                         ? Mono.empty()
                         : datasourceRepository.saveStructure(datasource.getId(), structure).thenReturn(structure)
                 );
-
-        return cachedStructureMono
-                .switchIfEmpty(loadStructureMono)
-                .defaultIfEmpty(new DatasourceStructure());
     }
 
     private Datasource decryptEncryptedFieldsInDatasource(Datasource datasource) {

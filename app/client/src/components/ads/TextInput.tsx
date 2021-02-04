@@ -10,6 +10,8 @@ import { isEmail } from "utils/formhelpers";
 import { useSelector } from "react-redux";
 import { getThemeDetails } from "selectors/themeSelectors";
 
+import { AsyncControllableInput } from "@blueprintjs/core/lib/esnext/components/forms/asyncControllableInput";
+
 export type Validator = (
   value: string,
 ) => {
@@ -78,9 +80,13 @@ const boxStyles = (
   return { bgColor, color, borderColor };
 };
 
-const StyledInput = styled.input<
-  TextInputProps & { inputStyle: boxReturnType; isValid: boolean }
->`
+const StyledInput = styled((props) => {
+  return props.asyncControl ? (
+    <AsyncControllableInput {...props} />
+  ) : (
+    <input {...props} />
+  );
+})<TextInputProps & { inputStyle: boxReturnType; isValid: boolean }>`
   width: ${(props) => (props.fill ? "100%" : "320px")};
   border-radius: 0;
   outline: 0;
@@ -90,6 +96,14 @@ const StyledInput = styled.input<
   height: 38px;
   background-color: ${(props) => props.inputStyle.bgColor};
   color: ${(props) => props.inputStyle.color};
+
+  &:-internal-autofill-selected,
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 30px ${(props) => props.inputStyle.bgColor} inset !important;
+    -webkit-text-fill-color: ${(props) => props.inputStyle.color} !important;
+  }
 
   &::placeholder {
     color: ${(props) => props.theme.colors.textInput.placeholder};
@@ -189,6 +203,7 @@ const TextInput = forwardRef(
           onChange={memoizedChangeHandler}
           readOnly={props.readOnly}
           data-cy={props.cypressSelector}
+          inputRef={ref}
         />
         {ErrorMessage}
       </InputWrapper>
@@ -199,3 +214,5 @@ const TextInput = forwardRef(
 TextInput.displayName = "TextInput";
 
 export default TextInput;
+
+export type InputType = "text" | "password" | "number" | "email" | "tel";

@@ -132,6 +132,16 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     return this.props.center || this.props.mapCenter || DefaultCenter;
   }
 
+  componentDidUpdate(prevProps: MapWidgetProps) {
+    //remove selectedMarker when map initial location is updated
+    if (
+      JSON.stringify(prevProps.center) !== JSON.stringify(this.props.center) &&
+      this.props.selectedMarker
+    ) {
+      this.unselectMarker();
+    }
+  }
+
   getPageView() {
     return (
       <>
@@ -144,7 +154,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://docs.appsmith.com/third-party-services/google-maps"
+                href="https://docs.appsmith.com/v/v1.2.1/setup/docker/google-maps"
               >
                 {" documentation "}
               </a>
