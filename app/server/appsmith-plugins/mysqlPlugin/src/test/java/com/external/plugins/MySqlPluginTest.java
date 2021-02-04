@@ -126,7 +126,7 @@ public class MySqlPluginTest {
 
     private static DatasourceConfiguration createDatasourceConfiguration() {
         DBAuth authDTO = new DBAuth();
-        authDTO.setAuthenticationMechanism(DBAuth.Type.USERNAME_PASSWORD);
+        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
         authDTO.setUsername(username);
         authDTO.setPassword(password);
         authDTO.setDatabaseName(database);
@@ -154,7 +154,7 @@ public class MySqlPluginTest {
     @Test
     public void testConnectMySQLContainerWithInvalidTimezone() {
         DBAuth authDTO = new DBAuth();
-        authDTO.setAuthenticationMechanism(DBAuth.Type.USERNAME_PASSWORD);
+        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
         authDTO.setUsername(mySQLContainerWithInvalidTimezone.getUsername());
         authDTO.setPassword(mySQLContainerWithInvalidTimezone.getPassword());
         authDTO.setDatabaseName(mySQLContainerWithInvalidTimezone.getDatabaseName());

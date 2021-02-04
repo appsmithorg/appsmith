@@ -100,7 +100,7 @@ public class RedisPluginTest {
         endpoint.setHost("test-host");
 
         DBAuth invalidAuth = new DBAuth();
-        invalidAuth.setAuthenticationMechanism(DBAuth.Type.USERNAME_PASSWORD);
+        invalidAuth.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
 
         invalidDatasourceConfiguration.setAuthentication(invalidAuth);
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
@@ -116,7 +116,7 @@ public class RedisPluginTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
 
         DBAuth auth = new DBAuth();
-        auth.setAuthenticationMechanism(DBAuth.Type.USERNAME_PASSWORD);
+        auth.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
         auth.setUsername("test-username");
         auth.setPassword("test-password");
 

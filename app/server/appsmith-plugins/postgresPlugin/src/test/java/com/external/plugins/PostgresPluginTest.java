@@ -139,7 +139,7 @@ public class PostgresPluginTest {
 
     private DatasourceConfiguration createDatasourceConfiguration() {
         DBAuth authDTO = new DBAuth();
-        authDTO.setAuthenticationMechanism(DBAuth.Type.USERNAME_PASSWORD);
+        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
         authDTO.setUsername(username);
         authDTO.setPassword(password);
         authDTO.setDatabaseName("postgres");

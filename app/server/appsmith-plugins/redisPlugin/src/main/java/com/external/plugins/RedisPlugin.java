@@ -115,7 +115,7 @@ public class RedisPlugin extends BasePlugin {
                 Jedis jedis = new Jedis(endpoint.getHost(), port);
 
                 DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
-                if (auth != null && DBAuth.Type.USERNAME_PASSWORD.equals(auth.getAuthenticationMechanism())) {
+                if (auth != null && DBAuth.Type.USERNAME_PASSWORD.equals(auth.getAuthType())) {
                     jedis.auth(auth.getUsername(), auth.getPassword());
                 }
 
@@ -160,7 +160,7 @@ public class RedisPlugin extends BasePlugin {
             }
 
             DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
-            if (auth != null && DBAuth.Type.USERNAME_PASSWORD.equals(auth.getAuthenticationMechanism())) {
+            if (auth != null && DBAuth.Type.USERNAME_PASSWORD.equals(auth.getAuthType())) {
                 if (StringUtils.isNullOrEmpty(auth.getUsername())) {
                     invalids.add("Missing username for authentication.");
                 }
