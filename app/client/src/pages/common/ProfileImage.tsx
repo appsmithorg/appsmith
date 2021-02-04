@@ -14,6 +14,9 @@ export const Profile = styled.div<{ backgroundColor?: string }>`
   justify-content: center;
   cursor: pointer;
   background-color: ${(props) => props.backgroundColor};
+  && span {
+    color: ${(props) => props.theme.colors.text.highlight};
+  }
 `;
 
 export default function ProfileImage(props: {
