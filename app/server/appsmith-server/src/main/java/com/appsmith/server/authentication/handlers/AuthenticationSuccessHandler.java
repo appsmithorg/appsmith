@@ -60,7 +60,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                 .flatMap(user -> {
                     final boolean isFromInvite = user.getInviteToken() != null;
                     return Mono.whenDelayError(
-                            analyticsService.sendEvent(AnalyticsEvents.FIRST_LOGIN, user, Map.of("isFromInvite", isFromInvite)),
+                            analyticsService.sendObjectEvent(AnalyticsEvents.FIRST_LOGIN, user, Map.of("isFromInvite", isFromInvite)),
                             examplesOrganizationCloner.cloneExamplesOrganization()
                     );
                 })

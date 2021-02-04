@@ -243,7 +243,7 @@
       "contributions": [
         "code"
       ]
-    }
+    },
     {
       "login": "rishabhsaxena",
       "name": "Rishabh Saxena ",
@@ -289,6 +289,15 @@
         "code"
       ]
     },
+    {
+      "login": "trdillon",
+      "name": "Tim Dillon",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26350151?v=4",
+      "profile": "https://github.com/trdillon",
+      "contributions": [
+        "code"
+      ]
+    }
   ],
   "contributorsPerLine": 7,
   "projectName": "appsmith",

@@ -8,9 +8,9 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import io.r2dbc.spi.ColumnMetadata;
@@ -179,7 +179,8 @@ public class MySqlPlugin extends BasePlugin {
             String query = actionConfiguration.getBody().trim();
 
             if (query == null) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
+                        "parameter: Query."));
             }
 
             boolean isSelectOrShowQuery = getIsSelectOrShowQuery(query);
@@ -192,6 +193,7 @@ public class MySqlPlugin extends BasePlugin {
                             return Flux.error(new StaleConnectionException());
                         }
                     });
+
             Mono<List<Map<String, Object>>> resultMono = null;
 
             if (isSelectOrShowQuery) {
@@ -238,7 +240,6 @@ public class MySqlPlugin extends BasePlugin {
         @Override
         public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
 
             StringBuilder urlBuilder = new StringBuilder();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
@@ -278,8 +279,10 @@ public class MySqlPlugin extends BasePlugin {
 
             return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
                     .onErrorResume(exception -> {
-                        log.debug("Error when creating datasource.", exception);
-                        return Mono.error(Exceptions.propagate(exception));
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                exception
+                        ));
                     })
                     .subscribeOn(scheduler);
         }
@@ -502,7 +505,14 @@ public class MySqlPlugin extends BasePlugin {
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
-            return Flux.from(connection.createStatement(COLUMNS_QUERY).execute())
+            return Mono.from(connection.validate(ValidationDepth.REMOTE))
+                    .flatMapMany(isValid -> {
+                        if (isValid) {
+                            return connection.createStatement(COLUMNS_QUERY).execute();
+                        } else {
+                            return Flux.error(new StaleConnectionException());
+                        }
+                    })
                     .flatMap(result -> {
                         return result.map((row, meta) -> {
                             getTableInfo(row, meta, tablesByName);
@@ -530,10 +540,15 @@ public class MySqlPlugin extends BasePlugin {
 
                         return structure;
                     })
-                    .onErrorResume(error -> {
-                        log.debug("In getStructure function error mode.", error);
+                    .onErrorMap(e -> {
+                            if (!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
+                                return new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_ERROR,
+                                        e.getMessage()
+                                );
+                            }
 
-                        return Mono.error(Exceptions.propagate(error));
+                            return e;
                     })
                     .subscribeOn(scheduler);
         }
