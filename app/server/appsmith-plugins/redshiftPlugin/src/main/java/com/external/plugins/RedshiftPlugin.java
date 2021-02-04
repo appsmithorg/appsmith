@@ -8,9 +8,9 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.NonNull;
@@ -220,7 +220,7 @@ public class RedshiftPlugin extends BasePlugin {
             if (query == null) {
                 return Mono.error(
                         new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 "Missing required parameter: Query."
                         )
                 );
@@ -228,16 +228,12 @@ public class RedshiftPlugin extends BasePlugin {
 
             return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
                 /*
-                 * 1. StaleConnectionException thrown by checkConnectionValidity(...) needs to be propagated to upper
-                 *    layers so that a retry can be triggered.
+                 * 1. If there is any issue with checking connection validity then assume that the connection is stale.
                  */
                 try {
                     checkConnectionValidity(connection);
-                } catch (SQLException error) {
-                    String error_msg = "Error checking validity of Redshift connection. " + error;
-                    System.out.println(Thread.currentThread().getName() + ": " + error_msg);
-
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, error_msg));
+                } catch (SQLException e) {
+                    return Mono.error(new StaleConnectionException());
                 }
 
                 List<Map<String, Object>> rowsList = new ArrayList<>(50);
@@ -262,8 +258,8 @@ public class RedshiftPlugin extends BasePlugin {
                         );
 
                     }
-                } catch (SQLException | AppsmithPluginException e) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                } catch (SQLException e) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
                 } finally {
                     if (resultSet != null) {
                         try {
@@ -292,6 +288,13 @@ public class RedshiftPlugin extends BasePlugin {
                 return Mono.just(result);
             })
             .flatMap(obj -> obj)
+            .onErrorMap(e -> {
+                if(!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
+                    return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
+                }
+
+                return e;
+            })
             .subscribeOn(scheduler);
         }
 
@@ -348,8 +351,12 @@ public class RedshiftPlugin extends BasePlugin {
                             configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
                     return Mono.just(connection);
                 } catch (SQLException e) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error connecting" +
-                            " to Redshift.", e));
+                    return Mono.error(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                    e.getMessage()
+                            )
+                    );
                 }
             })
             .flatMap(obj -> obj)
@@ -567,16 +574,12 @@ public class RedshiftPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceStructure> getStructure(Connection connection, DatasourceConfiguration datasourceConfiguration) {
             /*
-             * 1. StaleConnectionException thrown by checkConnectionValidity(...) needs to be propagated to upper
-             *    layers so that a retry can be triggered.
+             * 1. If there is any issue with checking connection validity then assume that the connection is stale.
              */
             try {
                 checkConnectionValidity(connection);
-            } catch (SQLException error) {
-                String error_msg = "Error checking validity of Redshift connection. " + error;
-                System.out.println(Thread.currentThread().getName() + ": " + error_msg);
-
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, error_msg));
+            } catch (SQLException e) {
+                return Mono.error(new StaleConnectionException());
             }
 
             final DatasourceStructure structure = new DatasourceStructure();
@@ -602,8 +605,17 @@ public class RedshiftPlugin extends BasePlugin {
 
                     // Get templates for each table and put those in.
                     getTemplates(tablesByName);
-                } catch (SQLException | AppsmithPluginException throwable) {
-                    return Mono.error(throwable);
+                }
+                catch (SQLException e) {
+                    return Mono.error(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                                    e.getMessage()
+                            )
+                    );
+                }
+                catch (AppsmithPluginException e) {
+                    return Mono.error(e);
                 }
 
                 structure.setTables(new ArrayList<>(tablesByName.values()));
@@ -615,6 +627,13 @@ public class RedshiftPlugin extends BasePlugin {
                 return structure;
             })
             .map(resultStructure -> (DatasourceStructure) resultStructure)
+            .onErrorMap(e -> {
+                if(!(e instanceof AppsmithPluginException)) {
+                    return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
+                }
+
+                return e;
+            })
             .subscribeOn(scheduler);
         }
     }

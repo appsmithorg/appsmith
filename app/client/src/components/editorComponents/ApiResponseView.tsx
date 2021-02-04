@@ -98,7 +98,7 @@ interface ReduxStateProps {
 
 type Props = ReduxStateProps & RouteComponentProps<APIEditorRouteParams>;
 
-const EMPTY_RESPONSE: ActionResponse = {
+export const EMPTY_RESPONSE: ActionResponse = {
   statusCode: "",
   duration: "",
   body: {},
