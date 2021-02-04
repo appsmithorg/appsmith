@@ -18,7 +18,7 @@ const StyledContainer = styled.div`
   width: 100%;
   max-width: 660px;
   height: 40vh;
-  background-color: #e0e0e0;
+  background: ${(props) => props.theme.colors.globalSearch.containerBackground};
   & .main {
     display: flex;
     overflow: hidden;

@@ -16,7 +16,10 @@ type HitProps = {
 };
 
 const HitContainer = styled.div<{ activeItem: boolean }>`
-  background-color: ${(props) => (props.activeItem ? "grey" : "white")};
+  background-color: ${(props) =>
+    props.activeItem
+      ? props.theme.colors.globalSearch.activeSearchItemBackground
+      : "transparent"};
   color: black;
 `;
 

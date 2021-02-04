@@ -765,6 +765,11 @@ type ColorType = {
     activeTabBorderBottom: string;
     activeTabText: string;
   };
+  globalSearch: {
+    containerBackground: string;
+    activeSearchItemBackground: string;
+    searchInputText: string;
+  };
 };
 
 const auth: any = {
@@ -794,7 +799,15 @@ const formMessage = {
   },
 };
 
+const globalSearch = {
+  containerBackground:
+    "linear-gradient(0deg, rgba(43, 43, 43, 0.9), rgba(43, 43, 43, 0.9)), linear-gradient(119.61deg, rgba(35, 35, 35, 0.01) 0.43%, rgba(49, 49, 49, 0.01) 100.67%);",
+  activeSearchItemBackground: "rgba(0, 0, 0, 0.24)",
+  searchInputText: "#fff",
+};
+
 export const dark: ColorType = {
+  globalSearch,
   header: {
     separator: darkShades[4],
     appName: darkShades[7],
@@ -1094,6 +1107,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  globalSearch,
   header: {
     separator: "#E0DEDE",
     appName: lightShades[8],
@@ -1482,13 +1496,13 @@ export const theme: Theme = {
       letterSpacing: -0.24,
       fontWeight: "normal",
     },
-    authCardHeader: {
+    cardHeader: {
       fontStyle: "normal",
       fontWeight: 600,
       fontSize: 25,
       lineHeight: 20,
     },
-    authCardSubheader: {
+    cardSubheader: {
       fontStyle: "normal",
       fontWeight: "normal",
       fontSize: 15,
