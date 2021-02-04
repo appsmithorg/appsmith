@@ -25,7 +25,7 @@ public class DBAuth extends AuthenticationDTO {
         SCRAM_SHA_1, SCRAM_SHA_256, MONGODB_CR, USERNAME_PASSWORD
     }
 
-    Type authenticationMechanism;
+    Type authType;
 
     String username;
 

@@ -60,7 +60,7 @@ public class AuthenticationServiceTest {
                 .expectErrorMatches(throwable ->
                         throwable instanceof AppsmithException &&
                                 ((AppsmithException) throwable).getError().equals(AppsmithError.NO_RESOURCE_FOUND) &&
-                                throwable.getMessage().equalsIgnoreCase("Unable to find resource with id invalidId"))
+                                throwable.getMessage().equalsIgnoreCase("Unable to find resource invalidId"))
                 .verify();
 
     }
@@ -185,7 +185,7 @@ public class AuthenticationServiceTest {
             datasource.setPluginId(plugin.getId());
             return datasource;
         }).flatMap(datasourceService::create).cache();
-        
+
         final String datasourceId1 = datasourceMono.map(BaseDomain::getId).block();
 
         Mono<String> authorizationCodeUrlMono = datasourceMono.map(BaseDomain::getId)
@@ -194,10 +194,13 @@ public class AuthenticationServiceTest {
         StepVerifier
                 .create(authorizationCodeUrlMono)
                 .assertNext(url -> {
-                    assertThat(url)
-                            .isEqualTo("AuthorizationURL?client_id=ClientId&response_type=code&redirect_uri=" +
-                                    "https://app.appsmith.com/applications" +
-                                    "&state=" + datasourceId1 + "&scope=Scope1,Scope2&key=value");
+                    assertThat(url).matches("AuthorizationURL" +
+                            "\\?client_id=ClientId" +
+                            "&response_type=code" +
+                            "&redirect_uri=https://app.appsmith.com/applications" +
+                            "&state=" + datasourceId1 +
+                            "&scope=Scope\\d,Scope\\d" +
+                            "&key=value");
                 })
                 .verifyComplete();
 
