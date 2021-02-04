@@ -20,7 +20,7 @@ const globalSearchReducer = createReducer(initialState, {
   [ReduxActionTypes.SET_HELP_RESULTS]: (
     state: GlobalSearchReduxState,
     action: ReduxAction<Record<string, any>[]>,
-  ) => ({ ...state, helpResults: action.payload }),
+  ) => ({ ...state, helpResults: action.payload, activeItemIndex: 0 }),
   [ReduxActionTypes.TOGGLE_SHOW_GLOBAL_SEARCH_MODAL]: (
     state: GlobalSearchReduxState,
   ) => ({ ...state, modalOpen: !state.modalOpen }),

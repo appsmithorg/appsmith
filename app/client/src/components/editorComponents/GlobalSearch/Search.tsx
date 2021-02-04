@@ -26,7 +26,9 @@ const StyledContainer = styled.div`
 `;
 
 const Search = () => {
-  const query = useSelector((state: AppState) => state.ui.globalSearch.query);
+  const { query, modalOpen } = useSelector(
+    (state: AppState) => state.ui.globalSearch,
+  );
 
   return (
     <InstantSearch

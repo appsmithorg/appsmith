@@ -28,7 +28,12 @@ class DocsSearch extends React.Component<Props> {
     return [
       {
         combo: "shift + o",
-        onKeyDown: this.toggleShow,
+        onKeyDown: () => {
+          console.log("called");
+          // setTimeout(() => {
+          this.toggleShow();
+          // }, 100);
+        },
         hideWhenModalClosed: false,
         allowInInput: false,
       },
@@ -50,12 +55,12 @@ class DocsSearch extends React.Component<Props> {
         hideWhenModalClosed: true,
         allowInInput: true,
       },
-      {
-        combo: "esc",
-        onKeyDown: this.toggleShow,
-        hideWhenModalClosed: true,
-        allowInInput: true,
-      },
+      // {
+      //   combo: "esc",
+      //   onKeyDown: this.toggleShow,
+      //   hideWhenModalClosed: true,
+      //   allowInInput: true,
+      // },
     ].filter(
       ({ hideWhenModalClosed }) =>
         !hideWhenModalClosed || (hideWhenModalClosed && this.props.modalOpen),
