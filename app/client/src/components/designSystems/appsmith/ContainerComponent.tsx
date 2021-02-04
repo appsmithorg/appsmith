@@ -1,7 +1,7 @@
 import React, { ReactNode, useRef, useEffect, RefObject } from "react";
 import styled, { css } from "styled-components";
 import { ComponentProps } from "./BaseComponent";
-import { invisible } from "constants/DefaultTheme";
+import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 
@@ -18,16 +18,13 @@ const StyledContainerComponent = styled.div<
   ${(props) =>
     props.containerStyle !== "none"
       ? `
-  border: 1px solid #e1e1e1;
-  border-radius: ${
-    props.containerStyle === "card" || props.containerStyle === "rounded-border"
-      ? props.theme.radii[1]
-      : 0
-  }px;`
+  border: ${getBorderCSSShorthand(props.theme.borders[2])};
+  border-radius: ${props.theme.radii[0]}px;`
       : ""}
   height: 100%;
   width: 100%;
   background: ${(props) => props.backgroundColor};
+
   ${(props) => (!props.isVisible ? invisible : "")};
   overflow: hidden;
   ${(props) => (props.shouldScrollContents ? scrollContents : "")}

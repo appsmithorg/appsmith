@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { labelStyle } from "constants/DefaultTheme";
+import { getBorderCSSShorthand, labelStyle } from "constants/DefaultTheme";
 import { ControlGroup, Classes, Label } from "@blueprintjs/core";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { DateInput, DateRangeInput } from "@blueprintjs/datetime";
@@ -15,9 +15,10 @@ const StyledControlGroup = styled(ControlGroup)`
   &&& {
     .${Classes.INPUT} {
       box-shadow: none;
-      border: 1px solid;
-      border-color: ${Colors.GEYSER_LIGHT};
-      border-radius: ${(props) => props.theme.radii[1]}px;
+      color: ${Colors.OXFORD_BLUE};
+      font-size: ${(props) => props.theme.fontSizes[3]}px;
+      border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+      border-radius: ${(props) => props.theme.radii[0]}px;
       width: 100%;
       height: inherit;
       align-items: center;
@@ -42,15 +43,6 @@ const StyledControlGroup = styled(ControlGroup)`
       text-align: right;
       align-self: flex-start;
       max-width: calc(30% - ${WIDGET_PADDING}px);
-    }
-  }
-  &&& {
-    input {
-      border: 1px solid ${Colors.HIT_GRAY};
-      border-radius: ${(props) => props.theme.radii[1]}px;
-      box-shadow: none;
-      color: ${Colors.OXFORD_BLUE};
-      font-size: ${(props) => props.theme.fontSizes[3]}px;
     }
   }
 `;

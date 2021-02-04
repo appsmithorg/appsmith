@@ -89,6 +89,11 @@ export const BlueprintControlTransform = css`
         border: 2px solid ${Colors.SLATE_GRAY};
       }
     }
+
+    .${Classes.CHECKBOX} .${Classes.CONTROL_INDICATOR} {
+      border-radius: ${(props) => `${props.theme.radii[0]}px`};
+    }
+
     .${Classes.CONTROL_INDICATOR} {
       box-shadow: none;
       background: none;
@@ -112,7 +117,7 @@ export const BlueprintCSSTransform = css`
   &&&& {
     .${Classes.BUTTON} {
       box-shadow: none;
-      border-radius: 4px;
+      border-radius: ${(props) => props.theme.radii[0]};
       background: white;
       border: 1px solid ${Colors.GEYSER};
     }
@@ -1470,7 +1475,8 @@ export const theme: Theme = {
       lightBg: lightShades[0],
       darkBg: lightShades[10],
     },
-    appBackground: "#EFEFEF",
+    appBackground: "#EDEDED",
+    artboard: "#F6F6F6",
     primaryOld: Colors.GREEN,
     primaryDarker: Colors.JUNGLE_GREEN,
     primaryDarkest: Colors.JUNGLE_GREEN_DARKER,

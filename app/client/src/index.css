@@ -63,11 +63,31 @@ div.bp3-popover-arrow {
   z-index: 10;
 }
 
+.bp3-popover, .bp3-popover.bp3-minimal  {
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2);
+  border-radius: 0;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
 .bp3-popover.bp3-minimal {
   margin-top: 8px !important;
 }
 
-.bp3-popover {
-  box-shadow: 0px 0px 3px #e1e1e1;
-  border: 1px solid #e1e1e1;
+.bp3-datepicker {
+  border-radius: 0px !important;
 }
+
+/* rich text editor styles */
+.tox-tinymce {
+  border-color: #E7E7E7 !important;
+}
+
+.tox:not([dir=rtl]) .tox-toolbar__group:not(:last-of-type), .tox .tox-statusbar  {
+  border-color: #E7E7E7 !important;
+}
+
+.tox .tox-toolbar__primary {
+  background: white !important;
+  border-bottom: 1px solid #E7E7E7 !important;
+}
+

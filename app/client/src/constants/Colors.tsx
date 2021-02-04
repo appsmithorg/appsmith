@@ -4,7 +4,7 @@ export const Colors: Record<string, string> = {
   WHITE_SMOKE: "#F4F4F4",
   POLAR: "#E9FAF3",
   GEYSER: "#D3DEE3",
-  GEYSER_LIGHT: "#D0D7DD",
+  GEYSER_LIGHT: "#E7E7E7",
   ATHENS_GRAY: "#EBEFF2",
   CONCRETE: "#F3F3F3",
   MYSTIC: "#E1E8ED",

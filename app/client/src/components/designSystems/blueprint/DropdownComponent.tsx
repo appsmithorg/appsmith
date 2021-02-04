@@ -95,7 +95,7 @@ const DropdownStyles = createGlobalStyle`
   .select-popover-wrapper {
     width: 100%;
     border: 1px solid #e1e1e1;
-    border-radius: ${(props) => props.theme.radii[1]}px;
+    border-radius: ${(props) => props.theme.radii[0]}px;
     box-shadow: 0px 0px 2px #e1e1e1;
     margin-top: ${(props) => props.theme.spaces[3]}px;
     padding: ${(props) => props.theme.spaces[3]}px;

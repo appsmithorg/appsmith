@@ -2,7 +2,7 @@ import _ from "lodash";
 import React from "react";
 import styled from "styled-components";
 
-import { invisible } from "constants/DefaultTheme";
+import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "configs";
 import { ChartType, ChartData, ChartDataPoint } from "widgets/ChartWidget";
 
@@ -31,8 +31,8 @@ export interface ChartComponentProps {
 }
 
 const CanvasContainer = styled.div<ChartComponentProps>`
-  border: 1px solid #e1e1e1;
-  border-radius: ${(props) => `${props.theme.radii[1]}px`};
+  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+  border-radius: ${(props) => `${props.theme.radii[0]}px`};
   height: 100%;
   width: 100%;
   background: white;
