@@ -147,7 +147,6 @@
             "value": "oAuth2"
           },
           "options": [
-<<<<<<< HEAD
             {
               "label": "Header",
               "value": true
@@ -157,17 +156,6 @@
               "value": false
             }
           ]
-=======
-          {
-            "label": "Header",
-            "value": true
-          },
-          {
-            "label": "Query parameters",
-            "value": false
-          }
-        ]
->>>>>>> feature/oauth2-auth-code
         }
       ]
     }
