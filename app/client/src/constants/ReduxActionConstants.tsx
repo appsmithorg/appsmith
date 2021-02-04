@@ -320,6 +320,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   FETCH_RELEASES_SUCCESS: "FETCH_RELEASES_SUCCESS",
   RESET_UNREAD_RELEASES_COUNT: "RESET_UNREAD_RELEASES_COUNT",
   SET_LOADING_ENTITIES: "SET_LOADING_ENTITIES",
+  RESET_CURRENT_APPLICATION: "RESET_CURRENT_APPLICATION",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
