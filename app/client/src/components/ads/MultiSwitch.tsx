@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { CommonComponentProps } from "./common";
 import Text, { Case, TextType } from "./Text";
@@ -20,14 +20,8 @@ const TabList = styled.div`
   padding-left: 1px;
 `;
 
-const TabContent = styled.div<{ selected: boolean }>`
+const TabContent = styled.div`
   height: calc(100% - 24px);
-  ${(props) =>
-    !props.selected
-      ? `
-		display: none
-		`
-      : null};
 `;
 
 const Tab = styled.div<{ selected: boolean }>`
@@ -47,28 +41,23 @@ const Tab = styled.div<{ selected: boolean }>`
 
 type MultiSwitchProps = CommonComponentProps & {
   tabs: Array<TabProp>;
-  selected?: { title: string };
-  onSelect?: (title?: string) => void;
+  selected: { title: string; value: string };
+  onSelect: (title?: string) => void;
 };
 
 export default function MultiSwitch(props: MultiSwitchProps) {
-  const [selected, setSelected] = useState<string>(
-    (props.selected && props.selected.title) || props.tabs[0].title,
+  const selectedTab = props.tabs.find(
+    (tab) => tab.key === props.selected.value,
   );
-
-  const tabClickHandler = (title: string) => {
-    props.onSelect && props.onSelect(title);
-    setSelected(title);
-  };
-
+  console.log({ selectedTab });
   return (
     <div data-cy={props.cypressSelector}>
       <TabList>
         {props.tabs.map((tab) => (
           <Tab
             key={tab.key}
-            selected={selected === tab.title}
-            onClick={() => tabClickHandler(tab.title)}
+            selected={props.selected.value === tab.key}
+            onClick={() => props.onSelect(tab.title)}
           >
             <Text type={TextType.P3} case={Case.UPPERCASE}>
               {tab.title}
@@ -76,11 +65,7 @@ export default function MultiSwitch(props: MultiSwitchProps) {
           </Tab>
         ))}
       </TabList>
-      {props.tabs.map((tab) => (
-        <TabContent key={tab.key} selected={selected === tab.title}>
-          {tab.panelComponent}
-        </TabContent>
-      ))}
+      {selectedTab && <TabContent>{selectedTab.panelComponent}</TabContent>}
     </div>
   );
 }

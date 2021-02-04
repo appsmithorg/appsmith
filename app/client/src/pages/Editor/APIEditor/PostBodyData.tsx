@@ -5,8 +5,8 @@ import { change, formValueSelector } from "redux-form";
 import {
   CONTENT_TYPE,
   POST_BODY_FORMAT_OPTIONS,
-  POST_BODY_FORMATS,
   POST_BODY_FORMAT_TITLES_NO_MULTI_PART,
+  POST_BODY_FORMATS,
 } from "constants/ApiEditorConstants";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
@@ -22,7 +22,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import MultiSwitch from "components/ads/MultiSwitch";
 
-const PostbodyContainer = styled.div`
+const PostBodyContainer = styled.div`
   padding: 12px 0px 0px;
   background-color: ${(props) => props.theme.colors.apiPane.bg};
   height: 100%;
@@ -32,17 +32,9 @@ const JSONEditorFieldWrapper = styled.div`
   margin: 0 30px;
   .CodeMirror {
     height: auto;
-    min-height: 300px;
+    min-height: 200px;
   }
 `;
-export interface RapidApiAction {
-  editable: boolean;
-  mandatory: boolean;
-  description: string;
-  key: string;
-  value?: string;
-  type: string;
-}
 
 interface PostDataProps {
   actionConfiguration: any;
@@ -70,56 +62,55 @@ const PostBodyData = (props: Props) => {
     apiId,
     dataTreePath,
   } = props;
+
   return (
-    <PostbodyContainer>
+    <PostBodyContainer>
       <MultiSwitch
-        selected={{ title: displayFormat.title }}
-        tabs={POST_BODY_FORMAT_TITLES_NO_MULTI_PART.map(
-          (el: { key: string; title: string }) => {
-            let component = (
-              <JSONEditorFieldWrapper className={"t--apiFormPostBody"}>
+        selected={displayFormat}
+        tabs={POST_BODY_FORMAT_TITLES_NO_MULTI_PART.map((el) => {
+          let component = (
+            <JSONEditorFieldWrapper className={"t--apiFormPostBody"}>
+              <DynamicTextField
+                name="actionConfiguration.body"
+                expected={FIELD_VALUES.API_ACTION.body}
+                showLineNumbers
+                tabBehaviour={TabBehaviour.INDENT}
+                size={EditorSize.EXTENDED}
+                mode={EditorModes.JSON_WITH_BINDING}
+                placeholder={
+                  '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
+                }
+                dataTreePath={`${dataTreePath}.body`}
+                theme={props.theme}
+              />
+            </JSONEditorFieldWrapper>
+          );
+          if (el.key === POST_BODY_FORMAT_OPTIONS[1].value) {
+            component = (
+              <KeyValueFieldArray
+                name="actionConfiguration.bodyFormData"
+                dataTreePath={`${dataTreePath}.bodyFormData`}
+                label=""
+                pushFields
+                theme={props.theme}
+              />
+            );
+          } else if (el.key === POST_BODY_FORMAT_OPTIONS[3].value) {
+            component = (
+              <JSONEditorFieldWrapper>
                 <DynamicTextField
                   name="actionConfiguration.body"
-                  expected={FIELD_VALUES.API_ACTION.body}
-                  showLineNumbers
                   tabBehaviour={TabBehaviour.INDENT}
                   size={EditorSize.EXTENDED}
-                  mode={EditorModes.JSON_WITH_BINDING}
-                  placeholder={
-                    '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
-                  }
+                  mode={EditorModes.TEXT_WITH_BINDING}
                   dataTreePath={`${dataTreePath}.body`}
                   theme={props.theme}
                 />
               </JSONEditorFieldWrapper>
             );
-            if (el.title === POST_BODY_FORMAT_OPTIONS[1].label) {
-              component = (
-                <KeyValueFieldArray
-                  name="actionConfiguration.bodyFormData"
-                  dataTreePath={`${dataTreePath}.bodyFormData`}
-                  label=""
-                  pushFields
-                  theme={props.theme}
-                />
-              );
-            } else if (el.title === POST_BODY_FORMAT_OPTIONS[3].label) {
-              component = (
-                <JSONEditorFieldWrapper>
-                  <DynamicTextField
-                    name="actionConfiguration.body"
-                    height={300}
-                    tabBehaviour={TabBehaviour.INDENT}
-                    size={EditorSize.EXTENDED}
-                    dataTreePath={`${dataTreePath}.body`}
-                    theme={props.theme}
-                  />
-                </JSONEditorFieldWrapper>
-              );
-            }
-            return { key: el.key, title: el.title, panelComponent: component };
-          },
-        )}
+          }
+          return { key: el.key, title: el.title, panelComponent: component };
+        })}
         onSelect={(title?: string) => {
           const displayFormatObject = POST_BODY_FORMAT_OPTIONS.filter(
             (el) => el.label === title,
@@ -161,7 +152,7 @@ const PostBodyData = (props: Props) => {
           <KeyValueFieldArray name="actionConfiguration.bodyFormData" label="" />
         </React.Fragment>
       )} */}
-    </PostbodyContainer>
+    </PostBodyContainer>
   );
 };
 
