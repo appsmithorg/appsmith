@@ -31,7 +31,7 @@ import { apiActionSettingsConfig } from "mockResponses/ActionSettings";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
   overflow: auto;
   width: 100%;
   ${FormLabel} {

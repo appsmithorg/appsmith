@@ -25,7 +25,7 @@ const QueryHomePage = styled.div`
   overflow: auto;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
 
   .sectionHeader {
     font-weight: ${(props) => props.theme.fontWeights[2]};

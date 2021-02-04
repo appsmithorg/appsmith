@@ -390,14 +390,8 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
-    const today = moment()
-      .hour(0)
-      .minute(0)
-      .second(0)
-      .millisecond(0);
     const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
 
-    const todayDateString = today.format(dateFormat);
     if (dateString === undefined) {
       return {
         isValid: false,
@@ -409,10 +403,16 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
     const isValid = moment(dateString, dateFormat).isValid();
-    const parsed = isValid ? dateString : todayDateString;
+    if (!isValid) {
+      return {
+        isValid: isValid,
+        parsed: "",
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
+      };
+    }
     return {
       isValid,
-      parsed,
+      parsed: dateString,
       message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
     };
   },
@@ -420,14 +420,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
-    const today = moment()
-      .hour(0)
-      .minute(0)
-      .second(0)
-      .millisecond(0);
     const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
-
-    const todayDateString = today.format(dateFormat);
     if (dateString === undefined) {
       return {
         isValid: false,
@@ -460,13 +453,109 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         isValid = false;
       }
     }
-
-    const parsed = isValid ? dateString : todayDateString;
-
+    if (!isValid) {
+      return {
+        isValid: isValid,
+        parsed: "",
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+      };
+    }
     return {
-      isValid,
-      parsed,
-      message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+      isValid: isValid,
+      parsed: dateString,
+      message: "",
+    };
+  },
+  [VALIDATION_TYPES.MIN_DATE]: (
+    dateString: string,
+    props: WidgetProps,
+  ): ValidationResponse => {
+    const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
+    if (dateString === undefined) {
+      return {
+        isValid: false,
+        parsed: "",
+        message:
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + props.dateFormat
+            ? props.dateFormat
+            : "",
+      };
+    }
+    const parsedMinDate = moment(dateString, dateFormat);
+    let isValid = parsedMinDate.isValid();
+    if (!props.defaultDate) {
+      return {
+        isValid: isValid,
+        parsed: dateString,
+        message: "",
+      };
+    }
+    const parsedDefaultDate = moment(props.defaultDate, dateFormat);
+
+    if (
+      isValid &&
+      parsedDefaultDate.isValid() &&
+      parsedDefaultDate.isBefore(parsedMinDate)
+    ) {
+      isValid = false;
+    }
+    if (!isValid) {
+      return {
+        isValid: isValid,
+        parsed: "",
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+      };
+    }
+    return {
+      isValid: isValid,
+      parsed: dateString,
+      message: "",
+    };
+  },
+  [VALIDATION_TYPES.MAX_DATE]: (
+    dateString: string,
+    props: WidgetProps,
+  ): ValidationResponse => {
+    const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
+    if (dateString === undefined) {
+      return {
+        isValid: false,
+        parsed: "",
+        message:
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + props.dateFormat
+            ? props.dateFormat
+            : "",
+      };
+    }
+    const parsedMaxDate = moment(dateString, dateFormat);
+    let isValid = parsedMaxDate.isValid();
+    if (!props.defaultDate) {
+      return {
+        isValid: isValid,
+        parsed: dateString,
+        message: "",
+      };
+    }
+    const parsedDefaultDate = moment(props.defaultDate, dateFormat);
+
+    if (
+      isValid &&
+      parsedDefaultDate.isValid() &&
+      parsedDefaultDate.isAfter(parsedMaxDate)
+    ) {
+      isValid = false;
+    }
+    if (!isValid) {
+      return {
+        isValid: isValid,
+        parsed: "",
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+      };
+    }
+    return {
+      isValid: isValid,
+      parsed: dateString,
+      message: "",
     };
   },
   [VALIDATION_TYPES.ACTION_SELECTOR]: (value: any): ValidationResponse => {

@@ -585,11 +585,11 @@ public class DatabaseChangelog {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             if ("postgres-plugin".equals(plugin.getPackageName())) {
                 plugin.setDocumentationLink(
-                        "https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-postgres");
+                        "");
 
             } else if ("mongo-plugin".equals(plugin.getPackageName())) {
                 plugin.setDocumentationLink(
-                        "https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-mongodb");
+                        "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mongodb");
 
             } else {
                 continue;
@@ -978,7 +978,7 @@ public class DatabaseChangelog {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.JSON);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.jpg");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-elasticsearch");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-elasticsearch");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -998,7 +998,7 @@ public class DatabaseChangelog {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.JSON);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/DynamoDB.png");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-dynamodb");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-dynamodb");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1028,7 +1028,7 @@ public class DatabaseChangelog {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.TABLE);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/redis.jpg");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-redis");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redis");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1048,7 +1048,7 @@ public class DatabaseChangelog {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.TABLE);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/MsSQL.jpg");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-mssql");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mssql");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1256,7 +1256,7 @@ public class DatabaseChangelog {
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Firestore.png");
-        plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-firestore");
+        plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-firestore");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
@@ -1563,7 +1563,7 @@ public class DatabaseChangelog {
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.TABLE);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Redshift.png");
-        plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-redshift");
+        plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redshift");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
