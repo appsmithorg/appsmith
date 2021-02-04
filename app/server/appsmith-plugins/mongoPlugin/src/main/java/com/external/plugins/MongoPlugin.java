@@ -9,9 +9,9 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.mongodb.MongoCommandException;
@@ -196,12 +196,23 @@ public class MongoPlugin extends BasePlugin {
              * Ref: https://api.mongodb.com/java/2.13/com/mongodb/DB.html#setReadOnly-java.lang.Boolean-
              */
 
-            try {
-                return Mono.just(MongoClients.create(buildClientURI(datasourceConfiguration)))
-                        .subscribeOn(scheduler);
-            } catch (Exception e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
-            }
+            return Mono.just(MongoClients.create(buildClientURI(datasourceConfiguration)))
+                    .onErrorMap(
+                            IllegalArgumentException.class,
+                            error ->
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                            error.getMessage()
+                                    )
+                    )
+                    .onErrorMap(e -> {
+                        if(!(e instanceof AppsmithPluginException)) {
+                            return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
+                        }
+
+                        return e;
+                    })
+                    .subscribeOn(scheduler);
         }
 
         public static String buildClientURI(DatasourceConfiguration datasourceConfiguration) {

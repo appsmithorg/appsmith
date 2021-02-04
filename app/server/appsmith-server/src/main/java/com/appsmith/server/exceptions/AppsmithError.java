@@ -3,11 +3,8 @@ package com.appsmith.server.exceptions;
 import lombok.Getter;
 
 import java.text.MessageFormat;
+import com.appsmith.external.exceptions.AppsmithErrorAction;
 
-enum AppsmithErrorAction {
-    DEFAULT,
-    LOG_EXTERNALLY
-}
 @Getter
 public enum AppsmithError {
     INVALID_PARAMETER(400, 4000, "Please enter a valid parameter {0}.", AppsmithErrorAction.DEFAULT),

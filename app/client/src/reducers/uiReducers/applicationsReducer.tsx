@@ -271,6 +271,9 @@ const applicationsReducer = createReducer(initialState, {
   ) => {
     return { ...state, isSavingAppName: false };
   },
+  [ReduxActionTypes.RESET_CURRENT_APPLICATION]: (
+    state: ApplicationsReduxState,
+  ) => ({ ...state, currentApplication: null }),
 });
 
 export type creatingApplicationMap = Record<string, boolean>;

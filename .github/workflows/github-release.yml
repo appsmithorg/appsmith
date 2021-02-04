@@ -82,7 +82,9 @@ jobs:
           REACT_APP_FUSIONCHARTS_LICENSE_KEY: '${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }}'
           REACT_APP_SEGMENT_CE_KEY: '${{ secrets.APPSMITH_SEGMENT_CE_KEY }}'
           REACT_APP_VERSION_ID: '${{ needs.prelude.outputs.tag }}'
-        run: 'REACT_APP_VERSION_RELEASE_DATE="$(date +%Y-%m-%d)" yarn build'
+        run: |
+          REACT_APP_VERSION_RELEASE_DATE="$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
+            yarn build
 
       # Build Docker image and push to Docker Hub
       - name: Push production image to Docker Hub with commit tag

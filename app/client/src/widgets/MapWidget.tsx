@@ -154,7 +154,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://docs.appsmith.com/third-party-services/google-maps"
+                href="https://docs.appsmith.com/v/v1.2.1/setup/docker/google-maps"
               >
                 {" documentation "}
               </a>
