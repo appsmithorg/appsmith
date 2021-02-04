@@ -285,6 +285,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
+                    log.debug("{}", updatedLayout.getMessages());
                     DslActionDTO actionDTO = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
                     assertThat(actionDTO.getName()).isEqualTo("firstAction");
 
@@ -314,6 +315,7 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
+                    log.debug("{}", updatedLayout.getMessages());
                     DslActionDTO actionDTO = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
                     assertThat(actionDTO.getName()).isEqualTo("secondAction");
 

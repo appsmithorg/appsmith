@@ -938,16 +938,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
 
                     // Calculate the actions which would need to be updated from execute on load TRUE to FALSE.
-                    List<String> turnedOffActionNames = existingOnPageLoadActionNames
-                            .stream()
-                            .filter(existing -> !newOnLoadActionNames.contains(existing))
-                            .collect(Collectors.toList());
+                    Set<String> turnedOffActionNames = new HashSet<>();
+                    turnedOffActionNames.addAll(existingOnPageLoadActionNames);
+                    turnedOffActionNames.removeAll(newOnLoadActionNames);
 
                     // Calculate the actions which would need to be updated from execute on load FALSE to TRUE
-                    List<String> turnedOnActionNames = newOnLoadActionNames
-                            .stream()
-                            .filter(actionName -> !existingOnPageLoadActionNames.contains(actionName))
-                            .collect(Collectors.toList());
+                    Set<String> turnedOnActionNames = new HashSet<>();
+                    turnedOnActionNames.addAll(newOnLoadActionNames);
+                    turnedOnActionNames.removeAll(existingOnPageLoadActionNames);
 
                     for (ActionDTO action : pageActions) {
 
@@ -1003,7 +1001,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     private List<LayoutActionUpdateDTO> addActionUpdatesForActionNames(List<ActionDTO> pageActions,
-                                                                       List<String> actionNames) {
+                                                                       Set<String> actionNames) {
 
         return pageActions
                         .stream()
