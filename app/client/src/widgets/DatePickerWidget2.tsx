@@ -36,7 +36,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? !!this.selectedDate : true }}`,
-      selectedDate: `{{ this.value ? moment(this.value).format(this.dateFormat) : moment(this.defaultDate).format(this.dateFormat) }}`,
+      selectedDate: `{{ this.value ? moment(this.value).toISOString() : moment(this.defaultDate).toISOString() }}`,
+      formattedDate: `{{ this.value ? moment(this.value).format(this.dateFormat) : moment(this.defaultDate).format(this.dateFormat) }}`,
     };
   }
 
@@ -95,6 +96,7 @@ export type DatePickerType = "DATE_PICKER" | "DATE_RANGE_PICKER";
 export interface DatePickerWidget2Props extends WidgetProps, WithMeta {
   defaultDate: string;
   selectedDate: string;
+  formattedDate: string;
   isDisabled: boolean;
   dateFormat: string;
   label: string;
