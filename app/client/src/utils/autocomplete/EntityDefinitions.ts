@@ -25,7 +25,7 @@ export const entityDefinitions = {
     return {
       "!doc":
         "Actions allow you to connect your widgets to your backend data in a secure manner.",
-      "!url": "https://docs.appsmith.com/quick-start#connect-your-apis",
+      "!url": "https://docs.appsmith.com/v/v1.2.1/framework-reference/run",
       isLoading: "bool",
       data,
       run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
@@ -34,10 +34,10 @@ export const entityDefinitions = {
   CONTAINER_WIDGET: {
     "!doc":
       "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
-    "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+    "!url": "https://docs.appsmith.com/widget-reference/container",
     backgroundColor: {
       "!type": "string",
-      "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+      "!url": "https://docs.appsmith.com/widget-reference/container",
     },
     isVisible: isVisible,
   },

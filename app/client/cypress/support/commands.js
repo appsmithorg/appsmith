@@ -224,7 +224,7 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
     .scrollIntoView()
     .should("be.visible")
-    .click();
+    .click({ force: true });
   cy.wait("@createNewApplication").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -239,7 +239,7 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   );
 });
 
-Cypress.Commands.add("CreateApp", (appname) => {
+Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
   cy.get(homePage.createNew)
     .first()
     .click({ force: true });
