@@ -17,12 +17,4 @@
     "runMode": 2,
     "openMode": 0
   },
-  "env": {
-    "USERNAME": "testowner@appsmith.com",
-    "PASSWORD": "own3rT3st1ng",
-    "TESTUSERNAME1": "viewerappsmith@mailinator.com",
-    "TESTPASSWORD1": "Test@123",
-    "TESTUSERNAME2": "developerappsmith@mailinator.com",
-    "TESTPASSWORD2": "Test@123"
-  }
 }

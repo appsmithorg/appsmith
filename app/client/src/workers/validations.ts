@@ -420,33 +420,36 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
-    const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
+    const dateFormat =
+      props.__VERSION__ === 2
+        ? ISO_DATE_FORMAT
+        : props.dateFormat || ISO_DATE_FORMAT;
     if (dateString === undefined) {
       return {
         isValid: false,
         parsed: "",
         message:
-          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + props.dateFormat
-            ? props.dateFormat
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + dateFormat
+            ? dateFormat
             : "",
       };
     }
     const parsedCurrentDate = moment(dateString, dateFormat);
     let isValid = parsedCurrentDate.isValid();
-    const parsedMinDate = moment(props.minDate, dateFormat);
-    const parsedMaxDate = moment(props.maxDate, dateFormat);
-
     // checking for max/min date range
     if (isValid) {
+      const parsedMinDate = moment(props.minDate, dateFormat);
       if (
+        props.minDate &&
         parsedMinDate.isValid() &&
         parsedCurrentDate.isBefore(parsedMinDate)
       ) {
         isValid = false;
       }
-
+      const parsedMaxDate = moment(props.maxDate, dateFormat);
       if (
         isValid &&
+        props.maxDate &&
         parsedMaxDate.isValid() &&
         parsedCurrentDate.isAfter(parsedMaxDate)
       ) {
@@ -470,14 +473,17 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
-    const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
+    const dateFormat =
+      props.__VERSION__ === 2
+        ? ISO_DATE_FORMAT
+        : props.dateFormat || ISO_DATE_FORMAT;
     if (dateString === undefined) {
       return {
         isValid: false,
         parsed: "",
         message:
-          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + props.dateFormat
-            ? props.dateFormat
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + dateFormat
+            ? dateFormat
             : "",
       };
     }
@@ -516,14 +522,17 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
-    const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
+    const dateFormat =
+      props.__VERSION__ === 2
+        ? ISO_DATE_FORMAT
+        : props.dateFormat || ISO_DATE_FORMAT;
     if (dateString === undefined) {
       return {
         isValid: false,
         parsed: "",
         message:
-          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + props.dateFormat
-            ? props.dateFormat
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + dateFormat
+            ? dateFormat
             : "",
       };
     }

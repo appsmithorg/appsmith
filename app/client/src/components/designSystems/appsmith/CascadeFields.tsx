@@ -578,6 +578,7 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
             isLoading={false}
             enableTimePicker={false}
             widgetId=""
+            version={2}
           />
         </DatePickerWrapper>
       ) : null}
