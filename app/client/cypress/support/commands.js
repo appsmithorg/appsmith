@@ -817,6 +817,13 @@ Cypress.Commands.add("RenameEntity", (value) => {
   cy.wait(3000);
 });
 
+Cypress.Commands.add("validateMessage", (value) => {
+  cy.get(".bp3-popover-content").should(($x) => {
+    console.log($x);
+    expect($x).contain(value.concat(" is already being used."));
+  });
+});
+
 Cypress.Commands.add("DeleteAPIFromSideBar", () => {
   cy.deleteEntity();
   cy.wait("@deleteAction").should(
