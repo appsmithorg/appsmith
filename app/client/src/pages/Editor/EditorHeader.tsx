@@ -48,6 +48,7 @@ import Button, { Size } from "components/ads/Button";
 import { IconWrapper } from "components/ads/Icon";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 
 const HeaderWrapper = styled(StyledHeader)`
   padding-right: 0;
@@ -88,6 +89,9 @@ const HeaderSection = styled.div`
     justify-content: flex-start;
   }
   :nth-child(2) {
+    justify-content: flex-start;
+  }
+  :nth-child(3) {
     justify-content: flex-end;
   }
 `;
@@ -225,6 +229,9 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             />
           )}
         </Boxed>
+      </HeaderSection>
+      <HeaderSection>
+        <HelpBar />
       </HeaderSection>
       <HeaderSection>
         <Boxed step={OnboardingStep.FINISH}>

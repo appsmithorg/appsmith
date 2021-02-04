@@ -769,6 +769,11 @@ type ColorType = {
     containerBackground: string;
     activeSearchItemBackground: string;
     searchInputText: string;
+    containerShadow: string;
+    separator: string;
+    searchItemHighlight: string;
+    searchItemText: string;
+    highlightedTextUnderline: string;
   };
 };
 
@@ -804,6 +809,13 @@ const globalSearch = {
     "linear-gradient(0deg, rgba(43, 43, 43, 0.9), rgba(43, 43, 43, 0.9)), linear-gradient(119.61deg, rgba(35, 35, 35, 0.01) 0.43%, rgba(49, 49, 49, 0.01) 100.67%);",
   activeSearchItemBackground: "rgba(0, 0, 0, 0.24)",
   searchInputText: "#fff",
+  containerShadow: "0px 0px 32px 8px rgba(0, 0, 0, 0.25)",
+  separator: "#424242",
+  searchItemHighlight: "#fff",
+  searchItemText: "rgba(255, 255, 255, 0.6)",
+  highlightedTextUnderline: "#F15A24",
+  helpBarBorder: "#F15A24",
+  helpBarText: "#C2C2C2",
 };
 
 export const dark: ColorType = {

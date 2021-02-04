@@ -1,13 +1,12 @@
 import React from "react";
 import styled from "styled-components";
 import { Overlay, Classes } from "@blueprintjs/core";
-import Search from "./Search";
 
 const StyledDocsSearchModal = styled.div`
   & {
     .${Classes.OVERLAY} {
       position: fixed;
-      top: 48px;
+      top: ${(props) => props.theme.smallHeaderHeight};
       bottom: 0;
       left: 0;
       right: 0;
@@ -22,13 +21,13 @@ const StyledDocsSearchModal = styled.div`
   }
 `;
 
-const DocsSearchModal = ({
-  modalOpen,
-  toggleShow,
-}: {
+type Props = {
   modalOpen: boolean;
   toggleShow: () => void;
-}) => (
+  children: React.ReactNode;
+};
+
+const DocsSearchModal = ({ modalOpen, toggleShow, children }: Props) => (
   <StyledDocsSearchModal>
     <Overlay
       isOpen={modalOpen}
@@ -36,9 +35,7 @@ const DocsSearchModal = ({
       hasBackdrop={true}
       usePortal={false}
     >
-      <div className={Classes.OVERLAY_CONTENT}>
-        <Search />
-      </div>
+      <div className={Classes.OVERLAY_CONTENT}>{children}</div>
     </Overlay>
   </StyledDocsSearchModal>
 );

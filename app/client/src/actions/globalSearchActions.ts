@@ -5,11 +5,6 @@ export const setGlobalSearchQuery = (query: string) => ({
   payload: query,
 });
 
-export const updateActiveItemIndex = (index: number) => ({
-  type: ReduxActionTypes.UPDATE_GLOBAL_SEARCH_ACTIVE_ITEM_INDEX,
-  payload: index,
-});
-
 export const setHelpResults = (results: Record<string, any>[]) => ({
   type: ReduxActionTypes.SET_HELP_RESULTS,
   payload: results,

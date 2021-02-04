@@ -3,16 +3,24 @@ import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { connectSearchBox } from "react-instantsearch-dom";
 import { SearchBoxProvided } from "react-instantsearch-core";
-import { useDispatch } from "react-redux";
-import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { AppState } from "reducers";
 
-const StyledInput = styled.input`
-  ${(props) => getTypographyByKey(props, "cardSubheader")}
-  background: ${(props) => props.theme.colors.globalSearch.containerBackground};
-  color: ${(props) => props.theme.colors.globalSearch.searchInputText};
-  border: none;
+const Separator = styled.div`
+  height: 1px;
+  background: ${(props) => props.theme.colors.globalSearch.separator};
+  width: 100%;
+`;
+
+const Container = styled.div`
+  padding: ${(props) => `0 ${props.theme.spaces[11]}px`};
+  & input {
+    ${(props) => getTypographyByKey(props, "cardSubheader")}
+    background: transparent;
+    color: ${(props) => props.theme.colors.globalSearch.searchInputText};
+    border: none;
+    padding: ${(props) => `${props.theme.spaces[7]}px 0`};
+  }
 `;
 
 const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -21,20 +29,20 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
   }
 };
 
-const SearchBox = ({ isSearchStalled, refine }: SearchBoxProvided) => {
+type SearchBoxProps = SearchBoxProvided & {
+  query: string;
+  setQuery: (query: string) => void;
+};
+
+const SearchBox = ({ query, setQuery }: SearchBoxProps) => {
   const [listenToChange, setListenToChange] = useState(false);
-  const dispatch = useDispatch();
-  const { query, modalOpen } = useSelector(
-    (state: AppState) => state.ui.globalSearch,
-  );
+  const { modalOpen } = useSelector((state: AppState) => state.ui.globalSearch);
   const updateSearchQuery = useCallback(
     (e) => {
       // to prevent key combo to open modal (shift + o) from trigging query update
       if (!listenToChange) return;
-      console.log(e.key === "Enter" && e.shiftKey, "isENTER");
-      console.log(e.currentTarget.value, "event", e);
       const query = e.currentTarget.value;
-      dispatch(setGlobalSearchQuery(query));
+      setQuery(query);
     },
     [listenToChange],
   );
@@ -52,17 +60,18 @@ const SearchBox = ({ isSearchStalled, refine }: SearchBoxProvided) => {
   }, [modalOpen]);
 
   return (
-    <>
-      <StyledInput
+    <Container>
+      <input
         value={query}
         onChange={(event) => updateSearchQuery(event)}
         autoFocus
         onKeyDown={handleKeyDown}
       />
+      <Separator />
       {/* <button onClick={() => refine("")}>Reset query</button>
       {isSearchStalled ? "My search is stalled" : ""} */}
-    </>
+    </Container>
   );
 };
 
-export default connectSearchBox(SearchBox);
+export default connectSearchBox<SearchBoxProps>(SearchBox);
