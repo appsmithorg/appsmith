@@ -126,10 +126,6 @@ const typeOperatorsMap: Record<ColumnTypes, DropdownOption[]> = {
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
-  [ColumnTypes.TIME]: [
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
-  ],
   [ColumnTypes.NUMBER]: [
     { label: "is equal to", value: "isEqualTo", type: "input" },
     { label: "not equal to", value: "notEqualTo", type: "input" },
@@ -161,7 +157,6 @@ const columnTypeNameMap: Record<ColumnTypes, string> = {
   [ColumnTypes.IMAGE]: "Image",
   [ColumnTypes.NUMBER]: "Num",
   [ColumnTypes.DATE]: "Date",
-  [ColumnTypes.TIME]: "Time",
 };
 
 const RenderOption = (props: {

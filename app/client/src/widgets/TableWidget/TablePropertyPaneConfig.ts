@@ -13,7 +13,7 @@ const updateColumnStyles = (
     // The style being updated currently
     const currentStyleName = propertyPath.split(".").pop(); // horizontalAlignment/textStyle
     const derivedColumns = props.derivedColumns;
-    let updatedDerivedColumns = [...derivedColumns];
+    let updatedDerivedColumns = [...(derivedColumns || [])];
     if (currentStyleName) {
       let updates = compact(
         props.primaryColumns.map((column: ColumnProperties, index: number) => {
@@ -234,10 +234,6 @@ export default [
                       value: "date",
                     },
                     {
-                      label: "Time",
-                      value: "time",
-                    },
-                    {
                       label: "Button",
                       value: "button",
                     },
@@ -361,7 +357,12 @@ export default [
                   `${baseProperty || propertyPath}.columnType`,
                   "",
                 );
-                return columnType === "button" || columnType === "dropdown";
+
+                return (
+                  columnType === "button" ||
+                  columnType === "image" ||
+                  columnType === "video"
+                );
               },
               children: [
                 {
@@ -573,6 +574,31 @@ export default [
     ],
   },
   {
+    sectionName: "Actions",
+    children: [
+      {
+        helpText: "Triggers an action when a table row is selected",
+        propertyName: "onRowSelected",
+        label: "onRowSelected",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+      },
+      {
+        helpText: "Triggers an action when a table page is changed",
+        propertyName: "onPageChange",
+        label: "onPageChange",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+      },
+      {
+        propertyName: "onSearchTextChanged",
+        label: "onSearchTextChanged",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+      },
+    ],
+  },
+  {
     sectionName: "Styles",
     children: [
       {
@@ -683,31 +709,6 @@ export default [
           },
         ],
         defaultValue: "LEFT",
-      },
-    ],
-  },
-  {
-    sectionName: "Actions",
-    children: [
-      {
-        helpText: "Triggers an action when a table row is selected",
-        propertyName: "onRowSelected",
-        label: "onRowSelected",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
-      },
-      {
-        helpText: "Triggers an action when a table page is changed",
-        propertyName: "onPageChange",
-        label: "onPageChange",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
-      },
-      {
-        propertyName: "onSearchTextChanged",
-        label: "onSearchTextChanged",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
       },
     ],
   },

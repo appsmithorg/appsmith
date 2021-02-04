@@ -60,8 +60,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       label: VALIDATION_TYPES.TEXT,
       searchText: VALIDATION_TYPES.TEXT,
       defaultSearchText: VALIDATION_TYPES.TEXT,
-      primaryColumns: VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY,
-      derivedColumns: VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY,
       defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
     };
   }
@@ -108,11 +106,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
-  getPropertyValue = (value: any, index: number) => {
+  getPropertyValue = (value: any, index: number, preserveCase = false) => {
     if (value && Array.isArray(value) && value[index]) {
-      return value[index].toString().toUpperCase();
+      return preserveCase
+        ? value[index].toString()
+        : value[index].toString().toUpperCase();
     } else if (value) {
-      return value.toString().toUpperCase();
+      return preserveCase ? value.toString() : value.toString().toUpperCase();
     } else {
       return value;
     }
@@ -146,6 +146,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       buttonLabel: this.getPropertyValue(
         columnProperties.buttonLabel,
         rowIndex,
+        true,
       ),
       textSize: this.getPropertyValue(columnProperties.textSize, rowIndex),
       textColor: this.getPropertyValue(columnProperties.textColor, rowIndex),
@@ -293,22 +294,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   tableRow[accessor] = moment(value, inputFormat).format(
                     outputFormat,
                   );
-                } else if (value) {
-                  tableRow[accessor] = "Invalid Value";
-                } else {
-                  tableRow[accessor] = "";
-                }
-                break;
-              case ColumnTypes.TIME:
-                let isValidTime = true;
-                if (isNaN(value)) {
-                  const time = Date.parse(value);
-                  if (isNaN(time)) {
-                    isValidTime = false;
-                  }
-                }
-                if (isValidTime) {
-                  tableRow[accessor] = moment(value).format("HH:mm");
                 } else if (value) {
                   tableRow[accessor] = "Invalid Value";
                 } else {
