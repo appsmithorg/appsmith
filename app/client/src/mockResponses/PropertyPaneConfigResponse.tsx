@@ -135,6 +135,107 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
         ],
       },
     ],
+    DATE_PICKER_WIDGET2: [
+      {
+        sectionName: "General",
+        id: "6.1",
+        children: [
+          {
+            id: "6.1.2",
+            propertyName: "defaultDate",
+            label: "Default Date",
+            helpText:
+              "Sets the default date of the widget. The date is updated if the default date changes",
+            controlType: "DATE_PICKER",
+            placeholderText: "Enter Default Date",
+            isJSConvertible: true,
+          },
+          {
+            id: "6.1.3",
+            helpText: "Sets the format of the selected date",
+            propertyName: "dateFormat",
+            label: "Date Format",
+            controlType: "DROP_DOWN",
+            isJSConvertible: true,
+            options: [
+              {
+                label: "YYYY-MM-DD",
+                value: "YYYY-MM-DD",
+              },
+              {
+                label: "YYYY-MM-DD HH:mm",
+                value: "YYYY-MM-DD HH:mm",
+              },
+              {
+                label: "YYYY-MM-DDTHH:mm:ss.sssZ",
+                value: "YYYY-MM-DDTHH:mm:ss.sssZ",
+              },
+              {
+                label: "DD/MM/YYYY",
+                value: "DD/MM/YYYY",
+              },
+              {
+                label: "DD/MM/YYYY HH:mm",
+                value: "DD/MM/YYYY HH:mm",
+              },
+            ],
+          },
+          {
+            id: "6.1.6",
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            id: "6.1.4",
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            id: "6.1.5",
+            propertyName: "isDisabled",
+            label: "Disabled",
+            helpText: "Disables input to this widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            id: "6.1.6",
+            propertyName: "minDate",
+            label: "Min Date",
+            helpText: "Defines the min date for this widget",
+            controlType: "DATE_PICKER",
+            isJSConvertible: true,
+          },
+          {
+            id: "6.1.7",
+            propertyName: "maxDate",
+            label: "Max Date",
+            helpText: "Defines the max date for this widget",
+            controlType: "DATE_PICKER",
+            isJSConvertible: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        id: "6.2",
+        children: [
+          {
+            id: "6.2.1",
+            propertyName: "onDateSelected",
+            label: "onDateSelected",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+        ],
+      },
+    ],
     VIDEO_WIDGET: [
       {
         id: "17.1",

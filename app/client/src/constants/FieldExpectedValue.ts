@@ -24,6 +24,13 @@ const FIELD_VALUES: Record<
     isDisabled: "boolean",
     // onDateSelected: "Function Call",
   },
+  DATE_PICKER_WIDGET2: {
+    defaultDate: "string", //TODO:Vicky validate this property
+    isRequired: "boolean",
+    isVisible: "boolean",
+    isDisabled: "boolean",
+    // onDateSelected: "Function Call",
+  },
   TABLE_WIDGET: {
     tableData: "Array<Object>",
     serverSidePaginationEnabled: "boolean",
