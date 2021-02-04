@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-describe("Create app same name in differnt org", function() {
+describe("Create app same name in different org", function() {
   let orgid;
   let appid;
 
@@ -26,6 +26,8 @@ describe("Create app same name in differnt org", function() {
       200,
     );
     cy.reload();
-    cy.CreateApp(appid);
+    const newOrgName = orgid + "1";
+    cy.createOrg(newOrgName);
+    cy.CreateAppForOrg(newOrgName, appid);
   });
 });
