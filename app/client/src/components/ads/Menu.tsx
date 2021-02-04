@@ -3,6 +3,7 @@ import { CommonComponentProps } from "./common";
 import styled from "styled-components";
 import { Popover } from "@blueprintjs/core/lib/esm/components/popover/popover";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import { PopperModifiers } from "@blueprintjs/core";
 
 type MenuProps = CommonComponentProps & {
   children?: ReactNode[];
@@ -10,6 +11,7 @@ type MenuProps = CommonComponentProps & {
   position?: Position;
   onOpening?: (node: HTMLElement) => void;
   onClosing?: (node: HTMLElement) => void;
+  modifiers?: PopperModifiers;
 };
 
 const MenuWrapper = styled.div`
@@ -33,6 +35,7 @@ const Menu = (props: MenuProps) => {
       portalClassName={props.className}
       data-cy={props.cypressSelector}
       disabled={props.disabled}
+      modifiers={props.modifiers}
     >
       {props.target}
       <MenuWrapper>
