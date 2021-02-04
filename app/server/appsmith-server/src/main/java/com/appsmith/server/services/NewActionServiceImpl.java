@@ -9,9 +9,9 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -592,7 +592,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             .timeout(Duration.ofMillis(timeoutDuration))
                             .onErrorMap(TimeoutException.class,
                                     error -> new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_TIMEOUT_ERROR,
+                                            AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
                                             action.getName(), timeoutDuration
                                     )
                             )
