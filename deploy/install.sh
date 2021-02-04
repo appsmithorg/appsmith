@@ -39,7 +39,7 @@ check_ports_occupied() {
         }' > /dev/null
         echo "+++++++++++ ERROR ++++++++++++++++++++++"
         echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
-        echo "You can run appsmith on another port following this guide https://app.gitbook.com/@appsmith/s/appsmith/troubleshooting-guide/deployment-errors"
+        echo "You can run appsmith on another port following this guide https://docs.appsmith.com/v/v1.2.1/troubleshooting-guide/deployment-errors"
         echo "++++++++++++++++++++++++++++++++++++++++"
         echo ""
         exit 1
@@ -689,7 +689,7 @@ if [[ $status_code -ne 401 ]]; then
     echo "The containers didn't seem to start correctly. Please run the following command to check containers that may have errored out:"
     echo ""
     echo -e "cd \"$install_dir\" && sudo docker-compose ps -a"
-    echo "Please read our troubleshooting guide https://app.gitbook.com/@appsmith/s/appsmith/troubleshooting-guide/deployment-errors"
+    echo "Please read our troubleshooting guide https://docs.appsmith.com/v/v1.2.1/troubleshooting-guide/deployment-errors"
     echo "or reach us on Discord for support https://discord.com/invite/rBTTVJp"
     echo "++++++++++++++++++++++++++++++++++++++++"
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
