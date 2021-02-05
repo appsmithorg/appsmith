@@ -1,6 +1,7 @@
 import { GridDefaults } from "constants/WidgetConstants";
 import lottie from "lottie-web";
 import confetti from "assets/lottie/binding.json";
+import checked from "assets/lottie/checked.json";
 import {
   DATA_TREE_KEYWORDS,
   JAVASCRIPT_KEYWORDS,
@@ -195,8 +196,23 @@ export const isNameValid = (
 };
 
 export const playOnboardingAnimation = () => {
-  const container: Element = document.getElementById("root") as Element;
+  playLottieAnimation("#root", confetti);
+};
 
+export const playOnboardingStepCompletionAnimation = () => {
+  playLottieAnimation(".onboarding-step-indicator", checked, {
+    "background-color": "white",
+  });
+};
+
+const playLottieAnimation = (
+  selector: string,
+  animation: any,
+  styles?: any,
+) => {
+  const container: Element = document.querySelector(selector) as Element;
+
+  if (!container) return;
   const el = document.createElement("div");
   Object.assign(el.style, {
     position: "absolute",
@@ -207,19 +223,20 @@ export const playOnboardingAnimation = () => {
     "z-index": 99,
     width: "100%",
     height: "100%",
+    ...styles,
   });
 
   container.appendChild(el);
 
   const animObj = lottie.loadAnimation({
     container: el,
-    animationData: confetti,
+    animationData: animation,
     loop: false,
   });
+
   const duration = (animObj.totalFrames / animObj.frameRate) * 1000;
 
   animObj.play();
-
   setTimeout(() => {
     container.removeChild(el);
   }, duration);

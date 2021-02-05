@@ -42,7 +42,10 @@ import {
   changeDatasource,
   expandDatasourceEntity,
 } from "actions/datasourceActions";
-import { playOnboardingAnimation } from "utils/helpers";
+import {
+  playOnboardingAnimation,
+  playOnboardingStepCompletionAnimation,
+} from "utils/helpers";
 import {
   OnboardingConfig,
   OnboardingStep,
@@ -478,6 +481,9 @@ function* setupOnboardingStep() {
     actions = actions.map((action) => put(action));
     yield all(actions);
   }
+
+  yield delay(500);
+  playOnboardingStepCompletionAnimation();
 }
 
 function* skipOnboardingSaga() {

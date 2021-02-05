@@ -183,7 +183,7 @@ const Helper = () => {
   };
 
   return (
-    <StyledContainer>
+    <StyledContainer className="onboarding-step-indicator">
       {helperConfig.image ? (
         <MissionImage src={helperConfig.image.src} />
       ) : (
