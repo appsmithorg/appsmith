@@ -134,8 +134,8 @@ const WidgetSidebar = (props: IPanelProps) => {
     };
   }, [searchInputRef, search]);
 
-  const showTableWidget = currentStep === OnboardingStep.RUN_QUERY_SUCCESS;
-  const showInputWidget = currentStep === OnboardingStep.ADD_INPUT_WIDGET;
+  const showTableWidget = currentStep >= OnboardingStep.RUN_QUERY_SUCCESS;
+  const showInputWidget = currentStep >= OnboardingStep.ADD_INPUT_WIDGET;
 
   return (
     <>
