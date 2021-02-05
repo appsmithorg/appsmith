@@ -421,11 +421,13 @@ function LeftPane() {
                 selected={urlHash === org.organization.slug}
               />
             ))}
-          <Item
-            label={"GETTING STARTED"}
-            textType={TextType.H6}
-            isFetchingApplications={isFetchingApplications}
-          ></Item>
+          <div style={{ marginTop: 12 }}>
+            <Item
+              label={"GETTING STARTED"}
+              textType={TextType.H6}
+              isFetchingApplications={isFetchingApplications}
+            ></Item>
+          </div>
           <MenuItem
             className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
             icon="book"
