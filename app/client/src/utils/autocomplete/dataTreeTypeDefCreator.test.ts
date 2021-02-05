@@ -23,6 +23,7 @@ describe("dataTreeTypeDefCreator", () => {
         topRow: 1,
         bottomRow: 2,
         isLoading: false,
+        version: 1,
       },
     };
     const def = dataTreeTypeDefCreator(dataTree);

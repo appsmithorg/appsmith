@@ -584,7 +584,7 @@ export const generateWidgetProps = (
     widgetId: string;
     renderMode: RenderMode;
   } & Partial<WidgetProps>,
-  __VERSION__: number,
+  version: number,
 ): ContainerWidgetProps<WidgetProps> => {
   if (parent) {
     const sizes = {
@@ -606,7 +606,7 @@ export const generateWidgetProps = (
       ...sizes,
       ...others,
       parentId: parent.widgetId,
-      __VERSION__,
+      version,
     };
     delete props.rows;
     delete props.columns;

@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
-import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
+import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent2";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
@@ -72,7 +72,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         isLoading={this.props.isLoading}
         minDate={this.props.minDate}
         maxDate={this.props.maxDate}
-        version={this.props.__VERSION__}
       />
     );
   }

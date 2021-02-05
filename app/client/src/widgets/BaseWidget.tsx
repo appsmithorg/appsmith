@@ -303,7 +303,7 @@ export interface WidgetBaseProps {
   widgetName: string;
   parentId: string;
   renderMode: RenderMode;
-  __VERSION__: number;
+  version: number;
 }
 
 export type WidgetRowCols = {

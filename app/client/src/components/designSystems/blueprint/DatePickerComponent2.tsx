@@ -68,17 +68,17 @@ class DatePickerComponent extends React.Component<
   }
 
   componentDidUpdate(prevProps: DatePickerComponentProps) {
-    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
     if (
       this.props.selectedDate !== this.state.selectedDate &&
-      !moment(this.props.selectedDate, dateFormat).isSame(
-        moment(prevProps.selectedDate, dateFormat),
+      !moment(this.props.selectedDate).isSame(
+        moment(prevProps.selectedDate),
         "seconds",
       )
     ) {
       this.setState({ selectedDate: this.props.selectedDate });
     }
   }
+
   getValidDate = (date: string, format: string) => {
     const _date = moment(date, format);
     return _date.isValid() ? _date.toDate() : undefined;
@@ -87,21 +87,20 @@ class DatePickerComponent extends React.Component<
   render() {
     const now = moment();
     const year = now.get("year");
-    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
     const minDate = this.props.minDate
-      ? this.getValidDate(this.props.minDate, dateFormat)
+      ? new Date(this.props.minDate)
       : now
           .clone()
           .set({ month: 0, date: 1, year: year - 100 })
           .toDate();
     const maxDate = this.props.maxDate
-      ? this.getValidDate(this.props.maxDate, dateFormat)
+      ? new Date(this.props.maxDate)
       : now
           .clone()
           .set({ month: 11, date: 31, year: year + 20 })
           .toDate();
     const value = this.state.selectedDate
-      ? this.parseDate(this.state.selectedDate)
+      ? new Date(this.state.selectedDate)
       : null;
 
     return (
@@ -148,10 +147,9 @@ class DatePickerComponent extends React.Component<
   };
 
   parseDate = (dateStr: string): Date => {
-    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
-    const date = moment(dateStr, dateFormat);
+    const date = moment(dateStr);
 
-    if (date.isValid()) return moment(dateStr, dateFormat).toDate();
+    if (date.isValid()) return moment(dateStr).toDate();
     else return moment().toDate();
   };
 
@@ -166,7 +164,7 @@ class DatePickerComponent extends React.Component<
     if (isUserChange) {
       const { onDateSelected } = this.props;
 
-      const date = selectedDate ? this.formatDate(selectedDate) : "";
+      const date = selectedDate ? selectedDate.toISOString() : "";
       this.setState({ selectedDate: date });
 
       // if date is null ( if date is cleared ), don't call onDateSelected

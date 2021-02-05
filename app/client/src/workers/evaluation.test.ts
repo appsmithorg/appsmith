@@ -474,6 +474,7 @@ const BASE_WIDGET: DataTreeWidget = {
   topRow: 0,
   type: WidgetTypes.SKELETON_WIDGET,
   parentId: "0",
+  version: 1,
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
 };
 

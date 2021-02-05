@@ -130,6 +130,7 @@ export const entityDefinitions = {
     "!url": "https://docs.appsmith.com/widget-reference/datepicker",
     isVisible: isVisible,
     selectedDate: "string",
+    formattedDate: "string",
     isDisabled: "bool",
   },
   CHECKBOX_WIDGET: {

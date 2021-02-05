@@ -421,7 +421,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
   ): ValidationResponse => {
     const dateFormat =
-      props.__VERSION__ === 2
+      props.version === 2
         ? ISO_DATE_FORMAT
         : props.dateFormat || ISO_DATE_FORMAT;
     if (dateString === undefined) {
@@ -474,7 +474,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
   ): ValidationResponse => {
     const dateFormat =
-      props.__VERSION__ === 2
+      props.version === 2
         ? ISO_DATE_FORMAT
         : props.dateFormat || ISO_DATE_FORMAT;
     if (dateString === undefined) {
@@ -523,7 +523,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
   ): ValidationResponse => {
     const dateFormat =
-      props.__VERSION__ === 2
+      props.version === 2
         ? ISO_DATE_FORMAT
         : props.dateFormat || ISO_DATE_FORMAT;
     if (dateString === undefined) {

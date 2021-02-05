@@ -63,7 +63,7 @@ class DatePickerControl extends BaseControl<
   }
 
   render() {
-    const version = this.props.widgetProperties.__VERSION__;
+    const version = this.props.widgetProperties.version;
     const dateFormat =
       version === 2
         ? ISO_DATE_FORMAT
@@ -122,7 +122,7 @@ class DatePickerControl extends BaseControl<
   onDateSelected = (date: Date, isUserChange: boolean): void => {
     if (isUserChange) {
       const selectedDate = date
-        ? this.props.widgetProperties.__VERSION__ === 2
+        ? this.props.widgetProperties.version === 2
           ? date.toISOString()
           : this.formatDate(date)
         : undefined;
@@ -142,7 +142,7 @@ class DatePickerControl extends BaseControl<
    */
   validateDate = (date: Date): boolean => {
     const dateFormat =
-      this.props.widgetProperties.__VERSION__ === 2
+      this.props.widgetProperties.version === 2
         ? ISO_DATE_FORMAT
         : this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
     const parsedSelectedDate = moment(date, dateFormat);
@@ -215,7 +215,7 @@ class DatePickerControl extends BaseControl<
 
   parseDate = (dateStr: string): Date => {
     const dateFormat =
-      this.props.widgetProperties.__VERSION__ === 2
+      this.props.widgetProperties.version === 2
         ? ISO_DATE_FORMAT
         : this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
     const date = moment(dateStr, dateFormat);
