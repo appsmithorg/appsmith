@@ -22,7 +22,7 @@ const getButtonColorStyles = (props: { theme: Theme } & ButtonStyleProps) => {
   if (props.filled) return props.theme.colors.textOnDarkBG;
   if (props.accent) {
     if (props.accent === "secondary") {
-      return props.theme.colors.OXFORD_BLUE;
+      return props.theme.colors[AccentColorMap["primary"]];
     }
     return props.theme.colors[AccentColorMap[props.accent]];
   }
@@ -56,7 +56,7 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
       ${(props) =>
         props.accent
           ? props.theme.colors[AccentColorMap[props.accent]]
-          : props.theme.colors.secondary};
+          : props.theme.colors.primary};
     border-radius: ${(props) => props.theme.radii[0]}px;
     font-weight: ${(props) => props.theme.fontWeights[2]};
     outline: none;

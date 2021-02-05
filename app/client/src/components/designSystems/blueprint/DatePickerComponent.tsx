@@ -27,7 +27,10 @@ const StyledControlGroup = styled(ControlGroup)`
         border-color: ${Colors.HIT_GRAY};
       }
       &:focus {
-        border-color: ${Colors.MYSTIC};
+        border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
       }
     }
     .${Classes.INPUT_GROUP} {
