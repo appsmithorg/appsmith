@@ -629,6 +629,7 @@ export class DataTreeEvaluator {
         type: EvalErrorTypes.DEPENDENCY_ERROR,
         message: e.message,
       });
+      console.error("CYCLICAL DEPENDENCY MAP", dependencyMap);
       throw new CrashingError(e.message);
     }
   }
