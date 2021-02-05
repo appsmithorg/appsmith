@@ -133,6 +133,10 @@ const WidgetSidebar = (props: IPanelProps) => {
       el?.removeEventListener("cleared", search);
     };
   }, [searchInputRef, search]);
+
+  const showTableWidget = currentStep === OnboardingStep.RUN_QUERY_SUCCESS;
+  const showInputWidget = currentStep === OnboardingStep.ADD_INPUT_WIDGET;
+
   return (
     <>
       <Boxed step={OnboardingStep.DEPLOY}>
@@ -162,7 +166,8 @@ const WidgetSidebar = (props: IPanelProps) => {
             <Boxed
               step={OnboardingStep.DEPLOY}
               show={
-                card.type === "TABLE_WIDGET" || card.type === "INPUT_WIDGET"
+                (card.type === "TABLE_WIDGET" && showTableWidget) ||
+                (card.type === "INPUT_WIDGET" && showInputWidget)
               }
               key={card.key}
             >

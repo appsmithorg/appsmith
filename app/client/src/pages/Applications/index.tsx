@@ -285,9 +285,8 @@ const StyledAnchor = styled.a`
 
 const WorkpsacesNavigator = styled.div`
   overflow: auto;
-  height: calc(
-    100vh - ${(props) => props.theme.homePage.header + 36 + 25 + 200}px
-  );
+  height: calc(100vh - ${(props) => props.theme.homePage.header + 36 + 25}px);
+  padding-bottom: 88px;
 `;
 
 const textIconStyles = (props: { color: string; hover: string }) => {
@@ -422,26 +421,26 @@ function LeftPane() {
                 selected={urlHash === org.organization.slug}
               />
             ))}
+          <Item
+            label={"GETTING STARTED"}
+            textType={TextType.H6}
+            isFetchingApplications={isFetchingApplications}
+          ></Item>
+          <MenuItem
+            className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+            icon="book"
+            text={"Documentation"}
+            onSelect={() => {
+              window.open("https://docs.appsmith.com/", "_blank");
+            }}
+          />
+          <MenuItem
+            className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+            icon="shine"
+            text={"Welcome Tour"}
+            onSelect={() => initiateOnboarding()}
+          />
         </WorkpsacesNavigator>
-      </LeftPaneSection>
-      <LeftPaneSection
-        heading="GETTING STARTED"
-        isFetchingApplications={isFetchingApplications}
-      >
-        <MenuItem
-          className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
-          icon="book"
-          text={"Documentation"}
-          onSelect={() => {
-            window.open("https://docs.appsmith.com/", "_blank");
-          }}
-        />
-        <MenuItem
-          className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
-          icon="shine"
-          text={"Welcome Tour"}
-          onSelect={() => initiateOnboarding()}
-        />
       </LeftPaneSection>
     </LeftPaneWrapper>
   );

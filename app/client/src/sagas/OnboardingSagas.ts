@@ -126,6 +126,8 @@ function* listenForWidgetAdditions() {
             },
             parentRowSpace: 40,
             rightColumn: 14,
+            leftColumn: 0,
+            topRow: 2,
           }),
         );
       }
@@ -178,6 +180,14 @@ function* listenForAddInputWidget() {
             "Standup_Input",
             RenderModes.CANVAS,
           ),
+        );
+        yield put(
+          updateWidgetProperty(inputWidget.widgetId, {
+            topRow: 1,
+            bottomRow: 2,
+            leftColumn: 0,
+            rightColumn: 3,
+          }),
         );
         yield put({
           type: "SET_CURRENT_SUBSTEP",
@@ -501,8 +511,9 @@ function* createApplication() {
   const applicationList = organization[0].applications;
 
   const applicationName = getNextEntityName(
-    "Untitled application ",
+    "Super Standup ",
     applicationList.map((el: any) => el.name),
+    true,
   );
 
   yield put({
@@ -571,42 +582,34 @@ function* executeQuery() {
 
 function* addWidget(widgetConfig: any) {
   try {
-    const columns = 8;
-    const rows = 7;
-    const widgets = yield select(getWidgets);
+    // const widgets = yield select(getWidgets);
 
-    let newWidget = {
-      type: WidgetTypes.TABLE_WIDGET,
+    const newWidget = {
       newWidgetId: generateReactKey(),
       widgetId: "0",
-      topRow: 0,
-      bottomRow: 7,
-      leftColumn: 0,
-      rightColumn: columns,
-      columns,
-      rows,
       parentId: "0",
       renderMode: RenderModes.CANVAS,
-      parentRowSpace: 40,
-      parentColumnSpace: 1,
       isLoading: false,
       ...widgetConfig,
     };
 
-    const {
-      leftColumn,
-      topRow,
-      rightColumn,
-      bottomRow,
-    } = yield calculateNewWidgetPosition(newWidget, "0", widgets);
+    // bypassing this since we are hard coding positions during the oboarding flow
+    // const {
+    //   leftColumn,
+    //   topRow,
+    //   rightColumn,
+    //   bottomRow,
+    // } = yield calculateNewWidgetPosition(newWidget, "0", widgets);
 
-    newWidget = {
-      ...newWidget,
-      leftColumn,
-      topRow,
-      rightColumn,
-      bottomRow,
-    };
+    // console.log({ leftColumn, topRow, rightColumn, bottomRow });
+
+    // newWidget = {
+    //   ...newWidget,
+    //   leftColumn,
+    //   topRow,
+    //   rightColumn,
+    //   bottomRow,
+    // };
 
     yield put({
       type: ReduxActionTypes.WIDGET_ADD_CHILD,
@@ -634,9 +637,19 @@ function* addWidget(widgetConfig: any) {
 }
 
 function* addTableWidget() {
+  const columns = 8;
+  const rows = 7;
   yield call(addWidget, {
     type: WidgetTypes.TABLE_WIDGET,
     widgetName: "Standup_Table",
+    parentRowSpace: 40,
+    parentColumnSpace: 1,
+    topRow: 2,
+    bottomRow: 7,
+    leftColumn: 0,
+    rightColumn: columns,
+    columns,
+    rows,
     props: {
       tableData: [],
     },
@@ -644,10 +657,17 @@ function* addTableWidget() {
 }
 
 function* addInputWidget() {
+  const columns = 3;
+  const rows = 1;
   yield call(addWidget, {
     type: WidgetTypes.INPUT_WIDGET,
     widgetName: "Standup_Input",
-    rows: 1,
+    topRow: 1,
+    bottomRow: 2,
+    leftColumn: 0,
+    rightColumn: 3,
+    rows,
+    columns,
   });
 
   yield call(addOnSubmitHandler);
