@@ -3,11 +3,8 @@ import styled from "styled-components";
 import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
-import FormControl from "../FormControl";
-import Collapsible from "./Collapsible";
 import history from "utils/history";
 import FormTitle from "./FormTitle";
-import { ControlProps } from "components/formControls/BaseControl";
 import Connected from "./Connected";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
@@ -17,8 +14,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import BackButton from "./BackButton";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
-import { isHidden } from "components/formControls/utils";
-import log from "loglevel";
+import InputTextControl from "components/formControls/InputTextControl";
+import KeyValueInputControl from "components/formControls/KeyValueInputControl";
+import DropDownControl from "components/formControls/DropDownControl";
 
 interface DatasourceDBEditorProps {
   onSave: (formValues: Datasource) => void;
@@ -62,6 +60,10 @@ const DBForm = styled.div`
     font-weight: 500;
     cursor: pointer;
   }
+`;
+
+const FormInputContainer = styled.div`
+  margin-top: 16px;
 `;
 
 const PluginImage = styled.img`
@@ -108,77 +110,33 @@ class DatasourceDBEditor extends React.Component<
   Props,
   DatasourceDBEditorState
 > {
-  requiredFields: Record<string, any>;
-  configDetails: Record<string, any>;
   constructor(props: Props) {
     super(props);
 
     this.state = {
       viewMode: true,
     };
-    this.requiredFields = {};
-    this.configDetails = {};
-  }
-
-  componentDidMount() {
-    this.requiredFields = {};
-    this.configDetails = {};
   }
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.datasourceId !== this.props.datasourceId) {
-      this.requiredFields = {};
-      this.configDetails = {};
       this.props.setDatasourceEditorMode(this.props.datasourceId, true);
     }
   }
 
   validate = () => {
+    const requiredFields = [
+      "datasourceConfiguration.url",
+      "datasourceConfiguration.properties[0].value",
+    ];
+
     const errors = {} as any;
-    const requiredFields = Object.keys(this.requiredFields);
     const values = this.props.formData;
 
     requiredFields.forEach((fieldConfigProperty) => {
-      const fieldConfig = this.requiredFields[fieldConfigProperty];
-      if (fieldConfig.controlType === "KEYVALUE_ARRAY") {
-        const configProperty = fieldConfig.configProperty.split("[*].");
-        const arrayValues = _.get(values, configProperty[0]);
-        const keyValueArrayErrors: Record<string, string>[] = [];
-
-        arrayValues.forEach((value: any, index: number) => {
-          const objectKeys = Object.keys(value);
-          const keyValueErrors: Record<string, string> = {};
-
-          if (!value[objectKeys[0]]) {
-            keyValueErrors[objectKeys[0]] = "This field is required";
-            keyValueArrayErrors[index] = keyValueErrors;
-          }
-          if (!value[objectKeys[1]]) {
-            keyValueErrors[objectKeys[1]] = "This field is required";
-            keyValueArrayErrors[index] = keyValueErrors;
-          }
-        });
-
-        if (keyValueArrayErrors.length) {
-          _.set(errors, configProperty[0], keyValueArrayErrors);
-        }
-      } else if (fieldConfig.controlType === "KEY_VAL_INPUT") {
-        const value = _.get(values, fieldConfigProperty, []);
-
-        if (value.length) {
-          const values = Object.values(value[0]);
-          const isNotBlank = values.every((value) => value);
-
-          if (!isNotBlank) {
-            _.set(errors, fieldConfigProperty, "This field is required");
-          }
-        }
-      } else {
-        const value = _.get(values, fieldConfigProperty);
-
-        if (!value) {
-          _.set(errors, fieldConfigProperty, "This field is required");
-        }
+      const value = _.get(values, fieldConfigProperty);
+      if (!value) {
+        _.set(errors, fieldConfigProperty, "This field is required");
       }
     });
 
@@ -186,8 +144,7 @@ class DatasourceDBEditor extends React.Component<
   };
 
   render() {
-    const { formConfig } = this.props;
-    const content = this.renderDataSourceConfigForm(formConfig);
+    const content = this.renderDataSourceConfigForm(this.props.formConfig);
     return <DBForm>{content}</DBForm>;
   }
 
@@ -199,60 +156,61 @@ class DatasourceDBEditor extends React.Component<
 
   normalizeValues = () => {
     let { formData } = this.props;
-    const checked: Record<string, any> = {};
-    const configProperties = Object.keys(this.configDetails);
 
-    for (const configProperty of configProperties) {
-      const controlType = this.configDetails[configProperty];
-
-      if (controlType === "KEYVALUE_ARRAY") {
-        const properties = configProperty.split("[*].");
-
-        if (checked[properties[0]]) continue;
-
-        checked[properties[0]] = 1;
-        const values = _.get(formData, properties[0]);
-        const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
-
-        values.forEach(
-          (object: { [s: string]: unknown } | ArrayLike<unknown>) => {
-            const isEmpty = Object.values(object).every((x) => x === "");
-
-            if (!isEmpty) {
-              newValues.push(object);
-            }
-          },
-        );
-
-        if (newValues.length) {
-          formData = _.set(formData, properties[0], newValues);
-        } else {
-          formData = _.set(formData, properties[0], []);
-        }
-      } else if (controlType === "KEY_VAL_INPUT") {
-        if (checked[configProperty]) continue;
-
-        const values = _.get(formData, configProperty);
-        const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
-
-        values.forEach(
-          (object: { [s: string]: unknown } | ArrayLike<unknown>) => {
-            const isEmpty = Object.values(object).every((x) => x === "");
-
-            if (!isEmpty) {
-              newValues.push(object);
-            }
-          },
-        );
-
-        if (newValues.length) {
-          formData = _.set(formData, configProperty, newValues);
-        } else {
-          formData = _.set(formData, configProperty, []);
-        }
+    const headersProperty = "datasourceConfiguration.headers";
+    // Fix headers
+    const values = _.get(formData, headersProperty);
+    const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
+    values.forEach((object: { [s: string]: unknown } | ArrayLike<unknown>) => {
+      const isEmpty = Object.values(object).every((x) => x === "");
+      if (!isEmpty) {
+        newValues.push(object);
       }
+    });
+    formData = _.set(formData, headersProperty, newValues);
+
+    // Ensure issendSession enabled key exists
+    // This is a weird hack because we do not have anything other than
+    const isSendSessionEnabledKeyProperty =
+      "datasourceConfiguration.properties[0].key";
+    formData = _.set(
+      formData,
+      isSendSessionEnabledKeyProperty,
+      "isSendSessionEnabled",
+    );
+    const isSendSessionEnabledValueProperty =
+      "datasourceConfiguration.properties[0].value";
+
+    let isSendSessionEnabled = _.get(
+      formData,
+      isSendSessionEnabledValueProperty,
+    );
+    if (!["Y", "N"].includes(isSendSessionEnabled)) {
+      isSendSessionEnabled = "N";
+      formData = _.set(
+        formData,
+        isSendSessionEnabledValueProperty,
+        isSendSessionEnabled,
+      );
     }
 
+    // Fix session signature key
+    const sessionSignatureKeyProperty =
+      "datasourceConfiguration.properties[1].key";
+    formData = _.set(
+      formData,
+      sessionSignatureKeyProperty,
+      "sessionSignatureKey",
+    );
+
+    // Fix authentication
+    const authTypeProperty = "datasourceConfiguration.authentication.type";
+    const authProperty = "datasourceConfiguration.authentication";
+    const authType = _.get(formData, authTypeProperty);
+    // Todo: fix to add more types
+    if (authType !== "oAuth2") {
+      formData = _.set(formData, authProperty, undefined);
+    }
     return formData;
   };
 
@@ -283,8 +241,8 @@ class DatasourceDBEditor extends React.Component<
       isDeleting,
       datasourceId,
       handleDelete,
+      viewMode,
     } = this.props;
-    const { viewMode } = this.props;
 
     return (
       <form
@@ -321,9 +279,7 @@ class DatasourceDBEditor extends React.Component<
         </Header>
         {!viewMode ? (
           <>
-            {!_.isNil(sections)
-              ? _.map(sections, this.renderMainSection)
-              : undefined}
+            {this.renderEditor()}
             <SaveButtonContainer>
               <ActionButton
                 className="t--delete-datasource"
@@ -359,80 +315,149 @@ class DatasourceDBEditor extends React.Component<
     );
   };
 
-  renderMainSection = (section: any, index: number) => {
-    if (isHidden(this.props.formData, section.hidden)) return null;
-    return (
-      <Collapsible title={section.sectionName} defaultIsOpen={index === 0}>
-        {this.renderEachConfig(section)}
-      </Collapsible>
-    );
-  };
+  renderEditor = () => {
+    console.log("All props", this.props);
+    const { formData } = this.props;
+    console.log("FORM data", formData);
+    const isSendSessionEnabled =
+      _.get(formData, "datasourceConfiguration.properties[0].value") === "Y";
 
-  renderSingleConfig = (
-    config: ControlProps,
-    multipleConfig?: ControlProps[],
-  ) => {
-    multipleConfig = multipleConfig || [];
-    try {
-      this.setupConfig(config);
-      return (
-        <div key={config.configProperty} style={{ marginTop: "16px" }}>
-          <FormControl
-            config={config}
-            formName={DATASOURCE_DB_FORM}
-            multipleConfig={multipleConfig}
+    const common = {
+      name: "",
+      formName: DATASOURCE_DB_FORM,
+      id: "",
+      isValid: false,
+      controlType: "",
+    };
+    return (
+      <>
+        <FormInputContainer>
+          <InputTextControl
+            {...common}
+            label="URL"
+            configProperty="datasourceConfiguration.url"
+            isRequired={true}
+            placeholderText="https://example.com"
           />
-        </div>
-      );
-    } catch (e) {
-      log.error(e);
-    }
-  };
-
-  setupConfig = (config: ControlProps) => {
-    const { controlType, isRequired, configProperty } = config;
-    this.configDetails[configProperty] = controlType;
-
-    if (isRequired) {
-      this.requiredFields[configProperty] = config;
-    }
-  };
-
-  isKVArray = (children: Array<ControlProps>) => {
-    if (!Array.isArray(children) || children.length < 2) return false;
-    return (
-      children[0].controlType && children[0].controlType === "KEYVALUE_ARRAY"
+        </FormInputContainer>
+        <FormInputContainer>
+          <KeyValueInputControl
+            {...common}
+            label="Headers"
+            configProperty="datasourceConfiguration.headers"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <DropDownControl
+            {...common}
+            label="Send Appsmith signature header (X-APPSMITH-SIGNATURE)"
+            configProperty="datasourceConfiguration.properties[0].value"
+            isRequired={true}
+            placeholderText=""
+            propertyValue=""
+            options={[
+              {
+                label: "Yes",
+                value: "Y",
+              },
+              {
+                label: "No",
+                value: "N",
+              },
+            ]}
+          />
+        </FormInputContainer>
+        {isSendSessionEnabled && (
+          <FormInputContainer>
+            <InputTextControl
+              {...common}
+              label="Session Details Signature Key"
+              configProperty="datasourceConfiguration.properties[1].value"
+              placeholderText=""
+            />
+          </FormInputContainer>
+        )}
+        <FormInputContainer>
+          <DropDownControl
+            {...common}
+            label="Authentication Type"
+            configProperty="datasourceConfiguration.authentication.authenticationType"
+            placeholderText=""
+            propertyValue=""
+            options={[
+              {
+                label: "None",
+                value: "dbAuth",
+              },
+              {
+                label: "OAuth2 (Client credentials)",
+                value: "oAuth2",
+              },
+            ]}
+          />
+        </FormInputContainer>
+        {this.renderAuthFields(common)}
+      </>
     );
   };
 
-  renderKVArray = (children: Array<ControlProps>) => {
-    try {
-      // setup config for each child
-      children.forEach((c) => this.setupConfig(c));
-      // We pass last child for legacy reasons, to keep the logic here exactly same as before.
-      return this.renderSingleConfig(children[children.length - 1], children);
-    } catch (e) {
-      log.error(e);
-    }
-  };
+  renderAuthFields = (common: any) => {
+    const { formData } = this.props;
+    const isAuthTypeOauth2 =
+      _.get(formData, "datasourceConfiguration.authentication.type") ===
+      "oAuth2";
+    if (!isAuthTypeOauth2) return null;
 
-  renderEachConfig = (section: any) => {
     return (
-      <div key={section.sectionName}>
-        {_.map(section.children, (propertyControlOrSection: ControlProps) => {
-          // If the section is hidden, skip rendering
-          if (isHidden(this.props.formData, section.hidden)) return null;
-          if ("children" in propertyControlOrSection) {
-            const { children } = propertyControlOrSection;
-            if (this.isKVArray(children)) {
-              return this.renderKVArray(children);
-            }
-            return this.renderEachConfig(propertyControlOrSection);
-          } else {
-            return this.renderSingleConfig(propertyControlOrSection);
-          }
-        })}
-      </div>
+      <>
+        <FormInputContainer>
+          <InputTextControl
+            {...common}
+            label="Access Token URL"
+            configProperty="datasourceConfiguration.authentication.accessTokenUrl"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...common}
+            label="Client Id"
+            configProperty="datasourceConfiguration.authentication.clientId"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...common}
+            label="Client Secret"
+            dataType="PASSWORD"
+            configProperty="datasourceConfiguration.authentication.clientSecret"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...common}
+            label="Header Prefix"
+            configProperty="datasourceConfiguration.authentication.headerPrefix"
+            placeholderText="Bearer (default)"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <DropDownControl
+            {...common}
+            label="Add token to"
+            configProperty="datasourceConfiguration.authentication.isTokenHeader"
+            options={[
+              {
+                label: "Header",
+                value: true,
+              },
+              {
+                label: "Query parameters",
+                value: false,
+              },
+            ]}
+          />
+        </FormInputContainer>
+      </>
     );
   };
 }
