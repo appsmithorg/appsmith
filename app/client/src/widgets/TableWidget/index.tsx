@@ -38,12 +38,10 @@ import {
   ColumnTypes,
   Operator,
   OperatorTypes,
-  TABLE_SIZES,
   CompactModeTypes,
   CompactMode,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import tableProperyPaneConfig from "./TablePropertyPaneConfig";
-
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
     import("components/designSystems/appsmith/TableComponent"),
@@ -61,6 +59,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: VALIDATION_TYPES.TEXT,
       defaultSearchText: VALIDATION_TYPES.TEXT,
       defaultSelectedRow: VALIDATION_TYPES.DEFAULT_SELECTED_ROW,
+      pageSize: VALIDATION_TYPES.NUMBER,
     };
   }
 
@@ -71,7 +70,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
-      pageSize: undefined,
       selectedRowIndex: undefined,
       selectedRowIndices: undefined,
       searchText: undefined,
@@ -87,6 +85,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return {
       selectedRow: `{{(()=>{${derivedProperties.getSelectedRow}})()}}`,
       selectedRows: `{{(()=>{${derivedProperties.getSelectedRows}})()}}`,
+      pageSize: `{{(()=>{${derivedProperties.getPageSize}})()}}`,
     };
   }
 
@@ -472,25 +471,58 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   createTablePrimaryColumns = (): ColumnProperties[] | undefined => {
-    const { tableData, primaryColumns = [] } = this.props;
+    const {
+      tableData,
+      primaryColumns = [],
+      columnNameMap = {},
+      columnTypeMap = {},
+      migrated,
+    } = this.props;
     const derivedColumns = [...(this.props.derivedColumns || [])];
-    let tableColumns: ColumnProperties[] = [];
+
+    const previousColumnIds = primaryColumns
+      .filter(Boolean)
+      .map((column: ColumnProperties) => column.id);
+
+    const tableColumns: ColumnProperties[] = [];
     //Get table level styles
     const tableStyles = getTableStyles(this.props);
     const columnKeys: string[] = getAllTableColumnKeys(tableData);
     // Generate default column properties for all columns
+    // But donot replace existing columns with the same id
     for (let index = 0; index < columnKeys.length; index++) {
       const i = columnKeys[index];
-      const columnProperties = getDefaultColumnProperties(
-        i,
-        index,
-        this.props.widgetName,
-      );
-      //add column properties along with table level styles
-      tableColumns.push({
-        ...columnProperties,
-        ...tableStyles,
-      });
+      const prevIndex = previousColumnIds.indexOf(i);
+      if (prevIndex > -1) {
+        // we found an existing property with the same column id use the previous properties
+        tableColumns.push(primaryColumns[prevIndex]);
+      } else {
+        const columnProperties = getDefaultColumnProperties(
+          i,
+          index,
+          this.props.widgetName,
+        );
+        if (migrated === false) {
+          if ((columnNameMap as Record<string, string>)[i]) {
+            columnProperties.label = columnNameMap[i];
+          }
+          if (
+            (columnTypeMap as Record<
+              string,
+              { type: ColumnTypes; inputFormat?: string; format?: string }
+            >)[i]
+          ) {
+            columnProperties.columnType = columnTypeMap[i].type;
+            columnProperties.inputFormat = columnTypeMap[i].inputFormat;
+            columnProperties.outputFormat = columnTypeMap[i].format;
+          }
+        }
+        //add column properties along with table level styles
+        tableColumns.push({
+          ...columnProperties,
+          ...tableStyles,
+        });
+      }
     }
     // Get derived columns
     const updatedDerivedColumns = this.getDerivedColumns(
@@ -499,10 +531,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     );
 
     //add derived columns to primary columns
-    tableColumns = tableColumns.concat(updatedDerivedColumns);
-    const previousColumnIds = primaryColumns
-      .filter(Boolean)
-      .map((column: ColumnProperties) => column.id);
+    tableColumns.push(...updatedDerivedColumns);
+
     const newColumnIds = tableColumns.map(
       (column: ColumnProperties) => column.id,
     );
@@ -512,7 +542,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   updateColumnProperties = (tableColumns?: ColumnProperties[]) => {
     let { primaryColumns = [] } = this.props;
-    const { columnOrder } = this.props;
+    const { columnOrder, migrated } = this.props;
     primaryColumns = primaryColumns.filter(Boolean);
     if (tableColumns) {
       const previousColumnIds = primaryColumns.map(
@@ -525,9 +555,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         const propertiesToAdd: Record<string, unknown> = {};
 
         tableColumns.forEach((column: ColumnProperties, index: number) => {
-          Object.entries(column).forEach(([key, value]) => {
-            propertiesToAdd[`primaryColumns[${index}].${key}`] = value;
-          });
+          const prevIndex = previousColumnIds.indexOf(column.id);
+          if (prevIndex === -1 || prevIndex !== index) {
+            Object.entries(column).forEach(([key, value]) => {
+              propertiesToAdd[`primaryColumns[${index}].${key}`] = value;
+            });
+          }
         });
 
         // If new columnOrders have different values from the original columnOrders
@@ -535,9 +568,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           propertiesToAdd["columnOrder"] = newColumnIds;
         }
 
+        const pathsToDelete: string[] = [];
+        if (migrated === false) {
+          propertiesToAdd["migrated"] = true;
+          pathsToDelete.push("columnNameMap", "columnTypeMap", "columnActions");
+        }
+
         super.batchUpdateWidgetProperty(propertiesToAdd);
         if (previousColumnIds.length > newColumnIds.length) {
-          const pathsToDelete: string[] = [];
           let diff = previousColumnIds.length - newColumnIds.length;
           while (diff > 0) {
             pathsToDelete.push(
@@ -605,7 +643,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           return column.id; // Get the ids only
         });
       // If the keys which exist in the tableData are different from the ones available in primaryColumns
-      if (!isEqual(columnIds, primaryColumnIds)) {
+      if (xor(columnIds, primaryColumnIds).length > 0) {
         const newTableColumns = this.createTablePrimaryColumns(); // This updates the widget
         hasPrimaryColumnsChanged = !!newTableColumns;
         this.updateColumnProperties(newTableColumns);
@@ -716,27 +754,27 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("pageNo", pageNo);
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
-    const tableSizes =
-      TABLE_SIZES[this.props.compactMode || CompactModeTypes.DEFAULT];
-    let pageSize = Math.floor(
-      (componentHeight -
-        tableSizes.TABLE_HEADER_HEIGHT -
-        tableSizes.COLUMN_HEADER_HEIGHT) /
-        tableSizes.ROW_HEIGHT,
-    );
+    // const tableSizes =
+    //   TABLE_SIZES[this.props.compactMode || CompactModeTypes.DEFAULT];
+    // let pageSize = Math.floor(
+    //   (componentHeight -
+    //     tableSizes.TABLE_HEADER_HEIGHT -
+    //     tableSizes.COLUMN_HEADER_HEIGHT) /
+    //     tableSizes.ROW_HEIGHT,
+    // );
 
-    if (
-      componentHeight -
-        (tableSizes.TABLE_HEADER_HEIGHT +
-          tableSizes.COLUMN_HEADER_HEIGHT +
-          tableSizes.ROW_HEIGHT * pageSize) >
-      0
-    )
-      pageSize += 1;
+    // if (
+    //   componentHeight -
+    //     (tableSizes.TABLE_HEADER_HEIGHT +
+    //       tableSizes.COLUMN_HEADER_HEIGHT +
+    //       tableSizes.ROW_HEIGHT * pageSize) >
+    //   0
+    // )
+    //   pageSize += 1;
 
-    if (pageSize !== this.props.pageSize) {
-      this.props.updateWidgetMetaProperty("pageSize", pageSize);
-    }
+    // if (pageSize !== this.props.pageSize) {
+    //   this.props.updateWidgetMetaProperty("pageSize", pageSize);
+    // }
 
     return (
       <Suspense fallback={<Skeleton />}>
@@ -753,7 +791,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           hiddenColumns={hiddenColumns}
           columnOrder={this.props.columnOrder}
           columnSizeMap={this.props.columnSizeMap}
-          pageSize={Math.max(1, pageSize)}
+          pageSize={Math.max(1, this.props.pageSize)}
           onCommandClick={this.onCommandClick}
           selectedRowIndex={
             this.props.selectedRowIndex === undefined

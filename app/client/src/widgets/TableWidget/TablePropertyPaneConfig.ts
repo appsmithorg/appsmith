@@ -339,7 +339,7 @@ export default [
                     const baseProperty = getBasePropertyPath(propertyPath);
                     const columnType = get(
                       props,
-                      `${baseProperty}.columnT dype`,
+                      `${baseProperty}.columnType`,
                       "",
                     );
                     return columnType === "button";
