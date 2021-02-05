@@ -18,6 +18,7 @@ import InputTextControl from "components/formControls/InputTextControl";
 import KeyValueInputControl from "components/formControls/KeyValueInputControl";
 import DropDownControl from "components/formControls/DropDownControl";
 
+// TODO: move property paths to constants here.
 interface DatasourceDBEditorProps {
   onSave: (formValues: Datasource) => void;
   onTest: (formValus: Datasource) => void;
@@ -204,7 +205,8 @@ class DatasourceDBEditor extends React.Component<
     );
 
     // Fix authentication
-    const authTypeProperty = "datasourceConfiguration.authentication.type";
+    const authTypeProperty =
+      "datasourceConfiguration.authentication.authenticationType";
     const authProperty = "datasourceConfiguration.authentication";
     const authType = _.get(formData, authTypeProperty);
     // Todo: fix to add more types
@@ -404,8 +406,10 @@ class DatasourceDBEditor extends React.Component<
   renderAuthFields = (common: any) => {
     const { formData } = this.props;
     const isAuthTypeOauth2 =
-      _.get(formData, "datasourceConfiguration.authentication.type") ===
-      "oAuth2";
+      _.get(
+        formData,
+        "datasourceConfiguration.authentication.authenticationType",
+      ) === "oAuth2";
     if (!isAuthTypeOauth2) return null;
 
     return (
