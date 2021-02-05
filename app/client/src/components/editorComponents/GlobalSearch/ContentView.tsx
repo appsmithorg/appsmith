@@ -13,7 +13,11 @@ const StyledContentView = styled.div`
     margin-top: -59px;
     border: none;
   }
-  padding: ${(props) => props.theme.spaces[10]}px;
+  .iframe-container {
+    margin: 0 ${(props) => props.theme.spaces[10]}px;
+    overflow: hidden;
+    height: 100%;
+  }
 `;
 
 const ContentView = (props: Props) => {
@@ -23,7 +27,9 @@ const ContentView = (props: Props) => {
 
   return (
     <StyledContentView>
-      <iframe src={path.replace("master", HelpBaseURL)} />
+      <div className="iframe-container">
+        <iframe src={path.replace("master", HelpBaseURL)} />
+      </div>
     </StyledContentView>
   );
 };

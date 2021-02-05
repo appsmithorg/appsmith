@@ -1,11 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Highlight, connectHits } from "react-instantsearch-dom";
 import { Hit as IHit } from "react-instantsearch-core";
 import "instantsearch.css/themes/algolia.css";
 import { HelpBaseURL } from "constants/HelpConstants";
 import styled, { withTheme } from "styled-components";
-import Icon, { IconCollection, IconName, IconSize } from "components/ads/Icon";
-import { Theme, getTypographyByKey } from "constants/DefaultTheme";
+import Icon, { IconSize } from "components/ads/Icon";
+import {
+  Theme,
+  getTypographyByKey,
+  scrollbarDark,
+} from "constants/DefaultTheme";
 
 type HitProps = {
   activeItemIndex: number;
@@ -13,6 +17,7 @@ type HitProps = {
   index: number;
   theme: Theme;
   setActiveItemIndex: (index: number) => void;
+  isActiveItem: boolean;
 };
 
 const HitContainer = styled.div<{ activeItem: boolean }>`
@@ -43,14 +48,22 @@ const HitContainer = styled.div<{ activeItem: boolean }>`
 `;
 
 const Hit = withTheme((props: HitProps) => {
-  const { hit, activeItemIndex, index, setActiveItemIndex } = props;
+  const { hit, isActiveItem, index, setActiveItemIndex } = props;
+  const hitRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isActiveItem) {
+      hitRef.current?.scrollIntoView(false);
+    }
+  }, [isActiveItem]);
 
   return (
     <HitContainer
+      ref={hitRef}
       onMouseEnter={() => setActiveItemIndex(index)}
       onClick={() => setActiveItemIndex(index)}
       className="t--docHit"
-      activeItem={activeItemIndex === index}
+      activeItem={isActiveItem}
     >
       <Icon
         name="link"
@@ -77,6 +90,8 @@ type Props = {
 
 const SearchResultsContainer = styled.div`
   padding: 0 ${(props) => props.theme.spaces[6]}px;
+  overflow: auto;
+  ${scrollbarDark}
 `;
 
 const Hits = ({
@@ -99,6 +114,7 @@ const Hits = ({
           hit={hit}
           activeItemIndex={activeItemIndex}
           setActiveItemIndex={setActiveItemIndex}
+          isActiveItem={activeItemIndex === index}
         />
       ))}
     </SearchResultsContainer>
