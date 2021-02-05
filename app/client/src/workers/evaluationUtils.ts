@@ -123,7 +123,10 @@ export const translateDiffEventToDataTreeDiffEvent = (
       break;
     }
     case "A": {
-      break;
+      return translateDiffEventToDataTreeDiffEvent({
+        ...difference.item,
+        path: [...difference.path, difference.index],
+      });
     }
     default: {
       break;
