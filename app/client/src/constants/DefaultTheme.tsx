@@ -796,8 +796,9 @@ type ColorType = {
       label: ShadeColor;
       description: ShadeColor;
       stepTitle: ShadeColor;
-      exampleBg: ShadeColor;
+      numberBg: string;
       bindingBg: ShadeColor;
+      numberColor: ShadeColor;
     };
   };
   codeMirror: {
@@ -1177,8 +1178,9 @@ export const dark: ColorType = {
       label: darkShades[7],
       description: darkShades[5],
       stepTitle: darkShades[9],
-      exampleBg: darkShades[3],
-      bindingBg: darkShades[0],
+      numberBg: darkShades[3],
+      bindingBg: darkShades[4],
+      numberColor: lightShades[11],
     },
   },
   codeMirror: {
@@ -1533,10 +1535,11 @@ export const light: ColorType = {
     },
     pagination: {
       label: lightShades[8],
-      description: darkShades[5],
+      description: lightShades[5],
       stepTitle: lightShades[10],
-      exampleBg: lightShades[11],
+      numberBg: "#E0DEDE",
       bindingBg: lightShades[3],
+      numberColor: lightShades[10],
     },
   },
   codeMirror: {
