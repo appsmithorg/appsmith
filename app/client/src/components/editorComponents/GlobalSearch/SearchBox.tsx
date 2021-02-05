@@ -20,6 +20,7 @@ const Container = styled.div`
     color: ${(props) => props.theme.colors.globalSearch.searchInputText};
     border: none;
     padding: ${(props) => `${props.theme.spaces[7]}px 0`};
+    width: 100%;
   }
 `;
 

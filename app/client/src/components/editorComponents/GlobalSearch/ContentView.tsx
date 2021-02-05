@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import { HelpBaseURL } from "constants/HelpConstants";
+import { noop } from "lodash";
 
 type Props = {
   activeItemIndex: number;
@@ -12,24 +13,37 @@ const StyledContentView = styled.div`
     height: calc(100% + 59px);
     margin-top: -59px;
     border: none;
+    width: 100%;
   }
-  .iframe-container {
-    margin: 0 ${(props) => props.theme.spaces[10]}px;
-    overflow: hidden;
-    height: 100%;
-  }
+  flex: 1;
 `;
 
 const ContentView = (props: Props) => {
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const { searchResults, activeItemIndex } = props;
   const activeItem = searchResults[activeItemIndex];
   const { path = "" } = activeItem || {};
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(true);
+  }, [activeItemIndex]);
+
+  useEffect(() => {
+    const setIsReady = () => setIsLoading(false);
+    if (iframeRef.current) {
+      iframeRef.current.onload = setIsReady;
+    }
+    return () => {
+      if (iframeRef.current) {
+        iframeRef.current.onload = noop;
+      }
+    };
+  }, [iframeRef.current]);
 
   return (
     <StyledContentView>
-      <div className="iframe-container">
-        <iframe src={path.replace("master", HelpBaseURL)} />
-      </div>
+      <iframe ref={iframeRef} src={path.replace("master", HelpBaseURL)} />
     </StyledContentView>
   );
 };

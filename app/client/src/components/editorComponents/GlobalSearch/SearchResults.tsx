@@ -10,6 +10,7 @@ import {
   getTypographyByKey,
   scrollbarDark,
 } from "constants/DefaultTheme";
+import scrollIntoView from "scroll-into-view-if-needed";
 
 type HitProps = {
   activeItemIndex: number;
@@ -28,6 +29,10 @@ const HitContainer = styled.div<{ activeItem: boolean }>`
     props.activeItem
       ? props.theme.colors.globalSearch.activeSearchItemBackground
       : "unset"};
+  &:hover {
+    background-color: ${(props) =>
+      props.theme.colors.globalSearch.activeSearchItemBackground};
+  }
   display: flex;
   padding: ${(props) =>
     `${props.theme.spaces[3]}px ${props.theme.spaces[4]}px`};
@@ -50,17 +55,33 @@ const HitContainer = styled.div<{ activeItem: boolean }>`
 const Hit = withTheme((props: HitProps) => {
   const { hit, isActiveItem, index, setActiveItemIndex } = props;
   const hitRef = useRef<HTMLDivElement>(null);
+  // const [isMouseOver, setIsMouseOver] = useState(false);
 
   useEffect(() => {
-    if (isActiveItem) {
-      hitRef.current?.scrollIntoView(false);
+    if (isActiveItem && hitRef.current) {
+      scrollIntoView(hitRef.current, { scrollMode: "if-needed" });
     }
   }, [isActiveItem]);
+
+  // useEffect(() => {
+  //   let timer: number;
+  //   if (isMouseOver) {
+  //     timer = setTimeout(() => {
+  //       setActiveItemIndex(index);
+  //     }, 200);
+  //   }
+  //   return () => {
+  //     if (timer) {
+  //       clearTimeout(timer);
+  //     }
+  //   };
+  // }, [isMouseOver]);
 
   return (
     <HitContainer
       ref={hitRef}
-      onMouseEnter={() => setActiveItemIndex(index)}
+      // onMouseEnter={() => setIsMouseOver(true)}
+      // onMouseLeave={() => setIsMouseOver(false)}
       onClick={() => setActiveItemIndex(index)}
       className="t--docHit"
       activeItem={isActiveItem}
@@ -91,6 +112,7 @@ type Props = {
 const SearchResultsContainer = styled.div`
   padding: 0 ${(props) => props.theme.spaces[6]}px;
   overflow: auto;
+  width: 250px;
   ${scrollbarDark}
 `;
 

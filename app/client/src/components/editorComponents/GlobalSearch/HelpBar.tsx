@@ -13,14 +13,18 @@ const StyledHelpBar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 200px;
+  min-width: 266px;
   border: 1px solid ${(props) => props.theme.colors.globalSearch.helpBarBorder};
   color: ${(props) => props.theme.colors.globalSearch.helpBarText};
-  height: 33px;
+  height: 28px;
 `;
 
 const placeholderText = "Search, Add & Navigate";
-const comboText = "cmd + K";
+const comboText = (
+  <>
+    <kbd>Shift</kbd> + <kbd>O</kbd>
+  </>
+);
 
 type Props = {
   toggleShowModal: () => void;

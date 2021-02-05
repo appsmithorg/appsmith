@@ -112,6 +112,7 @@
     "redux-form": "^8.2.6",
     "redux-saga": "^1.1.3",
     "reselect": "^4.0.0",
+    "scroll-into-view-if-needed": "^2.2.26",
     "shallowequal": "^1.1.0",
     "smartlook-client": "^4.5.1",
     "styled-components": "^5.2.0",

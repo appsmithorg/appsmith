@@ -21,8 +21,7 @@ type Props = {
 };
 
 const StyledContainer = styled.div`
-  width: 100%;
-  max-width: 660px;
+  width: 660px;
   height: 40vh;
   background: ${(props) => props.theme.colors.globalSearch.containerBackground};
   box-shadow: ${(props) => props.theme.colors.globalSearch.containerShadow};
@@ -149,7 +148,6 @@ class DocsSearch extends React.Component<Props> {
 
     return (
       <>
-        {/* <div onClick={this.toggleShow}>shift + o</div> */}
         <DocsSearchModal toggleShow={this.toggleShow} modalOpen={modalOpen}>
           <AlgoliaSearchWrapper query={this.query}>
             <StyledContainer>
