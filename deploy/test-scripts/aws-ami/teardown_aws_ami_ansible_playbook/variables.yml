@@ -1,5 +1,0 @@
-default_key: "gu-dev"
-path_to_ssh_key: "../keys/id_rsa"
-default_region_id: "ap-south-1"
-ami_id: "ami-04c39913148d75552"
-instance_id: "i-0f11dbbb8afbc4958"
