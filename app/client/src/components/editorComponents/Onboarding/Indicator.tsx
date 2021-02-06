@@ -73,7 +73,7 @@ const Wrapper = styled.div`
     height: 100%;
     top: 0;
     filter: blur(30px);
-    animation: ShineTransition 1s ease infinite;
+    animation: ShineTransition 1.5s ease infinite;
   }
 
   // psuedo-element shine animation right side
@@ -86,7 +86,7 @@ const Wrapper = styled.div`
     height: 100%;
     top: 0;
     filter: blur(5px);
-    animation: ShineTransition 1s ease infinite;
+    animation: ShineTransition 1.5s ease infinite;
   }
 `;
 
@@ -112,7 +112,8 @@ const Indicator = (props: any) => {
   if (showingIndicator === props.step) {
     return (
       <Wrapper className="t--onboarding-indicator">
-        <IndicatorWrapper ref={indicatorRef} offset={props.offset} />
+        {/* commenting out ripple effect for now */}
+        {/* <IndicatorWrapper ref={indicatorRef} offset={props.offset} /> */}
         {props.children}
       </Wrapper>
     );

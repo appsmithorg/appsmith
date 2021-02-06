@@ -119,18 +119,16 @@ function* listenForWidgetAdditions() {
         selectedWidget.widgetName === "Standup_Table" ||
         selectedWidget.tableData === initialTableData
       ) {
+        const columns = 10;
+        const rows = 8;
         yield put(
           updateWidgetProperty(selectedWidget.widgetId, {
             tableData: [],
-            bottomRow: 16,
             columnSizeMap: {
               avatar: 20,
               name: 30,
             },
-            parentRowSpace: 40,
-            rightColumn: 14,
-            leftColumn: 0,
-            topRow: 2,
+            ...getStandupTableDimensions(),
           }),
         );
       }
@@ -186,10 +184,8 @@ function* listenForAddInputWidget() {
         );
         yield put(
           updateWidgetProperty(inputWidget.widgetId, {
-            topRow: 1,
-            bottomRow: 2,
-            leftColumn: 0,
-            rightColumn: 3,
+            ...getStandupInputDimensions(),
+            ...getStandupInputProps(),
           }),
         );
         yield put({
@@ -642,20 +638,47 @@ function* addWidget(widgetConfig: any) {
   } catch (error) {}
 }
 
-function* addTableWidget() {
-  const columns = 8;
-  const rows = 7;
-  yield call(addWidget, {
-    type: WidgetTypes.TABLE_WIDGET,
-    widgetName: "Standup_Table",
+const getStandupTableDimensions = () => {
+  const columns = 16;
+  const rows = 15;
+  const topRow = 2;
+  const bottomRow = rows + topRow;
+  return {
     parentRowSpace: 40,
     parentColumnSpace: 1,
     topRow: 2,
-    bottomRow: 7,
+    bottomRow,
     leftColumn: 0,
     rightColumn: columns,
-    columns,
+    columns: columns,
+    rows: rows,
+  };
+};
+
+const getStandupInputDimensions = () => {
+  const columns = 6;
+  const rows = 1;
+  const leftColumn = 5;
+  const rightColumn = leftColumn + columns;
+  return {
+    topRow: 1,
+    bottomRow: 2,
+    leftColumn,
+    rightColumn,
     rows,
+    columns,
+  };
+};
+
+const getStandupInputProps = () => ({
+  placeholderText: "Type your update and hit enter!",
+});
+
+function* addTableWidget() {
+  yield call(addWidget, {
+    type: WidgetTypes.TABLE_WIDGET,
+    widgetName: "Standup_Table",
+    ...getStandupTableDimensions(),
     props: {
       tableData: [],
     },
@@ -663,17 +686,11 @@ function* addTableWidget() {
 }
 
 function* addInputWidget() {
-  const columns = 3;
-  const rows = 1;
   yield call(addWidget, {
     type: WidgetTypes.INPUT_WIDGET,
     widgetName: "Standup_Input",
-    topRow: 1,
-    bottomRow: 2,
-    leftColumn: 0,
-    rightColumn: 3,
-    rows,
-    columns,
+    ...getStandupInputDimensions(),
+    props: getStandupInputProps(),
   });
 
   yield call(addOnSubmitHandler);

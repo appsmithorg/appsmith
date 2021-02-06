@@ -1,7 +1,7 @@
 import { GridDefaults } from "constants/WidgetConstants";
 import lottie from "lottie-web";
 import confetti from "assets/lottie/binding.json";
-import checked from "assets/lottie/checked.json";
+import successAnimation from "assets/lottie/success-animation.json";
 import {
   DATA_TREE_KEYWORDS,
   JAVASCRIPT_KEYWORDS,
@@ -200,7 +200,7 @@ export const playOnboardingAnimation = () => {
 };
 
 export const playOnboardingStepCompletionAnimation = () => {
-  playLottieAnimation(".onboarding-step-indicator", checked, {
+  playLottieAnimation(".onboarding-step-indicator", successAnimation, {
     "background-color": "white",
   });
 };
