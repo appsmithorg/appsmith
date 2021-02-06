@@ -2,7 +2,7 @@ import React, { useEffect, ReactNode, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import Canvas from "./Canvas";
-import Welcome from "./Welcome";
+// import Welcome from "./Welcome";
 import {
   getIsFetchingPage,
   getCurrentPageId,
@@ -22,7 +22,7 @@ import { fetchPage } from "actions/pageActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { AppState } from "reducers";
+// import { AppState } from "reducers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 
 const EditorWrapper = styled.div`

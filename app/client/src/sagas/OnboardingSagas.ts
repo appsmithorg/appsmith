@@ -70,7 +70,7 @@ import {
 import { QueryAction } from "entities/Action";
 import history from "utils/history";
 import { getQueryIdFromURL } from "pages/Editor/Explorer/helpers";
-import { calculateNewWidgetPosition } from "./WidgetOperationSagas";
+// import { calculateNewWidgetPosition } from "./WidgetOperationSagas";
 import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
 import { generateReactKey } from "utils/generators";
 import { forceOpenPropertyPane } from "actions/widgetActions";
@@ -119,8 +119,6 @@ function* listenForWidgetAdditions() {
         selectedWidget.widgetName === "Standup_Table" ||
         selectedWidget.tableData === initialTableData
       ) {
-        const columns = 10;
-        const rows = 8;
         yield put(
           updateWidgetProperty(selectedWidget.widgetId, {
             tableData: [],

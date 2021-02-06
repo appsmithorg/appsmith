@@ -5,29 +5,29 @@ import pulseDark from "assets/lottie/pulse-dark.json";
 import styled from "styled-components";
 import { useSelector } from "store";
 
-const IndicatorWrapper = styled.div<{ offset?: any }>`
-  width: 90px;
-  height: 90px;
-  position: absolute;
-  z-index: 0;
+// const IndicatorWrapper = styled.div<{ offset?: any }>`
+//   width: 90px;
+//   height: 90px;
+//   position: absolute;
+//   z-index: 0;
 
-  // For centering
-  top: 0;
-  margin-top: auto;
-  bottom: ${(props) => props.offset?.bottom ?? 0}px;
-  margin-bottom: auto;
-  left: ${(props) => props.offset?.left ?? 0}px;
-  margin-left: auto;
-  right: 0;
-  margin-right: auto;
+//   // For centering
+//   top: 0;
+//   margin-top: auto;
+//   bottom: ${(props) => props.offset?.bottom ?? 0}px;
+//   margin-bottom: auto;
+//   left: ${(props) => props.offset?.left ?? 0}px;
+//   margin-left: auto;
+//   right: 0;
+//   margin-right: auto;
 
-  // Increasing specificity and setting sibling element's position to relative
-  && {
-    & + * {
-      position: relative;
-    }
-  }
-`;
+//   // Increasing specificity and setting sibling element's position to relative
+//   && {
+//     & + * {
+//       position: relative;
+//     }
+//   }
+// `;
 
 const Wrapper = styled.div`
   position: relative;
