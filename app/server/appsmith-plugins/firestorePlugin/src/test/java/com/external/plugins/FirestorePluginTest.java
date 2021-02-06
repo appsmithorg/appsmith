@@ -7,9 +7,12 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.google.cloud.NoCredentials;
 import com.google.cloud.ServiceOptions;
+import com.google.cloud.firestore.Blob;
 import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
+import com.google.cloud.firestore.GeoPoint;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -19,7 +22,9 @@ import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -27,6 +32,7 @@ import java.util.concurrent.ExecutionException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -57,17 +63,27 @@ public class FirestorePluginTest {
                 .getService();
 
         firestoreConnection.document("initial/one").set(Map.of("value", 1, "name", "one", "isPlural", false)).get();
-        firestoreConnection.document("initial/two").set(Map.of(
+        final Map<String, Object> twoData = new HashMap<>(Map.of(
                 "value", 2,
                 "name", "two",
                 "isPlural", true,
-                "ref", firestoreConnection.document("initial/one")
-        )).get();
+                "geo", new GeoPoint(-90, 90),
+                "dt", FieldValue.serverTimestamp(),
+                "ref", firestoreConnection.document("initial/one"),
+                "bytes", Blob.fromBytes("abc def".getBytes(StandardCharsets.UTF_8))
+        ));
+        twoData.put("null-ref", null);
+        firestoreConnection.document("initial/two").set(twoData).get();
         firestoreConnection.document("initial/inner-ref").set(Map.of(
+                "name", "third",
                 "data", Map.of(
                         "ref", firestoreConnection.document("initial/one"),
                         "isAwesome", false,
                         "anotherRef", firestoreConnection.document("initial/two")
+                ),
+                "ref-list", List.of(
+                        firestoreConnection.document("initial/one"),
+                        firestoreConnection.document("initial/two")
                 )
         )).get();
         firestoreConnection.document("changing/to-update").set(Map.of("value", 1)).get();
@@ -118,6 +134,10 @@ public class FirestorePluginTest {
                     assertTrue((Boolean) doc.remove("isPlural"));
                     assertEquals(2L, doc.remove("value"));
                     assertEquals(Map.of("path", "initial/one", "id", "one"), doc.remove("ref"));
+                    assertEquals(new GeoPoint(-90, 90), doc.remove("geo"));
+                    assertNotNull(doc.remove("dt"));
+                    assertEquals("abc def", ((Blob) doc.remove("bytes")).toByteString().toStringUtf8());
+                    assertNull(doc.remove("null-ref"));
                     assertEquals(Collections.emptyMap(), doc);
                 })
                 .verifyComplete();
@@ -136,11 +156,16 @@ public class FirestorePluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     final Map<String, Object> doc = (Map) result.getBody();
+                    assertEquals("third", doc.remove("name"));
                     assertEquals(Map.of(
                             "ref", Map.of("path", "initial/one", "id", "one"),
                             "isAwesome", false,
                             "anotherRef", Map.of("path", "initial/two", "id", "two")
                     ), doc.remove("data"));
+                    assertEquals(List.of(
+                            Map.of("path", "initial/one", "id", "one"),
+                            Map.of("path", "initial/two", "id", "two")
+                    ), doc.remove("ref-list"));
                     assertEquals(Collections.emptyMap(), doc);
                 })
                 .verifyComplete();
@@ -175,7 +200,25 @@ public class FirestorePluginTest {
                     assertTrue((Boolean) second.remove("isPlural"));
                     assertEquals(2L, second.remove("value"));
                     assertEquals(Map.of("path", "initial/one", "id", "one"), second.remove("ref"));
+                    assertEquals(new GeoPoint(-90, 90), second.remove("geo"));
+                    assertNotNull(second.remove("dt"));
+                    assertEquals("abc def", ((Blob) second.remove("bytes")).toByteString().toStringUtf8());
+                    assertNull(second.remove("null-ref"));
                     assertEquals(Collections.emptyMap(), second);
+
+                    final Map<String, Object> third = results.stream().filter(d -> "third".equals(d.get("name"))).findFirst().orElse(null);
+                    assertNotNull(third);
+                    assertEquals("third", third.remove("name"));
+                    assertEquals(Map.of(
+                            "ref", Map.of("path", "initial/one", "id", "one"),
+                            "isAwesome", false,
+                            "anotherRef", Map.of("path", "initial/two", "id", "two")
+                    ), third.remove("data"));
+                    assertEquals(List.of(
+                            Map.of("path", "initial/one", "id", "one"),
+                            Map.of("path", "initial/two", "id", "two")
+                    ), third.remove("ref-list"));
+                    assertEquals(Collections.emptyMap(), third);
                 })
                 .verifyComplete();
     }

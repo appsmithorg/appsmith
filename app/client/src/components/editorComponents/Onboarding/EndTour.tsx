@@ -6,7 +6,7 @@ import styled from "styled-components";
 const EndTourText = styled.span`
   font-size: 12px;
   color: #d8d8d8;
-  align-self: flex-end;
+  align-self: center;
   cursor: pointer;
 `;
 

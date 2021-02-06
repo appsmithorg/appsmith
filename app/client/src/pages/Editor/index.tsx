@@ -194,7 +194,7 @@ class Editor extends Component<Props> {
 
     if (!this.props.isEditorInitialized || !this.state.registered) {
       return (
-        <CenteredWrapper style={{ height: "calc(100vh - 48px)" }}>
+        <CenteredWrapper style={{ height: "calc(100vh - 35px)" }}>
           <Spinner />
         </CenteredWrapper>
       );
