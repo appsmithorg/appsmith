@@ -91,32 +91,26 @@ class ComputeListPropertyControl extends BaseControl<
       dataTreePath,
       validationMessage,
       defaultValue,
+      listWidgetProperties,
     } = this.props;
-    const tableId = this.props.widgetProperties.widgetName;
+
+    console.log({ props: this.props });
+    const listId = this.props.listWidgetProperties.widgetName;
     const value =
       propertyValue && isDynamicValue(propertyValue)
-        ? this.getInputComputedValue(propertyValue, tableId)
+        ? this.getInputComputedValue(propertyValue, listId)
         : propertyValue
         ? propertyValue
         : defaultValue;
     const evaluatedProperties = this.props.widgetProperties;
 
-    const items = [
-      {
-        id: 1,
-        email: "michael.lawson@reqres.in",
-        first_name: "Michael",
-        last_name: "Lawson",
-        avatar: "https://reqres.in/img/faces/7-image.jpg",
-      },
-      {
-        id: 2,
-        email: "lindsay.ferguson@reqres.in",
-        first_name: "Lindsay",
-        last_name: "Ferguson",
-        avatar: "https://reqres.in/img/faces/8-image.jpg",
-      },
-    ];
+    let items;
+
+    try {
+      if (!Array.isArray(evaluatedProperties.items)) {
+        items = JSON.parse(listWidgetProperties.items);
+      }
+    } catch (e) {}
 
     const currentItem: { [key: string]: any } = {};
     Object.keys(get(items, "0", {})).forEach(
@@ -139,19 +133,20 @@ class ComputeListPropertyControl extends BaseControl<
     );
   }
 
-  getInputComputedValue = (propertyValue: string, tableId: string) => {
+  getInputComputedValue = (propertyValue: string, listId: string) => {
     const value = `${propertyValue.substring(
-      `{{${tableId}.tableData.map((currentRow) => `.length,
+      `{{${listId}.items.map((currentItem) => `.length,
       propertyValue.length - 3,
     )}`;
     const stringValue = JSToString(value);
 
+    console.log({ propertyValue, value, stringValue });
     return stringValue;
   };
 
-  getComputedValue = (value: string, tableId: string) => {
+  getComputedValue = (value: string, listId: string) => {
     const stringToEvaluate = stringToJS(value);
-    return `{{${tableId}.tableData.map((currentRow) => ${stringToEvaluate})}}`;
+    return `{{${listId}.items.map((currentItem) => ${stringToEvaluate})}}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
@@ -164,7 +159,7 @@ class ComputeListPropertyControl extends BaseControl<
     if (value) {
       const output = this.getComputedValue(
         value,
-        this.props.widgetProperties.widgetName,
+        this.props.listWidgetProperties.widgetName,
       );
 
       this.updateProperty(this.props.propertyName, output);

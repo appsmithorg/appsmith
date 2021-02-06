@@ -37,6 +37,7 @@ import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { Position } from "@blueprintjs/core";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { PropertyPaneEnhancements } from ".";
+import { getWidgets } from "sagas/selectors";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -45,6 +46,7 @@ type Props = PropertyPaneControlConfig & {
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
+  const stateWidgets = useSelector(getWidgets);
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
   const enhancementsMap = useSelector(getEnhancementsMap);
 
@@ -243,6 +245,7 @@ const PropertyControl = memo((props: Props) => {
       expected: FIELD_EXPECTED_VALUE[widgetProperties.type as WidgetType][
         propertyName
       ] as any,
+      listWidgetProperties: {},
     };
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {
       config.isValid = true;
@@ -262,9 +265,24 @@ const PropertyControl = memo((props: Props) => {
       .join("")
       .toLowerCase();
 
+    const enhancementsMapOfWidget = get(
+      enhancementsMap,
+      `${widgetProperties.widgetId}`,
+    );
+
     const isListOrChildOfList =
-      get(get(enhancementsMap, `${widgetProperties.widgetId}`), "type") ===
-      WidgetTypes.LIST_WIDGET;
+      get(enhancementsMapOfWidget, "type") === WidgetTypes.LIST_WIDGET;
+
+    // adding list widget properties in the config so that we can retrive in the control
+    if (isListOrChildOfList) {
+      const parentId = get(enhancementsMapOfWidget, "parentId");
+
+      if (parentId) {
+        config.listWidgetProperties = stateWidgets[parentId];
+      } else {
+        config.listWidgetProperties = stateWidgets[widgetProperties.widgetId];
+      }
+    }
 
     /**
      * if there is customJSControl being passed, use that,

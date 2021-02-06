@@ -45,6 +45,7 @@ export interface ControlData extends PropertyPaneControlConfig {
   evaluatedValue: any;
   validationMessage?: string;
   widgetProperties: any;
+  listWidgetProperties: any;
 }
 export interface ControlFunctions {
   onPropertyChange?: (
