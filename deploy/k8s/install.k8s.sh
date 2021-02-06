@@ -18,26 +18,26 @@ check_k8s_setup() {
         echo "Please install kubectl on your machine"
         exit 1
     else
-        
+
         if ! is_command_present jq; then
             install_jq
         fi
-        clusters=`kubectl config view -o json | jq -r '."current-context"'` 
+        clusters=$(kubectl config view -o json | jq -r '."current-context"')
         if [[ ! -n $clusters ]]; then
             echo "Please setup a k8s cluster & config kubectl to connect to it"
             exit 1
         fi
-        k8s_minor_version=`kubectl version --short -o json | jq ."serverVersion.minor" | sed 's/[^0-9]*//g'`
+        k8s_minor_version=$(kubectl version --short -o json | jq ."serverVersion.minor" | sed 's/[^0-9]*//g')
         if [[ $k8s_minor_version < 18 ]]; then
             echo "+++++++++++ ERROR ++++++++++++++++++++++"
             echo "Appsmith deployments require Kubernetes >= v1.18. Found version: v1.$k8s_minor_version"
             echo "+++++++++++ ++++++++++++++++++++++++++++"
             exit 1
-        fi;
+        fi
     fi
 }
 
-install_jq(){
+install_jq() {
     if [ $package_manager == "brew" ]; then
         brew install jq
     elif [ $package_manager == "yum" ]; then
@@ -50,8 +50,6 @@ install_jq(){
     fi
 }
 
-
-
 check_os() {
     if is_mac; then
         package_manager="brew"
@@ -63,29 +61,30 @@ check_os() {
     os_name="$(cat /etc/*-release | awk -F= '$1 == "NAME" { gsub(/"/, ""); print $2; exit }')"
 
     case "$os_name" in
-        Ubuntu*)
-            desired_os=1
-            os="ubuntu"
-            package_manager="apt-get"
-            ;;
-        Debian*)
-            desired_os=1
-            os="debian"
-            package_manager="apt-get"
-            ;;
-        Red\ Hat*)
-            desired_os=1
-            os="red hat"
-            package_manager="yum"
-            ;;
-        CentOS*)
-            desired_os=1
-            os="centos"
-            package_manager="yum"
-            ;;
-        *)
-            desired_os=0
-            os="Not Found"
+    Ubuntu*)
+        desired_os=1
+        os="ubuntu"
+        package_manager="apt-get"
+        ;;
+    Debian*)
+        desired_os=1
+        os="debian"
+        package_manager="apt-get"
+        ;;
+    Red\ Hat*)
+        desired_os=1
+        os="red hat"
+        package_manager="yum"
+        ;;
+    CentOS*)
+        desired_os=1
+        os="centos"
+        package_manager="yum"
+        ;;
+    *)
+        desired_os=0
+        os="Not Found"
+        ;;
     esac
 }
 
@@ -97,12 +96,12 @@ overwrite_file() {
 
     if [[ -f $full_path ]] && ! confirm y "File $relative_path already exists. Would you like to replace it?"; then
         rm -f "$template_file"
-    else 
+    else
         mv -f "$template_file" "$full_path"
     fi
 }
 
-# This function prompts the user for an input for a non-empty Mongo root password. 
+# This function prompts the user for an input for a non-empty Mongo root password.
 read_mongo_password() {
     read -srp 'Set the mongo password: ' mongo_root_password
     while [[ -z $mongo_root_password ]]; do
@@ -113,10 +112,10 @@ read_mongo_password() {
         echo "++++++++++++++++++++++++++++++++++++++++"
         echo ""
         read -srp 'Set the mongo password: ' mongo_root_password
-    done 
+    done
 }
 
-# This function prompts the user for an input for a non-empty Mongo username. 
+# This function prompts the user for an input for a non-empty Mongo username.
 read_mongo_username() {
     read -rp 'Set the mongo root user: ' mongo_root_user
     while [[ -z $mongo_root_user ]]; do
@@ -135,11 +134,11 @@ urlencode() {
     LC_COLLATE=C
 
     local length="${#1}"
-    for (( i = 0; i < length; i++ )); do
+    for ((i = 0; i < length; i++)); do
         local c="${1:i:1}"
         case $c in
-            [a-zA-Z0-9.~_-]) printf "$c" ;;
-            *) printf '%%%02X' "'$c" ;;
+        [a-zA-Z0-9.~_-]) printf "$c" ;;
+        *) printf '%%%02X' "'$c" ;;
         esac
     done
 
@@ -148,11 +147,11 @@ urlencode() {
 
 generate_password() {
     # Picked up the following method of generation from : https://gist.github.com/earthgecko/3089509
-    LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 13 | head -n 1
+    LC_CTYPE=C tr -dc 'a-zA-Z0-9' </dev/urandom | fold -w 13 | head -n 1
 }
 
 confirm() {
-    local default="$1"  # Should be `y` or `n`.
+    local default="$1" # Should be `y` or `n`.
     local prompt="$2"
 
     local options="y/N"
@@ -174,18 +173,17 @@ confirm() {
     [[ yY =~ $answer ]]
 }
 
-
 echo_contact_support() {
     echo "Please contact <support@appsmith.com> with your OS details and version${1:-.}"
 }
 
-bye() {  # Prints a friendly good bye message and exits the script.
+bye() { # Prints a friendly good bye message and exits the script.
     set +o errexit
     echo "Please share your email to receive support with the installation"
     read -rp 'Email: ' email
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Support",
       "data": {
@@ -199,7 +197,7 @@ bye() {  # Prints a friendly good bye message and exits the script.
 }
 download_template_file() {
     templates_dir="$(mktemp -d)"
-    template_endpoint="https://raw.githubusercontent.com/appsmithorg/appsmith/master"
+    template_endpoint="https://raw.githubusercontent.com/appsmithorg/appsmith/feature/self-installation-script"
     mkdir -p "$templates_dir"
     (
         cd "$templates_dir"
@@ -209,12 +207,10 @@ download_template_file() {
             "$template_endpoint/deploy/k8s/scripts/appsmith-ingress.yaml.sh"
         curl --remote-name-all --silent --show-error -o encryption-configmap.yaml.sh \
             "$template_endpoint/deploy/k8s/scripts/encryption-configmap.yaml.sh"
-        curl  --remote-name-all --silent --show-error -o mongo-configmap.yaml.sh \
+        curl --remote-name-all --silent --show-error -o mongo-configmap.yaml.sh \
             "$template_endpoint/deploy/k8s/scripts/mongo-configmap.yaml.sh"
-        curl  --remote-name-all --silent --show-error -o nginx-configmap.yaml \
-            "$template_endpoint/deploy/k8s/scripts/nginx-configmap.yaml"
         if [[ "$ssl_enable" == "true" ]]; then
-            curl --remote-name-all --silent --show-error  -o issuer-template.yaml.sh\
+            curl --remote-name-all --silent --show-error -o issuer-template.yaml.sh \
                 "$template_endpoint/deploy/k8s/scripts/issuer-template.yaml.sh"
         fi
     )
@@ -222,7 +218,7 @@ download_template_file() {
         cd "$install_dir"
         curl --remote-name-all --silent --show-error -o backend-template.yaml \
             "$template_endpoint/deploy/k8s/templates/backend-template.yaml"
-        
+
         curl --remote-name-all --silent --show-error -o frontend-template.yaml \
             "$template_endpoint/deploy/k8s/templates/frontend-template.yaml"
         if [[ "$fresh_installation" == "true" ]]; then
@@ -232,11 +228,11 @@ download_template_file() {
 
         curl --remote-name-all --silent --show-error -o redis-template.yaml \
             "$template_endpoint/deploy/k8s/templates/redis-template.yaml"
-        curl --remote-name-all --silent --show-error -o imago-template.yaml\
+        curl --remote-name-all --silent --show-error -o imago-template.yaml \
             "$template_endpoint/deploy/k8s/templates/imago-template.yaml"
     )
-}
 
+}
 
 deploy_app() {
     kubectl apply -f "$install_dir/config-template"
@@ -244,13 +240,13 @@ deploy_app() {
 }
 
 install_certmanager() {
-    cert_manager_ns=`kubectl get namespace cert-manager --no-headers --output=go-template={{.metadata.name}} --ignore-not-found`
+    cert_manager_ns=$(kubectl get namespace cert-manager --no-headers --output=go-template={{.metadata.name}} --ignore-not-found)
     if [ -z "${cert_manager_ns}" ]; then
-        echo "Installing Cert-manager";
+        echo "Installing Cert-manager"
         # cert-manager installation document: https://cert-manager.io/docs/installation/kubernetes/
         kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.3/cert-manager.yaml
-        sleep 30; # Wait 30s for cert-manger ready
-    else 
+        sleep 30 # Wait 30s for cert-manger ready
+    else
         echo "Cert-manager already install"
     fi
 }
@@ -266,7 +262,7 @@ wait_for_application_start() {
     # The while loop is important because for-loops don't work for dynamic values
     while [[ $timeout -gt 0 ]]; do
         if [[ $address == "" || $address == null ]]; then
-            address=`kubectl get ingress appsmith-ingress -o json | jq -r '.status.loadBalancer.ingress[0].ip'`
+            address=$(kubectl get ingress appsmith-ingress -o json | jq -r '.status.loadBalancer.ingress[0].hostname')
         fi
         status_code="$(curl -s -o /dev/null -w "%{http_code}" $protocol://$address/api/v1 || true)"
         if [[ status_code -eq 401 ]]; then
@@ -286,7 +282,7 @@ ask_telemetry() {
     echo "+++++++++++ IMPORTANT ++++++++++++++++++++++"
     echo -e "Thank you for installing appsmith! We want to be transparent and request that you share anonymous usage data with us."
     echo -e "This data is purely statistical in nature and helps us understand your needs & provide better support to your self-hosted instance."
-    echo -e "You can read more about what information is collected in our documentation https://docs.appsmith.com/v/v1.2.1/setup/telemetry"
+    echo -e "You can read more about what information is collected in our documentation https://docs.appsmith.com/telemetry/telemetry"
     echo -e ""
     if confirm y 'Would you like to share anonymous usage data and receive better support?'; then
         disable_telemetry="false"
@@ -296,19 +292,18 @@ ask_telemetry() {
     echo "++++++++++++++++++++++++++++++++++++++++++++"
 
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Installation Telemetry",
         "data": {
             "disable-telemetry": "'"$disable_telemetry"'"
         }
-    }' > /dev/null
+    }' >/dev/null
 }
 
 echo -e "👋  Thank you for trying out Appsmith! "
 echo ""
-
 
 # Checking OS and assigning package manager
 desired_os=0
@@ -316,13 +311,14 @@ os=""
 echo -e "🕵️  Detecting your OS"
 check_os
 APPSMITH_INSTALLATION_ID=$(curl -s 'https://api64.ipify.org')
+platform="K8S"
 
 # Run bye if failure happens
 trap bye EXIT
 
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
---header 'Content-Type: text/plain' \
---data-raw '{
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Installation Started",
   "data": {
@@ -331,7 +327,7 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
    }
 }'
 
-if [[ $desired_os -eq 0 ]];then
+if [[ $desired_os -eq 0 ]]; then
     echo ""
     echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu machines."
     echo_contact_support " if you wish to extend this support."
@@ -361,7 +357,6 @@ fi
 echo "Installing Appsmith to '$install_dir'."
 mkdir -p "$install_dir"
 echo ""
-
 
 if confirm y "Is this a fresh installation?"; then
     fresh_installation="true"
@@ -408,12 +403,12 @@ if test -f "$encryptionEnv"; then
     read -rp 'Enter option number [1]: ' overwrite_encryption
     overwrite_encryption=${overwrite_encryption:-1}
     auto_generate_encryption="false"
-    if [[ $overwrite_encryption -eq 1 ]];then
+    if [[ $overwrite_encryption -eq 1 ]]; then
         setup_encryption="false"
-    elif [[ $overwrite_encryption -eq 2 ]];then
+    elif [[ $overwrite_encryption -eq 2 ]]; then
         setup_encryption="true"
         auto_generate_encryption="true"
-    elif [[ $overwrite_encryption -eq 3 ]];then
+    elif [[ $overwrite_encryption -eq 3 ]]; then
         setup_encryption="true"
         auto_generate_encryption="false"
     fi
@@ -421,8 +416,8 @@ else
     setup_encryption="true"
 fi
 
-if [[ "$setup_encryption" = "true" ]];then
-    if [[ "$auto_generate_encryption" = "false" ]];then
+if [[ "$setup_encryption" = "true" ]]; then
+    if [[ "$auto_generate_encryption" = "false" ]]; then
         echo "Please enter the salt and password found in the encyption.env file of your previous appsmith installation "
         read -rp 'Enter your encryption password: ' user_encryption_password
         read -rp 'Enter your encryption salt: ' user_encryption_salt
@@ -437,8 +432,8 @@ echo ""
 if confirm n "Do you have a custom domain that you would like to link? (Only for cloud installations)"; then
     read -rp 'Enter the domain or subdomain on which you want to host appsmith (example.com / app.example.com): ' custom_domain
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Custom Domain",
       "data": {
@@ -450,7 +445,7 @@ if confirm n "Do you have a custom domain that you would like to link? (Only for
     echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
     echo "Please update your DNS records with your domain registrar"
     echo "You can read more about this in our Documentation"
-    echo "https://docs.appsmith.com/v/v1.2.1/setup#custom-domains"
+    echo "https://docs.appsmith.com/v/v1.1/quick-start#custom-domains"
     echo "+++++++++++++++++++++++++++++++++++++++++++++++"
     echo ""
     echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
@@ -462,8 +457,10 @@ if confirm n "Do you have a custom domain that you would like to link? (Only for
 
     if confirm n 'Do you want to create certificate in staging mode (which is used for dev purposes and is not subject to rate limits)?'; then
         issuer_server="https://acme-staging-v02.api.letsencrypt.org/directory"
+        ssl_env="staging"
     else
         issuer_server="https://acme-v02.api.letsencrypt.org/directory"
+        ssl_env="production"
     fi
 fi
 
@@ -478,42 +475,41 @@ download_template_file
 echo ""
 echo "Generating the configuration files from the templates"
 
-cd "$templates_dir" 
-
-
 mkdir -p "$install_dir/config-template"
 
-bash "$templates_dir/appsmith-configmap.yaml.sh" "$mongo_protocol" "$mongo_host" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_database" "$disable_telemetry" > appsmith-configmap.yaml
+bash "$templates_dir/appsmith-configmap.yaml.sh" "$mongo_protocol" "$mongo_host" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_database" "$disable_telemetry" "$custom_domain" "$platform" "$user_email" "$ssl_env" >appsmith-configmap.yaml
 if [[ "$setup_encryption" == "true" ]]; then
-    bash "$templates_dir/encryption-configmap.yaml.sh" "$user_encryption_password" "$user_encryption_salt" > encryption-configmap.yaml
+    bash "$templates_dir/encryption-configmap.yaml.sh" "$user_encryption_password" "$user_encryption_salt" >encryption-configmap.yaml
     overwrite_file "config-template" "encryption-configmap.yaml"
 fi
 
 if [[ -n $custom_domain ]]; then
-    bash "$templates_dir/appsmith-ingress.yaml.sh" "$custom_domain" "$ssl_enable"> ingress-template.yaml
+    bash "$templates_dir/appsmith-ingress.yaml.sh" "$custom_domain" "$ssl_enable" >ingress-template.yaml
 else
-    bash "$templates_dir/appsmith-ingress.yaml.sh" "" "$ssl_enable" > ingress-template.yaml
+    bash "$templates_dir/appsmith-ingress.yaml.sh" "" "$ssl_enable" >ingress-template.yaml
 fi
 
 if [[ "$ssl_enable" == "true" ]]; then
     echo "$user_email"
     echo "$issuer_server"
-    bash "$templates_dir/issuer-template.yaml.sh" "$user_email" "$issuer_server" > issuer-template.yaml
+    bash "$templates_dir/issuer-template.yaml.sh" "$user_email" "$issuer_server" >issuer-template.yaml
     overwrite_file "" "issuer-template.yaml"
 fi
 
-overwrite_file "config-template" "nginx-configmap.yaml"
 overwrite_file "config-template" "appsmith-configmap.yaml"
 overwrite_file "" "ingress-template.yaml"
 
-
-
 if [[ "$fresh_installation" == "true" ]]; then
-    bash "$templates_dir/mongo-configmap.yaml.sh" "$mongo_root_user" "$mongo_root_password" "$mongo_database" > mongo-configmap.yaml
+    bash "$templates_dir/mongo-configmap.yaml.sh" "$mongo_root_user" "$mongo_root_password" "$mongo_database" >mongo-configmap.yaml
     overwrite_file "config-template" "mongo-configmap.yaml"
 fi
 
+disable_analytics_dir=$PWD/disable-analytics.sh
 
+if [[ -f "$disable_analytics_dir" ]]; then
+    export INSTALL_DIR=$install_dir
+    $disable_analytics_dir
+fi
 
 echo ""
 echo "Deploy Appmisth on your cluster"
@@ -540,8 +536,8 @@ if [[ $status_code -ne 401 ]]; then
     echo "Please share your email to receive help with the installation"
     read -rp 'Email: ' email
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Support",
       "data": {
@@ -552,8 +548,8 @@ if [[ $status_code -ne 401 ]]; then
     }'
 else
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Success",
       "data": {
@@ -577,8 +573,8 @@ else
     echo "Please share your email to receive support & updates about appsmith!"
     read -rp 'Email: ' email
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Identify Successful Installation",
       "data": {

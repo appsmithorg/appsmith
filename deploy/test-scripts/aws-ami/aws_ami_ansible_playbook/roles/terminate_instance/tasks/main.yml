@@ -1,0 +1,6 @@
+---
+    - name: Terminate instance
+      ec2:
+        state: absent
+        region: "{{ default_region_id }}"
+        instance_ids: "{{ new_created_instance_id }}"

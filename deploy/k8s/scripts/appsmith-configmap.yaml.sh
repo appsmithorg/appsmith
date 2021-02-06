@@ -6,8 +6,12 @@ encoded_mongo_root_user="$3"
 encoded_mongo_root_password="$4"
 mongo_db="$5"
 disable_telemetry="$6"
+custom_domain="$7"
+platform="$8"
+ssl_email_contact="$9"
+ssl_env="${10}"
 
-cat<<EOF
+cat <<EOF
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -29,5 +33,10 @@ data:
   APPSMITH_GOOGLE_MAPS_API_KEY: ""
   APPSMITH_REDIS_URL: redis://redis-service:6379
   APPSMITH_MONGODB_URI: $mongo_protocol$encoded_mongo_root_user:$encoded_mongo_root_password@$mongo_host/$mongo_db?retryWrites=true&authSource=admin
-  APPSMITH_DISABLE_TELEMETRY: $disable_telemetry
+  APPSMITH_DISABLE_TELEMETRY: "$disable_telemetry"
+  APPSMITH_DOMAIN: "$custom_domain"
+  APPSMITH_SSL_ENABLED: "false"
+  APPSMITH_SSL_EMAIL: "$ssl_email_contact"
+  APPSMITH_SSL_ENV: "$ssl_env"
+  PLATFORM: "$platform"
 EOF

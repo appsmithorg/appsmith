@@ -1,0 +1,13 @@
+- name: Create installation folder
+  file:
+    path: "{{ install_dir }}"
+    state: directory
+
+- name: Copy base-install.sh
+  copy:
+    src: "{{ ci_project_dir }}/deploy/aws_ami/base-install.sh"
+    dest: "{{ install_dir }}/base-install.sh"
+    owner: "ubuntu"
+    group: "ubuntu"
+    mode: ugo+x
+  become: yes

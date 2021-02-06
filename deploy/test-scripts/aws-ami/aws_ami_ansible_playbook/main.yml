@@ -1,0 +1,45 @@
+- hosts: local
+  gather_facts: False
+  vars:
+    ci_project_dir: "{{ lookup('env','CI_PROJECT_DIR') }}"
+  tasks:
+    - name: Setup EC2 instance
+      import_role:
+        name: setup_instance
+
+- hosts: aws_host
+  vars:
+    ci_project_dir: "{{ lookup('env','CI_PROJECT_DIR') }}"
+
+  tasks:
+    - name: Base install
+      shell: "apt -y update && apt -y upgrade"
+      become: yes
+    - name: Copy base install
+      import_role:
+        name: copy_base_install
+    - name: Run base-install.sh
+      shell: "{{ install_dir }}/base-install.sh"
+    - name: Disable analytics
+      import_role:
+        name: disable_analytics
+
+- hosts: local
+  vars:
+    ci_project_dir: "{{ lookup('env','CI_PROJECT_DIR') }}"
+  tasks:
+    - name: Bundle AMI
+      import_role:
+        name: bundle_ami
+    - name: Terminate instance
+      import_role:
+        name: terminate_instance
+
+- hosts: local
+  gather_facts: False
+  vars:
+    ci_project_dir: "{{ lookup('env','CI_PROJECT_DIR') }}"
+  tasks:
+    - name: Setup EC2 instance from AMI
+      import_role:
+        name: setup_instance_from_ami

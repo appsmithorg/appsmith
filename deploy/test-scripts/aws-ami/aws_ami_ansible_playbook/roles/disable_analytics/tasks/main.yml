@@ -1,0 +1,9 @@
+---
+- name: Copy template file disable analytics
+  copy:
+    src: "disable-analytics.sh"
+    dest: "{{ install_dir }}/appsmith/scripts/disable-analytics.sh"
+    owner: "ubuntu"
+    group: "ubuntu"
+    mode: ugo+x
+  become: yes

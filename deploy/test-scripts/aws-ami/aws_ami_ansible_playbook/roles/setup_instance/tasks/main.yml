@@ -1,0 +1,7 @@
+---
+    - name: Create ec2 instance from scratch & update to inventory/aws_host file
+      block:
+      - import_tasks: setup_instance.yml
+      
+    - name: Refresh inventory
+      meta: refresh_inventory

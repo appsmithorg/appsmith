@@ -1,0 +1,9 @@
+install_dir: '/home/ubuntu'
+default_key: 'gu-dev'
+path_to_ssh_key: '../keys/id_rsa'
+default_security_group_id: 'sg-0624213b30aca0795'
+default_subnet_id: 'subnet-26ac3f6a'
+default_ami_id: 'ami-0a4a70bd98c6d6441' #Ubuntu 20.04
+default_instance_type_id: 't2.micro'
+default_region_id: 'ap-south-1'
+ami_name: 'appsmith_ami_for_test'

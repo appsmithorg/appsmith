@@ -1,23 +1,22 @@
 FROM appsmith/appsmith-editor as frontend
 
-FROM appsmith/appsmith-server
+FROM appsmith/appsmith-server:latest
 
 RUN mkdir -p /var/www/appsmith
-COPY --from=appsmith/appsmith-editor /var/www/appsmith /var/www/appsmith
+COPY --from=frontend /var/www/appsmith /var/www/appsmith
+COPY --from=frontend nginx-root.conf.template nginx-root.conf.template
+COPY --from=frontend nginx.conf.template nginx.conf.template
 
 RUN apk add --update nginx && \ 
-				rm -rf /var/cache/apk/* && \
-				mkdir -p /tmp/nginx/client-body && \
-				apk --no-cache add gettext bash curl
+	rm -rf /var/cache/apk/* && \
+	mkdir -p /tmp/nginx/client-body && \
+	apk --no-cache add gettext bash curl
 
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY default.conf.template /etc/nginx/conf.d/default.conf.template
 COPY bootstrap.sh /bootstrap.sh
-COPY analytics.sh /analytics.sh
+COPY analytics.sh /analytics.sh 
 RUN chmod +x /analytics.sh
 
 EXPOSE 80
 
 ENTRYPOINT [ "/bin/sh -c" ]
 CMD ["/bootstrap.sh"]
-

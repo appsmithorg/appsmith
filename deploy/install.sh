@@ -28,18 +28,17 @@ check_ports_occupied() {
 
     if [[ -n $port_check_output ]]; then
         curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-        --header 'Content-Type: text/plain' \
-        --data-raw '{
+            --header 'Content-Type: text/plain' \
+            --data-raw '{
             "userId": "'"$APPSMITH_INSTALLATION_ID"'",
             "event": "Installation Error",
             "data": {
                 "os": "'"$os"'",
                 "error": "port taken"
             }
-        }' > /dev/null
+        }' >/dev/null
         echo "+++++++++++ ERROR ++++++++++++++++++++++"
         echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
-        echo "You can run appsmith on another port following this guide https://docs.appsmith.com/v/v1.2.1/troubleshooting-guide/deployment-errors"
         echo "++++++++++++++++++++++++++++++++++++++++"
         echo ""
         exit 1
@@ -83,7 +82,7 @@ install_docker() {
 
 install_docker_compose() {
     if [[ $package_manager == "apt-get" || $package_manager == "zypper" || $package_manager == "yum" ]]; then
-        if [[ ! -f /usr/bin/docker-compose ]];then
+        if [[ ! -f /usr/bin/docker-compose ]]; then
             echo "++++++++++++++++++++++++"
             echo "Installing docker-compose"
             sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
@@ -94,15 +93,15 @@ install_docker_compose() {
         fi
     else
         curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-        --header 'Content-Type: text/plain' \
-        --data-raw '{
+            --header 'Content-Type: text/plain' \
+            --data-raw '{
             "userId": "'"$APPSMITH_INSTALLATION_ID"'",
             "event": "Installation Error",
             "data": {
                 "os": "'"$os"'",
                 "error": "Docker Compose Not Found"
             }
-        }' > /dev/null
+        }' >/dev/null
         echo "+++++++++++ IMPORTANT READ ++++++++++++++++++++++"
         echo "docker-compose not found! Please install docker-compose first and then continue with this installation."
         echo "Refer https://docs.docker.com/compose/install/ for installing docker-compose."
@@ -112,7 +111,7 @@ install_docker_compose() {
 }
 
 start_docker() {
-    if ! sudo systemctl is-active docker.service > /dev/null; then
+    if ! sudo systemctl is-active docker.service >/dev/null; then
         echo "Starting docker service"
         sudo systemctl start docker.service
     fi
@@ -236,11 +235,11 @@ urlencode() {
     LC_COLLATE=C
 
     local length="${#1}"
-    for (( i = 0; i < length; i++ )); do
+    for ((i = 0; i < length; i++)); do
         local c="${1:i:1}"
         case $c in
-            [a-zA-Z0-9.~_-]) printf "$c" ;;
-            *) printf '%%%02X' "'$c" ;;
+        [a-zA-Z0-9.~_-]) printf "$c" ;;
+        *) printf '%%%02X' "'$c" ;;
         esac
     done
 
@@ -249,11 +248,11 @@ urlencode() {
 
 generate_password() {
     # Picked up the following method of generation from : https://gist.github.com/earthgecko/3089509
-    LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 13 | head -n 1
+    LC_CTYPE=C tr -dc 'a-zA-Z0-9' </dev/urandom | fold -w 13 | head -n 1
 }
 
 confirm() {
-    local default="$1"  # Should be `y` or `n`.
+    local default="$1" # Should be `y` or `n`.
     local prompt="$2"
 
     local options="y/N"
@@ -292,8 +291,8 @@ init_ssl_cert() {
 
     if ! [[ -e "$data_path/conf/options-ssl-nginx.conf" && -e "$data_path/conf/ssl-dhparams.pem" ]]; then
         echo "### Downloading recommended TLS parameters..."
-        curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf > "$data_path/conf/options-ssl-nginx.conf"
-        curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem > "$data_path/conf/ssl-dhparams.pem"
+        curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf >"$data_path/conf/options-ssl-nginx.conf"
+        curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem >"$data_path/conf/ssl-dhparams.pem"
         echo
     fi
 
@@ -323,6 +322,9 @@ init_ssl_cert() {
             \""
     echo
 
+    sed -i "s|APPSMITH_SSL_EMAIL=|APPSMITH_SSL_EMAIL=$email|" docker.env
+    sed -i "s|APPSMITH_SSL_ENV=|APPSMITH_SSL_ENV=$staging_arg|" docker.env
+
     echo "### Starting nginx..."
     sudo docker-compose up --force-recreate --detach nginx
     echo
@@ -341,8 +343,8 @@ init_ssl_cert() {
             --domains $domain \
             --rsa-key-size $rsa_key_size \
             --agree-tos \
-            --force-renewal" \
-        || true
+            --force-renewal" ||
+        true
     echo
 
     echo "### Reloading nginx..."
@@ -357,22 +359,22 @@ echo_contact_support() {
     echo "Please contact <support@appsmith.com> with your OS details and version${1:-.}"
 }
 
-bye() {  # Prints a friendly good bye message and exits the script.
+bye() { # Prints a friendly good bye message and exits the script.
     if [ "$?" -ne 0 ]; then
         set +o errexit
         echo "Please share your email if you wish to receive support with the installation"
         read -rp 'Email: ' email
 
         curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-        --header 'Content-Type: text/plain' \
-        --data-raw '{
+            --header 'Content-Type: text/plain' \
+            --data-raw '{
             "userId": "'"$APPSMITH_INSTALLATION_ID"'",
             "event": "Installation Support",
             "data": {
                 "os": "'"$os"'",
                 "email": "'"$email"'"
             }
-        }' > /dev/null
+        }' >/dev/null
         echo ""
         echo -e "\nWe will reach out to you at the email provided shortly, Exiting for now. Bye! 👋 \n"
         exit 0
@@ -384,7 +386,7 @@ ask_telemetry() {
     echo "+++++++++++ IMPORTANT ++++++++++++++++++++++"
     echo -e "Thank you for installing appsmith! We want to be transparent and request that you share anonymous usage data with us."
     echo -e "This data is purely statistical in nature and helps us understand your needs & provide better support to your self-hosted instance."
-    echo -e "You can read more about what information is collected in our documentation https://docs.appsmith.com/v/v1.2.1/setup/telemetry"
+    echo -e "You can read more about what information is collected in our documentation https://docs.appsmith.com/telemetry/telemetry"
     echo -e ""
     if confirm y 'Would you like to share anonymous usage data and receive better support?'; then
         disable_telemetry="false"
@@ -395,19 +397,18 @@ ask_telemetry() {
     echo "++++++++++++++++++++++++++++++++++++++++++++"
 
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Installation Telemetry",
         "data": {
             "disable-telemetry": "'"$disable_telemetry"'"
         }
-    }' > /dev/null
+    }' >/dev/null
 }
 
 echo -e "👋 Thank you for trying out Appsmith! "
 echo ""
-
 
 # Checking OS and assigning package manager
 desired_os=0
@@ -421,29 +422,29 @@ APPSMITH_INSTALLATION_ID=$(curl -s 'https://api64.ipify.org')
 trap bye EXIT
 
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
---header 'Content-Type: text/plain' \
---data-raw '{
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
   "userId": "'"$APPSMITH_INSTALLATION_ID"'",
   "event": "Installation Started",
   "data": {
       "os": "'"$os"'"
    }
-}' > /dev/null
+}' >/dev/null
 
-if [[ $desired_os -eq 0 ]];then
+if [[ $desired_os -eq 0 ]]; then
     echo ""
     echo "This script is currently meant to install Appsmith on Mac OS X, Ubuntu, Debian, Linux Mint, Red Hat, CentOS, SLES or openSUSE machines."
     echo_contact_support " if you wish to extend this support."
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Installation Error",
         "data": {
             "os": "'"$os"'",
             "error": "OS Not Supported"
         }
-    }' > /dev/null
+    }' >/dev/null
     exit 1
 else
     echo "🙌 You're on an OS that is supported by this installation script."
@@ -455,15 +456,15 @@ if [[ $EUID -eq 0 ]]; then
     echo "Please do not run this script as root/sudo."
     echo "++++++++++++++++++++++++++++++++++++++++"
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Installation Error",
         "data": {
             "os": "'"$os"'",
             "error": "Running as Root"
         }
-    }' > /dev/null
+    }' >/dev/null
     exit 1
 fi
 
@@ -481,15 +482,15 @@ if [[ -e "$install_dir" ]]; then
     echo "If you're trying to update your existing installation, that happens automatically through WatchTower."
     echo_contact_support " if you're facing problems with the auto-updates."
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Installation Error",
         "data": {
             "os": "'"$os"'",
             "error": "Directory Exists"
         }
-    }' > /dev/null
+    }' >/dev/null
     exit 1
 fi
 
@@ -504,15 +505,15 @@ if ! is_command_present docker; then
         echo "https://docs.docker.com/docker-for-mac/install/"
         echo "++++++++++++++++++++++++++++++++++++++++++++++++"
         curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-        --header 'Content-Type: text/plain' \
-        --data-raw '{
+            --header 'Content-Type: text/plain' \
+            --data-raw '{
             "userId": "'"$APPSMITH_INSTALLATION_ID"'",
             "event": "Installation Error",
             "data": {
                 "os": "'"$os"'",
                 "error": "Docker not installed"
             }
-        }' > /dev/null
+        }' >/dev/null
         exit 1
     fi
 fi
@@ -531,7 +532,8 @@ echo "Installing Appsmith to '$install_dir'."
 mkdir -p "$install_dir"
 echo ""
 
-if confirm y "Is this a fresh installation?"; then
+echo "Appsmith needs a MongoDB instance to run"
+if confirm y "Initialise a new database? (Recommended)"; then
     mongo_host="mongo"
     mongo_database="appsmith"
 
@@ -546,7 +548,6 @@ else
     read -rp 'Enter your existing appsmith mongo db host: ' mongo_host
     read -rp 'Enter your existing appsmith mongo root user: ' mongo_root_user
     read -srp 'Enter your existing appsmith mongo password: ' mongo_root_password
-    echo ""
     read -rp 'Enter your existing appsmith mongo database name: ' mongo_database
     # It is possible that this isn't the first installation.
     echo ""
@@ -572,12 +573,12 @@ if test -f "$encryptionEnv"; then
     read -rp 'Enter option number [1]: ' overwrite_encryption
     overwrite_encryption=${overwrite_encryption:-1}
     auto_generate_encryption="false"
-    if [[ $overwrite_encryption -eq 1 ]];then
+    if [[ $overwrite_encryption -eq 1 ]]; then
         setup_encryption="false"
-    elif [[ $overwrite_encryption -eq 2 ]];then
+    elif [[ $overwrite_encryption -eq 2 ]]; then
         setup_encryption="true"
         auto_generate_encryption="true"
-    elif [[ $overwrite_encryption -eq 3 ]];then
+    elif [[ $overwrite_encryption -eq 3 ]]; then
         setup_encryption="true"
         auto_generate_encryption="false"
     fi
@@ -585,8 +586,8 @@ else
     setup_encryption="true"
 fi
 
-if [[ "$setup_encryption" = "true" ]];then
-    if [[ "$auto_generate_encryption" = "false" ]];then
+if [[ "$setup_encryption" = "true" ]]; then
+    if [[ "$auto_generate_encryption" = "false" ]]; then
         echo "Please enter the salt and password found in the encyption.env file of your previous appsmith installation "
         read -rp 'Enter your encryption password: ' user_encryption_password
         read -rp 'Enter your encryption salt: ' user_encryption_salt
@@ -597,27 +598,28 @@ if [[ "$setup_encryption" = "true" ]];then
 fi
 
 echo ""
-
+ssl_enabled=false
 if confirm n "Do you have a custom domain that you would like to link? (Only for cloud installations)"; then
+    read -rp 'Enter the domain or subdomain on which you want to host appsmith (example.com / app.example.com): ' custom_domain
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Custom Domain",
       "data": {
-          "os": "'"$os"'"
+          "os": "'"$os"'",
        }
-    }' > /dev/null
+    }' >/dev/null
     echo ""
     echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
     echo "Please update your DNS records with your domain registrar"
     echo "You can read more about this in our Documentation"
-    echo "https://docs.appsmith.com/v/v1.2.1/setup#custom-domains"
+    echo "https://docs.appsmith.com/v/v1.1/quick-start#custom-domains"
     echo "+++++++++++++++++++++++++++++++++++++++++++++++"
     echo ""
     echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
     if confirm y '(Your DNS records must be updated for us to proceed)'; then
-        read -rp 'Enter the domain or subdomain on which you want to host appsmith (example.com / app.example.com): ' custom_domain
+        ssl_enabled=true
     fi
 fi
 
@@ -640,6 +642,7 @@ mkdir -p "$templates_dir"
         https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/docker.env.sh \
         https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/nginx_app.conf.sh \
         https://raw.githubusercontent.com/appsmithorg/appsmith/master/deploy/template/encryption.env.sh
+
 )
 
 # Create needed folder structure.
@@ -647,27 +650,28 @@ mkdir -p "$install_dir/data/"{nginx,mongo/db}
 
 echo ""
 echo "Generating the configuration files from the templates"
-bash "$templates_dir/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$custom_domain" > nginx_app.conf
-bash "$templates_dir/docker-compose.yml.sh" "$mongo_root_user" "$mongo_root_password" "$mongo_database" > docker-compose.yml
-bash "$templates_dir/mongo-init.js.sh" "$mongo_root_user" "$mongo_root_password" > mongo-init.js
-bash "$templates_dir/docker.env.sh" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_host" "$disable_telemetry" > docker.env
+bash "$templates_dir/docker-compose.yml.sh" "$mongo_root_user" "$mongo_root_password" "$mongo_database" >docker-compose.yml
+bash "$templates_dir/mongo-init.js.sh" "$mongo_root_user" "$mongo_root_password" >mongo-init.js
+bash "$templates_dir/docker.env.sh" "$encoded_mongo_root_user" "$encoded_mongo_root_password" "$mongo_host" "$disable_telemetry" "$custom_domain" "$ssl_enabled" "$email" "$ssl_env" >docker.env
 if [[ "$setup_encryption" = "true" ]]; then
-    bash "$templates_dir/encryption.env.sh" "$user_encryption_password" "$user_encryption_salt" > encryption.env
+    bash "$templates_dir/encryption.env.sh" "$user_encryption_password" "$user_encryption_salt" >encryption.env
 fi
 
-overwrite_file "data/nginx/app.conf.template" "nginx_app.conf"
 overwrite_file "docker-compose.yml" "docker-compose.yml"
 overwrite_file "data/mongo/init.js" "mongo-init.js"
 overwrite_file "docker.env" "docker.env"
 overwrite_file "encryption.env" "encryption.env"
 
-echo ""
+disable_analytics_dir=$PWD/disable-analytics.sh
+
+if [[ -f "$disable_analytics_dir" ]]; then
+    export INSTALL_DIR=$install_dir
+    $disable_analytics_dir
+fi
 
 cd "$install_dir"
-if [[ -n $custom_domain ]]; then
+if [[ $ssl_enabled == true ]]; then
     init_ssl_cert "$custom_domain"
-else
-    echo "No domain found. Skipping generation of SSL certificate."
 fi
 
 rm -rf "$templates_dir"
@@ -689,30 +693,29 @@ if [[ $status_code -ne 401 ]]; then
     echo "The containers didn't seem to start correctly. Please run the following command to check containers that may have errored out:"
     echo ""
     echo -e "cd \"$install_dir\" && sudo docker-compose ps -a"
-    echo "Please read our troubleshooting guide https://docs.appsmith.com/v/v1.2.1/troubleshooting-guide/deployment-errors"
-    echo "or reach us on Discord for support https://discord.com/invite/rBTTVJp"
+    echo "For troubleshooting help, please reach out to us via our Discord server: https://discord.com/invite/rBTTVJp"
     echo "++++++++++++++++++++++++++++++++++++++++"
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
         "userId": "'"$APPSMITH_INSTALLATION_ID"'",
         "event": "Installation Error",
         "data": {
             "os": "'"$os"'",
             "error": "Containers not started"
         }
-    }' > /dev/null
+    }' >/dev/null
     exit 1
 else
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Installation Success",
       "data": {
           "os": "'"$os"'"
        }
-    }' > /dev/null
+    }' >/dev/null
 
     echo "++++++++++++++++++ SUCCESS ++++++++++++++++++++++"
     echo "Your installation is complete!"
@@ -731,14 +734,14 @@ else
     echo "Please share your email to receive support & updates about appsmith!"
     read -rp 'Email: ' email
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
-    --header 'Content-Type: text/plain' \
-    --data-raw '{
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
       "userId": "'"$APPSMITH_INSTALLATION_ID"'",
       "event": "Identify Successful Installation",
       "data": {
           "os": "'"$os"'",
           "email": "'"$email"'"
        }
-    }' > /dev/null
+    }' >/dev/null
 fi
 echo -e "\Thank you!\n"
