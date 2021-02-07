@@ -381,7 +381,7 @@ const TextLoadingState = ({ text }: { text?: string }) => (
 );
 
 const IconLoadingState = ({ size, icon }: { size?: Size; icon?: IconName }) => (
-  <Icon name={icon} size={IconSizeProp(size)} invisible={true} />
+  <Icon name={icon} size={IconSizeProp(size)} invisible />
 );
 
 const getIconContent = (props: ButtonProps) =>
