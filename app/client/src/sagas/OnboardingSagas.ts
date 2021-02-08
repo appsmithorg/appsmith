@@ -42,10 +42,7 @@ import {
   changeDatasource,
   expandDatasourceEntity,
 } from "actions/datasourceActions";
-import {
-  playOnboardingAnimation,
-  playOnboardingStepCompletionAnimation,
-} from "utils/helpers";
+import { playOnboardingStepCompletionAnimation } from "utils/helpers";
 import {
   OnboardingConfig,
   OnboardingStep,
