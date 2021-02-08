@@ -130,7 +130,7 @@ export const TableWrapper = styled.div<{
     line-height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
   }
   .th {
-    display: flex;
+    display: flex !important;
     justify-content: space-between;
     &.highlight-left {
       border-left: 2px solid ${Colors.GREEN};
