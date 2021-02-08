@@ -54,7 +54,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
                 <ControlIcon width={24} height={24} />
               ) : null
             }
-            text={selected ? selected.label : ""}
+            text={selected ? selected.label : "No Selection"}
             rightIcon="chevron-down"
           />
         </StyledDropDown>

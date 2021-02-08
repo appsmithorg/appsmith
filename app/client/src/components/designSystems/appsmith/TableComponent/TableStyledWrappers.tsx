@@ -330,9 +330,9 @@ export const CellWrapper = styled.div<{
     height: 100%;
     margin: 0 5px 0 0;
     border-radius: 4px;
-    background-position: center;
+    background-position: start;
     background-repeat: no-repeat;
-    background-size: cover;
+    background-size: contain;
   }
   video {
     border-radius: 4px;

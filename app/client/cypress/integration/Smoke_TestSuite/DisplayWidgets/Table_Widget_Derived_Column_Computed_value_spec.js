@@ -23,18 +23,9 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Edit column name and validate test for computed value", function() {
     cy.editColumn("customColumn1");
-    cy.readTabledataPublish("1", "2").then((tabData) => {
-      const tabValue = tabData;
+    cy.readTabledataPublish("1", "2").then(() => {
       cy.updateComputedValue(testdata.currentRowWithIdOutside);
-      cy.readTabledataPublish("1", "1").then((tabData) => {
-        expect(tabData).to.be.equal("#lindsay.ferguson@reqres.in");
-        cy.log("computed value of plain text " + tabData);
-      });
-    });
-    cy.readTabledataPublish("1", "2").then((tabData) => {
-      const tabValue = tabData;
-      cy.updateComputedValue(testdata.currentRowWithIdInside);
-      cy.readTabledataPublish("1", "1").then((tabData) => {
+      cy.readTabledataPublish("1", "0").then((tabData) => {
         expect(tabData).to.be.equal("#lindsay.ferguson@reqres.in");
         cy.log("computed value of plain text " + tabData);
       });

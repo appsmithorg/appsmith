@@ -110,5 +110,8 @@
   "bindingStyle": "{{currentRow.userName.indexOf('Michael') > -1 ? 'BOLD' : 'ITALIC'}}",
   "bindingGenAlign": "{{currentRow.userName.indexOf('Michael') > -1 ? 'RIGHT' : 'LEFT'}}",
   "currentRowWithIdOutside": "#{{currentRow.email}}",
-  "currentRowWithIdInside": "{{\"#\" + currentRow.email}}"
+  "currentRowWithIdInside": "{{\"#\" + currentRow.email}}",
+  "defaultdataBinding": "{'Test','This'}",
+  "dropdownErrorMsg": "This value does not evaluate to type \"Array<{ label: string, value: string }>\". Transform it using JS inside '{{ }}'",
+  "tableWidgetErrorMsg": "This value does not evaluate to type \"Array<Object>\". Transform it using JS inside '{{ }}'"
 }

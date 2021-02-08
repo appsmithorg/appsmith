@@ -18,7 +18,7 @@ const FIELD_VALUES: Record<
     isVisible: "boolean",
   },
   DATE_PICKER_WIDGET: {
-    defaultDate: "Date",
+    defaultDate: "string", //TODO:Vicky validate this property
     isRequired: "boolean",
     isVisible: "boolean",
     isDisabled: "boolean",

@@ -14,6 +14,8 @@ export const VALIDATION_TYPES = {
   OPTIONS_DATA: "OPTIONS_DATA",
   DATE: "DATE",
   DEFAULT_DATE: "DEFAULT_DATE",
+  MIN_DATE: "MIN_DATE",
+  MAX_DATE: "MAX_DATE",
   TABS_DATA: "TABS_DATA",
   LIST_DATA: "LIST_DATA",
   CHART_DATA: "CHART_DATA",
@@ -41,7 +43,7 @@ export type Validator = (
   dataTree?: DataTree,
 ) => ValidationResponse;
 
-export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.SSSZ";
+export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.Z";
 
 export const JAVASCRIPT_KEYWORDS = {
   true: "true",

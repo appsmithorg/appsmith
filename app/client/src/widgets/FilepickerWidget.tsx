@@ -245,7 +245,7 @@ class FilePickerWidget extends BaseWidget<
       this.props.updateWidgetMetaProperty("files", updatedFiles);
     });
     this.uppy.on("file-added", (file: any) => {
-      const dslFiles = [...(this.props.files || [])];
+      const dslFiles = this.props.files ? [...this.props.files] : [];
       const reader = new FileReader();
 
       reader.readAsDataURL(file.data);
@@ -255,14 +255,21 @@ class FilePickerWidget extends BaseWidget<
         binaryReader.readAsBinaryString(file.data);
         binaryReader.onloadend = () => {
           const rawData = binaryReader.result;
-          const newFile = {
-            id: file.id,
-            base64: base64data,
-            blob: file.data,
-            raw: rawData,
+          const textReader = new FileReader();
+          textReader.readAsText(file.data);
+          textReader.onloadend = () => {
+            const text = textReader.result;
+            const newFile = {
+              id: file.id,
+              base64: base64data,
+              blob: file.data,
+              raw: rawData,
+              text: text,
+              name: file.meta ? file.meta.name : undefined,
+            };
+            dslFiles.push(newFile);
+            this.props.updateWidgetMetaProperty("files", dslFiles);
           };
-          dslFiles.push(newFile);
-          this.props.updateWidgetMetaProperty("files", dslFiles);
         };
       };
     });

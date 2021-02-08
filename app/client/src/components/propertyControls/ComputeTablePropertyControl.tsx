@@ -69,8 +69,9 @@ export function InputText(props: {
         additionalDynamicData={additionalDynamicData}
         promptMessage={
           <React.Fragment>
-            Use <CurlyBraces>{"{{"}</CurlyBraces>currentRow.columnIdentifier
-            <CurlyBraces>{"}}"}</CurlyBraces> to access any column in the table
+            Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
+            currentRow.columnName
+            <CurlyBraces>{"}}"}</CurlyBraces>
           </React.Fragment>
         }
       />

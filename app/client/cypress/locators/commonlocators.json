@@ -95,5 +95,6 @@
   "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",
   "filePickerOnFilesSelected": ".t--property-control-onfilesselected",
   "dataType": ".t--property-control-datatype",
-  "containerWidget": ".t--widget-containerwidget"
+  "containerWidget": ".t--widget-containerwidget",
+  "evaluateMsg": ".t--CodeEditor-evaluatedValue p"
 }

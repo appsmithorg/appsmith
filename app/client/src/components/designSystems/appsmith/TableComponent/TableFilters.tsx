@@ -141,16 +141,18 @@ const TableFilters = (props: TableFilterProps) => {
       </TableIconWrapper>
     );
   }
-  const columns: DropdownOption[] = props.columns.map(
-    (column: ReactTableColumnProps) => {
+  const columns: DropdownOption[] = props.columns
+    .map((column: ReactTableColumnProps) => {
       const type = column.metaProperties?.type || "text";
       return {
         label: column.Header,
         value: column.accessor,
         type: type,
       };
-    },
-  );
+    })
+    .filter((column: { label: string; value: string; type: string }) => {
+      return !["video", "button", "image"].includes(column.type as string);
+    });
   const hasAnyFilters = !!(
     filters.length >= 1 &&
     filters[0].column &&

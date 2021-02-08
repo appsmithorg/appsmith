@@ -143,6 +143,7 @@ export const renderActions = (
         isHidden={isHidden}
       ></CellWrapper>
     );
+
   return (
     <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
       {props.columnActions.map((action: ColumnAction, index: number) => {
@@ -172,6 +173,7 @@ const TableAction = (props: {
   const onComplete = () => {
     setLoading(false);
   };
+
   return (
     <ActionWrapper
       background={props.backgroundColor}

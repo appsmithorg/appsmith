@@ -1,4 +1,4 @@
-import { compact, xorWith } from "lodash";
+import { compact, get, xorWith } from "lodash";
 import { Colors } from "constants/Colors";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableWidgetProps } from "./TableWidgetConstants";
@@ -13,7 +13,7 @@ const updateColumnStyles = (
     // The style being updated currently
     const currentStyleName = propertyPath.split(".").pop(); // horizontalAlignment/textStyle
     const derivedColumns = props.derivedColumns;
-    let updatedDerivedColumns = [...derivedColumns];
+    let updatedDerivedColumns = [...(derivedColumns || [])];
     if (currentStyleName) {
       let updates = compact(
         props.primaryColumns.map((column: ColumnProperties, index: number) => {
@@ -163,6 +163,21 @@ const updateDerivedColumnsHook = (
   }
   return;
 };
+// Gets the base property path excluding the current property.
+// For example, for  `primaryColumns[5].computedValue` it will return
+// `primaryColumns[5]`
+const getBasePropertyPath = (propertyPath: string): string | undefined => {
+  try {
+    const propertyPathRegex = /^(.*)\.\w+$/g;
+    const matches = [...propertyPath.matchAll(propertyPathRegex)][0];
+    if (matches && Array.isArray(matches) && matches.length === 2) {
+      return matches[1];
+    }
+    return;
+  } catch (e) {
+    return;
+  }
+};
 
 export default [
   {
@@ -219,10 +234,6 @@ export default [
                       value: "date",
                     },
                     {
-                      label: "Time",
-                      value: "time",
-                    },
-                    {
                       label: "Button",
                       value: "button",
                     },
@@ -258,8 +269,14 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   updateHook: updateDerivedColumnHook,
-                  hidden: (props: ColumnProperties) => {
-                    return props.columnType !== "date";
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType !== "date";
                   },
                 },
                 {
@@ -303,8 +320,14 @@ export default [
                     },
                   ],
                   updateHook: updateDerivedColumnHook,
-                  hidden: (props: ColumnProperties) => {
-                    return props.columnType !== "date";
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType !== "date";
                   },
                 },
                 {
@@ -312,18 +335,33 @@ export default [
                   label: "Computed Value",
                   controlType: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnHook,
-                  hidden: (props: ColumnProperties) => {
-                    return props.columnType === "button";
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType === "button";
                   },
                 },
               ],
             },
             {
               sectionName: "Styles",
-              hidden: (props: ColumnProperties) => {
+              hidden: (props: TableWidgetProps, propertyPath: string) => {
+                const baseProperty = getBasePropertyPath(propertyPath);
+
+                const columnType = get(
+                  props,
+                  `${baseProperty || propertyPath}.columnType`,
+                  "",
+                );
+
                 return (
-                  props.columnType === "button" ||
-                  props.columnType === "dropdown"
+                  columnType === "button" ||
+                  columnType === "image" ||
+                  columnType === "video"
                 );
               },
               children: [
@@ -451,8 +489,14 @@ export default [
             },
             {
               sectionName: "Button Properties",
-              hidden: (props: ColumnProperties) => {
-                return props.columnType !== "button";
+              hidden: (props: TableWidgetProps, propertyPath: string) => {
+                const baseProperty = getBasePropertyPath(propertyPath);
+                const columnType = get(
+                  props,
+                  `${baseProperty || propertyPath}.columnType`,
+                  "",
+                );
+                return columnType !== "button";
               },
               children: [
                 {
@@ -526,6 +570,31 @@ export default [
         propertyName: "multiRowSelection",
         label: "Enable multi row selection",
         controlType: "SWITCH",
+      },
+    ],
+  },
+  {
+    sectionName: "Actions",
+    children: [
+      {
+        helpText: "Triggers an action when a table row is selected",
+        propertyName: "onRowSelected",
+        label: "onRowSelected",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+      },
+      {
+        helpText: "Triggers an action when a table page is changed",
+        propertyName: "onPageChange",
+        label: "onPageChange",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+      },
+      {
+        propertyName: "onSearchTextChanged",
+        label: "onSearchTextChanged",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
       },
     ],
   },
@@ -640,31 +709,6 @@ export default [
           },
         ],
         defaultValue: "LEFT",
-      },
-    ],
-  },
-  {
-    sectionName: "Actions",
-    children: [
-      {
-        helpText: "Triggers an action when a table row is selected",
-        propertyName: "onRowSelected",
-        label: "onRowSelected",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
-      },
-      {
-        helpText: "Triggers an action when a table page is changed",
-        propertyName: "onPageChange",
-        label: "onPageChange",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
-      },
-      {
-        propertyName: "onSearchTextChanged",
-        label: "onSearchTextChanged",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
       },
     ],
   },

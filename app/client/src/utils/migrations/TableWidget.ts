@@ -12,65 +12,98 @@ import {
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import { cloneDeep, isString } from "lodash";
 
 export const tableWidgetPropertyPaneMigrations = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
-  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
-    if (children.type === WidgetTypes.TABLE_WIDGET) {
-      const hiddenColumns = children.hiddenColumns || [];
-      const columnNameMap = children.columnNameMap;
-      const columnSizeMap = children.columnSizeMap;
-      const columnTypeMap = children.columnTypeMap;
+  currentDSL.children = currentDSL.children?.map((_child: WidgetProps) => {
+    let child = cloneDeep(_child);
+    // If the current child is a TABLE_WIDGET
+    if (child.type === WidgetTypes.TABLE_WIDGET) {
+      const hiddenColumns = child.hiddenColumns || [];
+      const columnNameMap = child.columnNameMap;
+      const columnSizeMap = child.columnSizeMap;
+      const columnTypeMap = child.columnTypeMap;
       let tableColumns: string[] = [];
-      if (children.tableData.length) {
+      const dynamicBindingPathList = child.dynamicBindingPathList;
+      if (child.tableData.length) {
         let tableData = [];
+        // Try parsing the table data, if it parses great
+        // If it does not parse, assign tableData the value as is.
         try {
-          if (!Array.isArray(children.tableData)) {
-            tableData = JSON.parse(children.tableData);
-          } else {
-            tableData = children.tableData;
-          }
+          tableData = JSON.parse(child.tableData);
         } catch (e) {
-          tableData = [];
+          tableData = child.tableData;
         }
-        tableColumns = getAllTableColumnKeys(tableData);
+        if (
+          !isString(tableData) &&
+          dynamicBindingPathList?.findIndex((item) => item.key !== "tableData")
+        ) {
+          // Get the list of column ids
+          tableColumns = getAllTableColumnKeys(tableData);
+        } else {
+          child.migrated = false;
+        }
       }
-      const primaryColumns = children.columnOrder?.length
-        ? children.columnOrder
+      // Get primaryColumns to be the list of column keys
+      // Use the old order if it exists, else use the new order
+      const primaryColumns = child.columnOrder?.length
+        ? child.columnOrder
         : tableColumns;
-      children.primaryColumns = primaryColumns.map(
+
+      // const hasActions = child.columnActions && child.columnActions.length > 0;
+      // Generate new primarycolumns
+      child.primaryColumns = primaryColumns.map(
         (accessor: string, index: number) => {
+          // Get the column type from the columnTypeMap
           let columnType =
             columnTypeMap && columnTypeMap[accessor]
               ? columnTypeMap[accessor].type
               : ColumnTypes.TEXT;
+          // If the columnType is currency make it a text type
+          // We're deprecating currency types
           if (columnType === "currency") {
-            columnType = ColumnTypes.NUMBER;
+            columnType = ColumnTypes.TEXT;
           }
+          // Get a full set of column properties
           const column: ColumnProperties = {
-            index: index,
+            index, // Use to maintain order of columns
+            // The widget of the column
             width:
               columnSizeMap && columnSizeMap[accessor]
                 ? columnSizeMap[accessor]
                 : 150,
+            // id of the column
             id: accessor,
+            // default horizontal alignment
             horizontalAlignment: CellAlignmentTypes.LEFT,
+            // default vertical alignment
             verticalAlignment: VerticalAlignmentTypes.CENTER,
-            columnType: columnType,
+            // columnType
+            columnType,
+            // default text color
             textColor: Colors.THUNDER,
+            // default text size
             textSize: TextSizes.PARAGRAPH,
+            // default font size
             fontStyle: FontStyleTypes.REGULAR,
             enableFilter: true,
             enableSort: true,
+            // hide the column if it was hidden earlier using hiddenColumns
             isVisible: hiddenColumns.includes(accessor) ? false : true,
+            // We did not have a concept of derived columns so far
             isDerived: false,
+            // Use renamed names from the map
+            // or use the newly generated name
             label:
               columnNameMap && columnNameMap[accessor]
                 ? columnNameMap[accessor]
                 : accessor,
-            computedValue: "",
+            // Generate computed value
+            computedValue: `{{${child.widgetName}.map((currentRow) => (currentRow.${accessor}))}}`,
           };
+          // copy inputForma nd outputFormat for date column types
           if (columnTypeMap && columnTypeMap[accessor]) {
             column.outputFormat = columnTypeMap[accessor].format || "";
             column.inputFormat = columnTypeMap[accessor].inputFormat || "";
@@ -79,17 +112,21 @@ export const tableWidgetPropertyPaneMigrations = (
         },
       );
 
-      const columnActions = children.columnActions || [];
-      const dynamicTriggerPathList: Array<{ key: string }> =
-        children.dynamicTriggerPathList || [];
+      // Get all column actions
+      const columnActions = child.columnActions || [];
+      // Get dynamicTriggerPathList
+      let dynamicTriggerPathList: Array<{ key: string }> =
+        child.dynamicTriggerPathList || [];
+
+      // Add derived column for each column action
       const updatedDerivedColumns = columnActions.map(
         (action: ColumnAction, index: number) => {
           return {
-            index: index,
-            width: 150,
-            id: action.id,
-            label: action.label,
-            columnType: "button",
+            index: child.primaryColumns.length + index, // Add to the end of the columns list
+            width: 150, // Default width
+            id: action.id, // A random string which was generated previously
+            label: action.label, // Revert back to "Actions"
+            columnType: "button", // All actions are buttons
             isVisible: true,
             isDerived: true,
             buttonLabel: action.label,
@@ -99,26 +136,25 @@ export const tableWidgetPropertyPaneMigrations = (
           };
         },
       );
+
       if (updatedDerivedColumns.length) {
-        const columns = children.primaryColumns.concat(updatedDerivedColumns);
-        children.primaryColumns = columns;
-        for (let i = 0; i < columns.length; i++) {
-          if (columns[i].isDerived) {
-            dynamicTriggerPathList.push({
-              key: `primaryColumns[${i}].onClick`,
-            });
-          }
-        }
+        dynamicTriggerPathList = dynamicTriggerPathList.filter(
+          (triggerPath: Record<string, string>) => {
+            triggerPath.key !== "columnActions";
+          },
+        );
       }
-      children.dynamicTriggerPathList = dynamicTriggerPathList;
-      children.textSize = "PARAGRAPH";
-      children.horizontalAlignment = "LEFT";
-      children.verticalAlignment = "CENTER";
-      children.derivedColumns = updatedDerivedColumns;
-    } else if (children.children && children.children.length > 0) {
-      children = tableWidgetPropertyPaneMigrations(children);
+      child.dynamicTriggerPathList = dynamicTriggerPathList;
+      child.textSize = TextSizes.PARAGRAPH;
+      child.horizontalAlignment = CellAlignmentTypes.LEFT;
+      child.verticalAlignment = VerticalAlignmentTypes.CENTER;
+      child.fontStyle = FontStyleTypes.REGULAR;
+
+      child.derivedColumns = updatedDerivedColumns;
+    } else if (child.children && child.children.length > 0) {
+      child = tableWidgetPropertyPaneMigrations(child);
     }
-    return children;
+    return child;
   });
   return currentDSL;
 };

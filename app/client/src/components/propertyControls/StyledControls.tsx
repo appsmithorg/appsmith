@@ -137,10 +137,11 @@ export const DropdownStyles = createGlobalStyle`
 
 export const StyledMenu = styled(Menu)`
   && {
-    background: ${(props) => props.theme.dropdown[Skin.DARK].inActiveBG};
+    background: ${(props) => props.theme.dropdown[Skin.DARK].background};
+    border-radius: unset;
   }
   .bp3-submenu .bp3-menu {
-    background: ${(props) => props.theme.dropdown[Skin.DARK].inActiveBG};
+    background: ${(props) => props.theme.dropdown[Skin.DARK].background};
   }
 `;
 
@@ -211,7 +212,7 @@ export const StyledPopover = styled(Popover)`
 export const StyledMenuItem = styled(MenuItem)`
   &&&&&& {
     border-radius: ${(props) => props.theme.radii[1]}px;
-    background: ${(props) => props.theme.dropdown[Skin.DARK].inActiveBG};
+    background: ${(props) => props.theme.dropdown[Skin.DARK].background};
     color: ${(props) => props.theme.dropdown[Skin.DARK].inActiveText};
     padding: 4px 8px;
     margin: 4px 0px;

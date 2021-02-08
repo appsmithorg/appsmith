@@ -362,6 +362,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = 9;
   }
 
+  if (currentDSL.version === 9) {
+    currentDSL = tableWidgetPropertyPaneMigrations(currentDSL);
+    currentDSL.version = 10;
+  }
+
   return currentDSL;
 };
 

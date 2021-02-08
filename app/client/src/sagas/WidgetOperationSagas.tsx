@@ -1016,8 +1016,16 @@ function* batchUpdateWidgetPropertySaga(
     // Set the actual property update
     propertyUpdates[propertyPath] = propertyValue;
 
+    let isRegexTriggerMatch = false;
+    if (triggerProperties.regex && Array.isArray(triggerProperties.regex)) {
+      triggerProperties.regex.forEach((re) => {
+        if (re.test(propertyPath)) isRegexTriggerMatch = true;
+      });
+    }
     // Check if the path is a of a dynamic trigger property
-    const isTriggerProperty = propertyPath in triggerProperties;
+    const isTriggerProperty =
+      propertyPath in triggerProperties || isRegexTriggerMatch;
+
     // If it is a trigger property, it will go in a different list than the general
     // dynamicBindingPathList.
     if (isTriggerProperty && _.isString(propertyValue)) {

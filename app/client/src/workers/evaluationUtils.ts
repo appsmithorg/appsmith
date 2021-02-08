@@ -42,17 +42,24 @@ export class CrashingError extends Error {}
 export const convertPathToString = (arrPath: Array<string | number>) => {
   let string = "";
   arrPath.forEach((segment) => {
-    if (typeof segment === "string") {
+    if (isInt(segment)) {
+      string = string + "[" + segment + "]";
+    } else {
       if (string.length !== 0) {
         string = string + ".";
       }
       string = string + segment;
-    } else {
-      string = string + "[" + segment + "]";
     }
   });
   return string;
 };
+
+// Todo: improve the logic here
+// Right now NaN, Infinity, floats, everything works
+function isInt(val: string | number): boolean {
+  if (typeof val === "number") return true;
+  return !isNaN(parseInt(val));
+}
 
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
@@ -116,7 +123,10 @@ export const translateDiffEventToDataTreeDiffEvent = (
       break;
     }
     case "A": {
-      break;
+      return translateDiffEventToDataTreeDiffEvent({
+        ...difference.item,
+        path: [...difference.path, difference.index],
+      });
     }
     default: {
       break;
