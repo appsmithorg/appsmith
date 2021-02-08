@@ -10,12 +10,11 @@ description: >-
   Integration Description
 ---
 
-# Integration Name
+# Connection Settings
 
-## Link to the official documentation
+# Querying the database
 
-## Example of Passing Data from widgets
+# Using Queries in applications
 
-## Example of Displaying Data in widgets
 ```
 
