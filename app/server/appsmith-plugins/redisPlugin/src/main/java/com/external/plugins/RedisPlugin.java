@@ -6,8 +6,8 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +51,7 @@ public class RedisPlugin extends BasePlugin {
             return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
                 String body = actionConfiguration.getBody();
                 if (StringUtils.isNullOrEmpty(body)) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             String.format("Body is null or empty [%s]", body)));
                 }
 
@@ -63,7 +63,7 @@ public class RedisPlugin extends BasePlugin {
                     // Commands are in upper case
                     command = Protocol.Command.valueOf(bodySplitted[0].toUpperCase());
                 } catch (IllegalArgumentException exc) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             String.format("Not a valid Redis command:%s", bodySplitted[0])));
                 }
 
@@ -106,7 +106,8 @@ public class RedisPlugin extends BasePlugin {
 
             return (Mono<Jedis>) Mono.fromCallable(() -> {
                 if (datasourceConfiguration.getEndpoints().isEmpty()) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "No endpoint(s) configured"));
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, "No endpoint(s) " +
+                            "configured"));
                 }
 
                 Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);

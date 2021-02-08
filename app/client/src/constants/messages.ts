@@ -145,7 +145,7 @@ export const AUTOFIT_COLUMN = "Autofit column";
 export const TIMEZONE = "Timezone";
 export const ENABLE_TIME = "Enable Time";
 
-export const EDIT_APP = "Edit App";
+export const EDIT_APP = "Edit";
 export const FORK_APP = "Fork App";
 export const SIGN_IN = "Sign In";
 
