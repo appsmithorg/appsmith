@@ -2,6 +2,7 @@ import BaseTable from "react-base-table";
 import styled from "styled-components";
 import React from "react";
 import { noop } from "utils/AppsmithUtils";
+import { getBorderCSSShorthand } from "constants/DefaultTheme";
 
 const RowLoader = styled.div`
   height: 16px !important;
@@ -20,6 +21,8 @@ const rowProps = ({ rowData }: { rowData: { isLoading: boolean } }) => {
 };
 
 const StyledTable = styled(BaseTable)`
+  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+  border-radius: 0;
   .row-selected {
     background-color: ${(props) =>
       props.theme.widgets.tableWidget.selectHighlightColor};
