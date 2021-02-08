@@ -102,6 +102,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       onRowSelected: true,
       onPageChange: true,
       onSearchTextChanged: true,
+      regex: [/primaryColumns\[\d+\].onClick/],
     };
   }
 
@@ -571,7 +572,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         const pathsToDelete: string[] = [];
         if (migrated === false) {
           propertiesToAdd["migrated"] = true;
-          pathsToDelete.push("columnNameMap", "columnTypeMap", "columnActions");
         }
 
         super.batchUpdateWidgetProperty(propertiesToAdd);
