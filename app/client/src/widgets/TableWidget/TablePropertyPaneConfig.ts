@@ -191,6 +191,8 @@ export default [
         controlType: "INPUT_TEXT",
         placeholderText: 'Enter [{ "col1": "val1" }]',
         inputType: "ARRAY",
+        isBindProperty: true,
+        isTriggerProperty: false,
       },
       {
         helpText: "Columns",
@@ -198,6 +200,8 @@ export default [
         controlType: "PRIMARY_COLUMNS",
         label: "Columns",
         updateHook: updateDerivedColumnsHook,
+        isBindProperty: false,
+        isTriggerProperty: false,
         panelConfig: {
           editableTitle: true,
           titlePropertyName: "label",
@@ -239,6 +243,8 @@ export default [
                     },
                   ],
                   updateHook: updateDerivedColumnHook,
+                  isBindProperty: false,
+                  isTriggerProperty: false,
                 },
                 {
                   propertyName: "inputFormat",
@@ -278,6 +284,8 @@ export default [
                     );
                     return columnType !== "date";
                   },
+                  isBindProperty: true,
+                  isTriggerProperty: false,
                 },
                 {
                   propertyName: "outputFormat",
@@ -329,6 +337,8 @@ export default [
                     );
                     return columnType !== "date";
                   },
+                  isBindProperty: true,
+                  isTriggerProperty: false,
                 },
                 {
                   propertyName: "computedValue",
@@ -344,6 +354,8 @@ export default [
                     );
                     return columnType === "button";
                   },
+                  isBindProperty: true,
+                  isTriggerProperty: false,
                 },
               ],
             },
@@ -387,6 +399,8 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnHook,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
                 },
                 {
                   propertyName: "textSize",
@@ -427,6 +441,8 @@ export default [
                     },
                   ],
                   updateHook: updateDerivedColumnHook,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
                 },
                 {
                   propertyName: "fontStyle",
@@ -445,6 +461,8 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnHook,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
                 },
                 {
                   propertyName: "verticalAlignment",
@@ -468,6 +486,8 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnHook,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
                 },
                 {
                   propertyName: "textColor",
@@ -476,6 +496,8 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnHook,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
                 },
                 {
                   propertyName: "cellBackground",
@@ -484,6 +506,8 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnHook,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
                 },
               ],
             },
@@ -505,6 +529,8 @@ export default [
                   controlType: "COMPUTE_VALUE",
                   defaultValue: "Action",
                   updateHook: updateDerivedColumnHook,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
                 },
                 {
                   propertyName: "buttonStyle",
@@ -515,6 +541,8 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   defaultColor: Colors.GREEN,
                   updateHook: updateDerivedColumnHook,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
                 },
                 {
                   propertyName: "buttonLabelColor",
@@ -524,6 +552,8 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   defaultColor: Colors.WHITE,
                   updateHook: updateDerivedColumnHook,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
                 },
                 {
                   helpText: "Triggers an action when the button is clicked",
@@ -533,6 +563,8 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   updateHook: updateDerivedColumnHook,
+                  isBindProperty: true,
+                  isTriggerProperty: true,
                 },
               ],
             },
@@ -544,6 +576,8 @@ export default [
         label: "Default Search Text",
         controlType: "INPUT_TEXT",
         placeholderText: "Enter default search text",
+        isBindProperty: true,
+        isTriggerProperty: false,
       },
       {
         helpText: "Selects the default selected row",
@@ -551,6 +585,8 @@ export default [
         label: "Default Selected Row",
         controlType: "INPUT_TEXT",
         placeholderText: "Enter row index",
+        isBindProperty: true,
+        isTriggerProperty: false,
       },
       {
         helpText:
@@ -558,6 +594,8 @@ export default [
         propertyName: "serverSidePaginationEnabled",
         label: "Server Side Pagination",
         controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
       {
         helpText: "Controls the visibility of the widget",
@@ -565,11 +603,15 @@ export default [
         isJSConvertible: true,
         label: "Visible",
         controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
       },
       {
         propertyName: "multiRowSelection",
         label: "Enable multi row selection",
         controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
     ],
   },
@@ -582,6 +624,8 @@ export default [
         label: "onRowSelected",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
       },
       {
         helpText: "Triggers an action when a table page is changed",
@@ -589,12 +633,16 @@ export default [
         label: "onPageChange",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
       },
       {
         propertyName: "onSearchTextChanged",
         label: "onSearchTextChanged",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
       },
     ],
   },
@@ -606,12 +654,16 @@ export default [
         label: "Cell Background",
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
       {
         propertyName: "textColor",
         label: "Text Color",
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
       {
         propertyName: "textSize",
@@ -650,6 +702,8 @@ export default [
             icon: "PARAGRAPH_TWO",
           },
         ],
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
       {
         propertyName: "fontStyle",
@@ -666,13 +720,14 @@ export default [
             value: "ITALIC",
           },
         ],
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
       {
         propertyName: "horizontalAlignment",
         label: "Text Align",
         controlType: "ICON_TABS",
         updateHook: updateColumnStyles,
-
         options: [
           {
             icon: "LEFT_ALIGN",
@@ -688,6 +743,8 @@ export default [
           },
         ],
         defaultValue: "LEFT",
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
       {
         propertyName: "verticalAlignment",
@@ -709,6 +766,8 @@ export default [
           },
         ],
         defaultValue: "LEFT",
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
     ],
   },

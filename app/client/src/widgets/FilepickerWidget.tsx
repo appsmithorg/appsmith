@@ -49,6 +49,8 @@ class FilePickerWidget extends BaseWidget<
             helpText: "Sets the label of the button",
             placeholderText: "Enter label text",
             inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "maxNumFiles",
@@ -58,6 +60,8 @@ class FilePickerWidget extends BaseWidget<
             controlType: "INPUT_TEXT",
             placeholderText: "Enter no. of files",
             inputType: "INTEGER",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "maxFileSize",
@@ -66,6 +70,8 @@ class FilePickerWidget extends BaseWidget<
             controlType: "INPUT_TEXT",
             placeholderText: "File size in mb",
             inputType: "INTEGER",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "allowedFileTypes",
@@ -108,6 +114,8 @@ class FilePickerWidget extends BaseWidget<
               },
             ],
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isRequired",
@@ -115,6 +123,8 @@ class FilePickerWidget extends BaseWidget<
             helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isVisible",
@@ -122,6 +132,8 @@ class FilePickerWidget extends BaseWidget<
             helpText: "Controls the visibility of the widget",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "uploadedFileUrlPaths",
@@ -131,6 +143,8 @@ class FilePickerWidget extends BaseWidget<
             controlType: "INPUT_TEXT",
             placeholderText: 'Enter [ "url1", "url2" ]',
             inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isDisabled",
@@ -138,6 +152,8 @@ class FilePickerWidget extends BaseWidget<
             helpText: "Disables input to this widget",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -151,6 +167,8 @@ class FilePickerWidget extends BaseWidget<
             label: "onFilesSelected",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },

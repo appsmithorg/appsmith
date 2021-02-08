@@ -27,6 +27,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             controlType: "INPUT_TEXT",
             helpText: "Displays a label next to the widget",
             placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "defaultCheckedState",
@@ -35,6 +37,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
               "Checks / un-checks the checkbox by default. Changes to the default selection update the widget state",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isRequired",
@@ -42,6 +46,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isVisible",
@@ -49,6 +55,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             helpText: "Controls the visibility of the widget",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isDisabled",
@@ -56,6 +64,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             controlType: "SWITCH",
             helpText: "Disables input to this widget",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -68,6 +78,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             label: "onCheckChange",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },

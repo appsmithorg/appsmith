@@ -40,6 +40,8 @@ export type PropertyPaneControlConfig = {
     propertyValue: any,
   ) => Array<{ propertyPath: string; propertyValue: any }> | undefined;
   hidden?: (props: any, propertyPath: string) => boolean;
+  isBindProperty: boolean;
+  isTriggerProperty: boolean;
 };
 
 export type PropertyPaneConfig =

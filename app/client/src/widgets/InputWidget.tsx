@@ -53,6 +53,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
                 value: "EMAIL",
               },
             ],
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             helpText:
@@ -61,6 +63,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             label: "Default Text",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter default text",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Sets a placeholder text for the input",
@@ -68,6 +72,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             label: "Placeholder",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter placeholder text",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText:
@@ -77,6 +83,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             controlType: "INPUT_TEXT",
             placeholderText: "^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$",
             inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText:
@@ -86,6 +94,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             controlType: "INPUT_TEXT",
             placeholderText: "Enter error message",
             inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isRequired",
@@ -93,6 +103,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -100,6 +112,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             label: "Visible",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Disables input to this widget",
@@ -107,6 +121,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             label: "Disabled",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -119,6 +135,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             label: "onTextChanged",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },

@@ -37,6 +37,8 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             propertyName: "chartName",
             label: "Title",
             controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Changes the visualisation of the chart data",
@@ -66,6 +68,8 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
               },
             ],
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           // {
           //   helpText: "Populates the chart with the data",
@@ -96,6 +100,8 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             placeholderText: 'Enter [{ "x": "val", "y": "val" }]',
             label: "Chart Data",
             controlType: "CHART_DATA",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Specifies the label of the x-axis",
@@ -103,6 +109,8 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             placeholderText: "Enter label text",
             label: "x-axis Label",
             controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Specifies the label of the y-axis",
@@ -110,12 +118,16 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             placeholderText: "Enter label text",
             label: "y-axis Label",
             controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Enables scrolling inside the chart",
             propertyName: "allowHorizontalScroll",
             label: "Allow horizontal scroll",
             controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isVisible",
@@ -123,6 +135,8 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             helpText: "Controls the visibility of the widget",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },

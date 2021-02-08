@@ -15,6 +15,7 @@ import {
   DynamicPath,
   getEntityDynamicBindingPathList,
 } from "../../utils/DynamicBindingUtils";
+import { getAllPathsFromPropertyConfig } from "../Widget/utils";
 
 export type ActionDescription<T> = {
   type: string;
@@ -129,6 +130,13 @@ export class DataTreeFactory {
       const defaultProps = WidgetFactory.getWidgetDefaultPropertiesMap(
         widget.type,
       );
+      const propertyPaneConfigs = WidgetFactory.getWidgetPropertyPaneConfig(
+        widget.type,
+      );
+      const { bindingPaths, triggerPaths } = getAllPathsFromPropertyConfig(
+        widget,
+        propertyPaneConfigs,
+      );
       const derivedProps: any = {};
       const dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
       dynamicBindingPathList.forEach((dynamicPath) => {
@@ -148,6 +156,7 @@ export class DataTreeFactory {
         dynamicBindingPathList.push({
           key: propertyName,
         });
+        bindingPaths[propertyName] = true;
       });
       const unInitializedDefaultProps: Record<string, undefined> = {};
       Object.values(defaultProps).forEach((propertyName) => {
@@ -162,6 +171,8 @@ export class DataTreeFactory {
         ...derivedProps,
         ...unInitializedDefaultProps,
         dynamicBindingPathList,
+        bindingPaths,
+        triggerPaths,
         ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       };
     });
