@@ -113,7 +113,7 @@ public class AuthenticationServiceTest {
                 .expectErrorMatches(throwable ->
                         throwable instanceof AppsmithException &&
                                 ((AppsmithException) throwable).getError().equals(AppsmithError.INVALID_PARAMETER) &&
-                                throwable.getMessage().equalsIgnoreCase("Please enter a valid parameter clientId."))
+                                throwable.getMessage().equalsIgnoreCase("Please enter a valid parameter client_id."))
                 .verify();
 
         // 3. Without Client Secret
@@ -133,7 +133,7 @@ public class AuthenticationServiceTest {
                 .expectErrorMatches(throwable ->
                         throwable instanceof AppsmithException &&
                                 ((AppsmithException) throwable).getError().equals(AppsmithError.INVALID_PARAMETER) &&
-                                throwable.getMessage().equalsIgnoreCase("Please enter a valid parameter clientSecret."))
+                                throwable.getMessage().equalsIgnoreCase("Please enter a valid parameter client_secret."))
                 .verify();
 
         // 4. Without Authorization URL
@@ -154,7 +154,7 @@ public class AuthenticationServiceTest {
                 .expectErrorMatches(throwable ->
                         throwable instanceof AppsmithException &&
                                 ((AppsmithException) throwable).getError().equals(AppsmithError.INVALID_PARAMETER) &&
-                                throwable.getMessage().equalsIgnoreCase("Please enter a valid parameter authorizationUrl."))
+                                throwable.getMessage().equalsIgnoreCase("Please enter a valid parameter authorization_url."))
                 .verify();
     }
 

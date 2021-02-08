@@ -637,10 +637,7 @@ public class DatasourceServiceTest {
         StepVerifier
                 .create(datasourceMono)
                 .assertNext(updatedDatasource -> {
-                    DBAuth authentication = (DBAuth) updatedDatasource.getDatasourceConfiguration().getAuthentication();
-                    assertThat(authentication.getUsername()).isEqualTo(username);
-                    assertThat(authentication.getPassword()).isEqualTo(encryptionService.encryptString(password));
-                    assertThat(authentication.isEncrypted()).isTrue();
+                    assertThat(updatedDatasource.getDatasourceConfiguration().getAuthentication()).isNull();
                 })
                 .verifyComplete();
     }
