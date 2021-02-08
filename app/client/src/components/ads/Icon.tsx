@@ -26,6 +26,7 @@ import { ReactComponent as Fork } from "assets/icons/ads/fork.svg";
 import { ReactComponent as ChevronLeft } from "assets/icons/ads/chevron_left.svg";
 import { ReactComponent as ChevronRight } from "assets/icons/ads/chevron_right.svg";
 import { ReactComponent as LinkIcon } from "assets/icons/ads/link.svg";
+import { ReactComponent as HelpIcon } from "assets/icons/help/help.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -105,6 +106,7 @@ export const IconCollection = [
   "chevron-left",
   "chevron-right",
   "link",
+  "help",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -232,6 +234,9 @@ const Icon = forwardRef(
         break;
       case "link":
         returnIcon = <LinkIcon />;
+        break;
+      case "help":
+        returnIcon = <HelpIcon />;
         break;
       default:
         returnIcon = null;

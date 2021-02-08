@@ -49,6 +49,7 @@ import { IconWrapper } from "components/ads/Icon";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
+import HelpButton from "./HelpButton";
 
 const HeaderWrapper = styled(StyledHeader)`
   padding-right: 0;
@@ -234,6 +235,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         <HelpBar />
       </HeaderSection>
       <HeaderSection>
+        <HelpButton />
         <Boxed step={OnboardingStep.FINISH}>
           <SaveStatusContainer className={"t--save-status-container"}>
             {saveStatusIcon}
@@ -291,7 +293,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           </ProfileDropdownContainer>
         )}
       </HeaderSection>
-      <HelpModal page={"Editor"} />
       <GlobalSearch />
     </HeaderWrapper>
   );
