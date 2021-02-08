@@ -6,30 +6,19 @@ import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import FormControl from "../FormControl";
 import Collapsible from "./Collapsible";
 import history from "utils/history";
-import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
 import { ControlProps } from "components/formControls/BaseControl";
-
-import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
-
-import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
 import { reduxForm, InjectedFormProps } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
-import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
-import { getAppsmithConfigs } from "configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { convertArrayToSentence } from "utils/helpers";
 import BackButton from "./BackButton";
-import { PluginType } from "entities/Action";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { isHidden } from "components/formControls/utils";
 import log from "loglevel";
-
-const { cloudHosting } = getAppsmithConfigs();
 
 interface DatasourceDBEditorProps {
   onSave: (formValues: Datasource) => void;
@@ -62,7 +51,7 @@ const DBForm = styled.div`
   padding: 20px;
   margin-left: 10px;
   margin-right: 0px;
-  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
   overflow: auto;
   .backBtn {
     padding-bottom: 1px;
@@ -113,17 +102,6 @@ const StyledButton = styled(Button)`
     width: 87px;
     height: 32px;
   }
-`;
-
-const StyledOpenDocsIcon = styled(Icon)`
-  svg {
-    width: 12px;
-    height: 18px;
-  }
-`;
-
-const CollapsibleWrapper = styled.div`
-  width: max-content;
 `;
 
 class DatasourceDBEditor extends React.Component<
@@ -305,7 +283,6 @@ class DatasourceDBEditor extends React.Component<
       isDeleting,
       datasourceId,
       handleDelete,
-      pluginType,
     } = this.props;
     const { viewMode } = this.props;
 
@@ -342,23 +319,6 @@ class DatasourceDBEditor extends React.Component<
             </Boxed>
           )}
         </Header>
-        {cloudHosting && pluginType === PluginType.DB && !viewMode && (
-          <CollapsibleWrapper>
-            <CollapsibleHelp>
-              <span>{`Whitelist the IP ${convertArrayToSentence(
-                APPSMITH_IP_ADDRESSES,
-              )}  on your database instance to connect to it. `}</span>
-              <a
-                href={`${HelpBaseURL}${HelpMap["DATASOURCE_FORM"].path}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {"Read more "}
-                <StyledOpenDocsIcon icon="document-open" />
-              </a>
-            </CollapsibleHelp>
-          </CollapsibleWrapper>
-        )}
         {!viewMode ? (
           <>
             {!_.isNil(sections)
