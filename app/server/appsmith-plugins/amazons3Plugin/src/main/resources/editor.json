@@ -12,7 +12,7 @@
           "initialValue": "LIST",
           "options": [
             {
-              "label": "List all files in bucket",
+              "label": "List files in bucket",
               "value": "LIST"
             },
             {
@@ -40,13 +40,66 @@
           "label": "File Path",
           "configProperty": "actionConfiguration.path",
           "controlType": "INPUT_TEXT",
-          "initialValue": ""
+          "initialValue": "",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "EQUALS",
+            "value": "LIST"
+          }
         },
         {
           "label": "Content",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT",
-          "initialValue": ""
+          "initialValue": "",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "UPLOAD_FILE_FROM_BODY"
+          }
+        },
+        {
+          "label": "Prefix",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "LIST"
+          }
+        },
+        {
+          "label": "Get Signed URL",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+          "controlType": "DROP_DOWN",
+          "initialValue": "NO",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "YES"
+            },
+            {
+              "label": "No",
+              "value": "NO"
+            }
+          ],
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "LIST"
+          }
+        },
+        {
+          "label": "URL Expiry Duration in Milliseconds",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "0",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+            "comparison": "NOT_EQUALS",
+            "value": "YES"
+          }
         }
       ]
     }

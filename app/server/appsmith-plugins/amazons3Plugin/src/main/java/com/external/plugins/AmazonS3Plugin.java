@@ -1,10 +1,12 @@
 package com.external.plugins;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
@@ -29,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -38,7 +41,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +55,11 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final String S3_DRIVER = "com.amazonaws.services.s3.AmazonS3";
     private static final int ACTION_PROPERTY_INDEX = 0;
     private static final int BUCKET_NAME_PROPERTY_INDEX = 1;
+    private static final int GET_SIGNED_URL_PROPERTY_INDEX = 2;
+    private static final int URL_EXPIRY_DURATION_PROPERTY_INDEX = 3;
+    private static final int PREFIX_PROPERTY_INDEX = 4;
     private static final int CLIENT_REGION_PROPERTY_INDEX = 0;
+    private static final String YES = "YES";
 
     public AmazonS3Plugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -84,17 +94,43 @@ public class AmazonS3Plugin extends BasePlugin {
         /*
          * - Exception thrown by this method is expected to be handled by the caller.
          */
-        ArrayList<String> listAllFilesInBucket(AmazonS3 connection, String bucketName) throws AppsmithPluginException {
+        ArrayList<String> listAllFilesInBucket(AmazonS3 connection,
+                                               String bucketName,
+                                               String prefix) throws AppsmithPluginException {
             if(connection == null) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
                         "Appsmith server has encountered an unexpected error when establishing " +
-                        "connection with AWS S3 server. Please reach out to Appsmith customer support to resolve this"
+                        "connection with AWS S3 server. Please reach out to Appsmith customer support to resolve this."
+                );
+            }
+
+            if(bucketName == null) {
+                /*
+                 * - bucketName is NOT expected to be null at this program point. A null check has been added in the
+                 *  execute function already.
+                 */
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith has encountered an unexpected error when getting bucket name. Please reach out to " +
+                        "Appsmith customer support to resolve this."
+                );
+            }
+
+            if(prefix == null) {
+                /*
+                 * - prefix is NOT expected to be null at this program point. A null check has been added in the
+                 *  execute function already.
+                 */
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith has encountered an unexpected error when getting path prefix. Please reach out to " +
+                        "Appsmith customer support to resolve this."
                 );
             }
 
             ArrayList<String> fileList = new ArrayList<>();
-            ObjectListing result = connection.listObjects(bucketName);
+            ObjectListing result = connection.listObjects(bucketName, prefix);
             fileList.addAll(getFilenamesFromObjectListing(result));
 
             while(result.isTruncated()) {
@@ -103,6 +139,28 @@ public class AmazonS3Plugin extends BasePlugin {
             }
 
             return fileList;
+        }
+
+        ArrayList<String> getSignedUrls(AmazonS3 connection,
+                                        String bucketName,
+                                        ArrayList<String> listOfFiles,
+                                        int durationInMilliseconds) {
+            Date expiration = new java.util.Date();
+            long expTimeMillis = expiration.getTime();
+            expTimeMillis += durationInMilliseconds;
+            expiration.setTime(expTimeMillis);
+
+            ArrayList<String> urlList = new ArrayList<>();
+            for(String filePath : listOfFiles) {
+                GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName,
+                                                                                                          filePath)
+                                                                              .withMethod(HttpMethod.GET)
+                                                                              .withExpiration(expiration);
+                URL url = connection.generatePresignedUrl(generatePresignedUrlRequest);
+                urlList.add(url.toString());
+            }
+
+            return urlList;
         }
 
         /*
@@ -179,7 +237,6 @@ public class AmazonS3Plugin extends BasePlugin {
                 );
             }
 
-            final List<Map<String, Object>> rowsList = new ArrayList<>();
             final String path = actionConfiguration.getPath();
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             if(CollectionUtils.isEmpty(properties)) {
@@ -224,7 +281,8 @@ public class AmazonS3Plugin extends BasePlugin {
                 );
             }
 
-            if(properties.get(BUCKET_NAME_PROPERTY_INDEX) == null) {
+            if(properties.size() < (1+BUCKET_NAME_PROPERTY_INDEX)
+               || properties.get(BUCKET_NAME_PROPERTY_INDEX) == null) {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
@@ -259,14 +317,64 @@ public class AmazonS3Plugin extends BasePlugin {
                 );
             }
 
+            final List<Map<String, Object>> rowsList = new ArrayList<>();
             return Mono.fromCallable(() -> {
+
                 switch (s3Action) {
                     case LIST:
-                        ArrayList<String> listOfFiles = listAllFilesInBucket(connection, bucketName);
-                        for(int i=0; i<listOfFiles.size(); i++) {
-                            rowsList.add(Map.of("List of Files", listOfFiles.get(i)));
+                        String prefix = "";
+                        if(properties.size() > PREFIX_PROPERTY_INDEX
+                           && properties.get(PREFIX_PROPERTY_INDEX) != null
+                           && properties.get(PREFIX_PROPERTY_INDEX).getValue() != null) {
+                            prefix = properties.get(PREFIX_PROPERTY_INDEX).getValue();
                         }
-                        break;
+
+                        ArrayList<String> listOfFiles = listAllFilesInBucket(connection, bucketName, prefix);
+
+                        if(properties.size() > GET_SIGNED_URL_PROPERTY_INDEX
+                           && properties.get(GET_SIGNED_URL_PROPERTY_INDEX) != null
+                           && properties.get(GET_SIGNED_URL_PROPERTY_INDEX).getValue().equals(YES)) {
+
+                            if(properties.size() < (1+URL_EXPIRY_DURATION_PROPERTY_INDEX)
+                               || properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX) == null
+                               || StringUtils.isEmpty(properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX).getValue())) {
+                                throw new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_ERROR,
+                                        "Required parameter 'URL Expiry Duration' is missing. Did you forget to" +
+                                        " edit the 'URL Expiry Duration' field ?"
+                                );
+                            }
+
+                            int durationInMilliseconds = Integer
+                                                         .parseInt(
+                                                                 properties
+                                                                 .get(URL_EXPIRY_DURATION_PROPERTY_INDEX)
+                                                                 .getValue()
+                                                         );
+                            ArrayList<String> listOfSignedUrls = getSignedUrls(connection,
+                                                                               bucketName,
+                                                                               listOfFiles,
+                                                                               durationInMilliseconds);
+                            if(listOfFiles.size() != listOfSignedUrls.size()) {
+                                throw new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_ERROR,
+                                        "Appsmith server has encountered an unexpected error when getting " +
+                                        "url from AWS S3 server. Please reach out to Appsmith customer " +
+                                        "support to resolve this."
+                                );
+                            }
+
+                            ArrayList<ArrayList<String>> listOfFilesAndUrls = new ArrayList<>();
+                            for(int i=0; i<listOfFiles.size(); i++) {
+                                ArrayList<String> fileUrlPair = new ArrayList<>();
+                                fileUrlPair.add(listOfFiles.get(i));
+                                fileUrlPair.add(listOfSignedUrls.get(i));
+                                listOfFilesAndUrls.add(fileUrlPair);
+                            }
+
+                            return Map.of("List of Files", listOfFilesAndUrls);
+                        }
+                        return Map.of("List of Files", listOfFiles);
                     case UPLOAD_FILE_FROM_BODY:
                         uploadFileFromBody(connection, bucketName, path, body);
                         rowsList.add(Map.of("Action Status", "File uploaded successfully"));
@@ -280,23 +388,20 @@ public class AmazonS3Plugin extends BasePlugin {
                         rowsList.add(Map.of("Action Status", "File deleted successfully"));
                         break;
                     default:
-                        return Mono.error(
-                                new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
-                                    "It seems that the query has requested an unsupported action: " + s3Action + 
-                                    ". Please reach out to Appsmith customer support to resolve this."
-                                )
+                        throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_ERROR,
+                            "It seems that the query has requested an unsupported action: " + s3Action +
+                            ". Please reach out to Appsmith customer support to resolve this."
                         );
                 }
-
                 return rowsList;
             })
-            .map(result -> {
+            .flatMap(result -> {
                 ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
-                actionExecutionResult.setBody(objectMapper.valueToTree(rowsList));
+                actionExecutionResult.setBody(objectMapper.valueToTree(result));
                 actionExecutionResult.setIsExecutionSuccess(true);
                 System.out.println(Thread.currentThread().getName() + ": In the S3 Plugin, got action execution result");
-                return actionExecutionResult;
+                return Mono.just(actionExecutionResult);
             })
             .onErrorResume(e -> {
                 if(e instanceof AppsmithPluginException) {

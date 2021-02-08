@@ -1586,7 +1586,7 @@ public class DatabaseChangelog {
         plugin.setType(PluginType.DB);
         plugin.setPackageName("amazons3-plugin");
         plugin.setUiComponent("DbEditorForm");
-        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/AmazonS3.jpeg");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-amazon-s3");
         plugin.setDefaultInstall(true);
