@@ -102,7 +102,9 @@ const PropertyControl = (props: Props) => {
         >
           <Boxed
             step={OnboardingStep.DEPLOY}
-            show={propertyName !== "isRequired" && propertyName !== "isVisible"}
+            show={
+              propertyName !== "isRequired" && propertyName !== "isDisabled"
+            }
           >
             <ControlPropertyLabelContainer>
               <PropertyHelpLabel
