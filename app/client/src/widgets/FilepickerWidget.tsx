@@ -22,7 +22,6 @@ import shallowequal from "shallowequal";
 import _ from "lodash";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
-import { promises } from "dns";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
