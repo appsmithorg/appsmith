@@ -17,6 +17,8 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 import InputTextControl from "components/formControls/InputTextControl";
 import KeyValueInputControl from "components/formControls/KeyValueInputControl";
 import DropDownControl from "components/formControls/DropDownControl";
+import { Spinner } from "@blueprintjs/core";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 
 // TODO: move property paths to constants here.
 interface DatasourceDBEditorProps {
@@ -28,6 +30,7 @@ interface DatasourceDBEditorProps {
   isSaving: boolean;
   isDeleting: boolean;
   datasourceId: string;
+  loadingFormConfigs: boolean;
   applicationId: string;
   pageId: string;
   formData: Datasource;
@@ -65,6 +68,10 @@ const DBForm = styled.div`
 
 const FormInputContainer = styled.div`
   margin-top: 16px;
+`;
+
+export const LoadingContainer = styled(CenteredWrapper)`
+  height: 50%;
 `;
 
 const PluginImage = styled.img`
@@ -145,6 +152,14 @@ class DatasourceDBEditor extends React.Component<
   };
 
   render() {
+    const { loadingFormConfigs, formConfig } = this.props;
+    if (loadingFormConfigs) {
+      return (
+        <LoadingContainer>
+          <Spinner size={30} />
+        </LoadingContainer>
+      );
+    }
     const content = this.renderDataSourceConfigForm();
     return <DBForm>{content}</DBForm>;
   }
