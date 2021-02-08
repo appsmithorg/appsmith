@@ -15,6 +15,8 @@ import {
   isPathADynamicProperty,
   isPathADynamicTrigger,
 } from "../../../utils/DynamicBindingUtils";
+import Boxed from "components/editorComponents/Onboarding/Boxed";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 type Props = {
   widgetProperties: WidgetProps;
@@ -98,28 +100,33 @@ const PropertyControl = (props: Props) => {
               : "VERTICAL"
           }
         >
-          <ControlPropertyLabelContainer>
-            <PropertyHelpLabel
-              tooltip={propertyConfig.helpText}
-              label={label}
-            />
-            {isConvertible && (
-              <JSToggleButton
-                active={isDynamic}
-                onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
-                className={`t--js-toggle ${isDynamic ? "is-active" : ""}`}
-              >
-                <ControlIcons.JS_TOGGLE />
-              </JSToggleButton>
+          <Boxed
+            step={OnboardingStep.DEPLOY}
+            show={propertyName !== "isRequired" && propertyName !== "isVisible"}
+          >
+            <ControlPropertyLabelContainer>
+              <PropertyHelpLabel
+                tooltip={propertyConfig.helpText}
+                label={label}
+              />
+              {isConvertible && (
+                <JSToggleButton
+                  active={isDynamic}
+                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
+                  className={`t--js-toggle ${isDynamic ? "is-active" : ""}`}
+                >
+                  <ControlIcons.JS_TOGGLE />
+                </JSToggleButton>
+              )}
+            </ControlPropertyLabelContainer>
+            {PropertyControlFactory.createControl(
+              config,
+              {
+                onPropertyChange: onPropertyChange,
+              },
+              isDynamic,
             )}
-          </ControlPropertyLabelContainer>
-          {PropertyControlFactory.createControl(
-            config,
-            {
-              onPropertyChange: onPropertyChange,
-            },
-            isDynamic,
-          )}
+          </Boxed>
         </ControlWrapper>
       );
     } catch (e) {
