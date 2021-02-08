@@ -93,6 +93,7 @@ const Welcome = () => {
       </Description>
       {datasourceCreated ? (
         <StyledButton
+          className="t--start-building"
           onClick={() => {
             dispatch({
               type: ReduxActionTypes.SHOW_ONBOARDING_LOADER,

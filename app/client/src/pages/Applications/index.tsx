@@ -438,7 +438,11 @@ function LeftPane() {
             }}
           />
           <MenuItem
-            className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+            className={
+              isFetchingApplications
+                ? BlueprintClasses.SKELETON
+                : "t--welcome-tour"
+            }
             icon="shine"
             text={"Welcome Tour"}
             onSelect={() => {

@@ -499,11 +499,17 @@ function* createApplication() {
   const currentUser = yield select(getCurrentUser);
   const userOrgs = yield select(getUserApplicationsOrgs);
   const currentOrganizationId = currentUser.currentOrganizationId;
+  let organization;
 
-  const organization = userOrgs.filter(
-    (org: any) => org.organization.id === currentOrganizationId,
-  );
-  const applicationList = organization[0].applications;
+  if (!organization) {
+    organization = userOrgs[0];
+  } else {
+    const filteredOrganizations = userOrgs.filter(
+      (org: any) => org.organization.id === currentOrganizationId,
+    );
+    organization = filteredOrganizations[0];
+  }
+  const applicationList = organization.applications;
 
   const applicationName = getNextEntityName(
     "Super Standup ",
@@ -515,7 +521,7 @@ function* createApplication() {
     type: ReduxActionTypes.CREATE_APPLICATION_INIT,
     payload: {
       applicationName,
-      orgId: currentOrganizationId,
+      orgId: organization.organization.id,
       icon,
       color,
     },

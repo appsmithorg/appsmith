@@ -191,7 +191,7 @@ const Helper = () => {
         <ImagePlaceholder />
       )}
       {helperConfig.step && <StepCount>Mission {helperConfig.step}</StepCount>}
-      <Title>{helperConfig.title}</Title>
+      <Title className="t--onboarding-helper-title">{helperConfig.title}</Title>
       <Description>{helperConfig.description}</Description>
       {helperConfig.subSteps &&
         helperConfig.subSteps.map((subStep, index) => {
@@ -221,7 +221,11 @@ const Helper = () => {
                     <HintDescription>
                       {helperConfig.hint.description}
                     </HintDescription>
-                    <Snippet onClick={copyBindingToClipboard} ref={snippetRef}>
+                    <Snippet
+                      className="t--onboarding-snippet"
+                      onClick={copyBindingToClipboard}
+                      ref={snippetRef}
+                    >
                       <span>{helperConfig.hint?.snippet}</span>
                       <Icon
                         icon="duplicate"
@@ -270,6 +274,7 @@ const Helper = () => {
           )}
           {!cheatMode && helperConfig.action && (
             <ActionButton
+              className="t--onboarding-action"
               initialStep={helperConfig.action.initialStep}
               onClick={() => {
                 if (helperConfig.action && helperConfig.action.action) {
@@ -286,6 +291,7 @@ const Helper = () => {
           )}
           {(cheatMode || !helperConfig.action) && (
             <CheatActionButton
+              className="t--onboarding-cheat-action"
               onClick={() => {
                 dispatch(helperConfig.cheatAction?.action);
               }}
