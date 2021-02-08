@@ -29,7 +29,6 @@ class FormControlFacotory {
         extraData,
         key: controlData.id,
       };
-      console.log("Individual formControl", controlProps);
       const control = controlBuilder.buildPropertyControl(controlProps);
       return control;
     } else {

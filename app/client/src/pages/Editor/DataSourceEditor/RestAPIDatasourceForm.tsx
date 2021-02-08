@@ -145,7 +145,7 @@ class DatasourceDBEditor extends React.Component<
   };
 
   render() {
-    const content = this.renderDataSourceConfigForm(this.props.formConfig);
+    const content = this.renderDataSourceConfigForm();
     return <DBForm>{content}</DBForm>;
   }
 
@@ -211,7 +211,7 @@ class DatasourceDBEditor extends React.Component<
     const authType = _.get(formData, authTypeProperty);
     // Todo: fix to add more types
     if (authType !== "oAuth2") {
-      formData = _.set(formData, authProperty, undefined);
+      formData = _.set(formData, authProperty, null);
     }
     return formData;
   };
@@ -234,7 +234,7 @@ class DatasourceDBEditor extends React.Component<
     this.props.onTest(normalizedValues);
   };
 
-  renderDataSourceConfigForm = (sections: any) => {
+  renderDataSourceConfigForm = () => {
     const {
       isSaving,
       applicationId,
@@ -318,9 +318,7 @@ class DatasourceDBEditor extends React.Component<
   };
 
   renderEditor = () => {
-    console.log("All props", this.props);
     const { formData } = this.props;
-    console.log("FORM data", formData);
     const isSendSessionEnabled =
       _.get(formData, "datasourceConfiguration.properties[0].value") === "Y";
 
