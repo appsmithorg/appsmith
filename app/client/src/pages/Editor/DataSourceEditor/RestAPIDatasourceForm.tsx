@@ -19,6 +19,9 @@ import KeyValueInputControl from "components/formControls/KeyValueInputControl";
 import DropDownControl from "components/formControls/DropDownControl";
 import { Spinner } from "@blueprintjs/core";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import { connect } from "react-redux";
+import { AppState } from "reducers";
+import { Property } from "entities/Action";
 
 // TODO: move property paths to constants here.
 interface DatasourceDBEditorProps {
@@ -452,6 +455,13 @@ class DatasourceDBEditor extends React.Component<
         <FormInputContainer>
           <InputTextControl
             {...common}
+            label="Scope(s)"
+            configProperty="datasourceConfiguration.authentication.scopeString"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...common}
             label="Header Prefix"
             configProperty="datasourceConfiguration.authentication.headerPrefix"
             placeholderText="Bearer (default)"
@@ -479,6 +489,193 @@ class DatasourceDBEditor extends React.Component<
   };
 }
 
-export default reduxForm<Datasource, DatasourceDBEditorProps>({
-  form: DATASOURCE_DB_FORM,
-})(DatasourceDBEditor);
+enum AuthType {
+  NONE = "NONE",
+  OAuth2ClientCredentials = "oAuth2-client-credentials",
+  OAuth2AuthCode = "oAuth2-auth-code",
+}
+
+type Authentication = ClientCredentials | AuthCode;
+interface ApiDatasourceForm {
+  datasourceId: string;
+  url: string;
+  headers?: Property[];
+  isSendSessionEnabled: boolean;
+  sessionSignatureKey: string;
+  authType: AuthType;
+  authentication?: Authentication;
+}
+
+interface ClientCredentials {
+  authenticationType: "oAuth2";
+  grantType: "client_credentials";
+  accessTokenUrl: string;
+  clientId: string;
+  headerPrefix: string;
+  scopeString: string;
+  clientSecret: string;
+  isTokenHeader: boolean;
+}
+
+interface AuthCode {
+  authenticationType: "oAuth2";
+  grantType: "auth_code";
+  clientId: string;
+  clientSecret: string;
+  scopeString: string;
+  authorizationUrl: string;
+  customAuthenticationParameters: Property[];
+}
+
+const getFormAuthType = (datasource: Datasource): AuthType => {
+  const dsAuthType = _.get(
+    datasource,
+    "datasourceConfiguration.authentication.authenticationType",
+  );
+  const dsgrantType = _.get(
+    datasource,
+    "datasourceConfiguration.authentication.grantType",
+  );
+
+  if (dsAuthType) {
+    if (dsgrantType === "client_credentials") {
+      return AuthType.OAuth2ClientCredentials;
+    } else if (dsgrantType === "auth_code") {
+      return AuthType.OAuth2AuthCode;
+    }
+  }
+  return AuthType.NONE;
+};
+
+const datasourceToFormAuthentication = (
+  authType: AuthType,
+  datasource: Datasource,
+): Authentication | undefined => {
+  if (
+    !datasource ||
+    !datasource.datasourceConfiguration ||
+    !datasource.datasourceConfiguration.authentication
+  ) {
+    return;
+  }
+  const authentication = datasource.datasourceConfiguration.authentication;
+  if (isClientCredentials(authType, authentication)) {
+    return {
+      authenticationType: "oAuth2",
+      grantType: "client_credentials",
+      accessTokenUrl: authentication.accessTokenUrl || "",
+      clientId: authentication.clientId || "",
+      headerPrefix: authentication.headerPrefix || "",
+      scopeString: authentication.scopeString || "",
+      clientSecret: authentication.clientSecret,
+      isTokenHeader: !!authentication.isTokenHeader,
+    };
+  } else if (isAuthCode(authType, authentication)) {
+    return {
+      authenticationType: "oAuth2",
+      grantType: "auth_code",
+      clientId: authentication.clientId || "",
+      scopeString: authentication.scopeString || "",
+      authorizationUrl: authentication.authorizationUrl || "",
+      clientSecret: authentication.clientSecret,
+      customAuthenticationParameters:
+        authentication.customAuthenticationParameters,
+    };
+  }
+};
+
+const datasourceToFormValues = (datasource: Datasource): ApiDatasourceForm => {
+  const authType = getFormAuthType(datasource);
+  const authentication = datasourceToFormAuthentication(authType, datasource);
+  const isSendSessionEnabled =
+    _.get(datasource, "datasourceConfiguration.properties[0].value") === "Y";
+  const sessionSignatureKey = isSendSessionEnabled
+    ? _.get(datasource, "datasourceConfiguration.properties[1].value")
+    : "";
+  return {
+    datasourceId: datasource.id,
+    url: datasource.datasourceConfiguration.url,
+    headers: datasource.datasourceConfiguration.headers,
+    isSendSessionEnabled: isSendSessionEnabled,
+    sessionSignatureKey: sessionSignatureKey,
+    authType: authType,
+    authentication: authentication,
+  };
+};
+
+const isClientCredentials = (
+  authType: AuthType,
+  val: any,
+): val is ClientCredentials => {
+  if (authType === AuthType.OAuth2ClientCredentials) return true;
+  return false;
+};
+
+const isAuthCode = (authType: AuthType, val: any): val is AuthCode => {
+  if (authType === AuthType.OAuth2AuthCode) return true;
+  return false;
+};
+
+const formToDatasourceAuthentication = (
+  authType: AuthType,
+  authentication: Authentication | undefined,
+): Authentication | null => {
+  if (authType === AuthType.NONE || !authentication) return null;
+  if (isClientCredentials(authType, authentication)) {
+    return {
+      authenticationType: "oAuth2",
+      grantType: "client_credentials",
+      accessTokenUrl: authentication.accessTokenUrl,
+      clientId: authentication.clientId,
+      headerPrefix: authentication.headerPrefix,
+      scopeString: authentication.scopeString,
+      clientSecret: authentication.clientSecret,
+      isTokenHeader: authentication.isTokenHeader,
+    };
+  } else if (isAuthCode(authType, authentication)) {
+    return {
+      authenticationType: "oAuth2",
+      grantType: "auth_code",
+      clientId: authentication.clientId,
+      clientSecret: authentication.clientSecret,
+      scopeString: authentication.scopeString,
+      authorizationUrl: authentication.authorizationUrl,
+      customAuthenticationParameters:
+        authentication.customAuthenticationParameters,
+    };
+  }
+  return null;
+};
+
+const formValuesToDatasource = (form: ApiDatasourceForm) => {
+  const authentication = formToDatasourceAuthentication(
+    form.authType,
+    form.authentication,
+  );
+
+  return {
+    id: form.datasourceId,
+    datasourceConfiguration: {
+      url: form.url,
+      headers: form.headers,
+      properties: [
+        { key: "isSendSessionEnabled", value: form.isSendSessionEnabled },
+        { key: "sessionSignatureKey", value: form.sessionSignatureKey },
+      ],
+      authentication: authentication,
+    },
+  };
+};
+
+const mapStateToProps = (state: AppState, props: any) => {
+  const initialValues = state.entities.datasources.list.find(
+    (e) => e.id === props.datasourceId,
+  );
+  return { initialValues };
+};
+
+export default connect(mapStateToProps)(
+  reduxForm<Datasource, DatasourceDBEditorProps>({
+    form: DATASOURCE_DB_FORM,
+  })(DatasourceDBEditor),
+);
