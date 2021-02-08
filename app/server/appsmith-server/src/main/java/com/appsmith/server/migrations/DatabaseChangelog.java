@@ -1607,6 +1607,9 @@ public class DatabaseChangelog {
                 case "redshift-plugin":
                     plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redshift");
                     break;
+                case "mysql-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mysql");
+                    break;
                 default:
                     continue;
             }
