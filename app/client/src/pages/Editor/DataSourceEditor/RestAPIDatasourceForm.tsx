@@ -152,7 +152,7 @@ class DatasourceDBEditor extends React.Component<
   };
 
   render() {
-    const { loadingFormConfigs, formConfig } = this.props;
+    const { loadingFormConfigs } = this.props;
     if (loadingFormConfigs) {
       return (
         <LoadingContainer>
