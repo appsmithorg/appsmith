@@ -9,7 +9,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { useSelector, useDispatch } from "react-redux";
-import TreeDropdown, { TreeDropdownOption } from "./TreeDropdown";
+import TreeDropdown, { TreeDropdownOption } from "components/ads/TreeDropdown";
 import {
   FieldWrapper,
   ControlWrapper,
@@ -272,6 +272,7 @@ const views = {
             getDefaults={props.getDefaults}
             selectedLabelModifier={props.selectedLabelModifier}
             displayValue={props.displayValue}
+            variant="darker"
           />
         </ControlWrapper>
       </FieldWrapper>

@@ -5,6 +5,7 @@
 import { Component } from "react";
 import _ from "lodash";
 import { ControlType } from "constants/PropertyControlConstants";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 // eslint-disable-next-line @typescript-eslint/ban-types
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,
@@ -42,6 +43,7 @@ export interface ControlData {
 
 export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;
+  theme: EditorTheme;
 }
 
 export default BaseControl;

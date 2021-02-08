@@ -50,10 +50,13 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   position: absolute;
   right: 22px;
   cursor: pointer;
+  && svg path {
+    fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
+  }
 `;
 
 const StyledOptionControlInputGroup = styled(StyledInputGroup)`
-  margin-right: 2px;
+  margin-right: 5px;
 `;
 
 const StyledOptionControlWrapper = styled(ControlWrapper)`

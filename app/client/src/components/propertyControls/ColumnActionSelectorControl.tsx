@@ -20,6 +20,9 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   right: 0px;
   cursor: pointer;
   top: 0px;
+  && svg path {
+    fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
+  }
 `;
 
 const InputTextWrapper = styled.div`
@@ -56,6 +59,7 @@ class ColumnActionSelectorControl extends BaseControl<
                     )}
                     evaluatedValue={columnAction.label}
                     isValid={true}
+                    theme={this.props.theme}
                   />
                 </InputTextWrapper>
                 <Wrapper>

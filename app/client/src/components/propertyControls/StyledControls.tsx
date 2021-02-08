@@ -45,7 +45,7 @@ export const ControlPropertyLabelContainer = styled.div`
   display: flex;
   align-items: center;
   label {
-    color: ${(props) => props.theme.colors.paneText};
+    color: ${(props) => props.theme.colors.propertyPane.label};
     margin-bottom: ${(props) => props.theme.spaces[1]}px;
     font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
@@ -94,13 +94,19 @@ export const StyledDropDownContainer = styled.div`
     }
   }
   &&&& .${Classes.MENU_ITEM} {
-    border-radius: ${(props) => props.theme.radii[1]}px;
+    padding: ${(props) => props.theme.spaces[3]}px
+      ${(props) => props.theme.spaces[4]}px;
+    background: ${(props) => props.theme.colors.treeDropdown.darkMenuBg.normal};
+    color: ${(props) => props.theme.colors.treeDropdown.darkMenuText.normal};
+    border-radius: 0px;
     &:hover {
-      background: ${Colors.POLAR};
+      background: ${(props) =>
+        props.theme.colors.treeDropdown.darkMenuBg.hover};
     }
     &.${Classes.ACTIVE} {
-      background: ${Colors.POLAR};
-      color: ${(props) => props.theme.colors.textDefault};
+      background: ${(props) =>
+        props.theme.colors.treeDropdown.darkMenuBg.hover};
+      color: ${(props) => props.theme.colors.treeDropdown.darkMenuText.hover};
       position: relative;
       &.single-select {
         &:before {
@@ -109,7 +115,7 @@ export const StyledDropDownContainer = styled.div`
           position: absolute;
           content: "";
           background: ${(props) => props.theme.colors.primaryOld};
-          border-radius: 4px 0 0 4px;
+          border-radius: 0px;
           width: 4px;
           height: 100%;
         }
@@ -118,10 +124,10 @@ export const StyledDropDownContainer = styled.div`
   }
   && .${Classes.POPOVER} {
     width: 100%;
-    border-radius: ${(props) => props.theme.radii[1]}px;
+    border-radius: 0px;
     box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
-    padding: ${(props) => props.theme.spaces[3]}px;
-    background: white;
+    padding: 0px;
+    background: ${(props) => props.theme.colors.treeDropdown.darkMenuBg.normal};
   }
 
   &&&& .${Classes.POPOVER_CONTENT} {
@@ -138,6 +144,7 @@ export const StyledDropDownContainer = styled.div`
   && .${Classes.MENU} {
     max-width: 100%;
     max-height: auto;
+    background: ${(props) => props.theme.colors.treeDropdown.darkMenuBg.normal};
   }
   width: 100%;
 `;
@@ -161,13 +168,16 @@ export const StyledDropDown = styled(DropDown)`
     width: 100%;
     position: relative;
   }
-  .${Classes.BUTTON} {
+  &&&& .${Classes.BUTTON} {
     display: flex;
     width: 100%;
     align-items: center;
     justify-content: space-between;
+    border-radius: 0px;
+    background-color: ${(props) => props.theme.colors.treeDropdown.targetBg};
+    color: ${(props) => props.theme.colors.treeDropdown.darkMenuText.normal};
   }
-  .${Classes.BUTTON_TEXT} {
+  &&&& .${Classes.BUTTON_TEXT} {
     text-overflow: ellipsis;
     text-align: left;
     overflow: hidden;
@@ -175,11 +185,9 @@ export const StyledDropDown = styled(DropDown)`
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
   }
-  && {
-    .${Classes.ICON} {
-      width: fit-content;
-      color: ${Colors.SLATE_GRAY};
-    }
+  &&&& .${Classes.ICON} {
+    width: fit-content;
+    color: ${Colors.SLATE_GRAY};
   }
 `;
 
@@ -286,8 +294,8 @@ export const StyledDynamicInput = styled.div`
 export const StyledInputGroup = styled(InputGroup)`
   & > input {
     placeholder-text: ${(props) => props.placeholder};
-    color: ${(props) => props.theme.colors.textOnDarkBG};
-    background: ${(props) => props.theme.colors.paneInputBG};
+    background: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
+    color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
   }
 `;
 
@@ -309,11 +317,11 @@ export const StyledDateRangePicker = styled(DateRangeInput)`
 
 export const StyledPropertyPaneButton = styled(Button)`
   &&&& {
-    background-color: ${(props) => props.theme.colors.infoOld};
-    color: #ffffff;
+    background-color: ${(props) => props.theme.colors.propertyPane.buttonBg};
+    color: ${(props) => props.theme.colors.propertyPane.buttonText};
     margin-top: 4px;
     .bp3-icon {
-      color: #ffffff;
+      color: ${(props) => props.theme.colors.propertyPane.buttonText};
       margin-right: 4px;
     }
     svg {

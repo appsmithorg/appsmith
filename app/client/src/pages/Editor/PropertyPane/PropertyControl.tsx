@@ -18,12 +18,14 @@ import {
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 type Props = {
   widgetProperties: WidgetProps;
   propertyConfig: PropertyControlPropsType;
   toggleDynamicProperty: (propertyName: string, isDynamic: boolean) => void;
   onPropertyChange: (propertyName: string, propertyValue: any) => void;
+  theme: EditorTheme;
 };
 
 const PropertyControl = (props: Props) => {
@@ -111,6 +113,7 @@ const PropertyControl = (props: Props) => {
               <PropertyHelpLabel
                 tooltip={propertyConfig.helpText}
                 label={label}
+                theme={props.theme}
               />
               {isConvertible && (
                 <JSToggleButton
@@ -130,6 +133,7 @@ const PropertyControl = (props: Props) => {
                 config,
                 {
                   onPropertyChange: onPropertyChange,
+                  theme: props.theme,
                 },
                 isDynamic,
               )}

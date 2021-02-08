@@ -20,7 +20,7 @@ import { ControlProps } from "components/propertyControls/BaseControl";
 import { generateClassName } from "utils/generators";
 import { RenderModes } from "constants/WidgetConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { scrollbarDark } from "constants/DefaultTheme";
+import { scrollbarDark, scrollbarLight } from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import PropertyControl from "pages/Editor/PropertyPane/PropertyControl";
@@ -30,9 +30,11 @@ import PaneWrapper from "pages/common/PaneWrapper";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
 
 const PropertySectionLabel = styled.div`
-  color: ${(props) => props.theme.colors.paneSectionLabel};
+  color: ${(props) => props.theme.colors.propertyPane.label};
   padding: ${(props) => props.theme.spaces[2]}px 0;
   font-size: ${(props) => props.theme.fontSizes[3]}px;
   display: flex;
@@ -41,20 +43,21 @@ const PropertySectionLabel = styled.div`
   align-items: center;
 `;
 
-const PropertyPaneWrapper = styled(PaneWrapper)`
+const PropertyPaneWrapper = styled(PaneWrapper)<{ themeMode?: EditorTheme }>`
   width: 100%;
   max-height: ${(props) => props.theme.propertyPane.height}px;
   width: ${(props) => props.theme.propertyPane.width}px;
   margin: ${(props) => props.theme.spaces[2]}px;
   box-shadow: 0px 0px 10px ${(props) => props.theme.colors.paneCard};
   border: ${(props) => props.theme.spaces[5]}px solid
-    ${(props) => props.theme.colors.paneBG};
+    ${(props) => props.theme.colors.propertyPane.bg};
   border-right: 0;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0 ${(props) => props.theme.spaces[5]}px 0 0;
   text-transform: none;
-  ${scrollbarDark};
+  ${(props) =>
+    props.themeMode === EditorTheme.DARK ? scrollbarDark : scrollbarLight};
 `;
 
 class PropertyPane extends Component<
@@ -63,6 +66,13 @@ class PropertyPane extends Component<
   constructor(props: PropertyPaneProps & PropertyPaneFunctions) {
     super(props);
     this.onPropertyChange = this.onPropertyChange.bind(this);
+  }
+
+  getTheme() {
+    if (this.props.themeMode === "LIGHT") {
+      return EditorTheme.LIGHT;
+    }
+    return EditorTheme.DARK;
   }
 
   render() {
@@ -89,9 +99,11 @@ class PropertyPane extends Component<
 
   renderPropertyPane(propertySections?: PropertySection[]) {
     const { widgetProperties } = this.props;
-    if (!widgetProperties) return <PropertyPaneWrapper />;
+    if (!widgetProperties)
+      return <PropertyPaneWrapper themeMode={this.getTheme()} />;
     return (
       <PropertyPaneWrapper
+        themeMode={this.getTheme()}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
@@ -145,6 +157,7 @@ class PropertyPane extends Component<
                       widgetProperties={widgetProperties}
                       onPropertyChange={this.onPropertyChange}
                       toggleDynamicProperty={this.toggleDynamicProperty}
+                      theme={this.getTheme()}
                     />
                   );
                 } catch (e) {
@@ -243,6 +256,7 @@ const mapStateToProps = (state: AppState): PropertyPaneProps => {
     widgetId: getCurrentWidgetId(state),
     widgetProperties: getWidgetPropsForPropertyPane(state),
     isVisible: getIsPropertyPaneVisible(state),
+    themeMode: getCurrentThemeMode(state),
   };
   return props;
 };
@@ -279,6 +293,7 @@ export interface PropertyPaneProps {
   widgetId?: string;
   widgetProperties?: WidgetProps;
   isVisible: boolean;
+  themeMode: ThemeMode;
 }
 
 export interface PropertyPaneFunctions {
