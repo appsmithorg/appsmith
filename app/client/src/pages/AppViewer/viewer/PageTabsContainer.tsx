@@ -20,8 +20,6 @@ const Container = styled.div`
       stroke: ${(props) => props.theme.colors.header.tabText};
     }
   }
-  border-top: 1px solid
-    ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
   border-bottom: 1px solid
     ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
 `;
