@@ -1,6 +1,7 @@
 package com.appsmith.server.exceptions;
 
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.server.dtos.ResponseDTO;
 import io.sentry.Sentry;
 import io.sentry.SentryLevel;
@@ -53,8 +54,14 @@ public class GlobalExceptionHandler {
                 }
         );
 
-        if (error instanceof AppsmithException) {
-            if (((AppsmithException) error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
+        if (error instanceof AppsmithException || error instanceof AppsmithPluginException) {
+            if (error instanceof AppsmithException
+                && ((AppsmithException)error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
+                Sentry.captureException(error);
+            }
+
+            if (error instanceof AppsmithPluginException
+                && ((AppsmithPluginException)error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
                 Sentry.captureException(error);
             }
         } else {

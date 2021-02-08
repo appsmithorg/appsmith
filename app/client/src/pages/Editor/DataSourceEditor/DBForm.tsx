@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "constants/forms";
-import { Spinner } from "@blueprintjs/core";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import FormControl from "../FormControl";
 import Collapsible from "./Collapsible";
@@ -10,7 +9,7 @@ import history from "utils/history";
 import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
 import { ControlProps } from "components/formControls/BaseControl";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
 
@@ -45,7 +44,6 @@ interface DatasourceDBEditorProps {
   pageId: string;
   formData: Datasource;
   isTesting: boolean;
-  loadingFormConfigs: boolean;
   formConfig: any[];
   isNewDatasource: boolean;
   pluginImage: string;
@@ -64,7 +62,7 @@ const DBForm = styled.div`
   padding: 20px;
   margin-left: 10px;
   margin-right: 0px;
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
   overflow: auto;
   .backBtn {
     padding-bottom: 1px;
@@ -115,10 +113,6 @@ const StyledButton = styled(Button)`
     width: 87px;
     height: 32px;
   }
-`;
-
-const LoadingContainer = styled(CenteredWrapper)`
-  height: 50%;
 `;
 
 const StyledOpenDocsIcon = styled(Icon)`
@@ -214,16 +208,8 @@ class DatasourceDBEditor extends React.Component<
   };
 
   render() {
-    const { loadingFormConfigs, formConfig } = this.props;
+    const { formConfig } = this.props;
     const content = this.renderDataSourceConfigForm(formConfig);
-    if (loadingFormConfigs) {
-      return (
-        <LoadingContainer>
-          <Spinner size={30} />
-        </LoadingContainer>
-      );
-    }
-
     return <DBForm>{content}</DBForm>;
   }
 

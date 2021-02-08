@@ -69,20 +69,21 @@ export const renderDatasourceSection = (
               return (
                 <FieldWrapper key={reactKey}>
                   <Key>{label}</Key>
-                  {value.map((val: { key: string; value: string }) => {
-                    return (
-                      <div key={val.key}>
-                        <div style={{ display: "inline-block" }}>
-                          <Key>Key: </Key>
-                          <Value>{val.key}</Value>
+                  {value &&
+                    value.map((val: { key: string; value: string }) => {
+                      return (
+                        <div key={val.key}>
+                          <div style={{ display: "inline-block" }}>
+                            <Key>Key: </Key>
+                            <Value>{val.key}</Value>
+                          </div>
+                          <ValueWrapper>
+                            <Key>Value: </Key>
+                            <Value>{val.value}</Value>
+                          </ValueWrapper>
                         </div>
-                        <ValueWrapper>
-                          <Key>Value: </Key>
-                          <Value>{val.value}</Value>
-                        </ValueWrapper>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                 </FieldWrapper>
               );
             }

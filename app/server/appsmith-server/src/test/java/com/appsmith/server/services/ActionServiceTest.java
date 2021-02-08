@@ -7,9 +7,9 @@ import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -637,7 +637,7 @@ public class ActionServiceTest {
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
-                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_TIMEOUT_ERROR.getAppErrorCode().toString());
+                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getAppErrorCode().toString());
                 })
                 .verifyComplete();
     }
