@@ -25,7 +25,7 @@ import {
 import { fetchPublishedPage } from "actions/pageActions";
 
 const Section = styled.section`
-  background: ${(props) => props.theme.colors.bodyBG};
+  background: ${(props) => props.theme.colors.artboard};
   height: 100%;
   width: 100%;
   position: relative;

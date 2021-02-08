@@ -82,6 +82,8 @@ const HeaderRow = styled.div<{ justify: string }>`
   flex-direction: row;
   justify-content: ${(props) => props.justify};
   height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
+  border-bottom: 1px solid
+    ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
 `;
 
 const HeaderSection = styled.div<{ justify: string }>`
