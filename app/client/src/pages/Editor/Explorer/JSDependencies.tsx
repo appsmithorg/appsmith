@@ -63,7 +63,7 @@ export const JSDependencies = () => {
   const toggleDependencies = () => setIsOpen(!isOpen);
   const showDocs = (e: any) => {
     window.open(
-      "https://docs.appsmith.com/core-concepts/connecting-ui-and-logic/working-with-js-libraries",
+      "https://docs.appsmith.com/v/v1.2.1/core-concepts/writing-code/ext-libraries",
       "appsmith-docs:working-with-js-libraries",
     );
     e.stopPropagation();

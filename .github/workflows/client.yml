@@ -102,7 +102,7 @@ jobs:
             REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
-            REACT_APP_VERSION_RELEASE_DATE=$(date +%Y-%m-%d) \
+            REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             yarn build
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow

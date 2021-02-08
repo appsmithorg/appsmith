@@ -1,7 +1,7 @@
 package com.external.connections;
 
 import com.appsmith.external.models.OAuth2;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
