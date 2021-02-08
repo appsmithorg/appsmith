@@ -34,12 +34,16 @@ const Wrapper = styled.div`
   position: sticky;
   top: 0;
   z-index: 3;
-  background-color: ${(props) => props.theme.colors.paneBG};
+  background-color: ${(props) => props.theme.colors.propertyPane.bg};
+  margin-top: -1px;
   & span.${Classes.POPOVER_TARGET} {
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  && svg path {
+    fill: ${(props) => props.theme.colors.propertyPane.label};
   }
 `;
 

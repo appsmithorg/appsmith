@@ -16,6 +16,9 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   position: relative;
   margin-left: 15px;
   cursor: pointer;
+  && svg path {
+    fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
+  }
 `;
 
 const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL as AnyStyledComponent)`
@@ -23,9 +26,9 @@ const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL as AnyStyledComponent)`
   position: relative;
   margin-right: 15px;
   cursor: move;
-  svg {
+  && svg {
     path {
-      fill: ${(props) => props.theme.colors.paneSectionLabel};
+      fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
     }
   }
 `;
@@ -54,8 +57,8 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   &&& {
     input {
       border: none;
-      color: ${(props) => props.theme.colors.textOnDarkBG};
-      background: ${(props) => props.theme.colors.paneInputBG};
+      color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
+      background: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
       &:focus {
         border: none;
         color: ${(props) => props.theme.colors.textOnDarkBG};

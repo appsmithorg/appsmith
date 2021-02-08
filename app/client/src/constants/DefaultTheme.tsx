@@ -763,22 +763,6 @@ type ColorType = {
         value: string;
       };
     };
-    moreActions: {
-      targetBg: string;
-      targetIcon: {
-        normal: string;
-        hover: string;
-      };
-      menuShadow: string;
-      menuBg: {
-        normal: ShadeColor;
-        hover: ShadeColor;
-      };
-      menuText: {
-        normal: ShadeColor;
-        hover: ShadeColor;
-      };
-    };
     closeIcon: ShadeColor;
     responseBody: {
       bg: ShadeColor;
@@ -815,6 +799,40 @@ type ColorType = {
   floatingBtn: any;
   auth: any;
   formMessage: Record<string, Record<Intent, string>>;
+  treeDropdown: {
+    targetBg: string;
+    targetIcon: {
+      normal: string;
+      hover: string;
+    };
+    menuShadow: string;
+    menuBg: {
+      normal: ShadeColor;
+      hover: ShadeColor;
+    };
+    darkMenuBg: {
+      normal: ShadeColor;
+      hover: ShadeColor;
+    };
+    menuText: {
+      normal: ShadeColor;
+      hover: ShadeColor;
+    };
+    darkMenuText: {
+      normal: ShadeColor;
+      hover: ShadeColor;
+    };
+  };
+  propertyPane: {
+    bg: ShadeColor;
+    label: ShadeColor;
+    jsIconBg: ShadeColor;
+    buttonBg: ShadeColor;
+    buttonText: ShadeColor;
+    radioGroupBg: ShadeColor;
+    radioGroupText: ShadeColor;
+    deleteIconColor: string;
+  };
 };
 
 const auth: any = {
@@ -1145,22 +1163,6 @@ export const dark: ColorType = {
         value: darkShades[7],
       },
     },
-    moreActions: {
-      targetBg: "#090707",
-      targetIcon: {
-        normal: "#9F9F9F",
-        hover: "#9F9F9F",
-      },
-      menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
-      menuBg: {
-        normal: darkShades[3],
-        hover: darkShades[4],
-      },
-      menuText: {
-        normal: darkShades[7],
-        hover: darkShades[9],
-      },
-    },
     closeIcon: darkShades[9],
     responseBody: {
       bg: "#090707",
@@ -1201,6 +1203,40 @@ export const dark: ColorType = {
   },
   auth,
   formMessage,
+  treeDropdown: {
+    targetBg: "#090707",
+    targetIcon: {
+      normal: "#9F9F9F",
+      hover: "#9F9F9F",
+    },
+    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
+    menuBg: {
+      normal: darkShades[3],
+      hover: darkShades[4],
+    },
+    darkMenuBg: {
+      normal: darkShades[0],
+      hover: darkShades[3],
+    },
+    menuText: {
+      normal: darkShades[7],
+      hover: darkShades[9],
+    },
+    darkMenuText: {
+      normal: darkShades[8],
+      hover: darkShades[9],
+    },
+  },
+  propertyPane: {
+    bg: darkShades[1],
+    label: darkShades[7],
+    jsIconBg: darkShades[5],
+    buttonBg: darkShades[7],
+    buttonText: lightShades[10],
+    radioGroupBg: darkShades[0],
+    radioGroupText: darkShades[7],
+    deleteIconColor: "#A3B3BF",
+  },
 };
 
 export const light: ColorType = {
@@ -1504,22 +1540,6 @@ export const light: ColorType = {
         value: lightShades[8],
       },
     },
-    moreActions: {
-      targetBg: "#E8E8E8",
-      targetIcon: {
-        normal: "#939090",
-        hover: "#4B4848",
-      },
-      menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.32)",
-      menuBg: {
-        normal: lightShades[11],
-        hover: lightShades[2],
-      },
-      menuText: {
-        normal: lightShades[6],
-        hover: lightShades[8],
-      },
-    },
     closeIcon: lightShades[10],
     responseBody: {
       bg: lightShades[11],
@@ -1560,6 +1580,40 @@ export const light: ColorType = {
   },
   auth,
   formMessage,
+  treeDropdown: {
+    targetBg: "#FFFFFF",
+    targetIcon: {
+      normal: "#939090",
+      hover: "#4B4848",
+    },
+    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.32)",
+    menuBg: {
+      normal: lightShades[11],
+      hover: lightShades[2],
+    },
+    darkMenuBg: {
+      normal: lightShades[0],
+      hover: lightShades[3],
+    },
+    menuText: {
+      normal: lightShades[6],
+      hover: lightShades[8],
+    },
+    darkMenuText: {
+      normal: lightShades[8],
+      hover: lightShades[9],
+    },
+  },
+  propertyPane: {
+    bg: lightShades[2],
+    label: lightShades[8],
+    jsIconBg: lightShades[5],
+    buttonBg: lightShades[8],
+    buttonText: lightShades[11],
+    radioGroupBg: lightShades[0],
+    radioGroupText: lightShades[8],
+    deleteIconColor: "#A3B3BF",
+  },
 };
 
 export const theme: Theme = {

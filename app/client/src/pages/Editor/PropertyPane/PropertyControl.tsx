@@ -18,12 +18,14 @@ import {
 import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { Position } from "@blueprintjs/core";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 type Props = {
   widgetProperties: WidgetProps;
   propertyConfig: PropertyControlPropsType;
   toggleDynamicProperty: (propertyName: string, isDynamic: boolean) => void;
   onPropertyChange: (propertyName: string, propertyValue: any) => void;
+  theme: EditorTheme;
 };
 
 const PropertyControl = (props: Props) => {
@@ -105,6 +107,7 @@ const PropertyControl = (props: Props) => {
             <PropertyHelpLabel
               tooltip={propertyConfig.helpText}
               label={label}
+              theme={props.theme}
             />
             {isConvertible && (
               <JSToggleButton
@@ -129,6 +132,7 @@ const PropertyControl = (props: Props) => {
               config,
               {
                 onPropertyChange: onPropertyChange,
+                theme: props.theme,
               },
               isDynamic,
             )}
