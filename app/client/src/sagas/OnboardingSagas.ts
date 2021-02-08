@@ -129,7 +129,7 @@ function* listenForWidgetAdditions() {
         );
       }
 
-      // AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET");
+      AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET_TABLE");
       yield put(setCurrentStep(OnboardingStep.SUCCESSFUL_BINDING));
       yield put({
         type: ReduxActionTypes.ADD_WIDGET_COMPLETE,
@@ -168,6 +168,8 @@ function* listenForAddInputWidget() {
       ) {
         yield cancel();
       }
+
+      AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET_INPUT");
 
       if (inputWidget.widgetName !== "Standup_Input") {
         yield put(
@@ -228,6 +230,7 @@ function* listenForAddInputWidget() {
             RenderModes.CANVAS,
           ),
         );
+        AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
 
         yield put(setCurrentStep(OnboardingStep.DEPLOY));
         yield put({
@@ -756,6 +759,7 @@ function* addOnSubmitHandler() {
           RenderModes.CANVAS,
         ),
       );
+      AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
 
       yield put(setCurrentStep(OnboardingStep.DEPLOY));
       yield put({

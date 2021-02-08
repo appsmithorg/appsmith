@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Spinner from "components/ads/Spinner";
 import { Classes } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { AppState } from "reducers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
@@ -95,6 +96,8 @@ const Welcome = () => {
         <StyledButton
           className="t--start-building"
           onClick={() => {
+            AnalyticsUtil.logEvent("ONBOARDING_START_BUILDING");
+
             dispatch({
               type: ReduxActionTypes.SHOW_ONBOARDING_LOADER,
               payload: false,

@@ -259,7 +259,7 @@ const Helper = () => {
               onClick={() => {
                 dispatch(endOnboarding());
 
-                AnalyticsUtil.logEvent("SKIP_ONBOARDING");
+                AnalyticsUtil.logEvent("ONBOARDING_SKIP_NOW");
               }}
             >
               {helperConfig.skipLabel}

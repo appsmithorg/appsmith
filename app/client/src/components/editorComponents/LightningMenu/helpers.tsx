@@ -21,6 +21,8 @@ import {
 } from "constants/messages";
 import { Skin } from "constants/DefaultTheme";
 import { ReduxAction } from "constants/ReduxActionConstants";
+import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 export const getApiOptions = (
   skin: Skin,
@@ -84,13 +86,15 @@ export const getQueryOptions = (
       options: [
         {
           content: (
-            <Button
-              text={LIGHTNING_MENU_QUERY_CREATE_NEW}
-              icon="plus"
-              iconAlignment="left"
-              skin={skin}
-              type="button"
-            />
+            <OnboardingIndicator step={OnboardingStep.ADD_INPUT_WIDGET}>
+              <Button
+                text={LIGHTNING_MENU_QUERY_CREATE_NEW}
+                icon="plus"
+                iconAlignment="left"
+                skin={skin}
+                type="button"
+              />
+            </OnboardingIndicator>
           ),
           onSelect: () => {
             dispatch(createNewQueryAction(pageId, "LIGHTNING_MENU"));
