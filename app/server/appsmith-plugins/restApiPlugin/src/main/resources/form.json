@@ -76,7 +76,6 @@
           "configProperty": "datasourceConfiguration.authentication.grantType",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
-          "initialValue": "client_credentials",
           "hidden": true
         },
         {
