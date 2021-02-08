@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { noop } from "lodash";
@@ -23,17 +23,17 @@ const ContentView = (props: Props) => {
   const { searchResults, activeItemIndex } = props;
   const activeItem = searchResults[activeItemIndex];
   const { path = "" } = activeItem || {};
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
+
+  // useEffect(() => {
+  //   setIsLoading(true);
+  // }, [activeItemIndex]);
 
   useEffect(() => {
-    setIsLoading(true);
-  }, [activeItemIndex]);
-
-  useEffect(() => {
-    const setIsReady = () => setIsLoading(false);
-    if (iframeRef.current) {
-      iframeRef.current.onload = setIsReady;
-    }
+    // const setIsReady = () => setIsLoading(false);
+    // if (iframeRef.current) {
+    //   iframeRef.current.onload = setIsReady;
+    // }
     return () => {
       if (iframeRef.current) {
         iframeRef.current.onload = noop;

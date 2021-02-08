@@ -102,18 +102,22 @@ class DocsSearch extends React.Component<Props> {
     else return nextIndex;
   };
 
+  // eslint-disable-next-line
   handleUpKey = (_e: KeyboardEvent) =>
     this.setState({
       activeItemIndex: this.getNextActiveItem(this.state.activeItemIndex - 1),
     });
 
+  // eslint-disable-next-line
   handleDownKey = (_e: KeyboardEvent) =>
     this.setState({
       activeItemIndex: this.getNextActiveItem(this.state.activeItemIndex + 1),
     });
 
+  // eslint-disable-next-line
   handleHideModal = (_e: KeyboardEvent) => this.toggleShow();
 
+  // eslint-disable-next-line
   handleOpenDocumentation = (_e: KeyboardEvent) => {
     const { searchResults, activeItemIndex } = this.state;
     const activeItem: any = searchResults[activeItemIndex];

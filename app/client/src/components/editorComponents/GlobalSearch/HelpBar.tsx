@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import Text, { TextType, Case, FontWeight } from "components/ads/Text";
+import Text, { TextType } from "components/ads/Text";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 
 const StyledHelpBar = styled.div`
