@@ -1,7 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.DocumentType;
-import com.appsmith.external.constants.AuthType;
+import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.constants.FieldName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,7 +25,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@DocumentType(AuthType.OAUTH2)
+@DocumentType(Authentication.OAUTH2)
 public class OAuth2 extends AuthenticationDTO {
     public enum Type {
         @JsonProperty("client_credentials")

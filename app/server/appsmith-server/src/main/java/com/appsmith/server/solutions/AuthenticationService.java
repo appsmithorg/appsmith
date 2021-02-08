@@ -24,6 +24,20 @@ import reactor.netty.http.client.HttpClient;
 import java.time.Instant;
 import java.util.Map;
 
+import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
+import static com.appsmith.external.constants.Authentication.AUTHORIZATION_CODE;
+import static com.appsmith.external.constants.Authentication.AUTHORIZATION_URL;
+import static com.appsmith.external.constants.Authentication.CLIENT_ID;
+import static com.appsmith.external.constants.Authentication.CLIENT_SECRET;
+import static com.appsmith.external.constants.Authentication.CODE;
+import static com.appsmith.external.constants.Authentication.EXPIRES_IN;
+import static com.appsmith.external.constants.Authentication.GRANT_TYPE;
+import static com.appsmith.external.constants.Authentication.REDIRECT_URI;
+import static com.appsmith.external.constants.Authentication.REFRESH_TOKEN;
+import static com.appsmith.external.constants.Authentication.SCOPE;
+import static com.appsmith.external.constants.Authentication.STATE;
+import static org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames.RESPONSE_TYPE;
+
 
 @Service
 @RequiredArgsConstructor
@@ -40,14 +54,14 @@ public class AuthenticationService {
                     // Add basic uri components
                     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
                             .fromUriString(oAuth2.getAuthorizationUrl())
-                            .queryParam("client_id", oAuth2.getClientId())
-                            .queryParam("response_type", "code")
-                            .queryParam("redirect_uri", "https://app.appsmith.com/applications")
-                            .queryParam("state", datasourceId);
+                            .queryParam(CLIENT_ID, oAuth2.getClientId())
+                            .queryParam(RESPONSE_TYPE, "code")
+                            .queryParam(REDIRECT_URI, "https://app.appsmith.com/applications")
+                            .queryParam(STATE, datasourceId);
                     // Adding optional scope parameter
                     if (!oAuth2.getScope().isEmpty()) {
                         uriComponentsBuilder
-                                .queryParam("scope", String.join(",", oAuth2.getScope()));
+                                .queryParam(SCOPE, String.join(",", oAuth2.getScope()));
                     }
                     // Adding additional user-defined parameters
                     if (oAuth2.getCustomAuthenticationParameters() != null) {
@@ -66,13 +80,13 @@ public class AuthenticationService {
         }
         OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
         if (oAuth2.getClientId() == null || oAuth2.getClientId().isBlank()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "clientId"));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, CLIENT_ID));
         }
         if (oAuth2.getClientSecret() == null || oAuth2.getClientSecret().isBlank()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "clientSecret"));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, CLIENT_SECRET));
         }
         if (oAuth2.getAuthorizationUrl() == null || oAuth2.getAuthorizationUrl().isBlank()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "authorizationUrl"));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, AUTHORIZATION_URL));
         }
 
         return Mono.just(datasource);
@@ -94,17 +108,17 @@ public class AuthenticationService {
                     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 
                     // Add required fields
-                    map.add("grant_type", "authorization_code");
-                    map.add("code", code);
-                    map.add("redirect_uri", "https://app.appsmith.com/applications");
+                    map.add(GRANT_TYPE, AUTHORIZATION_CODE);
+                    map.add(CODE, code);
+                    map.add(REDIRECT_URI, "https://app.appsmith.com/applications");
                     if (!oAuth2.getScope().isEmpty()) {
-                        map.add("scope", String.join(",", oAuth2.getScope()));
+                        map.add(SCOPE, String.join(",", oAuth2.getScope()));
                     }
 
                     // Add client credentials to header or body, as configured
                     if (Boolean.FALSE.equals(oAuth2.getIsAuthorizationHeader())) {
-                        map.add("client_id", oAuth2.getClientId());
-                        map.add("client_secret", oAuth2.getClientSecret());
+                        map.add(CLIENT_ID, oAuth2.getClientId());
+                        map.add(CLIENT_SECRET, oAuth2.getClientSecret());
                     } else if (Boolean.TRUE.equals(oAuth2.getIsAuthorizationHeader())) {
                         byte[] clientCredentials = (oAuth2.getClientId() + ":" + oAuth2.getClientSecret()).getBytes();
                         webClient.head().header("Authorization", "Basic " + Base64.encode(clientCredentials));
@@ -126,9 +140,9 @@ public class AuthenticationService {
                             })
                             .flatMap(response -> {
                                 oAuth2.setTokenResponse(response);
-                                oAuth2.setToken((String) response.get("access_token"));
-                                oAuth2.setRefreshToken((String) response.get("refresh_token"));
-                                oAuth2.setExpiresAt(Instant.now().plusSeconds(Long.valueOf((Integer) response.get("expires_in"))));
+                                oAuth2.setToken((String) response.get(ACCESS_TOKEN));
+                                oAuth2.setRefreshToken((String) response.get(REFRESH_TOKEN));
+                                oAuth2.setExpiresAt(Instant.now().plusSeconds(Long.valueOf((Integer) response.get(EXPIRES_IN))));
 
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 return datasourceService.update(datasource.getId(), datasource);
