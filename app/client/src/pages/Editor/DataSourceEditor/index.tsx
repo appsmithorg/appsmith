@@ -24,13 +24,6 @@ import { Datasource } from "entities/Datasource";
 import { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { PluginType } from "entities/Action";
-import { Spinner } from "@blueprintjs/core";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import styled from "styled-components";
-
-export const LoadingContainer = styled(CenteredWrapper)`
-  height: 50%;
-`;
 
 interface ReduxStateProps {
   formData: Datasource;
@@ -112,13 +105,6 @@ class DataSourceEditor extends React.Component<Props> {
         />
       );
     }
-    if (loadingFormConfigs) {
-      return (
-        <LoadingContainer>
-          <Spinner size={30} />
-        </LoadingContainer>
-      );
-    }
     const DatasourceForm =
       pluginType === PluginType.API
         ? RestAPIDatasourceForm
@@ -137,6 +123,7 @@ class DataSourceEditor extends React.Component<Props> {
         onTest={this.props.testDatasource}
         selectedPluginPackage={selectedPluginPackage}
         datasourceId={datasourceId}
+        loadingFormConfigs={loadingFormConfigs}
         formData={formData}
         formConfig={formConfig}
         handleDelete={deleteDatasource}
