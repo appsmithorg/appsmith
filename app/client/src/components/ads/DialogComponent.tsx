@@ -9,7 +9,7 @@ const StyledDialog = styled(Dialog)<{
   showHeaderUnderline?: boolean;
 }>`
   && {
-    border-radius: ${(props) => props.theme.radii[0]}px;
+    border-radius: 0;
     padding-bottom: ${(props) => props.theme.spaces[2]}px;
     background: ${(props) => props.theme.colors.modal.bg};
     ${(props) => (props.maxHeight ? `max-height: ${props.maxHeight};` : "")}
