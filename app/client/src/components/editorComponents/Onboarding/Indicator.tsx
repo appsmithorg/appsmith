@@ -97,7 +97,7 @@ const Indicator = (props: any) => {
   );
 
   useEffect(() => {
-    if (indicatorRef) {
+    if (indicatorRef && showingIndicator) {
       const animationData = props.theme === "light" ? pulseLight : pulseDark;
 
       lottie.loadAnimation({

@@ -112,7 +112,6 @@ const CompletionDialog = () => {
   }, []);
 
   const onClose = () => {
-    AnalyticsUtil.logEvent("END_ONBOARDING");
     setIsOpen(false);
     dispatch(endOnboarding());
   };

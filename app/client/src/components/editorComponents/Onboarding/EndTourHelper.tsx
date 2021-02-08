@@ -3,7 +3,9 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getHelperConfig } from "sagas/OnboardingSagas";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getQueryParams } from "utils/AppsmithUtils";
+import { playOnboardingAnimation } from "utils/helpers";
 import { getOnboardingState } from "utils/storage";
 import OnboardingHelper from "./Helper";
 
@@ -19,11 +21,13 @@ const EndTourHelper = () => {
           type: ReduxActionTypes.SET_HELPER_CONFIG,
           payload: getHelperConfig(OnboardingStep.FINISH),
         });
+        AnalyticsUtil.logEvent("END_ONBOARDING");
         dispatch({
           type: "SET_CURRENT_SUBSTEP",
           payload: 5,
         });
         setTimeout(() => {
+          playOnboardingAnimation();
           dispatch({
             type: ReduxActionTypes.SHOW_ONBOARDING_HELPER,
             payload: true,

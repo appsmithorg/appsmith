@@ -70,6 +70,7 @@ import { AppIconCollection } from "components/ads/AppIcon";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -440,7 +441,11 @@ function LeftPane() {
             className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
             icon="shine"
             text={"Welcome Tour"}
-            onSelect={() => initiateOnboarding()}
+            onSelect={() => {
+              AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
+
+              initiateOnboarding();
+            }}
           />
         </WorkpsacesNavigator>
       </LeftPaneSection>

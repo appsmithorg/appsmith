@@ -2,6 +2,7 @@ import { endOnboarding } from "actions/onboardingActions";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const EndTourText = styled.span`
   font-size: 12px;
@@ -14,7 +15,12 @@ const EndTour = () => {
   const dispatch = useDispatch();
 
   return (
-    <EndTourText onClick={() => dispatch(endOnboarding())}>
+    <EndTourText
+      onClick={() => {
+        AnalyticsUtil.logEvent("SKIP_ONBOARDING");
+        dispatch(endOnboarding());
+      }}
+    >
       End Tour
     </EndTourText>
   );

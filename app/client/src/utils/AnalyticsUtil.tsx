@@ -88,14 +88,19 @@ export type EventName =
   | "PROPERTY_PANE_CLOSE_CLICK"
   | "APPLICATIONS_PAGE_LOAD"
   | "EXECUTE_ACTION"
+  | "WELCOME_TOUR_CLICK"
   | "ONBOARDING_WELCOME"
+  | "ONBOARDING_START_BUILDING"
   | "ONBOARDING_EXAMPLE_DATABASE"
   | "ONBOARDING_ADD_QUERY"
   | "ONBOARDING_RUN_QUERY"
   | "ONBOARDING_ADD_WIDGET_CLICK"
-  | "ONBOARDING_ADD_WIDGET"
+  | "ONBOARDING_ADD_WIDGET_TABLE"
+  | "ONBOARDING_ADD_WIDGET_INPUT"
+  | "ONBOARDING_ONSUBMIT_SUCCESS"
   | "ONBOARDING_SUCCESSFUL_BINDING"
   | "ONBOARDING_DEPLOY"
+  | "ONBOARDING_SKIP_NOW"
   | "SKIP_ONBOARDING"
   | "END_ONBOARDING";
 
@@ -214,8 +219,10 @@ class AnalyticsUtil {
       };
     }
 
+    log.debug("Onboarding Event fired", eventName, finalEventData);
+
     if (windowDoc.analytics) {
-      log.debug("Event fired", eventName, finalEventData);
+      // log.debug("Event fired", eventName, finalEventData);
       windowDoc.analytics.track(eventName, finalEventData);
     }
   }

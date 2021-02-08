@@ -1,6 +1,6 @@
 import { ReduxActionTypes } from "./ReduxActionConstants";
 import HandwaveGif from "assets/gifs/handwave.gif";
-import DeployGif from "assets/gifs/deploy_green.gif";
+import DeployGif from "assets/gifs/deploy_orange.gif";
 import InputDragGif from "assets/gifs/input_drag.gif";
 import SuperHeroGif from "assets/gifs/super_hero.gif";
 import { Dispatch } from "redux";
@@ -288,7 +288,10 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       action: {
         label: "Next Mission",
         action: () => {
-          window.open("https://docs.appsmith.com/", "_blank");
+          window.open(
+            "https://docs.appsmith.com/v/v1.2.1/tutorial-1",
+            "_blank",
+          );
         },
       },
     },

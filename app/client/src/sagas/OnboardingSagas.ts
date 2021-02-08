@@ -79,6 +79,7 @@ import {
   updateWidgetProperty,
   updateWidgetPropertyRequest,
 } from "../actions/controlActions";
+import OnSubmitGif from "assets/gifs/onsubmit.gif";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -131,7 +132,7 @@ function* listenForWidgetAdditions() {
         );
       }
 
-      AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET");
+      // AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET");
       yield put(setCurrentStep(OnboardingStep.SUCCESSFUL_BINDING));
       yield put({
         type: ReduxActionTypes.ADD_WIDGET_COMPLETE,
@@ -195,8 +196,7 @@ function* listenForAddInputWidget() {
       const helperConfig = yield select(
         (state) => state.ui.onBoarding.helperStepConfig,
       );
-      const onSubmitGifUrl =
-        "https://res.cloudinary.com/drako999/image/upload/v1611830618/Appsmith/Onboarding/onsubmit.gif";
+      const onSubmitGifUrl = OnSubmitGif;
 
       if (helperConfig?.image.src !== onSubmitGifUrl) {
         yield put({
@@ -292,7 +292,6 @@ function* listenForSuccessfulBinding() {
           yield put(setCurrentStep(OnboardingStep.ADD_INPUT_WIDGET));
 
           yield delay(1000);
-          playOnboardingAnimation();
 
           yield put({
             type: ReduxActionTypes.SET_HELPER_CONFIG,
@@ -389,7 +388,7 @@ function* listenForCreateAction() {
   yield put(showIndicator(OnboardingStep.EXAMPLE_DATABASE));
 
   yield take([ReduxActionTypes.CREATE_ACTION_SUCCESS]);
-  // AnalyticsUtil.logEvent("ONBOARDING_ADD_QUERY");
+  AnalyticsUtil.logEvent("ONBOARDING_ADD_QUERY");
   yield put({
     type: ReduxActionTypes.SET_HELPER_CONFIG,
     payload: {
@@ -446,7 +445,6 @@ function* initiateOnboarding() {
   const currentOnboardingState = yield getOnboardingState();
 
   if (currentOnboardingState) {
-    // AnalyticsUtil.logEvent("ONBOARDING_WELCOME");
     yield put(setOnboardingReduxState(true));
 
     yield put(setCurrentStep(OnboardingStep.WELCOME));

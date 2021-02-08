@@ -7,6 +7,7 @@ import { AppState } from "reducers";
 import styled from "styled-components";
 import useClipboard from "utils/hooks/useClipboard";
 import TickIcon from "assets/images/tick.svg";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledContainer = styled.div`
   position: fixed;
@@ -253,6 +254,8 @@ const Helper = () => {
             <SkipButton
               onClick={() => {
                 dispatch(endOnboarding());
+
+                AnalyticsUtil.logEvent("SKIP_ONBOARDING");
               }}
             >
               {helperConfig.skipLabel}
