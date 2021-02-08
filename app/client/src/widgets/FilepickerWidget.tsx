@@ -134,6 +134,9 @@ class FilePickerWidget extends BaseWidget<
         };
       };
     });
+    this.state.uppy.on("upload", () => {
+      this.onFilesSelected();
+    });
   }
 
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -162,12 +165,27 @@ class FilePickerWidget extends BaseWidget<
     };
   }
 
-  refreshUppy = (props: FilePickerWidgetProps) => {
-    this.state.uppy.setState(props);
-
-    this.state.uppy.on("upload", () => {
-      this.onFilesSelected();
+  refreshUppy = () => {
+    this.state.uppy.setState({
+      id: this.props.widgetId,
+      autoProceed: false,
+      allowMultipleUploads: true,
+      debug: false,
+      restrictions: {
+        maxFileSize: this.props.maxFileSize
+          ? this.props.maxFileSize * 1024 * 1024
+          : null,
+        maxNumberOfFiles: this.props.maxNumFiles,
+        minNumberOfFiles: null,
+        allowedFileTypes:
+          this.props.allowedFileTypes &&
+          (this.props.allowedFileTypes.includes("*") ||
+            _.isEmpty(this.props.allowedFileTypes))
+            ? null
+            : this.props.allowedFileTypes,
+      },
     });
+
     this.setState({ version: this.state.version + 1 });
   };
 
@@ -225,13 +243,13 @@ class FilePickerWidget extends BaseWidget<
       prevProps.maxNumFiles !== this.props.maxNumFiles ||
       prevProps.maxFileSize !== this.props.maxFileSize
     ) {
-      this.refreshUppy(this.props);
+      this.refreshUppy();
     }
   }
 
   componentDidMount() {
     super.componentDidMount();
-    this.refreshUppy(this.props);
+    this.refreshUppy();
   }
 
   componentWillUnmount() {
