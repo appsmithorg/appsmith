@@ -260,14 +260,12 @@ class FilePickerWidget extends BaseWidget<
       prevProps.files.length > 0 &&
       this.props.files === undefined
     ) {
-      console.log("resetting uppy");
       this.state.uppy.reset();
     } else if (
       !shallowequal(prevProps.allowedFileTypes, this.props.allowedFileTypes) ||
       prevProps.maxNumFiles !== this.props.maxNumFiles ||
       prevProps.maxFileSize !== this.props.maxFileSize
     ) {
-      console.log("reinitalize uppy");
       this.reinitializeUppy(this.props);
     }
   }
