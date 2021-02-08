@@ -39,6 +39,7 @@ check_ports_occupied() {
         }' > /dev/null
         echo "+++++++++++ ERROR ++++++++++++++++++++++"
         echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
+        echo "You can run appsmith on another port following this guide https://docs.appsmith.com/v/v1.2.1/troubleshooting-guide/deployment-errors"
         echo "++++++++++++++++++++++++++++++++++++++++"
         echo ""
         exit 1
@@ -530,8 +531,7 @@ echo "Installing Appsmith to '$install_dir'."
 mkdir -p "$install_dir"
 echo ""
 
-echo "Appsmith needs a MongoDB instance to run"
-if confirm y "Initialise a new database? (Recommended)"; then
+if confirm y "Is this a fresh installation?"; then
     mongo_host="mongo"
     mongo_database="appsmith"
 
@@ -546,6 +546,7 @@ else
     read -rp 'Enter your existing appsmith mongo db host: ' mongo_host
     read -rp 'Enter your existing appsmith mongo root user: ' mongo_root_user
     read -srp 'Enter your existing appsmith mongo password: ' mongo_root_password
+    echo ""
     read -rp 'Enter your existing appsmith mongo database name: ' mongo_database
     # It is possible that this isn't the first installation.
     echo ""
@@ -688,7 +689,8 @@ if [[ $status_code -ne 401 ]]; then
     echo "The containers didn't seem to start correctly. Please run the following command to check containers that may have errored out:"
     echo ""
     echo -e "cd \"$install_dir\" && sudo docker-compose ps -a"
-    echo "For troubleshooting help, please reach out to us via our Discord server: https://discord.com/invite/rBTTVJp"
+    echo "Please read our troubleshooting guide https://docs.appsmith.com/v/v1.2.1/troubleshooting-guide/deployment-errors"
+    echo "or reach us on Discord for support https://discord.com/invite/rBTTVJp"
     echo "++++++++++++++++++++++++++++++++++++++++"
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
