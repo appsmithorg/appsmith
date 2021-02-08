@@ -69,7 +69,6 @@ describe("Create new org and share with a user", function() {
 
   it("login as uninvited user and then validate public access of Application", function() {
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
-    //cy.LogintoApp(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
     cy.visit(currentUrl);
     cy.wait("@getPagesForViewApp").should(
       "have.nested.property",
@@ -107,7 +106,6 @@ describe("Create new org and share with a user", function() {
 
   it("login as uninvited user and then validate public access disable feature", function() {
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
-    //cy.LogintoApp(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
     cy.visit(currentUrl);
     cy.wait("@viewApp").should(
       "have.nested.property",
