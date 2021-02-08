@@ -180,7 +180,7 @@ class FilePickerWidget extends BaseWidget<
 
       const fileReaderPromises = files.map((file) => {
         const reader = new FileReader();
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           reader.readAsDataURL(file.data);
           reader.onloadend = () => {
             const base64data = reader.result;
