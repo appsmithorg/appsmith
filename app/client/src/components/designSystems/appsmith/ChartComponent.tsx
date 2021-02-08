@@ -32,7 +32,7 @@ export interface ChartComponentProps {
 
 const CanvasContainer = styled.div<ChartComponentProps>`
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-  border-radius: ${(props) => `${props.theme.radii[0]}px`};
+  border-radius: 0;
   height: 100%;
   width: 100%;
   background: white;

@@ -22,7 +22,7 @@ const rowProps = ({ rowData }: { rowData: { isLoading: boolean } }) => {
 
 const StyledTable = styled(BaseTable)`
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-  border-radius: ${(props) => props.theme.radii[0]}px;
+  border-radius: 0;
   .row-selected {
     background-color: ${(props) =>
       props.theme.widgets.tableWidget.selectHighlightColor};

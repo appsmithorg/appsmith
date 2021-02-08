@@ -19,7 +19,7 @@ const StyledContainerComponent = styled.div<
     props.containerStyle !== "none"
       ? `
   border: ${getBorderCSSShorthand(props.theme.borders[2])};
-  border-radius: ${props.theme.radii[0]}px;`
+  border-radius: 0;`
       : ""}
   height: 100%;
   width: 100%;

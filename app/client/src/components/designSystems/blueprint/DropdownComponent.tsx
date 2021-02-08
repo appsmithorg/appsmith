@@ -25,6 +25,7 @@ import styled, {
   labelStyle,
   BlueprintCSSTransform,
   BlueprintInputTransform,
+  getBorderCSSShorthand,
 } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import Fuse from "fuse.js";
@@ -57,6 +58,7 @@ const StyledSingleDropDown = styled(SingleDropDown)`
     box-shadow: none;
     background: white;
     min-height: 32px;
+    border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
   }
   .${Classes.BUTTON_TEXT} {
     text-overflow: ellipsis;
@@ -94,9 +96,8 @@ const StyledControlGroup = styled(ControlGroup)<{ haslabel: string }>`
 const DropdownStyles = createGlobalStyle`
   .select-popover-wrapper {
     width: 100%;
-    border: 1px solid #e1e1e1;
-    border-radius: ${(props) => props.theme.radii[0]}px;
-    box-shadow: 0px 0px 2px #e1e1e1;
+    border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+    border-radius: 0;
     margin-top: ${(props) => props.theme.spaces[3]}px;
     padding: ${(props) => props.theme.spaces[3]}px;
     background: white;

@@ -40,7 +40,7 @@ const MapWrapper = styled.div`
   width: 100%;
   height: 100%;
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-  border-radius: ${(props) => props.theme.radii[0]}px;
+  border-radius: 0;
 `;
 
 const MapContainerWrapper = styled.div`

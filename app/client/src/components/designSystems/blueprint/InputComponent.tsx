@@ -43,7 +43,7 @@ const InputComponentWrapper = styled((props) => (
       border: 1px solid;
       border-color: ${({ hasError }) =>
         hasError ? IntentColors.danger : Colors.GEYSER_LIGHT};
-      border-radius: ${(props) => props.theme.radii[0]}px;
+      border-radius: 0;
       height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
       width: 100%;
       ${(props) =>

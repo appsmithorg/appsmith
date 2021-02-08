@@ -33,7 +33,7 @@ const TabsContainerWrapper = styled.div<{
   justify-content: center;
   align-items: center;
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-  border-radius: ${(props) => props.theme.radii[0]}px;
+  border-radius: 0;
   box-shadow: none;
   overflow: hidden;
 `;

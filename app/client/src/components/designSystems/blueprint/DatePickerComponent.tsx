@@ -19,7 +19,7 @@ const StyledControlGroup = styled(ControlGroup)`
       color: ${Colors.OXFORD_BLUE};
       font-size: ${(props) => props.theme.fontSizes[3]}px;
       border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-      border-radius: ${(props) => props.theme.radii[0]}px;
+      border-radius: 0;
       width: 100%;
       height: inherit;
       align-items: center;

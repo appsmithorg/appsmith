@@ -100,7 +100,7 @@ export const BlueprintControlTransform = css`
     }
 
     .${Classes.CHECKBOX} .${Classes.CONTROL_INDICATOR} {
-      border-radius: ${(props) => `${props.theme.radii[0]}px`};
+      border-radius: 0;
     }
 
     .${Classes.CONTROL_INDICATOR} {
@@ -126,9 +126,8 @@ export const BlueprintCSSTransform = css`
   &&&& {
     .${Classes.BUTTON} {
       box-shadow: none;
-      border-radius: ${(props) => props.theme.radii[0]};
+      border-radius: 0;
       background: white;
-      border: 1px solid ${Colors.GEYSER};
     }
     .${Classes.INTENT_PRIMARY} {
       background: ${IntentColors.primary};

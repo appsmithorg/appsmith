@@ -22,7 +22,7 @@ const DisabledContainer = styled.div`
   display: flex;
   flex-direction: column;
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-  border-radius: ${(props) => props.theme.radii[0]}px;
+  border-radius: 0;
   h1 {
     margin-top: 15%;
     margin-bottom: 10%;
