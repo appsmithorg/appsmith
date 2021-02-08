@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
@@ -224,11 +225,23 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         return repository.save(datasource);
     }
 
+    private Datasource sanitizeDatasource(Datasource datasource) {
+        if (datasource.getDatasourceConfiguration() != null
+                && !CollectionUtils.isEmpty(datasource.getDatasourceConfiguration().getEndpoints())) {
+            for (final Endpoint endpoint : datasource.getDatasourceConfiguration().getEndpoints()) {
+                endpoint.setHost(endpoint.getHost().trim());
+            }
+        }
+
+        return datasource;
+    }
+
     private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
         return Mono.just(datasource)
+                .map(this::sanitizeDatasource)
                 .flatMap(this::validateDatasource)
                 .zipWith(currentUserMono)
                 .flatMap(tuple -> {

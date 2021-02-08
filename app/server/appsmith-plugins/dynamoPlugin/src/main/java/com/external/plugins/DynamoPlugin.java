@@ -6,8 +6,8 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.NonNull;
@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -78,7 +79,7 @@ public class DynamoPlugin extends BasePlugin {
                 final String action = actionConfiguration.getPath();
                 if (StringUtils.isEmpty(action)) {
                     return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             "Missing action name (like `ListTables`, `GetItem` etc.)."
                     ));
                 }
@@ -92,7 +93,7 @@ public class DynamoPlugin extends BasePlugin {
                 } catch (IOException e) {
                     final String message = "Error parsing the JSON body: " + e.getMessage();
                     log.warn(message, e);
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, message));
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message));
                 }
 
                 final Class<?> requestClass;
@@ -141,7 +142,7 @@ public class DynamoPlugin extends BasePlugin {
                 final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
                 if (authentication == null || StringUtils.isEmpty(authentication.getDatabaseName())) {
                     return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                             "Missing region in datasource."
                     ));
                 }
@@ -203,7 +204,6 @@ public class DynamoPlugin extends BasePlugin {
                     )
                     .subscribeOn(scheduler);
         }
-
     }
 
     private static String toLowerCamelCase(String action) {
@@ -246,7 +246,7 @@ public class DynamoPlugin extends BasePlugin {
                     });
                     if (setterMethod == null) {
                         throw new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 "Invalid attribute/value by name " + entry.getKey()
                         );
                     }
@@ -359,6 +359,16 @@ public class DynamoPlugin extends BasePlugin {
                 }
                 value = plainMap;
 
+            } else if (value instanceof List) {
+                final List<Object> valueAsList = (List) value;
+                final List<Object> plainList = new ArrayList<>();
+                for (Object item : valueAsList) {
+                    if (item instanceof SdkPojo) {
+                        item = sdkToPlain((SdkPojo) item);
+                    }
+                    plainList.add(item);
+                }
+                value = plainList;
             }
 
             plain.put(field.memberName(), value);

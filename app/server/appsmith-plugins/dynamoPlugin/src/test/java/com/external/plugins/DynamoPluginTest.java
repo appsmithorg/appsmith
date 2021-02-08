@@ -130,6 +130,23 @@ public class DynamoPluginTest {
     }
 
     @Test
+    public void testDescribeTable() {
+        final String body = "{\n" +
+                "  \"TableName\": \"cities\"\n" +
+                "}\n";
+
+        StepVerifier.create(execute("DescribeTable", body))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final Map<String, Object> table =  ((Map<String, Map<String, Object>>) result.getBody()).get("Table");
+                    assertEquals("cities", table.get("TableName"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testGetItem() {
         final String body = "{\n" +
                 "  \"TableName\": \"cities\",\n" +
