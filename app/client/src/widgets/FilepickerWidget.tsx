@@ -34,7 +34,106 @@ class FilePickerWidget extends BaseWidget<
     this.state = {
       version: 0,
       isLoading: false,
+      uppy: Uppy({
+        id: props.widgetId,
+        autoProceed: false,
+        allowMultipleUploads: true,
+        debug: false,
+        restrictions: {
+          maxFileSize: props.maxFileSize
+            ? props.maxFileSize * 1024 * 1024
+            : null,
+          maxNumberOfFiles: props.maxNumFiles,
+          minNumberOfFiles: null,
+          allowedFileTypes:
+            props.allowedFileTypes &&
+            (props.allowedFileTypes.includes("*") ||
+              _.isEmpty(props.allowedFileTypes))
+              ? null
+              : props.allowedFileTypes,
+        },
+      }),
     };
+
+    this.state.uppy
+      .use(Dashboard, {
+        target: "body",
+        metaFields: [],
+        inline: false,
+        width: 750,
+        height: 550,
+        thumbnailWidth: 280,
+        showLinkToFileUploadResult: true,
+        showProgressDetails: false,
+        hideUploadButton: false,
+        hideProgressAfterFinish: false,
+        note: null,
+        closeAfterFinish: true,
+        closeModalOnClickOutside: true,
+        disableStatusBar: false,
+        disableInformer: false,
+        disableThumbnailGenerator: false,
+        disablePageScrollWhenModalOpen: true,
+        proudlyDisplayPoweredByUppy: false,
+        onRequestCloseModal: () => {
+          const plugin = this.state.uppy.getPlugin("Dashboard");
+
+          if (plugin) {
+            plugin.closeModal();
+          }
+        },
+        locale: {},
+      })
+      .use(GoogleDrive, { companionUrl: "https://companion.uppy.io" })
+      .use(Url, { companionUrl: "https://companion.uppy.io" })
+      .use(OneDrive, {
+        companionUrl: "https://companion.uppy.io/",
+      })
+      .use(Webcam, {
+        onBeforeSnapshot: () => Promise.resolve(),
+        countdown: false,
+        mirror: true,
+        facingMode: "user",
+        locale: {},
+      });
+
+    this.state.uppy.on("file-removed", (file: any) => {
+      const updatedFiles = this.props.files
+        ? this.props.files.filter((dslFile) => {
+            return file.id !== dslFile.id;
+          })
+        : [];
+      this.props.updateWidgetMetaProperty("files", updatedFiles);
+    });
+    this.state.uppy.on("file-added", (file: any) => {
+      const dslFiles = this.props.files ? [...this.props.files] : [];
+      const reader = new FileReader();
+
+      reader.readAsDataURL(file.data);
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        const binaryReader = new FileReader();
+        binaryReader.readAsBinaryString(file.data);
+        binaryReader.onloadend = () => {
+          const rawData = binaryReader.result;
+          const textReader = new FileReader();
+          textReader.readAsText(file.data);
+          textReader.onloadend = () => {
+            const text = textReader.result;
+            const newFile = {
+              id: file.id,
+              base64: base64data,
+              blob: file.data,
+              raw: rawData,
+              text: text,
+              name: file.meta ? file.meta.name : undefined,
+            };
+            dslFiles.push(newFile);
+            this.props.updateWidgetMetaProperty("files", dslFiles);
+          };
+        };
+      };
+    });
   }
 
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -64,97 +163,9 @@ class FilePickerWidget extends BaseWidget<
   }
 
   refreshUppy = (props: FilePickerWidgetProps) => {
-    this.uppy = Uppy({
-      id: this.props.widgetId,
-      autoProceed: false,
-      allowMultipleUploads: true,
-      debug: false,
-      restrictions: {
-        maxFileSize: props.maxFileSize ? props.maxFileSize * 1024 * 1024 : null,
-        maxNumberOfFiles: props.maxNumFiles,
-        minNumberOfFiles: null,
-        allowedFileTypes:
-          props.allowedFileTypes &&
-          (props.allowedFileTypes.includes("*") ||
-            _.isEmpty(props.allowedFileTypes))
-            ? null
-            : props.allowedFileTypes,
-      },
-    })
-      .use(Dashboard, {
-        target: "body",
-        metaFields: [],
-        inline: false,
-        width: 750,
-        height: 550,
-        thumbnailWidth: 280,
-        showLinkToFileUploadResult: true,
-        showProgressDetails: false,
-        hideUploadButton: false,
-        hideProgressAfterFinish: false,
-        note: null,
-        closeAfterFinish: true,
-        closeModalOnClickOutside: true,
-        disableStatusBar: false,
-        disableInformer: false,
-        disableThumbnailGenerator: false,
-        disablePageScrollWhenModalOpen: true,
-        proudlyDisplayPoweredByUppy: false,
-        onRequestCloseModal: () => {
-          this.uppy.getPlugin("Dashboard").closeModal();
-        },
-        locale: {},
-      })
-      .use(GoogleDrive, { companionUrl: "https://companion.uppy.io" })
-      .use(Url, { companionUrl: "https://companion.uppy.io" })
-      .use(OneDrive, {
-        companionUrl: "https://companion.uppy.io/",
-      })
-      .use(Webcam, {
-        onBeforeSnapshot: () => Promise.resolve(),
-        countdown: false,
-        mirror: true,
-        facingMode: "user",
-        locale: {},
-      });
-    this.uppy.on("file-removed", (file: any) => {
-      const updatedFiles = this.props.files
-        ? this.props.files.filter((dslFile) => {
-            return file.id !== dslFile.id;
-          })
-        : [];
-      this.props.updateWidgetMetaProperty("files", updatedFiles);
-    });
-    this.uppy.on("file-added", (file: any) => {
-      const dslFiles = this.props.files ? [...this.props.files] : [];
-      const reader = new FileReader();
+    this.state.uppy.setState(props);
 
-      reader.readAsDataURL(file.data);
-      reader.onloadend = () => {
-        const base64data = reader.result;
-        const binaryReader = new FileReader();
-        binaryReader.readAsBinaryString(file.data);
-        binaryReader.onloadend = () => {
-          const rawData = binaryReader.result;
-          const textReader = new FileReader();
-          textReader.readAsText(file.data);
-          textReader.onloadend = () => {
-            const text = textReader.result;
-            const newFile = {
-              id: file.id,
-              base64: base64data,
-              blob: file.data,
-              raw: rawData,
-              text: text,
-              name: file.meta ? file.meta.name : undefined,
-            };
-            dslFiles.push(newFile);
-            this.props.updateWidgetMetaProperty("files", dslFiles);
-          };
-        };
-      };
-    });
-    this.uppy.on("upload", () => {
+    this.state.uppy.on("upload", () => {
       this.onFilesSelected();
     });
     this.setState({ version: this.state.version + 1 });
@@ -208,7 +219,7 @@ class FilePickerWidget extends BaseWidget<
       prevProps.files.length > 0 &&
       this.props.files === undefined
     ) {
-      this.uppy.reset();
+      this.state.uppy.reset();
     } else if (
       !shallowequal(prevProps.allowedFileTypes, this.props.allowedFileTypes) ||
       prevProps.maxNumFiles !== this.props.maxNumFiles ||
@@ -224,13 +235,13 @@ class FilePickerWidget extends BaseWidget<
   }
 
   componentWillUnmount() {
-    this.uppy.close();
+    this.state.uppy.close();
   }
 
   getPageView() {
     return (
       <FilePickerComponent
-        uppy={this.uppy}
+        uppy={this.state.uppy}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
         label={this.props.label}
@@ -249,6 +260,7 @@ class FilePickerWidget extends BaseWidget<
 export interface FilePickerWidgetState extends WidgetState {
   version: number;
   isLoading: boolean;
+  uppy: any;
 }
 
 export interface FilePickerWidgetProps extends WidgetProps, WithMeta {
