@@ -438,22 +438,26 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     let isValid = parsedCurrentDate.isValid();
     // checking for max/min date range
     if (isValid) {
-      const parsedMinDate = moment(props.minDate, dateFormat);
-      if (
-        props.minDate &&
-        parsedMinDate.isValid() &&
-        parsedCurrentDate.isBefore(parsedMinDate)
-      ) {
-        isValid = false;
+      if (props.evaluatedValues?.minDate) {
+        const parsedMinDate = moment(props.minDate, dateFormat);
+        if (
+          props.minDate &&
+          parsedMinDate.isValid() &&
+          parsedCurrentDate.isBefore(parsedMinDate)
+        ) {
+          isValid = false;
+        }
       }
       const parsedMaxDate = moment(props.maxDate, dateFormat);
-      if (
-        isValid &&
-        props.maxDate &&
-        parsedMaxDate.isValid() &&
-        parsedCurrentDate.isAfter(parsedMaxDate)
-      ) {
-        isValid = false;
+      if (props.evaluatedValues?.minDate) {
+        if (
+          isValid &&
+          props.maxDate &&
+          parsedMaxDate.isValid() &&
+          parsedCurrentDate.isAfter(parsedMaxDate)
+        ) {
+          isValid = false;
+        }
       }
     }
     if (!isValid) {

@@ -258,6 +258,18 @@ const dynamicPathListMigration = (
   return currentDSL;
 };
 
+const addVersionNumberMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map(addVersionNumberMigration);
+  }
+  if (currentDSL.version === undefined) {
+    currentDSL.version = 1;
+  }
+  return currentDSL;
+};
+
 const canvasNameConflictMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
   props = { counter: 1 },
@@ -358,6 +370,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 8) {
     currentDSL = renamedCanvasNameConflictMigration(currentDSL);
+    currentDSL.version = 9;
+  }
+
+  if (currentDSL.version === 8) {
+    currentDSL = addVersionNumberMigration(currentDSL);
     currentDSL.version = 9;
   }
 
