@@ -94,11 +94,11 @@
           "label": "URL Expiry Duration in Milliseconds",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
           "controlType": "INPUT_TEXT",
-          "initialValue": "0",
+          "initialValue": "",
           "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_EQUALS",
-            "value": "YES"
+            "value": "LIST"
           }
         }
       ]

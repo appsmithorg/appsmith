@@ -317,9 +317,8 @@ public class AmazonS3Plugin extends BasePlugin {
                 );
             }
 
-            final List<Map<String, Object>> rowsList = new ArrayList<>();
             return Mono.fromCallable(() -> {
-
+                Map<String, Object> actionResult = new HashMap<>();
                 switch (s3Action) {
                     case LIST:
                         String prefix = "";
@@ -372,20 +371,22 @@ public class AmazonS3Plugin extends BasePlugin {
                                 listOfFilesAndUrls.add(fileUrlPair);
                             }
 
-                            return Map.of("List of Files", listOfFilesAndUrls);
+                            actionResult = Map.of("List of Files", listOfFilesAndUrls);
                         }
                         return Map.of("List of Files", listOfFiles);
                     case UPLOAD_FILE_FROM_BODY:
                         uploadFileFromBody(connection, bucketName, path, body);
-                        rowsList.add(Map.of("Action Status", "File uploaded successfully"));
+                        //rowsList.add(Map.of("Action Status", "File uploaded successfully"));
+                        actionResult = Map.of("Status", "File uploaded successfully");
                         break;
                     case READ_FILE:
                         final String result = readFile(connection, bucketName, path);
-                        rowsList.add(Map.of("File Content", result));
+                        actionResult = Map.of("File content", result);
                         break;
                     case DELETE_FILE:
                         connection.deleteObject(bucketName, path);
-                        rowsList.add(Map.of("Action Status", "File deleted successfully"));
+                        //rowsList.add(Map.of("Action Status", "File deleted successfully"));
+                        actionResult = Map.of("Status", "File deleted successfully");
                         break;
                     default:
                         throw new AppsmithPluginException(
@@ -394,11 +395,12 @@ public class AmazonS3Plugin extends BasePlugin {
                             ". Please reach out to Appsmith customer support to resolve this."
                         );
                 }
-                return rowsList;
+                return actionResult;
             })
             .flatMap(result -> {
                 ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
-                actionExecutionResult.setBody(objectMapper.valueToTree(result));
+                //actionExecutionResult.setBody(objectMapper.valueToTree(result));
+                actionExecutionResult.setBody(result);
                 actionExecutionResult.setIsExecutionSuccess(true);
                 System.out.println(Thread.currentThread().getName() + ": In the S3 Plugin, got action execution result");
                 return Mono.just(actionExecutionResult);
