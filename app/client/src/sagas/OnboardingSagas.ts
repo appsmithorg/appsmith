@@ -694,6 +694,7 @@ function* addTableWidget() {
     },
   });
 
+  AnalyticsUtil.logEvent("ONBOARDING_ADD_WIDGET_CLICK");
   AnalyticsUtil.logEvent("ONBOARDING_CHEAT", {
     step: 2,
   });
