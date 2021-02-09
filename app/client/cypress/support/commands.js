@@ -1278,7 +1278,7 @@ Cypress.Commands.add("togglebarDisable", (value) => {
 });
 
 Cypress.Commands.add("getAlert", (alertcss) => {
-  cy.get(commonlocators.dropdownSelectButton)
+  cy.get(widgetsPage.inputOnTextChange)
     .first()
     .click({ force: true });
   cy.get(widgetsPage.menubar)
