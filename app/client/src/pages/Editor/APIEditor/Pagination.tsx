@@ -12,6 +12,8 @@ import GifPlayerComponent from "components/ads/GifPlayerComponent";
 import { Classes } from "components/ads/common";
 import lightmodeGif from "assets/icons/gifs/config_pagination_lightmode.gif";
 import darkmodeGif from "assets/icons/gifs/config_pagination_darkmode.gif";
+import lightmodeThumbnail from "assets/icons/gifs/lightmode_thumbnail.png";
+import darkmodeThumbnail from "assets/icons/gifs/darkmode_thumbnail.png";
 
 interface PaginationProps {
   onTestClick: (test?: "PREV" | "NEXT") => void;
@@ -198,6 +200,11 @@ export default function Pagination(props: PaginationProps) {
               gif={
                 props.theme === EditorTheme.LIGHT ? lightmodeGif : darkmodeGif
               }
+              thumbnail={
+                props.theme === EditorTheme.LIGHT
+                  ? lightmodeThumbnail
+                  : darkmodeThumbnail
+              }
             />
             <Text type={TextType.P3}>
               1. How to Configure Table for Pagination
@@ -236,6 +243,11 @@ export default function Pagination(props: PaginationProps) {
             <GifPlayerComponent
               gif={
                 props.theme === EditorTheme.LIGHT ? lightmodeGif : darkmodeGif
+              }
+              thumbnail={
+                props.theme === EditorTheme.LIGHT
+                  ? lightmodeThumbnail
+                  : darkmodeThumbnail
               }
             />
             <Text type={TextType.P3}>

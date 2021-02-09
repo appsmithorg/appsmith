@@ -815,6 +815,12 @@ type ColorType = {
   floatingBtn: any;
   auth: any;
   formMessage: Record<string, Record<Intent, string>>;
+  gif: {
+    overlay: string;
+    text: string;
+    iconPath: string;
+    iconCircle: string;
+  };
 };
 
 const auth: any = {
@@ -1201,6 +1207,12 @@ export const dark: ColorType = {
   },
   auth,
   formMessage,
+  gif: {
+    overlay: "#000000",
+    text: "#d4d4d4",
+    iconPath: "#2b2b2b",
+    iconCircle: "#d4d4d4",
+  },
 };
 
 export const light: ColorType = {
@@ -1560,6 +1572,12 @@ export const light: ColorType = {
   },
   auth,
   formMessage,
+  gif: {
+    overlay: "#ffffff",
+    text: "#6f6f6f",
+    iconPath: "#c4c4c4",
+    iconCircle: "#090707",
+  },
 };
 
 export const theme: Theme = {
