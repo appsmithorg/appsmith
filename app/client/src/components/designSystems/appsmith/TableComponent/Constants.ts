@@ -163,7 +163,7 @@ export const ConditionFunctions: {
   [key: string]: (a: any, b: any) => boolean;
 } = {
   isExactly: (a: any, b: any) => {
-    return a === b;
+    return a.toString() === b.toString();
   },
   empty: (a: any) => {
     return a === "" || a === undefined || a === null;

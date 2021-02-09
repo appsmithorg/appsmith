@@ -108,6 +108,13 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             controlType: "SWITCH",
             isJSConvertible: true,
           },
+          {
+            helpText: "Clears the input value after submit",
+            propertyName: "resetOnSubmit",
+            label: "Reset on submit",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
         ],
       },
       {
@@ -117,6 +124,21 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             helpText: "Triggers an action when the text is changed",
             propertyName: "onTextChanged",
             label: "onTextChanged",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+          {
+            helpText:
+              "Triggers an action on submit (when the enter key is pressed)",
+            propertyName: "onSubmit",
+            label: "onSubmit",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+          {
+            helpText: "Triggers an action when a table page size is changed",
+            propertyName: "onPageSizeChange",
+            label: "onPageSizeChange",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
           },

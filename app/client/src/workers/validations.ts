@@ -11,6 +11,7 @@ import _, {
   isBoolean,
   isNumber,
   isObject,
+  isPlainObject,
   isString,
   isUndefined,
   toNumber,
@@ -238,7 +239,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     const isValidTableData = every(parsed, (datum) => {
       return (
-        isObject(datum) &&
+        isPlainObject(datum) &&
         Object.keys(datum).filter((key) => isString(key) && key.length === 0)
           .length === 0
       );
@@ -719,6 +720,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         }
       } else {
         try {
+          if (value === "") {
+            return {
+              isValid: true,
+              parsed: -1,
+            };
+          }
           const parsed = toNumber(value);
           return {
             isValid: true,

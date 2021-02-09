@@ -86,6 +86,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRow: `{{(()=>{${derivedProperties.getSelectedRow}})()}}`,
       selectedRows: `{{(()=>{${derivedProperties.getSelectedRows}})()}}`,
       pageSize: `{{(()=>{${derivedProperties.getPageSize}})()}}`,
+      triggerRowSelection: "{{!!this.onRowSelected}}",
     };
   }
 
@@ -102,6 +103,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       onRowSelected: true,
       onPageChange: true,
       onSearchTextChanged: true,
+      onPageSizeChange: true,
       regex: [/primaryColumns\[\d+\].onClick/],
     };
   }
@@ -169,6 +171,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (columnOrder) {
       allColumns = reorderColumns(allColumns, columnOrder);
     }
+    const { componentWidth } = this.getComponentDimensions();
+
     for (let index = 0; index < allColumns.length; index++) {
       const columnProperties = allColumns[index];
       const isHidden = !columnProperties.isVisible;
@@ -230,6 +234,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               columnProperties.columnType,
               isHidden,
               cellProperties,
+              componentWidth,
             );
           }
         },
@@ -722,6 +727,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         );
       }
     }
+
+    if (this.props.pageSize !== prevProps.pageSize) {
+      super.executeAction({
+        dynamicString: this.props.onPageSizeChange,
+        event: {
+          type: EventType.ON_PAGE_SIZE_CHANGE,
+        },
+      });
+    }
   }
 
   getSelectedRowIndexes = (selectedRowIndices: string) => {
@@ -731,7 +745,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   getPageView() {
-    const { hiddenColumns } = this.props;
+    const { hiddenColumns, pageSize } = this.props;
     const filteredTableData = this.filterTableData();
     const computedSelectedRowIndices = Array.isArray(
       this.props.selectedRowIndices,
@@ -754,27 +768,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("pageNo", pageNo);
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
-    // const tableSizes =
-    //   TABLE_SIZES[this.props.compactMode || CompactModeTypes.DEFAULT];
-    // let pageSize = Math.floor(
-    //   (componentHeight -
-    //     tableSizes.TABLE_HEADER_HEIGHT -
-    //     tableSizes.COLUMN_HEADER_HEIGHT) /
-    //     tableSizes.ROW_HEIGHT,
-    // );
-
-    // if (
-    //   componentHeight -
-    //     (tableSizes.TABLE_HEADER_HEIGHT +
-    //       tableSizes.COLUMN_HEADER_HEIGHT +
-    //       tableSizes.ROW_HEIGHT * pageSize) >
-    //   0
-    // )
-    //   pageSize += 1;
-
-    // if (pageSize !== this.props.pageSize) {
-    //   this.props.updateWidgetMetaProperty("pageSize", pageSize);
-    // }
 
     return (
       <Suspense fallback={<Skeleton />}>
@@ -790,8 +783,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           editMode={this.props.renderMode === RenderModes.CANVAS}
           hiddenColumns={hiddenColumns}
           columnOrder={this.props.columnOrder}
+          triggerRowSelection={this.props.triggerRowSelection}
           columnSizeMap={this.props.columnSizeMap}
-          pageSize={Math.max(1, this.props.pageSize)}
+          pageSize={Math.max(1, pageSize)}
           onCommandClick={this.onCommandClick}
           selectedRowIndex={
             this.props.selectedRowIndex === undefined
@@ -805,9 +799,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           pageNo={pageNo}
           nextPageClick={this.handleNextPageClick}
           prevPageClick={this.handlePrevPageClick}
-          updateColumnSize={(columnSizeMap: { [key: string]: number }) => {
-            super.updateWidgetProperty("columnSizeMap", columnSizeMap);
-          }}
+          updateColumnSize={this.handleResizeColumn}
           updatePageNo={this.updatePageNumber}
           updateHiddenColumns={(hiddenColumns?: string[]) => {
             super.updateWidgetProperty("hiddenColumns", hiddenColumns);
@@ -824,11 +816,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
           updateCompactMode={(compactMode: CompactMode) => {
-            if (this.props.renderMode === RenderModes.CANVAS) {
-              this.props.updateWidgetMetaProperty("compactMode", compactMode);
-            } else {
-              this.props.updateWidgetMetaProperty("compactMode", compactMode);
-            }
+            this.props.updateWidgetMetaProperty("compactMode", compactMode);
           }}
           sortTableColumn={this.handleColumnSorting}
         />
@@ -851,6 +839,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         column: column,
         asc: asc,
       });
+    }
+  };
+
+  handleResizeColumn = (columnSizeMap: { [key: string]: number }) => {
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      super.updateWidgetProperty("columnSizeMap", columnSizeMap);
+    } else {
+      this.props.updateWidgetMetaProperty("columnSizeMap", columnSizeMap);
     }
   };
 
