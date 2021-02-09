@@ -16,6 +16,7 @@ type TooltipProps = CommonComponentProps & {
   openOnTargetFocus?: boolean;
   autoFocus?: boolean;
   hoverOpenDelay?: number;
+  minimal?: boolean;
 };
 
 const TooltipWrapper = styled.div<{
@@ -66,6 +67,7 @@ const TooltipComponent = (props: TooltipProps) => {
         autoFocus={props.autoFocus}
         hoverOpenDelay={props.hoverOpenDelay}
         openOnTargetFocus={props.openOnTargetFocus}
+        minimal={props.minimal}
       >
         {props.children}
       </Tooltip>

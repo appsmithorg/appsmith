@@ -750,6 +750,7 @@ type ColorType = {
     bg: ShadeColor;
     text: ShadeColor;
     dividerBg: ShadeColor;
+    iconHoverBg: ShadeColor;
     requestTree: {
       bg: string;
       header: {
@@ -1132,6 +1133,7 @@ export const dark: ColorType = {
     bg: darkShades[0],
     text: darkShades[6],
     dividerBg: darkShades[4],
+    iconHoverBg: darkShades[1],
     requestTree: {
       bg: lightShades[10],
       header: {
@@ -1491,6 +1493,7 @@ export const light: ColorType = {
     bg: lightShades[11],
     text: lightShades[6],
     dividerBg: lightShades[3],
+    iconHoverBg: lightShades[1],
     requestTree: {
       bg: lightShades[11],
       header: {

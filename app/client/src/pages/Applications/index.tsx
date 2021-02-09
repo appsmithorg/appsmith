@@ -613,6 +613,7 @@ const ApplicationsSection = (props: any) => {
                     onBlur={(value: string) => {
                       OrgNameChange(value, organization.id);
                     }}
+                    underline
                   />
                   <MenuItem
                     icon="general"
