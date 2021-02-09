@@ -1,19 +1,21 @@
+// eslint-disable
 import React from "react";
 import styled from "styled-components";
 import _ from "lodash";
-import { DATASOURCE_DB_FORM } from "constants/forms";
-import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
+import { createNewApiName } from "utils/AppsmithUtils";
+import { DATASOURCE_REST_API_FORM } from "constants/forms";
+import {
+  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  DATA_SOURCES_EDITOR_URL,
+} from "constants/routes";
 import history from "utils/history";
 import FormTitle from "./FormTitle";
-import Connected from "./Connected";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
-import { reduxForm, InjectedFormProps } from "redux-form";
+import { reduxForm, InjectedFormProps, getFormValues } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import BackButton from "./BackButton";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
-import { OnboardingStep } from "constants/OnboardingConstants";
 import InputTextControl from "components/formControls/InputTextControl";
 import KeyValueInputControl from "components/formControls/KeyValueInputControl";
 import DropDownControl from "components/formControls/DropDownControl";
@@ -21,14 +23,19 @@ import { Spinner } from "@blueprintjs/core";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { Property } from "entities/Action";
+import { Action, ApiActionConfig, Property } from "entities/Action";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import { createActionRequest } from "actions/actionActions";
+import { updateDatasource } from "actions/datasourceActions";
 
-// TODO: move property paths to constants here.
-interface DatasourceDBEditorProps {
-  onSave: (formValues: Datasource) => void;
-  onTest: (formValus: Datasource) => void;
+interface DatasourceRestApiEditorProps {
+  updateDatasource: (formValues: Datasource) => void;
   handleDelete: (id: string) => void;
-  setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
+  createActionRequest: (data: Partial<Action>) => void;
   selectedPluginPackage: string;
   isSaving: boolean;
   isDeleting: boolean;
@@ -36,21 +43,24 @@ interface DatasourceDBEditorProps {
   loadingFormConfigs: boolean;
   applicationId: string;
   pageId: string;
-  formData: Datasource;
   isTesting: boolean;
   formConfig: any[];
   isNewDatasource: boolean;
   pluginImage: string;
   viewMode: boolean;
   pluginType: string;
+  datasource: Datasource;
+  formData: ApiDatasourceForm;
+  actions: ActionDataState;
+  currentPageId?: string;
 }
 
 interface DatasourceDBEditorState {
   viewMode: boolean;
 }
 
-type Props = DatasourceDBEditorProps &
-  InjectedFormProps<Datasource, DatasourceDBEditorProps>;
+type Props = DatasourceRestApiEditorProps &
+  InjectedFormProps<ApiDatasourceForm, DatasourceRestApiEditorProps>;
 
 const DBForm = styled.div`
   padding: 20px;
@@ -110,6 +120,15 @@ const ActionButton = styled(BaseButton)`
   }
 `;
 
+const CreateApiButton = styled(BaseButton)`
+  &&& {
+    max-width: 120px;
+    margin-right: 9px;
+    align-self: center;
+    min-height: 32px;
+  }
+`;
+
 const StyledButton = styled(Button)`
   &&&& {
     width: 87px;
@@ -117,41 +136,14 @@ const StyledButton = styled(Button)`
   }
 `;
 
-class DatasourceDBEditor extends React.Component<
+class DatasourceRestAPIEditor extends React.Component<
   Props,
   DatasourceDBEditorState
 > {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      viewMode: true,
-    };
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.datasourceId !== this.props.datasourceId) {
-      this.props.setDatasourceEditorMode(this.props.datasourceId, true);
-    }
-  }
-
-  validate = () => {
-    const requiredFields = [
-      "datasourceConfiguration.url",
-      "datasourceConfiguration.properties[0].value",
-    ];
-
-    const errors = {} as any;
-    const values = this.props.formData;
-
-    requiredFields.forEach((fieldConfigProperty) => {
-      const value = _.get(values, fieldConfigProperty);
-      if (!value) {
-        _.set(errors, fieldConfigProperty, "This field is required");
-      }
-    });
-
-    return !_.isEmpty(errors) || this.props.invalid;
+  disableSave = () => {
+    const { formData } = this.props;
+    if (!formData) return true;
+    return !formData.url;
   };
 
   render() {
@@ -173,72 +165,16 @@ class DatasourceDBEditor extends React.Component<
     return datasourceId.includes(":");
   };
 
-  normalizeValues = () => {
-    let { formData } = this.props;
-
-    const headersProperty = "datasourceConfiguration.headers";
-    // Fix headers
-    const values = _.get(formData, headersProperty);
-    const newValues: Property[] = cleanupProperties(values);
-    formData = _.set(formData, headersProperty, newValues);
-
-    // Ensure issendSession enabled key exists
-    // This is a weird hack because we do not have anything other than
-    const isSendSessionEnabledKeyProperty =
-      "datasourceConfiguration.properties[0].key";
-    formData = _.set(
-      formData,
-      isSendSessionEnabledKeyProperty,
-      "isSendSessionEnabled",
-    );
-    const isSendSessionEnabledValueProperty =
-      "datasourceConfiguration.properties[0].value";
-
-    let isSendSessionEnabled = _.get(
-      formData,
-      isSendSessionEnabledValueProperty,
-    );
-    if (!["Y", "N"].includes(isSendSessionEnabled)) {
-      isSendSessionEnabled = "N";
-      formData = _.set(
-        formData,
-        isSendSessionEnabledValueProperty,
-        isSendSessionEnabled,
-      );
-    }
-
-    // Fix session signature key
-    const sessionSignatureKeyProperty =
-      "datasourceConfiguration.properties[1].key";
-    formData = _.set(
-      formData,
-      sessionSignatureKeyProperty,
-      "sessionSignatureKey",
-    );
-
-    // Fix authentication
-    const authTypeProperty =
-      "datasourceConfiguration.authentication.authenticationType";
-    const grantTypeProperty =
-      "datasourceConfiguration.authentication.grantType";
-    const authProperty = "datasourceConfiguration.authentication";
-    const authType = _.get(formData, authTypeProperty);
-    // Todo: fix to add more types
-    if (authType === "oAuth2") {
-      formData = _.set(formData, grantTypeProperty, "client_credentials");
-    } else {
-      formData = _.set(formData, authProperty, null);
-    }
-    return formData;
-  };
-
   save = () => {
-    const normalizedValues = this.normalizeValues();
+    const normalizedValues = formValuesToDatasource(
+      this.props.datasource,
+      this.props.formData,
+    ) as Datasource;
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
     });
-    this.props.onSave(normalizedValues);
+    this.props.updateDatasource(normalizedValues);
   };
 
   renderDataSourceConfigForm = () => {
@@ -246,11 +182,9 @@ class DatasourceDBEditor extends React.Component<
       isSaving,
       applicationId,
       pageId,
-      isTesting,
       isDeleting,
       datasourceId,
       handleDelete,
-      viewMode,
     } = this.props;
 
     return (
@@ -270,72 +204,107 @@ class DatasourceDBEditor extends React.Component<
             <PluginImage src={this.props.pluginImage} alt="Datasource" />
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
-          {viewMode && (
-            <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
-              <ActionButton
-                className="t--edit-datasource"
-                text="EDIT"
-                accent="secondary"
-                onClick={() => {
-                  this.props.setDatasourceEditorMode(
-                    this.props.datasourceId,
-                    false,
-                  );
-                }}
-              />
-            </Boxed>
-          )}
-        </Header>
-        {!viewMode ? (
-          <>
-            {this.renderEditor()}
-            <SaveButtonContainer>
-              <ActionButton
-                className="t--delete-datasource"
-                text="Delete"
-                accent="error"
-                loading={isDeleting}
-                onClick={() => handleDelete(datasourceId)}
-              />
 
-              <StyledButton
-                className="t--save-datasource"
-                onClick={this.save}
-                text="Save"
-                disabled={this.validate()}
-                loading={isSaving}
-                intent="primary"
-                filled
-                size="small"
-              />
-            </SaveButtonContainer>
-          </>
-        ) : (
-          <Connected />
-        )}
+          <CreateApiButton
+            className="t--create-query"
+            icon={"plus"}
+            text="New API"
+            filled
+            accent="primary"
+            onClick={() => this.createApiAction()}
+          />
+        </Header>
+        <>
+          {this.renderEditor()}
+          <SaveButtonContainer>
+            <ActionButton
+              className="t--delete-datasource"
+              text="Delete"
+              accent="error"
+              loading={isDeleting}
+              onClick={() => handleDelete(datasourceId)}
+            />
+
+            <StyledButton
+              className="t--save-datasource"
+              onClick={this.save}
+              text="Save"
+              disabled={this.disableSave()}
+              loading={isSaving}
+              intent="primary"
+              filled
+              size="small"
+            />
+          </SaveButtonContainer>
+        </>
       </form>
     );
   };
 
-  renderEditor = () => {
-    const { formData } = this.props;
-    const isSendSessionEnabled =
-      _.get(formData, "datasourceConfiguration.properties[0].value") === "Y";
-
-    const common = {
+  common(): any {
+    return {
       name: "",
-      formName: DATASOURCE_DB_FORM,
+      formName: DATASOURCE_REST_API_FORM,
       id: "",
       isValid: false,
       controlType: "",
     };
+  }
+
+  createApiAction() {
+    const { datasource, actions, currentPageId } = this.props;
+    if (
+      !datasource ||
+      !datasource.datasourceConfiguration ||
+      !datasource.datasourceConfiguration.url
+    ) {
+      Toaster.show({
+        text: "Unable to create API. Try adding a url to the datasource",
+        variant: Variant.danger,
+      });
+    }
+    const newApiName = createNewApiName(actions, currentPageId || "");
+
+    const headers =
+      this.props.datasource?.datasourceConfiguration?.headers ?? [];
+    const defaultApiActionConfig: ApiActionConfig = {
+      ...DEFAULT_API_ACTION_CONFIG,
+      headers: headers.length ? headers : DEFAULT_API_ACTION_CONFIG.headers,
+    };
+
+    this.props.createActionRequest({
+      name: newApiName,
+      pageId: currentPageId,
+      pluginId: datasource.pluginId,
+      datasource: {
+        id: datasource.id,
+      },
+      eventData: {
+        actionType: "API",
+        from: "datasource-pane",
+      },
+      actionConfiguration: defaultApiActionConfig,
+    });
+    history.push(
+      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+        this.props.applicationId,
+        currentPageId,
+        currentPageId,
+      ),
+    );
+  }
+
+  renderEditor = () => {
+    const { formData } = this.props;
+    if (!formData) return;
+    const common = this.common();
     return (
       <>
         <FormInputContainer>
           <InputTextControl
             {...common}
             label="URL"
-            configProperty="datasourceConfiguration.url"
+            configProperty="url"
             isRequired={true}
             placeholderText="https://example.com"
           />
@@ -344,35 +313,35 @@ class DatasourceDBEditor extends React.Component<
           <KeyValueInputControl
             {...common}
             label="Headers"
-            configProperty="datasourceConfiguration.headers"
+            configProperty="headers"
           />
         </FormInputContainer>
         <FormInputContainer>
           <DropDownControl
             {...common}
             label="Send Appsmith signature header (X-APPSMITH-SIGNATURE)"
-            configProperty="datasourceConfiguration.properties[0].value"
+            configProperty="isSendSessionEnabled"
             isRequired={true}
             placeholderText=""
             propertyValue=""
             options={[
               {
                 label: "Yes",
-                value: "Y",
+                value: true,
               },
               {
                 label: "No",
-                value: "N",
+                value: false,
               },
             ]}
           />
         </FormInputContainer>
-        {isSendSessionEnabled && (
+        {formData.isSendSessionEnabled && (
           <FormInputContainer>
             <InputTextControl
               {...common}
               label="Session Details Signature Key"
-              configProperty="datasourceConfiguration.properties[1].value"
+              configProperty="sessionSignatureKey"
               placeholderText=""
             />
           </FormInputContainer>
@@ -381,49 +350,51 @@ class DatasourceDBEditor extends React.Component<
           <DropDownControl
             {...common}
             label="Authentication Type"
-            configProperty="datasourceConfiguration.authentication.authenticationType"
+            configProperty="authType"
             placeholderText=""
             propertyValue=""
             options={[
               {
                 label: "None",
-                value: "dbAuth",
+                value: "NONE",
               },
               {
                 label: "OAuth2 (Client credentials)",
-                value: "oAuth2",
+                value: "oAuth2-client-credentials",
               },
+              // Uncomment for oauth2-auth-code flow
+              // {
+              //   label: "OAuth2 (Auth Code)",
+              //   value: "oAuth2-auth-code",
+              // },
             ]}
           />
         </FormInputContainer>
-        {this.renderAuthFields(common)}
+        {this.renderAuthFields()}
       </>
     );
   };
 
-  renderAuthFields = (common: any) => {
-    const { formData } = this.props;
-    const isAuthTypeOauth2 =
-      _.get(
-        formData,
-        "datasourceConfiguration.authentication.authenticationType",
-      ) === "oAuth2";
-    if (!isAuthTypeOauth2) return null;
+  renderAuthFields = () => {
+    const { authType } = this.props.formData;
 
+    if (authType === AuthType.OAuth2ClientCredentials) {
+      return this.renderOauth2ClientCredentials();
+    }
+    if (authType === AuthType.OAuth2AuthCode) {
+      return this.renderOauth2AuthCode();
+    }
+  };
+
+  renderOauth2Common = () => {
+    const common = this.common();
     return (
       <>
         <FormInputContainer>
           <InputTextControl
             {...common}
-            label="Access Token URL"
-            configProperty="datasourceConfiguration.authentication.accessTokenUrl"
-          />
-        </FormInputContainer>
-        <FormInputContainer>
-          <InputTextControl
-            {...common}
             label="Client Id"
-            configProperty="datasourceConfiguration.authentication.clientId"
+            configProperty="authentication.clientId"
           />
         </FormInputContainer>
         <FormInputContainer>
@@ -431,21 +402,36 @@ class DatasourceDBEditor extends React.Component<
             {...common}
             label="Client Secret"
             dataType="PASSWORD"
-            configProperty="datasourceConfiguration.authentication.clientSecret"
+            configProperty="authentication.clientSecret"
           />
         </FormInputContainer>
         <FormInputContainer>
           <InputTextControl
             {...common}
             label="Scope(s)"
-            configProperty="datasourceConfiguration.authentication.scopeString"
+            configProperty="authentication.scopeString"
+          />
+        </FormInputContainer>
+      </>
+    );
+  };
+  renderOauth2ClientCredentials = () => {
+    const common: any = this.common();
+    return (
+      <>
+        {this.renderOauth2Common()}
+        <FormInputContainer>
+          <InputTextControl
+            {...common}
+            label="Access Token URL"
+            configProperty="authentication.accessTokenUrl"
           />
         </FormInputContainer>
         <FormInputContainer>
           <InputTextControl
             {...common}
             label="Header Prefix"
-            configProperty="datasourceConfiguration.authentication.headerPrefix"
+            configProperty="authentication.headerPrefix"
             placeholderText="Bearer (default)"
           />
         </FormInputContainer>
@@ -453,7 +439,7 @@ class DatasourceDBEditor extends React.Component<
           <DropDownControl
             {...common}
             label="Add token to"
-            configProperty="datasourceConfiguration.authentication.isTokenHeader"
+            configProperty="authentication.isTokenHeader"
             options={[
               {
                 label: "Header",
@@ -464,6 +450,28 @@ class DatasourceDBEditor extends React.Component<
                 value: false,
               },
             ]}
+          />
+        </FormInputContainer>
+      </>
+    );
+  };
+  renderOauth2AuthCode = () => {
+    const common: any = this.common();
+    return (
+      <>
+        {this.renderOauth2Common()}
+        <FormInputContainer>
+          <InputTextControl
+            {...common}
+            label="Authorization URL"
+            configProperty="authentication.authorizationUrl"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <KeyValueInputControl
+            {...common}
+            label="Custom Authentication Parameters"
+            configProperty="authentication.customAuthenticationParameters"
           />
         </FormInputContainer>
       </>
@@ -480,6 +488,9 @@ enum AuthType {
 type Authentication = ClientCredentials | AuthCode;
 interface ApiDatasourceForm {
   datasourceId: string;
+  pluginId: string;
+  organizationId: string;
+  isValid: boolean;
   url: string;
   headers?: Property[];
   isSendSessionEnabled: boolean;
@@ -509,7 +520,9 @@ interface AuthCode {
   customAuthenticationParameters: Property[];
 }
 
-const cleanupProperties = (values: Property[]): Property[] => {
+const cleanupProperties = (values: Property[] | undefined): Property[] => {
+  if (!Array.isArray(values)) return [];
+
   const newValues: Property[] = [];
   values.forEach((object: Property) => {
     const isEmpty = Object.values(object).every((x) => x === "");
@@ -525,15 +538,15 @@ const getFormAuthType = (datasource: Datasource): AuthType => {
     datasource,
     "datasourceConfiguration.authentication.authenticationType",
   );
-  const dsgrantType = _.get(
+  const dsGrantType = _.get(
     datasource,
     "datasourceConfiguration.authentication.grantType",
   );
 
   if (dsAuthType) {
-    if (dsgrantType === "client_credentials") {
+    if (dsGrantType === "client_credentials") {
       return AuthType.OAuth2ClientCredentials;
-    } else if (dsgrantType === "auth_code") {
+    } else if (dsGrantType === "auth_code") {
       return AuthType.OAuth2AuthCode;
     }
   }
@@ -571,8 +584,9 @@ const datasourceToFormAuthentication = (
       scopeString: authentication.scopeString || "",
       authorizationUrl: authentication.authorizationUrl || "",
       clientSecret: authentication.clientSecret,
-      customAuthenticationParameters:
+      customAuthenticationParameters: cleanupProperties(
         authentication.customAuthenticationParameters,
+      ),
     };
   }
 };
@@ -614,14 +628,14 @@ const formToDatasourceAuthentication = (
       clientSecret: authentication.clientSecret,
       scopeString: authentication.scopeString,
       authorizationUrl: authentication.authorizationUrl,
-      customAuthenticationParameters:
+      customAuthenticationParameters: cleanupProperties(
         authentication.customAuthenticationParameters,
+      ),
     };
   }
   return null;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const datasourceToFormValues = (datasource: Datasource): ApiDatasourceForm => {
   const authType = getFormAuthType(datasource);
   const authentication = datasourceToFormAuthentication(authType, datasource);
@@ -632,8 +646,11 @@ const datasourceToFormValues = (datasource: Datasource): ApiDatasourceForm => {
     : "";
   return {
     datasourceId: datasource.id,
+    organizationId: datasource.organizationId,
+    pluginId: datasource.pluginId,
+    isValid: datasource.isValid,
     url: datasource.datasourceConfiguration.url,
-    headers: datasource.datasourceConfiguration.headers,
+    headers: cleanupProperties(datasource.datasourceConfiguration.headers),
     isSendSessionEnabled: isSendSessionEnabled,
     sessionSignatureKey: sessionSignatureKey,
     authType: authType,
@@ -641,18 +658,20 @@ const datasourceToFormValues = (datasource: Datasource): ApiDatasourceForm => {
   };
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const formValuesToDatasource = (form: ApiDatasourceForm) => {
+const formValuesToDatasource = (
+  datasource: Datasource,
+  form: ApiDatasourceForm,
+) => {
   const authentication = formToDatasourceAuthentication(
     form.authType,
     form.authentication,
   );
 
   return {
-    id: form.datasourceId,
+    ...datasource,
     datasourceConfiguration: {
       url: form.url,
-      headers: form.headers,
+      headers: cleanupProperties(form.headers),
       properties: [
         {
           key: "isSendSessionEnabled",
@@ -666,14 +685,36 @@ const formValuesToDatasource = (form: ApiDatasourceForm) => {
 };
 
 const mapStateToProps = (state: AppState, props: any) => {
-  const initialValues = state.entities.datasources.list.find(
+  const datasource = state.entities.datasources.list.find(
     (e) => e.id === props.datasourceId,
-  );
-  return { initialValues };
+  ) as Datasource;
+
+  return {
+    initialValues: datasourceToFormValues(datasource),
+    datasource: datasource,
+    actions: state.entities.actions,
+    currentPageId: getCurrentPageId(state),
+    formData: getFormValues(DATASOURCE_REST_API_FORM)(
+      state,
+    ) as ApiDatasourceForm,
+  };
 };
 
-export default connect(mapStateToProps)(
-  reduxForm<Datasource, DatasourceDBEditorProps>({
-    form: DATASOURCE_DB_FORM,
-  })(DatasourceDBEditor),
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    createActionRequest: (data: Partial<Action>) =>
+      dispatch(createActionRequest(data)),
+    updateDatasource: (formData: any) => {
+      dispatch(updateDatasource(formData));
+    },
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(
+  reduxForm<ApiDatasourceForm, DatasourceRestApiEditorProps>({
+    form: DATASOURCE_REST_API_FORM,
+  })(DatasourceRestAPIEditor),
 );

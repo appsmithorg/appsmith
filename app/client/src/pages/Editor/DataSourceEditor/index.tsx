@@ -20,7 +20,6 @@ import { DATASOURCE_DB_FORM } from "constants/forms";
 import DatasourceHome from "./DatasourceHome";
 import DataSourceEditorForm from "./DBForm";
 import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
-//import RestAPIDatasourceForm from "./RestAPIDatasourceFormNew";
 import { Datasource } from "entities/Datasource";
 import { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
