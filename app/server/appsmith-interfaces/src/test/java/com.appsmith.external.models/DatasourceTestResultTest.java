@@ -16,6 +16,6 @@ public class DatasourceTestResultTest {
 
         nullInvalidsResult = new DatasourceTestResult(new String[]{null});
         assertNotNull(nullInvalidsResult);
-        assertTrue(nullInvalidsResult.getInvalids().contains(AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage());
+        assertTrue(nullInvalidsResult.getInvalids().contains(AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()));
     }
 }
