@@ -5,6 +5,23 @@
       "id": 1,
       "children": [
         {
+          "label": "Use Prepared Statement",
+          "configProperty": "actionConfiguration.preparedStatement",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "TRUE",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "TRUE"
+            },
+            {
+              "label": "No",
+              "value": "FALSE"
+            }
+          ]
+        },
+        {
           "label": "",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT"

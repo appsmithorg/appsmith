@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import java.util.List;
 
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
+import static java.lang.Boolean.TRUE;
 
 @Getter
 @Setter
@@ -44,6 +45,7 @@ public class ActionConfiguration {
     String prev;
 
     // DB action fields
+    Boolean preparedStatement = TRUE;
 
     // JS action fields
 
