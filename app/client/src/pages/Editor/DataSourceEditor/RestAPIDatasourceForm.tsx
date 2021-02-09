@@ -179,13 +179,7 @@ class DatasourceDBEditor extends React.Component<
     const headersProperty = "datasourceConfiguration.headers";
     // Fix headers
     const values = _.get(formData, headersProperty);
-    const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
-    values.forEach((object: { [s: string]: unknown } | ArrayLike<unknown>) => {
-      const isEmpty = Object.values(object).every((x) => x === "");
-      if (!isEmpty) {
-        newValues.push(object);
-      }
-    });
+    const newValues: Property[] = cleanupProperties(values);
     formData = _.set(formData, headersProperty, newValues);
 
     // Ensure issendSession enabled key exists
@@ -247,15 +241,6 @@ class DatasourceDBEditor extends React.Component<
     this.props.onSave(normalizedValues);
   };
 
-  test = () => {
-    const normalizedValues = this.normalizeValues();
-    AnalyticsUtil.logEvent("TEST_DATA_SOURCE_CLICK", {
-      pageId: this.props.pageId,
-      appId: this.props.applicationId,
-    });
-    this.props.onTest(normalizedValues);
-  };
-
   renderDataSourceConfigForm = () => {
     const {
       isSaving,
@@ -313,13 +298,6 @@ class DatasourceDBEditor extends React.Component<
                 onClick={() => handleDelete(datasourceId)}
               />
 
-              <ActionButton
-                className="t--test-datasource"
-                text="Test"
-                loading={isTesting}
-                accent="secondary"
-                onClick={this.test}
-              />
               <StyledButton
                 className="t--save-datasource"
                 onClick={this.save}
@@ -531,6 +509,17 @@ interface AuthCode {
   customAuthenticationParameters: Property[];
 }
 
+const cleanupProperties = (values: Property[]): Property[] => {
+  const newValues: Property[] = [];
+  values.forEach((object: Property) => {
+    const isEmpty = Object.values(object).every((x) => x === "");
+    if (!isEmpty) {
+      newValues.push(object);
+    }
+  });
+  return newValues;
+};
+
 const getFormAuthType = (datasource: Datasource): AuthType => {
   const dsAuthType = _.get(
     datasource,
@@ -588,25 +577,6 @@ const datasourceToFormAuthentication = (
   }
 };
 
-const datasourceToFormValues = (datasource: Datasource): ApiDatasourceForm => {
-  const authType = getFormAuthType(datasource);
-  const authentication = datasourceToFormAuthentication(authType, datasource);
-  const isSendSessionEnabled =
-    _.get(datasource, "datasourceConfiguration.properties[0].value") === "Y";
-  const sessionSignatureKey = isSendSessionEnabled
-    ? _.get(datasource, "datasourceConfiguration.properties[1].value")
-    : "";
-  return {
-    datasourceId: datasource.id,
-    url: datasource.datasourceConfiguration.url,
-    headers: datasource.datasourceConfiguration.headers,
-    isSendSessionEnabled: isSendSessionEnabled,
-    sessionSignatureKey: sessionSignatureKey,
-    authType: authType,
-    authentication: authentication,
-  };
-};
-
 const isClientCredentials = (
   authType: AuthType,
   val: any,
@@ -651,6 +621,27 @@ const formToDatasourceAuthentication = (
   return null;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const datasourceToFormValues = (datasource: Datasource): ApiDatasourceForm => {
+  const authType = getFormAuthType(datasource);
+  const authentication = datasourceToFormAuthentication(authType, datasource);
+  const isSendSessionEnabled =
+    _.get(datasource, "datasourceConfiguration.properties[0].value") === "Y";
+  const sessionSignatureKey = isSendSessionEnabled
+    ? _.get(datasource, "datasourceConfiguration.properties[1].value")
+    : "";
+  return {
+    datasourceId: datasource.id,
+    url: datasource.datasourceConfiguration.url,
+    headers: datasource.datasourceConfiguration.headers,
+    isSendSessionEnabled: isSendSessionEnabled,
+    sessionSignatureKey: sessionSignatureKey,
+    authType: authType,
+    authentication: authentication,
+  };
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const formValuesToDatasource = (form: ApiDatasourceForm) => {
   const authentication = formToDatasourceAuthentication(
     form.authType,
@@ -663,7 +654,10 @@ const formValuesToDatasource = (form: ApiDatasourceForm) => {
       url: form.url,
       headers: form.headers,
       properties: [
-        { key: "isSendSessionEnabled", value: form.isSendSessionEnabled },
+        {
+          key: "isSendSessionEnabled",
+          value: form.isSendSessionEnabled ? "Y" : "N",
+        },
         { key: "sessionSignatureKey", value: form.sessionSignatureKey },
       ],
       authentication: authentication,
