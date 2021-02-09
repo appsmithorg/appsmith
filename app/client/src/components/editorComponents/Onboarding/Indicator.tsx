@@ -32,38 +32,24 @@ import { useSelector } from "store";
 const Wrapper = styled.div`
   position: relative;
 
-  @keyframes TransitioningBackground {
-    0% {
-      background-position: 1% 0%;
-    }
-    50% {
-      background-position: 99% 100%;
-    }
-    100% {
-      background-position: 1% 0%;
-    }
-  }
-
   @keyframes ShineTransition {
     0% {
       transform: translateX(-100px) skewX(-15deg);
     }
     100% {
-      transform: translateX(300px) skewX(-15deg);
+      transform: translateX(250px) skewX(-15deg);
     }
   }
 
-  & > * {
+  & button {
     position: relative;
     background-size: 400% 400%;
-    animation: TransitioningBackground 5s ease infinite;
     // to ease the button growth on hover
-    transition: 0.6s;
     overflow: hidden;
   }
 
   // psuedo-element shine animation left side
-  & > *::before {
+  & button::before {
     content: "";
     display: block;
     position: absolute;
@@ -72,11 +58,11 @@ const Wrapper = styled.div`
     height: 100%;
     top: 0;
     filter: blur(30px);
-    animation: ShineTransition 1.5s ease infinite;
+    animation: ShineTransition 1.3s ease infinite;
   }
 
   // psuedo-element shine animation right side
-  & > *::after {
+  & button::after {
     content: "";
     display: block;
     position: absolute;
@@ -85,7 +71,7 @@ const Wrapper = styled.div`
     height: 100%;
     top: 0;
     filter: blur(5px);
-    animation: ShineTransition 1.5s ease infinite;
+    animation: ShineTransition 1.3s ease infinite;
   }
 `;
 

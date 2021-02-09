@@ -17,6 +17,7 @@ import {
 } from "../../../utils/DynamicBindingUtils";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import Indicator from "components/editorComponents/Onboarding/Indicator";
 
 type Props = {
   widgetProperties: WidgetProps;
@@ -121,13 +122,18 @@ const PropertyControl = (props: Props) => {
                 </JSToggleButton>
               )}
             </ControlPropertyLabelContainer>
-            {PropertyControlFactory.createControl(
-              config,
-              {
-                onPropertyChange: onPropertyChange,
-              },
-              isDynamic,
-            )}
+            <Indicator
+              step={OnboardingStep.ADD_INPUT_WIDGET}
+              show={propertyName === "onSubmit"}
+            >
+              {PropertyControlFactory.createControl(
+                config,
+                {
+                  onPropertyChange: onPropertyChange,
+                },
+                isDynamic,
+              )}
+            </Indicator>
           </Boxed>
         </ControlWrapper>
       );
