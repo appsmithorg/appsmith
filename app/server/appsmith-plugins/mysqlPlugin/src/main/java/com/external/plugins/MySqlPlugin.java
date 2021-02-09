@@ -347,13 +347,15 @@ public class MySqlPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             return datasourceCreate(datasourceConfiguration)
-                    .flatMap(connection -> {
-                        return Mono.from(connection.close());
-                    })
+                    .flatMap(connection -> Mono.from(connection.close()))
                     .then(Mono.just(new DatasourceTestResult()))
                     .onErrorResume(error -> {
-                        log.error("Error when testing MySQL datasource.", error);
-                        return Mono.just(new DatasourceTestResult(error.getMessage()));
+                        // We always expect to have an error object, but the error object may not be well formed
+                        final String errorMessage = error.getMessage() == null
+                                ? "Unable to test datasource with the given configuration. Please reach out to Appsmith customer support to report this"
+                                : error.getMessage();
+                        System.out.println("Error when testing MySQL datasource. " + errorMessage);
+                        return Mono.just(new DatasourceTestResult(errorMessage));
                     })
                     .subscribeOn(scheduler);
 
@@ -541,14 +543,14 @@ public class MySqlPlugin extends BasePlugin {
                         return structure;
                     })
                     .onErrorMap(e -> {
-                            if (!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
-                                return new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_ERROR,
-                                        e.getMessage()
-                                );
-                            }
+                        if (!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
+                            return new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    e.getMessage()
+                            );
+                        }
 
-                            return e;
+                        return e;
                     })
                     .subscribeOn(scheduler);
         }
