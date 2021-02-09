@@ -145,7 +145,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             propertyName: "defaultDate",
             label: "Default Date",
             helpText:
-              "Sets the default date of the widget. The date is updated if the default date changes",
+              "Sets the default date of the widget. The date is updated if the default date changes. Use ISO8601 standard date format",
             controlType: "DATE_PICKER",
             placeholderText: "Enter Default Date",
             isJSConvertible: true,
@@ -208,7 +208,8 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             id: "6.1.6",
             propertyName: "minDate",
             label: "Min Date",
-            helpText: "Defines the min date for this widget",
+            helpText:
+              "Defines the min date for this widget. Use ISO8601 standard date format",
             controlType: "DATE_PICKER",
             isJSConvertible: true,
           },
@@ -216,7 +217,8 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             id: "6.1.7",
             propertyName: "maxDate",
             label: "Max Date",
-            helpText: "Defines the max date for this widget",
+            helpText:
+              "Defines the max date for this widget. Use ISO8601 standard date format",
             controlType: "DATE_PICKER",
             isJSConvertible: true,
           },

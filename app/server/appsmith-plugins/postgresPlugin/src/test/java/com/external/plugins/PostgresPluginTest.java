@@ -1,12 +1,12 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -95,7 +95,9 @@ public class PostgresPluginTest {
                         "    time_tz TIME WITH TIME ZONE NOT NULL,\n" +
                         "    created_on TIMESTAMP NOT NULL,\n" +
                         "    created_on_tz TIMESTAMP WITH TIME ZONE NOT NULL,\n" +
-                        "    interval1 INTERVAL HOUR NOT NULL\n" +
+                        "    interval1 INTERVAL HOUR NOT NULL,\n" +
+                        "    numbers INTEGER[3] NOT NULL,\n" +
+                        "    texts VARCHAR[2] NOT NULL\n" +
                         ")");
 
                 statement.execute("CREATE TABLE possessions (\n" +
@@ -118,7 +120,8 @@ public class PostgresPluginTest {
                                 "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, '2018-12-31'," +
                                 " '18:32:45', '04:05:06 PST'," +
                                 " TIMESTAMP '2018-11-30 20:45:15', TIMESTAMP WITH TIME ZONE '2018-11-30 20:45:15 CET'," +
-                                " '1.2 years 3 months 2 hours'" +
+                                " '1.2 years 3 months 2 hours'," +
+                                " '{1, 2, 3}', '{\"a\", \"b\"}'" +
                                 ")");
             }
 
@@ -128,7 +131,8 @@ public class PostgresPluginTest {
                                 "2, 'Jill', 'jack', 'jill@exemplars.com', NULL, '2019-12-31'," +
                                 " '15:45:30', '04:05:06 PST'," +
                                 " TIMESTAMP '2019-11-30 23:59:59', TIMESTAMP WITH TIME ZONE '2019-11-30 23:59:59 CET'," +
-                                " '2 years'" +
+                                " '2 years'," +
+                                " '{1, 2, 3}', '{\"a\", \"b\"}'" +
                                 ")");
             }
 
@@ -264,6 +268,8 @@ public class PostgresPluginTest {
                                     "created_on",
                                     "created_on_tz",
                                     "interval1",
+                                    "numbers",
+                                    "texts",
                             },
                             new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
@@ -352,6 +358,8 @@ public class PostgresPluginTest {
                                     new DatasourceStructure.Column("created_on", "timestamp", null),
                                     new DatasourceStructure.Column("created_on_tz", "timestamptz", null),
                                     new DatasourceStructure.Column("interval1", "interval", null),
+                                    new DatasourceStructure.Column("numbers", "_int4", null),
+                                    new DatasourceStructure.Column("texts", "_varchar", null),
                             },
                             usersTable.getColumns().toArray()
                     );
@@ -366,8 +374,8 @@ public class PostgresPluginTest {
                     assertArrayEquals(
                             new DatasourceStructure.Template[]{
                                     new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"users\" LIMIT 10;"),
-                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"users\" (\"username\", \"password\", \"email\", \"spouse_dob\", \"dob\", \"time1\", \"time_tz\", \"created_on\", \"created_on_tz\", \"interval1\")\n" +
-                                            "  VALUES ('', '', '', '2019-07-01', '2019-07-01', '18:32:45', '04:05:06 PST', TIMESTAMP '2019-07-01 10:00:00', TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET', 1);"),
+                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"users\" (\"username\", \"password\", \"email\", \"spouse_dob\", \"dob\", \"time1\", \"time_tz\", \"created_on\", \"created_on_tz\", \"interval1\", \"numbers\", \"texts\")\n" +
+                                            "  VALUES ('', '', '', '2019-07-01', '2019-07-01', '18:32:45', '04:05:06 PST', TIMESTAMP '2019-07-01 10:00:00', TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET', 1, '{1, 2, 3}', '{\"first\", \"second\"}');"),
                                     new DatasourceStructure.Template("UPDATE", "UPDATE public.\"users\" SET\n" +
                                             "    \"username\" = ''\n" +
                                             "    \"password\" = ''\n" +
@@ -379,6 +387,8 @@ public class PostgresPluginTest {
                                             "    \"created_on\" = TIMESTAMP '2019-07-01 10:00:00'\n" +
                                             "    \"created_on_tz\" = TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET'\n" +
                                             "    \"interval1\" = 1\n" +
+                                            "    \"numbers\" = '{1, 2, 3}'\n" +
+                                            "    \"texts\" = '{\"first\", \"second\"}'\n" +
                                             "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
                                     new DatasourceStructure.Template("DELETE", "DELETE FROM public.\"users\"\n" +
                                             "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),

@@ -301,7 +301,7 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
   background-color: ${(props) => btnColorStyles(props, "main").bgColor};
   color: ${(props) => btnColorStyles(props, "main").txtColor};
   border: ${(props) => btnColorStyles(props, "main").border};
-  border-radius: ${(props) => props.theme.radii[0]};
+  border-radius: 0;
   ${(props) => btnFontStyles(props).buttonFont};
   padding: ${(props) => btnFontStyles(props).padding};
   .${Classes.ICON} {

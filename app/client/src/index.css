@@ -63,3 +63,44 @@ div.bp3-popover-arrow {
   z-index: 10;
 }
 
+.bp3-popover.bp3-dateinput-popover  {
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2) !important;
+  border-radius: 0;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.bp3-popover .bp3-input {
+  outline: 0;
+  box-shadow: none;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0 !important;
+}
+
+.bp3-popover .bp3-input:focus {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
+}
+
+.bp3-popover.bp3-minimal {
+  margin-top: 8px !important;
+}
+
+.bp3-datepicker {
+  border-radius: 0 !important;
+}
+
+/* rich text editor styles */
+.tox-tinymce {
+  border-color: #E7E7E7 !important;
+}
+
+.tox:not([dir=rtl]) .tox-toolbar__group:not(:last-of-type), .tox .tox-statusbar  {
+  border-color: #E7E7E7 !important;
+}
+
+.tox .tox-toolbar__primary {
+  background: white !important;
+  border-bottom: 1px solid #E7E7E7 !important;
+}
+
