@@ -5,6 +5,7 @@ import InputDragGif from "assets/gifs/input_drag.gif";
 import SuperHeroGif from "assets/gifs/super_hero.gif";
 import { Dispatch } from "redux";
 import { setOnboardingWelcomeState } from "utils/storage";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export enum OnboardingStep {
   NONE = -1,
@@ -189,6 +190,9 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       },
       action: {
         label: "Show me how",
+        action: () => {
+          AnalyticsUtil.logEvent("ONBOARDING_BINDING_HINT");
+        },
       },
       cheatAction: {
         label: "Do it for me",
@@ -292,6 +296,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
             "https://docs.appsmith.com/v/v1.2.1/tutorial-1",
             "_blank",
           );
+          AnalyticsUtil.logEvent("ONBOARDING_NEXT_MISSION");
         },
       },
     },

@@ -21,7 +21,7 @@ const EndTourHelper = () => {
           type: ReduxActionTypes.SET_HELPER_CONFIG,
           payload: getHelperConfig(OnboardingStep.FINISH),
         });
-        AnalyticsUtil.logEvent("END_ONBOARDING");
+        AnalyticsUtil.logEvent("ONBOARDING_COMPLETE");
         dispatch({
           type: "SET_CURRENT_SUBSTEP",
           payload: 5,

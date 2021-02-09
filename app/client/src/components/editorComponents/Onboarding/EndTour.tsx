@@ -17,7 +17,7 @@ const EndTour = () => {
   return (
     <EndTourText
       onClick={() => {
-        AnalyticsUtil.logEvent("SKIP_ONBOARDING");
+        AnalyticsUtil.logEvent("END_ONBOARDING");
         dispatch(endOnboarding());
       }}
     >

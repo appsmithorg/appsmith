@@ -307,7 +307,7 @@ function* listenForSuccessfulBinding() {
 }
 
 function* createOnboardingDatasource() {
-  AnalyticsUtil.logEvent("ONBOARDING_EXAMPLE_DATABASE");
+  AnalyticsUtil.logEvent("ONBOARDING_INTRODUCTION");
 
   try {
     yield take([ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS]);
@@ -492,6 +492,8 @@ function* skipOnboardingSaga() {
 function* returnHomeSaga() {
   history.push(APPLICATIONS_URL);
   yield put(endOnboarding());
+
+  AnalyticsUtil.logEvent("ONBOARDING_GO_HOME");
 }
 
 // Cheat actions
@@ -574,6 +576,10 @@ function* createQuery() {
     yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
     yield put({
       type: "ONBOARDING_RUN_QUERY",
+    });
+
+    AnalyticsUtil.logEvent("ONBOARDING_CHEAT", {
+      step: 1,
     });
   }
 }
@@ -687,6 +693,10 @@ function* addTableWidget() {
       tableData: [],
     },
   });
+
+  AnalyticsUtil.logEvent("ONBOARDING_CHEAT", {
+    step: 2,
+  });
 }
 
 function* addInputWidget() {
@@ -768,6 +778,10 @@ function* addOnSubmitHandler() {
         type: ReduxActionTypes.SET_HELPER_CONFIG,
         payload: getHelperConfig(OnboardingStep.DEPLOY),
       });
+
+      AnalyticsUtil.logEvent("ONBOARDING_CHEAT", {
+        step: 4,
+      });
     }
   }
 }
@@ -784,6 +798,10 @@ function* addBinding() {
         RenderModes.CANVAS,
       ),
     );
+
+    AnalyticsUtil.logEvent("ONBOARDING_CHEAT", {
+      step: 3,
+    });
   }
 }
 
@@ -794,6 +812,10 @@ function* deploy() {
     payload: {
       applicationId,
     },
+  });
+
+  AnalyticsUtil.logEvent("ONBOARDING_CHEAT", {
+    step: 5,
   });
 }
 

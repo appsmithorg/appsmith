@@ -91,18 +91,22 @@ export type EventName =
   | "WELCOME_TOUR_CLICK"
   | "ONBOARDING_WELCOME"
   | "ONBOARDING_START_BUILDING"
-  | "ONBOARDING_EXAMPLE_DATABASE"
+  | "ONBOARDING_INTRODUCTION"
   | "ONBOARDING_ADD_QUERY"
   | "ONBOARDING_RUN_QUERY"
   | "ONBOARDING_ADD_WIDGET_CLICK"
   | "ONBOARDING_ADD_WIDGET_TABLE"
   | "ONBOARDING_ADD_WIDGET_INPUT"
   | "ONBOARDING_ONSUBMIT_SUCCESS"
+  | "ONBOARDING_BINDING_HINT"
+  | "ONBOARDING_CHEAT"
   | "ONBOARDING_SUCCESSFUL_BINDING"
   | "ONBOARDING_DEPLOY"
   | "ONBOARDING_SKIP_NOW"
-  | "SKIP_ONBOARDING"
-  | "END_ONBOARDING";
+  | "ONBOARDING_NEXT_MISSION"
+  | "ONBOARDING_GO_HOME"
+  | "END_ONBOARDING"
+  | "ONBOARDING_COMPLETE";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -219,7 +223,7 @@ class AnalyticsUtil {
       };
     }
 
-    log.debug("Onboarding Event fired", eventName, finalEventData);
+    log.debug("Event fired", eventName, finalEventData);
 
     if (windowDoc.analytics) {
       // log.debug("Event fired", eventName, finalEventData);
