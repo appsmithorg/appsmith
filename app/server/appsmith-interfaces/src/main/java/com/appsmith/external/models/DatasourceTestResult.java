@@ -1,5 +1,6 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -23,13 +24,12 @@ public class DatasourceTestResult {
      * @param invalids String messages that explain why the test failed.
      */
     public DatasourceTestResult(String... invalids) {
-        final String nullErrorMessage = "Unable to test datasource with the given configuration. Please reach out to Appsmith customer support to report this";
         if (invalids == null) {
-            invalids = new String[]{nullErrorMessage};
+            invalids = new String[]{AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()};
         } else {
             invalids = Arrays
                     .stream(invalids)
-                    .map(x -> x == null ? nullErrorMessage : x)
+                    .map(x -> x == null ? AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage() : x)
                     .toArray(String[]::new);
         }
 
