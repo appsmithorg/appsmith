@@ -278,10 +278,6 @@ export class DataTreeEvaluator {
 
     const entity = unEvalTree[entityName];
     if (!isAction(entity) && !isWidget(entity)) return false;
-    if (isAction(entity)) {
-      // TODO
-      return true;
-    }
     const relativePropertyPath = convertPathToString(propPathEls);
     return relativePropertyPath in entity.bindingPaths;
   }
