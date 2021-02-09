@@ -225,10 +225,14 @@ class DatasourceDBEditor extends React.Component<
     // Fix authentication
     const authTypeProperty =
       "datasourceConfiguration.authentication.authenticationType";
+    const grantTypeProperty =
+      "datasourceConfiguration.authentication.grantType";
     const authProperty = "datasourceConfiguration.authentication";
     const authType = _.get(formData, authTypeProperty);
     // Todo: fix to add more types
-    if (authType !== "oAuth2") {
+    if (authType === "oAuth2") {
+      formData = _.set(formData, grantTypeProperty, "client_credentials");
+    } else {
       formData = _.set(formData, authProperty, null);
     }
     return formData;
