@@ -38,6 +38,7 @@ export const renderCell = (
   columnType: string,
   isHidden: boolean,
   cellProperties: CellLayoutProperties,
+  tableWidth: number,
 ) => {
   switch (columnType) {
     case ColumnTypes.IMAGE:
@@ -116,6 +117,7 @@ export const renderCell = (
           title={value.toString()}
           isHidden={isHidden}
           cellProperties={cellProperties}
+          tableWidth={tableWidth}
         >
           {value.toString()}
         </AutoToolTipComponent>

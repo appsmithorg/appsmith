@@ -67,12 +67,6 @@ export default {
     ) {
       pageSize += 1;
     }
-    console.log(
-      props.bottomRow,
-      props.topRow,
-      props.parentRowSpace,
-      props.compactMode,
-    );
     return pageSize;
   },
   //

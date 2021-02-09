@@ -637,6 +637,13 @@ export default [
         isTriggerProperty: true,
       },
       {
+        helpText: "Triggers an action when a table page size is changed",
+        propertyName: "onPageSizeChange",
+        label: "onPageSizeChange",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+      },
+      {
         propertyName: "onSearchTextChanged",
         label: "onSearchTextChanged",
         controlType: "ACTION_SELECTOR",
