@@ -108,8 +108,7 @@ export const PAGE_NOT_FOUND_ERROR = () =>
   `The page you’re looking for either does not exist, or cannot be found`;
 export const INVALID_URL_ERROR = () => `Invalid URL`;
 
-export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
-  `Invalid Email address(es) found`;
+export const INVITE_USERS_VALIDATION_EMAIL_LIST = `Invalid Email address(es) found`;
 export const INVITE_USERS_VALIDATION_ROLE_EMPTY = () => `Please select a role`;
 
 export const INVITE_USERS_EMAIL_LIST_PLACEHOLDER = () =>
@@ -151,7 +150,7 @@ export const CURL_IMPORT_SUCCESS = () => `Curl command imported successfully`;
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = () => `Back to Sign In`;
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = (actionName: string) =>
   `${actionName} API added to page`;
-export const INPUT_WIDGET_DEFAULT_VALIDATION_ERROR = () => `Invalid input`;
+export const INPUT_WIDGET_DEFAULT_VALIDATION_ERROR = `Invalid input`;
 
 export const AUTOFIT_ALL_COLUMNS = () => `Autofit all columns`;
 export const AUTOFIT_THIS_COLUMN = () => `Autofit this column`;
@@ -164,12 +163,12 @@ export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign In`;
 
-export const LIGHTNING_MENU_DATA_API = () => `Use data from an API`;
-export const LIGHTNING_MENU_DATA_QUERY = () => `Use data from a Query`;
-export const LIGHTNING_MENU_DATA_TOOLTIP = () => `Quick start data binding`;
-export const LIGHTNING_MENU_DATA_WIDGET = () => `Use data from a Widget`;
-export const LIGHTNING_MENU_QUERY_CREATE_NEW = () => `Create new Query`;
-export const LIGHTNING_MENU_API_CREATE_NEW = () => `Create new API`;
+export const LIGHTNING_MENU_DATA_API = `Use data from an API`;
+export const LIGHTNING_MENU_DATA_QUERY = `Use data from a Query`;
+export const LIGHTNING_MENU_DATA_TOOLTIP = `Quick start data binding`;
+export const LIGHTNING_MENU_DATA_WIDGET = `Use data from a Widget`;
+export const LIGHTNING_MENU_QUERY_CREATE_NEW = `Create new Query`;
+export const LIGHTNING_MENU_API_CREATE_NEW = `Create new API`;
 
 export const LIGHTNING_MENU_OPTION_TEXT = () => `Plain Text`;
 export const LIGHTNING_MENU_OPTION_JS = () => `Write JS`;
@@ -184,10 +183,8 @@ export const TABLE_FILTER_COLUMN_TYPE_CALLOUT = () =>
 export const WIDGET_SIDEBAR_TITLE = () => `Widgets`;
 export const WIDGET_SIDEBAR_CAPTION = () =>
   `To add a widget, please drag and drop a widget on the canvas to the right`;
-export const GOOGLE_RECAPTCHA_KEY_ERROR = () =>
-  `Google Re-Captcha Token Generation failed! Please check the Re-captcha Site Key.`;
-export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = () =>
-  `Google Re-Captcha Token Generation failed! Please check the allowed domains.`;
+export const GOOGLE_RECAPTCHA_KEY_ERROR = `Google Re-Captcha Token Generation failed! Please check the Re-captcha Site Key.`;
+export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = `Google Re-Captcha Token Generation failed! Please check the allowed domains.`;
 
 export const SERVER_API_TIMEOUT_ERROR = () =>
   `Appsmith server is taking too long to respond. Please try again after some time`;
@@ -243,7 +240,7 @@ export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
 export const ERROR_ADD_WIDGET_FROM_QUERY = () => `Failed to add widget`;
 
 export function createMessage(
-  format: (...strArgs: any[]) => string,
+  format: (...strArgs: any[]) => any,
   ...args: any[]
 ) {
   const message = format(...args);

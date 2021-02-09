@@ -31,7 +31,9 @@ const Wrapper = styled.div`
   margin-bottom: 8px;
 `;
 
-class ColumnActionSelectorControl extends BaseControl<ColumnActionSelectorControlProps> {
+class ColumnActionSelectorControl extends BaseControl<
+  ColumnActionSelectorControlProps
+> {
   render() {
     return (
       <React.Fragment>
