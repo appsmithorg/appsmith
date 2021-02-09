@@ -582,6 +582,20 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
           },
         ],
       },
+      {
+        id: "13.2",
+        sectionName: "Actions",
+        children: [
+          {
+            id: "13.2.1",
+            helpText: "Triggers an action when the chart data point is clicked",
+            propertyName: "onDataPointClick",
+            label: "onDataPointClick",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+        ],
+      },
     ],
     MODAL_WIDGET: [
       {

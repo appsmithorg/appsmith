@@ -28,6 +28,7 @@ export interface ChartComponentProps {
   widgetId: string;
   isVisible?: boolean;
   allowHorizontalScroll: boolean;
+  onDataPointClick: () => void;
 }
 
 const CanvasContainer = styled.div<ChartComponentProps>`
@@ -188,6 +189,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       return {
         chart: this.getChartConfig(),
         data: this.getChartData(),
+        events: {
+          chartClick: function(ev: any) {
+            console.log(ev);
+          },
+        },
       };
     } else {
       return {
@@ -198,6 +204,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
           },
         ],
         dataset: this.getChartDataset(this.props.chartData),
+        events: {
+          chartClick: function(ev: any) {
+            console.log(ev);
+          },
+        },
       };
     }
   };
@@ -218,6 +229,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         },
       ],
       dataset: this.getChartDataset(this.props.chartData),
+      events: {
+        chartClick: function(ev: any) {
+          console.log(ev);
+        },
+      },
     };
   };
 

@@ -3,9 +3,11 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
+import { EventType } from "constants/ActionConstants";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -25,6 +27,22 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       chartData: VALIDATION_TYPES.CHART_DATA,
     };
   }
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {
+      onDataPointClick: true,
+    };
+  }
+
+  onDataPointClick() {
+    if (this.props.onDataPointClick) {
+      super.executeAction({
+        dynamicString: this.props.onDataPointClick,
+        event: {
+          type: EventType.ON_DATA_POINT_CLICK,
+        },
+      });
+    }
+  }
 
   getPageView() {
     return (
@@ -38,6 +56,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           chartName={this.props.chartName}
           chartData={this.props.chartData}
           widgetId={this.props.widgetId}
+          onDataPointClick={this.onDataPointClick}
           allowHorizontalScroll={this.props.allowHorizontalScroll}
         />
       </Suspense>
@@ -75,6 +94,7 @@ export interface ChartWidgetProps extends WidgetProps {
   chartName: string;
   isVisible?: boolean;
   allowHorizontalScroll: boolean;
+  onDataPointClick?: string;
 }
 
 export default ChartWidget;
