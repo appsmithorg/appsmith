@@ -453,10 +453,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               </Popover>
             </>
           ) : (
-            <OnboardingIndicator
-              step={OnboardingStep.EXAMPLE_DATABASE}
-              offset={{ left: -5 }}
-            >
+            <OnboardingIndicator step={OnboardingStep.EXAMPLE_DATABASE}>
               <ActionButton
                 className="t--run-query"
                 text="Run"
