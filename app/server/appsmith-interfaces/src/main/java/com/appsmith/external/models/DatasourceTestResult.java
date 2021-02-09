@@ -5,7 +5,9 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -21,6 +23,16 @@ public class DatasourceTestResult {
      * @param invalids String messages that explain why the test failed.
      */
     public DatasourceTestResult(String... invalids) {
+        final String nullErrorMessage = "Unable to test datasource with the given configuration. Please reach out to Appsmith customer support to report this";
+        if (invalids == null) {
+            invalids = new String[]{nullErrorMessage};
+        } else {
+            invalids = Arrays
+                    .stream(invalids)
+                    .map(x -> x == null ? nullErrorMessage : x)
+                    .toArray(String[]::new);
+        }
+
         this.invalids = Set.of(invalids);
     }
 
