@@ -2,7 +2,7 @@ import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { PluginType } from "entities/Action";
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getHelperConfig } from "sagas/OnboardingSagas";
@@ -44,8 +44,17 @@ const DBQueryGroup = (props: any) => {
   const dbPluginMap = ACTION_PLUGIN_MAP.filter(
     (plugin) => plugin?.type === PluginType.DB,
   );
+  const addedWidget = useSelector(
+    (state: AppState) => state.ui.onBoarding.addedWidget,
+  );
   const dispatch = useDispatch();
   const helperConfig = getHelperConfig(OnboardingStep.RUN_QUERY_SUCCESS);
+
+  useEffect(() => {
+    if (addedWidget) {
+      props.showWidgetsSidebar();
+    }
+  }, [addedWidget]);
 
   return (
     <Wrapper>
