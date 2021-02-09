@@ -356,7 +356,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                 throw new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                         "Parameter 'URL Expiry Duration' is NOT a number. Please ensure that the " +
-                                        "input to 'URL Expiry Duration' field is a valid number."
+                                        "input to 'URL Expiry Duration' field is a valid number - i.e. any non-negative integer."
                                 );
                             }
 
