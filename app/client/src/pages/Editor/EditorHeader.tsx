@@ -249,25 +249,17 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             }
           />
         </Boxed>
-        <Boxed
-          step={OnboardingStep.SUCCESSFUL_BINDING}
-          alternative={<EndOnboardingTour />}
-        >
+        <Boxed step={OnboardingStep.DEPLOY} alternative={<EndOnboardingTour />}>
           <DeploySection>
-            <Indicator
-              step={OnboardingStep.DEPLOY}
-              offset={{ left: 10 }}
-              theme={"light"}
-            >
-              <StyledDeployButton
-                fill
-                onClick={handlePublish}
-                text={"Deploy"}
-                isLoading={isPublishing}
-                size={Size.small}
-                className="t--application-publish-btn"
-              />
-            </Indicator>
+            <StyledDeployButton
+              fill
+              onClick={handlePublish}
+              text={"Deploy"}
+              isLoading={isPublishing}
+              size={Size.small}
+              className="t--application-publish-btn"
+            />
+
             <DeployLinkButtonDialog
               trigger={
                 <StyledDeployButton icon={"downArrow"} size={Size.xxs} />

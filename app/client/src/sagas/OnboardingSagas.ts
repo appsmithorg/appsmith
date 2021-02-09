@@ -190,6 +190,8 @@ function* listenForAddInputWidget() {
           type: "SET_CURRENT_SUBSTEP",
           payload: 2,
         });
+
+        yield put(showIndicator(OnboardingStep.ADD_INPUT_WIDGET));
       }
 
       const helperConfig = yield select(

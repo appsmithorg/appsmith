@@ -267,6 +267,7 @@ const Helper = () => {
           )}
           {helperConfig.secondaryAction && (
             <SecondaryActionButton
+              className="t--onboarding-secondary-action"
               onClick={() => dispatch(helperConfig.secondaryAction?.action)}
             >
               {helperConfig.secondaryAction.label}

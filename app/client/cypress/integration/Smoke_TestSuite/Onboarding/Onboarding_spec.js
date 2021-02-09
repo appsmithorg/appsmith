@@ -1,7 +1,5 @@
-const onboarding = require("../../../locators/Onboarding.json");
 const explorer = require("../../../locators/explorerlocators.json");
 const homePage = require("../../../locators/HomePage.json");
-const loginPage = require("../../../locators/LoginPage.json");
 
 describe("Onboarding", function() {
   it("Onboarding flow", function() {
@@ -75,6 +73,6 @@ describe("Onboarding", function() {
     cy.url().should("include", "/pages");
     cy.log("pagename: " + localStorage.getItem("PageName"));
 
-    cy.get(".t--continue-on-my-own").click();
+    cy.get(".t--onboarding-secondary-action").click();
   });
 });

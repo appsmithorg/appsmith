@@ -53,9 +53,8 @@ const Wrapper = styled.div`
     }
   }
 
-  & button {
+  & > * {
     position: relative;
-    background-image: (linear-gradient(270deg, #8e9ac2, #42579a));
     background-size: 400% 400%;
     animation: TransitioningBackground 5s ease infinite;
     // to ease the button growth on hover
@@ -64,7 +63,7 @@ const Wrapper = styled.div`
   }
 
   // psuedo-element shine animation left side
-  & button::before {
+  & > *::before {
     content: "";
     display: block;
     position: absolute;
@@ -77,7 +76,7 @@ const Wrapper = styled.div`
   }
 
   // psuedo-element shine animation right side
-  & button::after {
+  & > *::after {
     content: "";
     display: block;
     position: absolute;
@@ -97,7 +96,7 @@ const Indicator = (props: any) => {
   );
 
   useEffect(() => {
-    if (indicatorRef && showingIndicator) {
+    if (indicatorRef && showingIndicator && props.show) {
       const animationData = props.theme === "light" ? pulseLight : pulseDark;
 
       lottie.loadAnimation({
@@ -107,9 +106,9 @@ const Indicator = (props: any) => {
         autoplay: true,
       });
     }
-  }, [indicatorRef, showingIndicator, props.theme]);
+  }, [indicatorRef, showingIndicator, props.theme, props.show]);
 
-  if (showingIndicator === props.step) {
+  if (showingIndicator === props.step && props.show) {
     return (
       <Wrapper className="t--onboarding-indicator">
         {/* commenting out ripple effect for now */}
@@ -120,6 +119,10 @@ const Indicator = (props: any) => {
   }
 
   return props.children;
+};
+
+Indicator.defaultProps = {
+  show: true,
 };
 
 export default Indicator;
