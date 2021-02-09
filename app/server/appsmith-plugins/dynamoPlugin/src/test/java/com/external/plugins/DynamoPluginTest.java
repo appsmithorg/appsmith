@@ -130,6 +130,23 @@ public class DynamoPluginTest {
     }
 
     @Test
+    public void testDescribeTable() {
+        final String body = "{\n" +
+                "  \"TableName\": \"cities\"\n" +
+                "}\n";
+
+        StepVerifier.create(execute("DescribeTable", body))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final Map<String, Object> table =  ((Map<String, Map<String, Object>>) result.getBody()).get("Table");
+                    assertEquals("cities", table.get("TableName"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testGetItem() {
         final String body = "{\n" +
                 "  \"TableName\": \"cities\",\n" +
@@ -200,6 +217,23 @@ public class DynamoPluginTest {
                     assertNotNull(result.getBody());
                     final Map<String, Map<String, Object>> attributes = ((Map<String, Map<String, Map<String, Object>>>) result.getBody()).get("Attributes");
                     assertEquals("Bengaluru", attributes.get("City").get("S"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testScan() {
+        final String body = "{\n" +
+                "  \"TableName\": \"cities\"\n" +
+                "}\n";
+
+        StepVerifier.create(execute("Scan", body))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final List<Object> items = (List<Object>) ((Map<String, Object>) result.getBody()).get("Items");
+                    assertEquals(2, items.size());
                 })
                 .verifyComplete();
     }
