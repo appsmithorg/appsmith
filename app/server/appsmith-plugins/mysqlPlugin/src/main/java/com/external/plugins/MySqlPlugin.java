@@ -352,7 +352,7 @@ public class MySqlPlugin extends BasePlugin {
                     .onErrorResume(error -> {
                         // We always expect to have an error object, but the error object may not be well formed
                         final String errorMessage = error.getMessage() == null
-                                ? "Unable to test datasource with the given configuration. Please reach out to Appsmith customer support to report this"
+                                ? AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()
                                 : error.getMessage();
                         System.out.println("Error when testing MySQL datasource. " + errorMessage);
                         return Mono.just(new DatasourceTestResult(errorMessage));
