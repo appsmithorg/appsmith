@@ -711,6 +711,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             controlType: "SWITCH",
             isJSConvertible: true,
           },
+          {
+            id: "4.2.0",
+            helpText: "Clears the input value after submit",
+            propertyName: "resetOnSubmit",
+            label: "Reset on submit",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
         ],
       },
       {

@@ -10,6 +10,8 @@ import FooterLinks from "./FooterLinks";
 import * as Sentry from "@sentry/react";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
+import requiresAuthHOC from "./requiresAuthHOC";
+
 export const UserAuth = () => {
   const { path } = useRouteMatch();
   const location = useLocation();
@@ -40,4 +42,4 @@ export const UserAuth = () => {
   );
 };
 
-export default UserAuth;
+export default requiresAuthHOC(UserAuth);

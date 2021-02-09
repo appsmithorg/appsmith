@@ -1,3 +1,6 @@
+import { ErrorActionPayload } from "../sagas/ErrorSagas";
+import { ActionResponse } from "../api/ActionAPI";
+
 export type ExecuteActionPayloadEvent = {
   type: EventType;
   callback?: (result: ExecutionResult) => void;
@@ -63,11 +66,10 @@ export interface PageAction {
   timeoutInMillisecond: number;
 }
 
-export interface ExecuteErrorPayload {
+export interface ExecuteErrorPayload extends ErrorActionPayload {
   actionId: string;
-  error: any;
   isPageLoad?: boolean;
-  show?: boolean;
+  data: ActionResponse;
 }
 
 // Group 1 = datasource (https://www.domain.com)

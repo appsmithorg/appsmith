@@ -4,8 +4,9 @@ import {
   SIGN_UP_URL,
   RESET_PASSWORD_URL,
   FORGOT_PASSWORD_URL,
+  VIEWER_URL_REGEX,
 } from "constants/routes";
-import { theme, dark } from "constants/DefaultTheme";
+import { theme, dark, light } from "constants/DefaultTheme";
 
 const enforceDarkThemeRoutes = [
   AUTH_LOGIN_URL,
@@ -21,7 +22,19 @@ const getShouldEnforceDarkTheme = () => {
 };
 
 export const getThemeDetails = (state: AppState) => {
-  if (getShouldEnforceDarkTheme()) {
+  const currentPath = window.location.pathname;
+  const isBuilderOrViewerPath = !!currentPath.match(VIEWER_URL_REGEX);
+  const isViewerPath =
+    isBuilderOrViewerPath && currentPath.indexOf("edit") === -1;
+
+  if (isViewerPath) {
+    return {
+      mode: state.ui.theme.mode,
+      theme: { ...theme, colors: { ...theme.colors, ...light } },
+    };
+  }
+
+  if (isBuilderOrViewerPath || getShouldEnforceDarkTheme()) {
     return {
       mode: state.ui.theme.mode,
       theme: { ...theme, colors: { ...theme.colors, ...dark } },
