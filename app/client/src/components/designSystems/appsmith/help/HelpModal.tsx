@@ -114,7 +114,7 @@ class HelpModal extends React.Component<Props> {
       <>
         {isHelpModalOpen && (
           <ModalComponent
-            canOutsideClickClose={true}
+            canOutsideClickClose
             canEscapeKeyClose
             scrollContents
             height={MODAL_HEIGHT}
