@@ -21,8 +21,6 @@ import {
 } from "constants/messages";
 import { Skin } from "constants/DefaultTheme";
 import { ReduxAction } from "constants/ReduxActionConstants";
-import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
-import { OnboardingStep } from "constants/OnboardingConstants";
 
 export const getApiOptions = (
   skin: Skin,
