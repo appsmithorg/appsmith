@@ -8,6 +8,7 @@ import styled from "styled-components";
 import useClipboard from "utils/hooks/useClipboard";
 import TickIcon from "assets/images/tick.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 const StyledContainer = styled.div`
   position: fixed;
@@ -95,6 +96,10 @@ const BottomContainer = styled.div`
   flex: 1;
   justify-content: space-between;
   align-items: center;
+
+  .bottomcontainer-steppercontainer {
+    display: flex;
+  }
 `;
 
 const Stepper = styled.div<{ completed: boolean }>`
@@ -156,6 +161,25 @@ const SubStepCount = styled.div<{ done: boolean }>`
   align-items: center;
   justify-content: center;
   display: flex;
+
+  .substepcount-value {
+    font-size: 12px;
+    color: white;
+  }
+`;
+
+const SubStepContainer = styled.div`
+  display: flex;
+  margin-top: 10px;
+
+  .substepcontainer-descriptioncontainer {
+    margin-top: 7px;
+
+    substepcontainer-description {
+      color: #4b4848;
+      fontsize: 14px;
+    }
+  }
 `;
 
 const Helper = () => {
@@ -168,7 +192,7 @@ const Helper = () => {
   const currentSubstep = useSelector(
     (state: AppState) => state.ui.onBoarding.currentSubstep,
   );
-  const steps = Array.from({ length: 6 }, (_, i) => i + 1);
+  const steps = Array.from({ length: OnboardingStep.FINISH }, (_, i) => i + 1);
   const [cheatMode, setCheatMode] = useState(false);
   const dispatch = useDispatch();
   useEffect(() => {
@@ -199,21 +223,16 @@ const Helper = () => {
           const done = currentSubstep > subStepCount;
 
           return (
-            <div
-              key={`substep-${index}`}
-              style={{ display: "flex", marginTop: "10px" }}
-            >
+            <SubStepContainer key={`substep-${index}`}>
               <SubStepCount done={done}>
                 {done ? (
                   <img src={TickIcon} />
                 ) : (
-                  <span style={{ fontSize: "12px", color: "white" }}>
-                    {subStepCount}
-                  </span>
+                  <span className="substepcount-value">{subStepCount}</span>
                 )}
               </SubStepCount>
-              <div style={{ marginLeft: 7 }}>
-                <div style={{ color: "#4B4848", fontSize: "14px" }}>
+              <div className="substepcontainer-descriptioncontainer">
+                <div className="substepcontainer-description">
                   {subStep.description}
                 </div>
                 {helperConfig.hint && cheatMode && (
@@ -236,11 +255,11 @@ const Helper = () => {
                   </>
                 )}
               </div>
-            </div>
+            </SubStepContainer>
           );
         })}
       <BottomContainer>
-        <div style={{ display: "flex" }}>
+        <div className="bottomcontainer-steppercontainer">
           {helperConfig.step &&
             steps.map((stepper) => {
               return (
