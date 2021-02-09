@@ -273,18 +273,6 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     }
   };
 
-  // const handleResizeColumn = (columnId: string, columnWidth: number) => {
-  //   const columnSizeMap = props.columnSizeMap
-  //     ? {
-  //         ...props.columnSizeMap,
-  //         [columnId]: columnWidth,
-  //       }
-  //     : {
-  //         [columnId]: columnWidth,
-  //       };
-  //   props.handleResizeColumn(columnSizeMap);
-  // };
-
   const selectTableRow = (
     row: { original: Record<string, unknown>; index: number },
     isSelected: boolean,
