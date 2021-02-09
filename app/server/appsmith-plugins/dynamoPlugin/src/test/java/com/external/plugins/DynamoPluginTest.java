@@ -221,4 +221,21 @@ public class DynamoPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testScan() {
+        final String body = "{\n" +
+                "  \"TableName\": \"cities\"\n" +
+                "}\n";
+
+        StepVerifier.create(execute("Scan", body))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final List<Object> items = (List<Object>) ((Map<String, Object>) result.getBody()).get("Items");
+                    assertEquals(2, items.size());
+                })
+                .verifyComplete();
+    }
+
 }
