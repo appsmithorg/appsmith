@@ -5,14 +5,13 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -22,14 +21,18 @@ import reactor.test.StepVerifier;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.net.URL;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -181,7 +184,7 @@ public class AmazonS3PluginTest {
 
         ObjectListing mockObjectListing = mock(ObjectListing.class);
         AmazonS3 mockConnection = mock(AmazonS3.class);
-        when(mockConnection.listObjects(anyString())).thenReturn(mockObjectListing);
+        when(mockConnection.listObjects(anyString(), anyString())).thenReturn(mockObjectListing);
 
         S3ObjectSummary mockS3ObjectSummary = mock(S3ObjectSummary.class);
         List<S3ObjectSummary> mockS3ObjectSummaryList = new ArrayList<>();
@@ -200,16 +203,18 @@ public class AmazonS3PluginTest {
                                                                     mockConnection,
                                                                     datasourceConfiguration,
                                                                     actionConfiguration);
+
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    final JsonNode node = ((ArrayNode) result.getBody());
                     assertTrue(result.getIsExecutionSuccess());
+
+                    Map<String, ArrayList<String>> node = (Map<String, ArrayList<String>>)result.getBody();
                     assertArrayEquals(
                             new String[]{
                                     dummyKey1,
                                     dummyKey2
                             },
-                            node.findValuesAsText("List of Files").toArray()
+                            node.get("List of Files").toArray()
                     );
                 })
                 .verifyComplete();
@@ -286,9 +291,7 @@ public class AmazonS3PluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
-
-                    final JsonNode node = ((ArrayNode) result.getBody());
-                    assertEquals(dummyContent, node.findValuesAsText("File Content").toArray()[0]);
+                    assertEquals(dummyContent, result.getBody());
                 })
                 .verifyComplete();
     }
@@ -321,9 +324,188 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
 
-                    final JsonNode node = ((ArrayNode) result.getBody());
-                    assertEquals("File deleted successfully", node.findValuesAsText("Action Status").toArray()[0]);
+                    Map<String, String> node = (Map<String, String>) result.getBody();
+                    assertEquals("File deleted successfully", node.get("Status"));
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testListFilesWithPrefix() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String dummyBody = "";
+        actionConfiguration.setBody(dummyBody);
+
+        String dummyPath = "path";
+        actionConfiguration.setPath(dummyPath);
+
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("action", "LIST"));
+        properties.add(new Property("bucketName", "bucket_name"));
+        properties.add(new Property(null, "NO"));
+        properties.add(new Property(null, null));
+        properties.add(new Property(null, "Hel"));
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+
+        ObjectListing mockObjectListing = mock(ObjectListing.class);
+        AmazonS3 mockConnection = mock(AmazonS3.class);
+        when(mockConnection.listObjects(anyString(), anyString())).thenReturn(mockObjectListing);
+
+        S3ObjectSummary mockS3ObjectSummary = mock(S3ObjectSummary.class);
+        List<S3ObjectSummary> mockS3ObjectSummaryList = new ArrayList<>();
+        mockS3ObjectSummaryList.add(mockS3ObjectSummary);
+        when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
+
+        String dummyKey1 = "file_path_with_matching_prefix_1";
+        String dummyKey2 = "file_path_with_matching_prefix_2";
+        when(mockS3ObjectSummary.getKey()).thenReturn(dummyKey1).thenReturn(dummyKey2);
+
+        when(mockObjectListing.isTruncated()).thenReturn(true).thenReturn(false);
+        when(mockConnection.listNextBatchOfObjects(mockObjectListing)).thenReturn(mockObjectListing);
+        when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
+                mockConnection,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    Map<String, ArrayList<String>> node = (Map<String, ArrayList<String>>)result.getBody();
+                    assertArrayEquals(
+                            new String[]{
+                                    dummyKey1,
+                                    dummyKey2
+                            },
+                            node.get("List of Files").toArray()
+                    );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testListFilesWithUrl() throws MalformedURLException {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String dummyBody = "";
+        actionConfiguration.setBody(dummyBody);
+
+        String dummyPath = "path";
+        actionConfiguration.setPath(dummyPath);
+
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("action", "LIST"));
+        properties.add(new Property("bucketName", "bucket_name"));
+        properties.add(new Property(null, "YES"));
+        properties.add(new Property(null, "1000"));
+        properties.add(new Property(null, ""));
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+
+        ObjectListing mockObjectListing = mock(ObjectListing.class);
+        AmazonS3 mockConnection = mock(AmazonS3.class);
+        when(mockConnection.listObjects(anyString(), anyString())).thenReturn(mockObjectListing);
+
+        S3ObjectSummary mockS3ObjectSummary = mock(S3ObjectSummary.class);
+        List<S3ObjectSummary> mockS3ObjectSummaryList = new ArrayList<>();
+        mockS3ObjectSummaryList.add(mockS3ObjectSummary);
+        when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
+
+        String dummyKey1 = "file_path_1";
+        String dummyKey2 = "file_path_2";
+        when(mockS3ObjectSummary.getKey()).thenReturn(dummyKey1).thenReturn(dummyKey2);
+
+        when(mockObjectListing.isTruncated()).thenReturn(true).thenReturn(false);
+        when(mockConnection.listNextBatchOfObjects(mockObjectListing)).thenReturn(mockObjectListing);
+        when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
+
+        URL dummyUrl1 = new URL("http", "dummy_url_1", "");
+        URL dummyUrl2 = new URL("http", "dummy_url_1", "");
+        when(mockConnection.generatePresignedUrl(any())).thenReturn(dummyUrl1).thenReturn(dummyUrl2);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
+                mockConnection,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    ArrayList<String> val1 = new ArrayList<>();
+                    val1.add(dummyKey1);
+                    val1.add(dummyUrl1.toString());
+
+                    ArrayList<String> val2 = new ArrayList<>();
+                    val2.add(dummyKey2);
+                    val2.add(dummyUrl2.toString());
+
+                    ArrayList<ArrayList<String>> expectedResult = new ArrayList<>();
+                    expectedResult.add(val1);
+                    expectedResult.add(val2);
+
+                    Map<String, ArrayList<ArrayList<String>>> node =
+                            (Map<String, ArrayList<ArrayList<String>>>)result.getBody();
+                    assertArrayEquals(
+                            expectedResult.toArray(),
+                            node.get("List of Files").toArray()
+                    );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testListFilesWithUrlAndNullDuration() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String dummyBody = "";
+        actionConfiguration.setBody(dummyBody);
+
+        String dummyPath = "path";
+        actionConfiguration.setPath(dummyPath);
+
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("action", "LIST"));
+        properties.add(new Property("bucketName", "bucket_name"));
+        properties.add(new Property(null, "YES"));
+        properties.add(new Property(null, null)); /* duration property value is null */
+        properties.add(new Property(null, ""));
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+
+        ObjectListing mockObjectListing = mock(ObjectListing.class);
+        AmazonS3 mockConnection = mock(AmazonS3.class);
+        when(mockConnection.listObjects(anyString(), anyString())).thenReturn(mockObjectListing);
+
+        S3ObjectSummary mockS3ObjectSummary = mock(S3ObjectSummary.class);
+        List<S3ObjectSummary> mockS3ObjectSummaryList = new ArrayList<>();
+        mockS3ObjectSummaryList.add(mockS3ObjectSummary);
+        when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
+
+        String dummyKey1 = "file_path_1";
+        String dummyKey2 = "file_path_2";
+        when(mockS3ObjectSummary.getKey()).thenReturn(dummyKey1).thenReturn(dummyKey2);
+
+        when(mockObjectListing.isTruncated()).thenReturn(true).thenReturn(false);
+        when(mockConnection.listNextBatchOfObjects(mockObjectListing)).thenReturn(mockObjectListing);
+        when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
+                mockConnection,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .verifyErrorSatisfies(e -> {
+                    assertTrue(e instanceof AppsmithPluginException);
+                    assertTrue(e.getMessage().contains("Required parameter 'URL Expiry Duration' is missing"));
+                });
     }
 }

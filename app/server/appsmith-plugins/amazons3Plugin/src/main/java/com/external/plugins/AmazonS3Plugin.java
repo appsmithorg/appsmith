@@ -21,9 +21,9 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
@@ -219,7 +219,7 @@ public class AmazonS3Plugin extends BasePlugin {
             if(datasourceConfiguration == null) {
                 return Mono.error(
                         new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 "At least one of the mandatory fields in S3 datasource creation form is empty - " +
                                 "'Access Key'/'Secret Key'/'Region'. Please fill all the mandatory fields and try again."
                         )
@@ -229,7 +229,7 @@ public class AmazonS3Plugin extends BasePlugin {
             if(actionConfiguration == null) {
                 return Mono.error(
                         new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 "At least one of the mandatory fields in S3 query creation form is empty - 'Action'/" +
                                 "'Bucket Name'/'File Path'/'Content'. Please fill all the mandatory fields and try " +
                                 "again."
@@ -242,7 +242,7 @@ public class AmazonS3Plugin extends BasePlugin {
             if(CollectionUtils.isEmpty(properties)) {
                 return Mono.error(
                         new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 "Mandatory parameters 'Action' and 'Bucket Name' are missing. Did you forget to edit " +
                                 "the 'Action' and 'Bucket Name' fields in the query form ?"
                         )
@@ -252,7 +252,7 @@ public class AmazonS3Plugin extends BasePlugin {
             if(properties.get(ACTION_PROPERTY_INDEX) == null) {
                 return Mono.error(
                         new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 "Mandatory parameter 'Action' is missing. Did you forget to select one of the actions" +
                                 " from the Action dropdown ?"
                         )
@@ -274,7 +274,7 @@ public class AmazonS3Plugin extends BasePlugin {
                  s3Action == AmazonS3Action.DELETE_FILE) && StringUtils.isBlank(path)) {
                 return Mono.error(
                         new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             "Required parameter 'File Path' is missing. Did you forget to edit the 'File Path' field " +
                             "in the query form ? This field cannot be left empty with the chosen action."
                         )
@@ -285,7 +285,7 @@ public class AmazonS3Plugin extends BasePlugin {
                || properties.get(BUCKET_NAME_PROPERTY_INDEX) == null) {
                 return Mono.error(
                         new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 "Mandatory parameter 'Bucket Name' is missing. Did you forget to edit the 'Bucket " +
                                 "Name' field in the query form ?"
                         )
@@ -296,7 +296,7 @@ public class AmazonS3Plugin extends BasePlugin {
             if(StringUtils.isEmpty(bucketName)) {
                 return Mono.error(
                         new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 "Mandatory parameter 'Bucket Name' is missing. Did you forget to edit the 'Bucket " +
                                 "Name' field in the query form ?"
                         )
@@ -310,7 +310,7 @@ public class AmazonS3Plugin extends BasePlugin {
             if(s3Action == AmazonS3Action.UPLOAD_FILE_FROM_BODY && body == null) {
                 return Mono.error(
                         new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 "Mandatory parameter 'Content' is missing. Did you forget to edit the 'Content' " +
                                 "field in the query form ?"
                         )
@@ -318,7 +318,7 @@ public class AmazonS3Plugin extends BasePlugin {
             }
 
             return Mono.fromCallable(() -> {
-                Map<String, Object> actionResult = new HashMap<>();
+                Object actionResult;
                 switch (s3Action) {
                     case LIST:
                         String prefix = "";
@@ -338,18 +338,28 @@ public class AmazonS3Plugin extends BasePlugin {
                                || properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX) == null
                                || StringUtils.isEmpty(properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX).getValue())) {
                                 throw new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_ERROR,
+                                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                         "Required parameter 'URL Expiry Duration' is missing. Did you forget to" +
                                         " edit the 'URL Expiry Duration' field ?"
                                 );
                             }
 
-                            int durationInMilliseconds = Integer
-                                                         .parseInt(
-                                                                 properties
-                                                                 .get(URL_EXPIRY_DURATION_PROPERTY_INDEX)
-                                                                 .getValue()
-                                                         );
+                            int durationInMilliseconds = 0;
+                            try {
+                                durationInMilliseconds = Integer
+                                                             .parseInt(
+                                                                     properties
+                                                                     .get(URL_EXPIRY_DURATION_PROPERTY_INDEX)
+                                                                     .getValue()
+                                                             );
+                            } catch (NumberFormatException e) {
+                                throw new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                        "Parameter 'URL Expiry Duration' is NOT a number. Please ensure that the " +
+                                        "input to 'URL Expiry Duration' field is a valid number."
+                                );
+                            }
+
                             ArrayList<String> listOfSignedUrls = getSignedUrls(connection,
                                                                                bucketName,
                                                                                listOfFiles,
@@ -373,19 +383,20 @@ public class AmazonS3Plugin extends BasePlugin {
 
                             actionResult = Map.of("List of Files", listOfFilesAndUrls);
                         }
-                        return Map.of("List of Files", listOfFiles);
+                        else {
+                            actionResult = Map.of("List of Files", listOfFiles);
+                        }
+                        break;
                     case UPLOAD_FILE_FROM_BODY:
                         uploadFileFromBody(connection, bucketName, path, body);
-                        //rowsList.add(Map.of("Action Status", "File uploaded successfully"));
                         actionResult = Map.of("Status", "File uploaded successfully");
                         break;
                     case READ_FILE:
                         final String result = readFile(connection, bucketName, path);
-                        actionResult = Map.of("File content", result);
+                        actionResult = result;
                         break;
                     case DELETE_FILE:
                         connection.deleteObject(bucketName, path);
-                        //rowsList.add(Map.of("Action Status", "File deleted successfully"));
                         actionResult = Map.of("Status", "File deleted successfully");
                         break;
                     default:
@@ -399,7 +410,6 @@ public class AmazonS3Plugin extends BasePlugin {
             })
             .flatMap(result -> {
                 ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
-                //actionExecutionResult.setBody(objectMapper.valueToTree(result));
                 actionExecutionResult.setBody(result);
                 actionExecutionResult.setIsExecutionSuccess(true);
                 System.out.println(Thread.currentThread().getName() + ": In the S3 Plugin, got action execution result");
@@ -427,7 +437,7 @@ public class AmazonS3Plugin extends BasePlugin {
             if(datasourceConfiguration == null) {
                 return Mono.error(
                   new AppsmithPluginException(
-                          AppsmithPluginError.PLUGIN_ERROR,
+                          AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                           "Mandatory fields 'Access Key', 'Secret Key', 'Region' missing. Did you forget to edit " +
                           "the 'Access Key'/'Secret Key'/'Region' fields in the datasource creation form ?"
                   )
@@ -451,7 +461,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 if(properties == null || properties.get(CLIENT_REGION_PROPERTY_INDEX) == null) {
                     return Mono.error(
                             new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                     "Mandatory parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
                                     " in the datasource creation form ? You need to fill it with the region where " +
                                     "your AWS instance is hosted."
@@ -463,7 +473,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 if(StringUtils.isEmpty(region)) {
                     return Mono.error(
                             new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                     "Mandatory parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
                                     " in the datasource creation form ? You need to fill it with the region where " +
                                     "your AWS instance is hosted."
@@ -477,7 +487,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 } catch (IllegalArgumentException e) {
                     return Mono.error(
                             new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                     "Appsmith server has encountered an error when " +
                                     "parsing AWS S3 instance region from the AWS S3 datasource configuration " +
                                     "provided: " + e.getMessage()
@@ -491,7 +501,7 @@ public class AmazonS3Plugin extends BasePlugin {
                    || StringUtils.isEmpty(authentication.getPassword())) {
                     return Mono.error(
                             new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                     "Mandatory parameters 'Access Key' and/or 'Secret Key' are missing. Did you " +
                                     "forget to edit the 'Access Key'/'Secret Key' fields in the datasource creation form ?"
                             )
@@ -506,7 +516,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 } catch (IllegalArgumentException e) {
                     return Mono.error(
                             new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                     "Appsmith server has encountered an error when " +
                                     "parsing AWS credentials from datasource: " + e.getMessage()
                             )
