@@ -86,6 +86,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             helpText: "Sets Google Recaptcha v3 site key for button",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter google recaptcha key",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },

@@ -642,6 +642,8 @@ export default [
         label: "onPageSizeChange",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
       },
       {
         propertyName: "onSearchTextChanged",
