@@ -1,6 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import { IntentColors, labelStyle } from "constants/DefaultTheme";
+import {
+  getBorderCSSShorthand,
+  IntentColors,
+  labelStyle,
+} from "constants/DefaultTheme";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import {
   Intent,
@@ -39,7 +43,7 @@ const InputComponentWrapper = styled((props) => (
       border: 1px solid;
       border-color: ${({ hasError }) =>
         hasError ? IntentColors.danger : Colors.GEYSER_LIGHT};
-      border-radius: ${(props) => props.theme.radii[1]}px;
+      border-radius: 0;
       height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
       width: 100%;
       ${(props) =>
@@ -49,6 +53,7 @@ const InputComponentWrapper = styled((props) => (
         border-bottom-right-radius: 0px;
         border-right-width: 0px;
       `}
+      transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
       &:active {
         border-color: ${({ hasError }) =>
           hasError ? IntentColors.danger : Colors.HIT_GRAY};
@@ -56,6 +61,13 @@ const InputComponentWrapper = styled((props) => (
       &:focus {
         border-color: ${({ hasError }) =>
           hasError ? IntentColors.danger : Colors.MYSTIC};
+
+        &:focus {
+          border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+          border-color: #80bdff;
+          outline: 0;
+          box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
+        }
       }
     }
     .${Classes.INPUT_GROUP} {
