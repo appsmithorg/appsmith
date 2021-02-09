@@ -173,12 +173,11 @@ const SubStepContainer = styled.div`
   margin-top: 10px;
 
   .substepcontainer-descriptioncontainer {
-    margin-top: 7px;
-
-    substepcontainer-description {
-      color: #4b4848;
-      fontsize: 14px;
-    }
+    margin-left: 7px;
+  }
+  .substepcontainer-description {
+    color: #4b4848;
+    font-size: 14px;
   }
 `;
 

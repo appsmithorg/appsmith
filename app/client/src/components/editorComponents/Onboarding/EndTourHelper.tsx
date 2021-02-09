@@ -1,3 +1,4 @@
+import { showOnboardingHelper } from "actions/onboardingActions";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import React, { useEffect } from "react";
@@ -28,10 +29,7 @@ const EndTourHelper = () => {
         });
         setTimeout(() => {
           playOnboardingAnimation();
-          dispatch({
-            type: ReduxActionTypes.SHOW_ONBOARDING_HELPER,
-            payload: true,
-          });
+          dispatch(showOnboardingHelper(true));
         }, 1000);
       }
     };

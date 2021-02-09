@@ -1,3 +1,4 @@
+import { showOnboardingHelper } from "actions/onboardingActions";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import React, { useEffect, useState } from "react";
@@ -22,10 +23,7 @@ const WelcomeHelper = () => {
       const inOnboarding = await getOnboardingWelcomeState();
 
       if (inOnboarding && currentUser) {
-        dispatch({
-          type: ReduxActionTypes.SHOW_ONBOARDING_HELPER,
-          payload: true,
-        });
+        dispatch(dispatch(showOnboardingHelper(true)));
 
         setShowHelper(true);
       }

@@ -37,6 +37,7 @@ import {
   setCurrentStep,
   setOnboardingState as setOnboardingReduxState,
   showIndicator,
+  showOnboardingHelper,
 } from "actions/onboardingActions";
 import {
   changeDatasource,
@@ -373,10 +374,7 @@ function* createOnboardingDatasource() {
       type: ReduxActionTypes.SET_HELPER_CONFIG,
       payload: getHelperConfig(OnboardingStep.EXAMPLE_DATABASE),
     });
-    yield put({
-      type: ReduxActionTypes.SHOW_ONBOARDING_HELPER,
-      payload: true,
-    });
+    yield put(showOnboardingHelper(true));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_ONBOARDING_DBQUERY_ERROR,

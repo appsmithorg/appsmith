@@ -27,3 +27,10 @@ export const setOnboardingState = (payload: boolean) => {
     payload,
   };
 };
+
+export const showOnboardingHelper = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SHOW_ONBOARDING_HELPER,
+    payload,
+  };
+};
