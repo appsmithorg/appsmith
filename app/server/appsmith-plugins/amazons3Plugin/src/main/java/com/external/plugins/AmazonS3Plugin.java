@@ -368,7 +368,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                 throw new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_ERROR,
                                         "Appsmith server has encountered an unexpected error when getting " +
-                                        "url from AWS S3 server. Please reach out to Appsmith customer " +
+                                        "list of files from AWS S3 server. Please reach out to Appsmith customer " +
                                         "support to resolve this."
                                 );
                             }
