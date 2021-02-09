@@ -5,11 +5,12 @@ import { get } from "lodash";
 export const getAllPathsFromPropertyConfig = (
   widget: WidgetProps,
   widgetConfig: readonly PropertyPaneConfig[],
+  derivedProperties: Record<string, true>,
 ): {
   bindingPaths: Record<string, true>;
   triggerPaths: Record<string, true>;
 } => {
-  const bindingPaths: Record<string, true> = {};
+  const bindingPaths: Record<string, true> = derivedProperties;
   const triggerPaths: Record<string, true> = {};
   widgetConfig.forEach((config) => {
     if (config.children) {

@@ -49,10 +49,13 @@ export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
     | ActionDispatcher<RunActionPayload, [string, string, string]>
     | Record<string, any>;
   dynamicBindingPathList: DynamicPath[];
+  bindingPaths: Record<string, true>;
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
 }
 
 export interface DataTreeWidget extends WidgetProps {
+  bindingPaths: Record<string, true>;
+  triggerPaths: Record<string, true>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
 }
 
@@ -116,6 +119,11 @@ export class DataTreeFactory {
         data: action.data ? action.data.body : {},
         ENTITY_TYPE: ENTITY_TYPE.ACTION,
         isLoading: action.isLoading,
+        bindingPaths: {
+          config: true,
+          data: true,
+          isLoading: true,
+        },
       };
     });
     Object.keys(widgets).forEach((w) => {
@@ -136,6 +144,9 @@ export class DataTreeFactory {
       const { bindingPaths, triggerPaths } = getAllPathsFromPropertyConfig(
         widget,
         propertyPaneConfigs,
+        Object.fromEntries(
+          Object.keys(derivedPropertyMap).map((key) => [key, true]),
+        ),
       );
       const derivedProps: any = {};
       const dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
