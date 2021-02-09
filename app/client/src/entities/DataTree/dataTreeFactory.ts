@@ -120,7 +120,6 @@ export class DataTreeFactory {
         ENTITY_TYPE: ENTITY_TYPE.ACTION,
         isLoading: action.isLoading,
         bindingPaths: {
-          config: true,
           data: true,
           isLoading: true,
         },

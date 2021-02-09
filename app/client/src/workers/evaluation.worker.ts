@@ -1129,6 +1129,11 @@ export class DataTreeEvaluator {
         if (!isAction(entity) && !isWidget(entity)) {
           continue;
         }
+        if (isAction(entity)) {
+          // TODO create proper binding paths for actions
+          changePaths.add(convertPathToString(d.path));
+          continue;
+        }
         const parentPropertyPath = convertPathToString(d.path);
         Object.keys(entity.bindingPaths).forEach((relativePath) => {
           const childPropertyPath = `${entityName}.${relativePath}`;

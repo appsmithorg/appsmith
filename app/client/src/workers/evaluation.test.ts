@@ -465,7 +465,6 @@ const BASE_ACTION: DataTreeAction = {
   data: {},
   ENTITY_TYPE: ENTITY_TYPE.ACTION,
   bindingPaths: {
-    config: true,
     isLoading: true,
     data: true,
   },
