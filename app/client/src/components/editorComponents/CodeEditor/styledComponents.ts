@@ -125,7 +125,7 @@ export const HintStyles = createGlobalStyle<{
   }
   .CodeMirror-Tern-completion-string:after {
     content: "String";
-  } 
+  }
   .CodeMirror-Tern-completion-bool:after {
     content: "Boolean";
   }
