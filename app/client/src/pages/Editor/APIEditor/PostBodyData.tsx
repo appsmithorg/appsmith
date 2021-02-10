@@ -32,7 +32,7 @@ const JSONEditorFieldWrapper = styled.div`
   margin: 0 30px;
   .CodeMirror {
     height: auto;
-    min-height: 200px;
+    min-height: 250px;
   }
 `;
 
@@ -69,7 +69,10 @@ const PostBodyData = (props: Props) => {
         selected={displayFormat}
         tabs={POST_BODY_FORMAT_TITLES_NO_MULTI_PART.map((el) => {
           let component = (
-            <JSONEditorFieldWrapper className={"t--apiFormPostBody"}>
+            <JSONEditorFieldWrapper
+              className={"t--apiFormPostBody"}
+              key={el.key}
+            >
               <DynamicTextField
                 name="actionConfiguration.body"
                 expected={FIELD_VALUES.API_ACTION.body}
@@ -88,6 +91,7 @@ const PostBodyData = (props: Props) => {
           if (el.key === POST_BODY_FORMAT_OPTIONS[1].value) {
             component = (
               <KeyValueFieldArray
+                key={el.key}
                 name="actionConfiguration.bodyFormData"
                 dataTreePath={`${dataTreePath}.bodyFormData`}
                 label=""
@@ -97,7 +101,7 @@ const PostBodyData = (props: Props) => {
             );
           } else if (el.key === POST_BODY_FORMAT_OPTIONS[3].value) {
             component = (
-              <JSONEditorFieldWrapper>
+              <JSONEditorFieldWrapper key={el.key}>
                 <DynamicTextField
                   name="actionConfiguration.body"
                   tabBehaviour={TabBehaviour.INDENT}

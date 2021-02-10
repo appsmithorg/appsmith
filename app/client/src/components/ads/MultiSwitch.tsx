@@ -49,7 +49,6 @@ export default function MultiSwitch(props: MultiSwitchProps) {
   const selectedTab = props.tabs.find(
     (tab) => tab.key === props.selected.value,
   );
-  console.log({ selectedTab });
   return (
     <div data-cy={props.cypressSelector}>
       <TabList>
