@@ -1346,10 +1346,10 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       rightColumn: columns,
       columns,
       rows,
-      parentId: "0",
+      parentId: MAIN_CONTAINER_WIDGET_ID,
       widgetName,
       renderMode: RenderModes.CANVAS,
-      parentRowSpace: 1,
+      parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       parentColumnSpace: 1,
       isLoading: false,
       props: {
@@ -1362,7 +1362,11 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       topRow,
       rightColumn,
       bottomRow,
-    } = yield calculateNewWidgetPosition(newWidget, "0", widgets);
+    } = yield calculateNewWidgetPosition(
+      newWidget,
+      MAIN_CONTAINER_WIDGET_ID,
+      widgets,
+    );
 
     newWidget = {
       ...newWidget,

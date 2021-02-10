@@ -251,14 +251,14 @@ public class MustacheHelper {
 
                 } else if (value instanceof List) {
                     for (Object childValue : (List) value) {
-                        if (isDomainModel(childValue.getClass())) {
+                        if (childValue != null && isDomainModel(childValue.getClass())) {
                             renderFieldValues(childValue, context);
                         }
                     }
 
                 } else if (value instanceof Map) {
                     for (Object childValue : ((Map) value).values()) {
-                        if (isDomainModel(childValue.getClass())) {
+                        if (childValue != null && isDomainModel(childValue.getClass())) {
                             renderFieldValues(childValue, context);
                         }
                     }
