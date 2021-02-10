@@ -1,6 +1,10 @@
-import React from "react";
+import React, { ReactChildren } from "react";
 import { get, set, fill } from "lodash";
 import * as Sentry from "@sentry/react";
+import {
+  VariableSizeList as List,
+  ListChildComponentProps,
+} from "react-window";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { removeFalsyEntries } from "utils/helpers";
@@ -220,6 +224,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       }
 
       canvasChildren = this.updateGridChildrenProps(canvasChildren);
+
       childCanvas.children = canvasChildren;
 
       return this.renderChild(childCanvas);
@@ -230,9 +235,49 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * view that is rendered in editor
    */
   getPageView() {
-    const children = this.renderChildren();
+    const children: any = this.renderChildren();
+    const { componentWidth, componentHeight } = this.getComponentDimensions();
 
-    return <GridComponent {...this.props}>{children}</GridComponent>;
+    const rowSizes = new Array(this.props.items.length)
+      .fill(true)
+      .map(
+        () =>
+          children.props.children[0].bottomRow *
+          children.props.children[0].parentRowSpace,
+      );
+
+    const getItemSize = (index: number) => rowSizes[index];
+
+    const Row = (listChildProps: ListChildComponentProps) => {
+      return (
+        <div style={listChildProps.style}>
+          {children.props.children[listChildProps.index]}
+        </div>
+      );
+    };
+
+    const list = (
+      <List
+        height={componentHeight}
+        itemCount={this.props.items.length}
+        itemSize={getItemSize}
+        width={componentWidth}
+      >
+        {Row}
+      </List>
+    );
+
+    console.log({ list, children });
+
+    const copyChildren = {
+      ...children,
+      props: {
+        ...children.props,
+        children: [list],
+      },
+    };
+
+    return <GridComponent {...this.props}>{copyChildren}</GridComponent>;
   }
 
   /**
