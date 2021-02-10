@@ -944,7 +944,7 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
     const childId = childrenIds[childIndex];
     yield put(resetWidgetMetaProperty(childId));
   }
-  yield call(resetEvaluatedWidgetMetaProperties, childrenIds);
+  // yield call(resetEvaluatedWidgetMetaProperties, childrenIds);
 }
 
 // This is needed because evaluation takes some time and we can reset the props
