@@ -28,9 +28,9 @@ import java.util.Set;
 @DocumentType(Authentication.OAUTH2)
 public class OAuth2 extends AuthenticationDTO {
     public enum Type {
-        @JsonProperty("client_credentials")
+        @JsonProperty(Authentication.CLIENT_CREDENTIALS)
         CLIENT_CREDENTIALS,
-        @JsonProperty("authorization_code")
+        @JsonProperty(Authentication.AUTHORIZATION_CODE)
         AUTHORIZATION_CODE
     }
 

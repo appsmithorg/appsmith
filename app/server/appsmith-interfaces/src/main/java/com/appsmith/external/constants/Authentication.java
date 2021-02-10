@@ -14,6 +14,7 @@ public class Authentication {
     public static final String REFRESH_TOKEN = "refresh_token";
     public static final String EXPIRES_AT = "expires_at";
     public static final String EXPIRES_IN = "expires_in";
+    public static final String ISSUED_AT = "issued_at";
     public static final String SCOPE = "scope";
     public static final String CODE = "code";
     public static final String GRANT_TYPE = "grant_type";

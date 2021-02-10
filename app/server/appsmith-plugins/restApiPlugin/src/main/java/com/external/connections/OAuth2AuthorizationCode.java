@@ -1,5 +1,6 @@
 package com.external.connections;
 
+import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
@@ -93,11 +94,10 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                 .flatMap(response -> response.body(BodyExtractors.toMono(Map.class)))
                 // Receive and parse response
                 .map(mappedResponse -> {
-                    System.out.println("Response is: " + mappedResponse);
                     // Store received response as is for reference
                     oAuth2.setTokenResponse(mappedResponse);
                     // Parse useful fields for quick access
-                    Object issuedAtResponse = mappedResponse.get("issued_at");
+                    Object issuedAtResponse = mappedResponse.get(Authentication.ISSUED_AT);
                     // Default issuedAt to current time
                     Instant issuedAt = Instant.now();
                     if (issuedAtResponse != null) {
@@ -105,8 +105,8 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                     }
 
                     // We expect at least one of the following to be present
-                    Object expiresAtResponse = mappedResponse.get("expires_at");
-                    Object expiresInResponse = mappedResponse.get("expires_in");
+                    Object expiresAtResponse = mappedResponse.get(Authentication.EXPIRES_AT);
+                    Object expiresInResponse = mappedResponse.get(Authentication.EXPIRES_IN);
                     Instant expiresAt = null;
                     if (expiresAtResponse != null) {
                         expiresAt = Instant.ofEpochSecond(Long.valueOf((Integer) expiresAtResponse));
@@ -115,10 +115,10 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                     }
                     oAuth2.setExpiresAt(expiresAt);
                     oAuth2.setIssuedAt(issuedAt);
-                    if (mappedResponse.containsKey("refresh_token")) {
-                        oAuth2.setRefreshToken(String.valueOf(mappedResponse.get("refresh_token")));
+                    if (mappedResponse.containsKey(Authentication.REFRESH_TOKEN)) {
+                        oAuth2.setRefreshToken(String.valueOf(mappedResponse.get(Authentication.REFRESH_TOKEN)));
                     }
-                    oAuth2.setToken(String.valueOf(mappedResponse.get("access_token")));
+                    oAuth2.setToken(String.valueOf(mappedResponse.get(Authentication.ACCESS_TOKEN)));
                     return oAuth2;
                 });
     }
@@ -141,7 +141,6 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
     }
 
     private Mono<ClientRequest> addTokenToRequest(ClientRequest clientRequest) {
-        System.out.println("Token: " + this.token);
         // Check to see where the token needs to be added
         if (this.isHeader()) {
             final String finalHeaderPrefix = this.getHeaderPrefix() != null && !this.getHeaderPrefix().isBlank() ?
@@ -152,7 +151,7 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                     .build());
         } else {
             final URI url = UriComponentsBuilder.fromUri(clientRequest.url())
-                    .queryParam("access_token", this.getToken())
+                    .queryParam(Authentication.ACCESS_TOKEN, this.getToken())
                     .build()
                     .toUri();
             return Mono.justOrEmpty(ClientRequest.from(clientRequest)
@@ -163,14 +162,14 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
 
     private BodyInserters.FormInserter<String> getTokenBody(OAuth2 oAuth2) {
         BodyInserters.FormInserter<String> body = BodyInserters
-                .fromFormData("grant_type", "refresh_token")
-                .with("client_id", oAuth2.getClientId())
-                .with("client_secret", oAuth2.getClientSecret())
-                .with("refresh_token", oAuth2.getRefreshToken());
+                .fromFormData(Authentication.GRANT_TYPE, Authentication.REFRESH_TOKEN)
+                .with(Authentication.CLIENT_ID, oAuth2.getClientId())
+                .with(Authentication.CLIENT_SECRET, oAuth2.getClientSecret())
+                .with(Authentication.REFRESH_TOKEN, oAuth2.getRefreshToken());
 
         // Optionally add scope, if applicable
         if (!CollectionUtils.isEmpty(oAuth2.getScope())) {
-            body.with("scope", StringUtils.collectionToDelimitedString(oAuth2.getScope(), " "));
+            body.with(Authentication.SCOPE, StringUtils.collectionToDelimitedString(oAuth2.getScope(), " "));
         }
         return body;
     }
