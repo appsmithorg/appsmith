@@ -189,11 +189,6 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       return {
         chart: this.getChartConfig(),
         data: this.getChartData(),
-        events: {
-          chartClick: function(ev: any) {
-            console.log(ev);
-          },
-        },
       };
     } else {
       return {
@@ -204,11 +199,6 @@ class ChartComponent extends React.Component<ChartComponentProps> {
           },
         ],
         dataset: this.getChartDataset(this.props.chartData),
-        events: {
-          chartClick: function(ev: any) {
-            console.log(ev);
-          },
-        },
       };
     }
   };
@@ -229,11 +219,6 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         },
       ],
       dataset: this.getChartDataset(this.props.chartData),
-      events: {
-        chartClick: function(ev: any) {
-          console.log(ev);
-        },
-      },
     };
   };
 
@@ -249,6 +234,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       height: "100%",
       dataFormat: "json",
       dataSource: dataSource,
+      events: {
+        dataPlotClick: () => {
+          this.props.onDataPointClick();
+        },
+      },
     };
     this.chartInstance = new FusionCharts(chartConfig);
   };

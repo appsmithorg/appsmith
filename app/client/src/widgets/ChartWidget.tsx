@@ -33,7 +33,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     };
   }
 
-  onDataPointClick() {
+  onDataPointClick = () => {
     if (this.props.onDataPointClick) {
       super.executeAction({
         dynamicString: this.props.onDataPointClick,
@@ -42,7 +42,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
         },
       });
     }
-  }
+  };
 
   getPageView() {
     return (

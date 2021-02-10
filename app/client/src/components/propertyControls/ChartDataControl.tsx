@@ -282,8 +282,11 @@ class ChartDataControl extends BaseControl<ControlProps> {
       seriesName: string;
       data: string;
     }> = this.props.propertyValue;
-    chartData.push({ seriesName: "", data: '[{ "x": "label", "y": 50 }]' });
-    this.updateProperty(this.props.propertyName, chartData);
+    const updatedChartData = [
+      ...chartData,
+      { seriesName: "", data: '[{ "x": "label", "y": 50 }]' },
+    ];
+    this.updateProperty(this.props.propertyName, updatedChartData);
   };
 
   static getControlType() {
