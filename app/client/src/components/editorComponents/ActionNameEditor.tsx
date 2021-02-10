@@ -161,6 +161,7 @@ export const ActionNameEditor = (props: ActionNameEditorProps) => {
           }
           editInteractionKind={NewEditInteractionKind.SINGLE}
           hideEditIcon
+          underline
         />
       ) : (
         <div
