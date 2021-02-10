@@ -6,6 +6,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.plugins.BasePlugin;
@@ -29,6 +30,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClientBuilder;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbResponse;
+import software.amazon.awssdk.services.dynamodb.model.ListTablesResponse;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -38,6 +40,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -202,6 +205,28 @@ public class DynamoPlugin extends BasePlugin {
                     )
                     .subscribeOn(scheduler);
         }
+
+        @Override
+        public Mono<DatasourceStructure> getStructure(DynamoDbClient ddb, DatasourceConfiguration datasourceConfiguration) {
+            return Mono.fromCallable(() -> {
+                final ListTablesResponse listTablesResponse = ddb.listTables();
+
+                List<DatasourceStructure.Table> tables = new ArrayList<>();
+                for (final String tableName : listTablesResponse.tableNames()) {
+                    tables.add(new DatasourceStructure.Table(
+                            DatasourceStructure.TableType.TABLE,
+                            tableName,
+                            Collections.emptyList(),
+                            Collections.emptyList(),
+                            Collections.emptyList()
+                    ));
+                }
+
+                return new DatasourceStructure(tables);
+
+            }).subscribeOn(scheduler);
+        }
+
     }
 
     private static String toLowerCamelCase(String action) {
