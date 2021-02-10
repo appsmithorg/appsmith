@@ -17,7 +17,6 @@ const PlayButton = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  cursor: pointer;
   .${Classes.ICON} {
     svg {
       width: 34px;
@@ -39,6 +38,7 @@ const PlayButton = styled.div`
 
 const ThumnailContainer = styled.div`
   position: relative;
+  cursor: pointer;
 `;
 
 const Overlay = styled.div`
@@ -57,10 +57,10 @@ const GifPlayerComponent = (props: GifPlayerProps) => {
   return (
     <React.Fragment>
       {!startGif ? (
-        <ThumnailContainer>
+        <ThumnailContainer onClick={() => setStartGif(!startGif)}>
           <Overlay />
           <img src={props.thumbnail} />
-          <PlayButton onClick={() => setStartGif(!startGif)}>
+          <PlayButton>
             <Icon name="play" size={IconSize.XXXL} />
             <Text type={TextType.P3}>Click to play</Text>
           </PlayButton>

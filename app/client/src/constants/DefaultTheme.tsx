@@ -1016,7 +1016,7 @@ export const dark: ColorType = {
       border: darkShades[2],
     },
     normal: {
-      bg: darkShades[0],
+      bg: lightShades[10],
       border: darkShades[0],
       text: darkShades[7],
     },

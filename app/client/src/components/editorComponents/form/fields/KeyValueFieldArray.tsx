@@ -109,6 +109,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
             const otherProps: Record<string, any> = {};
             if (
               props.actionConfig &&
+              props.actionConfig[index] &&
               props.actionConfig[index].description &&
               props.rightIcon
             ) {

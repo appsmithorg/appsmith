@@ -69,7 +69,7 @@ const MainConfiguration = styled.div`
     ${(props) => props.theme.spaces[12]}px 0px
     ${(props) => props.theme.spaces[12]}px;
   background-color: ${(props) => props.theme.colors.apiPane.bg};
-  height: 126px;
+  height: 124px;
 `;
 
 const ActionButtons = styled.div`
@@ -364,6 +364,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                       actionConfig={actionConfigurationHeaders}
                       placeholder="Value"
                       dataTreePath={`${actionName}.config.headers`}
+                      pushFields
                     />
                   </TabSection>
                 ),
@@ -378,6 +379,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                       name="actionConfiguration.queryParameters"
                       label="Params"
                       dataTreePath={`${actionName}.config.queryParameters`}
+                      pushFields
                     />
                   </TabSection>
                 ),

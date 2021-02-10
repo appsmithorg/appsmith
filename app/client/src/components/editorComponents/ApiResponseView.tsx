@@ -32,6 +32,10 @@ const ResponseWrapper = styled.div`
   flex: 1;
   height: 50%;
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
+
+  .react-tabs__tab-panel {
+    overflow: hidden;
+  }
 `;
 const ResponseMetaInfo = styled.div`
   display: flex;

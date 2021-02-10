@@ -95,6 +95,7 @@ const TextContainer = styled.div<{
     overflow: hidden;
     text-overflow: ellipsis;
     ${(props) => (props.isEditing ? "display: none" : "display: block")};
+    width: fit-content !important;
     min-width: auto !important;
   }
 
