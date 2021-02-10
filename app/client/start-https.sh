@@ -92,9 +92,9 @@ case "${uname_out}" in
         then
             # if no server was passed
             if [[ -z $1 ]]; then
-                server_proxy_pass="http://"$(ipconfig getifaddr en0)":8080"
+                server_proxy_pass='http://"$(ipconfig getifaddr en0)":8080'
             fi
-            client_proxy_pass="http://"$(ipconfig getifaddr en0)":3000"
+            client_proxy_pass='http://"$(ipconfig getifaddr en0)":3000'
         fi
                 echo "
     Starting nginx for MacOS...
