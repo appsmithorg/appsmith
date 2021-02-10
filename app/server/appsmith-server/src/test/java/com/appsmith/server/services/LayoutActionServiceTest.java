@@ -249,6 +249,53 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void refactorActionNameToDeletedName() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("Query1");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Layout layout = testPage.getLayouts().get(0);
+
+        ActionDTO firstAction = newActionService.createAction(action).block();
+
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+        applicationPageService.publish(testPage.getApplicationId()).block();
+
+        newActionService.deleteUnpublishedAction(firstAction.getId()).block();
+
+        // Create another action with the same name as the erstwhile deleted action
+        action.setId(null);
+        ActionDTO secondAction = newActionService.createAction(action).block();
+
+        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
+        refactorNameDTO.setPageId(testPage.getId());
+        refactorNameDTO.setLayoutId(firstLayout.getId());
+        refactorNameDTO.setOldName("Query1");
+        refactorNameDTO.setNewName("NewActionName");
+
+        layoutActionService.refactorActionName(refactorNameDTO).block();
+
+        Mono<NewAction> postNameChangeActionMono = newActionService.findById(secondAction.getId(), READ_ACTIONS);
+
+        StepVerifier
+                .create(postNameChangeActionMono)
+                .assertNext(updatedAction -> {
+
+                    assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("NewActionName");
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void actionExecuteOnLoadChangeOnUpdateLayout() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 

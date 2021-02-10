@@ -100,5 +100,5 @@ example:
 ![381611580157_ pic_hd](https://user-images.githubusercontent.com/4025839/105710505-2ead5300-5f52-11eb-9549-531e459e86ea.jpg)
 
 ## Need Assistance
-- If you are unable to resolve any issue while doing the setup, please initiate a Github discussion or send an email to support@appsmith.com. We'll be happy to help you.
+- If you are unable to resolve any issue while doing the setup, please feel free to ask questions on our [Discord channel](https://discord.com/invite/rBTTVJp) or initiate a [Github discussion](https://github.com/appsmithorg/appsmith/discussions) or send an email to `support@appsmith.com`. We'll be happy to help you. 
 - In case you notice any discrepancy, please raise an issue on Github and/or send an email to support@appsmith.com.
