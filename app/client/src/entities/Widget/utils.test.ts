@@ -110,6 +110,8 @@ describe("getAllPathsFromPropertyConfig", () => {
 
     const expected = {
       bindingPaths: {
+        selectedRow: true,
+        selectedRows: true,
         tableData: true,
         defaultSearchText: true,
         defaultSelectedRow: true,
@@ -138,11 +140,15 @@ describe("getAllPathsFromPropertyConfig", () => {
         onRowSelected: true,
         onPageChange: true,
         onSearchTextChanged: true,
+        onPageSizeChange: true,
         "primaryColumns[2].onClick": true,
       },
     };
 
-    const result = getAllPathsFromPropertyConfig(widget, config);
+    const result = getAllPathsFromPropertyConfig(widget, config, {
+      selectedRow: true,
+      selectedRows: true,
+    });
 
     expect(result).toStrictEqual(expected);
   });
