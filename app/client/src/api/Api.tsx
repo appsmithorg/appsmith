@@ -9,7 +9,11 @@ import { ActionApiResponse } from "./ActionAPI";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import history from "utils/history";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
-import { ERROR_500, SERVER_API_TIMEOUT_ERROR } from "../constants/messages";
+import {
+  createMessage,
+  ERROR_500,
+  SERVER_API_TIMEOUT_ERROR,
+} from "../constants/messages";
 import log from "loglevel";
 
 //TODO(abhinav): Refactor this to make more composable.
@@ -68,7 +72,7 @@ axiosInstance.interceptors.response.use(
     ) {
       return Promise.reject({
         ...error,
-        message: SERVER_API_TIMEOUT_ERROR,
+        message: createMessage(SERVER_API_TIMEOUT_ERROR),
         code: ERROR_CODES.REQUEST_TIMEOUT,
       });
     }
@@ -78,7 +82,7 @@ axiosInstance.interceptors.response.use(
         return Promise.reject({
           ...error,
           code: ERROR_CODES.SERVER_ERROR,
-          message: ERROR_500,
+          message: createMessage(ERROR_500),
         });
       }
 

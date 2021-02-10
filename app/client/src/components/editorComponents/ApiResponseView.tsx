@@ -18,6 +18,7 @@ import { RequestView } from "./RequestView";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   CHECK_REQUEST_BODY,
+  createMessage,
   DONT_SHOW_THIS_AGAIN,
   SHOW_REQUEST,
 } from "constants/messages";
@@ -179,7 +180,7 @@ const ApiResponseView = (props: Props) => {
         <>
           {hasFailed && !isRunning && requestDebugVisible === "true" && (
             <FailedMessageContainer>
-              <p>{CHECK_REQUEST_BODY}</p>
+              <p>{createMessage(CHECK_REQUEST_BODY)}</p>
               <div
                 style={{
                   display: "flex",
@@ -192,7 +193,7 @@ const ApiResponseView = (props: Props) => {
                     background: "white",
                     color: "#29CCA3",
                   }}
-                  text={DONT_SHOW_THIS_AGAIN}
+                  text={createMessage(DONT_SHOW_THIS_AGAIN)}
                   onClick={() => {
                     setRequestDebugVisible(false);
                   }}
@@ -203,7 +204,7 @@ const ApiResponseView = (props: Props) => {
                     color: "white",
                   }}
                   intent={"danger"}
-                  text={SHOW_REQUEST}
+                  text={createMessage(SHOW_REQUEST)}
                   onClick={() => {
                     setSelectedIndex(1);
                   }}

@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Classes, TagInput } from "@blueprintjs/core";
 import { Intent } from "constants/DefaultTheme";
-import { INVITE_USERS_VALIDATION_EMAIL_LIST } from "constants/messages";
+import {
+  createMessage,
+  INVITE_USERS_VALIDATION_EMAIL_LIST,
+} from "constants/messages";
 import { isEmail } from "utils/formhelpers";
 const TagInputWrapper = styled.div<{ intent?: Intent }>`
   margin-right: 8px;
@@ -79,7 +82,7 @@ const TagInputComponent = (props: TagInputProps) => {
       let error = "";
       newValues.forEach((user: any) => {
         if (!isEmail(user)) {
-          error = INVITE_USERS_VALIDATION_EMAIL_LIST;
+          error = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
         }
       });
       props.customError(error);

@@ -1,7 +1,7 @@
 import React from "react";
 import { IconProps, IconWrapper } from "constants/IconConstants";
 import { ReactComponent as LightningIcon } from "assets/icons/control/lightning.svg";
-import { LIGHTNING_MENU_DATA_TOOLTIP } from "constants/messages";
+import { createMessage, LIGHTNING_MENU_DATA_TOOLTIP } from "constants/messages";
 import { Theme, Skin } from "constants/DefaultTheme";
 import styled from "styled-components";
 import { Tooltip } from "@blueprintjs/core";
@@ -78,7 +78,7 @@ export const LightningMenuTrigger = (props: LightningMenuTriggerProps) => {
       <Tooltip
         autoFocus={false}
         hoverOpenDelay={1000}
-        content={LIGHTNING_MENU_DATA_TOOLTIP}
+        content={createMessage(LIGHTNING_MENU_DATA_TOOLTIP)}
         openOnTargetFocus={false}
       >
         <IconWrapper {...iconProps}>

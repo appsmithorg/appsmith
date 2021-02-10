@@ -257,7 +257,7 @@ export function* deleteApplicationSaga(
 ) {
   try {
     Toaster.show({
-      text: DELETING_APPLICATION,
+      text: createMessage(DELETING_APPLICATION),
     });
     const request: DeleteApplicationRequest = action.payload;
     const response: ApiResponse = yield call(
@@ -286,7 +286,7 @@ export function* duplicateApplicationSaga(
 ) {
   try {
     Toaster.show({
-      text: DUPLICATING_APPLICATION,
+      text: createMessage(DUPLICATING_APPLICATION),
     });
     const request: DuplicateApplicationRequest = action.payload;
     const response: ApiResponse = yield call(

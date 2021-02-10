@@ -5,6 +5,7 @@ import Text, { TextType } from "./Text";
 import {
   FORM_VALIDATION_INVALID_EMAIL,
   ERROR_MESSAGE_NAME_EMPTY,
+  createMessage,
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
 import { useSelector } from "react-redux";
@@ -26,7 +27,7 @@ export function emailValidator(email: string) {
   }
   return {
     isValid: isValid,
-    message: !isValid ? FORM_VALIDATION_INVALID_EMAIL : "",
+    message: !isValid ? createMessage(FORM_VALIDATION_INVALID_EMAIL) : "",
   };
 }
 
@@ -34,7 +35,7 @@ export function notEmptyValidator(value: string) {
   const isValid = !!value;
   return {
     isValid: isValid,
-    message: !isValid ? ERROR_MESSAGE_NAME_EMPTY : "",
+    message: !isValid ? createMessage(ERROR_MESSAGE_NAME_EMPTY) : "",
   };
 }
 
