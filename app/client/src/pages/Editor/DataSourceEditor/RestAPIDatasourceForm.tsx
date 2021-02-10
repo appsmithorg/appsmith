@@ -122,6 +122,14 @@ const StyledButton = styled(Button)`
   }
 `;
 
+const COMMON_INPUT_PROPS: any = {
+  name: "",
+  formName: DATASOURCE_REST_API_FORM,
+  id: "",
+  isValid: false,
+  controlType: "",
+};
+
 class DatasourceRestAPIEditor extends React.Component<Props> {
   disableSave = () => {
     const { formData } = this.props;
@@ -137,7 +145,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     const normalizedValues = formValuesToDatasource(
       this.props.datasource,
       this.props.formData,
-    ) as Datasource;
+    );
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
@@ -209,16 +217,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     );
   };
 
-  common(): any {
-    return {
-      name: "",
-      formName: DATASOURCE_REST_API_FORM,
-      id: "",
-      isValid: false,
-      controlType: "",
-    };
-  }
-
   createApiAction() {
     const { datasource, actions, pageId } = this.props;
     if (
@@ -265,12 +263,11 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   renderEditor = () => {
     const { formData } = this.props;
     if (!formData) return;
-    const common = this.common();
     return (
       <>
         <FormInputContainer>
           <InputTextControl
-            {...common}
+            {...COMMON_INPUT_PROPS}
             label="URL"
             configProperty="url"
             isRequired={true}
@@ -279,14 +276,14 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         </FormInputContainer>
         <FormInputContainer>
           <KeyValueInputControl
-            {...common}
+            {...COMMON_INPUT_PROPS}
             label="Headers"
             configProperty="headers"
           />
         </FormInputContainer>
         <FormInputContainer>
           <DropDownControl
-            {...common}
+            {...COMMON_INPUT_PROPS}
             label="Send Appsmith signature header (X-APPSMITH-SIGNATURE)"
             configProperty="isSendSessionEnabled"
             isRequired={true}
@@ -307,7 +304,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         {formData.isSendSessionEnabled && (
           <FormInputContainer>
             <InputTextControl
-              {...common}
+              {...COMMON_INPUT_PROPS}
               label="Session Details Signature Key"
               configProperty="sessionSignatureKey"
               placeholderText=""
@@ -316,7 +313,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         )}
         <FormInputContainer>
           <DropDownControl
-            {...common}
+            {...COMMON_INPUT_PROPS}
             label="Authentication Type"
             configProperty="authType"
             placeholderText=""
@@ -355,19 +352,18 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderOauth2Common = () => {
-    const common = this.common();
     return (
       <>
         <FormInputContainer>
           <InputTextControl
-            {...common}
+            {...COMMON_INPUT_PROPS}
             label="Client Id"
             configProperty="authentication.clientId"
           />
         </FormInputContainer>
         <FormInputContainer>
           <InputTextControl
-            {...common}
+            {...COMMON_INPUT_PROPS}
             label="Client Secret"
             dataType="PASSWORD"
             configProperty="authentication.clientSecret"
@@ -375,7 +371,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         </FormInputContainer>
         <FormInputContainer>
           <InputTextControl
-            {...common}
+            {...COMMON_INPUT_PROPS}
             label="Scope(s)"
             configProperty="authentication.scopeString"
           />
@@ -384,20 +380,19 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     );
   };
   renderOauth2ClientCredentials = () => {
-    const common: any = this.common();
     return (
       <>
         {this.renderOauth2Common()}
         <FormInputContainer>
           <InputTextControl
-            {...common}
+            {...COMMON_INPUT_PROPS}
             label="Access Token URL"
             configProperty="authentication.accessTokenUrl"
           />
         </FormInputContainer>
         <FormInputContainer>
           <InputTextControl
-            {...common}
+            {...COMMON_INPUT_PROPS}
             label="Header Prefix"
             configProperty="authentication.headerPrefix"
             placeholderText="Bearer (default)"
@@ -405,7 +400,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         </FormInputContainer>
         <FormInputContainer>
           <DropDownControl
-            {...common}
+            {...COMMON_INPUT_PROPS}
             label="Add token to"
             configProperty="authentication.isTokenHeader"
             options={[
@@ -424,20 +419,19 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     );
   };
   renderOauth2AuthorizationCode = () => {
-    const common: any = this.common();
     return (
       <>
         {this.renderOauth2Common()}
         <FormInputContainer>
           <InputTextControl
-            {...common}
+            {...COMMON_INPUT_PROPS}
             label="Authorization URL"
             configProperty="authentication.authorizationUrl"
           />
         </FormInputContainer>
         <FormInputContainer>
           <KeyValueInputControl
-            {...common}
+            {...COMMON_INPUT_PROPS}
             label="Custom Authentication Parameters"
             configProperty="authentication.customAuthenticationParameters"
           />
@@ -629,7 +623,7 @@ const datasourceToFormValues = (datasource: Datasource): ApiDatasourceForm => {
 const formValuesToDatasource = (
   datasource: Datasource,
   form: ApiDatasourceForm,
-) => {
+): Datasource => {
   const authentication = formToDatasourceAuthentication(
     form.authType,
     form.authentication,
@@ -649,7 +643,7 @@ const formValuesToDatasource = (
       ],
       authentication: authentication,
     },
-  };
+  } as Datasource;
 };
 
 const mapStateToProps = (state: AppState, props: any) => {
