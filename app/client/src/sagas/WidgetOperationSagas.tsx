@@ -943,7 +943,6 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
     const childId = childrenIds[childIndex];
     yield put(resetWidgetMetaProperty(childId));
   }
-  // yield call(resetEvaluatedWidgetMetaProperties, childrenIds);
 }
 
 function* updateCanvasSize(

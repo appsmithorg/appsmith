@@ -50,18 +50,9 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       const defaultProperties = WrappedWidget.getDefaultPropertiesMap();
       Object.keys(metaProperties).forEach((metaProperty) => {
         const defaultProperty = defaultProperties[metaProperty];
-        if (prevProps.widgetName === "Input1") {
-          if (metaProperty === "text") {
-            console.log("META", {
-              prevMeta: prevProps[metaProperty],
-              currMeta: this.props[metaProperty],
-              currDefault: this.props[defaultProperty],
-            });
-          }
-        }
         /*
           Generally the meta property value of a widget will directly be
-          controlled by itself and the platform will interfere except:
+          controlled by itself and the platform will not interfere except:
           When we reset the meta property value to it's default property value.
           This operation happens by the platform and is outside the widget logic
           so to identify this change, we want to see if the meta value has
