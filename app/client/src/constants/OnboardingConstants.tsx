@@ -75,7 +75,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     helper: {
       title: "👋 Welcome to Appsmith!",
       description:
-        "Let's build an app for remote teams to do async update meetings",
+        "We'd like to show you around! Let's build an app for remote teams to do async meeting updates.",
       skipLabel: "No thanks",
       image: {
         src: HandwaveGif,

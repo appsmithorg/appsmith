@@ -35,6 +35,7 @@ import { getSelectedWidget, getWidgets } from "./selectors";
 import {
   endOnboarding,
   setCurrentStep,
+  setHelperConfig,
   setOnboardingState as setOnboardingReduxState,
   showIndicator,
   showOnboardingHelper,
@@ -46,6 +47,7 @@ import {
 import { playOnboardingStepCompletionAnimation } from "utils/helpers";
 import {
   OnboardingConfig,
+  OnboardingHelperConfig,
   OnboardingStep,
 } from "constants/OnboardingConstants";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
@@ -97,7 +99,7 @@ export const getInitialTableData = (state: AppState) => {
   return widgetConfig.config.TABLE_WIDGET.tableData;
 };
 export const getHelperConfig = (step: OnboardingStep) => {
-  return OnboardingConfig[step].helper;
+  return OnboardingConfig[step].helper as OnboardingHelperConfig;
 };
 
 function* listenForWidgetAdditions() {
@@ -135,10 +137,9 @@ function* listenForWidgetAdditions() {
       yield put({
         type: ReduxActionTypes.ADD_WIDGET_COMPLETE,
       });
-      yield put({
-        type: ReduxActionTypes.SET_HELPER_CONFIG,
-        payload: getHelperConfig(OnboardingStep.SUCCESSFUL_BINDING),
-      });
+      yield put(
+        setHelperConfig(getHelperConfig(OnboardingStep.SUCCESSFUL_BINDING)),
+      );
 
       return;
     }
@@ -201,15 +202,14 @@ function* listenForAddInputWidget() {
       const onSubmitGifUrl = OnSubmitGif;
 
       if (helperConfig?.image.src !== onSubmitGifUrl) {
-        yield put({
-          type: ReduxActionTypes.SET_HELPER_CONFIG,
-          payload: {
+        yield put(
+          setHelperConfig({
             ...helperConfig,
             image: {
               src: onSubmitGifUrl,
             },
-          },
-        });
+          }),
+        );
       }
 
       yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
@@ -236,10 +236,7 @@ function* listenForAddInputWidget() {
         AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
 
         yield put(setCurrentStep(OnboardingStep.DEPLOY));
-        yield put({
-          type: ReduxActionTypes.SET_HELPER_CONFIG,
-          payload: getHelperConfig(OnboardingStep.DEPLOY),
-        });
+        yield put(setHelperConfig(getHelperConfig(OnboardingStep.DEPLOY)));
 
         return;
       }
@@ -296,10 +293,9 @@ function* listenForSuccessfulBinding() {
 
           yield delay(1000);
 
-          yield put({
-            type: ReduxActionTypes.SET_HELPER_CONFIG,
-            payload: getHelperConfig(OnboardingStep.ADD_INPUT_WIDGET),
-          });
+          yield put(
+            setHelperConfig(getHelperConfig(OnboardingStep.ADD_INPUT_WIDGET)),
+          );
           return;
         }
       }
@@ -370,10 +366,9 @@ function* createOnboardingDatasource() {
     yield put(changeDatasource(onboardingDatasource));
 
     yield take(ReduxActionTypes.SHOW_ONBOARDING_LOADER);
-    yield put({
-      type: ReduxActionTypes.SET_HELPER_CONFIG,
-      payload: getHelperConfig(OnboardingStep.EXAMPLE_DATABASE),
-    });
+    yield put(
+      setHelperConfig(getHelperConfig(OnboardingStep.EXAMPLE_DATABASE)),
+    );
     yield put(showOnboardingHelper(true));
   } catch (error) {
     yield put({
@@ -389,16 +384,15 @@ function* listenForCreateAction() {
 
   yield take([ReduxActionTypes.CREATE_ACTION_SUCCESS]);
   AnalyticsUtil.logEvent("ONBOARDING_ADD_QUERY");
-  yield put({
-    type: ReduxActionTypes.SET_HELPER_CONFIG,
-    payload: {
+  yield put(
+    setHelperConfig({
       ...helperConfig,
       image: {
         src:
           "https://res.cloudinary.com/drako999/image/upload/v1611839705/Appsmith/Onboarding/run.gif",
       },
-    },
-  });
+    }),
+  );
   yield put({
     type: "SET_CURRENT_SUBSTEP",
     payload: 2,
@@ -412,10 +406,7 @@ function* listenForCreateAction() {
 
   yield take([ReduxActionTypes.RUN_ACTION_SUCCESS]);
   AnalyticsUtil.logEvent("ONBOARDING_RUN_QUERY");
-  yield put({
-    type: ReduxActionTypes.SET_HELPER_CONFIG,
-    payload: getHelperConfig(OnboardingStep.RUN_QUERY_SUCCESS),
-  });
+  yield put(setHelperConfig(getHelperConfig(OnboardingStep.RUN_QUERY_SUCCESS)));
   yield put(showIndicator(OnboardingStep.RUN_QUERY_SUCCESS));
 
   yield put(setCurrentStep(OnboardingStep.RUN_QUERY_SUCCESS));
@@ -773,10 +764,7 @@ function* addOnSubmitHandler() {
       AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
 
       yield put(setCurrentStep(OnboardingStep.DEPLOY));
-      yield put({
-        type: ReduxActionTypes.SET_HELPER_CONFIG,
-        payload: getHelperConfig(OnboardingStep.DEPLOY),
-      });
+      yield put(setHelperConfig(getHelperConfig(OnboardingStep.DEPLOY)));
 
       AnalyticsUtil.logEvent("ONBOARDING_CHEAT", {
         step: 4,

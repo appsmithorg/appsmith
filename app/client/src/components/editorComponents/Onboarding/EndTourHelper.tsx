@@ -1,6 +1,11 @@
-import { showOnboardingHelper } from "actions/onboardingActions";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  setHelperConfig,
+  showOnboardingHelper,
+} from "actions/onboardingActions";
+import {
+  OnboardingHelperConfig,
+  OnboardingStep,
+} from "constants/OnboardingConstants";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getHelperConfig } from "sagas/OnboardingSagas";
@@ -18,10 +23,11 @@ const EndTourHelper = () => {
     const showCompletionDialog = async () => {
       const inOnboarding = await getOnboardingState();
       if (params.onboardingComplete && inOnboarding) {
-        dispatch({
-          type: ReduxActionTypes.SET_HELPER_CONFIG,
-          payload: getHelperConfig(OnboardingStep.FINISH),
-        });
+        dispatch(
+          setHelperConfig(
+            getHelperConfig(OnboardingStep.FINISH) as OnboardingHelperConfig,
+          ),
+        );
         AnalyticsUtil.logEvent("ONBOARDING_COMPLETE");
         dispatch({
           type: "SET_CURRENT_SUBSTEP",

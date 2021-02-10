@@ -1,6 +1,11 @@
-import { showOnboardingHelper } from "actions/onboardingActions";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  setHelperConfig,
+  showOnboardingHelper,
+} from "actions/onboardingActions";
+import {
+  OnboardingHelperConfig,
+  OnboardingStep,
+} from "constants/OnboardingConstants";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getHelperConfig } from "sagas/OnboardingSagas";
@@ -15,7 +20,9 @@ const WelcomeHelper = () => {
   const showWelcomeHelper = useSelector(
     (state) => state.ui.onBoarding.showWelcomeHelper,
   );
-  const helperConfig = getHelperConfig(OnboardingStep.WELCOME);
+  const helperConfig = getHelperConfig(
+    OnboardingStep.WELCOME,
+  ) as OnboardingHelperConfig;
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -29,10 +36,7 @@ const WelcomeHelper = () => {
       }
     };
 
-    dispatch({
-      type: ReduxActionTypes.SET_HELPER_CONFIG,
-      payload: helperConfig,
-    });
+    dispatch(setHelperConfig(helperConfig));
     isInOnboarding();
   }, [currentUser, showWelcomeHelper]);
 
