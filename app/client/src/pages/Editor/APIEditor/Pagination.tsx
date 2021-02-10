@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 
 import styled from "constants/DefaultTheme";
@@ -8,8 +8,12 @@ import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupF
 import Text, { Case, TextType } from "components/ads/Text";
 import Button, { Category, Size } from "components/ads/Button";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import Dropdown from "components/ads/Dropdown";
-import { Variant } from "components/ads/common";
+import GifPlayerComponent from "components/ads/GifPlayerComponent";
+import { Classes } from "components/ads/common";
+import lightmodeGif from "assets/icons/gifs/config_pagination_lightmode.gif";
+import darkmodeGif from "assets/icons/gifs/config_pagination_darkmode.gif";
+import lightmodeThumbnail from "assets/icons/gifs/lightmode_thumbnail.png";
+import darkmodeThumbnail from "assets/icons/gifs/darkmode_thumbnail.png";
 
 interface PaginationProps {
   onTestClick: (test?: "PREV" | "NEXT") => void;
@@ -19,16 +23,11 @@ interface PaginationProps {
 const PaginationFieldWrapper = styled.div`
   display: flex;
   margin-bottom: ${(props) => props.theme.spaces[5]}px;
-
+  margin-left: ${(props) => props.theme.spaces[11] + 2}px;
+  width: 420px;
   button {
     margin-left: ${(props) => props.theme.spaces[5]}px;
   }
-`;
-
-const StyledLabel = styled(Text)`
-  display: inline-block;
-  margin-bottom: ${(props) => props.theme.spaces[3]}px;
-  color: ${(props) => props.theme.colors.apiPane.pagination.label};
 `;
 
 const Description = styled(Text)`
@@ -37,27 +36,38 @@ const Description = styled(Text)`
   color: ${(props) => props.theme.colors.apiPane.pagination.description};
 `;
 
+const Step = styled(Text)`
+  display: block;
+  margin-bottom: ${(props) => props.theme.spaces[5]}px;
+  color: ${(props) => props.theme.colors.apiPane.pagination.label};
+  margin-left: ${(props) => props.theme.spaces[11] + 2}px;
+`;
+
 const StepTitle = styled.div`
+  display: flex;
   margin-bottom: ${(props) => props.theme.spaces[4]}px;
   span {
     color: ${(props) => props.theme.colors.apiPane.pagination.stepTitle};
   }
 `;
 
-const TableRow = styled.div`
+const NumberBox = styled.div`
+  width: 18px;
+  height: 18px;
   display: flex;
   align-items: center;
-  margin-bottom: ${(props) => props.theme.spaces[8]}px;
-  button {
-    margin-left: ${(props) => props.theme.spaces[5]}px;
-    height: 34px;
-    padding: 0 ${(props) => props.theme.spaces[5]}px;
-  }
+  justify-content: center;
+  background-color: ${(props) =>
+    props.theme.colors.apiPane.pagination.numberBg};
+  color: ${(props) => props.theme.colors.apiPane.pagination.numberColor};
+  margin-right: 8px;
 `;
 
 const PaginationTypeView = styled.div`
-  margin-left: 350px;
+  margin-left: 330px;
   width: 100%;
+  display: flex;
+  justify-content: space-between;
 `;
 
 const PaginationSection = styled.div`
@@ -66,32 +76,40 @@ const PaginationSection = styled.div`
     ${(props) => props.theme.spaces[12]}px;
 `;
 
-const Example = styled.div<{ editorTheme?: EditorTheme }>`
-  display: flex;
-  width: fit-content;
-  align-items: center;
-  ${(props) =>
-    props.editorTheme === EditorTheme.DARK
-      ? `
-padding: ${props.theme.spaces[4]}px ${props.theme.spaces[5]}px;
-  `
-      : null};
-  background: ${(props) => props.theme.colors.apiPane.pagination.exampleBg};
-  span {
-    color: ${(props) => props.theme.colors.apiPane.pagination.label};
-  }
+const Example = styled(Text)`
+  display: block;
+  margin-left: ${(props) => props.theme.spaces[11] + 2}px;
+  margin-bottom: ${(props) => props.theme.spaces[3]}px;
+  color: ${(props) => props.theme.colors.apiPane.pagination.label};
 `;
 
 const BindingKey = styled.div`
   padding: ${(props) => props.theme.spaces[1] - 2}px
     ${(props) => props.theme.spaces[1]}px;
-  margin-left: ${(props) => props.theme.spaces[4]}px;
+  margin-left: ${(props) => props.theme.spaces[11] + 2}px;
+  width: fit-content;
+  span {
+    color: ${(props) => props.theme.colors.apiPane.pagination.label};
+  }
   background: ${(props) => props.theme.colors.apiPane.pagination.bindingBg};
 `;
 
-export default function Pagination(props: PaginationProps) {
-  const [selectedTable, setSelectedTable] = useState<string>("none");
+const GifContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
+  img {
+    width: 320px;
+    height: 161px;
+  }
+
+  .${Classes.TEXT} {
+    margin-top: 12px;
+  }
+`;
+
+export default function Pagination(props: PaginationProps) {
   return (
     <PaginationSection>
       <FormRow
@@ -121,183 +139,123 @@ export default function Pagination(props: PaginationProps) {
         />
       </FormRow>
 
-      <PaginationTypeView
-        className={
-          props.paginationType !== PaginationType.URL ? "display-none" : ""
-        }
-      >
-        <Description type={TextType.H6} case={Case.UPPERCASE}>
-          Pagination with response url
-        </Description>
-        <StepTitle>
-          <Text type={TextType.H5}>Step 1 - </Text>
-          <Text type={TextType.P1}>Configure Table for Pagination</Text>
-        </StepTitle>
-        <Description type={TextType.P3}>
-          Enable server side pagination and configure OnPageChange action
-        </Description>
-        <StyledLabel type={TextType.P3}>Select Table</StyledLabel>
-        <TableRow>
-          <Dropdown
-            options={[
-              { value: "UsersTable" },
-              { value: "InfoTable" },
-              { value: "DataTable" },
-            ]}
-            selected={{ value: "Select" }}
-            onSelect={(value?: string) => setSelectedTable(value || "none")}
-          />
-          {selectedTable === "none" ? (
-            <Button
-              category={Category.tertiary}
-              text={"Configure"}
-              size={Size.medium}
-              tag="button"
+      {props.paginationType === PaginationType.URL && (
+        <PaginationTypeView>
+          <div>
+            <Description type={TextType.H6} case={Case.UPPERCASE}>
+              Pagination with response url
+            </Description>
+            <StepTitle>
+              <NumberBox>1</NumberBox>
+              <Text type={TextType.P1}>Configure Table for Pagination</Text>
+            </StepTitle>
+            <Step type={TextType.P1}>1. Enable server side pagination</Step>
+            <Step type={TextType.P1}>2. Configure OnPageChange action</Step>
+            <StepTitle>
+              <NumberBox>2</NumberBox>
+              <Text type={TextType.P1}>Configure Request Parameters</Text>
+            </StepTitle>
+            <Step type={TextType.P1}>Configure Next and Previous URL </Step>
+            <Step type={TextType.P1}>Previous url</Step>
+            <PaginationFieldWrapper>
+              <DynamicTextField
+                className="t--apiFormPaginationPrev"
+                name="actionConfiguration.prev"
+                theme={props.theme}
+                fill
+              />
+              <Button
+                className="t--apiFormPaginationPrevTest"
+                category={Category.tertiary}
+                onClick={() => {
+                  props.onTestClick("PREV");
+                }}
+                text={"Test"}
+                size={Size.medium}
+                tag="button"
+              />
+            </PaginationFieldWrapper>
+            <Step type={TextType.P1}>Next url</Step>
+            <PaginationFieldWrapper>
+              <DynamicTextField
+                className="t--apiFormPaginationNext"
+                name="actionConfiguration.next"
+                theme={props.theme}
+                fill
+              />
+              <Button
+                className="t--apiFormPaginationNextTest"
+                category={Category.tertiary}
+                onClick={() => {
+                  props.onTestClick("NEXT");
+                }}
+                text={"Test"}
+                size={Size.medium}
+                tag="button"
+              />
+            </PaginationFieldWrapper>
+          </div>
+          <GifContainer>
+            <GifPlayerComponent
+              gif={
+                props.theme === EditorTheme.LIGHT ? lightmodeGif : darkmodeGif
+              }
+              thumbnail={
+                props.theme === EditorTheme.LIGHT
+                  ? lightmodeThumbnail
+                  : darkmodeThumbnail
+              }
             />
-          ) : (
-            <Button
-              category={Category.secondary}
-              variant={Variant.danger}
-              text={"Reset"}
-              size={Size.medium}
-              tag="button"
+            <Text type={TextType.P3}>
+              1. How to Configure Table for Pagination
+            </Text>
+          </GifContainer>
+        </PaginationTypeView>
+      )}
+      {props.paginationType === PaginationType.PAGE_NO && (
+        <PaginationTypeView>
+          <div>
+            <Description type={TextType.H6} case={Case.UPPERCASE}>
+              Pagination with Table Page number
+            </Description>
+            <StepTitle>
+              <NumberBox>1</NumberBox>
+              <Text type={TextType.P1}>Configure Table for Pagination</Text>
+            </StepTitle>
+            <Step type={TextType.P1}>1. Enable server side pagination</Step>
+            <Step type={TextType.P1}>2. Configure OnPageChange action</Step>
+            <StepTitle>
+              <NumberBox>2</NumberBox>
+              <Text type={TextType.P1}>Configure Request Parameters</Text>
+            </StepTitle>
+            <Step type={TextType.P1} style={{ width: "336px" }}>
+              1. Map appropiate parameter or header in your request to
+              UsersTable’s page number property
+            </Step>
+            <Example type={TextType.P2}>
+              Example - Map key <i>pageNo</i> or similar to value
+            </Example>
+            <BindingKey>
+              <Text type={TextType.P2}>{"{{UsersTable.pageNo}}"}</Text>
+            </BindingKey>
+          </div>
+          <GifContainer>
+            <GifPlayerComponent
+              gif={
+                props.theme === EditorTheme.LIGHT ? lightmodeGif : darkmodeGif
+              }
+              thumbnail={
+                props.theme === EditorTheme.LIGHT
+                  ? lightmodeThumbnail
+                  : darkmodeThumbnail
+              }
             />
-          )}
-        </TableRow>
-        <StepTitle>
-          <Text type={TextType.H5}>Step 2 - </Text>
-          <Text type={TextType.P1}>Configure URL</Text>
-        </StepTitle>
-        <Description type={TextType.P3}>
-          Configure Next and Previous URL{" "}
-        </Description>
-        <StyledLabel type={TextType.P3}>Previous url</StyledLabel>
-        <PaginationFieldWrapper>
-          <DynamicTextField
-            className="t--apiFormPaginationPrev"
-            name="actionConfiguration.prev"
-            theme={props.theme}
-          />
-          <Button
-            className="t--apiFormPaginationPrevTest"
-            category={Category.tertiary}
-            onClick={() => {
-              props.onTestClick("PREV");
-            }}
-            text={"Test"}
-            size={Size.medium}
-            tag="button"
-          />
-        </PaginationFieldWrapper>
-        <StyledLabel type={TextType.P3}>Next url</StyledLabel>
-        <PaginationFieldWrapper>
-          <DynamicTextField
-            className="t--apiFormPaginationNext"
-            name="actionConfiguration.next"
-            theme={props.theme}
-          />
-          <Button
-            className="t--apiFormPaginationNextTest"
-            category={Category.tertiary}
-            onClick={() => {
-              props.onTestClick("NEXT");
-            }}
-            text={"Test"}
-            size={Size.medium}
-            tag="button"
-          />
-        </PaginationFieldWrapper>
-      </PaginationTypeView>
-      <PaginationTypeView
-        className={
-          props.paginationType !== PaginationType.PAGE_NO ? "display-none" : ""
-        }
-      >
-        <Description type={TextType.H6} case={Case.UPPERCASE}>
-          Pagination with Table Page number
-        </Description>
-        <StepTitle>
-          <Text type={TextType.H5}>Step 1 - </Text>
-          <Text type={TextType.P1}>Configure Table for Pagination</Text>
-        </StepTitle>
-        <Description type={TextType.P3}>
-          Enable server side pagination and configure OnPageChange action
-        </Description>
-        <StyledLabel type={TextType.P3}>Select Table</StyledLabel>
-        <TableRow>
-          <Dropdown
-            options={[
-              { value: "UsersTable" },
-              { value: "InfoTable" },
-              { value: "DataTable" },
-            ]}
-            selected={{ value: "Select" }}
-            onSelect={(value?: string) => setSelectedTable(value || "select")}
-          />
-          {selectedTable === "none" ? (
-            <Button
-              category={Category.tertiary}
-              text={"Configure"}
-              size={Size.medium}
-              tag="button"
-            />
-          ) : (
-            <Button
-              category={Category.secondary}
-              variant={Variant.danger}
-              text={"Reset"}
-              size={Size.medium}
-              tag="button"
-            />
-          )}
-        </TableRow>
-        <StepTitle>
-          <Text type={TextType.H5}>Step 2 - </Text>
-          <Text type={TextType.P1}>Configure Request Parameters</Text>
-        </StepTitle>
-        <Description type={TextType.P3}>
-          Map appropiate parameter or header in your request to UsersTable’s
-          page number property
-        </Description>
-        <Example editorTheme={props.theme}>
-          <Text type={TextType.P2}>
-            Example - Map key <i>pageNo</i> or similar to value
-          </Text>
-          <BindingKey>
-            <Text type={TextType.P2}>{"{{UsersTable.pageNo}}"}</Text>
-          </BindingKey>
-        </Example>
-        {/* <CalloutComponent>
-          <p
-            style={{
-              marginBottom: "6px",
-            }}
-          >
-            1. Configure the Table pageNo in the API.
-          </p>
-          <ExampleApi>
-            http://api.example.com/users?pageNo={"{{Table1.pageNo}}"}
-          </ExampleApi>
-        </CalloutComponent>
-        <CalloutComponent>
-          <p
-            style={{
-              marginBottom: "6px",
-            }}
-          >
-            2. Enable server side pagination in Table1
-          </p>
-        </CalloutComponent>
-        <CalloutComponent>
-          <p
-            style={{
-              marginBottom: "6px",
-            }}
-          >
-            3. Call this API onPageChange in Table1.
-          </p>
-        </CalloutComponent> */}
-      </PaginationTypeView>
+            <Text type={TextType.P3}>
+              1. How to Configure Table for Pagination
+            </Text>
+          </GifContainer>
+        </PaginationTypeView>
+      )}
     </PaginationSection>
   );
 }

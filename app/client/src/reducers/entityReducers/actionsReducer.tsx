@@ -190,9 +190,8 @@ const actionsReducer = createReducer(initialState, {
   ): ActionDataState =>
     state.map((a) => {
       if (a.config.id === action.payload.actionId) {
-        return { ...a, isLoading: false, data: action.payload.error };
+        return { ...a, isLoading: false, data: action.payload.data };
       }
-
       return a;
     }),
   [ReduxActionTypes.RUN_ACTION_REQUEST]: (

@@ -38,6 +38,7 @@ export type EditableTextProps = CommonComponentProps & {
   isInvalid?: (value: string) => string | boolean;
   hideEditIcon?: boolean;
   fill?: boolean;
+  underline?: boolean;
 };
 
 const EditableTextWrapper = styled.div<{
@@ -69,6 +70,7 @@ const TextContainer = styled.div<{
   isInvalid: boolean;
   isEditing: boolean;
   bgColor: string;
+  underline?: boolean;
 }>`
   display: flex;
   align-items: center;
@@ -93,8 +95,20 @@ const TextContainer = styled.div<{
     overflow: hidden;
     text-overflow: ellipsis;
     ${(props) => (props.isEditing ? "display: none" : "display: block")};
+    min-width: auto !important;
   }
 
+  &&& .${BlueprintClasses.EDITABLE_TEXT_CONTENT}:hover {
+    ${(props) =>
+      props.underline && !props.isEditing
+        ? `
+        border-bottom-style: solid; 
+        border-bottom-width: 1px;
+        width: fit-content;
+        max-width: 194px;
+      `
+        : null}
+  }
   &&& .${BlueprintClasses.EDITABLE_TEXT_INPUT} {
     border: none;
     outline: none;
@@ -258,6 +272,7 @@ export const EditableText = (props: EditableTextProps) => {
         isInvalid={!!isInvalid}
         isEditing={isEditing}
         bgColor={bgColor}
+        underline={props.underline}
       >
         <BlueprintEditableText
           disabled={!isEditing}
@@ -265,7 +280,7 @@ export const EditableText = (props: EditableTextProps) => {
           onChange={onInputchange}
           onConfirm={onConfirm}
           value={value}
-          selectAllOnFocus={true}
+          selectAllOnFocus
           placeholder={props.placeholder || defaultValue}
           className={props.className}
           onCancel={onConfirm}

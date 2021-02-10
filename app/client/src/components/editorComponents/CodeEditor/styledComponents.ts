@@ -36,11 +36,11 @@ export const HintStyles = createGlobalStyle<{
   }
 
   .CodeMirror-hint {
-    height: 32px;
+    height: 24px;
     color: ${(props) => props.theme.colors.codeMirror.text};
     cursor: pointer;
     display: flex;
-    width: 300px;
+    width: 220px;
     align-items: center;
     font-size: 12px;
     line-height: 15px;
@@ -51,6 +51,7 @@ export const HintStyles = createGlobalStyle<{
     padding: 10px;
     display: block;
     width: 500px;
+    height: 32px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -70,7 +71,7 @@ export const HintStyles = createGlobalStyle<{
   }
   .CodeMirror-Tern-completion:before {
     left: 7px;
-    bottom: 10px;
+    bottom: 6px;
     height: 12px;
     width: 12px;
     border-radius: 0;
@@ -99,11 +100,11 @@ export const HintStyles = createGlobalStyle<{
   .CodeMirror-Tern-completion:after {
     position: absolute;
     right: 8px;
-    bottom: 10px;
+    bottom: 6px;
     font-style: italic;
     font-weight: normal;
-    font-size: 12px;
-    line-height: 15px;
+    font-size: 10px;
+    line-height: 13px;
     letter-spacing: -0.24px;
     color: ${(props) => props.theme.colors.codeMirror.dataType.fullForm};
   }
@@ -277,7 +278,7 @@ export const EditorWrapper = styled.div<{
       }
     }
     .cm-s-duotone-light .CodeMirror-gutters {
-      background: ${() => Colors.Gallery};
+      background: ${Colors.Gallery};
     }
     .cm-s-duotone-dark.CodeMirror {
       border-radius: 0px;
@@ -296,7 +297,7 @@ export const EditorWrapper = styled.div<{
       color: ${Colors.DOVE_GRAY};
     }
     .cm-s-duotone-dark .CodeMirror-gutters {
-      background: ${() => Colors.SHARK2};
+      background: ${Colors.SHARK2};
     }
     .binding-brackets {
       ${(props) =>

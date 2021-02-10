@@ -4,7 +4,6 @@ describe("Create a rest datasource", function() {
     cy.CreateAPI("Testapi");
     cy.enterDatasourceAndPath("https://reqres.in/api/", "users");
 
-    cy.get(".t--store-as-datasource-menu").click();
     cy.get(".t--store-as-datasource").click();
 
     cy.saveDatasource();

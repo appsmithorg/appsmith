@@ -39,11 +39,13 @@ import Text, { Case, TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
+import TooltipComponent from "components/ads/Tooltip";
+import { Position } from "@blueprintjs/core";
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
   overflow: hidden;
   width: 100%;
   ${FormLabel} {
@@ -68,18 +70,6 @@ const MainConfiguration = styled.div`
     ${(props) => props.theme.spaces[12]}px;
   background-color: ${(props) => props.theme.colors.apiPane.bg};
   height: 126px;
-
-  .close-modal-icon {
-    cursor: pointer;
-    svg {
-      margin-right: 16px;
-      width: 12px;
-      height: 12px;
-      path {
-        fill: ${(props) => props.theme.colors.apiPane.closeIcon};
-      }
-    }
-  }
 `;
 
 const ActionButtons = styled.div`
@@ -202,6 +192,26 @@ export const NameWrapper = styled.div`
   }
 `;
 
+const IconContainer = styled.div`
+  width: 22px;
+  height: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 16px;
+  cursor: pointer;
+  svg {
+    width: 12px;
+    height: 12px;
+    path {
+      fill: ${(props) => props.theme.colors.apiPane.closeIcon};
+    }
+  }
+  &:hover {
+    background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg};
+  }
+`;
+
 const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [
@@ -256,12 +266,24 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
       <MainConfiguration>
         <FormRow className="form-row-header">
           <NameWrapper className="t--nameOfApi">
-            <Icon
-              name="close-modal"
-              size={IconSize.LARGE}
-              className="close-modal-icon"
-              onClick={handleClose}
-            />
+            <TooltipComponent
+              minimal
+              position={Position.BOTTOM}
+              content={
+                <Text type={TextType.P3} style={{ color: "#ffffff" }}>
+                  Close
+                </Text>
+              }
+            >
+              <IconContainer>
+                <Icon
+                  name="close-modal"
+                  size={IconSize.LARGE}
+                  className="close-modal-icon"
+                  onClick={handleClose}
+                />
+              </IconContainer>
+            </TooltipComponent>
             <ActionNameEditor page="API_PANE" />
           </NameWrapper>
           <ActionButtons className="t--formActionButtons">

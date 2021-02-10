@@ -11,6 +11,7 @@ import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { DEFAULT_CENTER } from "constants/WidgetConstants";
+import { getBorderCSSShorthand } from "constants/DefaultTheme";
 
 const { google } = getAppsmithConfigs();
 
@@ -20,6 +21,8 @@ const DisabledContainer = styled.div`
   text-align: center;
   display: flex;
   flex-direction: column;
+  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+  border-radius: 0;
   h1 {
     margin-top: 15%;
     margin-bottom: 10%;
@@ -154,7 +157,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://docs.appsmith.com/third-party-services/google-maps"
+                href="https://docs.appsmith.com/v/v1.2.1/setup/docker/google-maps"
               >
                 {" documentation "}
               </a>

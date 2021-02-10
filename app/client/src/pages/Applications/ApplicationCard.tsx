@@ -422,6 +422,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                 });
             }}
             className="t--application-name"
+            underline
           />
         )}
         {hasEditPermission && (

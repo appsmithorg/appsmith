@@ -57,10 +57,12 @@ const ToastBody = styled.div<{
   display: flex;
   align-items: center;
   justify-content: space-between;
+  overflow-wrap: anywhere;
 
   .${Classes.ICON} {
     cursor: auto;
     margin-right: ${(props) => props.theme.spaces[3]}px;
+    margin-top: ${(props) => props.theme.spaces[1] / 2}px;
     svg {
       path {
         fill: ${(props) =>
@@ -99,7 +101,7 @@ const ToastBody = styled.div<{
 
 const FlexContainer = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 `;
 
 const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
@@ -171,7 +173,7 @@ export const Toaster = {
         pauseOnHover: !config.dispatchableAction && !config.hideProgressBar,
         pauseOnFocusLoss: !config.dispatchableAction && !config.hideProgressBar,
         autoClose: false,
-        closeOnClick: false,
+        closeOnClick: true,
         hideProgressBar: config.hideProgressBar,
       },
     );

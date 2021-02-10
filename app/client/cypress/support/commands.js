@@ -224,7 +224,7 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
     .scrollIntoView()
     .should("be.visible")
-    .click();
+    .click({ force: true });
   cy.wait("@createNewApplication").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -239,7 +239,7 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   );
 });
 
-Cypress.Commands.add("CreateApp", (appname) => {
+Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
   cy.get(homePage.createNew)
     .first()
     .click({ force: true });
@@ -287,6 +287,11 @@ Cypress.Commands.add("DeleteApp", (appName) => {
 });
 
 Cypress.Commands.add("LogintoApp", (uname, pword) => {
+  cy.window()
+    .its("store")
+    .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+  cy.wait("@postLogout");
+
   cy.visit("/user/login");
   cy.get(loginPage.username).should("be.visible");
   cy.get(loginPage.username).type(uname);
@@ -664,9 +669,6 @@ Cypress.Commands.add("switchToAPIInputTab", () => {
 });
 
 Cypress.Commands.add("selectPaginationType", (option) => {
-  cy.get(apiwidget.paginationOption)
-    .first()
-    .click({ force: true });
   cy.xpath(option).click({ force: true });
 });
 
@@ -1030,6 +1032,17 @@ Cypress.Commands.add("testJsontext", (endp, value) => {
       });
   });
   cy.wait(1000);
+});
+
+Cypress.Commands.add("evaluateErrorMessage", (value) => {
+  cy.get(commonlocators.evaluateMsg)
+    .first()
+    .click()
+    .invoke("text")
+    .then((text) => {
+      const someText = text;
+      expect(someText).to.equal(value);
+    });
 });
 
 Cypress.Commands.add("selectShowMsg", (value) => {
@@ -1796,11 +1809,7 @@ Cypress.Commands.add("NavigateToPaginationTab", () => {
   cy.get(ApiEditor.apiTab)
     .contains("Pagination")
     .click();
-  cy.get(ApiEditor.apiPaginationTab).click();
-  cy.get(ApiEditor.apiPaginationTab + " input")
-    .first()
-    .type("Paginate with Response Url", { force: true })
-    .type("{enter}");
+  cy.xpath(apiwidget.paginationWithUrl).click({ force: true });
 });
 
 Cypress.Commands.add("ValidateTableData", (value) => {
@@ -1825,8 +1834,10 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
   cy.RunAPI();
   cy.get(ApiEditor.apiPaginationNextTest).click();
   cy.wait("@postExecute");
+  cy.wait(2000);
   cy.get(runTestCss).click();
   cy.wait("@postExecute");
+  cy.wait(2000);
   cy.get(ApiEditor.formActionButtons).should("be.visible");
   cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
   cy.get(ApiEditor.responseBody)

@@ -41,6 +41,15 @@ export enum Skin {
   DARK,
 }
 
+export const hideScrollbar = css`
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+    -webkit-appearance: none;
+  }
+`;
+
 export const scrollbarDark = css`
   scrollbar-color: ${(props) => props.theme.colors.paneCard}
     ${(props) => props.theme.colors.paneBG};
@@ -89,6 +98,11 @@ export const BlueprintControlTransform = css`
         border: 2px solid ${Colors.SLATE_GRAY};
       }
     }
+
+    .${Classes.CHECKBOX} .${Classes.CONTROL_INDICATOR} {
+      border-radius: 0;
+    }
+
     .${Classes.CONTROL_INDICATOR} {
       box-shadow: none;
       background: none;
@@ -112,9 +126,8 @@ export const BlueprintCSSTransform = css`
   &&&& {
     .${Classes.BUTTON} {
       box-shadow: none;
-      border-radius: 4px;
+      border-radius: 0;
       background: white;
-      border: 1px solid ${Colors.GEYSER};
     }
     .${Classes.INTENT_PRIMARY} {
       background: ${IntentColors.primary};
@@ -285,6 +298,7 @@ export type Theme = {
   };
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
+  smallHeaderHeight: string;
   homePage: any;
   sidebarWidth: string;
   canvasPadding: string;
@@ -511,7 +525,7 @@ type ColorType = {
   text: {
     normal: ShadeColor;
     heading: ShadeColor;
-    hightlight: ShadeColor;
+    highlight: ShadeColor;
   };
   icon: {
     normal: ShadeColor;
@@ -750,6 +764,7 @@ type ColorType = {
     bg: ShadeColor;
     text: ShadeColor;
     dividerBg: ShadeColor;
+    iconHoverBg: ShadeColor;
     requestTree: {
       bg: string;
       header: {
@@ -796,8 +811,9 @@ type ColorType = {
       label: ShadeColor;
       description: ShadeColor;
       stepTitle: ShadeColor;
-      exampleBg: ShadeColor;
+      numberBg: string;
       bindingBg: ShadeColor;
+      numberColor: ShadeColor;
     };
   };
   codeMirror: {
@@ -814,6 +830,25 @@ type ColorType = {
   floatingBtn: any;
   auth: any;
   formMessage: Record<string, Record<Intent, string>>;
+  header: {
+    separator: string;
+    appName: ShadeColor;
+    background: string;
+    deployToolTipBackground: string;
+    deployToolTipText: ShadeColor;
+    shareBtnHighlight: string;
+    shareBtn: string;
+    tabsHorizontalSeparator: string;
+    tabText: string;
+    activeTabBorderBottom: string;
+    activeTabText: string;
+  };
+  gif: {
+    overlay: string;
+    text: string;
+    iconPath: string;
+    iconCircle: string;
+  };
 };
 
 const auth: any = {
@@ -844,6 +879,19 @@ const formMessage = {
 };
 
 export const dark: ColorType = {
+  header: {
+    separator: darkShades[4],
+    appName: darkShades[7],
+    background: darkShades[2],
+    deployToolTipBackground: lightShades[10],
+    deployToolTipText: darkShades[7],
+    shareBtnHighlight: "#F86A2B",
+    shareBtn: "#fff",
+    tabsHorizontalSeparator: "#EFEFEF",
+    tabText: "#6F6D6D",
+    activeTabBorderBottom: "#FF6D2D",
+    activeTabText: "#000",
+  },
   button: {
     disabledText: darkShades[6],
   },
@@ -892,7 +940,7 @@ export const dark: ColorType = {
   text: {
     normal: darkShades[6],
     heading: darkShades[7],
-    hightlight: darkShades[9],
+    highlight: darkShades[9],
   },
   icon: {
     normal: darkShades[6],
@@ -1131,6 +1179,7 @@ export const dark: ColorType = {
     bg: darkShades[0],
     text: darkShades[6],
     dividerBg: darkShades[4],
+    iconHoverBg: darkShades[1],
     requestTree: {
       bg: lightShades[10],
       header: {
@@ -1177,8 +1226,9 @@ export const dark: ColorType = {
       label: darkShades[7],
       description: darkShades[5],
       stepTitle: darkShades[9],
-      exampleBg: darkShades[3],
-      bindingBg: darkShades[0],
+      numberBg: darkShades[3],
+      bindingBg: darkShades[4],
+      numberColor: lightShades[11],
     },
   },
   codeMirror: {
@@ -1199,9 +1249,28 @@ export const dark: ColorType = {
   },
   auth,
   formMessage,
+  gif: {
+    overlay: "#000000",
+    text: "#d4d4d4",
+    iconPath: "#2b2b2b",
+    iconCircle: "#d4d4d4",
+  },
 };
 
 export const light: ColorType = {
+  header: {
+    separator: "#E0DEDE",
+    appName: lightShades[8],
+    background: lightShades[0],
+    deployToolTipText: lightShades[8],
+    deployToolTipBackground: "#FFF",
+    shareBtnHighlight: "#F86A2B",
+    shareBtn: "#4B4848",
+    tabsHorizontalSeparator: "#EFEFEF",
+    tabText: "#6F6D6D",
+    activeTabBorderBottom: "#FF6D2D",
+    activeTabText: "#000",
+  },
   button: {
     disabledText: lightShades[6],
   },
@@ -1250,7 +1319,7 @@ export const light: ColorType = {
   text: {
     normal: lightShades[8],
     heading: lightShades[9],
-    hightlight: lightShades[11],
+    highlight: lightShades[11],
   },
   icon: {
     normal: lightShades[4],
@@ -1489,6 +1558,7 @@ export const light: ColorType = {
     bg: lightShades[11],
     text: lightShades[6],
     dividerBg: lightShades[3],
+    iconHoverBg: lightShades[1],
     requestTree: {
       bg: lightShades[11],
       header: {
@@ -1533,10 +1603,11 @@ export const light: ColorType = {
     },
     pagination: {
       label: lightShades[8],
-      description: darkShades[5],
+      description: lightShades[5],
       stepTitle: lightShades[10],
-      exampleBg: lightShades[11],
+      numberBg: "#E0DEDE",
       bindingBg: lightShades[3],
+      numberColor: lightShades[10],
     },
   },
   codeMirror: {
@@ -1557,6 +1628,12 @@ export const light: ColorType = {
   },
   auth,
   formMessage,
+  gif: {
+    overlay: "#ffffff",
+    text: "#6f6f6f",
+    iconPath: "#c4c4c4",
+    iconCircle: "#090707",
+  },
 };
 
 export const theme: Theme = {
@@ -1687,7 +1764,8 @@ export const theme: Theme = {
       lightBg: lightShades[0],
       darkBg: lightShades[10],
     },
-    appBackground: "#EFEFEF",
+    appBackground: "#EDEDED",
+    artboard: "#F6F6F6",
     primaryOld: Colors.GREEN,
     primaryDarker: Colors.JUNGLE_GREEN,
     primaryDarkest: Colors.JUNGLE_GREEN_DARKER,
@@ -1783,6 +1861,7 @@ export const theme: Theme = {
     },
   },
   headerHeight: "48px",
+  smallHeaderHeight: "35px",
   canvasPadding: "20px 0 200px 0",
   sideNav: {
     maxWidth: 220,
