@@ -18,17 +18,17 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
     cy.testJsontext(
       "defaultdate",
-      "{{moment('14/02/2021', 'DD/MM/YYYY').toDate()}}",
+      "{{moment('14/02/2021', 'DD/MM/YYYY').format('DD/MM/YYYY')}}",
     );
     cy.get(formWidgetsPage.toggleJsMinDate).click();
     cy.testJsontext(
       "mindate",
-      "{{moment('12/02/2021', 'DD/MM/YYYY').toDate()}}",
+      "{{moment('12/02/2021', 'DD/MM/YYYY').format('DD/MM/YYYY')}}",
     );
     cy.get(formWidgetsPage.toggleJsMaxDate).click();
     cy.testJsontext(
       "maxdate",
-      "{{moment('17/02/2021', 'DD/MM/YYYY').toDate()}}",
+      "{{moment('17/02/2021', 'DD/MM/YYYY').format('DD/MM/YYYY')}}",
     );
     cy.get(formWidgetsPage.datepickerWidget + " .bp3-input").should(
       "contain.value",
