@@ -15,7 +15,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPluginGroups, ACTION_PLUGIN_MAP } from "../Actions/helpers";
 import { useActions, useFilteredDatasources } from "../hooks";
 import DragTableGif from "assets/gifs/table_drag.gif";
-import { setHelperConfig } from "actions/onboardingActions";
+import { setCurrentSubstep, setHelperConfig } from "actions/onboardingActions";
 
 const AddWidget = styled.button`
   margin-bottom: 25px;
@@ -78,10 +78,7 @@ const DBQueryGroup = (props: any) => {
                     },
                   }),
                 );
-                dispatch({
-                  type: "SET_CURRENT_SUBSTEP",
-                  payload: 2,
-                });
+                dispatch(setCurrentSubstep(2));
                 props.showWidgetsSidebar();
               }}
             >

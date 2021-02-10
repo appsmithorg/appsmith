@@ -130,7 +130,7 @@ const onboardingReducer = createReducer(initialState, {
       helperStepConfig: action.payload,
     };
   },
-  SET_CURRENT_SUBSTEP: (
+  [ReduxActionTypes.SET_ONBOARDING_SUBSTEP]: (
     state: OnboardingState,
     action: ReduxAction<number>,
   ) => {
@@ -139,7 +139,7 @@ const onboardingReducer = createReducer(initialState, {
       currentSubstep: action.payload,
     };
   },
-  SHOW_WELCOME_HELPER: (
+  [ReduxActionTypes.SHOW_ONBOARDING_WELCOME_HELPER]: (
     state: OnboardingState,
     action: ReduxAction<boolean>,
   ) => {

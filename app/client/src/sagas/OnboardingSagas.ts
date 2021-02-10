@@ -35,6 +35,7 @@ import { getSelectedWidget, getWidgets } from "./selectors";
 import {
   endOnboarding,
   setCurrentStep,
+  setCurrentSubstep,
   setHelperConfig,
   setOnboardingState as setOnboardingReduxState,
   showIndicator,
@@ -188,10 +189,7 @@ function* listenForAddInputWidget() {
             ...getStandupInputProps(),
           }),
         );
-        yield put({
-          type: "SET_CURRENT_SUBSTEP",
-          payload: 2,
-        });
+        yield put(setCurrentSubstep(2));
 
         yield put(showIndicator(OnboardingStep.ADD_INPUT_WIDGET));
       }
@@ -393,10 +391,7 @@ function* listenForCreateAction() {
       },
     }),
   );
-  yield put({
-    type: "SET_CURRENT_SUBSTEP",
-    payload: 2,
-  });
+  yield put(setCurrentSubstep(2));
 
   yield take([
     ReduxActionTypes.UPDATE_ACTION_INIT,

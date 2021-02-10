@@ -44,3 +44,17 @@ export const setHelperConfig = (payload: OnboardingHelperConfig) => {
     payload,
   };
 };
+
+export const setCurrentSubstep = (payload: number) => {
+  return {
+    type: ReduxActionTypes.SET_ONBOARDING_SUBSTEP,
+    payload,
+  };
+};
+
+export const showWelcomeHelper = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SHOW_ONBOARDING_WELCOME_HELPER,
+    payload,
+  };
+};

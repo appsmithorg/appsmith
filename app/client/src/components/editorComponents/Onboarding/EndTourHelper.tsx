@@ -1,4 +1,5 @@
 import {
+  setCurrentSubstep,
   setHelperConfig,
   showOnboardingHelper,
 } from "actions/onboardingActions";
@@ -29,10 +30,7 @@ const EndTourHelper = () => {
           ),
         );
         AnalyticsUtil.logEvent("ONBOARDING_COMPLETE");
-        dispatch({
-          type: "SET_CURRENT_SUBSTEP",
-          payload: 5,
-        });
+        dispatch(setCurrentSubstep(5));
         setTimeout(() => {
           playOnboardingAnimation();
           dispatch(showOnboardingHelper(true));
