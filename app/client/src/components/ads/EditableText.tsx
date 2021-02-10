@@ -263,7 +263,7 @@ export const EditableText = (props: EditableTextProps) => {
           onChange={onInputchange}
           onConfirm={onConfirm}
           value={value}
-          selectAllOnFocus={true}
+          selectAllOnFocus
           placeholder={props.placeholder || defaultValue}
           className={props.className}
           onCancel={onConfirm}

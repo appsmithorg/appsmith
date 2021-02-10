@@ -1,0 +1,19 @@
+version = 1
+
+exclude_patterns = [
+    "static/**",
+    "deploy/**",
+    "contributions/**"
+]
+
+[[analyzers]]
+name = "javascript"
+enabled = true
+
+  [analyzers.meta]
+  plugins = ["react"]
+  environment = [
+    "nodejs",
+    "browser"
+  ]
+  dialect = "typescript"
