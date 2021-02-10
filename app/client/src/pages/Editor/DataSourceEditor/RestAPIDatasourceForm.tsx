@@ -3,10 +3,7 @@ import styled from "styled-components";
 import _ from "lodash";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "constants/forms";
-import {
-  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  DATA_SOURCES_EDITOR_URL,
-} from "constants/routes";
+import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import history from "utils/history";
 import FormTitle from "./FormTitle";
 import Button from "components/editorComponents/Button";
@@ -27,7 +24,11 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 import { createActionRequest } from "actions/actionActions";
-import { deleteDatasource, updateDatasource } from "actions/datasourceActions";
+import {
+  deleteDatasource,
+  redirectAuthorizationCode,
+  updateDatasource,
+} from "actions/datasourceActions";
 import { ReduxAction } from "constants/ReduxActionConstants";
 
 interface DatasourceRestApiEditorProps {
@@ -190,6 +191,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             text="New API"
             filled
             accent="primary"
+            loading={isSaving}
             onClick={() => this.createApiAction()}
           />
         </Header>
@@ -206,7 +208,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
             <StyledButton
               className="t--save-datasource"
-              onClick={this.save}
+              onClick={() => this.save()}
               text="Save"
               disabled={this.disableSave()}
               loading={isSaving}
@@ -319,16 +321,16 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             options={[
               {
                 label: "None",
-                value: "NONE",
+                value: AuthType.NONE,
               },
               {
                 label: "OAuth2 (Client credentials)",
-                value: "oAuth2-client-credentials",
+                value: AuthType.OAuth2ClientCredentials,
               },
-              // Uncomment for oauth2-auth-code flow
+              // Uncomment for AuthorizationCode flow
               // {
               //   label: "OAuth2 (Auth Code)",
-              //   value: "oAuth2-auth-code",
+              //   value: AuthType.OAuth2AuthorizationCode,
               // },
             ]}
           />
@@ -417,6 +419,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     );
   };
   renderOauth2AuthorizationCode = () => {
+    const { datasourceId, isSaving } = this.props;
     return (
       <>
         {this.renderOauth2Common()}
@@ -434,6 +437,16 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             configProperty="authentication.customAuthenticationParameters"
           />
         </FormInputContainer>
+        <FormInputContainer>
+          <StyledButton
+            onClick={() => this.save(redirectAuthorizationCode(datasourceId))}
+            text="Authorize"
+            intent="primary"
+            loading={isSaving}
+            filled
+            size="small"
+          />
+        </FormInputContainer>
       </>
     );
   };
@@ -445,7 +458,7 @@ enum AuthType {
   OAuth2AuthorizationCode = "oAuth2-authorization-code",
 }
 
-type Authentication = ClientCredentials | AuthCode;
+type Authentication = ClientCredentials | AuthorizationCode;
 interface ApiDatasourceForm {
   datasourceId: string;
   pluginId: string;
@@ -470,7 +483,7 @@ interface ClientCredentials {
   isTokenHeader: boolean;
 }
 
-interface AuthCode {
+interface AuthorizationCode {
   authenticationType: "oAuth2";
   grantType: "authorization_code";
   clientId: string;
@@ -536,7 +549,7 @@ const datasourceToFormAuthentication = (
       clientSecret: authentication.clientSecret,
       isTokenHeader: !!authentication.isTokenHeader,
     };
-  } else if (isAuthCode(authType, authentication)) {
+  } else if (isAuthorizationCode(authType, authentication)) {
     return {
       authenticationType: "oAuth2",
       grantType: "authorization_code",
@@ -559,7 +572,10 @@ const isClientCredentials = (
   return false;
 };
 
-const isAuthCode = (authType: AuthType, val: any): val is AuthCode => {
+const isAuthorizationCode = (
+  authType: AuthType,
+  val: any,
+): val is AuthorizationCode => {
   if (authType === AuthType.OAuth2AuthorizationCode) return true;
   return false;
 };
@@ -580,7 +596,7 @@ const formToDatasourceAuthentication = (
       clientSecret: authentication.clientSecret,
       isTokenHeader: authentication.isTokenHeader,
     };
-  } else if (isAuthCode(authType, authentication)) {
+  } else if (isAuthorizationCode(authType, authentication)) {
     return {
       authenticationType: "oAuth2",
       grantType: "authorization_code",

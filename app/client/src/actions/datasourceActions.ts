@@ -26,6 +26,15 @@ export const updateDatasource = (
   };
 };
 
+export const redirectAuthorizationCode = (id: string) => {
+  return {
+    type: ReduxActionTypes.REDIRECT_AUTHORIZATION_CODE,
+    payload: {
+      id,
+    },
+  };
+};
+
 export const fetchDatasourceStructure = (id: string) => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,

@@ -188,6 +188,12 @@ function* updateDatasourceSaga(
   }
 }
 
+function RedirectAuthorizationCodeSaga(
+  actionPayload: ReduxAction<{ id: string }>,
+) {
+  window.location.href = `/api/v1/datasources/${actionPayload.payload.id}/code`;
+}
+
 function* saveDatasourceNameSaga(
   actionPayload: ReduxAction<{ id: string; name: string }>,
 ) {
@@ -552,6 +558,10 @@ export function* watchDatasourcesSagas() {
     takeEvery(
       ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
       updateDatasourceSuccessSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.REDIRECT_AUTHORIZATION_CODE,
+      RedirectAuthorizationCodeSaga,
     ),
     takeEvery(
       ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,
