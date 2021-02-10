@@ -188,7 +188,12 @@
         {
           "label": "Body",
           "configProperty": "actionConfiguration.body",
-          "controlType": "QUERY_DYNAMIC_TEXT"
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "IN",
+            "value": ["GET_DOCUMENT", "GET_COLLECTION", "DELETE_DOCUMENT"]
+          }
         }
       ]
     }
