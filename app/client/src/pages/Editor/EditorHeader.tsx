@@ -46,6 +46,7 @@ import Button, { Size } from "components/ads/Button";
 import { IconWrapper } from "components/ads/Icon";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 
 const HeaderWrapper = styled(StyledHeader)`
   padding-right: 0;
@@ -250,14 +251,20 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         </Boxed>
         <Boxed step={OnboardingStep.DEPLOY} alternative={<EndOnboardingTour />}>
           <DeploySection>
-            <StyledDeployButton
-              fill
-              onClick={handlePublish}
-              text={"Deploy"}
-              isLoading={isPublishing}
-              size={Size.small}
-              className="t--application-publish-btn"
-            />
+            <OnboardingIndicator
+              step={OnboardingStep.DEPLOY}
+              hasButton={false}
+              width={75}
+            >
+              <StyledDeployButton
+                fill
+                onClick={handlePublish}
+                text={"Deploy"}
+                isLoading={isPublishing}
+                size={Size.small}
+                className="t--application-publish-btn"
+              />
+            </OnboardingIndicator>
 
             <DeployLinkButtonDialog
               trigger={

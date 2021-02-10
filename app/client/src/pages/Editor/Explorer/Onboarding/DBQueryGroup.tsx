@@ -65,7 +65,10 @@ const DBQueryGroup = (props: any) => {
     <Wrapper>
       <Boxed step={OnboardingStep.RUN_QUERY_SUCCESS}>
         <AddWidgetWrapper>
-          <OnboardingIndicator step={OnboardingStep.RUN_QUERY_SUCCESS}>
+          <OnboardingIndicator
+            step={OnboardingStep.RUN_QUERY_SUCCESS}
+            width={160}
+          >
             <AddWidget
               className="t--add-widget"
               onClick={() => {

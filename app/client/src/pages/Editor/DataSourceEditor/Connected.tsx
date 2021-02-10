@@ -170,7 +170,7 @@ const Connected = () => {
           <div style={{ marginLeft: "12px" }}>Datasource Connected</div>
         </ConnectedText>
 
-        <OnboardingIndicator step={OnboardingStep.EXAMPLE_DATABASE}>
+        <OnboardingIndicator step={OnboardingStep.EXAMPLE_DATABASE} width={120}>
           <ActionButton
             className="t--create-query"
             icon={"plus"}

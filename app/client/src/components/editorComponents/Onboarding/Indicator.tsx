@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useSelector } from "store";
 import { OnboardingStep } from "constants/OnboardingConstants";
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ width: number; hasButton?: boolean }>`
   position: relative;
 
   @keyframes ShineTransition {
@@ -11,18 +11,18 @@ const Wrapper = styled.div`
       transform: translateX(-100px) skewX(-15deg);
     }
     100% {
-      transform: translateX(250px) skewX(-15deg);
+      transform: ${(props) => `translateX(${props.width}px) skewX(-15deg)`};
     }
   }
 
-  & button {
+  & ${(props) => (props.hasButton ? "button" : "*")} {
     position: relative;
     background-size: 400% 400%;
     overflow: hidden;
   }
 
   // psuedo-element shine animation left side
-  & button::before {
+  & ${(props) => (props.hasButton ? "button" : "*")}::before {
     content: "";
     display: block;
     position: absolute;
@@ -35,7 +35,7 @@ const Wrapper = styled.div`
   }
 
   // psuedo-element shine animation right side
-  & button::after {
+  & ${(props) => (props.hasButton ? "button" : "*")}::after {
     content: "";
     display: block;
     position: absolute;
@@ -52,6 +52,10 @@ type IndicatorProps = {
   step: OnboardingStep;
   // Any conditions
   show?: boolean;
+  // Animate to x position.
+  width?: number;
+  // Is wrapped around a button
+  hasButton?: boolean;
   children: ReactNode;
 };
 
@@ -62,7 +66,13 @@ const Indicator: React.FC<IndicatorProps> = (props: IndicatorProps) => {
 
   if (showingIndicator === props.step && props.show) {
     return (
-      <Wrapper className="t--onboarding-indicator">{props.children}</Wrapper>
+      <Wrapper
+        hasButton={props.hasButton}
+        width={props.width || 250}
+        className="t--onboarding-indicator"
+      >
+        {props.children}
+      </Wrapper>
     );
   }
 
@@ -71,6 +81,7 @@ const Indicator: React.FC<IndicatorProps> = (props: IndicatorProps) => {
 
 Indicator.defaultProps = {
   show: true,
+  hasButton: true,
 };
 
 export default Indicator;
