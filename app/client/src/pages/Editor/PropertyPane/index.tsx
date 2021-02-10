@@ -66,6 +66,7 @@ const PropertyPaneView = (
 ) => {
   const { hidePropertyPane, ...panel } = props;
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
+
   return (
     <>
       <PropertyPaneTitle

@@ -2,12 +2,12 @@ import {
   generateTypeDef,
   dataTreeTypeDefCreator,
 } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 
 describe("dataTreeTypeDefCreator", () => {
   it("creates the right def for a widget", () => {
-    const dataTree: DataTree = {
+    const dataTree: any = {
       Input1: {
         widgetId: "yolo",
         widgetName: "Input1",
