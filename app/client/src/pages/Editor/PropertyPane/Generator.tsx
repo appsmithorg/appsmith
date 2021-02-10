@@ -10,12 +10,6 @@ import WidgetFactory from "utils/WidgetFactory";
 import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
 
-const getPropertyPaneConfig = (
-  type: WidgetType,
-): readonly PropertyPaneConfig[] | undefined => {
-  return WidgetFactory.propertyPaneConfigsMap.get(type);
-};
-
 export type PropertyControlsGeneratorProps = {
   type: WidgetType;
   panel: IPanelProps;
@@ -57,7 +51,7 @@ export const generatePropertyControl = (
 export const PropertyControlsGenerator = (
   props: PropertyControlsGeneratorProps,
 ) => {
-  const config = getPropertyPaneConfig(props.type);
+  const config = WidgetFactory.getWidgetPropertyPaneConfig(props.type);
   return (
     <>
       {generatePropertyControl(config as readonly PropertyPaneConfig[], props)}

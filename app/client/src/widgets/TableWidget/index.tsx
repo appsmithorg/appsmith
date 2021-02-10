@@ -41,7 +41,7 @@ import {
   CompactModeTypes,
   CompactMode,
 } from "components/designSystems/appsmith/TableComponent/Constants";
-import tableProperyPaneConfig from "./TablePropertyPaneConfig";
+import tablePropertyPaneConfig from "./TablePropertyPaneConfig";
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
     import("components/designSystems/appsmith/TableComponent"),
@@ -64,7 +64,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   static getPropertyPaneConfig() {
-    return tableProperyPaneConfig;
+    return tablePropertyPaneConfig;
   }
 
   static getMetaPropertiesMap(): Record<string, any> {

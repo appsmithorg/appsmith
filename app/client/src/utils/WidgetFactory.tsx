@@ -184,6 +184,17 @@ class WidgetFactory {
     return map;
   }
 
+  static getWidgetPropertyPaneConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const map = this.propertyPaneConfigsMap.get(type);
+    if (!map) {
+      console.error("Widget property pane configs not defined");
+      return [];
+    }
+    return map;
+  }
+
   static getWidgetTypeConfigMap(): WidgetTypeConfigMap {
     const typeConfigMap: WidgetTypeConfigMap = {};
     WidgetFactory.getWidgetTypes().forEach((type) => {
