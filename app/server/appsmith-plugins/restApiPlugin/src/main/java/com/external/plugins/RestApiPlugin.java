@@ -93,6 +93,10 @@ public class RestApiPlugin extends BasePlugin {
             String url = datasourceConfiguration.getUrl() + path;
             String reqContentType = "";
 
+            /*
+             * - If encodeParamsToggle is null, then assume it to be true because params are supposed to be
+             *   encoded by default, unless explicitly prohibited by the user.
+             */
             Boolean encodeParamsToggle = true;
             if(actionConfiguration.getEncodeParamsToggle() != null
                && actionConfiguration.getEncodeParamsToggle() == false) {
@@ -511,10 +515,6 @@ public class RestApiPlugin extends BasePlugin {
                 for (Property queryParam : queryParams) {
                     String key = queryParam.getKey();
                     if (StringUtils.isNotEmpty(key)) {
-                        /*
-                         * - If encodeParamsToggle is null, then assume it to be true because params are supposed to be
-                         *   encoded by default, unless explicitly prohibited by the user.
-                         */
                         if(encodeParamsToggle == true) {
                             uriBuilder.queryParam(
                                     URLEncoder.encode(key, StandardCharsets.UTF_8),
