@@ -39,12 +39,9 @@ interface DatasourceRestApiEditorProps {
   selectedPluginPackage: string;
   isSaving: boolean;
   isDeleting: boolean;
-  datasourceId: string;
   loadingFormConfigs: boolean;
   applicationId: string;
   pageId: string;
-  isTesting: boolean;
-  formConfig: any[];
   isNewDatasource: boolean;
   pluginImage: string;
   viewMode: boolean;
@@ -160,9 +157,10 @@ class DatasourceRestAPIEditor extends React.Component<
   }
 
   isNewDatasource = () => {
-    const { datasourceId } = this.props;
+    const { datasource } = this.props;
+    if (!datasource) return false;
 
-    return datasourceId.includes(":");
+    return datasource.id && datasource.id.includes(":");
   };
 
   save = () => {
@@ -183,7 +181,7 @@ class DatasourceRestAPIEditor extends React.Component<
       applicationId,
       pageId,
       isDeleting,
-      datasourceId,
+      datasource,
       handleDelete,
     } = this.props;
 
@@ -222,7 +220,7 @@ class DatasourceRestAPIEditor extends React.Component<
               text="Delete"
               accent="error"
               loading={isDeleting}
-              onClick={() => handleDelete(datasourceId)}
+              onClick={() => datasource && handleDelete(datasource.id)}
             />
 
             <StyledButton
@@ -381,8 +379,8 @@ class DatasourceRestAPIEditor extends React.Component<
     if (authType === AuthType.OAuth2ClientCredentials) {
       return this.renderOauth2ClientCredentials();
     }
-    if (authType === AuthType.OAuth2AuthCode) {
-      return this.renderOauth2AuthCode();
+    if (authType === AuthType.OAuth2AuthorizationCode) {
+      return this.renderOauth2AuthorizationCode();
     }
   };
 
@@ -455,7 +453,7 @@ class DatasourceRestAPIEditor extends React.Component<
       </>
     );
   };
-  renderOauth2AuthCode = () => {
+  renderOauth2AuthorizationCode = () => {
     const common: any = this.common();
     return (
       <>
@@ -482,7 +480,7 @@ class DatasourceRestAPIEditor extends React.Component<
 enum AuthType {
   NONE = "NONE",
   OAuth2ClientCredentials = "oAuth2-client-credentials",
-  OAuth2AuthCode = "oAuth2-auth-code",
+  OAuth2AuthorizationCode = "oAuth2-authorization-code",
 }
 
 type Authentication = ClientCredentials | AuthCode;
@@ -512,7 +510,7 @@ interface ClientCredentials {
 
 interface AuthCode {
   authenticationType: "oAuth2";
-  grantType: "auth_code";
+  grantType: "authorization_code";
   clientId: string;
   clientSecret: string;
   scopeString: string;
@@ -546,8 +544,8 @@ const getFormAuthType = (datasource: Datasource): AuthType => {
   if (dsAuthType) {
     if (dsGrantType === "client_credentials") {
       return AuthType.OAuth2ClientCredentials;
-    } else if (dsGrantType === "auth_code") {
-      return AuthType.OAuth2AuthCode;
+    } else if (dsGrantType === "authorization_code") {
+      return AuthType.OAuth2AuthorizationCode;
     }
   }
   return AuthType.NONE;
@@ -579,7 +577,7 @@ const datasourceToFormAuthentication = (
   } else if (isAuthCode(authType, authentication)) {
     return {
       authenticationType: "oAuth2",
-      grantType: "auth_code",
+      grantType: "authorization_code",
       clientId: authentication.clientId || "",
       scopeString: authentication.scopeString || "",
       authorizationUrl: authentication.authorizationUrl || "",
@@ -600,7 +598,7 @@ const isClientCredentials = (
 };
 
 const isAuthCode = (authType: AuthType, val: any): val is AuthCode => {
-  if (authType === AuthType.OAuth2AuthCode) return true;
+  if (authType === AuthType.OAuth2AuthorizationCode) return true;
   return false;
 };
 
@@ -623,7 +621,7 @@ const formToDatasourceAuthentication = (
   } else if (isAuthCode(authType, authentication)) {
     return {
       authenticationType: "oAuth2",
-      grantType: "auth_code",
+      grantType: "authorization_code",
       clientId: authentication.clientId,
       clientSecret: authentication.clientSecret,
       scopeString: authentication.scopeString,

@@ -23,7 +23,6 @@ import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import { Datasource } from "entities/Datasource";
 import { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { PluginType } from "entities/Action";
 
 interface ReduxStateProps {
   formData: Datasource;
@@ -38,6 +37,7 @@ interface ReduxStateProps {
   pluginId: string;
   viewMode: boolean;
   pluginType: string;
+  pluginDatasourceForm: string;
 }
 
 type Props = ReduxStateProps &
@@ -90,6 +90,7 @@ class DataSourceEditor extends React.Component<Props> {
       viewMode,
       setDatasourceEditorMode,
       pluginType,
+      pluginDatasourceForm,
     } = this.props;
     if (!pluginId && datasourceId) {
       return <EntityNotFoundPane />;
@@ -106,7 +107,7 @@ class DataSourceEditor extends React.Component<Props> {
       );
     }
     const DatasourceForm =
-      pluginType === PluginType.API
+      pluginDatasourceForm === "RestAPIDatasourceForm"
         ? RestAPIDatasourceForm
         : DataSourceEditorForm;
     return (
@@ -159,6 +160,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     newDatasource: datasourcePane.newDatasource,
     viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? true,
     pluginType: plugin?.type ?? "",
+    pluginDatasourceForm: plugin?.datasourceComponent ?? "AutoForm",
   };
 };
 
