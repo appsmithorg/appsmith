@@ -21,6 +21,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import javax.crypto.SecretKey;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -47,7 +48,6 @@ public class RestApiPluginTest {
         actionConfig.setBody(requestBody);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
-
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
@@ -173,5 +173,92 @@ public class RestApiPluginTest {
                     assertThrows(SignatureException.class, () -> parser.parseClaimsJws(token));
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testEncodeParamsToggleOn() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://postman-echo.com/post");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        String requestBody = "body";
+        actionConfig.setBody(requestBody);
+
+        List<Property> queryParams = new ArrayList<>();
+        queryParams.add(new Property("query_key", "query val")); /* encoding changes 'query val' to 'query+val' */
+        actionConfig.setQueryParameters(queryParams);
+        actionConfig.setEncodeParamsToggle(true);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+
+                    String expected_url = "\"https://postman-echo.com/post?query_key=query+val\"";
+                    JsonNode url = ((ObjectNode) result.getBody()).get("url");
+                    assertEquals(expected_url, url.toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testEncodeParamsToggleNull() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://postman-echo.com/post");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        String requestBody = "body";
+        actionConfig.setBody(requestBody);
+
+        List<Property> queryParams = new ArrayList<>();
+        queryParams.add(new Property("query_key", "query val")); /* encoding changes 'query val' to 'query+val' */
+        actionConfig.setQueryParameters(queryParams);
+        actionConfig.setEncodeParamsToggle(null);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(null, dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+
+                    String expected_url = "\"https://postman-echo.com/post?query_key=query+val\"";
+                    JsonNode url = ((ObjectNode) result.getBody()).get("url");
+                    assertEquals(expected_url, url.toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testEncodeParamsToggleOff() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://postman-echo.com/post");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        String requestBody = "body";
+        actionConfig.setBody(requestBody);
+
+        List<Property> queryParams = new ArrayList<>();
+        queryParams.add(new Property("query_key", "query val"));
+        actionConfig.setQueryParameters(queryParams);
+        actionConfig.setEncodeParamsToggle(false);
+
+        Mono<RestApiPlugin.RestApiPluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
+        Mono<ActionExecutionResult> resultMono = pluginExecutorMono.flatMap(executor -> executor.execute(null,
+                                                                                                         dsConfig,
+                                                                                                         actionConfig));
+        StepVerifier.create(resultMono)
+                .verifyErrorSatisfies(e -> {
+                    assertTrue(e instanceof IllegalArgumentException);
+                    assertTrue(e.getMessage().contains("Invalid character ' ' for QUERY_PARAM in \"query val\""));
+                });
     }
 }

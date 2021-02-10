@@ -97,7 +97,9 @@ public class RestApiPlugin extends BasePlugin {
             URI uri;
             try {
                 String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
-                uri = createFinalUriWithQueryParams(httpUrl, actionConfiguration.getQueryParameters());
+                uri = createFinalUriWithQueryParams(httpUrl,
+                                                    actionConfiguration.getQueryParameters(),
+                                                    actionConfiguration.getEncodeParamsToggle());
             } catch (URISyntaxException e) {
                 ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, null);
                 actionExecutionRequest.setUrl(url);
@@ -488,7 +490,9 @@ public class RestApiPlugin extends BasePlugin {
             return "http://" + url;
         }
 
-        private URI createFinalUriWithQueryParams(String url, List<Property> queryParams) throws URISyntaxException {
+        private URI createFinalUriWithQueryParams(String url,
+                                                  List<Property> queryParams,
+                                                  Boolean encodeParamsToggle) throws URISyntaxException {
             UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
             uriBuilder.uri(new URI(url));
 
@@ -496,8 +500,22 @@ public class RestApiPlugin extends BasePlugin {
                 for (Property queryParam : queryParams) {
                     String key = queryParam.getKey();
                     if (StringUtils.isNotEmpty(key)) {
-                        uriBuilder.queryParam(URLEncoder.encode(key, StandardCharsets.UTF_8),
-                                URLEncoder.encode(queryParam.getValue(), StandardCharsets.UTF_8));
+                        /*
+                         * - If encodeParamsToggle is null, then assume it to be true because params are supposed to be
+                        *    encoded by default, unless explicitly prohibited by the user.
+                         */
+                        if(encodeParamsToggle == null || encodeParamsToggle == true) {
+                            uriBuilder.queryParam(
+                                    URLEncoder.encode(key, StandardCharsets.UTF_8),
+                                    URLEncoder.encode(queryParam.getValue(), StandardCharsets.UTF_8)
+                            );
+                        }
+                        else {
+                            uriBuilder.queryParam(
+                                    key,
+                                    queryParam.getValue()
+                            );
+                        }
                     }
                 }
             }
