@@ -10,7 +10,7 @@ describe("Create new org and share with a user", function() {
 
   it("create org and then share with a user from Application share option within application", function() {
     cy.NavigateToHome();
-    cy.generateUUID().then(uid => {
+    cy.generateUUID().then((uid) => {
       orgid = uid;
       appid = uid;
       localStorage.setItem("OrgName", orgid);
@@ -31,6 +31,7 @@ describe("Create new org and share with a user", function() {
   it("login as invited user and then validate viewer privilage", function() {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.get(homePage.searchInput).type(appid);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.appsContainer).contains(orgid);
     cy.xpath(homePage.ShareBtn).should("not.exist");
@@ -59,7 +60,7 @@ describe("Create new org and share with a user", function() {
     cy.enablePublicAccess();
     cy.PublishtheApp();
     currentUrl = cy.url();
-    cy.url().then(url => {
+    cy.url().then((url) => {
       currentUrl = url;
       cy.log(currentUrl);
     });
@@ -68,7 +69,7 @@ describe("Create new org and share with a user", function() {
   });
 
   it("login as uninvited user and then validate public access of Application", function() {
-    cy.LogintoApp(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
+    cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
     cy.visit(currentUrl);
     cy.wait("@getPagesForViewApp").should(
       "have.nested.property",
@@ -77,7 +78,7 @@ describe("Create new org and share with a user", function() {
     );
     cy.get(publish.pageInfo)
       .invoke("text")
-      .then(text => {
+      .then((text) => {
         const someText = text;
         expect(someText).to.equal("This page seems to be blank");
       });
@@ -105,7 +106,7 @@ describe("Create new org and share with a user", function() {
   });
 
   it("login as uninvited user and then validate public access disable feature", function() {
-    cy.LogintoApp(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
+    cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
     cy.visit(currentUrl);
     cy.wait("@viewApp").should(
       "have.nested.property",

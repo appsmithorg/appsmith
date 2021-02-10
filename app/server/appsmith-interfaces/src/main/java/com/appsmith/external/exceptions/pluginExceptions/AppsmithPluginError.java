@@ -21,6 +21,8 @@ public enum AppsmithPluginError {
             AppsmithErrorAction.DEFAULT),
     PLUGIN_JSON_PARSE_ERROR(500, 5006, "Plugin failed to parse JSON \"{0}\" with error: {1}",
             AppsmithErrorAction.DEFAULT),
+    PLUGIN_DATASOURCE_TEST_GENERIC_ERROR(500, 5007, "Plugin failed to test with the given configuration. Please reach out to Appsmith customer support to report this",
+            AppsmithErrorAction.LOG_EXTERNALLY),
     ;
 
     private final Integer httpErrorCode;
