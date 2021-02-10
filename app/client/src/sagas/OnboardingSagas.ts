@@ -45,7 +45,10 @@ import {
   changeDatasource,
   expandDatasourceEntity,
 } from "actions/datasourceActions";
-import { playOnboardingStepCompletionAnimation } from "utils/helpers";
+import {
+  playOnboardingAnimation,
+  playOnboardingStepCompletionAnimation,
+} from "utils/helpers";
 import {
   OnboardingConfig,
   OnboardingHelperConfig,
@@ -56,7 +59,11 @@ import { get } from "lodash";
 import { AppIconCollection } from "components/ads/AppIcon";
 import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
 import { getThemeDetails } from "selectors/themeSelectors";
-import { getRandomPaletteColor, getNextEntityName } from "utils/AppsmithUtils";
+import {
+  getRandomPaletteColor,
+  getNextEntityName,
+  getQueryParams,
+} from "utils/AppsmithUtils";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {
   getCurrentApplicationId,
@@ -491,6 +498,25 @@ function* returnHomeSaga() {
   AnalyticsUtil.logEvent("ONBOARDING_GO_HOME");
 }
 
+function* showEndOnboardingHelperSaga() {
+  const params = getQueryParams();
+  const inOnboarding = yield call(getOnboardingState);
+
+  if (params.onboardingComplete && inOnboarding) {
+    yield put(
+      setHelperConfig(
+        getHelperConfig(OnboardingStep.FINISH) as OnboardingHelperConfig,
+      ),
+    );
+    AnalyticsUtil.logEvent("ONBOARDING_COMPLETE");
+    yield put(setCurrentSubstep(5));
+
+    yield delay(1000);
+    yield call(playOnboardingAnimation);
+    yield put(showOnboardingHelper(true));
+  }
+}
+
 // Cheat actions
 function* createApplication() {
   const themeDetails = yield select(getThemeDetails);
@@ -826,6 +852,10 @@ function* onboardingActionSagas() {
     takeLatest(ReduxActionTypes.SET_CURRENT_STEP, setupOnboardingStep),
     takeLatest(ReduxActionTypes.LISTEN_FOR_DEPLOY, listenForDeploySaga),
     takeLatest(ReduxActionTypes.ONBOARDING_RETURN_HOME, returnHomeSaga),
+    takeLatest(
+      ReduxActionTypes.SHOW_END_ONBOARDING_HELPER,
+      showEndOnboardingHelperSaga,
+    ),
     // Cheat actions
     takeLatest(ReduxActionTypes.ONBOARDING_CREATE_QUERY, createQuery),
     takeLatest(ReduxActionTypes.ONBOARDING_RUN_QUERY, executeQuery),

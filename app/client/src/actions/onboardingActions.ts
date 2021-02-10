@@ -65,3 +65,9 @@ export const showOnboardingLoader = (payload: boolean) => {
     payload,
   };
 };
+
+export const showEndOnboardingHelper = () => {
+  return {
+    type: ReduxActionTypes.SHOW_END_ONBOARDING_HELPER,
+  };
+};
