@@ -13,7 +13,6 @@ import io.jsonwebtoken.security.SignatureException;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -25,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -59,9 +59,10 @@ public class RestApiPluginTest {
     }
 
     @Test
-    public void testEncodingFunction() throws UnsupportedEncodingException {
+    public void testEncodingFunctionWithEncodeParamsToggleTrue() throws UnsupportedEncodingException {
         String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
-                "application/x-www-form-urlencoded");
+                                                              "application/x-www-form-urlencoded",
+                                                           true);
         String expected_value = null;
         try {
             expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
@@ -69,6 +70,34 @@ public class RestApiPluginTest {
             throw e;
         }
         assertEquals(expected_value, encoded_value);
+    }
+
+    @Test
+    public void testEncodingFunctionWithEncodeParamsToggleNull() throws UnsupportedEncodingException {
+        String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
+                                                              "application/x-www-form-urlencoded",
+                                                           null);
+        String expected_value = null;
+        try {
+            expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+            throw e;
+        }
+        assertEquals(expected_value, encoded_value);
+    }
+
+    @Test
+    public void testEncodingFunctionWithEncodeParamsToggleFalse() throws UnsupportedEncodingException {
+        String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
+                                                              "application/x-www-form-urlencoded",
+                                                           false);
+        String expected_value = null;
+        try {
+            expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+            throw e;
+        }
+        assertNotEquals(expected_value, encoded_value);
     }
 
     @Test

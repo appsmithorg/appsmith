@@ -93,13 +93,19 @@ public class RestApiPlugin extends BasePlugin {
             String url = datasourceConfiguration.getUrl() + path;
             String reqContentType = "";
 
+            Boolean encodeParamsToggle = true;
+            if(actionConfiguration.getEncodeParamsToggle() != null
+               && actionConfiguration.getEncodeParamsToggle() == false) {
+                encodeParamsToggle = false;
+            }
+
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             URI uri;
             try {
                 String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
                 uri = createFinalUriWithQueryParams(httpUrl,
                                                     actionConfiguration.getQueryParameters(),
-                                                    actionConfiguration.getEncodeParamsToggle());
+                                                    encodeParamsToggle);
             } catch (URISyntaxException e) {
                 ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, null);
                 actionExecutionRequest.setUrl(url);
@@ -143,7 +149,9 @@ public class RestApiPlugin extends BasePlugin {
 
             if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
                     || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
-                requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(), reqContentType);
+                requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(),
+                                                                   reqContentType,
+                                                                   encodeParamsToggle);
             }
 
             // If users have chosen to share the Appsmith signature in the header, calculate and add that
@@ -277,7 +285,9 @@ public class RestApiPlugin extends BasePlugin {
             return null;
         }
 
-        public String convertPropertyListToReqBody(List<Property> bodyFormData, String reqContentType) {
+        public String convertPropertyListToReqBody(List<Property> bodyFormData,
+                                                   String reqContentType,
+                                                   Boolean encodeParamsToggle) {
             if (bodyFormData == null || bodyFormData.isEmpty()) {
                 return "";
             }
@@ -287,7 +297,8 @@ public class RestApiPlugin extends BasePlugin {
                         String key = property.getKey();
                         String value = property.getValue();
 
-                        if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)) {
+                        if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
+                            && (encodeParamsToggle == null || encodeParamsToggle == true)) {
                             try {
                                 value = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
                             } catch (UnsupportedEncodingException e) {
