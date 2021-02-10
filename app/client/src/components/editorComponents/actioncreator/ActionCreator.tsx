@@ -26,7 +26,7 @@ import {
   createNewQueryAction,
 } from "actions/apiPaneActions";
 import { NavigationTargetType } from "../../../sagas/ActionExecutionSagas";
-import { getCurrentStep, inOnboarding } from "sagas/OnboardingSagas";
+import { checkCurrentStep } from "sagas/OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 
 /* eslint-disable @typescript-eslint/ban-types */
@@ -1033,9 +1033,10 @@ function useApiOptionTree() {
   let filteredBaseOptions = baseOptions;
 
   // For onboarding
-  const isInOnboarding = useSelector(inOnboarding);
-  const currentStep = useSelector(getCurrentStep);
-  if (isInOnboarding && currentStep === OnboardingStep.ADD_INPUT_WIDGET) {
+  const filterOptions = useSelector((state: AppState) =>
+    checkCurrentStep(state, OnboardingStep.ADD_INPUT_WIDGET),
+  );
+  if (filterOptions) {
     filteredBaseOptions = baseOptions.filter(
       (item: any) => item.value === ActionType.query,
     );

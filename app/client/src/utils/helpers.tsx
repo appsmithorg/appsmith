@@ -202,7 +202,7 @@ export const playOnboardingAnimation = () => {
 export const playOnboardingStepCompletionAnimation = () => {
   playLottieAnimation(".onboarding-step-indicator", successAnimation, {
     "background-color": "white",
-    padding: "90px",
+    padding: "60px",
   });
 };
 

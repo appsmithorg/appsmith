@@ -102,6 +102,21 @@ export const getInitialTableData = (state: AppState) => {
 export const getHelperConfig = (step: OnboardingStep) => {
   return OnboardingConfig[step].helper as OnboardingHelperConfig;
 };
+export const checkCurrentStep = (
+  state: AppState,
+  step: OnboardingStep,
+  comparison: "EQAULS" | "LESSER" = "EQAULS",
+) => {
+  const isInOnboarding = inOnboarding(state);
+  const currentStep = getCurrentStep(state);
+
+  switch (comparison) {
+    case "LESSER":
+      return isInOnboarding && currentStep < step;
+    default:
+      return isInOnboarding && currentStep === step;
+  }
+};
 
 function* listenForWidgetAdditions() {
   while (true) {

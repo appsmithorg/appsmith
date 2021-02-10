@@ -56,7 +56,7 @@ import PerformanceTracker, {
 import { EventLocation } from "utils/AnalyticsUtil";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
-import { getCurrentStep, inOnboarding } from "./OnboardingSagas";
+import { checkCurrentStep } from "./OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 
 function* syncApiParamsSaga(
@@ -398,18 +398,18 @@ function* handleCreateNewQueryActionSaga(
     };
 
     //For onboarding
-    const isInOnboarding = yield select(inOnboarding);
-    if (isInOnboarding) {
-      const currentStep = yield select(getCurrentStep);
-      if (currentStep === OnboardingStep.ADD_INPUT_WIDGET) {
-        createActionPayload = {
-          ...createActionPayload,
-          name: "add_standup_updates",
-          actionConfiguration: {
-            body: `Insert into standup_updates("name", "notes") values ('{{appsmith.user.email}}', '{{ Standup_Input.text }}')`,
-          },
-        };
-      }
+    const updateActionPayload = yield select(
+      checkCurrentStep,
+      OnboardingStep.ADD_INPUT_WIDGET,
+    );
+    if (updateActionPayload) {
+      createActionPayload = {
+        ...createActionPayload,
+        name: "add_standup_updates",
+        actionConfiguration: {
+          body: `Insert into standup_updates("name", "notes") values ('{{appsmith.user.email}}', '{{ Standup_Input.text }}')`,
+        },
+      };
     }
 
     yield put(createActionRequest(createActionPayload));
