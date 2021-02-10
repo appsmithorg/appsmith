@@ -515,9 +515,7 @@ function* createApplication() {
   });
 
   yield take(ReduxActionTypes.CREATE_APPLICATION_SUCCESS);
-  yield put({
-    type: "INITIATE_ONBOARDING",
-  });
+  yield call(initiateOnboarding);
 }
 
 function* createQuery() {
@@ -574,8 +572,6 @@ function* executeQuery() {
 
 function* addWidget(widgetConfig: any) {
   try {
-    // const widgets = yield select(getWidgets);
-
     const newWidget = {
       newWidgetId: generateReactKey(),
       widgetId: "0",
@@ -584,24 +580,6 @@ function* addWidget(widgetConfig: any) {
       isLoading: false,
       ...widgetConfig,
     };
-
-    // bypassing this since we are hard coding positions during the oboarding flow
-    // const {
-    //   leftColumn,
-    //   topRow,
-    //   rightColumn,
-    //   bottomRow,
-    // } = yield calculateNewWidgetPosition(newWidget, "0", widgets);
-
-    // console.log({ leftColumn, topRow, rightColumn, bottomRow });
-
-    // newWidget = {
-    //   ...newWidget,
-    //   leftColumn,
-    //   topRow,
-    //   rightColumn,
-    //   bottomRow,
-    // };
 
     yield put({
       type: ReduxActionTypes.WIDGET_ADD_CHILD,
@@ -809,7 +787,6 @@ export default function* onboardingSagas() {
 
 function* onboardingActionSagas() {
   yield all([
-    takeLatest("INITIATE_ONBOARDING", initiateOnboarding),
     takeLatest(
       ReduxActionTypes.CREATE_ONBOARDING_DBQUERY_INIT,
       createOnboardingDatasource,
@@ -823,22 +800,31 @@ function* onboardingActionSagas() {
       ReduxActionTypes.LISTEN_FOR_ADD_WIDGET,
       listenForWidgetAdditions,
     ),
-    takeLatest("LISTEN_ADD_INPUT_WIDGET", listenForAddInputWidget),
+    takeLatest(
+      ReduxActionTypes.LISTEN_ADD_INPUT_WIDGET,
+      listenForAddInputWidget,
+    ),
     takeLatest(
       ReduxActionTypes.LISTEN_FOR_TABLE_WIDGET_BINDING,
       listenForSuccessfulBinding,
     ),
     takeLatest(ReduxActionTypes.SET_CURRENT_STEP, setupOnboardingStep),
     takeLatest(ReduxActionTypes.LISTEN_FOR_DEPLOY, listenForDeploySaga),
-    takeLatest("ONBOARDING_RETURN_HOME", returnHomeSaga),
+    takeLatest(ReduxActionTypes.ONBOARDING_RETURN_HOME, returnHomeSaga),
     // Cheat actions
-    takeLatest("ONBOARDING_CREATE_QUERY", createQuery),
-    takeLatest("ONBOARDING_RUN_QUERY", executeQuery),
-    takeLatest("ONBOARDING_ADD_TABLE_WIDGET", addTableWidget),
-    takeLatest("ONBOARDING_ADD_INPUT_WIDGET", addInputWidget),
-    takeLatest("ONBOARDING_ADD_ONSUBMIT_BINDING", addOnSubmitHandler),
-    takeLatest("ONBOARDING_ADD_BINDING", addBinding),
-    takeLatest("ONBOARDING_DEPLOY", deploy),
-    takeLatest("ONBOARDING_CREATE_APPLICATION", createApplication),
+    takeLatest(ReduxActionTypes.ONBOARDING_CREATE_QUERY, createQuery),
+    takeLatest(ReduxActionTypes.ONBOARDING_RUN_QUERY, executeQuery),
+    takeLatest(ReduxActionTypes.ONBOARDING_ADD_TABLE_WIDGET, addTableWidget),
+    takeLatest(ReduxActionTypes.ONBOARDING_ADD_INPUT_WIDGET, addInputWidget),
+    takeLatest(
+      ReduxActionTypes.ONBOARDING_ADD_ONSUBMIT_BINDING,
+      addOnSubmitHandler,
+    ),
+    takeLatest(ReduxActionTypes.ONBOARDING_ADD_TABLEDATA_BINDING, addBinding),
+    takeLatest(ReduxActionTypes.ONBOARDING_DEPLOY, deploy),
+    takeLatest(
+      ReduxActionTypes.ONBOARDING_CREATE_APPLICATION,
+      createApplication,
+    ),
   ]);
 }

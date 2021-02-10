@@ -81,7 +81,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         action: (dispatch) => {
           if (dispatch) {
             dispatch({
-              type: "ONBOARDING_CREATE_APPLICATION",
+              type: ReduxActionTypes.ONBOARDING_CREATE_APPLICATION,
             });
           }
           setOnboardingWelcomeState(false);
@@ -121,7 +121,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       cheatAction: {
         label: "Do it for me",
         action: {
-          type: "ONBOARDING_CREATE_QUERY",
+          type: ReduxActionTypes.ONBOARDING_CREATE_QUERY,
         },
       },
     },
@@ -157,7 +157,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       cheatAction: {
         label: "Do it for me",
         action: {
-          type: "ONBOARDING_ADD_TABLE_WIDGET",
+          type: ReduxActionTypes.ONBOARDING_ADD_TABLE_WIDGET,
         },
       },
     },
@@ -193,7 +193,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       cheatAction: {
         label: "Do it for me",
         action: {
-          type: "ONBOARDING_ADD_BINDING",
+          type: ReduxActionTypes.ONBOARDING_ADD_TABLEDATA_BINDING,
         },
       },
     },
@@ -202,7 +202,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     name: "ADD_INPUT_WIDGET",
     setup: () => [
       {
-        type: "LISTEN_ADD_INPUT_WIDGET",
+        type: ReduxActionTypes.LISTEN_ADD_INPUT_WIDGET,
       },
     ],
     helper: {
@@ -224,7 +224,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       cheatAction: {
         label: "Do it for me",
         action: {
-          type: "ONBOARDING_ADD_INPUT_WIDGET",
+          type: ReduxActionTypes.ONBOARDING_ADD_INPUT_WIDGET,
         },
       },
     },
@@ -247,7 +247,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       cheatAction: {
         label: "Do it for me",
         action: {
-          type: "ONBOARDING_DEPLOY",
+          type: ReduxActionTypes.ONBOARDING_DEPLOY,
         },
       },
     },
@@ -282,7 +282,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       secondaryAction: {
         label: "Back Home",
         action: {
-          type: "ONBOARDING_RETURN_HOME",
+          type: ReduxActionTypes.ONBOARDING_RETURN_HOME,
         },
       },
       action: {
