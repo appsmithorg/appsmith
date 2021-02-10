@@ -49,13 +49,13 @@ export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
     | ActionDispatcher<RunActionPayload, [string, string, string]>
     | Record<string, any>;
   dynamicBindingPathList: DynamicPath[];
-  bindingPaths: Record<string, true>;
+  bindingPaths: Record<string, boolean>;
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
 }
 
 export interface DataTreeWidget extends WidgetProps {
-  bindingPaths: Record<string, true>;
-  triggerPaths: Record<string, true>;
+  bindingPaths: Record<string, boolean>;
+  triggerPaths: Record<string, boolean>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
 }
 
