@@ -61,8 +61,8 @@ public class RestApiPluginTest {
     @Test
     public void testEncodingFunctionWithEncodeParamsToggleTrue() throws UnsupportedEncodingException {
         String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
-                                                              "application/x-www-form-urlencoded",
-                                                           true);
+                                                                           "application/x-www-form-urlencoded",
+                                                                           true);
         String expected_value = null;
         try {
             expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
@@ -75,8 +75,8 @@ public class RestApiPluginTest {
     @Test
     public void testEncodingFunctionWithEncodeParamsToggleNull() throws UnsupportedEncodingException {
         String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
-                                                              "application/x-www-form-urlencoded",
-                                                           null);
+                                                                           "application/x-www-form-urlencoded",
+                                                                           null);
         String expected_value = null;
         try {
             expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
@@ -89,8 +89,8 @@ public class RestApiPluginTest {
     @Test
     public void testEncodingFunctionWithEncodeParamsToggleFalse() throws UnsupportedEncodingException {
         String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
-                                                              "application/x-www-form-urlencoded",
-                                                           false);
+                                                                           "application/x-www-form-urlencoded",
+                                                                           false);
         String expected_value = null;
         try {
             expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
