@@ -239,7 +239,7 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   );
 });
 
-Cypress.Commands.add("CreateApp", (appname) => {
+Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
   cy.get(homePage.createNew)
     .first()
     .click({ force: true });

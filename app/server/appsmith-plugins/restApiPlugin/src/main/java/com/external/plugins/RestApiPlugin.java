@@ -6,8 +6,8 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.connections.APIConnection;
@@ -202,7 +202,13 @@ public class RestApiPlugin extends BasePlugin {
                         try {
                             result.setHeaders(objectMapper.readTree(headerInJsonString));
                         } catch (IOException e) {
-                            throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                            throw Exceptions.propagate(
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                            headerInJsonString,
+                                            e.getMessage()
+                                    )
+                            );
                         }
 
                         if (body != null) {
@@ -216,7 +222,13 @@ public class RestApiPlugin extends BasePlugin {
                                     String jsonBody = new String(body);
                                     result.setBody(objectMapper.readTree(jsonBody));
                                 } catch (IOException e) {
-                                    throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                                    throw Exceptions.propagate(
+                                            new AppsmithPluginException(
+                                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                                    new String(body),
+                                                    e.getMessage()
+                                            )
+                                    );
                                 }
                             } else if (MediaType.IMAGE_GIF.equals(contentType) ||
                                     MediaType.IMAGE_JPEG.equals(contentType) ||
@@ -263,7 +275,7 @@ public class RestApiPlugin extends BasePlugin {
                 if (isSendSessionEnabled) {
                     if (StringUtils.isEmpty(secretKey) || secretKey.length() < 32) {
                         throw new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                 "Secret key is required when sending session details is switched on," +
                                         " and should be at least 32 characters in length."
                         );
@@ -340,7 +352,8 @@ public class RestApiPlugin extends BasePlugin {
                     objectFromJson(requestBodyAsString);
                 } catch (JsonSyntaxException e) {
                     return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
+                            AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                            requestBodyAsString,
                             "Malformed JSON: " + e.getMessage()
                     ));
                 }

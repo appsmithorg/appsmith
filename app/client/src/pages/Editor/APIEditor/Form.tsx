@@ -45,7 +45,7 @@ import { Position } from "@blueprintjs/core";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
   overflow: hidden;
   width: 100%;
   ${FormLabel} {

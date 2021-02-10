@@ -70,7 +70,7 @@ const Text = styled.span.attrs((props: TextProps) => ({
   letter-spacing: ${(props) =>
     props.theme.typography[props.type].letterSpacing}px;
   color: ${(props) =>
-    props.highlight ? props.theme.colors.text.hightlight : typeSelector(props)};
+    props.highlight ? props.theme.colors.text.highlight : typeSelector(props)};
   text-transform: ${(props) => (props.case ? props.case : "none")};
 `;
 

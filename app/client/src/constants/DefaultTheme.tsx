@@ -41,6 +41,15 @@ export enum Skin {
   DARK,
 }
 
+export const hideScrollbar = css`
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+    -webkit-appearance: none;
+  }
+`;
+
 export const scrollbarDark = css`
   scrollbar-color: ${(props) => props.theme.colors.paneCard}
     ${(props) => props.theme.colors.paneBG};
@@ -89,6 +98,11 @@ export const BlueprintControlTransform = css`
         border: 2px solid ${Colors.SLATE_GRAY};
       }
     }
+
+    .${Classes.CHECKBOX} .${Classes.CONTROL_INDICATOR} {
+      border-radius: 0;
+    }
+
     .${Classes.CONTROL_INDICATOR} {
       box-shadow: none;
       background: none;
@@ -112,9 +126,8 @@ export const BlueprintCSSTransform = css`
   &&&& {
     .${Classes.BUTTON} {
       box-shadow: none;
-      border-radius: 4px;
+      border-radius: 0;
       background: white;
-      border: 1px solid ${Colors.GEYSER};
     }
     .${Classes.INTENT_PRIMARY} {
       background: ${IntentColors.primary};
@@ -285,6 +298,7 @@ export type Theme = {
   };
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
+  smallHeaderHeight: string;
   homePage: any;
   sidebarWidth: string;
   canvasPadding: string;
@@ -511,7 +525,7 @@ type ColorType = {
   text: {
     normal: ShadeColor;
     heading: ShadeColor;
-    hightlight: ShadeColor;
+    highlight: ShadeColor;
   };
   icon: {
     normal: ShadeColor;
@@ -816,6 +830,19 @@ type ColorType = {
   floatingBtn: any;
   auth: any;
   formMessage: Record<string, Record<Intent, string>>;
+  header: {
+    separator: string;
+    appName: ShadeColor;
+    background: string;
+    deployToolTipBackground: string;
+    deployToolTipText: ShadeColor;
+    shareBtnHighlight: string;
+    shareBtn: string;
+    tabsHorizontalSeparator: string;
+    tabText: string;
+    activeTabBorderBottom: string;
+    activeTabText: string;
+  };
   gif: {
     overlay: string;
     text: string;
@@ -852,6 +879,19 @@ const formMessage = {
 };
 
 export const dark: ColorType = {
+  header: {
+    separator: darkShades[4],
+    appName: darkShades[7],
+    background: darkShades[2],
+    deployToolTipBackground: lightShades[10],
+    deployToolTipText: darkShades[7],
+    shareBtnHighlight: "#F86A2B",
+    shareBtn: "#fff",
+    tabsHorizontalSeparator: "#EFEFEF",
+    tabText: "#6F6D6D",
+    activeTabBorderBottom: "#FF6D2D",
+    activeTabText: "#000",
+  },
   button: {
     disabledText: darkShades[6],
   },
@@ -900,7 +940,7 @@ export const dark: ColorType = {
   text: {
     normal: darkShades[6],
     heading: darkShades[7],
-    hightlight: darkShades[9],
+    highlight: darkShades[9],
   },
   icon: {
     normal: darkShades[6],
@@ -1218,6 +1258,19 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  header: {
+    separator: "#E0DEDE",
+    appName: lightShades[8],
+    background: lightShades[0],
+    deployToolTipText: lightShades[8],
+    deployToolTipBackground: "#FFF",
+    shareBtnHighlight: "#F86A2B",
+    shareBtn: "#4B4848",
+    tabsHorizontalSeparator: "#EFEFEF",
+    tabText: "#6F6D6D",
+    activeTabBorderBottom: "#FF6D2D",
+    activeTabText: "#000",
+  },
   button: {
     disabledText: lightShades[6],
   },
@@ -1266,7 +1319,7 @@ export const light: ColorType = {
   text: {
     normal: lightShades[8],
     heading: lightShades[9],
-    hightlight: lightShades[11],
+    highlight: lightShades[11],
   },
   icon: {
     normal: lightShades[4],
@@ -1711,7 +1764,8 @@ export const theme: Theme = {
       lightBg: lightShades[0],
       darkBg: lightShades[10],
     },
-    appBackground: "#EFEFEF",
+    appBackground: "#EDEDED",
+    artboard: "#F6F6F6",
     primaryOld: Colors.GREEN,
     primaryDarker: Colors.JUNGLE_GREEN,
     primaryDarkest: Colors.JUNGLE_GREEN_DARKER,
@@ -1807,6 +1861,7 @@ export const theme: Theme = {
     },
   },
   headerHeight: "48px",
+  smallHeaderHeight: "35px",
   canvasPadding: "20px 0 200px 0",
   sideNav: {
     maxWidth: 220,

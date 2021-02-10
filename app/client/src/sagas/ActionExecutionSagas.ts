@@ -86,6 +86,7 @@ import {
   evaluateActionBindings,
 } from "./EvaluationsSaga";
 import copy from "copy-to-clipboard";
+import { EMPTY_RESPONSE } from "../components/editorComponents/ApiResponseView";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -479,6 +480,10 @@ export function* executeActionSaga(
       executeActionError({
         actionId: actionId,
         error,
+        data: {
+          ...EMPTY_RESPONSE,
+          body: "There was an error executing this action",
+        },
       }),
     );
     Toaster.show({
@@ -537,20 +542,9 @@ function* executeActionTriggers(
         yield call(copySaga, trigger.payload, event);
         break;
       default:
-        yield put(
-          executeActionError({
-            error: "Trigger type unknown",
-            actionId: "",
-          }),
-        );
+        log.error("Trigger type unknown", trigger.type);
     }
   } catch (e) {
-    yield put(
-      executeActionError({
-        error: "Failed to execute action",
-        actionId: "",
-      }),
-    );
     if (event.callback) event.callback({ success: false });
   }
 }
@@ -732,10 +726,12 @@ function* executePageLoadAction(pageAction: PageAction) {
       pageAction.timeoutInMillisecond,
     );
     if (isErrorResponse(response)) {
-      const body = _.get(response, "data.body");
+      let body = _.get(response, "data.body");
       let message = `The action "${pageAction.name}" has failed.`;
-
       if (body) {
+        if (_.isObject(body)) {
+          body = JSON.stringify(body);
+        }
         message += `\nERROR: "${body}"`;
       }
 
@@ -746,6 +742,7 @@ function* executePageLoadAction(pageAction: PageAction) {
           error: _.get(response, "responseMeta.error", {
             message,
           }),
+          data: createActionExecutionResponse(response),
         }),
       );
       PerformanceTracker.stopAsyncTracking(
@@ -778,6 +775,10 @@ function* executePageLoadAction(pageAction: PageAction) {
         isPageLoad: true,
         error: {
           message: `The action "${pageAction.name}" has failed.`,
+        },
+        data: {
+          ...EMPTY_RESPONSE,
+          body: "There was an error executing this action",
         },
       }),
     );
