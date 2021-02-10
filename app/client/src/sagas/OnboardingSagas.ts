@@ -415,12 +415,8 @@ function* listenForDeploySaga() {
     yield take(ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS);
     AnalyticsUtil.logEvent("ONBOARDING_DEPLOY");
 
-    yield setOnboardingWelcomeState(false);
+    yield call(setOnboardingWelcomeState, false);
     yield put(setCurrentStep(OnboardingStep.FINISH));
-    yield put({
-      type: ReduxActionTypes.SHOW_ONBOARDING_COMPLETION_DIALOG,
-      payload: true,
-    });
     yield put(setOnboardingReduxState(false));
 
     return;
