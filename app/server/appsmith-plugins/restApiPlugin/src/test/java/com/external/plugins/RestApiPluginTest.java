@@ -73,20 +73,6 @@ public class RestApiPluginTest {
     }
 
     @Test
-    public void testEncodingFunctionWithEncodeParamsToggleNull() throws UnsupportedEncodingException {
-        String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
-                                                                           "application/x-www-form-urlencoded",
-                                                                           null);
-        String expected_value = null;
-        try {
-            expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException e) {
-            throw e;
-        }
-        assertEquals(expected_value, encoded_value);
-    }
-
-    @Test
     public void testEncodingFunctionWithEncodeParamsToggleFalse() throws UnsupportedEncodingException {
         String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
                                                                            "application/x-www-form-urlencoded",

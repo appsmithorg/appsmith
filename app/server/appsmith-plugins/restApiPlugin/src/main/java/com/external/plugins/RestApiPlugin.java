@@ -298,7 +298,7 @@ public class RestApiPlugin extends BasePlugin {
                         String value = property.getValue();
 
                         if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
-                            && (encodeParamsToggle == null || encodeParamsToggle == true)) {
+                            && encodeParamsToggle == true) {
                             try {
                                 value = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
                             } catch (UnsupportedEncodingException e) {
@@ -515,7 +515,7 @@ public class RestApiPlugin extends BasePlugin {
                          * - If encodeParamsToggle is null, then assume it to be true because params are supposed to be
                          *   encoded by default, unless explicitly prohibited by the user.
                          */
-                        if(encodeParamsToggle == null || encodeParamsToggle == true) {
+                        if(encodeParamsToggle == true) {
                             uriBuilder.queryParam(
                                     URLEncoder.encode(key, StandardCharsets.UTF_8),
                                     URLEncoder.encode(queryParam.getValue(), StandardCharsets.UTF_8)
