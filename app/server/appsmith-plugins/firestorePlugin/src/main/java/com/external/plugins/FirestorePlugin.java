@@ -7,8 +7,8 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.google.api.core.ApiFuture;
@@ -79,14 +79,14 @@ public class FirestorePlugin extends BasePlugin {
 
             if (StringUtils.isBlank(path)) {
                 return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Document/Collection path cannot be empty"
                 ));
             }
 
             if (path.startsWith("/") || path.endsWith("/")) {
                 return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Firestore paths should not begin or end with `/` character."
                 ));
             }
@@ -98,7 +98,7 @@ public class FirestorePlugin extends BasePlugin {
 
             if (method == null) {
                 return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Missing Firestore method."
                 ));
             }
@@ -115,7 +115,7 @@ public class FirestorePlugin extends BasePlugin {
                             return Mono.just(objectMapper.readValue(strBody, HashMap.class));
                         } catch (IOException e) {
                             return Mono.error(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     e.getMessage()
                             ));
                         }
@@ -123,7 +123,7 @@ public class FirestorePlugin extends BasePlugin {
                     .flatMap(mapBody -> {
                         if (mapBody.isEmpty() && method.isBodyNeeded()) {
                             return Mono.error(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     "The method " + method.toString() + " needs a non-empty body to work."
                             ));
                         }
@@ -278,7 +278,7 @@ public class FirestorePlugin extends BasePlugin {
                                     return Mono.just(query1.whereArrayContainsAny(queryFieldPath, parseList(queryValue)));
                                 } catch (IOException e) {
                                     return Mono.error(new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                             "Unable to parse condition value as a JSON list."
                                     ));
                                 }
@@ -287,7 +287,7 @@ public class FirestorePlugin extends BasePlugin {
                                     return Mono.just(query1.whereIn(queryFieldPath, parseList(queryValue)));
                                 } catch (IOException e) {
                                     return Mono.error(new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                             "Unable to parse condition value as a JSON list."
                                     ));
                                 }
@@ -430,7 +430,8 @@ public class FirestorePlugin extends BasePlugin {
 
             final Set<String> errors = validateDatasource(datasourceConfiguration);
             if (!CollectionUtils.isEmpty(errors)) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, errors.iterator().next()));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        errors.iterator().next()));
             }
 
             final String projectId = authentication.getUsername();

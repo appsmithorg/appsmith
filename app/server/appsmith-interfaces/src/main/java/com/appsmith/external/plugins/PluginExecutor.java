@@ -136,5 +136,4 @@ public interface PluginExecutor<C> extends ExtensionPoint {
             MustacheHelper.renderFieldValues(actionConfiguration, replaceParamsMap);
         }
     }
-
 }

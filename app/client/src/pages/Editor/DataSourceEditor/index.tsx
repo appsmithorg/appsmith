@@ -19,9 +19,11 @@ import {
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import DatasourceHome from "./DatasourceHome";
 import DataSourceEditorForm from "./DBForm";
+import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import { Datasource } from "entities/Datasource";
 import { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
+import { PluginType } from "entities/Action";
 
 interface ReduxStateProps {
   formData: Datasource;
@@ -92,40 +94,43 @@ class DataSourceEditor extends React.Component<Props> {
     if (!pluginId && datasourceId) {
       return <EntityNotFoundPane />;
     }
+    if (!datasourceId) {
+      return (
+        <DatasourceHome
+          isSaving={isSaving}
+          applicationId={this.props.match.params.applicationId}
+          pageId={this.props.match.params.pageId}
+          history={this.props.history}
+          location={this.props.location}
+        />
+      );
+    }
+    const DatasourceForm =
+      pluginType === PluginType.API
+        ? RestAPIDatasourceForm
+        : DataSourceEditorForm;
     return (
-      <React.Fragment>
-        {datasourceId ? (
-          <DataSourceEditorForm
-            pluginImage={pluginImages[pluginId]}
-            applicationId={this.props.match.params.applicationId}
-            pageId={this.props.match.params.pageId}
-            isSaving={isSaving}
-            isTesting={isTesting}
-            isDeleting={isDeleting}
-            isNewDatasource={newDatasource === datasourceId}
-            onSubmit={this.handleSubmit}
-            onSave={this.handleSave}
-            onTest={this.props.testDatasource}
-            selectedPluginPackage={selectedPluginPackage}
-            datasourceId={datasourceId}
-            formData={formData}
-            loadingFormConfigs={loadingFormConfigs}
-            formConfig={formConfig}
-            handleDelete={deleteDatasource}
-            viewMode={viewMode}
-            setDatasourceEditorMode={setDatasourceEditorMode}
-            pluginType={pluginType}
-          />
-        ) : (
-          <DatasourceHome
-            isSaving={isSaving}
-            applicationId={this.props.match.params.applicationId}
-            pageId={this.props.match.params.pageId}
-            history={this.props.history}
-            location={this.props.location}
-          />
-        )}
-      </React.Fragment>
+      <DatasourceForm
+        pluginImage={pluginImages[pluginId]}
+        applicationId={this.props.match.params.applicationId}
+        pageId={this.props.match.params.pageId}
+        isSaving={isSaving}
+        isTesting={isTesting}
+        isDeleting={isDeleting}
+        isNewDatasource={newDatasource === datasourceId}
+        onSubmit={this.handleSubmit}
+        onSave={this.handleSave}
+        onTest={this.props.testDatasource}
+        selectedPluginPackage={selectedPluginPackage}
+        datasourceId={datasourceId}
+        loadingFormConfigs={loadingFormConfigs}
+        formData={formData}
+        formConfig={formConfig}
+        handleDelete={deleteDatasource}
+        viewMode={viewMode}
+        setDatasourceEditorMode={setDatasourceEditorMode}
+        pluginType={pluginType}
+      />
     );
   }
 }

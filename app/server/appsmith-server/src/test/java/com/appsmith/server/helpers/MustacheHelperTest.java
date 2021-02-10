@@ -5,15 +5,11 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.IterableAssert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,12 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         // Disabling this so we may use `Arrays.asList` with single argument, which is easier to refactor, just for tests.
         "ArraysAsListWithZeroOrOneArgument"
 )
-@RunWith(SpringRunner.class)
-@SpringBootTest
 public class MustacheHelperTest {
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     private void checkTokens(String template, List<String> expected) {
         assertThat(tokenize(template)).isEqualTo(expected);
@@ -406,7 +397,14 @@ public class MustacheHelperTest {
                 new Property("param2", "{{ queryParam2 }}")
         ));
 
-        final Map<String, String> context = Map.of(
+        configuration.setPluginSpecifiedTemplates(Arrays.asList(
+                null,
+                new Property("prop1", "{{ pluginSpecifiedProp1 }}"),
+                null,
+                new Property("prop2", "{{ pluginSpecifiedProp2 }}")
+        ));
+
+        final Map<String, String> context = new HashMap<>(Map.of(
                 "body", "rendered body",
                 "path", "rendered path",
                 "next", "rendered next",
@@ -416,7 +414,12 @@ public class MustacheHelperTest {
                 "bodyParam2", "rendered bodyParam2",
                 "queryParam1", "rendered queryParam1",
                 "queryParam2", "rendered queryParam2"
-        );
+        ));
+
+        context.putAll(Map.of(
+                "pluginSpecifiedProp1", "rendered pluginSpecifiedProp1",
+                "pluginSpecifiedProp2", "rendered pluginSpecifiedProp2"
+        ));
 
         assertKeys(configuration).hasSameElementsAs(context.keySet());
 
@@ -439,6 +442,13 @@ public class MustacheHelperTest {
         assertThat(configuration.getQueryParameters()).containsOnly(
                 new Property("param1", "rendered queryParam1"),
                 new Property("param2", "rendered queryParam2")
+        );
+
+        assertThat(configuration.getPluginSpecifiedTemplates()).containsExactly(
+                null,
+                new Property("prop1", "rendered pluginSpecifiedProp1"),
+                null,
+                new Property("prop2", "rendered pluginSpecifiedProp2")
         );
     }
 

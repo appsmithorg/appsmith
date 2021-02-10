@@ -1,4 +1,4 @@
-package com.appsmith.external.pluginExceptions;
+package com.appsmith.external.exceptions.pluginExceptions;
 
 public class StaleConnectionException extends RuntimeException {
     public StaleConnectionException() {

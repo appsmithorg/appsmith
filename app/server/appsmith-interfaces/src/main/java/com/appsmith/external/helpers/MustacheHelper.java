@@ -18,6 +18,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.appsmith.external.helpers.BeanCopyUtils.isDomainModel;
+
 @Slf4j
 public class MustacheHelper {
 
@@ -190,7 +192,7 @@ public class MustacheHelper {
                 continue;
             }
 
-            if (BeanCopyUtils.isDomainModel(obj.getClass())) {
+            if (isDomainModel(obj.getClass())) {
                 // Go deeper *only* if the property belongs to Appsmith's models, and both the source and target
                 // values are not null.
                 processQueue.addAll(getBeanPropertyValues(obj));
@@ -257,21 +259,21 @@ public class MustacheHelper {
                     continue;
                 }
 
-                if (BeanCopyUtils.isDomainModel(propertyDescriptor.getPropertyType())) {
+                if (isDomainModel(propertyDescriptor.getPropertyType())) {
                     // Go deeper *only* if the property belongs to Appsmith's models, and both the source and target
                     // values are not null.
                     renderFieldValues(value, context);
 
                 } else if (value instanceof List) {
                     for (Object childValue : (List) value) {
-                        if (BeanCopyUtils.isDomainModel(childValue.getClass())) {
+                        if (childValue != null && isDomainModel(childValue.getClass())) {
                             renderFieldValues(childValue, context);
                         }
                     }
 
                 } else if (value instanceof Map) {
                     for (Object childValue : ((Map) value).values()) {
-                        if (BeanCopyUtils.isDomainModel(childValue.getClass())) {
+                        if (childValue != null && isDomainModel(childValue.getClass())) {
                             renderFieldValues(childValue, context);
                         }
                     }

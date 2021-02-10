@@ -7,13 +7,12 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
+import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -205,7 +204,7 @@ public class LayoutServiceTest {
 
         Layout startLayout = layoutService.createLayout(page.getId(), testLayout).block();
 
-        Mono<Layout> updatedLayoutMono = layoutActionService.updateLayout("random-impossible-id-page", startLayout.getId(), updateLayout);
+        Mono<LayoutDTO> updatedLayoutMono = layoutActionService.updateLayout("random-impossible-id-page", startLayout.getId(), updateLayout);
 
         StepVerifier
                 .create(updatedLayoutMono)
@@ -238,7 +237,7 @@ public class LayoutServiceTest {
 
         Mono<Layout> startLayoutMono = pageMono.flatMap(page -> layoutService.createLayout(page.getId(), testLayout));
 
-        Mono<Layout> updatedLayoutMono = Mono.zip(pageMono, startLayoutMono)
+        Mono<LayoutDTO> updatedLayoutMono = Mono.zip(pageMono, startLayoutMono)
                 .flatMap(tuple -> {
                     PageDTO page = tuple.getT1();
                     Layout startLayout = tuple.getT2();
@@ -276,7 +275,7 @@ public class LayoutServiceTest {
 
         Mono<PageDTO> pageMono = createPage(app, testPage).cache();
 
-        Mono<Layout> testMono = pageMono
+        Mono<LayoutDTO> testMono = pageMono
                 .flatMap(page1 -> {
                     List<Mono<ActionDTO>> monos = new ArrayList<>();
 
@@ -464,7 +463,7 @@ public class LayoutServiceTest {
 
         Mono<PageDTO> pageMono = createPage(app, testPage).cache();
 
-        Mono<Layout> testMono = pageMono
+        Mono<LayoutDTO> testMono = pageMono
                 .flatMap(page1 -> {
                     List<Mono<ActionDTO>> monos = new ArrayList<>();
 

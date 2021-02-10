@@ -1578,4 +1578,63 @@ public class DatabaseChangelog {
     public void clearUserDataCollection(MongoTemplate mongoTemplate) {
         mongoTemplate.dropCollection(UserData.class);
     }
+
+    @ChangeSet(order = "050", id = "update-database-documentation-links-v1-2-1", author = "")
+    public void updateDatabaseDocumentationLinks_v1_2_1(MongoTemplate mongoTemplate) {
+        for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
+            switch (plugin.getPackageName()) {
+                case "postgres-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-postgres");
+                    break;
+                case "mongo-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mongodb");
+                    break;
+                case "elasticsearch-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-elasticsearch");
+                    break;
+                case "dynamo-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-dynamodb");
+                    break;
+                case "redis-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redis");
+                    break;
+                case "mssql-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mssql");
+                    break;
+                case "firestore-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-firestore");
+                    break;
+                case "redshift-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redshift");
+                    break;
+                case "mysql-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mysql");
+                    break;
+                default:
+                    continue;
+            }
+
+            mongoTemplate.save(plugin);
+        }
+    }
+
+    @ChangeSet(order = "051", id = "add-amazons3-plugin", author = "")
+    public void addAmazonS3Plugin (MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Amazon S3");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("amazons3-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/AmazonS3.jpeg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-amazon-s3");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
 }
