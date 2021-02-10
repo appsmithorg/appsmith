@@ -502,7 +502,7 @@ public class RestApiPlugin extends BasePlugin {
                     if (StringUtils.isNotEmpty(key)) {
                         /*
                          * - If encodeParamsToggle is null, then assume it to be true because params are supposed to be
-                        *    encoded by default, unless explicitly prohibited by the user.
+                         *   encoded by default, unless explicitly prohibited by the user.
                          */
                         if(encodeParamsToggle == null || encodeParamsToggle == true) {
                             uriBuilder.queryParam(
