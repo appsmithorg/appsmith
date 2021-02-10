@@ -157,10 +157,9 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   getChartDataset = (chartData: ChartData[]) => {
     const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
     return chartData.map((item: ChartData) => {
-      const seriesChartData: Array<Record<
-        string,
-        unknown
-      >> = this.getSeriesChartData(item.data, categories);
+      const seriesChartData: Array<
+        Record<string, unknown>
+      > = this.getSeriesChartData(item.data, categories);
       return {
         seriesName: item.seriesName,
         data: seriesChartData,
