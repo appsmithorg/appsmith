@@ -1,15 +1,20 @@
 package com.appsmith.external.plugins;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Param;
 import org.pf4j.ExtensionPoint;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public interface PluginExecutor<C> extends ExtensionPoint {
 
@@ -84,6 +89,52 @@ public interface PluginExecutor<C> extends ExtensionPoint {
      */
     default Mono<DatasourceStructure> getStructure(C connection, DatasourceConfiguration datasourceConfiguration) {
         return Mono.empty();
+    }
+
+    default Mono<ActionExecutionResult> executeParametrized(C connection,
+                                                            ExecuteActionDTO executeActionDTO,
+                                                            DatasourceConfiguration datasourceConfiguration,
+                                                            ActionConfiguration actionConfiguration) {
+        prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+        return this.execute(connection, datasourceConfiguration, actionConfiguration);
+    }
+
+    default void prepareConfigurationsForExecution(ExecuteActionDTO executeActionDTO,
+                                                   ActionConfiguration actionConfiguration,
+                                                   DatasourceConfiguration datasourceConfiguration) {
+
+        variableSubstitution(actionConfiguration, datasourceConfiguration, executeActionDTO);
+
+        return;
+    }
+
+    /**
+     * This function replaces the variables in the action and datasource configuration with the actual params
+     */
+    default void variableSubstitution(ActionConfiguration actionConfiguration,
+                                      DatasourceConfiguration datasourceConfiguration,
+                                      ExecuteActionDTO executeActionDTO) {
+        //Do variable substitution
+        //Do this only if params have been provided in the execute command
+        if (executeActionDTO.getParams() != null && !executeActionDTO.getParams().isEmpty()) {
+            Map<String, String> replaceParamsMap = executeActionDTO
+                    .getParams()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            // Trimming here for good measure. If the keys have space on either side,
+                            // Mustache won't be able to find the key.
+                            // We also add a backslash before every double-quote or backslash character
+                            // because we apply the template replacing in a JSON-stringified version of
+                            // these properties, where these two characters are escaped.
+                            p -> p.getKey().trim(), // .replaceAll("[\"\n\\\\]", "\\\\$0"),
+                            Param::getValue,
+                            // In case of a conflict, we pick the older value
+                            (oldValue, newValue) -> oldValue)
+                    );
+
+            MustacheHelper.renderFieldValues(datasourceConfiguration, replaceParamsMap);
+            MustacheHelper.renderFieldValues(actionConfiguration, replaceParamsMap);
+        }
     }
 
 }

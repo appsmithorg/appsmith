@@ -11,7 +11,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.MustacheHelper;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.helpers.MustacheHelper.extractWordsAndAddToSet;
+import static com.appsmith.external.helpers.MustacheHelper.extractWordsAndAddToSet;
 import static java.util.stream.Collectors.toSet;
 
 @Service

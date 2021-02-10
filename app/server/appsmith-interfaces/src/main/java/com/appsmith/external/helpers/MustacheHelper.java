@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers;
+package com.appsmith.external.helpers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
@@ -17,8 +17,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.appsmith.server.helpers.BeanCopyUtils.isDomainModel;
 
 @Slf4j
 public class MustacheHelper {
@@ -161,6 +159,21 @@ public class MustacheHelper {
         return keys;
     }
 
+    public static List<String> extractMustacheKeysInOrder(String template) {
+        List<String> keys = new ArrayList<>();
+
+        for (String token : tokenize(template)) {
+            if (token.startsWith("{{") && token.endsWith("}}")) {
+                // Allowing empty tokens to be added, to be compatible with the previous `extractMustacheKeys` method.
+                // Calling `.trim()` before adding because Mustache compiler strips keys in the template before looking
+                // up a value. Addresses https://www.notion.so/appsmith/Bindings-with-a-space-at-the-start-fail-to-execute-properly-in-the-API-pane-2eb65d5c6064466b9ef059fa01ef3261
+                keys.add(token.substring(2, token.length() - 2).trim());
+            }
+        }
+
+        return keys;
+    }
+
     public static Set<String> extractMustacheKeysFromFields(Object object) {
         final Set<String> keys = new HashSet<>();
 
@@ -177,7 +190,7 @@ public class MustacheHelper {
                 continue;
             }
 
-            if (isDomainModel(obj.getClass())) {
+            if (BeanCopyUtils.isDomainModel(obj.getClass())) {
                 // Go deeper *only* if the property belongs to Appsmith's models, and both the source and target
                 // values are not null.
                 processQueue.addAll(getBeanPropertyValues(obj));
@@ -244,21 +257,21 @@ public class MustacheHelper {
                     continue;
                 }
 
-                if (isDomainModel(propertyDescriptor.getPropertyType())) {
+                if (BeanCopyUtils.isDomainModel(propertyDescriptor.getPropertyType())) {
                     // Go deeper *only* if the property belongs to Appsmith's models, and both the source and target
                     // values are not null.
                     renderFieldValues(value, context);
 
                 } else if (value instanceof List) {
                     for (Object childValue : (List) value) {
-                        if (isDomainModel(childValue.getClass())) {
+                        if (BeanCopyUtils.isDomainModel(childValue.getClass())) {
                             renderFieldValues(childValue, context);
                         }
                     }
 
                 } else if (value instanceof Map) {
                     for (Object childValue : ((Map) value).values()) {
-                        if (isDomainModel(childValue.getClass())) {
+                        if (BeanCopyUtils.isDomainModel(childValue.getClass())) {
                             renderFieldValues(childValue, context);
                         }
                     }

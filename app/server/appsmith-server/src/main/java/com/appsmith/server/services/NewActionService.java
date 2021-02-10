@@ -5,7 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
-import com.appsmith.server.dtos.ExecuteActionDTO;
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -58,4 +58,8 @@ public interface NewActionService extends CrudService<NewAction, String> {
     Flux<NewAction> findByPageId(String pageId);
 
     Mono<Boolean> setOnLoad(List<ActionDTO> actions);
+
+    List<String> extractMustacheKeysInOrder(String query);
+
+    String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings);
 }

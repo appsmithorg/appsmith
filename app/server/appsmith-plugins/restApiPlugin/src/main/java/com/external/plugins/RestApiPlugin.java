@@ -1,10 +1,13 @@
 package com.external.plugins;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.PaginationField;
+import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
@@ -44,6 +47,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -77,6 +81,33 @@ public class RestApiPlugin extends BasePlugin {
         private final String IS_SEND_SESSION_ENABLED_KEY = "isSendSessionEnabled";
         private final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
         private final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
+
+        @Override
+        public Mono<ActionExecutionResult> executeParametrized(APIConnection connection,
+                                                                ExecuteActionDTO executeActionDTO,
+                                                                DatasourceConfiguration datasourceConfiguration,
+                                                                ActionConfiguration actionConfiguration) {
+
+            prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+
+            // If the action is paginated, update the configurations to update the correct URL.
+            if (actionConfiguration != null &&
+                    actionConfiguration.getPaginationType() != null &&
+                    PaginationType.URL.equals(actionConfiguration.getPaginationType()) &&
+                    executeActionDTO.getPaginationField() != null) {
+                datasourceConfiguration = updateDatasourceConfigurationForPagination(actionConfiguration, datasourceConfiguration, executeActionDTO.getPaginationField());
+                actionConfiguration = updateActionConfigurationForPagination(actionConfiguration, executeActionDTO.getPaginationField());
+            }
+            // Filter out any empty headers
+            if (actionConfiguration.getHeaders() != null && !actionConfiguration.getHeaders().isEmpty()) {
+                List<Property> headerList = actionConfiguration.getHeaders().stream()
+                        .filter(header -> !org.springframework.util.StringUtils.isEmpty(header.getKey()))
+                        .collect(Collectors.toList());
+                actionConfiguration.setHeaders(headerList);
+            }
+
+            return this.execute(connection, datasourceConfiguration, actionConfiguration);
+        }
 
         @Override
         public Mono<ActionExecutionResult> execute(APIConnection apiConnection,
@@ -533,5 +564,30 @@ public class RestApiPlugin extends BasePlugin {
             log.debug("Got request in actionExecutionResult as: {}", actionExecutionRequest);
             return actionExecutionRequest;
         }
+
+        private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,
+                                                                           PaginationField paginationField) {
+            if (PaginationField.NEXT.equals(paginationField) || PaginationField.PREV.equals(paginationField)) {
+                actionConfiguration.setPath("");
+                actionConfiguration.setQueryParameters(null);
+            }
+            return actionConfiguration;
+        }
+
+        private DatasourceConfiguration updateDatasourceConfigurationForPagination(ActionConfiguration actionConfiguration,
+                                                                                   DatasourceConfiguration datasourceConfiguration,
+                                                                                   PaginationField paginationField) {
+            if (PaginationField.NEXT.equals(paginationField)) {
+                if (actionConfiguration.getNext() == null) {
+                    datasourceConfiguration.setUrl(null);
+                } else {
+                    datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), StandardCharsets.UTF_8));
+                }
+            } else if (PaginationField.PREV.equals(paginationField)) {
+                datasourceConfiguration.setUrl(actionConfiguration.getPrev());
+            }
+            return datasourceConfiguration;
+        }
     }
+
 }

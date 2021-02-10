@@ -92,6 +92,12 @@
             <artifactId>querydsl-jpa</artifactId>
             <version>4.2.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.8</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 

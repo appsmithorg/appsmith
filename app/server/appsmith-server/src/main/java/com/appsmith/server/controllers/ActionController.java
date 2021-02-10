@@ -6,7 +6,7 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
-import com.appsmith.server.dtos.ExecuteActionDTO;
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ActionCollectionService;

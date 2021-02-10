@@ -22,7 +22,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
-import com.appsmith.server.dtos.ExecuteActionDTO;
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -882,5 +882,14 @@ public class ActionServiceTest {
                     assertThat(updatedAction.getUserSetOnLoad()).isTrue();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testPreparedStatementPreparation() {
+        String query = "select * from something where id = {{binding1.text}} and name = '{{binding2.text}}'";
+        List<String> mustacheBindings = newActionService.extractMustacheKeysInOrder(query);
+        String preparedQuery = newActionService.replaceMustacheWithQuestionMark(query, mustacheBindings);
+        log.debug("query : {}, bindings : {}", preparedQuery, mustacheBindings);
     }
 }
