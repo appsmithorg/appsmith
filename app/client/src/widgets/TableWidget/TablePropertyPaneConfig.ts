@@ -247,6 +247,23 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
+                  propertyName: "computedValue",
+                  label: "Computed Value",
+                  controlType: "COMPUTE_VALUE",
+                  updateHook: updateDerivedColumnHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType === "button";
+                  },
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                },
+                {
                   propertyName: "inputFormat",
                   label: "Original Date Format",
                   controlType: "DROP_DOWN",
@@ -336,23 +353,6 @@ export default [
                       "",
                     );
                     return columnType !== "date";
-                  },
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                },
-                {
-                  propertyName: "computedValue",
-                  label: "Computed Value",
-                  controlType: "COMPUTE_VALUE",
-                  updateHook: updateDerivedColumnHook,
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType === "button";
                   },
                   isBindProperty: true,
                   isTriggerProperty: false,
