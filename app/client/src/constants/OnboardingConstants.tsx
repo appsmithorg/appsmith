@@ -6,6 +6,7 @@ import SuperHeroGif from "assets/gifs/super_hero.gif";
 import { Dispatch } from "redux";
 import { setOnboardingWelcomeState } from "utils/storage";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { showOnboardingLoader } from "actions/onboardingActions";
 
 export enum OnboardingStep {
   NONE = -1,
@@ -65,12 +66,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
     setup: () => {
       // To setup the state if any
       // Return action that needs to be dispatched
-      return [
-        {
-          type: ReduxActionTypes.SHOW_ONBOARDING_LOADER,
-          payload: true,
-        },
-      ];
+      return [showOnboardingLoader(true)];
     },
     helper: {
       title: "👋 Welcome to Appsmith!",

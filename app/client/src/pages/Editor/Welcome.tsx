@@ -5,7 +5,7 @@ import { Classes } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { AppState } from "reducers";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { showOnboardingLoader } from "actions/onboardingActions";
 
 const Wrapper = styled.div`
   height: calc(100vh - 48px);
@@ -98,10 +98,7 @@ const Welcome = () => {
           onClick={() => {
             AnalyticsUtil.logEvent("ONBOARDING_START_BUILDING");
 
-            dispatch({
-              type: ReduxActionTypes.SHOW_ONBOARDING_LOADER,
-              payload: false,
-            });
+            dispatch(showOnboardingLoader(false));
           }}
         >
           Start Building

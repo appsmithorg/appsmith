@@ -58,3 +58,10 @@ export const showWelcomeHelper = (payload: boolean) => {
     payload,
   };
 };
+
+export const showOnboardingLoader = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SHOW_ONBOARDING_LOADER,
+    payload,
+  };
+};

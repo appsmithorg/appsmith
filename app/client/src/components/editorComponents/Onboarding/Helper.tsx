@@ -78,8 +78,8 @@ const SecondaryActionButton = styled(Button)`
 
 const CheatActionButton = styled(Button)`
   background-color: #ffffff;
-  border: 1px solid #ed3049;
-  color: #ed3049;
+  border: 1px solid #716e6e;
+  color: #716e6e;
   font-weight: 500;
 `;
 
