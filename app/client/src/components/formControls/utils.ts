@@ -15,6 +15,10 @@ export const isHidden = (values: any, hiddenConfig?: HiddenType) => {
         return valueAtPath > value;
       case "LESSER":
         return valueAtPath < value;
+      case "IN":
+        return Array.isArray(value) && value.includes(valueAtPath);
+      case "NOT_IN":
+        return Array.isArray(value) && !value.includes(valueAtPath);
       default:
         return true;
     }
