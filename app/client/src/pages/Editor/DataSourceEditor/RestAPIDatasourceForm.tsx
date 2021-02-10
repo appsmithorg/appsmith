@@ -21,18 +21,21 @@ import DropDownControl from "components/formControls/DropDownControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { Action, ApiActionConfig, Property } from "entities/Action";
+import { ApiActionConfig, Property } from "entities/Action";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 import { createActionRequest } from "actions/actionActions";
 import { deleteDatasource, updateDatasource } from "actions/datasourceActions";
+import { ReduxAction } from "constants/ReduxActionConstants";
 
 interface DatasourceRestApiEditorProps {
-  updateDatasource: (formValues: Datasource) => void;
+  updateDatasource: (
+    formValues: Datasource,
+    onSuccess?: ReduxAction<unknown>,
+  ) => void;
   deleteDatasource: (id: string) => void;
-  createActionRequest: (data: Partial<Action>) => void;
   isSaving: boolean;
   isDeleting: boolean;
   applicationId: string;
@@ -141,7 +144,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return <RestApiForm>{this.renderDataSourceConfigForm()}</RestApiForm>;
   }
 
-  save = () => {
+  save = (onSuccess?: ReduxAction<unknown>) => {
     const normalizedValues = formValuesToDatasource(
       this.props.datasource,
       this.props.formData,
@@ -150,7 +153,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
     });
-    this.props.updateDatasource(normalizedValues);
+    this.props.updateDatasource(normalizedValues, onSuccess);
   };
 
   renderDataSourceConfigForm = () => {
@@ -238,25 +241,20 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       headers: headers.length ? headers : DEFAULT_API_ACTION_CONFIG.headers,
     };
 
-    this.props.createActionRequest({
-      name: newApiName,
-      pageId: pageId,
-      pluginId: datasource.pluginId,
-      datasource: {
-        id: datasource.id,
-      },
-      eventData: {
-        actionType: "API",
-        from: "datasource-pane",
-      },
-      actionConfiguration: defaultApiActionConfig,
-    });
-    history.push(
-      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
-        this.props.applicationId,
-        pageId,
-        pageId,
-      ),
+    this.save(
+      createActionRequest({
+        name: newApiName,
+        pageId: pageId,
+        pluginId: datasource.pluginId,
+        datasource: {
+          id: datasource.id,
+        },
+        eventData: {
+          actionType: "API",
+          from: "datasource-pane",
+        },
+        actionConfiguration: defaultApiActionConfig,
+      }),
     );
   }
 
@@ -663,9 +661,8 @@ const mapStateToProps = (state: AppState, props: any) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    createActionRequest: (data: Partial<Action>) =>
-      dispatch(createActionRequest(data)),
-    updateDatasource: (formData: any) => dispatch(updateDatasource(formData)),
+    updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
+      dispatch(updateDatasource(formData, onSuccess)),
     deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
   };
 };

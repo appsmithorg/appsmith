@@ -15,6 +15,7 @@ import {
   ReduxActionTypes,
   ReduxFormActionTypes,
   ReduxActionWithMeta,
+  ReduxActionWithCallbacks,
 } from "constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
@@ -130,7 +131,9 @@ export function* deleteDatasourceSaga(
   }
 }
 
-function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
+function* updateDatasourceSaga(
+  actionPayload: ReduxActionWithCallbacks<Datasource, unknown, unknown>,
+) {
   try {
     const datasourcePayload = _.omit(actionPayload.payload, "name");
 
@@ -157,6 +160,9 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
         payload: response.data,
       });
+      if (actionPayload.onSuccess) {
+        yield put(actionPayload.onSuccess);
+      }
       yield put({
         type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
         payload: {
@@ -176,6 +182,9 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       type: ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR,
       payload: { error },
     });
+    if (actionPayload.onError) {
+      yield put(actionPayload.onError);
+    }
   }
 }
 
