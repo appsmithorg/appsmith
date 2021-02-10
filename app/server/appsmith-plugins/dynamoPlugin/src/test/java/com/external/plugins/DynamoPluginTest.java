@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
 import lombok.extern.log4j.Log4j;
 import org.junit.BeforeClass;
@@ -29,6 +30,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -90,8 +92,6 @@ public class DynamoPluginTest {
                         "City", AttributeValue.builder().s("Bangalore").build()
                 ))
                 .build());
-
-        System.out.println(ddb.listTables());
 
         Endpoint endpoint = new Endpoint();
         endpoint.setHost(host);
@@ -217,6 +217,43 @@ public class DynamoPluginTest {
                     assertNotNull(result.getBody());
                     final Map<String, Map<String, Object>> attributes = ((Map<String, Map<String, Map<String, Object>>>) result.getBody()).get("Attributes");
                     assertEquals("Bengaluru", attributes.get("City").get("S"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testScan() {
+        final String body = "{\n" +
+                "  \"TableName\": \"cities\"\n" +
+                "}\n";
+
+        StepVerifier.create(execute("Scan", body))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final List<Object> items = (List<Object>) ((Map<String, Object>) result.getBody()).get("Items");
+                    assertEquals(2, items.size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testStructure() {
+        final Mono<DatasourceStructure> structureMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(conn -> pluginExecutor.getStructure(conn, dsConfig));
+
+        StepVerifier.create(structureMono)
+                .assertNext(structure -> {
+                    assertNotNull(structure);
+                    assertNotNull(structure.getTables());
+                    assertEquals(
+                            List.of("cities"),
+                            structure.getTables().stream()
+                                    .map(DatasourceStructure.Table::getName)
+                                    .collect(Collectors.toList())
+                    );
                 })
                 .verifyComplete();
     }

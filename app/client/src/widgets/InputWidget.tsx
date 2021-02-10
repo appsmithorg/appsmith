@@ -154,10 +154,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => {
+    const { isValid, onSubmit } = this.props;
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
-    if (isEnterKey && this.props.onSubmit) {
+    if (isEnterKey && onSubmit && isValid) {
       super.executeAction({
-        dynamicString: this.props.onSubmit,
+        dynamicString: onSubmit,
         event: {
           type: EventType.ON_SUBMIT,
           callback: this.onSubmitSuccess,
