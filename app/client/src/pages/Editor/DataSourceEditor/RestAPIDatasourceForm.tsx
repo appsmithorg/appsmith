@@ -1,4 +1,3 @@
-// eslint-disable
 import React from "react";
 import styled from "styled-components";
 import _ from "lodash";
@@ -19,47 +18,37 @@ import BackButton from "./BackButton";
 import InputTextControl from "components/formControls/InputTextControl";
 import KeyValueInputControl from "components/formControls/KeyValueInputControl";
 import DropDownControl from "components/formControls/DropDownControl";
-import { Spinner } from "@blueprintjs/core";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { Action, ApiActionConfig, Property } from "entities/Action";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { getCurrentPageId } from "selectors/editorSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 import { createActionRequest } from "actions/actionActions";
-import { updateDatasource } from "actions/datasourceActions";
+import { deleteDatasource, updateDatasource } from "actions/datasourceActions";
 
 interface DatasourceRestApiEditorProps {
   updateDatasource: (formValues: Datasource) => void;
-  handleDelete: (id: string) => void;
+  deleteDatasource: (id: string) => void;
   createActionRequest: (data: Partial<Action>) => void;
-  selectedPluginPackage: string;
   isSaving: boolean;
   isDeleting: boolean;
-  loadingFormConfigs: boolean;
   applicationId: string;
+  datasourceId: string;
   pageId: string;
   isNewDatasource: boolean;
   pluginImage: string;
-  viewMode: boolean;
-  pluginType: string;
   datasource: Datasource;
   formData: ApiDatasourceForm;
   actions: ActionDataState;
-  currentPageId?: string;
-}
-
-interface DatasourceDBEditorState {
-  viewMode: boolean;
 }
 
 type Props = DatasourceRestApiEditorProps &
   InjectedFormProps<ApiDatasourceForm, DatasourceRestApiEditorProps>;
 
-const DBForm = styled.div`
+const RestApiForm = styled.div`
   padding: 20px;
   margin-left: 10px;
   margin-right: 0px;
@@ -133,10 +122,7 @@ const StyledButton = styled(Button)`
   }
 `;
 
-class DatasourceRestAPIEditor extends React.Component<
-  Props,
-  DatasourceDBEditorState
-> {
+class DatasourceRestAPIEditor extends React.Component<Props> {
   disableSave = () => {
     const { formData } = this.props;
     if (!formData) return true;
@@ -144,24 +130,8 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   render() {
-    const { loadingFormConfigs } = this.props;
-    if (loadingFormConfigs) {
-      return (
-        <LoadingContainer>
-          <Spinner size={30} />
-        </LoadingContainer>
-      );
-    }
-    const content = this.renderDataSourceConfigForm();
-    return <DBForm>{content}</DBForm>;
+    return <RestApiForm>{this.renderDataSourceConfigForm()}</RestApiForm>;
   }
-
-  isNewDatasource = () => {
-    const { datasource } = this.props;
-    if (!datasource) return false;
-
-    return datasource.id && datasource.id.includes(":");
-  };
 
   save = () => {
     const normalizedValues = formValuesToDatasource(
@@ -181,8 +151,8 @@ class DatasourceRestAPIEditor extends React.Component<
       applicationId,
       pageId,
       isDeleting,
-      datasource,
-      handleDelete,
+      datasourceId,
+      deleteDatasource,
     } = this.props;
 
     return (
@@ -220,7 +190,7 @@ class DatasourceRestAPIEditor extends React.Component<
               text="Delete"
               accent="error"
               loading={isDeleting}
-              onClick={() => datasource && handleDelete(datasource.id)}
+              onClick={() => deleteDatasource(datasourceId)}
             />
 
             <StyledButton
@@ -250,7 +220,7 @@ class DatasourceRestAPIEditor extends React.Component<
   }
 
   createApiAction() {
-    const { datasource, actions, currentPageId } = this.props;
+    const { datasource, actions, pageId } = this.props;
     if (
       !datasource ||
       !datasource.datasourceConfiguration ||
@@ -261,7 +231,7 @@ class DatasourceRestAPIEditor extends React.Component<
         variant: Variant.danger,
       });
     }
-    const newApiName = createNewApiName(actions, currentPageId || "");
+    const newApiName = createNewApiName(actions, pageId || "");
 
     const headers =
       this.props.datasource?.datasourceConfiguration?.headers ?? [];
@@ -272,7 +242,7 @@ class DatasourceRestAPIEditor extends React.Component<
 
     this.props.createActionRequest({
       name: newApiName,
-      pageId: currentPageId,
+      pageId: pageId,
       pluginId: datasource.pluginId,
       datasource: {
         id: datasource.id,
@@ -286,8 +256,8 @@ class DatasourceRestAPIEditor extends React.Component<
     history.push(
       API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
         this.props.applicationId,
-        currentPageId,
-        currentPageId,
+        pageId,
+        pageId,
       ),
     );
   }
@@ -691,7 +661,6 @@ const mapStateToProps = (state: AppState, props: any) => {
     initialValues: datasourceToFormValues(datasource),
     datasource: datasource,
     actions: state.entities.actions,
-    currentPageId: getCurrentPageId(state),
     formData: getFormValues(DATASOURCE_REST_API_FORM)(
       state,
     ) as ApiDatasourceForm,
@@ -702,9 +671,8 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     createActionRequest: (data: Partial<Action>) =>
       dispatch(createActionRequest(data)),
-    updateDatasource: (formData: any) => {
-      dispatch(updateDatasource(formData));
-    },
+    updateDatasource: (formData: any) => dispatch(updateDatasource(formData)),
+    deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
   };
 };
 
