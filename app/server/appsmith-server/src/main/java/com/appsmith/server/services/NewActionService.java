@@ -6,6 +6,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
+import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -57,5 +58,5 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Flux<NewAction> findByPageId(String pageId);
 
-    Mono<Boolean> setOnLoad(List<ActionDTO> actions);
+    Mono<Boolean> updateActionsExecuteOnLoad(List<ActionDTO> actions, String pageId, List<LayoutActionUpdateDTO> actionUpdates, List<String> messages);
 }
