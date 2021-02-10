@@ -7,9 +7,9 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.NonNull;
@@ -83,7 +83,8 @@ public class MssqlPlugin extends BasePlugin {
                 String query = actionConfiguration.getBody();
 
                 if (query == null) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required parameter: Query."));
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
+                            "parameter: Query."));
                 }
 
                 List<Map<String, Object>> rowsList = new ArrayList<>(50);
@@ -152,7 +153,7 @@ public class MssqlPlugin extends BasePlugin {
                     }
 
                 } catch (SQLException e) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
 
                 } finally {
                     if (resultSet != null) {
@@ -248,10 +249,9 @@ public class MssqlPlugin extends BasePlugin {
 
                 } catch (SQLException e) {
                     return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                             "Error connecting to MsSQL: " + e.getMessage()
                     ));
-
                 }
             })
                     .flatMap(obj -> obj)

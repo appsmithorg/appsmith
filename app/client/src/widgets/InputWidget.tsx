@@ -4,7 +4,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import InputComponent, {
   InputComponentProps,
 } from "components/designSystems/blueprint/InputComponent";
-import { EventType } from "constants/ActionConstants";
+import { EventType, ExecutionResult } from "constants/ActionConstants";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
@@ -39,6 +39,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       // onTextChanged: VALIDATION_TYPES.ACTION_SELECTOR,
       isRequired: VALIDATION_TYPES.BOOLEAN,
       isValid: VALIDATION_TYPES.BOOLEAN,
+      resetOnSubmit: VALIDATION_TYPES.BOOLEAN,
     };
   }
   static getTriggerPropertyMap(): TriggerPropertiesMap {
@@ -137,17 +138,30 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("isFocused", focusState);
   };
 
+  onSubmitSuccess = (result: ExecutionResult) => {
+    if (result.success && this.props.resetOnSubmit) {
+      this.props.updateWidgetMetaProperty("text", "", {
+        dynamicString: this.props.onTextChanged,
+        event: {
+          type: EventType.ON_TEXT_CHANGE,
+        },
+      });
+    }
+  };
+
   handleKeyDown = (
     e:
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => {
+    const { isValid, onSubmit } = this.props;
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
-    if (isEnterKey && this.props.onSubmit) {
+    if (isEnterKey && onSubmit && isValid) {
       super.executeAction({
-        dynamicString: this.props.onSubmit,
+        dynamicString: onSubmit,
         event: {
           type: EventType.ON_SUBMIT,
+          callback: this.onSubmitSuccess,
         },
       });
     }
