@@ -1621,7 +1621,27 @@ public class DatabaseChangelog {
         }
     }
 
-    @ChangeSet(order = "051", id = "add-app-viewer-invite-policy", author = "")
+    @ChangeSet(order = "051", id = "add-amazons3-plugin", author = "")
+    public void addAmazonS3Plugin (MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Amazon S3");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("amazons3-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/AmazonS3.jpeg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-amazon-s3");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
+
+    @ChangeSet(order = "052", id = "add-app-viewer-invite-policy", author = "")
     public void addAppViewerInvitePolicy(MongoTemplate mongoTemplate) {
         final List<Organization> organizations = mongoTemplate.find(
                 query(new Criteria().andOperator(
