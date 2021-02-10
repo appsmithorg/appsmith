@@ -1651,6 +1651,7 @@ public class DatabaseChangelog {
                 case "firestore-plugin":
                 case "redshift-plugin":
                 case "mysql-plugin":
+                case "amazons3-plugin":
                     plugin.setDatasourceComponent("AutoForm");
                     break;
                 case "restapi-plugin":
