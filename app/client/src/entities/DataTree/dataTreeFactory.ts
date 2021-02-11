@@ -147,6 +147,8 @@ export class DataTreeFactory {
           Object.keys(derivedPropertyMap).map((key) => [key, true]),
         ),
       );
+      // Add meta prop paths to the binding paths list since they could trigger
+      // evaluations of other paths
       if (defaultMetaProps) {
         Object.keys(defaultMetaProps).forEach((metaPath) => {
           bindingPaths[metaPath] = true;
