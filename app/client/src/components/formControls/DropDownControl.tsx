@@ -11,7 +11,7 @@ import FormLabel from "components/editorComponents/FormLabel";
 
 const DropdownSelect = styled.div`
   font-size: 14px;
-  width: 50vh;
+  width: 50vw;
 `;
 
 const customSelectStyles = {
@@ -53,7 +53,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
             name={configProperty}
             options={options}
             customSelectStyles={customSelectStyles}
-            width={"50vh"}
+            width={"50vw"}
           />
         </DropdownSelect>
       </div>

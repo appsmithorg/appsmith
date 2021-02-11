@@ -171,7 +171,7 @@ const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
     & .${BlueprintClasses.DIALOG_FOOTER_ACTIONS} {
       display: block;
     }
-    ${(props) => props.setMaxWidth && `width: 100vh;`}
+    ${(props) => props.setMaxWidth && `width: 100vw;`}
 
     .${BlueprintClasses.HEADING} {
       color: ${(props) => props.theme.colors.modal.headerText};

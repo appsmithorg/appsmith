@@ -14,7 +14,7 @@ const StyledDialog = styled(Dialog)<{
     background: ${(props) => props.theme.colors.modal.bg};
     ${(props) => (props.maxHeight ? `max-height: ${props.maxHeight};` : "")}
     width: ${(props) => props.width || "640px"};
-    ${(props) => props.setMaxWidth && `width: 100vh;`}
+    ${(props) => props.setMaxWidth && `width: 100vw;`}
 
     & .${Classes.DIALOG_HEADER} {
       position: relative;
