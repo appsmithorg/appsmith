@@ -130,7 +130,7 @@ type EditorHeaderProps = {
   currentApplication?: ApplicationPayload;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
-  currentTheme: any;
+  darkTheme: any;
 };
 
 export const EditorHeader = (props: EditorHeaderProps) => {
@@ -194,7 +194,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
   };
 
   return (
-    <ThemeProvider theme={props.currentTheme}>
+    <ThemeProvider theme={props.darkTheme}>
       <HeaderWrapper>
         <HeaderSection>
           <Link to={APPLICATIONS_URL} style={{ height: 24 }}>
@@ -306,7 +306,7 @@ const mapStateToProps = (state: AppState) => ({
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),
-  currentTheme: getThemeDetails(state, ThemeMode.DARK).theme,
+  darkTheme: getThemeDetails(state, ThemeMode.DARK),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

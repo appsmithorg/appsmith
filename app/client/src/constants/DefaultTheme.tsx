@@ -6,7 +6,6 @@ import { Classes } from "@blueprintjs/core";
 import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
-import { get } from "lodash";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
 const {
@@ -1993,20 +1992,5 @@ export const scrollbarLight = css<{ backgroundColor?: Color }>`
 `;
 
 export { css, createGlobalStyle, keyframes, ThemeProvider };
-
-export const getThemeColorValue = (props: any, path: string) => {
-  switch (props.variant) {
-    case "light":
-      return get(light, path);
-    case "dark":
-      return get(dark, path);
-    default:
-      return get(props, `theme.colors.${path}`);
-  }
-};
-
-export interface VariantProps {
-  variant?: "dark" | "light";
-}
 
 export default styled;

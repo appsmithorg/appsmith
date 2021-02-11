@@ -19,12 +19,12 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 export const UserAuth = () => {
   const { path } = useRouteMatch();
   const location = useLocation();
-  const theme = useSelector(
-    (state: AppState) => getThemeDetails(state, ThemeMode.DARK).theme,
+  const darkTheme = useSelector((state: AppState) =>
+    getThemeDetails(state, ThemeMode.DARK),
   );
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={darkTheme}>
       <AuthContainer>
         <AuthCardContainer>
           <AuthCard>

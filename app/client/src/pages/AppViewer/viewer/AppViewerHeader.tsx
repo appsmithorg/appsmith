@@ -30,7 +30,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import { IconWrapper } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import ProfileDropdown from "pages/common/ProfileDropdown";
@@ -123,7 +123,7 @@ type AppViewerHeaderProps = {
   pages: PageListPayload;
   currentOrgId: string;
   currentUser?: User;
-  theme: any;
+  lightTheme: Theme;
 };
 
 export const AppViewerHeader = (props: AppViewerHeaderProps) => {
@@ -178,7 +178,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   }
 
   return (
-    <ThemeProvider theme={props.theme}>
+    <ThemeProvider theme={props.lightTheme}>
       <HeaderWrapper hasPages={pages.length > 1}>
         <HtmlTitle />
         <HeaderRow justify={"space-between"}>
@@ -246,7 +246,7 @@ const mapStateToProps = (state: AppState): AppViewerHeaderProps => ({
   currentApplicationDetails: state.ui.applications.currentApplication,
   currentOrgId: getCurrentOrgId(state),
   currentUser: getCurrentUser(state),
-  theme: getThemeDetails(state, ThemeMode.LIGHT).theme,
+  lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
 });
 
 export default connect(mapStateToProps)(AppViewerHeader);
