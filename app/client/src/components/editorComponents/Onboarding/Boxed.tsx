@@ -8,6 +8,7 @@ type BoxedProps = {
   step: OnboardingStep;
   // Any additional conditions to hide the children
   show?: boolean;
+  alternative?: ReactNode;
   children: ReactNode;
 };
 
@@ -17,6 +18,10 @@ const Boxed: React.FC<BoxedProps> = (props: BoxedProps) => {
   const onboarding = useSelector(inOnboarding);
 
   if (onboarding && currentStep < props.step && !props.show) {
+    if (props.alternative) {
+      return <>{props.alternative}</>;
+    }
+
     return null;
   }
 
