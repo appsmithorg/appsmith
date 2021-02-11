@@ -176,6 +176,7 @@ const WidgetSidebar = (props: IPanelProps) => {
               <OnboardingIndicator
                 width={100}
                 hasButton={false}
+                className="onboarding-widget-menu"
                 step={
                   OnboardingStep.RUN_QUERY_SUCCESS ||
                   OnboardingStep.ADD_INPUT_WIDGET
