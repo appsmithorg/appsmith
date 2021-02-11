@@ -87,7 +87,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     public Mono<Datasource> getById(String s) {
         return super.getById(s).flatMap(datasource -> {
             if (datasource.getDatasourceConfiguration().getAuthentication() != null &&
-                    datasource.getDatasourceConfiguration().getAuthentication().isEncrypted()) {
+                    Boolean.TRUE.equals(datasource.getDatasourceConfiguration().getAuthentication().isEncrypted())) {
                 datasource.getDatasourceConfiguration().setAuthentication(decryptSensitiveFields(datasource.getDatasourceConfiguration().getAuthentication()));
             }
             return Mono.just(datasource);
@@ -176,7 +176,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     @Override
     public AuthenticationDTO encryptAuthenticationFields(AuthenticationDTO authentication) {
         if (authentication != null
-                && !authentication.isEncrypted()) {
+                && !Boolean.TRUE.equals(authentication.isEncrypted())) {
             Map<String, String> encryptedFields = authentication.getEncryptionFields().entrySet().stream()
                     .filter(e -> e.getValue() != null)
                     .collect(Collectors.toMap(
@@ -375,7 +375,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     private AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authentication) {
-        if (authentication != null && authentication.isEncrypted()) {
+        if (authentication != null && Boolean.TRUE.equals(authentication.isEncrypted())) {
             Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
                     .filter(e -> e.getValue() != null)
                     .collect(Collectors.toMap(

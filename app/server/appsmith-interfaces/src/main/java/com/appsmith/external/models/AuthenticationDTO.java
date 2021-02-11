@@ -34,7 +34,7 @@ public class AuthenticationDTO {
     Set<Property> customAuthenticationParameters;
 
     @JsonIgnore
-    private Boolean isEncrypted = false;
+    private Boolean isEncrypted;
 
     @JsonIgnore
     public Map<String, String> getEncryptionFields() {
@@ -51,8 +51,8 @@ public class AuthenticationDTO {
     }
 
     @JsonIgnore
-    public boolean isEncrypted() {
-        return Boolean.TRUE.equals(isEncrypted);
+    public Boolean isEncrypted() {
+        return this.isEncrypted;
     }
 
 }
