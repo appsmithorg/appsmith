@@ -194,6 +194,17 @@ export const isNameValid = (
   );
 };
 
+/**
+ * checks if variable passed is of type string or not
+ *
+ * for e.g -> 'Pawan' -> true
+ * ['Pawan', 'Goku'] -> false
+ * { name: "Pawan"} -> false
+ */
+export const isString = (str: any) => {
+  return typeof str === "string" || str instanceof String;
+};
+
 export const playOnboardingAnimation = () => {
   const container: Element = document.getElementById("root") as Element;
 
