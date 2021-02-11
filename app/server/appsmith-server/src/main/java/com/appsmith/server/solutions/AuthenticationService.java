@@ -32,6 +32,7 @@ import java.time.Instant;
 import java.util.Map;
 
 import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
+import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN_URL;
 import static com.appsmith.external.constants.Authentication.AUTHORIZATION_CODE;
 import static com.appsmith.external.constants.Authentication.AUTHORIZATION_URL;
 import static com.appsmith.external.constants.Authentication.CLIENT_ID;
@@ -68,7 +69,6 @@ public class AuthenticationService {
                             .fromUriString(oAuth2.getAuthorizationUrl())
                             .queryParam(CLIENT_ID, oAuth2.getClientId())
                             .queryParam(RESPONSE_TYPE, CODE)
-                            // serverWebExchange.getRequest().getHeaders().getOrigin()
                             .queryParam(REDIRECT_URI, redirectUri + "/api/v1/datasources/authorize")
                             .queryParam(STATE, String.join(",", pageId, datasourceId, redirectUri));
                     // Adding optional scope parameter
@@ -101,6 +101,9 @@ public class AuthenticationService {
         if (oAuth2.getAuthorizationUrl() == null || oAuth2.getAuthorizationUrl().isBlank()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, AUTHORIZATION_URL));
         }
+        if (oAuth2.getAccessTokenUrl() == null || oAuth2.getAccessTokenUrl().isBlank()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ACCESS_TOKEN_URL));
+        }
 
         return Mono.just(datasource);
     }
@@ -108,12 +111,12 @@ public class AuthenticationService {
     public Mono<String> getAccessToken(AuthorizationCodeCallbackDTO callbackDTO) {
         final String error = callbackDTO.getError();
         String code = callbackDTO.getCode();
-        String state = callbackDTO.getState();
+        final String state = callbackDTO.getState();
         String scope = callbackDTO.getScope();
         if (!StringUtils.isEmpty(error)) {
             return this.getPageRedirectUrl(state, error);
         }
-        return datasourceService.getById(state.split(",")[0])
+        return datasourceService.getById(state.split(",")[1])
                 .flatMap(datasource -> {
                     OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                     WebClient.Builder builder = WebClient.builder();
@@ -130,7 +133,7 @@ public class AuthenticationService {
                     // Add required fields
                     map.add(GRANT_TYPE, AUTHORIZATION_CODE);
                     map.add(CODE, code);
-                    map.add(REDIRECT_URI, state.split(",")[1]);
+                    map.add(REDIRECT_URI, state.split(",")[2] + "/api/v1/datasources/authorize");
                     if (!oAuth2.getScope().isEmpty()) {
                         map.add(SCOPE, String.join(",", oAuth2.getScope()));
                     }
@@ -159,6 +162,7 @@ public class AuthenticationService {
                                 }
                             })
                             .flatMap(response -> {
+
                                 oAuth2.setTokenResponse(response);
                                 oAuth2.setToken((String) response.get(ACCESS_TOKEN));
                                 oAuth2.setRefreshToken((String) response.get(REFRESH_TOKEN));
