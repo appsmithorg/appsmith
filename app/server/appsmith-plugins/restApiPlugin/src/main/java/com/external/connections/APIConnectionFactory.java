@@ -9,7 +9,13 @@ public class APIConnectionFactory {
 
     public static Mono<APIConnection> createConnection(AuthenticationDTO authenticationType) {
         if (authenticationType instanceof OAuth2) {
-            return Mono.from(OAuth2Connection.create((OAuth2) authenticationType));
+            if (OAuth2.Type.CLIENT_CREDENTIALS.equals(((OAuth2) authenticationType).getGrantType())) {
+                return Mono.from(OAuth2ClientCredentials.create((OAuth2) authenticationType));
+            } else if (OAuth2.Type.AUTHORIZATION_CODE.equals(((OAuth2) authenticationType).getGrantType())) {
+                return Mono.from(OAuth2AuthorizationCode.create((OAuth2) authenticationType));
+            } else {
+                return Mono.empty();
+            }
         } else {
             return Mono.empty();
         }
