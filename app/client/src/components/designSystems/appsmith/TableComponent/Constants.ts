@@ -121,7 +121,7 @@ export interface TableColumnMetaProps {
 export interface ReactTableColumnProps {
   Header: string;
   accessor: string;
-  width: number;
+  width?: number;
   minWidth: number;
   draggable: boolean;
   isHidden?: boolean;

@@ -71,7 +71,10 @@ describe("Input Widget Functionality", function() {
     /**
      * @param{Show Alert} Css for InputChange
      */
-    cy.getAlert(commonlocators.optionchangetextInput);
+    cy.getAlert(
+      commonlocators.optionchangetextInput,
+      widgetsPage.inputOnTextChange,
+    );
     cy.PublishtheApp();
   });
   it("Input Widget Functionality To Validate Default Text and Placeholder", function() {
@@ -119,9 +122,9 @@ describe("Input Widget Functionality", function() {
       `${commonlocators.dataType} .single-select:contains("Number")`,
     ).click();*/
     cy.get("ul.bp3-menu")
-    .children()
-    .contains("Number")
-    .click();
+      .children()
+      .contains("Number")
+      .click();
     cy.testJsontext("regex", "^s*(?=.*[1-9])d*(?:.d{1,2})?s*$");
     cy.get(widgetsPage.innertext)
       .click()

@@ -172,6 +172,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       allColumns = reorderColumns(allColumns, columnOrder);
     }
     const { componentWidth } = this.getComponentDimensions();
+    let totalColumnSizes = 0;
+    const defaultColumnWidth = 150;
+    for (const i in columnSizeMap) {
+      totalColumnSizes += columnSizeMap[i];
+    }
 
     for (let index = 0; index < allColumns.length; index++) {
       const columnProperties = allColumns[index];
@@ -180,7 +185,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const columnData = {
         Header: columnProperties.label,
         accessor: accessor,
-        width: columnSizeMap?.[accessor] || columnProperties.width,
+        width:
+          columnSizeMap && columnSizeMap[accessor]
+            ? columnSizeMap[accessor]
+            : defaultColumnWidth,
         minWidth: 60,
         draggable: true,
         isHidden: false,
@@ -245,6 +253,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       } else {
         columns.push(columnData);
       }
+    }
+    if (totalColumnSizes < componentWidth) {
+      const lastColumnIndex = columns.length - 1;
+      let remainingColumnsSize = 0;
+      for (let i = 0; i < columns.length - 1; i++) {
+        remainingColumnsSize += columns[i].width || defaultColumnWidth;
+      }
+      columns[lastColumnIndex].width =
+        componentWidth - remainingColumnsSize < defaultColumnWidth
+          ? defaultColumnWidth
+          : componentWidth - remainingColumnsSize; //Min remaining width to be defaultColumnWidth
     }
     if (hiddenColumns.length && this.props.renderMode === RenderModes.CANVAS) {
       columns = columns.concat(hiddenColumns);
