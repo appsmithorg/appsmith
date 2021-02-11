@@ -1,16 +1,24 @@
 package com.appsmith.external.helpers;
 
+import com.appsmith.external.models.ActionConfiguration;
 import com.google.common.base.Ascii;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.validator.routines.DateValidator;
 import org.bson.types.Binary;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class SqlStringUtils {
 
@@ -85,8 +93,6 @@ public class SqlStringUtils {
             return null;
         }
 
-        java.sql.Time.valueOf("input");
-
         DateValidator dateValidator = new DateValidatorUsingDateFormat("yyyy-mm-dd");
         if (dateValidator.isValid(input)) {
             return Date.class;
@@ -116,6 +122,36 @@ public class SqlStringUtils {
         return String.class;
     }
 
+    public static PreparedStatement setValueInPreparedStatement(int index, String value, PreparedStatement preparedStatement) throws SQLException, UnsupportedEncodingException {
+        Class valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
+
+        if (valueType == null) {
+            return preparedStatement;
+        } else if (valueType.equals(Binary.class)) {
+            preparedStatement.setBinaryStream(index, IOUtils.toInputStream(value));
+        } else if(valueType.equals(Byte.class)) {
+            preparedStatement.setBytes(index, value.getBytes("UTF-8"));
+        } else if (valueType.equals(Integer.class)) {
+            preparedStatement.setInt(index, Integer.parseInt(value));
+        } else if (valueType.equals(Long.class)) {
+            preparedStatement.setLong(index, Long.parseLong(value));
+        } else if (valueType.equals(Float.class)) {
+            preparedStatement.setFloat(index, Float.parseFloat(value));
+        } else if (valueType.equals(Double.class)) {
+            preparedStatement.setDouble(index, Double.parseDouble(value));
+        } else if (valueType.equals(Boolean.class)) {
+            preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
+        } else if (valueType.equals(Date.class)) {
+            preparedStatement.setDate(index, Date.valueOf(value));
+        } else if (valueType.equals(Time.class)) {
+            preparedStatement.setTime(index, Time.valueOf(value));
+        } else {
+            preparedStatement.setString(index, value);
+        }
+
+        return preparedStatement;
+    }
+
     private static boolean isBinary(String input) {
         for(int i = 0; i < input.length(); i++) {
             int tempB = input.charAt(i);
@@ -126,5 +162,18 @@ public class SqlStringUtils {
         }
         // no failures, so
         return true;
+    }
+
+    public static String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings) {
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(query);
+
+        Map<String, String> replaceParamsMap = mustacheBindings
+                .stream()
+                .collect(Collectors.toMap(Function.identity(), v -> "?"));
+
+        ActionConfiguration updatedActionConfiguration = MustacheHelper.renderFieldValues(actionConfiguration, replaceParamsMap);
+        return updatedActionConfiguration.getBody();
     }
 }

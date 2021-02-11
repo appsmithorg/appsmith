@@ -4,6 +4,8 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.SqlStringUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -46,6 +48,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 public class PostgresPlugin extends BasePlugin {
 
@@ -117,13 +120,26 @@ public class PostgresPlugin extends BasePlugin {
                                                                 ExecuteActionDTO executeActionDTO,
                                                                 DatasourceConfiguration datasourceConfiguration,
                                                                 ActionConfiguration actionConfiguration) {
+
+            String query = actionConfiguration.getBody();
+            // Check for query parameter before performing the probably expensive fetch connection from the pool op.
+            if (query == null) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
+                        "parameter: Query."));
+            }
+
             if (FALSE.equals(actionConfiguration.getPreparedStatement())) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
-                return executeQuery(connection, datasourceConfiguration, actionConfiguration, FALSE, null);
+                return execute(connection, datasourceConfiguration, actionConfiguration, FALSE, null);
+            } else {
+                List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+                String updatedQuery = SqlStringUtils.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
+                actionConfiguration.setBody(updatedQuery);
+                return execute(connection, datasourceConfiguration, actionConfiguration, TRUE, mustacheKeysInOrder);
             }
         }
 
-        private Mono<ActionExecutionResult> executeQuery(HikariDataSource connection,
+        private Mono<ActionExecutionResult> execute(HikariDataSource connection,
                                                          DatasourceConfiguration datasourceConfiguration,
                                                          ActionConfiguration actionConfiguration,
                                                          Boolean preparedStatement,
@@ -132,11 +148,6 @@ public class PostgresPlugin extends BasePlugin {
             return Mono.fromCallable(() -> {
 
                 String query = actionConfiguration.getBody();
-                // Check for query parameter before performing the probably expensive fetch connection from the pool op.
-                if (query == null) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
-                            "parameter: Query."));
-                }
 
                 Connection connectionFromPool = null;
 
@@ -177,10 +188,11 @@ public class PostgresPlugin extends BasePlugin {
                         if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
                             for (int i=0; i<mustacheValuesInOrder.size(); i++) {
                                 String value = mustacheValuesInOrder.get(i);
-
-
+                                preparedQuery = SqlStringUtils.setValueInPreparedStatement(i+1,
+                                        value, preparedQuery);
                             }
                         }
+                        isResultSet = preparedQuery.execute();
                     }
 
                     if (isResultSet) {
