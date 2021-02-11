@@ -1,5 +1,5 @@
 import React from "react";
-import styled, { css, ThemeProvider } from "styled-components";
+import styled, { ThemeProvider } from "styled-components";
 import {
   ApplicationPayload,
   ReduxActionTypes,
@@ -47,7 +47,7 @@ import Button, { Size } from "components/ads/Button";
 import { IconWrapper } from "components/ads/Icon";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { getThemeDetails } from "selectors/themeSelectors";
+import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 
 const HeaderWrapper = styled(StyledHeader)`
   padding-right: 0;
@@ -306,7 +306,7 @@ const mapStateToProps = (state: AppState) => ({
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),
-  currentTheme: getThemeDetails(state, "dark").theme,
+  currentTheme: getThemeDetails(state, ThemeMode.DARK).theme,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

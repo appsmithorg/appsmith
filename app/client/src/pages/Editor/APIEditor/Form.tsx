@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { connect, useSelector } from "react-redux";
 import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
 import {
@@ -33,7 +33,6 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import { TabComponent } from "components/ads/Tabs";
-import { getThemeDetails } from "selectors/themeSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Text, { Case, TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
@@ -218,14 +217,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     apiBindHelpSectionVisible,
     setApiBindHelpSectionVisible,
   ] = useLocalStorage("apiBindHelpSectionVisible", "true");
-  const themeMode = useSelector(getThemeDetails).mode;
-  const theme = useMemo(() => {
-    if (themeMode === "LIGHT") {
-      return EditorTheme.LIGHT;
-    } else {
-      return EditorTheme.DARK;
-    }
-  }, [themeMode]);
 
   const {
     pluginId,
@@ -260,6 +251,9 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     e.stopPropagation();
     history.replace(BUILDER_PAGE_URL(applicationId, pageId));
   };
+
+  // Enforcing the light theme
+  const theme = EditorTheme.LIGHT;
 
   return (
     <Form onSubmit={handleSubmit}>

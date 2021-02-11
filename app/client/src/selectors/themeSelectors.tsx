@@ -1,35 +1,17 @@
 import { AppState } from "reducers";
-import {
-  AUTH_LOGIN_URL,
-  SIGN_UP_URL,
-  RESET_PASSWORD_URL,
-  FORGOT_PASSWORD_URL,
-  VIEWER_URL_REGEX,
-} from "constants/routes";
-import { theme, dark, light } from "constants/DefaultTheme";
+import { dark, light, theme } from "constants/DefaultTheme";
 
-const enforceDarkThemeRoutes = [
-  AUTH_LOGIN_URL,
-  SIGN_UP_URL,
-  RESET_PASSWORD_URL,
-  FORGOT_PASSWORD_URL,
-];
-const getShouldEnforceDarkTheme = () => {
-  const currentPath = window.location.pathname;
-  return enforceDarkThemeRoutes.some(
-    (path: string) => currentPath.indexOf(path) !== -1,
-  );
-};
-
-export const getThemeDetails = (
-  state: AppState,
-  variant?: "dark" | "light",
-) => {
+export enum ThemeMode {
+  LIGHT = "LIGHT",
+  DARK = "DARK",
+}
+export const getThemeDetails = (state: AppState, variant?: ThemeMode) => {
+  debugger;
   if (variant) {
-    const colors = variant === "light" ? light : dark;
+    const colors = variant === ThemeMode.LIGHT ? light : dark;
 
     return {
-      mode: state.ui.theme.mode,
+      mode: variant,
       theme: { ...theme, colors: { ...theme.colors, ...colors } },
     };
   }
@@ -40,6 +22,6 @@ export const getThemeDetails = (
   };
 };
 
-export const getAppCardColorPallete = (state: AppState) => {
+export const getAppCardColorPalette = (state: AppState) => {
   return state.ui.theme.theme.colors.appCardColors;
 };

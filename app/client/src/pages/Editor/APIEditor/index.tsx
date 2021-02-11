@@ -22,7 +22,7 @@ import {
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
-import { RapidApiAction, Action, PaginationType } from "entities/Action";
+import { Action, PaginationType, RapidApiAction } from "entities/Action";
 import { getApiName } from "selectors/formSelectors";
 import Spinner from "components/editorComponents/Spinner";
 import styled, { ThemeProvider } from "styled-components";
@@ -34,7 +34,7 @@ import PerformanceTracker, {
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
-import { getThemeDetails } from "selectors/themeSelectors";
+import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -248,7 +248,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isDeleting: isDeleting[props.match.params.apiId],
     isCreating: isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
-    currentTheme: getThemeDetails(state, "light").theme,
+    currentTheme: getThemeDetails(state, ThemeMode.LIGHT).theme,
   };
   return apiEditorState;
 };
