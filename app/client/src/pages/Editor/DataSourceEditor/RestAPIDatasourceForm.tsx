@@ -327,11 +327,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 label: "OAuth2 (Client credentials)",
                 value: AuthType.OAuth2ClientCredentials,
               },
-              // Uncomment for AuthorizationCode flow
-              // {
-              //   label: "OAuth2 (Auth Code)",
-              //   value: AuthType.OAuth2AuthorizationCode,
-              // },
+              {
+                label: "OAuth2 (Auth Code)",
+                value: AuthType.OAuth2AuthorizationCode,
+              },
             ]}
           />
         </FormInputContainer>
@@ -426,6 +425,13 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <FormInputContainer>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
+            label="Access Token URL"
+            configProperty="authentication.accessTokenUrl"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
             label="Authorization URL"
             configProperty="authentication.authorizationUrl"
           />
@@ -435,6 +441,40 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             {...COMMON_INPUT_PROPS}
             label="Custom Authentication Parameters"
             configProperty="authentication.customAuthenticationParameters"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <DropDownControl
+            {...COMMON_INPUT_PROPS}
+            label="Add token to"
+            configProperty="authentication.isTokenHeader"
+            options={[
+              {
+                label: "Header",
+                value: true,
+              },
+              {
+                label: "Query parameters",
+                value: false,
+              },
+            ]}
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <DropDownControl
+            {...COMMON_INPUT_PROPS}
+            label="Add authorization to"
+            configProperty="authentication.isAuthorizationHeader"
+            options={[
+              {
+                label: "Header",
+                value: true,
+              },
+              {
+                label: "Body",
+                value: false,
+              },
+            ]}
           />
         </FormInputContainer>
         <FormInputContainer>
@@ -491,6 +531,9 @@ interface AuthorizationCode {
   scopeString: string;
   authorizationUrl: string;
   customAuthenticationParameters: Property[];
+  accessTokenUrl: string;
+  isTokenHeader: boolean;
+  isAuthorizationHeader: boolean;
 }
 
 const cleanupProperties = (values: Property[] | undefined): Property[] => {
@@ -560,6 +603,12 @@ const datasourceToFormAuthentication = (
       customAuthenticationParameters: cleanupProperties(
         authentication.customAuthenticationParameters,
       ),
+      accessTokenUrl: authentication.accessTokenUrl || "",
+      isTokenHeader: !!authentication.isTokenHeader,
+      isAuthorizationHeader:
+        typeof authentication.isAuthorizationHeader === "undefined"
+          ? true
+          : !!authentication.isAuthorizationHeader,
     };
   }
 };
@@ -607,6 +656,9 @@ const formToDatasourceAuthentication = (
       customAuthenticationParameters: cleanupProperties(
         authentication.customAuthenticationParameters,
       ),
+      accessTokenUrl: authentication.accessTokenUrl,
+      isTokenHeader: authentication.isTokenHeader,
+      isAuthorizationHeader: authentication.isAuthorizationHeader,
     };
   }
   return null;
