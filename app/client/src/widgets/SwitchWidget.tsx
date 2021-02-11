@@ -10,7 +10,10 @@ import {
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { SwitchComponent } from "components/designSystems/blueprint/SwitchComponent";
 import { EventType } from "constants/ActionConstants";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import {
+  DerivedPropertiesMap,
+  TriggerPropertiesMap,
+} from "utils/WidgetFactory";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   getPageView() {
@@ -49,6 +52,12 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       isOn: undefined,
+    };
+  }
+
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {
+      onSwitchChange: true,
     };
   }
 
