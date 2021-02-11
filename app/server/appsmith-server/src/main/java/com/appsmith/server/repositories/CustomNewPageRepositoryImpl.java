@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -33,37 +34,65 @@ public class CustomNewPageRepositoryImpl extends BaseAppsmithRepositoryImpl<NewP
 
     @Override
     public Mono<NewPage> findByIdAndLayoutsIdAndViewMode(String id, String layoutId, AclPermission aclPermission, Boolean viewMode) {
-        Criteria idCriterion = getIdCriteria(id);
         String layoutsIdKey;
         String layoutsKey;
+
+        List<Criteria> criteria = new ArrayList<>();
+        Criteria idCriterion = getIdCriteria(id);
+        criteria.add(idCriterion);
 
         if (Boolean.TRUE.equals(viewMode)) {
             layoutsKey = fieldName(QNewPage.newPage.publishedPage) + "." + fieldName(QNewPage.newPage.publishedPage.layouts);
         } else {
             layoutsKey = fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.layouts);
+
+            // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would exist. To handle this, only fetch non-deleted pages
+            Criteria deletedCriterion = where (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.deletedAt)).is(null);
+            criteria.add(deletedCriterion);
         }
         layoutsIdKey = layoutsKey + "." + fieldName(QLayout.layout.id);
 
         Criteria layoutCriterion = where(layoutsIdKey).is(layoutId);
+        criteria.add(layoutCriterion);
 
-        List<Criteria> criteria = List.of(idCriterion, layoutCriterion);
         return queryOne(criteria, aclPermission);
     }
 
     @Override
     public Mono<NewPage> findByNameAndViewMode(String name, AclPermission aclPermission, Boolean viewMode) {
-        Criteria nameCriterion = getNameCriterion(name, viewMode);
 
-        return queryOne(List.of(nameCriterion), aclPermission);
+        List<Criteria> criteria = new ArrayList<>();
+
+        Criteria nameCriterion = getNameCriterion(name, viewMode);
+        criteria.add(nameCriterion);
+
+        if (Boolean.FALSE.equals(viewMode)) {
+            // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would exist. To handle this, only fetch non-deleted pages
+            Criteria deletedCriterion = where (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.deletedAt)).is(null);
+            criteria.add(deletedCriterion);
+        }
+
+        return queryOne(criteria, aclPermission);
     }
 
     @Override
     public Mono<NewPage> findByNameAndApplicationIdAndViewMode(String name, String applicationId, AclPermission aclPermission, Boolean viewMode) {
+
+        List<Criteria> criteria = new ArrayList<>();
+
         Criteria nameCriterion = getNameCriterion(name, viewMode);
+        criteria.add(nameCriterion);
 
         Criteria applicationIdCriterion = where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
+        criteria.add(applicationIdCriterion);
 
-        return queryOne(List.of(nameCriterion, applicationIdCriterion), aclPermission);
+        if (Boolean.FALSE.equals(viewMode)) {
+            // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would exist. To handle this, only fetch non-deleted pages
+            Criteria deletedCriteria = where (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.deletedAt)).is(null);
+            criteria.add(deletedCriteria);
+        }
+
+        return queryOne(criteria, aclPermission);
     }
 
     @Override
