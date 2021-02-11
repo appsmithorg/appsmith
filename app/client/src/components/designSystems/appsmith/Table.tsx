@@ -2,7 +2,7 @@ import React from "react";
 import {
   useTable,
   usePagination,
-  useFlexLayout,
+  useBlockLayout,
   useResizeColumns,
   useRowSelect,
 } from "react-table";
@@ -30,6 +30,7 @@ interface TableProps {
   widgetName: string;
   searchKey: string;
   isLoading: boolean;
+  columnSizeMap?: { [key: string]: number };
   columns: ReactTableColumnProps[];
   hiddenColumns?: string[];
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
@@ -39,7 +40,7 @@ interface TableProps {
   getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
   handleColumnNameUpdate: (columnIndex: number, columnName: string) => void;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  handleResizeColumn: (columnIndex: number, columnWidth: string) => void;
+  handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
   selectTableRow: (
     row: { original: Record<string, unknown>; index: number },
     isSelected: boolean,
@@ -68,14 +69,31 @@ const defaultColumn = {
 };
 
 export const Table = (props: TableProps) => {
+  const isResizingColumn = React.useRef(false);
+  const handleResizeColumn = (columnWidths: Record<string, number>) => {
+    const columnSizeMap = {
+      ...props.columnSizeMap,
+      ...columnWidths,
+    };
+    for (const i in columnSizeMap) {
+      if (columnSizeMap[i] < 60) {
+        columnSizeMap[i] = 60;
+      } else if (columnSizeMap[i] === undefined) {
+        const columnCounts = props.columns.filter((column) => !column.isHidden)
+          .length;
+        columnSizeMap[i] = props.width / columnCounts;
+      }
+    }
+    props.handleResizeColumn(columnSizeMap);
+  };
   const data = React.useMemo(() => props.data, [props.data]);
   const columnString = JSON.stringify({
     columns: props.columns,
     actions: props.columnActions,
     columnActions: props.columnActions,
     compactMode: props.compactMode,
+    columnSizeMap: props.columnSizeMap,
   });
-
   const columns = React.useMemo(() => props.columns, [columnString]);
 
   const pageCount = Math.ceil(props.data.length / props.pageSize);
@@ -87,6 +105,7 @@ export const Table = (props: TableProps) => {
     prepareRow,
     page,
     pageOptions,
+    state,
   } = useTable(
     {
       columns: columns,
@@ -99,11 +118,24 @@ export const Table = (props: TableProps) => {
       manualPagination: true,
       pageCount,
     },
-    useFlexLayout,
+    useBlockLayout,
     useResizeColumns,
     usePagination,
     useRowSelect,
   );
+  //Set isResizingColumn as true when column is resizing using table state
+  if (state.columnResizing.isResizingColumn) {
+    isResizingColumn.current = true;
+  } else {
+    // We are updating column size since the drag is complete when we are changing value of isResizing from true to false
+    if (isResizingColumn.current) {
+      //update isResizingColumn in next event loop so that dragEnd event does not trigger click event.
+      setTimeout(function() {
+        isResizingColumn.current = false;
+        handleResizeColumn(state.columnResizing.columnWidths);
+      }, 0);
+    }
+  }
   let startIndex = currentPageIndex * props.pageSize;
   let endIndex = startIndex + props.pageSize;
   if (props.serverSidePaginationEnabled) {
@@ -179,9 +211,9 @@ export const Table = (props: TableProps) => {
                       editMode={props.editMode}
                       handleColumnNameUpdate={props.handleColumnNameUpdate}
                       getColumnMenu={props.getColumnMenu}
-                      handleResizeColumn={props.handleResizeColumn}
                       sortTableColumn={props.sortTableColumn}
                       isAscOrder={column.isAscOrder}
+                      isResizingColumn={isResizingColumn.current}
                     />
                   );
                 })}
