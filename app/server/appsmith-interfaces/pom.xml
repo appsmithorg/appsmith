@@ -98,6 +98,12 @@
             <version>1.8</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.7</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 

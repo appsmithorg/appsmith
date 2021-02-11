@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -26,6 +27,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -42,6 +44,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.lang.Boolean.FALSE;
 
 public class PostgresPlugin extends BasePlugin {
 
@@ -109,9 +113,21 @@ public class PostgresPlugin extends BasePlugin {
                 "order by self_schema, self_table;";
 
         @Override
-        public Mono<ActionExecutionResult> execute(HikariDataSource connection,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> executeParametrized(HikariDataSource connection,
+                                                                ExecuteActionDTO executeActionDTO,
+                                                                DatasourceConfiguration datasourceConfiguration,
+                                                                ActionConfiguration actionConfiguration) {
+            if (FALSE.equals(actionConfiguration.getPreparedStatement())) {
+                prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+                return executeQuery(connection, datasourceConfiguration, actionConfiguration, FALSE, null);
+            }
+        }
+
+        private Mono<ActionExecutionResult> executeQuery(HikariDataSource connection,
+                                                         DatasourceConfiguration datasourceConfiguration,
+                                                         ActionConfiguration actionConfiguration,
+                                                         Boolean preparedStatement,
+                                                         List<String> mustacheValuesInOrder) {
 
             return Mono.fromCallable(() -> {
 
@@ -138,6 +154,7 @@ public class PostgresPlugin extends BasePlugin {
 
                 Statement statement = null;
                 ResultSet resultSet = null;
+                boolean isResultSet = false;
 
                 HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
 
@@ -152,8 +169,19 @@ public class PostgresPlugin extends BasePlugin {
                         ", awaiting - " + threadsAwaitingConnection +
                         ", total - " + totalConnections );
                 try {
-                    statement = connectionFromPool.createStatement();
-                    boolean isResultSet = statement.execute(query);
+                    if (FALSE.equals(preparedStatement)) {
+                        statement = connectionFromPool.createStatement();
+                        isResultSet = statement.execute(query);
+                    } else {
+                        PreparedStatement preparedQuery = connectionFromPool.prepareStatement(query);
+                        if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
+                            for (int i=0; i<mustacheValuesInOrder.size(); i++) {
+                                String value = mustacheValuesInOrder.get(i);
+
+
+                            }
+                        }
+                    }
 
                     if (isResultSet) {
                         resultSet = statement.getResultSet();
