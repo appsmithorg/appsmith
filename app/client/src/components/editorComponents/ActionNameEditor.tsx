@@ -14,7 +14,7 @@ import { getExistingPageNames } from "sagas/selectors";
 
 import { saveActionName } from "actions/actionActions";
 import { Spinner } from "@blueprintjs/core";
-import { getCurrentStep, inOnboarding } from "sagas/OnboardingSagas";
+import { checkCurrentStep } from "sagas/OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 
 const ApiNameWrapper = styled.div`
@@ -42,12 +42,9 @@ export const ActionNameEditor = () => {
   }
 
   // For onboarding
-  const hideEditIcon = useSelector((state: AppState) => {
-    const currentStep = getCurrentStep(state);
-    const isInOnboarding = inOnboarding(state);
-
-    return isInOnboarding && currentStep < OnboardingStep.ADD_WIDGET;
-  });
+  const hideEditIcon = useSelector((state: AppState) =>
+    checkCurrentStep(state, OnboardingStep.SUCCESSFUL_BINDING, "LESSER"),
+  );
 
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
