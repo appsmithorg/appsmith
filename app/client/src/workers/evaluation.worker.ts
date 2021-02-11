@@ -33,14 +33,15 @@ import {
   convertPathToString,
   CrashingError,
   DataTreeDiffEvent,
+  getAllPaths,
+  getImmediateParentsOfPropertyPaths,
   getValidatedTree,
   makeParentsDependOnChildren,
   removeFunctions,
   removeFunctionsFromDataTree,
   translateDiffEventToDataTreeDiffEvent,
+  trimDependantChangePaths,
   validateWidgetProperty,
-  getImmediateParentsOfPropertyPaths,
-  getAllPaths,
 } from "./evaluationUtils";
 import {
   EXECUTION_PARAM_KEY,
@@ -1108,10 +1109,9 @@ export class DataTreeEvaluator {
       // Apply the changes into the evalTree so that it gets the latest changes
       applyChange(this.evalTree, undefined, d);
 
+      changePaths.add(convertPathToString(d.path));
       // If this is a property path change, simply add for evaluation and move on
-      if (this.isDynamicLeaf(unEvalTree, convertPathToString(d.path))) {
-        changePaths.add(convertPathToString(d.path));
-      } else {
+      if (!this.isDynamicLeaf(unEvalTree, convertPathToString(d.path))) {
         // A parent level property has been added or deleted
         /**
          * We want to add all pre-existing dynamic and static bindings in dynamic paths of this entity to get evaluated and validated.
@@ -1154,10 +1154,15 @@ export class DataTreeEvaluator {
       this.inverseDependencyMap,
     );
 
+    const trimmedChangedPaths = trimDependantChangePaths(
+      changePathsWithNestedDependants,
+      this.dependencyMap,
+    );
+
     // Now that we have all the root nodes which have to be evaluated, recursively find all the other paths which
     // would get impacted because they are dependent on the said root nodes and add them in order
     const completeSortOrder = this.getCompleteSortOrder(
-      changePathsWithNestedDependants,
+      trimmedChangedPaths,
       this.inverseDependencyMap,
     );
     // Remove any paths that do no exist in the data tree any more
