@@ -27,6 +27,7 @@ import ApplicationCard from "./ApplicationCard";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import { PERMISSION_TYPE, isPermitted } from "./permissionHelpers";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+// import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
@@ -67,6 +68,9 @@ import ProfileImage from "pages/common/ProfileImage";
 import { getThemeDetails } from "selectors/themeSelectors";
 import { AppIconCollection } from "components/ads/AppIcon";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
+import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
+import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -283,6 +287,7 @@ const StyledAnchor = styled.a`
 const WorkpsacesNavigator = styled.div`
   overflow: auto;
   height: calc(100vh - ${(props) => props.theme.homePage.header + 36 + 25}px);
+  padding-bottom: 88px;
 `;
 
 const textIconStyles = (props: { color: string; hover: string }) => {
@@ -394,6 +399,8 @@ function LeftPane() {
   const location = useLocation();
   const urlHash = location.hash.slice(1);
 
+  const initiateOnboarding = useIntiateOnboarding();
+
   return (
     <LeftPaneWrapper>
       <LeftPaneSection
@@ -406,7 +413,6 @@ function LeftPane() {
             Form={CreateOrganizationForm}
             title={CREATE_ORGANIZATION_FORM_NAME}
           />
-          {/* {CreateOrg} */}
           {userOrgs &&
             userOrgs.map((org: any) => (
               <OrgMenuItem
@@ -416,6 +422,35 @@ function LeftPane() {
                 selected={urlHash === org.organization.slug}
               />
             ))}
+          <div style={{ marginTop: 12 }}>
+            <Item
+              label={"GETTING STARTED"}
+              textType={TextType.H6}
+              isFetchingApplications={isFetchingApplications}
+            ></Item>
+          </div>
+          <MenuItem
+            className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+            icon="book"
+            text={"Documentation"}
+            onSelect={() => {
+              window.open("https://docs.appsmith.com/", "_blank");
+            }}
+          />
+          <MenuItem
+            className={
+              isFetchingApplications
+                ? BlueprintClasses.SKELETON
+                : "t--welcome-tour"
+            }
+            icon="shine"
+            text={"Welcome Tour"}
+            onSelect={() => {
+              AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
+
+              initiateOnboarding();
+            }}
+          />
         </WorkpsacesNavigator>
       </LeftPaneSection>
     </LeftPaneWrapper>
@@ -764,6 +799,7 @@ const ApplicationsSection = (props: any) => {
     <ApplicationContainer className="t--applications-container">
       {organizationsListComponent}
       <HelpModal page={"Applications"} />
+      <WelcomeHelper />
     </ApplicationContainer>
   );
 };

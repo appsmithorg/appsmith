@@ -36,10 +36,9 @@ import {
 } from "selectors/applicationSelectors";
 import EditableAppName from "./EditableAppName";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
-import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
+import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { OnboardingStep } from "constants/OnboardingConstants";
-import { Position } from "@blueprintjs/core";
-import Indicator from "components/editorComponents/Onboarding/Indicator";
+import EndOnboardingTour from "components/editorComponents/Onboarding/EndTour";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
@@ -47,6 +46,7 @@ import Button, { Size } from "components/ads/Button";
 import { IconWrapper } from "components/ads/Icon";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 
 const HeaderWrapper = styled(StyledHeader)`
   padding-right: 0;
@@ -140,6 +140,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     orgId,
     applicationId,
     publishApplication,
+    isPublishing,
   } = props;
 
   const dispatch = useDispatch();
@@ -248,27 +249,23 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             }
           />
         </Boxed>
-        <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+        <Boxed step={OnboardingStep.DEPLOY} alternative={<EndOnboardingTour />}>
           <DeploySection>
-            <OnboardingToolTip
-              step={[OnboardingStep.DEPLOY]}
-              position={Position.BOTTOM_RIGHT}
-              dismissOnOutsideClick={false}
+            <OnboardingIndicator
+              step={OnboardingStep.DEPLOY}
+              hasButton={false}
+              width={75}
             >
-              <Indicator
-                step={OnboardingStep.SUCCESSFUL_BINDING}
-                offset={{ left: 10 }}
-                theme={"light"}
-              >
-                <StyledDeployButton
-                  fill
-                  onClick={handlePublish}
-                  text={"Deploy"}
-                  size={Size.small}
-                  className="t--application-publish-btn"
-                />
-              </Indicator>
-            </OnboardingToolTip>
+              <StyledDeployButton
+                fill
+                onClick={handlePublish}
+                text={"Deploy"}
+                isLoading={isPublishing}
+                size={Size.small}
+                className="t--application-publish-btn"
+              />
+            </OnboardingIndicator>
+
             <DeployLinkButtonDialog
               trigger={
                 <StyledDeployButton icon={"downArrow"} size={Size.xxs} />
@@ -284,6 +281,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         )}
       </HeaderSection>
       <HelpModal page={"Editor"} />
+      <OnboardingHelper />
     </HeaderWrapper>
   );
 };
