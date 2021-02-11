@@ -95,8 +95,6 @@ jobs:
       run: |
         docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}} .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        # This command pushes all the tags on the machine to Docker hub. This has been written for ease of reading. Be very careful
-        # with this command
         docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
 
     # Build master Docker image and push to Docker Hub
@@ -106,8 +104,6 @@ jobs:
         docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA} .
         docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        # This command pushes all the tags on the machine to Docker hub. This has been written for ease of reading. Be very careful
-        # with this command
         docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA}
         docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
 
