@@ -20,6 +20,7 @@ public class Authentication {
     public static final String GRANT_TYPE = "grant_type";
     public static final String STATE = "state";
     public static final String AUTHORIZATION_URL = "authorization_url";
+    public static final String RESPONSE_TYPE = "response_type";
 
     // Request parameter values
     public static final String AUTHORIZATION_CODE = "authorization_code";
