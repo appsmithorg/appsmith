@@ -98,7 +98,7 @@ class FieldFileInput extends React.Component<Props, FieldFileInputState> {
     } = this.props;
 
     return (
-      <div style={{ flexDirection: "row", display: "flex", width: "50vh" }}>
+      <div style={{ flexDirection: "row", display: "flex", width: "50vw" }}>
         <StyledDiv>{value.name}</StyledDiv>
         <SelectButton
           text={"Select"}
