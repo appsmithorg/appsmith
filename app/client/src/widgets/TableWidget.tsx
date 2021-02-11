@@ -181,6 +181,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const columnKeys: string[] = getAllTableColumnKeys(tableData);
       const { componentWidth } = this.getComponentDimensions();
       const sortedColumn = this.props.sortedColumn;
+      let totalColumnSizes = 0;
+      const defaultColumnWidth = 150;
+      for (const i in columnSizeMap) {
+        totalColumnSizes += columnSizeMap[i];
+      }
       for (let index = 0; index < columnKeys.length; index++) {
         const i = columnKeys[index];
         const columnName: string =
@@ -193,14 +198,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columnTypeMap && columnTypeMap[i]
             ? columnTypeMap[i]
             : { type: ColumnTypes.TEXT };
-        const columnSize: number =
-          columnSizeMap && columnSizeMap[i] ? columnSizeMap[i] : 150;
         const isHidden =
           !!this.props.hiddenColumns && this.props.hiddenColumns.includes(i);
         const columnData = {
           Header: columnName,
           accessor: i,
-          width: columnSize,
+          width:
+            columnSizeMap && columnSizeMap[i]
+              ? columnSizeMap[i]
+              : defaultColumnWidth,
           minWidth: 60,
           draggable: true,
           isHidden: false,
@@ -249,6 +255,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             });
           },
         });
+      }
+      //If resized column sizes is less than total table width then reisze last column to maximum available width
+      if (totalColumnSizes < componentWidth) {
+        const lastColumnIndex = columns.length - 1;
+        let remainingColumnsSize = 0;
+        for (let i = 0; i < columns.length - 1; i++) {
+          remainingColumnsSize += columns[i].width || defaultColumnWidth;
+        }
+        columns[lastColumnIndex].width =
+          componentWidth - remainingColumnsSize < defaultColumnWidth
+            ? defaultColumnWidth
+            : componentWidth - remainingColumnsSize; //Min remaining width to be defaultColumnWidth
       }
       if (
         hiddenColumns.length &&
@@ -834,7 +852,7 @@ export interface TableColumnMetaProps {
 export interface ReactTableColumnProps {
   Header: string;
   accessor: string;
-  width: number;
+  width?: number;
   minWidth: number;
   draggable: boolean;
   isHidden?: boolean;

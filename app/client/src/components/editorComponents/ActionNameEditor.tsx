@@ -14,13 +14,13 @@ import { getExistingPageNames } from "sagas/selectors";
 
 import { saveActionName } from "actions/actionActions";
 import { Spinner } from "@blueprintjs/core";
+import { checkCurrentStep } from "sagas/OnboardingSagas";
 import {
   EditableText as NewEditableText,
   EditInteractionKind as NewEditInteractionKind,
   SavingState,
 } from "components/ads/EditableText";
 import { Classes } from "@blueprintjs/core";
-import { getCurrentStep, inOnboarding } from "sagas/OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 
 const ApiNameWrapper = styled.div<{ page?: string }>`
@@ -50,7 +50,7 @@ const ApiNameWrapper = styled.div<{ page?: string }>`
 type ActionNameEditorProps = {
   /*
     This prop checks if page is API Pane or Query Pane or Curl Pane
-    So, that we can toggle between ads editable-text component and existing editable-text component 
+    So, that we can toggle between ads editable-text component and existing editable-text component
     Right now, it's optional so that it doesn't impact any other pages other than API Pane.
     In future, when default component will be ads editable-text, then we can remove this prop.
   */
@@ -68,12 +68,9 @@ export const ActionNameEditor = (props: ActionNameEditorProps) => {
   }
 
   // For onboarding
-  const hideEditIcon = useSelector((state: AppState) => {
-    const currentStep = getCurrentStep(state);
-    const isInOnboarding = inOnboarding(state);
-
-    return isInOnboarding && currentStep < OnboardingStep.ADD_WIDGET;
-  });
+  const hideEditIcon = useSelector((state: AppState) =>
+    checkCurrentStep(state, OnboardingStep.SUCCESSFUL_BINDING, "LESSER"),
+  );
 
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),

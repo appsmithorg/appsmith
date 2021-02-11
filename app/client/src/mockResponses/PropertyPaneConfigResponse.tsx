@@ -726,19 +726,19 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
         sectionName: "Actions",
         children: [
           {
-            id: "5.11.2",
-            helpText: "Triggers an action when the text is changed",
-            propertyName: "onTextChanged",
-            label: "onTextChanged",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-          },
-          {
             id: "5.11.3",
             helpText:
               "Triggers an action on submit (when the enter key is pressed)",
             propertyName: "onSubmit",
             label: "onSubmit",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+          {
+            id: "5.11.2",
+            helpText: "Triggers an action when the text is changed",
+            propertyName: "onTextChanged",
+            label: "onTextChanged",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
           },
