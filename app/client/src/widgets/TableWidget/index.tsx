@@ -818,7 +818,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           pageNo={pageNo}
           nextPageClick={this.handleNextPageClick}
           prevPageClick={this.handlePrevPageClick}
-          updateColumnSize={this.handleResizeColumn}
+          handleResizeColumn={this.handleResizeColumn}
           updatePageNo={this.updatePageNumber}
           updateHiddenColumns={(hiddenColumns?: string[]) => {
             super.updateWidgetProperty("hiddenColumns", hiddenColumns);
