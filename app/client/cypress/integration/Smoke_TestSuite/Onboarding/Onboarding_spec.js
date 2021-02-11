@@ -1,10 +1,10 @@
 const explorer = require("../../../locators/explorerlocators.json");
 const homePage = require("../../../locators/HomePage.json");
+const commonlocators = require("../../../locators/commonlocators.json");
 
 describe("Onboarding", function() {
   it("Onboarding flow", function() {
-    const appname = localStorage.getItem("AppName");
-    cy.DeleteApp(appname);
+    cy.get(commonlocators.homeIcon).click({ force: true });
 
     cy.get(".t--welcome-tour").click();
     cy.get(".t--onboarding-action").click();
