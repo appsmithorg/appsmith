@@ -41,7 +41,7 @@ import { AppState } from "reducers";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { setOnboardingState } from "utils/storage";
+import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 
 import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "constants/forms";
 
@@ -79,6 +79,7 @@ export const SignUp = (props: SignUpFormProps) => {
   const isFormValid = valid && email && !isEmptyString(email);
 
   const location = useLocation();
+  const initiateOnboarding = useIntiateOnboarding();
 
   let showError = false;
   let errorMessage = "";
@@ -152,7 +153,7 @@ export const SignUp = (props: SignUpFormProps) => {
               PerformanceTracker.startTracking(
                 PerformanceTransactionName.SIGN_UP,
               );
-              setOnboardingState(true);
+              initiateOnboarding();
             }}
           />
         </FormActions>
