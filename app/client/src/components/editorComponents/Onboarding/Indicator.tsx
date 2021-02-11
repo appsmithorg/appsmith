@@ -8,10 +8,10 @@ const Wrapper = styled.div<{ width: number; hasButton?: boolean }>`
 
   @keyframes ShineTransition {
     0% {
-      transform: translateX(-100px) skewX(-15deg);
+      transform: translateX(-100px) skewX(-20deg);
     }
     100% {
-      transform: ${(props) => `translateX(${props.width}px) skewX(-15deg)`};
+      transform: ${(props) => `translateX(${props.width}px) skewX(-30deg)`};
     }
   }
 
@@ -26,12 +26,12 @@ const Wrapper = styled.div<{ width: number; hasButton?: boolean }>`
     content: "";
     display: block;
     position: absolute;
-    background: rgba(255, 255, 255, 0.5);
-    width: 60px;
+    background: rgba(255, 255, 255, 0.7);
+    width: 20px;
     height: 100%;
     top: 0;
-    filter: blur(30px);
-    animation: ShineTransition 1.3s ease infinite;
+    filter: blur(25px);
+    animation: ShineTransition 1.2s ease infinite;
   }
 
   // psuedo-element shine animation right side
@@ -39,12 +39,12 @@ const Wrapper = styled.div<{ width: number; hasButton?: boolean }>`
     content: "";
     display: block;
     position: absolute;
-    background: rgba(255, 255, 255, 0.2);
-    width: 30px;
+    background: rgba(255, 255, 255, 0.4);
+    width: 20px;
     height: 100%;
     top: 0;
     filter: blur(5px);
-    animation: ShineTransition 1.3s ease infinite;
+    animation: ShineTransition 1.2s ease infinite;
   }
 `;
 
