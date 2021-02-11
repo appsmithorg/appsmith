@@ -54,7 +54,7 @@ public class Plugin extends BaseDomain {
     // Static metadata to indicate what type of form to use in the datasource creation page
     String datasourceComponent;
 
-    // Static metadata to indicate what type of form to use un the action creation page
+    // Static metadata to indicate what type of form to use in the action creation page
     String actionComponent;
 
     // Marking it as JsonIgnore because we don't want other users to be able to set this property. Only admins
