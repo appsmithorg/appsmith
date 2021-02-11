@@ -57,7 +57,7 @@ public class AuthenticationService {
 
     private final NewPageService newPageService;
 
-    public Mono<String> getAuthorizationCodeURL(String datasourceId, ServerWebExchange serverWebExchange) {
+    public Mono<String> getAuthorizationCodeURL(String datasourceId, String pageId, ServerWebExchange serverWebExchange) {
         return datasourceService.findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
                 .flatMap(this::validateRequiredFields)
                 .flatMap((datasource -> {
@@ -70,7 +70,7 @@ public class AuthenticationService {
                             .queryParam(RESPONSE_TYPE, CODE)
                             // serverWebExchange.getRequest().getHeaders().getOrigin()
                             .queryParam(REDIRECT_URI, redirectUri + "/api/v1/datasources/authorize")
-                            .queryParam(STATE, String.join(",", "601401639e14f375af181630", datasourceId, redirectUri));
+                            .queryParam(STATE, String.join(",", pageId, datasourceId, redirectUri));
                     // Adding optional scope parameter
                     if (!oAuth2.getScope().isEmpty()) {
                         uriComponentsBuilder
