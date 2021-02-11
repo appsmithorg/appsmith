@@ -1,16 +1,20 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useContext,
+} from "react";
 import {
   EditableText as BlueprintEditableText,
   Classes as BlueprintClasses,
 } from "@blueprintjs/core";
-import styled from "styled-components";
+import styled, { ThemeContext } from "styled-components";
 import Text, { TextType } from "./Text";
 import Spinner from "./Spinner";
 import { CommonComponentProps } from "./common";
 import { noop } from "lodash";
 import Icon, { IconSize } from "./Icon";
-import { getThemeDetails } from "selectors/themeSelectors";
-import { useSelector } from "react-redux";
 
 export enum EditInteractionKind {
   SINGLE = "SINGLE",
@@ -103,7 +107,7 @@ const TextContainer = styled.div<{
     ${(props) =>
       props.underline && !props.isEditing
         ? `
-        border-bottom-style: solid; 
+        border-bottom-style: solid;
         border-bottom-width: 1px;
         width: fit-content;
         max-width: 194px;
@@ -173,11 +177,11 @@ export const EditableText = (props: EditableTextProps) => {
     if (props.forceDefault === true) setValue(defaultValue);
   }, [props.forceDefault, defaultValue]);
 
-  const themeDetails = useSelector(getThemeDetails);
+  const theme = useContext(ThemeContext);
+
   const bgColor = useMemo(
-    () =>
-      editModeBgcolor(!!isInvalid, isEditing, savingState, themeDetails.theme),
-    [isInvalid, isEditing, savingState, themeDetails],
+    () => editModeBgcolor(!!isInvalid, isEditing, savingState, theme),
+    [isInvalid, isEditing, savingState, theme],
   );
 
   const editMode = useCallback(

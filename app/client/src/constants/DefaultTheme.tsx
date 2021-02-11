@@ -1992,4 +1992,5 @@ export const scrollbarLight = css<{ backgroundColor?: Color }>`
 `;
 
 export { css, createGlobalStyle, keyframes, ThemeProvider };
+
 export default styled;

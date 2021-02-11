@@ -1,14 +1,12 @@
 import React, { forwardRef, Ref, useCallback, useMemo, useState } from "react";
-import { CommonComponentProps, hexToRgba, Classes } from "./common";
-import styled from "styled-components";
+import { Classes, CommonComponentProps, hexToRgba } from "./common";
+import styled, { withTheme } from "styled-components";
 import Text, { TextType } from "./Text";
 import {
-  FORM_VALIDATION_INVALID_EMAIL,
   ERROR_MESSAGE_NAME_EMPTY,
+  FORM_VALIDATION_INVALID_EMAIL,
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
-import { useSelector } from "react-redux";
-import { getThemeDetails } from "selectors/themeSelectors";
 
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esnext/components/forms/asyncControllableInput";
 
@@ -46,6 +44,7 @@ export type TextInputProps = CommonComponentProps & {
   onChange?: (value: string) => void;
   readOnly?: boolean;
   dataType?: string;
+  theme?: any;
 };
 
 type boxReturnType = {
@@ -162,11 +161,9 @@ const TextInput = forwardRef(
       message: string;
     }>(initialValidation());
 
-    const theme = useSelector(getThemeDetails).theme;
-
     const inputStyle = useMemo(
-      () => boxStyles(props, validation.isValid, theme),
-      [props, validation.isValid, theme],
+      () => boxStyles(props, validation.isValid, props.theme),
+      [props, validation.isValid, props.theme],
     );
 
     const memoizedChangeHandler = useCallback(
@@ -214,6 +211,6 @@ const TextInput = forwardRef(
 
 TextInput.displayName = "TextInput";
 
-export default TextInput;
+export default withTheme(TextInput);
 
 export type InputType = "text" | "password" | "number" | "email" | "tel";
