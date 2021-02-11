@@ -21,23 +21,16 @@ const getShouldEnforceDarkTheme = () => {
   );
 };
 
-export const getThemeDetails = (state: AppState) => {
-  const currentPath = window.location.pathname;
-  const isBuilderOrViewerPath = !!currentPath.match(VIEWER_URL_REGEX);
-  const isViewerPath =
-    isBuilderOrViewerPath && currentPath.indexOf("edit") === -1;
+export const getThemeDetails = (
+  state: AppState,
+  variant?: "dark" | "light",
+) => {
+  if (variant) {
+    const colors = variant === "light" ? light : dark;
 
-  if (isViewerPath) {
     return {
       mode: state.ui.theme.mode,
-      theme: { ...theme, colors: { ...theme.colors, ...light } },
-    };
-  }
-
-  if (isBuilderOrViewerPath || getShouldEnforceDarkTheme()) {
-    return {
-      mode: state.ui.theme.mode,
-      theme: { ...theme, colors: { ...theme.colors, ...dark } },
+      theme: { ...theme, colors: { ...theme.colors, ...colors } },
     };
   }
 
