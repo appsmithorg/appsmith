@@ -91,6 +91,8 @@ import OnSubmitGif from "assets/gifs/onsubmit.gif";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
+export const getCurrentSubStep = (state: AppState) =>
+  state.ui.onBoarding.currentSubstep;
 export const inOnboarding = (state: AppState) =>
   state.ui.onBoarding.inOnboarding;
 export const isAddWidgetComplete = (state: AppState) =>

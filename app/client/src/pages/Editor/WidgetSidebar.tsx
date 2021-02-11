@@ -17,8 +17,9 @@ import produce from "immer";
 import { WIDGET_SIDEBAR_CAPTION } from "constants/messages";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
-import { getCurrentStep } from "sagas/OnboardingSagas";
+import { getCurrentStep, getCurrentSubStep } from "sagas/OnboardingSagas";
 import { BUILDER_PAGE_URL } from "constants/routes";
+import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
@@ -110,6 +111,7 @@ const WidgetSidebar = (props: IPanelProps) => {
 
   // For onboarding
   const currentStep = useSelector(getCurrentStep);
+  const currentSubStep = useSelector(getCurrentSubStep);
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const onCanvas =
@@ -171,7 +173,23 @@ const WidgetSidebar = (props: IPanelProps) => {
               }
               key={card.key}
             >
-              <WidgetCard details={card} />
+              <OnboardingIndicator
+                width={100}
+                hasButton={false}
+                step={
+                  OnboardingStep.RUN_QUERY_SUCCESS ||
+                  OnboardingStep.ADD_INPUT_WIDGET
+                }
+                show={
+                  (card.type === "TABLE_WIDGET" &&
+                    currentStep === OnboardingStep.RUN_QUERY_SUCCESS) ||
+                  (card.type === "INPUT_WIDGET" &&
+                    currentSubStep === 0 &&
+                    currentStep === OnboardingStep.ADD_INPUT_WIDGET)
+                }
+              >
+                <WidgetCard details={card} />
+              </OnboardingIndicator>
             </Boxed>
           ))}
         </CardsWrapper>
