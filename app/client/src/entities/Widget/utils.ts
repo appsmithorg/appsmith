@@ -36,48 +36,50 @@ export const getAllPathsFromPropertyConfig = (
         if (controlConfig.panelConfig) {
           const panelPropertyPath = controlConfig.propertyName;
           const widgetPanelPropertyValues = get(widget, panelPropertyPath);
-          widgetPanelPropertyValues.forEach(
-            (widgetPanelPropertyValue: any, index: number) => {
-              controlConfig.panelConfig.children.forEach(
-                (panelColumnConfig: any) => {
-                  let isSectionHidden = false;
-                  if ("hidden" in panelColumnConfig) {
-                    isSectionHidden = panelColumnConfig.hidden(
-                      widget,
-                      `${basePath}[${index}]`,
-                    );
-                  }
-                  if (!isSectionHidden) {
-                    panelColumnConfig.children.forEach(
-                      (panelColumnControlConfig: any) => {
-                        const panelPropertyPath = `${basePath}[${index}].${panelColumnControlConfig.propertyName}`;
-                        let isControlHidden = false;
-                        if ("hidden" in panelColumnControlConfig) {
-                          isControlHidden = panelColumnControlConfig.hidden(
-                            widget,
-                            panelPropertyPath,
-                          );
-                        }
-                        if (!isControlHidden) {
-                          if (
-                            panelColumnControlConfig.isBindProperty &&
-                            !panelColumnControlConfig.isTriggerProperty
-                          ) {
-                            bindingPaths[panelPropertyPath] = true;
-                          } else if (
-                            panelColumnControlConfig.isBindProperty &&
-                            panelColumnControlConfig.isTriggerProperty
-                          ) {
-                            triggerPaths[panelPropertyPath] = true;
+          if (widgetPanelPropertyValues) {
+            widgetPanelPropertyValues.forEach(
+              (widgetPanelPropertyValue: any, index: number) => {
+                controlConfig.panelConfig.children.forEach(
+                  (panelColumnConfig: any) => {
+                    let isSectionHidden = false;
+                    if ("hidden" in panelColumnConfig) {
+                      isSectionHidden = panelColumnConfig.hidden(
+                        widget,
+                        `${basePath}[${index}]`,
+                      );
+                    }
+                    if (!isSectionHidden) {
+                      panelColumnConfig.children.forEach(
+                        (panelColumnControlConfig: any) => {
+                          const panelPropertyPath = `${basePath}[${index}].${panelColumnControlConfig.propertyName}`;
+                          let isControlHidden = false;
+                          if ("hidden" in panelColumnControlConfig) {
+                            isControlHidden = panelColumnControlConfig.hidden(
+                              widget,
+                              panelPropertyPath,
+                            );
                           }
-                        }
-                      },
-                    );
-                  }
-                },
-              );
-            },
-          );
+                          if (!isControlHidden) {
+                            if (
+                              panelColumnControlConfig.isBindProperty &&
+                              !panelColumnControlConfig.isTriggerProperty
+                            ) {
+                              bindingPaths[panelPropertyPath] = true;
+                            } else if (
+                              panelColumnControlConfig.isBindProperty &&
+                              panelColumnControlConfig.isTriggerProperty
+                            ) {
+                              triggerPaths[panelPropertyPath] = true;
+                            }
+                          }
+                        },
+                      );
+                    }
+                  },
+                );
+              },
+            );
+          }
         }
       });
     }
