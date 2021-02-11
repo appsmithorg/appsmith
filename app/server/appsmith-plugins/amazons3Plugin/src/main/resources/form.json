@@ -8,7 +8,6 @@
           "label": "Access Key",
           "configProperty": "datasourceConfiguration.authentication.username",
           "controlType": "INPUT_TEXT",
-          "isRequired": true,
           "initialValue": ""
         },
         {
@@ -16,8 +15,8 @@
           "configProperty": "datasourceConfiguration.authentication.password",
           "controlType": "INPUT_TEXT",
           "dataType": "PASSWORD",
-          "isRequired": true,
-          "initialValue": ""
+          "initialValue": "",
+          "encrypted": true
         },
         {
           "label": "Region",
