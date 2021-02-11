@@ -424,7 +424,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return this.renderOauth2Common();
   };
   renderOauth2AuthorizationCode = () => {
-    const { datasourceId, isSaving } = this.props;
+    const { pageId, datasourceId, isSaving } = this.props;
     return (
       <>
         {this.renderOauth2Common()}
@@ -461,7 +461,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         </FormInputContainer>
         <FormInputContainer>
           <StyledButton
-            onClick={() => this.save(redirectAuthorizationCode(datasourceId))}
+            onClick={() =>
+              this.save(redirectAuthorizationCode(pageId, datasourceId))
+            }
             text="Authorize"
             intent="primary"
             loading={isSaving}

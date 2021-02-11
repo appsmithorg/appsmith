@@ -57,10 +57,10 @@ public class DatasourceController extends BaseController<DatasourceService, Data
                 .map(structure -> new ResponseDTO<>(HttpStatus.OK.value(), structure, null));
     }
 
-    @GetMapping("/{datasourceId}/code")
-    public Mono<Void> getTokenRequestUrl(@PathVariable String datasourceId, ServerWebExchange serverWebExchange) {
-        log.debug("Going to retrieve token request URL for datasource with id: {}", datasourceId);
-        return authenticationService.getAuthorizationCodeURL(datasourceId, serverWebExchange)
+    @GetMapping("/{datasourceId}/pages/{pageId}/code")
+    public Mono<Void> getTokenRequestUrl(@PathVariable String datasourceId, @PathVariable String pageId, ServerWebExchange serverWebExchange) {
+        log.debug("Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
+        return authenticationService.getAuthorizationCodeURL(datasourceId, pageId, serverWebExchange)
                 .flatMap(url -> {
                     serverWebExchange.getResponse().setStatusCode(HttpStatus.FOUND);
                     serverWebExchange.getResponse().getHeaders().setLocation(URI.create(url));

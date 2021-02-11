@@ -26,11 +26,15 @@ export const updateDatasource = (
   };
 };
 
-export const redirectAuthorizationCode = (id: string) => {
+export const redirectAuthorizationCode = (
+  pageId: string,
+  datasourceId: string,
+) => {
   return {
     type: ReduxActionTypes.REDIRECT_AUTHORIZATION_CODE,
     payload: {
-      id,
+      pageId,
+      datasourceId,
     },
   };
 };
