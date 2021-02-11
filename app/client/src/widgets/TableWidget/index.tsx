@@ -260,10 +260,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       for (let i = 0; i < columns.length - 1; i++) {
         remainingColumnsSize += columns[i].width || defaultColumnWidth;
       }
-      columns[lastColumnIndex].width =
-        componentWidth - remainingColumnsSize < defaultColumnWidth
-          ? defaultColumnWidth
-          : componentWidth - remainingColumnsSize; //Min remaining width to be defaultColumnWidth
+      if (columns[lastColumnIndex]) {
+        columns[lastColumnIndex].width =
+          componentWidth - remainingColumnsSize < defaultColumnWidth
+            ? defaultColumnWidth
+            : componentWidth - remainingColumnsSize; //Min remaining width to be defaultColumnWidth
+      }
     }
     if (hiddenColumns.length && this.props.renderMode === RenderModes.CANVAS) {
       columns = columns.concat(hiddenColumns);
