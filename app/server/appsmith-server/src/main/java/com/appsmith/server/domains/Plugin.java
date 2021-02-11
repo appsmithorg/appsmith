@@ -48,7 +48,14 @@ public class Plugin extends BaseDomain {
 
     String version;
 
+    // Legacy field to find which form to use (RapidAPI hack)
     String uiComponent;
+
+    // Static metadata to indicate what type of form to use in the datasource creation page
+    String datasourceComponent;
+
+    // Static metadata to indicate what type of form to use in the action creation page
+    String actionComponent;
 
     // Marking it as JsonIgnore because we don't want other users to be able to set this property. Only admins
     // must be able to mark a plugin for defaultInstall on all organization creations

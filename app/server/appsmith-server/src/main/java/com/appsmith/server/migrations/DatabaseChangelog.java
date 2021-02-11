@@ -1666,4 +1666,31 @@ public class DatabaseChangelog {
         }
 
     }
+  
+  @ChangeSet(order = "053", id = "update-plugin-datasource-form-components", author = "")
+    public void updatePluginDatasourceFormComponents(MongoTemplate mongoTemplate) {
+      for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
+          switch (plugin.getPackageName()) {
+              case "postgres-plugin":
+              case "mongo-plugin":
+              case "elasticsearch-plugin":
+              case "dynamo-plugin":
+              case "redis-plugin":
+              case "mssql-plugin":
+              case "firestore-plugin":
+              case "redshift-plugin":
+              case "mysql-plugin":
+              case "amazons3-plugin":
+                  plugin.setDatasourceComponent("AutoForm");
+                  break;
+              case "restapi-plugin":
+                  plugin.setDatasourceComponent("RestAPIDatasourceForm");
+                  break;
+              default:
+                  continue;
+          }
+
+          mongoTemplate.save(plugin);
+      }
+  }
 }
