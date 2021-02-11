@@ -7,7 +7,7 @@ import FormLabel from "components/editorComponents/FormLabel";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
-  width: 30vw;
+  width: 50vh;
 `;
 
 class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
