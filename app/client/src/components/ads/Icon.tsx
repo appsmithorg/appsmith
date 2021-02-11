@@ -1,10 +1,12 @@
 import React, { forwardRef, Ref } from "react";
 import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
+import { ReactComponent as BookIcon } from "assets/icons/ads/book.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
 import { ReactComponent as BillingIcon } from "assets/icons/ads/billing.svg";
 import { ReactComponent as EditIcon } from "assets/icons/ads/edit.svg";
 import { ReactComponent as ErrorIcon } from "assets/icons/ads/error.svg";
+import { ReactComponent as ShineIcon } from "assets/icons/ads/shine.svg";
 import { ReactComponent as SuccessIcon } from "assets/icons/ads/success.svg";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
@@ -77,12 +79,14 @@ export const sizeHandler = (size?: IconSize) => {
 };
 
 export const IconCollection = [
+  "book",
   "delete",
   "user",
   "general",
   "billing",
   "edit",
   "error",
+  "shine",
   "success",
   "search",
   "close",
@@ -150,6 +154,9 @@ const Icon = forwardRef(
   (props: IconProps & CommonComponentProps, ref: Ref<HTMLSpanElement>) => {
     let returnIcon;
     switch (props.name) {
+      case "book":
+        returnIcon = <BookIcon />;
+        break;
       case "delete":
         returnIcon = <DeleteIcon />;
         break;
@@ -167,6 +174,9 @@ const Icon = forwardRef(
         break;
       case "error":
         returnIcon = <ErrorIcon />;
+        break;
+      case "shine":
+        returnIcon = <ShineIcon />;
         break;
       case "success":
         returnIcon = <SuccessIcon />;

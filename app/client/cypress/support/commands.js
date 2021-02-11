@@ -1277,25 +1277,28 @@ Cypress.Commands.add("togglebarDisable", (value) => {
     .should("not.checked");
 });
 
-Cypress.Commands.add("getAlert", (alertcss) => {
-  cy.get(commonlocators.dropdownSelectButton)
-    .first()
-    .click({ force: true });
-  cy.get(widgetsPage.menubar)
-    .contains("Show Message")
-    .click({ force: true })
-    .should("have.text", "Show Message");
+Cypress.Commands.add(
+  "getAlert",
+  (alertcss, propertyControl = commonlocators.dropdownSelectButton) => {
+    cy.get(propertyControl)
+      .first()
+      .click({ force: true });
+    cy.get(widgetsPage.menubar)
+      .contains("Show Message")
+      .click({ force: true })
+      .should("have.text", "Show Message");
 
-  cy.get(alertcss)
-    .click({ force: true })
-    .type("{command}{A}{del}")
-    .type("hello")
-    .should("not.to.be.empty");
-  cy.get(".t--open-dropdown-Select-type").click({ force: true });
-  cy.get(".bp3-popover-content .bp3-menu li")
-    .contains("Success")
-    .click({ force: true });
-});
+    cy.get(alertcss)
+      .click({ force: true })
+      .type("{command}{A}{del}")
+      .type("hello")
+      .should("not.to.be.empty");
+    cy.get(".t--open-dropdown-Select-type").click({ force: true });
+    cy.get(".bp3-popover-content .bp3-menu li")
+      .contains("Success")
+      .click({ force: true });
+  },
+);
 
 Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
   cy.get(commonlocators.dropdownSelectButton)
