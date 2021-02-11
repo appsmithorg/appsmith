@@ -27,6 +27,9 @@ import DynamicTextControl, {
 import CheckboxControl, {
   CheckboxControlProps,
 } from "components/formControls/CheckboxControl";
+import DynamicInputTextControl, {
+  DynamicInputControlProps,
+} from "components/formControls/DynamicInputTextControl";
 
 class FormControlRegistry {
   static registerFormControlBuilders() {
@@ -70,6 +73,13 @@ class FormControlRegistry {
     FormControlFactory.registerControlBuilder("QUERY_DYNAMIC_TEXT", {
       buildPropertyControl(controlProps: DynamicTextFieldProps): JSX.Element {
         return <DynamicTextControl {...controlProps} />;
+      },
+    });
+    FormControlFactory.registerControlBuilder("QUERY_DYNAMIC_INPUT_TEXT", {
+      buildPropertyControl(
+        controlProps: DynamicInputControlProps,
+      ): JSX.Element {
+        return <DynamicInputTextControl {...controlProps} />;
       },
     });
     FormControlFactory.registerControlBuilder("CHECKBOX", {
