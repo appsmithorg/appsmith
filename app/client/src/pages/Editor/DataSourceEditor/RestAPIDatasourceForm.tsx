@@ -374,6 +374,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             {...COMMON_INPUT_PROPS}
             label="Client Secret"
             dataType="PASSWORD"
+            encrypted={true}
             configProperty="authentication.clientSecret"
           />
         </FormInputContainer>
