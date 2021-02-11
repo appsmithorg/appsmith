@@ -336,10 +336,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 label: "OAuth2 (Client credentials)",
                 value: AuthType.OAuth2ClientCredentials,
               },
-              // {
-              //   label: "OAuth2 (Auth Code)",
-              //   value: AuthType.OAuth2AuthorizationCode,
-              // },
+              {
+                label: "OAuth2 (Auth Code)",
+                value: AuthType.OAuth2AuthorizationCode,
+              },
             ]}
           />
         </FormInputContainer>
