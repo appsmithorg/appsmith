@@ -51,10 +51,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       resetOnSubmit: true,
     },
     SWITCH_WIDGET: {
-      isOn: false,
-      label: "Switch",
+      label: "Label",
       rows: 1,
-      columns: 4,
+      columns: 2,
+      defaultSwitchState: true,
       widgetName: "Switch",
     },
     ICON_WIDGET: {

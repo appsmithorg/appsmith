@@ -134,10 +134,10 @@ export const entityDefinitions = {
   },
   SWITCH_WIDGET: {
     "!doc":
-      "Checkbox is a simple UI widget you can use when you want users to make a binary choice",
+      "Switch is a simple UI widget you can use when you want users to make a binary choice",
     "!url": "https://docs.appsmith.com/widget-reference/checkbox",
     isVisible: isVisible,
-    isChecked: "bool",
+    isOn: "bool",
     isDisabled: "bool",
   },
   RADIO_GROUP_WIDGET: {

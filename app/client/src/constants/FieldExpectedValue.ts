@@ -141,8 +141,7 @@ const FIELD_VALUES: Record<
   },
   SWITCH_WIDGET: {
     label: "string",
-    defaultCheckedState: "boolean",
-    isRequired: "boolean",
+    defaultSwitchState: "boolean",
     isDisabled: "boolean",
     isVisible: "boolean",
     // onSwitchChange: "Function Call",

@@ -1,34 +1,45 @@
-import { Classes, Switch } from "@blueprintjs/core";
+import { Alignment, Switch } from "@blueprintjs/core";
+import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
+import styled from "styled-components";
 import { ComponentProps } from "../appsmith/BaseComponent";
 
 interface SwitchComponentProps extends ComponentProps {
   label: string;
   isOn: boolean;
-  onSwitchChange: (isChecked: boolean) => void;
+  onSwitchChange: (isOn: boolean) => void;
   isLoading: boolean;
-  isRequired?: boolean;
+  swapLabel: boolean;
 }
+
+const SwitchComponentContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  ${BlueprintControlTransform}
+`;
 
 export const SwitchComponent: React.FC<SwitchComponentProps> = ({
   label,
   isOn,
+  swapLabel,
   onSwitchChange,
+  isDisabled,
   isLoading,
-  isRequired = true,
 }) => {
   return (
     <>
-      {isRequired && (
-        <>
-          {label}{" "}
+      {
+        <SwitchComponentContainer>
           <Switch
-            className={isLoading ? "bp3-skeleton" : Classes.RUNNING_TEXT}
+            alignIndicator={swapLabel ? Alignment.RIGHT : Alignment.LEFT}
+            label={label}
+            disabled={isDisabled}
+            className={isLoading ? "bp3-skeleton" : ""}
             checked={isOn}
             onChange={() => onSwitchChange(!isOn)}
           />
-        </>
-      )}
+        </SwitchComponentContainer>
+      }
     </>
   );
 };

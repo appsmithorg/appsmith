@@ -1306,11 +1306,11 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
     ],
     SWITCH_WIDGET: [
       {
-        id: "9.1",
+        id: "19.1",
         sectionName: "General",
         children: [
           {
-            id: "9.1.1",
+            id: "19.1.1",
             propertyName: "label",
             label: "Label",
             controlType: "INPUT_TEXT",
@@ -1318,24 +1318,24 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             placeholderText: "Enter label text",
           },
           {
-            id: "9.1.2",
-            propertyName: "defaultCheckedState",
+            id: "19.1.2",
+            propertyName: "swapLabel",
+            label: "Swap Label",
+            helpText: "Swap label position to the left or right.",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            id: "19.1.3",
+            propertyName: "defaultSwitchState",
             label: "Default Selected",
             helpText:
-              "Checks / un-checks the checkbox by default. Changes to the default selection update the widget state",
+              "On / Off the Switch by default. Changes to the default selection update the widget state",
             controlType: "SWITCH",
             isJSConvertible: true,
           },
           {
-            id: "9.1.6",
-            propertyName: "isRequired",
-            label: "Required",
-            helpText: "Makes input to the widget mandatory",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-          },
-          {
-            id: "9.1.5",
+            id: "19.1.4",
             propertyName: "isVisible",
             label: "Visible",
             helpText: "Controls the visibility of the widget",
@@ -1343,7 +1343,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             isJSConvertible: true,
           },
           {
-            id: "9.1.4",
+            id: "19.1.5",
             propertyName: "isDisabled",
             label: "Disabled",
             controlType: "SWITCH",
@@ -1353,14 +1353,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
         ],
       },
       {
-        id: "9.2",
+        id: "19.2",
         sectionName: "Actions",
         children: [
           {
-            id: "9.2.1",
-            helpText: "Triggers an action when the check state is changed",
-            propertyName: "onCheckChange",
-            label: "onCheckChange",
+            id: "19.2.1",
+            helpText: "Triggers an action when the switch state is changed",
+            propertyName: "onSwitchChange",
+            label: "onSwitchChange",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
           },
