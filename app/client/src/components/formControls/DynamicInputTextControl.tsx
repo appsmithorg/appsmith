@@ -10,20 +10,16 @@ import { connect } from "react-redux";
 
 export function InputText(props: {
   label: string;
-  value: string;
-  isValid: boolean;
-  validationMessage?: string;
   placeholder?: string;
   isRequired?: boolean;
   name: string;
-  encrypted?: boolean;
   actionName: string;
 }) {
   const { actionName, name, placeholder, label, isRequired } = props;
   const dataTreePath = actionPathFromName(actionName, name);
 
   return (
-    <div style={{ width: "50vh", minHeight: "55px" }}>
+    <div style={{ width: "50vh", height: "55px" }}>
       <FormLabel>
         {label} {isRequired && "*"}
       </FormLabel>
@@ -39,23 +35,12 @@ export function InputText(props: {
 
 class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
   render() {
-    const {
-      validationMessage,
-      propertyValue,
-      isValid,
-      label,
-      placeholderText,
-      configProperty,
-      actionName,
-    } = this.props;
+    const { label, placeholderText, configProperty, actionName } = this.props;
 
     return (
       <InputText
         name={configProperty}
         label={label}
-        value={propertyValue}
-        isValid={isValid}
-        validationMessage={validationMessage}
         placeholder={placeholderText}
         actionName={actionName}
       />

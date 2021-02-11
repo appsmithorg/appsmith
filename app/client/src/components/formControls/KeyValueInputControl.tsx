@@ -37,7 +37,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
           </FormLabel>
           {props.fields.map((field: any, index: number) => (
             <FormRowWithLabel key={index} style={{ marginTop: index ? 13 : 0 }}>
-              <div style={{ width: "50vh" }}>
+              <div style={{ width: "50vw" }}>
                 {/* <FormLabel></FormLabel> */}
                 <TextField name={`${field}.key`} placeholder="Key" />
               </div>
@@ -45,7 +45,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
               <div style={{ marginLeft: 16 }}>
                 {/* <FormLabel></FormLabel> */}
                 <div style={{ display: "flex", flexDirection: "row" }}>
-                  <div style={{ marginRight: 14, width: "50vh" }}>
+                  <div style={{ marginRight: 14, width: "50vw" }}>
                     <TextField name={`${field}.value`} placeholder="Value" />
                   </div>
                   {index === props.fields.length - 1 ? (

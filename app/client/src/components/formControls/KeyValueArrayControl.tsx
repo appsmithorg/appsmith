@@ -96,7 +96,7 @@ const KeyValueRow = (props: KeyValueArrayProps & WrappedFieldArrayProps) => {
             }
             return (
               <FormRowWithLabel key={index} style={{ marginTop: 16 }}>
-                <div style={{ width: "50vh" }}>
+                <div style={{ width: "50vw" }}>
                   <FormLabel>
                     {extraData && extraData[0].label} {isRequired && "*"}
                   </FormLabel>
