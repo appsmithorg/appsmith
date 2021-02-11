@@ -141,10 +141,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return !formData.url;
   };
 
-  render() {
-    return <RestApiForm>{this.renderDataSourceConfigForm()}</RestApiForm>;
-  }
-
   save = (onSuccess?: ReduxAction<unknown>) => {
     const normalizedValues = formValuesToDatasource(
       this.props.datasource,
@@ -157,72 +153,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     this.props.updateDatasource(normalizedValues, onSuccess);
   };
 
-  renderDataSourceConfigForm = () => {
-    const {
-      isSaving,
-      applicationId,
-      pageId,
-      isDeleting,
-      datasourceId,
-      deleteDatasource,
-    } = this.props;
-
-    return (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-      >
-        <BackButton
-          onClick={() =>
-            history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId))
-          }
-        />
-        <br />
-        <Header>
-          <FormTitleContainer>
-            <PluginImage src={this.props.pluginImage} alt="Datasource" />
-            <FormTitle focusOnMount={this.props.isNewDatasource} />
-          </FormTitleContainer>
-
-          <CreateApiButton
-            className="t--create-query"
-            icon={"plus"}
-            text="New API"
-            filled
-            accent="primary"
-            loading={isSaving}
-            onClick={() => this.createApiAction()}
-          />
-        </Header>
-        <>
-          {this.renderEditor()}
-          <SaveButtonContainer>
-            <ActionButton
-              className="t--delete-datasource"
-              text="Delete"
-              accent="error"
-              loading={isDeleting}
-              onClick={() => deleteDatasource(datasourceId)}
-            />
-
-            <StyledButton
-              className="t--save-datasource"
-              onClick={() => this.save()}
-              text="Save"
-              disabled={this.disableSave()}
-              loading={isSaving}
-              intent="primary"
-              filled
-              size="small"
-            />
-          </SaveButtonContainer>
-        </>
-      </form>
-    );
-  };
-
-  createApiAction() {
+  createApiAction = () => {
     const { datasource, actions, pageId } = this.props;
     if (
       !datasource ||
@@ -258,7 +189,86 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         actionConfiguration: defaultApiActionConfig,
       }),
     );
-  }
+  };
+
+  render = () => {
+    console.log(this.props.datasourceId);
+    return (
+      <RestApiForm>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
+          {this.renderHeader()}
+          {this.renderEditor()}
+          {this.renderSave()}
+        </form>
+      </RestApiForm>
+    );
+  };
+
+  renderHeader = () => {
+    const {
+      isSaving,
+      isNewDatasource,
+      pluginImage,
+      applicationId,
+      pageId,
+    } = this.props;
+    return (
+      <>
+        <BackButton
+          onClick={() =>
+            history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId))
+          }
+        />
+        <br />
+        <Header>
+          <FormTitleContainer>
+            <PluginImage src={pluginImage} alt="Datasource" />
+            <FormTitle focusOnMount={isNewDatasource} />
+          </FormTitleContainer>
+
+          <CreateApiButton
+            className="t--create-query"
+            icon={"plus"}
+            text="New API"
+            filled
+            accent="primary"
+            loading={isSaving}
+            onClick={() => this.createApiAction()}
+          />
+        </Header>
+      </>
+    );
+  };
+
+  renderSave = () => {
+    const { isDeleting, isSaving, datasourceId, deleteDatasource } = this.props;
+    return (
+      <SaveButtonContainer>
+        <ActionButton
+          className="t--delete-datasource"
+          text="Delete"
+          accent="error"
+          loading={isDeleting}
+          onClick={() => deleteDatasource(datasourceId)}
+        />
+
+        <StyledButton
+          className="t--save-datasource"
+          onClick={() => this.save()}
+          text="Save"
+          disabled={this.disableSave()}
+          loading={isSaving}
+          intent="primary"
+          filled
+          size="small"
+        />
+      </SaveButtonContainer>
+    );
+  };
 
   renderEditor = () => {
     const { formData } = this.props;
@@ -327,10 +337,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 label: "OAuth2 (Client credentials)",
                 value: AuthType.OAuth2ClientCredentials,
               },
-              {
-                label: "OAuth2 (Auth Code)",
-                value: AuthType.OAuth2AuthorizationCode,
-              },
+              // {
+              //   label: "OAuth2 (Auth Code)",
+              //   value: AuthType.OAuth2AuthorizationCode,
+              // },
             ]}
           />
         </FormInputContainer>
@@ -375,26 +385,11 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             configProperty="authentication.scopeString"
           />
         </FormInputContainer>
-      </>
-    );
-  };
-  renderOauth2ClientCredentials = () => {
-    return (
-      <>
-        {this.renderOauth2Common()}
         <FormInputContainer>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             label="Access Token URL"
             configProperty="authentication.accessTokenUrl"
-          />
-        </FormInputContainer>
-        <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            label="Header Prefix"
-            configProperty="authentication.headerPrefix"
-            placeholderText="Bearer (default)"
           />
         </FormInputContainer>
         <FormInputContainer>
@@ -414,21 +409,25 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             ]}
           />
         </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            label="Header Prefix"
+            configProperty="authentication.headerPrefix"
+            placeholderText="Bearer (default)"
+          />
+        </FormInputContainer>
       </>
     );
+  };
+  renderOauth2ClientCredentials = () => {
+    return this.renderOauth2Common();
   };
   renderOauth2AuthorizationCode = () => {
     const { datasourceId, isSaving } = this.props;
     return (
       <>
         {this.renderOauth2Common()}
-        <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            label="Access Token URL"
-            configProperty="authentication.accessTokenUrl"
-          />
-        </FormInputContainer>
         <FormInputContainer>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
@@ -441,23 +440,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             {...COMMON_INPUT_PROPS}
             label="Custom Authentication Parameters"
             configProperty="authentication.customAuthenticationParameters"
-          />
-        </FormInputContainer>
-        <FormInputContainer>
-          <DropDownControl
-            {...COMMON_INPUT_PROPS}
-            label="Add token to"
-            configProperty="authentication.isTokenHeader"
-            options={[
-              {
-                label: "Header",
-                value: true,
-              },
-              {
-                label: "Query parameters",
-                value: false,
-              },
-            ]}
           />
         </FormInputContainer>
         <FormInputContainer>
@@ -492,6 +474,19 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 }
 
+const cleanupProperties = (values: Property[] | undefined): Property[] => {
+  if (!Array.isArray(values)) return [];
+
+  const newValues: Property[] = [];
+  values.forEach((object: Property) => {
+    const isEmpty = Object.values(object).every((x) => x === "");
+    if (!isEmpty) {
+      newValues.push(object);
+    }
+  });
+  return newValues;
+};
+
 enum AuthType {
   NONE = "NONE",
   OAuth2ClientCredentials = "oAuth2-client-credentials",
@@ -512,42 +507,26 @@ interface ApiDatasourceForm {
   authentication?: Authentication;
 }
 
-interface ClientCredentials {
+interface Oauth2Common {
   authenticationType: "oAuth2";
-  grantType: "client_credentials";
   accessTokenUrl: string;
   clientId: string;
+  clientSecret: string;
   headerPrefix: string;
   scopeString: string;
-  clientSecret: string;
   isTokenHeader: boolean;
 }
 
-interface AuthorizationCode {
-  authenticationType: "oAuth2";
+interface ClientCredentials extends Oauth2Common {
+  grantType: "client_credentials";
+}
+
+interface AuthorizationCode extends Oauth2Common {
   grantType: "authorization_code";
-  clientId: string;
-  clientSecret: string;
-  scopeString: string;
   authorizationUrl: string;
   customAuthenticationParameters: Property[];
-  accessTokenUrl: string;
-  isTokenHeader: boolean;
   isAuthorizationHeader: boolean;
 }
-
-const cleanupProperties = (values: Property[] | undefined): Property[] => {
-  if (!Array.isArray(values)) return [];
-
-  const newValues: Property[] = [];
-  values.forEach((object: Property) => {
-    const isEmpty = Object.values(object).every((x) => x === "");
-    if (!isEmpty) {
-      newValues.push(object);
-    }
-  });
-  return newValues;
-};
 
 const getFormAuthType = (datasource: Datasource): AuthType => {
   const dsAuthType = _.get(
@@ -569,50 +548,6 @@ const getFormAuthType = (datasource: Datasource): AuthType => {
   return AuthType.NONE;
 };
 
-const datasourceToFormAuthentication = (
-  authType: AuthType,
-  datasource: Datasource,
-): Authentication | undefined => {
-  if (
-    !datasource ||
-    !datasource.datasourceConfiguration ||
-    !datasource.datasourceConfiguration.authentication
-  ) {
-    return;
-  }
-  const authentication = datasource.datasourceConfiguration.authentication;
-  if (isClientCredentials(authType, authentication)) {
-    return {
-      authenticationType: "oAuth2",
-      grantType: "client_credentials",
-      accessTokenUrl: authentication.accessTokenUrl || "",
-      clientId: authentication.clientId || "",
-      headerPrefix: authentication.headerPrefix || "",
-      scopeString: authentication.scopeString || "",
-      clientSecret: authentication.clientSecret,
-      isTokenHeader: !!authentication.isTokenHeader,
-    };
-  } else if (isAuthorizationCode(authType, authentication)) {
-    return {
-      authenticationType: "oAuth2",
-      grantType: "authorization_code",
-      clientId: authentication.clientId || "",
-      scopeString: authentication.scopeString || "",
-      authorizationUrl: authentication.authorizationUrl || "",
-      clientSecret: authentication.clientSecret,
-      customAuthenticationParameters: cleanupProperties(
-        authentication.customAuthenticationParameters,
-      ),
-      accessTokenUrl: authentication.accessTokenUrl || "",
-      isTokenHeader: !!authentication.isTokenHeader,
-      isAuthorizationHeader:
-        typeof authentication.isAuthorizationHeader === "undefined"
-          ? true
-          : !!authentication.isAuthorizationHeader,
-    };
-  }
-};
-
 const isClientCredentials = (
   authType: AuthType,
   val: any,
@@ -629,15 +564,65 @@ const isAuthorizationCode = (
   return false;
 };
 
+const datasourceToFormAuthentication = (
+  authType: AuthType,
+  datasource: Datasource,
+): Authentication | undefined => {
+  if (
+    !datasource ||
+    !datasource.datasourceConfiguration ||
+    !datasource.datasourceConfiguration.authentication
+  ) {
+    return;
+  }
+  const authentication = datasource.datasourceConfiguration.authentication;
+  if (
+    isClientCredentials(authType, authentication) ||
+    isAuthorizationCode(authType, authentication)
+  ) {
+    const oAuth2Common: Oauth2Common = {
+      authenticationType: "oAuth2",
+      accessTokenUrl: authentication.accessTokenUrl || "",
+      clientId: authentication.clientId || "",
+      headerPrefix: authentication.headerPrefix || "",
+      scopeString: authentication.scopeString || "",
+      clientSecret: authentication.clientSecret,
+      isTokenHeader: !!authentication.isTokenHeader,
+    };
+    if (isClientCredentials(authType, authentication)) {
+      return {
+        ...oAuth2Common,
+        grantType: "client_credentials",
+      };
+    }
+    if (isAuthorizationCode(authType, authentication)) {
+      return {
+        ...oAuth2Common,
+        grantType: "authorization_code",
+        authorizationUrl: authentication.authorizationUrl || "",
+        customAuthenticationParameters: cleanupProperties(
+          authentication.customAuthenticationParameters,
+        ),
+        isAuthorizationHeader:
+          typeof authentication.isAuthorizationHeader === "undefined"
+            ? true
+            : !!authentication.isAuthorizationHeader,
+      };
+    }
+  }
+};
+
 const formToDatasourceAuthentication = (
   authType: AuthType,
   authentication: Authentication | undefined,
 ): Authentication | null => {
   if (authType === AuthType.NONE || !authentication) return null;
-  if (isClientCredentials(authType, authentication)) {
-    return {
+  if (
+    isClientCredentials(authType, authentication) ||
+    isAuthorizationCode(authType, authentication)
+  ) {
+    const oAuth2Common: Oauth2Common = {
       authenticationType: "oAuth2",
-      grantType: "client_credentials",
       accessTokenUrl: authentication.accessTokenUrl,
       clientId: authentication.clientId,
       headerPrefix: authentication.headerPrefix,
@@ -645,21 +630,23 @@ const formToDatasourceAuthentication = (
       clientSecret: authentication.clientSecret,
       isTokenHeader: authentication.isTokenHeader,
     };
-  } else if (isAuthorizationCode(authType, authentication)) {
-    return {
-      authenticationType: "oAuth2",
-      grantType: "authorization_code",
-      clientId: authentication.clientId,
-      clientSecret: authentication.clientSecret,
-      scopeString: authentication.scopeString,
-      authorizationUrl: authentication.authorizationUrl,
-      customAuthenticationParameters: cleanupProperties(
-        authentication.customAuthenticationParameters,
-      ),
-      accessTokenUrl: authentication.accessTokenUrl,
-      isTokenHeader: authentication.isTokenHeader,
-      isAuthorizationHeader: authentication.isAuthorizationHeader,
-    };
+    if (isClientCredentials(authType, authentication)) {
+      return {
+        ...oAuth2Common,
+        grantType: "client_credentials",
+      };
+    }
+    if (isAuthorizationCode(authType, authentication)) {
+      return {
+        ...oAuth2Common,
+        grantType: "authorization_code",
+        authorizationUrl: authentication.authorizationUrl,
+        isAuthorizationHeader: authentication.isAuthorizationHeader,
+        customAuthenticationParameters: cleanupProperties(
+          authentication.customAuthenticationParameters,
+        ),
+      };
+    }
   }
   return null;
 };
@@ -741,5 +728,6 @@ export default connect(
 )(
   reduxForm<ApiDatasourceForm, DatasourceRestApiEditorProps>({
     form: DATASOURCE_REST_API_FORM,
+    enableReinitialize: true,
   })(DatasourceRestAPIEditor),
 );
