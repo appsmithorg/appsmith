@@ -386,6 +386,7 @@ export default class WidgetBuilderRegistry {
       CanvasWidget.getTriggerPropertyMap(),
       CanvasWidget.getDefaultPropertiesMap(),
       CanvasWidget.getMetaPropertiesMap(),
+      CanvasWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(

@@ -468,7 +468,7 @@ export function getDefaultColumnProperties(
     label: accessor,
     computedValue: isDerived
       ? ""
-      : `{{${widgetName}.tableData.map((currentRow) => currentRow.${accessor})}}`,
+      : `{{${widgetName}.tableData.map((currentRow) => { return currentRow.${accessor}})}}`,
   };
 
   return columnProps;

@@ -101,7 +101,7 @@ export const tableWidgetPropertyPaneMigrations = (
                 ? columnNameMap[accessor]
                 : accessor,
             // Generate computed value
-            computedValue: `{{${child.widgetName}.map((currentRow) => (currentRow.${accessor}))}}`,
+            computedValue: `{{${child.widgetName}.map((currentRow) => { return currentRow.${accessor}})}}`,
           };
           // copy inputForma nd outputFormat for date column types
           if (columnTypeMap && columnTypeMap[accessor]) {
