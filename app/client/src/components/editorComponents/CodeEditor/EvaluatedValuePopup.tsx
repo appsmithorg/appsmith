@@ -24,15 +24,15 @@ type PopupTheme = Record<EditorTheme, ThemeConfig>;
 
 const THEMES: PopupTheme = {
   [EditorTheme.LIGHT]: {
-    backgroundColor: "#fff",
-    textColor: "#1E242B",
-    editorBackground: "#F4F4F4",
+    backgroundColor: "#EBEBEB",
+    textColor: "#4B4848",
+    editorBackground: "#FAFAFA",
     editorColor: "#1E242B",
   },
   [EditorTheme.DARK]: {
-    backgroundColor: "#23292e",
-    textColor: "#F4F4F4",
-    editorBackground: "#090a0f",
+    backgroundColor: "#262626",
+    textColor: "#D4D4D4",
+    editorBackground: "#1A191C",
     editorColor: "#F4F4F4",
   },
 };
@@ -48,8 +48,8 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
   background-color: ${(props) => THEMES[props.colorTheme].backgroundColor};
   color: ${(props) => THEMES[props.colorTheme].textColor};
   padding: 10px;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  border-radius: 4px;
+  box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
+  border-radius: 0px;
 `;
 
 const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
@@ -58,12 +58,13 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
   max-height: 300px;
   overflow-y: auto;
   -ms-overflow-style: none;
+  padding: ${(props) => props.theme.spaces[3]}px;
+  background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
   ${(props) =>
     props.colorTheme === EditorTheme.LIGHT ? scrollbarLight : scrollbarDark};
-  padding: 10px;
   margin: 0px 0px;
   background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
   color: ${(props) => THEMES[props.colorTheme].editorColor};
@@ -75,7 +76,7 @@ const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
 const TypeText = styled.pre<{ colorTheme: EditorTheme }>`
   ${(props) =>
     props.colorTheme === EditorTheme.LIGHT ? scrollbarLight : scrollbarDark};
-  padding: 5px;
+  padding: ${(props) => props.theme.spaces[3]}px;
   background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
   color: ${(props) => THEMES[props.colorTheme].editorColor};
   font-size: 12px;
@@ -84,11 +85,15 @@ const TypeText = styled.pre<{ colorTheme: EditorTheme }>`
 `;
 
 const ErrorText = styled.p`
-  margin: 5px 0;
-  padding: 5px;
-  border-radius: 2px;
-  font-size: 13px;
-  background-color: rgba(226, 44, 4, 0.1);
+  margin: ${(props) => props.theme.spaces[2]}px 0px;
+  padding: ${(props) => props.theme.spaces[3]}px
+    ${(props) => props.theme.spaces[5]}px;
+  border-radius: 0px;
+  font-size: 14px;
+  line-height: 19px;
+  letter-spacing: -0.24px;
+  background-color: rgba(226, 44, 44, 0.08);
+  border: 1.2px solid ${(props) => props.theme.colors.errorMessage};
   color: ${(props) => props.theme.colors.errorMessage};
 `;
 
@@ -216,7 +221,7 @@ const EvaluatedValuePopup = (props: Props) => {
             expected={props.expected}
             evaluatedValue={props.evaluatedValue}
             hasError={props.hasError}
-            theme={EditorTheme.DARK}
+            theme={props.theme}
             onMouseLeave={() => {
               setContentHovered(false);
             }}

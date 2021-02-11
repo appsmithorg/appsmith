@@ -9,7 +9,7 @@ export type TabProp = {
   key: string;
   title: string;
   panelComponent: JSX.Element;
-  icon: IconName;
+  icon?: IconName;
 };
 
 const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
@@ -23,10 +23,11 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     height: 100%;
   }
   .react-tabs__tab-panel {
-    height: calc(100% - 32px);
+    height: 100%;
     overflow: auto;
   }
   .react-tabs__tab-list {
+    margin: 0px;
     display: flex;
     align-items: center;
     border-bottom: ${(props) => props.theme.spaces[1] - 2}px solid
@@ -47,7 +48,8 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: 0 0 ${(props) => props.theme.spaces[4]}px 0;
+    padding: ${(props) => props.theme.spaces[3] - 1}px 0
+      ${(props) => props.theme.spaces[4]}px 0;
     margin-right: ${(props) => props.theme.spaces[12] - 3}px;
     text-align: center;
     display: inline-flex;
@@ -99,10 +101,10 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
 `;
 
 const TabTitle = styled.span`
-  font-size: ${(props) => props.theme.typography.h4.fontSize}px;
-  font-weight: normal;
-  line-height: ${(props) => props.theme.typography.h4.lineHeight}px;
-  letter-spacing: ${(props) => props.theme.typography.h4.letterSpacing}px;
+  font-size: ${(props) => props.theme.typography.h5.fontSize}px;
+  font-weight: ${(props) => props.theme.typography.h5.fontWeight};
+  line-height: ${(props) => props.theme.typography.h5.lineHeight - 3}px;
+  letter-spacing: ${(props) => props.theme.typography.h5.letterSpacing}px;
 `;
 
 type TabbedViewComponentType = CommonComponentProps & {

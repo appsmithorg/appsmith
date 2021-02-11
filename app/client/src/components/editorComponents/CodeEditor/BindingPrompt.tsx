@@ -1,17 +1,25 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
+import { EditorTheme } from "./EditorConfig";
 
 const Wrapper = styled.span<{
   visible: boolean;
   bottomOffset: number;
   customMessage: boolean;
+  editorTheme?: EditorTheme;
 }>`
   padding: ${(props) => (props.customMessage ? 6 : 8)}px;
   font-size: 12px;
-  color: ${Colors.GRAY_CHATEAU};
-  border-radius: 2px;
-  background-color: ${Colors.BLUE_CHARCOAL};
+  color: #858282;
+  box-shadow: 0px 12px 34px -6px rgba(0, 0, 0, 0.75);
+  border-radius: 0px;
+  background-color: ${(props) =>
+    props.editorTheme === EditorTheme.DARK
+      ? Colors.MINE_SHAFT
+      : props.editorTheme === EditorTheme.LIGHT
+      ? Colors.MERCURY
+      : Colors.BLUE_CHARCOAL};
   position: absolute;
   bottom: ${(props) => -props.bottomOffset}px;
   width: 100%;
@@ -31,6 +39,7 @@ const CurlyBraces = styled.span`
 const BindingPrompt = (props: {
   promptMessage?: React.ReactNode | string;
   isOpen: boolean;
+  editorTheme?: EditorTheme;
 }): JSX.Element => {
   const promptRef = useRef<HTMLDivElement>(null);
   let bottomOffset = 30;
@@ -49,6 +58,7 @@ const BindingPrompt = (props: {
       bottomOffset={bottomOffset}
       visible={props.isOpen}
       customMessage={customMessage}
+      editorTheme={props.editorTheme}
     >
       {props.promptMessage ? (
         props.promptMessage
