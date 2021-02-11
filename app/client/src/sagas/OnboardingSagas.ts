@@ -58,7 +58,7 @@ import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { get } from "lodash";
 import { AppIconCollection } from "components/ads/AppIcon";
 import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
-import { getThemeDetails } from "selectors/themeSelectors";
+import { getAppCardColorPalette } from "selectors/themeSelectors";
 import {
   getRandomPaletteColor,
   getNextEntityName,
@@ -521,8 +521,8 @@ function* showEndOnboardingHelperSaga() {
 
 // Cheat actions
 function* createApplication() {
-  const themeDetails = yield select(getThemeDetails);
-  const color = getRandomPaletteColor(themeDetails.theme.colors.appCardColors);
+  const colorPalette = yield select(getAppCardColorPalette);
+  const color = getRandomPaletteColor(colorPalette);
   const icon =
     AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
 

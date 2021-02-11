@@ -66,6 +66,12 @@ export const Colors: Record<string, string> = {
   RIVER_BED: "#4A545B",
   BALTIC_SEA: "#1A191C",
   THUNDER: "#231F20",
+  WHITE_SNOW: "#F7F7F7",
+  NERO: "#2B2B2B",
+  CHARCOAL: "#4B4848",
+  LIGHT_GREY: "#D4D4D4",
+  Gallery: "#F0F0F0",
+  Galliano: "#E0B30E",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

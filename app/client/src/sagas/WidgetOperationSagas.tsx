@@ -928,17 +928,19 @@ function* deleteWidgetPropertySaga(
     });
   });
 
-  yield put(
-    updateWidgetProperty(widgetId, {
-      dynamicTriggerPathList,
-      dynamicBindingPathList,
-    }),
-  );
+  // yield put(
+  //   updateWidgetProperty(widgetId, {
+  //     dynamicTriggerPathList,
+  //     dynamicBindingPathList,
+  //   }),
+  // );
 
   const stateWidgets = yield select(getWidgets);
   // Cloning because we probably froze the properties earlier
   // TODO(abhinav): Check if we need to use immer to handle this.
   let widget = _.cloneDeep(stateWidget);
+  widget.dynamicBindingPathList = dynamicBindingPathList;
+  widget.dynamicTriggerPathList = dynamicTriggerPathList;
   propertyPaths.forEach((propertyPath) => {
     widget = unsetPropertyPath(widget, propertyPath) as WidgetProps;
   });

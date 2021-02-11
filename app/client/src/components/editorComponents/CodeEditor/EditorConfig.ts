@@ -51,3 +51,9 @@ export type Hinter = {
 };
 
 export type MarkHelper = (editor: CodeMirror.Editor) => void;
+
+export enum CodeEditorBorder {
+  NONE = "none",
+  ALL_SIDE = "all-side",
+  BOTTOM_SIDE = "bottom-side",
+}
