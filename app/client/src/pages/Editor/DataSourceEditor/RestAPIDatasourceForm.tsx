@@ -192,7 +192,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   render = () => {
-    console.log(this.props.datasourceId);
     return (
       <RestApiForm>
         <form
