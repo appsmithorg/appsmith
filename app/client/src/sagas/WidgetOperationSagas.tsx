@@ -1043,7 +1043,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
 }
 
-function calculateNewWidgetPosition(
+export function calculateNewWidgetPosition(
   widget: WidgetProps,
   parentId: string,
   canvasWidgets: FlattenedWidgetProps[],

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import styled from "styled-components";
+import styled, { ThemeProvider } from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AppsmithLogo from "assets/images/appsmith_logo.png";
 import { EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
@@ -30,12 +30,13 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import { IconWrapper } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
+import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -122,6 +123,7 @@ type AppViewerHeaderProps = {
   pages: PageListPayload;
   currentOrgId: string;
   currentUser?: User;
+  lightTheme: Theme;
 };
 
 export const AppViewerHeader = (props: AppViewerHeaderProps) => {
@@ -176,63 +178,65 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   }
 
   return (
-    <HeaderWrapper hasPages={pages.length > 1}>
-      <HtmlTitle />
-      <HeaderRow justify={"space-between"}>
-        <HeaderSection justify={"flex-start"}>
-          <Link to={APPLICATIONS_URL} style={{ display: "flex" }}>
-            <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
-          </Link>
-        </HeaderSection>
-        <HeaderSection justify={"center"} className="current-app-name">
-          {currentApplicationDetails && (
-            <Text type={TextType.H4}>{currentApplicationDetails.name}</Text>
-          )}
-        </HeaderSection>
-        <HeaderSection justify={"flex-end"}>
-          {currentApplicationDetails && (
-            <>
-              <FormDialogComponent
-                trigger={
-                  <Button
-                    text={"Share"}
-                    icon={"share"}
-                    size={Size.small}
-                    className="t--application-share-btn header__application-share-btn"
-                  />
-                }
-                Form={AppInviteUsersForm}
-                orgId={currentOrgId}
-                applicationId={currentApplicationDetails.id}
-                title={currentApplicationDetails.name}
-                canOutsideClickClose={true}
-              />
-              {CTA && (
-                <HeaderRightItemContainer>{CTA}</HeaderRightItemContainer>
-              )}
-            </>
-          )}
-          {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
-            <HeaderRightItemContainer>
-              <ProfileDropdown
-                userName={currentUser?.username || ""}
-                hideThemeSwitch
-                modifiers={{
-                  offset: {
-                    enabled: true,
-                    offset: `0, ${pages.length > 1 ? 35 : 0}`,
-                  },
-                }}
-              />
-            </HeaderRightItemContainer>
-          )}
-        </HeaderSection>
-      </HeaderRow>
-      <PageTabsContainer
-        pages={pages}
-        currentApplicationDetails={currentApplicationDetails}
-      />
-    </HeaderWrapper>
+    <ThemeProvider theme={props.lightTheme}>
+      <HeaderWrapper hasPages={pages.length > 1}>
+        <HtmlTitle />
+        <HeaderRow justify={"space-between"}>
+          <HeaderSection justify={"flex-start"}>
+            <Link to={APPLICATIONS_URL} style={{ display: "flex" }}>
+              <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
+            </Link>
+          </HeaderSection>
+          <HeaderSection justify={"center"} className="current-app-name">
+            {currentApplicationDetails && (
+              <Text type={TextType.H4}>{currentApplicationDetails.name}</Text>
+            )}
+          </HeaderSection>
+          <HeaderSection justify={"flex-end"}>
+            {currentApplicationDetails && (
+              <>
+                <FormDialogComponent
+                  trigger={
+                    <Button
+                      text={"Share"}
+                      icon={"share"}
+                      size={Size.small}
+                      className="t--application-share-btn header__application-share-btn"
+                    />
+                  }
+                  Form={AppInviteUsersForm}
+                  orgId={currentOrgId}
+                  applicationId={currentApplicationDetails.id}
+                  title={currentApplicationDetails.name}
+                  canOutsideClickClose={true}
+                />
+                {CTA && (
+                  <HeaderRightItemContainer>{CTA}</HeaderRightItemContainer>
+                )}
+              </>
+            )}
+            {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
+              <HeaderRightItemContainer>
+                <ProfileDropdown
+                  userName={currentUser?.username || ""}
+                  hideThemeSwitch
+                  modifiers={{
+                    offset: {
+                      enabled: true,
+                      offset: `0, ${pages.length > 1 ? 35 : 0}`,
+                    },
+                  }}
+                />
+              </HeaderRightItemContainer>
+            )}
+          </HeaderSection>
+        </HeaderRow>
+        <PageTabsContainer
+          pages={pages}
+          currentApplicationDetails={currentApplicationDetails}
+        />
+      </HeaderWrapper>
+    </ThemeProvider>
   );
 };
 
@@ -242,6 +246,7 @@ const mapStateToProps = (state: AppState): AppViewerHeaderProps => ({
   currentApplicationDetails: state.ui.applications.currentApplication,
   currentOrgId: getCurrentOrgId(state),
   currentUser: getCurrentUser(state),
+  lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
 });
 
 export default connect(mapStateToProps)(AppViewerHeader);

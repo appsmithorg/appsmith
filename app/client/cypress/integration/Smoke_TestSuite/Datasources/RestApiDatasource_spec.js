@@ -6,7 +6,6 @@ describe("Create a rest datasource", function() {
     cy.CreateAPI("Testapi");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
 
-    cy.get(".t--store-as-datasource-menu").click();
     cy.get(".t--store-as-datasource").click();
 
     cy.saveDatasource();

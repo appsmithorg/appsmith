@@ -1,16 +1,20 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useContext,
+} from "react";
 import {
   EditableText as BlueprintEditableText,
   Classes as BlueprintClasses,
 } from "@blueprintjs/core";
-import styled from "styled-components";
+import styled, { ThemeContext } from "styled-components";
 import Text, { TextType } from "./Text";
 import Spinner from "./Spinner";
 import { CommonComponentProps } from "./common";
 import { noop } from "lodash";
 import Icon, { IconSize } from "./Icon";
-import { getThemeDetails } from "selectors/themeSelectors";
-import { useSelector } from "react-redux";
 
 export enum EditInteractionKind {
   SINGLE = "SINGLE",
@@ -29,9 +33,8 @@ export type EditableTextProps = CommonComponentProps & {
   placeholder?: string;
   editInteractionKind: EditInteractionKind;
   savingState: SavingState;
-  onBlur: (value: string) => void;
+  onBlur?: (value: string) => void;
   onTextChanged?: (value: string) => void;
-  className?: string;
   valueTransform?: (value: string) => string;
   isEditingDefault?: boolean;
   forceDefault?: boolean;
@@ -39,6 +42,7 @@ export type EditableTextProps = CommonComponentProps & {
   isInvalid?: (value: string) => string | boolean;
   hideEditIcon?: boolean;
   fill?: boolean;
+  underline?: boolean;
 };
 
 const EditableTextWrapper = styled.div<{
@@ -70,6 +74,7 @@ const TextContainer = styled.div<{
   isInvalid: boolean;
   isEditing: boolean;
   bgColor: string;
+  underline?: boolean;
 }>`
   display: flex;
   align-items: center;
@@ -85,7 +90,7 @@ const TextContainer = styled.div<{
     font-size: ${(props) => props.theme.typography.p1.fontSize}px;
     line-height: ${(props) => props.theme.typography.p1.lineHeight}px;
     letter-spacing: ${(props) => props.theme.typography.p1.letterSpacing}px;
-    font-weight: ${(props) => props.theme.typography.p1.fontWeight}px;
+    font-weight: ${(props) => props.theme.typography.p1.fontWeight};
   }
 
   &&& .${BlueprintClasses.EDITABLE_TEXT_CONTENT} {
@@ -94,12 +99,25 @@ const TextContainer = styled.div<{
     overflow: hidden;
     text-overflow: ellipsis;
     ${(props) => (props.isEditing ? "display: none" : "display: block")};
+    width: fit-content !important;
+    min-width: auto !important;
   }
 
+  &&& .${BlueprintClasses.EDITABLE_TEXT_CONTENT}:hover {
+    ${(props) =>
+      props.underline && !props.isEditing
+        ? `
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        width: fit-content;
+        max-width: 194px;
+      `
+        : null}
+  }
   &&& .${BlueprintClasses.EDITABLE_TEXT_INPUT} {
     border: none;
     outline: none;
-    height: ${(props) => props.theme.spaces[13] + 3}px;
+    height: ${(props) => props.theme.spaces[14] + 1}px;
     color: ${(props) => props.theme.colors.editableText.color};
     min-width: 100%;
     border-radius: ${(props) => props.theme.spaces[0]}px;
@@ -107,7 +125,7 @@ const TextContainer = styled.div<{
 
   &&& .${BlueprintClasses.EDITABLE_TEXT} {
     overflow: hidden;
-    height: ${(props) => props.theme.spaces[13] + 3}px;
+    height: ${(props) => props.theme.spaces[14] + 1}px;
     padding: ${(props) => props.theme.spaces[4]}px
       ${(props) => props.theme.spaces[5]}px;
     width: calc(100% - 40px);
@@ -120,9 +138,9 @@ const TextContainer = styled.div<{
 `;
 
 const IconWrapper = styled.div`
-  width: ${(props) => props.theme.spaces[13] + 4}px;
+  width: ${(props) => props.theme.spaces[15]}px;
   padding-right: ${(props) => props.theme.spaces[5]}px;
-  height: ${(props) => props.theme.spaces[13] + 3}px;
+  height: ${(props) => props.theme.spaces[14] + 1}px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -135,6 +153,7 @@ export const EditableText = (props: EditableTextProps) => {
     isInvalid: inputValidation,
     defaultValue,
     isEditingDefault,
+    valueTransform,
   } = props;
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);
   const [value, setValue] = useState(defaultValue);
@@ -158,11 +177,11 @@ export const EditableText = (props: EditableTextProps) => {
     if (props.forceDefault === true) setValue(defaultValue);
   }, [props.forceDefault, defaultValue]);
 
-  const themeDetails = useSelector(getThemeDetails);
+  const theme = useContext(ThemeContext);
+
   const bgColor = useMemo(
-    () =>
-      editModeBgcolor(!!isInvalid, isEditing, savingState, themeDetails.theme),
-    [isInvalid, isEditing, savingState, themeDetails],
+    () => editModeBgcolor(!!isInvalid, isEditing, savingState, theme),
+    [isInvalid, isEditing, savingState, theme],
   );
 
   const editMode = useCallback(
@@ -181,14 +200,14 @@ export const EditableText = (props: EditableTextProps) => {
       const finalVal: string = _value.trim();
       if (savingState === SavingState.ERROR || isInvalid || finalVal === "") {
         setValue(lastValidValue);
-        onBlur(lastValidValue);
+        onBlur && onBlur(lastValidValue);
         setSavingState(SavingState.NOT_STARTED);
       }
       if (changeStarted) {
         onTextChanged && onTextChanged(finalVal);
       }
       if (finalVal && finalVal !== defaultValue) {
-        onBlur(finalVal);
+        onBlur && onBlur(finalVal);
       }
       setIsEditing(false);
       setChangeStarted(false);
@@ -205,8 +224,10 @@ export const EditableText = (props: EditableTextProps) => {
 
   const onInputchange = useCallback(
     (_value: string) => {
-      const finalVal: string =
-        _value.indexOf(" ") === 0 ? _value.trim() : _value;
+      let finalVal: string = _value.indexOf(" ") === 0 ? _value.trim() : _value;
+      if (valueTransform) {
+        finalVal = valueTransform(finalVal);
+      }
       const errorMessage = inputValidation && inputValidation(finalVal);
       const error = errorMessage ? errorMessage : false;
       if (!error && finalVal !== "") {
@@ -256,6 +277,7 @@ export const EditableText = (props: EditableTextProps) => {
         isInvalid={!!isInvalid}
         isEditing={isEditing}
         bgColor={bgColor}
+        underline={props.underline}
       >
         <BlueprintEditableText
           disabled={!isEditing}

@@ -48,6 +48,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       label: "",
       columns: 5,
       widgetName: "Input",
+      resetOnSubmit: true,
     },
     // SWITCH_WIDGET: {
     //   isOn: false,
