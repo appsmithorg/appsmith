@@ -82,7 +82,7 @@ export const JSDependencies = () => {
     <Wrapper>
       <Title onClick={toggleDependencies}>
         <Icon icon={icon} />
-        <span>Dependencies</span>
+        <span>JS libraries you can use</span>
         <Tooltip content={TooltipContent} position="top" boundary="viewport">
           <Help
             icon="help"
