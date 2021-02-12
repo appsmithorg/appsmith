@@ -245,7 +245,7 @@ public class AmazonS3Plugin extends BasePlugin {
             byte[] bytes = IOUtils.toByteArray(content);
 
             String result = null;
-            if(encodeContent == true) {
+            if(Boolean.TRUE.equals(encodeContent)) {
                 result = new String(Base64.getEncoder().encode(bytes));
             }
             else {
