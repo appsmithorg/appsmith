@@ -20,7 +20,6 @@ type ItemProps = {
   item: IHit | any;
   index: number;
   theme: Theme;
-  isActiveItem: boolean;
   query: string;
 };
 
@@ -157,9 +156,10 @@ const SearchItemByType = {
 };
 
 const SearchItem = withTheme((props: ItemProps) => {
-  const { item, isActiveItem, index, query } = props;
+  const { item, index, query } = props;
   const itemRef = useRef<HTMLDivElement>(null);
-  // const [isMouseOver, setIsMouseOver] = useState(false);
+  const { activeItemIndex } = useContext(SearchContext);
+  const isActiveItem = activeItemIndex === index;
 
   useEffect(() => {
     if (isActiveItem && itemRef.current) {
@@ -168,30 +168,12 @@ const SearchItem = withTheme((props: ItemProps) => {
   }, [isActiveItem]);
 
   const itemType = getItemType(item);
-
   const Item = SearchItemByType[itemType];
-
   const { setActiveItemIndex } = useContext(SearchContext);
-
-  // useEffect(() => {
-  //   let timer: number;
-  //   if (isMouseOver) {
-  //     timer = setTimeout(() => {
-  //       setActiveItemIndex(index);
-  //     }, 200);
-  //   }
-  //   return () => {
-  //     if (timer) {
-  //       clearTimeout(timer);
-  //     }
-  //   };
-  // }, [isMouseOver]);
 
   return (
     <SearchItemContainer
       ref={itemRef}
-      // onMouseEnter={() => setIsMouseOver(true)}
-      // onMouseLeave={() => setIsMouseOver(false)}
       onClick={() => setActiveItemIndex(index)}
       className="t--docHit"
       isActiveItem={isActiveItem}
@@ -205,7 +187,6 @@ type Props = {
   hits: Array<IHit>;
   searchResults: Array<any>;
   setDocumentationSearchResults: (searchResults: Array<any>) => void;
-  activeItemIndex: number;
   query: string;
 };
 
@@ -221,7 +202,6 @@ const SearchResults = ({
   searchResults,
   setDocumentationSearchResults,
   query,
-  activeItemIndex,
 }: Props) => {
   useEffect(() => {
     setDocumentationSearchResults(hits);
@@ -230,13 +210,7 @@ const SearchResults = ({
   return (
     <SearchResultsContainer>
       {searchResults.map((item, index) => (
-        <SearchItem
-          key={index}
-          index={index}
-          item={item}
-          isActiveItem={activeItemIndex === index}
-          query={query}
-        />
+        <SearchItem key={index} index={index} item={item} query={query} />
       ))}
     </SearchResultsContainer>
   );

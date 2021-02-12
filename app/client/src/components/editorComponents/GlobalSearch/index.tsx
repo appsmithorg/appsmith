@@ -18,6 +18,7 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import history from "utils/history";
+import { throttle } from "lodash";
 
 const StyledContainer = styled.div`
   width: 660px;
@@ -46,9 +47,14 @@ const GlobalSearch = () => {
   const dispatch = useDispatch();
   const toggleShow = () => dispatch(toggleShowGlobalSearchModal());
   const [query, setQuery] = useState("");
-  const [documentationSearchResults, setDocumentationSearchResults] = useState<
+  const [documentationSearchResults, _setDocumentationSearchResults] = useState<
     Array<any>
   >([]);
+  const setDocumentationSearchResults = useCallback(
+    throttle(_setDocumentationSearchResults, 100),
+    [],
+  );
+
   const [activeItemIndex, setActiveItemIndex] = useState(0);
   const allWidgets = useSelector(getAllPageWidgets);
   const actions = useSelector(getActions);
@@ -84,52 +90,44 @@ const GlobalSearch = () => {
     return searchResults[activeItemIndex] || {};
   }, [searchResults, activeItemIndex]);
 
-  const getNextActiveItem = useCallback(
-    (nextIndex: number) => {
-      const max = Math.max(searchResults.length - 1, 0);
-      if (nextIndex < 0) return 0;
-      else if (nextIndex > max) return max;
-      else return nextIndex;
-    },
-    [searchResults],
-  );
+  const getNextActiveItem = (nextIndex: number) => {
+    const max = Math.max(searchResults.length - 1, 0);
+    if (nextIndex < 0) return 0;
+    else if (nextIndex > max) return max;
+    else return nextIndex;
+  };
 
-  // eslint-disable-next-line
   const handleUpKey = () =>
     setActiveItemIndex(getNextActiveItem(activeItemIndex - 1));
 
-  // eslint-disable-next-line
   const handleDownKey = () =>
     setActiveItemIndex(getNextActiveItem(activeItemIndex + 1));
 
   const { navigateToWidget } = useNavigateToWidget();
 
-  const handleDocumentationItemClick = useCallback((item: any) => {
+  const handleDocumentationItemClick = (item: any) => {
     window.open(item.path.replace("master", HelpBaseURL), "_blank");
-  }, []);
+  };
 
-  const handleWidgetClick = useCallback(
-    (activeItem) => {
-      toggleShow();
-      navigateToWidget(
-        activeItem.widgetId,
-        activeItem.type,
-        activeItem.pageId,
-        false,
-        activeItem.parentModalId,
-      );
-    },
-    [navigateToWidget],
-  );
+  const handleWidgetClick = (activeItem: any) => {
+    toggleShow();
+    navigateToWidget(
+      activeItem.widgetId,
+      activeItem.type,
+      activeItem.pageId,
+      false,
+      activeItem.parentModalId,
+    );
+  };
 
-  const handleActionClick = useCallback((item) => {
+  const handleActionClick = (item: any) => {
     const { config } = item;
     const { pageId, pluginType, id } = config;
     const actionConfig = getActionConfig(pluginType);
     const url = actionConfig?.getURL(params.applicationId, pageId, id);
     toggleShow();
     url && history.push(url);
-  }, []);
+  };
 
   const itemClickHandlerByType = {
     [SEARCH_ITEM_TYPES.documentation]: handleDocumentationItemClick,
@@ -137,31 +135,27 @@ const GlobalSearch = () => {
     [SEARCH_ITEM_TYPES.action]: handleActionClick,
   };
 
-  const handleItemLinkClick = useCallback(
-    (item?: any) => {
-      const _item = item || activeItem;
-      const type = getItemType(_item) as SEARCH_ITEM_TYPES;
-      itemClickHandlerByType[type](_item);
-    },
-    [activeItem],
-  );
+  const handleItemLinkClick = (item?: any) => {
+    const _item = item || activeItem;
+    const type = getItemType(_item) as SEARCH_ITEM_TYPES;
+    itemClickHandlerByType[type](_item);
+  };
 
-  const searchContext = useMemo(() => {
-    return {
-      handleItemLinkClick,
-      setActiveItemIndex,
-    };
-  }, [handleItemLinkClick, setActiveItemIndex]);
+  const searchContext = {
+    handleItemLinkClick,
+    setActiveItemIndex,
+    activeItemIndex,
+  };
 
-  const hotKeyProps = useMemo(() => {
-    return {
-      modalOpen,
-      toggleShow,
-      handleUpKey,
-      handleDownKey,
-      handleItemLinkClick,
-    };
-  }, [modalOpen, toggleShow, handleUpKey, handleDownKey, handleItemLinkClick]);
+  const hotKeyProps = {
+    modalOpen,
+    toggleShow,
+    handleUpKey,
+    handleDownKey,
+    handleItemLinkClick,
+  };
+
+  console.log("render");
 
   return (
     <SearchContext.Provider value={searchContext}>
@@ -172,7 +166,6 @@ const GlobalSearch = () => {
               <SearchBox query={query} setQuery={setQuery} />
               <div className="main">
                 <SearchResults
-                  activeItemIndex={activeItemIndex}
                   searchResults={searchResults}
                   setDocumentationSearchResults={setDocumentationSearchResults}
                   query={query}
