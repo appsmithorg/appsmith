@@ -1359,8 +1359,8 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
           {
             id: "19.2.1",
             helpText: "Triggers an action when the switch state is changed",
-            propertyName: "onSwitchChange",
-            label: "onSwitchChange",
+            propertyName: "onChange",
+            label: "onChange",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
           },

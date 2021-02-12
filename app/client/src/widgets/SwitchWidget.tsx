@@ -19,13 +19,13 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   getPageView() {
     return (
       <SwitchComponent
-        isOn={!!this.props.isOn}
+        isSwitchedOn={!!this.props.isSwitchedOn}
         swapLabel={this.props.swapLabel}
         label={this.props.label}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
         isDisabled={this.props.isDisabled}
-        onSwitchChange={this.onSwitchChange}
+        onChange={this.onChange}
         isLoading={this.props.isLoading}
       />
     );
@@ -45,31 +45,31 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      isOn: "defaultSwitchState",
+      isSwitchedOn: "defaultSwitchState",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      isOn: undefined,
+      isSwitchedOn: undefined,
     };
   }
 
   static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {
-      onSwitchChange: true,
+      onChange: true,
     };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
-      value: `{{this.isOn}}`,
+      value: `{{this.isSwitchedOn}}`,
     };
   }
 
-  onSwitchChange = (isOn: boolean) => {
-    this.props.updateWidgetMetaProperty("isOn", isOn, {
-      dynamicString: this.props.onSwitchChange,
+  onChange = (isSwitchedOn: boolean) => {
+    this.props.updateWidgetMetaProperty("isSwitchedOn", isSwitchedOn, {
+      dynamicString: this.props.onChange,
       event: {
         type: EventType.ON_SWITCH_CHANGE,
       },
@@ -78,7 +78,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
 }
 
 export interface SwitchWidgetProps extends WidgetProps, WithMeta {
-  isOn: boolean;
+  isSwitchedOn: boolean;
   defaultSwitchState: boolean;
   swapLabel: boolean;
   label: string;

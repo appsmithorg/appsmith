@@ -144,7 +144,7 @@ const FIELD_VALUES: Record<
     defaultSwitchState: "boolean",
     isDisabled: "boolean",
     isVisible: "boolean",
-    // onSwitchChange: "Function Call",
+    // onChange: "Function Call",
   },
   FORM_WIDGET: {
     backgroundColor: "string",

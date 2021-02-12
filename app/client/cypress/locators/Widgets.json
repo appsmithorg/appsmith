@@ -48,5 +48,7 @@
     "inputOnTextChange": ".t--property-control-ontextchanged .t--open-dropdown-Select-Action",
     "tableActionSelect": ".t--property-control-onsearchtextchanged .t--open-dropdown-Select-Action",
     "chartWidget": ".t--widget-chartwidget",
-    "tableOnRowSelect": ".t--property-control-onrowselected .t--open-dropdown-Select-Action"
+    "tableOnRowSelect": ".t--property-control-onrowselected .t--open-dropdown-Select-Action",
+    "switchInput": ".t--draggable-switchwidget span.t--widget-name",
+    "switchLabel": ".t--draggable-switchwidget label"
 }

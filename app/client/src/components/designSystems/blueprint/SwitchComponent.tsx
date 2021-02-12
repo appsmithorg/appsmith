@@ -6,8 +6,8 @@ import { ComponentProps } from "../appsmith/BaseComponent";
 
 interface SwitchComponentProps extends ComponentProps {
   label: string;
-  isOn: boolean;
-  onSwitchChange: (isOn: boolean) => void;
+  isSwitchedOn: boolean;
+  onChange: (isSwitchedOn: boolean) => void;
   isLoading: boolean;
   swapLabel: boolean;
 }
@@ -24,9 +24,9 @@ const SwitchComponentContainer = styled.div`
 
 export const SwitchComponent: React.FC<SwitchComponentProps> = ({
   label,
-  isOn,
+  isSwitchedOn,
   swapLabel,
-  onSwitchChange,
+  onChange,
   isDisabled,
   isLoading,
 }) => {
@@ -41,8 +41,8 @@ export const SwitchComponent: React.FC<SwitchComponentProps> = ({
             label={label}
             disabled={isDisabled}
             className={isLoading ? "bp3-skeleton" : ""}
-            checked={isOn}
-            onChange={() => onSwitchChange(!isOn)}
+            checked={isSwitchedOn}
+            onChange={() => onChange(!isSwitchedOn)}
           />
         </SwitchComponentContainer>
       }
