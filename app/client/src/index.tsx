@@ -16,6 +16,7 @@ import { AppState } from "reducers";
 import { setThemeMode } from "actions/themeActions";
 import { ThemeMode } from "reducers/uiReducers/themeReducer";
 import { StyledToastContainer } from "components/ads/Toast";
+import localStorage from "utils/localStorage";
 
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
