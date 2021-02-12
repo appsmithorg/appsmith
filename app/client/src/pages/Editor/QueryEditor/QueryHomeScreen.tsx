@@ -93,6 +93,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
           from: "home-screen",
           dataSource: dataSource.name,
         },
+        pluginId: dataSource.pluginId,
         actionConfiguration: {},
       });
     }

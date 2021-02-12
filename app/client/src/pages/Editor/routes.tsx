@@ -4,6 +4,7 @@ import {
   withRouter,
   RouteComponentProps,
   Route,
+  matchPath,
 } from "react-router-dom";
 import ApiEditor from "./APIEditor";
 import QueryEditor from "./QueryEditor";
@@ -52,14 +53,17 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
 
 const DrawerWrapper = styled.div<{
   isVisible: boolean;
+  isAPIPath: any;
 }>`
   background-color: white;
-  width: ${(props) => (!props.isVisible ? "0px" : "75%")};
+  width: ${(props) =>
+    !props.isVisible ? "0px" : props.isAPIPath ? "100%" : "75%"};
   height: 100%;
 `;
 
 interface RouterState {
   isVisible: boolean;
+  isAPIPath: Record<any, any> | null;
 }
 
 class EditorsRouter extends React.Component<
@@ -73,6 +77,7 @@ class EditorsRouter extends React.Component<
       isVisible:
         this.props.location.pathname !==
         BUILDER_PAGE_URL(applicationId, pageId),
+      isAPIPath: this.isMatchPath(),
     };
   }
 
@@ -83,9 +88,22 @@ class EditorsRouter extends React.Component<
         isVisible:
           this.props.location.pathname !==
           BUILDER_PAGE_URL(applicationId, pageId),
+        isAPIPath: this.isMatchPath(),
       });
     }
   }
+
+  isMatchPath = () => {
+    return matchPath(this.props.location.pathname, {
+      path: [
+        API_EDITOR_URL(),
+        API_EDITOR_ID_URL(),
+        API_EDITOR_URL_WITH_SELECTED_PAGE_ID(),
+      ],
+      exact: true,
+      strict: false,
+    });
+  };
 
   handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
@@ -109,6 +127,7 @@ class EditorsRouter extends React.Component<
       <Wrapper isVisible={this.state.isVisible} onClick={this.handleClose}>
         <PaneDrawer
           isVisible={this.state.isVisible}
+          isAPIPath={this.state.isAPIPath}
           onClick={this.preventClose}
         >
           <Switch>
@@ -162,6 +181,7 @@ class EditorsRouter extends React.Component<
 }
 type PaneDrawerProps = {
   isVisible: boolean;
+  isAPIPath: Record<any, any> | null;
   onClick: (e: React.MouseEvent) => void;
   children: ReactNode;
 };

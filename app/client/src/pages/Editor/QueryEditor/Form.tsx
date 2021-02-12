@@ -1,7 +1,7 @@
 import React from "react";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
-import { Icon, Popover, Position, Spinner, Tag } from "@blueprintjs/core";
+import { Icon, Popover, Spinner, Tag } from "@blueprintjs/core";
 import {
   components,
   MenuListComponentProps,
@@ -37,7 +37,6 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
 import { addTableWidgetFromQuery } from "actions/widgetActions";
-import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
@@ -455,8 +454,8 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             </>
           ) : (
             <OnboardingIndicator
-              step={OnboardingStep.RUN_QUERY}
-              offset={{ left: -5 }}
+              step={OnboardingStep.EXAMPLE_DATABASE}
+              width={75}
             >
               <ActionButton
                 className="t--run-query"
@@ -552,16 +551,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                         )}
                       </OutputHeader>
                       {isSQL ? (
-                        <OnboardingToolTip
-                          position={Position.TOP}
-                          step={[OnboardingStep.RUN_QUERY_SUCCESS]}
-                          offset={{
-                            enabled: true,
-                            offset: "-200, 0",
-                          }}
-                        >
-                          <Table data={output} />
-                        </OnboardingToolTip>
+                        <Table data={output} />
                       ) : (
                         <JSONViewer src={output} />
                       )}
@@ -595,23 +585,13 @@ const renderEachConfig = (section: any): any => {
       return renderEachConfig(formControlOrSection);
     } else {
       try {
-        const { configProperty, controlType } = formControlOrSection;
+        const { configProperty } = formControlOrSection;
         return (
           <FieldWrapper key={configProperty}>
-            <OnboardingToolTip
-              step={[OnboardingStep.RUN_QUERY]}
-              show={controlType === "QUERY_DYNAMIC_TEXT"}
-              position={Position.TOP_LEFT}
-              offset={{
-                enabled: true,
-                offset: "200, 0",
-              }}
-            >
-              <FormControl
-                config={formControlOrSection}
-                formName={QUERY_EDITOR_FORM_NAME}
-              />
-            </OnboardingToolTip>
+            <FormControl
+              config={formControlOrSection}
+              formName={QUERY_EDITOR_FORM_NAME}
+            />
           </FieldWrapper>
         );
       } catch (e) {

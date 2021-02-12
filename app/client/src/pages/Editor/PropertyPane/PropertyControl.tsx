@@ -15,9 +15,9 @@ import {
   isPathADynamicProperty,
   isPathADynamicTrigger,
 } from "../../../utils/DynamicBindingUtils";
-import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
-import { Position } from "@blueprintjs/core";
+import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import Indicator from "components/editorComponents/Onboarding/Indicator";
 
 type Props = {
   widgetProperties: WidgetProps;
@@ -101,38 +101,40 @@ const PropertyControl = (props: Props) => {
               : "VERTICAL"
           }
         >
-          <ControlPropertyLabelContainer>
-            <PropertyHelpLabel
-              tooltip={propertyConfig.helpText}
-              label={label}
-            />
-            {isConvertible && (
-              <JSToggleButton
-                active={isDynamic}
-                onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
-                className={`t--js-toggle ${isDynamic ? "is-active" : ""}`}
-              >
-                <ControlIcons.JS_TOGGLE />
-              </JSToggleButton>
-            )}
-          </ControlPropertyLabelContainer>
-          <OnboardingToolTip
-            step={[
-              OnboardingStep.ADD_WIDGET,
-              OnboardingStep.SUCCESSFUL_BINDING,
-            ]}
-            show={propertyName === "tableData"}
-            position={Position.LEFT_TOP}
-            dismissOnOutsideClick={false}
+          <Boxed
+            step={OnboardingStep.DEPLOY}
+            show={
+              propertyName !== "isRequired" && propertyName !== "isDisabled"
+            }
           >
-            {PropertyControlFactory.createControl(
-              config,
-              {
-                onPropertyChange: onPropertyChange,
-              },
-              isDynamic,
-            )}
-          </OnboardingToolTip>
+            <ControlPropertyLabelContainer>
+              <PropertyHelpLabel
+                tooltip={propertyConfig.helpText}
+                label={label}
+              />
+              {isConvertible && (
+                <JSToggleButton
+                  active={isDynamic}
+                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
+                  className={`t--js-toggle ${isDynamic ? "is-active" : ""}`}
+                >
+                  <ControlIcons.JS_TOGGLE />
+                </JSToggleButton>
+              )}
+            </ControlPropertyLabelContainer>
+            <Indicator
+              step={OnboardingStep.ADD_INPUT_WIDGET}
+              show={propertyName === "onSubmit"}
+            >
+              {PropertyControlFactory.createControl(
+                config,
+                {
+                  onPropertyChange: onPropertyChange,
+                },
+                isDynamic,
+              )}
+            </Indicator>
+          </Boxed>
         </ControlWrapper>
       );
     } catch (e) {
