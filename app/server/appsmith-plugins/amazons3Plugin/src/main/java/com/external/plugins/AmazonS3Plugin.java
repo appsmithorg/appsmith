@@ -171,8 +171,8 @@ public class AmazonS3Plugin extends BasePlugin {
         }
 
         /*
-         * - Exception thrown here is handled by the caller.
-         * - Returns signed url of the created file.
+         * - Throws exception on upload failure.
+         * - Returns signed url of the created file on success.
          */
         String uploadFileFromBody(AmazonS3 connection,
                                    String bucketName,
