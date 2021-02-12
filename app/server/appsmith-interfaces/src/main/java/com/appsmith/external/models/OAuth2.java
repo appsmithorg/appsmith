@@ -16,7 +16,6 @@ import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -78,22 +77,21 @@ public class OAuth2 extends AuthenticationDTO {
     Instant expiresAt;
 
     public String getScopeString() {
-        if (this.scope != null && !this.scope.isEmpty()) {
-            return Strings.join(this.scope, ',');
-        } else if (scopeString != null && !scopeString.isBlank()) {
+        if (scopeString != null && !scopeString.isBlank()) {
             return scopeString;
+        } else if (this.scope != null && !this.scope.isEmpty()) {
+            return Strings.join(this.scope, ',');
         } else return null;
     }
 
     public void setScopeString(String scopeString) {
+        this.scopeString = scopeString;
         if (scopeString != null && !scopeString.isBlank()) {
-            this.scope = Arrays
-                    .stream(scopeString.split(","))
-                    .filter(StringUtils::isEmpty)
+            this.scope = Arrays.stream(scopeString.split(","))
+                    .filter(x -> !StringUtils.isEmpty(x))
                     .map(String::trim)
                     .collect(Collectors.toSet());
         }
-        this.scopeString = this.getScopeString();
     }
 
     @Override

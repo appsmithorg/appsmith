@@ -39,8 +39,8 @@ import {
   GrantType,
 } from "entities/Datasource/RestAPIForm";
 import {
-  OAUTH_AUTHORIZATION_FAILED,
-  OAUTH_AUTHORIZATION_SUCCESSFUL,
+  AUTHORIZATION_FAILED,
+  AUTHORIZATION_SUCCESSFUL,
 } from "constants/messages";
 import Collapsible from "./Collapsible";
 import _ from "lodash";
@@ -165,12 +165,12 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     if (status) {
       if (status === "success") {
         Toaster.show({
-          text: OAUTH_AUTHORIZATION_SUCCESSFUL,
+          text: AUTHORIZATION_SUCCESSFUL,
           variant: Variant.success,
         });
       } else {
         Toaster.show({
-          text: OAUTH_AUTHORIZATION_FAILED,
+          text: AUTHORIZATION_FAILED,
           variant: Variant.danger,
         });
       }

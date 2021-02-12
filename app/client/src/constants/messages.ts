@@ -178,7 +178,6 @@ export const SERVER_API_TIMEOUT_ERROR =
   "Appsmith server is taking too long to respond. Please try again after some time";
 export const DEFAULT_ERROR_MESSAGE = "There was an unexpected error";
 
-export const OAUTH_AUTHORIZATION_SUCCESSFUL =
-  "OAuth Authorization was successful!";
-export const OAUTH_AUTHORIZATION_FAILED =
-  "OAuth Authorization failed. Please check the credentials and try again.";
+export const AUTHORIZATION_SUCCESSFUL = "Authorization was successful!";
+export const AUTHORIZATION_FAILED =
+  "Authorization failed. Please check your details or try again.";
