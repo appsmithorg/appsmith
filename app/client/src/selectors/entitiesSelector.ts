@@ -275,3 +275,16 @@ export const getAppData = (state: AppState) => state.entities.app;
 
 export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
+
+export const getAllPageWidgets = (state: AppState): any => {
+  const widgetsByPage = state.ui.pageWidgets;
+  return Object.entries(widgetsByPage).reduce(
+    (res: any[], [pageId, pageWidgets]: any) => {
+      const pageWidgetsArr = Object.entries(
+        pageWidgets,
+      ).map(([widgetId, widget]: any) => ({ ...widget, pageId }));
+      return [...pageWidgetsArr, ...res];
+    },
+    [],
+  );
+};

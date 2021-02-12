@@ -1,5 +1,8 @@
-import React, { useEffect, useRef } from "react";
-import { Highlight, connectHits } from "react-instantsearch-dom";
+import React, { useEffect, useRef, useContext } from "react";
+import {
+  Highlight as AlgoliaHighlight,
+  connectHits,
+} from "react-instantsearch-dom";
 import { Hit as IHit } from "react-instantsearch-core";
 import "instantsearch.css/themes/algolia.css";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -11,22 +14,24 @@ import {
   scrollbarDark,
 } from "constants/DefaultTheme";
 import scrollIntoView from "scroll-into-view-if-needed";
+import { getItemType, SEARCH_ITEM_TYPES } from "./utils";
+import SearchContext from "./GlobalSearchContext";
 
-type HitProps = {
-  activeItemIndex: number;
-  hit: IHit;
+type ItemProps = {
+  item: IHit | any;
   index: number;
   theme: Theme;
-  setActiveItemIndex: (index: number) => void;
   isActiveItem: boolean;
+  query: string;
 };
 
-const HitContainer = styled.div<{ activeItem: boolean }>`
+const SearchItemContainer = styled.div<{ isActiveItem: boolean }>`
+  ${(props) => getTypographyByKey(props, "p3")};
   [class^="ais-"] {
     ${(props) => getTypographyByKey(props, "p3")};
   }
   background-color: ${(props) =>
-    props.activeItem
+    props.isActiveItem
       ? props.theme.colors.globalSearch.activeSearchItemBackground
       : "unset"};
   &:hover {
@@ -38,7 +43,8 @@ const HitContainer = styled.div<{ activeItem: boolean }>`
     `${props.theme.spaces[3]}px ${props.theme.spaces[4]}px`};
   border-radius: ${(props) => props.theme.radii[2]}px;
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
-  & .ais-Highlight-highlighted {
+  & .ais-Highlight-highlighted,
+  & .search-highlighted {
     background: unset;
     color: ${(props) => props.theme.colors.globalSearch.searchItemHighlight};
     font-style: normal;
@@ -46,22 +52,127 @@ const HitContainer = styled.div<{ activeItem: boolean }>`
     text-decoration-color: ${(props) =>
       props.theme.colors.globalSearch.highlightedTextUnderline};
   }
-  & .hit-name {
-    margin-left: ${(props) => props.theme.spaces[5]}px;
-  }
   margin-bottom: ${(props) => props.theme.spaces[1]}px;
 `;
 
-const Hit = withTheme((props: HitProps) => {
-  const { hit, isActiveItem, index, setActiveItemIndex } = props;
-  const hitRef = useRef<HTMLDivElement>(null);
+const ItemTitle = styled.div`
+  margin-left: ${(props) => props.theme.spaces[5]}px;
+`;
+
+const DocumentationItem = withTheme((props: any) => {
+  const searchContext = useContext(SearchContext);
+  return (
+    <>
+      <Icon
+        name="link"
+        size={IconSize.LARGE}
+        fillColor={props.theme.colors.globalSearch.searchItemText}
+        onClick={() => searchContext.handleItemLinkClick(props.item)}
+      />
+      <ItemTitle>
+        <span>
+          <AlgoliaHighlight attribute="title" hit={props.item} /> -
+          Documentation
+        </span>
+      </ItemTitle>
+    </>
+  );
+});
+
+const Highlight = ({ match, text }: { match: string; text: string }) => {
+  const parts = text.split(match);
+  if (parts.length === 1) return <span>{text}</span>;
+
+  return (
+    <span>
+      {parts.map((part, index) => (
+        <>
+          {part}
+          {index !== parts.length - 1 && (
+            <span className="search-highlighted">{match}</span>
+          )}
+        </>
+      ))}
+    </span>
+  );
+};
+
+const changeConstantCaseToSentenceCase = (textArg: string) => {
+  if (!textArg) return "";
+  const text = textArg.trim();
+
+  return text.split("_").reduce((res, word, index) => {
+    if (index === 0)
+      return `${word[0].toUpperCase()}${word.slice(1).toLowerCase()}`;
+    else return `${res} ${word.toLowerCase()}`;
+  }, "");
+};
+
+const WidgetItem = withTheme((props: any) => {
+  const { query, item } = props;
+  const { widgetName, type } = item || {};
+  const searchContext = useContext(SearchContext);
+
+  return (
+    <>
+      <Icon
+        name="link"
+        size={IconSize.LARGE}
+        fillColor={props.theme.colors.globalSearch.searchItemText}
+        onClick={() => searchContext.handleItemLinkClick(props.item)}
+      />
+      <ItemTitle>
+        <Highlight match={query} text={widgetName} />
+        {` - ${changeConstantCaseToSentenceCase(type)}`}
+      </ItemTitle>
+    </>
+  );
+});
+
+const ActionItem = withTheme((props: any) => {
+  const { item, query } = props;
+  const { config } = item || {};
+  const actionType = config?.pluginType === "API" ? "API" : "Query";
+  const title = config.name;
+  const searchContext = useContext(SearchContext);
+  return (
+    <>
+      <Icon
+        name="link"
+        size={IconSize.LARGE}
+        fillColor={props.theme.colors.globalSearch.searchItemText}
+        onClick={() => searchContext.handleItemLinkClick(props.item)}
+      />
+      <ItemTitle>
+        <Highlight match={query} text={title} />
+        {` - ${actionType}`}
+      </ItemTitle>
+    </>
+  );
+});
+
+const SearchItemByType = {
+  [SEARCH_ITEM_TYPES.documentation]: DocumentationItem,
+  [SEARCH_ITEM_TYPES.widget]: WidgetItem,
+  [SEARCH_ITEM_TYPES.action]: ActionItem,
+};
+
+const SearchItem = withTheme((props: ItemProps) => {
+  const { item, isActiveItem, index, query } = props;
+  const itemRef = useRef<HTMLDivElement>(null);
   // const [isMouseOver, setIsMouseOver] = useState(false);
 
   useEffect(() => {
-    if (isActiveItem && hitRef.current) {
-      scrollIntoView(hitRef.current, { scrollMode: "if-needed" });
+    if (isActiveItem && itemRef.current) {
+      scrollIntoView(itemRef.current, { scrollMode: "if-needed" });
     }
   }, [isActiveItem]);
+
+  const itemType = getItemType(item);
+
+  const Item = SearchItemByType[itemType];
+
+  const { setActiveItemIndex } = useContext(SearchContext);
 
   // useEffect(() => {
   //   let timer: number;
@@ -78,35 +189,25 @@ const Hit = withTheme((props: HitProps) => {
   // }, [isMouseOver]);
 
   return (
-    <HitContainer
-      ref={hitRef}
+    <SearchItemContainer
+      ref={itemRef}
       // onMouseEnter={() => setIsMouseOver(true)}
       // onMouseLeave={() => setIsMouseOver(false)}
       onClick={() => setActiveItemIndex(index)}
       className="t--docHit"
-      activeItem={isActiveItem}
+      isActiveItem={isActiveItem}
     >
-      <Icon
-        name="link"
-        size={IconSize.LARGE}
-        fillColor={props.theme.colors.globalSearch.searchItemText}
-        onClick={() => {
-          window.open(props.hit.path.replace("master", HelpBaseURL), "_blank");
-        }}
-      />
-      <div className="hit-name t--docHitTitle">
-        <Highlight attribute="title" hit={hit} />
-      </div>
-    </HitContainer>
+      <Item hit={item} item={item} query={query} />
+    </SearchItemContainer>
   );
 });
 
 type Props = {
   hits: Array<IHit>;
   searchResults: Array<any>;
-  setSearchResults: (searchResults: Array<any>) => void;
+  setDocumentationSearchResults: (searchResults: Array<any>) => void;
   activeItemIndex: number;
-  setActiveItemIndex: (index: number) => void;
+  query: string;
 };
 
 const SearchResultsContainer = styled.div`
@@ -116,31 +217,30 @@ const SearchResultsContainer = styled.div`
   ${scrollbarDark}
 `;
 
-const Hits = ({
+const SearchResults = ({
   hits,
   searchResults,
-  setSearchResults,
+  setDocumentationSearchResults,
+  query,
   activeItemIndex,
-  setActiveItemIndex,
 }: Props) => {
   useEffect(() => {
-    setSearchResults(hits);
+    setDocumentationSearchResults(hits);
   }, [hits]);
 
   return (
     <SearchResultsContainer>
-      {searchResults.map((hit, index) => (
-        <Hit
+      {searchResults.map((item, index) => (
+        <SearchItem
           key={index}
           index={index}
-          hit={hit}
-          activeItemIndex={activeItemIndex}
-          setActiveItemIndex={setActiveItemIndex}
+          item={item}
           isActiveItem={activeItemIndex === index}
+          query={query}
         />
       ))}
     </SearchResultsContainer>
   );
 };
 
-export default connectHits<Props, IHit>(Hits);
+export default connectHits<Props, IHit>(SearchResults);

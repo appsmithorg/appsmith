@@ -1,24 +1,23 @@
-import React from "react";
-import { connect } from "react-redux";
+import React, { useState, useMemo, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
-import { Hotkey, Hotkeys } from "@blueprintjs/core";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { AppState } from "reducers";
-
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
-
-import DocsSearchModal from "./DocsSearchModal";
+import SearchModal from "./SearchModal";
 import AlgoliaSearchWrapper from "./AlgoliaSearchWrapper";
-
 import SearchBox from "./SearchBox";
 import SearchResults from "./SearchResults";
 import ContentView from "./ContentView";
-
-type Props = {
-  toggleShow: () => void;
-  modalOpen: boolean;
-};
+import GlobalSearchHotKeys from "./GlobalSearchHotKeys";
+import SearchContext from "./GlobalSearchContext";
+import { getActions, getAllPageWidgets } from "selectors/entitiesSelector";
+import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { getItemType, SEARCH_ITEM_TYPES } from "./utils";
+import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
+import { useParams } from "react-router";
+import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
+import history from "utils/history";
 
 const StyledContainer = styled.div`
   width: 660px;
@@ -40,154 +39,156 @@ const Separator = styled.div`
   background-color: ${(props) => props.theme.colors.globalSearch.separator};
 `;
 
-@HotkeysTarget
-class DocsSearch extends React.Component<Props> {
-  state = { query: "", searchResults: [], activeItemIndex: 0 };
+const isModalOpenSelector = (state: AppState) =>
+  state.ui.globalSearch.modalOpen;
+const GlobalSearch = () => {
+  const params = useParams<ExplorerURLParams>();
+  const dispatch = useDispatch();
+  const toggleShow = () => dispatch(toggleShowGlobalSearchModal());
+  const [query, setQuery] = useState("");
+  const [documentationSearchResults, setDocumentationSearchResults] = useState<
+    Array<any>
+  >([]);
+  const [activeItemIndex, setActiveItemIndex] = useState(0);
+  const allWidgets = useSelector(getAllPageWidgets);
+  const actions = useSelector(getActions);
+  const modalOpen = useSelector(isModalOpenSelector);
 
-  get hotKeysConfig() {
+  const filteredWidgets = useMemo(() => {
+    if (!query) return allWidgets;
+
+    return allWidgets.filter(
+      (widget: any) =>
+        widget.widgetName.toLowerCase().indexOf(query.toLocaleLowerCase()) > -1,
+    );
+  }, [allWidgets, query]);
+  const filteredActions = useMemo(() => {
+    if (!query) return actions;
+
+    return actions.filter(
+      (action: any) =>
+        action.config.name.toLowerCase().indexOf(query.toLocaleLowerCase()) >
+        -1,
+    );
+  }, [actions, query]);
+
+  const searchResults = useMemo(() => {
     return [
-      {
-        combo: "shift + o",
-        onKeyDown: this.toggleShow,
-        hideWhenModalClosed: false,
-        allowInInput: false,
-      },
-      {
-        combo: "up",
-        onKeyDown: this.handleUpKey,
-        hideWhenModalClosed: true,
-        allowInInput: true,
-      },
-      {
-        combo: "down",
-        onKeyDown: this.handleDownKey,
-        hideWhenModalClosed: true,
-        allowInInput: true,
-      },
-      {
-        combo: "return",
-        onKeyDown: this.handleOpenDocumentation,
-        hideWhenModalClosed: true,
-        allowInInput: true,
-      },
-    ].filter(
-      ({ hideWhenModalClosed }) =>
-        !hideWhenModalClosed || (hideWhenModalClosed && this.props.modalOpen),
-    );
-  }
+      ...documentationSearchResults,
+      ...filteredWidgets,
+      ...filteredActions,
+    ];
+  }, [filteredWidgets, filteredActions, documentationSearchResults]);
 
-  renderHotkeys() {
-    return (
-      <Hotkeys>
-        {this.hotKeysConfig.map(({ combo, onKeyDown, allowInInput }, index) => (
-          <Hotkey
-            key={index}
-            global={true}
-            combo={combo}
-            onKeyDown={onKeyDown}
-            label=""
-            allowInInput={allowInInput}
-          />
-        ))}
-      </Hotkeys>
-    );
-  }
+  const activeItem = useMemo(() => {
+    return searchResults[activeItemIndex] || {};
+  }, [searchResults, activeItemIndex]);
 
-  toggleShow = this.props.toggleShow;
-
-  getNextActiveItem = (nextIndex: number) => {
-    const max = Math.max(this.state.searchResults.length - 1, 0);
-    if (nextIndex < 0) return 0;
-    else if (nextIndex > max) return max;
-    else return nextIndex;
-  };
+  const getNextActiveItem = useCallback(
+    (nextIndex: number) => {
+      const max = Math.max(searchResults.length - 1, 0);
+      if (nextIndex < 0) return 0;
+      else if (nextIndex > max) return max;
+      else return nextIndex;
+    },
+    [searchResults],
+  );
 
   // eslint-disable-next-line
-  handleUpKey = (_e: KeyboardEvent) =>
-    this.setState({
-      activeItemIndex: this.getNextActiveItem(this.state.activeItemIndex - 1),
-    });
+  const handleUpKey = () =>
+    setActiveItemIndex(getNextActiveItem(activeItemIndex - 1));
 
   // eslint-disable-next-line
-  handleDownKey = (_e: KeyboardEvent) =>
-    this.setState({
-      activeItemIndex: this.getNextActiveItem(this.state.activeItemIndex + 1),
-    });
+  const handleDownKey = () =>
+    setActiveItemIndex(getNextActiveItem(activeItemIndex + 1));
 
-  // eslint-disable-next-line
-  handleHideModal = (_e: KeyboardEvent) => this.toggleShow();
+  const { navigateToWidget } = useNavigateToWidget();
 
-  // eslint-disable-next-line
-  handleOpenDocumentation = (_e: KeyboardEvent) => {
-    const { searchResults, activeItemIndex } = this.state;
-    const activeItem: any = searchResults[activeItemIndex];
-    if (activeItem) {
-      window.open(activeItem.path.replace("master", HelpBaseURL), "_blank");
-    }
+  const handleDocumentationItemClick = useCallback((item: any) => {
+    window.open(item.path.replace("master", HelpBaseURL), "_blank");
+  }, []);
+
+  const handleWidgetClick = useCallback(
+    (activeItem) => {
+      toggleShow();
+      navigateToWidget(
+        activeItem.widgetId,
+        activeItem.type,
+        activeItem.pageId,
+        false,
+        activeItem.parentModalId,
+      );
+    },
+    [navigateToWidget],
+  );
+
+  const handleActionClick = useCallback((item) => {
+    const { config } = item;
+    const { pageId, pluginType, id } = config;
+    const actionConfig = getActionConfig(pluginType);
+    const url = actionConfig?.getURL(params.applicationId, pageId, id);
+    toggleShow();
+    url && history.push(url);
+  }, []);
+
+  const itemClickHandlerByType = {
+    [SEARCH_ITEM_TYPES.documentation]: handleDocumentationItemClick,
+    [SEARCH_ITEM_TYPES.widget]: handleWidgetClick,
+    [SEARCH_ITEM_TYPES.action]: handleActionClick,
   };
 
-  get query() {
-    return this.state.query;
-  }
+  const handleItemLinkClick = useCallback(
+    (item?: any) => {
+      const _item = item || activeItem;
+      const type = getItemType(_item) as SEARCH_ITEM_TYPES;
+      itemClickHandlerByType[type](_item);
+    },
+    [activeItem],
+  );
 
-  setQuery = (query: string) => this.setState({ query, activeItemIndex: 0 });
+  const searchContext = useMemo(() => {
+    return {
+      handleItemLinkClick,
+      setActiveItemIndex,
+    };
+  }, [handleItemLinkClick, setActiveItemIndex]);
 
-  get searchResults() {
-    return this.state.searchResults;
-  }
+  const hotKeyProps = useMemo(() => {
+    return {
+      modalOpen,
+      toggleShow,
+      handleUpKey,
+      handleDownKey,
+      handleItemLinkClick,
+    };
+  }, [modalOpen, toggleShow, handleUpKey, handleDownKey, handleItemLinkClick]);
 
-  setSearchResults = (results: any[]) => {
-    this.setState({ searchResults: results });
-  };
-
-  get activeItemIndex() {
-    return this.state.activeItemIndex;
-  }
-
-  setActiveItemIndex = (index: number) => {
-    this.setState({ activeItemIndex: index });
-  };
-  render() {
-    const { modalOpen } = this.props;
-
-    return (
-      <>
-        <DocsSearchModal toggleShow={this.toggleShow} modalOpen={modalOpen}>
-          <AlgoliaSearchWrapper query={this.query}>
+  return (
+    <SearchContext.Provider value={searchContext}>
+      <GlobalSearchHotKeys {...hotKeyProps}>
+        <SearchModal toggleShow={toggleShow} modalOpen={modalOpen}>
+          <AlgoliaSearchWrapper query={query}>
             <StyledContainer>
-              <SearchBox query={this.query} setQuery={this.setQuery} />
+              <SearchBox query={query} setQuery={setQuery} />
               <div className="main">
                 <SearchResults
-                  activeItemIndex={this.activeItemIndex}
-                  searchResults={this.searchResults}
-                  setSearchResults={this.setSearchResults}
-                  setActiveItemIndex={this.setActiveItemIndex}
+                  activeItemIndex={activeItemIndex}
+                  searchResults={searchResults}
+                  setDocumentationSearchResults={setDocumentationSearchResults}
+                  query={query}
                 />
                 <Separator />
                 <ContentView
-                  activeItemIndex={this.activeItemIndex}
-                  searchResults={this.searchResults}
+                  activeItemIndex={activeItemIndex}
+                  searchResults={searchResults}
                 />
               </div>
             </StyledContainer>
           </AlgoliaSearchWrapper>
-        </DocsSearchModal>
-      </>
-    );
-  }
-}
-
-const mapStateToProps = (state: AppState) => {
-  const {
-    globalSearch: { modalOpen },
-  } = state.ui;
-  return {
-    modalOpen,
-  };
+        </SearchModal>
+      </GlobalSearchHotKeys>
+    </SearchContext.Provider>
+  );
 };
 
-const mapDispatchToProps = (dispatch: any) => ({
-  toggleShow: () => dispatch(toggleShowGlobalSearchModal()),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(DocsSearch);
+export default GlobalSearch;
