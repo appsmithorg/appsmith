@@ -369,7 +369,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 value: AuthType.NONE,
               },
               {
-                label: "OAuth2 ",
+                label: "OAuth 2.0",
                 value: AuthType.OAuth2,
               },
             ]}
@@ -396,15 +396,32 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     }
   };
 
-  renderOauth2 = () => {
+  ensureOAuthDefaultsAreCorrect = () => {
     const { authentication } = this.props.formData;
     if (!authentication || !authentication.grantType) {
       this.props.change(
         "authentication.grantType",
         GrantType.ClientCredentials,
       );
-      return;
+      return false;
     }
+    if (_.get(authentication, "isTokenHeader") === undefined) {
+      this.props.change("authentication.isTokenHeader", true);
+      return false;
+    }
+
+    if (authentication.grantType === GrantType.AuthorizationCode) {
+      if (_.get(authentication, "isAuthorizationHeader") === undefined) {
+        this.props.change("authentication.isAuthorizationHeader", true);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  renderOauth2 = () => {
+    if (!this.ensureOAuthDefaultsAreCorrect()) return;
+    const { authentication } = this.props.formData;
     let content;
     switch (authentication?.grantType) {
       case GrantType.AuthorizationCode:
@@ -442,13 +459,50 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderOauth2Common = () => {
+    const { formData } = this.props;
     return (
       <>
         <FormInputContainer>
+          <DropDownControl
+            {...COMMON_INPUT_PROPS}
+            label="Add Access Token To"
+            configProperty="authentication.isTokenHeader"
+            options={[
+              {
+                label: "Request Header",
+                value: true,
+              },
+              {
+                label: "Request URL",
+                value: false,
+              },
+            ]}
+          />
+        </FormInputContainer>
+        {formData.authentication?.isTokenHeader && (
+          <FormInputContainer>
+            <InputTextControl
+              {...COMMON_INPUT_PROPS}
+              label="Header Prefix"
+              configProperty="authentication.headerPrefix"
+              placeholderText="Bearer (default)"
+            />
+          </FormInputContainer>
+        )}
+        <FormInputContainer>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
-            label="Client Id"
+            label="Access Token URL"
+            configProperty="authentication.accessTokenUrl"
+            placeholderText="https://example.com/login/oauth/access_token"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            label="Client ID"
             configProperty="authentication.clientId"
+            placeholderText="Client ID"
           />
         </FormInputContainer>
         <FormInputContainer>
@@ -458,6 +512,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             dataType="PASSWORD"
             encrypted={true}
             configProperty="authentication.clientSecret"
+            placeholderText="Client Secret"
           />
         </FormInputContainer>
         <FormInputContainer>
@@ -465,38 +520,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             {...COMMON_INPUT_PROPS}
             label="Scope(s)"
             configProperty="authentication.scopeString"
-          />
-        </FormInputContainer>
-        <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            label="Access Token URL"
-            configProperty="authentication.accessTokenUrl"
-          />
-        </FormInputContainer>
-        <FormInputContainer>
-          <DropDownControl
-            {...COMMON_INPUT_PROPS}
-            label="Add Access Token To"
-            configProperty="authentication.isTokenHeader"
-            options={[
-              {
-                label: "Header",
-                value: true,
-              },
-              {
-                label: "Query parameters",
-                value: false,
-              },
-            ]}
-          />
-        </FormInputContainer>
-        <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            label="Header Prefix"
-            configProperty="authentication.headerPrefix"
-            placeholderText="Bearer (default)"
+            placeholderText="e.g. read"
           />
         </FormInputContainer>
       </>
@@ -522,6 +546,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             {...COMMON_INPUT_PROPS}
             label="Authorization URL"
             configProperty="authentication.authorizationUrl"
+            placeholderText="https://example.com/login/oauth/access_token"
           />
         </FormInputContainer>
         <FormInputContainer>
@@ -534,15 +559,15 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <FormInputContainer>
           <DropDownControl
             {...COMMON_INPUT_PROPS}
-            label="Add authorization to"
+            label="Client Authentication"
             configProperty="authentication.isAuthorizationHeader"
             options={[
               {
-                label: "Header",
+                label: "Send as Basic Auth Header",
                 value: true,
               },
               {
-                label: "Body",
+                label: "Send client credentials in body",
                 value: false,
               },
             ]}
