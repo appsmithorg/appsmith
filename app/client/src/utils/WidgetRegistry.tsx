@@ -84,6 +84,10 @@ import SkeletonWidget, {
   ProfiledSkeletonWidget,
   SkeletonWidgetProps,
 } from "../widgets/SkeletonWidget";
+import SwitchWidget, {
+  ProfiledSwitchWidget,
+  SwitchWidgetProps,
+} from "widgets/SwitchWidget";
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -156,6 +160,20 @@ export default class WidgetBuilderRegistry {
       CheckboxWidget.getTriggerPropertyMap(),
       CheckboxWidget.getDefaultPropertiesMap(),
       CheckboxWidget.getMetaPropertiesMap(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      "SWITCH_WIDGET",
+      {
+        buildWidget(widgetData: SwitchWidgetProps): JSX.Element {
+          return <ProfiledSwitchWidget {...widgetData} />;
+        },
+      },
+      SwitchWidget.getPropertyValidationMap(),
+      SwitchWidget.getDerivedPropertiesMap(),
+      SwitchWidget.getTriggerPropertyMap(),
+      SwitchWidget.getDefaultPropertiesMap(),
+      SwitchWidget.getMetaPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(

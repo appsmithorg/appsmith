@@ -1304,6 +1304,69 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
         ],
       },
     ],
+    SWITCH_WIDGET: [
+      {
+        id: "19.1",
+        sectionName: "General",
+        children: [
+          {
+            id: "19.1.1",
+            propertyName: "label",
+            label: "Label",
+            controlType: "INPUT_TEXT",
+            helpText: "Displays a label next to the widget",
+            placeholderText: "Enter label text",
+          },
+          {
+            id: "19.1.2",
+            propertyName: "swapLabel",
+            label: "Swap Label",
+            helpText: "Swap label position to the left or right.",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            id: "19.1.3",
+            propertyName: "defaultSwitchState",
+            label: "Default Selected",
+            helpText:
+              "On / Off the Switch by default. Changes to the default selection update the widget state",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            id: "19.1.4",
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
+            id: "19.1.5",
+            propertyName: "isDisabled",
+            label: "Disabled",
+            controlType: "SWITCH",
+            helpText: "Disables input to this widget",
+            isJSConvertible: true,
+          },
+        ],
+      },
+      {
+        id: "19.2",
+        sectionName: "Actions",
+        children: [
+          {
+            id: "19.2.1",
+            helpText: "Triggers an action when the switch state is changed",
+            propertyName: "onSwitchChange",
+            label: "onSwitchChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+          },
+        ],
+      },
+    ],
     FORM_WIDGET: [
       {
         id: "14.1",
