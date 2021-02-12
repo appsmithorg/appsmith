@@ -173,29 +173,48 @@ public class AuthenticationServiceTest {
                                 ((AppsmithException) throwable).getError().equals(AppsmithError.INVALID_PARAMETER) &&
                                 throwable.getMessage().equalsIgnoreCase("Please enter a valid parameter client_secret."))
                 .verify();
-
-//        // 4. Without Authorization URL
-//        authorizationCodeUrlMono = datasourceMono
-//                .flatMap(datasource1 -> {
-//                    OAuth2 authenticationDTO = new OAuth2();
-//                    authenticationDTO.setClientId("ClientId");
-//                    authenticationDTO.setClientSecret("ClientSecret");
-//                    datasource1.getDatasourceConfiguration().setAuthentication(authenticationDTO);
-//                    return Mono.just(datasource1);
-//                })
-//                .flatMap(datasource2 -> datasourceService.save(datasource2))
-//                .map(BaseDomain::getId)
-//                .flatMap(datasourceId -> authenticationService.getAuthorizationCodeURL(datasourceId, null));
-//
-//        StepVerifier
-//                .create(authorizationCodeUrlMono)
-//                .expectErrorMatches(throwable ->
-//                        throwable instanceof AppsmithException &&
-//                                ((AppsmithException) throwable).getError().equals(AppsmithError.INVALID_PARAMETER) &&
-//                                throwable.getMessage().equalsIgnoreCase("Please enter a valid parameter authorization_url."))
-//                .verify();
     }
-//
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetAuthorizationCodeURL_invalidDatasourceWithoutAuthorizationUrl() {
+        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        String orgId = testOrg == null ? "" : testOrg.getId();
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        Datasource datasource = new Datasource();
+        datasource.setName("Invalid OAuth2 datasource without authorization url");
+        datasource.setOrganizationId(orgId);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create).cache();
+
+        Mono<String> authorizationCodeUrlMono = datasourceMono
+                .flatMap(datasource1 -> {
+                    OAuth2 authenticationDTO = new OAuth2();
+                    authenticationDTO.setClientId("ClientId");
+                    authenticationDTO.setClientSecret("ClientSecret");
+                    datasource1.getDatasourceConfiguration().setAuthentication(authenticationDTO);
+                    return Mono.just(datasource1);
+                })
+                .flatMap(datasource2 -> datasourceService.save(datasource2))
+                .map(BaseDomain::getId)
+                .flatMap(datasourceId -> authenticationService.getAuthorizationCodeURL(datasourceId, "irrelevantPageId", null));
+
+        StepVerifier
+                .create(authorizationCodeUrlMono)
+                .expectErrorMatches(throwable ->
+                        throwable instanceof AppsmithException &&
+                                ((AppsmithException) throwable).getError().equals(AppsmithError.INVALID_PARAMETER) &&
+                                throwable.getMessage().equalsIgnoreCase("Please enter a valid parameter authorization_url."))
+                .verify();
+    }
+
 //    @Test
 //    @WithUserDetails(value = "api_user")
 //    public void testGetAuthorizationCodeURL_validDatasource() {

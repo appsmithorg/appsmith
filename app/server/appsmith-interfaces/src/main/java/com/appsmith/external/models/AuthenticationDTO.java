@@ -36,6 +36,8 @@ public class AuthenticationDTO {
     @JsonIgnore
     private Boolean isEncrypted;
 
+    private Boolean isAuthorized;
+
     @JsonIgnore
     public Map<String, String> getEncryptionFields() {
         return Collections.emptyMap();

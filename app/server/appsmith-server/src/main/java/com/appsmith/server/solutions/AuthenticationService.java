@@ -1,8 +1,8 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
@@ -24,12 +24,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
-import java.net.URI;
 import java.time.Instant;
 import java.util.Map;
 
@@ -130,13 +128,11 @@ public class AuthenticationService {
                 .flatMap(datasource -> {
                     OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                     WebClient.Builder builder = WebClient.builder();
-
-                    WebClient webClient = builder
+                    builder
                             .baseUrl(oAuth2.getAccessTokenUrl())
                             .clientConnector(new ReactorClientHttpConnector(
                                     HttpClient.create().wiretap(true)
-                            ))
-                            .build();
+                            ));
 
                     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 
@@ -154,30 +150,31 @@ public class AuthenticationService {
                         map.add(CLIENT_SECRET, oAuth2.getClientSecret());
                     } else if (Boolean.TRUE.equals(oAuth2.getIsAuthorizationHeader())) {
                         byte[] clientCredentials = (oAuth2.getClientId() + ":" + oAuth2.getClientSecret()).getBytes();
-                        webClient.head().header("Authorization", "Basic " + Base64.encode(clientCredentials));
+                        final String authorizationHeader = "Basic " + Base64.encode(clientCredentials);
+                        builder.defaultHeader("Authorization", authorizationHeader);
                     } else {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "isAuthorizationHeader"));
                     }
-
-                    return webClient
+                    return builder.build()
                             .method(HttpMethod.POST)
                             .body(BodyInserters.fromFormData(map))
                             .exchange()
                             .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
                             .flatMap(response -> {
                                 if (response.statusCode().is2xxSuccessful()) {
+                                    oAuth2.setIsAuthorized(true);
                                     return response.bodyToMono(Map.class);
                                 } else {
+                                    log.debug("Unable to retrieve access token for datasource {} with error {}", datasource.getId(), response.statusCode());
                                     return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE_CONFIGURATION));
                                 }
                             })
                             .flatMap(response -> {
-
                                 oAuth2.setTokenResponse(response);
                                 oAuth2.setToken((String) response.get(ACCESS_TOKEN));
                                 oAuth2.setRefreshToken((String) response.get(REFRESH_TOKEN));
                                 oAuth2.setExpiresAt(Instant.now().plusSeconds(Long.valueOf((Integer) response.get(EXPIRES_IN))));
-
+                                oAuth2.setIsEncrypted(null);
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 return datasourceService.update(datasource.getId(), datasource);
                             });
@@ -216,4 +213,5 @@ public class AuthenticationService {
                             responseStatus);
                 });
     }
+
 }
