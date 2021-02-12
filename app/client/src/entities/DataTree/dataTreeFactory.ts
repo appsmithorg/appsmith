@@ -147,6 +147,9 @@ export class DataTreeFactory {
           Object.keys(derivedPropertyMap).map((key) => [key, true]),
         ),
       );
+      Object.keys(defaultMetaProps).forEach((defaultPath) => {
+        bindingPaths[defaultPath] = true;
+      });
       const derivedProps: any = {};
       const dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
       dynamicBindingPathList.forEach((dynamicPath) => {
