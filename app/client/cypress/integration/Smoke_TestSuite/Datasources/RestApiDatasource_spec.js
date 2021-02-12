@@ -9,7 +9,7 @@ describe("Create a rest datasource", function() {
     cy.get(".t--store-as-datasource").click();
 
     cy.saveDatasource();
-    cy.contains(".datasource-highlight", testdata.baseUrl);
+    cy.contains(".datasource-highlight", "https://mock-api.appsmith.com");
 
     cy.SaveAndRunAPI();
   });
