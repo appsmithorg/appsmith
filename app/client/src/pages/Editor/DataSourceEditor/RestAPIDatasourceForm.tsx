@@ -143,6 +143,12 @@ const StyledButton = styled(Button)`
   }
 `;
 
+const AuthorizeButton = styled(StyledButton)`
+  &&&& {
+    width: 120px;
+  }
+`;
+
 const COMMON_INPUT_PROPS: any = {
   name: "",
   formName: DATASOURCE_REST_API_FORM,
@@ -546,7 +552,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             {...COMMON_INPUT_PROPS}
             label="Authorization URL"
             configProperty="authentication.authorizationUrl"
-            placeholderText="https://example.com/login/oauth/access_token"
+            placeholderText="https://example.com/login/oauth/authorize"
           />
         </FormInputContainer>
         <FormInputContainer>
@@ -574,7 +580,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           />
         </FormInputContainer>
         <FormInputContainer>
-          <StyledButton
+          <AuthorizeButton
             onClick={() =>
               this.save(redirectAuthorizationCode(pageId, datasourceId))
             }
