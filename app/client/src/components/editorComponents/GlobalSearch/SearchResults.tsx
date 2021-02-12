@@ -5,7 +5,6 @@ import {
 } from "react-instantsearch-dom";
 import { Hit as IHit } from "react-instantsearch-core";
 import "instantsearch.css/themes/algolia.css";
-import { HelpBaseURL } from "constants/HelpConstants";
 import styled, { withTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import {

@@ -286,6 +286,7 @@ export const getAllPageWidgets = (state: AppState): any => {
     (res: any[], [pageId, pageWidgets]: any) => {
       const pageWidgetsArr = Object.entries(
         pageWidgets,
+        // eslint-disable-next-line
       ).map(([widgetId, widget]: any) => ({ ...widget, pageId }));
       return [...pageWidgetsArr, ...res];
     },
