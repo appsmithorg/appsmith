@@ -12,13 +12,17 @@ import lombok.Setter;
 import lombok.ToString;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.annotation.Transient;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -74,18 +78,22 @@ public class OAuth2 extends AuthenticationDTO {
     Instant expiresAt;
 
     public String getScopeString() {
-        if (scopeString != null && !scopeString.isBlank()) {
-            return scopeString;
-        } else if (this.scope != null && !this.scope.isEmpty()) {
+        if (this.scope != null && !this.scope.isEmpty()) {
             return Strings.join(this.scope, ',');
+        } else if (scopeString != null && !scopeString.isBlank()) {
+            return scopeString;
         } else return null;
     }
 
     public void setScopeString(String scopeString) {
-        this.scopeString = scopeString;
         if (scopeString != null && !scopeString.isBlank()) {
-            this.scope = new HashSet<>(Arrays.asList(scopeString.split(",")));
+            this.scope = Arrays
+                    .stream(scopeString.split(","))
+                    .filter(StringUtils::isEmpty)
+                    .map(String::trim)
+                    .collect(Collectors.toSet());
         }
+        this.scopeString = this.getScopeString();
     }
 
     @Override
