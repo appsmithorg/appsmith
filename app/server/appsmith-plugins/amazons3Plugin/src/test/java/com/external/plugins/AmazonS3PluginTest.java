@@ -215,7 +215,7 @@ public class AmazonS3PluginTest {
                                     dummyKey1,
                                     dummyKey2
                             },
-                            node.get("Files").toArray()
+                            node.get("files").toArray()
                     );
                 })
                 .verifyComplete();
@@ -376,7 +376,8 @@ public class AmazonS3PluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
-                    assertEquals(dummyContent, result.getBody());
+                    Map<String, Object> body = (Map<String, Object>) result.getBody();
+                    assertEquals(dummyContent, body.get("data"));
                 })
                 .verifyComplete();
     }
@@ -419,7 +420,8 @@ public class AmazonS3PluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
-                    assertEquals(new String(Base64.encode(dummyContent.getBytes())), result.getBody());
+                    Map<String, Object> body = (Map<String, Object>) result.getBody();
+                    assertEquals(new String(Base64.encode(dummyContent.getBytes())), body.get("data"));
                 })
                 .verifyComplete();
     }
@@ -453,7 +455,7 @@ public class AmazonS3PluginTest {
                     assertTrue(result.getIsExecutionSuccess());
 
                     Map<String, String> node = (Map<String, String>) result.getBody();
-                    assertEquals("File deleted successfully", node.get("Status"));
+                    assertEquals("File deleted successfully", node.get("status"));
                 })
                 .verifyComplete();
     }
@@ -510,7 +512,7 @@ public class AmazonS3PluginTest {
                                     dummyKey1,
                                     dummyKey2
                             },
-                            node.get("Files").toArray()
+                            node.get("files").toArray()
                     );
                 })
                 .verifyComplete();
@@ -582,7 +584,7 @@ public class AmazonS3PluginTest {
                             (Map<String, ArrayList<ArrayList<String>>>)result.getBody();
                     assertArrayEquals(
                             expectedResult.toArray(),
-                            node.get("Files").toArray()
+                            node.get("files").toArray()
                     );
                 })
                 .verifyComplete();
