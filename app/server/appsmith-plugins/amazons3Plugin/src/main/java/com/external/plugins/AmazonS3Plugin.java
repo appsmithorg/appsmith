@@ -178,7 +178,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                    String bucketName,
                                    String path,
                                    String body,
-                                   Boolean usingFilepicker,
+                                   Boolean usingFilePicker,
                                    int durationInMillis)
                 throws InterruptedException, AppsmithPluginException {
 
