@@ -97,7 +97,7 @@
   "btoaInput": "{{btoa('A')",
   "defaultInputBinding": "{{Input2.text",
   "tabBinding": "{{Tabs1.selectedTab",
-  "pageloadBinding": "{{PageLoadApi.data.data[1].id}}{{Input1.text}}",
+  "pageloadBinding": "{{PageLoadApi.data.users[1].id}}{{Input1.text}}",
   "defaultRowIndexBinding": "{{Table1.selectedRowIndex",
   "defaultdataBinding": "{'Test','This'}",
   "dropdownErrorMsg": "This value does not evaluate to type \"Array<{ label: string, value: string }>\". Transform it using JS inside '{{ }}'",
