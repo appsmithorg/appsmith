@@ -4,6 +4,7 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -45,6 +47,7 @@ import static com.appsmith.external.constants.Authentication.REFRESH_TOKEN;
 import static com.appsmith.external.constants.Authentication.RESPONSE_TYPE;
 import static com.appsmith.external.constants.Authentication.SCOPE;
 import static com.appsmith.external.constants.Authentication.STATE;
+import static com.appsmith.external.constants.Authentication.SUCCESS;
 
 
 @Service
@@ -58,25 +61,29 @@ public class AuthenticationService {
 
     private final NewPageService newPageService;
 
-    public Mono<String> getAuthorizationCodeURL(String datasourceId, String pageId, ServerWebExchange serverWebExchange) {
+    public Mono<String> getAuthorizationCodeURL(String datasourceId, String pageId, ServerHttpRequest httpRequest) {
+        // This is the only database access that is controlled by ACL
+        // The rest of the queries in this flow will not have context information
         return datasourceService.findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFields)
                 .flatMap((datasource -> {
                     OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
-                    final String redirectUri = redirectHelper.getRedirectDomain(serverWebExchange.getRequest().getHeaders());
+                    final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
                     // Adding basic uri components
                     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
                             .fromUriString(oAuth2.getAuthorizationUrl())
                             .queryParam(CLIENT_ID, oAuth2.getClientId())
                             .queryParam(RESPONSE_TYPE, CODE)
                             .queryParam(REDIRECT_URI, redirectUri + "/api/v1/datasources/authorize")
+                            // The state is used internally to calculate the redirect url when returning control to the client
                             .queryParam(STATE, String.join(",", pageId, datasourceId, redirectUri));
                     // Adding optional scope parameter
                     if (!oAuth2.getScope().isEmpty()) {
                         uriComponentsBuilder
                                 .queryParam(SCOPE, String.join(",", oAuth2.getScope()));
                     }
-                    // Adding additional user-defined parameters
+                    // Adding additional user-defined parameters, these would be authorization server specific
                     if (oAuth2.getCustomAuthenticationParameters() != null) {
                         oAuth2.getCustomAuthenticationParameters().forEach(x ->
                                 uriComponentsBuilder.queryParam(x.getKey(), x.getValue())
@@ -88,6 +95,7 @@ public class AuthenticationService {
     }
 
     private Mono<Datasource> validateRequiredFields(Datasource datasource) {
+        // At this point we're validating all the fields required for the code as well as access token
         if (!(datasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "authentication"));
         }
@@ -113,9 +121,11 @@ public class AuthenticationService {
         String code = callbackDTO.getCode();
         final String state = callbackDTO.getState();
         String scope = callbackDTO.getScope();
+        // If there is an error code, return with that code to the client
         if (!StringUtils.isEmpty(error)) {
             return this.getPageRedirectUrl(state, error);
         }
+        // Otherwise, proceed to retrieve the access token from the authorization server
         return datasourceService.getById(state.split(",")[1])
                 .flatMap(datasource -> {
                     OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
@@ -172,6 +182,7 @@ public class AuthenticationService {
                                 return datasourceService.update(datasource.getId(), datasource);
                             });
                 })
+                // We have no use of the datasource object during redirection, we merely send the response as a success state
                 .flatMap((datasource -> this.getPageRedirectUrl(state, null)));
     }
 
@@ -181,12 +192,13 @@ public class AuthenticationService {
         final String pageId = splitState[0];
         final String datasourceId = splitState[1];
         final String redirectOrigin = splitState[2];
+        String response = SUCCESS;
+        if (error != null) {
+            response = error;
+        }
+        final String responseStatus = response;
         return newPageService.getById(pageId)
                 .map(newPage -> {
-                    String responseStatus = "success";
-                    if (error != null) {
-                        responseStatus = error;
-                    }
                     return redirectOrigin +
                             "/applications/" +
                             newPage.getApplicationId() +
@@ -196,6 +208,12 @@ public class AuthenticationService {
                             datasourceId +
                             "?response_status=" +
                             responseStatus;
+                })
+                .onErrorResume(e -> {
+                    return Mono.just(redirectOrigin +
+                            "/applications" +
+                            "?response_status=" +
+                            responseStatus);
                 });
     }
 }

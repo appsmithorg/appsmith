@@ -137,7 +137,7 @@ public class RedirectHelper {
         String redirectOrigin = DEFAULT_REDIRECT_ORIGIN;
 
         if (!StringUtils.isEmpty(httpHeaders.getOrigin())) {
-            // For PUT/POST requests
+            // For PUT/POST requests or CORS?
             redirectOrigin = httpHeaders.getOrigin();
         } else if (!StringUtils.isEmpty(httpHeaders.getFirst(Security.REFERER_HEADER))) {
             // For generic web application requests
