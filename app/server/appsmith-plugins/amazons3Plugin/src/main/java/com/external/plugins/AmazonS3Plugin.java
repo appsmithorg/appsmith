@@ -183,7 +183,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 throws InterruptedException, AppsmithPluginException {
 
             byte[] payload = null;
-            if(usingFilepicker == true) {
+            if(Boolean.TRUE.equals(usingFilepicker)) {
                 String encodedPayload = body;
                 /*
                  * - For files uploaded using Filepicker.xyz.base64, body format is "<content-type>;base64,<actual-
