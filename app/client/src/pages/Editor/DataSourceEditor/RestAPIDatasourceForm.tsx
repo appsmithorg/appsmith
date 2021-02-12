@@ -563,7 +563,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             configProperty="authentication.isAuthorizationHeader"
             options={[
               {
-                label: "Send as Basic Auth Header",
+                label: "Send as Basic Auth header",
                 value: true,
               },
               {
