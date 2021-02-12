@@ -56,6 +56,8 @@ import PerformanceTracker, {
 import { EventLocation } from "utils/AnalyticsUtil";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import { checkCurrentStep } from "./OnboardingSagas";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -381,21 +383,36 @@ function* handleCreateNewQueryActionSaga(
       .map((a: ActionData) => a.config.name);
     const newQueryName = getNextEntityName("Query", pageApiNames);
     const dataSourceId = validDataSources[0].id;
-    yield put(
-      createActionRequest({
-        name: newQueryName,
-        pageId,
-        datasource: {
-          id: dataSourceId,
-        },
-        eventData: {
-          actionType: "Query",
-          from: action.payload.from,
-          dataSource: validDataSources[0].name,
-        },
-        actionConfiguration: {},
-      }),
+    let createActionPayload = {
+      name: newQueryName,
+      pageId,
+      datasource: {
+        id: dataSourceId,
+      },
+      eventData: {
+        actionType: "Query",
+        from: action.payload.from,
+        dataSource: validDataSources[0].name,
+      },
+      actionConfiguration: {},
+    };
+
+    //For onboarding
+    const updateActionPayload = yield select(
+      checkCurrentStep,
+      OnboardingStep.ADD_INPUT_WIDGET,
     );
+    if (updateActionPayload) {
+      createActionPayload = {
+        ...createActionPayload,
+        name: "add_standup_updates",
+        actionConfiguration: {
+          body: `Insert into standup_updates("name", "notes") values ('{{appsmith.user.email}}', '{{ Standup_Input.text }}')`,
+        },
+      };
+    }
+
+    yield put(createActionRequest(createActionPayload));
     history.push(
       QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
     );

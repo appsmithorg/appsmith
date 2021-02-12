@@ -30,6 +30,7 @@ import CheckboxControl, {
 import DynamicInputTextControl, {
   DynamicInputControlProps,
 } from "components/formControls/DynamicInputTextControl";
+import InputNumberControl from "components/formControls/InputNumberControl";
 
 class FormControlRegistry {
   static registerFormControlBuilders() {
@@ -85,6 +86,11 @@ class FormControlRegistry {
     FormControlFactory.registerControlBuilder("CHECKBOX", {
       buildPropertyControl(controlProps: CheckboxControlProps): JSX.Element {
         return <CheckboxControl {...controlProps} />;
+      },
+    });
+    FormControlFactory.registerControlBuilder("NUMBER_INPUT", {
+      buildPropertyControl(controlProps: InputControlProps): JSX.Element {
+        return <InputNumberControl {...controlProps} />;
       },
     });
   }

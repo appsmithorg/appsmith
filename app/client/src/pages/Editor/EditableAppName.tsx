@@ -50,7 +50,7 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
         savingState={props.savingState}
         fill={props.fill}
         onBlur={(value) => {
-          props.onBlur(value);
+          if (props.onBlur) props.onBlur(value);
           setIsEditingDefault(false);
         }}
         className={props.className}

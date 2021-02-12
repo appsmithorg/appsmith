@@ -37,6 +37,7 @@ import {
 import { isMac } from "utils/helpers";
 import { getSelectedWidget } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import Welcome from "./Welcome";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -47,6 +48,7 @@ type EditorProps = {
   isEditorInitialized: boolean;
   isEditorInitializeError: boolean;
   errorPublishing: boolean;
+  creatingOnboardingDatabase: boolean;
   copySelectedWidget: () => void;
   pasteCopiedWidget: () => void;
   deleteSelectedWidget: () => void;
@@ -179,11 +181,17 @@ class Editor extends Component<Props> {
       nextProps.errorPublishing !== this.props.errorPublishing ||
       nextProps.isEditorInitializeError !==
         this.props.isEditorInitializeError ||
+      nextProps.creatingOnboardingDatabase !==
+        this.props.creatingOnboardingDatabase ||
       nextState.registered !== this.state.registered
     );
   }
 
   public render() {
+    if (this.props.creatingOnboardingDatabase) {
+      return <Welcome />;
+    }
+
     if (!this.props.isEditorInitialized || !this.state.registered) {
       return (
         <CenteredWrapper style={{ height: "calc(100vh - 35px)" }}>
@@ -220,6 +228,7 @@ const mapStateToProps = (state: AppState) => ({
   isEditorInitialized: getIsEditorInitialized(state),
   user: getCurrentUser(state),
   selectedWidget: getSelectedWidget(state),
+  creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
 });
 
 const mapDispatchToProps = (dispatch: any) => {
