@@ -86,12 +86,12 @@ const Highlight = ({ match, text }: { match: string; text: string }) => {
   return (
     <span>
       {parts.map((part, index) => (
-        <>
+        <React.Fragment key={index}>
           {part}
           {index !== parts.length - 1 && (
             <span className="search-highlighted">{match}</span>
           )}
-        </>
+        </React.Fragment>
       ))}
     </span>
   );
