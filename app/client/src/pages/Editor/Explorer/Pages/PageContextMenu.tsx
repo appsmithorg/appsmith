@@ -17,6 +17,7 @@ export const PageContextMenu = (props: {
   applicationId: string;
   className?: string;
   isDefaultPage: boolean;
+  goToPage: () => void;
 }) => {
   const dispatch = useDispatch();
 
@@ -44,6 +45,7 @@ export const PageContextMenu = (props: {
           applicationId,
         },
       });
+      props.goToPage();
     },
     [dispatch],
   );

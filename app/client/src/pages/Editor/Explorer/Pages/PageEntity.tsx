@@ -50,6 +50,7 @@ export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
       name={props.page.pageName}
       className={EntityClassNames.CONTEXT_MENU}
       isDefaultPage={props.page.isDefault}
+      goToPage={switchPage}
     />
   );
 
