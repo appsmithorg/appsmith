@@ -477,7 +477,7 @@ public class AmazonS3Plugin extends BasePlugin {
                             signedUrl = uploadFileFromBody(connection, bucketName, path, body, false,
                                     durationInMilliseconds);
                         }
-                        actionResult = Map.of("signed_url", signedUrl);
+                        actionResult = Map.of("signedUrl", signedUrl);
                         break;
                     case READ_FILE:
                         String result = null;
