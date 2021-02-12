@@ -15,6 +15,10 @@ interface SwitchComponentProps extends ComponentProps {
 const SwitchComponentContainer = styled.div`
   display: flex;
   flex-direction: row;
+  align-items: center;
+  .bp3-control {
+    margin: 0;
+  }
   ${BlueprintControlTransform}
 `;
 
@@ -31,7 +35,9 @@ export const SwitchComponent: React.FC<SwitchComponentProps> = ({
       {
         <SwitchComponentContainer>
           <Switch
-            alignIndicator={swapLabel ? Alignment.RIGHT : Alignment.LEFT}
+            alignIndicator={
+              label && swapLabel ? Alignment.RIGHT : Alignment.LEFT
+            }
             label={label}
             disabled={isDisabled}
             className={isLoading ? "bp3-skeleton" : ""}
