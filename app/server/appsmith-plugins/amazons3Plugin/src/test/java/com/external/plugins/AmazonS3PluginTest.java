@@ -247,6 +247,7 @@ public class AmazonS3PluginTest {
         properties.add(new Property(null, null));
         properties.add(new Property(null, null));
         properties.add(new Property("usingFilepicker", "NO"));
+        properties.add(new Property("duration", "100000"));
 
         actionConfiguration.setPluginSpecifiedTemplates(properties);
 
@@ -257,12 +258,85 @@ public class AmazonS3PluginTest {
                                                                     actionConfiguration);
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(e -> {
-                    e.printStackTrace();
-                    Assert.assertTrue(e.getMessage().contains("The AWS Access Key Id you provided does not exist in " +
+                .verifyErrorSatisfies(e -> {
+                    assertTrue(e instanceof AppsmithPluginException);
+                    assertTrue(e.getMessage().contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                    return true;
-                }).verify();
+                });
+    }
+
+    @Test
+    public void testFileUploadFromBodyWithMissingDuration() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String dummyBody = "";
+        actionConfiguration.setBody(dummyBody);
+
+        String dummyPath = "path";
+        actionConfiguration.setPath(dummyPath);
+
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("action", "UPLOAD_FILE_FROM_BODY"));
+        properties.add(new Property("bucketName", "bucket_name"));
+        properties.add(new Property(null, null));
+        properties.add(new Property(null, null));
+        properties.add(new Property(null, null));
+        properties.add(new Property(null, null));
+        properties.add(new Property("usingFilepicker", "NO"));
+        properties.add(new Property("duration", null));
+
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+
+        AmazonS3 connection = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
+                                                                    connection,
+                                                                    datasourceConfiguration,
+                                                                    actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .verifyErrorSatisfies(e -> {
+                    assertTrue(e instanceof AppsmithPluginException);
+                    assertTrue(e.getMessage().contains("Required parameter 'URL Expiry Duration' is missing"));
+                });
+    }
+
+    @Test
+    public void testFileUploadFromBodyWithFilepickerAndNonBase64() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String dummyBody = "dummyBody";
+        actionConfiguration.setBody(dummyBody);
+
+        String dummyPath = "path";
+        actionConfiguration.setPath(dummyPath);
+
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("action", "UPLOAD_FILE_FROM_BODY"));
+        properties.add(new Property("bucketName", "bucket_name"));
+        properties.add(new Property(null, null));
+        properties.add(new Property(null, null));
+        properties.add(new Property(null, null));
+        properties.add(new Property(null, null));
+        properties.add(new Property("usingFilepicker", "YES"));
+        properties.add(new Property("duration", "1000000"));
+
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+
+        AmazonS3 connection = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
+                                                                    connection,
+                                                                    datasourceConfiguration,
+                                                                    actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .verifyErrorSatisfies(e -> {
+                    assertTrue(e instanceof AppsmithPluginException);
+                    assertTrue(e.getMessage().contains("Missing Base64 encoding"));
+                });
     }
 
     @Test

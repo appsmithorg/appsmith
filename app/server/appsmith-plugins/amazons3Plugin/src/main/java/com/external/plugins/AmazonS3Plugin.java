@@ -63,6 +63,7 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final int PREFIX_PROPERTY_INDEX = 4;
     private static final int READ_WITH_BASE64_ENCODING_PROPERTY_INDEX = 5;
     private static final int USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX = 6;
+    private static final int URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX = 7;
     private static final int CLIENT_REGION_PROPERTY_INDEX = 0;
     private static final String YES = "YES";
     private static final String BASE64_DELIMITER = ";base64,";
@@ -171,12 +172,14 @@ public class AmazonS3Plugin extends BasePlugin {
 
         /*
          * - Exception thrown here is handled by the caller.
+         * - Returns signed url of the created file.
          */
-        boolean uploadFileFromBody(AmazonS3 connection,
+        String uploadFileFromBody(AmazonS3 connection,
                                    String bucketName,
                                    String path,
                                    String body,
-                                   Boolean usingFilepicker)
+                                   Boolean usingFilepicker,
+                                   int durationInMillis)
                 throws InterruptedException, AppsmithPluginException {
 
             byte[] payload = null;
@@ -218,7 +221,19 @@ public class AmazonS3Plugin extends BasePlugin {
             TransferManager transferManager = TransferManagerBuilder.standard().withS3Client(connection).build();
             transferManager.upload(bucketName, path, inputStream, new ObjectMetadata()).waitForUploadResult();
 
-            return true;
+            ArrayList<String> listOfFiles = new ArrayList<>();
+            listOfFiles.add(path);
+            ArrayList<String> listOfUrls = getSignedUrls(connection, bucketName, listOfFiles, durationInMillis);
+            if(listOfUrls.size() != 1) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith has encountered an unexpected error when fetching url from AmazonS3 after file " +
+                        "creation. Please reach out to Appsmith customer support to resolve this."
+                );
+            }
+            String signedUrl = listOfUrls.get(0);
+
+            return signedUrl;
         }
 
         /*
@@ -425,15 +440,44 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
                         break;
                     case UPLOAD_FILE_FROM_BODY:
+                        if(properties.size() < (1+URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX)
+                                || properties.get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX) == null
+                                || StringUtils.isEmpty(properties.get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX).getValue())) {
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Required parameter 'URL Expiry Duration' is missing. Did you forget to" +
+                                    " edit the 'URL Expiry Duration' field ?"
+                            );
+                        }
+
+                        int durationInMilliseconds = 0;
+                        try {
+                            durationInMilliseconds = Integer
+                                                        .parseInt(
+                                                                properties
+                                                                .get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX)
+                                                                .getValue()
+                                                        );
+                        } catch (NumberFormatException e) {
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Parameter 'URL Expiry Duration' is NOT a number. Please ensure that the " +
+                                    "input to 'URL Expiry Duration' field is a valid number - i.e. any non-negative integer."
+                            );
+                        }
+
+                        String signedUrl = null;
                         if(properties.size() > USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX
                            && properties.get(USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX) != null
                            && properties.get(USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX).getValue().equals(YES)) {
-                            uploadFileFromBody(connection, bucketName, path, body, true);
+                            signedUrl = uploadFileFromBody(connection, bucketName, path, body, true,
+                                    durationInMilliseconds);
                         }
                         else {
-                            uploadFileFromBody(connection, bucketName, path, body, false);
+                            signedUrl = uploadFileFromBody(connection, bucketName, path, body, false,
+                                    durationInMilliseconds);
                         }
-                        actionResult = Map.of("Status", "File uploaded successfully");
+                        actionResult = signedUrl;
                         break;
                     case READ_FILE:
                         String result = null;

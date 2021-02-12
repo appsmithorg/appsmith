@@ -72,6 +72,17 @@
           }
         },
         {
+          "label": "URL Expiry Duration in Milliseconds",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "UPLOAD_FILE_FROM_BODY"
+          }
+        },
+        {
           "label": "Content",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT",
