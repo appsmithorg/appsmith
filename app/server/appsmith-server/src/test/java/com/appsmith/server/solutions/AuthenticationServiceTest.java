@@ -67,7 +67,6 @@ public class AuthenticationServiceTest {
     @Autowired
     ApplicationPageService applicationPageService;
 
-
     @Test
     public void theTestIsBack() {
 
@@ -298,5 +297,4 @@ public class AuthenticationServiceTest {
 //                })
 //                .verifyComplete();
 //    }
-
 }
