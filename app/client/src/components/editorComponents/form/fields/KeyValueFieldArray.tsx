@@ -1,14 +1,25 @@
 import React, { useEffect } from "react";
 import { FieldArray, WrappedFieldArrayProps } from "redux-form";
 import styled from "styled-components";
-import { Icon } from "@blueprintjs/core";
-import { FormIcons } from "icons/FormIcons";
 import DynamicTextField from "./DynamicTextField";
 import FormRow from "components/editorComponents/FormRow";
 import FormLabel from "components/editorComponents/FormLabel";
 import FIELD_VALUES from "constants/FieldExpectedValue";
 import HelperTooltip from "components/editorComponents/HelperTooltip";
+import Icon, { IconSize } from "components/ads/Icon";
+import {
+  CodeEditorBorder,
+  EditorTheme,
+} from "components/editorComponents/CodeEditor/EditorConfig";
+import Text, { Case, TextType } from "components/ads/Text";
+import { Classes } from "components/ads/common";
 
+const KeyValueStackContainer = styled.div`
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[14]}px
+    ${(props) => props.theme.spaces[11] + 1}px
+    ${(props) => props.theme.spaces[11] + 2}px;
+`;
 const FormRowWithLabel = styled(FormRow)`
   flex-wrap: wrap;
   ${FormLabel} {
@@ -16,6 +27,55 @@ const FormRowWithLabel = styled(FormRow)`
   }
   & svg {
     cursor: pointer;
+  }
+`;
+
+const CenteredIcon = styled(Icon)`
+  align-self: center;
+  margin-left: 15px;
+`;
+
+const AddMoreAction = styled.div`
+  width: fit-content;
+  cursor: pointer;
+  display: flex;
+  margin-top: 16px;
+  margin-left: 12px;
+  .${Classes.TEXT} {
+    margin-left: 8px;
+    color: #858282;
+  }
+  svg path {
+    stroke: ${(props) => props.theme.colors.apiPane.bg};
+  }
+`;
+
+const Flex = styled.div<{ size: number }>`
+  flex: ${(props) => props.size};
+  ${(props) =>
+    props.size === 3
+      ? `
+    margin-left: ${props.theme.spaces[4]}px;
+  `
+      : null};
+`;
+
+const FlexContainer = styled.div`
+  display: flex;
+  align-items: center;
+  width: calc(100% - 30px);
+
+  .key-value {
+    padding: ${(props) => props.theme.spaces[2]}px 0px
+      ${(props) => props.theme.spaces[2]}px
+      ${(props) => props.theme.spaces[1]}px;
+    .${Classes.TEXT} {
+      color: ${(props) => props.theme.colors.apiPane.text};
+    }
+    border-bottom: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  }
+  .key-value:nth-child(2) {
+    margin-left: ${(props) => props.theme.spaces[4]}px;
   }
 `;
 
@@ -30,13 +90,26 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
   }, [props.fields, props.pushFields]);
 
   return (
-    <React.Fragment>
+    <KeyValueStackContainer>
+      <FlexContainer>
+        <Flex size={1} className="key-value">
+          <Text type={TextType.H6} case={Case.UPPERCASE}>
+            Key
+          </Text>
+        </Flex>
+        <Flex size={3} className="key-value">
+          <Text type={TextType.H6} case={Case.UPPERCASE}>
+            Value
+          </Text>
+        </Flex>
+      </FlexContainer>
       {props.fields.length && (
         <React.Fragment>
           {props.fields.map((field: any, index: number) => {
             const otherProps: Record<string, any> = {};
             if (
               props.actionConfig &&
+              props.actionConfig[index] &&
               props.actionConfig[index].description &&
               props.rightIcon
             ) {
@@ -50,29 +123,38 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
 
             return (
               <FormRowWithLabel key={index}>
-                {index === 0 && props.label !== "" && (
-                  <FormLabel>{props.label}</FormLabel>
-                )}
-                <DynamicTextField
-                  className={`t--${field}.key.${index}`}
-                  name={`${field}.key`}
-                  placeholder="Key"
-                  showLightningMenu={false}
-                  dataTreePath={`${props.dataTreePath}[${index}].key`}
-                />
-                {!props.actionConfig && (
+                <Flex size={1}>
                   <DynamicTextField
-                    className={`t--${field}.value.${index}`}
-                    name={`${field}.value`}
-                    placeholder="Value"
-                    dataTreePath={`${props.dataTreePath}[${index}].value`}
-                    expected={FIELD_VALUES.API_ACTION.params}
+                    theme={props.theme}
+                    className={`t--${field}.key.${index}`}
+                    name={`${field}.key`}
+                    placeholder="Key"
+                    showLightningMenu={false}
+                    dataTreePath={`${props.dataTreePath}[${index}].key`}
+                    hoverInteraction={true}
+                    border={CodeEditorBorder.BOTTOM_SIDE}
                   />
+                </Flex>
+
+                {!props.actionConfig && (
+                  <Flex size={3}>
+                    <DynamicTextField
+                      theme={props.theme}
+                      className={`t--${field}.value.${index}`}
+                      name={`${field}.value`}
+                      placeholder="Value"
+                      dataTreePath={`${props.dataTreePath}[${index}].value`}
+                      expected={FIELD_VALUES.API_ACTION.params}
+                      hoverInteraction={true}
+                      border={CodeEditorBorder.BOTTOM_SIDE}
+                    />
+                  </Flex>
                 )}
 
                 {props.actionConfig && props.actionConfig[index] && (
-                  <React.Fragment>
+                  <Flex size={3}>
                     <DynamicTextField
+                      theme={props.theme}
                       className={`t--${field}.value.${index}`}
                       name={`${field}.value`}
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
@@ -94,45 +176,40 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                         )
                       }
                       showLightningMenu={
-                        !!(
-                          props.actionConfig[index].editable ||
-                          props.actionConfig[index].editable === undefined
-                        )
+                        props.actionConfig[index].editable ||
+                        props.actionConfig[index].editable === undefined
                       }
                       {...otherProps}
+                      hoverInteraction={true}
+                      border={CodeEditorBorder.BOTTOM_SIDE}
                     />
-                  </React.Fragment>
+                  </Flex>
                 )}
                 {props.addOrDeleteFields !== false && (
-                  <React.Fragment>
-                    {index === props.fields.length - 1 ? (
-                      <Icon
-                        icon="plus"
-                        className="t--addApiHeader"
-                        iconSize={20}
-                        onClick={() =>
-                          props.fields.push({ key: "", value: "" })
-                        }
-                        color={"#A3B3BF"}
-                        style={{ alignSelf: "center" }}
-                      />
-                    ) : (
-                      <FormIcons.DELETE_ICON
-                        height={20}
-                        width={20}
-                        color={"#A3B3BF"}
-                        onClick={() => props.fields.remove(index)}
-                        style={{ alignSelf: "center" }}
-                      />
-                    )}
-                  </React.Fragment>
+                  <CenteredIcon
+                    name="delete"
+                    size={IconSize.LARGE}
+                    onClick={() => props.fields.remove(index)}
+                  />
                 )}
               </FormRowWithLabel>
             );
           })}
+          <AddMoreAction
+            onClick={() => props.fields.push({ key: "", value: "" })}
+          >
+            <Icon
+              name="add-more"
+              className="t--addApiHeader"
+              size={IconSize.LARGE}
+            />
+            <Text type={TextType.H5} case={Case.UPPERCASE}>
+              Add more
+            </Text>
+          </AddMoreAction>
         </React.Fragment>
       )}
-    </React.Fragment>
+    </KeyValueStackContainer>
   );
 };
 
@@ -150,6 +227,7 @@ type Props = {
   placeholder?: string;
   pushFields?: boolean;
   dataTreePath?: string;
+  theme?: EditorTheme;
 };
 
 const KeyValueFieldArray = (props: Props) => {

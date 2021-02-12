@@ -669,9 +669,6 @@ Cypress.Commands.add("switchToAPIInputTab", () => {
 });
 
 Cypress.Commands.add("selectPaginationType", (option) => {
-  cy.get(apiwidget.paginationOption)
-    .first()
-    .click({ force: true });
   cy.xpath(option).click({ force: true });
 });
 
@@ -743,10 +740,11 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
     .type(apiname, { force: true })
     .should("have.value", apiname)
     .focus();
-  cy.get(".bp3-popover-content").should(($x) => {
+  cy.get(".error-message").should(($x) => {
     console.log($x);
     expect($x).contain(apiname.concat(" is already being used."));
   });
+  cy.get(apiwidget.apiTxt).blur();
 });
 
 Cypress.Commands.add("MoveAPIToHome", (apiname) => {
@@ -831,6 +829,9 @@ Cypress.Commands.add("deleteEntity", () => {
 });
 
 Cypress.Commands.add("DeleteAPI", (apiname) => {
+  cy.get(ApiEditor.ApiActionMenu)
+    .first()
+    .click({ force: true });
   cy.get(apiwidget.deleteAPI)
     .first()
     .click({ force: true });
@@ -1618,9 +1619,6 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   cy.get(ApiEditor.dataSourceField)
     .click({ force: true })
     .type(url, { parseSpecialCharSequences: false }, { force: true });
-  cy.contains(url).click({
-    force: true,
-  });
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
@@ -1814,11 +1812,7 @@ Cypress.Commands.add("NavigateToPaginationTab", () => {
   cy.get(ApiEditor.apiTab)
     .contains("Pagination")
     .click();
-  cy.get(ApiEditor.apiPaginationTab).click();
-  cy.get(ApiEditor.apiPaginationTab + " input")
-    .first()
-    .type("Paginate with Response Url", { force: true })
-    .type("{enter}");
+  cy.xpath(apiwidget.paginationWithUrl).click({ force: true });
 });
 
 Cypress.Commands.add("ValidateTableData", (value) => {
@@ -1843,8 +1837,10 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
   cy.RunAPI();
   cy.get(ApiEditor.apiPaginationNextTest).click();
   cy.wait("@postExecute");
+  cy.wait(2000);
   cy.get(runTestCss).click();
   cy.wait("@postExecute");
+  cy.wait(2000);
   cy.get(ApiEditor.formActionButtons).should("be.visible");
   cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
   cy.get(ApiEditor.responseBody)

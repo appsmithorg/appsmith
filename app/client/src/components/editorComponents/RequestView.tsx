@@ -9,7 +9,7 @@ const StyledKey = styled.span`
   font-weight: 500;
   font-size: 14px;
   line-height: 16px;
-  color: black;
+  color: ${(props) => props.theme.colors.apiPane.requestTree.row.key};
   user-select: none;
 `;
 const StyledValue = styled.span`
@@ -18,7 +18,7 @@ const StyledValue = styled.span`
   font-weight: normal;
   font-size: 14px;
   line-height: 16px;
-  color: #4d4d4d;
+  color: ${(props) => props.theme.colors.apiPane.requestTree.row.value};
   user-select: text;
 `;
 
@@ -33,6 +33,9 @@ const KeyValuePair = function(props: { hKey: string; hValue: string }) {
 
 const StyledTreeContainer = styled.div`
   font-family: ${(props) => props.theme.fonts.text};
+  .bp3-tree {
+    background-color: ${(props) => props.theme.colors.apiPane.requestTree.bg};
+  }
   .bp3-tree-node-content {
     height: auto;
   }
@@ -43,12 +46,14 @@ const StyledTreeContainer = styled.div`
     padding: 4px 0px;
   }
   .bp3-tree-node-content-0 {
-    background: #eeeeee;
+    background: ${(props) => props.theme.colors.apiPane.requestTree.header.bg};
+    color: ${(props) => props.theme.colors.apiPane.requestTree.header.text};
     font-style: normal;
     font-weight: 500;
-    font-size: 14px;
-    line-height: 16px;
+    font-size: 12px;
+    line-height: 14px;
     cursor: pointer;
+    text-transform: uppercase;
   }
   .bp3-tree-node.bp3-tree-node-selected > .bp3-tree-node-content,
   .bp3-tree-node.bp3-tree-node-selected > .bp3-icon {
@@ -62,8 +67,7 @@ const StyledTreeContainer = styled.div`
     padding-left: 24px;
   }
   .bp3-tree-node-list {
-    padding-top: 5px;
-    padding-bottom: 8px;
+    padding-bottom: 0px;
     .bp3-tree-root {
       padding-top: 0px;
       padding-bottom: 0px;
@@ -78,6 +82,14 @@ const StyledTreeContainer = styled.div`
     .bp3-tree-node-list {
       padding-left: 0;
     }
+  }
+  .bp3-tree-node-caret {
+    color: ${(props) => props.theme.colors.apiPane.requestTree.header.icon};
+  }
+  .bp3-tree-node-content:hover {
+    background-color: ${(props) =>
+      props.theme.colors.apiPane.requestTree.row.hoverBg};
+    cursor: pointer;
   }
 `;
 
