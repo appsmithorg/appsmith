@@ -37,8 +37,6 @@ import EditableAppName from "./EditableAppName";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { OnboardingStep } from "constants/OnboardingConstants";
-import { Position } from "@blueprintjs/core";
-import Indicator from "components/editorComponents/Onboarding/Indicator";
 import GlobalSearch from "components/editorComponents/GlobalSearch";
 import EndOnboardingTour from "components/editorComponents/Onboarding/EndTour";
 import ProfileDropdown from "pages/common/ProfileDropdown";
@@ -304,6 +302,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         </HeaderSection>
         {/* <HelpModal page={"Editor"} /> */}
         <OnboardingHelper />
+        <GlobalSearch />
       </HeaderWrapper>
     </ThemeProvider>
   );
