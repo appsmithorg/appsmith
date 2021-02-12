@@ -7,7 +7,6 @@ import { generateClassName, getCanvasClassName } from "utils/generators";
 
 const scrollContents = css`
   overflow-y: auto;
-  position: absolute;
 `;
 
 const StyledContainerComponent = styled.div<
