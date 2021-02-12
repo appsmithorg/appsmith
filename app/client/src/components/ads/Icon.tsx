@@ -29,6 +29,13 @@ import { ReactComponent as ChevronLeft } from "assets/icons/ads/chevron_left.svg
 import { ReactComponent as ChevronRight } from "assets/icons/ads/chevron_right.svg";
 import { ReactComponent as LinkIcon } from "assets/icons/ads/link.svg";
 import { ReactComponent as HelpIcon } from "assets/icons/help/help.svg";
+import { ReactComponent as CloseModalIcon } from "assets/icons/ads/close-modal.svg";
+import { ReactComponent as NoResponseIcon } from "assets/icons/ads/no-response.svg";
+import { ReactComponent as LightningIcon } from "assets/icons/ads/lightning.svg";
+import { ReactComponent as AddMoreIcon } from "assets/icons/ads/add-more.svg";
+import { ReactComponent as RightArrowIcon } from "assets/icons/ads/right-arrow.svg";
+import { ReactComponent as DatasourceIcon } from "assets/icons/ads/datasource.svg";
+import { ReactComponent as PlayIcon } from "assets/icons/ads/play.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -89,6 +96,7 @@ export const IconCollection = [
   "edit",
   "error",
   "shine",
+  "danger",
   "success",
   "search",
   "close",
@@ -111,6 +119,13 @@ export const IconCollection = [
   "chevron-right",
   "link",
   "help",
+  "close-modal",
+  "no-response",
+  "lightning",
+  "add-more",
+  "right-arrow",
+  "datasource",
+  "play",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -150,7 +165,7 @@ export type IconProps = {
   name?: IconName;
   invisible?: boolean;
   className?: string;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent) => void;
   fillColor?: string;
 };
 
@@ -177,6 +192,9 @@ const Icon = forwardRef(
         returnIcon = <EditIcon />;
         break;
       case "error":
+        returnIcon = <ErrorIcon />;
+        break;
+      case "danger":
         returnIcon = <ErrorIcon />;
         break;
       case "shine":
@@ -247,6 +265,27 @@ const Icon = forwardRef(
         break;
       case "help":
         returnIcon = <HelpIcon />;
+        break;
+      case "close-modal":
+        returnIcon = <CloseModalIcon />;
+        break;
+      case "no-response":
+        returnIcon = <NoResponseIcon />;
+        break;
+      case "lightning":
+        returnIcon = <LightningIcon />;
+        break;
+      case "add-more":
+        returnIcon = <AddMoreIcon />;
+        break;
+      case "right-arrow":
+        returnIcon = <RightArrowIcon />;
+        break;
+      case "datasource":
+        returnIcon = <DatasourceIcon />;
+        break;
+      case "play":
+        returnIcon = <PlayIcon />;
         break;
       default:
         returnIcon = null;

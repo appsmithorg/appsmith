@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.util.Base64;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -214,20 +215,20 @@ public class AmazonS3PluginTest {
                                     dummyKey1,
                                     dummyKey2
                             },
-                            node.get("List of Files").toArray()
+                            node.get("Files").toArray()
                     );
                 })
                 .verifyComplete();
     }
 
     /*
-     * - This method tests the upload file program flow till the point where an actual call is made by the AmazonS3
+     * - This method tests the create file program flow till the point where an actual call is made by the AmazonS3
      *   connection to upload a file.
      * - If everything goes well, then then only expected exception is the one thrown by AmazonS3 connection
      *   regarding false credentials.
      */
     @Test
-    public void testUploadFileFromBodyWithFalseCredentials() {
+    public void testCreateFileFromBodyWithFalseCredentials() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
@@ -241,6 +242,13 @@ public class AmazonS3PluginTest {
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("action", "UPLOAD_FILE_FROM_BODY"));
         properties.add(new Property("bucketName", "bucket_name"));
+        properties.add(new Property(null, null));
+        properties.add(new Property(null, null));
+        properties.add(new Property(null, null));
+        properties.add(new Property(null, null));
+        properties.add(new Property("usingFilepicker", "NO"));
+        properties.add(new Property("duration", "100000"));
+
         actionConfiguration.setPluginSpecifiedTemplates(properties);
 
         AmazonS3 connection = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
@@ -250,15 +258,89 @@ public class AmazonS3PluginTest {
                                                                     actionConfiguration);
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(e -> {
-                    Assert.assertTrue(e.getMessage().contains("The AWS Access Key Id you provided does not exist in " +
+                .verifyErrorSatisfies(e -> {
+                    assertTrue(e instanceof AppsmithPluginException);
+                    assertTrue(e.getMessage().contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                    return true;
-                }).verify();
+                });
     }
 
     @Test
-    public void testReadFileFromPath() {
+    public void testFileUploadFromBodyWithMissingDuration() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String dummyBody = "";
+        actionConfiguration.setBody(dummyBody);
+
+        String dummyPath = "path";
+        actionConfiguration.setPath(dummyPath);
+
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("action", "UPLOAD_FILE_FROM_BODY"));
+        properties.add(new Property("bucketName", "bucket_name"));
+        properties.add(new Property(null, null));
+        properties.add(new Property(null, null));
+        properties.add(new Property(null, null));
+        properties.add(new Property(null, null));
+        properties.add(new Property("usingFilepicker", "NO"));
+        properties.add(new Property("duration", null));
+
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+
+        AmazonS3 connection = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
+                                                                    connection,
+                                                                    datasourceConfiguration,
+                                                                    actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .verifyErrorSatisfies(e -> {
+                    assertTrue(e instanceof AppsmithPluginException);
+                    assertTrue(e.getMessage().contains("Required parameter 'URL Expiry Duration' is missing"));
+                });
+    }
+
+    @Test
+    public void testFileUploadFromBodyWithFilepickerAndNonBase64() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String dummyBody = "dummyBody";
+        actionConfiguration.setBody(dummyBody);
+
+        String dummyPath = "path";
+        actionConfiguration.setPath(dummyPath);
+
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("action", "UPLOAD_FILE_FROM_BODY"));
+        properties.add(new Property("bucketName", "bucket_name"));
+        properties.add(new Property(null, null));
+        properties.add(new Property(null, null));
+        properties.add(new Property(null, null));
+        properties.add(new Property(null, null));
+        properties.add(new Property("usingFilepicker", "YES"));
+        properties.add(new Property("duration", "1000000"));
+
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+
+        AmazonS3 connection = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
+                                                                    connection,
+                                                                    datasourceConfiguration,
+                                                                    actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .verifyErrorSatisfies(e -> {
+                    assertTrue(e instanceof AppsmithPluginException);
+                    assertTrue(e.getMessage().contains("Missing Base64 encoding"));
+                });
+    }
+
+    @Test
+    public void testReadFileFromPathWithoutBase64Encoding() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
@@ -272,6 +354,9 @@ public class AmazonS3PluginTest {
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("action", "READ_FILE"));
         properties.add(new Property("bucketName", "bucket_name"));
+        properties.add(new Property(null, null)); /* not relevant to this test */
+        properties.add(new Property(null, null)); /* not relevant to this test */
+        properties.add(new Property("encodeBase64", "NO"));
         actionConfiguration.setPluginSpecifiedTemplates(properties);
 
         S3Object mockS3Object = mock(S3Object.class);
@@ -292,6 +377,49 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertEquals(dummyContent, result.getBody());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testReadFileFromPathWithBase64Encoding() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String dummyBody = "";
+        actionConfiguration.setBody(dummyBody);
+
+        String dummyPath = "path";
+        actionConfiguration.setPath(dummyPath);
+
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("action", "READ_FILE"));
+        properties.add(new Property("bucketName", "bucket_name"));
+        properties.add(new Property(null, null)); /* not relevant to this test */
+        properties.add(new Property(null, null)); /* not relevant to this test */
+        properties.add(new Property(null, null)); /* not relevant to this test */
+        properties.add(new Property("encodeBase64", "YES"));
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+
+        S3Object mockS3Object = mock(S3Object.class);
+        AmazonS3 mockConnection = mock(AmazonS3.class);
+        when(mockConnection.getObject(anyString(), anyString())).thenReturn(mockS3Object);
+
+        String dummyContent = "Hello World !!!\n";
+        InputStream dummyInputStream = new ByteArrayInputStream(dummyContent.getBytes());
+        S3ObjectInputStream dummyS3ObjectInputStream = new S3ObjectInputStream(dummyInputStream, null);
+        when(mockS3Object.getObjectContent()).thenReturn(dummyS3ObjectInputStream);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
+                mockConnection,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertEquals(new String(Base64.encode(dummyContent.getBytes())), result.getBody());
                 })
                 .verifyComplete();
     }
@@ -382,7 +510,7 @@ public class AmazonS3PluginTest {
                                     dummyKey1,
                                     dummyKey2
                             },
-                            node.get("List of Files").toArray()
+                            node.get("Files").toArray()
                     );
                 })
                 .verifyComplete();
@@ -454,7 +582,7 @@ public class AmazonS3PluginTest {
                             (Map<String, ArrayList<ArrayList<String>>>)result.getBody();
                     assertArrayEquals(
                             expectedResult.toArray(),
-                            node.get("List of Files").toArray()
+                            node.get("Files").toArray()
                     );
                 })
                 .verifyComplete();

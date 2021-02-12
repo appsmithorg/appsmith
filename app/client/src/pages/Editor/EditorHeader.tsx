@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { ThemeProvider } from "styled-components";
 import {
   ApplicationPayload,
   ReduxActionTypes,
@@ -51,6 +51,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
+import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 
 const HeaderWrapper = styled(StyledHeader)`
   padding-right: 0;
@@ -136,6 +137,7 @@ type EditorHeaderProps = {
   currentApplication?: ApplicationPayload;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
+  darkTheme: any;
 };
 
 export const EditorHeader = (props: EditorHeaderProps) => {
@@ -200,101 +202,110 @@ export const EditorHeader = (props: EditorHeaderProps) => {
   };
 
   return (
-    <HeaderWrapper>
-      <HeaderSection>
-        <Link to={APPLICATIONS_URL} style={{ height: 24 }}>
-          <AppsmithLogoImg
-            src={AppsmithLogo}
-            alt="Appsmith logo"
-            className="t--appsmith-logo"
-          />
-        </Link>
-        <Boxed step={OnboardingStep.FINISH}>
-          {currentApplication && (
-            <EditableAppName
-              defaultValue={currentApplication.name || ""}
-              editInteractionKind={EditInteractionKind.SINGLE}
-              className="t--application-name editable-application-name"
-              fill={false}
-              savingState={
-                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-              }
-              isNewApp={
-                applicationList.filter((el) => el.id === applicationId).length >
-                0
-              }
-              onBlur={(value: string) =>
-                updateApplicationDispatch(applicationId || "", {
-                  name: value,
-                  currentApp: true,
-                })
-              }
+    <ThemeProvider theme={props.darkTheme}>
+      <HeaderWrapper>
+        <HeaderSection>
+          <Link to={APPLICATIONS_URL} style={{ height: 24 }}>
+            <AppsmithLogoImg
+              src={AppsmithLogo}
+              alt="Appsmith logo"
+              className="t--appsmith-logo"
             />
-          )}
-        </Boxed>
-      </HeaderSection>
-      <HeaderSection>
-        <HelpBar />
-      </HeaderSection>
-      <HeaderSection>
-        <HelpButton />
-        <Boxed step={OnboardingStep.FINISH}>
-          <SaveStatusContainer className={"t--save-status-container"}>
-            {saveStatusIcon}
-          </SaveStatusContainer>
-          <FormDialogComponent
-            trigger={
-              <Button
-                text={"Share"}
-                icon={"share"}
-                size={Size.small}
-                className="t--application-share-btn header__application-share-btn"
+          </Link>
+          <Boxed step={OnboardingStep.FINISH}>
+            {currentApplication && (
+              <EditableAppName
+                defaultValue={currentApplication.name || ""}
+                editInteractionKind={EditInteractionKind.SINGLE}
+                className="t--application-name editable-application-name"
+                fill={false}
+                savingState={
+                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+                }
+                isNewApp={
+                  applicationList.filter((el) => el.id === applicationId)
+                    .length > 0
+                }
+                onBlur={(value: string) =>
+                  updateApplicationDispatch(applicationId || "", {
+                    name: value,
+                    currentApp: true,
+                  })
+                }
               />
-            }
-            canOutsideClickClose={true}
-            Form={AppInviteUsersForm}
-            orgId={orgId}
-            applicationId={applicationId}
-            title={
-              currentApplication ? currentApplication.name : "Share Application"
-            }
-          />
-        </Boxed>
-        <Boxed step={OnboardingStep.DEPLOY} alternative={<EndOnboardingTour />}>
-          <DeploySection>
-            <OnboardingIndicator
-              step={OnboardingStep.DEPLOY}
-              hasButton={false}
-              width={75}
-            >
-              <StyledDeployButton
-                fill
-                onClick={handlePublish}
-                text={"Deploy"}
-                isLoading={isPublishing}
-                size={Size.small}
-                className="t--application-publish-btn"
-              />
-            </OnboardingIndicator>
-
-            <DeployLinkButtonDialog
+            )}
+          </Boxed>
+        </HeaderSection>
+        <HeaderSection>
+          <HelpBar />
+          <HelpButton />
+        </HeaderSection>
+        <HeaderSection>
+          <Boxed step={OnboardingStep.FINISH}>
+            <SaveStatusContainer className={"t--save-status-container"}>
+              {saveStatusIcon}
+            </SaveStatusContainer>
+            <FormDialogComponent
               trigger={
-                <StyledDeployButton icon={"downArrow"} size={Size.xxs} />
+                <Button
+                  text={"Share"}
+                  icon={"share"}
+                  size={Size.small}
+                  className="t--application-share-btn header__application-share-btn"
+                />
               }
-              link={getApplicationViewerPageURL(applicationId, pageId)}
+              canOutsideClickClose={true}
+              Form={AppInviteUsersForm}
+              orgId={orgId}
+              applicationId={applicationId}
+              title={
+                currentApplication
+                  ? currentApplication.name
+                  : "Share Application"
+              }
             />
-          </DeploySection>
-        </Boxed>
-        {user && user.username !== ANONYMOUS_USERNAME && (
-          <ProfileDropdownContainer>
-            <ProfileDropdown userName={user?.username || ""} hideThemeSwitch />
-          </ProfileDropdownContainer>
-        )}
-      </HeaderSection>
-      <GlobalSearch />
-      {/* <HelpModal page={"Editor"} /> */}
-      <OnboardingHelper />
-    </HeaderWrapper>
+          </Boxed>
+          <Boxed
+            step={OnboardingStep.DEPLOY}
+            alternative={<EndOnboardingTour />}
+          >
+            <DeploySection>
+              <OnboardingIndicator
+                step={OnboardingStep.DEPLOY}
+                hasButton={false}
+                width={75}
+              >
+                <StyledDeployButton
+                  fill
+                  onClick={handlePublish}
+                  text={"Deploy"}
+                  isLoading={isPublishing}
+                  size={Size.small}
+                  className="t--application-publish-btn"
+                />
+              </OnboardingIndicator>
+
+              <DeployLinkButtonDialog
+                trigger={
+                  <StyledDeployButton icon={"downArrow"} size={Size.xxs} />
+                }
+                link={getApplicationViewerPageURL(applicationId, pageId)}
+              />
+            </DeploySection>
+          </Boxed>
+          {user && user.username !== ANONYMOUS_USERNAME && (
+            <ProfileDropdownContainer>
+              <ProfileDropdown
+                userName={user?.username || ""}
+                hideThemeSwitch
+              />
+            </ProfileDropdownContainer>
+          )}
+        </HeaderSection>
+        {/* <HelpModal page={"Editor"} /> */}
+        <OnboardingHelper />
+      </HeaderWrapper>
+    </ThemeProvider>
   );
 };
 
@@ -307,6 +318,7 @@ const mapStateToProps = (state: AppState) => ({
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),
+  darkTheme: getThemeDetails(state, ThemeMode.DARK),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

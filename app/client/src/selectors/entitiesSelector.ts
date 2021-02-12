@@ -97,6 +97,10 @@ export const getPluginForm = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.formConfigs[pluginId];
 };
 
+export const getEditorConfig = (state: AppState, pluginId: string): any[] => {
+  return state.entities.plugins.editorConfigs[pluginId];
+};
+
 export const getActions = (state: AppState): ActionDataState =>
   state.entities.actions;
 
