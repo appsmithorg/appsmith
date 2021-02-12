@@ -520,7 +520,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             {...COMMON_INPUT_PROPS}
             label="Scope(s)"
             configProperty="authentication.scopeString"
-            placeholderText="e.g. read"
+            placeholderText="e.g. read, write"
           />
         </FormInputContainer>
       </>
