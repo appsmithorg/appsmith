@@ -54,6 +54,12 @@ export const apiActionSettingsConfig = [
         controlType: "CHECKBOX",
         info: "Ask confirmation from the user each time before refreshing data",
       },
+      {
+        label: "Encode query params",
+        configProperty: "actionConfiguration.encodeParamsToggle",
+        controlType: "CHECKBOX",
+        info: "Will encode query params. Also form body for x-www-form-encoded",
+      },
       // {
       //   label: "Cache response",
       //   configProperty: "shouldCacheResponse",
