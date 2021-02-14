@@ -21,7 +21,7 @@ import {
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
-import { isNumber, isString, isUndefined, isEqual, xor } from "lodash";
+import { isNumber, isString, isUndefined, isEqual, xor, without } from "lodash";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta from "../MetaHOC";
@@ -104,7 +104,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       onPageChange: true,
       onSearchTextChanged: true,
       onPageSizeChange: true,
-      regex: [/primaryColumns\[\d+\].onClick/],
     };
   }
 
@@ -160,12 +159,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
-    const { sortedColumn, columnOrder, columnSizeMap } = this.props;
-    const primaryColumns =
-      this.props.primaryColumns && Array.isArray(this.props.primaryColumns)
-        ? this.props.primaryColumns.filter(Boolean)
-        : [];
-    let allColumns = this.createTablePrimaryColumns() || primaryColumns;
+    const {
+      sortedColumn,
+      columnOrder,
+      columnSizeMap,
+      primaryColumns = {},
+    } = this.props;
+    let allColumns = Object.assign(
+      {},
+      this.createTablePrimaryColumns() || primaryColumns,
+    );
     const sortColumn = sortedColumn?.column;
     const sortOrder = sortedColumn?.asc;
     if (columnOrder) {
@@ -178,8 +181,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       totalColumnSizes += columnSizeMap[i];
     }
 
-    for (let index = 0; index < allColumns.length; index++) {
-      const columnProperties = allColumns[index];
+    // const columnCount = Object.keys(allColumns).length;
+    const allColumnProperties = Object.values(allColumns);
+    for (let index = 0; index < allColumnProperties.length; index++) {
+      const columnProperties = allColumnProperties[index];
       const isHidden = !columnProperties.isVisible;
       const accessor = columnProperties.id;
       const columnData = {
@@ -200,7 +205,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           format: columnProperties?.outputFormat || "",
           inputFormat: columnProperties?.inputFormat || "",
         },
-        columnProperties: JSON.stringify(columnProperties),
+        columnProperties: columnProperties,
         Cell: (props: any) => {
           const rowIndex: number = props.cell.row.index;
           const cellProperties = this.getCellProperties(
@@ -338,9 +343,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             }
           }
         }
+
         updatedTableData.push(tableRow);
       }
     }
+
     return updatedTableData;
   };
 
@@ -374,23 +381,22 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const derivedTableData: Array<Record<string, unknown>> = [...tableData];
     // If we've already computed the columns list
     if (this.props.primaryColumns) {
-      const primaryColumns = this.props.primaryColumns.filter(Boolean);
+      const primaryColumns = this.props.primaryColumns;
+      const columnIds = Object.keys(this.props.primaryColumns);
       // For each column in the table
-      for (let i = 0; i < primaryColumns.length; i++) {
+      columnIds.forEach((columnId: string) => {
         // Get the column properties
-        const column: ColumnProperties = primaryColumns[i];
-        const columnId = column.id;
+        const column: ColumnProperties = primaryColumns[columnId];
         let computedValues: Array<unknown> = [];
 
-        if (column.computedValue) {
+        if (column && column.computedValue) {
           computedValues = this.getParsedComputedValues(column.computedValue);
         }
+
         if (computedValues.length === 0) {
-          if (derivedColumns && derivedColumns.length > 0) {
+          if (derivedColumns) {
             // Find the derived column with the same column id as the current column
-            const derivedColumn = derivedColumns.find(
-              (column: ColumnProperties) => column.id === columnId,
-            );
+            const derivedColumn = derivedColumns[columnId];
             // if such a derived column exists, use it.
             if (derivedColumn) {
               computedValues = this.getParsedComputedValues(
@@ -407,7 +413,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             [columnId]: computedValues[index],
           };
         }
-      }
+      });
     }
 
     let sortedTableData: any[];
@@ -482,36 +488,35 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   getDerivedColumns = (
-    derivedColumns: ColumnProperties[],
+    derivedColumns: Record<string, ColumnProperties>,
     tableColumnCount: number,
   ) => {
     if (!derivedColumns) return [];
     //update index property of all columns in new derived columns
     return (
-      derivedColumns?.map((column: ColumnProperties, index: number) => {
+      Object.keys(derivedColumns)?.map((columnId: string, index: number) => {
         return {
-          ...column,
+          ...derivedColumns[columnId],
           index: index + tableColumnCount,
         };
       }) || []
     );
   };
 
-  createTablePrimaryColumns = (): ColumnProperties[] | undefined => {
+  createTablePrimaryColumns = ():
+    | Record<string, ColumnProperties>
+    | undefined => {
     const {
       tableData,
-      primaryColumns = [],
+      primaryColumns = {},
       columnNameMap = {},
       columnTypeMap = {},
+      derivedColumns = {},
       migrated,
     } = this.props;
-    const derivedColumns = [...(this.props.derivedColumns || [])];
 
-    const previousColumnIds = primaryColumns
-      .filter(Boolean)
-      .map((column: ColumnProperties) => column.id);
-
-    const tableColumns: ColumnProperties[] = [];
+    const previousColumnIds = Object.keys(primaryColumns);
+    const tableColumns: Record<string, ColumnProperties> = {};
     //Get table level styles
     const tableStyles = getTableStyles(this.props);
     const columnKeys: string[] = getAllTableColumnKeys(tableData);
@@ -522,7 +527,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const prevIndex = previousColumnIds.indexOf(i);
       if (prevIndex > -1) {
         // we found an existing property with the same column id use the previous properties
-        tableColumns.push(primaryColumns[prevIndex]);
+        tableColumns[i] = primaryColumns[i];
       } else {
         const columnProperties = getDefaultColumnProperties(
           i,
@@ -545,49 +550,45 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }
         }
         //add column properties along with table level styles
-        tableColumns.push({
+        tableColumns[columnProperties.id] = {
           ...columnProperties,
           ...tableStyles,
-        });
+        };
       }
     }
     // Get derived columns
     const updatedDerivedColumns = this.getDerivedColumns(
       derivedColumns,
-      tableColumns.length,
+      Object.keys(tableColumns).length,
     );
 
     //add derived columns to primary columns
-    tableColumns.push(...updatedDerivedColumns);
+    updatedDerivedColumns.forEach((derivedColumn: ColumnProperties) => {
+      tableColumns[derivedColumn.id] = derivedColumn;
+    });
 
-    const newColumnIds = tableColumns.map(
-      (column: ColumnProperties) => column.id,
-    );
+    const newColumnIds = Object.keys(tableColumns);
     if (xor(previousColumnIds, newColumnIds).length > 0) return tableColumns;
     else return;
   };
 
-  updateColumnProperties = (tableColumns?: ColumnProperties[]) => {
+  updateColumnProperties = (
+    tableColumns?: Record<string, ColumnProperties>,
+  ) => {
     let { primaryColumns = [] } = this.props;
     const { columnOrder, migrated } = this.props;
-    primaryColumns = primaryColumns.filter(Boolean);
+    primaryColumns = primaryColumns;
     if (tableColumns) {
-      const previousColumnIds = primaryColumns.map(
-        (column: ColumnProperties) => column.id,
-      );
-      const newColumnIds = tableColumns.map(
-        (column: ColumnProperties) => column.id,
-      );
+      const previousColumnIds = Object.keys(primaryColumns);
+      const newColumnIds = Object.keys(tableColumns);
       if (xor(previousColumnIds, newColumnIds).length > 0) {
-        const propertiesToAdd: Record<string, unknown> = {};
+        const columnIdsToAdd = without(newColumnIds, ...previousColumnIds);
 
-        tableColumns.forEach((column: ColumnProperties, index: number) => {
-          const prevIndex = previousColumnIds.indexOf(column.id);
-          if (prevIndex === -1 || prevIndex !== index) {
-            Object.entries(column).forEach(([key, value]) => {
-              propertiesToAdd[`primaryColumns[${index}].${key}`] = value;
-            });
-          }
+        const propertiesToAdd: Record<string, unknown> = {};
+        columnIdsToAdd.forEach((id: string) => {
+          Object.entries(tableColumns[id]).forEach(([key, value]) => {
+            propertiesToAdd[`primaryColumns.${id}.${key}`] = value;
+          });
         });
 
         // If new columnOrders have different values from the original columnOrders
@@ -602,13 +603,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
         super.batchUpdateWidgetProperty(propertiesToAdd);
         if (previousColumnIds.length > newColumnIds.length) {
-          let diff = previousColumnIds.length - newColumnIds.length;
-          while (diff > 0) {
-            pathsToDelete.push(
-              `primaryColumns[${newColumnIds.length + diff - 1}]`,
-            );
-            diff--;
-          }
+          const columnsIdsToDelete = without(
+            previousColumnIds,
+            ...newColumnIds,
+          );
+          columnsIdsToDelete.forEach((id: string) => {
+            pathsToDelete.push(`primaryColumns[${id}]`);
+          });
           super.deleteWidgetProperty(pathsToDelete);
         }
       }
@@ -636,22 +637,24 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
+    const { primaryColumns = {} } = this.props;
+
     // console.log("Table log:", this.props);
     // Check if data is modifed by comparing the stringified versions of the previous and next tableData
     const tableDataModified =
       JSON.stringify(this.props.tableData) !==
       JSON.stringify(prevProps.tableData);
 
-    let hasPrimaryColumnsComputedValueChanged = false;
-    const oldComputedValues = (prevProps.primaryColumns || [])
-      .filter(Boolean)
-      ?.map((column: ColumnProperties) => column.computedValue);
-    const newComputedValues = (this.props.primaryColumns || [])
-      .filter(Boolean)
-      ?.map((column: ColumnProperties) => column.computedValue);
-    if (!isEqual(oldComputedValues, newComputedValues)) {
-      hasPrimaryColumnsComputedValueChanged = true;
-    }
+    // let hasPrimaryColumnsComputedValueChanged = false;
+    // const oldComputedValues = Object.values(
+    //   prevProps.primaryColumns || {},
+    // )?.map((column: ColumnProperties) => column.computedValue);
+    // const newComputedValues = Object.values(
+    //   this.props.primaryColumns || {},
+    // )?.map((column: ColumnProperties) => column.computedValue);
+    // if (!isEqual(oldComputedValues, newComputedValues)) {
+    //   hasPrimaryColumnsComputedValueChanged = true;
+    // }
 
     let hasPrimaryColumnsChanged = false;
     // If the user has changed the tableData OR
@@ -660,14 +663,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       // Get columns keys from this.props.tableData
       const columnIds: string[] = getAllTableColumnKeys(this.props.tableData);
       // Get column keys from columns except for derivedColumns
-      const primaryColumnIds = (this.props.primaryColumns || [])
-        .filter(Boolean)
-        .filter((column: ColumnProperties) => {
-          return !column.isDerived; // Filter out the derived columns
-        })
-        .map((column: ColumnProperties) => {
-          return column.id; // Get the ids only
-        });
+      const primaryColumnIds = Object.keys(primaryColumns).filter(
+        (id: string) => {
+          return !primaryColumns[id].isDerived; // Filter out the derived columns
+        },
+      );
       // If the keys which exist in the tableData are different from the ones available in primaryColumns
       if (xor(columnIds, primaryColumnIds).length > 0) {
         const newTableColumns = this.createTablePrimaryColumns(); // This updates the widget
@@ -688,12 +688,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         this.props.searchText !== prevProps.searchText ||
         JSON.stringify(this.props.sortedColumn) !==
           JSON.stringify(prevProps.sortedColumn) ||
-        hasPrimaryColumnsComputedValueChanged ||
         JSON.stringify(this.props.primaryColumns) !==
           JSON.stringify(prevProps.primaryColumns) ||
         this.props.filteredTableData === undefined)
     ) {
-      if (this.props.primaryColumns && this.props.primaryColumns.length > 0) {
+      if (this.props.primaryColumns && Object.keys(primaryColumns).length > 0) {
         const filteredTableData = this.filterTableData();
 
         if (

@@ -94,6 +94,7 @@ import {
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -860,15 +861,8 @@ function* batchUpdateWidgetPropertySaga(
     // Set the actual property update
     propertyUpdates[propertyPath] = propertyValue;
 
-    let isRegexTriggerMatch = false;
-    if (triggerProperties.regex && Array.isArray(triggerProperties.regex)) {
-      triggerProperties.regex.forEach((re) => {
-        if (re.test(propertyPath)) isRegexTriggerMatch = true;
-      });
-    }
     // Check if the path is a of a dynamic trigger property
-    const isTriggerProperty =
-      propertyPath in triggerProperties || isRegexTriggerMatch;
+    const isTriggerProperty = propertyPath in triggerProperties;
 
     // If it is a trigger property, it will go in a different list than the general
     // dynamicBindingPathList.
@@ -1289,19 +1283,22 @@ function* pasteWidgetSaga() {
             evalTree,
           );
           // If the primaryColumns of the table exist
-          if (widget.primaryColumns && Array.isArray(widget.primaryColumns)) {
-            // Map all the primaryColumns of the widget
-            widget.primaryColumns = widget.primaryColumns.map((column) => {
+          if (widget.primaryColumns) {
+            // For each column
+            for (const [columnId, column] of Object.entries(
+              widget.primaryColumns,
+            )) {
               // For each property in the column
-              for (const [key, value] of Object.entries(column)) {
+              for (const [key, value] of Object.entries(
+                column as ColumnProperties,
+              )) {
                 // Replace reference of previous widget with the new widgetName
                 // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
-                column[key] = isString(value)
+                widget.primaryColumns[columnId][key] = isString(value)
                   ? value.replace(`${oldWidgetName}.`, `${newWidgetName}.`)
                   : value;
               }
-              return column;
-            });
+            }
           }
           // Use the new widget name we used to replace the column properties above.
           widget.widgetName = newWidgetName;

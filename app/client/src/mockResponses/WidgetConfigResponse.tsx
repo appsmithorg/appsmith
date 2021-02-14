@@ -111,8 +111,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       textSize: "PARAGRAPH",
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
-      primaryColumns: [],
-      derivedColumns: [],
+      primaryColumns: {},
+      derivedColumns: {},
       tableData: [
         {
           id: 2381224,

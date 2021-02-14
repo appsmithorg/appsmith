@@ -101,12 +101,13 @@ class ComputeTablePropertyControl extends BaseControl<
         : defaultValue;
     const evaluatedProperties = this.props.widgetProperties;
 
-    const columns: ColumnProperties[] =
-      evaluatedProperties.primaryColumns || [];
+    const columns: Record<string, ColumnProperties> =
+      evaluatedProperties.primaryColumns || {};
     const currentRow: { [key: string]: any } = {};
-    for (let i = 0; i < columns.length; i++) {
-      currentRow[columns[i].id] = undefined;
-    }
+    Object.keys(columns).forEach((id: string) => {
+      currentRow[id] = undefined;
+    });
+
     return (
       <InputText
         label={label}

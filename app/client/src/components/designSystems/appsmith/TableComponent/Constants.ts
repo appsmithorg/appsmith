@@ -128,7 +128,7 @@ export interface ReactTableColumnProps {
   isAscOrder?: boolean;
   metaProperties?: TableColumnMetaProps;
   isDerived?: boolean;
-  columnProperties: string;
+  columnProperties: ColumnProperties;
   Cell: (props: any) => JSX.Element;
 }
 

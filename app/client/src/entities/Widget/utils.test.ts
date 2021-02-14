@@ -13,7 +13,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       columnOrder: ["name", "createdAt", "status"],
       dynamicPropertyPathList: [
         {
-          key: "primaryColumns[0].verticalAlignment",
+          key: "primaryColumns.name.verticalAlignment",
         },
       ],
       widgetId: "19ye491zn1",
@@ -31,26 +31,26 @@ describe("getAllPathsFromPropertyConfig", () => {
       parentColumnSpace: 74,
       dynamicTriggerPathList: [
         {
-          key: "primaryColumns[4].onClick",
+          key: "primaryColumns.status.onClick",
         },
       ],
       leftColumn: 0,
       dynamicBindingPathList: [
         {
-          key: "primaryColumns[0].computedValue",
+          key: "primaryColumns.name.computedValue",
         },
         {
-          key: "primaryColumns[1].computedValue",
+          key: "primaryColumns.createdAt.computedValue",
         },
         {
-          key: "primaryColumns[2].buttonLabel",
+          key: "primaryColumns.status.buttonLabel",
         },
         {
           key: "tableData",
         },
       ],
-      primaryColumns: [
-        {
+      primaryColumns: {
+        name: {
           index: 1,
           width: 150,
           id: "name",
@@ -66,7 +66,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           computedValue:
             "{{Table1.tableData.map((currentRow) => (currentRow.name))}}",
         },
-        {
+        createdAt: {
           index: 2,
           width: 150,
           id: "createdAt",
@@ -84,7 +84,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           inputFormat: "YYYY-MM-DDTHH:mm:ss",
           outputFormat: "DD-MM-YYYY",
         },
-        {
+        status: {
           index: 4,
           width: 150,
           id: "status",
@@ -103,7 +103,7 @@ describe("getAllPathsFromPropertyConfig", () => {
             "{{Table1.tableData.map((currentRow) => (currentRow.status))}}",
           onClick: "{{showAlert(currentRow.status)}}",
         },
-      ],
+      },
       verticalAlignment: "CENTER",
     };
     const config = tablePropertyPaneConfig;
@@ -116,32 +116,32 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSearchText: true,
         defaultSelectedRow: true,
         isVisible: true,
-        "primaryColumns[0].computedValue": true,
-        "primaryColumns[0].horizontalAlignment": true,
-        "primaryColumns[0].verticalAlignment": true,
-        "primaryColumns[0].textSize": true,
-        "primaryColumns[0].fontStyle": true,
-        "primaryColumns[0].textColor": true,
-        "primaryColumns[0].cellBackground": true,
-        "primaryColumns[1].inputFormat": true,
-        "primaryColumns[1].outputFormat": true,
-        "primaryColumns[1].computedValue": true,
-        "primaryColumns[1].horizontalAlignment": true,
-        "primaryColumns[1].verticalAlignment": true,
-        "primaryColumns[1].textSize": true,
-        "primaryColumns[1].fontStyle": true,
-        "primaryColumns[1].textColor": true,
-        "primaryColumns[1].cellBackground": true,
-        "primaryColumns[2].buttonLabel": true,
-        "primaryColumns[2].buttonStyle": true,
-        "primaryColumns[2].buttonLabelColor": true,
+        "primaryColumns.name.computedValue": true,
+        "primaryColumns.name.horizontalAlignment": true,
+        "primaryColumns.name.verticalAlignment": true,
+        "primaryColumns.name.textSize": true,
+        "primaryColumns.name.fontStyle": true,
+        "primaryColumns.name.textColor": true,
+        "primaryColumns.name.cellBackground": true,
+        "primaryColumns.createdAt.inputFormat": true,
+        "primaryColumns.createdAt.outputFormat": true,
+        "primaryColumns.createdAt.computedValue": true,
+        "primaryColumns.createdAt.horizontalAlignment": true,
+        "primaryColumns.createdAt.verticalAlignment": true,
+        "primaryColumns.createdAt.textSize": true,
+        "primaryColumns.createdAt.fontStyle": true,
+        "primaryColumns.createdAt.textColor": true,
+        "primaryColumns.createdAt.cellBackground": true,
+        "primaryColumns.status.buttonLabel": true,
+        "primaryColumns.status.buttonStyle": true,
+        "primaryColumns.status.buttonLabelColor": true,
       },
       triggerPaths: {
         onRowSelected: true,
         onPageChange: true,
         onSearchTextChanged: true,
         onPageSizeChange: true,
-        "primaryColumns[2].onClick": true,
+        "primaryColumns.status.onClick": true,
       },
     };
 

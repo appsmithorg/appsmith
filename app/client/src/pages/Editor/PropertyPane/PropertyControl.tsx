@@ -24,7 +24,7 @@ import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
   isPathADynamicProperty,
   isPathADynamicTrigger,
-} from "../../../utils/DynamicBindingUtils";
+} from "utils/DynamicBindingUtils";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";

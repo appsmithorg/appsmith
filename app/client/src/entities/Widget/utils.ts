@@ -37,21 +37,21 @@ export const getAllPathsFromPropertyConfig = (
           const panelPropertyPath = controlConfig.propertyName;
           const widgetPanelPropertyValues = get(widget, panelPropertyPath);
           if (widgetPanelPropertyValues) {
-            widgetPanelPropertyValues.forEach(
-              (widgetPanelPropertyValue: any, index: number) => {
+            Object.values(widgetPanelPropertyValues).forEach(
+              (widgetPanelPropertyValue: any) => {
                 controlConfig.panelConfig.children.forEach(
                   (panelColumnConfig: any) => {
                     let isSectionHidden = false;
                     if ("hidden" in panelColumnConfig) {
                       isSectionHidden = panelColumnConfig.hidden(
                         widget,
-                        `${basePath}[${index}]`,
+                        `${basePath}.${widgetPanelPropertyValue.id}`,
                       );
                     }
                     if (!isSectionHidden) {
                       panelColumnConfig.children.forEach(
                         (panelColumnControlConfig: any) => {
-                          const panelPropertyPath = `${basePath}[${index}].${panelColumnControlConfig.propertyName}`;
+                          const panelPropertyPath = `${basePath}.${widgetPanelPropertyValue.id}.${panelColumnControlConfig.propertyName}`;
                           let isControlHidden = false;
                           if ("hidden" in panelColumnControlConfig) {
                             isControlHidden = panelColumnControlConfig.hidden(

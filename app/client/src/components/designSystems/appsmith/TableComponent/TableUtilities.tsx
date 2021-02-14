@@ -411,38 +411,14 @@ export function compare(a: any, b: any, condition: Condition) {
 }
 
 export const reorderColumns = (
-  columns: ColumnProperties[],
+  columns: Record<string, ColumnProperties>,
   columnOrder: string[],
 ) => {
-  const reorderedColumns = [];
-  const reorderedFlagMap: { [key: string]: boolean } = {};
-  for (let index = 0; index < columns.length; index++) {
-    const accessor = columnOrder[index];
-    if (accessor) {
-      const column = columns.filter((col: ColumnProperties) => {
-        return col.id === accessor;
-      });
-      if (column.length && !reorderedFlagMap[column[0].id]) {
-        reorderedColumns.push(column[0]);
-        reorderedFlagMap[column[0].id] = true;
-      } else if (!reorderedFlagMap[columns[index].id]) {
-        reorderedColumns.push(columns[index]);
-        reorderedFlagMap[columns[index].id] = true;
-      }
-    } else if (!reorderedFlagMap[columns[index].id]) {
-      reorderedColumns.push(columns[index]);
-      reorderedFlagMap[columns[index].id] = true;
-    }
-  }
-  if (reorderedColumns.length < columns.length) {
-    for (let index = 0; index < columns.length; index++) {
-      if (!reorderedFlagMap[columns[index].id]) {
-        reorderedColumns.push(columns[index]);
-        reorderedFlagMap[columns[index].id] = true;
-      }
-    }
-  }
-  return reorderedColumns;
+  const newColumnsInOrder: Record<string, ColumnProperties> = {};
+  columnOrder.forEach((id: string, index: number) => {
+    if (columns[id]) newColumnsInOrder[id] = { ...columns[id], index };
+  });
+  return newColumnsInOrder;
 };
 
 export function getDefaultColumnProperties(
