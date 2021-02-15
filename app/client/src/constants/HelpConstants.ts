@@ -100,8 +100,8 @@ export const HelpMap = {
     searchKey: "Connecting to databases",
   },
   SWITCH_WIDGET: {
-    path: "",
-    searchKey: "",
+    path: "/widget-reference/switch",
+    searchKey: "Switch",
   },
 };
 
