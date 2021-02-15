@@ -34,6 +34,7 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,7 +44,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
-import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 @Service
@@ -268,9 +268,10 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
                     Set<AppsmithRole> appsmithRoles = roleGraph.generateHierarchicalRoles(roleName);
 
-                    Map<String, String> appsmithRolesMap = appsmithRoles
-                            .stream()
-                            .collect(toMap(AppsmithRole::getName, AppsmithRole::getDescription));
+                    final Map<String, String> appsmithRolesMap = new LinkedHashMap<>();
+                    for (final AppsmithRole role : appsmithRoles) {
+                        appsmithRolesMap.put(role.getName(), role.getDescription());
+                    }
 
                     return Mono.just(appsmithRolesMap);
                 });

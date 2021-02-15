@@ -19,3 +19,4 @@ export const QUERY_EDITOR_FORM_NAME = "QueryEditorForm";
 export const API_HOME_SCREEN_FORM = "APIHomeScreenForm";
 
 export const DATASOURCE_DB_FORM = "DatasourceDBForm";
+export const DATASOURCE_REST_API_FORM = "DatasourceRestAPIForm";

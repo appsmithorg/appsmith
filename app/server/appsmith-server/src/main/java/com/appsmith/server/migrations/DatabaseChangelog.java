@@ -26,11 +26,13 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QDatasource;
+import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
@@ -60,6 +62,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StreamUtils;
 
@@ -1637,4 +1640,57 @@ public class DatabaseChangelog {
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
+
+    @ChangeSet(order = "052", id = "add-app-viewer-invite-policy", author = "")
+    public void addAppViewerInvitePolicy(MongoTemplate mongoTemplate) {
+        final List<Organization> organizations = mongoTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QOrganization.organization.userRoles) + ".role").is(AppsmithRole.ORGANIZATION_VIEWER.name())
+                )),
+                Organization.class
+        );
+
+        for (final Organization org : organizations) {
+            final Set<String> viewers = org.getUserRoles().stream()
+                    .filter(role -> AppsmithRole.ORGANIZATION_VIEWER == role.getRole())
+                    .map(UserRole::getUsername)
+                    .collect(Collectors.toSet());
+            mongoTemplate.updateFirst(
+                    query(new Criteria().andOperator(
+                            where(fieldName(QOrganization.organization.id)).is(org.getId()),
+                            where(fieldName(QOrganization.organization.policies) + ".permission").is(ORGANIZATION_INVITE_USERS.getValue())
+                    )),
+                    new Update().addToSet("policies.$.users").each(viewers.toArray()),
+                    Organization.class
+            );
+        }
+
+    }
+  
+  @ChangeSet(order = "053", id = "update-plugin-datasource-form-components", author = "")
+    public void updatePluginDatasourceFormComponents(MongoTemplate mongoTemplate) {
+      for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
+          switch (plugin.getPackageName()) {
+              case "postgres-plugin":
+              case "mongo-plugin":
+              case "elasticsearch-plugin":
+              case "dynamo-plugin":
+              case "redis-plugin":
+              case "mssql-plugin":
+              case "firestore-plugin":
+              case "redshift-plugin":
+              case "mysql-plugin":
+              case "amazons3-plugin":
+                  plugin.setDatasourceComponent("AutoForm");
+                  break;
+              case "restapi-plugin":
+                  plugin.setDatasourceComponent("RestAPIDatasourceForm");
+                  break;
+              default:
+                  continue;
+          }
+
+          mongoTemplate.save(plugin);
+      }
+  }
 }

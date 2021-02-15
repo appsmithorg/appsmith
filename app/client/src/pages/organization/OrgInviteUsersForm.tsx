@@ -1,5 +1,5 @@
-import React, { Fragment, useEffect, useState } from "react";
-import styled from "styled-components";
+import React, { Fragment, useContext, useEffect, useState } from "react";
+import styled, { ThemeContext } from "styled-components";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
@@ -34,7 +34,6 @@ import Text, { TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
-import { getThemeDetails } from "selectors/themeSelectors";
 import { scrollbarDark } from "constants/DefaultTheme";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "./ManageUsers";
@@ -239,7 +238,7 @@ const OrgInviteUsersForm = (props: any) => {
     };
   });
 
-  const themeDetails = useSelector(getThemeDetails);
+  const theme = useContext(ThemeContext);
 
   const allUsersProfiles = React.useMemo(
     () =>
@@ -247,7 +246,7 @@ const OrgInviteUsersForm = (props: any) => {
         (user: { username: string; roleName: string; name: string }) => {
           const details = getInitialsAndColorCode(
             user.name || user.username,
-            themeDetails.theme.colors.appCardColors,
+            theme.colors.appCardColors,
           );
           return {
             ...user,
@@ -255,7 +254,7 @@ const OrgInviteUsersForm = (props: any) => {
           };
         },
       ),
-    [allUsers, themeDetails],
+    [allUsers, theme],
   );
 
   return (
@@ -356,13 +355,13 @@ const OrgInviteUsersForm = (props: any) => {
         <ErrorBox message={submitSucceeded || submitFailed}>
           {submitSucceeded && (
             <Callout
-              text={INVITE_USERS_SUBMIT_SUCCESS}
               variant={Variant.success}
               fill
+              text={INVITE_USERS_SUBMIT_SUCCESS}
             />
           )}
           {((submitFailed && error) || emailError) && (
-            <Callout text={error || emailError} variant={Variant.danger} fill />
+            <Callout variant={Variant.danger} fill text={error || emailError} />
           )}
         </ErrorBox>
         {canManage && <ManageUsers orgId={props.orgId} />}

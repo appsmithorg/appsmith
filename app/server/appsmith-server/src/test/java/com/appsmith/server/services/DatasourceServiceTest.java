@@ -427,6 +427,7 @@ public class DatasourceServiceTest {
 
         Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> {
             ((DBAuth) datasource1.getDatasourceConfiguration().getAuthentication()).setPassword(null);
+            datasource1.getDatasourceConfiguration().getAuthentication().setIsEncrypted(false);
             return datasourceService.testDatasource(datasource1);
         });
 
@@ -539,6 +540,8 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void checkEncryptionOfAuthenticationDTOTest() {
+        // For this test, simply inserting a new datasource with authentication should immediately
+        // set the authentication object as encrypted
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
@@ -566,6 +569,7 @@ public class DatasourceServiceTest {
                     DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
                     assertThat(authentication.getPassword()).isEqualTo(encryptionService.encryptString(password));
+                    assertThat(authentication.isEncrypted()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -573,6 +577,8 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void checkEncryptionOfAuthenticationDTONullPassword() {
+        // For this test, all fields that are meant to be encrypted are going to be empty
+        // In such a scenario, we want the isEncrypted field to be in an inactive state, that is, null
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
@@ -597,7 +603,7 @@ public class DatasourceServiceTest {
                     DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isNull();
                     assertThat(authentication.getPassword()).isNull();
-                    assertThat(authentication.isEncrypted()).isFalse();
+                    assertThat(authentication.isEncrypted()).isNull();
                 })
                 .verifyComplete();
     }
@@ -605,6 +611,8 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void checkEncryptionOfAuthenticationDTOAfterUpdate() {
+        // Here, we're replacing an existing encrypted field with another
+        // Encyption state would stay the same, that is, as true
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
@@ -629,6 +637,11 @@ public class DatasourceServiceTest {
         Mono<Datasource> datasourceMono = Mono.just(createdDatasource)
                 .flatMap(original -> {
                     Datasource datasource1 = new Datasource();
+                    // Here we still need to send some object of authentication type to make sure that the entire object is not replaced by null
+                    DBAuth partialAuthenticationDTO = new DBAuth();
+                    partialAuthenticationDTO.setUsername(username);
+                    datasourceConfiguration.setAuthentication(partialAuthenticationDTO);
+                    datasource1.setDatasourceConfiguration(datasourceConfiguration);
                     datasource1.setName("New Name for update to test that encryption is still correct");
                     return datasourceService.update(original.getId(), datasource1);
                 });
@@ -637,9 +650,52 @@ public class DatasourceServiceTest {
                 .create(datasourceMono)
                 .assertNext(updatedDatasource -> {
                     DBAuth authentication = (DBAuth) updatedDatasource.getDatasourceConfiguration().getAuthentication();
+
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    assertThat(authentication.getPassword()).isEqualTo(encryptionService.encryptString(password));
+                    assertThat(encryptionService.encryptString(password)).isEqualTo(authentication.getPassword());
                     assertThat(authentication.isEncrypted()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void checkEncryptionOfAuthenticationDTOAfterRemoval() {
+        // Here is when authentication is removed from a datasource
+        // We want the entire authentication object to be discarded here to avoid reusing any sensitive data across types
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        Datasource datasource = new Datasource();
+        datasource.setName("test datasource name for authenticated fields encryption test post removal");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        DBAuth authenticationDTO = new DBAuth();
+        String username = "username";
+        String password = "password";
+        authenticationDTO.setUsername(username);
+        authenticationDTO.setPassword(password);
+        datasourceConfiguration.setAuthentication(authenticationDTO);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setOrganizationId(orgId);
+
+        Datasource createdDatasource = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create).block();
+
+        Mono<Datasource> datasourceMono = Mono.just(createdDatasource)
+                .flatMap(original -> {
+                    Datasource datasource1 = new Datasource();
+                    // Here we abstain from sending an authentication object to remove the field from datasourceConfiguration
+                    datasource1.setName("New Name for update to test that encryption is now gone");
+                    return datasourceService.update(original.getId(), datasource1);
+                });
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(updatedDatasource -> {
+                    assertThat(updatedDatasource.getDatasourceConfiguration().getAuthentication()).isNull();
                 })
                 .verifyComplete();
     }
