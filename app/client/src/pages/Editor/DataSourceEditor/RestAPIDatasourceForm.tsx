@@ -302,6 +302,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             text="New API"
             filled
             accent="primary"
+            disabled={this.disableSave()}
             loading={isSaving}
             onClick={() => this.createApiAction()}
           />
@@ -612,6 +613,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             text={isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
             intent="primary"
             loading={isSaving}
+            disabled={this.disableSave()}
             filled
             size="small"
           />
