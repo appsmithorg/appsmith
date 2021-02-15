@@ -165,23 +165,44 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
     if (status) {
       const display_message = search.get("display_message");
+      // Set default error message
+      let message = REST_API_AUTHORIZATION_FAILED;
+      let variant = Variant.danger;
       if (status === "success") {
-        Toaster.show({
-          text: display_message || REST_API_AUTHORIZATION_SUCCESSFUL,
-          variant: Variant.success,
-        });
+        message = REST_API_AUTHORIZATION_SUCCESSFUL;
+        variant = Variant.success;
       } else if (status === "appsmith_error") {
-        Toaster.show({
-          text: display_message || REST_API_AUTHORIZATION_APPSMITH_ERROR,
-          variant: Variant.danger,
-        });
-      } else {
-        Toaster.show({
-          text: display_message || REST_API_AUTHORIZATION_FAILED,
-          variant: Variant.danger,
-        });
+        message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
+      }
+      Toaster.show({ text: display_message || message, variant });
+    }
+  };
+
+  componentDidUpdate() {
+    this.ensureOAuthDefaultsAreCorrect();
+  }
+
+  ensureOAuthDefaultsAreCorrect = () => {
+    const { authentication } = this.props.formData;
+    if (!authentication || !authentication.grantType) {
+      this.props.change(
+        "authentication.grantType",
+        GrantType.ClientCredentials,
+      );
+      return false;
+    }
+    if (_.get(authentication, "isTokenHeader") === undefined) {
+      this.props.change("authentication.isTokenHeader", true);
+      return false;
+    }
+
+    if (authentication.grantType === GrantType.AuthorizationCode) {
+      if (_.get(authentication, "isAuthorizationHeader") === undefined) {
+        this.props.change("authentication.isAuthorizationHeader", true);
+        return false;
       }
     }
+    return true;
   };
 
   disableSave = () => {
@@ -428,32 +449,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     }
   };
 
-  ensureOAuthDefaultsAreCorrect = () => {
-    const { authentication } = this.props.formData;
-    if (!authentication || !authentication.grantType) {
-      this.props.change(
-        "authentication.grantType",
-        GrantType.ClientCredentials,
-      );
-      return false;
-    }
-    if (_.get(authentication, "isTokenHeader") === undefined) {
-      this.props.change("authentication.isTokenHeader", true);
-      return false;
-    }
-
-    if (authentication.grantType === GrantType.AuthorizationCode) {
-      if (_.get(authentication, "isAuthorizationHeader") === undefined) {
-        this.props.change("authentication.isAuthorizationHeader", true);
-        return false;
-      }
-    }
-    return true;
-  };
-
   renderOauth2 = () => {
-    if (!this.ensureOAuthDefaultsAreCorrect()) return;
     const { authentication } = this.props.formData;
+    if (!authentication) return;
     let content;
     switch (authentication?.grantType) {
       case GrantType.AuthorizationCode:
