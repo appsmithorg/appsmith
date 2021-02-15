@@ -101,10 +101,9 @@ export function* createActionSaga(
           actionPayload.payload.pluginId,
         );
       }
-      if (formConfig) {
-        const initialValues = yield call(getConfigInitialValues, formConfig);
-        payload = merge(initialValues, actionPayload.payload);
-      }
+
+      const initialValues = yield call(getConfigInitialValues, formConfig);
+      payload = merge(initialValues, actionPayload.payload);
     }
 
     const response: ActionCreateUpdateResponse = yield ActionAPI.createAPI(
