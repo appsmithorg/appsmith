@@ -299,6 +299,21 @@ const renamedCanvasNameConflictMigration = (
   return currentDSL;
 };
 
+const rteDefaultValueMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+): ContainerWidgetProps<WidgetProps> => {
+  if (currentDSL.type === WidgetTypes.RICH_TEXT_EDITOR_WIDGET) {
+    currentDSL.defaultHtml = currentDSL.defaultText;
+    currentDSL.defaultText = undefined;
+    // Canvases inside tabs have `name` property as well
+  }
+  currentDSL.children?.forEach((children) =>
+    rteDefaultValueMigration(children),
+  );
+
+  return currentDSL;
+};
+
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
 const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
@@ -359,6 +374,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   if (currentDSL.version === 8) {
     currentDSL = renamedCanvasNameConflictMigration(currentDSL);
     currentDSL.version = 9;
+  }
+
+  if (currentDSL.version === 9) {
+    currentDSL = rteDefaultValueMigration(currentDSL);
+    currentDSL.version = 10;
   }
 
   return currentDSL;

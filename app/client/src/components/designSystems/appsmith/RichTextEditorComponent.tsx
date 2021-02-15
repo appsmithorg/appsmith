@@ -113,7 +113,7 @@ export const RichtextEditorComponent = (
    */
   const getContent = () => {
     return props.defaultValue && isString(props.defaultValue)
-      ? props.defaultValue.replace(/\n/g, "<br/>")
+      ? props.defaultValue
       : props.defaultValue;
   };
 

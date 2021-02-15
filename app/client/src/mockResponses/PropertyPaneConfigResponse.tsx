@@ -1072,13 +1072,22 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
         sectionName: "General",
         children: [
           {
+            id: "12.1.0",
+            propertyName: "defaultHtml",
+            helpText:
+              "Sets the default HTML of the widget. The HTML is updated if the default HTML changes",
+            label: "Default HTML",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter HTML",
+          },
+          {
             id: "12.1.1",
             propertyName: "defaultText",
             helpText:
               "Sets the default text of the widget. The text is updated if the default text changes",
             label: "Default text",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter HTML",
+            placeholderText: "Enter Text",
           },
           {
             id: "12.1.2",

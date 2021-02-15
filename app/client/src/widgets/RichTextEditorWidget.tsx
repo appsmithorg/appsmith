@@ -27,7 +27,8 @@ class RichTextEditorWidget extends BaseWidget<
 > {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
-      text: VALIDATION_TYPES.TEXT,
+      value: VALIDATION_TYPES.TEXT,
+      html: VALIDATION_TYPES.TEXT,
       placeholder: VALIDATION_TYPES.TEXT,
       defaultValue: VALIDATION_TYPES.TEXT,
       isDisabled: VALIDATION_TYPES.BOOLEAN,
@@ -44,19 +45,21 @@ class RichTextEditorWidget extends BaseWidget<
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      text: undefined,
+      value: undefined,
+      html: undefined,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      text: "defaultText",
+      value: "defaultText",
+      html: "defaultHtml",
     };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
-      value: `{{this.text}}`,
+      text: `{{this.html ? this.html : this.value}}`,
     };
   }
 
@@ -70,11 +73,15 @@ class RichTextEditorWidget extends BaseWidget<
   };
 
   getPageView() {
+    const defaultValue =
+      (this.props.html
+        ? this.props.html
+        : this.props.value?.replace(/\n/g, "<br/>")) || "";
     return (
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
           onValueChange={this.onValueChange}
-          defaultValue={this.props.text || ""}
+          defaultValue={defaultValue}
           widgetId={this.props.widgetId}
           placeholder={this.props.placeholder}
           key={this.props.widgetId}
@@ -92,7 +99,9 @@ class RichTextEditorWidget extends BaseWidget<
 
 export interface RichTextEditorWidgetProps extends WidgetProps, WithMeta {
   defaultText?: string;
-  text?: string;
+  value?: string;
+  html?: string;
+  text: string;
   placeholder?: string;
   onTextChange?: string;
   isDisabled?: boolean;

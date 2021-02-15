@@ -25,6 +25,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     RICH_TEXT_EDITOR_WIDGET: {
       defaultText: "This is the initial <b>content</b> of the editor",
+      defaultHtml: "",
       rows: 5,
       columns: 8,
       isDisabled: false,
