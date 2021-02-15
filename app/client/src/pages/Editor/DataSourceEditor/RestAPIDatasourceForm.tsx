@@ -39,8 +39,9 @@ import {
   GrantType,
 } from "entities/Datasource/RestAPIForm";
 import {
-  AUTHORIZATION_FAILED,
-  AUTHORIZATION_SUCCESSFUL,
+  REST_API_AUTHORIZATION_SUCCESSFUL,
+  REST_API_AUTHORIZATION_FAILED,
+  REST_API_AUTHORIZATION_APPSMITH_ERROR,
 } from "constants/messages";
 import Collapsible from "./Collapsible";
 import _ from "lodash";
@@ -166,7 +167,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       const display_message = search.get("display_message");
       if (status === "success") {
         Toaster.show({
-          text: display_message || AUTHORIZATION_SUCCESSFUL,
+          text: display_message || REST_API_AUTHORIZATION_SUCCESSFUL,
           variant: Variant.success,
         });
       } else if (status === "appsmith_error") {
@@ -176,7 +177,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         });
       } else {
         Toaster.show({
-          text: display_message || AUTHORIZATION_FAILED,
+          text: display_message || REST_API_AUTHORIZATION_FAILED,
           variant: Variant.danger,
         });
       }
@@ -608,7 +609,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             onClick={() =>
               this.save(redirectAuthorizationCode(pageId, datasourceId))
             }
-            text={isAuthorized ? "Re-Authorize" : "Authorize"}
+            text={isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
             intent="primary"
             loading={isSaving}
             filled
