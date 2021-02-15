@@ -55,7 +55,7 @@ const PageNumberInput = (props: {
       min={1}
       max={props.pageCount || 1}
       buttonPosition="none"
-      clampValueOnBlur={true}
+      clampValueOnBlur
       onBlur={(e: any) => {
         const oldPageNo = Number(props.pageNo || 0);
         const value = e.target.value;

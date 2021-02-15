@@ -1,5 +1,6 @@
 package com.external.connections;
 
+import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
@@ -29,24 +30,26 @@ import java.util.Map;
 
 @Setter
 @Getter
-public class OAuth2Connection extends APIConnection implements UpdatableConnection {
+public class OAuth2AuthorizationCode extends APIConnection implements UpdatableConnection {
 
     private final Clock clock = Clock.systemUTC();
     private String token;
+    private String refreshToken;
     private String headerPrefix;
     private boolean isHeader;
     private Instant expiresAt;
+    private Object tokenResponse;
     private static final int MAX_IN_MEMORY_SIZE = 10 * 1024 * 1024; // 10 MB
 
-    private OAuth2Connection() {
+    private OAuth2AuthorizationCode() {
     }
 
-    public static Mono<OAuth2Connection> create(OAuth2 oAuth2) {
+    public static Mono<OAuth2AuthorizationCode> create(OAuth2 oAuth2) {
         if (oAuth2 == null) {
             return Mono.empty();
         }
         // Create OAuth2Connection
-        OAuth2Connection connection = new OAuth2Connection();
+        OAuth2AuthorizationCode connection = new OAuth2AuthorizationCode();
 
         return Mono.just(oAuth2)
                 // Validate existing token
@@ -55,6 +58,7 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
                 .filter(x -> {
                     Instant now = connection.clock.instant();
                     Instant expiresAt = x.getExpiresAt();
+
                     return now.isBefore(expiresAt.minus(Duration.ofMinutes(1)));
                 })
                 // If invalid, regenerate token
@@ -62,9 +66,11 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
                 // Store valid token
                 .flatMap(token -> {
                     connection.setToken(token.getToken());
-                    connection.setHeader(token.getIsHeader());
+                    connection.setHeader(token.getIsTokenHeader());
                     connection.setHeaderPrefix(token.getHeaderPrefix());
                     connection.setExpiresAt(token.getExpiresAt());
+                    connection.setRefreshToken(token.getRefreshToken());
+                    connection.setTokenResponse(token.getTokenResponse());
                     return Mono.just(connection);
                 });
     }
@@ -83,7 +89,7 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
         return webClient
                 .method(HttpMethod.POST)
                 .uri(oAuth2.getAccessTokenUrl())
-                .body(clientCredentialsTokenBody(oAuth2))
+                .body(getTokenBody(oAuth2))
                 .exchange()
                 .flatMap(response -> response.body(BodyExtractors.toMono(Map.class)))
                 // Receive and parse response
@@ -91,7 +97,7 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
                     // Store received response as is for reference
                     oAuth2.setTokenResponse(mappedResponse);
                     // Parse useful fields for quick access
-                    Object issuedAtResponse = mappedResponse.get("issued_at");
+                    Object issuedAtResponse = mappedResponse.get(Authentication.ISSUED_AT);
                     // Default issuedAt to current time
                     Instant issuedAt = Instant.now();
                     if (issuedAtResponse != null) {
@@ -99,18 +105,20 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
                     }
 
                     // We expect at least one of the following to be present
-                    Object expiresAtResponse = mappedResponse.get("expires_at");
-                    Object expiresInResponse = mappedResponse.get("expires_in");
+                    Object expiresAtResponse = mappedResponse.get(Authentication.EXPIRES_AT);
+                    Object expiresInResponse = mappedResponse.get(Authentication.EXPIRES_IN);
                     Instant expiresAt = null;
                     if (expiresAtResponse != null) {
-                        expiresAt = Instant.ofEpochMilli(Long.parseLong((String) expiresAtResponse));
+                        expiresAt = Instant.ofEpochSecond(Long.valueOf((Integer) expiresAtResponse));
                     } else if (expiresInResponse != null) {
-                        expiresAt = issuedAt.plusMillis(Long.parseLong((String) expiresInResponse));
+                        expiresAt = issuedAt.plusSeconds(Long.valueOf((Integer) expiresInResponse));
                     }
                     oAuth2.setExpiresAt(expiresAt);
                     oAuth2.setIssuedAt(issuedAt);
-                    oAuth2.setToken(String.valueOf(mappedResponse.get("access_token")));
-                    System.out.println("Entered token generation...");
+                    if (mappedResponse.containsKey(Authentication.REFRESH_TOKEN)) {
+                        oAuth2.setRefreshToken(String.valueOf(mappedResponse.get(Authentication.REFRESH_TOKEN)));
+                    }
+                    oAuth2.setToken(String.valueOf(mappedResponse.get(Authentication.ACCESS_TOKEN)));
                     return oAuth2;
                 });
     }
@@ -120,7 +128,8 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
         // Validate token before execution
         Instant now = this.clock.instant();
         Instant expiresAt = this.expiresAt;
-        if (this.expiresAt != null && now.isAfter(expiresAt.minus(Duration.ofMinutes(1)))) {
+
+        if (this.expiresAt != null && now.isAfter(expiresAt.minus(Duration.ofMillis(500)))) {
             return Mono.error(new StaleConnectionException("The access token has expired"));
         }
         // Pick the token that has been created/retrieved
@@ -142,7 +151,7 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
                     .build());
         } else {
             final URI url = UriComponentsBuilder.fromUri(clientRequest.url())
-                    .queryParam("access_token", this.getToken())
+                    .queryParam(Authentication.ACCESS_TOKEN, this.getToken())
                     .build()
                     .toUri();
             return Mono.justOrEmpty(ClientRequest.from(clientRequest)
@@ -151,14 +160,16 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
         }
     }
 
-    private BodyInserters.FormInserter<String> clientCredentialsTokenBody(OAuth2 oAuth2) {
+    private BodyInserters.FormInserter<String> getTokenBody(OAuth2 oAuth2) {
         BodyInserters.FormInserter<String> body = BodyInserters
-                .fromFormData("grant_type", "client_credentials")
-                .with("client_id", oAuth2.getClientId())
-                .with("client_secret", oAuth2.getClientSecret());
+                .fromFormData(Authentication.GRANT_TYPE, Authentication.REFRESH_TOKEN)
+                .with(Authentication.CLIENT_ID, oAuth2.getClientId())
+                .with(Authentication.CLIENT_SECRET, oAuth2.getClientSecret())
+                .with(Authentication.REFRESH_TOKEN, oAuth2.getRefreshToken());
+
         // Optionally add scope, if applicable
         if (!CollectionUtils.isEmpty(oAuth2.getScope())) {
-            body.with("scope", StringUtils.collectionToDelimitedString(oAuth2.getScope(), " "));
+            body.with(Authentication.SCOPE, StringUtils.collectionToDelimitedString(oAuth2.getScope(), " "));
         }
         return body;
     }
@@ -168,7 +179,10 @@ public class OAuth2Connection extends APIConnection implements UpdatableConnecti
         OAuth2 oAuth2 = (OAuth2) authenticationDTO;
         oAuth2.setToken(this.token);
         oAuth2.setHeaderPrefix(this.headerPrefix);
-        oAuth2.setIsHeader(this.isHeader);
+        oAuth2.setIsTokenHeader(this.isHeader);
+        oAuth2.setRefreshToken(this.refreshToken);
+        oAuth2.setExpiresAt(this.expiresAt);
+        oAuth2.setTokenResponse(this.tokenResponse);
 
         return oAuth2;
     }

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import { BaseText } from "components/designSystems/blueprint/TextComponent";
-import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import styled from "styled-components";
 import { AppState } from "reducers";
 import { ActionResponse } from "api/ActionAPI";
@@ -13,7 +12,6 @@ import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
-import FormActionButton from "./form/FormActionButton";
 import { RequestView } from "./RequestView";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
@@ -21,29 +19,38 @@ import {
   DONT_SHOW_THIS_AGAIN,
   SHOW_REQUEST,
 } from "constants/messages";
+import { TabComponent } from "components/ads/Tabs";
+import Text, { Case, TextType } from "components/ads/Text";
+import Icon from "components/ads/Icon";
+import { Classes, Variant } from "components/ads/common";
+import { EditorTheme } from "./CodeEditor/EditorConfig";
+import Callout from "components/ads/Callout";
+import Button from "components/ads/Button";
 
 const ResponseWrapper = styled.div`
   position: relative;
   flex: 1;
-  height: 100%;
+  height: 50%;
+  background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
+
+  .react-tabs__tab-panel {
+    overflow: hidden;
+  }
 `;
 const ResponseMetaInfo = styled.div`
   display: flex;
   ${BaseText} {
     color: #768896;
-    margin: 0 5px;
+    margin-left: ${(props) => props.theme.spaces[9]}px;
   }
 `;
 
 const ResponseMetaWrapper = styled.div`
   align-items: center;
-  padding: 6px 9px;
   display: flex;
-  border-top: transparent 5px solid;
-
-  div:nth-child(1) {
-    flex: 1;
-  }
+  position: absolute;
+  right: ${(props) => props.theme.spaces[12]}px;
+  top: ${(props) => props.theme.spaces[4]}px;
 `;
 
 const StatusCodeText = styled(BaseText)<{ code: string }>`
@@ -96,7 +103,8 @@ interface ReduxStateProps {
 //   );
 // };
 
-type Props = ReduxStateProps & RouteComponentProps<APIEditorRouteParams>;
+type Props = ReduxStateProps &
+  RouteComponentProps<APIEditorRouteParams> & { theme?: EditorTheme };
 
 export const EMPTY_RESPONSE: ActionResponse = {
   statusCode: "",
@@ -112,40 +120,75 @@ export const EMPTY_RESPONSE: ActionResponse = {
   size: "",
 };
 
-const FailedMessageContainer = styled.div`
-  width: 100%;
-  background: #29cca3;
-  height: 77px;
-  position: absolute;
-  z-index: 10;
-  bottom: 0;
-  padding-top: 10px;
-  padding-bottom: 7px;
-  padding-left: 15px;
-  font-family: ${(props) => props.theme.fonts.text};
-  font-style: normal;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 16px;
-  p {
-    margin-bottom: 5px;
-    color: white;
-  }
-  // display: flex;
-  // justify-content: center;
-  // align-items: center;
-`;
-
-const TabbedViewWrapper = styled.div`
-  padding-top: 12px;
+const TabbedViewWrapper = styled.div<{ isCentered: boolean }>`
   height: calc(100% - 30px);
+
+  &&& {
+    ul.react-tabs__tab-list {
+      padding: 0px ${(props) => props.theme.spaces[12]}px;
+    }
+  }
+
+  ${(props) =>
+    props.isCentered
+      ? `
+    &&& {
+      .react-tabs__tab-panel {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    }
+  `
+      : null}
 `;
 
-const StyledFormActionButton = styled(FormActionButton)`
-  &&& {
-    padding: 10px 12px 9px 9px;
-    margin-right: 9px;
-    border: 0;
+const SectionDivider = styled.div`
+  height: 2px;
+  width: 100%;
+  background: ${(props) => props.theme.colors.apiPane.dividerBg};
+`;
+
+const Flex = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: 20px;
+
+  span:first-child {
+    margin-right: ${(props) => props.theme.spaces[1] + 1}px;
+  }
+`;
+
+const NoResponseContainer = styled.div`
+  .${Classes.ICON} {
+    margin-right: 0px;
+    svg {
+      width: 150px;
+      height: 150px;
+    }
+  }
+
+  .${Classes.TEXT} {
+    margin-top: ${(props) => props.theme.spaces[9]}px;
+  }
+`;
+
+const FailedMessage = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
+  span {
+    color: ${Colors.Galliano};
+    cursor: pointer;
+  }
+  button {
+    margin-left: ${(props) => props.theme.spaces[9]}px;
   }
 `;
 
@@ -177,48 +220,51 @@ const ApiResponseView = (props: Props) => {
       title: "Response Body",
       panelComponent: (
         <>
-          {hasFailed && !isRunning && requestDebugVisible === "true" && (
-            <FailedMessageContainer>
-              <p>{CHECK_REQUEST_BODY}</p>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                }}
-              >
-                <StyledFormActionButton
-                  intent={"danger"}
-                  style={{
-                    background: "white",
-                    color: "#29CCA3",
-                  }}
-                  text={DONT_SHOW_THIS_AGAIN}
-                  onClick={() => {
-                    setRequestDebugVisible(false);
-                  }}
-                />
-                <StyledFormActionButton
-                  style={{
-                    background: "#EF7541",
-                    color: "white",
-                  }}
-                  intent={"danger"}
-                  text={SHOW_REQUEST}
-                  onClick={() => {
-                    setSelectedIndex(1);
-                  }}
-                />
-              </div>
-            </FailedMessageContainer>
+          {hasFailed && !isRunning && requestDebugVisible && (
+            <Callout
+              variant={Variant.warning}
+              fill
+              label={
+                <FailedMessage>
+                  <Text type={TextType.P2}>{CHECK_REQUEST_BODY}</Text>
+                  <ButtonContainer>
+                    <Text
+                      type={TextType.H6}
+                      case={Case.UPPERCASE}
+                      onClick={() => {
+                        setRequestDebugVisible(false);
+                      }}
+                    >
+                      {DONT_SHOW_THIS_AGAIN}
+                    </Text>
+                    <Button
+                      tag="button"
+                      text={SHOW_REQUEST}
+                      variant={Variant.info}
+                      onClick={() => {
+                        setSelectedIndex(1);
+                      }}
+                    />
+                  </ButtonContainer>
+                </FailedMessage>
+              }
+            />
           )}
-          <ReadOnlyEditor
-            input={{
-              value: response.body
-                ? JSON.stringify(response.body, null, 2)
-                : "",
-            }}
-            height={"100%"}
-          />
+          {_.isEmpty(response.body) ? (
+            <NoResponseContainer>
+              <Icon name="no-response" />
+              <Text type={TextType.P1}>Hit Run to get a Response</Text>
+            </NoResponseContainer>
+          ) : (
+            <ReadOnlyEditor
+              input={{
+                value: response.body
+                  ? JSON.stringify(response.body, null, 2)
+                  : "",
+              }}
+              height={"100%"}
+            />
+          )}
         </>
       ),
     },
@@ -242,39 +288,50 @@ const ApiResponseView = (props: Props) => {
 
   return (
     <ResponseWrapper>
+      <SectionDivider />
       {isRunning && (
-        <LoadingOverlayScreen>Sending Request</LoadingOverlayScreen>
+        <LoadingOverlayScreen theme={props.theme}>
+          Sending Request
+        </LoadingOverlayScreen>
       )}
-      <TabbedViewWrapper>
+      <TabbedViewWrapper
+        isCentered={_.isEmpty(response.body) && selectedIndex === 0}
+      >
         {response.statusCode && (
           <ResponseMetaWrapper>
             {response.statusCode && (
-              <StatusCodeText
-                accent="secondary"
-                code={response.statusCode.toString()}
-              >
-                Status: {response.statusCode}
-              </StatusCodeText>
+              <Flex>
+                <Text type={TextType.P3}>Status: </Text>
+                <StatusCodeText
+                  accent="secondary"
+                  code={response.statusCode.toString()}
+                >
+                  {response.statusCode}
+                </StatusCodeText>
+              </Flex>
             )}
             <ResponseMetaInfo>
               {response.duration && (
-                <BaseText accent="secondary">
-                  Time: {response.duration} ms
-                </BaseText>
+                <Flex>
+                  <Text type={TextType.P3}>Time: </Text>
+                  <Text type={TextType.H5}>{response.duration} ms</Text>
+                </Flex>
               )}
               {response.size && (
-                <BaseText accent="secondary">
-                  Size: {formatBytes(parseInt(response.size))}
-                </BaseText>
+                <Flex>
+                  <Text type={TextType.P3}>Size: </Text>
+                  <Text type={TextType.H5}>
+                    {formatBytes(parseInt(response.size))}
+                  </Text>
+                </Flex>
               )}
             </ResponseMetaInfo>
           </ResponseMetaWrapper>
         )}
-        <BaseTabbedView
-          overflow
+        <TabComponent
           tabs={tabs}
           selectedIndex={selectedIndex}
-          setSelectedIndex={setSelectedIndex}
+          onSelect={setSelectedIndex}
         />
       </TabbedViewWrapper>
     </ResponseWrapper>
