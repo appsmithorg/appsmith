@@ -30,6 +30,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             controlType: "DATE_PICKER",
             placeholderText: "Enter Default Date",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Sets the format of the selected date",
@@ -59,6 +61,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
                 value: "DD/MM/YYYY HH:mm",
               },
             ],
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isRequired",
@@ -66,6 +70,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isVisible",
@@ -73,6 +79,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             helpText: "Controls the visibility of the widget",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isDisabled",
@@ -80,6 +88,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             helpText: "Disables input to this widget",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "minDate",
@@ -87,6 +97,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             helpText: "Defines the min date for this widget",
             controlType: "DATE_PICKER",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "maxDate",
@@ -94,6 +106,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             helpText: "Defines the max date for this widget",
             controlType: "DATE_PICKER",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -105,6 +119,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             label: "onDateSelected",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },

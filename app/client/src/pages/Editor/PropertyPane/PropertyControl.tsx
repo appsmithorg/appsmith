@@ -33,11 +33,11 @@ import {
   getWidgetPropsForPropertyPane,
   getEnhancementsMap,
 } from "selectors/propertyPaneSelectors";
-import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
-import { Position } from "@blueprintjs/core";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { PropertyPaneEnhancements } from ".";
 import { getWidgets } from "sagas/selectors";
+import Boxed from "components/editorComponents/Onboarding/Boxed";
+import Indicator from "components/editorComponents/Onboarding/Indicator";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -301,38 +301,40 @@ const PropertyControl = memo((props: Props) => {
               : "VERTICAL"
           }
         >
-          <ControlPropertyLabelContainer>
-            <PropertyHelpLabel tooltip={props.helpText} label={label} />
-            {isConvertible && (
-              <JSToggleButton
-                active={isDynamic}
-                onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
-                className={`t--js-toggle ${isDynamic ? "is-active" : ""}`}
-              >
-                <ControlIcons.JS_TOGGLE />
-              </JSToggleButton>
-            )}
-          </ControlPropertyLabelContainer>
-          <OnboardingToolTip
-            step={[
-              OnboardingStep.ADD_WIDGET,
-              OnboardingStep.SUCCESSFUL_BINDING,
-            ]}
-            show={propertyName === "tableData"}
-            position={Position.LEFT_TOP}
-            dismissOnOutsideClick={false}
+          <Boxed
+            step={OnboardingStep.DEPLOY}
+            show={
+              propertyName !== "isRequired" && propertyName !== "isDisabled"
+            }
           >
-            {PropertyControlFactory.createControl(
-              config,
-              {
-                onPropertyChange: onPropertyChange,
-                openNextPanel: openPanel,
-                deleteProperties: onDeleteProperties,
-              },
-              isDynamic,
-              getCustomJSControl(),
-            )}
-          </OnboardingToolTip>
+            <ControlPropertyLabelContainer>
+              <PropertyHelpLabel tooltip={props.helpText} label={label} />
+              {isConvertible && (
+                <JSToggleButton
+                  active={isDynamic}
+                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
+                  className={`t--js-toggle ${isDynamic ? "is-active" : ""}`}
+                >
+                  <ControlIcons.JS_TOGGLE />
+                </JSToggleButton>
+              )}
+            </ControlPropertyLabelContainer>
+            <Indicator
+              step={OnboardingStep.ADD_INPUT_WIDGET}
+              show={propertyName === "onSubmit"}
+            >
+              {PropertyControlFactory.createControl(
+                config,
+                {
+                  onPropertyChange: onPropertyChange,
+                  openNextPanel: openPanel,
+                  deleteProperties: onDeleteProperties,
+                },
+                isDynamic,
+                getCustomJSControl(),
+              )}
+            </Indicator>
+          </Boxed>
         </ControlWrapper>
       );
     } catch (e) {

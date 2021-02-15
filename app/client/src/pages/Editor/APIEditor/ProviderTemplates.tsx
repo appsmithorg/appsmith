@@ -32,7 +32,7 @@ import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import Spinner from "components/editorComponents/Spinner";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getAppCardColorPallete } from "selectors/themeSelectors";
+import { getAppCardColorPalette } from "selectors/themeSelectors";
 
 const TEMPLATES_TOP_SECTION_HEIGHT = "83px";
 
@@ -509,7 +509,7 @@ const mapStateToProps = (state: AppState) => ({
   isFetchingProviderTemplates: getProvidersTemplatesLoadingState(state),
   actions: state.entities.actions,
   providerDetails: state.ui.providers.providerDetailsByProviderId,
-  appCardColors: getAppCardColorPallete(state),
+  appCardColors: getAppCardColorPalette(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

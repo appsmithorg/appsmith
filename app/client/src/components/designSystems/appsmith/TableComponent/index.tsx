@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import Table from "components/designSystems/appsmith/TableComponent/Table";
-import { debounce } from "lodash";
 import {
   ColumnTypes,
   CompactMode,
@@ -58,21 +57,9 @@ interface ReactTableComponentProps {
   selectedRowIndices: number[];
   multiRowSelection?: boolean;
   hiddenColumns?: string[];
-  columnNameMap?: { [key: string]: string };
   triggerRowSelection: boolean;
-  columnTypeMap?: {
-    [key: string]: {
-      type: string;
-      format: string;
-      inputFormat?: string;
-    };
-  };
   columnSizeMap?: { [key: string]: number };
-  updateColumnSize: (columnSizeMap?: { [key: string]: number }) => void;
-  updateColumnType: (columnTypeMap: {
-    [key: string]: { type: string; format: string };
-  }) => void;
-  updateColumnName: (columnNameMap: { [key: string]: string }) => void;
+  handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
@@ -172,20 +159,6 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     }
   };
 
-  const handleResizeColumn = (columnIndex: number, columnWidth: string) => {
-    const width = Number(columnWidth.split("px")[0]);
-    const column = props.columns[columnIndex];
-    const columnSizeMap = props.columnSizeMap
-      ? {
-          ...props.columnSizeMap,
-          [column.accessor]: width,
-        }
-      : {
-          [column.accessor]: width,
-        };
-    props.updateColumnSize(columnSizeMap);
-  };
-
   const selectTableRow = (
     row: { original: Record<string, unknown>; index: number },
     isSelected: boolean,
@@ -206,10 +179,11 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       searchKey={props.searchKey}
       columns={props.columns}
       hiddenColumns={props.hiddenColumns}
+      columnSizeMap={props.columnSizeMap}
       updateHiddenColumns={props.updateHiddenColumns}
       data={props.tableData}
       editMode={props.editMode}
-      handleResizeColumn={debounce(handleResizeColumn, 300)}
+      handleResizeColumn={props.handleResizeColumn}
       sortTableColumn={sortTableColumn}
       selectTableRow={selectTableRow}
       pageNo={props.pageNo - 1}

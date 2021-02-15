@@ -1,5 +1,8 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -8,9 +11,6 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.zaxxer.hikari.HikariConfig;
@@ -112,7 +112,7 @@ public class PostgresPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(HikariDataSource connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
-            
+
             return Mono.fromCallable(() -> {
 
                 String query = actionConfiguration.getBody();
@@ -121,7 +121,7 @@ public class PostgresPlugin extends BasePlugin {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
                             "parameter: Query."));
                 }
-                
+
                 Connection connectionFromPool = null;
 
                 try {
@@ -192,6 +192,9 @@ public class PostgresPlugin extends BasePlugin {
 
                                 } else if ("interval".equalsIgnoreCase(typeName)) {
                                     value = resultSet.getObject(i).toString();
+
+                                } else if (typeName.startsWith("_")) {
+                                    value = resultSet.getArray(i).getArray();
 
                                 } else {
                                     value = resultSet.getObject(i);
@@ -480,6 +483,10 @@ public class PostgresPlugin extends BasePlugin {
                                 value = "TIMESTAMP '2019-07-01 10:00:00'";
                             } else if ("timestamptz".equals(type)) {
                                 value = "TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET'";
+                            } else if (type.startsWith("_int")) {
+                                value = "'{1, 2, 3}'";
+                            } else if ("_varchar".equals(type)) {
+                                value = "'{\"first\", \"second\"}'";
                             } else {
                                 value = "''";
                             }

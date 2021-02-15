@@ -30,6 +30,8 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             label: "Text",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter text",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "textAlign",
@@ -50,6 +52,8 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
                 value: "RIGHT",
               },
             ],
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             propertyName: "textStyle",
@@ -70,12 +74,16 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
                 value: "BODY",
               },
             ],
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             propertyName: "shouldScroll",
             label: "Enable Scroll",
             helpText: "Allows scrolling text instead of truncation",
             controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isVisible",
@@ -83,6 +91,8 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             label: "Visible",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },

@@ -20,7 +20,14 @@ import {
   ConditionFunctions,
   TableStyles,
 } from "components/designSystems/appsmith/TableComponent/Constants";
-import { isString, isEmpty, findIndex, isPlainObject, isNil } from "lodash";
+import {
+  isString,
+  isEmpty,
+  findIndex,
+  isPlainObject,
+  isNil,
+  without,
+} from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
@@ -38,6 +45,7 @@ export const renderCell = (
   columnType: string,
   isHidden: boolean,
   cellProperties: CellLayoutProperties,
+  tableWidth: number,
 ) => {
   switch (columnType) {
     case ColumnTypes.IMAGE:
@@ -116,6 +124,7 @@ export const renderCell = (
           title={value.toString()}
           isHidden={isHidden}
           cellProperties={cellProperties}
+          tableWidth={tableWidth}
         >
           {value.toString()}
         </AutoToolTipComponent>
@@ -257,7 +266,20 @@ export const renderEmptyRows = (
   );
 };
 
-const SortIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
+const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
+  padding: 0;
+  position: relative;
+  top: 18px;
+  cursor: pointer;
+  transform: rotate(180deg);
+  svg {
+    path {
+      fill: ${(props) => props.theme.colors.secondary};
+    }
+  }
+`;
+
+const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   padding: 0;
   position: relative;
   top: 3px;
@@ -275,12 +297,12 @@ export const TableHeaderCell = (props: {
   isHidden: boolean;
   isAscOrder?: boolean;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  handleResizeColumn: (columnIndex: number, columnWidth: string) => void;
+  isResizingColumn: boolean;
   column: any;
 }) => {
   const { column } = props;
   const handleSortColumn = () => {
-    if (column.isResizing) return;
+    if (props.isResizingColumn) return;
     let columnIndex = props.columnIndex;
     if (props.isAscOrder === true) {
       columnIndex = -1;
@@ -289,12 +311,7 @@ export const TableHeaderCell = (props: {
       props.isAscOrder === undefined ? false : !props.isAscOrder;
     props.sortTableColumn(columnIndex, sortOrder);
   };
-  if (column.isResizing) {
-    props.handleResizeColumn(
-      props.columnIndex,
-      column.getHeaderProps().style.width,
-    );
-  }
+
   return (
     <div
       {...column.getHeaderProps()}
@@ -302,8 +319,12 @@ export const TableHeaderCell = (props: {
       onClick={handleSortColumn}
     >
       {props.isAscOrder !== undefined ? (
-        <SortIconWrapper rotate={props.isAscOrder.toString()}>
-          <SortIcon height={16} width={16} />
+        <SortIconWrapper>
+          {props.isAscOrder ? (
+            <AscendingIcon height={16} width={16} />
+          ) : (
+            <DescendingIcon height={16} width={16} />
+          )}
         </SortIconWrapper>
       ) : null}
       <div
@@ -397,38 +418,25 @@ export function compare(a: any, b: any, condition: Condition) {
 }
 
 export const reorderColumns = (
-  columns: ColumnProperties[],
+  columns: Record<string, ColumnProperties>,
   columnOrder: string[],
 ) => {
-  const reorderedColumns = [];
-  const reorderedFlagMap: { [key: string]: boolean } = {};
-  for (let index = 0; index < columns.length; index++) {
-    const accessor = columnOrder[index];
-    if (accessor) {
-      const column = columns.filter((col: ColumnProperties) => {
-        return col.id === accessor;
-      });
-      if (column.length && !reorderedFlagMap[column[0].id]) {
-        reorderedColumns.push(column[0]);
-        reorderedFlagMap[column[0].id] = true;
-      } else if (!reorderedFlagMap[columns[index].id]) {
-        reorderedColumns.push(columns[index]);
-        reorderedFlagMap[columns[index].id] = true;
-      }
-    } else if (!reorderedFlagMap[columns[index].id]) {
-      reorderedColumns.push(columns[index]);
-      reorderedFlagMap[columns[index].id] = true;
-    }
+  const newColumnsInOrder: Record<string, ColumnProperties> = {};
+
+  columnOrder.forEach((id: string, index: number) => {
+    if (columns[id]) newColumnsInOrder[id] = { ...columns[id], index };
+  });
+  const remaining = without(
+    Object.keys(columns),
+    ...Object.keys(newColumnsInOrder),
+  );
+  const len = Object.keys(newColumnsInOrder).length;
+  if (remaining && remaining.length > 0) {
+    remaining.forEach((id: string, index: number) => {
+      newColumnsInOrder[id] = { ...columns[id], index: len + index };
+    });
   }
-  if (reorderedColumns.length < columns.length) {
-    for (let index = 0; index < columns.length; index++) {
-      if (!reorderedFlagMap[columns[index].id]) {
-        reorderedColumns.push(columns[index]);
-        reorderedFlagMap[columns[index].id] = true;
-      }
-    }
-  }
-  return reorderedColumns;
+  return newColumnsInOrder;
 };
 
 export function getDefaultColumnProperties(
@@ -454,7 +462,7 @@ export function getDefaultColumnProperties(
     label: accessor,
     computedValue: isDerived
       ? ""
-      : `{{${widgetName}.tableData.map((currentRow) => (currentRow.${accessor}))}}`,
+      : `{{${widgetName}.tableData.map((currentRow) => { return currentRow.${accessor}})}}`,
   };
 
   return columnProps;

@@ -1,8 +1,8 @@
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import React, { Component } from "react";
 import styled from "styled-components";
 import { AppState } from "reducers";
-import { PanelStack, IPanel, Classes } from "@blueprintjs/core";
+import { PanelStack, IPanel, Classes, IPanelProps } from "@blueprintjs/core";
 
 import * as log from "loglevel";
 import {
@@ -17,10 +17,12 @@ import { generateClassName } from "utils/generators";
 import { scrollbarDark } from "constants/DefaultTheme";
 import { hidePropertyPane } from "actions/propertyPaneActions";
 import PaneWrapper from "components/editorComponents/PaneWrapper";
-import PropertyPaneView, { UpdatePropertyPayload } from "./PropertyPaneView";
+import { UpdatePropertyPayload } from "./PropertyPaneView";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import MemoizedPropertyPaneTitle from "../PropertyPaneTitle";
+import PropertyControlsGenerator from "./PropertyPaneGenerator";
 
 /** Styled Components */
 const PropertyPaneWrapper = styled(PaneWrapper)`
@@ -70,6 +72,28 @@ export interface PropertyPaneFunctions {
 interface PropertyPaneState {
   currentPanelStack: IPanel[];
 }
+
+const PropertyPaneView = (
+  props: {
+    hidePropertyPane: () => void;
+  } & IPanelProps,
+) => {
+  const { hidePropertyPane, ...panel } = props;
+  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
+
+  return (
+    <>
+      <MemoizedPropertyPaneTitle
+        key={widgetProperties.widgetId}
+        title={widgetProperties.widgetName}
+        widgetId={widgetProperties.widgetId}
+        widgetType={widgetProperties?.type}
+        onClose={hidePropertyPane}
+      />
+      <PropertyControlsGenerator type={widgetProperties.type} panel={panel} />
+    </>
+  );
+};
 
 export interface PropertyPaneEnhancements {
   additionalAutocomplete?: Record<

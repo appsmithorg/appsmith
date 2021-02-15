@@ -1,12 +1,9 @@
 const commonlocators = require("../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../locators/FormWidgets.json");
 const dsl = require("../../../fixtures/tableInputDsl.json");
-const pages = require("../../../locators/Pages.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 const testdata = require("../../../fixtures/testdata.json");
 const dsl2 = require("../../../fixtures/displayWidgetDsl.json");
-const explorer = require("../../../locators/explorerlocators.json");
 const pageid = "MyPage";
 
 describe("Binding the multiple Widgets and validating NavigateTo Page", function() {
@@ -17,7 +14,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
   it("Input widget test with default value from table widget", function() {
     cy.openPropertyPane("inputwidget");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
-    cy.get(widgetsPage.actionSelect)
+    cy.get(widgetsPage.inputOnTextChange)
       .first()
       .click();
     cy.get(commonlocators.chooseAction)

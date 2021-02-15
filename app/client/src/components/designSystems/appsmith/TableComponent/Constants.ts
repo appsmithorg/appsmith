@@ -121,14 +121,14 @@ export interface TableColumnMetaProps {
 export interface ReactTableColumnProps {
   Header: string;
   accessor: string;
-  width: number;
+  width?: number;
   minWidth: number;
   draggable: boolean;
   isHidden?: boolean;
   isAscOrder?: boolean;
   metaProperties?: TableColumnMetaProps;
   isDerived?: boolean;
-  columnProperties: string;
+  columnProperties: ColumnProperties;
   Cell: (props: any) => JSX.Element;
 }
 
@@ -163,7 +163,7 @@ export const ConditionFunctions: {
   [key: string]: (a: any, b: any) => boolean;
 } = {
   isExactly: (a: any, b: any) => {
-    return a === b;
+    return a.toString() === b.toString();
   },
   empty: (a: any) => {
     return a === "" || a === undefined || a === null;

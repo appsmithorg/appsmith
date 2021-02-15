@@ -39,6 +39,8 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             controlType: "INPUT_TEXT",
             placeholderText: "Enter url",
             inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "autoPlay",
@@ -46,6 +48,8 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             helpText: "Video will be automatically played",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -53,6 +57,8 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             label: "Visible",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -65,6 +71,8 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             label: "onPlay",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
           {
             helpText: "Triggers an action when the video is paused",
@@ -72,6 +80,8 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             label: "onPause",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
           {
             helpText: "Triggers an action when the video ends",
@@ -79,6 +89,8 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             label: "onEnd",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },

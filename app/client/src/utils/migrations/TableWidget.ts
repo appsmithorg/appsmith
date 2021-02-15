@@ -51,66 +51,65 @@ export const tableWidgetPropertyPaneMigrations = (
       const primaryColumns = child.columnOrder?.length
         ? child.columnOrder
         : tableColumns;
+      child.primaryColumns = {};
 
       // const hasActions = child.columnActions && child.columnActions.length > 0;
       // Generate new primarycolumns
-      child.primaryColumns = primaryColumns.map(
-        (accessor: string, index: number) => {
-          // Get the column type from the columnTypeMap
-          let columnType =
-            columnTypeMap && columnTypeMap[accessor]
-              ? columnTypeMap[accessor].type
-              : ColumnTypes.TEXT;
-          // If the columnType is currency make it a text type
-          // We're deprecating currency types
-          if (columnType === "currency") {
-            columnType = ColumnTypes.TEXT;
-          }
-          // Get a full set of column properties
-          const column: ColumnProperties = {
-            index, // Use to maintain order of columns
-            // The widget of the column
-            width:
-              columnSizeMap && columnSizeMap[accessor]
-                ? columnSizeMap[accessor]
-                : 150,
-            // id of the column
-            id: accessor,
-            // default horizontal alignment
-            horizontalAlignment: CellAlignmentTypes.LEFT,
-            // default vertical alignment
-            verticalAlignment: VerticalAlignmentTypes.CENTER,
-            // columnType
-            columnType,
-            // default text color
-            textColor: Colors.THUNDER,
-            // default text size
-            textSize: TextSizes.PARAGRAPH,
-            // default font size
-            fontStyle: FontStyleTypes.REGULAR,
-            enableFilter: true,
-            enableSort: true,
-            // hide the column if it was hidden earlier using hiddenColumns
-            isVisible: hiddenColumns.includes(accessor) ? false : true,
-            // We did not have a concept of derived columns so far
-            isDerived: false,
-            // Use renamed names from the map
-            // or use the newly generated name
-            label:
-              columnNameMap && columnNameMap[accessor]
-                ? columnNameMap[accessor]
-                : accessor,
-            // Generate computed value
-            computedValue: `{{${child.widgetName}.map((currentRow) => (currentRow.${accessor}))}}`,
-          };
-          // copy inputForma nd outputFormat for date column types
-          if (columnTypeMap && columnTypeMap[accessor]) {
-            column.outputFormat = columnTypeMap[accessor].format || "";
-            column.inputFormat = columnTypeMap[accessor].inputFormat || "";
-          }
-          return column;
-        },
-      );
+      primaryColumns.forEach((accessor: string, index: number) => {
+        // Get the column type from the columnTypeMap
+        let columnType =
+          columnTypeMap && columnTypeMap[accessor]
+            ? columnTypeMap[accessor].type
+            : ColumnTypes.TEXT;
+        // If the columnType is currency make it a text type
+        // We're deprecating currency types
+        if (columnType === "currency") {
+          columnType = ColumnTypes.TEXT;
+        }
+        // Get a full set of column properties
+        const column: ColumnProperties = {
+          index, // Use to maintain order of columns
+          // The widget of the column
+          width:
+            columnSizeMap && columnSizeMap[accessor]
+              ? columnSizeMap[accessor]
+              : 150,
+          // id of the column
+          id: accessor,
+          // default horizontal alignment
+          horizontalAlignment: CellAlignmentTypes.LEFT,
+          // default vertical alignment
+          verticalAlignment: VerticalAlignmentTypes.CENTER,
+          // columnType
+          columnType,
+          // default text color
+          textColor: Colors.THUNDER,
+          // default text size
+          textSize: TextSizes.PARAGRAPH,
+          // default font size
+          fontStyle: FontStyleTypes.REGULAR,
+          enableFilter: true,
+          enableSort: true,
+          // hide the column if it was hidden earlier using hiddenColumns
+          isVisible: hiddenColumns.includes(accessor) ? false : true,
+          // We did not have a concept of derived columns so far
+          isDerived: false,
+          // Use renamed names from the map
+          // or use the newly generated name
+          label:
+            columnNameMap && columnNameMap[accessor]
+              ? columnNameMap[accessor]
+              : accessor,
+          // Generate computed value
+          computedValue: `{{${child.widgetName}.map((currentRow) => { return currentRow.${accessor}})}}`,
+        };
+        // copy inputForma nd outputFormat for date column types
+        if (columnTypeMap && columnTypeMap[accessor]) {
+          column.outputFormat = columnTypeMap[accessor].format || "";
+          column.inputFormat = columnTypeMap[accessor].inputFormat || "";
+        }
+        child.primaryColumns[column.id] = column;
+      });
 
       // Get all column actions
       const columnActions = child.columnActions || [];
@@ -118,26 +117,28 @@ export const tableWidgetPropertyPaneMigrations = (
       let dynamicTriggerPathList: Array<{ key: string }> =
         child.dynamicTriggerPathList || [];
 
+      const columnPrefix = "customColumn";
+      const updatedDerivedColumns: Record<string, ColumnProperties> = {};
       // Add derived column for each column action
-      const updatedDerivedColumns = columnActions.map(
-        (action: ColumnAction, index: number) => {
-          return {
-            index: child.primaryColumns.length + index, // Add to the end of the columns list
-            width: 150, // Default width
-            id: action.id, // A random string which was generated previously
-            label: action.label, // Revert back to "Actions"
-            columnType: "button", // All actions are buttons
-            isVisible: true,
-            isDerived: true,
-            buttonLabel: action.label,
-            buttonStyle: "#29CCA3",
-            buttonLabelColor: "#FFFFFF",
-            onClick: action.dynamicTrigger,
-          };
-        },
-      );
+      columnActions.forEach((action: ColumnAction, index: number) => {
+        const column = {
+          index: child.primaryColumns.length + index, // Add to the end of the columns list
+          width: 150, // Default width
+          id: `${columnPrefix}${index + 1}`, // A random string which was generated previously
+          label: action.label, // Revert back to "Actions"
+          columnType: "button", // All actions are buttons
+          isVisible: true,
+          isDerived: true,
+          buttonLabel: action.label,
+          buttonStyle: "#29CCA3",
+          buttonLabelColor: "#FFFFFF",
+          onClick: action.dynamicTrigger,
+          computedValue: "",
+        };
+        updatedDerivedColumns[column.id] = column;
+      });
 
-      if (updatedDerivedColumns.length) {
+      if (Object.keys(updatedDerivedColumns).length) {
         dynamicTriggerPathList = dynamicTriggerPathList.filter(
           (triggerPath: Record<string, string>) => {
             triggerPath.key !== "columnActions";

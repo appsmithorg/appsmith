@@ -167,7 +167,7 @@ class WidgetFactory {
   ): Record<string, string> {
     const map = this.defaultPropertiesMap.get(widgetType);
     if (!map) {
-      console.error("Widget default properties not defined");
+      console.error("Widget default properties not defined", widgetType);
       return {};
     }
     return map;
@@ -180,6 +180,17 @@ class WidgetFactory {
     if (!map) {
       console.error("Widget meta properties not defined: ", widgetType);
       return {};
+    }
+    return map;
+  }
+
+  static getWidgetPropertyPaneConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const map = this.propertyPaneConfigsMap.get(type);
+    if (!map) {
+      console.error("Widget property pane configs not defined", type);
+      return [];
     }
     return map;
   }

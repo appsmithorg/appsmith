@@ -1,7 +1,7 @@
 import {
   DependencyMap,
-  isDynamicValue,
   isChildPropertyPath,
+  isDynamicValue,
 } from "../utils/DynamicBindingUtils";
 import { WidgetType } from "../constants/WidgetConstants";
 import { WidgetProps } from "../widgets/BaseWidget";
@@ -143,7 +143,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
 export const addDependantsOfNestedPropertyPaths = (
   parentPaths: Array<string>,
   inverseMap: DependencyMap,
-): Array<string> => {
+): Set<string> => {
   const withNestedPaths: Set<string> = new Set();
   const dependantNodes = Object.keys(inverseMap);
   parentPaths.forEach((propertyPath) => {
@@ -158,7 +158,7 @@ export const addDependantsOfNestedPropertyPaths = (
         });
       });
   });
-  return [...withNestedPaths.values()];
+  return withNestedPaths;
 };
 
 export function isWidget(entity: DataTreeEntity): entity is DataTreeWidget {
@@ -345,4 +345,26 @@ export const getAllPaths = (
     }
   }
   return result;
+};
+export const trimDependantChangePaths = (
+  changePaths: Set<string>,
+  dependencyMap: DependencyMap,
+): Array<string> => {
+  const trimmedPaths = [];
+  for (const path of changePaths) {
+    let foundADependant = false;
+    if (path in dependencyMap) {
+      const dependants = dependencyMap[path];
+      for (const dependantPath of dependants) {
+        if (changePaths.has(dependantPath)) {
+          foundADependant = true;
+          break;
+        }
+      }
+    }
+    if (!foundADependant) {
+      trimmedPaths.push(path);
+    }
+  }
+  return trimmedPaths;
 };

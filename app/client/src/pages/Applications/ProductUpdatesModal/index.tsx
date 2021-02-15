@@ -112,7 +112,7 @@ const ProductUpdatesModal = () => {
       trigger={<UpdatesButton newReleasesCount={newReleasesCount} />}
       width={"580px"}
       maxHeight={"80vh"}
-      triggerZIndex={Layers.max}
+      triggerZIndex={Layers.productUpdates}
       showHeaderUnderline
       onOpening={onOpening}
       isOpen={isOpen}

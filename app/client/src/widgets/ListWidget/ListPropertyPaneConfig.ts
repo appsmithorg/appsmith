@@ -10,6 +10,8 @@ const PropertyPaneConfig = [
         controlType: "INPUT_TEXT",
         placeholderText: 'Enter [{ "col1": "val1" }]',
         inputType: "ARRAY",
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
       {
         helpText: "Use a html color name, HEX, RGB or RGBA value",
@@ -17,6 +19,8 @@ const PropertyPaneConfig = [
         propertyName: "backgroundColor",
         label: "Background Color",
         controlType: "INPUT_TEXT",
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
       {
         helpText: "Gap between rows and columns",
@@ -24,11 +28,15 @@ const PropertyPaneConfig = [
         propertyName: "gridGap",
         label: "Grid Gap",
         controlType: "INPUT_TEXT",
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
       {
         propertyName: "shouldScrollContents",
         label: "Scroll Contents",
         controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
       {
         helpText: "Triggers an action when a grid list item is clicked",
@@ -36,6 +44,8 @@ const PropertyPaneConfig = [
         label: "onGridItemClick",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
     ],
   },

@@ -266,6 +266,46 @@ public class PageServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void reuseDeletedPageName() {
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("reuseDeletedPageName");
+        setupTestApplication();
+        testPage.setApplicationId(application.getId());
+
+        // Create Page
+        PageDTO firstPage = applicationPageService.createPage(testPage).block();
+
+        // Publish the application
+        applicationPageService.publish(application.getId());
+
+        //Delete Page in edit mode
+        applicationPageService.deleteUnpublishedPage(firstPage.getId()).block();
+
+        testPage.setId(null);
+        testPage.setName("New Page Name");
+        // Create Second Page
+        PageDTO secondPage = applicationPageService.createPage(testPage).block();
+
+        //Update the name of the new page
+        PageDTO newPage = new PageDTO();
+        newPage.setId(secondPage.getId());
+        newPage.setName("reuseDeletedPageName");
+        Mono<PageDTO> updatePageNameMono = newPageService.updatePage(secondPage.getId(), newPage);
+
+        StepVerifier
+                .create(updatePageNameMono)
+                .assertNext(page -> {
+                    assertThat(page).isNotNull();
+                    assertThat(page.getId()).isNotNull();
+                    assertThat("reuseDeletedPageName".equals(page.getName()));
+
+                })
+                .verifyComplete();
+    }
+
 
     @After
     public void purgeAllPages() {

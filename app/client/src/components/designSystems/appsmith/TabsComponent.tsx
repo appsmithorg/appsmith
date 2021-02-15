@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 import { ComponentProps } from "./BaseComponent";
 import { TabsWidgetProps, TabContainerWidgetProps } from "widgets/TabsWidget";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import { scrollbarLight } from "constants/DefaultTheme";
+import { getBorderCSSShorthand, scrollbarLight } from "constants/DefaultTheme";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -32,11 +32,9 @@ const TabsContainerWrapper = styled.div<{
   width: 100%;
   justify-content: center;
   align-items: center;
-  border-bottom-right-radius: ${(props) => `${props.theme.radii[1]}px`};
-  border-bottom-left-radius: ${(props) => `${props.theme.radii[1]}px`};
-  border-top-right-radius: ${(props) => `${props.theme.radii[1]}px`};
-  border-top-left-radius: ${(props) => `${props.theme.radii[1]}px`};
-  box-shadow: ${(props) => props.theme.shadows[2]};
+  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+  border-radius: 0;
+  box-shadow: none;
   overflow: hidden;
 `;
 

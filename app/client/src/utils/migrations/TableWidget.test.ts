@@ -202,8 +202,8 @@ const output1 = {
       parentId: "0",
       widgetId: "fs785w9gcy",
       dynamicBindingPathList: [],
-      primaryColumns: [
-        {
+      primaryColumns: {
+        id: {
           index: 0,
           width: 150,
           id: "id",
@@ -220,7 +220,7 @@ const output1 = {
           label: "id",
           computedValue: "",
         },
-        {
+        email: {
           index: 1,
           width: 150,
           id: "email",
@@ -237,7 +237,7 @@ const output1 = {
           label: "email",
           computedValue: "",
         },
-        {
+        userName: {
           index: 2,
           width: 150,
           id: "userName",
@@ -254,7 +254,7 @@ const output1 = {
           label: "userName",
           computedValue: "",
         },
-        {
+        productName: {
           index: 3,
           width: 150,
           id: "productName",
@@ -271,7 +271,7 @@ const output1 = {
           label: "productName",
           computedValue: "",
         },
-        {
+        orderAmount: {
           index: 4,
           width: 150,
           id: "orderAmount",
@@ -288,7 +288,7 @@ const output1 = {
           label: "orderAmount",
           computedValue: "",
         },
-      ],
+      },
       textSize: "PARAGRAPH",
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
@@ -340,8 +340,8 @@ const output2 = {
       dynamicBindingPathList: [],
       dynamicTriggerPathList: [
         { key: "columnActions" },
-        { key: "primaryColumns[5].onClick" },
-        { key: "primaryColumns[6].onClick" },
+        { key: "primaryColumns.customColumn1.onClick" },
+        { key: "primaryColumns.customColumn2.onClick" },
       ],
       columnActions: [
         {
@@ -357,8 +357,8 @@ const output2 = {
           dynamicTrigger: "{{showAlert('Fail','error')}}",
         },
       ],
-      primaryColumns: [
-        {
+      primaryColumns: {
+        id: {
           index: 0,
           width: 150,
           id: "id",
@@ -375,7 +375,7 @@ const output2 = {
           label: "id",
           computedValue: "",
         },
-        {
+        email: {
           index: 1,
           width: 150,
           id: "email",
@@ -392,7 +392,7 @@ const output2 = {
           label: "email",
           computedValue: "",
         },
-        {
+        userName: {
           index: 2,
           width: 150,
           id: "userName",
@@ -409,7 +409,7 @@ const output2 = {
           label: "userName",
           computedValue: "",
         },
-        {
+        productName: {
           index: 3,
           width: 150,
           id: "productName",
@@ -426,7 +426,7 @@ const output2 = {
           label: "productName",
           computedValue: "",
         },
-        {
+        orderAmount: {
           index: 4,
           width: 150,
           id: "orderAmount",
@@ -443,7 +443,7 @@ const output2 = {
           label: "orderAmount",
           computedValue: "",
         },
-        {
+        customColumn1: {
           index: 5,
           width: 150,
           id: "ezooq966rd",
@@ -456,7 +456,7 @@ const output2 = {
           buttonLabelColor: "#FFFFFF",
           onClick: "{{showAlert('test','success')}}",
         },
-        {
+        customColumn2: {
           index: 6,
           width: 150,
           id: "1k8nkay5r6",
@@ -469,7 +469,7 @@ const output2 = {
           buttonLabelColor: "#FFFFFF",
           onClick: "{{showAlert('Fail','error')}}",
         },
-      ],
+      },
       textSize: "PARAGRAPH",
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
@@ -525,8 +525,8 @@ const output3 = {
       ],
       onRowSelected: "{{showAlert('test','success')}}",
       onSearchTextChanged: "{{showAlert('fail','error')}}",
-      primaryColumns: [
-        {
+      primaryColumns: {
+        id: {
           index: 0,
           width: 150,
           id: "id",
@@ -543,7 +543,7 @@ const output3 = {
           label: "id",
           computedValue: "",
         },
-        {
+        email: {
           index: 1,
           width: 150,
           id: "email",
@@ -560,7 +560,7 @@ const output3 = {
           label: "email",
           computedValue: "",
         },
-        {
+        userName: {
           index: 2,
           width: 150,
           id: "userName",
@@ -577,7 +577,7 @@ const output3 = {
           label: "userName",
           computedValue: "",
         },
-        {
+        productName: {
           index: 3,
           width: 150,
           id: "productName",
@@ -594,7 +594,7 @@ const output3 = {
           label: "productName",
           computedValue: "",
         },
-        {
+        orderAmount: {
           index: 4,
           width: 150,
           id: "orderAmount",
@@ -611,7 +611,7 @@ const output3 = {
           label: "orderAmount",
           computedValue: "",
         },
-      ],
+      },
       textSize: "PARAGRAPH",
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",

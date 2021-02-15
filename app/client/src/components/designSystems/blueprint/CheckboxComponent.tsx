@@ -29,7 +29,6 @@ const CheckboxContainer = styled.div<{ isValid: boolean }>`
 `;
 class CheckboxComponent extends React.Component<CheckboxComponentProps> {
   render() {
-    console.log({ props: this.props });
     return (
       <CheckboxContainer
         isValid={!(this.props.isRequired && !this.props.isChecked)}
@@ -39,6 +38,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
           className={
             this.props.isLoading ? "bp3-skeleton" : Classes.RUNNING_TEXT
           }
+          style={{ borderRadius: 0 }}
           onChange={this.onCheckChange}
           disabled={this.props.isDisabled}
           checked={this.props.isChecked}

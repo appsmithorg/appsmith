@@ -56,6 +56,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       label: "",
       columns: 5,
       widgetName: "Input",
+      resetOnSubmit: true,
     },
     // SWITCH_WIDGET: {
     //   isOn: false,
@@ -118,8 +119,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       textSize: "PARAGRAPH",
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
-      primaryColumns: [],
-      derivedColumns: [],
+      primaryColumns: {},
+      derivedColumns: {},
       tableData: [
         {
           id: 2381224,

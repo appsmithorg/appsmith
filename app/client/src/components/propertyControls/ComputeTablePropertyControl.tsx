@@ -101,12 +101,13 @@ class ComputeTablePropertyControl extends BaseControl<
         : defaultValue;
     const evaluatedProperties = this.props.widgetProperties;
 
-    const columns: ColumnProperties[] =
-      evaluatedProperties.primaryColumns || [];
+    const columns: Record<string, ColumnProperties> =
+      evaluatedProperties.primaryColumns || {};
     const currentRow: { [key: string]: any } = {};
-    for (let i = 0; i < columns.length; i++) {
-      currentRow[columns[i].id] = undefined;
-    }
+    Object.keys(columns).forEach((id: string) => {
+      currentRow[id] = undefined;
+    });
+
     return (
       <InputText
         label={label}
@@ -125,8 +126,8 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getInputComputedValue = (propertyValue: string, tableId: string) => {
     const value = `${propertyValue.substring(
-      `{{${tableId}.items.map((currentItem) => `.length,
-      propertyValue.length - 3,
+      `{{${tableId}.tableData.map((currentRow) => { return `.length,
+      propertyValue.length - 4,
     )}`;
     const stringValue = JSToString(value);
 
@@ -135,7 +136,7 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getComputedValue = (value: string, tableId: string) => {
     const stringToEvaluate = stringToJS(value);
-    return `{{${tableId}.items.map((currentRow) => ${stringToEvaluate})}}`;
+    return `{{${tableId}.tableData.map((currentRow) => { return ${stringToEvaluate}})}}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {

@@ -4,6 +4,7 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
+  saveLayout,
   updateAndSaveLayout,
   WidgetAddChild,
   WidgetAddChildren,
@@ -100,6 +101,7 @@ import { Variant } from "components/ads/common";
 import { getEnhancementsMap } from "selectors/propertyPaneSelectors";
 import { hydrateEnhancementsMap } from "sagas/PageSagas";
 import { PropertyPaneEnhancementsDataState } from "reducers/uiReducers/propertyPaneEnhancementsReducer";
+import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -1016,15 +1018,8 @@ function* batchUpdateWidgetPropertySaga(
     // Set the actual property update
     propertyUpdates[propertyPath] = propertyValue;
 
-    let isRegexTriggerMatch = false;
-    if (triggerProperties.regex && Array.isArray(triggerProperties.regex)) {
-      triggerProperties.regex.forEach((re) => {
-        if (re.test(propertyPath)) isRegexTriggerMatch = true;
-      });
-    }
     // Check if the path is a of a dynamic trigger property
-    const isTriggerProperty =
-      propertyPath in triggerProperties || isRegexTriggerMatch;
+    const isTriggerProperty = propertyPath in triggerProperties;
 
     // If it is a trigger property, it will go in a different list than the general
     // dynamicBindingPathList.
@@ -1051,11 +1046,8 @@ function* batchUpdateWidgetPropertySaga(
   // Send the updates
   yield put(updateWidgetProperty(widgetId, propertyUpdates));
 
-  const stateWidgets = yield select(getWidgets);
-  const widgets = { ...stateWidgets, [widgetId]: widget };
-
   // Save the layout
-  yield put(updateAndSaveLayout(widgets));
+  yield put(saveLayout());
 }
 
 function* deleteWidgetPropertySaga(
@@ -1084,17 +1076,19 @@ function* deleteWidgetPropertySaga(
     });
   });
 
-  yield put(
-    updateWidgetProperty(widgetId, {
-      dynamicTriggerPathList,
-      dynamicBindingPathList,
-    }),
-  );
+  // yield put(
+  //   updateWidgetProperty(widgetId, {
+  //     dynamicTriggerPathList,
+  //     dynamicBindingPathList,
+  //   }),
+  // );
 
   const stateWidgets = yield select(getWidgets);
   // Cloning because we probably froze the properties earlier
   // TODO(abhinav): Check if we need to use immer to handle this.
   let widget = _.cloneDeep(stateWidget);
+  widget.dynamicBindingPathList = dynamicBindingPathList;
+  widget.dynamicTriggerPathList = dynamicTriggerPathList;
   propertyPaths.forEach((propertyPath) => {
     widget = unsetPropertyPath(widget, propertyPath) as WidgetProps;
   });
@@ -1253,7 +1247,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
 }
 
-function calculateNewWidgetPosition(
+export function calculateNewWidgetPosition(
   widget: WidgetProps,
   parentId: string,
   canvasWidgets: FlattenedWidgetProps[],
@@ -1452,19 +1446,22 @@ function* pasteWidgetSaga() {
             evalTree,
           );
           // If the primaryColumns of the table exist
-          if (widget.primaryColumns && Array.isArray(widget.primaryColumns)) {
-            // Map all the primaryColumns of the widget
-            widget.primaryColumns = widget.primaryColumns.map((column) => {
+          if (widget.primaryColumns) {
+            // For each column
+            for (const [columnId, column] of Object.entries(
+              widget.primaryColumns,
+            )) {
               // For each property in the column
-              for (const [key, value] of Object.entries(column)) {
+              for (const [key, value] of Object.entries(
+                column as ColumnProperties,
+              )) {
                 // Replace reference of previous widget with the new widgetName
                 // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
-                column[key] = isString(value)
+                widget.primaryColumns[columnId][key] = isString(value)
                   ? value.replace(`${oldWidgetName}.`, `${newWidgetName}.`)
                   : value;
               }
-              return column;
-            });
+            }
           }
           // Use the new widget name we used to replace the column properties above.
           widget.widgetName = newWidgetName;
@@ -1655,10 +1652,10 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       rightColumn: columns,
       columns,
       rows,
-      parentId: "0",
+      parentId: MAIN_CONTAINER_WIDGET_ID,
       widgetName,
       renderMode: RenderModes.CANVAS,
-      parentRowSpace: 1,
+      parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       parentColumnSpace: 1,
       isLoading: false,
       props: {
@@ -1671,7 +1668,11 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       topRow,
       rightColumn,
       bottomRow,
-    } = yield calculateNewWidgetPosition(newWidget, "0", widgets);
+    } = yield calculateNewWidgetPosition(
+      newWidget,
+      MAIN_CONTAINER_WIDGET_ID,
+      widgets,
+    );
 
     newWidget = {
       ...newWidget,
