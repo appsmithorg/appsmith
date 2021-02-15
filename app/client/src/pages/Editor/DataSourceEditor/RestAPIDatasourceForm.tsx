@@ -160,7 +160,6 @@ const COMMON_INPUT_PROPS: any = {
 
 class DatasourceRestAPIEditor extends React.Component<Props> {
   componentDidMount = () => {
-<<<<<<< HEAD
     const search = new URLSearchParams(this.props.location.search);
     const status = search.get("response_status");
 
@@ -204,24 +203,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       }
     }
     return true;
-=======
-    const status = new URLSearchParams(this.props.location.search).get(
-      "response_status",
-    );
-    if (status) {
-      if (status === "success") {
-        Toaster.show({
-          text: AUTHORIZATION_SUCCESSFUL,
-          variant: Variant.success,
-        });
-      } else {
-        Toaster.show({
-          text: AUTHORIZATION_FAILED,
-          variant: Variant.danger,
-        });
-      }
-    }
->>>>>>> d59efdc06... Commit for safety
   };
 
   disableSave = () => {
@@ -440,11 +421,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 value: AuthType.NONE,
               },
               {
-<<<<<<< HEAD
                 label: "OAuth 2.0",
-=======
-                label: "OAuth2 ",
->>>>>>> d59efdc06... Commit for safety
                 value: AuthType.OAuth2,
               },
             ]}
@@ -473,17 +450,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   renderOauth2 = () => {
     const { authentication } = this.props.formData;
-<<<<<<< HEAD
     if (!authentication) return;
-=======
-    if (!authentication || !authentication.grantType) {
-      this.props.change(
-        "authentication.grantType",
-        GrantType.ClientCredentials,
-      );
-      return;
-    }
->>>>>>> d59efdc06... Commit for safety
     let content;
     switch (authentication?.grantType) {
       case GrantType.AuthorizationCode:
@@ -494,36 +461,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         break;
     }
 
-<<<<<<< HEAD
-=======
-    return (
-      <>
-        <FormInputContainer>
-          <DropDownControl
-            {...COMMON_INPUT_PROPS}
-            label="Grant Type"
-            configProperty="authentication.grantType"
-            placeholderText=""
-            propertyValue=""
-            options={[
-              {
-                label: "Client Credentials",
-                value: GrantType.ClientCredentials,
-              },
-              {
-                label: "Authorization Code",
-                value: GrantType.AuthorizationCode,
-              },
-            ]}
-          />
-        </FormInputContainer>
-        {content}
-      </>
-    );
-  };
-
-  renderOauth2Common = () => {
->>>>>>> d59efdc06... Commit for safety
     return (
       <>
         <FormInputContainer>
@@ -600,26 +537,11 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <FormInputContainer>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
-<<<<<<< HEAD
             label="Client Secret"
             dataType="PASSWORD"
             encrypted={true}
             configProperty="authentication.clientSecret"
             placeholderText="Client Secret"
-=======
-            label="Add Access Token To"
-            configProperty="authentication.isTokenHeader"
-            options={[
-              {
-                label: "Header",
-                value: true,
-              },
-              {
-                label: "Query parameters",
-                value: false,
-              },
-            ]}
->>>>>>> d59efdc06... Commit for safety
           />
         </FormInputContainer>
         <FormInputContainer>
@@ -685,11 +607,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             onClick={() =>
               this.save(redirectAuthorizationCode(pageId, datasourceId))
             }
-<<<<<<< HEAD
             text={isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
-=======
-            text={isAuthorized ? "Re-Authorize" : "Authorize"}
->>>>>>> d59efdc06... Commit for safety
             intent="primary"
             loading={isSaving}
             disabled={this.disableSave()}
