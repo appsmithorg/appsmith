@@ -433,10 +433,10 @@ public class AmazonS3Plugin extends BasePlugin {
                                 listOfFilesAndUrls.add(fileUrlPair);
                             }
 
-                            actionResult = Map.of("Files", listOfFilesAndUrls);
+                            actionResult = Map.of("files", listOfFilesAndUrls);
                         }
                         else {
-                            actionResult = Map.of("Files", listOfFiles);
+                            actionResult = Map.of("files", listOfFiles);
                         }
                         break;
                     case UPLOAD_FILE_FROM_BODY:
@@ -477,7 +477,7 @@ public class AmazonS3Plugin extends BasePlugin {
                             signedUrl = uploadFileFromBody(connection, bucketName, path, body, false,
                                     durationInMilliseconds);
                         }
-                        actionResult = signedUrl;
+                        actionResult = Map.of("signedUrl", signedUrl);
                         break;
                     case READ_FILE:
                         String result = null;
@@ -489,11 +489,11 @@ public class AmazonS3Plugin extends BasePlugin {
                         else {
                             result = readFile(connection, bucketName, path, false);
                         }
-                        actionResult = result;
+                        actionResult = Map.of("data", result);
                         break;
                     case DELETE_FILE:
                         connection.deleteObject(bucketName, path);
-                        actionResult = Map.of("Status", "File deleted successfully");
+                        actionResult = Map.of("status", "File deleted successfully");
                         break;
                     default:
                         throw new AppsmithPluginException(
