@@ -33,6 +33,7 @@ import {
   convertPathToString,
   CrashingError,
   DataTreeDiffEvent,
+  extractDependenciesFromBinding,
   getAllPaths,
   getImmediateParentsOfPropertyPaths,
   getValidatedTree,
@@ -46,7 +47,7 @@ import {
 import {
   EXECUTION_PARAM_KEY,
   EXECUTION_PARAM_REFERENCE_REGEX,
-} from "../constants/ActionConstants";
+} from "constants/ActionConstants";
 
 const ctx: Worker = self as any;
 
@@ -471,10 +472,10 @@ export class DataTreeEvaluator {
       }
     });
     Object.keys(dependencyMap).forEach((key) => {
-      dependencyMap[key] = _.flatten(
-        dependencyMap[key].map((path) =>
-          extractReferencesFromBinding(path, this.allKeys),
-        ),
+      dependencyMap[key] = extractDependenciesFromBinding(
+        dependencyMap[key],
+        this.allKeys,
+        key,
       );
     });
     // TODO make this run only for widgets and not actions
@@ -1067,10 +1068,10 @@ export class DataTreeEvaluator {
     if (didUpdateDependencyMap) {
       // TODO Optimise
       Object.keys(this.dependencyMap).forEach((key) => {
-        this.dependencyMap[key] = _.flatten(
-          this.dependencyMap[key].map((path) =>
-            extractReferencesFromBinding(path, this.allKeys),
-          ),
+        this.dependencyMap[key] = extractDependenciesFromBinding(
+          this.dependencyMap[key],
+          this.allKeys,
+          key,
         );
       });
       this.dependencyMap = makeParentsDependOnChildren(this.dependencyMap);
@@ -1208,10 +1209,10 @@ export class DataTreeEvaluator {
         );
         Object.keys(entityPropertyBindings).forEach((path) => {
           const propertyBindings = entityPropertyBindings[path];
-          const references = _.flatten(
-            propertyBindings.map((binding) =>
-              extractReferencesFromBinding(binding, this.allKeys),
-            ),
+          const references = extractDependenciesFromBinding(
+            propertyBindings,
+            this.allKeys,
+            path,
           );
           references.forEach((value) => {
             if (isChildPropertyPath(propertyPath, value)) {
@@ -1264,37 +1265,6 @@ export class DataTreeEvaluator {
     this.errors = [];
   }
 }
-
-const extractReferencesFromBinding = (
-  path: string,
-  all: Record<string, true>,
-): Array<string> => {
-  const subDeps: Array<string> = [];
-  const identifiers = path.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [path];
-  identifiers.forEach((identifier: string) => {
-    // If the identifier exists directly, add it and return
-    if (all.hasOwnProperty(identifier)) {
-      subDeps.push(identifier);
-      return;
-    }
-    const subpaths = _.toPath(identifier);
-    let current = "";
-    // We want to keep going till we reach top level, but not add top level
-    // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
-    // This is mainly to avoid a lot of unnecessary evals, if we feel this is wrong
-    // we can remove the length requirement and it will still work
-    while (subpaths.length > 1) {
-      current = convertPathToString(subpaths);
-      // We've found the dep, add it and return
-      if (all.hasOwnProperty(current)) {
-        subDeps.push(current);
-        return;
-      }
-      subpaths.pop();
-    }
-  });
-  return _.uniq(subDeps);
-};
 
 // TODO cryptic comment below. Dont know if we still need this. Duplicate function
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
