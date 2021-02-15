@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
   StyledInputGroup,
@@ -95,10 +95,13 @@ function ColumnControlComponent(props: RenderComponentProps) {
     index,
   } = props;
   const debouncedUpdate = debounce(updateOption, 1000);
-  const onChange = (index: number, value: string) => {
-    setValue(value);
-    debouncedUpdate(index, value);
-  };
+  const onChange = useCallback(
+    (index: number, value: string) => {
+      setValue(value);
+      debouncedUpdate(index, value);
+    },
+    [updateOption],
+  );
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />

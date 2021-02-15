@@ -4,6 +4,7 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
+  saveLayout,
   updateAndSaveLayout,
   WidgetAddChild,
   WidgetAddChildren,
@@ -889,11 +890,8 @@ function* batchUpdateWidgetPropertySaga(
   // Send the updates
   yield put(updateWidgetProperty(widgetId, propertyUpdates));
 
-  const stateWidgets = yield select(getWidgets);
-  const widgets = { ...stateWidgets, [widgetId]: widget };
-
   // Save the layout
-  yield put(updateAndSaveLayout(widgets));
+  yield put(saveLayout());
 }
 
 function* deleteWidgetPropertySaga(
