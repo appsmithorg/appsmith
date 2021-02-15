@@ -39,7 +39,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
-      value: `{{this.isChecked}}`,
+      value: `{{!!this.isChecked}}`,
       isValid: `{{ this.isRequired ? !!this.isChecked : true }}`,
     };
   }
