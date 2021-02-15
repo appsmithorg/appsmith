@@ -33,8 +33,7 @@ export const SwitchComponent: React.FC<SwitchComponentProps> = ({
   isDisabled,
   isLoading,
 }) => {
-  const switchAlignClass =
-    label && swapLabel ? Alignment.RIGHT : Alignment.LEFT;
+  const switchAlignClass = swapLabel ? Alignment.RIGHT : Alignment.LEFT;
 
   return (
     <SwitchComponentContainer className={switchAlignClass}>
