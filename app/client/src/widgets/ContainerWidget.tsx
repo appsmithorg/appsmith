@@ -132,7 +132,7 @@ class ContainerWidget extends BaseWidget<
       <>{this.renderChildWidget(sortedChildren[childProps.index])}</>
     );
 
-    const Example = () => (
+    const VirtualizedList = () => (
       <List
         height={componentHeight}
         itemCount={sortedChildren.length}
@@ -144,7 +144,7 @@ class ContainerWidget extends BaseWidget<
       </List>
     );
 
-    return <Example />;
+    return <VirtualizedList />;
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
