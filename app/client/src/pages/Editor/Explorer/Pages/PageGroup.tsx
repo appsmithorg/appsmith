@@ -80,7 +80,6 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       className="group pages"
       icon={pageGroupIcon}
       isDefaultExpanded
-      action={noop}
       entityId="Pages"
       step={props.step}
       onCreate={createPageCallback}
