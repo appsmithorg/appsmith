@@ -169,6 +169,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       {},
       this.createTablePrimaryColumns() || primaryColumns,
     );
+
     const sortColumn = sortedColumn?.column;
     const sortOrder = sortedColumn?.asc;
     if (columnOrder) {
@@ -639,7 +640,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   componentDidUpdate(prevProps: TableWidgetProps) {
     const { primaryColumns = {} } = this.props;
 
-    // console.log("Table log:", this.props);
     // Check if data is modifed by comparing the stringified versions of the previous and next tableData
     const tableDataModified =
       JSON.stringify(this.props.tableData) !==
@@ -767,12 +767,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getPageView() {
     const { hiddenColumns, pageSize } = this.props;
     const filteredTableData = this.filterTableData();
+
     const computedSelectedRowIndices = Array.isArray(
       this.props.selectedRowIndices,
     )
       ? this.props.selectedRowIndices
       : [];
     const tableColumns = this.getTableColumns() || [];
+
     const transformedData = this.transformData(
       filteredTableData || [],
       tableColumns,

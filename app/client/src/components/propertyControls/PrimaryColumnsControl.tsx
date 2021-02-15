@@ -17,8 +17,9 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import {
   getDefaultColumnProperties,
   getTableStyles,
+  reorderColumns,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
-import { debounce, pick } from "lodash";
+import { debounce } from "lodash";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -75,10 +76,12 @@ const getOriginalColumn = (
   columns: Record<string, ColumnProperties>,
   index: number,
   columnOrder?: string[],
-): ColumnProperties => {
-  const columnId = columnOrder ? columnOrder[index] : "";
-  const column = columns[columnId];
-  return column || {};
+): ColumnProperties | undefined => {
+  const reorderedColumns = reorderColumns(columns, columnOrder || []);
+  const column: ColumnProperties | undefined = Object.values(
+    reorderedColumns,
+  ).find((column: ColumnProperties) => column.index === index);
+  return column;
 };
 
 function ColumnControlComponent(props: RenderComponentProps) {
@@ -166,9 +169,19 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       columnOrder = Object.keys(columns);
     }
 
-    const draggableComponentColumns = columnOrder.map((id: string) => {
-      return pick(columns[id], "label", "isVisible", "isDerived", "id");
-    });
+    const reorderedColumns = reorderColumns(columns, columnOrder);
+
+    const draggableComponentColumns = Object.values(reorderedColumns).map(
+      (column: ColumnProperties) => {
+        return {
+          label: column.label,
+          id: column.id,
+          isVisible: column.isVisible,
+          isDerived: column.isDerived,
+          index: column.index,
+        };
+      },
+    );
 
     return (
       <TabsWrapper>
@@ -245,10 +258,12 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       this.props.widgetProperties.columnOrder,
     );
 
-    this.updateProperty(
-      `${this.props.propertyName}.${originalColumn.id}.isVisible`,
-      !originalColumn.isVisible,
-    );
+    if (originalColumn) {
+      this.updateProperty(
+        `${this.props.propertyName}.${originalColumn.id}.isVisible`,
+        !originalColumn.isVisible,
+      );
+    }
   };
 
   deleteOption = (index: number) => {
@@ -261,18 +276,22 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       index,
       this.props.widgetProperties.columnOrder,
     );
-    const propertiesToDelete = [
-      `${this.props.propertyName}.${originalColumn.id}.`,
-    ];
-    if (derivedColumns[originalColumn.id])
-      propertiesToDelete.push(`derivedColumns.${originalColumn.id}`);
 
-    const columnOrderIndex = this.props.widgetProperties.columnOrder.findIndex(
-      (column: string) => column === originalColumn.id,
-    );
-    propertiesToDelete.push(`columnOrder[${columnOrderIndex}]`);
+    if (originalColumn) {
+      const propertiesToDelete = [
+        `${this.props.propertyName}.${originalColumn.id}`,
+      ];
+      if (derivedColumns[originalColumn.id])
+        propertiesToDelete.push(`derivedColumns.${originalColumn.id}`);
 
-    this.deleteProperties(propertiesToDelete);
+      const columnOrderIndex = this.props.widgetProperties.columnOrder.findIndex(
+        (column: string) => column === originalColumn.id,
+      );
+      if (columnOrderIndex > -1)
+        propertiesToDelete.push(`columnOrder[${columnOrderIndex}]`);
+
+      this.deleteProperties(propertiesToDelete);
+    }
   };
 
   updateOption = (index: number, updatedLabel: string) => {
@@ -284,10 +303,12 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       this.props.widgetProperties.columnOrder,
     );
 
-    this.updateProperty(
-      `${this.props.propertyName}.${originalColumn.id}.label`,
-      updatedLabel,
-    );
+    if (originalColumn) {
+      this.updateProperty(
+        `${this.props.propertyName}.${originalColumn.id}.label`,
+        updatedLabel,
+      );
+    }
   };
 
   static getControlType() {

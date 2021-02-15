@@ -1186,7 +1186,6 @@ Cypress.Commands.add("tableColumnPopertyUpdate", (colId, newColName) => {
   });
   cy.get("[data-rbd-draggable-id='" + colId + "'] input").type(newColName, {
     force: true,
-    delay: 700,
   });
   cy.get(".draggable-header ")
     .contains(newColName)
@@ -1214,7 +1213,7 @@ Cypress.Commands.add("addColumn", (colId) => {
   cy.get(widgetsPage.addColumn)
     .should("be.visible")
     .click({ force: true });
-  cy.wait(1000);
+  cy.wait(3000);
   cy.get(widgetsPage.defaultColName).clear({
     force: true,
   });
@@ -1222,10 +1221,8 @@ Cypress.Commands.add("addColumn", (colId) => {
 });
 
 Cypress.Commands.add("editColumn", (colId) => {
-  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click({
-    force: true,
-  });
-  cy.wait(500);
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click();
+  cy.wait(1500);
 });
 
 Cypress.Commands.add(
@@ -1818,6 +1815,7 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
   cy.get(`${selector}:first-of-type .t--widget-propertypane-toggle`)
     .first()
     .click({ force: true });
+  cy.wait(1000);
 });
 
 Cypress.Commands.add("closePropertyPane", () => {

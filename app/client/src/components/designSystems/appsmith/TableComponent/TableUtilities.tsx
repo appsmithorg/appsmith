@@ -20,7 +20,14 @@ import {
   ConditionFunctions,
   TableStyles,
 } from "components/designSystems/appsmith/TableComponent/Constants";
-import { isString, isEmpty, findIndex, isPlainObject, isNil } from "lodash";
+import {
+  isString,
+  isEmpty,
+  findIndex,
+  isPlainObject,
+  isNil,
+  without,
+} from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
@@ -415,9 +422,20 @@ export const reorderColumns = (
   columnOrder: string[],
 ) => {
   const newColumnsInOrder: Record<string, ColumnProperties> = {};
+
   columnOrder.forEach((id: string, index: number) => {
     if (columns[id]) newColumnsInOrder[id] = { ...columns[id], index };
   });
+  const remaining = without(
+    Object.keys(columns),
+    ...Object.keys(newColumnsInOrder),
+  );
+  const len = Object.keys(newColumnsInOrder).length;
+  if (remaining && remaining.length > 0) {
+    remaining.forEach((id: string, index: number) => {
+      newColumnsInOrder[id] = { ...columns[id], index: len + index };
+    });
+  }
   return newColumnsInOrder;
 };
 
