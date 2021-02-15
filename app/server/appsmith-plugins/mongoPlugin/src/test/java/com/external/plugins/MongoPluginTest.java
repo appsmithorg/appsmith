@@ -179,7 +179,7 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("{\n" +
                 "      find: \"users\",\n" +
-                "      filter: { $is: {} },\n" +
+                "      filter: { age: { $gte: 30 } },\n" +
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");

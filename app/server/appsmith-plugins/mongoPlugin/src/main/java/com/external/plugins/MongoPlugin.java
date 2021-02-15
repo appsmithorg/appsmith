@@ -115,7 +115,7 @@ public class MongoPlugin extends BasePlugin {
                     .flatMap(mongoOutput -> {
                         try {
                             JSONObject outputJson = new JSONObject(mongoOutput.toJson());
-                            System.out.println(outputJson);
+
                             //The output json contains the key "ok". This is the status of the command
                             BigInteger status = outputJson.getBigInteger("ok");
                             JSONArray headerArray = new JSONArray();
