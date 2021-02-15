@@ -1,10 +1,6 @@
 import React, { useEffect, useRef, useContext } from "react";
-import {
-  Highlight as AlgoliaHighlight,
-  connectHits,
-} from "react-instantsearch-dom";
+import { Highlight as AlgoliaHighlight } from "react-instantsearch-dom";
 import { Hit as IHit } from "react-instantsearch-core";
-import "instantsearch.css/themes/algolia.css";
 import styled, { withTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import {
@@ -183,13 +179,6 @@ const SearchItem = withTheme((props: ItemProps) => {
   );
 });
 
-type Props = {
-  hits: Array<IHit>;
-  searchResults: Array<any>;
-  setDocumentationSearchResults: (searchResults: Array<any>) => void;
-  query: string;
-};
-
 const SearchResultsContainer = styled.div`
   padding: 0 ${(props) => props.theme.spaces[6]}px;
   overflow: auto;
@@ -198,22 +187,19 @@ const SearchResultsContainer = styled.div`
 `;
 
 const SearchResults = ({
-  hits,
   searchResults,
-  setDocumentationSearchResults,
   query,
-}: Props) => {
-  useEffect(() => {
-    setDocumentationSearchResults(hits);
-  }, [hits]);
-
+}: {
+  searchResults: any[];
+  query: string;
+}) => {
   return (
     <SearchResultsContainer>
-      {searchResults.map((item, index) => (
+      {searchResults.map((item: any, index: number) => (
         <SearchItem key={index} index={index} item={item} query={query} />
       ))}
     </SearchResultsContainer>
   );
 };
 
-export default connectHits<Props, IHit>(SearchResults);
+export default SearchResults;

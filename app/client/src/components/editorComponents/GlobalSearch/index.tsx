@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -7,6 +7,7 @@ import SearchModal from "./SearchModal";
 import AlgoliaSearchWrapper from "./AlgoliaSearchWrapper";
 import SearchBox from "./SearchBox";
 import SearchResults from "./SearchResults";
+import SetSearchResults from "./SetSearchResults";
 import ContentView from "./ContentView";
 import GlobalSearchHotKeys from "./GlobalSearchHotKeys";
 import SearchContext from "./GlobalSearchContext";
@@ -18,7 +19,6 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import history from "utils/history";
-import { throttle } from "lodash";
 
 const StyledContainer = styled.div`
   width: 660px;
@@ -47,13 +47,9 @@ const GlobalSearch = () => {
   const dispatch = useDispatch();
   const toggleShow = () => dispatch(toggleShowGlobalSearchModal());
   const [query, setQuery] = useState("");
-  const [documentationSearchResults, _setDocumentationSearchResults] = useState<
+  const [documentationSearchResults, setDocumentationSearchResults] = useState<
     Array<any>
   >([]);
-  const setDocumentationSearchResults = useCallback(
-    throttle(_setDocumentationSearchResults, 100),
-    [],
-  );
 
   const [activeItemIndex, setActiveItemIndex] = useState(0);
   const allWidgets = useSelector(getAllPageWidgets);
@@ -155,8 +151,6 @@ const GlobalSearch = () => {
     handleItemLinkClick,
   };
 
-  console.log("render");
-
   return (
     <SearchContext.Provider value={searchContext}>
       <GlobalSearchHotKeys {...hotKeyProps}>
@@ -165,11 +159,10 @@ const GlobalSearch = () => {
             <StyledContainer>
               <SearchBox query={query} setQuery={setQuery} />
               <div className="main">
-                <SearchResults
-                  searchResults={searchResults}
+                <SetSearchResults
                   setDocumentationSearchResults={setDocumentationSearchResults}
-                  query={query}
                 />
+                <SearchResults searchResults={searchResults} query={query} />
                 <Separator />
                 <ContentView
                   activeItemIndex={activeItemIndex}
