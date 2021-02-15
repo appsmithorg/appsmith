@@ -52,10 +52,13 @@ const getLocalStorage = () => {
     }
   };
 
+  const isSupported = () => !!window.localStorage;
+
   return {
     getItem,
     setItem,
     removeItem,
+    isSupported,
   };
 };
 

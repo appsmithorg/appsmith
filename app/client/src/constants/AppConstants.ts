@@ -15,7 +15,7 @@ export const getAppStore = (appId: string) => {
   const appStoreName = getAppStoreName(appId);
   let storeString = "{}";
   // Check if localStorage exists
-  if (window.localStorage) {
+  if (localStorage.isSupported()) {
     const appStore = localStorage.getItem(appStoreName);
     if (appStore) storeString = appStore;
   }
