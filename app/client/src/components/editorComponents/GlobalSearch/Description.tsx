@@ -1,8 +1,9 @@
 import React from "react";
-import { Highlight as AlgoliaHighlight } from "react-instantsearch-dom";
+// import { Highlight as AlgoliaHighlight } from "react-instantsearch-dom";
 import styled from "styled-components";
 import { SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import ReactMarkdown from "react-markdown";
 
 type Props = {
   activeItem: any;
@@ -11,13 +12,13 @@ type Props = {
 
 const Container = styled.div`
   flex: 1;
+  display: flex;
+  flex-direction: column;
   padding: ${(props) => props.theme.spaces[12]}px;
-
   ${(props) => getTypographyByKey(props, "p1")};
   [class^="ais-"] {
     ${(props) => getTypographyByKey(props, "p1")};
   }
-  display: flex;
   padding: ${(props) =>
     `${props.theme.spaces[3]}px ${props.theme.spaces[4]}px`};
   border-radius: ${(props) => props.theme.radii[2]}px;
@@ -31,6 +32,11 @@ const Container = styled.div`
     text-decoration-color: ${(props) =>
       props.theme.colors.globalSearch.highlightedTextUnderline};
   }
+  overflow: auto;
+  & * {
+    max-width: 100%;
+    white-space: pre-wrap;
+  }
 `;
 
 const Description = (props: Props) => {
@@ -39,7 +45,7 @@ const Description = (props: Props) => {
   return (
     <Container>
       {activeItemType === SEARCH_ITEM_TYPES.documentation ? (
-        <AlgoliaHighlight hit={activeItem} attribute="description" />
+        <ReactMarkdown>{activeItem.document}</ReactMarkdown>
       ) : null}
     </Container>
   );
