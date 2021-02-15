@@ -1,7 +1,6 @@
 import React, { memo, useCallback } from "react";
 import Entity from "../Entity";
 import { pageGroupIcon } from "../ExplorerIcons";
-import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { createPage } from "actions/pageActions";
