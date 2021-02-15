@@ -131,6 +131,7 @@ export const entityDefinitions = {
     isVisible: isVisible,
     isChecked: "bool",
     isDisabled: "bool",
+    swapLabel: "bool",
   },
   SWITCH_WIDGET: {
     "!doc":
@@ -139,6 +140,7 @@ export const entityDefinitions = {
     isVisible: isVisible,
     isSwitchedOn: "bool",
     isDisabled: "bool",
+    swapLabel: "bool",
   },
   RADIO_GROUP_WIDGET: {
     "!doc":

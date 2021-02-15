@@ -1,4 +1,4 @@
-import { Alignment, Switch } from "@blueprintjs/core";
+import { Alignment, Classes, Switch } from "@blueprintjs/core";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
 import styled from "styled-components";
@@ -16,8 +16,11 @@ const SwitchComponentContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  .bp3-control {
+  .${Classes.CONTROL} {
     margin: 0;
+  }
+  &.${Alignment.RIGHT} {
+    justify-content: flex-end;
   }
   ${BlueprintControlTransform}
 `;
@@ -30,17 +33,18 @@ export const SwitchComponent: React.FC<SwitchComponentProps> = ({
   isDisabled,
   isLoading,
 }) => {
+  const switchAlignClass =
+    label && swapLabel ? Alignment.RIGHT : Alignment.LEFT;
+
   return (
     <>
       {
-        <SwitchComponentContainer>
+        <SwitchComponentContainer className={switchAlignClass}>
           <Switch
-            alignIndicator={
-              label && swapLabel ? Alignment.RIGHT : Alignment.LEFT
-            }
+            alignIndicator={switchAlignClass}
             label={label}
             disabled={isDisabled}
-            className={isLoading ? "bp3-skeleton" : ""}
+            className={isLoading ? Classes.SKELETON : ""}
             checked={isSwitchedOn}
             onChange={() => onChange(!isSwitchedOn)}
           />

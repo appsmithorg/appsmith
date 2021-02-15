@@ -1255,6 +1255,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             placeholderText: "Enter label text",
           },
           {
+            id: "19.1.7",
+            propertyName: "swapLabel",
+            label: "Swap Label",
+            helpText: "Swap label position to the left or right.",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+          },
+          {
             id: "9.1.2",
             propertyName: "defaultCheckedState",
             label: "Default Selected",

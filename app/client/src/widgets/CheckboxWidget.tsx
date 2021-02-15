@@ -55,6 +55,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
       <CheckboxComponent
         isRequired={this.props.isRequired}
         isChecked={!!this.props.isChecked}
+        swapLabel={this.props.swapLabel}
         label={this.props.label}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
