@@ -182,7 +182,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       totalColumnSizes += columnSizeMap[i];
     }
 
-    // const columnCount = Object.keys(allColumns).length;
     const allColumnProperties = Object.values(allColumns);
     for (let index = 0; index < allColumnProperties.length; index++) {
       const columnProperties = allColumnProperties[index];
@@ -576,12 +575,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   updateColumnProperties = (
     tableColumns?: Record<string, ColumnProperties>,
   ) => {
-    let { primaryColumns = [] } = this.props;
+    const { primaryColumns = {} } = this.props;
     const { columnOrder, migrated } = this.props;
-    primaryColumns = primaryColumns;
     if (tableColumns) {
       const previousColumnIds = Object.keys(primaryColumns);
       const newColumnIds = Object.keys(tableColumns);
+
       if (xor(previousColumnIds, newColumnIds).length > 0) {
         const columnIdsToAdd = without(newColumnIds, ...previousColumnIds);
 
@@ -609,9 +608,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             ...newColumnIds,
           );
           columnsIdsToDelete.forEach((id: string) => {
-            pathsToDelete.push(`primaryColumns[${id}]`);
+            pathsToDelete.push(`primaryColumns.${id}`);
           });
-          super.deleteWidgetProperty(pathsToDelete);
+          // We need to wait for the above updates to finish
+          // Todo(abhinav): This is not correct. The platform should accept multiple types of updates
+          // That approach should be performant.
+          setTimeout(() => {
+            super.deleteWidgetProperty(pathsToDelete);
+          }, 1000);
         }
       }
     }
