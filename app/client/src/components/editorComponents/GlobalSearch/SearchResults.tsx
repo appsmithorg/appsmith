@@ -46,7 +46,6 @@ const SearchItemContainer = styled.div<{ isActiveItem: boolean }>`
     text-decoration-color: ${(props) =>
       props.theme.colors.globalSearch.highlightedTextUnderline};
   }
-  margin-bottom: ${(props) => props.theme.spaces[1]}px;
 `;
 
 const ItemTitle = styled.div`

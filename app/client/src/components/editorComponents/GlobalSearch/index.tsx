@@ -8,9 +8,9 @@ import AlgoliaSearchWrapper from "./AlgoliaSearchWrapper";
 import SearchBox from "./SearchBox";
 import SearchResults from "./SearchResults";
 import SetSearchResults from "./SetSearchResults";
-import ContentView from "./ContentView";
 import GlobalSearchHotKeys from "./GlobalSearchHotKeys";
 import SearchContext from "./GlobalSearchContext";
+import Description from "./Description";
 import { getActions, getAllPageWidgets } from "selectors/entitiesSelector";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
@@ -31,11 +31,11 @@ const StyledContainer = styled.div`
     display: flex;
     flex: 1;
     overflow: hidden;
-    margin: ${(props) => props.theme.spaces[3]}px 0;
   }
 `;
 
 const Separator = styled.div`
+  margin: ${(props) => props.theme.spaces[3]}px 0;
   width: 1px;
   background-color: ${(props) => props.theme.colors.globalSearch.separator};
 `;
@@ -76,9 +76,9 @@ const GlobalSearch = () => {
 
   const searchResults = useMemo(() => {
     return [
-      ...documentationSearchResults,
       ...filteredWidgets,
       ...filteredActions,
+      ...documentationSearchResults,
     ];
   }, [filteredWidgets, filteredActions, documentationSearchResults]);
 
@@ -151,6 +151,10 @@ const GlobalSearch = () => {
     handleItemLinkClick,
   };
 
+  const activeItemType = useMemo(() => {
+    return activeItem ? getItemType(activeItem) : undefined;
+  }, [activeItem]);
+
   return (
     <SearchContext.Provider value={searchContext}>
       <GlobalSearchHotKeys {...hotKeyProps}>
@@ -164,9 +168,9 @@ const GlobalSearch = () => {
                 />
                 <SearchResults searchResults={searchResults} query={query} />
                 <Separator />
-                <ContentView
-                  activeItemIndex={activeItemIndex}
-                  searchResults={searchResults}
+                <Description
+                  activeItem={activeItem}
+                  activeItemType={activeItemType}
                 />
               </div>
             </StyledContainer>
