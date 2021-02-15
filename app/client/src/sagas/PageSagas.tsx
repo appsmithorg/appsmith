@@ -324,7 +324,6 @@ function* savePageSaga() {
       savePageRequest,
     );
     const isValidResponse = yield validateResponse(savePageResponse);
-    console.log({ savePageResponse });
     if (isValidResponse) {
       const { messages, actionUpdates } = savePageResponse.data;
       // Show toast messages from the server
