@@ -159,18 +159,24 @@ const COMMON_INPUT_PROPS: any = {
 
 class DatasourceRestAPIEditor extends React.Component<Props> {
   componentDidMount = () => {
-    const status = new URLSearchParams(this.props.location.search).get(
-      "response_status",
-    );
+    const search = new URLSearchParams(this.props.location.search);
+    const status = search.get("response_status");
+
     if (status) {
+      const display_message = search.get("display_message");
       if (status === "success") {
         Toaster.show({
-          text: AUTHORIZATION_SUCCESSFUL,
+          text: display_message || AUTHORIZATION_SUCCESSFUL,
           variant: Variant.success,
+        });
+      } else if (status === "appsmith_error") {
+        Toaster.show({
+          text: display_message || REST_API_AUTHORIZATION_APPSMITH_ERROR,
+          variant: Variant.danger,
         });
       } else {
         Toaster.show({
-          text: AUTHORIZATION_FAILED,
+          text: display_message || AUTHORIZATION_FAILED,
           variant: Variant.danger,
         });
       }
@@ -180,7 +186,25 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   disableSave = () => {
     const { formData } = this.props;
     if (!formData) return true;
-    return !formData.url;
+    if (!formData.url) return true;
+    if (formData.authType === AuthType.OAuth2) {
+      const { authentication } = formData;
+      // weird state, wait for state to get fixed
+      if (!authentication) return true;
+      if (
+        [GrantType.ClientCredentials, GrantType.AuthorizationCode].includes(
+          authentication.grantType,
+        )
+      ) {
+        if (!authentication.accessTokenUrl) return true;
+        if (!authentication.clientId) return true;
+        if (!authentication.clientSecret) return true;
+      }
+      if (authentication.grantType === GrantType.AuthorizationCode) {
+        if (!authentication.authorizationUrl) return true;
+      }
+    }
+    return false;
   };
 
   save = (onSuccess?: ReduxAction<unknown>) => {
