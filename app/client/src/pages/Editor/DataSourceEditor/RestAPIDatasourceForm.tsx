@@ -146,7 +146,7 @@ const StyledButton = styled(Button)`
 
 const AuthorizeButton = styled(StyledButton)`
   &&&& {
-    width: 120px;
+    width: 180px;
   }
 `;
 
