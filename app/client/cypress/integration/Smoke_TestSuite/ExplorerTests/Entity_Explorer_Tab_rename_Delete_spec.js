@@ -26,13 +26,11 @@ describe("Tab widget test", function() {
       .should("be.visible");
   });
 
-  // To enable all the commented assertions once the delete tab from entity explorer issue is fixed
-
   it("Tab Widget Functionality To delete Tabs from entity explorer", function() {
     cy.GlobalSearchEntity("Tab 2");
     cy.RenameEntity(tabname);
     cy.validateMessage(tabname);
-    //cy.deleteEntity();
+    cy.deleteEntity();
   });
 
   it("Publish app and check for the widget name", function() {
@@ -41,24 +39,20 @@ describe("Tab widget test", function() {
       .contains(tabname)
       .click({ force: true })
       .should("be.selected");
-    /*
     cy.get(publish.tabWidget)
       .contains("Tab 2")
       .click({ force: true })
       .should("be.selected");
-      */
   });
 
   it("Tab Widget Functionality To Unchecked Visible Widget", function() {
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tabswidget");
     cy.closePropertyPane();
-    /*
     cy.get(Layoutpage.tabWidget)
       .contains("Tab 2")
       .click({ force: true })
       .should("not.be.visible");
-      */
   });
 });
 
