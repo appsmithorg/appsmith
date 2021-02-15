@@ -137,7 +137,6 @@ const FIELD_VALUES: Record<
     isRequired: "boolean",
     isDisabled: "boolean",
     isVisible: "boolean",
-    swapLabel: "boolean",
     // onCheckChange: "Function Call",
   },
   SWITCH_WIDGET: {
@@ -145,7 +144,6 @@ const FIELD_VALUES: Record<
     defaultSwitchState: "boolean",
     isDisabled: "boolean",
     isVisible: "boolean",
-    swapLabel: "boolean",
     // onChange: "Function Call",
   },
   FORM_WIDGET: {
