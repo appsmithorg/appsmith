@@ -8,7 +8,7 @@ describe("Switch datasource", function() {
   it("Create postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-    cy.generateUUID().then(uid => {
+    cy.generateUUID().then((uid) => {
       postgresDatasourceName = uid;
 
       cy.get(".t--edit-datasource-name").click();
@@ -30,7 +30,7 @@ describe("Switch datasource", function() {
   it("Create mongo datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click();
-    cy.generateUUID().then(uid => {
+    cy.generateUUID().then((uid) => {
       mongoDatasourceName = uid;
 
       cy.get(".t--edit-datasource-name").click();
@@ -75,7 +75,7 @@ describe("Switch datasource", function() {
 
     cy.get(".CodeMirror")
       .first()
-      .then(editor => {
+      .then((editor) => {
         editor[0].CodeMirror.setValue('{"find": "planets"}');
       });
 

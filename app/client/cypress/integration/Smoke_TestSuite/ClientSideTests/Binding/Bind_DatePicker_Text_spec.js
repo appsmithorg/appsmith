@@ -27,7 +27,7 @@ describe("Binding the Datepicker and Text Widget", function() {
     cy.get(formWidgetsPage.defaultDate).click();
     cy.SetDateToToday();
 
-    cy.getDate(1, "YYYY-MM-DD").then(date => {
+    cy.getDate(1, "YYYY-MM-DD").then((date) => {
       cy.log("retured date" + date);
       nextDay = date;
       cy.wait("@updateLayout");
@@ -63,7 +63,7 @@ describe("Binding the Datepicker and Text Widget", function() {
     cy.get(formWidgetsPage.datepickerWidget + " .bp3-input")
       .eq(1)
       .invoke("val")
-      .then(val => {
+      .then((val) => {
         dateDp2 = val;
         cy.log(dateDp2);
       });
@@ -81,7 +81,7 @@ describe("Binding the Datepicker and Text Widget", function() {
     /**
      *Validate the date in text widget
      */
-    cy.getDate(1, "YYYY-MM-DD").then(date => {
+    cy.getDate(1, "YYYY-MM-DD").then((date) => {
       cy.log("retured date" + date);
       nextDay = date;
       cy.get(commonlocators.labelTextStyle).should("contain", nextDay);

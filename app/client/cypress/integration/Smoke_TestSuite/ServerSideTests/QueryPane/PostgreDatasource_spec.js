@@ -14,7 +14,7 @@ describe("Create a query with a postgres datasource, run, save and then delete t
 
     cy.testSaveDatasource();
 
-    cy.get("@createDatasource").then(httpResponse => {
+    cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });

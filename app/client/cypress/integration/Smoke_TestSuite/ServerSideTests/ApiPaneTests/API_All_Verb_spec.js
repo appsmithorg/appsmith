@@ -24,7 +24,7 @@ describe("API Panel Test Functionality", function() {
       testdata.headerKey,
       testdata.headerValue,
     );
-    cy.readFile("cypress/fixtures/putjson.txt").then(json => {
+    cy.readFile("cypress/fixtures/putjson.txt").then((json) => {
       cy.log(json);
       cy.xpath(apiwidget.postbody)
         .click({ force: true })
@@ -50,7 +50,7 @@ describe("API Panel Test Functionality", function() {
       testdata.headerKey,
       testdata.headerValue,
     );
-    cy.readFile("cypress/fixtures/postjson.txt").then(json => {
+    cy.readFile("cypress/fixtures/postjson.txt").then((json) => {
       cy.log(json);
       cy.xpath(apiwidget.postbody)
         .click({ force: true })
@@ -76,7 +76,7 @@ describe("API Panel Test Functionality", function() {
       testdata.headerKey,
       testdata.headerValue,
     );
-    cy.readFile("cypress/fixtures/patchjson.txt").then(json => {
+    cy.readFile("cypress/fixtures/patchjson.txt").then((json) => {
       cy.log(json);
       cy.xpath(apiwidget.postbody)
         .click({ force: true })

@@ -1,12 +1,12 @@
-/// <reference types="Cypress" />
-
 const commonlocators = require("../../../locators/commonlocators.json");
+const formWidgetsPage = require("../../../locators/FormWidgets.json");
 const dsl = require("../../../fixtures/formInputTableDsl.json");
+const pages = require("../../../locators/Pages.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 const testdata = require("../../../fixtures/testdata.json");
 
-describe("Binding the table widget and input Widget", function() {
+describe("Binding the multiple input Widget", function() {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -22,27 +22,25 @@ describe("Binding the table widget and input Widget", function() {
     );
   });
 
-  it("Input widget test with default value from table widget", function() {
+  it("Binding second input widget with first input widget and validating", function() {
     cy.SearchEntityandOpen("Input2");
-    cy.get(widgetsPage.defaultInput).type(testdata.defaultRowIndexBinding);
+    cy.get(widgetsPage.defaultInput).type(testdata.defaultMoustacheData);
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
+    cy.reload();
   });
 
-  it("validation of data displayed in input widgets based on selected row", function() {
-    cy.SearchEntityandOpen("Table1");
-    cy.get(commonlocators.deflautSelectedRow)
-      .last()
-      .type("2", { force: true });
-    cy.get(commonlocators.editPropCrossButton).click();
-    cy.readTabledataPublish("2", "0").then(tabData => {
+  it("validation of data displayed in all widgets based on row selected", function() {
+    cy.isSelectRow(1);
+    cy.readTabledataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;
-      expect(tabValue).to.be.equal("6788734");
+      expect(tabValue).to.be.equal("2736212");
       cy.log("the value is" + tabValue);
+
       cy.get(publish.inputWidget + " " + "input")
         .first()
         .invoke("attr", "value")
@@ -50,7 +48,7 @@ describe("Binding the table widget and input Widget", function() {
       cy.get(publish.inputWidget + " " + "input")
         .last()
         .invoke("attr", "value")
-        .should("contain", 2);
+        .should("contain", tabValue);
     });
   });
 });

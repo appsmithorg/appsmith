@@ -10,7 +10,7 @@ describe("Entity explorer datasource structure", function() {
   beforeEach(() => {
     cy.ClearSearch();
     cy.createPostgresDatasource();
-    cy.get("@createDatasource").then(httpResponse => {
+    cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });
@@ -140,7 +140,7 @@ describe("Entity explorer datasource structure", function() {
 
     cy.get(".CodeMirror")
       .first()
-      .then(editor => {
+      .then((editor) => {
         editor[0].CodeMirror.setValue(`DROP TABLE ${tableName}`);
         cy.WaitAutoSave();
         cy.get(queryEditor.runQuery).click();

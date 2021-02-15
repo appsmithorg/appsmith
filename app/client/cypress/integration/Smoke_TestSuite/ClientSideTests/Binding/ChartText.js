@@ -34,7 +34,7 @@ describe("Text-Chart Binding Functionality", function() {
       this.data.Chartval[1],
       this.data.Chartval[2],
     ];
-    [0, 1, 2].forEach(k => {
+    [0, 1, 2].forEach((k) => {
       cy.get(viewWidgetsPage.rectangleChart)
         .eq(k)
         .trigger("mousemove", { force: true });
@@ -52,7 +52,7 @@ describe("Text-Chart Binding Functionality", function() {
       this.data.Chartval[1],
       this.data.Chartval[2],
     ];
-    [0, 1, 2].forEach(k => {
+    [0, 1, 2].forEach((k) => {
       cy.get(publish.rectChart)
         .eq(k)
         .trigger("mousemove", { force: true });

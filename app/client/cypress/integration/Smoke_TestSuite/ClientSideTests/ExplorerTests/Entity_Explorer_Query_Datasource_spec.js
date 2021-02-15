@@ -10,7 +10,7 @@ let datasourceName;
 
 describe("Entity explorer tests related to query and datasource", function() {
   before(() => {
-    cy.generateUUID().then(uid => {
+    cy.generateUUID().then((uid) => {
       datasourceName = uid;
     });
   });

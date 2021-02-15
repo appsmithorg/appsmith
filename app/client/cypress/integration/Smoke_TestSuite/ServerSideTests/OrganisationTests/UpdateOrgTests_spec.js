@@ -5,7 +5,7 @@ describe("Update Organization", function() {
 
   it("Open the org general settings and update org name. The update should reflect in the org. It should also reflect in the org names on the left side and the org dropdown.	", function() {
     cy.NavigateToHome();
-    cy.generateUUID().then(uid => {
+    cy.generateUUID().then((uid) => {
       orgid = uid;
       localStorage.setItem("OrgName", orgid);
       cy.createOrg(orgid);
@@ -19,7 +19,7 @@ describe("Update Organization", function() {
         });
       cy.get(homePage.orgSettingOption).click();
     });
-    cy.generateUUID().then(uid => {
+    cy.generateUUID().then((uid) => {
       orgid = uid;
       localStorage.setItem("OrgName", orgid);
       cy.get(homePage.orgNameInput).clear();
@@ -29,7 +29,7 @@ describe("Update Organization", function() {
     });
     cy.NavigateToHome();
     cy.get(homePage.leftPanelContainer).within(() => {
-      cy.get("span").should(item => {
+      cy.get("span").should((item) => {
         expect(item).to.contain.text(orgid);
       });
     });

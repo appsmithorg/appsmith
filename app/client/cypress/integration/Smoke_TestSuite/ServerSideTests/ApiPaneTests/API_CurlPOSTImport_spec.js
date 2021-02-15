@@ -16,11 +16,11 @@ describe("Test curl import flow", function() {
     cy.importCurl();
     cy.RunAPI();
     cy.ResponseStatusCheck("201 CREATED");
-    cy.get("@curlImport").then(response => {
+    cy.get("@curlImport").then((response) => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);
       cy.get(apiwidget.ApiName)
         .invoke("text")
-        .then(text => {
+        .then((text) => {
           const someText = text;
           expect(someText).to.equal(response.response.body.data.name);
         });

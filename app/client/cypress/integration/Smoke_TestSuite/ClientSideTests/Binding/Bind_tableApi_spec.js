@@ -17,7 +17,7 @@ describe("Test Create Api and Bind to Table widget", function() {
       .contains("name")
       .siblings("span")
       .invoke("text")
-      .then(text => {
+      .then((text) => {
         const value = text.match(/"(.*)"/)[0];
         cy.log(value);
 
@@ -36,11 +36,11 @@ describe("Test Create Api and Bind to Table widget", function() {
      * readTabledata--> is to read the table contents
      * @param --> "row num" and "col num"
      */
-    cy.readTabledata("0", "1").then(tabData => {
+    cy.readTabledata("0", "1").then((tabData) => {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });
     cy.PublishtheApp();
-    cy.readTabledataPublish("0", "1").then(tabData => {
+    cy.readTabledataPublish("0", "1").then((tabData) => {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });
   });

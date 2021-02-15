@@ -10,7 +10,7 @@ describe("Login from UI and check the functionality", function() {
     cy.SearchApp(appname);
     cy.get("#loading").should("not.exist");
 
-    cy.generateUUID().then(uid => {
+    cy.generateUUID().then((uid) => {
       pageid = uid;
       cy.Createpage(pageid);
       cy.DeletepageFromSideBar();
