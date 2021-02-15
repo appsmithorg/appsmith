@@ -1,5 +1,6 @@
 import React from "react";
 import { map, sortBy, compact } from "lodash";
+import { ListChildComponentProps, FixedSizeList as List } from "react-window";
 
 import ContainerComponent, {
   ContainerStyle,
@@ -71,6 +72,7 @@ class ContainerWidget extends BaseWidget<
     }
 
     const snapSpaces = this.getSnapSpaces();
+    const isVirtualized = this.props.virtualizedEnabled;
     const { componentWidth, componentHeight } = this.getComponentDimensions();
 
     if (childWidgetData.type !== WidgetTypes.CANVAS_WIDGET) {
@@ -95,6 +97,13 @@ class ContainerWidget extends BaseWidget<
   }
 
   renderChildren = () => {
+    const isVirtualized = this.props.virtualizedEnabled;
+
+    // if container is virtualized, render a virtualized list
+    if (isVirtualized) {
+      return this.renderVirtualizedContainer();
+    }
+
     return map(
       // sort by row so stacking context is correct
       // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
@@ -102,6 +111,40 @@ class ContainerWidget extends BaseWidget<
       sortBy(compact(this.props.children), (child) => child.topRow),
       this.renderChildWidget,
     );
+  };
+
+  /**
+   * creates a virtualized list component using react-window's VariableList
+   *
+   * @param props
+   */
+  renderVirtualizedContainer = () => {
+    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const snapSpaces = this.getSnapSpaces();
+    const sortedChildren = sortBy(
+      compact(this.props.children),
+      (child) => child.topRow,
+    );
+
+    const rowHeight = sortedChildren[0].bottomRow * snapSpaces.snapRowSpace;
+
+    const Row = (childProps: ListChildComponentProps) => (
+      <>{this.renderChildWidget(sortedChildren[childProps.index])}</>
+    );
+
+    const Example = () => (
+      <List
+        height={componentHeight}
+        itemCount={sortedChildren.length}
+        itemSize={rowHeight}
+        width={componentWidth}
+        className="appsmith-virtualized-container"
+      >
+        {Row}
+      </List>
+    );
+
+    return <Example />;
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {

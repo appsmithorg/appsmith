@@ -326,6 +326,7 @@ abstract class BaseWidget<
     isDeletable: true,
     resizeDisabled: false,
     paddingEnabled: true,
+    virtualizedEnabled: false,
     settingsControlDisabled: false,
   };
 }

@@ -208,7 +208,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   renderChildren = () => {
     const numberOfItemsInGrid = this.props.items.length;
 
-    console.log({ props: this.props });
     if (this.props.children && this.props.children.length > 0) {
       const children = removeFalsyEntries(this.props.children);
 
@@ -235,49 +234,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * view that is rendered in editor
    */
   getPageView() {
-    const children: any = this.renderChildren();
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const children = this.renderChildren();
 
-    const rowSizes = new Array(this.props.items.length)
-      .fill(true)
-      .map(
-        () =>
-          children.props.children[0].bottomRow *
-          children.props.children[0].parentRowSpace,
-      );
-
-    const getItemSize = (index: number) => rowSizes[index];
-
-    const Row = (listChildProps: ListChildComponentProps) => {
-      return (
-        <div style={listChildProps.style}>
-          {children.props.children[listChildProps.index]}
-        </div>
-      );
-    };
-
-    const list = (
-      <List
-        height={componentHeight}
-        itemCount={this.props.items.length}
-        itemSize={getItemSize}
-        width={componentWidth}
-      >
-        {Row}
-      </List>
-    );
-
-    console.log({ list, children });
-
-    const copyChildren = {
-      ...children,
-      props: {
-        ...children.props,
-        children: [list],
-      },
-    };
-
-    return <GridComponent {...this.props}>{copyChildren}</GridComponent>;
+    return <GridComponent {...this.props}>{children}</GridComponent>;
   }
 
   /**
