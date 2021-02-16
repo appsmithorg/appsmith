@@ -5,7 +5,9 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -33,9 +35,7 @@ import java.time.Instant;
 import java.util.Map;
 
 import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
-import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN_URL;
 import static com.appsmith.external.constants.Authentication.AUTHORIZATION_CODE;
-import static com.appsmith.external.constants.Authentication.AUTHORIZATION_URL;
 import static com.appsmith.external.constants.Authentication.CLIENT_ID;
 import static com.appsmith.external.constants.Authentication.CLIENT_SECRET;
 import static com.appsmith.external.constants.Authentication.CODE;
@@ -74,7 +74,7 @@ public class AuthenticationService {
                             .fromUriString(oAuth2.getAuthorizationUrl())
                             .queryParam(CLIENT_ID, oAuth2.getClientId())
                             .queryParam(RESPONSE_TYPE, CODE)
-                            .queryParam(REDIRECT_URI, redirectUri + "/api/v1/datasources/authorize")
+                            .queryParam(REDIRECT_URI, redirectUri + Url.DATASOURCE_URL + "/authorize")
                             // The state is used internally to calculate the redirect url when returning control to the client
                             .queryParam(STATE, String.join(",", pageId, datasourceId, redirectUri));
                     // Adding optional scope parameter
@@ -134,7 +134,7 @@ public class AuthenticationService {
                     // Add required fields
                     map.add(GRANT_TYPE, AUTHORIZATION_CODE);
                     map.add(CODE, code);
-                    map.add(REDIRECT_URI, state.split(",")[2] + "/api/v1/datasources/authorize");
+                    map.add(REDIRECT_URI, state.split(",")[2] + Url.DATASOURCE_URL + "/authorize");
                     if (!oAuth2.getScope().isEmpty()) {
                         map.add(SCOPE, String.join(",", oAuth2.getScope()));
                     }
@@ -177,7 +177,11 @@ public class AuthenticationService {
                             });
                 })
                 // We have no use of the datasource object during redirection, we merely send the response as a success state
-                .flatMap((datasource -> this.getPageRedirectUrl(state, null)));
+                .flatMap((datasource -> this.getPageRedirectUrl(state, null)))
+                .onErrorResume(e -> {
+                    log.debug("Error while retrieving access token: ", e);
+                    return this.getPageRedirectUrl(state, "appsmith_error");
+                });
     }
 
     private Mono<String> getPageRedirectUrl(String state, String error) {
@@ -193,21 +197,21 @@ public class AuthenticationService {
         final String responseStatus = response;
         return newPageService.getById(pageId)
                 .map(newPage -> {
-                    return redirectOrigin +
-                            "/applications/" +
-                            newPage.getApplicationId() +
-                            "/pages/" +
-                            newPage.getId() +
-                            "/edit/datasources/" +
-                            datasourceId +
-                            "?response_status=" +
-                            responseStatus;
+                    return redirectOrigin + Entity.SLASH +
+                            Entity.APPLICATIONS + Entity.SLASH +
+                            newPage.getApplicationId() + Entity.SLASH +
+                            Entity.PAGES + Entity.SLASH +
+                            newPage.getId() + Entity.SLASH +
+                            "edit" + Entity.SLASH +
+                            Entity.DATASOURCES + Entity.SLASH +
+                            datasourceId + Entity.SLASH +
+                            "?response_status=" + responseStatus;
                 })
                 .onErrorResume(e -> {
-                    return Mono.just(redirectOrigin +
-                            "/applications" +
-                            "?response_status=" +
-                            responseStatus);
+                    return Mono.just(
+                            redirectOrigin + Entity.SLASH +
+                                    Entity.APPLICATIONS +
+                                    "?response_status=" + responseStatus);
                 });
     }
 
