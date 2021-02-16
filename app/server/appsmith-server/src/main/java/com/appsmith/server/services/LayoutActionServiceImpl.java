@@ -7,8 +7,10 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.DslActionDTO;
+import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
+import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MustacheHelper;
@@ -121,7 +123,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     }
 
     @Override
-    public Mono<Layout> refactorWidgetName(RefactorNameDTO refactorNameDTO) {
+    public Mono<LayoutDTO> refactorWidgetName(RefactorNameDTO refactorNameDTO) {
         String pageId = refactorNameDTO.getPageId();
         String layoutId = refactorNameDTO.getLayoutId();
         String oldName = refactorNameDTO.getOldName();
@@ -136,7 +138,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     }
 
     @Override
-    public Mono<Layout> refactorActionName(RefactorNameDTO refactorNameDTO) {
+    public Mono<LayoutDTO> refactorActionName(RefactorNameDTO refactorNameDTO) {
         String pageId = refactorNameDTO.getPageId();
         String layoutId = refactorNameDTO.getLayoutId();
         String oldName = refactorNameDTO.getOldName();
@@ -167,7 +169,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      * @param newName
      * @return
      */
-    private Mono<Layout> refactorName(String pageId, String layoutId, String oldName, String newName) {
+    private Mono<LayoutDTO> refactorName(String pageId, String layoutId, String oldName, String newName) {
         String regexPattern = preWord + oldName + postWord;
         Pattern oldNamePattern = Pattern.compile(regexPattern);
 
@@ -466,11 +468,11 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     }
 
     @Override
-    public Mono<Layout> updateLayout(String pageId, String layoutId, Layout layout) {
+    public Mono<LayoutDTO> updateLayout(String pageId, String layoutId, Layout layout) {
         JSONObject dsl = layout.getDsl();
         if (dsl == null) {
             // There is no DSL here. No need to process anything. Return as is.
-            return Mono.just(layout);
+            return Mono.just(generateResponseDTO(layout));
         }
 
         Set<String> widgetNames = new HashSet<>();
@@ -496,6 +498,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         Set<ActionDependencyEdge> edges = new HashSet<>();
         Set<String> actionsUsedInDSL = new HashSet<>();
         List<ActionDTO> flatmapPageLoadActions = new ArrayList<>();
+        List<LayoutActionUpdateDTO> actionUpdates = new ArrayList<>();
+        List<String> messages = new ArrayList<>();
 
         Mono<List<HashSet<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
                 .findAllOnLoadActions(dynamicBindingNames, actionNames, pageId, edges, actionsUsedInDSL, flatmapPageLoadActions);
@@ -504,7 +508,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         return allOnLoadActionsMono
                 .flatMap(allOnLoadActions -> {
                     // Update these actions to be executed on load, unless the user has touched the executeOnLoad setting for this
-                    return newActionService.setOnLoad((flatmapPageLoadActions)).thenReturn(allOnLoadActions);
+                    return newActionService
+                            .updateActionsExecuteOnLoad(flatmapPageLoadActions, pageId, actionUpdates, messages)
+                            .thenReturn(allOnLoadActions);
                 })
                 .zipWith(newPageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES, false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
@@ -542,7 +548,26 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         }
                     }
                     return Mono.empty();
+                })
+                .map(savedLayout -> {
+                    LayoutDTO layoutDTO = generateResponseDTO(savedLayout);
+                    layoutDTO.setActionUpdates(actionUpdates);
+                    layoutDTO.setMessages(messages);
+                    return layoutDTO;
                 });
+    }
+
+    private LayoutDTO generateResponseDTO(Layout layout) {
+
+        LayoutDTO layoutDTO = new LayoutDTO();
+
+        layoutDTO.setId(layout.getId());
+        layoutDTO.setDsl(layout.getDsl());
+        layoutDTO.setScreen(layout.getScreen());
+        layoutDTO.setLayoutOnLoadActions(layout.getLayoutOnLoadActions());
+        layoutDTO.setUserPermissions(layout.getUserPermissions());
+
+        return layoutDTO;
     }
 
 }

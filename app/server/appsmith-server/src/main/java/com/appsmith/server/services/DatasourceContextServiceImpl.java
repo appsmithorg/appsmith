@@ -1,8 +1,8 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.UpdatableConnection;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.DatasourceContext;
@@ -187,7 +187,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
 
     @Override
     public AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authentication) {
-        if (authentication != null && authentication.isEncrypted()) {
+        if (authentication != null && Boolean.TRUE.equals(authentication.isEncrypted())) {
             Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
                     .filter(e -> e.getValue() != null)
                     .collect(Collectors.toMap(

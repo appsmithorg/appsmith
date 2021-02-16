@@ -5,8 +5,8 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -62,7 +62,8 @@ public class RapidApiPlugin extends BasePlugin {
                                                    ActionConfiguration actionConfiguration) {
 
             if (StringUtils.isEmpty(RAPID_API_KEY_VALUE)) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "RapidAPI Key value not set."));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "RapidAPI Key value " +
+                        "not set."));
             }
 
             String requestBody = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
@@ -71,7 +72,8 @@ public class RapidApiPlugin extends BasePlugin {
 
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             if (httpMethod == null) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "HTTPMethod must be set."));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "HTTPMethod must be " +
+                        "set."));
             }
 
             WebClient.Builder webClientBuilder = WebClient.builder();
@@ -107,8 +109,7 @@ public class RapidApiPlugin extends BasePlugin {
                 uri = createFinalUriWithQueryParams(httpUrl, actionConfiguration.getQueryParameters());
                 log.info("Final URL is : {}", uri);
             } catch (URISyntaxException e) {
-                e.printStackTrace();
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e));
             }
 
             // Build the body of the request in case of bodyFormData is not null
@@ -191,12 +192,12 @@ public class RapidApiPlugin extends BasePlugin {
                             if (MediaType.APPLICATION_JSON.equals(contentType) ||
                                     MediaType.APPLICATION_JSON_UTF8.equals(contentType) ||
                                     MediaType.APPLICATION_JSON_UTF8_VALUE.equals(contentType)) {
+                                String jsonBody = new String(body);
                                 try {
-                                    String jsonBody = new String(body);
                                     result.setBody(objectMapper.readTree(jsonBody));
                                 } catch (IOException e) {
                                     e.printStackTrace();
-                                    throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                                    throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, jsonBody, e));
                                 }
                             } else if (MediaType.IMAGE_GIF.equals(contentType) ||
                                     MediaType.IMAGE_JPEG.equals(contentType) ||
@@ -276,7 +277,8 @@ public class RapidApiPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             return StringUtils.isEmpty(RAPID_API_KEY_VALUE)
-                    ? Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "RapidAPI Key value not set."))
+                    ? Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, "RapidAPI Key value " +
+                    "not set."))
                     : Mono.just(new DatasourceTestResult());
         }
 

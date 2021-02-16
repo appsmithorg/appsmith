@@ -127,13 +127,13 @@ enum ErrorEffectTypes {
   LOG_ERROR = "LOG_ERROR",
 }
 
-export function* errorSaga(
-  errorAction: ReduxAction<{
-    error: ErrorPayloadType;
-    show?: boolean;
-    crash?: boolean;
-  }>,
-) {
+export interface ErrorActionPayload {
+  error: ErrorPayloadType;
+  show?: boolean;
+  crash?: boolean;
+}
+
+export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   const effects = [ErrorEffectTypes.LOG_ERROR];
   const { type, payload } = errorAction;
   const { show = true, error } = payload || {};

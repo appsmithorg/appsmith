@@ -6,8 +6,8 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.connections.APIConnection;
@@ -93,11 +93,23 @@ public class RestApiPlugin extends BasePlugin {
             String url = datasourceConfiguration.getUrl() + path;
             String reqContentType = "";
 
+            /*
+             * - If encodeParamsToggle is null, then assume it to be true because params are supposed to be
+             *   encoded by default, unless explicitly prohibited by the user.
+             */
+            Boolean encodeParamsToggle = true;
+            if(actionConfiguration.getEncodeParamsToggle() != null
+               && actionConfiguration.getEncodeParamsToggle() == false) {
+                encodeParamsToggle = false;
+            }
+
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             URI uri;
             try {
                 String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
-                uri = createFinalUriWithQueryParams(httpUrl, actionConfiguration.getQueryParameters());
+                uri = createFinalUriWithQueryParams(httpUrl,
+                                                    actionConfiguration.getQueryParameters(),
+                                                    encodeParamsToggle);
             } catch (URISyntaxException e) {
                 ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, null);
                 actionExecutionRequest.setUrl(url);
@@ -141,7 +153,9 @@ public class RestApiPlugin extends BasePlugin {
 
             if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
                     || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
-                requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(), reqContentType);
+                requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(),
+                                                                   reqContentType,
+                                                                   encodeParamsToggle);
             }
 
             // If users have chosen to share the Appsmith signature in the header, calculate and add that
@@ -202,7 +216,13 @@ public class RestApiPlugin extends BasePlugin {
                         try {
                             result.setHeaders(objectMapper.readTree(headerInJsonString));
                         } catch (IOException e) {
-                            throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                            throw Exceptions.propagate(
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                            headerInJsonString,
+                                            e.getMessage()
+                                    )
+                            );
                         }
 
                         if (body != null) {
@@ -216,7 +236,13 @@ public class RestApiPlugin extends BasePlugin {
                                     String jsonBody = new String(body);
                                     result.setBody(objectMapper.readTree(jsonBody));
                                 } catch (IOException e) {
-                                    throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                                    throw Exceptions.propagate(
+                                            new AppsmithPluginException(
+                                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                                    new String(body),
+                                                    e.getMessage()
+                                            )
+                                    );
                                 }
                             } else if (MediaType.IMAGE_GIF.equals(contentType) ||
                                     MediaType.IMAGE_JPEG.equals(contentType) ||
@@ -263,7 +289,7 @@ public class RestApiPlugin extends BasePlugin {
                 if (isSendSessionEnabled) {
                     if (StringUtils.isEmpty(secretKey) || secretKey.length() < 32) {
                         throw new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                 "Secret key is required when sending session details is switched on," +
                                         " and should be at least 32 characters in length."
                         );
@@ -275,7 +301,9 @@ public class RestApiPlugin extends BasePlugin {
             return null;
         }
 
-        public String convertPropertyListToReqBody(List<Property> bodyFormData, String reqContentType) {
+        public String convertPropertyListToReqBody(List<Property> bodyFormData,
+                                                   String reqContentType,
+                                                   Boolean encodeParamsToggle) {
             if (bodyFormData == null || bodyFormData.isEmpty()) {
                 return "";
             }
@@ -285,7 +313,8 @@ public class RestApiPlugin extends BasePlugin {
                         String key = property.getKey();
                         String value = property.getValue();
 
-                        if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)) {
+                        if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
+                            && encodeParamsToggle == true) {
                             try {
                                 value = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
                             } catch (UnsupportedEncodingException e) {
@@ -340,7 +369,8 @@ public class RestApiPlugin extends BasePlugin {
                     objectFromJson(requestBodyAsString);
                 } catch (JsonSyntaxException e) {
                     return Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
+                            AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                            requestBodyAsString,
                             "Malformed JSON: " + e.getMessage()
                     ));
                 }
@@ -488,7 +518,9 @@ public class RestApiPlugin extends BasePlugin {
             return "http://" + url;
         }
 
-        private URI createFinalUriWithQueryParams(String url, List<Property> queryParams) throws URISyntaxException {
+        private URI createFinalUriWithQueryParams(String url,
+                                                  List<Property> queryParams,
+                                                  Boolean encodeParamsToggle) throws URISyntaxException {
             UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
             uriBuilder.uri(new URI(url));
 
@@ -496,8 +528,18 @@ public class RestApiPlugin extends BasePlugin {
                 for (Property queryParam : queryParams) {
                     String key = queryParam.getKey();
                     if (StringUtils.isNotEmpty(key)) {
-                        uriBuilder.queryParam(URLEncoder.encode(key, StandardCharsets.UTF_8),
-                                URLEncoder.encode(queryParam.getValue(), StandardCharsets.UTF_8));
+                        if(encodeParamsToggle == true) {
+                            uriBuilder.queryParam(
+                                    URLEncoder.encode(key, StandardCharsets.UTF_8),
+                                    URLEncoder.encode(queryParam.getValue(), StandardCharsets.UTF_8)
+                            );
+                        }
+                        else {
+                            uriBuilder.queryParam(
+                                    key,
+                                    queryParam.getValue()
+                            );
+                        }
                     }
                 }
             }

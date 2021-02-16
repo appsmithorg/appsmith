@@ -48,10 +48,10 @@ jobs:
       - name: Figure out the PR number
         run: echo ${{ github.event.pull_request.number }}
 
-      - name: Use Node.js 10.16.3
+      - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
         with:
-          node-version: "10.16.3"
+          node-version: "14.15.4"
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
@@ -102,7 +102,7 @@ jobs:
             REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
-            REACT_APP_VERSION_RELEASE_DATE=$(date +%Y-%m-%d) \
+            REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             yarn build
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
@@ -151,10 +151,10 @@ jobs:
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v2
 
-      - name: Use Node.js 10.16.3
+      - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
         with:
-          node-version: "10.16.3"
+          node-version: "14.15.4"
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
@@ -312,7 +312,7 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}} .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
       - name: Push production image to Docker Hub with commit tag
@@ -321,4 +321,5 @@ jobs:
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA} .
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly

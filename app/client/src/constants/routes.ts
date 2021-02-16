@@ -6,6 +6,7 @@ export const APPLICATIONS_URL = `/applications`;
 export const BUILDER_URL = "/applications/:applicationId/pages/:pageId/edit";
 export const USER_AUTH_URL = "/user";
 export const USERS_URL = "/users";
+export const VIEWER_URL_REGEX = /applications\/.*?\/pages\/.*/;
 
 export type BuilderRouteParams = {
   applicationId: string;

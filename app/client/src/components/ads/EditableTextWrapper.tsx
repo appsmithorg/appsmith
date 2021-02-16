@@ -95,7 +95,7 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
         fill={props.fill}
         onBlur={(value) => {
           setIsEditing(false);
-          props.onBlur(value);
+          props.onBlur && props.onBlur(value);
         }}
         className={props.className}
         onTextChanged={() => setIsEditing(true)}

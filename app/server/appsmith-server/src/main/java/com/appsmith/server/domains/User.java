@@ -133,6 +133,6 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @Transient
     @JsonIgnore
     public String computeFirstName() {
-        return StringUtils.isEmpty(name) ? "" : name.split("[\\s@]+", 2)[0];
+        return (StringUtils.isEmpty(name) ? email : name).split("[\\s@]+", 2)[0];
     }
 }

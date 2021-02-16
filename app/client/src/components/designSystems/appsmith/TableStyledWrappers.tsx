@@ -113,6 +113,9 @@ export const TableWrapper = styled.div<{
   }
   .draggable-header {
     cursor: pointer;
+    display: inline-block;
+    width: calc(100% - 20px);
+    height: 38px;
     &.reorder-line {
       width: 1px;
       height: 100%;
@@ -127,7 +130,7 @@ export const TableWrapper = styled.div<{
     line-height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
   }
   .th {
-    display: flex;
+    display: flex !important;
     justify-content: space-between;
     &.highlight-left {
       border-left: 2px solid ${Colors.GREEN};
@@ -338,9 +341,10 @@ export const TableIconWrapper = styled.div<{
   }
 `;
 
-export const SortIconWrapper = styled.div<{ rotate: string }>`
-  transform: ${(props) =>
-    props.rotate === "true" ? "rotate(180deg)" : "none"};
+export const SortIconWrapper = styled.div`
+  display: inline-block;
+  height: 38px;
+  line-height: 38px;
 `;
 
 export const RenderOptionWrapper = styled.div<{ selected: boolean }>`

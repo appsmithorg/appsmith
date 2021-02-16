@@ -9,7 +9,7 @@ type OptionProps = {
   onSelect?: (value: string) => void;
 };
 
-type RadioProps = CommonComponentProps & {
+export type RadioProps = CommonComponentProps & {
   columns?: number;
   rows?: number;
   defaultValue: string;
@@ -19,6 +19,7 @@ type RadioProps = CommonComponentProps & {
 
 const RadioGroup = styled.div<{
   rows?: number;
+  columns?: number;
 }>`
   display: flex;
   flex-wrap: wrap;
@@ -28,6 +29,9 @@ const RadioGroup = styled.div<{
       flex-direction: column;
       height: 100%;
       `
+      : props.columns && props.columns > 0
+      ? `
+      width: 100%;`
       : null};
 `;
 
@@ -46,15 +50,13 @@ const Radio = styled.label<{
   letter-spacing: ${(props) => props.theme.typography.p1.letterSpacing}px;
   color: ${(props) => props.theme.colors.radio.text};
   ${(props) =>
-    props.rows && props.rows > 0
-      ? `flex-basis: calc(100% / ${props.rows})`
-      : null};
-  ${(props) =>
     props.columns && props.columns > 0
       ? `
         flex-basis: calc(100% / ${props.columns});
-        margin-bottom: ${props.theme.spaces[11] + 1}px;
         `
+      : props.rows && props.rows > 0
+      ? `
+        margin-bottom: ${props.theme.spaces[11] + 1}px;`
       : null};
 
   input {
@@ -129,7 +131,9 @@ export default function RadioComponent(props: RadioProps) {
     <RadioGroup
       data-cy={props.cypressSelector}
       rows={props.rows}
+      columns={props.columns}
       onChange={(e: any) => onChangeHandler(e.target.value)}
+      className={props.className}
     >
       {props.options.map((option: OptionProps, index: number) => (
         <Radio

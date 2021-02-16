@@ -676,7 +676,20 @@ export const renderEmptyRows = (
   );
 };
 
-const SortIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
+const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
+  padding: 0;
+  position: relative;
+  top: 18px;
+  cursor: pointer;
+  transform: rotate(180deg);
+  svg {
+    path {
+      fill: ${(props) => props.theme.colors.secondary};
+    }
+  }
+`;
+
+const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   padding: 0;
   position: relative;
   top: 3px;
@@ -697,8 +710,8 @@ export const TableHeaderCell = (props: {
   handleColumnNameUpdate: (columnIndex: number, name: string) => void;
   getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  handleResizeColumn: (columnIndex: number, columnWidth: string) => void;
   column: any;
+  isResizingColumn: boolean;
 }) => {
   const { column } = props;
   const [renameColumn, toggleRenameColumn] = React.useState(false);
@@ -707,7 +720,7 @@ export const TableHeaderCell = (props: {
     toggleRenameColumn(false);
   };
   const handleSortColumn = () => {
-    if (column.isResizing) return;
+    if (props.isResizingColumn) return;
     let columnIndex = props.columnIndex;
     if (props.isAscOrder === true) {
       columnIndex = -1;
@@ -716,12 +729,6 @@ export const TableHeaderCell = (props: {
       props.isAscOrder === undefined ? false : !props.isAscOrder;
     props.sortTableColumn(columnIndex, sortOrder);
   };
-  if (column.isResizing) {
-    props.handleResizeColumn(
-      props.columnIndex,
-      column.getHeaderProps().style.width,
-    );
-  }
   return (
     <div
       {...column.getHeaderProps()}
@@ -729,8 +736,12 @@ export const TableHeaderCell = (props: {
       onClick={handleSortColumn}
     >
       {props.isAscOrder !== undefined ? (
-        <SortIconWrapper rotate={props.isAscOrder.toString()}>
-          <SortIcon height={16} width={16} />
+        <SortIconWrapper>
+          {props.isAscOrder ? (
+            <AscendingIcon height={16} width={16} />
+          ) : (
+            <DescendingIcon height={16} width={16} />
+          )}
         </SortIconWrapper>
       ) : null}
       {renameColumn && (

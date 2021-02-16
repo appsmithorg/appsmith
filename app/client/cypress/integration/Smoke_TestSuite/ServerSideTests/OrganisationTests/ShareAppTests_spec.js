@@ -33,7 +33,9 @@ describe("Create new org and share with a user", function() {
     cy.get(homePage.searchInput).type(appid);
     cy.wait(2000);
     cy.get(homePage.appsContainer).contains(orgid);
-    cy.xpath(homePage.ShareBtn).should("not.exist");
+    cy.xpath(homePage.ShareBtn)
+      .first()
+      .should("be.visible");
     cy.get(homePage.applicationCard).trigger("mouseover");
     cy.get(homePage.appEditIcon).should("not.exist");
     cy.launchApp(appid);
@@ -68,7 +70,7 @@ describe("Create new org and share with a user", function() {
   });
 
   it("login as uninvited user and then validate public access of Application", function() {
-    cy.LogintoApp(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
+    cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
     cy.visit(currentUrl);
     cy.wait("@getPagesForViewApp").should(
       "have.nested.property",
@@ -105,7 +107,7 @@ describe("Create new org and share with a user", function() {
   });
 
   it("login as uninvited user and then validate public access disable feature", function() {
-    cy.LogintoApp(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
+    cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
     cy.visit(currentUrl);
     cy.wait("@viewApp").should(
       "have.nested.property",

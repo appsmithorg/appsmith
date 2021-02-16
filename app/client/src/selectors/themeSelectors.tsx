@@ -1,39 +1,27 @@
 import { AppState } from "reducers";
-import {
-  AUTH_LOGIN_URL,
-  SIGN_UP_URL,
-  RESET_PASSWORD_URL,
-  FORGOT_PASSWORD_URL,
-} from "constants/routes";
-import { theme, dark } from "constants/DefaultTheme";
+import { dark, light, Theme, theme } from "constants/DefaultTheme";
 
-const enforceDarkThemeRoutes = [
-  AUTH_LOGIN_URL,
-  SIGN_UP_URL,
-  RESET_PASSWORD_URL,
-  FORGOT_PASSWORD_URL,
-];
-const getShouldEnforceDarkTheme = () => {
-  const currentPath = window.location.pathname;
-  return enforceDarkThemeRoutes.some(
-    (path: string) => currentPath.indexOf(path) !== -1,
-  );
+export enum ThemeMode {
+  LIGHT = "LIGHT",
+  DARK = "DARK",
+}
+
+// Only for usage with ThemeProvider
+export const getThemeDetails = (
+  state: AppState,
+  themeMode: ThemeMode,
+): Theme => {
+  const colors = themeMode === ThemeMode.LIGHT ? light : dark;
+  return { ...theme, colors: { ...theme.colors, ...colors } };
 };
 
-export const getThemeDetails = (state: AppState) => {
-  if (getShouldEnforceDarkTheme()) {
-    return {
-      mode: state.ui.theme.mode,
-      theme: { ...theme, colors: { ...theme.colors, ...dark } },
-    };
-  }
+// Use to get the current theme of the app set via the theme switcher
+export const getCurrentThemeDetails = (state: AppState): Theme =>
+  state.ui.theme.theme;
 
-  return {
-    theme: state.ui.theme.theme,
-    mode: state.ui.theme.mode,
-  };
-};
+// Use to get the current theme mode of the app set via the theme switcher
+export const getCurrentThemeMode = (state: AppState) => state.ui.theme.mode;
 
-export const getAppCardColorPallete = (state: AppState) => {
+export const getAppCardColorPalette = (state: AppState) => {
   return state.ui.theme.theme.colors.appCardColors;
 };

@@ -1,84 +1,40 @@
-import { Menu, MenuItem, Popover, Position } from "@blueprintjs/core";
-import { ControlIcons } from "icons/ControlIcons";
-import { theme } from "constants/DefaultTheme";
 import React from "react";
-import styled, { createGlobalStyle } from "styled-components";
-import { IconWrapper } from "constants/IconConstants";
-import { ReactComponent as StorageIcon } from "assets/icons/menu/storage.svg";
+import styled from "styled-components";
 import { storeAsDatasource } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
+import Text, { TextType } from "components/ads/Text";
+import Icon, { IconSize } from "components/ads/Icon";
+import { Classes } from "components/ads/common";
 
-const StyledMenu = styled(Menu)`
-  &&&&.bp3-menu {
-    padding: 8px;
-    background: #ffffff;
-    border: 1px solid #ebeff2;
-    box-sizing: border-box;
-    box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
-    border-radius: 4px;
+export const DatasourceIcon = styled.div`
+  position: absolute;
+  right: -155px;
+  top: 7px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  .${Classes.TEXT} {
+    color: ${(props) => props.theme.colors.text.heading};
   }
-`;
-
-const StyledMenuItem = styled(MenuItem)`
-  &&&&.bp3-menu-item {
-    align-items: center;
-    width: 202px;
-    justify-content: center;
+  .${Classes.ICON} {
+    margin-right: 5px;
+    path {
+      fill: ${(props) => props.theme.colors.icon.hover};
+    }
   }
-`;
-
-const TooltipStyles = createGlobalStyle`
- .helper-tooltip{
-  .bp3-popover {
-    margin-right: 10px;
-    margin-top: 5px;
-  }
- }
 `;
 
 const StoreAsDatasource = () => {
   const dispatch = useDispatch();
-  const MenuContainer = (
-    <StyledMenu>
-      <StyledMenuItem
-        textClassName="t--store-as-datasource"
-        icon={
-          <IconWrapper
-            width={theme.fontSizes[4]}
-            height={theme.fontSizes[4]}
-            color={"#535B62"}
-          >
-            <StorageIcon />
-          </IconWrapper>
-        }
-        text="Store as datasource"
-        onClick={() => dispatch(storeAsDatasource())}
-      />
-    </StyledMenu>
-  );
+
   return (
-    <>
-      <TooltipStyles />
-      <Popover
-        content={MenuContainer}
-        position={Position.BOTTOM_LEFT}
-        usePortal
-        portalClassName="helper-tooltip"
-      >
-        <div
-          className="t--store-as-datasource-menu"
-          onMouseDown={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          <ControlIcons.MORE_HORIZONTAL_CONTROL
-            width={theme.fontSizes[4]}
-            height={theme.fontSizes[4]}
-            color="#C4C4C4"
-          />
-        </div>
-      </Popover>
-    </>
+    <DatasourceIcon
+      className="t--store-as-datasource"
+      onClick={() => dispatch(storeAsDatasource())}
+    >
+      <Icon name="datasource" size={IconSize.LARGE} />
+      <Text type={TextType.P1}>Save As Datasource</Text>
+    </DatasourceIcon>
   );
 };
 
