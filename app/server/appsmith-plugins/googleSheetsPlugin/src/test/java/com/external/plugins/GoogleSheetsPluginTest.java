@@ -29,8 +29,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-public class RestApiPluginTest {
-    RestApiPlugin.RestApiPluginExecutor pluginExecutor = new RestApiPlugin.RestApiPluginExecutor();
+public class GoogleSheetsPluginTest {
+    GoogleSheetsPlugin.GoogleSheetsPluginExecutor pluginExecutor = new GoogleSheetsPlugin.GoogleSheetsPluginExecutor();
 
     @Before
     public void setUp() {
@@ -61,8 +61,8 @@ public class RestApiPluginTest {
     @Test
     public void testEncodingFunctionWithEncodeParamsToggleTrue() throws UnsupportedEncodingException {
         String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
-                                                                           "application/x-www-form-urlencoded",
-                                                                           true);
+                "application/x-www-form-urlencoded",
+                true);
         String expected_value = null;
         try {
             expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
@@ -75,8 +75,8 @@ public class RestApiPluginTest {
     @Test
     public void testEncodingFunctionWithEncodeParamsToggleFalse() throws UnsupportedEncodingException {
         String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
-                                                                           "application/x-www-form-urlencoded",
-                                                                           false);
+                "application/x-www-form-urlencoded",
+                false);
         String expected_value = null;
         try {
             expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
@@ -266,10 +266,10 @@ public class RestApiPluginTest {
         actionConfig.setQueryParameters(queryParams);
         actionConfig.setEncodeParamsToggle(false);
 
-        Mono<RestApiPlugin.RestApiPluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
+        Mono<GoogleSheetsPlugin.GoogleSheetsPluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
         Mono<ActionExecutionResult> resultMono = pluginExecutorMono.flatMap(executor -> executor.execute(null,
-                                                                                                         dsConfig,
-                                                                                                         actionConfig));
+                dsConfig,
+                actionConfig));
         StepVerifier.create(resultMono)
                 .verifyErrorSatisfies(e -> {
                     assertTrue(e instanceof IllegalArgumentException);

@@ -1622,7 +1622,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "051", id = "add-amazons3-plugin", author = "")
-    public void addAmazonS3Plugin (MongoTemplate mongoTemplate) {
+    public void addAmazonS3Plugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Amazon S3");
         plugin.setType(PluginType.DB);
@@ -1666,8 +1666,8 @@ public class DatabaseChangelog {
         }
 
     }
-  
-  @ChangeSet(order = "053", id = "update-plugin-datasource-form-components", author = "")
+
+    @ChangeSet(order = "053", id = "update-plugin-datasource-form-components", author = "")
     public void updatePluginDatasourceFormComponents(MongoTemplate mongoTemplate) {
       for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
           switch (plugin.getPackageName()) {
@@ -1711,5 +1711,27 @@ public class DatabaseChangelog {
                 mongoTemplate.save(action);
             }
         }
+    }
+
+
+    @ChangeSet(order = "055", id = "add-google-sheets-plugin", author = "")
+    public void addGoogleSheetsPlugin (MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Google Sheets");
+        plugin.setType(PluginType.SAAS);
+        plugin.setPackageName("google-sheets-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setDatasourceComponent("OAuth2DatasourceForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/GoogleSheets.svg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-google-sheets");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
 }
