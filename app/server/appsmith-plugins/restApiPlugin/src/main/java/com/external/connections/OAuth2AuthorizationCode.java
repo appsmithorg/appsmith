@@ -149,8 +149,8 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
         // Check to see where the token needs to be added
         if (this.isHeader()) {
             final String finalHeaderPrefix = this.getHeaderPrefix() != null && !this.getHeaderPrefix().isBlank() ?
-                    this.getHeaderPrefix() + " "
-                    : "Bearer ";
+                    this.getHeaderPrefix().trim() + " "
+                    : "";
             return Mono.justOrEmpty(ClientRequest.from(clientRequest)
                     .headers(headers -> headers.set("Authorization", finalHeaderPrefix + this.getToken()))
                     .build());

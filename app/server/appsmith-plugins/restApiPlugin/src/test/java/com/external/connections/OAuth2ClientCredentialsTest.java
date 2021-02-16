@@ -42,7 +42,6 @@ public class OAuth2ClientCredentialsTest {
         OAuth2ClientCredentials connection = OAuth2ClientCredentials.create(oAuth2).block(Duration.ofMillis(100));
         assertThat(connection).isNotNull();
         assertThat(connection.getExpiresAt()).isEqualTo(authenticationResponse.getExpiresAt());
-        assertThat(connection.getHeaderPrefix()).isEqualTo("Bearer");
         assertThat(connection.getToken()).isEqualTo("SomeToken");
     }
 

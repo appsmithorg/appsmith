@@ -57,7 +57,7 @@ public class OAuth2 extends AuthenticationDTO {
 
     Set<String> scope;
 
-    String headerPrefix = "Bearer";
+    String headerPrefix;
 
     Set<Property> customTokenParameters;
 
