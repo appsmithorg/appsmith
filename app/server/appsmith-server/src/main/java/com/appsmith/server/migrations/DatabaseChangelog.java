@@ -1667,7 +1667,7 @@ public class DatabaseChangelog {
 
     }
   
-  @ChangeSet(order = "053", id = "update-plugin-datasource-form-components", author = "")
+    @ChangeSet(order = "053", id = "update-plugin-datasource-form-components", author = "")
     public void updatePluginDatasourceFormComponents(MongoTemplate mongoTemplate) {
       for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
           switch (plugin.getPackageName()) {
@@ -1692,5 +1692,38 @@ public class DatabaseChangelog {
 
           mongoTemplate.save(plugin);
       }
-  }
+    }
+
+    @ChangeSet(order = "054", id = "update-postgres-plugin-preparedStatement-config", author = "")
+    public void updatePostgresActionsSetPreparedStatementConfiguration(MongoTemplate mongoTemplate) {
+
+        List<Plugin> plugins = mongoTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QPlugin.plugin.packageName)).is("postgres-plugin")
+                )),
+                Plugin.class);
+
+        if (plugins.size() < 1) {
+            return;
+        }
+
+        Plugin postgresPlugin = plugins.get(0);
+
+        // Note : This is a long migration :(
+        for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
+            if(action.getPluginId() != null &&
+                    action.getPluginId().equals(postgresPlugin.getId())) {
+                // We have found an action of postgres plugin type
+                if (action.getUnpublishedAction().getActionConfiguration() != null) {
+                    action.getUnpublishedAction().getActionConfiguration().setPreparedStatement(false);
+                }
+
+                if (action.getPublishedAction() != null && action.getPublishedAction().getActionConfiguration() != null) {
+                    action.getPublishedAction().getActionConfiguration().setPreparedStatement(false);
+                }
+
+                mongoTemplate.save(action);
+            }
+        }
+    }
 }
