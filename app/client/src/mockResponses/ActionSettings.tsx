@@ -58,7 +58,7 @@ export const apiActionSettingsConfig = [
         label: "Encode query params",
         configProperty: "actionConfiguration.encodeParamsToggle",
         controlType: "CHECKBOX",
-        info: "Will encode query params. Also form body for x-www-form-encoded",
+        info: "Encode query params for all APIs. Also encode form body when Content-Type header is set to x-www-form-encoded",
       },
       // {
       //   label: "Cache response",
