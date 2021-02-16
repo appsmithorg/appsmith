@@ -232,8 +232,17 @@ public class DynamoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    final List<Object> items = (List<Object>) ((Map<String, Object>) result.getBody()).get("Items");
+                    List<Map<String, Object>> items = (List<Map<String, Object>>)
+                                                      ((Map<String, Object>) result.getBody()).get("Items");
                     assertEquals(2, items.size());
+                    for(Map<String, Object> item: items) {
+                        for(Map.Entry<String, Object> entry: item.entrySet()) {
+                            Map<String, Object> rawAndTransformedValues = (Map<String, Object>) entry.getValue();
+                            Object rawValue = ((Map<String, Object>) rawAndTransformedValues.get("raw")).get("S");
+                            Object transformedValue = rawAndTransformedValues.get("value");
+                            assertTrue(rawValue.equals(transformedValue));
+                        }
+                    }
                 })
                 .verifyComplete();
     }
@@ -257,5 +266,4 @@ public class DynamoPluginTest {
                 })
                 .verifyComplete();
     }
-
 }

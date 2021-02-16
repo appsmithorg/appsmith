@@ -50,6 +50,12 @@ import java.util.function.Predicate;
 
 public class DynamoPlugin extends BasePlugin {
 
+    private static final String SCAN_ACTION_VALUE = "Scan";
+    private static final String ITEMS_KEY = "Items";
+    private static final String TRANSFORMED_DATA_LABEL = "value";
+    private static final String RAW_DATA_LABEL = "raw";
+    private static final String S_FIELD_LABEL = "S";
+
     public DynamoPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -70,6 +76,40 @@ public class DynamoPlugin extends BasePlugin {
     public static class DynamoPluginExecutor implements PluginExecutor<DynamoDbClient> {
 
         private final Scheduler scheduler = Schedulers.elastic();
+
+        public Object getTransformedResponse(Object rawResponse, String action) {
+            Map<String, Object> transformedResponse = new HashMap<>();
+
+            if(action.equals(SCAN_ACTION_VALUE)) {
+                for(Map.Entry<String, Object> responseEntry: ((Map<String, Object>) (rawResponse)).entrySet()) {
+                    if(responseEntry.getKey().equals(ITEMS_KEY)) {
+                        ArrayList<Object> transformedItems = new ArrayList<>();
+                        transformedResponse.put(ITEMS_KEY, transformedItems);
+
+                        Collection<Object> rawItems = (Collection<Object>) ((Map<String, Object>) (rawResponse))
+                                                       .get(ITEMS_KEY);
+                        for(Object item: rawItems) {
+                            HashMap<String, Object> aggregateEntry = new HashMap<>();
+                            transformedItems.add(aggregateEntry);
+                            for(Map.Entry<String, Object> entry : ((Map<String, Object>)item).entrySet()) {
+                                Map<String, Object> fields = (Map<String, Object>) entry.getValue();
+                                Map<String, Object> rawAndTransformedObjects = new HashMap<>();
+                                rawAndTransformedObjects.put(TRANSFORMED_DATA_LABEL, fields.get(S_FIELD_LABEL));
+                                rawAndTransformedObjects.put(RAW_DATA_LABEL, fields);
+                                aggregateEntry.put(entry.getKey(), rawAndTransformedObjects);
+                            }
+                        }
+                    }
+                    else {
+                        transformedResponse.put(responseEntry.getKey(), responseEntry.getValue());
+                    }
+                }
+
+                return transformedResponse;
+            }
+
+            return rawResponse;
+        }
 
         @Override
         public Mono<ActionExecutionResult> execute(DynamoDbClient ddb,
@@ -116,7 +156,9 @@ public class DynamoPlugin extends BasePlugin {
                             requestClass
                     );
                     final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, plainToSdk(parameters, requestClass));
-                    result.setBody(sdkToPlain(response));
+                    Object rawResponse = sdkToPlain(response);
+                    Object transformedResponse = getTransformedResponse(rawResponse, action);
+                    result.setBody(transformedResponse);
                 } catch (AppsmithPluginException | InvocationTargetException | IllegalAccessException | NoSuchMethodException | ClassNotFoundException e) {
                     final String message = "Error executing the DynamoDB Action: " + (e.getCause() == null ? e : e.getCause()).getMessage();
                     log.warn(message, e);
