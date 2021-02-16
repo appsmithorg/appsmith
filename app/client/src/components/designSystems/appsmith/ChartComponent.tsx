@@ -4,7 +4,12 @@ import styled from "styled-components";
 
 import { invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "configs";
-import { ChartType, ChartData, ChartDataPoint } from "widgets/ChartWidget";
+import {
+  ChartData,
+  ChartDataPoint,
+  ChartType,
+  CustomFusionChartConfig,
+} from "widgets/ChartWidget";
 
 const FusionCharts = require("fusioncharts");
 const Charts = require("fusioncharts/fusioncharts.charts");
@@ -22,6 +27,7 @@ FusionCharts.options.license({
 export interface ChartComponentProps {
   chartType: ChartType;
   chartData: ChartData[];
+  customFusionChartConfig: CustomFusionChartConfig;
   xAxisName: string;
   yAxisName: string;
   chartName: string;
@@ -44,6 +50,7 @@ const CanvasContainer = styled.div<ChartComponentProps>`
 
 class ChartComponent extends React.Component<ChartComponentProps> {
   chartInstance = new FusionCharts();
+
   getChartType = () => {
     const { chartType, allowHorizontalScroll, chartData } = this.props;
     const isMSChart = chartData.length > 1;
@@ -202,6 +209,23 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     }
   };
 
+  getCustomFusionChartDataSource = () => {
+    let config = this.props.customFusionChartConfig as any;
+    if (config && config.dataSource) {
+      config = {
+        ...config,
+        dataSource: {
+          ...config.dataSource,
+          chart: {
+            ...config.dataSource.chart,
+            caption: this.props.chartName || config.dataSource.chart.caption,
+          },
+        },
+      };
+    }
+    return config;
+  };
+
   getScrollChartDataSource = () => {
     const chartConfig = this.getChartConfig();
     return {
@@ -222,6 +246,16 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   createGraph = () => {
+    if (this.props.chartType === "CUSTOM_FUSION_CHART") {
+      const chartConfig = {
+        renderAt: this.props.widgetId + "chart-container",
+        width: "100%",
+        height: "100%",
+        ...this.getCustomFusionChartDataSource(),
+      };
+      this.chartInstance = new FusionCharts(chartConfig);
+      return;
+    }
     const dataSource =
       this.props.allowHorizontalScroll && this.props.chartType !== "PIE_CHART"
         ? this.getScrollChartDataSource()
@@ -243,7 +277,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       /* Component could be unmounted before FusionCharts is ready,
       this check ensure we don't render on unmounted component */
       if (this.chartInstance) {
-        this.chartInstance.render();
+        try {
+          this.chartInstance.render();
+        } catch (e) {
+          console.log(e);
+        }
       }
     });
   }
@@ -256,6 +294,18 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   componentDidUpdate(prevProps: ChartComponentProps) {
     if (!_.isEqual(prevProps, this.props)) {
+      if (this.props.chartType === "CUSTOM_FUSION_CHART") {
+        const chartConfig = {
+          type: this.getChartType(),
+          renderAt: this.props.widgetId + "chart-container",
+          width: "100%",
+          height: "100%",
+          ...this.getCustomFusionChartDataSource(),
+        };
+        this.chartInstance = new FusionCharts(chartConfig);
+        this.chartInstance.render();
+        return;
+      }
       const chartType = this.getChartType();
       this.chartInstance.chartType(chartType);
       if (

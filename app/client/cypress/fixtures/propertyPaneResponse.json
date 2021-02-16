@@ -347,6 +347,10 @@
                                 {
                                     "label": "Area Chart",
                                     "value": "AREA_CHART"
+                                },
+                                {
+                                    "label": "Custom Fusion Chart",
+                                    "value": "CUSTOM_FUSION_CHART"
                                 }
                             ],
                             "isJSConvertible": true
