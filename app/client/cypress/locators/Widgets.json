@@ -49,6 +49,8 @@
     "tableActionSelect": ".t--property-control-onsearchtextchanged .t--open-dropdown-Select-Action",
     "chartWidget": ".t--widget-chartwidget",
     "tableOnRowSelect": ".t--property-control-onrowselected .t--open-dropdown-Select-Action",
+    "switchInput": ".t--draggable-switchwidget span.t--widget-name",
+    "switchLabel": ".t--draggable-switchwidget label",
     "addColumn": ".t--add-column-btn",
     "deleteColumn": ".t--delete-column-btn",
     "editCreatedColumn": ".t--property-control-createdcolumns input",

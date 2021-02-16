@@ -2,6 +2,7 @@ package com.external.connections;
 
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -53,11 +54,13 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
 
         return Mono.just(oAuth2)
                 // Validate existing token
-                .filter(x -> x.getToken() != null && !x.getToken().isBlank())
-                .filter(x -> x.getExpiresAt() != null)
+                .filter(x -> x.getAuthenticationResponse() != null
+                        && x.getAuthenticationResponse().getToken() != null
+                        && !x.getAuthenticationResponse().getToken().isBlank())
+                .filter(x -> x.getAuthenticationResponse().getExpiresAt() != null)
                 .filter(x -> {
                     Instant now = connection.clock.instant();
-                    Instant expiresAt = x.getExpiresAt();
+                    Instant expiresAt = x.getAuthenticationResponse().getExpiresAt();
 
                     return now.isBefore(expiresAt.minus(Duration.ofMinutes(1)));
                 })
@@ -65,12 +68,12 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                 .switchIfEmpty(connection.generateOAuth2Token(oAuth2))
                 // Store valid token
                 .flatMap(token -> {
-                    connection.setToken(token.getToken());
+                    connection.setToken(token.getAuthenticationResponse().getToken());
                     connection.setHeader(token.getIsTokenHeader());
                     connection.setHeaderPrefix(token.getHeaderPrefix());
-                    connection.setExpiresAt(token.getExpiresAt());
-                    connection.setRefreshToken(token.getRefreshToken());
-                    connection.setTokenResponse(token.getTokenResponse());
+                    connection.setExpiresAt(token.getAuthenticationResponse().getExpiresAt());
+                    connection.setRefreshToken(token.getAuthenticationResponse().getRefreshToken());
+                    connection.setTokenResponse(token.getAuthenticationResponse().getTokenResponse());
                     return Mono.just(connection);
                 });
     }
@@ -94,8 +97,9 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                 .flatMap(response -> response.body(BodyExtractors.toMono(Map.class)))
                 // Receive and parse response
                 .map(mappedResponse -> {
+                    AuthenticationResponse authenticationResponse = new AuthenticationResponse();
                     // Store received response as is for reference
-                    oAuth2.setTokenResponse(mappedResponse);
+                    authenticationResponse.setTokenResponse(mappedResponse);
                     // Parse useful fields for quick access
                     Object issuedAtResponse = mappedResponse.get(Authentication.ISSUED_AT);
                     // Default issuedAt to current time
@@ -113,12 +117,13 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                     } else if (expiresInResponse != null) {
                         expiresAt = issuedAt.plusSeconds(Long.valueOf((Integer) expiresInResponse));
                     }
-                    oAuth2.setExpiresAt(expiresAt);
-                    oAuth2.setIssuedAt(issuedAt);
+                    authenticationResponse.setExpiresAt(expiresAt);
+                    authenticationResponse.setIssuedAt(issuedAt);
                     if (mappedResponse.containsKey(Authentication.REFRESH_TOKEN)) {
-                        oAuth2.setRefreshToken(String.valueOf(mappedResponse.get(Authentication.REFRESH_TOKEN)));
+                        authenticationResponse.setRefreshToken(String.valueOf(mappedResponse.get(Authentication.REFRESH_TOKEN)));
                     }
-                    oAuth2.setToken(String.valueOf(mappedResponse.get(Authentication.ACCESS_TOKEN)));
+                    authenticationResponse.setToken(String.valueOf(mappedResponse.get(Authentication.ACCESS_TOKEN)));
+                    oAuth2.setAuthenticationResponse(authenticationResponse);
                     return oAuth2;
                 });
     }
@@ -144,8 +149,8 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
         // Check to see where the token needs to be added
         if (this.isHeader()) {
             final String finalHeaderPrefix = this.getHeaderPrefix() != null && !this.getHeaderPrefix().isBlank() ?
-                    this.getHeaderPrefix() + " "
-                    : "Bearer ";
+                    this.getHeaderPrefix().trim() + " "
+                    : "";
             return Mono.justOrEmpty(ClientRequest.from(clientRequest)
                     .headers(headers -> headers.set("Authorization", finalHeaderPrefix + this.getToken()))
                     .build());
@@ -165,7 +170,7 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                 .fromFormData(Authentication.GRANT_TYPE, Authentication.REFRESH_TOKEN)
                 .with(Authentication.CLIENT_ID, oAuth2.getClientId())
                 .with(Authentication.CLIENT_SECRET, oAuth2.getClientSecret())
-                .with(Authentication.REFRESH_TOKEN, oAuth2.getRefreshToken());
+                .with(Authentication.REFRESH_TOKEN, oAuth2.getAuthenticationResponse().getRefreshToken());
 
         // Optionally add scope, if applicable
         if (!CollectionUtils.isEmpty(oAuth2.getScope())) {
@@ -177,12 +182,14 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
     @Override
     public AuthenticationDTO getAuthenticationDTO(AuthenticationDTO authenticationDTO) {
         OAuth2 oAuth2 = (OAuth2) authenticationDTO;
-        oAuth2.setToken(this.token);
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse();
+        authenticationResponse.setToken(this.token);
         oAuth2.setHeaderPrefix(this.headerPrefix);
         oAuth2.setIsTokenHeader(this.isHeader);
-        oAuth2.setRefreshToken(this.refreshToken);
-        oAuth2.setExpiresAt(this.expiresAt);
-        oAuth2.setTokenResponse(this.tokenResponse);
+        authenticationResponse.setRefreshToken(this.refreshToken);
+        authenticationResponse.setExpiresAt(this.expiresAt);
+        authenticationResponse.setTokenResponse(this.tokenResponse);
+        oAuth2.setAuthenticationResponse(authenticationResponse);
 
         return oAuth2;
     }

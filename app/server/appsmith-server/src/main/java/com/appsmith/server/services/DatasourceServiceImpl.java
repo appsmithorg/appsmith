@@ -163,7 +163,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         return datasourceMono
                 .map(dbDatasource -> {
                     copyNestedNonNullProperties(datasource, dbDatasource);
-                    if (datasource.getDatasourceConfiguration() == null || datasource.getDatasourceConfiguration().getAuthentication() == null) {
+                    if (datasource.getDatasourceConfiguration() != null && datasource.getDatasourceConfiguration().getAuthentication() == null) {
                         if (dbDatasource.getDatasourceConfiguration() != null) {
                             dbDatasource.getDatasourceConfiguration().setAuthentication(null);
                         }

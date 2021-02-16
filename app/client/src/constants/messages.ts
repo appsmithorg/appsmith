@@ -178,6 +178,13 @@ export const SERVER_API_TIMEOUT_ERROR =
   "Appsmith server is taking too long to respond. Please try again after some time";
 export const DEFAULT_ERROR_MESSAGE = "There was an unexpected error";
 
+export const REST_API_AUTHORIZATION_SUCCESSFUL =
+  "Authorization was successful!";
+export const REST_API_AUTHORIZATION_FAILED =
+  "Authorization failed. Please check your details or try again.";
+// Todo: improve this for appsmith_error error message
+export const REST_API_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
+
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE =
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
 export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE =

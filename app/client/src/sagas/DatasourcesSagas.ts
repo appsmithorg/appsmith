@@ -189,9 +189,9 @@ function* updateDatasourceSaga(
 }
 
 function RedirectAuthorizationCodeSaga(
-  actionPayload: ReduxAction<{ id: string }>,
+  actionPayload: ReduxAction<{ datasourceId: string; pageId: string }>,
 ) {
-  window.location.href = `/api/v1/datasources/${actionPayload.payload.id}/code`;
+  window.location.href = `/api/v1/datasources/${actionPayload.payload.datasourceId}/pages/${actionPayload.payload.pageId}/code`;
 }
 
 function* saveDatasourceNameSaga(

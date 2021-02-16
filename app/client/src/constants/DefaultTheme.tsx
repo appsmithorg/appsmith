@@ -97,10 +97,38 @@ export const BlueprintControlTransform = css`
         background: none;
         border: 2px solid ${Colors.SLATE_GRAY};
       }
+      &.${Classes.SWITCH}
+        input:checked:disabled
+        ~ .${Classes.CONTROL_INDICATOR} {
+        opacity: 0.5;
+      }
     }
 
     .${Classes.CHECKBOX} .${Classes.CONTROL_INDICATOR} {
       border-radius: 0;
+    }
+
+    .${Classes.SWITCH} {
+      input:checked ~ .${Classes.CONTROL_INDICATOR} {
+        &::before {
+          left: calc(105% - 1em);
+        }
+      }
+
+      & .${Classes.CONTROL_INDICATOR} {
+        background: #d0d7dd;
+        border: 2px solid #d0d7dd;
+        &::before {
+          box-shadow: -2px 2px 5px rgba(67, 86, 100, 0.1);
+        }
+      }
+      & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
+        background: ${(props) => props.theme.colors.primaryOld};
+      }
+      &:hover .${Classes.CONTROL_INDICATOR} {
+        background: #d0d7dd;
+        border: 2px solid #d0d7dd;
+      }
     }
 
     .${Classes.CONTROL_INDICATOR} {
