@@ -220,7 +220,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       ) {
         if (!authentication.accessTokenUrl) return true;
         if (!authentication.clientId) return true;
-        if (!authentication.clientSecret) return true;
       }
       if (authentication.grantType === GrantType.AuthorizationCode) {
         if (!authentication.authorizationUrl) return true;
