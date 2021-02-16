@@ -77,6 +77,10 @@ public class DynamoPlugin extends BasePlugin {
 
         private final Scheduler scheduler = Schedulers.elastic();
 
+        /*
+         * - Transform response for easy consumption. For details please visit
+         *   https://github.com/appsmithorg/appsmith/issues/3010
+         */
         public Object getTransformedResponse(Object rawResponse, String action) {
             Map<String, Object> transformedResponse = new HashMap<>();
 
