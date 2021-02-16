@@ -248,9 +248,9 @@ urlencode() {
 }
 
 generate_password() {
-    local pwd="$(/usr/bin/python -c 'import random, string; print("".join(random.choice(string.ascii_letters + string.digits) for _ in range(13)))' 2>/dev/null)"
-    if [[ -n $pwd ]]; then
-        echo "$pwd"
+    local gen_string="$(/usr/bin/python -c 'import random, string; print("".join(random.choice(string.ascii_letters + string.digits) for _ in range(13)))' 2>/dev/null)"
+    if [[ -n $gen_string ]]; then
+        echo "$gen_string"
     else
         # Picked up the following method of generation from : https://gist.github.com/earthgecko/3089509
         LC_ALL=C tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 13 | head -n 1
