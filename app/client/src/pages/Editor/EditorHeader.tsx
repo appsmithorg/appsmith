@@ -300,7 +300,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             </ProfileDropdownContainer>
           )}
         </HeaderSection>
-        {/* <HelpModal page={"Editor"} /> */}
         <OnboardingHelper />
         <GlobalSearch />
       </HeaderWrapper>

@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Text, { TextType } from "components/ads/Text";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { HELPBAR_PLACEHOLDER } from "constants/messages";
 
 const StyledHelpBar = styled.div`
   padding: 0 ${(props) => props.theme.spaces[4]}px;
@@ -13,13 +14,13 @@ const StyledHelpBar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-width: 266px;
   border: 1px solid ${(props) => props.theme.colors.globalSearch.helpBarBorder};
   color: ${(props) => props.theme.colors.globalSearch.helpBarText};
   height: 28px;
+  flex: 1;
+  max-width: 350px;
 `;
 
-const placeholderText = "Search, Add & Navigate";
 const comboText = (
   <>
     <kbd>Shift</kbd> + <kbd>O</kbd>
@@ -33,7 +34,7 @@ type Props = {
 const HelpBar = ({ toggleShowModal }: Props) => {
   return (
     <StyledHelpBar onClick={toggleShowModal}>
-      <Text type={TextType.P2}>{placeholderText}</Text>
+      <Text type={TextType.P2}>{HELPBAR_PLACEHOLDER}</Text>
       <Text type={TextType.P3} italic>
         {comboText}
       </Text>

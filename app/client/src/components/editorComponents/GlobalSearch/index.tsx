@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { useParams } from "react-router";
@@ -48,7 +48,12 @@ const GlobalSearch = () => {
   const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
   const toggleShow = () => dispatch(toggleShowGlobalSearchModal());
-  const [query, setQuery] = useState("");
+  const [query, setQueryInState] = useState("");
+  const setQuery = useCallback((query: string) => {
+    setQueryInState(query);
+    setActiveItemIndex(0);
+  }, []);
+
   const [documentationSearchResults, setDocumentationSearchResults] = useState<
     Array<any>
   >([]);
@@ -59,7 +64,7 @@ const GlobalSearch = () => {
     () =>
       allWidgets.filter(
         (widget: any) =>
-          ["MAIN_CONTAINER", "ICON_WIDGET"].indexOf(widget.type) === -1,
+          ["CANVAS_WIDGET", "ICON_WIDGET"].indexOf(widget.type) === -1,
       ),
     [allWidgets],
   );
@@ -69,7 +74,7 @@ const GlobalSearch = () => {
 
   const datasourcesList = useMemo(() => {
     return Object.entries(datasourcesMap).reduce((res: any[], curr) => {
-      const [key, value] = curr;
+      const [, value] = curr;
       return [...res, ...value];
     }, []);
   }, [datasourcesMap]);
@@ -112,8 +117,8 @@ const GlobalSearch = () => {
 
   const getNextActiveItem = (nextIndex: number) => {
     const max = Math.max(searchResults.length - 1, 0);
-    if (nextIndex < 0) return 0;
-    else if (nextIndex > max) return max;
+    if (nextIndex < 0) return max;
+    else if (nextIndex > max) return 0;
     else return nextIndex;
   };
 

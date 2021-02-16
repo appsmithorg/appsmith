@@ -1,12 +1,18 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { Popover, Position } from "@blueprintjs/core";
 
 import DocumentationSearch from "components/designSystems/appsmith/help/DocumentationSearch";
-import Icon from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+
+const HelpPopoverStyle = createGlobalStyle`
+  .bp3-popover.bp3-minimal.navbar-help-popover {
+    margin-top: 0 !important;
+  }
+`;
 
 const StyledTrigger = styled.div`
   width: 25px;
@@ -16,15 +22,12 @@ const StyledTrigger = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  & span {
-    left: 1px;
-    position: relative;
-  }
+  margin: ${(props) => props.theme.spaces[2]}px;
 `;
 
 const Trigger = () => (
   <StyledTrigger>
-    <Icon name="help" />
+    <Icon name="help" size={IconSize.XS} />
   </StyledTrigger>
 );
 
@@ -43,10 +46,19 @@ const HelpButton = () => {
       minimal
       position={Position.BOTTOM}
       onOpened={onOpened}
+      popoverClassName="navbar-help-popover"
     >
-      <Trigger />
+      <>
+        <HelpPopoverStyle />
+        <Trigger />
+      </>
       <div style={{ width: HELP_MODAL_WIDTH }}>
-        <DocumentationSearch hitsPerPage={4} />
+        <DocumentationSearch
+          hitsPerPage={4}
+          hideSearch
+          hideMinimizeBtn
+          showVersionOnTop
+        />
       </div>
     </Popover>
   );

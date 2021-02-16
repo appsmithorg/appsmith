@@ -4,7 +4,9 @@ import styled from "styled-components";
 import { connectSearchBox } from "react-instantsearch-dom";
 import { SearchBoxProvided } from "react-instantsearch-core";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import Icon from "components/ads/Icon";
 import { AppState } from "reducers";
+import { OMNIBAR_PLACEHOLDER } from "constants/messages";
 
 const Separator = styled.div`
   height: 1px;
@@ -20,8 +22,12 @@ const Container = styled.div`
     color: ${(props) => props.theme.colors.globalSearch.searchInputText};
     border: none;
     padding: ${(props) => `${props.theme.spaces[7]}px 0`};
-    width: 100%;
+    flex: 1;
   }
+`;
+
+const InputContainer = styled.div`
+  display: flex;
 `;
 
 const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -39,10 +45,9 @@ const SearchBox = ({ query, setQuery }: SearchBoxProps) => {
   const [listenToChange, setListenToChange] = useState(false);
   const { modalOpen } = useSelector((state: AppState) => state.ui.globalSearch);
   const updateSearchQuery = useCallback(
-    (e) => {
+    (query) => {
       // to prevent key combo to open modal (shift + o) from trigging query update
       if (!listenToChange) return;
-      const query = e.currentTarget.value;
       setQuery(query);
     },
     [listenToChange],
@@ -62,12 +67,16 @@ const SearchBox = ({ query, setQuery }: SearchBoxProps) => {
 
   return (
     <Container>
-      <input
-        value={query}
-        onChange={(event) => updateSearchQuery(event)}
-        autoFocus
-        onKeyDown={handleKeyDown}
-      />
+      <InputContainer>
+        <input
+          value={query}
+          onChange={(e) => updateSearchQuery(e.currentTarget.value)}
+          autoFocus
+          onKeyDown={handleKeyDown}
+          placeholder={OMNIBAR_PLACEHOLDER}
+        />
+        {query && <Icon name="close" onClick={() => updateSearchQuery("")} />}
+      </InputContainer>
       <Separator />
       {/* <button onClick={() => refine("")}>Reset query</button>
       {isSearchStalled ? "My search is stalled" : ""} */}

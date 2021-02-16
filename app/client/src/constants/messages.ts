@@ -177,3 +177,6 @@ export const GOOGLE_RECAPTCHA_DOMAIN_ERROR =
 export const SERVER_API_TIMEOUT_ERROR =
   "Appsmith server is taking too long to respond. Please try again after some time";
 export const DEFAULT_ERROR_MESSAGE = "There was an unexpected error";
+
+export const OMNIBAR_PLACEHOLDER = "Search Widgets, Queries, Documentation";
+export const HELPBAR_PLACEHOLDER = "Quick search & navigation";
