@@ -1693,4 +1693,23 @@ public class DatabaseChangelog {
           mongoTemplate.save(plugin);
       }
   }
+
+    @ChangeSet(order = "054", id = "update-database-encode-params-toggle", author = "")
+    public void updateEncodeParamsToggle(MongoTemplate mongoTemplate) {
+        for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
+            if(action.getPluginType() != null && action.getPluginType().equals("API")) {
+                if(action.getUnpublishedAction() != null
+                        && action.getUnpublishedAction().getActionConfiguration() != null) {
+                    action.getUnpublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+                }
+
+                if(action.getPublishedAction() != null
+                        && action.getPublishedAction().getActionConfiguration() != null) {
+                    action.getPublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+                }
+
+                mongoTemplate.save(action);
+            }
+        }
+    }
 }
