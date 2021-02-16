@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { HelpBaseURL } from "constants/HelpConstants";
+import { useParams } from "react-router";
+import history from "utils/history";
 import { AppState } from "reducers";
 import SearchModal from "./SearchModal";
 import AlgoliaSearchWrapper from "./AlgoliaSearchWrapper";
@@ -16,9 +17,10 @@ import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity"
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { getItemType, SEARCH_ITEM_TYPES } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { useParams } from "react-router";
+import { HelpBaseURL } from "constants/HelpConstants";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
-import history from "utils/history";
+import { useFilteredDatasources } from "pages/Editor/Explorer/hooks";
+import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 
 const StyledContainer = styled.div`
   width: 660px;
@@ -54,7 +56,15 @@ const GlobalSearch = () => {
   const [activeItemIndex, setActiveItemIndex] = useState(0);
   const allWidgets = useSelector(getAllPageWidgets);
   const actions = useSelector(getActions);
+  const datasourcesMap = useFilteredDatasources(query);
   const modalOpen = useSelector(isModalOpenSelector);
+
+  const datasourcesList = useMemo(() => {
+    return Object.entries(datasourcesMap).reduce((res: any[], curr) => {
+      const [key, value] = curr;
+      return [...res, ...value];
+    }, []);
+  }, [datasourcesMap]);
 
   const filteredWidgets = useMemo(() => {
     if (!query) return allWidgets;
@@ -78,9 +88,15 @@ const GlobalSearch = () => {
     return [
       ...filteredWidgets,
       ...filteredActions,
+      ...datasourcesList,
       ...documentationSearchResults,
     ];
-  }, [filteredWidgets, filteredActions, documentationSearchResults]);
+  }, [
+    filteredWidgets,
+    filteredActions,
+    documentationSearchResults,
+    datasourcesList,
+  ]);
 
   const activeItem = useMemo(() => {
     return searchResults[activeItemIndex] || {};
@@ -125,10 +141,18 @@ const GlobalSearch = () => {
     url && history.push(url);
   };
 
+  const handleDatasourceClick = (item: any) => {
+    toggleShow();
+    history.push(
+      DATA_SOURCES_EDITOR_ID_URL(params.applicationId, params.pageId, item.id),
+    );
+  };
+
   const itemClickHandlerByType = {
     [SEARCH_ITEM_TYPES.documentation]: handleDocumentationItemClick,
     [SEARCH_ITEM_TYPES.widget]: handleWidgetClick,
     [SEARCH_ITEM_TYPES.action]: handleActionClick,
+    [SEARCH_ITEM_TYPES.datasource]: handleDatasourceClick,
   };
 
   const handleItemLinkClick = (item?: any) => {

@@ -85,6 +85,7 @@ const descriptionByType = {
   [SEARCH_ITEM_TYPES.documentation]: DocumentationDescription,
   [SEARCH_ITEM_TYPES.action]: () => null,
   [SEARCH_ITEM_TYPES.widget]: () => null,
+  [SEARCH_ITEM_TYPES.datasource]: () => null,
 };
 
 const Description = (props: Props) => {

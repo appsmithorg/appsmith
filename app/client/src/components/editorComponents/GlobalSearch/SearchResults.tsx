@@ -144,10 +144,30 @@ const ActionItem = withTheme((props: any) => {
   );
 });
 
+const DatasourceItem = withTheme((props: any) => {
+  const searchContext = useContext(SearchContext);
+  const { item, query } = props;
+  const title = item?.name;
+  return (
+    <>
+      <Icon
+        name="link"
+        size={IconSize.LARGE}
+        fillColor={props.theme.colors.globalSearch.searchItemText}
+        onClick={() => searchContext.handleItemLinkClick(props.item)}
+      />
+      <ItemTitle>
+        <Highlight match={query} text={title} />
+      </ItemTitle>
+    </>
+  );
+});
+
 const SearchItemByType = {
   [SEARCH_ITEM_TYPES.documentation]: DocumentationItem,
   [SEARCH_ITEM_TYPES.widget]: WidgetItem,
   [SEARCH_ITEM_TYPES.action]: ActionItem,
+  [SEARCH_ITEM_TYPES.datasource]: DatasourceItem,
 };
 
 const SearchItem = withTheme((props: ItemProps) => {
