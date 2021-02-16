@@ -429,3 +429,30 @@ export const StyledHiddenIcon = styled(
     }
   }
 `;
+
+export const StyledPropertyPaneButtonHolder = styled.div<{
+  theme: Skin;
+}>`
+  &&&& {
+    margin-top: 4px;
+    margin-left: auto;
+    display: flex;
+    justify-content: flex-end;
+
+    .custom-button-class {
+      ${(props) =>
+        props.theme === Skin.DARK
+          ? `border-color: ${Colors.CHARCOAL};
+          background-color: ${Colors.CHARCOAL};
+          color: ${Colors.WHITE};`
+          : `border-color: ${Colors.LIGHT_GREY};
+          background-color: ${Colors.LIGHT_GREY};
+          color: ${Colors.CODE_GRAY};`}
+    }
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+`;

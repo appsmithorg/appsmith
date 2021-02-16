@@ -13,6 +13,7 @@ class OptionControl extends BaseControl<ControlProps> {
       <KeyValueComponent
         pairs={this.props.propertyValue}
         updatePairs={this.updateOptions}
+        theme={this.props.theme}
       />
     );
   }

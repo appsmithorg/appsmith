@@ -1,7 +1,10 @@
 import React from "react";
 import _ from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
+import {
+  ControlWrapper,
+  StyledPropertyPaneButtonHolder,
+} from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { AnyStyledComponent } from "styled-components";
@@ -13,6 +16,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import * as Sentry from "@sentry/react";
+import Button, { Size, Category } from "components/ads/Button";
 
 const StyledOptionControlWrapper = styled(ControlWrapper)`
   display: flex;
@@ -255,13 +259,18 @@ class ChartDataControl extends BaseControl<ControlProps> {
             />
           );
         })}
-        <StyledPropertyPaneButton
-          text="Add Series"
-          icon="plus"
-          color="#FFFFFF"
-          minimal
-          onClick={this.addOption}
-        />
+
+        <StyledPropertyPaneButtonHolder theme={this.props.theme}>
+          <Button
+            tag="button"
+            type="button"
+            text="Add Series"
+            onClick={this.addOption}
+            size={Size.medium}
+            category={Category.tertiary}
+            className="custom-button-class"
+          />
+        </StyledPropertyPaneButtonHolder>
       </React.Fragment>
     );
   }

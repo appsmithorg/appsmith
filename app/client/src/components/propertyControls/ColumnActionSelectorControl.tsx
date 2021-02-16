@@ -1,13 +1,14 @@
 import React from "react";
 
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledPropertyPaneButton } from "./StyledControls";
+import { StyledPropertyPaneButtonHolder } from "./StyledControls";
 import { generateReactKey } from "utils/generators";
 import styled from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { FormIcons } from "icons/FormIcons";
 import { InputText } from "components/propertyControls/InputTextControl";
 import { ActionCreator } from "components/editorComponents/actioncreator/ActionCreator";
+import Button, { Size, Category } from "components/ads/Button";
 
 export interface ColumnAction {
   label: string;
@@ -81,13 +82,18 @@ class ColumnActionSelectorControl extends BaseControl<
               </div>
             );
           })}
-        <StyledPropertyPaneButton
-          text={"New Button"}
-          icon={"plus"}
-          color={"#FFFFFF"}
-          minimal={true}
-          onClick={this.addColumnAction}
-        />
+
+        <StyledPropertyPaneButtonHolder theme={this.props.theme}>
+          <Button
+            tag="button"
+            type="button"
+            text="New Button"
+            onClick={this.addColumnAction}
+            size={Size.medium}
+            category={Category.tertiary}
+            className="custom-button-class"
+          />
+        </StyledPropertyPaneButtonHolder>
       </React.Fragment>
     );
   }

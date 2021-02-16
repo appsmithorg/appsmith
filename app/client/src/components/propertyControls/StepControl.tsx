@@ -37,6 +37,7 @@ class StepControl extends BaseControl<StepControlProps> {
           this.updateProperty(this.props.propertyName, value);
         }}
         displayFormat={displayFormat}
+        theme={this.props.theme}
       />
     );
   }

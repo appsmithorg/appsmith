@@ -1,6 +1,9 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledInputGroup, StyledPropertyPaneButton } from "./StyledControls";
+import {
+  StyledInputGroup,
+  StyledPropertyPaneButtonHolder,
+} from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { ControlIcons } from "icons/ControlIcons";
@@ -10,6 +13,7 @@ import { DroppableComponent } from "../designSystems/appsmith/DraggableListCompo
 import { getNextEntityName } from "utils/AppsmithUtils";
 import _ from "lodash";
 import * as Sentry from "@sentry/react";
+import Button, { Category, Size } from "components/ads/Button";
 
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   padding: 0;
@@ -152,12 +156,17 @@ class TabControl extends BaseControl<ControlProps> {
           updateItems={this.updateItems}
         />
         <StyledPropertyPaneButtonWrapper>
-          <StyledPropertyPaneButton
-            text="Add a Tab"
-            color="#FFFFFF"
-            minimal
-            onClick={this.addOption}
-          />
+          <StyledPropertyPaneButtonHolder theme={this.props.theme}>
+            <Button
+              tag="button"
+              type="button"
+              text="Add a Tab"
+              onClick={this.addOption}
+              size={Size.medium}
+              category={Category.tertiary}
+              className="custom-button-class"
+            />
+          </StyledPropertyPaneButtonHolder>
         </StyledPropertyPaneButtonWrapper>
       </TabsWrapper>
     );
