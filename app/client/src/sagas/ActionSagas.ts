@@ -42,7 +42,6 @@ import { transformRestAction } from "transformers/RestActionTransformer";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getDataSources,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
@@ -54,6 +53,7 @@ import {
   getEditorConfig,
   getPageNameByPageId,
   getSettingConfig,
+  getDatasources,
 } from "selectors/entitiesSelector";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import history from "utils/history";
@@ -431,7 +431,7 @@ function* copyActionSaga(
     }) as Partial<Action>;
     delete copyAction.id;
     const response = yield ActionAPI.createAPI(copyAction);
-    const datasources = yield select(getDataSources);
+    const datasources = yield select(getDatasources);
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {

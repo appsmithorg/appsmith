@@ -8,6 +8,7 @@ import InfiniteScroll from "react-infinite-scroller";
 import { DEFAULT_PROVIDER_OPTION } from "constants/ApiEditorConstants";
 import {
   getCurlImportPageURL,
+  INTEGRATIONS_EDITOR_URL,
   getProviderTemplatesURL,
 } from "constants/routes";
 import { AppState } from "reducers";
@@ -39,6 +40,10 @@ import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import Spinner from "components/editorComponents/Spinner";
 import CurlLogo from "assets/images/Curl-logo.svg";
+// TODO: Check license etc https://commons.wikimedia.org/wiki/File:Google_Sheets_logo.svg
+// It looks different from https://about.google/brand-resource-center/logos-list/#google-sheets
+// But someone with a better understanding of licensing should look at this nevertheless
+import GoogleSheetsLogo from "assets/images/google-sheets-logo.svg";
 import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
 import { Plugin } from "api/PluginApi";
 import { createNewApiAction, setCurrentCategory } from "actions/apiPaneActions";
@@ -181,6 +186,9 @@ const StyledContainer = styled.div`
   }
   .curlImage {
     width: 55px;
+  }
+  .sheetsImage {
+    width: 40px;
   }
   .createIcon {
     align-items: center;
@@ -455,6 +463,10 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
     const curlImportURL =
       getCurlImportPageURL(applicationId, pageId) + location.search;
 
+    const googleSheetsURL =
+      INTEGRATIONS_EDITOR_URL(applicationId, pageId, "google-sheets-plugin") +
+      location.search;
+
     const PROVIDER_CATEGORIES_OPTIONS = providerCategories.map((category) => ({
       label: category,
       value: category,
@@ -589,6 +601,20 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                   alt="CURL"
                 />
                 <p className="textBtn">CURL</p>
+              </Card>
+            </Link>
+            {/**
+             * Sheets card is a one time thing, we'll figure a longer term solution out after this implementation.
+             * It should first take you to a data source selection screen then to the Editor.
+             */}
+            <Link to={googleSheetsURL}>
+              <Card interactive={false} className="eachCard">
+                <img
+                  src={GoogleSheetsLogo}
+                  className="sheetsImage t--googleSheetsImage"
+                  alt="Google Sheets"
+                />
+                <p className="textBtn">Google Sheets</p>
               </Card>
             </Link>
           </ApiCard>
