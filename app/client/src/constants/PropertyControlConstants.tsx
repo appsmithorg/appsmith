@@ -42,6 +42,9 @@ export type PropertyPaneControlConfig = {
   hidden?: (props: any, propertyPath: string) => boolean;
   isBindProperty: boolean;
   isTriggerProperty: boolean;
+  additionalAutoComplete?: (
+    props: any,
+  ) => Record<string, Record<string, unknown>>;
 };
 
 export type PropertyPaneConfig =

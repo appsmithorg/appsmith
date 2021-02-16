@@ -135,6 +135,9 @@ export const tableWidgetPropertyPaneMigrations = (
           onClick: action.dynamicTrigger,
           computedValue: "",
         };
+        dynamicTriggerPathList.push({
+          key: `primaryColumns.${columnPrefix}${index + 1}.onClick`,
+        });
         updatedDerivedColumns[column.id] = column;
       });
 
