@@ -184,3 +184,8 @@ export const REST_API_AUTHORIZATION_FAILED =
   "Authorization failed. Please check your details or try again.";
 // Todo: improve this for appsmith_error error message
 export const REST_API_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
+
+export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE =
+  "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
+export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE =
+  "Error saving a key in localStorage. You have run out of disk space";

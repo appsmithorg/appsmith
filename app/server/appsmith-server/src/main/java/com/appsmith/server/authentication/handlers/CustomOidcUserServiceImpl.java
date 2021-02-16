@@ -3,6 +3,7 @@ package com.appsmith.server.authentication.handlers;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcReactiveOAut
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -73,6 +75,12 @@ public class CustomOidcUserServiceImpl extends OidcReactiveOAuth2UserService
                         return repository.save(user);
                     }
                     return Mono.just(user);
-                });
+                })
+                .onErrorMap(
+                        AppsmithException.class,
+                        error -> new OAuth2AuthenticationException(
+                                new OAuth2Error(error.getAppErrorCode().toString(), error.getMessage(), "")
+                        )
+                );
     }
 }

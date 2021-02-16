@@ -47,8 +47,8 @@ import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "constants/forms";
 
 const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 const SocialLoginList: string[] = [];
-if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
 if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
+if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
 
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
