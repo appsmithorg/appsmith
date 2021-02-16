@@ -12,6 +12,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.connections.APIConnection;
 import com.external.connections.APIConnectionFactory;
+import com.external.helpers.DatasourceValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -98,8 +99,8 @@ public class RestApiPlugin extends BasePlugin {
              *   encoded by default, unless explicitly prohibited by the user.
              */
             Boolean encodeParamsToggle = true;
-            if(actionConfiguration.getEncodeParamsToggle() != null
-               && actionConfiguration.getEncodeParamsToggle() == false) {
+            if (actionConfiguration.getEncodeParamsToggle() != null
+                    && actionConfiguration.getEncodeParamsToggle() == false) {
                 encodeParamsToggle = false;
             }
 
@@ -108,8 +109,8 @@ public class RestApiPlugin extends BasePlugin {
             try {
                 String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
                 uri = createFinalUriWithQueryParams(httpUrl,
-                                                    actionConfiguration.getQueryParameters(),
-                                                    encodeParamsToggle);
+                        actionConfiguration.getQueryParameters(),
+                        encodeParamsToggle);
             } catch (URISyntaxException e) {
                 ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, null);
                 actionExecutionRequest.setUrl(url);
@@ -154,8 +155,8 @@ public class RestApiPlugin extends BasePlugin {
             if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
                     || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
                 requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData(),
-                                                                   reqContentType,
-                                                                   encodeParamsToggle);
+                        reqContentType,
+                        encodeParamsToggle);
             }
 
             // If users have chosen to share the Appsmith signature in the header, calculate and add that
@@ -314,7 +315,7 @@ public class RestApiPlugin extends BasePlugin {
                         String value = property.getValue();
 
                         if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
-                            && encodeParamsToggle == true) {
+                                && encodeParamsToggle == true) {
                             try {
                                 value = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
                             } catch (UnsupportedEncodingException e) {
@@ -482,6 +483,10 @@ public class RestApiPlugin extends BasePlugin {
                 invalids.add(e.getMessage());
             }
 
+            if (datasourceConfiguration.getAuthentication() != null) {
+                invalids.addAll(DatasourceValidator.validateAuthentication(datasourceConfiguration.getAuthentication()));
+            }
+
             return invalids;
         }
 
@@ -528,13 +533,12 @@ public class RestApiPlugin extends BasePlugin {
                 for (Property queryParam : queryParams) {
                     String key = queryParam.getKey();
                     if (StringUtils.isNotEmpty(key)) {
-                        if(encodeParamsToggle == true) {
+                        if (encodeParamsToggle == true) {
                             uriBuilder.queryParam(
                                     URLEncoder.encode(key, StandardCharsets.UTF_8),
                                     URLEncoder.encode(queryParam.getValue(), StandardCharsets.UTF_8)
                             );
-                        }
-                        else {
+                        } else {
                             uriBuilder.queryParam(
                                     key,
                                     queryParam.getValue()

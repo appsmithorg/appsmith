@@ -29,6 +29,8 @@ export const isHidden = (values: any, hiddenConfig?: HiddenType) => {
 
 export const getConfigInitialValues = (config: Record<string, any>[]) => {
   const configInitialValues = {};
+  if (!Array.isArray(config)) return configInitialValues;
+
   const parseConfig = (section: any): any => {
     return map(section.children, (subSection: any) => {
       if ("children" in subSection) {

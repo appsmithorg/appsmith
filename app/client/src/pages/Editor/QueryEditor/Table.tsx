@@ -1,8 +1,8 @@
 import React from "react";
-import { CellWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
+import { CellWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
 import { useTable, useFlexLayout } from "react-table";
 import styled from "styled-components";
-import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
+import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
 import { getType, Types } from "utils/TypeHelpers";
 import { Colors } from "constants/Colors";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";

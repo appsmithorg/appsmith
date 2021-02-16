@@ -19,6 +19,148 @@ import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
+  constructor(props: InputWidgetProps) {
+    super(props);
+    this.state = {
+      text: props.text,
+    };
+  }
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Changes the type of data captured in the input",
+            propertyName: "inputType",
+            label: "Data Type",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Text",
+                value: "TEXT",
+              },
+              {
+                label: "Number",
+                value: "NUMBER",
+              },
+              {
+                label: "Password",
+                value: "PASSWORD",
+              },
+              {
+                label: "Email",
+                value: "EMAIL",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            helpText:
+              "Sets the default text of the widget. The text is updated if the default text changes",
+            propertyName: "defaultText",
+            label: "Default Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter default text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Sets a placeholder text for the input",
+            propertyName: "placeholderText",
+            label: "Placeholder",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter placeholder text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            helpText:
+              "Adds a validation to the input which displays an error on failure",
+            propertyName: "regex",
+            label: "Regex",
+            controlType: "INPUT_TEXT",
+            placeholderText: "^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$",
+            inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            helpText:
+              "Displays the error message if the regex validation fails",
+            propertyName: "errorMessage",
+            label: "Error Message",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter error message",
+            inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Disables input to this widget",
+            propertyName: "isDisabled",
+            label: "Disabled",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Clears the input value after submit",
+            propertyName: "resetOnSubmit",
+            label: "Reset on submit",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when the text is changed",
+            propertyName: "onTextChanged",
+            label: "onTextChanged",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText:
+              "Triggers an action on submit (when the enter key is pressed)",
+            propertyName: "onSubmit",
+            label: "onSubmit",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,

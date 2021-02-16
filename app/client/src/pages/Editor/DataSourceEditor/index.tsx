@@ -172,10 +172,12 @@ class DatasourceEditorRouter extends React.Component<Props> {
   render() {
     const {
       match: {
-        params: { datasourceId },
+        params: { datasourceId, applicationId, pageId },
       },
       isSaving,
+      history,
       isDeleting,
+      location,
       isNewDatasource,
       pluginImages,
       pluginId,
@@ -188,10 +190,10 @@ class DatasourceEditorRouter extends React.Component<Props> {
       return (
         <DatasourceHome
           isSaving={isSaving}
-          applicationId={this.props.match.params.applicationId}
-          pageId={this.props.match.params.pageId}
-          history={this.props.history}
-          location={this.props.location}
+          applicationId={applicationId}
+          pageId={pageId}
+          history={history}
+          location={location}
         />
       );
     }
@@ -207,6 +209,7 @@ class DatasourceEditorRouter extends React.Component<Props> {
           isSaving={isSaving}
           isDeleting={isDeleting}
           isNewDatasource={isNewDatasource}
+          location={location}
         />
       );
     }
