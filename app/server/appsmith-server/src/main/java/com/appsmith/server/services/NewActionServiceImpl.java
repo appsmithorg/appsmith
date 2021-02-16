@@ -1,5 +1,8 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -9,9 +12,6 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -38,6 +38,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.NewActionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -57,6 +58,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -583,8 +585,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                     )
                             );
 
-                    return Mono.zip(actionMono, actionDTOMono)
-                            .flatMap(tuple1 -> getAnalyticsMono(tuple1.getT1(), tuple1.getT2(), executeActionDTO))
+                    return Mono.zip(actionMono, actionDTOMono, datasourceMono)
+                            .flatMap(tuple1 -> getAnalyticsMono(tuple1.getT1(), tuple1.getT2(), tuple1.getT3(), executeActionDTO))
                             .then(executionMono)
                             .onErrorResume(StaleConnectionException.class, error -> {
                                 log.info("Looks like the connection is stale. Retrying with a fresh context.");
@@ -642,7 +644,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 });
     }
 
-    private Mono<Void> getAnalyticsMono(NewAction action, ActionDTO actionDTO, ExecuteActionDTO executeActionDTO) {
+    private Mono<Void> getAnalyticsMono(NewAction action, ActionDTO actionDTO, Datasource datasource, ExecuteActionDTO executeActionDTO) {
         // Since we're loading the application from DB *only* for analytics, we check if analytics is
         // active before making the call to DB.
         if (!analyticsService.isActive()) {
@@ -656,17 +658,48 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .map(tuple -> {
                     final Application application = tuple.getT1();
                     final User user = tuple.getT2();
+
+                    final PluginType pluginType = action.getPluginType();
+                    final ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
+
+                    final Map<String, Object> requestData = new HashMap<>();
+                    if (pluginType == PluginType.API) {
+                        requestData.putAll(Map.of(
+                                "url", actionDTO.getDatasource().getDatasourceConfiguration().getUrl() + actionConfiguration.getPath(),
+                                "headers", actionConfiguration
+                                        .getHeaders()
+                                        .stream()
+                                        .collect(Collectors.toMap(Property::getKey, Property::getValue)),
+                                "parameters", actionConfiguration
+                                        .getQueryParameters()
+                                        .stream()
+                                        .collect(Collectors.toMap(Property::getKey, Property::getValue))
+                        ));
+                    } else if (pluginType == PluginType.DB) {
+                        requestData.putAll(Map.of(
+                                "query", ObjectUtils.defaultIfNull(actionConfiguration.getBody(), ""),
+                                "properties", actionConfiguration.getPluginSpecifiedTemplates()
+                                        .stream()
+                                        .collect(Collectors.toMap(Property::getKey, Property::getValue))
+                        ));
+                    }
+
                     analyticsService.sendEvent(
                             AnalyticsEvents.EXECUTE_ACTION.getEventName(),
                             user.getUsername(),
                             Map.of(
-                                    "type", action.getPluginType(),
+                                    "username", user.getUsername(),
+                                    "type", pluginType,
                                     "name", actionDTO.getName(),
+                                    "datasource", Map.of(
+                                            "name", datasource.getName()
+                                    ),
                                     "pageId", actionDTO.getPageId(),
                                     "appId", action.getApplicationId(),
                                     "appMode", Boolean.TRUE.equals(executeActionDTO.getViewMode()) ? "view" : "edit",
                                     "appName", application.getName(),
-                                    "isExampleApp", application.isAppIsExample()
+                                    "isExampleApp", application.isAppIsExample(),
+                                    "request", requestData
                             )
                     );
                     return user;
