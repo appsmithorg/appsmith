@@ -168,7 +168,7 @@ public class PostgresPlugin extends BasePlugin {
 
                 Statement statement = null;
                 ResultSet resultSet = null;
-                boolean isResultSet = false;
+                boolean isResultSet;
 
                 HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
 
@@ -196,11 +196,8 @@ public class PostgresPlugin extends BasePlugin {
                                 Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
                                 if (matchingParam.isPresent()) {
                                     String value = matchingParam.get().getValue();
-                                    System.out.println("Got the key, value : " + key + ":" + value);
-                                    preparedQuery = SqlStringUtils.setValueInPreparedStatement(i+1,
+                                    preparedQuery = SqlStringUtils.setValueInPreparedStatement(i+1, key,
                                             value, preparedQuery);
-                                    System.out.println("Prepared Statement post replacement is  : " + preparedQuery.toString());
-
                                 }
                             }
                         }
