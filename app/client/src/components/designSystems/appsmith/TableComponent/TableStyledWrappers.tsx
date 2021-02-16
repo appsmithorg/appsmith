@@ -49,7 +49,10 @@ export const TableWrapper = styled.div<{
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
       &.selected-row {
-        background: ${Colors.POLAR};
+        & > .td > div {
+          background: ${Colors.POLAR}!important;
+        }
+        background: ${Colors.POLAR}!important;
         &:hover {
           background: ${Colors.POLAR};
         }
