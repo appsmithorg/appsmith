@@ -51,8 +51,7 @@ export const hideScrollbar = css`
 `;
 
 export const scrollbarDark = css`
-  scrollbar-color: ${(props) => props.theme.colors.paneCard}
-    ${(props) => props.theme.colors.paneBG};
+  scrollbar-color: ${(props) => props.theme.colors.paneCard};
   scrollbar-width: thin;
   &::-webkit-scrollbar {
     width: 6px;
