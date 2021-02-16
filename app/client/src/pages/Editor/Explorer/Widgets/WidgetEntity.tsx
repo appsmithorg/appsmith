@@ -111,6 +111,11 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     props.parentModalId,
   );
 
+  const { widgetType, widgetId, parentModalId } = props;
+  const parentModalIdForChildren = useMemo(() => {
+    return widgetType === "MODAL_WIDGET" ? widgetId : parentModalId;
+  }, [widgetType, widgetId, parentModalId]);
+
   if (UNREGISTERED_WIDGETS.indexOf(props.widgetType) > -1)
     return <React.Fragment />;
 
@@ -153,6 +158,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
             key={child.widgetId}
             searchKeyword={props.searchKeyword}
             pageId={props.pageId}
+            parentModalId={parentModalIdForChildren}
           />
         ))}
       {!(props.childWidgets && props.childWidgets.length > 0) &&
