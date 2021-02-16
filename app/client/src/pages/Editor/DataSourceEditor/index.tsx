@@ -15,6 +15,7 @@ import {
   deleteDatasource,
   switchDatasource,
   setDatsourceEditorMode,
+  redirectAuthorizationCode,
 } from "actions/datasourceActions";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import DatasourceHome from "./DatasourceHome";
@@ -23,6 +24,7 @@ import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import { Datasource } from "entities/Datasource";
 import { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
+import { ReduxAction } from "constants/ReduxActionConstants";
 
 interface ReduxStateProps {
   formData: Datasource;
@@ -149,8 +151,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
 const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
   submitForm: (name: string) => dispatch(submit(name)),
-  updateDatasource: (formData: any) => {
-    dispatch(updateDatasource(formData));
+  updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => {
+    dispatch(updateDatasource(formData, onSuccess));
   },
   testDatasource: (data: Datasource) => dispatch(testDatasource(data)),
   deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
@@ -161,7 +163,7 @@ const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
 
 export interface DatasourcePaneFunctions {
   submitForm: (name: string) => void;
-  updateDatasource: (data: Datasource) => void;
+  updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => void;
   testDatasource: (data: Datasource) => void;
   deleteDatasource: (id: string) => void;
   switchDatasource: (id: string) => void;
@@ -212,6 +214,15 @@ class DatasourceEditorRouter extends React.Component<Props> {
           location={location}
         />
       );
+    }
+    if (pluginDatasourceForm === "Oauth2DatasourceForm") {
+      const props = {
+        ...this.props,
+        updateDatasource: (data: any) => {
+          this.props.updateDatasource(data, redirectAuthorizationCode(data.id));
+        },
+      };
+      return <DataSourceEditor {...props} />;
     }
 
     // Default to old flow
