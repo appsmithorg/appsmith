@@ -19,23 +19,24 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
       {
-        id: "19.1",
         sectionName: "General",
         children: [
           {
-            id: "19.1.1",
             propertyName: "label",
             label: "Label",
             controlType: "INPUT_TEXT",
             helpText: "Displays a label next to the widget",
             placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
-            id: "19.1.2",
             propertyName: "alignWidget",
             helpText: "Sets the alignment of the widget",
             label: "Alignment",
             controlType: "DROP_DOWN",
+            isBindProperty: true,
+            isTriggerProperty: false,
             options: [
               {
                 label: "Left",
@@ -48,43 +49,46 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             ],
           },
           {
-            id: "19.1.3",
             propertyName: "defaultSwitchState",
             label: "Default Selected",
             helpText:
               "On / Off the Switch by default. Changes to the default selection update the widget state",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
-            id: "19.1.4",
             propertyName: "isVisible",
             label: "Visible",
             helpText: "Controls the visibility of the widget",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
-            id: "19.1.5",
             propertyName: "isDisabled",
             label: "Disabled",
             controlType: "SWITCH",
             helpText: "Disables input to this widget",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },
       {
-        id: "19.2",
         sectionName: "Actions",
         children: [
           {
-            id: "19.2.1",
             helpText: "Triggers an action when the switch state is changed",
             propertyName: "onChange",
             label: "onChange",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },

@@ -46,7 +46,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
                 value: "RIGHT",
               },
             ],
-            isBindProperty: false,
+            isBindProperty: true,
             isTriggerProperty: false,
           },
           {
