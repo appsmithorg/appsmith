@@ -25,6 +25,7 @@ import {
   getCurlImportPageURL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   getProviderTemplatesURL,
+  INTEGRATIONS_EDITOR_URL,
 } from "constants/routes";
 import styled from "styled-components";
 import {
@@ -38,6 +39,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 
 import * as Sentry from "@sentry/react";
+import OAuth2IntegrationEditor from "./OAuth2IntegrationEditor";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
@@ -158,6 +160,13 @@ class EditorsRouter extends React.Component<
               path={getCurlImportPageURL()}
               component={CurlImportForm}
             />
+
+            <SentryRoute
+              exact
+              path={INTEGRATIONS_EDITOR_URL()}
+              component={OAuth2IntegrationEditor}
+            />
+
             <SentryRoute
               exact
               path={DATA_SOURCES_EDITOR_URL()}
