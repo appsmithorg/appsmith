@@ -7,7 +7,12 @@ import history from "utils/history";
 import FormTitle from "./FormTitle";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
-import { reduxForm, InjectedFormProps, getFormValues } from "redux-form";
+import {
+  reduxForm,
+  InjectedFormProps,
+  getFormValues,
+  getFormMeta,
+} from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import BackButton from "./BackButton";
@@ -65,6 +70,7 @@ interface DatasourceRestApiEditorProps {
   datasource: Datasource;
   formData: ApiDatasourceForm;
   actions: ActionDataState;
+  formMeta: any;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -182,8 +188,14 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     this.ensureOAuthDefaultsAreCorrect();
   }
 
+  isDirty(prop: any) {
+    const { formMeta } = this.props;
+    return _.get(formMeta, prop + ".visited", false);
+  }
+
   ensureOAuthDefaultsAreCorrect = () => {
     const { authentication } = this.props.formData;
+
     if (!authentication || !authentication.grantType) {
       this.props.change(
         "authentication.grantType",
@@ -193,6 +205,13 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     }
     if (_.get(authentication, "isTokenHeader") === undefined) {
       this.props.change("authentication.isTokenHeader", true);
+      return false;
+    }
+    if (
+      !this.isDirty("authentication.headerPrefix") &&
+      _.get(authentication, "headerPrefix") === undefined
+    ) {
+      this.props.change("authentication.headerPrefix", "Bearer ");
       return false;
     }
 
@@ -514,7 +533,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
               {...COMMON_INPUT_PROPS}
               label="Header Prefix"
               configProperty="authentication.headerPrefix"
-              placeholderText="Bearer (default)"
+              placeholderText="eg: Bearer "
             />
           </FormInputContainer>
         )}
@@ -632,6 +651,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     formData: getFormValues(DATASOURCE_REST_API_FORM)(
       state,
     ) as ApiDatasourceForm,
+    formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
   };
 };
 
