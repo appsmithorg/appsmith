@@ -11,6 +11,7 @@ import { Action } from "entities/Action";
 import { find } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -287,7 +288,21 @@ export const getAllPageWidgets = (state: AppState): any => {
       const pageWidgetsArr = Object.entries(
         pageWidgets,
         // eslint-disable-next-line
-      ).map(([widgetId, widget]: any) => ({ ...widget, pageId }));
+      ).map(([widgetId, widget]: any) => {
+        let parentModalId;
+        let { parentId } = widget;
+        let parentWidget = pageWidgets[parentId];
+        while (parentId && parentId !== MAIN_CONTAINER_WIDGET_ID) {
+          if (parentWidget?.type === "MODAL_WIDGET") {
+            parentModalId = parentId;
+            break;
+          }
+          parentId = parentWidget?.parentId;
+          parentWidget = pageWidgets[parentId];
+        }
+
+        return { ...widget, pageId, parentModalId };
+      });
       return [...pageWidgetsArr, ...res];
     },
     [],
