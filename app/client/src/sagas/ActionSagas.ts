@@ -50,7 +50,6 @@ import {
   getCurrentPageNameByActionId,
   getPageNameByPageId,
 } from "selectors/entitiesSelector";
-import { getDataSources } from "selectors/editorSelectors";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
@@ -64,7 +63,7 @@ import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getEditorConfig } from "selectors/entitiesSelector";
+import { getEditorConfig, getDatasources } from "selectors/entitiesSelector";
 import PluginsApi from "api/PluginApi";
 import _, { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
@@ -417,7 +416,7 @@ function* copyActionSaga(
     }) as Partial<Action>;
     delete copyAction.id;
     const response = yield ActionAPI.createAPI(copyAction);
-    const datasources = yield select(getDataSources);
+    const datasources = yield select(getDatasources);
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {

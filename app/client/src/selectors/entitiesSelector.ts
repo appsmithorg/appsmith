@@ -118,7 +118,18 @@ export const getDatasourceDraft = (state: AppState, id: string) => {
   return {};
 };
 
+export const getDatasourcesByPluginId = (
+  state: AppState,
+  id: string,
+): Datasource[] => {
+  return state.entities.datasources.list.filter((d) => d.pluginId === id);
+};
+
 export const getPlugins = (state: AppState) => state.entities.plugins.list;
+
+export const getPluginByPackageName = (state: AppState, name: string) =>
+  state.entities.plugins.list.find((p) => p.packageName === name);
+
 export const getPluginEditorConfigs = (state: AppState) =>
   state.entities.plugins.editorConfigs;
 

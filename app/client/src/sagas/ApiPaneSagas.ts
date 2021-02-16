@@ -31,7 +31,6 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getDataSources,
 } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
@@ -41,7 +40,12 @@ import {
   getQueryParams,
 } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { getAction, getActions, getPlugins } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getActions,
+  getPlugins,
+  getDatasources,
+} from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { createActionRequest, setActionProperty } from "actions/actionActions";
 import { Datasource } from "entities/Datasource";
@@ -368,7 +372,7 @@ function* handleCreateNewQueryActionSaga(
   const { pageId } = action.payload;
   const applicationId = yield select(getCurrentApplicationId);
   const actions = yield select(getActions);
-  const dataSources = yield select(getDataSources);
+  const dataSources = yield select(getDatasources);
   const plugins = yield select(getPlugins);
   const pluginIds = plugins
     .filter((plugin: Plugin) => PLUGIN_PACKAGE_DBS.includes(plugin.packageName))
