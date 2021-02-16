@@ -2,6 +2,7 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -93,25 +94,19 @@ public class AuthenticationService {
     }
 
     private Mono<Datasource> validateRequiredFields(Datasource datasource) {
-        // At this point we're validating all the fields required for the code as well as access token
-        if (!(datasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2)) {
+        // Since validation takes take of checking for fields that are present
+        // We just need to make sure that the datasource has the right authentication type
+        if (datasource.getDatasourceConfiguration() == null || !(datasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "authentication"));
         }
-        OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
-        if (oAuth2.getClientId() == null || oAuth2.getClientId().isBlank()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, CLIENT_ID));
-        }
-        if (oAuth2.getClientSecret() == null || oAuth2.getClientSecret().isBlank()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, CLIENT_SECRET));
-        }
-        if (oAuth2.getAuthorizationUrl() == null || oAuth2.getAuthorizationUrl().isBlank()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, AUTHORIZATION_URL));
-        }
-        if (oAuth2.getAccessTokenUrl() == null || oAuth2.getAccessTokenUrl().isBlank()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ACCESS_TOKEN_URL));
-        }
 
-        return Mono.just(datasource);
+        return datasourceService.validateDatasource(datasource)
+                .flatMap(datasource1 -> {
+                    if (!datasource1.getIsValid()) {
+                        return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, datasource1.getInvalids().iterator().next()));
+                    }
+                    return Mono.just(datasource1);
+                });
     }
 
     public Mono<String> getAccessToken(AuthorizationCodeCallbackDTO callbackDTO) {
@@ -170,10 +165,12 @@ public class AuthenticationService {
                                 }
                             })
                             .flatMap(response -> {
-                                oAuth2.setTokenResponse(response);
-                                oAuth2.setToken((String) response.get(ACCESS_TOKEN));
-                                oAuth2.setRefreshToken((String) response.get(REFRESH_TOKEN));
-                                oAuth2.setExpiresAt(Instant.now().plusSeconds(Long.valueOf((Integer) response.get(EXPIRES_IN))));
+                                AuthenticationResponse authenticationResponse = new AuthenticationResponse();
+                                authenticationResponse.setTokenResponse(response);
+                                authenticationResponse.setToken((String) response.get(ACCESS_TOKEN));
+                                authenticationResponse.setRefreshToken((String) response.get(REFRESH_TOKEN));
+                                authenticationResponse.setExpiresAt(Instant.now().plusSeconds(Long.valueOf((Integer) response.get(EXPIRES_IN))));
+                                oAuth2.setAuthenticationResponse(authenticationResponse);
                                 oAuth2.setIsEncrypted(null);
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 return datasourceService.update(datasource.getId(), datasource);
