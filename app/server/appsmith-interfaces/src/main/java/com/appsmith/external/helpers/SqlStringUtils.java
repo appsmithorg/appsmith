@@ -1,5 +1,6 @@
 package com.appsmith.external.helpers;
 
+import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -47,39 +48,39 @@ public class SqlStringUtils {
         }
     }
 
-    public static Class stringToKnownDataTypeConverter(String input) {
+    public static DataType stringToKnownDataTypeConverter(String input) {
 
         try {
             Integer.parseInt(input);
-            return Integer.class;
+            return DataType.INTEGER;
         } catch (NumberFormatException e) {
             // Not an integer
         }
 
         try {
             Long.parseLong(input);
-            return Long.class;
+            return DataType.LONG;
         } catch (NumberFormatException e1) {
             // Not long
         }
 
         try {
             Float.parseFloat(input);
-            return Float.class;
+            return DataType.FLOAT;
         } catch (NumberFormatException e2) {
             // Not float
         }
 
         try {
             Double.parseDouble(input);
-            return Double.class;
+            return DataType.DOUBLE;
         } catch (NumberFormatException e3) {
             // Not double
         }
 
         String copyInput = String.valueOf(input).toLowerCase().trim();
         if (copyInput.equals("true") || copyInput.equals("false")) {
-            return Boolean.class;
+            return DataType.BOOLEAN;
         }
 
         if (copyInput.equals("null")) {
@@ -88,17 +89,17 @@ public class SqlStringUtils {
 
         DateValidator dateValidator = new DateValidatorUsingDateFormat("yyyy-mm-dd");
         if (dateValidator.isValid(input)) {
-            return Date.class;
+            return DataType.DATE;
         }
 
         DateValidator dateTimeValidator = new DateValidatorUsingDateFormat("yyyy-mm-dd hh:mm:ss");
         if (dateTimeValidator.isValid(input)) {
-            return Date.class;
+            return DataType.DATE;
         }
 
         DateValidator timeValidator = new DateValidatorUsingDateFormat("hh:mm:ss");
         if (timeValidator.isValid(input)) {
-            return Time.class;
+            return DataType.TIME;
         }
 
         /**
@@ -122,60 +123,65 @@ public class SqlStringUtils {
 //        }
 
 
-        return String.class;
+        return DataType.STRING;
     }
 
     public static PreparedStatement setValueInPreparedStatement(int index, String binding, String value, PreparedStatement preparedStatement) throws UnsupportedEncodingException, AppsmithPluginException {
-        Class valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
+        DataType valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
 
         if (valueType == null) {
             return preparedStatement;
         }
 
         try {
-            switch (valueType.getSimpleName()) {
-                case "Binary" : {
+            switch (valueType) {
+                case BINARY : {
                     preparedStatement.setBinaryStream(index, IOUtils.toInputStream(value));
                     break;
                 }
-                case "Byte" : {
+                case BYTES : {
                     preparedStatement.setBytes(index, value.getBytes("UTF-8"));
                     break;
                 }
-                case "Integer" : {
+                case INTEGER : {
                     preparedStatement.setInt(index, Integer.parseInt(value));
                     break;
                 }
-                case "Long" : {
+                case LONG: {
                     preparedStatement.setLong(index, Long.parseLong(value));
                     break;
                 }
-                case "Float" : {
+                case FLOAT: {
                     preparedStatement.setFloat(index, Float.parseFloat(value));
                     break;
                 }
-                case "Double" : {
+                case DOUBLE: {
                     preparedStatement.setDouble(index, Double.parseDouble(value));
                     break;
                 }
-                case "Boolean" : {
+                case BOOLEAN: {
                     preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
                     break;
                 }
-                case "Date" : {
+                case DATE: {
                     preparedStatement.setDate(index, Date.valueOf(value));
                     break;
                 }
-                case "Time" : {
+                case TIME: {
                     preparedStatement.setTime(index, Time.valueOf(value));
                     break;
                 }
-                default :
+                case STRING: {
                     preparedStatement.setString(index, value);
+                    break;
+                }
+                default :
+                    break;
             }
 
-        } catch(SQLException e) {
-            String message = "Query Preparation failed while inserting values for binding : {{" + binding + "}}. Got the error : " + e.getMessage();
+        } catch(SQLException | IllegalArgumentException e) {
+            String message = "Query Preparation failed while inserting value : "
+                    + value + " for binding : {{" + binding + "}}. Got the error : " + e.getMessage();
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
         }
 
