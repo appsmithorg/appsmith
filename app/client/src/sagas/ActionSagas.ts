@@ -101,6 +101,7 @@ export function* createActionSaga(
           actionPayload.payload.pluginId,
         );
       }
+
       const initialValues = yield call(getConfigInitialValues, formConfig);
       payload = merge(initialValues, actionPayload.payload);
     }
