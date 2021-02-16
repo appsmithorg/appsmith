@@ -177,8 +177,10 @@ export const convertToString = (value: any): string => {
 
 const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
   let logLevel = configLevel;
-  const localStorageLevel = localStorage.getItem("logLevel") as LogLevelDesc;
-  if (localStorageLevel) logLevel = localStorageLevel;
+  if (localStorage && localStorage.getItem) {
+    const localStorageLevel = localStorage.getItem("logLevel") as LogLevelDesc;
+    if (localStorageLevel) logLevel = localStorageLevel;
+  }
   return logLevel;
 };
 
