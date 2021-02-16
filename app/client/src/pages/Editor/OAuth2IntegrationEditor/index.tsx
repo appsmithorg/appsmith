@@ -99,35 +99,20 @@ class Oauth2IntegrationEditor extends React.Component<Props> {
   };
 
   render() {
-    const {
-      match: {
-        params: { applicationId, pageId },
-      },
-      plugin,
-      isCreating,
-      isEditorInitialized,
-      datasources,
-      history,
-    } = this.props;
+    const { plugin, isCreating, isEditorInitialized } = this.props;
     if (!plugin) {
-      return (
-        <IntegrationHomePage>
-          <NotFound
-            title="Integration Not found"
-            buttonText="Go back to Integrations"
-            onBackButton={() =>
-              history.push(API_EDITOR_URL(applicationId, pageId))
-            }
-          />
-        </IntegrationHomePage>
-      );
+      return this.renderNotFound();
     }
     if (isCreating || !isEditorInitialized) {
-      return (
-        <LoadingContainer>
-          <Spinner size={30} />
-        </LoadingContainer>
-      );
+      return this.renderLoading();
+    }
+    return this.renderPage();
+  }
+
+  renderPage() {
+    const { datasources, plugin } = this.props;
+    if (!plugin) {
+      return this.renderNotFound();
     }
     return (
       <IntegrationHomePage>
@@ -152,6 +137,34 @@ class Oauth2IntegrationEditor extends React.Component<Props> {
             />
           );
         })}
+      </IntegrationHomePage>
+    );
+  }
+
+  renderLoading() {
+    return (
+      <LoadingContainer>
+        <Spinner size={30} />
+      </LoadingContainer>
+    );
+  }
+
+  renderNotFound() {
+    const {
+      match: {
+        params: { applicationId, pageId },
+      },
+      history,
+    } = this.props;
+    return (
+      <IntegrationHomePage>
+        <NotFound
+          title="Integration Not found"
+          buttonText="Go back to Integrations"
+          onBackButton={() =>
+            history.push(API_EDITOR_URL(applicationId, pageId))
+          }
+        />
       </IntegrationHomePage>
     );
   }
