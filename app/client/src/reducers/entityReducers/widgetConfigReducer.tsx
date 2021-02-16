@@ -27,6 +27,7 @@ import { ModalWidgetProps } from "widgets/ModalWidget";
 import { IconWidgetProps } from "widgets/IconWidget";
 import { VideoWidgetProps } from "widgets/VideoWidget";
 import { SkeletonWidgetProps } from "../../widgets/SkeletonWidget";
+import { SwitchWidgetProps } from "widgets/SwitchWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -62,6 +63,7 @@ export interface WidgetConfigReducerState {
     VIDEO_WIDGET: Partial<VideoWidgetProps> & WidgetConfigProps;
     DROP_DOWN_WIDGET: Partial<DropdownWidgetProps> & WidgetConfigProps;
     CHECKBOX_WIDGET: Partial<CheckboxWidgetProps> & WidgetConfigProps;
+    SWITCH_WIDGET: Partial<SwitchWidgetProps> & WidgetConfigProps;
     RADIO_GROUP_WIDGET: Partial<RadioGroupWidgetProps> & WidgetConfigProps;
     ALERT_WIDGET: Partial<AlertWidgetProps> & WidgetConfigProps;
     FILE_PICKER_WIDGET: Partial<FilePickerWidgetProps> & WidgetConfigProps;

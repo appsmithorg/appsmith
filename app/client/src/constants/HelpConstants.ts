@@ -99,6 +99,10 @@ export const HelpMap = {
     path: "/core-concepts/connecting-to-databases",
     searchKey: "Connecting to databases",
   },
+  SWITCH_WIDGET: {
+    path: "/widget-reference/switch",
+    searchKey: "Switch",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";

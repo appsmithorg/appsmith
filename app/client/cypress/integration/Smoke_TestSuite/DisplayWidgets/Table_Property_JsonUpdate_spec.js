@@ -5,7 +5,6 @@ const apiPage = require("../../../locators/ApiEditor.json");
 const publishPage = require("../../../locators/publishWidgetspage.json");
 const testdata = require("../../../fixtures/testdata.json");
 
-
 describe("Test Create Api and Bind to Table widget", function() {
   before(() => {
     cy.addDsl(dsl);
@@ -23,13 +22,12 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.SearchEntityandOpen("Text1");
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
     cy.SearchEntityandOpen("Table1");
-    cy.readTabledata("0", "0").then(tabData => {
+    cy.readTabledata("0", "0").then((tabData) => {
       const tableData = tabData;
       localStorage.setItem("tableDataPage1", tableData);
     });
     cy.ValidateTableData("1");
     cy.addColumn("CustomColumn");
-
   });
 
   it("Update table json data and check the column names updated", function() {
