@@ -181,7 +181,7 @@ public class SqlStringUtils {
 
         } catch(SQLException | IllegalArgumentException e) {
             String message = "Query Preparation failed while inserting value : "
-                    + value + " for binding : {{" + binding + "}}. Got the error : " + e.getMessage();
+                    + value + " for binding : {{" + binding + "}}. Error : " + e.getMessage();
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
         }
 
