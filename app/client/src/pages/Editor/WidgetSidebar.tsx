@@ -52,6 +52,7 @@ const CardsWrapper = styled.div`
   grid-gap: ${(props) => props.theme.spaces[1]}px;
   justify-items: stretch;
   align-items: stretch;
+  padding-top: 30px;
 `;
 
 const CloseIcon = styled(Icon)`
@@ -63,26 +64,13 @@ const CloseIcon = styled(Icon)`
     &:hover {
       opacity: 1;
     }
+    margin-right: 10px;
   }
 `;
 
 const Header = styled.div`
-  display: grid;
-  grid-template-columns: 7fr 1fr;
-`;
-
-const Info = styled.div`
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: space-around;
-  text-transform: none;
-  h4 {
-    margin-top: 0px;
-  }
-  p {
-    opacity: 0.6;
-  }
+  justify-content: flex-end;
 `;
 
 const WidgetSidebar = (props: IPanelProps) => {
@@ -152,9 +140,6 @@ const WidgetSidebar = (props: IPanelProps) => {
 
       <MainWrapper>
         <Header>
-          <Info>
-            <p>{WIDGET_SIDEBAR_CAPTION}</p>
-          </Info>
           <CloseIcon
             className="t--close-widgets-sidebar"
             icon="cross"
