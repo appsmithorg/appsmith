@@ -726,6 +726,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         ),
       );
     } else {
+      const selectedRowIndex = isNumber(this.props.selectedRowIndex)
+        ? this.props.selectedRowIndex
+        : -1;
+      if (selectedRowIndex === index) {
+        index = -1;
+      }
       this.props.updateWidgetMetaProperty("selectedRowIndex", index);
       this.props.updateWidgetMetaProperty(
         "selectedRow",
