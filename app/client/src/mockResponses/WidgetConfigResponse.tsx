@@ -152,6 +152,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       label: "Label",
       defaultCheckedState: true,
       widgetName: "Checkbox",
+      alignWidget: "LEFT",
     },
     RADIO_GROUP_WIDGET: {
       rows: 2,
