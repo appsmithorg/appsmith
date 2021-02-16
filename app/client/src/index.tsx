@@ -15,6 +15,7 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { setThemeMode } from "actions/themeActions";
 import { StyledToastContainer } from "components/ads/Toast";
+import localStorage from "utils/localStorage";
 
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";

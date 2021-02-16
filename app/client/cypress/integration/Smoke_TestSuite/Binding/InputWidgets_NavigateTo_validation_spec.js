@@ -23,12 +23,14 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
       .click();
     cy.enterNavigatePageName(pageid);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(300);
   });
 
   it("Create MyPage and valdiate if its successfully created", function() {
     cy.Createpage(pageid);
     cy.addDsl(dsl2);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
   });
