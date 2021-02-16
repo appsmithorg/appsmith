@@ -35,6 +35,143 @@ class FilePickerWidget extends BaseWidget<
     };
   }
 
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "label",
+            label: "Label",
+            controlType: "INPUT_TEXT",
+            helpText: "Sets the label of the button",
+            placeholderText: "Enter label text",
+            inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "maxNumFiles",
+            label: "Max No. files",
+            helpText:
+              "Sets the maximum number of files that can be uploaded at once",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter no. of files",
+            inputType: "INTEGER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "maxFileSize",
+            helpText: "Sets the maximum size of each file that can be uploaded",
+            label: "Max file size",
+            controlType: "INPUT_TEXT",
+            placeholderText: "File size in mb",
+            inputType: "INTEGER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "allowedFileTypes",
+            helpText: "Restricts the type of files which can be uploaded",
+            label: "Allowed File Types",
+            controlType: "MULTI_SELECT",
+            placeholderText: "Select file types",
+            options: [
+              {
+                label: "Any File",
+                value: "*",
+              },
+              {
+                label: "Images",
+                value: "image/*",
+              },
+              {
+                label: "Videos",
+                value: "video/*",
+              },
+              {
+                label: "Audio",
+                value: "audio/*",
+              },
+              {
+                label: "Text",
+                value: "text/*",
+              },
+              {
+                label: "MS Word",
+                value: ".doc",
+              },
+              {
+                label: "JPEG",
+                value: "image/jpeg",
+              },
+              {
+                label: "PNG",
+                value: ".png",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "uploadedFileUrlPaths",
+            helpText:
+              "Stores the url of the uploaded file so that it can be referenced in an action later",
+            label: "Uploaded File URLs",
+            controlType: "INPUT_TEXT",
+            placeholderText: 'Enter [ "url1", "url2" ]',
+            inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disable",
+            helpText: "Disables input to this widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText:
+              "Triggers an action when the user selects a file. Upload files to a CDN here and store their urls in uploadedFileUrls",
+            propertyName: "onFilesSelected",
+            label: "onFilesSelected",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,

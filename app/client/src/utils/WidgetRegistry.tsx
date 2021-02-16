@@ -34,10 +34,8 @@ import ImageWidget, {
   ImageWidgetProps,
   ProfiledImageWidget,
 } from "widgets/ImageWidget";
-import TableWidget, {
-  TableWidgetProps,
-  ProfiledTableWidget,
-} from "widgets/TableWidget";
+import TableWidget, { ProfiledTableWidget } from "widgets/TableWidget";
+import { TableWidgetProps } from "widgets/TableWidget/TableWidgetConstants";
 import VideoWidget, {
   VideoWidgetProps,
   ProfiledVideoWidget,
@@ -47,7 +45,11 @@ import TabsWidget, {
   TabContainerWidgetProps,
   ProfiledTabsWidget,
 } from "widgets/TabsWidget";
-import { ModalWidgetProps, ProfiledModalWidget } from "widgets/ModalWidget";
+import {
+  ModalWidgetProps,
+  ProfiledModalWidget,
+  ModalWidget,
+} from "widgets/ModalWidget";
 import RichTextEditorWidget, {
   RichTextEditorWidgetProps,
   ProfiledRichTextEditorWidget,
@@ -100,6 +102,7 @@ export default class WidgetBuilderRegistry {
       ContainerWidget.getTriggerPropertyMap(),
       ContainerWidget.getDefaultPropertiesMap(),
       ContainerWidget.getMetaPropertiesMap(),
+      ContainerWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -114,6 +117,7 @@ export default class WidgetBuilderRegistry {
       TextWidget.getTriggerPropertyMap(),
       TextWidget.getDefaultPropertiesMap(),
       TextWidget.getMetaPropertiesMap(),
+      TextWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -128,6 +132,7 @@ export default class WidgetBuilderRegistry {
       ButtonWidget.getTriggerPropertyMap(),
       ButtonWidget.getDefaultPropertiesMap(),
       ButtonWidget.getMetaPropertiesMap(),
+      ButtonWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -142,6 +147,7 @@ export default class WidgetBuilderRegistry {
       InputWidget.getTriggerPropertyMap(),
       InputWidget.getDefaultPropertiesMap(),
       InputWidget.getMetaPropertiesMap(),
+      InputWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -156,6 +162,7 @@ export default class WidgetBuilderRegistry {
       CheckboxWidget.getTriggerPropertyMap(),
       CheckboxWidget.getDefaultPropertiesMap(),
       CheckboxWidget.getMetaPropertiesMap(),
+      CheckboxWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -170,6 +177,7 @@ export default class WidgetBuilderRegistry {
       DropdownWidget.getTriggerPropertyMap(),
       DropdownWidget.getDefaultPropertiesMap(),
       DropdownWidget.getMetaPropertiesMap(),
+      DropdownWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -184,6 +192,7 @@ export default class WidgetBuilderRegistry {
       RadioGroupWidget.getTriggerPropertyMap(),
       RadioGroupWidget.getDefaultPropertiesMap(),
       RadioGroupWidget.getMetaPropertiesMap(),
+      RadioGroupWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -198,6 +207,7 @@ export default class WidgetBuilderRegistry {
       ImageWidget.getTriggerPropertyMap(),
       ImageWidget.getDefaultPropertiesMap(),
       ImageWidget.getMetaPropertiesMap(),
+      ImageWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
       "TABLE_WIDGET",
@@ -211,6 +221,7 @@ export default class WidgetBuilderRegistry {
       TableWidget.getTriggerPropertyMap(),
       TableWidget.getDefaultPropertiesMap(),
       TableWidget.getMetaPropertiesMap(),
+      TableWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -225,6 +236,7 @@ export default class WidgetBuilderRegistry {
       VideoWidget.getTriggerPropertyMap(),
       VideoWidget.getDefaultPropertiesMap(),
       VideoWidget.getMetaPropertiesMap(),
+      VideoWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -239,6 +251,7 @@ export default class WidgetBuilderRegistry {
       FilePickerWidget.getTriggerPropertyMap(),
       FilePickerWidget.getDefaultPropertiesMap(),
       FilePickerWidget.getMetaPropertiesMap(),
+      FilePickerWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
       "DATE_PICKER_WIDGET",
@@ -252,6 +265,7 @@ export default class WidgetBuilderRegistry {
       DatePickerWidget.getTriggerPropertyMap(),
       DatePickerWidget.getDefaultPropertiesMap(),
       DatePickerWidget.getMetaPropertiesMap(),
+      DatePickerWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
       "TABS_WIDGET",
@@ -267,6 +281,7 @@ export default class WidgetBuilderRegistry {
       TabsWidget.getTriggerPropertyMap(),
       TabsWidget.getDefaultPropertiesMap(),
       TabsWidget.getMetaPropertiesMap(),
+      TabsWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
       WidgetTypes.MODAL_WIDGET,
@@ -280,6 +295,7 @@ export default class WidgetBuilderRegistry {
       BaseWidget.getTriggerPropertyMap(),
       BaseWidget.getDefaultPropertiesMap(),
       BaseWidget.getMetaPropertiesMap(),
+      ModalWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
       "RICH_TEXT_EDITOR_WIDGET",
@@ -293,6 +309,7 @@ export default class WidgetBuilderRegistry {
       RichTextEditorWidget.getTriggerPropertyMap(),
       RichTextEditorWidget.getDefaultPropertiesMap(),
       RichTextEditorWidget.getMetaPropertiesMap(),
+      RichTextEditorWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
       "CHART_WIDGET",
@@ -306,6 +323,7 @@ export default class WidgetBuilderRegistry {
       ChartWidget.getTriggerPropertyMap(),
       ChartWidget.getDefaultPropertiesMap(),
       ChartWidget.getMetaPropertiesMap(),
+      ChartWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
       "FORM_WIDGET",
@@ -321,6 +339,7 @@ export default class WidgetBuilderRegistry {
       FormWidget.getTriggerPropertyMap(),
       FormWidget.getDefaultPropertiesMap(),
       FormWidget.getMetaPropertiesMap(),
+      FormWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -335,6 +354,7 @@ export default class WidgetBuilderRegistry {
       FormButtonWidget.getTriggerPropertyMap(),
       FormButtonWidget.getDefaultPropertiesMap(),
       FormButtonWidget.getMetaPropertiesMap(),
+      FormButtonWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -349,6 +369,7 @@ export default class WidgetBuilderRegistry {
       MapWidget.getTriggerPropertyMap(),
       MapWidget.getDefaultPropertiesMap(),
       MapWidget.getMetaPropertiesMap(),
+      MapWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -365,6 +386,7 @@ export default class WidgetBuilderRegistry {
       CanvasWidget.getTriggerPropertyMap(),
       CanvasWidget.getDefaultPropertiesMap(),
       CanvasWidget.getMetaPropertiesMap(),
+      CanvasWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(

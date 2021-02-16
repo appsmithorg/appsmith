@@ -28,5 +28,9 @@
     "radioAddButton": ".t--property-control-options button",
     "formD": "div[type='FORM_WIDGET']",
     "datepickerFooter": ".bp3-datepicker-footer span",
-    "disableJs":".t--property-control-disable input[type='checkbox']"
+    "disableJs":".t--property-control-disable input[type='checkbox']",
+    "toggleJsDefaultDate": ".t--property-control-defaultdate .t--js-toggle",
+    "toggleJsMinDate": ".t--property-control-mindate .t--js-toggle",
+    "toggleJsMaxDate": ".t--property-control-maxdate .t--js-toggle"
+
   }

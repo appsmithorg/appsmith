@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _, { isString } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
@@ -89,7 +89,15 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         },
       ];
     }
-    const data: ChartDataPoint[] = chartData[0].data;
+
+    let data: ChartDataPoint[] = chartData[0].data;
+    if (isString(chartData[0].data)) {
+      try {
+        data = JSON.parse(chartData[0].data);
+      } catch (e) {
+        data = [];
+      }
+    }
     if (data.length === 0) {
       return [
         {
