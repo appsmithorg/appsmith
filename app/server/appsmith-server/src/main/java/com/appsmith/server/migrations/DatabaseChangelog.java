@@ -1693,4 +1693,12 @@ public class DatabaseChangelog {
           mongoTemplate.save(plugin);
       }
   }
+
+    @ChangeSet(order = "054", id = "update-database-encode-params-toggle", author = "")
+    public void updateEncodeParamsToggle(MongoTemplate mongoTemplate) {
+        for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
+                action.getUnpublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+                mongoTemplate.save(action);
+        }
+    }
 }
