@@ -298,7 +298,7 @@ public class AmazonS3PluginTest {
         StepVerifier.create(resultMono)
                 .verifyErrorSatisfies(e -> {
                     assertTrue(e instanceof AppsmithPluginException);
-                    assertTrue(e.getMessage().contains("Required parameter 'URL Expiry Duration' is missing"));
+                    assertTrue(e.getMessage().contains("Required parameter 'Expiry Duration of Signed URL' is missing"));
                 });
     }
 
@@ -377,7 +377,7 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     Map<String, Object> body = (Map<String, Object>) result.getBody();
-                    assertEquals(dummyContent, body.get("data"));
+                    assertEquals(dummyContent, body.get("fileData"));
                 })
                 .verifyComplete();
     }
@@ -421,7 +421,7 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     Map<String, Object> body = (Map<String, Object>) result.getBody();
-                    assertEquals(new String(Base64.encode(dummyContent.getBytes())), body.get("data"));
+                    assertEquals(new String(Base64.encode(dummyContent.getBytes())), body.get("fileData"));
                 })
                 .verifyComplete();
     }
@@ -635,7 +635,7 @@ public class AmazonS3PluginTest {
         StepVerifier.create(resultMono)
                 .verifyErrorSatisfies(e -> {
                     assertTrue(e instanceof AppsmithPluginException);
-                    assertTrue(e.getMessage().contains("Required parameter 'URL Expiry Duration' is missing"));
+                    assertTrue(e.getMessage().contains("Required parameter 'Expiry Duration of Signed URL' is missing"));
                 });
     }
 }

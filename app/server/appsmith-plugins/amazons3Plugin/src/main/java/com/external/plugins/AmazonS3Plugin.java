@@ -391,24 +391,25 @@ public class AmazonS3Plugin extends BasePlugin {
                                || StringUtils.isEmpty(properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX).getValue())) {
                                 throw new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                        "Required parameter 'URL Expiry Duration' is missing. Did you forget to" +
-                                        " edit the 'URL Expiry Duration' field ?"
+                                        "Required parameter 'Expiry Duration of Signed URL' is missing. Did you forget to" +
+                                        " edit the 'Expiry Duration of Signed URL' field ?"
                                 );
                             }
 
                             int durationInMilliseconds = 0;
                             try {
-                                durationInMilliseconds = Integer
-                                                             .parseInt(
+                                int durationInMinutes = Integer
+                                                            .parseInt(
                                                                      properties
                                                                      .get(URL_EXPIRY_DURATION_PROPERTY_INDEX)
                                                                      .getValue()
                                                              );
+                                durationInMilliseconds = durationInMinutes*60*1000;
                             } catch (NumberFormatException e) {
                                 throw new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                        "Parameter 'URL Expiry Duration' is NOT a number. Please ensure that the " +
-                                        "input to 'URL Expiry Duration' field is a valid number - i.e. any non-negative integer."
+                                        "Parameter 'Expiry Duration of Signed URL' is NOT a number. Please ensure that the " +
+                                        "input to 'Expiry Duration of Signed URL' field is a valid number - i.e. any non-negative integer."
                                 );
                             }
 
@@ -445,8 +446,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                 || StringUtils.isEmpty(properties.get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX).getValue())) {
                             throw new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Required parameter 'URL Expiry Duration' is missing. Did you forget to" +
-                                    " edit the 'URL Expiry Duration' field ?"
+                                    "Required parameter 'Expiry Duration of Signed URL' is missing. Did you forget to" +
+                                    " edit the 'Expiry Duration of Signed URL' field ?"
                             );
                         }
 
@@ -461,8 +462,8 @@ public class AmazonS3Plugin extends BasePlugin {
                         } catch (NumberFormatException e) {
                             throw new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Parameter 'URL Expiry Duration' is NOT a number. Please ensure that the " +
-                                    "input to 'URL Expiry Duration' field is a valid number - i.e. any non-negative integer."
+                                    "Parameter 'Expiry Duration of Signed URL' is NOT a number. Please ensure that the " +
+                                    "Expiry Duration of Signed URL' field is a valid number - i.e. any non-negative integer."
                             );
                         }
 
@@ -489,7 +490,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         else {
                             result = readFile(connection, bucketName, path, false);
                         }
-                        actionResult = Map.of("data", result);
+                        actionResult = Map.of("fileData", result);
                         break;
                     case DELETE_FILE:
                         connection.deleteObject(bucketName, path);

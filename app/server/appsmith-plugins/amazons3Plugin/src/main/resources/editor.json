@@ -51,7 +51,7 @@
           }
         },
         {
-          "label": "Using Filepicker to upload file ?",
+          "label": "Base64 Encode file - Yes/No",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
           "controlType": "DROP_DOWN",
           "initialValue": "NO",
@@ -72,7 +72,7 @@
           }
         },
         {
-          "label": "URL Expiry Duration in Milliseconds",
+          "label": "Expiry Duration of Signed URL (Minutes)",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
           "controlType": "INPUT_TEXT",
           "initialValue": "",
@@ -126,7 +126,7 @@
           }
         },
         {
-          "label": "URL Expiry Duration in Milliseconds",
+          "label": "Expiry Duration of Signed URL (Minutes)",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
           "controlType": "INPUT_TEXT",
           "initialValue": "",
