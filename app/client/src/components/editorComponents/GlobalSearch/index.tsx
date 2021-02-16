@@ -55,6 +55,14 @@ const GlobalSearch = () => {
 
   const [activeItemIndex, setActiveItemIndex] = useState(0);
   const allWidgets = useSelector(getAllPageWidgets);
+  const searchableWidgets = useMemo(
+    () =>
+      allWidgets.filter(
+        (widget: any) =>
+          ["MAIN_CONTAINER", "ICON_WIDGET"].indexOf(widget.type) === -1,
+      ),
+    [allWidgets],
+  );
   const actions = useSelector(getActions);
   const datasourcesMap = useFilteredDatasources(query);
   const modalOpen = useSelector(isModalOpenSelector);
@@ -67,9 +75,9 @@ const GlobalSearch = () => {
   }, [datasourcesMap]);
 
   const filteredWidgets = useMemo(() => {
-    if (!query) return allWidgets;
+    if (!query) return searchableWidgets;
 
-    return allWidgets.filter(
+    return searchableWidgets.filter(
       (widget: any) =>
         widget.widgetName.toLowerCase().indexOf(query.toLocaleLowerCase()) > -1,
     );

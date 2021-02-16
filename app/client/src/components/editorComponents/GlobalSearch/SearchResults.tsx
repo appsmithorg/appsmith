@@ -73,7 +73,7 @@ const DocumentationItem = withTheme((props: any) => {
 });
 
 const Highlight = ({ match, text }: { match: string; text: string }) => {
-  const parts = text.split(match);
+  const parts = text?.split(match);
   if (parts.length === 1) return <span>{text}</span>;
 
   return (
