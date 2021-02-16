@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -210,7 +211,7 @@ public class PostgresPluginTest {
         actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+                .flatMap(conn -> pluginExecutor.executeParametrized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
@@ -237,7 +238,7 @@ public class PostgresPluginTest {
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+                .flatMap(conn -> pluginExecutor.executeParametrized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
@@ -410,7 +411,7 @@ public class PostgresPluginTest {
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
                 .flatMap(pool -> {
                     pool.close();
-                    return pluginExecutor.execute(pool, dsConfig, actionConfiguration);
+                    return pluginExecutor.executeParametrized(pool, new ExecuteActionDTO(), dsConfig, actionConfiguration);
                 });
 
         StepVerifier.create(resultMono)

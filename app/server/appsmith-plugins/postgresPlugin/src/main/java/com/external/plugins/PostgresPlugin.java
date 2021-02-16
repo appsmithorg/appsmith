@@ -152,7 +152,7 @@ public class PostgresPlugin extends BasePlugin {
 
                 String query = actionConfiguration.getBody();
 
-                Connection connectionFromPool = null;
+                Connection connectionFromPool;
 
                 try {
                     connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
