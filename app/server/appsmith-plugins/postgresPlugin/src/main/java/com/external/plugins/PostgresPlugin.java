@@ -13,6 +13,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -43,6 +44,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -130,20 +132,21 @@ public class PostgresPlugin extends BasePlugin {
 
             if (FALSE.equals(actionConfiguration.getPreparedStatement())) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
-                return execute(connection, datasourceConfiguration, actionConfiguration, FALSE, null);
+                return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null);
             } else {
                 List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
                 String updatedQuery = SqlStringUtils.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
                 actionConfiguration.setBody(updatedQuery);
-                return execute(connection, datasourceConfiguration, actionConfiguration, TRUE, mustacheKeysInOrder);
+                return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
             }
         }
 
-        private Mono<ActionExecutionResult> execute(HikariDataSource connection,
-                                                         DatasourceConfiguration datasourceConfiguration,
-                                                         ActionConfiguration actionConfiguration,
-                                                         Boolean preparedStatement,
-                                                         List<String> mustacheValuesInOrder) {
+        private Mono<ActionExecutionResult> executeCommon(HikariDataSource connection,
+                                                          DatasourceConfiguration datasourceConfiguration,
+                                                          ActionConfiguration actionConfiguration,
+                                                          Boolean preparedStatement,
+                                                          List<String> mustacheValuesInOrder,
+                                                          ExecuteActionDTO executeActionDTO) {
 
             return Mono.fromCallable(() -> {
 
@@ -183,20 +186,31 @@ public class PostgresPlugin extends BasePlugin {
                     if (FALSE.equals(preparedStatement)) {
                         statement = connectionFromPool.createStatement();
                         isResultSet = statement.execute(query);
+                        resultSet = statement.getResultSet();
                     } else {
                         PreparedStatement preparedQuery = connectionFromPool.prepareStatement(query);
                         if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
+                            List<Param> params = executeActionDTO.getParams();
                             for (int i=0; i<mustacheValuesInOrder.size(); i++) {
-                                String value = mustacheValuesInOrder.get(i);
-                                preparedQuery = SqlStringUtils.setValueInPreparedStatement(i+1,
-                                        value, preparedQuery);
+                                String key = mustacheValuesInOrder.get(i);
+                                Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
+                                if (matchingParam.isPresent()) {
+                                    String value = matchingParam.get().getValue();
+                                    System.out.println("Got the key, value : " + key + ":" + value);
+                                    preparedQuery = SqlStringUtils.setValueInPreparedStatement(i+1,
+                                            value, preparedQuery);
+                                    System.out.println("Prepared Statement post replacement is  : " + preparedQuery.toString());
+
+                                }
                             }
                         }
+                        System.out.println("Prepared query is : " + preparedQuery.toString());
                         isResultSet = preparedQuery.execute();
+                        resultSet = preparedQuery.getResultSet();
                     }
 
                     if (isResultSet) {
-                        resultSet = statement.getResultSet();
+
                         ResultSetMetaData metaData = resultSet.getMetaData();
                         int colCount = metaData.getColumnCount();
 
@@ -310,6 +324,12 @@ public class PostgresPlugin extends BasePlugin {
                     })
                     .subscribeOn(scheduler);
 
+        }
+
+        @Override
+        public Mono<ActionExecutionResult> execute(HikariDataSource connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+            // Unused function
+            return Mono.empty();
         }
 
         @Override
