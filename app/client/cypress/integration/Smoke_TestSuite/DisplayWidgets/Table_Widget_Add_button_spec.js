@@ -26,6 +26,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.tableBtn)
       .last()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
     cy.get(widgetsPage.toastAction).should("be.visible");
     cy.get(widgetsPage.toastActionText)

@@ -88,6 +88,7 @@
   "dropdownInput": "TestD",
   "radioInputName": "Test Radio",
   "checkbocInputName": "value",
+  "switchInputName": "Switch1",
   "defaultimage": "https://i0.wp.com/www.heyuguys.com/images/2016/04/The-Joker.png?fit=1920%2C960",
   "NewImage": "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png",
   "textfun": "{{Table1.selectedRow.userName}}",
