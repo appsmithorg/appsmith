@@ -8,6 +8,7 @@ const STORAGE_KEYS: { [id: string]: string } = {
   COPIED_WIDGET: "CopiedWidget",
   DELETED_WIDGET_PREFIX: "DeletedWidget-",
   ONBOARDING_STATE: "OnboardingState",
+  ONBOARDING_WELCOME_STATE: "OnboardingWelcomeState",
 };
 
 const store = localforage.createInstance({
@@ -110,5 +111,32 @@ export const getOnboardingState = async () => {
     return onboardingState;
   } catch (error) {
     log.error("An error occurred when getting onboarding state: ", error);
+  }
+};
+
+export const setOnboardingWelcomeState = async (onboardingState: boolean) => {
+  try {
+    await store.setItem(STORAGE_KEYS.ONBOARDING_WELCOME_STATE, onboardingState);
+    return true;
+  } catch (error) {
+    console.log(
+      "An error occurred when setting onboarding welcome state: ",
+      error,
+    );
+    return false;
+  }
+};
+
+export const getOnboardingWelcomeState = async () => {
+  try {
+    const onboardingState = await store.getItem(
+      STORAGE_KEYS.ONBOARDING_WELCOME_STATE,
+    );
+    return onboardingState;
+  } catch (error) {
+    console.log(
+      "An error occurred when getting onboarding welcome state: ",
+      error,
+    );
   }
 };

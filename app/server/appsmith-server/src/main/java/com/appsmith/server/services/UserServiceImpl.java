@@ -31,6 +31,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
@@ -385,14 +386,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     @Override
     public Mono<User> userCreate(User user) {
-
-        // Only encode the password if it's a form signup. For OAuth signups, we don't need password
-        if (user.isEnabled() && LoginSource.FORM.equals(user.getSource())) {
-            if (user.getPassword() == null || user.getPassword().isBlank()) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_CREDENTIALS));
-            }
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
+        // It is assumed here that the user's password has already been encoded.
 
         // Set the permissions for the user
         user.getPolicies().addAll(crudUserPolicy(user));
@@ -438,6 +432,14 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         final String finalOriginHeader = originHeader;
 
+        // Only encode the password if it's a form signup. For OAuth signups, we don't need password
+        if (LoginSource.FORM.equals(user.getSource())) {
+            if (user.getPassword() == null || user.getPassword().isBlank()) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_CREDENTIALS));
+            }
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
         return repository.findByEmail(user.getUsername())
                 .flatMap(savedUser -> {
@@ -445,35 +447,45 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                         // First enable the user
                         savedUser.setIsEnabled(true);
 
-                        // In case of form login, store the password
-                        if (LoginSource.FORM.equals(user.getSource())) {
-                            if (user.getPassword() == null || user.getPassword().isBlank()) {
-                                return Mono.error(new AppsmithException(AppsmithError.INVALID_CREDENTIALS));
-                            }
-
-                            /**
-                             * At this point, the user's password is encoded (not sure why). So no need to
-                             * double encode the password while setting it. Set it directly.
-                             * TODO : Figure out why after entering this flatMap that the password stored in the
-                             * user changes from simple string to encoded string.
-                             */
-                            savedUser.setPassword(user.getPassword());
-                        }
+                        // In case of form login, store the encrypted password.
+                        savedUser.setPassword(user.getPassword());
                         return repository.save(savedUser);
                     }
                     return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, user.getUsername()));
                 })
-                .switchIfEmpty(
-                        commonConfig.isSignupDisabled() && !commonConfig.getAdminEmails().contains(user.getEmail())
-                                ? Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED))
-                                : userCreate(user)
-                )
+                .switchIfEmpty(Mono.defer(() -> signupIfAllowed(user)))
                 .flatMap(savedUser ->
                         emailConfig.isWelcomeEmailEnabled()
                                 ? sendWelcomeEmail(savedUser, finalOriginHeader)
                                 : Mono.just(savedUser)
                 );
+    }
 
+    private Mono<User> signupIfAllowed(User user) {
+        if (!commonConfig.getAdminEmails().contains(user.getEmail())) {
+            // If this is not an admin email address, only then do we check if signup should be allowed or not. Being an
+            // explicitly set admin email address trumps all everything and signup for this email can never be disabled.
+
+            if (commonConfig.isSignupDisabled()) {
+                // Signing up has been globally disabled. Reject.
+                return Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED));
+            }
+
+            final List<String> allowedDomains = user.getSource() == LoginSource.FORM
+                    ? commonConfig.getAllowedDomains()
+                    : commonConfig.getOauthAllowedDomains();
+            if (!CollectionUtils.isEmpty(allowedDomains)
+                    && StringUtils.hasText(user.getEmail())
+                    && user.getEmail().contains("@")
+                    && !allowedDomains.contains(user.getEmail().split("@")[1])) {
+                // There is an explicit whitelist of email address domains that should be allowed. If the new email is
+                // of a different domain, reject.
+                return Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED));
+            }
+        }
+
+        // No special configurations found, allow signup for the new user.
+        return userCreate(user);
     }
 
     public Mono<User> sendWelcomeEmail(User user, String originHeader) {

@@ -27,13 +27,22 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
-import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
+import StoreAsDatasource, {
+  DatasourceIcon,
+} from "components/editorComponents/StoreAsDatasource";
 import { urlGroupsRegexExp } from "constants/ActionConstants";
+import styled from "styled-components";
+import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
+import Icon, { IconSize } from "components/ads/Icon";
+import Text, { TextType } from "components/ads/Text";
+import history from "utils/history";
 
 type ReduxStateProps = {
   orgId: string;
   datasource: Datasource | EmbeddedRestDatasource;
   datasourceList: Datasource[];
+  currentPageId?: string;
+  applicationId?: string;
 };
 
 type ReduxDispatchProps = {
@@ -47,6 +56,11 @@ type Props = EditorProps &
     pluginId: string;
   };
 
+const DatasourceContainer = styled.div`
+  display: flex;
+  position: relative;
+  width: calc(100% - 155px);
+`;
 class EmbeddedDatasourcePathComponent extends React.Component<Props> {
   handleDatasourceUrlUpdate = (datasourceUrl: string) => {
     const { datasource, pluginId, orgId } = this.props;
@@ -209,21 +223,37 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       ...this.props,
       input,
       mode: EditorModes.TEXT_WITH_BINDING,
-      theme: EditorTheme.LIGHT,
+      theme: this.props.theme,
       tabBehaviour: TabBehaviour.INPUT,
       size: EditorSize.COMPACT,
       marking: [bindingMarker, this.handleDatasourceHighlight()],
       hinting: [bindingHint, this.handleDatasourceHint()],
       showLightningMenu: false,
+      fill: true,
     };
-    if (datasource && !("id" in datasource) && !!displayValue) {
-      props.rightIcon = <StoreAsDatasource />;
-    }
 
     return (
-      <React.Fragment>
+      <DatasourceContainer>
         <CodeEditor {...props} />
-      </React.Fragment>
+        {datasource && !("id" in datasource) && !!displayValue ? (
+          <StoreAsDatasource />
+        ) : datasource && "id" in datasource ? (
+          <DatasourceIcon
+            onClick={() =>
+              history.push(
+                DATA_SOURCES_EDITOR_ID_URL(
+                  this.props.applicationId,
+                  this.props.currentPageId,
+                  datasource.id,
+                ),
+              )
+            }
+          >
+            <Icon name="edit" size={IconSize.LARGE} />
+            <Text type={TextType.P1}>Edit Datasource</Text>
+          </DatasourceIcon>
+        ) : null}
+      </DatasourceContainer>
     );
   }
 }
@@ -256,6 +286,8 @@ const mapStateToProps = (
     datasourceList: state.entities.datasources.list.filter(
       (d) => d.pluginId === ownProps.pluginId && d.isValid,
     ),
+    currentPageId: state.entities.pageList.currentPageId,
+    applicationId: state.entities.pageList.applicationId,
   };
 };
 
@@ -270,7 +302,11 @@ const EmbeddedDatasourcePathConnectedComponent = connect(
 )(EmbeddedDatasourcePathComponent);
 
 const EmbeddedDatasourcePathField = (
-  props: BaseFieldProps & { pluginId: string; placeholder?: string },
+  props: BaseFieldProps & {
+    pluginId: string;
+    placeholder?: string;
+    theme: EditorTheme;
+  },
 ) => {
   return (
     <Field component={EmbeddedDatasourcePathConnectedComponent} {...props} />

@@ -28,9 +28,13 @@ import {
   getWidgetMetaProps,
 } from "sagas/selectors";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { updateWidgetMetaProperty } from "actions/metaActions";
+import {
+  resetChildrenMetaProperty,
+  updateWidgetMetaProperty,
+} from "actions/metaActions";
 import { focusWidget } from "actions/widgetActions";
 import log from "loglevel";
+import { flatten } from "lodash";
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
   try {
@@ -160,8 +164,13 @@ export function* closeModalSaga(
     // If we have modals to close, set its isVisible to false to close.
     if (widgetIds) {
       yield all(
-        widgetIds.map((widgetId: string) =>
-          put(updateWidgetMetaProperty(widgetId, "isVisible", false)),
+        flatten(
+          widgetIds.map((widgetId: string) => {
+            return [
+              put(updateWidgetMetaProperty(widgetId, "isVisible", false)),
+              put(resetChildrenMetaProperty(widgetId)),
+            ];
+          }),
         ),
       );
     }

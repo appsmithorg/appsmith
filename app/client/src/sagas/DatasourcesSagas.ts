@@ -15,6 +15,7 @@ import {
   ReduxActionTypes,
   ReduxFormActionTypes,
   ReduxActionWithMeta,
+  ReduxActionWithCallbacks,
 } from "constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
@@ -137,7 +138,9 @@ export function* deleteDatasourceSaga(
   }
 }
 
-function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
+function* updateDatasourceSaga(
+  actionPayload: ReduxActionWithCallbacks<Datasource, unknown, unknown>,
+) {
   try {
     const datasourcePayload = _.omit(actionPayload.payload, "name");
 
@@ -164,6 +167,9 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
         payload: response.data,
       });
+      if (actionPayload.onSuccess) {
+        yield put(actionPayload.onSuccess);
+      }
       yield put({
         type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
         payload: {
@@ -183,7 +189,16 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       type: ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR,
       payload: { error },
     });
+    if (actionPayload.onError) {
+      yield put(actionPayload.onError);
+    }
   }
+}
+
+function RedirectAuthorizationCodeSaga(
+  actionPayload: ReduxAction<{ id: string }>,
+) {
+  window.location.href = `/api/v1/datasources/${actionPayload.payload.id}/code`;
 }
 
 function* saveDatasourceNameSaga(
@@ -550,6 +565,10 @@ export function* watchDatasourcesSagas() {
     takeEvery(
       ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
       updateDatasourceSuccessSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.REDIRECT_AUTHORIZATION_CODE,
+      RedirectAuthorizationCodeSaga,
     ),
     takeEvery(
       ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,

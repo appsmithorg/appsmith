@@ -92,8 +92,13 @@ export const mapToPropList = (map: Record<string, string>): Property[] => {
   });
 };
 
-export const getNextEntityName = (prefix: string, existingNames: string[]) => {
+export const getNextEntityName = (
+  prefix: string,
+  existingNames: string[],
+  startWithoutIndex?: boolean,
+) => {
   const regex = new RegExp(`^${prefix}(\\d+)$`);
+
   const usedIndices: number[] = existingNames.map((name) => {
     if (name && regex.test(name)) {
       const matches = name.match(regex);
@@ -105,6 +110,15 @@ export const getNextEntityName = (prefix: string, existingNames: string[]) => {
   }) as number[];
 
   const lastIndex = Math.max(...usedIndices, ...[0]);
+
+  if (startWithoutIndex && lastIndex === 0) {
+    const exactMatchFound = existingNames.some(
+      (name) => prefix && name.trim() === prefix.trim(),
+    );
+    if (!exactMatchFound) {
+      return prefix.trim();
+    }
+  }
 
   return prefix + (lastIndex + 1);
 };
