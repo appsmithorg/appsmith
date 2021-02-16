@@ -55,7 +55,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
               "On / Off the Switch by default. Changes to the default selection update the widget state",
             controlType: "SWITCH",
             isJSConvertible: true,
-            isBindProperty: false,
+            isBindProperty: true,
             isTriggerProperty: false,
           },
           {
