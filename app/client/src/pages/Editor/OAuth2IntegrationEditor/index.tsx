@@ -15,7 +15,7 @@ import {
 import { ApiAction } from "entities/Action";
 import { createActionRequest } from "actions/actionActions";
 import { Datasource } from "entities/Datasource";
-import { createNewActionName } from "utils/AppsmithUtils";
+import { createNewApiName } from "utils/AppsmithUtils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 
 // Design
@@ -92,7 +92,7 @@ class Oauth2IntegrationEditor extends React.Component<Props> {
     if (pageId) {
       // TODO: Ask Nidhi to give me a prefix as part of a plugin
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const newQueryName = createNewActionName(actions, pageId, "Sheets");
+      const newQueryName = createNewApiName(actions, pageId);
       //const data: any = {};
       //this.props.createAction(data);
     }

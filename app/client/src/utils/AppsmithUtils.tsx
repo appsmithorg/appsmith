@@ -142,19 +142,11 @@ export const getDuplicateName = (prefix: string, existingNames: string[]) => {
   return trimmedPrefix + `_${lastIndex + 1}`;
 };
 
-export const createNewActionName = (
-  actions: ActionDataState,
-  pageId: string,
-  prefix: string,
-) => {
-  const pageActionNames = actions
+export const createNewApiName = (actions: ActionDataState, pageId: string) => {
+  const pageApiNames = actions
     .filter((a) => a.config.pageId === pageId)
     .map((a) => a.config.name);
-  return getNextEntityName(prefix, pageActionNames);
-};
-
-export const createNewApiName = (actions: ActionDataState, pageId: string) => {
-  return createNewActionName(actions, pageId, "Api");
+  return getNextEntityName("Api", pageApiNames);
 };
 
 export const noop = () => {
@@ -165,7 +157,11 @@ export const createNewQueryName = (
   queries: ActionDataState,
   pageId: string,
 ) => {
-  return createNewActionName(queries, pageId, "Query");
+  const pageApiNames = queries
+    .filter((a) => a.config.pageId === pageId)
+    .map((a) => a.config.name);
+  const newName = getNextEntityName("Query", pageApiNames);
+  return newName;
 };
 
 export const convertToString = (value: any): string => {
