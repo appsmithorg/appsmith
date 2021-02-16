@@ -65,6 +65,8 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final int USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX = 6;
     private static final int URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX = 7;
     private static final int CLIENT_REGION_PROPERTY_INDEX = 0;
+    private static final int SECONDS_IN_MINUTE = 60;
+    private static final int MILLISECONDS_IN_SECOND = 1000;
     private static final String YES = "YES";
     private static final String BASE64_DELIMITER = ";base64,";
 
@@ -404,7 +406,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                                                      .get(URL_EXPIRY_DURATION_PROPERTY_INDEX)
                                                                      .getValue()
                                                              );
-                                durationInMilliseconds = durationInMinutes*60*1000;
+                                durationInMilliseconds = durationInMinutes*SECONDS_IN_MINUTE*MILLISECONDS_IN_SECOND;
                             } catch (NumberFormatException e) {
                                 throw new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,

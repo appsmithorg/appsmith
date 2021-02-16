@@ -75,7 +75,7 @@
           "label": "Expiry Duration of Signed URL (Minutes)",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
           "controlType": "INPUT_TEXT",
-          "initialValue": "",
+          "initialValue": " ",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_EQUALS",
@@ -105,7 +105,7 @@
           }
         },
         {
-          "label": "Get Signed URL",
+          "label": "Generate Signed URL",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
           "controlType": "DROP_DOWN",
           "initialValue": "NO",
@@ -131,9 +131,9 @@
           "controlType": "INPUT_TEXT",
           "initialValue": "",
           "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
             "comparison": "NOT_EQUALS",
-            "value": "LIST"
+            "value": "YES"
           }
         },
         {
