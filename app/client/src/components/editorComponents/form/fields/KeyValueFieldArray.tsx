@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { FieldArray, WrappedFieldArrayProps } from "redux-form";
 import styled from "styled-components";
 import DynamicTextField from "./DynamicTextField";
@@ -80,15 +80,6 @@ const FlexContainer = styled.div`
 `;
 
 const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
-  useEffect(() => {
-    // Always maintain 2 rows
-    if (props.fields.length < 2 && props.pushFields) {
-      for (let i = props.fields.length; i < 2; i += 1) {
-        props.fields.push({ key: "", value: "" });
-      }
-    }
-  }, [props.fields, props.pushFields]);
-
   return (
     <KeyValueStackContainer>
       <FlexContainer>
@@ -225,7 +216,6 @@ type Props = {
   mandatory?: boolean;
   type?: string;
   placeholder?: string;
-  pushFields?: boolean;
   dataTreePath?: string;
   theme?: EditorTheme;
 };
