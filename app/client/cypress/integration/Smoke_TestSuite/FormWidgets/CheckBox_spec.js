@@ -96,7 +96,8 @@ describe("Checkbox Widget Functionality", function() {
       "not.exist",
     );
     cy.get(publish.checkboxWidget + " " + ".bp3-align-left").should("exist");
-    cy.togglebar(commonlocators.optionswapswitchlabel);
+    cy.get(commonlocators.optionalignment).click();
+    cy.dropdownDynamic("Right");
     cy.PublishtheApp();
     cy.get(publish.checkboxWidget + " " + ".bp3-align-right").should("exist");
     cy.get(publish.checkboxWidget + " " + ".bp3-align-left").should(
