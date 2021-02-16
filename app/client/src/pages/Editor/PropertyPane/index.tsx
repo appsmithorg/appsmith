@@ -17,12 +17,10 @@ import { generateClassName } from "utils/generators";
 import { scrollbarDark } from "constants/DefaultTheme";
 import { hidePropertyPane } from "actions/propertyPaneActions";
 import PaneWrapper from "components/editorComponents/PaneWrapper";
-import { UpdatePropertyPayload } from "./PropertyPaneView";
+import PropertyPaneView, { UpdatePropertyPayload } from "./PropertyPaneView";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import MemoizedPropertyPaneTitle from "../PropertyPaneTitle";
-import PropertyControlsGenerator from "./PropertyPaneGenerator";
 
 /** Styled Components */
 const PropertyPaneWrapper = styled(PaneWrapper)`
@@ -72,28 +70,6 @@ export interface PropertyPaneFunctions {
 interface PropertyPaneState {
   currentPanelStack: IPanel[];
 }
-
-const PropertyPaneView = (
-  props: {
-    hidePropertyPane: () => void;
-  } & IPanelProps,
-) => {
-  const { hidePropertyPane, ...panel } = props;
-  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
-
-  return (
-    <>
-      <MemoizedPropertyPaneTitle
-        key={widgetProperties.widgetId}
-        title={widgetProperties.widgetName}
-        widgetId={widgetProperties.widgetId}
-        widgetType={widgetProperties?.type}
-        onClose={hidePropertyPane}
-      />
-      <PropertyControlsGenerator type={widgetProperties.type} panel={panel} />
-    </>
-  );
-};
 
 export interface PropertyPaneEnhancements {
   additionalAutocomplete?: Record<

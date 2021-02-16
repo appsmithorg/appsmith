@@ -134,13 +134,15 @@ class ContainerWidget extends BaseWidget<
 
     const rowHeight = sortedChildren[0].bottomRow * snapSpaces.snapRowSpace;
 
-    const Row = (childProps: ListChildComponentProps) => (
-      <>{this.renderChildWidget(sortedChildren[childProps.index])}</>
-    );
+    const Row = (childProps: ListChildComponentProps) => {
+      const row = this.renderChildWidget(sortedChildren[childProps.index]);
+
+      return <div key={`virtualized-row-${childProps.index}`}>{row}</div>;
+    };
 
     const VirtualizedList = () => (
       <List
-        height={componentHeight}
+        height={componentHeight - (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2}
         itemCount={sortedChildren.length}
         itemSize={rowHeight}
         width={componentWidth}

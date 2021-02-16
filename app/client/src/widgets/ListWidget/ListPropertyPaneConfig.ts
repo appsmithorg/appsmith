@@ -10,7 +10,7 @@ const PropertyPaneConfig = [
         controlType: "INPUT_TEXT",
         placeholderText: 'Enter [{ "col1": "val1" }]',
         inputType: "ARRAY",
-        isBindProperty: false,
+        isBindProperty: true,
         isTriggerProperty: false,
       },
       {

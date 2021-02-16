@@ -79,7 +79,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         bottomRow: (index + 1) * children[0].bottomRow,
         resizeDisabled: index > 0,
         isVisible: index === 0,
-        widgetId: index > 0 ? generateReactKey() : child.widgetId,
+        widgetId: index > 0 ? `list-item-${index}` : child.widgetId,
       };
     });
   };

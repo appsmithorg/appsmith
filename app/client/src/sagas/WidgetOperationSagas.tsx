@@ -240,7 +240,7 @@ function* generateChildWidgets(
   // as blueprints are not useful beyond this point.
   delete widget.blueprint;
 
-  // deleting propertyPaneEnchancemtns too as it shouldn't go in dsl because
+  // deleting propertyPaneEnchancements too as it shouldn't go in dsl because
   // function can't be cloned into dsl
   delete widget.propertyPaneEnhancements;
 
