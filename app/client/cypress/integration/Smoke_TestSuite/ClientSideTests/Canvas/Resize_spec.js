@@ -1,5 +1,5 @@
-const commonlocators = require("../../../locators/commonlocators.json");
-const dsl = require("../../../fixtures/CanvasResizeDsl.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+const dsl = require("../../../../fixtures/CanvasResizeDsl.json");
 
 describe("Canvas Resize", function() {
   before(() => {

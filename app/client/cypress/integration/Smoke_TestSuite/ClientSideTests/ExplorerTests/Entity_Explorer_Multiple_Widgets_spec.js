@@ -1,11 +1,11 @@
-const tdsl = require("../../../fixtures/tableWidgetDsl.json");
-const commonlocators = require("../../../locators/commonlocators.json");
-const dsl = require("../../../fixtures/displayWidgetDsl.json");
-const widgetsPage = require("../../../locators/Widgets.json");
-const testdata = require("../../../fixtures/testdata.json");
-const pages = require("../../../locators/Pages.json");
-const apiwidget = require("../../../locators/apiWidgetslocator.json");
-const explorer = require("../../../locators/explorerlocators.json");
+const tdsl = require("../../../../fixtures/tableWidgetDsl.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+const dsl = require("../../../../fixtures/displayWidgetDsl.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
+const testdata = require("../../../../fixtures/testdata.json");
+const pages = require("../../../../locators/Pages.json");
+const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+const explorer = require("../../../../locators/explorerlocators.json");
 const pageid = "MyPage";
 
 describe("Entity explorer tests related to widgets and validation", function() {

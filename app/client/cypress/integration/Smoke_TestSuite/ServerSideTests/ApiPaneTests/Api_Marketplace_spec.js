@@ -3,7 +3,7 @@
  *
  * */
 // /// <reference types="Cypress" />
-// const testdata = require("../../../fixtures/testdata.json");
+// const testdata = require("../../../../fixtures/testdata.json");
 // const apiwidget = require("../../../locators/apiWidgetslocator.json");
 // describe("API Panel Test Functionality ", function() {
 //   it("Test Market place API by adding to a page", function() {

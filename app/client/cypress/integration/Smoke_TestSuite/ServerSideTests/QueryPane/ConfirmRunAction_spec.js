@@ -1,5 +1,5 @@
-const queryLocators = require("../../../locators/QueryEditor.json");
-const queryEditor = require("../../../locators/QueryEditor.json");
+const queryLocators = require("../../../../locators/QueryEditor.json");
+const queryEditor = require("../../../../locators/QueryEditor.json");
 let datasourceName;
 
 describe("Confirm run action", function() {

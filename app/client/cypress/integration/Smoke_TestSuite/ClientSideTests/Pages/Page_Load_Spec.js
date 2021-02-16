@@ -1,5 +1,5 @@
-const dsl = require("../../../fixtures/PageLoadDsl.json");
-const commonlocators = require("../../../locators/commonlocators.json");
+const dsl = require("../../../../fixtures/PageLoadDsl.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Page Load tests", () => {
   before(() => {

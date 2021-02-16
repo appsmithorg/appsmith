@@ -1,6 +1,6 @@
-const explorer = require("../../../locators/explorerlocators.json");
-const homePage = require("../../../locators/HomePage.json");
-const commonlocators = require("../../../locators/commonlocators.json");
+const explorer = require("../../../../locators/explorerlocators.json");
+const homePage = require("../../../../locators/HomePage.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Onboarding", function() {
   it("Onboarding flow", function() {

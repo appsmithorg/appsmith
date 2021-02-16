@@ -1,7 +1,7 @@
 /// <reference types="Cypress" />
 
-const homePage = require("../../../locators/HomePage.json");
-const publish = require("../../../locators/publishWidgetspage.json");
+const homePage = require("../../../../locators/HomePage.json");
+const publish = require("../../../../locators/publishWidgetspage.json");
 
 describe("Create new org and share with a user", function() {
   let orgid;

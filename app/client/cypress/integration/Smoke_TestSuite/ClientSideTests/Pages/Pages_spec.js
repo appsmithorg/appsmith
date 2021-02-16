@@ -1,4 +1,4 @@
-const pages = require("../../../locators/Pages.json");
+const pages = require("../../../../locators/Pages.json");
 
 describe("Pages", function() {
   let veryLongPageName = `abcdefghijklmnopqrstuvwxyz1234`;

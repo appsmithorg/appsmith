@@ -1,6 +1,6 @@
-const commonlocators = require("../../../locators/commonlocators.json");
-const dsl = require("../../../fixtures/newFormDsl.json");
-const pages = require("../../../locators/Pages.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+const dsl = require("../../../../fixtures/newFormDsl.json");
+const pages = require("../../../../locators/Pages.json");
 
 describe("FilePicker Widget Functionality", function() {
   beforeEach(() => {

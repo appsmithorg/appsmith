@@ -1,6 +1,6 @@
-const dsl = require("../../../fixtures/executionParamsDsl.json");
-const publishPage = require("../../../locators/publishWidgetspage.json");
-const commonlocators = require("../../../locators/commonlocators.json");
+const dsl = require("../../../../fixtures/executionParamsDsl.json");
+const publishPage = require("../../../../locators/publishWidgetspage.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("API Panel Test Functionality", function() {
   before(() => {

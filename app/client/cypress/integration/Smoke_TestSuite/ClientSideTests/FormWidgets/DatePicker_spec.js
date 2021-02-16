@@ -1,8 +1,8 @@
-const commonlocators = require("../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../locators/FormWidgets.json");
-const dsl = require("../../../fixtures/newFormDsl.json");
-const publishPage = require("../../../locators/publishWidgetspage.json");
-const pages = require("../../../locators/Pages.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+const formWidgetsPage = require("../../../../locators/FormWidgets.json");
+const dsl = require("../../../../fixtures/newFormDsl.json");
+const publishPage = require("../../../../locators/publishWidgetspage.json");
+const pages = require("../../../../locators/Pages.json");
 
 describe("DatePicker Widget Functionality", function() {
   before(() => {
@@ -70,14 +70,12 @@ describe("DatePicker Widget Functionality", function() {
     cy.get(formWidgetsPage.minDate)
       .first()
       .click();
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.setDate(-1, "ddd MMM DD YYYY");
 
     cy.get(formWidgetsPage.maxDate)
       .first()
       .click();
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.setDate(1, "ddd MMM DD YYYY");
 

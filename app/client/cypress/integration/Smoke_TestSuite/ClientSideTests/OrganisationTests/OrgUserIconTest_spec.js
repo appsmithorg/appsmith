@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-const homePage = require("../../../locators/HomePage.json");
+const homePage = require("../../../../locators/HomePage.json");
 
 describe("Check if org has user icons on homepage", function() {
   let orgid;

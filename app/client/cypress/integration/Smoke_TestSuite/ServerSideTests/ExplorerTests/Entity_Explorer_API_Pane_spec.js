@@ -1,6 +1,6 @@
-const testdata = require("../../../fixtures/testdata.json");
-const apiwidget = require("../../../locators/apiWidgetslocator.json");
-const explorer = require("../../../locators/explorerlocators.json");
+const testdata = require("../../../../../fixtures/testdata.json");
+const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+const explorer = require("../../../../locators/explorerlocators.json");
 const pageid = "MyPage";
 
 describe("Entity explorer API pane related testcases", function() {

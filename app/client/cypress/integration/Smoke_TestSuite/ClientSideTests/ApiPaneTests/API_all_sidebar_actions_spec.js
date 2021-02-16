@@ -1,4 +1,4 @@
-const commonlocators = require("../../../locators/commonlocators.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("API Panel Test Functionality ", function() {
   it("Test API copy/Move/delete feature", function() {

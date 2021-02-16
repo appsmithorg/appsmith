@@ -1,10 +1,10 @@
-const commonlocators = require("../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../locators/FormWidgets.json");
-const dsl = require("../../../fixtures/inputBindingdsl.json");
-const pages = require("../../../locators/Pages.json");
-const widgetsPage = require("../../../locators/Widgets.json");
-const publish = require("../../../locators/publishWidgetspage.json");
-const testdata = require("../../../fixtures/testdata.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+const formWidgetsPage = require("../../../../locators/FormWidgets.json");
+const dsl = require("../../../../fixtures/inputBindingdsl.json");
+const pages = require("../../../../locators/Pages.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
+const publish = require("../../../../locators/publishWidgetspage.json");
+const testdata = require("../../../../fixtures/testdata.json");
 
 describe("Moment basic test with input Widget", function() {
   before(() => {

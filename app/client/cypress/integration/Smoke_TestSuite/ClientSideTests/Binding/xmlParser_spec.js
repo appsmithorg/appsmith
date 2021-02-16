@@ -1,5 +1,5 @@
-const dsl = require("../../../fixtures/xmlParser.json");
-const publish = require("../../../locators/publishWidgetspage.json");
+const dsl = require("../../../../fixtures/xmlParser.json");
+const publish = require("../../../../locators/publishWidgetspage.json");
 
 describe("xml2json text", function() {
   before(() => {

@@ -1,5 +1,5 @@
-const homePage = require("../../../locators/HomePage.json");
-const commonlocators = require("../../../locators/commonlocators.json");
+const homePage = require("../../../../locators/HomePage.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 import tinycolor from "tinycolor2";
 
 describe("Update Application", function() {

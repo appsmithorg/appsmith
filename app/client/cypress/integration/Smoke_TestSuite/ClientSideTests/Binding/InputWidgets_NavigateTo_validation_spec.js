@@ -1,9 +1,9 @@
 const commonlocators = require("../../../locators/commonlocators.json");
-const dsl = require("../../../fixtures/tableInputDsl.json");
+const dsl = require("../../../../fixtures/tableInputDsl.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
-const testdata = require("../../../fixtures/testdata.json");
-const dsl2 = require("../../../fixtures/displayWidgetDsl.json");
+const testdata = require("../../../../fixtures/testdata.json");
+const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
 
 describe("Binding the multiple Widgets and validating NavigateTo Page", function() {

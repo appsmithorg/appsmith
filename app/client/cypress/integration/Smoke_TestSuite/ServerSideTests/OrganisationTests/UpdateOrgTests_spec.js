@@ -1,4 +1,4 @@
-const homePage = require("../../../locators/HomePage.json");
+const homePage = require("../../../../locators/HomePage.json");
 
 describe("Update Organization", function() {
   let orgid;

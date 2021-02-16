@@ -1,8 +1,8 @@
-const commonlocators = require("../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../locators/FormWidgets.json");
-const publish = require("../../../locators/publishWidgetspage.json");
-const dsl = require("../../../fixtures/formdsl.json");
-const pages = require("../../../locators/Pages.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+const formWidgetsPage = require("../../../../locators/FormWidgets.json");
+const publish = require("../../../../locators/publishWidgetspage.json");
+const dsl = require("../../../../fixtures/formdsl.json");
+const pages = require("../../../../locators/Pages.json");
 
 describe("Form Widget Functionality", function() {
   before(() => {

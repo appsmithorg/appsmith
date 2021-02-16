@@ -1,7 +1,7 @@
-const dsl = require("../../../fixtures/displayWidgetDsl.json");
-const homePage = require("../../../locators/HomePage.json");
-const commonlocators = require("../../../locators/commonlocators.json");
-const explorerlocators = require("../../../locators/explorerlocators.json");
+const dsl = require("../../../../fixtures/displayWidgetDsl.json");
+const homePage = require("../../../../locators/HomePage.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+const explorerlocators = require("../../../../locators/explorerlocators.json");
 let duplicateApplicationDsl;
 
 describe("Duplicate application", function() {

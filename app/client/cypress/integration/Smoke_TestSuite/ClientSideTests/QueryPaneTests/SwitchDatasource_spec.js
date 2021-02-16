@@ -1,5 +1,5 @@
-const datasource = require("../../../locators/DatasourcesEditor.json");
-const queryLocators = require("../../../locators/QueryEditor.json");
+const datasource = require("../../../../locators/DatasourcesEditor.json");
+const queryLocators = require("../../../../locators/QueryEditor.json");
 
 describe("Switch datasource", function() {
   let postgresDatasourceName;

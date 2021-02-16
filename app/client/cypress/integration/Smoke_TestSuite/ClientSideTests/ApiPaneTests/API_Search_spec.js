@@ -1,4 +1,4 @@
-const testdata = require("../../../fixtures/testdata.json");
+const testdata = require("../../../../fixtures/testdata.json");
 
 describe("API Panel Test Functionality ", function() {
   it("Test Search API fetaure", function() {

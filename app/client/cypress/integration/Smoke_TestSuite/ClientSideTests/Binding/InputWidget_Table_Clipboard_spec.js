@@ -1,12 +1,12 @@
-const commonlocators = require("../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../locators/FormWidgets.json");
-const dsl = require("../../../fixtures/tableInputDsl.json");
-const pages = require("../../../locators/Pages.json");
-const widgetsPage = require("../../../locators/Widgets.json");
-const publish = require("../../../locators/publishWidgetspage.json");
-const testdata = require("../../../fixtures/testdata.json");
-const dsl2 = require("../../../fixtures/displayWidgetDsl.json");
-const explorer = require("../../../locators/explorerlocators.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+const formWidgetsPage = require("../../../../locators/FormWidgets.json");
+const dsl = require("../../../../fixtures/tableInputDsl.json");
+const pages = require("../../../../locators/Pages.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
+const publish = require("../../../../locators/publishWidgetspage.json");
+const testdata = require("../../../../fixtures/testdata.json");
+const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
+const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("Copy to Clipboard feature validation", function() {
   before(() => {

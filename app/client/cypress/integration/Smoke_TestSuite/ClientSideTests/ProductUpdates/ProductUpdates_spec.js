@@ -1,4 +1,4 @@
-const commonlocators = require("../../../locators/commonlocators.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Check for product updates button and modal", function() {
   it("Check if we should show the product updates button and it opens the updates modal", function() {

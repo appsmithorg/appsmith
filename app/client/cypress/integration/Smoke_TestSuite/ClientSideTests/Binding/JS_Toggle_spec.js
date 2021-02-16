@@ -1,4 +1,4 @@
-const dsl = require("../../../fixtures/Js_toggle_dsl.json");
+const dsl = require("../../../../fixtures/Js_toggle_dsl.json");
 
 describe("JS Toggle tests", () => {
   before(() => {

@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-const homePage = require("../../../locators/HomePage.json");
+const homePage = require("../../../../locators/HomePage.json");
 
 describe("Org name validation spec", function() {
   it("create org with leading space validation", function() {

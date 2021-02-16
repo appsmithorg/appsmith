@@ -1,5 +1,5 @@
-const dsl = require("../../../fixtures/SimpleBinding.json");
-const widgetsPage = require("../../../locators/Widgets.json");
+const dsl = require("../../../../fixtures/SimpleBinding.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
 
 describe("Binding the multiple widgets and validating default data", function() {
   before(() => {

@@ -1,6 +1,6 @@
-const dsl = require("../../../fixtures/inputdsl.json");
-const widgetsPage = require("../../../locators/Widgets.json");
-const dynamicInput = require("../../../locators/DynamicInput.json");
+const dsl = require("../../../../fixtures/inputdsl.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
+const dynamicInput = require("../../../../locators/DynamicInput.json");
 
 describe("Binding prompt", function() {
   before(() => {

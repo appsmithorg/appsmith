@@ -1,11 +1,11 @@
-const testdata = require("../../../fixtures/testdata.json");
-const apiwidget = require("../../../locators/apiWidgetslocator.json");
-const explorer = require("../../../locators/explorerlocators.json");
-const commonlocators = require("../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../locators/FormWidgets.json");
-const publish = require("../../../locators/publishWidgetspage.json");
-const widgetsPage = require("../../../locators/Widgets.json");
-const dsl = require("../../../fixtures/formWidgetdsl.json");
+const testdata = require("../../../../fixtures/testdata.json");
+const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+const explorer = require("../../../../locators/explorerlocators.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+const formWidgetsPage = require("../../../../locators/FormWidgets.json");
+const publish = require("../../../../locators/publishWidgetspage.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
+const dsl = require("../../../../fixtures/formWidgetdsl.json");
 
 const pageid = "MyPage";
 before(() => {

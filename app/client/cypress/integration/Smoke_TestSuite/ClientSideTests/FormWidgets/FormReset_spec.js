@@ -1,5 +1,5 @@
-const dsl = require("../../../fixtures/formResetDsl.json");
-const widgetsPage = require("../../../locators/Widgets.json");
+const dsl = require("../../../../fixtures/formResetDsl.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
 
 describe("Form reset functionality", function() {
   before(() => {
