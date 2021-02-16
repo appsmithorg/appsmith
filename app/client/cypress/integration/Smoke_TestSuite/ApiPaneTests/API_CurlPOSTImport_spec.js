@@ -7,7 +7,7 @@ describe("Test curl import flow", function() {
     cy.NavigateToApiEditor();
     cy.get(ApiEditor.curlImage).click({ force: true });
     cy.get("textarea").type(
-      'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST https://reqres.in/api/users',
+      'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST https://mock-api.appsmith.com/echo/post',
       {
         force: true,
         parseSpecialCharSequences: false,
@@ -16,11 +16,11 @@ describe("Test curl import flow", function() {
     cy.importCurl();
     cy.RunAPI();
     cy.ResponseStatusCheck("201 CREATED");
-    cy.get("@curlImport").then(response => {
+    cy.get("@curlImport").then((response) => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);
       cy.get(apiwidget.ApiName)
         .invoke("text")
-        .then(text => {
+        .then((text) => {
           const someText = text;
           expect(someText).to.equal(response.response.body.data.name);
         });
