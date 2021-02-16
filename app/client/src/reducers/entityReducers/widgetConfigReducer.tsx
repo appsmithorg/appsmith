@@ -9,7 +9,7 @@ import { ImageWidgetProps } from "widgets/ImageWidget";
 import { InputWidgetProps } from "widgets/InputWidget";
 import { RichTextEditorWidgetProps } from "widgets/RichTextEditorWidget";
 import { DatePickerWidgetProps } from "../../widgets/DatePickerWidget";
-import { TableWidgetProps } from "../../widgets/TableWidget";
+import { TableWidgetProps } from "../../widgets/TableWidget/TableWidgetConstants";
 import { DropdownWidgetProps } from "../../widgets/DropdownWidget";
 import { CheckboxWidgetProps } from "../../widgets/CheckboxWidget";
 import { RadioGroupWidgetProps } from "../../widgets/RadioGroupWidget";
