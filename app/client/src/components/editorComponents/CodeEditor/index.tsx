@@ -82,6 +82,9 @@ export type EditorStyleProps = {
 export type EditorProps = EditorStyleProps &
   EditorConfig & {
     input: Partial<WrappedFieldInputProps>;
+  } & {
+    additionalDynamicData?: Record<string, Record<string, unknown>>;
+    promptMessage?: React.ReactNode | string;
   };
 
 type Props = ReduxStateProps & EditorProps;
@@ -206,7 +209,11 @@ class CodeEditor extends Component<Props, State> {
 
   startAutocomplete() {
     this.hinters = this.props.hinting.map((helper) => {
-      return helper(this.editor, this.props.dynamicData);
+      return helper(
+        this.editor,
+        this.props.dynamicData,
+        this.props.additionalDynamicData,
+      );
     });
   }
 
@@ -417,6 +424,7 @@ class CodeEditor extends Component<Props, State> {
             )}
             <BindingPrompt
               isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
+              promptMessage={this.props.promptMessage}
               editorTheme={this.props.theme}
             />
           </EditorWrapper>

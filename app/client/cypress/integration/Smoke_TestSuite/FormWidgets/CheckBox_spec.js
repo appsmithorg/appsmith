@@ -90,6 +90,21 @@ describe("Checkbox Widget Functionality", function() {
 
     cy.get(publish.backToEditor).click();
   });
+  it("Checkbox Functionality To swap label placement of  checkbox", function() {
+    cy.openPropertyPane("checkboxwidget");
+    cy.get(publish.checkboxWidget + " " + ".bp3-align-right").should(
+      "not.exist",
+    );
+    cy.get(publish.checkboxWidget + " " + ".bp3-align-left").should("exist");
+    cy.get(commonlocators.optionalignment).click();
+    cy.dropdownDynamic("Right");
+    cy.PublishtheApp();
+    cy.get(publish.checkboxWidget + " " + ".bp3-align-right").should("exist");
+    cy.get(publish.checkboxWidget + " " + ".bp3-align-left").should(
+      "not.exist",
+    );
+    cy.get(publish.backToEditor).click();
+  });
 });
 afterEach(() => {
   // put your clean up code if any

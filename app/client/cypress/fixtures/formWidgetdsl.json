@@ -64,6 +64,22 @@
               },
               {
                 "isVisible": true,
+                "label": "Switch",
+                "defaultSwitchState": true,
+                "widgetName": "Switch1",
+                "type": "SWITCH_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 71.75,
+                "parentRowSpace": 38,
+                "leftColumn": 10,
+                "rightColumn": 13,
+                "topRow": 18,
+                "bottomRow": 19,
+                "parentId": "e3tq9qwta6",
+                "widgetId": "szjhneuog9"
+              },
+              {
+                "isVisible": true,
                 "widgetName": "FormButton1",
                 "text": "Submit",
                 "isDefaultClickDisabled": true,

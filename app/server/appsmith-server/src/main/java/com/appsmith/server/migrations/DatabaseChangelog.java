@@ -1694,7 +1694,28 @@ public class DatabaseChangelog {
       }
     }
 
-    @ChangeSet(order = "054", id = "update-postgres-plugin-preparedStatement-config", author = "")
+    @ChangeSet(order = "054", id = "update-database-encode-params-toggle", author = "")
+    public void updateEncodeParamsToggle(MongoTemplate mongoTemplate) {
+
+        for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
+            if(action.getPluginType() != null && action.getPluginType().equals("API")) {
+
+            }
+                if(action.getUnpublishedAction() != null
+                        && action.getUnpublishedAction().getActionConfiguration() != null) {
+                    action.getUnpublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+                }
+
+                if(action.getPublishedAction() != null
+                        && action.getPublishedAction().getActionConfiguration() != null) {
+                    action.getPublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+                }
+
+                mongoTemplate.save(action);
+            }
+    }
+
+    @ChangeSet(order = "055", id = "update-postgres-plugin-preparedStatement-config", author = "")
     public void updatePostgresActionsSetPreparedStatementConfiguration(MongoTemplate mongoTemplate) {
 
         List<Plugin> plugins = mongoTemplate.find(
@@ -1711,7 +1732,7 @@ public class DatabaseChangelog {
 
         // Note : This is a long migration :(
         for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
-            if(action.getPluginId() != null &&
+            if (action.getPluginId() != null &&
                     action.getPluginId().equals(postgresPlugin.getId())) {
                 // We have found an action of postgres plugin type
                 if (action.getUnpublishedAction().getActionConfiguration() != null) {

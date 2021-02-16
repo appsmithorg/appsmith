@@ -13,6 +13,7 @@ import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
 import { ERROR_CODES } from "constants/ApiConstants";
 import { ERROR_500 } from "../constants/messages";
+import localStorage from "utils/localStorage";
 
 export const createReducer = (
   initialState: any,
@@ -176,8 +177,10 @@ export const convertToString = (value: any): string => {
 
 const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
   let logLevel = configLevel;
-  const localStorageLevel = localStorage.getItem("logLevel") as LogLevelDesc;
-  if (localStorageLevel) logLevel = localStorageLevel;
+  if (localStorage && localStorage.getItem) {
+    const localStorageLevel = localStorage.getItem("logLevel") as LogLevelDesc;
+    if (localStorageLevel) logLevel = localStorageLevel;
+  }
   return logLevel;
 };
 
