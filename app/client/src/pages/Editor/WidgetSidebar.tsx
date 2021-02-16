@@ -14,7 +14,6 @@ import { Colors } from "constants/Colors";
 import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
 import produce from "immer";
-import { WIDGET_SIDEBAR_CAPTION } from "constants/messages";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { getCurrentStep, getCurrentSubStep } from "sagas/OnboardingSagas";
