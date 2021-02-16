@@ -14,6 +14,7 @@ import {
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { AlignWidget } from "./SwitchWidget";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -34,6 +35,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       isChecked: "defaultCheckedState",
+      alignWidget: "LEFT",
     };
   }
 
@@ -55,7 +57,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
       <CheckboxComponent
         isRequired={this.props.isRequired}
         isChecked={!!this.props.isChecked}
-        swapLabel={this.props.swapLabel}
+        alignWidget={this.props.alignWidget}
         label={this.props.label}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
@@ -87,6 +89,7 @@ export interface CheckboxWidgetProps extends WidgetProps, WithMeta {
   isDisabled?: boolean;
   onCheckChange?: string;
   isRequired?: boolean;
+  alignWidget: AlignWidget;
 }
 
 export default CheckboxWidget;

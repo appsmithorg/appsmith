@@ -20,7 +20,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     return (
       <SwitchComponent
         isSwitchedOn={!!this.props.isSwitchedOn}
-        swapLabel={this.props.swapLabel}
+        alignWidget={this.props.alignWidget ? this.props.alignWidget : "LEFT"}
         label={this.props.label}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
@@ -77,10 +77,12 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   };
 }
 
+export type AlignWidget = "LEFT" | "RIGHT";
+
 export interface SwitchWidgetProps extends WidgetProps, WithMeta {
   isSwitchedOn: boolean;
   defaultSwitchState: boolean;
-  swapLabel: boolean;
+  alignWidget: AlignWidget;
   label: string;
 }
 

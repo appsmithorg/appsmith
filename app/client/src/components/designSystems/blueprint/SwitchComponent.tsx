@@ -2,6 +2,7 @@ import { Alignment, Classes, Switch } from "@blueprintjs/core";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
 import styled from "styled-components";
+import { AlignWidget } from "widgets/SwitchWidget";
 import { ComponentProps } from "../appsmith/BaseComponent";
 
 interface SwitchComponentProps extends ComponentProps {
@@ -9,7 +10,7 @@ interface SwitchComponentProps extends ComponentProps {
   isSwitchedOn: boolean;
   onChange: (isSwitchedOn: boolean) => void;
   isLoading: boolean;
-  swapLabel: boolean;
+  alignWidget: AlignWidget;
 }
 
 const SwitchComponentContainer = styled.div`
@@ -28,12 +29,13 @@ const SwitchComponentContainer = styled.div`
 export const SwitchComponent: React.FC<SwitchComponentProps> = ({
   label,
   isSwitchedOn,
-  swapLabel,
+  alignWidget,
   onChange,
   isDisabled,
   isLoading,
 }) => {
-  const switchAlignClass = swapLabel ? Alignment.RIGHT : Alignment.LEFT;
+  const switchAlignClass =
+    alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
 
   return (
     <SwitchComponentContainer className={switchAlignClass}>

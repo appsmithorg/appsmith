@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { Alignment, Checkbox, Classes } from "@blueprintjs/core";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
+import { AlignWidget } from "widgets/SwitchWidget";
 
 const CheckboxContainer = styled.div<{ isValid: boolean }>`
   && {
@@ -31,9 +32,8 @@ const CheckboxContainer = styled.div<{ isValid: boolean }>`
 `;
 class CheckboxComponent extends React.Component<CheckboxComponentProps> {
   render() {
-    const checkboxAlignClass = this.props.swapLabel
-      ? Alignment.RIGHT
-      : Alignment.LEFT;
+    const checkboxAlignClass =
+      this.props.alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
     return (
       <CheckboxContainer
         isValid={!(this.props.isRequired && !this.props.isChecked)}
@@ -65,7 +65,7 @@ export interface CheckboxComponentProps extends ComponentProps {
   onCheckChange: (isChecked: boolean) => void;
   isLoading: boolean;
   isRequired?: boolean;
-  swapLabel?: boolean;
+  alignWidget?: AlignWidget;
 }
 
 export default CheckboxComponent;

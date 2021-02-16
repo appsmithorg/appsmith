@@ -144,6 +144,7 @@ const FIELD_VALUES: Record<
     defaultSwitchState: "boolean",
     isDisabled: "boolean",
     isVisible: "boolean",
+    alignWidget: "LEFT | RIGHT",
     // onChange: "Function Call",
   },
   FORM_WIDGET: {

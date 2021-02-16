@@ -1255,12 +1255,21 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
             placeholderText: "Enter label text",
           },
           {
-            id: "19.1.7",
-            propertyName: "swapLabel",
-            label: "Swap Label",
-            helpText: "Swap label position to the left or right.",
-            controlType: "SWITCH",
-            isJSConvertible: true,
+            id: "9.1.7",
+            propertyName: "alignWidget",
+            helpText: "Sets the alignment of the widget",
+            label: "Alignment",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Left",
+                value: "LEFT",
+              },
+              {
+                label: "Right",
+                value: "RIGHT",
+              },
+            ],
           },
           {
             id: "9.1.2",
@@ -1327,11 +1336,20 @@ const PropertyPaneConfigResponse: PropertyPaneConfigsResponse["data"] = {
           },
           {
             id: "19.1.2",
-            propertyName: "swapLabel",
-            label: "Swap Label",
-            helpText: "Swap label position to the left or right.",
-            controlType: "SWITCH",
-            isJSConvertible: true,
+            propertyName: "alignWidget",
+            helpText: "Sets the alignment of the widget",
+            label: "Alignment",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Left",
+                value: "LEFT",
+              },
+              {
+                label: "Right",
+                value: "RIGHT",
+              },
+            ],
           },
           {
             id: "19.1.3",

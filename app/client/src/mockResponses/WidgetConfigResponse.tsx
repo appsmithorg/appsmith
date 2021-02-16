@@ -56,6 +56,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 2,
       defaultSwitchState: true,
       widgetName: "Switch",
+      alignWidget: "LEFT",
     },
     ICON_WIDGET: {
       widgetName: "Icon",
