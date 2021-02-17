@@ -8,6 +8,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Param;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -209,6 +210,7 @@ public class PostgresPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
+        actionConfiguration.setPreparedStatement(false);
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
                 .flatMap(conn -> pluginExecutor.executeParametrized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
@@ -236,6 +238,7 @@ public class PostgresPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
+        actionConfiguration.setPreparedStatement(false);
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
                 .flatMap(conn -> pluginExecutor.executeParametrized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
@@ -406,6 +409,7 @@ public class PostgresPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("show databases");
+        actionConfiguration.setPreparedStatement(false);
         Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig);
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
@@ -417,5 +421,155 @@ public class PostgresPluginTest {
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
                 .verify();
+    }
+
+    @Test
+    public void testPreparedStatementWithAndWithoutQuotes() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT * FROM public.\"users\" where id = {{binding1}};");
+        actionConfiguration.setPreparedStatement(true);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param = new Param();
+        param.setKey("binding1");
+        param.setValue("1");
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParametrized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals("2018-12-31", node.get("dob").asText());
+                    assertEquals("18:32:45", node.get("time1").asText());
+                    assertEquals("04:05:06-08", node.get("time_tz").asText());
+                    assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
+                    assertEquals("2018-11-30T19:45:15Z", node.get("created_on_tz").asText());
+                    assertEquals("1 years 5 mons 0 days 2 hours 0 mins 0.0 secs", node.get("interval1").asText());
+                    assertTrue(node.get("spouse_dob").isNull());
+
+                    // Check the order of the columns.
+                    assertArrayEquals(
+                            new String[]{
+                                    "id",
+                                    "username",
+                                    "password",
+                                    "email",
+                                    "spouse_dob",
+                                    "dob",
+                                    "time1",
+                                    "time_tz",
+                                    "created_on",
+                                    "created_on_tz",
+                                    "interval1",
+                                    "numbers",
+                                    "texts",
+                            },
+                            new ObjectMapper()
+                                    .convertValue(node, LinkedHashMap.class)
+                                    .keySet()
+                                    .toArray()
+                    );
+
+                })
+                .verifyComplete();
+
+        actionConfiguration.setBody("SELECT * FROM public.\"users\" where id = \"{{binding1}}\";");
+        resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParametrized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals("2018-12-31", node.get("dob").asText());
+                    assertEquals("18:32:45", node.get("time1").asText());
+                    assertEquals("04:05:06-08", node.get("time_tz").asText());
+                    assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
+                    assertEquals("2018-11-30T19:45:15Z", node.get("created_on_tz").asText());
+                    assertEquals("1 years 5 mons 0 days 2 hours 0 mins 0.0 secs", node.get("interval1").asText());
+                    assertTrue(node.get("spouse_dob").isNull());
+
+                    // Check the order of the columns.
+                    assertArrayEquals(
+                            new String[]{
+                                    "id",
+                                    "username",
+                                    "password",
+                                    "email",
+                                    "spouse_dob",
+                                    "dob",
+                                    "time1",
+                                    "time_tz",
+                                    "created_on",
+                                    "created_on_tz",
+                                    "interval1",
+                                    "numbers",
+                                    "texts",
+                            },
+                            new ObjectMapper()
+                                    .convertValue(node, LinkedHashMap.class)
+                                    .keySet()
+                                    .toArray()
+                    );
+
+                })
+                .verifyComplete();
+
+        actionConfiguration.setBody("SELECT * FROM public.\"users\" where id = '{{binding1}}';");
+        resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParametrized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals("2018-12-31", node.get("dob").asText());
+                    assertEquals("18:32:45", node.get("time1").asText());
+                    assertEquals("04:05:06-08", node.get("time_tz").asText());
+                    assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
+                    assertEquals("2018-11-30T19:45:15Z", node.get("created_on_tz").asText());
+                    assertEquals("1 years 5 mons 0 days 2 hours 0 mins 0.0 secs", node.get("interval1").asText());
+                    assertTrue(node.get("spouse_dob").isNull());
+
+                    // Check the order of the columns.
+                    assertArrayEquals(
+                            new String[]{
+                                    "id",
+                                    "username",
+                                    "password",
+                                    "email",
+                                    "spouse_dob",
+                                    "dob",
+                                    "time1",
+                                    "time_tz",
+                                    "created_on",
+                                    "created_on_tz",
+                                    "interval1",
+                                    "numbers",
+                                    "texts",
+                            },
+                            new ObjectMapper()
+                                    .convertValue(node, LinkedHashMap.class)
+                                    .keySet()
+                                    .toArray()
+                    );
+
+                })
+                .verifyComplete();
     }
 }
