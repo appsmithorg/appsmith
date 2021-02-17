@@ -25,7 +25,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SqlStringUtils {
 
+    /**
+     * SQL query : The regex pattern below looks for '?' or "?". This pattern is later replaced with ?
+     * to fit the requirements of prepared statements.
+     */
     private static String regexQuotesTrimming = "([\"']\\?[\"'])";
+    // The final replacement string of ? for replacing '?' or "?"
     private static String postQuoteTrimmingQuestionMark = "\\?";
 
     public static class DateValidatorUsingDateFormat extends DateValidator {
@@ -123,12 +128,18 @@ public class SqlStringUtils {
 //        }
 
 
+        // default return type if none of the above matches.
         return DataType.STRING;
     }
 
     public static PreparedStatement setValueInPreparedStatement(int index, String binding, String value, PreparedStatement preparedStatement) throws UnsupportedEncodingException, AppsmithPluginException {
         DataType valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
 
+        /**
+         * TODO : Parse the column name for which the value is null and if the column name exists in the
+         * database structure, find the column field type and use PreparedStatement.setNull() function.
+         */
+        // If the value being set is null, return without setting.
         if (valueType == null) {
             return preparedStatement;
         }
@@ -181,7 +192,7 @@ public class SqlStringUtils {
 
         } catch(SQLException | IllegalArgumentException e) {
             String message = "Query Preparation failed while inserting value : "
-                    + value + " for binding : {{" + binding + "}}. Error : " + e.getMessage();
+                    + value + " for binding : {{" + binding + "}}. Please check the query again.\nError : " + e.getMessage();
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
         }
 

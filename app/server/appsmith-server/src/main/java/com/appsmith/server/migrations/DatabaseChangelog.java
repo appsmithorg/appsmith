@@ -1734,13 +1734,17 @@ public class DatabaseChangelog {
         for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
             if (action.getPluginId() != null &&
                     action.getPluginId().equals(postgresPlugin.getId())) {
+
+                List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+                pluginSpecifiedTemplates.add(new Property("preparedStatement", "false"));
+
                 // We have found an action of postgres plugin type
                 if (action.getUnpublishedAction().getActionConfiguration() != null) {
-                    action.getUnpublishedAction().getActionConfiguration().setPreparedStatement(false);
+                    action.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
                 }
 
                 if (action.getPublishedAction() != null && action.getPublishedAction().getActionConfiguration() != null) {
-                    action.getPublishedAction().getActionConfiguration().setPreparedStatement(false);
+                    action.getPublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
                 }
 
                 mongoTemplate.save(action);

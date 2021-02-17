@@ -9,6 +9,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -210,7 +211,9 @@ public class PostgresPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
-        actionConfiguration.setPreparedStatement(false);
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "false"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
                 .flatMap(conn -> pluginExecutor.executeParametrized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
@@ -238,7 +241,10 @@ public class PostgresPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
-        actionConfiguration.setPreparedStatement(false);
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "false"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
                 .flatMap(conn -> pluginExecutor.executeParametrized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
@@ -409,7 +415,11 @@ public class PostgresPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("show databases");
-        actionConfiguration.setPreparedStatement(false);
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "false"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
         Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig);
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
@@ -429,7 +439,10 @@ public class PostgresPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM public.\"users\" where id = {{binding1}};");
-        actionConfiguration.setPreparedStatement(true);
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         List<Param> params = new ArrayList<>();

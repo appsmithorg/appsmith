@@ -14,6 +14,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -117,6 +118,8 @@ public class PostgresPlugin extends BasePlugin {
                 "group by constraint_name, constraint_type, self_schema, self_table, definition, foreign_schema, foreign_table\n" +
                 "order by self_schema, self_table;";
 
+        private static final int PREPARED_STATEMENT_INDEX = 0;
+
         @Override
         public Mono<ActionExecutionResult> executeParametrized(HikariDataSource connection,
                                                                 ExecuteActionDTO executeActionDTO,
@@ -130,8 +133,18 @@ public class PostgresPlugin extends BasePlugin {
                         "parameter: Query."));
             }
 
+            Boolean isPreparedStatement;
+
+            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            if(properties.get(PREPARED_STATEMENT_INDEX) == null) {
+                // If the configuration does not exist, default to true
+                isPreparedStatement = true;
+            } else {
+                isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
+            }
+
             // In case of non prepared statement, simply do binding replacement and execute
-            if (FALSE.equals(actionConfiguration.getPreparedStatement())) {
+            if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
                 return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null);
             } else {
