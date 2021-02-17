@@ -51,7 +51,7 @@
           }
         },
         {
-          "label": "Using Base64 Encoded Data - Yes/No",
+          "label": "File Data Type: Base64/Text",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
           "controlType": "DROP_DOWN",
           "initialValue": "NO",

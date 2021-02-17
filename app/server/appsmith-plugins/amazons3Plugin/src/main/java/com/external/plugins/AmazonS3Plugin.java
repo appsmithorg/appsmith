@@ -202,8 +202,8 @@ public class AmazonS3Plugin extends BasePlugin {
                 } catch (IllegalArgumentException e) {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
-                            "Appsmith has encountered an unexpected error when decoding base64 encoded content. " +
-                            "Please reach out to Appsmith customer support to resolve this."
+                            "File content is not base64 encoded. File content needs to be base64 encoded when the " +
+                            "'File Data Type: Base64/Text' field is selected 'Yes'."
                     );
                 }
             }
@@ -424,20 +424,22 @@ public class AmazonS3Plugin extends BasePlugin {
                                 );
                             }
 
-                            ArrayList<ArrayList<String>> listOfFilesAndUrls = new ArrayList<>();
+                            actionResult = new ArrayList<Object>();
                             for(int i=0; i<listOfFiles.size(); i++) {
-                                ArrayList<String> fileUrlPair = new ArrayList<>();
-                                fileUrlPair.add(listOfFiles.get(i));
-                                fileUrlPair.add(listOfSignedUrls.get(i));
-                                listOfFilesAndUrls.add(fileUrlPair);
+                                HashMap<String, Object> fileInfo = new HashMap<>();
+                                fileInfo.put("fileName", listOfFiles.get(i));
+                                fileInfo.put("signedUrl", listOfSignedUrls.get(i));
+                                fileInfo.put("urlExpiryDate", expiryDateTimeString);
+                                ((ArrayList<Object>)actionResult).add(fileInfo);
                             }
-
-                            actionResult = new HashMap<String, Object>();
-                            ((HashMap<String, Object>)actionResult).put("files", listOfFilesAndUrls);
-                            ((HashMap<String, Object>)actionResult).put("urlExpiryDate", expiryDateTimeString);
                         }
                         else {
-                            actionResult = Map.of("files", listOfFiles);
+                            actionResult = new ArrayList<Object>();
+                            for(int i=0; i<listOfFiles.size(); i++) {
+                                HashMap<String, Object> fileInfo = new HashMap<>();
+                                fileInfo.put("fileName", listOfFiles.get(i));
+                                ((ArrayList<Object>)actionResult).add(fileInfo);
+                            }
                         }
                         break;
                     case UPLOAD_FILE_FROM_BODY:
@@ -498,6 +500,10 @@ public class AmazonS3Plugin extends BasePlugin {
                         actionResult = Map.of("fileData", result);
                         break;
                     case DELETE_FILE:
+                        /*
+                         * - If attempting to delete an object that does not exist, Amazon S3 returns a success message
+                         *   instead of an error message.
+                         */
                         connection.deleteObject(bucketName, path);
                         actionResult = Map.of("status", "File deleted successfully");
                         break;

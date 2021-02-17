@@ -168,7 +168,7 @@ public class AmazonS3PluginTest {
     }
     
     @Test
-    public void testListFilesInBucket() {
+    public void testListFilesInBucketWithNoUrl() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
@@ -182,6 +182,7 @@ public class AmazonS3PluginTest {
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("action", "LIST"));
         properties.add(new Property("bucketName", "bucket_name"));
+        properties.add(new Property("getSignedUrl", "NO"));
         actionConfiguration.setPluginSpecifiedTemplates(properties);
 
         ObjectListing mockObjectListing = mock(ObjectListing.class);
@@ -210,13 +211,16 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
 
-                    Map<String, ArrayList<String>> node = (Map<String, ArrayList<String>>)result.getBody();
+                    ArrayList<Map<String, String>> node = (ArrayList<Map<String, String>>) result.getBody();
+                    ArrayList<String> resultFilenamesArray = new ArrayList<>();
+                    resultFilenamesArray.add(node.get(0).get("fileName"));
+                    resultFilenamesArray.add(node.get(1).get("fileName"));
                     assertArrayEquals(
                             new String[]{
                                     dummyKey1,
                                     dummyKey2
                             },
-                            node.get("files").toArray()
+                            resultFilenamesArray.toArray()
                     );
                 })
                 .verifyComplete();
@@ -344,8 +348,7 @@ public class AmazonS3PluginTest {
         StepVerifier.create(resultMono)
                 .verifyErrorSatisfies(e -> {
                     assertTrue(e instanceof AppsmithPluginException);
-                    assertTrue(e.getMessage().contains("Appsmith has encountered an unexpected error when decoding " +
-                            "base64 encoded content"));
+                    assertTrue(e.getMessage().contains("File content is not base64 encoded"));
                 });
     }
 
@@ -516,13 +519,16 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
 
-                    Map<String, ArrayList<String>> node = (Map<String, ArrayList<String>>)result.getBody();
+                    ArrayList<Map<String, String>> node = (ArrayList<Map<String, String>>) result.getBody();
+                    ArrayList<String> resultFilenamesArray = new ArrayList<>();
+                    resultFilenamesArray.add(node.get(0).get("fileName"));
+                    resultFilenamesArray.add(node.get(1).get("fileName"));
                     assertArrayEquals(
                             new String[]{
                                     dummyKey1,
                                     dummyKey2
                             },
-                            node.get("files").toArray()
+                            resultFilenamesArray.toArray()
                     );
                 })
                 .verifyComplete();
@@ -543,8 +549,8 @@ public class AmazonS3PluginTest {
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("action", "LIST"));
         properties.add(new Property("bucketName", "bucket_name"));
-        properties.add(new Property(null, "YES"));
-        properties.add(new Property(null, "1000"));
+        properties.add(new Property("getSignedUrl", "YES"));
+        properties.add(new Property("urlExpiry", "1000"));
         properties.add(new Property(null, ""));
         actionConfiguration.setPluginSpecifiedTemplates(properties);
 
@@ -578,26 +584,31 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
 
-                    ArrayList<String> val1 = new ArrayList<>();
-                    val1.add(dummyKey1);
-                    val1.add(dummyUrl1.toString());
-
-                    ArrayList<String> val2 = new ArrayList<>();
-                    val2.add(dummyKey2);
-                    val2.add(dummyUrl2.toString());
-
-                    ArrayList<ArrayList<String>> expectedResult = new ArrayList<>();
-                    expectedResult.add(val1);
-                    expectedResult.add(val2);
-
-                    Map<String, ArrayList<ArrayList<String>>> node =
-                            (Map<String, ArrayList<ArrayList<String>>>)result.getBody();
+                    ArrayList<Map<String, String>> node = (ArrayList<Map<String, String>>) result.getBody();
+                    ArrayList<String> resultFilenamesArray = new ArrayList<>();
+                    resultFilenamesArray.add(node.get(0).get("fileName"));
+                    resultFilenamesArray.add(node.get(1).get("fileName"));
                     assertArrayEquals(
-                            expectedResult.toArray(),
-                            node.get("files").toArray()
+                            new String[]{
+                                    dummyKey1,
+                                    dummyKey2
+                            },
+                            resultFilenamesArray.toArray()
                     );
 
-                    assertNotNull(node.get("urlExpiryDate"));
+                    ArrayList<String> resultUrlArray = new ArrayList<>();
+                    resultUrlArray.add(node.get(0).get("signedUrl"));
+                    resultUrlArray.add(node.get(1).get("signedUrl"));
+                    assertArrayEquals(
+                            new String[]{
+                                    dummyUrl1.toString(),
+                                    dummyUrl2.toString()
+                            },
+                            resultUrlArray.toArray()
+                    );
+
+                    assertNotNull(node.get(0).get("urlExpiryDate"));
+                    assertNotNull(node.get(1).get("urlExpiryDate"));
                 })
                 .verifyComplete();
     }
@@ -652,26 +663,31 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
 
-                    ArrayList<String> val1 = new ArrayList<>();
-                    val1.add(dummyKey1);
-                    val1.add(dummyUrl1.toString());
-
-                    ArrayList<String> val2 = new ArrayList<>();
-                    val2.add(dummyKey2);
-                    val2.add(dummyUrl2.toString());
-
-                    ArrayList<ArrayList<String>> expectedResult = new ArrayList<>();
-                    expectedResult.add(val1);
-                    expectedResult.add(val2);
-
-                    Map<String, ArrayList<ArrayList<String>>> node =
-                            (Map<String, ArrayList<ArrayList<String>>>)result.getBody();
+                    ArrayList<Map<String, String>> node = (ArrayList<Map<String, String>>) result.getBody();
+                    ArrayList<String> resultFilenamesArray = new ArrayList<>();
+                    resultFilenamesArray.add(node.get(0).get("fileName"));
+                    resultFilenamesArray.add(node.get(1).get("fileName"));
                     assertArrayEquals(
-                            expectedResult.toArray(),
-                            node.get("files").toArray()
+                            new String[]{
+                                    dummyKey1,
+                                    dummyKey2
+                            },
+                            resultFilenamesArray.toArray()
                     );
 
-                    assertNotNull(node.get("urlExpiryDate"));
+                    ArrayList<String> resultUrlArray = new ArrayList<>();
+                    resultUrlArray.add(node.get(0).get("signedUrl"));
+                    resultUrlArray.add(node.get(1).get("signedUrl"));
+                    assertArrayEquals(
+                            new String[]{
+                                    dummyUrl1.toString(),
+                                    dummyUrl2.toString()
+                            },
+                            resultUrlArray.toArray()
+                    );
+
+                    assertNotNull(node.get(0).get("urlExpiryDate"));
+                    assertNotNull(node.get(1).get("urlExpiryDate"));
                 })
                 .verifyComplete();
     }
