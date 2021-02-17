@@ -42,3 +42,4 @@ storybook-static/*
 build-storybook.log
 
 .eslintcache
+.vscode
