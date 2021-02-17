@@ -19,7 +19,9 @@ import java.util.stream.Collectors;
 public interface PluginExecutor<C> extends ExtensionPoint {
 
     /**
-     * This function is used to execute the action.
+     * This function is implemented by the plugins by default to execute the action.
+     *
+     * If executeParametrized has a custom implementation by a plugin, this function would not be used.
      *
      * @param connection              : This is the connection that is established to the data source. This connection is according
      *                                to the parameters in Datasource Configuration
@@ -91,6 +93,21 @@ public interface PluginExecutor<C> extends ExtensionPoint {
         return Mono.empty();
     }
 
+    /**
+     * Appsmith Server calls this function for execution of the action.
+     * Default implementation which takes the variables that need to be substituted and then calls the plugin execute function
+     *
+     * Plugins requiring their custom implementation of variable substitution should override this function and then are
+     * responsible both for variable substitution and final execution.
+     *
+     * @param connection              : This is the connection that is established to the data source. This connection is according
+     *                                to the parameters in Datasource Configuration
+     * @param executeActionDTO        : This is the data structure sent by the client during execute. This contains the params
+     *                                which would be used for substitution
+     * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
+     * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
+     * @return ActionExecutionResult  : This object is returned to the user which contains the result values from the execution.
+     */
     default Mono<ActionExecutionResult> executeParametrized(C connection,
                                                             ExecuteActionDTO executeActionDTO,
                                                             DatasourceConfiguration datasourceConfiguration,
@@ -99,6 +116,12 @@ public interface PluginExecutor<C> extends ExtensionPoint {
         return this.execute(connection, datasourceConfiguration, actionConfiguration);
     }
 
+    /**
+     * This function is responsible for preparing the action and datasource configurations to be ready for execution.
+     * @param executeActionDTO
+     * @param actionConfiguration
+     * @param datasourceConfiguration
+     */
     default void prepareConfigurationsForExecution(ExecuteActionDTO executeActionDTO,
                                                    ActionConfiguration actionConfiguration,
                                                    DatasourceConfiguration datasourceConfiguration) {

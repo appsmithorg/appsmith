@@ -161,6 +161,7 @@ public class MustacheHelper {
         return keys;
     }
 
+    // For prepared statements we should extract the bindings in order in a list and include duplicate bindings as well.
     public static List<String> extractMustacheKeysInOrder(String template) {
         List<String> keys = new ArrayList<>();
 

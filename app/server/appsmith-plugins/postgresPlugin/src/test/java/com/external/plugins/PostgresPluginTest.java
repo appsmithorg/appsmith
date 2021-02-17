@@ -438,6 +438,7 @@ public class PostgresPluginTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
+        // First test with the binding not surrounded with quotes
         actionConfiguration.setBody("SELECT * FROM public.\"users\" where id = {{binding1}};");
 
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
@@ -497,6 +498,7 @@ public class PostgresPluginTest {
                 })
                 .verifyComplete();
 
+        // Now test with the bindings surrounded by double quotes
         actionConfiguration.setBody("SELECT * FROM public.\"users\" where id = \"{{binding1}}\";");
         resultMono = connectionCreateMono
                 .flatMap(pool -> pluginExecutor.executeParametrized(pool, executeActionDTO, dsConfig, actionConfiguration));
@@ -541,6 +543,7 @@ public class PostgresPluginTest {
                 })
                 .verifyComplete();
 
+        // Now test with the bindings surrounded by single quotes
         actionConfiguration.setBody("SELECT * FROM public.\"users\" where id = '{{binding1}}';");
         resultMono = connectionCreateMono
                 .flatMap(pool -> pluginExecutor.executeParametrized(pool, executeActionDTO, dsConfig, actionConfiguration));

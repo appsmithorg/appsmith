@@ -83,6 +83,18 @@ public class RestApiPlugin extends BasePlugin {
         private final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
         private final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
 
+        /**
+         * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
+         * also update the datasource and action configuration for pagination and some minor cleanup of the configuration before execution
+         *
+         * @param connection              : This is the connection that is established to the data source. This connection is according
+         *                                to the parameters in Datasource Configuration
+         * @param executeActionDTO        : This is the data structure sent by the client during execute. This contains the params
+         *                                which would be used for substitution
+         * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
+         * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
+         * @return
+         */
         @Override
         public Mono<ActionExecutionResult> executeParametrized(APIConnection connection,
                                                                 ExecuteActionDTO executeActionDTO,

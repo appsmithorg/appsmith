@@ -120,6 +120,20 @@ public class PostgresPlugin extends BasePlugin {
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
 
+        /**
+         * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
+         * to use PreparedStatement (if configured) which requires the variable substitution, etc. to happen in a particular format
+         * supported by PreparedStatement. In case of PreparedStatement turned off, the action and datasource configurations are
+         * prepared (binding replacement) using PluginExecutor.variableSubstitution
+         *
+         * @param connection              : This is the connection that is established to the data source. This connection is according
+         *                                to the parameters in Datasource Configuration
+         * @param executeActionDTO        : This is the data structure sent by the client during execute. This contains the params
+         *                                which would be used for substitution
+         * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
+         * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
+         * @return
+         */
         @Override
         public Mono<ActionExecutionResult> executeParametrized(HikariDataSource connection,
                                                                 ExecuteActionDTO executeActionDTO,
@@ -138,6 +152,7 @@ public class PostgresPlugin extends BasePlugin {
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             if(properties.get(PREPARED_STATEMENT_INDEX) == null) {
                 // If the configuration does not exist, default to true
+                // Note this is not possible today since the query editor sets a default value for this field.
                 isPreparedStatement = true;
             } else {
                 isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
