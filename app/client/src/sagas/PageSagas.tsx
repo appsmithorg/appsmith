@@ -83,6 +83,8 @@ import { getCanvasWidgets } from "selectors/entitiesSelector";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -335,13 +337,19 @@ function* savePageSaga() {
     );
     const isValidResponse = yield validateResponse(savePageResponse);
     if (isValidResponse) {
-      if (
-        savePageResponse.data.layoutOnLoadActions &&
-        savePageResponse.data.layoutOnLoadActions.length > 0
-      ) {
-        for (const actionSet of savePageResponse.data.layoutOnLoadActions) {
-          yield put(setActionsToExecuteOnPageLoad(actionSet.map((a) => a.id)));
-        }
+      const { messages, actionUpdates } = savePageResponse.data;
+      // Show toast messages from the server
+      if (messages && messages.length) {
+        savePageResponse.data.messages.forEach((message) => {
+          Toaster.show({
+            text: message,
+            type: Variant.info,
+          });
+        });
+      }
+      // Update actions
+      if (actionUpdates && actionUpdates.length > 0) {
+        yield put(setActionsToExecuteOnPageLoad(actionUpdates));
       }
       yield put(savePageSuccess(savePageResponse));
       PerformanceTracker.stopAsyncTracking(

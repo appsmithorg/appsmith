@@ -139,6 +139,14 @@ const FIELD_VALUES: Record<
     isVisible: "boolean",
     // onCheckChange: "Function Call",
   },
+  SWITCH_WIDGET: {
+    label: "string",
+    defaultSwitchState: "boolean",
+    isDisabled: "boolean",
+    isVisible: "boolean",
+    alignWidget: "LEFT | RIGHT",
+    // onChange: "Function Call",
+  },
   FORM_WIDGET: {
     backgroundColor: "string",
     isVisible: "boolean",

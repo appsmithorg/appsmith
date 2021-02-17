@@ -30,7 +30,9 @@ describe("Create new org and share with a user", function() {
     cy.get(homePage.searchInput).type(appid);
     cy.wait(2000);
     cy.get(homePage.appsContainer).contains(orgid);
-    cy.xpath(homePage.ShareBtn).should("not.exist");
+    cy.xpath(homePage.ShareBtn)
+      .first()
+      .should("be.visible");
     cy.get(homePage.applicationCard)
       .first()
       .trigger("mouseover");

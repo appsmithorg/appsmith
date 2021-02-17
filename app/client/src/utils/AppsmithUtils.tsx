@@ -13,6 +13,7 @@ import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
 import { ERROR_CODES } from "constants/ApiConstants";
 import { ERROR_500 } from "../constants/messages";
+import localStorage from "utils/localStorage";
 
 export const createReducer = (
   initialState: any,

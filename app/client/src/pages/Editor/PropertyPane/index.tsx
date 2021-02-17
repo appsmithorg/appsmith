@@ -85,7 +85,6 @@ export interface PropertyPaneEnhancements {
   ) => UpdatePropertyPayload[];
 }
 
-/** Components */
 class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   render() {
     const { isVisible, widgetProperties } = this.props;

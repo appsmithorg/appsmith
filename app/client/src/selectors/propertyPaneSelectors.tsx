@@ -3,7 +3,6 @@ import { AppState } from "reducers";
 import { createSelector } from "reselect";
 
 import { WidgetProps } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
