@@ -29,7 +29,6 @@ const PropertyPaneWrapper = styled(PaneWrapper)<{ themeMode?: EditorTheme }>`
   max-height: ${(props) => props.theme.propertyPane.height}px;
   width: ${(props) => props.theme.propertyPane.width}px;
   margin: ${(props) => props.theme.spaces[2]}px;
-  box-shadow: 0px 0px 10px ${(props) => props.theme.colors.paneCard};
   border: ${(props) => props.theme.spaces[5]}px solid
     ${(props) => props.theme.colors.propertyPane.bg};
   border-right: 0;

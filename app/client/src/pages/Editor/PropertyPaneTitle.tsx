@@ -1,9 +1,10 @@
-import React, { useState, memo, useEffect, useCallback, useRef } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import EditableText, {
   EditInteractionKind,
-} from "components/editorComponents/EditableText";
+  SavingState,
+} from "components/ads/EditableText";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import { AppState } from "reducers";
 import Spinner from "components/editorComponents/Spinner";
@@ -13,12 +14,13 @@ import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { BindingText } from "pages/Editor/APIEditor/Form";
 
-import { Icon, Tooltip, Position, Classes } from "@blueprintjs/core";
+import { Classes, Icon, Position, Tooltip } from "@blueprintjs/core";
 import { WidgetType } from "constants/WidgetConstants";
 import { theme } from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
-import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
+import { copyWidget, deleteSelectedWidget } from "actions/widgetActions";
+
 const CopyIcon = ControlIcons.COPY_CONTROL;
 const DeleteIcon = FormIcons.DELETE_ICON;
 const Wrapper = styled.div`
@@ -112,7 +114,6 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
     <Wrapper>
       <NameWrapper>
         <EditableText
-          type="text"
           valueTransform={removeSpecialChars}
           defaultValue={name}
           onTextChanged={updateTitle}
@@ -122,9 +123,10 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
           isEditingDefault={isNew}
           onBlur={exitEditMode}
           hideEditIcon
-          minimal
           className="t--propery-page-title"
-          beforeUnmount={updateTitle}
+          savingState={updating ? SavingState.STARTED : SavingState.NOT_STARTED}
+          fill
+          underline
         />
         {updating && <Spinner size={16} />}
       </NameWrapper>
