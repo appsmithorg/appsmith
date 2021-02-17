@@ -3,11 +3,13 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.PaginationField;
+import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -200,7 +202,7 @@ public class ActionServiceTest {
         newPage.setName("Destination Page");
         newPage.setApplicationId(testApp.getId());
         PageDTO destinationPage = applicationPageService.createPage(newPage).block();
-        
+
         ActionDTO action = new ActionDTO();
         action.setName("validAction");
         action.setPageId(testPage.getId());
@@ -512,7 +514,52 @@ public class ActionServiceTest {
                 })
                 .verifyComplete();
     }
-    
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testActionExecuteNullPaginationParameters() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("response-body");
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHeaders(List.of(
+                new Property("random-header-key", "random-header-value"),
+                new Property("", "")
+        ));
+        actionConfiguration.setPaginationType(PaginationType.URL);
+        actionConfiguration.setNext(null);
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecuteErrorResponse");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        action.setDatasource(datasource);
+        ActionDTO createdAction = newActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+        executeActionDTO.setPaginationField(PaginationField.NEXT);
+
+        AppsmithPluginException pluginException = new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR);
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.error(pluginException));
+        Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
+
+        Mono<ActionExecutionResult> executionResultMono = newActionService.executeAction(executeActionDTO);
+
+        StepVerifier.create(executionResultMono)
+                .assertNext(result -> {
+                    assertThat(result.getIsExecutionSuccess()).isFalse();
+                    assertThat(result.getStatusCode()).isEqualTo(pluginException.getAppErrorCode().toString());
+                })
+                .verifyComplete();
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteSecondaryStaleConnection() {
@@ -590,7 +637,7 @@ public class ActionServiceTest {
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
-                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_TIMEOUT_ERROR.getAppErrorCode().toString());
+                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getAppErrorCode().toString());
                 })
                 .verifyComplete();
     }
@@ -606,7 +653,7 @@ public class ActionServiceTest {
         action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
-        actionConfiguration.setBody("{{"+key+"}}");
+        actionConfiguration.setBody("{{" + key + "}}");
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 

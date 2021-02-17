@@ -39,7 +39,11 @@ export const EditorThemes: Record<EditorTheme, string> = {
   [EditorTheme.DARK]: "duotone-dark",
 };
 
-export type HintHelper = (editor: CodeMirror.Editor, data: DataTree) => Hinter;
+export type HintHelper = (
+  editor: CodeMirror.Editor,
+  data: DataTree,
+  additionalData?: Record<string, Record<string, unknown>>,
+) => Hinter;
 export type Hinter = {
   showHint: (editor: CodeMirror.Editor) => void;
   update?: (data: DataTree) => void;
@@ -47,3 +51,9 @@ export type Hinter = {
 };
 
 export type MarkHelper = (editor: CodeMirror.Editor) => void;
+
+export enum CodeEditorBorder {
+  NONE = "none",
+  ALL_SIDE = "all-side",
+  BOTTOM_SIDE = "bottom-side",
+}

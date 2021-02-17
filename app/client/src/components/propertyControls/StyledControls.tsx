@@ -13,7 +13,9 @@ import { DropdownOption } from "widgets/DropdownWidget";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput, DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
-import { Skin } from "constants/DefaultTheme";
+import { Skin, createGlobalStyle } from "constants/DefaultTheme";
+import { AnyStyledComponent } from "styled-components";
+import { ControlIcons } from "icons/ControlIcons";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -21,16 +23,17 @@ type ControlWrapperProps = {
 };
 
 export const ControlWrapper = styled.div<ControlWrapperProps>`
-  display: ${props => (props.orientation === "HORIZONTAL" ? "flex" : "block")};
+  display: ${(props) =>
+    props.orientation === "HORIZONTAL" ? "flex" : "block"};
   justify-content: space-between;
   align-items: center;
-  flex-direction: ${props =>
+  flex-direction: ${(props) =>
     props.orientation === "VERTICAL" ? "column" : "row"};
-  padding: ${props => (props.isAction ? "0" : "4px 0 ")};
+  padding: ${(props) => (props.isAction ? "0" : "4px 0 ")};
   & > label {
-    color: ${props => props.theme.colors.paneText};
-    margin-bottom: ${props => props.theme.spaces[1]}px;
-    font-size: ${props => props.theme.fontSizes[3]}px;
+    color: ${(props) => props.theme.colors.paneText};
+    margin-bottom: ${(props) => props.theme.spaces[1]}px;
+    font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
   &&& > label:first-of-type {
     display: block;
@@ -44,12 +47,12 @@ export const ControlPropertyLabelContainer = styled.div`
   display: flex;
   align-items: center;
   label {
-    color: ${props => props.theme.colors.paneText};
-    margin-bottom: ${props => props.theme.spaces[1]}px;
-    font-size: ${props => props.theme.fontSizes[3]}px;
+    color: ${(props) => props.theme.colors.paneText};
+    margin-bottom: ${(props) => props.theme.spaces[1]}px;
+    font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
   .underline {
-    color: ${props => props.theme.colors.paneTextUnderline};
+    color: ${(props) => props.theme.colors.paneTextUnderline};
   }
 `;
 
@@ -60,7 +63,7 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
   svg {
     height: 24px;
     rect {
-      fill: ${props =>
+      fill: ${(props) =>
         props.active
           ? props.theme.colors.primaryOld
           : props.theme.colors.paneIcon};
@@ -92,61 +95,53 @@ export const StyledDropDownContainer = styled.div`
       }
     }
   }
-  &&&& .${Classes.MENU_ITEM} {
-    border-radius: ${props => props.theme.radii[1]}px;
-    &:hover {
-      background: ${Colors.POLAR};
+  width: 100%;
+`;
+
+export const DropdownStyles = createGlobalStyle`
+  .select-popover-wrapper {
+    width: 100%;
+    border-radius: ${(props) => props.theme.radii[1]}px;
+    box-shadow:  0px 2px 4px rgba(67, 70, 74, 0.14);
+    padding: ${(props) => props.theme.spaces[3]}px;
+    background: white;
+    && .${Classes.MENU} {
+      max-width: 100%;
+      max-height: auto;
     }
-    &.${Classes.ACTIVE} {
-      background: ${Colors.POLAR};
-      color: ${props => props.theme.colors.textDefault};
-      position: relative;
-      &.single-select {
-        &:before {
-          left: 0;
-          top: -2px;
-          position: absolute;
-          content: "";
-          background: ${props => props.theme.colors.primaryOld};
-          border-radius: 4px 0 0 4px;
-          width: 4px;
-          height: 100%;
+    &&&& .${Classes.MENU_ITEM} {
+      border-radius: ${(props) => props.theme.radii[1]}px;
+      &:hover {
+        background: ${Colors.POLAR};
+      }
+      &.${Classes.ACTIVE} {
+        background: ${Colors.POLAR};
+        color: ${(props) => props.theme.colors.textDefault};
+        position: relative;
+        &.single-select {
+          &:before {
+            left: 0;
+            top: -2px;
+            position: absolute;
+            content: "";
+            background: ${(props) => props.theme.colors.primaryOld};
+            border-radius: 4px 0 0 4px;
+            width: 4px;
+            height: 100%;
+          }
         }
       }
-    }
+    }    
   }
-  && .${Classes.POPOVER} {
-    width: 100%;
-    border-radius: ${props => props.theme.radii[1]}px;
-    box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
-    padding: ${props => props.theme.spaces[3]}px;
-    background: white;
-  }
-
-  &&&& .${Classes.POPOVER_CONTENT} {
-    box-shadow: none;
-  }
-
-  && .${Classes.POPOVER_WRAPPER} {
-    .${Classes.OVERLAY} {
-      .${Classes.TRANSITION_CONTAINER} {
-        width: 100%;
-      }
-    }
-  }
-  && .${Classes.MENU} {
-    max-width: 100%;
-    max-height: auto;
-  }
-  width: 100%;
 `;
 
 export const StyledMenu = styled(Menu)`
   && {
-    background: ${props => props.theme.dropdown[Skin.DARK].inActiveBG};
+    background: ${(props) => props.theme.dropdown[Skin.DARK].background};
+    border-radius: unset;
   }
   .bp3-submenu .bp3-menu {
-    background: ${props => props.theme.dropdown[Skin.DARK].inActiveBG};
+    background: ${(props) => props.theme.dropdown[Skin.DARK].background};
   }
 `;
 
@@ -216,20 +211,20 @@ export const StyledPopover = styled(Popover)`
 
 export const StyledMenuItem = styled(MenuItem)`
   &&&&&& {
-    border-radius: ${props => props.theme.radii[1]}px;
-    background: ${props => props.theme.dropdown[Skin.DARK].inActiveBG};
-    color: ${props => props.theme.dropdown[Skin.DARK].inActiveText};
+    border-radius: ${(props) => props.theme.radii[1]}px;
+    background: ${(props) => props.theme.dropdown[Skin.DARK].background};
+    color: ${(props) => props.theme.dropdown[Skin.DARK].inActiveText};
     padding: 4px 8px;
     margin: 4px 0px;
     &:hover {
-      background: ${props => props.theme.dropdown[Skin.DARK].hoverBG};
+      background: ${(props) => props.theme.dropdown[Skin.DARK].hoverBG};
       &&&.bp3-menu-item.bp3-intent-danger:hover {
-        background: ${props => props.theme.colors.error};
+        background: ${(props) => props.theme.colors.error};
       }
     }
     &.${Classes.ACTIVE} {
-      background: ${props => props.theme.dropdown[Skin.DARK].hoverBG};
-      color: ${props => props.theme.dropdown[Skin.DARK].hoverText};
+      background: ${(props) => props.theme.dropdown[Skin.DARK].hoverBG};
+      color: ${(props) => props.theme.dropdown[Skin.DARK].hoverText};
       position: relative;
       &.single-select {
         &:before {
@@ -237,7 +232,7 @@ export const StyledMenuItem = styled(MenuItem)`
           top: -2px;
           position: absolute;
           content: "";
-          background: ${props => props.theme.dropdown[Skin.DARK].hoverBG};
+          background: ${(props) => props.theme.dropdown[Skin.DARK].hoverBG};
           border-radius: 4px 0 0 4px;
           width: 4px;
           height: 100%;
@@ -245,7 +240,7 @@ export const StyledMenuItem = styled(MenuItem)`
       }
     }
     &&&& .${Classes.MENU} {
-      background: ${props => props.theme.dropdown[Skin.DARK].inActiveBG};
+      background: ${(props) => props.theme.dropdown[Skin.DARK].inActiveBG};
     }
   }
 `;
@@ -253,15 +248,15 @@ export const StyledMenuItem = styled(MenuItem)`
 const MultiSelectDropDown = MultiSelect.ofType<DropdownOption>();
 export const StyledMultiSelectDropDown = styled(MultiSelectDropDown)`
   &&& button {
-    background: ${props => props.theme.colors.paneInputBG};
-    color: ${props => props.theme.colors.textOnDarkBG};
+    background: ${(props) => props.theme.colors.paneInputBG};
+    color: ${(props) => props.theme.colors.textOnDarkBG};
     box-shadow: none;
   }
 `;
 
 export const StyledSwitch = styled(Switch)`
   &&&&& input:checked ~ span {
-    background: ${props => props.theme.colors.primaryOld};
+    background: ${(props) => props.theme.colors.primaryOld};
   }
 `;
 
@@ -270,12 +265,12 @@ export const StyledDynamicInput = styled.div`
   &&& {
     input {
       border: none;
-      color: ${props => props.theme.colors.textOnDarkBG};
-      background: ${props => props.theme.colors.paneInputBG};
+      color: ${(props) => props.theme.colors.textOnDarkBG};
+      background: ${(props) => props.theme.colors.paneInputBG};
       &:focus {
         border: none;
-        color: ${props => props.theme.colors.textOnDarkBG};
-        background: ${props => props.theme.colors.paneInputBG};
+        color: ${(props) => props.theme.colors.textOnDarkBG};
+        background: ${(props) => props.theme.colors.paneInputBG};
       }
     }
   }
@@ -283,31 +278,31 @@ export const StyledDynamicInput = styled.div`
 
 export const StyledInputGroup = styled(InputGroup)`
   & > input {
-    placeholder-text: ${props => props.placeholder};
-    color: ${props => props.theme.colors.textOnDarkBG};
-    background: ${props => props.theme.colors.paneInputBG};
+    placeholder-text: ${(props) => props.placeholder};
+    color: ${(props) => props.theme.colors.textOnDarkBG};
+    background: ${(props) => props.theme.colors.paneInputBG};
   }
 `;
 
 export const StyledDatePicker = styled(DateInput)`
   > input {
-    color: ${props => props.theme.colors.textOnDarkBG};
-    background: ${props => props.theme.colors.paneInputBG};
+    color: ${(props) => props.theme.colors.textOnDarkBG};
+    background: ${(props) => props.theme.colors.paneInputBG};
     border: 1px solid green;
   }
 `;
 
 export const StyledDateRangePicker = styled(DateRangeInput)`
   > input {
-    color: ${props => props.theme.colors.textOnDarkBG};
-    background: ${props => props.theme.colors.paneInputBG};
+    color: ${(props) => props.theme.colors.textOnDarkBG};
+    background: ${(props) => props.theme.colors.paneInputBG};
     border: 1px solid green;
   }
 `;
 
 export const StyledPropertyPaneButton = styled(Button)`
   &&&& {
-    background-color: ${props => props.theme.colors.infoOld};
+    background-color: ${(props) => props.theme.colors.infoOld};
     color: #ffffff;
     margin-top: 4px;
     .bp3-icon {
@@ -324,4 +319,105 @@ export const StyledPropertyPaneButton = styled(Button)`
 export const FieldWrapper = styled.div`
   position: relative;
   width: 100%;
+`;
+
+export const StyledEditIcon = styled(
+  ControlIcons.SETTINGS_CONTROL as AnyStyledComponent,
+)`
+  padding: 0;
+  position: absolute;
+  margin-left: 0;
+  cursor: pointer;
+  right: 35px;
+  & svg {
+    width: 12px;
+    height: 12px;
+    position: relative;
+    top: 2px;
+    path {
+      fill: ${(props) => props.theme.colors.paneSectionLabel};
+    }
+  }
+`;
+
+export const StyledDragIcon = styled(
+  ControlIcons.DRAG_CONTROL as AnyStyledComponent,
+)`
+  padding: 0;
+  position: absolute;
+  margin-right: 15px;
+  cursor: move;
+  z-index: 1;
+  left: 4px;
+  svg {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    top: 2px;
+    path {
+      fill: ${(props) => props.theme.colors.paneSectionLabel};
+    }
+  }
+`;
+
+export const StyledDeleteIcon = styled(
+  ControlIcons.DELETE_COLUMN as AnyStyledComponent,
+)`
+  padding: 0;
+  position: absolute;
+  margin-left: 15px;
+  cursor: pointer;
+  right: 16px;
+  svg {
+    width: 24px;
+    height: 24px;
+    top: -2px;
+    position: relative;
+    path {
+      fill: ${(props) => props.theme.colors.paneSectionLabel};
+    }
+  }
+`;
+
+export const FlexWrapper = styled.div`
+  display: flex;
+`;
+
+export const StyledVisibleIcon = styled(
+  ControlIcons.SHOW_COLUMN as AnyStyledComponent,
+)`
+  padding: 0;
+  position: absolute;
+  margin-left: 15px;
+  cursor: pointer;
+  right: 16px;
+  svg {
+    width: 24px;
+    height: 24px;
+    top: -2px;
+    position: relative;
+    path {
+      fill: ${(props) => props.theme.colors.paneSectionLabel};
+    }
+  }
+`;
+
+export const StyledHiddenIcon = styled(
+  ControlIcons.HIDE_COLUMN as AnyStyledComponent,
+)`
+  padding: 0;
+  position: absolute;
+  margin-left: 15px;
+  cursor: pointer;
+  right: 16px;
+  svg {
+    width: 14px;
+    top: 3px;
+    height: 14px;
+    left: 3px;
+    position: relative;
+    path {
+      fill: ${(props) => props.theme.colors.paneSectionLabel};
+    }
+  }
 `;

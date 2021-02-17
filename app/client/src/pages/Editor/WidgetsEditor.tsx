@@ -29,7 +29,7 @@ const EditorWrapper = styled.div`
   align-items: stretch;
   justify-content: flex-start;
   overflow: hidden;
-  height: calc(100vh - ${props => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
 `;
 
 const CanvasContainer = styled.section`
@@ -112,6 +112,7 @@ const WidgetsEditor = () => {
   if (!isFetchingPage && widgets) {
     node = <Canvas dsl={widgets} />;
   }
+
   log.debug("Canvas rendered");
   PerformanceTracker.stopTracking();
   return (

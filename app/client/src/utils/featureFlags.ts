@@ -1,4 +1,5 @@
 import { FeatureFlagConfig, FeatureFlagsEnum } from "configs/types";
+import localStorage from "utils/localStorage";
 const optimizelySDK = require("@optimizely/optimizely-sdk");
 
 class FeatureFlag {

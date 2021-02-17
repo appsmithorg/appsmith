@@ -87,12 +87,31 @@ export type EventName =
   | "ROUTE_CHANGE"
   | "PROPERTY_PANE_CLOSE_CLICK"
   | "APPLICATIONS_PAGE_LOAD"
-  | "EXECUTE_ACTION";
+  | "EXECUTE_ACTION"
+  | "WELCOME_TOUR_CLICK"
+  | "ONBOARDING_WELCOME"
+  | "ONBOARDING_START_BUILDING"
+  | "ONBOARDING_INTRODUCTION"
+  | "ONBOARDING_ADD_QUERY"
+  | "ONBOARDING_RUN_QUERY"
+  | "ONBOARDING_ADD_WIDGET_CLICK"
+  | "ONBOARDING_ADD_WIDGET_TABLE"
+  | "ONBOARDING_ADD_WIDGET_INPUT"
+  | "ONBOARDING_ONSUBMIT_SUCCESS"
+  | "ONBOARDING_BINDING_HINT"
+  | "ONBOARDING_CHEAT"
+  | "ONBOARDING_SUCCESSFUL_BINDING"
+  | "ONBOARDING_DEPLOY"
+  | "ONBOARDING_SKIP_NOW"
+  | "ONBOARDING_NEXT_MISSION"
+  | "ONBOARDING_GO_HOME"
+  | "END_ONBOARDING"
+  | "ONBOARDING_COMPLETE";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
   const applicationsIndex = pathSplit.findIndex(
-    path => path === "applications",
+    (path) => path === "applications",
   );
   const appId = pathSplit[applicationsIndex + 1];
 
@@ -203,6 +222,7 @@ class AnalyticsUtil {
         userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
       };
     }
+
     if (windowDoc.analytics) {
       log.debug("Event fired", eventName, finalEventData);
       windowDoc.analytics.track(eventName, finalEventData);

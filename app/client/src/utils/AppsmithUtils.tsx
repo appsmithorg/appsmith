@@ -13,6 +13,7 @@ import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
 import { ERROR_CODES } from "constants/ApiConstants";
 import { ERROR_500 } from "../constants/messages";
+import localStorage from "utils/localStorage";
 
 export const createReducer = (
   initialState: any,
@@ -48,7 +49,7 @@ export const appInitializer = () => {
   if (appsmithConfigs.sentry.enabled) {
     Sentry.init({
       ...appsmithConfigs.sentry,
-      beforeBreadcrumb(breadcrumb, hint) {
+      beforeBreadcrumb(breadcrumb) {
         if (breadcrumb.category === "console" && breadcrumb.level !== "error") {
           return null;
         }
@@ -92,9 +93,14 @@ export const mapToPropList = (map: Record<string, string>): Property[] => {
   });
 };
 
-export const getNextEntityName = (prefix: string, existingNames: string[]) => {
+export const getNextEntityName = (
+  prefix: string,
+  existingNames: string[],
+  startWithoutIndex?: boolean,
+) => {
   const regex = new RegExp(`^${prefix}(\\d+)$`);
-  const usedIndices: number[] = existingNames.map(name => {
+
+  const usedIndices: number[] = existingNames.map((name) => {
     if (name && regex.test(name)) {
       const matches = name.match(regex);
       const ind =
@@ -106,13 +112,22 @@ export const getNextEntityName = (prefix: string, existingNames: string[]) => {
 
   const lastIndex = Math.max(...usedIndices, ...[0]);
 
+  if (startWithoutIndex && lastIndex === 0) {
+    const exactMatchFound = existingNames.some(
+      (name) => prefix && name.trim() === prefix.trim(),
+    );
+    if (!exactMatchFound) {
+      return prefix.trim();
+    }
+  }
+
   return prefix + (lastIndex + 1);
 };
 
 export const getDuplicateName = (prefix: string, existingNames: string[]) => {
   const trimmedPrefix = prefix.replace(/ /g, "");
   const regex = new RegExp(`^${trimmedPrefix}(\\d+)$`);
-  const usedIndices: number[] = existingNames.map(name => {
+  const usedIndices: number[] = existingNames.map((name) => {
     if (name && regex.test(name)) {
       const matches = name.match(regex);
       const ind =
@@ -129,8 +144,8 @@ export const getDuplicateName = (prefix: string, existingNames: string[]) => {
 
 export const createNewApiName = (actions: ActionDataState, pageId: string) => {
   const pageApiNames = actions
-    .filter(a => a.config.pageId === pageId)
-    .map(a => a.config.name);
+    .filter((a) => a.config.pageId === pageId)
+    .map((a) => a.config.name);
   return getNextEntityName("Api", pageApiNames);
 };
 
@@ -143,8 +158,8 @@ export const createNewQueryName = (
   pageId: string,
 ) => {
   const pageApiNames = queries
-    .filter(a => a.config.pageId === pageId)
-    .map(a => a.config.name);
+    .filter((a) => a.config.pageId === pageId)
+    .map((a) => a.config.name);
   const newName = getNextEntityName("Query", pageApiNames);
   return newName;
 };
@@ -162,8 +177,10 @@ export const convertToString = (value: any): string => {
 
 const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
   let logLevel = configLevel;
-  const localStorageLevel = localStorage.getItem("logLevel") as LogLevelDesc;
-  if (localStorageLevel) logLevel = localStorageLevel;
+  if (localStorage && localStorage.getItem) {
+    const localStorageLevel = localStorage.getItem("logLevel") as LogLevelDesc;
+    if (localStorageLevel) logLevel = localStorageLevel;
+  }
   return logLevel;
 };
 
@@ -244,7 +261,7 @@ export function getQueryParams() {
 
 export function convertObjectToQueryParams(object: any): string {
   if (!_.isNil(object)) {
-    const paramArray: string[] = _.map(_.keys(object), key => {
+    const paramArray: string[] = _.map(_.keys(object), (key) => {
       return encodeURIComponent(key) + "=" + encodeURIComponent(object[key]);
     });
     return "?" + _.join(paramArray, "&");

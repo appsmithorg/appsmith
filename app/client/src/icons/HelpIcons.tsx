@@ -5,6 +5,7 @@ import { ReactComponent as DocumentIcon } from "assets/icons/help/document.svg";
 import { ReactComponent as HelpIcon } from "assets/icons/help/help.svg";
 import { ReactComponent as GithubIcon } from "assets/icons/help/github-icon.svg";
 import { ReactComponent as DiscordIcon } from "assets/icons/help/discord.svg";
+import { ReactComponent as UpdatesIcon } from "assets/icons/help/updates.svg";
 import { Icon } from "@blueprintjs/core";
 
 /* eslint-disable react/display-name */
@@ -45,6 +46,11 @@ export const HelpIcons: {
   DISCORD: (props: IconProps) => (
     <IconWrapper {...props}>
       <DiscordIcon />
+    </IconWrapper>
+  ),
+  UPDATES: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <UpdatesIcon />
     </IconWrapper>
   ),
 };

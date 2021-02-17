@@ -16,14 +16,17 @@ import {
 } from "constants/routes";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { DEFAULT_API_ACTION } from "constants/ApiEditorConstants";
-import { ApiActionConfig, PluginType } from "entities/Action";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import { ApiActionConfig, PluginType, QueryAction } from "entities/Action";
 import { renderDatasourceSection } from "./DatasourceSection";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { OnboardingStep } from "constants/OnboardingConstants";
+import { inOnboarding } from "sagas/OnboardingSagas";
+import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 
 const ConnectedText = styled.div`
-  color: ${Colors.GREEN};
+  color: ${Colors.OXFORD_BLUE};
   font-size: 17px;
   font-weight: bold;
   display: flex;
@@ -48,8 +51,8 @@ const Wrapper = styled.div`
 `;
 
 const ActionButton = styled(BaseButton)`
-  &&& {
-    max-width: 140px;
+  &&&& {
+    width: auto;
     align-self: center;
   }
 `;
@@ -59,6 +62,10 @@ const Connected = () => {
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
   );
+
+  // Onboarding
+  const isInOnboarding = useSelector(inOnboarding);
+
   const dispatch = useDispatch();
   const actions = useSelector((state: AppState) => state.entities.actions);
   const currentPageId = useSelector(getCurrentPageId);
@@ -72,22 +79,32 @@ const Connected = () => {
 
   const createQueryAction = useCallback(() => {
     const newQueryName = createNewQueryName(actions, currentPageId || "");
+    let payload = {
+      name: newQueryName,
+      pageId: currentPageId,
+      pluginId: datasource?.pluginId,
+      datasource: {
+        id: datasource?.id,
+      },
+      actionConfiguration: {},
+      eventData: {
+        actionType: "Query",
+        from: "datasource-pane",
+      },
+    } as Partial<QueryAction>; // TODO: refactor later. Handle case for undefined datasource before we reach here.
+    if (datasource)
+      if (isInOnboarding) {
+        // If in onboarding and tooltip is being shown
+        payload = Object.assign({}, payload, {
+          name: "fetch_standup_updates",
+          actionConfiguration: {
+            body:
+              "Select avatar, name, notes from standup_updates order by id desc",
+          },
+        });
+      }
 
-    dispatch(
-      createActionRequest({
-        name: newQueryName,
-        pageId: currentPageId,
-        pluginId: datasource?.pluginId,
-        datasource: {
-          id: datasource?.id,
-        },
-        actionConfiguration: {},
-        eventData: {
-          actionType: "Query",
-          from: "datasource-pane",
-        },
-      }),
-    );
+    dispatch(createActionRequest(payload));
     history.push(
       QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(
         params.applicationId,
@@ -100,11 +117,9 @@ const Connected = () => {
   const createApiAction = useCallback(() => {
     const newApiName = createNewApiName(actions, currentPageId || "");
     const headers = datasource?.datasourceConfiguration?.headers ?? [];
-    const defaultAction: Partial<ApiActionConfig> | undefined = {
-      ...DEFAULT_API_ACTION.actionConfiguration,
-      headers: headers.length
-        ? headers
-        : DEFAULT_API_ACTION.actionConfiguration?.headers,
+    const defaultApiActionConfig: ApiActionConfig = {
+      ...DEFAULT_API_ACTION_CONFIG,
+      headers: headers.length ? headers : DEFAULT_API_ACTION_CONFIG.headers,
     };
 
     if (!datasource?.datasourceConfiguration?.url) {
@@ -120,17 +135,15 @@ const Connected = () => {
       createActionRequest({
         name: newApiName,
         pageId: currentPageId,
-        pluginId: datasource?.pluginId,
+        pluginId: datasource.pluginId,
         datasource: {
-          id: datasource?.id,
+          id: datasource.id,
         },
         eventData: {
           actionType: "API",
           from: "datasource-pane",
         },
-        actionConfiguration: {
-          ...defaultAction,
-        },
+        actionConfiguration: defaultApiActionConfig,
       }),
     );
     history.push(
@@ -153,19 +166,23 @@ const Connected = () => {
             height={30}
             width={30}
           />
-          <div style={{ marginLeft: "12px" }}>Datasource Saved</div>
+
+          <div style={{ marginLeft: "12px" }}>Datasource Connected</div>
         </ConnectedText>
-        <ActionButton
-          className="t--create-query"
-          icon={"plus"}
-          text={isDBDatasource ? "New Query" : "New API"}
-          filled
-          accent="primary"
-          onClick={isDBDatasource ? createQueryAction : createApiAction}
-        />
+
+        <OnboardingIndicator step={OnboardingStep.EXAMPLE_DATABASE} width={120}>
+          <ActionButton
+            className="t--create-query"
+            icon={"plus"}
+            text={isDBDatasource ? "New Query" : "New API"}
+            filled
+            accent="primary"
+            onClick={isDBDatasource ? createQueryAction : createApiAction}
+          />
+        </OnboardingIndicator>
       </Header>
       <div style={{ marginTop: "30px" }}>
-        {!isNil(currentFormConfig)
+        {!isNil(currentFormConfig) && !isNil(datasource)
           ? renderDatasourceSection(currentFormConfig[0], datasource)
           : undefined}
       </div>

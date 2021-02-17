@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Connection;
@@ -9,6 +10,7 @@ import com.appsmith.external.models.Endpoint;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mongodb.MongoCommandException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
@@ -32,6 +34,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for MongoPlugin
@@ -126,6 +133,44 @@ public class MongoPluginTest {
                 .verifyComplete();
     }
 
+    /*
+     * 1. Test that when a query is attempted to run on mongodb but refused because of lack of authorization, then
+     *    also, it indicates a successful connection establishment.
+     */
+    @Test
+    public void testDatasourceWithUnauthorizedException() throws NoSuchFieldException {
+        /*
+         * 1. Create mock exception of type: MongoCommandException.
+         *      - mock method getErrorCodeName() to return String "Unauthorized".
+         */
+        MongoCommandException mockMongoCommandException = mock(MongoCommandException.class);
+        when(mockMongoCommandException.getErrorCodeName()).thenReturn("Unauthorized");
+        when(mockMongoCommandException.getMessage()).thenReturn("Mock Unauthorized Exception");
+
+        /*
+         * 1. Spy MongoPluginExecutor class.
+         *      - On calling testDatasource(...) -> call the real method.
+         *      - On calling datasourceCreate(...) -> throw the mock exception defined above.
+         */
+        MongoPlugin.MongoPluginExecutor mongoPluginExecutor    = new MongoPlugin.MongoPluginExecutor();
+        MongoPlugin.MongoPluginExecutor spyMongoPluginExecutor = spy(mongoPluginExecutor);
+        /* Please check this out before modifying this line: https://stackoverflow
+         * .com/questions/11620103/mockito-trying-to-spy-on-method-is-calling-the-original-method
+         */
+        doReturn(Mono.error(mockMongoCommandException)).when(spyMongoPluginExecutor).datasourceCreate(any());
+
+        /*
+         * 1. Test that MongoCommandException with error code "Unauthorized" is caught and no error is reported.
+         */
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        StepVerifier
+                .create(spyMongoPluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> {
+                    assertTrue(datasourceTestResult.isSuccess());
+                })
+                .verifyComplete();
+    }
+
     @Test
     public void testExecuteReadQuery() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
@@ -150,6 +195,29 @@ public class MongoPluginTest {
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteInvalidReadQuery() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("{\n" +
+                "      find: \"users\",\n" +
+                "      filter: { $is: {} },\n" +
+                "      sort: { id: 1 },\n" +
+                "      limit: 10,\n" +
+                "    }");
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .expectErrorMatches(throwable ->
+                        throwable instanceof AppsmithPluginException &&
+                        throwable.getMessage().equals("unknown top level operator: $is")
+                )
+                .verify();
     }
 
     @Test

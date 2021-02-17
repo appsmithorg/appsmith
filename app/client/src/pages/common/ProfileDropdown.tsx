@@ -13,10 +13,13 @@ import {
 } from "./CustomizedDropdown/dropdownHelpers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import ProfileImage from "./ProfileImage";
+import { PopperModifiers } from "@blueprintjs/core";
 
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
   userName?: string;
+  hideThemeSwitch?: boolean;
+  modifiers?: PopperModifiers;
 };
 
 const ProfileMenuStyle = createGlobalStyle`
@@ -31,7 +34,7 @@ const ProfileMenuStyle = createGlobalStyle`
 `;
 
 const UserInformation = styled.div`
-  padding: ${props => props.theme.spaces[6]}px;
+  padding: ${(props) => props.theme.spaces[6]}px;
   display: flex;
   align-items: center;
 
@@ -41,12 +44,12 @@ const UserInformation = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     .${Classes.TEXT} {
-      color: ${props => props.theme.colors.profileDropdown.userName};
+      color: ${(props) => props.theme.colors.profileDropdown.userName};
     }
   }
 
   .user-image {
-    margin-right: ${props => props.theme.spaces[4]}px;
+    margin-right: ${(props) => props.theme.spaces[4]}px;
     div {
       cursor: default;
     }
@@ -63,6 +66,7 @@ export default function ProfileDropdown(props: TagProps) {
         className="profile-menu"
         position={Position.BOTTOM}
         target={Profile}
+        modifiers={props.modifiers}
       >
         <UserInformation>
           <div className="user-image">{Profile}</div>
@@ -73,8 +77,12 @@ export default function ProfileDropdown(props: TagProps) {
           </div>
         </UserInformation>
         <MenuDivider />
-        <ThemeSwitcher />
-        <MenuDivider />
+        {!props.hideThemeSwitch && (
+          <>
+            <ThemeSwitcher />
+            <MenuDivider />
+          </>
+        )}
         <MenuItem
           icon="logout"
           text="Sign Out"

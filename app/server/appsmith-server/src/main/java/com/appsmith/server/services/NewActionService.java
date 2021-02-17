@@ -6,6 +6,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
+import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -31,7 +32,9 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission);
 
-    Flux<NewAction> findUnpublishedOnLoadActionsInPage(Set<String> names, String pageId);
+    Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId);
+
+    Flux<NewAction> findUnpublishedActionsInPageByNames(Set<String> names, String pageId);
 
     Mono<NewAction> findById(String id);
 
@@ -54,4 +57,6 @@ public interface NewActionService extends CrudService<NewAction, String> {
     Flux<NewAction> saveAll(List<NewAction> actions);
 
     Flux<NewAction> findByPageId(String pageId);
+
+    Mono<Boolean> updateActionsExecuteOnLoad(List<ActionDTO> actions, String pageId, List<LayoutActionUpdateDTO> actionUpdates, List<String> messages);
 }

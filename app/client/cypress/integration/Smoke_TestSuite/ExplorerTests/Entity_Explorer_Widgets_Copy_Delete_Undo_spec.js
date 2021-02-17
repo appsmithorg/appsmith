@@ -37,7 +37,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     });
     cy.DeleteWidgetFromSideBar();
     cy.wait(500);
-    cy.get(apiwidget.propertyList).should("not.be.visible");
+    cy.get(apiwidget.propertyList).should("not.exist");
     /*
     To be enabled once widget delete click works
     cy.get('.t--delete-widget')

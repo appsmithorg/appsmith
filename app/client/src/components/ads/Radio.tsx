@@ -9,7 +9,7 @@ type OptionProps = {
   onSelect?: (value: string) => void;
 };
 
-type RadioProps = CommonComponentProps & {
+export type RadioProps = CommonComponentProps & {
   columns?: number;
   rows?: number;
   defaultValue: string;
@@ -19,15 +19,19 @@ type RadioProps = CommonComponentProps & {
 
 const RadioGroup = styled.div<{
   rows?: number;
+  columns?: number;
 }>`
   display: flex;
   flex-wrap: wrap;
-  ${props =>
+  ${(props) =>
     props.rows && props.rows > 0
       ? `
       flex-direction: column;
       height: 100%;
       `
+      : props.columns && props.columns > 0
+      ? `
+      width: 100%;`
       : null};
 `;
 
@@ -38,23 +42,21 @@ const Radio = styled.label<{
 }>`
   display: block;
   position: relative;
-  padding-left: ${props => props.theme.spaces[12] - 2}px;
-  cursor: ${props => (props.disabled ? "not-allowed" : "pointer")};
-  font-size: ${props => props.theme.typography.p1.fontSize}px;
-  font-weight: ${props => props.theme.typography.p1.fontWeight};
-  line-height: ${props => props.theme.typography.p1.lineHeight}px;
-  letter-spacing: ${props => props.theme.typography.p1.letterSpacing}px;
-  color: ${props => props.theme.colors.radio.text};
-  ${props =>
-    props.rows && props.rows > 0
-      ? `flex-basis: calc(100% / ${props.rows})`
-      : null};
-  ${props =>
+  padding-left: ${(props) => props.theme.spaces[12] - 2}px;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  font-size: ${(props) => props.theme.typography.p1.fontSize}px;
+  font-weight: ${(props) => props.theme.typography.p1.fontWeight};
+  line-height: ${(props) => props.theme.typography.p1.lineHeight}px;
+  letter-spacing: ${(props) => props.theme.typography.p1.letterSpacing}px;
+  color: ${(props) => props.theme.colors.radio.text};
+  ${(props) =>
     props.columns && props.columns > 0
       ? `
         flex-basis: calc(100% / ${props.columns});
-        margin-bottom: ${props.theme.spaces[11] + 1}px;
         `
+      : props.rows && props.rows > 0
+      ? `
+        margin-bottom: ${props.theme.spaces[11] + 1}px;`
       : null};
 
   input {
@@ -67,13 +69,13 @@ const Radio = styled.label<{
     position: absolute;
     top: 0;
     left: 0;
-    width: ${props => props.theme.spaces[8]}px;
-    height: ${props => props.theme.spaces[8]}px;
+    width: ${(props) => props.theme.spaces[8]}px;
+    height: ${(props) => props.theme.spaces[8]}px;
     background-color: transparent;
-    border: ${props => props.theme.spaces[1] - 2}px solid
-      ${props => props.theme.colors.radio.border};
+    border: ${(props) => props.theme.spaces[1] - 2}px solid
+      ${(props) => props.theme.colors.radio.border};
     border-radius: 50%;
-    margin-top: ${props => props.theme.spaces[0]}px;
+    margin-top: ${(props) => props.theme.spaces[0]}px;
   }
 
   .checkbox:after {
@@ -87,20 +89,20 @@ const Radio = styled.label<{
   }
 
   input:disabled ~ .checkbox:after {
-    background-color: ${props => props.theme.colors.radio.disabled};
+    background-color: ${(props) => props.theme.colors.radio.disabled};
   }
 
   .checkbox:after {
     content: "";
     position: absolute;
-    width: ${props => props.theme.spaces[4]}px;
-    height: ${props => props.theme.spaces[4]}px;
-    ${props =>
+    width: ${(props) => props.theme.spaces[4]}px;
+    height: ${(props) => props.theme.spaces[4]}px;
+    ${(props) =>
       props.disabled
         ? `background-color: ${props.theme.colors.radio.disabled}`
         : `background-color: ${props.theme.colors.info.main};`};
-    top: ${props => props.theme.spaces[1] - 2}px;
-    left: ${props => props.theme.spaces[1] - 2}px;
+    top: ${(props) => props.theme.spaces[1] - 2}px;
+    left: ${(props) => props.theme.spaces[1] - 2}px;
     border-radius: 50%;
   }
 `;
@@ -129,7 +131,9 @@ export default function RadioComponent(props: RadioProps) {
     <RadioGroup
       data-cy={props.cypressSelector}
       rows={props.rows}
+      columns={props.columns}
       onChange={(e: any) => onChangeHandler(e.target.value)}
+      className={props.className}
     >
       {props.options.map((option: OptionProps, index: number) => (
         <Radio
@@ -143,7 +147,7 @@ export default function RadioComponent(props: RadioProps) {
             type="radio"
             value={option.value}
             disabled={props.disabled || option.disabled}
-            onChange={e => option.onSelect && option.onSelect(e.target.value)}
+            onChange={(e) => option.onSelect && option.onSelect(e.target.value)}
             checked={selected === option.value}
             name="radio"
           />

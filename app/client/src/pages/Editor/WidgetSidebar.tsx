@@ -3,7 +3,11 @@ import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
 import { WidgetCardProps } from "widgets/BaseWidget";
-import { getWidgetCards } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+  getWidgetCards,
+} from "selectors/editorSelectors";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { IPanelProps, Icon, Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
@@ -11,15 +15,20 @@ import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
 import produce from "immer";
 import { WIDGET_SIDEBAR_CAPTION } from "constants/messages";
+import Boxed from "components/editorComponents/Onboarding/Boxed";
+import { OnboardingStep } from "constants/OnboardingConstants";
+import { getCurrentStep, getCurrentSubStep } from "sagas/OnboardingSagas";
+import { BUILDER_PAGE_URL } from "constants/routes";
+import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
-  padding: 0 10px 20px 10px;
+  padding: 10px 10px 20px 10px;
   height: 100%;
   overflow-y: auto;
 
-  scrollbar-color: ${props => props.theme.colors.paneCard}
-    ${props => props.theme.colors.paneBG};
+  scrollbar-color: ${(props) => props.theme.colors.paneCard}
+    ${(props) => props.theme.colors.paneBG};
   scrollbar-width: thin;
   &::-webkit-scrollbar {
     width: 8px;
@@ -27,20 +36,20 @@ const MainWrapper = styled.div`
 
   &::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px
-      ${props => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
+      ${(props) => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.paneCard};
-    outline: 1px solid ${props => props.theme.paneText};
-    border-radius: ${props => props.theme.radii[1]}px;
+    background-color: ${(props) => props.theme.colors.paneCard};
+    outline: 1px solid ${(props) => props.theme.paneText};
+    border-radius: ${(props) => props.theme.radii[1]}px;
   }
 `;
 
 const CardsWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  grid-gap: ${props => props.theme.spaces[1]}px;
+  grid-gap: ${(props) => props.theme.spaces[1]}px;
   justify-items: stretch;
   align-items: stretch;
 `;
@@ -83,18 +92,12 @@ const WidgetSidebar = (props: IPanelProps) => {
   const filterCards = (keyword: string) => {
     let filteredCards = cards;
     if (keyword.trim().length > 0) {
-      filteredCards = produce(cards, draft => {
-        for (const [key, value] of Object.entries(cards)) {
-          value.forEach((card, index) => {
-            if (card.widgetCardName.toLowerCase().indexOf(keyword) === -1) {
-              delete draft[key][index];
-            }
-          });
-          draft[key] = draft[key].filter(Boolean);
-          if (draft[key].length === 0) {
-            delete draft[key];
+      filteredCards = produce(cards, (draft) => {
+        cards.forEach((card, index) => {
+          if (card.widgetCardName.toLowerCase().indexOf(keyword) === -1) {
+            delete draft[index];
           }
-        }
+        });
       });
     }
     setFilteredCards(filteredCards);
@@ -105,6 +108,19 @@ const WidgetSidebar = (props: IPanelProps) => {
     }
     filterCards("");
   };
+
+  // For onboarding
+  const currentStep = useSelector(getCurrentStep);
+  const currentSubStep = useSelector(getCurrentSubStep);
+  const applicationId = useSelector(getCurrentApplicationId);
+  const pageId = useSelector(getCurrentPageId);
+  const onCanvas =
+    BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname;
+  useEffect(() => {
+    if (currentStep === OnboardingStep.DEPLOY && !onCanvas) {
+      props.closePanel();
+    }
+  }, [currentStep, onCanvas]);
 
   const search = debounce((e: any) => {
     filterCards(e.target.value.toLowerCase());
@@ -119,14 +135,20 @@ const WidgetSidebar = (props: IPanelProps) => {
       el?.removeEventListener("cleared", search);
     };
   }, [searchInputRef, search]);
-  const groups = Object.keys(filteredCards);
+
+  const showTableWidget = currentStep >= OnboardingStep.RUN_QUERY_SUCCESS;
+  const showInputWidget = currentStep >= OnboardingStep.ADD_INPUT_WIDGET;
+
   return (
     <>
-      <ExplorerSearch
-        ref={searchInputRef}
-        clear={clearSearchInput}
-        placeholder="Search widgets..."
-      />
+      <Boxed step={OnboardingStep.DEPLOY}>
+        <ExplorerSearch
+          ref={searchInputRef}
+          clear={clearSearchInput}
+          placeholder="Search widgets..."
+          autoFocus={true}
+        />
+      </Boxed>
 
       <MainWrapper>
         <Header>
@@ -141,16 +163,37 @@ const WidgetSidebar = (props: IPanelProps) => {
             onClick={props.closePanel}
           />
         </Header>
-        {groups.map((group: string) => (
-          <React.Fragment key={group}>
-            <h5>{group}</h5>
-            <CardsWrapper>
-              {filteredCards[group].map((card: WidgetCardProps) => (
-                <WidgetCard details={card} key={card.key} />
-              ))}
-            </CardsWrapper>
-          </React.Fragment>
-        ))}
+        <CardsWrapper>
+          {filteredCards.map((card: WidgetCardProps) => (
+            <Boxed
+              step={OnboardingStep.DEPLOY}
+              show={
+                (card.type === "TABLE_WIDGET" && showTableWidget) ||
+                (card.type === "INPUT_WIDGET" && showInputWidget)
+              }
+              key={card.key}
+            >
+              <OnboardingIndicator
+                width={100}
+                hasButton={false}
+                className="onboarding-widget-menu"
+                step={
+                  OnboardingStep.RUN_QUERY_SUCCESS ||
+                  OnboardingStep.ADD_INPUT_WIDGET
+                }
+                show={
+                  (card.type === "TABLE_WIDGET" &&
+                    currentStep === OnboardingStep.RUN_QUERY_SUCCESS) ||
+                  (card.type === "INPUT_WIDGET" &&
+                    currentSubStep === 0 &&
+                    currentStep === OnboardingStep.ADD_INPUT_WIDGET)
+                }
+              >
+                <WidgetCard details={card} />
+              </OnboardingIndicator>
+            </Boxed>
+          ))}
+        </CardsWrapper>
       </MainWrapper>
     </>
   );

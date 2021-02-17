@@ -28,10 +28,10 @@
   "methodpost": "api/users",
   "methodpatch": "api/users/2",
   "methoddelete": "1",
-  "putAction": "//div[contains(@id,'react-select') and contains(text(),'PUT')]",
-  "postAction": "//div[contains(@id,'react-select') and contains(text(),'POST')]",
-  "patchAction": "//div[contains(@id,'react-select') and contains(text(),'PATCH')]",
-  "deleteAction": "//div[contains(@id,'react-select') and contains(text(),'DELETE')]",
+  "putAction": "//div[contains(@class, 't--dropdown-option')]//span[contains(text(),'PUT')]",
+  "postAction": "//div[contains(@class, 't--dropdown-option')]//span[contains(text(),'POST')]",
+  "patchAction": "//div[contains(@class, 't--dropdown-option')]//span[contains(text(),'PATCH')]",
+  "deleteAction": "//div[contains(@class, 't--dropdown-option')]//span[contains(text(),'DELETE')]",
   "moustacheMethod": "{{Api.text}}",
   "nextUrl": ".data.next}}",
   "prevUrl": ".data.previous}}",
@@ -51,7 +51,7 @@
       "value": "VEG"
     },
     {
-      "label": "{{Table1.tableData[1].email}}",
+      "label": "{{Table1.tableData[2].email}}",
       "value": "NONVEG"
     }
   ],
@@ -87,90 +87,6 @@
       "userName": "Tobias Funke",
       "productName": "Beef steak",
       "orderAmount": 19.99
-    },
-    {
-      "id": 7434532,
-      "email": "byron.fields@reqres.in",
-      "userName": "Byron Fields",
-      "productName": "Chicken Sandwich",
-      "orderAmount": 4.99
-    },
-    {
-      "id": 7434532,
-      "email": "ryan.holmes@reqres.in",
-      "userName": "Ryan Holmes",
-      "productName": "Avocado Panini",
-      "orderAmount": 7.99
-    },
-    {
-      "id": 2381224,
-      "email": "michael.lawson@reqres.in",
-      "userName": "Michael Lawson",
-      "productName": "Chicken Sandwich",
-      "orderAmount": 4.99
-    },
-    {
-      "id": 2736212,
-      "email": "lindsay.ferguson@reqres.in",
-      "userName": "Lindsay Ferguson",
-      "productName": "Tuna Salad",
-      "orderAmount": 9.99
-    },
-    {
-      "id": 6788734,
-      "email": "tobias.funke@reqres.in",
-      "userName": "Tobias Funke",
-      "productName": "Beef steak",
-      "orderAmount": 19.99
-    },
-    {
-      "id": 7434532,
-      "email": "byron.fields@reqres.in",
-      "userName": "Byron Fields",
-      "productName": "Chicken Sandwich",
-      "orderAmount": 4.99
-    },
-    {
-      "id": 7434532,
-      "email": "ryan.holmes@reqres.in",
-      "userName": "Ryan Holmes",
-      "productName": "Avocado Panini",
-      "orderAmount": 7.99
-    },
-    {
-      "id": 2381224,
-      "email": "michael.lawson@reqres.in",
-      "userName": "Michael Lawson",
-      "productName": "Chicken Sandwich",
-      "orderAmount": 4.99
-    },
-    {
-      "id": 2736212,
-      "email": "lindsay.ferguson@reqres.in",
-      "userName": "Lindsay Ferguson",
-      "productName": "Tuna Salad",
-      "orderAmount": 9.99
-    },
-    {
-      "id": 6788734,
-      "email": "tobias.funke@reqres.in",
-      "userName": "Tobias Funke",
-      "productName": "Beef steak",
-      "orderAmount": 19.99
-    },
-    {
-      "id": 7434532,
-      "email": "byron.fields@reqres.in",
-      "userName": "Byron Fields",
-      "productName": "Chicken Sandwich",
-      "orderAmount": 4.99
-    },
-    {
-      "id": 7434532,
-      "email": "ryan.holmes@reqres.in",
-      "userName": "Ryan Holmes",
-      "productName": "Avocado Panini",
-      "orderAmount": 7.99
     }
   ],
   "addInputWidgetBinding": "{{Table1.selectedRow.id",
@@ -182,5 +98,20 @@
   "defaultInputBinding": "{{Input2.text",
   "tabBinding": "{{Tabs1.selectedTab",
   "pageloadBinding": "{{PageLoadApi.data.data[1].id}}{{Input1.text}}",
-  "defaultRowIndexBinding": "{{Table1.selectedRowIndex"
+  "currentRowEmail": "{{currentRow.email}}",
+  "currentRowOrderAmt": "{{currentRow.orderAmount}}",
+  "momentDate": "{{moment()}}",
+  "defaultRowIndexBinding": "{{Table1.selectedRowIndex",
+  "bindingAlign": "{{currentRow.userName.indexOf('Michael') > -1 ? 'LEFT' : 'RIGHT'}}",
+  "bindingSize": "{{currentRow.userName.indexOf('Michael') > -1 ? 'PARAGRAGH' : 'HEADING1'}}",
+  "bindingVerticalAlig": "{{currentRow.userName.indexOf('Michael') > -1 ? 'TOP' : 'BOTTOM'}}",
+  "bindingTextColor": "{{currentRow.userName.indexOf('Michael') > -1 ? 'GREEN' : 'RED'}}",
+  "bindingButton": "{{currentRow.userName.indexOf('Michael') > -1 ? 'Discount' : 'NoDiscount'}}",
+  "bindingStyle": "{{currentRow.userName.indexOf('Michael') > -1 ? 'BOLD' : 'ITALIC'}}",
+  "bindingGenAlign": "{{currentRow.userName.indexOf('Michael') > -1 ? 'RIGHT' : 'LEFT'}}",
+  "currentRowWithIdOutside": "#{{currentRow.email}}",
+  "currentRowWithIdInside": "{{\"#\" + currentRow.email}}",
+  "defaultdataBinding": "{'Test','This'}",
+  "dropdownErrorMsg": "This value does not evaluate to type \"Array<{ label: string, value: string }>\". Transform it using JS inside '{{ }}'",
+  "tableWidgetErrorMsg": "This value does not evaluate to type \"Array<Object>\". Transform it using JS inside '{{ }}'"
 }

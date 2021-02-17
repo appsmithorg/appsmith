@@ -77,11 +77,11 @@ export const updateCurrentPage = (id: string) => ({
   payload: { id },
 });
 
-export const updateCanvas = (
+export const initCanvasLayout = (
   payload: UpdateCanvasPayload,
 ): ReduxAction<UpdateCanvasPayload> => {
   return {
-    type: ReduxActionTypes.UPDATE_CANVAS,
+    type: ReduxActionTypes.INIT_CANVAS_LAYOUT,
     payload,
   };
 };
@@ -109,6 +109,12 @@ export const updateAndSaveLayout = (widgets: CanvasWidgetsReduxState) => {
   return {
     type: ReduxActionTypes.UPDATE_LAYOUT,
     payload: { widgets },
+  };
+};
+
+export const saveLayout = () => {
+  return {
+    type: ReduxActionTypes.SAVE_PAGE_INIT,
   };
 };
 

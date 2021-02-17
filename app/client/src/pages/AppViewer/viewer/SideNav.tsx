@@ -18,29 +18,30 @@ const SideNavWrapper = styled.div<{
   headeroffset?: number;
 }>`
   &&& {
-    width: ${props =>
+    width: ${(props) =>
       props.open
         ? props.theme.sideNav.maxWidth
         : props.theme.sideNav.minWidth}px;
     transition: width 0.2s ease-in;
     height: 100%;
     & ul {
-      min-width: ${props => props.theme.sideNav.minWidth}px;
+      min-width: ${(props) => props.theme.sideNav.minWidth}px;
       overflow-y: auto;
       & a {
         text-decoration: none;
-        color: ${props => props.theme.colors.textOnDarkBG};
+        color: ${(props) => props.theme.colors.textOnDarkBG};
       }
       & li > div {
         width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 0 ${props => (props.open ? props.theme.spaces[6] : 0)}px;
-        height: ${props => props.theme.sideNav.navItemHeight}px;
+        padding: 0 ${(props) => (props.open ? props.theme.spaces[6] : 0)}px;
+        height: ${(props) => props.theme.sideNav.navItemHeight}px;
         text-transform: capitalize;
         & > span {
-          margin-right: ${props => (props.open ? props.theme.spaces[3] : 0)}px;
+          margin-right: ${(props) =>
+            props.open ? props.theme.spaces[3] : 0}px;
         }
       }
     }
@@ -56,13 +57,13 @@ const ToggleButton = styled(Button)<{
     top: 0;
     left: 0;
     display: flex;
-    width: ${props =>
+    width: ${(props) =>
       props.open
         ? props.theme.sideNav.maxWidth
         : props.theme.sideNav.minWidth}px;
-    height: ${props => props.headeroffset || 50}px;
+    height: ${(props) => props.headeroffset || 50}px;
     justify-content: flex-end;
-    padding-right: ${props => props.theme.sideNav.minWidth / 2}px;
+    padding-right: ${(props) => props.theme.sideNav.minWidth / 2}px;
     transition: width 0.1s ease-in;
   }
 `;
@@ -78,7 +79,7 @@ export const SideNav = (props: SideNavProps) => {
         { id: "2", text: "", path: "", loading: true, showText: true },
       ];
     }
-    return items.map(item => {
+    return items.map((item) => {
       const icon =
         item.text.length > 0 ? (
           <LetterIcon

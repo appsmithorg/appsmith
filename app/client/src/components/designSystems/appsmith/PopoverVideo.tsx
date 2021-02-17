@@ -28,14 +28,14 @@ const PlayerWrapper = styled.div`	import React, { Ref } from "react";
 
 const PopoverVideo = (props: VideoComponentProps) => {
   return (
-    <div onClick={e => e.stopPropagation()}>
+    <div onClick={(e) => e.stopPropagation()}>
       <Popover
         position={PopoverPosition.AUTO}
         interactionKind={PopoverInteractionKind.CLICK}
         minimal
         usePortal
         enforceFocus={false}
-        lazy={true}
+        lazy
         modifiers={{
           flip: {
             behavior: ["right", "left", "bottom", "top"],

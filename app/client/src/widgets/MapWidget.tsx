@@ -10,6 +10,8 @@ import { getAppsmithConfigs } from "configs";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { DEFAULT_CENTER } from "constants/WidgetConstants";
+import { getBorderCSSShorthand } from "constants/DefaultTheme";
 
 const { google } = getAppsmithConfigs();
 
@@ -19,6 +21,8 @@ const DisabledContainer = styled.div`
   text-align: center;
   display: flex;
   flex-direction: column;
+  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+  border-radius: 0;
   h1 {
     margin-top: 15%;
     margin-bottom: 10%;
@@ -29,8 +33,104 @@ const DisabledContainer = styled.div`
   }
 `;
 
-const DefaultCenter = { lat: -34.397, long: 150.644 };
+const DefaultCenter = { ...DEFAULT_CENTER, long: DEFAULT_CENTER.lng };
+
+type Center = {
+  lat: number;
+  long: number;
+  [x: string]: any;
+};
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "mapCenter",
+            label: "Initial location",
+            isJSConvertible: true,
+            controlType: "LOCATION_SEARCH",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "defaultMarkers",
+            label: "Default markers",
+            controlType: "INPUT_TEXT",
+            inputType: "ARRAY",
+            helpText: "Sets the default markers on the map",
+            placeholderText: 'Enter [{ "lat": "val1", "long": "val2" }]',
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "enableSearch",
+            label: "Enable search location",
+            helpText: "Enables locaton search",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "enablePickLocation",
+            label: "Enable pick location",
+            helpText: "Allows a user to pick their location",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "enableCreateMarker",
+            label: "Create new marker",
+            helpText: "Allows users to mark locations on the map",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "zoomLevel",
+            label: "Zoom Level",
+            controlType: "STEP",
+            helpText: "Changes the default zoom of the map",
+            stepType: "ZOOM_PERCENTAGE",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            propertyName: "onMarkerClick",
+            label: "onMarkerClick",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            propertyName: "onCreateMarker",
+            label: "onCreateMarker",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       defaultMarkers: VALIDATION_TYPES.MARKERS,
@@ -41,7 +141,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       enableCreateMarker: VALIDATION_TYPES.BOOLEAN,
       allowZoom: VALIDATION_TYPES.BOOLEAN,
       zoomLevel: VALIDATION_TYPES.NUMBER,
-      mapCenter: VALIDATION_TYPES.OBJECT,
+      mapCenter: VALIDATION_TYPES.LAT_LONG,
     };
   }
 
@@ -75,8 +175,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     const markers: Array<MarkerProps> = [...(this.props.markers || [])].map(
       (marker, i) => {
         if (index === i) {
-          marker.lat = lat;
-          marker.long = long;
+          marker = { lat, long };
         }
         return marker;
       },
@@ -90,7 +189,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     const marker = { lat, long, title: "" };
 
     const markers = [];
-    (this.props.markers || []).forEach(m => {
+    (this.props.markers || []).forEach((m) => {
       markers.push(m);
     });
     markers.push(marker);
@@ -122,6 +221,20 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     });
   };
 
+  getCenter(): Center {
+    return this.props.center || this.props.mapCenter || DefaultCenter;
+  }
+
+  componentDidUpdate(prevProps: MapWidgetProps) {
+    //remove selectedMarker when map initial location is updated
+    if (
+      JSON.stringify(prevProps.center) !== JSON.stringify(this.props.center) &&
+      this.props.selectedMarker
+    ) {
+      this.unselectMarker();
+    }
+  }
+
   getPageView() {
     return (
       <>
@@ -134,7 +247,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://docs.appsmith.com/third-party-services/google-maps"
+                href="https://docs.appsmith.com/v/v1.2.1/setup/docker/google-maps"
               >
                 {" documentation "}
               </a>
@@ -149,7 +262,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             isVisible={this.props.isVisible}
             zoomLevel={this.props.zoomLevel}
             allowZoom={this.props.allowZoom}
-            center={this.props.center || this.props.mapCenter || DefaultCenter}
+            center={this.getCenter()}
             enableCreateMarker={this.props.enableCreateMarker}
             selectedMarker={this.props.selectedMarker}
             updateCenter={this.updateCenter}
@@ -160,7 +273,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             updateMarker={this.updateMarker}
             selectMarker={this.onMarkerClick}
             unselectMarker={this.unselectMarker}
-            markers={this.props.markers || []}
+            markers={this.props.markers}
             enableDrag={() => {
               this.disableDrag(false);
             }}

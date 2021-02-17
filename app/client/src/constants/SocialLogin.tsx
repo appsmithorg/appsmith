@@ -1,5 +1,6 @@
 import { GoogleOAuthURL, GithubOAuthURL } from "constants/ApiConstants";
-import GithubLogo from "assets/images/Github.png";
+
+import GithubLogo from "assets/images/Github_inverted.png";
 import GoogleLogo from "assets/images/Google.png";
 export type SocialLoginButtonProps = {
   url: string;
@@ -32,7 +33,7 @@ export type SocialLoginType = keyof typeof SocialLoginButtonPropsList;
 export const getSocialLoginButtonProps = (
   logins: SocialLoginType[],
 ): SocialLoginButtonProps[] => {
-  return logins.map(login => {
+  return logins.map((login) => {
     const socialLoginButtonProps = SocialLoginButtonPropsList[login];
     if (!socialLoginButtonProps) {
       throw Error("Social login not registered: " + login);

@@ -48,14 +48,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       label: "",
       columns: 5,
       widgetName: "Input",
+      resetOnSubmit: true,
     },
-    // SWITCH_WIDGET: {
-    //   isOn: false,
-    //   label: "Switch",
-    //   rows: 1,
-    //   columns: 4,
-    //   widgetName: "Switch",
-    // },
+    SWITCH_WIDGET: {
+      label: "Label",
+      rows: 1,
+      columns: 2,
+      defaultSwitchState: true,
+      widgetName: "Switch",
+      alignWidget: "LEFT",
+    },
     ICON_WIDGET: {
       widgetName: "Icon",
       rows: 1,
@@ -107,6 +109,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       label: "Data",
       widgetName: "Table",
       searchKey: "",
+      textSize: "PARAGRAPH",
+      horizontalAlignment: "LEFT",
+      verticalAlignment: "CENTER",
+      primaryColumns: {},
+      derivedColumns: {},
       tableData: [
         {
           id: 2381224,
@@ -150,6 +157,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       label: "Label",
       defaultCheckedState: true,
       widgetName: "Checkbox",
+      alignWidget: "LEFT",
     },
     RADIO_GROUP_WIDGET: {
       rows: 2,
@@ -262,7 +270,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                   {
                     type: "BUTTON_WIDGET",
-                    position: { left: 10, top: 4 },
+                    position: { left: 9, top: 4 },
                     size: { rows: 1, cols: 3 },
                     props: {
                       text: "Cancel",
@@ -271,8 +279,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   },
                   {
                     type: "BUTTON_WIDGET",
-                    position: { left: 13, top: 4 },
-                    size: { rows: 1, cols: 3 },
+                    position: { left: 12, top: 4 },
+                    size: { rows: 1, cols: 4 },
                     props: {
                       text: "Confirm",
                       buttonStyle: "PRIMARY_BUTTON",
@@ -289,7 +297,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       const iconChild =
                         widget.children &&
                         widget.children.find(
-                          child => child.type === "ICON_WIDGET",
+                          (child) => child.type === "ICON_WIDGET",
                         );
 
                       if (iconChild && parent) {

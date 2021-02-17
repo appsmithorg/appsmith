@@ -4,7 +4,7 @@ import { Colors } from "constants/Colors";
 
 const CalloutComponent = styled(Callout)<{ background?: string }>`
   && {
-    background-color: ${props => props.background || Colors.WHITE_SMOKE};
+    background-color: ${(props) => props.background || Colors.WHITE_SMOKE};
   }
 `;
 

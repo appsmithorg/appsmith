@@ -1,6 +1,5 @@
-import React, { Fragment, useEffect, useState } from "react";
-import styled from "styled-components";
-import { useLocation } from "react-router-dom";
+import React, { Fragment, useContext, useEffect, useState } from "react";
+import styled, { ThemeContext } from "styled-components";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
@@ -10,7 +9,7 @@ import { AppState } from "reducers";
 import {
   getRolesForField,
   getAllUsers,
-  getCurrentOrg,
+  getCurrentAppOrg,
 } from "selectors/organizationSelectors";
 import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -22,7 +21,6 @@ import {
   INVITE_USERS_VALIDATION_EMAIL_LIST,
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
 } from "constants/messages";
-import history from "utils/history";
 import { isEmail } from "utils/formhelpers";
 import {
   isPermitted,
@@ -33,13 +31,12 @@ import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-co
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Button, { Size } from "components/ads/Button";
 import Text, { TextType } from "components/ads/Text";
-import Icon, { IconSize } from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
-import { getThemeDetails } from "selectors/themeSelectors";
 import { scrollbarDark } from "constants/DefaultTheme";
 import ProfileImage from "pages/common/ProfileImage";
+import ManageUsers from "./ManageUsers";
 
 const OrgInviteTitle = styled.div`
   padding: 10px 0px;
@@ -47,7 +44,7 @@ const OrgInviteTitle = styled.div`
 
 const StyledForm = styled.form`
   width: 100%;
-  background: ${props => props.theme.colors.modal.bg};
+  background: ${(props) => props.theme.colors.modal.bg};
   &&& {
     .wrapper > div:nth-child(1) {
       width: 60%;
@@ -64,37 +61,9 @@ const StyledForm = styled.form`
   }
 `;
 
-const ManageUsers = styled("a")`
-  margin-top: 20px;
-  display: inline-flex;
-  &&&& {
-    text-decoration: none;
-  }
-
-  .${Classes.TEXT} {
-    color: ${props => props.theme.colors.modal.manageUser};
-    margin-right: ${props => props.theme.spaces[1]}px;
-  }
-  .${Classes.ICON} {
-    svg path {
-      fill: ${props => props.theme.colors.modal.manageUser};
-    }
-  }
-
-  &:hover {
-    .${Classes.TEXT} {
-      color: ${props => props.theme.colors.modal.headerText};
-    }
-    .${Classes.ICON} {
-      svg path {
-        fill: ${props => props.theme.colors.modal.headerText};
-      }
-    }
-  }
-`;
-
 const ErrorBox = styled.div<{ message?: boolean }>`
-  ${props => (props.message ? `margin: ${props.theme.spaces[9]}px 0px` : null)};
+  ${(props) =>
+    props.message ? `margin: ${props.theme.spaces[9]}px 0px` : null};
 `;
 
 const StyledInviteFieldGroup = styled.div`
@@ -118,7 +87,7 @@ const UserList = styled.div`
   max-height: 260px;
   overflow-y: auto;
   &&::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.modal.scrollbar};
+    background-color: ${(props) => props.theme.colors.modal.scrollbar};
   }
   ${scrollbarDark};
 `;
@@ -129,7 +98,7 @@ const User = styled.div`
   height: 54px;
   padding-left: 15px;
   justify-content: space-between;
-  color: ${props => props.theme.colors.modal.user.textColor};
+  color: ${(props) => props.theme.colors.modal.user.textColor};
 `;
 
 const UserInfo = styled.div`
@@ -143,7 +112,7 @@ const UserInfo = styled.div`
 const UserRole = styled.div`
   flex-basis: 25%;
   .${Classes.TEXT} {
-    color: ${props => props.theme.colors.modal.headerText};
+    color: ${(props) => props.theme.colors.modal.headerText};
   }
 `;
 
@@ -157,7 +126,7 @@ const UserName = styled.div`
 `;
 
 const RoleDivider = styled.div`
-  border-top: 1px solid ${props => props.theme.colors.menuBorder};
+  border-top: 1px solid ${(props) => props.theme.colors.menuBorder};
 `;
 
 const Loading = styled(Spinner)`
@@ -169,16 +138,16 @@ const Loading = styled(Spinner)`
 const MailConfigContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${props => props.theme.spaces[9]}px
-    ${props => props.theme.spaces[2]}px;
+  padding: ${(props) => props.theme.spaces[9]}px
+    ${(props) => props.theme.spaces[2]}px;
   align-items: center;
   && > span {
-    color: ${props => props.theme.colors.modal.email.message};
+    color: ${(props) => props.theme.colors.modal.email.message};
     font-weight: 500;
     font-size: 14px;
   }
   && > a {
-    color: ${props => props.theme.colors.modal.email.desc};
+    color: ${(props) => props.theme.colors.modal.email.desc};
     font-size: 12px;
     text-decoration: underline;
   }
@@ -188,7 +157,7 @@ const validateFormValues = (values: { users: string; role: string }) => {
   if (values.users && values.users.length > 0) {
     const _users = values.users.split(",").filter(Boolean);
 
-    _users.forEach(user => {
+    _users.forEach((user) => {
       if (!isEmail(user)) {
         throw new SubmissionError({
           _error: INVITE_USERS_VALIDATION_EMAIL_LIST,
@@ -247,11 +216,8 @@ const OrgInviteUsersForm = (props: any) => {
     isLoading,
   } = props;
 
-  const currentPath = useLocation().pathname;
-  const pathRegex = /(?:\/org\/)\w+(?:\/settings)/;
-  const currentOrg = useSelector(getCurrentOrg).filter(
-    el => el.id === props.orgId,
-  )[0];
+  const currentOrg = useSelector(getCurrentAppOrg);
+
   const userOrgPermissions = currentOrg?.userPermissions ?? [];
   const canManage = isPermitted(
     userOrgPermissions,
@@ -272,7 +238,7 @@ const OrgInviteUsersForm = (props: any) => {
     };
   });
 
-  const themeDetails = useSelector(getThemeDetails);
+  const theme = useContext(ThemeContext);
 
   const allUsersProfiles = React.useMemo(
     () =>
@@ -280,7 +246,7 @@ const OrgInviteUsersForm = (props: any) => {
         (user: { username: string; roleName: string; name: string }) => {
           const details = getInitialsAndColorCode(
             user.name || user.username,
-            themeDetails.theme.colors.appCardColors,
+            theme.colors.appCardColors,
           );
           return {
             ...user,
@@ -288,7 +254,7 @@ const OrgInviteUsersForm = (props: any) => {
           };
         },
       ),
-    [allUsers, themeDetails],
+    [allUsers, theme],
   );
 
   return (
@@ -347,7 +313,7 @@ const OrgInviteUsersForm = (props: any) => {
                 {allUsers.length === 0 && <NoEmailConfigImage />}
                 <span>You haven’t setup any email service yet</span>
                 <a
-                  href="https://docs.appsmith.com/third-party-services/email"
+                  href="https://docs.appsmith.com/v/v1.2.1/setup/docker/email"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -389,26 +355,16 @@ const OrgInviteUsersForm = (props: any) => {
         <ErrorBox message={submitSucceeded || submitFailed}>
           {submitSucceeded && (
             <Callout
-              text={INVITE_USERS_SUBMIT_SUCCESS}
               variant={Variant.success}
               fill
+              text={INVITE_USERS_SUBMIT_SUCCESS}
             />
           )}
           {((submitFailed && error) || emailError) && (
-            <Callout text={error || emailError} variant={Variant.danger} fill />
+            <Callout variant={Variant.danger} fill text={error || emailError} />
           )}
         </ErrorBox>
-        {!pathRegex.test(currentPath) && canManage && (
-          <ManageUsers
-            className="manageUsers"
-            onClick={() => {
-              history.push(`/org/${props.orgId}/settings/members`);
-            }}
-          >
-            <Text type={TextType.H6}>MANAGE USERS</Text>
-            <Icon name="manage" size={IconSize.XXS} />
-          </ManageUsers>
-        )}
+        {canManage && <ManageUsers orgId={props.orgId} />}
       </StyledForm>
     </>
   );

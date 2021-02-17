@@ -1,9 +1,5 @@
 import { createImmerReducer } from "utils/AppsmithUtils";
-import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
-  ReduxAction,
-} from "constants/ReduxActionConstants";
+import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { DSL } from "./pageCanvasStructure";
 import { WidgetProps } from "widgets/BaseWidget";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
@@ -21,7 +17,7 @@ const pageWidgetsReducer = createImmerReducer(initalState, {
     state: PageWidgetsReduxState,
     action: ReduxAction<Array<{ pageId: string; dsl: DSL }>>,
   ) => {
-    action.payload.forEach(entry => {
+    action.payload.forEach((entry) => {
       state[entry.pageId] = CanvasWidgetsNormalizer.normalize(
         entry.dsl,
       ).entities.canvasWidgets;

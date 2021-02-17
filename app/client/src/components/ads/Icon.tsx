@@ -1,10 +1,12 @@
 import React, { forwardRef, Ref } from "react";
 import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
+import { ReactComponent as BookIcon } from "assets/icons/ads/book.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
 import { ReactComponent as BillingIcon } from "assets/icons/ads/billing.svg";
 import { ReactComponent as EditIcon } from "assets/icons/ads/edit.svg";
 import { ReactComponent as ErrorIcon } from "assets/icons/ads/error.svg";
+import { ReactComponent as ShineIcon } from "assets/icons/ads/shine.svg";
 import { ReactComponent as SuccessIcon } from "assets/icons/ads/success.svg";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
@@ -16,10 +18,22 @@ import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/workspace.svg"
 import { ReactComponent as CreateNewIcon } from "assets/icons/ads/create-new.svg";
 import { ReactComponent as InviteUserIcon } from "assets/icons/ads/invite-users.svg";
 import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
+import { ReactComponent as ViewLessIcon } from "assets/icons/ads/view-less.svg";
 import { ReactComponent as ContextMenuIcon } from "assets/icons/ads/context-menu.svg";
 import { ReactComponent as DuplicateIcon } from "assets/icons/ads/duplicate.svg";
 import { ReactComponent as LogoutIcon } from "assets/icons/ads/logout.svg";
 import { ReactComponent as ManageIcon } from "assets/icons/ads/manage.svg";
+import { ReactComponent as ArrowLeft } from "assets/icons/ads/arrow-left.svg";
+import { ReactComponent as Fork } from "assets/icons/ads/fork.svg";
+import { ReactComponent as ChevronLeft } from "assets/icons/ads/chevron_left.svg";
+import { ReactComponent as ChevronRight } from "assets/icons/ads/chevron_right.svg";
+import { ReactComponent as CloseModalIcon } from "assets/icons/ads/close-modal.svg";
+import { ReactComponent as NoResponseIcon } from "assets/icons/ads/no-response.svg";
+import { ReactComponent as LightningIcon } from "assets/icons/ads/lightning.svg";
+import { ReactComponent as AddMoreIcon } from "assets/icons/ads/add-more.svg";
+import { ReactComponent as RightArrowIcon } from "assets/icons/ads/right-arrow.svg";
+import { ReactComponent as DatasourceIcon } from "assets/icons/ads/datasource.svg";
+import { ReactComponent as PlayIcon } from "assets/icons/ads/play.svg";
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -72,12 +86,15 @@ export const sizeHandler = (size?: IconSize) => {
 };
 
 export const IconCollection = [
+  "book",
   "delete",
   "user",
   "general",
   "billing",
   "edit",
   "error",
+  "shine",
+  "danger",
   "success",
   "search",
   "close",
@@ -87,42 +104,54 @@ export const IconCollection = [
   "plus",
   "invite-user",
   "view-all",
+  "view-less",
   "warning",
   "downArrow",
   "context-menu",
   "duplicate",
   "logout",
   "manage",
+  "arrow-left",
+  "fork",
+  "chevron-left",
+  "chevron-right",
+  "close-modal",
+  "no-response",
+  "lightning",
+  "add-more",
+  "right-arrow",
+  "datasource",
+  "play",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
 
-const IconWrapper = styled.span<IconProps>`
+export const IconWrapper = styled.span<IconProps>`
   &:focus {
     outline: none;
   }
   display: flex;
   align-items: center;
   svg {
-    width: ${props => sizeHandler(props.size)}px;
-    height: ${props => sizeHandler(props.size)}px;
+    width: ${(props) => sizeHandler(props.size)}px;
+    height: ${(props) => sizeHandler(props.size)}px;
     path {
-      fill: ${props => props.theme.colors.icon.normal};
+      fill: ${(props) => props.fillColor || props.theme.colors.icon.normal};
     }
   }
-  ${props => (props.invisible ? `visibility: hidden;` : null)};
+  ${(props) => (props.invisible ? `visibility: hidden;` : null)};
 
   &:hover {
     cursor: pointer;
     path {
-      fill: ${props => props.theme.colors.icon.hover};
+      fill: ${(props) => props.theme.colors.icon.hover};
     }
   }
 
   &:active {
     cursor: pointer;
     path {
-      fill: ${props => props.theme.colors.icon.active};
+      fill: ${(props) => props.theme.colors.icon.active};
     }
   }
 `;
@@ -132,13 +161,17 @@ export type IconProps = {
   name?: IconName;
   invisible?: boolean;
   className?: string;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent) => void;
+  fillColor?: string;
 };
 
 const Icon = forwardRef(
   (props: IconProps & CommonComponentProps, ref: Ref<HTMLSpanElement>) => {
     let returnIcon;
     switch (props.name) {
+      case "book":
+        returnIcon = <BookIcon />;
+        break;
       case "delete":
         returnIcon = <DeleteIcon />;
         break;
@@ -156,6 +189,12 @@ const Icon = forwardRef(
         break;
       case "error":
         returnIcon = <ErrorIcon />;
+        break;
+      case "danger":
+        returnIcon = <ErrorIcon />;
+        break;
+      case "shine":
+        returnIcon = <ShineIcon />;
         break;
       case "success":
         returnIcon = <SuccessIcon />;
@@ -187,6 +226,9 @@ const Icon = forwardRef(
       case "view-all":
         returnIcon = <ViewAllIcon />;
         break;
+      case "view-less":
+        returnIcon = <ViewLessIcon />;
+        break;
       case "context-menu":
         returnIcon = <ContextMenuIcon />;
         break;
@@ -201,6 +243,39 @@ const Icon = forwardRef(
         break;
       case "warning":
         returnIcon = <WarningIcon />;
+        break;
+      case "arrow-left":
+        returnIcon = <ArrowLeft />;
+        break;
+      case "fork":
+        returnIcon = <Fork />;
+        break;
+      case "chevron-left":
+        returnIcon = <ChevronLeft />;
+        break;
+      case "chevron-right":
+        returnIcon = <ChevronRight />;
+        break;
+      case "close-modal":
+        returnIcon = <CloseModalIcon />;
+        break;
+      case "no-response":
+        returnIcon = <NoResponseIcon />;
+        break;
+      case "lightning":
+        returnIcon = <LightningIcon />;
+        break;
+      case "add-more":
+        returnIcon = <AddMoreIcon />;
+        break;
+      case "right-arrow":
+        returnIcon = <RightArrowIcon />;
+        break;
+      case "datasource":
+        returnIcon = <DatasourceIcon />;
+        break;
+      case "play":
+        returnIcon = <PlayIcon />;
         break;
       default:
         returnIcon = null;

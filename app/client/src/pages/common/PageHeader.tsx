@@ -45,8 +45,8 @@ export const PageHeader = (props: PageHeaderProps) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   let loginUrl = AUTH_LOGIN_URL;
-  if (queryParams.has("redirectTo")) {
-    loginUrl += `?redirectTo=${queryParams.get("redirectTo")}`;
+  if (queryParams.has("redirectUrl")) {
+    loginUrl += `?redirectUrl=${queryParams.get("redirectUrl")}`;
   }
 
   return (

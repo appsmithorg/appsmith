@@ -30,8 +30,8 @@ const WrappedToastContainer = styled.div`
     cursor: auto;
     min-height: auto;
     border-radius: 0px !important;
-    font-family: ${props => props.theme.fonts.text};
-    margin-bottom: ${props => props.theme.spaces[4]}px;
+    font-family: ${(props) => props.theme.fonts.text};
+    margin-bottom: ${(props) => props.theme.spaces[4]}px;
   }
   .Toastify__toast-container--top-right {
     top: 4em;
@@ -51,19 +51,21 @@ const ToastBody = styled.div<{
   dispatchableAction?: { type: ReduxActionType; payload: any };
 }>`
   width: 264px;
-  background: ${props => props.theme.colors.toast.bg};
-  padding: ${props => props.theme.spaces[4]}px
-    ${props => props.theme.spaces[5]}px;
+  background: ${(props) => props.theme.colors.toast.bg};
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[5]}px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  overflow-wrap: anywhere;
 
   .${Classes.ICON} {
     cursor: auto;
-    margin-right: ${props => props.theme.spaces[3]}px;
+    margin-right: ${(props) => props.theme.spaces[3]}px;
+    margin-top: ${(props) => props.theme.spaces[1] / 2}px;
     svg {
       path {
-        fill: ${props =>
+        fill: ${(props) =>
           props.variant === Variant.warning
             ? props.theme.colors.toast.warningColor
             : props.variant === Variant.danger
@@ -71,7 +73,7 @@ const ToastBody = styled.div<{
             : "#9F9F9F"};
       }
       rect {
-        ${props =>
+        ${(props) =>
           props.variant === Variant.danger
             ? `fill: ${props.theme.colors.toast.dangerColor}`
             : null};
@@ -80,10 +82,10 @@ const ToastBody = styled.div<{
   }
 
   .${Classes.TEXT} {
-    color: ${props => props.theme.colors.toast.textColor};
+    color: ${(props) => props.theme.colors.toast.textColor};
   }
 
-  ${props =>
+  ${(props) =>
     props.isUndo || props.dispatchableAction
       ? `
     .undo-section .${Classes.TEXT} {
@@ -99,7 +101,7 @@ const ToastBody = styled.div<{
 
 const FlexContainer = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 `;
 
 const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
@@ -156,7 +158,9 @@ export const Toaster = {
       );
       return;
     }
-    const toastId = toast(
+    // Stringified JSON is a long, but valid key :shrug:
+    const toastId = JSON.stringify(config);
+    toast(
       <ToastComponent
         undoAction={() => {
           toast.dismiss(toastId);
@@ -165,12 +169,18 @@ export const Toaster = {
         {...config}
       />,
       {
-        pauseOnHover: true,
-        autoClose: config.duration || 5000,
-        closeOnClick: false,
+        toastId: toastId,
+        pauseOnHover: !config.dispatchableAction && !config.hideProgressBar,
+        pauseOnFocusLoss: !config.dispatchableAction && !config.hideProgressBar,
+        autoClose: false,
+        closeOnClick: true,
         hideProgressBar: config.hideProgressBar,
       },
     );
+    // Update autoclose everytime to keep resetting the timer.
+    toast.update(toastId, {
+      autoClose: config.duration || 5000,
+    });
   },
   clear: () => toast.dismiss(),
 };

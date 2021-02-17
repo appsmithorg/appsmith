@@ -13,8 +13,10 @@
   "optionchangetextDropdown": " .t--property-control-onoptionchange .CodeMirror-code",
   "optionchangetextDatePicker": " .t--property-control-ondateselected .CodeMirror-code",
   "optionchangetextCheckbox": ".t--property-control-oncheckchange .CodeMirror-code",
+  "optionchangetextSwitch": ".t--property-control-onchange .CodeMirror-code",
   "optionchangetextInput": ".t--property-control-ontextchanged .CodeMirror-code",
   "optionchangeRadioselect": ".t--property-control-onselectionchange .CodeMirror-code",
+  "optionalignment": ".t--property-control-alignment",
   "onMarkerclick": ".t--property-control-onmarkerclick .CodeMirror-code",
   "success": "div[type='success'] span",
   "mapOptionChange": ".t--property-control-onmarkerclick .CodeMirror-code",
@@ -81,6 +83,11 @@
   "changeZoomlevel": ".t--property-control-maxzoomlevel .bp3-button",
   "selectedZoomlevel": ".t--property-control-maxzoomlevel button span",
   "imgWidget": "div[data-testid='styledImage']",
+  "editColTitle": ".t--property-pane-edit-title",
+  "editColText": ".t--property-pane-edit-title span",
+  "changeColType": ".t--property-control-columntype .bp3-button",
+  "selectedColType": ".t--property-control-columntype button span",
+  "collapsesection": ".t--property-pane-section-collapse-general",
   "selectTab": ".t--tab-Tab",
   "deflautSelectedRow": ".t--property-control-defaultselectedrow textarea",
   "defaultSearchText": ".t--property-control-defaultsearchtext textarea",
@@ -89,5 +96,6 @@
   "filePickerInput": ".uppy-Dashboard-input",
   "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",
   "filePickerOnFilesSelected": ".t--property-control-onfilesselected",
-  "dataType": ".t--property-control-datatype"
+  "dataType": ".t--property-control-datatype",
+  "evaluateMsg": ".t--CodeEditor-evaluatedValue p"
 }

@@ -4,7 +4,7 @@ import {
   ReduxActionErrorTypes,
   ReduxAction,
 } from "constants/ReduxActionConstants";
-import { RestAction } from "entities/Action";
+import { Action } from "entities/Action";
 import { UpdateActionPropertyActionPayload } from "actions/actionActions";
 
 const initialState: ApiPaneReduxState = {
@@ -115,7 +115,7 @@ const apiPaneReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (
     state: ApiPaneReduxState,
-    action: ReduxAction<{ data: RestAction }>,
+    action: ReduxAction<{ data: Action }>,
   ) => ({
     ...state,
     isSaving: {

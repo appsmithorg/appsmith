@@ -1,8 +1,8 @@
-import _ from "lodash";
+import _, { isString } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
-import { invisible } from "constants/DefaultTheme";
+import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "configs";
 import { ChartType, ChartData, ChartDataPoint } from "widgets/ChartWidget";
 
@@ -31,14 +31,14 @@ export interface ChartComponentProps {
 }
 
 const CanvasContainer = styled.div<ChartComponentProps>`
-  border: none;
-  border-radius: ${props => `${props.theme.radii[1]}px`};
+  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+  border-radius: 0;
   height: 100%;
   width: 100%;
   background: white;
-  box-shadow: 0 1px 1px 0 rgba(60,75,100,.14),0 2px 1px -1px rgba(60,75,100,.12),0 1px 3px 0 rgba(60,75,100,.2);
+  overflow: hidden;
   position: relative;
-  ${props => (!props.isVisible ? invisible : "")};
+  ${(props) => (!props.isVisible ? invisible : "")};
   padding: 10px 0 0 0;
 }`;
 
@@ -89,7 +89,15 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         },
       ];
     }
-    const data: ChartDataPoint[] = chartData[0].data;
+
+    let data: ChartDataPoint[] = chartData[0].data;
+    if (isString(chartData[0].data)) {
+      try {
+        data = JSON.parse(chartData[0].data);
+      } catch (e) {
+        data = [];
+      }
+    }
     if (data.length === 0) {
       return [
         {
@@ -98,7 +106,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         },
       ];
     }
-    return data.map(item => {
+    return data.map((item) => {
       return {
         label: item.x,
         value: item.y,
@@ -127,7 +135,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         label: "",
       };
     }
-    return categories.map(item => {
+    return categories.map((item) => {
       return {
         label: item,
       };

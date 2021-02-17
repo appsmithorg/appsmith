@@ -193,22 +193,27 @@ const appSizeHandler = (size: Size): cssAttributes => {
       height = 50;
       padding = 50;
       break;
+    default:
+      width = 20;
+      height = 20;
+      padding = 5;
+      break;
   }
   return { width, height, padding };
 };
 
 const IconWrapper = styled.a<AppIconProps & { styledProps: cssAttributes }>`
   cursor: pointer;
-  width: ${props => props.styledProps.width}px;
-  height: ${props => props.styledProps.height}px;
+  width: ${(props) => props.styledProps.width}px;
+  height: ${(props) => props.styledProps.height}px;
   &:focus {
     outline: none;
   }
   svg {
-    width: ${props => props.styledProps.width}px;
-    height: ${props => props.styledProps.height}px;
+    width: ${(props) => props.styledProps.width}px;
+    height: ${(props) => props.styledProps.height}px;
     path {
-      fill: ${props => props.theme.colors.appIcon.normal};
+      fill: ${(props) => props.theme.colors.appIcon.normal};
     }
   }
 `;

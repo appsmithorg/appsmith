@@ -72,7 +72,7 @@ abstract class BaseWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return {};
   }
-
+  // TODO Find a way to enforce this, (dont let it be set)
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
   }
@@ -108,6 +108,22 @@ abstract class BaseWidget<
   ): void {
     const { updateWidget } = this.context;
     updateWidget && updateWidget(operationName, widgetId, widgetProperties);
+  }
+
+  deleteWidgetProperty(propertyPaths: string[]): void {
+    const { deleteWidgetProperty } = this.context;
+    const { widgetId } = this.props;
+    if (deleteWidgetProperty && widgetId) {
+      deleteWidgetProperty(widgetId, propertyPaths);
+    }
+  }
+
+  batchUpdateWidgetProperty(updates: Record<string, unknown>): void {
+    const { batchUpdateWidgetProperty } = this.context;
+    const { widgetId } = this.props;
+    if (batchUpdateWidgetProperty && widgetId) {
+      batchUpdateWidgetProperty(widgetId, updates);
+    }
   }
 
   updateWidgetProperty(propertyName: string, propertyValue: any): void {
