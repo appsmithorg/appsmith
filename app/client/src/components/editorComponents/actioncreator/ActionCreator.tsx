@@ -99,7 +99,7 @@ export const modalGetter = (value: string) => {
   return name;
 };
 
-const stringToJS = (string: string): string => {
+export const stringToJS = (string: string): string => {
   const { stringSegments, jsSnippets } = getDynamicBindings(string);
   const js = stringSegments
     .map((segment, index) => {
@@ -113,7 +113,7 @@ const stringToJS = (string: string): string => {
   return js;
 };
 
-const JSToString = (js: string): string => {
+export const JSToString = (js: string): string => {
   const segments = js.split(" + ");
   return segments
     .map((segment) => {
@@ -210,6 +210,7 @@ type ActionCreatorProps = {
   isValid: boolean;
   validationMessage?: string;
   onValueChange: (newValue: string) => void;
+  additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
 
 const ActionType = {
@@ -254,6 +255,7 @@ type KeyValueViewProps = ViewProps;
 type TextViewProps = ViewProps & {
   isValid: boolean;
   validationMessage?: string;
+  additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
 
 const views = {
@@ -308,6 +310,7 @@ const views = {
             evaluatedValue={props.get(props.value, false) as string}
             isValid={props.isValid}
             errorMessage={props.validationMessage}
+            additionalAutocomplete={props.additionalAutoComplete}
           />
         </ControlWrapper>
       </FieldWrapper>
@@ -731,6 +734,7 @@ function renderField(props: {
   pageDropdownOptions: TreeDropdownOption[];
   depth: number;
   maxDepth: number;
+  additionalAutoComplete?: Record<string, Record<string, unknown>>;
 }) {
   const { field } = props;
   const fieldType = field.field;
@@ -879,6 +883,7 @@ function renderField(props: {
         value: props.value,
         isValid: props.isValid,
         validationMessage: props.validationMessage,
+        additionalAutoComplete: props.additionalAutoComplete,
       });
       break;
     default:
@@ -901,6 +906,7 @@ function Fields(props: {
   pageDropdownOptions: TreeDropdownOption[];
   depth: number;
   maxDepth: number;
+  additionalAutoComplete?: Record<string, Record<string, unknown>>;
 }) {
   const { fields, ...otherProps } = props;
   if (fields[0].field === FieldType.ACTION_SELECTOR_FIELD) {
@@ -938,12 +944,13 @@ function Fields(props: {
                       );
                       props.onValueChange(parentValue);
                     }}
+                    additionalAutoComplete={props.additionalAutoComplete}
                   />
                 </li>
               );
             } else {
               return (
-                <li>
+                <li key={field.field}>
                   {renderField({
                     field: field,
                     ...otherProps,
@@ -1128,6 +1135,7 @@ export function ActionCreator(props: ActionCreatorProps) {
         onValueChange={props.onValueChange}
         depth={1}
         maxDepth={1}
+        additionalAutoComplete={props.additionalAutoComplete}
       />
     </TreeStructure>
   );

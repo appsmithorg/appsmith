@@ -59,6 +59,7 @@ describe("Onboarding", function() {
     cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
 
     // Wait before publish
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
 
     cy.window().then((window) => {

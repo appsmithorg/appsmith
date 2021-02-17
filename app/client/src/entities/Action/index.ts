@@ -45,6 +45,7 @@ export interface ApiActionConfig extends ActionConfig {
   httpMethod: string;
   path?: string;
   body?: JSON | string | Record<string, any> | null;
+  encodeParamsToggle: boolean;
   queryParameters?: Property[];
   bodyFormData?: BodyFormData[];
 }

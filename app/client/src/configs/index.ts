@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/react";
 import { createBrowserHistory } from "history";
 const history = createBrowserHistory();
 
-type INJECTED_CONFIGS = {
+export type INJECTED_CONFIGS = {
   sentry: {
     dsn: string;
     release: string;

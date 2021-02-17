@@ -13,7 +13,9 @@ import { DropdownOption } from "widgets/DropdownWidget";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput, DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
-import { Skin } from "constants/DefaultTheme";
+import { Skin, createGlobalStyle } from "constants/DefaultTheme";
+import { AnyStyledComponent } from "styled-components";
+import { ControlIcons } from "icons/ControlIcons";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -93,60 +95,51 @@ export const StyledDropDownContainer = styled.div`
       }
     }
   }
-  &&&& .${Classes.MENU_ITEM} {
-    padding: ${(props) => props.theme.spaces[3]}px
-      ${(props) => props.theme.spaces[4]}px;
-    background: ${(props) => props.theme.colors.treeDropdown.darkMenuBg.normal};
-    color: ${(props) => props.theme.colors.treeDropdown.darkMenuText.normal};
-    border-radius: 0px;
-    &:hover {
-      background: ${(props) =>
-        props.theme.colors.treeDropdown.darkMenuBg.hover};
+  width: 100%;
+`;
+
+export const DropdownStyles = createGlobalStyle`
+  .select-popover-wrapper {
+    width: 100%;
+    border-radius: ${(props) => props.theme.radii[1]}px;
+    box-shadow:  0px 2px 4px rgba(67, 70, 74, 0.14);
+    padding: ${(props) => props.theme.spaces[3]}px;
+    background: white;
+    && .${Classes.MENU} {
+      max-width: 100%;
+      max-height: auto;
     }
-    &.${Classes.ACTIVE} {
+    &&&& .${Classes.MENU_ITEM} {
+      padding: ${(props) => props.theme.spaces[3]}px
+      ${(props) => props.theme.spaces[4]}px;
       background: ${(props) =>
-        props.theme.colors.treeDropdown.darkMenuBg.hover};
-      color: ${(props) => props.theme.colors.treeDropdown.darkMenuText.hover};
-      position: relative;
-      &.single-select {
-        &:before {
-          left: 0;
-          top: -2px;
-          position: absolute;
-          content: "";
-          background: ${(props) => props.theme.colors.primaryOld};
-          border-radius: 0px;
-          width: 4px;
-          height: 100%;
+        props.theme.colors.treeDropdown.darkMenuBg.normal};
+      color: ${(props) => props.theme.colors.treeDropdown.darkMenuText.normal};
+      border-radius: 0px;
+      &:hover {
+        background: ${(props) =>
+          props.theme.colors.treeDropdown.darkMenuBg.hover};
+      }
+      &.${Classes.ACTIVE} {
+        background: ${(props) =>
+          props.theme.colors.treeDropdown.darkMenuBg.hover};
+        color: ${(props) => props.theme.colors.treeDropdown.darkMenuText.hover};
+        position: relative;
+        &.single-select {
+          &:before {
+            left: 0;
+            top: -2px;
+            position: absolute;
+            content: "";
+            background: ${(props) => props.theme.colors.primaryOld};
+            border-radius: 0px;
+            width: 4px;
+            height: 100%;
+          }
         }
       }
     }
   }
-  && .${Classes.POPOVER} {
-    width: 100%;
-    border-radius: 0px;
-    box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
-    padding: 0px;
-    background: ${(props) => props.theme.colors.treeDropdown.darkMenuBg.normal};
-  }
-
-  &&&& .${Classes.POPOVER_CONTENT} {
-    box-shadow: none;
-  }
-
-  && .${Classes.POPOVER_WRAPPER} {
-    .${Classes.OVERLAY} {
-      .${Classes.TRANSITION_CONTAINER} {
-        width: 100%;
-      }
-    }
-  }
-  && .${Classes.MENU} {
-    max-width: 100%;
-    max-height: auto;
-    background: ${(props) => props.theme.colors.treeDropdown.darkMenuBg.normal};
-  }
-  width: 100%;
 `;
 
 export const StyledMenu = styled(Menu)`
@@ -334,4 +327,105 @@ export const StyledPropertyPaneButton = styled(Button)`
 export const FieldWrapper = styled.div`
   position: relative;
   width: 100%;
+`;
+
+export const StyledEditIcon = styled(
+  ControlIcons.SETTINGS_CONTROL as AnyStyledComponent,
+)`
+  padding: 0;
+  position: absolute;
+  margin-left: 0;
+  cursor: pointer;
+  right: 35px;
+  & svg {
+    width: 12px;
+    height: 12px;
+    position: relative;
+    top: 2px;
+    path {
+      fill: ${(props) => props.theme.colors.paneSectionLabel};
+    }
+  }
+`;
+
+export const StyledDragIcon = styled(
+  ControlIcons.DRAG_CONTROL as AnyStyledComponent,
+)`
+  padding: 0;
+  position: absolute;
+  margin-right: 15px;
+  cursor: move;
+  z-index: 1;
+  left: 4px;
+  svg {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    top: 2px;
+    path {
+      fill: ${(props) => props.theme.colors.paneSectionLabel};
+    }
+  }
+`;
+
+export const StyledDeleteIcon = styled(
+  ControlIcons.DELETE_COLUMN as AnyStyledComponent,
+)`
+  padding: 0;
+  position: absolute;
+  margin-left: 15px;
+  cursor: pointer;
+  right: 16px;
+  svg {
+    width: 24px;
+    height: 24px;
+    top: -2px;
+    position: relative;
+    path {
+      fill: ${(props) => props.theme.colors.paneSectionLabel};
+    }
+  }
+`;
+
+export const FlexWrapper = styled.div`
+  display: flex;
+`;
+
+export const StyledVisibleIcon = styled(
+  ControlIcons.SHOW_COLUMN as AnyStyledComponent,
+)`
+  padding: 0;
+  position: absolute;
+  margin-left: 15px;
+  cursor: pointer;
+  right: 16px;
+  svg {
+    width: 24px;
+    height: 24px;
+    top: -2px;
+    position: relative;
+    path {
+      fill: ${(props) => props.theme.colors.paneSectionLabel};
+    }
+  }
+`;
+
+export const StyledHiddenIcon = styled(
+  ControlIcons.HIDE_COLUMN as AnyStyledComponent,
+)`
+  padding: 0;
+  position: absolute;
+  margin-left: 15px;
+  cursor: pointer;
+  right: 16px;
+  svg {
+    width: 14px;
+    top: 3px;
+    height: 14px;
+    left: 3px;
+    position: relative;
+    path {
+      fill: ${(props) => props.theme.colors.paneSectionLabel};
+    }
+  }
 `;

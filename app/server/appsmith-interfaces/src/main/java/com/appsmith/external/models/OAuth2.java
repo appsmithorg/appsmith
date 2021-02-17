@@ -12,13 +12,16 @@ import lombok.Setter;
 import lombok.ToString;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.annotation.Transient;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -54,24 +57,10 @@ public class OAuth2 extends AuthenticationDTO {
 
     Set<String> scope;
 
-    String headerPrefix = "Bearer";
-
-    @JsonIgnore
-    Object tokenResponse;
+    String headerPrefix;
 
     Set<Property> customTokenParameters;
 
-    @JsonIgnore
-    String token;
-
-    @JsonIgnore
-    String refreshToken;
-
-    @JsonIgnore
-    Instant issuedAt;
-
-    @JsonIgnore
-    Instant expiresAt;
 
     public String getScopeString() {
         if (scopeString != null && !scopeString.isBlank()) {
@@ -84,7 +73,10 @@ public class OAuth2 extends AuthenticationDTO {
     public void setScopeString(String scopeString) {
         this.scopeString = scopeString;
         if (scopeString != null && !scopeString.isBlank()) {
-            this.scope = new HashSet<>(Arrays.asList(scopeString.split(",")));
+            this.scope = Arrays.stream(scopeString.split(","))
+                    .filter(x -> !StringUtils.isEmpty(x))
+                    .map(String::trim)
+                    .collect(Collectors.toSet());
         }
     }
 
@@ -94,14 +86,16 @@ public class OAuth2 extends AuthenticationDTO {
         if (this.clientSecret != null) {
             map.put(FieldName.CLIENT_SECRET, this.clientSecret);
         }
-        if (this.token != null) {
-            map.put(FieldName.TOKEN, this.token);
-        }
-        if (this.refreshToken != null) {
-            map.put(FieldName.REFRESH_TOKEN, this.refreshToken);
-        }
-        if (this.tokenResponse != null) {
-            map.put(FieldName.TOKEN_RESPONSE, String.valueOf(this.tokenResponse));
+        if (this.getAuthenticationResponse() != null) {
+            if (this.authenticationResponse.getToken() != null) {
+                map.put(FieldName.TOKEN, this.authenticationResponse.getToken());
+            }
+            if (this.authenticationResponse.getRefreshToken() != null) {
+                map.put(FieldName.REFRESH_TOKEN, this.authenticationResponse.getRefreshToken());
+            }
+            if (this.authenticationResponse.getTokenResponse() != null) {
+                map.put(FieldName.TOKEN_RESPONSE, String.valueOf(this.authenticationResponse.getTokenResponse()));
+            }
         }
         return map;
     }
@@ -113,13 +107,13 @@ public class OAuth2 extends AuthenticationDTO {
                 this.clientSecret = encryptedFields.get(FieldName.CLIENT_SECRET);
             }
             if (encryptedFields.containsKey(FieldName.TOKEN)) {
-                this.token = encryptedFields.get(FieldName.TOKEN);
+                this.authenticationResponse.setToken(encryptedFields.get(FieldName.TOKEN));
             }
             if (encryptedFields.containsKey(FieldName.REFRESH_TOKEN)) {
-                this.refreshToken = encryptedFields.get(FieldName.REFRESH_TOKEN);
+                this.authenticationResponse.setRefreshToken(encryptedFields.get(FieldName.REFRESH_TOKEN));
             }
             if (encryptedFields.containsKey(FieldName.TOKEN_RESPONSE)) {
-                this.tokenResponse = encryptedFields.get(FieldName.TOKEN_RESPONSE);
+                this.authenticationResponse.setTokenResponse(encryptedFields.get(FieldName.TOKEN_RESPONSE));
             }
         }
     }
@@ -130,14 +124,16 @@ public class OAuth2 extends AuthenticationDTO {
         if (this.clientSecret == null || this.clientSecret.isEmpty()) {
             set.add(FieldName.CLIENT_SECRET);
         }
-        if (this.token == null || this.token.isEmpty()) {
-            set.add(FieldName.TOKEN);
-        }
-        if (this.refreshToken == null || this.refreshToken.isEmpty()) {
-            set.add(FieldName.REFRESH_TOKEN);
-        }
-        if (this.tokenResponse == null || (String.valueOf(this.token)).isEmpty()) {
-            set.add(FieldName.TOKEN_RESPONSE);
+        if (this.getAuthenticationResponse() != null) {
+            if (this.authenticationResponse.getToken() == null || this.authenticationResponse.getToken().isEmpty()) {
+                set.add(FieldName.TOKEN);
+            }
+            if (this.authenticationResponse.getRefreshToken() == null || this.authenticationResponse.getRefreshToken().isEmpty()) {
+                set.add(FieldName.REFRESH_TOKEN);
+            }
+            if (this.authenticationResponse.getTokenResponse() == null || (String.valueOf(this.authenticationResponse.getTokenResponse())).isEmpty()) {
+                set.add(FieldName.TOKEN_RESPONSE);
+            }
         }
         return set;
     }
