@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import styled from "constants/DefaultTheme";
+import styled, { Skin } from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { AnyStyledComponent } from "styled-components";
 import {
@@ -12,7 +12,7 @@ import {
 import { DropDownOptionWithKey } from "./OptionControl";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { generateReactKey } from "utils/generators";
-import Button, { Category, Size } from "components/ads/Button";
+import { Category, Size } from "components/ads/Button";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 function updateOptionLabel<T>(
@@ -177,17 +177,15 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
         );
       })}
 
-      <StyledPropertyPaneButtonHolder theme={props.theme}>
-        <Button
-          tag="button"
-          type="button"
-          text={props.addLabel || "Option"}
-          onClick={addPair}
-          size={Size.medium}
-          category={Category.tertiary}
-          className="custom-button-class"
-        />
-      </StyledPropertyPaneButtonHolder>
+      <StyledPropertyPaneButtonHolder
+        tag="button"
+        type="button"
+        text={props.addLabel || "Option"}
+        onClick={addPair}
+        size={Size.medium}
+        category={Category.tertiary}
+        skin={props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
+      />
     </React.Fragment>
   );
 }

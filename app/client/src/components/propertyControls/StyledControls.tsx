@@ -1,9 +1,7 @@
-import styled from "styled-components";
 import { Select, MultiSelect } from "@blueprintjs/select";
 import {
   Switch,
   InputGroup,
-  Button,
   Classes,
   Popover,
   MenuItem,
@@ -13,9 +11,10 @@ import { DropdownOption } from "widgets/DropdownWidget";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput, DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
-import { Skin, createGlobalStyle } from "constants/DefaultTheme";
+import styled, { Skin, createGlobalStyle } from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
+import Button from "components/ads/Button";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -308,22 +307,6 @@ export const StyledDateRangePicker = styled(DateRangeInput)`
   }
 `;
 
-export const StyledPropertyPaneButton = styled(Button)`
-  &&&& {
-    background-color: ${(props) => props.theme.colors.propertyPane.buttonBg};
-    color: ${(props) => props.theme.colors.propertyPane.buttonText};
-    margin-top: 4px;
-    .bp3-icon {
-      color: ${(props) => props.theme.colors.propertyPane.buttonText};
-      margin-right: 4px;
-    }
-    svg {
-      width: 14px;
-      height: 14px;
-    }
-  }
-`;
-
 export const FieldWrapper = styled.div`
   position: relative;
   width: 100%;
@@ -430,29 +413,42 @@ export const StyledHiddenIcon = styled(
   }
 `;
 
-export const StyledPropertyPaneButtonHolder = styled.div<{
-  theme: Skin;
-}>`
+export const StyledPropertyPaneButton = styled(Button)`
   &&&& {
+    background-color: ${(props) => props.theme.colors.infoOld};
+    color: #ffffff;
     margin-top: 4px;
-    margin-left: auto;
-    display: flex;
-    justify-content: flex-end;
-
-    .custom-button-class {
-      ${(props) =>
-        props.theme === Skin.DARK
-          ? `border-color: ${Colors.CHARCOAL};
-          background-color: ${Colors.CHARCOAL};
-          color: ${Colors.WHITE};`
-          : `border-color: ${Colors.LIGHT_GREY};
-          background-color: ${Colors.LIGHT_GREY};
-          color: ${Colors.CODE_GRAY};`}
+    .bp3-icon {
+      color: #ffffff;
+      margin-right: 4px;
     }
-
     svg {
       width: 14px;
       height: 14px;
     }
+  }
+`;
+
+export const StyledPropertyPaneButtonHolder = styled(Button)<{
+  skin: Skin;
+}>`
+  margin-top: 4px;
+  margin-left: auto;
+  display: flex;
+  justify-content: flex-end;
+  background-color: ${(props) =>
+    props.theme.propertyPaneDesign.propertyPaneButton[props.skin].colorBG};
+
+  &,
+  &:active,
+  &:hover {
+    border-color: transparent;
+    color: ${(props) =>
+      props.theme.propertyPaneDesign.propertyPaneButton[props.skin].colorText};
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
   }
 `;

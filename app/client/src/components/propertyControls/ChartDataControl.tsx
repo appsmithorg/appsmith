@@ -5,7 +5,7 @@ import {
   ControlWrapper,
   StyledPropertyPaneButtonHolder,
 } from "./StyledControls";
-import styled from "constants/DefaultTheme";
+import styled, { Skin } from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { AnyStyledComponent } from "styled-components";
 import CodeEditor from "components/editorComponents/CodeEditor";
@@ -16,7 +16,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import * as Sentry from "@sentry/react";
-import Button, { Size, Category } from "components/ads/Button";
+import { Size, Category } from "components/ads/Button";
 
 const StyledOptionControlWrapper = styled(ControlWrapper)`
   display: flex;
@@ -260,17 +260,15 @@ class ChartDataControl extends BaseControl<ControlProps> {
           );
         })}
 
-        <StyledPropertyPaneButtonHolder theme={this.props.theme}>
-          <Button
-            tag="button"
-            type="button"
-            text="Add Series"
-            onClick={this.addOption}
-            size={Size.medium}
-            category={Category.tertiary}
-            className="custom-button-class"
-          />
-        </StyledPropertyPaneButtonHolder>
+        <StyledPropertyPaneButtonHolder
+          tag="button"
+          type="button"
+          text="Add Series"
+          onClick={this.addOption}
+          size={Size.medium}
+          category={Category.tertiary}
+          skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
+        />
       </React.Fragment>
     );
   }

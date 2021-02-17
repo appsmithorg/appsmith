@@ -1,7 +1,8 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import StepComponent from "components/designSystems/appsmith/StepComponent";
-
+import StepComponent from "components/ads/StepComponent";
+import { Skin } from "constants/DefaultTheme";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 class StepControl extends BaseControl<StepControlProps> {
   getStepTypeControls = () => {
     const { stepType } = this.props;
@@ -26,6 +27,8 @@ class StepControl extends BaseControl<StepControlProps> {
   };
 
   render() {
+    console.log(this.props);
+
     const { min, max, steps, displayFormat } = this.getStepTypeControls();
     return (
       <StepComponent
@@ -37,7 +40,7 @@ class StepControl extends BaseControl<StepControlProps> {
           this.updateProperty(this.props.propertyName, value);
         }}
         displayFormat={displayFormat}
-        theme={this.props.theme}
+        skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
       />
     );
   }

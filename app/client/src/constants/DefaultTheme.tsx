@@ -411,6 +411,32 @@ export type Theme = {
     };
   };
   iconSizes: IconSizeType;
+  ads: {
+    stepComponent: {
+      [Skin.LIGHT]: {
+        stepBG: Color;
+        inputBG: Color;
+        inputText: Color;
+      };
+      [Skin.DARK]: {
+        stepBG: Color;
+        inputBG: Color;
+        inputText: Color;
+      };
+    };
+  };
+  propertyPaneDesign: {
+    propertyPaneButton: {
+      [Skin.LIGHT]: {
+        colorBG: Color;
+        colorText: Color;
+      };
+      [Skin.DARK]: {
+        colorBG: Color;
+        colorText: Color;
+      };
+    };
+  };
 };
 
 type IconSizeType = {
@@ -2046,6 +2072,32 @@ export const theme: Theme = {
       none: {
         color: "transparent",
         background: "transparent",
+      },
+    },
+  },
+  ads: {
+    stepComponent: {
+      [Skin.LIGHT]: {
+        stepBG: Colors.ALTO_2,
+        inputBG: Colors.WHITE,
+        inputText: Colors.CHARCOAL,
+      },
+      [Skin.DARK]: {
+        stepBG: Colors.NERO,
+        inputBG: Colors.CODE_GRAY,
+        inputText: Colors.LIGHT_GREY,
+      },
+    },
+  },
+  propertyPaneDesign: {
+    propertyPaneButton: {
+      [Skin.LIGHT]: {
+        colorBG: Colors.LIGHT_GREY,
+        colorText: Colors.CODE_GRAY,
+      },
+      [Skin.DARK]: {
+        colorBG: Colors.CHARCOAL,
+        colorText: Colors.WHITE,
       },
     },
   },

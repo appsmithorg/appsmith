@@ -4,7 +4,7 @@ import {
   StyledInputGroup,
   StyledPropertyPaneButtonHolder,
 } from "./StyledControls";
-import styled from "constants/DefaultTheme";
+import styled, { Skin } from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
@@ -13,7 +13,8 @@ import { DroppableComponent } from "../designSystems/appsmith/DraggableListCompo
 import { getNextEntityName } from "utils/AppsmithUtils";
 import _ from "lodash";
 import * as Sentry from "@sentry/react";
-import Button, { Category, Size } from "components/ads/Button";
+import { Category, Size } from "components/ads/Button";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   padding: 0;
@@ -156,17 +157,17 @@ class TabControl extends BaseControl<ControlProps> {
           updateItems={this.updateItems}
         />
         <StyledPropertyPaneButtonWrapper>
-          <StyledPropertyPaneButtonHolder theme={this.props.theme}>
-            <Button
-              tag="button"
-              type="button"
-              text="Add a Tab"
-              onClick={this.addOption}
-              size={Size.medium}
-              category={Category.tertiary}
-              className="custom-button-class"
-            />
-          </StyledPropertyPaneButtonHolder>
+          <StyledPropertyPaneButtonHolder
+            tag="button"
+            type="button"
+            text="Add a Tab"
+            onClick={this.addOption}
+            size={Size.medium}
+            category={Category.tertiary}
+            skin={
+              this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT
+            }
+          />
         </StyledPropertyPaneButtonWrapper>
       </TabsWrapper>
     );
