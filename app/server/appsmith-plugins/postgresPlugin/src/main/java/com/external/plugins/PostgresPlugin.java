@@ -130,11 +130,15 @@ public class PostgresPlugin extends BasePlugin {
                         "parameter: Query."));
             }
 
+            // In case of non prepared statement, simply do binding replacement and execute
             if (FALSE.equals(actionConfiguration.getPreparedStatement())) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
                 return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null);
             } else {
+                //Prepared Statement
+                // First extract all the bindings in order
                 List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+                // Replace all the bindings with a ? as expected in a prepared statement.
                 String updatedQuery = SqlStringUtils.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
                 actionConfiguration.setBody(updatedQuery);
                 return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
