@@ -43,6 +43,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -52,6 +54,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static java.lang.System.currentTimeMillis;
 
 public class AmazonS3Plugin extends BasePlugin {
 
@@ -67,6 +71,7 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final int CLIENT_REGION_PROPERTY_INDEX = 0;
     private static final int SECONDS_IN_MINUTE = 60;
     private static final int MILLISECONDS_IN_SECOND = 1000;
+    private static final int DEFAULT_URL_EXPIRY_IN_MINUTES = 10080; // 7 days - max possible
     private static final String YES = "YES";
     private static final String BASE64_DELIMITER = ";base64,";
 
@@ -153,18 +158,13 @@ public class AmazonS3Plugin extends BasePlugin {
         ArrayList<String> getSignedUrls(AmazonS3 connection,
                                         String bucketName,
                                         ArrayList<String> listOfFiles,
-                                        int durationInMilliseconds) {
-            Date expiration = new java.util.Date();
-            long expTimeMillis = expiration.getTime();
-            expTimeMillis += durationInMilliseconds;
-            expiration.setTime(expTimeMillis);
-
+                                        Date expiryDateTime) {
             ArrayList<String> urlList = new ArrayList<>();
             for(String filePath : listOfFiles) {
                 GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName,
                                                                                                           filePath)
                                                                               .withMethod(HttpMethod.GET)
-                                                                              .withExpiration(expiration);
+                                                                              .withExpiration(expiryDateTime);
                 URL url = connection.generatePresignedUrl(generatePresignedUrlRequest);
                 urlList.add(url.toString());
             }
@@ -181,7 +181,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                    String path,
                                    String body,
                                    Boolean usingFilePicker,
-                                   int durationInMillis)
+                                   Date expiryDateTime)
                 throws InterruptedException, AppsmithPluginException {
 
             byte[] payload = null;
@@ -195,14 +195,6 @@ public class AmazonS3Plugin extends BasePlugin {
                 if(body.contains(BASE64_DELIMITER)) {
                     List<String> bodyArrayList = Arrays.asList(body.split(BASE64_DELIMITER));
                     encodedPayload = bodyArrayList.get(bodyArrayList.size()-1);
-                }
-                else {
-                    throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            "Missing Base64 encoding. When uploading file from a Filepicker widget its Base64 encoded" +
-                            " value must be used - e.g. Filepicker1.files[0].base64. Did you forget to use the Base64" +
-                            " encoded value ?"
-                    );
                 }
 
                 try {
@@ -225,7 +217,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
             ArrayList<String> listOfFiles = new ArrayList<>();
             listOfFiles.add(path);
-            ArrayList<String> listOfUrls = getSignedUrls(connection, bucketName, listOfFiles, durationInMillis);
+            ArrayList<String> listOfUrls = getSignedUrls(connection, bucketName, listOfFiles, expiryDateTime);
             if(listOfUrls.size() != 1) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
@@ -388,37 +380,41 @@ public class AmazonS3Plugin extends BasePlugin {
                            && properties.get(GET_SIGNED_URL_PROPERTY_INDEX) != null
                            && properties.get(GET_SIGNED_URL_PROPERTY_INDEX).getValue().equals(YES)) {
 
+                            int durationInMinutes = 0;
                             if(properties.size() < (1+URL_EXPIRY_DURATION_PROPERTY_INDEX)
                                || properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX) == null
                                || StringUtils.isEmpty(properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX).getValue())) {
-                                throw new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                        "Required parameter 'Expiry Duration of Signed URL' is missing. Did you forget to" +
-                                        " edit the 'Expiry Duration of Signed URL' field ?"
-                                );
+                                durationInMinutes = DEFAULT_URL_EXPIRY_IN_MINUTES;
+                            }
+                            else {
+                                try {
+                                    durationInMinutes = Integer
+                                            .parseInt(
+                                                    properties
+                                                            .get(URL_EXPIRY_DURATION_PROPERTY_INDEX)
+                                                            .getValue()
+                                            );
+                                } catch (NumberFormatException e) {
+                                    throw new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                            "Parameter 'Expiry Duration of Signed URL' is NOT a number. Please ensure that the " +
+                                            "input to 'Expiry Duration of Signed URL' field is a valid number - i.e. " +
+                                            "any non-negative integer. Please note that the maximum expiry " +
+                                            "duration supported by Amazon S3 is 7 days i.e. 10080 minutes."
+                                    );
+                                }
                             }
 
-                            int durationInMilliseconds = 0;
-                            try {
-                                int durationInMinutes = Integer
-                                                            .parseInt(
-                                                                     properties
-                                                                     .get(URL_EXPIRY_DURATION_PROPERTY_INDEX)
-                                                                     .getValue()
-                                                             );
-                                durationInMilliseconds = durationInMinutes*SECONDS_IN_MINUTE*MILLISECONDS_IN_SECOND;
-                            } catch (NumberFormatException e) {
-                                throw new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                        "Parameter 'Expiry Duration of Signed URL' is NOT a number. Please ensure that the " +
-                                        "input to 'Expiry Duration of Signed URL' field is a valid number - i.e. any non-negative integer."
-                                );
-                            }
+                            int durationInMilliseconds = durationInMinutes*SECONDS_IN_MINUTE*MILLISECONDS_IN_SECOND;
+                            long expiryTime = currentTimeMillis() + durationInMilliseconds;
+                            Date expiryDateTime = new Date(expiryTime);
+                            DateFormat dateTimeFormat = new SimpleDateFormat("dd MMM yyyy HH:mm:ss:SSS z");
+                            String expiryDateTimeString = dateTimeFormat.format(expiryDateTime);
 
                             ArrayList<String> listOfSignedUrls = getSignedUrls(connection,
                                                                                bucketName,
                                                                                listOfFiles,
-                                                                               durationInMilliseconds);
+                                                                               expiryDateTime);
                             if(listOfFiles.size() != listOfSignedUrls.size()) {
                                 throw new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_ERROR,
@@ -436,51 +432,58 @@ public class AmazonS3Plugin extends BasePlugin {
                                 listOfFilesAndUrls.add(fileUrlPair);
                             }
 
-                            actionResult = Map.of("files", listOfFilesAndUrls);
+                            actionResult = new HashMap<String, Object>();
+                            ((HashMap<String, Object>)actionResult).put("files", listOfFilesAndUrls);
+                            ((HashMap<String, Object>)actionResult).put("urlExpiryDate", expiryDateTimeString);
                         }
                         else {
                             actionResult = Map.of("files", listOfFiles);
                         }
                         break;
                     case UPLOAD_FILE_FROM_BODY:
+                        int durationInMinutes = 0;
                         if(properties.size() < (1+URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX)
-                                || properties.get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX) == null
-                                || StringUtils.isEmpty(properties.get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX).getValue())) {
-                            throw new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Required parameter 'Expiry Duration of Signed URL' is missing. Did you forget to" +
-                                    " edit the 'Expiry Duration of Signed URL' field ?"
-                            );
+                           || properties.get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX) == null
+                           || StringUtils.isEmpty(properties.get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX).getValue())) {
+                            durationInMinutes = DEFAULT_URL_EXPIRY_IN_MINUTES;
                         }
-
-                        int durationInMilliseconds = 0;
-                        try {
-                            durationInMilliseconds = Integer
+                        else {
+                            try {
+                                durationInMinutes = Integer
                                                         .parseInt(
                                                                 properties
                                                                 .get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX)
                                                                 .getValue()
                                                         );
-                        } catch (NumberFormatException e) {
-                            throw new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Parameter 'Expiry Duration of Signed URL' is NOT a number. Please ensure that the " +
-                                    "Expiry Duration of Signed URL' field is a valid number - i.e. any non-negative integer."
-                            );
+                            } catch (NumberFormatException e) {
+                                throw new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                        "Parameter 'Expiry Duration of Signed URL' is NOT a number. Please ensure that the " +
+                                        "Expiry Duration of Signed URL' field is a valid number - i.e. any " +
+                                        "non-negative integer. Please note that the maximum expiry duration supported" +
+                                        " by Amazon S3 is 7 days i.e. 10080 minutes."
+                                );
+                            }
                         }
+
+                        int durationInMilliseconds = durationInMinutes * SECONDS_IN_MINUTE * MILLISECONDS_IN_SECOND;
+                        long expiryTime = currentTimeMillis() + durationInMilliseconds;
+                        Date expiryDateTime = new Date(expiryTime);
+                        DateFormat dateTimeFormat = new SimpleDateFormat("dd MMM yyyy HH:mm:ss:SSS z");
+                        String expiryDateTimeString = dateTimeFormat.format(expiryDateTime);
 
                         String signedUrl = null;
                         if(properties.size() > USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX
                            && properties.get(USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX) != null
                            && properties.get(USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX).getValue().equals(YES)) {
-                            signedUrl = uploadFileFromBody(connection, bucketName, path, body, true,
-                                    durationInMilliseconds);
+                            signedUrl = uploadFileFromBody(connection, bucketName, path, body, true, expiryDateTime);
                         }
                         else {
-                            signedUrl = uploadFileFromBody(connection, bucketName, path, body, false,
-                                    durationInMilliseconds);
+                            signedUrl = uploadFileFromBody(connection, bucketName, path, body, false, expiryDateTime);
                         }
-                        actionResult = Map.of("signedUrl", signedUrl);
+                        actionResult = new HashMap<String, Object>();
+                        ((HashMap<String, Object>)actionResult).put("signedUrl", signedUrl);
+                        ((HashMap<String, Object>)actionResult).put("urlExpiryDate", expiryDateTimeString);
                         break;
                     case READ_FILE:
                         String result = null;

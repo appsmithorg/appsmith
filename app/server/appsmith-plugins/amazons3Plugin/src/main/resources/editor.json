@@ -51,7 +51,7 @@
           }
         },
         {
-          "label": "Base64 Encode file - Yes/No",
+          "label": "Using Base64 Encoded Data - Yes/No",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
           "controlType": "DROP_DOWN",
           "initialValue": "NO",
@@ -75,7 +75,7 @@
           "label": "Expiry Duration of Signed URL (Minutes)",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
           "controlType": "INPUT_TEXT",
-          "initialValue": " ",
+          "initialValue": "10080",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_EQUALS",
@@ -129,7 +129,7 @@
           "label": "Expiry Duration of Signed URL (Minutes)",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
           "controlType": "INPUT_TEXT",
-          "initialValue": "",
+          "initialValue": "10080",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
             "comparison": "NOT_EQUALS",
@@ -137,7 +137,7 @@
           }
         },
         {
-          "label": "Use Base64 encoding",
+          "label": "Base64 Encode File - Yes/No",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
           "controlType": "DROP_DOWN",
           "initialValue": "NO",

@@ -32,6 +32,7 @@ import java.net.URL;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -228,7 +229,7 @@ public class AmazonS3PluginTest {
      *   regarding false credentials.
      */
     @Test
-    public void testCreateFileFromBodyWithFalseCredentials() {
+    public void testCreateFileFromBodyWithFalseCredentialsAndNonNullDuration() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
@@ -265,6 +266,12 @@ public class AmazonS3PluginTest {
                 });
     }
 
+    /*
+     * - This method tests the create file program flow till the point where an actual call is made by the AmazonS3
+     *   connection to upload a file.
+     * - If everything goes well, then then only expected exception is the one thrown by AmazonS3 connection
+     *   regarding false credentials.
+     */
     @Test
     public void testFileUploadFromBodyWithMissingDuration() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
@@ -291,16 +298,18 @@ public class AmazonS3PluginTest {
 
         AmazonS3 connection = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
         Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
-                                                                    connection,
-                                                                    datasourceConfiguration,
-                                                                    actionConfiguration);
+                connection,
+                datasourceConfiguration,
+                actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .verifyErrorSatisfies(e -> {
                     assertTrue(e instanceof AppsmithPluginException);
-                    assertTrue(e.getMessage().contains("Required parameter 'Expiry Duration of Signed URL' is missing"));
+                    assertTrue(e.getMessage().contains("The AWS Access Key Id you provided does not exist in " +
+                            "our records"));
                 });
     }
+
 
     @Test
     public void testFileUploadFromBodyWithFilepickerAndNonBase64() {
@@ -308,7 +317,7 @@ public class AmazonS3PluginTest {
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        String dummyBody = "dummyBody";
+        String dummyBody = "dummyBody;";
         actionConfiguration.setBody(dummyBody);
 
         String dummyPath = "path";
@@ -321,7 +330,7 @@ public class AmazonS3PluginTest {
         properties.add(new Property(null, null));
         properties.add(new Property(null, null));
         properties.add(new Property(null, null));
-        properties.add(new Property("usingFilepicker", "YES"));
+        properties.add(new Property("usingBase64Encoding", "YES"));
         properties.add(new Property("duration", "1000000"));
 
         actionConfiguration.setPluginSpecifiedTemplates(properties);
@@ -335,7 +344,8 @@ public class AmazonS3PluginTest {
         StepVerifier.create(resultMono)
                 .verifyErrorSatisfies(e -> {
                     assertTrue(e instanceof AppsmithPluginException);
-                    assertTrue(e.getMessage().contains("Missing Base64 encoding"));
+                    assertTrue(e.getMessage().contains("Appsmith has encountered an unexpected error when decoding " +
+                            "base64 encoded content"));
                 });
     }
 
@@ -586,12 +596,14 @@ public class AmazonS3PluginTest {
                             expectedResult.toArray(),
                             node.get("files").toArray()
                     );
+
+                    assertNotNull(node.get("urlExpiryDate"));
                 })
                 .verifyComplete();
     }
 
     @Test
-    public void testListFilesWithUrlAndNullDuration() {
+    public void testListFilesWithUrlAndNullDuration() throws MalformedURLException {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
@@ -627,15 +639,40 @@ public class AmazonS3PluginTest {
         when(mockConnection.listNextBatchOfObjects(mockObjectListing)).thenReturn(mockObjectListing);
         when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
 
+        URL dummyUrl1 = new URL("http", "dummy_url_1", "");
+        URL dummyUrl2 = new URL("http", "dummy_url_1", "");
+        when(mockConnection.generatePresignedUrl(any())).thenReturn(dummyUrl1).thenReturn(dummyUrl2);
+
         Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
                 mockConnection,
                 datasourceConfiguration,
                 actionConfiguration);
 
         StepVerifier.create(resultMono)
-                .verifyErrorSatisfies(e -> {
-                    assertTrue(e instanceof AppsmithPluginException);
-                    assertTrue(e.getMessage().contains("Required parameter 'Expiry Duration of Signed URL' is missing"));
-                });
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    ArrayList<String> val1 = new ArrayList<>();
+                    val1.add(dummyKey1);
+                    val1.add(dummyUrl1.toString());
+
+                    ArrayList<String> val2 = new ArrayList<>();
+                    val2.add(dummyKey2);
+                    val2.add(dummyUrl2.toString());
+
+                    ArrayList<ArrayList<String>> expectedResult = new ArrayList<>();
+                    expectedResult.add(val1);
+                    expectedResult.add(val2);
+
+                    Map<String, ArrayList<ArrayList<String>>> node =
+                            (Map<String, ArrayList<ArrayList<String>>>)result.getBody();
+                    assertArrayEquals(
+                            expectedResult.toArray(),
+                            node.get("files").toArray()
+                    );
+
+                    assertNotNull(node.get("urlExpiryDate"));
+                })
+                .verifyComplete();
     }
 }
