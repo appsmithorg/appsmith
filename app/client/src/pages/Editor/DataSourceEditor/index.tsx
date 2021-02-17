@@ -219,7 +219,10 @@ class DatasourceEditorRouter extends React.Component<Props> {
       const props = {
         ...this.props,
         updateDatasource: (data: any) => {
-          this.props.updateDatasource(data, redirectAuthorizationCode(data.id));
+          this.props.updateDatasource(
+            data,
+            redirectAuthorizationCode(pageId, data.id),
+          );
         },
       };
       return <DataSourceEditor {...props} />;
