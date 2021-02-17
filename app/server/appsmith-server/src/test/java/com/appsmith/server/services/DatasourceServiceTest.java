@@ -688,6 +688,9 @@ public class DatasourceServiceTest {
                 .flatMap(original -> {
                     Datasource datasource1 = new Datasource();
                     // Here we abstain from sending an authentication object to remove the field from datasourceConfiguration
+                    DatasourceConfiguration datasourceConfiguration2 = new DatasourceConfiguration();
+                    datasourceConfiguration2.setUrl("http://test.com");
+                    datasource1.setDatasourceConfiguration(datasourceConfiguration2);
                     datasource1.setName("New Name for update to test that encryption is now gone");
                     return datasourceService.update(original.getId(), datasource1);
                 });
