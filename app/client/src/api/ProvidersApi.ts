@@ -100,7 +100,9 @@ export class ProvidersApi extends Api {
     return Api.post(ProvidersApi.addApiToPageURL, request);
   }
 
-  static fetchProvidersCategories(): AxiosPromise<FetchProviderCategoriesResponse> {
+  static fetchProvidersCategories(): AxiosPromise<
+    FetchProviderCategoriesResponse
+  > {
     return Api.get(ProvidersApi.providerCategoriesURL);
   }
 
