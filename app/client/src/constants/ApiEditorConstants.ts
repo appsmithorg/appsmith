@@ -24,6 +24,7 @@ export const REST_PLUGIN_PACKAGE_NAME = "restapi-plugin";
 
 export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
+  encodeParamsToggle: true,
   httpMethod: HTTP_METHODS[0],
   headers: [
     { key: "", value: "" },
