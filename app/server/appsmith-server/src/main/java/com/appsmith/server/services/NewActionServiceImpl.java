@@ -654,10 +654,15 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return Mono.justOrEmpty(action.getApplicationId())
                 .flatMap(applicationService::findById)
                 .defaultIfEmpty(new Application())
-                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(application -> Mono.zip(
+                        Mono.just(application),
+                        sessionUserService.getCurrentUser(),
+                        newPageService.getNameByPageId(actionDTO.getPageId(), true)
+                ))
                 .map(tuple -> {
                     final Application application = tuple.getT1();
                     final User user = tuple.getT2();
+                    final String pageName = tuple.getT3();
 
                     final PluginType pluginType = action.getPluginType();
                     final ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
@@ -684,24 +689,29 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         ));
                     }
 
-                    analyticsService.sendEvent(
-                            AnalyticsEvents.EXECUTE_ACTION.getEventName(),
-                            user.getUsername(),
-                            Map.of(
-                                    "username", user.getUsername(),
-                                    "type", pluginType,
-                                    "name", actionDTO.getName(),
-                                    "datasource", Map.of(
-                                            "name", datasource.getName()
-                                    ),
-                                    "pageId", actionDTO.getPageId(),
-                                    "appId", action.getApplicationId(),
-                                    "appMode", Boolean.TRUE.equals(executeActionDTO.getViewMode()) ? "view" : "edit",
-                                    "appName", application.getName(),
-                                    "isExampleApp", application.isAppIsExample(),
-                                    "request", requestData
-                            )
-                    );
+                    final Map<String, Object> data = new HashMap<>();
+
+                    data.putAll(Map.of(
+                            "username", user.getUsername(),
+                            "type", pluginType,
+                            "name", actionDTO.getName(),
+                            "datasource", Map.of(
+                                    "name", datasource.getName()
+                            ),
+                            "orgId", application.getOrganizationId(),
+                            "appId", action.getApplicationId(),
+                            "appMode", Boolean.TRUE.equals(executeActionDTO.getViewMode()) ? "view" : "edit",
+                            "appName", application.getName(),
+                            "isExampleApp", application.isAppIsExample(),
+                            "request", requestData
+                    ));
+
+                    data.putAll(Map.of(
+                            "pageId", actionDTO.getPageId(),
+                            "pageName", pageName
+                    ));
+
+                    analyticsService.sendEvent(AnalyticsEvents.EXECUTE_ACTION.getEventName(), user.getUsername(), data);
                     return user;
                 })
                 .then();
