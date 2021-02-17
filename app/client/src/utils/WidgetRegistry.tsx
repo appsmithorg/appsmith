@@ -90,7 +90,7 @@ import SkeletonWidget, {
 import ListWidget, {
   ListWidgetProps,
   ProfiledListWidget,
-} from "widgets/ListWidget";
+} from "widgets/ListWidget/ListWidget";
 
 import SwitchWidget, {
   ProfiledSwitchWidget,
