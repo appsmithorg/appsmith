@@ -12,11 +12,11 @@
           "initialValue": "true",
           "options": [
             {
-              "label": "Yes",
+              "label": "Turn on Prepared Statement to prevent SQL injections",
               "value": "true"
             },
             {
-              "label": "No",
+              "label": "Turn off Prepared Statement to configure dynamic setting of column names using bindings",
               "value": "false"
             }
           ]
