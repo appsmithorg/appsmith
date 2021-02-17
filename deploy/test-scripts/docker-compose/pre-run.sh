@@ -14,7 +14,7 @@ sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(l
 sudo apt -y update && sudo apt -y install terraform
 
 # Generate variables.tf
-cat <<EOF >$CI_PROJECT_DIR/deploy/test-scripts/docker-compose/terraform/variables.tf
+cat <<EOF >$GITHUB_WORKSPACE/deploy/test-scripts/docker-compose/terraform/variables.tf
 ## Required variables configuration ##
 
 variable "profile" {
@@ -66,7 +66,7 @@ terraform plan
 terraform apply -auto-approve
 
 # Get instance public ip
-instance_ip=$(head -n 1 $CI_PROJECT_DIR/deploy/test-scripts/docker-compose/public_ip.txt)
+instance_ip=$(head -n 1 $GITHUB_WORKSPACE/deploy/test-scripts/docker-compose/public_ip.txt)
 
 sleep 30
 
@@ -74,13 +74,13 @@ sleep 30
 ssh -oStrictHostKeyChecking=no -i $key_path/id_rsa ubuntu@$instance_ip "sudo rm /var/lib/dpkg/lock && sudo rm /var/lib/apt/lists/lock && sudo rm /var/cache/apt/archives/lock"
 
 # Copy install.sh to server
-scp -oStrictHostKeyChecking=no -i $key_path/id_rsa $CI_PROJECT_DIR/deploy/install.sh ubuntu@$instance_ip:/home/ubuntu
+scp -oStrictHostKeyChecking=no -i $key_path/id_rsa $GITHUB_WORKSPACE/deploy/install.sh ubuntu@$instance_ip:/home/ubuntu
 
 # Copy disable-analytics.sh to server
-scp -i $key_path/id_rsa $CI_PROJECT_DIR/deploy/test-scripts/docker-compose/disable-analytics.sh ubuntu@$instance_ip:/home/ubuntu
+scp -i $key_path/id_rsa $GITHUB_WORKSPACE/deploy/test-scripts/docker-compose/disable-analytics.sh ubuntu@$instance_ip:/home/ubuntu
 
 # Copy autoscript to server
-scp -i $key_path/id_rsa $CI_PROJECT_DIR/deploy/test-scripts/docker-compose/script.exp ubuntu@$instance_ip:/home/ubuntu
+scp -i $key_path/id_rsa $GITHUB_WORKSPACE/deploy/test-scripts/docker-compose/script.exp ubuntu@$instance_ip:/home/ubuntu
 
 # Run exp sript on server
 ssh -i $key_path/id_rsa ubuntu@$instance_ip "bash -c 'chmod +x /home/ubuntu/script.exp && /home/ubuntu/script.exp'"

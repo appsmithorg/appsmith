@@ -20,7 +20,7 @@ In general, Test script will prepare test environment, then run the installation
 ```
     cd <your_repository>/deploy/test-scripts/<testing_platform>
 ```
-- Also make sure that your CI Runner always has `CI_PROJECT_DIR` environment variable point to `<your_repository>` folder path
+- Also make sure that your CI Runner always has `GITHUB_WORKSPACE` environment variable point to `<your_repository>` folder path
 - Our script will install all necessary packages before running test scripts, please make sure that CI runner have authority to install packages
 ### 1. Install.sh ( docker, docker-compose)
 **Diagrams:**

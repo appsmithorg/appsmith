@@ -11,4 +11,4 @@ terraform destroy -auto-approve
 rm variables.tf
 
 # Remove inventory
-rm $CI_PROJECT_DIR/deploy/ansible/appsmith_playbook/inventory
+rm $GITHUB_WORKSPACE/deploy/ansible/appsmith_playbook/inventory

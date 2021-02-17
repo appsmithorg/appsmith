@@ -15,11 +15,11 @@ sudo apt-add-repository --yes --update ppa:ansible/ansible
 sudo apt -y install ansible
 
 # Install python3 & pip
-sudo apt -y install python3-pip
+sudo apt -y install python3-pip python3-setuptools
 pip3 install boto boto3 botocore --user
 
 # Generate variables.yml
-cat <<EOF >$CI_PROJECT_DIR/deploy/test-scripts/aws-ami/aws_ami_ansible_playbook/variables.yml
+cat <<EOF >$GITHUB_WORKSPACE/deploy/test-scripts/aws-ami/aws_ami_ansible_playbook/variables.yml
 install_dir: '/home/ubuntu'
 default_key: '$AWS_KEY_PAIR_NAME'
 path_to_ssh_key: '$key_path/id_rsa'

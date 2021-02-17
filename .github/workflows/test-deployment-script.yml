@@ -1,0 +1,138 @@
+name: Appsmith Deployment testing Workflow
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+
+  push:
+    branches: [feature/test-self-hosted-installation-script-testing]
+# Change the working directory for all the jobs in this workflow
+defaults:
+  run:
+    working-directory: app
+jobs:
+  test-install-sh-script:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_KEY_PAIR_NAME: ${{ secrets.AWS_KEY_PAIR_NAME }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+    steps:
+        # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prepare Test Environment
+        run: |
+          cd $GITHUB_WORKSPACE/deploy/test-scripts/docker-compose
+          $GITHUB_WORKSPACE/deploy/test-scripts/docker-compose/pre-run.sh
+      - name: Run Test
+        if: ${{ always() }}
+        run: |
+          cd $GITHUB_WORKSPACE/deploy/test-scripts/docker-compose
+          ./run-test.sh
+      - name: Clean Up Environment After Test
+        if: ${{ always() }} 
+        run: |
+          cd $GITHUB_WORKSPACE/deploy/test-scripts/docker-compose
+          ./after-run.sh
+  
+  test-install-k8s-sh:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_KEY_PAIR_NAME: ${{ secrets.AWS_KEY_PAIR_NAME }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prepare Test Environment
+        run: |
+          cd $GITHUB_WORKSPACE/deploy/test-scripts/k8s
+          ./pre-run.sh
+      - name: Run Test
+        if: ${{ always() }}
+        run: |
+          cd $GITHUB_WORKSPACE/deploy/test-scripts/k8s
+          ./run-test.sh
+      - name: Clean Up Environment After Test
+        if: ${{ always() }} 
+        run: |
+          cd $GITHUB_WORKSPACE/deploy/test-scripts/k8s
+          ./after-run.sh
+  test-aws-ami:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_KEY_PAIR_NAME: ${{ secrets.AWS_KEY_PAIR_NAME }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prepare Test Environment
+        run: |
+          cd $GITHUB_WORKSPACE/deploy/test-scripts/aws-ami
+          ./pre-run.sh
+      - name: Run Test
+        if: ${{ always() }}
+        run: |
+          cd $GITHUB_WORKSPACE/deploy/test-scripts/aws-ami
+          ./run-test.sh
+      - name: Clean Up Environment After Test
+        if: ${{ always() }} 
+        run: |
+          cd $GITHUB_WORKSPACE/deploy/test-scripts/aws-ami
+          ./after-run.sh
+  test-heroku:
+    runs-on: ubuntu-latest
+    env:
+      HEROKU_USERNAME: ${{ secrets.HEROKU_USERNAME }}
+      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      MONGO_URI: ${{ secrets.MONGO_URI }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prepare Test Environment
+        run: |
+          cd $GITHUB_WORKSPACE/deploy/test-scripts/heroku
+          ./pre-run.sh
+      - name: Run Test
+        if: ${{ always() }}
+        run: |
+          cd $GITHUB_WORKSPACE/deploy/test-scripts/heroku
+          ./run-test.sh
+      - name: Clean Up Environment After Test
+        if: ${{ always() }} 
+        run: |
+          cd $GITHUB_WORKSPACE/deploy/test-scripts/heroku
+          ./after-run.sh
+  test-ansible:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_KEY_PAIR_NAME: ${{ secrets.AWS_KEY_PAIR_NAME }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prepare Test Environment
+        run: |
+          cd $GITHUB_WORKSPACE/deploy/test-scripts/ansible
+          ./pre-run.sh
+      - name: Run Test
+        if: ${{ always() }}
+        run: |
+          cd $GITHUB_WORKSPACE/deploy/test-scripts/ansible
+          ./run-test.sh
+      - name: Clean Up Environment After Test
+        if: ${{ always() }} 
+        run: |
+          cd $GITHUB_WORKSPACE/deploy/test-scripts/ansible
+          ./after-run.sh

@@ -43,7 +43,7 @@ if {$force_conservative} {
 
 
 set timeout 240
-spawn $env(CI_PROJECT_DIR)/deploy/k8s/install.k8s.sh
+spawn $env(GITHUB_WORKSPACE)/deploy/k8s/install.k8s.sh
 match_max 100000
 expect -exact "Installation Directory \[appsmith\]: "
 send -- "\r"
@@ -58,9 +58,9 @@ send -- "n\r"
 expect -exact "Would you like to share anonymous usage data and receive better support? \[Y/n\] "
 send -- "n\r"
 expect -exact "Email: "
-send -- "duy.na@geekup.vn\r"
+send -- "lego@geekup.vn\r"
 expect -exact "Email: "
 send -- "dy"
 expect -exact " "
-send -- "uy.na@geekup.vn\r"
+send -- "lego@geekup.vn\r"
 expect eof

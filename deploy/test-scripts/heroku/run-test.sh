@@ -5,7 +5,7 @@ email=example%40appsmith.com
 password=$(openssl rand -base64 12)
 
 # Get heroku app domain
-domain=$(head -n 1 $CI_PROJECT_DIR/deploy/test-scripts/heroku/domain.txt)
+domain=$(head -n 1 $GITHUB_WORKSPACE/deploy/test-scripts/heroku/domain.txt)
 
 echo "Running test cases..."
 echo ""
