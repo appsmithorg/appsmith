@@ -71,6 +71,7 @@ describe("Binding the multiple widgets and validating default data", function() 
 
   it("Publish App and validate loading functionalty", function() {
     cy.PublishtheApp();
+    //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(widgetsPage.widgetBtn)
       .first()

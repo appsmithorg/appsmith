@@ -50,6 +50,7 @@ const EditableTextWrapper = styled.div<{
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
+    width: 100%;
     & .${Classes.EDITABLE_TEXT} {
       border: ${(props) =>
         props.isEditing && !props.minimal

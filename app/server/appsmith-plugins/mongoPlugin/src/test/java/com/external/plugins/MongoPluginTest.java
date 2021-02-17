@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Connection;
@@ -36,8 +37,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for MongoPlugin
@@ -194,6 +195,29 @@ public class MongoPluginTest {
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteInvalidReadQuery() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("{\n" +
+                "      find: \"users\",\n" +
+                "      filter: { $is: {} },\n" +
+                "      sort: { id: 1 },\n" +
+                "      limit: 10,\n" +
+                "    }");
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .expectErrorMatches(throwable ->
+                        throwable instanceof AppsmithPluginException &&
+                        throwable.getMessage().equals("unknown top level operator: $is")
+                )
+                .verify();
     }
 
     @Test

@@ -14,6 +14,7 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
+import com.amazonaws.util.IOUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -43,6 +44,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,8 +61,12 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final int GET_SIGNED_URL_PROPERTY_INDEX = 2;
     private static final int URL_EXPIRY_DURATION_PROPERTY_INDEX = 3;
     private static final int PREFIX_PROPERTY_INDEX = 4;
+    private static final int READ_WITH_BASE64_ENCODING_PROPERTY_INDEX = 5;
+    private static final int USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX = 6;
+    private static final int URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX = 7;
     private static final int CLIENT_REGION_PROPERTY_INDEX = 0;
     private static final String YES = "YES";
+    private static final String BASE64_DELIMITER = ";base64,";
 
     public AmazonS3Plugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -164,40 +171,85 @@ public class AmazonS3Plugin extends BasePlugin {
         }
 
         /*
-         * - Exception thrown here is handled by the caller.
+         * - Throws exception on upload failure.
+         * - Returns signed url of the created file on success.
          */
-        boolean uploadFileFromBody(AmazonS3 connection,
+        String uploadFileFromBody(AmazonS3 connection,
                                    String bucketName,
                                    String path,
-                                   String body)
-                                   throws InterruptedException {
-            InputStream inputStream = new ByteArrayInputStream(body.getBytes());
+                                   String body,
+                                   Boolean usingFilePicker,
+                                   int durationInMillis)
+                throws InterruptedException, AppsmithPluginException {
+
+            byte[] payload = null;
+            if(Boolean.TRUE.equals(usingFilePicker)) {
+                String encodedPayload = body;
+                /*
+                 * - For files uploaded using Filepicker.xyz.base64, body format is "<content-type>;base64,<actual-
+                 *   base64-encoded-payload>".
+                 * - Strip off the redundant part in the beginning to get actual payload.
+                 */
+                if(body.contains(BASE64_DELIMITER)) {
+                    List<String> bodyArrayList = Arrays.asList(body.split(BASE64_DELIMITER));
+                    encodedPayload = bodyArrayList.get(bodyArrayList.size()-1);
+                }
+                else {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            "Missing Base64 encoding. When uploading file from a Filepicker widget its Base64 encoded" +
+                            " value must be used - e.g. Filepicker1.files[0].base64. Did you forget to use the Base64" +
+                            " encoded value ?"
+                    );
+                }
+
+                try {
+                    payload = Base64.getDecoder().decode(encodedPayload);
+                } catch (IllegalArgumentException e) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_ERROR,
+                            "Appsmith has encountered an unexpected error when decoding base64 encoded content. " +
+                            "Please reach out to Appsmith customer support to resolve this."
+                    );
+                }
+            }
+            else {
+                payload = body.getBytes();
+            }
+
+            InputStream inputStream = new ByteArrayInputStream(payload);
             TransferManager transferManager = TransferManagerBuilder.standard().withS3Client(connection).build();
             transferManager.upload(bucketName, path, inputStream, new ObjectMetadata()).waitForUploadResult();
 
-            return true;
+            ArrayList<String> listOfFiles = new ArrayList<>();
+            listOfFiles.add(path);
+            ArrayList<String> listOfUrls = getSignedUrls(connection, bucketName, listOfFiles, durationInMillis);
+            if(listOfUrls.size() != 1) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith has encountered an unexpected error when fetching url from AmazonS3 after file " +
+                        "creation. Please reach out to Appsmith customer support to resolve this."
+                );
+            }
+            String signedUrl = listOfUrls.get(0);
+
+            return signedUrl;
         }
 
         /*
          * - Exception thrown here needs to be handled by the caller.
          */
-        String readFile(AmazonS3 connection, String bucketName, String path) throws IOException {
+        String readFile(AmazonS3 connection, String bucketName, String path, Boolean encodeContent) throws IOException {
             S3Object fullObject = connection.getObject(bucketName, path);
             S3ObjectInputStream content = fullObject.getObjectContent();
+            byte[] bytes = IOUtils.toByteArray(content);
 
-            String result = "";
-            String line = null;
-            BufferedReader reader = new BufferedReader(new InputStreamReader(content));
-            while ((line = reader.readLine()) != null) {
-                result += line + "\n";
+            String result = null;
+            if(Boolean.TRUE.equals(encodeContent)) {
+                result = new String(Base64.getEncoder().encode(bytes));
             }
-
-            try {
-                if(fullObject != null) {
-                    fullObject.close();
-                }
-            } catch (IOException e) {
-                System.out.println("Error when closing AWS S3 connection after reading file: " + e.getMessage());
+            else {
+                result = new String(bytes);
             }
 
             return result;
@@ -264,8 +316,8 @@ public class AmazonS3Plugin extends BasePlugin {
                 return Mono.error(
                         new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
-                            "Appsmith server has encountered an unexpected error when parsing query" +
-                            " action. Please reach out to Appsmith customer support to resolve this."
+                                "Mandatory parameter 'Action' is missing. Did you forget to select one of the actions" +
+                                " from the Action dropdown ?"
                         )
                 );
             }
@@ -381,23 +433,67 @@ public class AmazonS3Plugin extends BasePlugin {
                                 listOfFilesAndUrls.add(fileUrlPair);
                             }
 
-                            actionResult = Map.of("List of Files", listOfFilesAndUrls);
+                            actionResult = Map.of("files", listOfFilesAndUrls);
                         }
                         else {
-                            actionResult = Map.of("List of Files", listOfFiles);
+                            actionResult = Map.of("files", listOfFiles);
                         }
                         break;
                     case UPLOAD_FILE_FROM_BODY:
-                        uploadFileFromBody(connection, bucketName, path, body);
-                        actionResult = Map.of("Status", "File uploaded successfully");
+                        if(properties.size() < (1+URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX)
+                                || properties.get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX) == null
+                                || StringUtils.isEmpty(properties.get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX).getValue())) {
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Required parameter 'URL Expiry Duration' is missing. Did you forget to" +
+                                    " edit the 'URL Expiry Duration' field ?"
+                            );
+                        }
+
+                        int durationInMilliseconds = 0;
+                        try {
+                            durationInMilliseconds = Integer
+                                                        .parseInt(
+                                                                properties
+                                                                .get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX)
+                                                                .getValue()
+                                                        );
+                        } catch (NumberFormatException e) {
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Parameter 'URL Expiry Duration' is NOT a number. Please ensure that the " +
+                                    "input to 'URL Expiry Duration' field is a valid number - i.e. any non-negative integer."
+                            );
+                        }
+
+                        String signedUrl = null;
+                        if(properties.size() > USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX
+                           && properties.get(USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX) != null
+                           && properties.get(USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX).getValue().equals(YES)) {
+                            signedUrl = uploadFileFromBody(connection, bucketName, path, body, true,
+                                    durationInMilliseconds);
+                        }
+                        else {
+                            signedUrl = uploadFileFromBody(connection, bucketName, path, body, false,
+                                    durationInMilliseconds);
+                        }
+                        actionResult = Map.of("signedUrl", signedUrl);
                         break;
                     case READ_FILE:
-                        final String result = readFile(connection, bucketName, path);
-                        actionResult = result;
+                        String result = null;
+                        if(properties.size() > READ_WITH_BASE64_ENCODING_PROPERTY_INDEX
+                           && properties.get(READ_WITH_BASE64_ENCODING_PROPERTY_INDEX) != null
+                           && properties.get(READ_WITH_BASE64_ENCODING_PROPERTY_INDEX).getValue().equals(YES)) {
+                            result = readFile(connection, bucketName, path, true);
+                        }
+                        else {
+                            result = readFile(connection, bucketName, path, false);
+                        }
+                        actionResult = Map.of("data", result);
                         break;
                     case DELETE_FILE:
                         connection.deleteObject(bucketName, path);
-                        actionResult = Map.of("Status", "File deleted successfully");
+                        actionResult = Map.of("status", "File deleted successfully");
                         break;
                     default:
                         throw new AppsmithPluginException(
