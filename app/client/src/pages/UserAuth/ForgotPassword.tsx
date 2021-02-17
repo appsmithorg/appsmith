@@ -22,11 +22,11 @@ import {
   FORGOT_PASSWORD_PAGE_LOGIN_LINK,
 } from "constants/messages";
 import { AUTH_LOGIN_URL } from "constants/routes";
-import FormMessage from "components/ads/formFields/FormMessage";
+import FormMessage from "components/alloy/formFields/FormMessage";
 import { FORGOT_PASSWORD_FORM_NAME } from "constants/forms";
-import FormGroup from "components/ads/formFields/FormGroup";
-import Button, { Size } from "components/ads/Button";
-import FormTextField from "components/ads/formFields/TextField";
+import FormGroup from "components/alloy/formFields/FormGroup";
+import Button, { Size } from "components/alloy/Button";
+import FormTextField from "components/alloy/formFields/TextField";
 import { Icon } from "@blueprintjs/core";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import {

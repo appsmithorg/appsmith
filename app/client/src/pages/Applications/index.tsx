@@ -43,16 +43,16 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
-import Button, { Size } from "components/ads/Button";
-import Text, { TextType } from "components/ads/Text";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
-import MenuItem from "components/ads/MenuItem";
+import Button, { Size } from "components/alloy/Button";
+import Text, { TextType } from "components/alloy/Text";
+import Icon, { IconName, IconSize } from "components/alloy/Icon";
+import MenuItem from "components/alloy/MenuItem";
 import {
   duplicateApplication,
   updateApplication,
 } from "actions/applicationActions";
-import { Classes } from "components/ads/common";
-import Menu from "components/ads/Menu";
+import { Classes } from "components/alloy/common";
+import Menu from "components/alloy/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import HelpModal from "components/designSystems/appsmith/help/HelpModal";
 import { UpdateApplicationPayload, UserRoles } from "api/ApplicationApi";
@@ -64,15 +64,15 @@ import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer"
 import EditableText, {
   EditInteractionKind,
   SavingState,
-} from "components/ads/EditableText";
-import { notEmptyValidator } from "components/ads/TextInput";
+} from "components/alloy/EditableText";
+import { notEmptyValidator } from "components/alloy/TextInput";
 import { saveOrg } from "actions/orgActions";
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
-import Spinner from "components/ads/Spinner";
+import Spinner from "components/alloy/Spinner";
 import ProfileImage from "pages/common/ProfileImage";
-import { AppIconCollection } from "components/ads/AppIcon";
+import { AppIconCollection } from "components/alloy/AppIcon";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";

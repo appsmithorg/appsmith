@@ -7,8 +7,8 @@ import {
 import log from "loglevel";
 import history from "utils/history";
 import { ApiResponse } from "api/ApiResponses";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/alloy/common";
+import { Toaster } from "components/alloy/Toast";
 import { flushErrors } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { ERROR_CODES } from "constants/ApiConstants";

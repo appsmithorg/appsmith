@@ -11,7 +11,11 @@ import { removeFalsyEntries } from "utils/helpers";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
+import {
+  RenderModes,
+  WidgetType,
+  WidgetTypes,
+} from "constants/WidgetConstants";
 import {
   BASE_WIDGET_VALIDATION,
   WidgetPropertyValidationType,
@@ -78,7 +82,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         topRow: index * children[0].bottomRow,
         bottomRow: (index + 1) * children[0].bottomRow,
         resizeDisabled: index > 0,
-        isVisible: index === 0,
+        isVisible: this.props.renderMode === RenderModes.PAGE || index === 0,
         widgetId: index > 0 ? `list-item-${index}` : child.widgetId,
       };
     });

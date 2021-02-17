@@ -1,4 +1,4 @@
-import { AppIconName } from "components/ads/AppIcon";
+import { AppIconName } from "components/alloy/AppIcon";
 import { AppColorCode } from "constants/DefaultTheme";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";

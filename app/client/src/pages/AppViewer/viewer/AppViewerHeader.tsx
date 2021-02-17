@@ -28,11 +28,11 @@ import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
-import Text, { TextType } from "components/ads/Text";
-import { Classes } from "components/ads/common";
+import Text, { TextType } from "components/alloy/Text";
+import { Classes } from "components/alloy/common";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
-import { IconWrapper } from "components/ads/Icon";
-import Button, { Size } from "components/ads/Button";
+import { IconWrapper } from "components/alloy/Icon";
+import Button, { Size } from "components/alloy/Button";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";

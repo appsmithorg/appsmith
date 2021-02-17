@@ -19,7 +19,7 @@ import {
   EditableText as NewEditableText,
   EditInteractionKind as NewEditInteractionKind,
   SavingState,
-} from "components/ads/EditableText";
+} from "components/alloy/EditableText";
 import { Classes } from "@blueprintjs/core";
 import { OnboardingStep } from "constants/OnboardingConstants";
 

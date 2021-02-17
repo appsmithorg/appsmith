@@ -54,8 +54,8 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { EventLocation } from "utils/AnalyticsUtil";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/alloy/common";
+import { Toaster } from "components/alloy/Toast";
 import { checkCurrentStep } from "./OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 

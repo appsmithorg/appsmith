@@ -12,8 +12,8 @@ import {
 import { getApplicationViewerPageURL } from "constants/routes";
 import OrgInviteUsersForm from "./OrgInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
-import Text, { TextType } from "components/ads/Text";
-import Toggle from "components/ads/Toggle";
+import Text, { TextType } from "components/alloy/Text";
+import Toggle from "components/alloy/Toggle";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 
 const Title = styled.div`

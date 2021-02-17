@@ -4,7 +4,7 @@ import {
   ApplicationPayload,
   PageListPayload,
 } from "constants/ReduxActionConstants";
-import Icon from "components/ads/Icon";
+import Icon from "components/alloy/Icon";
 import PageTabs from "./PageTabs";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
 

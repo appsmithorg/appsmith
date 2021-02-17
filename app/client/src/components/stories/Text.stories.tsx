@@ -1,8 +1,8 @@
 import React from "react";
 import { boolean, select, text, withKnobs } from "@storybook/addon-knobs";
-import Text, { TextType, Case, FontWeight } from "components/ads/Text";
+import Text, { TextType, Case, FontWeight } from "components/alloy/Text";
 import styled from "styled-components";
-import { StoryWrapper } from "components/ads/common";
+import { StoryWrapper } from "components/alloy/common";
 
 export default {
   title: "Text",

@@ -96,8 +96,8 @@ import {
   validateProperty,
 } from "./EvaluationsSaga";
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster } from "components/alloy/Toast";
+import { Variant } from "components/alloy/common";
 import { getEnhancementsMap } from "selectors/propertyPaneSelectors";
 import { hydrateEnhancementsMap } from "sagas/PageSagas";
 import { PropertyPaneEnhancementsDataState } from "reducers/uiReducers/propertyPaneEnhancementsReducer";

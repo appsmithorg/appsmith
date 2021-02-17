@@ -1,10 +1,10 @@
 import React from "react";
 import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import Dropdown from "components/ads/Dropdown";
+import Dropdown from "components/alloy/Dropdown";
 import { action } from "@storybook/addon-actions";
-import { IconCollection } from "components/ads/Icon";
-import { StoryWrapper } from "components/ads/common";
+import { IconCollection } from "components/alloy/Icon";
+import { StoryWrapper } from "components/alloy/common";
 
 export default {
   title: "Dropdown",

@@ -19,13 +19,13 @@ import {
   DONT_SHOW_THIS_AGAIN,
   SHOW_REQUEST,
 } from "constants/messages";
-import { TabComponent } from "components/ads/Tabs";
-import Text, { Case, TextType } from "components/ads/Text";
-import Icon from "components/ads/Icon";
-import { Classes, Variant } from "components/ads/common";
+import { TabComponent } from "components/alloy/Tabs";
+import Text, { Case, TextType } from "components/alloy/Text";
+import Icon from "components/alloy/Icon";
+import { Classes, Variant } from "components/alloy/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
-import Callout from "components/ads/Callout";
-import Button from "components/ads/Button";
+import Callout from "components/alloy/Callout";
+import Button from "components/alloy/Button";
 
 const ResponseWrapper = styled.div`
   position: relative;

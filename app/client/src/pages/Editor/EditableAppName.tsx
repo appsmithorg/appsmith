@@ -1,8 +1,8 @@
-import EditableText, { EditableTextProps } from "components/ads/EditableText";
+import EditableText, { EditableTextProps } from "components/alloy/EditableText";
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/alloy/common";
+import { Toaster } from "components/alloy/Toast";
 import { Classes } from "@blueprintjs/core";
 import { getTypographyByKey } from "constants/DefaultTheme";
 

@@ -2,8 +2,8 @@ import React from "react";
 import { withKnobs, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import { action } from "@storybook/addon-actions";
-import Toggle from "components/ads/Toggle";
-import { StoryWrapper } from "components/ads/common";
+import Toggle from "components/alloy/Toggle";
+import { StoryWrapper } from "components/alloy/common";
 
 export default {
   title: "Toggle",

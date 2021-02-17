@@ -10,7 +10,7 @@ import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
 import FeatureFlag from "utils/featureFlags";
 import produce from "immer";
-import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
+import { AppIconCollection, AppIconName } from "components/alloy/AppIcon";
 import { ERROR_CODES } from "constants/ApiConstants";
 import { ERROR_500 } from "../constants/messages";
 import localStorage from "utils/localStorage";

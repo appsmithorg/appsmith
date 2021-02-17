@@ -25,8 +25,8 @@ import OrgApi, {
   SaveOrgLogo,
 } from "api/OrgApi";
 import { ApiResponse } from "api/ApiResponses";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster } from "components/alloy/Toast";
+import { Variant } from "components/alloy/common";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 import history from "utils/history";

@@ -28,7 +28,10 @@ import { connect, useDispatch, useSelector } from "react-redux";
 import { HeaderIcons } from "icons/HeaderIcons";
 import ThreeDotLoading from "components/designSystems/appsmith/header/ThreeDotsLoading";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import { EditInteractionKind, SavingState } from "components/ads/EditableText";
+import {
+  EditInteractionKind,
+  SavingState,
+} from "components/alloy/EditableText";
 import { updateApplication } from "actions/applicationActions";
 import {
   getApplicationList,
@@ -42,8 +45,8 @@ import EndOnboardingTour from "components/editorComponents/Onboarding/EndTour";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import Button, { Size } from "components/ads/Button";
-import { IconWrapper } from "components/ads/Icon";
+import Button, { Size } from "components/alloy/Button";
+import { IconWrapper } from "components/alloy/Icon";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";

@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import history from "utils/history";
-import Text, { TextType } from "components/ads/Text";
-import Icon, { IconSize } from "components/ads/Icon";
-import { Classes } from "components/ads/common";
+import Text, { TextType } from "components/alloy/Text";
+import Icon, { IconSize } from "components/alloy/Icon";
+import { Classes } from "components/alloy/common";
 import { useLocation } from "react-router-dom";
 
 const StyledManageUsers = styled("a")`

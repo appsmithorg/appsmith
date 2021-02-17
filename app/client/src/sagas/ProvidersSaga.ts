@@ -34,8 +34,8 @@ import {
 import { ADD_API_TO_PAGE_SUCCESS_MESSAGE } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster } from "components/alloy/Toast";
+import { Variant } from "components/alloy/common";
 
 export function* fetchProviderTemplatesSaga(
   action: ReduxActionWithPromise<FetchProviderTemplatesRequest>,

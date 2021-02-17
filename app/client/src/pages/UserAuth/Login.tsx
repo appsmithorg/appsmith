@@ -24,10 +24,10 @@ import {
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
   NEW_TO_APPSMITH,
 } from "constants/messages";
-import FormMessage from "components/ads/formFields/FormMessage";
-import FormGroup from "components/ads/formFields/FormGroup";
-import FormTextField from "components/ads/formFields/TextField";
-import Button, { Size } from "components/ads/Button";
+import FormMessage from "components/alloy/formFields/FormMessage";
+import FormGroup from "components/alloy/formFields/FormGroup";
+import FormTextField from "components/alloy/formFields/TextField";
+import Button, { Size } from "components/alloy/Button";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 import { LoginFormValues } from "./helpers";

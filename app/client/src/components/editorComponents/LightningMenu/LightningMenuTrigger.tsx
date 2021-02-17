@@ -3,9 +3,9 @@ import { IconProps } from "constants/IconConstants";
 import { LIGHTNING_MENU_DATA_TOOLTIP } from "constants/messages";
 import { Theme, Skin } from "constants/DefaultTheme";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import Icon, { IconSize } from "components/alloy/Icon";
 import { Position } from "@blueprintjs/core";
-import Tooltip from "components/ads/Tooltip";
+import Tooltip from "components/alloy/Tooltip";
 
 const LightningIconWrapper = styled.span<{
   background: string;

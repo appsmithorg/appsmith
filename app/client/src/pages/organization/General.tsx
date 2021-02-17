@@ -6,7 +6,7 @@ import { debounce } from "lodash";
 import TextInput, {
   emailValidator,
   notEmptyValidator,
-} from "components/ads/TextInput";
+} from "components/alloy/TextInput";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getCurrentError,
@@ -14,13 +14,13 @@ import {
 } from "selectors/organizationSelectors";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import Text, { TextType } from "components/ads/Text";
+import Text, { TextType } from "components/alloy/Text";
 import { Classes } from "@blueprintjs/core";
 import { getOrgLoadingStates } from "selectors/organizationSelectors";
 import FilePicker, {
   SetProgress,
   UploadCallback,
-} from "components/ads/FilePicker";
+} from "components/alloy/FilePicker";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 
 const InputLabelWrapper = styled.div`

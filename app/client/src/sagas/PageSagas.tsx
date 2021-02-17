@@ -83,8 +83,8 @@ import { getCanvasWidgets } from "selectors/entitiesSelector";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster } from "components/alloy/Toast";
+import { Variant } from "components/alloy/common";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];

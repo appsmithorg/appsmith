@@ -28,8 +28,8 @@ import { WidgetProps } from "../widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "../utils/PerformanceTracker";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/alloy/common";
+import { Toaster } from "components/alloy/Toast";
 import * as Sentry from "@sentry/react";
 import { Action } from "redux";
 import _ from "lodash";

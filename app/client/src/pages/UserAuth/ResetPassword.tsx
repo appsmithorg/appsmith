@@ -7,14 +7,14 @@ import { RESET_PASSWORD_FORM_NAME } from "constants/forms";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
 import { Icon } from "@blueprintjs/core";
-import FormGroup from "components/ads/formFields/FormGroup";
-import FormTextField from "components/ads/formFields/TextField";
+import FormGroup from "components/alloy/formFields/FormGroup";
+import FormTextField from "components/alloy/formFields/TextField";
 import FormMessage, {
   MessageAction,
   FormMessageProps,
-} from "components/ads/formFields/FormMessage";
+} from "components/alloy/formFields/FormMessage";
 import Spinner from "components/editorComponents/Spinner";
-import Button, { Size } from "components/ads/Button";
+import Button, { Size } from "components/alloy/Button";
 
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";

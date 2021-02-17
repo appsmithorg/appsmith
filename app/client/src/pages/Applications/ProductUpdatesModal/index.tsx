@@ -2,7 +2,7 @@ import React, { useState, useCallback, useContext } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import "@github/g-emoji-element";
-import Dialog from "components/ads/DialogComponent";
+import Dialog from "components/alloy/DialogComponent";
 import UpdatesButton from "./UpdatesButton";
 import { AppState } from "reducers";
 import { LayersContext } from "constants/Layers";

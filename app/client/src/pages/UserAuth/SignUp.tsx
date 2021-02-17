@@ -23,11 +23,11 @@ import {
   SIGNUP_PAGE_SUBMIT_BUTTON_TEXT,
   ALREADY_HAVE_AN_ACCOUNT,
 } from "constants/messages";
-import FormMessage from "components/ads/formFields/FormMessage";
-import FormGroup from "components/ads/formFields/FormGroup";
-import FormTextField from "components/ads/formFields/TextField";
+import FormMessage from "components/alloy/formFields/FormMessage";
+import FormGroup from "components/alloy/formFields/FormGroup";
+import FormTextField from "components/alloy/formFields/TextField";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
-import Button, { Size } from "components/ads/Button";
+import Button, { Size } from "components/alloy/Button";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 

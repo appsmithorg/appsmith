@@ -1,10 +1,10 @@
 import React from "react";
 import { withKnobs, select, boolean } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import IconSelector from "components/ads/IconSelector";
+import IconSelector from "components/alloy/IconSelector";
 import { action } from "@storybook/addon-actions";
-import { AppIconCollection } from "components/ads/AppIcon";
-import { StoryWrapper } from "components/ads/common";
+import { AppIconCollection } from "components/alloy/AppIcon";
+import { StoryWrapper } from "components/alloy/common";
 
 export default {
   title: "IconSelector",

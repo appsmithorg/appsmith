@@ -2,9 +2,9 @@ import React from "react";
 import { select, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import { Position } from "@blueprintjs/core";
-import TooltipComponent from "components/ads/Tooltip";
-import { StoryWrapper } from "components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+import TooltipComponent from "components/alloy/Tooltip";
+import { StoryWrapper } from "components/alloy/common";
+import Text, { TextType } from "components/alloy/Text";
 
 export default {
   title: "Tooltip",

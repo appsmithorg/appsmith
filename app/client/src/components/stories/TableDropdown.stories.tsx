@@ -1,9 +1,9 @@
 import React from "react";
 import { withKnobs, select } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import TableDropdown from "components/ads/TableDropdown";
+import TableDropdown from "components/alloy/TableDropdown";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import { StoryWrapper } from "components/ads/common";
+import { StoryWrapper } from "components/alloy/common";
 
 export default {
   title: "Dropdown",

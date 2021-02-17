@@ -1,12 +1,12 @@
 import React, { Fragment } from "react";
-import { CommonComponentProps, Classes } from "components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+import { CommonComponentProps, Classes } from "components/alloy/common";
+import Text, { TextType } from "components/alloy/Text";
 import styled, { createGlobalStyle } from "styled-components";
 import { Position } from "@blueprintjs/core";
-import Menu from "components/ads/Menu";
+import Menu from "components/alloy/Menu";
 import ThemeSwitcher from "./ThemeSwitcher";
-import MenuDivider from "components/ads/MenuDivider";
-import MenuItem from "components/ads/MenuItem";
+import MenuDivider from "components/alloy/MenuDivider";
+import MenuItem from "components/alloy/MenuItem";
 import {
   getOnSelectAction,
   DropdownOnSelectActions,

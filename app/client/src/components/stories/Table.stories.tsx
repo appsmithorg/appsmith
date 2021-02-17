@@ -1,10 +1,10 @@
 import React from "react";
-import Table from "components/ads/Table";
-import Button, { Category, Size } from "components/ads/Button";
-import Icon, { IconSize } from "components/ads/Icon";
-import TableDropdown from "components/ads/TableDropdown";
+import Table from "components/alloy/Table";
+import Button, { Category, Size } from "components/alloy/Button";
+import Icon, { IconSize } from "components/alloy/Icon";
+import TableDropdown from "components/alloy/TableDropdown";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import { StoryWrapper, Variant } from "components/ads/common";
+import { StoryWrapper, Variant } from "components/alloy/common";
 
 export default {
   title: "Table",

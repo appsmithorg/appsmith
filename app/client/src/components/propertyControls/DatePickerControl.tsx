@@ -5,8 +5,8 @@ import moment from "moment-timezone";
 import styled from "styled-components";
 import { TimePrecision } from "@blueprintjs/datetime";
 import { WidgetProps } from "widgets/BaseWidget";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster } from "components/alloy/Toast";
+import { Variant } from "components/alloy/common";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 
 const DatePickerControlWrapper = styled.div<{ isValid: boolean }>`

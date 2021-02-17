@@ -41,8 +41,8 @@ import { getQueryParams } from "utils/AppsmithUtils";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/alloy/common";
+import { Toaster } from "components/alloy/Toast";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;

@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
-import Text, { TextType } from "components/ads/Text";
+import Text, { TextType } from "components/alloy/Text";
 import styled, { ThemeContext } from "styled-components";
 
 export const Profile = styled.div<{ backgroundColor?: string }>`
