@@ -2,7 +2,7 @@ import { createReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const initialState: GlobalSearchReduxState = {
-  query: "",
+  query: "", // used to prefill when opened via contextual help links
   modalOpen: false,
 };
 

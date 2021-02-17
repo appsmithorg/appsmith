@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { useParams } from "react-router";
@@ -14,13 +14,17 @@ import SearchContext from "./GlobalSearchContext";
 import Description from "./Description";
 import { getActions, getAllPageWidgets } from "selectors/entitiesSelector";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import {
+  toggleShowGlobalSearchModal,
+  setGlobalSearchQuery,
+} from "actions/globalSearchActions";
 import { getItemType, SEARCH_ITEM_TYPES } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { useFilteredDatasources } from "pages/Editor/Explorer/hooks";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
+import { getSelectedWidget } from "selectors/ui";
 
 const StyledContainer = styled.div`
   width: 660px;
@@ -44,6 +48,9 @@ const Separator = styled.div`
 
 const isModalOpenSelector = (state: AppState) =>
   state.ui.globalSearch.modalOpen;
+
+const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
+
 const GlobalSearch = () => {
   const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
@@ -71,6 +78,17 @@ const GlobalSearch = () => {
   const actions = useSelector(getActions);
   const datasourcesMap = useFilteredDatasources(query);
   const modalOpen = useSelector(isModalOpenSelector);
+
+  const resetSearchQuery = useSelector(searchQuerySelector);
+  const selectedWidgetId = useSelector(getSelectedWidget);
+
+  useEffect(() => {
+    if (modalOpen) {
+      setQuery(resetSearchQuery);
+    } else {
+      dispatch(setGlobalSearchQuery(""));
+    }
+  }, [modalOpen]);
 
   const datasourcesList = useMemo(() => {
     return Object.entries(datasourcesMap).reduce((res: any[], curr) => {
@@ -140,7 +158,7 @@ const GlobalSearch = () => {
       activeItem.widgetId,
       activeItem.type,
       activeItem.pageId,
-      false,
+      selectedWidgetId === activeItem.widgetId,
       activeItem.parentModalId,
     );
   };

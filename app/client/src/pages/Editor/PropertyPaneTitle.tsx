@@ -12,6 +12,7 @@ import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { BindingText } from "pages/Editor/APIEditor/Form";
+import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 
 import { Icon, Tooltip, Position, Classes } from "@blueprintjs/core";
 import { WidgetType } from "constants/WidgetConstants";
@@ -19,6 +20,7 @@ import { theme } from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
+
 const CopyIcon = ControlIcons.COPY_CONTROL;
 const DeleteIcon = FormIcons.DELETE_ICON;
 const Wrapper = styled.div`
@@ -162,7 +164,7 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
         hoverOpenDelay={200}
         boundary="window"
       >
-        <Icon color={theme.colors.paneSectionLabel} icon="help" iconSize={16} />
+        <PropertyPaneHelpButton />
       </Tooltip>
       <Tooltip content="Close" position={Position.TOP} hoverOpenDelay={200}>
         <Icon
