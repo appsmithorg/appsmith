@@ -56,7 +56,12 @@ axiosInstance.interceptors.response.use(
       return;
     }
     // Return modified response if action execution failed
-    if (error.config && error.config.url.match(executeActionRegex)) {
+    // If error.response is undefined we proceed with the standard error flow
+    if (
+      error.config &&
+      error.config.url.match(executeActionRegex) &&
+      error.response
+    ) {
       return makeExecuteActionResponse(error.response);
     }
     // Return error if any timeout happened in other api calls
