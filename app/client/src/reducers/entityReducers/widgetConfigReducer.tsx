@@ -27,8 +27,8 @@ import { ModalWidgetProps } from "widgets/ModalWidget";
 import { IconWidgetProps } from "widgets/IconWidget";
 import { VideoWidgetProps } from "widgets/VideoWidget";
 import { SkeletonWidgetProps } from "../../widgets/SkeletonWidget";
-import { ListWidgetProps } from "../../widgets/ListWidget";
 import { SwitchWidgetProps } from "widgets/SwitchWidget";
+import { ListWidgetProps } from "../../widgets/ListWidget/ListWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
