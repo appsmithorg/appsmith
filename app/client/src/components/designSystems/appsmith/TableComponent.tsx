@@ -50,9 +50,7 @@ export interface SelectableTableProps extends ReactBaseTableProps {
   isLoading: boolean;
 }
 
-export default class SelectableTable extends React.PureComponent<
-  SelectableTableProps
-> {
+export default class SelectableTable extends React.PureComponent<SelectableTableProps> {
   static defaultProps = {};
 
   _onClick = ({
