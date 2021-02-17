@@ -26,6 +26,8 @@ import {
   createNewQueryAction,
 } from "actions/apiPaneActions";
 import { NavigationTargetType } from "../../../sagas/ActionExecutionSagas";
+import { checkCurrentStep } from "sagas/OnboardingSagas";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -97,7 +99,7 @@ export const modalGetter = (value: string) => {
   return name;
 };
 
-const stringToJS = (string: string): string => {
+export const stringToJS = (string: string): string => {
   const { stringSegments, jsSnippets } = getDynamicBindings(string);
   const js = stringSegments
     .map((segment, index) => {
@@ -111,7 +113,7 @@ const stringToJS = (string: string): string => {
   return js;
 };
 
-const JSToString = (js: string): string => {
+export const JSToString = (js: string): string => {
   const segments = js.split(" + ");
   return segments
     .map((segment) => {
@@ -208,6 +210,7 @@ type ActionCreatorProps = {
   isValid: boolean;
   validationMessage?: string;
   onValueChange: (newValue: string) => void;
+  additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
 
 const ActionType = {
@@ -252,6 +255,7 @@ type KeyValueViewProps = ViewProps;
 type TextViewProps = ViewProps & {
   isValid: boolean;
   validationMessage?: string;
+  additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
 
 const views = {
@@ -305,6 +309,7 @@ const views = {
             evaluatedValue={props.get(props.value, false) as string}
             isValid={props.isValid}
             errorMessage={props.validationMessage}
+            additionalAutocomplete={props.additionalAutoComplete}
           />
         </ControlWrapper>
       </FieldWrapper>
@@ -525,7 +530,6 @@ const baseOptions: any = [
     label: "Execute a DB Query",
     value: ActionType.query,
   },
-
   {
     label: "Navigate To",
     value: ActionType.navigateTo,
@@ -729,6 +733,7 @@ function renderField(props: {
   pageDropdownOptions: TreeDropdownOption[];
   depth: number;
   maxDepth: number;
+  additionalAutoComplete?: Record<string, Record<string, unknown>>;
 }) {
   const { field } = props;
   const fieldType = field.field;
@@ -877,6 +882,7 @@ function renderField(props: {
         value: props.value,
         isValid: props.isValid,
         validationMessage: props.validationMessage,
+        additionalAutoComplete: props.additionalAutoComplete,
       });
       break;
     default:
@@ -899,6 +905,7 @@ function Fields(props: {
   pageDropdownOptions: TreeDropdownOption[];
   depth: number;
   maxDepth: number;
+  additionalAutoComplete?: Record<string, Record<string, unknown>>;
 }) {
   const { fields, ...otherProps } = props;
   if (fields[0].field === FieldType.ACTION_SELECTOR_FIELD) {
@@ -936,12 +943,13 @@ function Fields(props: {
                       );
                       props.onValueChange(parentValue);
                     }}
+                    additionalAutoComplete={props.additionalAutoComplete}
                   />
                 </li>
               );
             } else {
               return (
-                <li>
+                <li key={field.field}>
                   {renderField({
                     field: field,
                     ...otherProps,
@@ -1029,7 +1037,19 @@ function useApiOptionTree() {
   const actions = useSelector(getActionsForCurrentPage).filter(
     (action) => action.config.pluginType === "API",
   );
-  const apiOptionTree = getOptionsWithChildren(baseOptions, actions, {
+  let filteredBaseOptions = baseOptions;
+
+  // For onboarding
+  const filterOptions = useSelector((state: AppState) =>
+    checkCurrentStep(state, OnboardingStep.ADD_INPUT_WIDGET),
+  );
+  if (filterOptions) {
+    filteredBaseOptions = baseOptions.filter(
+      (item: any) => item.value === ActionType.query,
+    );
+  }
+
+  const apiOptionTree = getOptionsWithChildren(filteredBaseOptions, actions, {
     label: "Create API",
     value: "api",
     id: "create",
@@ -1114,6 +1134,7 @@ export function ActionCreator(props: ActionCreatorProps) {
         onValueChange={props.onValueChange}
         depth={1}
         maxDepth={1}
+        additionalAutoComplete={props.additionalAutoComplete}
       />
     </TreeStructure>
   );

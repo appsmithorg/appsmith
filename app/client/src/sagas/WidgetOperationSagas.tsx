@@ -4,6 +4,7 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
+  saveLayout,
   updateAndSaveLayout,
   WidgetAddChild,
   WidgetAddChildren,
@@ -52,7 +53,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep } from "lodash";
+import _, { cloneDeep, isString } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
@@ -94,6 +95,7 @@ import {
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -659,8 +661,12 @@ function getDynamicTriggerPathListUpdate(
   widget: WidgetProps,
   propertyPath: string,
   propertyValue: string,
+  isDynamicTrigger?: boolean,
 ): DynamicPathUpdate {
-  if (propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
+  if (
+    (propertyValue && !isPathADynamicTrigger(widget, propertyPath)) ||
+    isDynamicTrigger
+  ) {
     return {
       propertyPath,
       effect: DynamicPathUpdateEffectEnum.ADD,
@@ -687,6 +693,16 @@ function getDynamicBindingPathListUpdate(
     // Stringify this because composite controls may have bindings in the sub controls
     stringProp = JSON.stringify(propertyValue);
   }
+
+  //TODO(abhinav): This is not appropriate from the platform's archtecture's point of view.
+  // Figure out a holistic solutions where we donot have to stringify above.
+  if (propertyPath === "primaryColumns" || propertyPath === "derivedColumns") {
+    return {
+      propertyPath,
+      effect: DynamicPathUpdateEffectEnum.NOOP,
+    };
+  }
+
   const isDynamic = isDynamicValue(stringProp);
   if (!isDynamic && isPathADynamicBinding(widget, propertyPath)) {
     return {
@@ -723,7 +739,7 @@ function* updateWidgetPropertySaga(
   updateAction: ReduxAction<UpdateWidgetPropertyRequestPayload>,
 ) {
   const {
-    payload: { propertyValue, propertyPath, widgetId },
+    payload: { propertyValue, propertyPath, widgetId, isDynamicTrigger },
   } = updateAction;
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
@@ -741,7 +757,8 @@ function* updateWidgetPropertySaga(
   const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
     widget.type,
   );
-  const isTriggerProperty = propertyPath in triggerProperties;
+  const isTriggerProperty =
+    propertyPath in triggerProperties || isDynamicTrigger;
   // If it is a trigger property, it will go in a different list than the general
   // dynamicBindingPathList.
   if (isTriggerProperty) {
@@ -752,6 +769,7 @@ function* updateWidgetPropertySaga(
       widget,
       propertyPath,
       propertyValue,
+      isDynamicTrigger,
     );
     updates.dynamicTriggerPathList = applyDynamicPathUpdates(
       currentDynamicTriggerPathList,
@@ -846,6 +864,7 @@ function* batchUpdateWidgetPropertySaga(
 
     // Check if the path is a of a dynamic trigger property
     const isTriggerProperty = propertyPath in triggerProperties;
+
     // If it is a trigger property, it will go in a different list than the general
     // dynamicBindingPathList.
     if (isTriggerProperty && _.isString(propertyValue)) {
@@ -869,59 +888,94 @@ function* batchUpdateWidgetPropertySaga(
   );
 
   // Send the updates
-  yield put(updateWidgetProperty(widgetId, updates));
-
-  const stateWidgets = yield select(getWidgets);
-  const widgets = { ...stateWidgets, [widgetId]: widget };
+  yield put(updateWidgetProperty(widgetId, propertyUpdates));
 
   // Save the layout
-  yield put(updateAndSaveLayout(widgets));
+  yield put(saveLayout());
 }
 
 function* deleteWidgetPropertySaga(
   action: ReduxAction<DeleteWidgetPropertyPayload>,
 ) {
-  const { widgetId, propertyPath } = action.payload;
+  const { widgetId, propertyPaths } = action.payload;
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
     return;
   }
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
-  const dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
+  let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
     stateWidget,
   );
-  const dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
+  let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
     stateWidget,
   );
 
-  dynamicTriggerPathList.filter((dynamicPath) => {
-    return !isChildPropertyPath(propertyPath, dynamicPath.key);
+  propertyPaths.forEach((propertyPath) => {
+    dynamicTriggerPathList = dynamicTriggerPathList.filter((dynamicPath) => {
+      return !isChildPropertyPath(propertyPath, dynamicPath.key);
+    });
+
+    dynamicBindingPathList = dynamicBindingPathList.filter((dynamicPath) => {
+      return !isChildPropertyPath(propertyPath, dynamicPath.key);
+    });
   });
 
-  dynamicBindingPathList.forEach((dynamicPath) => {
-    return !isChildPropertyPath(propertyPath, dynamicPath.key);
-  });
-
-  yield put(
-    updateWidgetProperty(widgetId, {
-      dynamicTriggerPathList,
-      dynamicBindingPathList,
-    }),
-  );
+  // yield put(
+  //   updateWidgetProperty(widgetId, {
+  //     dynamicTriggerPathList,
+  //     dynamicBindingPathList,
+  //   }),
+  // );
 
   const stateWidgets = yield select(getWidgets);
-  const widget = { ...stateWidget };
-  _.unset(widget, propertyPath);
+  // Cloning because we probably froze the properties earlier
+  // TODO(abhinav): Check if we need to use immer to handle this.
+  let widget = _.cloneDeep(stateWidget);
+  widget.dynamicBindingPathList = dynamicBindingPathList;
+  widget.dynamicTriggerPathList = dynamicTriggerPathList;
+  propertyPaths.forEach((propertyPath) => {
+    widget = unsetPropertyPath(widget, propertyPath) as WidgetProps;
+  });
+
   const widgets = { ...stateWidgets, [widgetId]: widget };
 
   // Save the layout
   yield put(updateAndSaveLayout(widgets));
 }
 
+//TODO(abhinav): Move this to helpers and add tests
+const unsetPropertyPath = (obj: Record<string, unknown>, path: string) => {
+  const regex = /(.*)\[\d+\]$/;
+  if (regex.test(path)) {
+    const matches = path.match(regex);
+    if (
+      matches &&
+      Array.isArray(matches) &&
+      matches[1] &&
+      matches[1].length > 0
+    ) {
+      _.unset(obj, path);
+      const arr = _.get(obj, matches[1]);
+      if (arr && Array.isArray(arr)) {
+        _.set(obj, matches[1], arr.filter(Boolean));
+      }
+    }
+  } else {
+    _.unset(obj, path);
+  }
+  return obj;
+};
+
 function* getWidgetChildren(widgetId: string): any {
   const childrenIds: string[] = [];
   const widget = yield select(getWidget, widgetId);
-  const { children } = widget;
+  // When a form widget tries to resetChildrenMetaProperties
+  // But one or more of its container like children
+  // have just been deleted, widget can be undefined
+  if (widget === undefined) {
+    return [];
+  }
+  const { children = [] } = widget;
   if (children && children.length) {
     for (const childIndex in children) {
       if (children.hasOwnProperty(childIndex)) {
@@ -1043,7 +1097,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
 }
 
-function calculateNewWidgetPosition(
+export function calculateNewWidgetPosition(
   widget: WidgetProps,
   parentId: string,
   canvasWidgets: FlattenedWidgetProps[],
@@ -1223,6 +1277,43 @@ function* pasteWidgetSaga() {
         }
       }
 
+      // Update the table widget column properties
+      if (widget.type === WidgetTypes.TABLE_WIDGET) {
+        try {
+          const oldWidgetName = widget.widgetName;
+          const newWidgetName = getNextWidgetName(
+            widgets,
+            widget.type,
+            evalTree,
+          );
+          // If the primaryColumns of the table exist
+          if (widget.primaryColumns) {
+            // For each column
+            for (const [columnId, column] of Object.entries(
+              widget.primaryColumns,
+            )) {
+              // For each property in the column
+              for (const [key, value] of Object.entries(
+                column as ColumnProperties,
+              )) {
+                // Replace reference of previous widget with the new widgetName
+                // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
+                widget.primaryColumns[columnId][key] = isString(value)
+                  ? value.replace(`${oldWidgetName}.`, `${newWidgetName}.`)
+                  : value;
+              }
+            }
+          }
+          // Use the new widget name we used to replace the column properties above.
+          widget.widgetName = newWidgetName;
+        } catch (error) {
+          log.debug("Error updating table widget properties", error);
+        }
+      } else {
+        // Generate a new unique widget name
+        widget.widgetName = getNextWidgetName(widgets, widget.type, evalTree);
+      }
+
       // If it is the copied widget, update position properties
       if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
         newWidgetId = widget.widgetId;
@@ -1346,10 +1437,10 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       rightColumn: columns,
       columns,
       rows,
-      parentId: "0",
+      parentId: MAIN_CONTAINER_WIDGET_ID,
       widgetName,
       renderMode: RenderModes.CANVAS,
-      parentRowSpace: 1,
+      parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       parentColumnSpace: 1,
       isLoading: false,
       props: {
@@ -1362,7 +1453,11 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       topRow,
       rightColumn,
       bottomRow,
-    } = yield calculateNewWidgetPosition(newWidget, "0", widgets);
+    } = yield calculateNewWidgetPosition(
+      newWidget,
+      MAIN_CONTAINER_WIDGET_ID,
+      widgets,
+    );
 
     newWidget = {
       ...newWidget,

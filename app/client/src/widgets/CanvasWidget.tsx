@@ -8,6 +8,9 @@ import { getCanvasClassName } from "utils/generators";
 import * as Sentry from "@sentry/react";
 
 class CanvasWidget extends ContainerWidget {
+  static getPropertyPaneConfig() {
+    return [];
+  }
   getWidgetType = () => {
     return WidgetTypes.CANVAS_WIDGET;
   };

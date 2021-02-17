@@ -37,6 +37,7 @@ import PerformanceTracker, {
 import { ERROR_CODES } from "constants/ApiConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
+import localStorage from "utils/localStorage";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,

@@ -20,8 +20,6 @@ const Container = styled.div`
       stroke: ${(props) => props.theme.colors.header.tabText};
     }
   }
-  border-top: 1px solid
-    ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
   border-bottom: 1px solid
     ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
 `;
@@ -124,6 +122,8 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
         onMouseDown={() => startScrolling(true)}
         onMouseUp={stopScrolling}
         onMouseLeave={stopScrolling}
+        onTouchStart={() => startScrolling(true)}
+        onTouchEnd={stopScrolling}
         visible={shouldShowLeftArrow}
       >
         <Icon name="chevron-left" />
@@ -139,6 +139,8 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
         onMouseDown={() => startScrolling(false)}
         onMouseUp={stopScrolling}
         onMouseLeave={stopScrolling}
+        onTouchStart={() => startScrolling(false)}
+        onTouchEnd={stopScrolling}
         visible={shouldShowRightArrow}
       >
         <Icon name="chevron-right" />
