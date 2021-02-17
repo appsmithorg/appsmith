@@ -81,6 +81,8 @@ type DatasourceCardProps = {
   onCreate: (datasource: Datasource) => void;
 };
 
+// TODO: This is largely a quick copy pasta and edit of QueryEditor/DatasourceCard.tsx
+// When we move Google Sheets over to regular oauth2 integrations, we will need to refactor this.
 const DatasourceCard = (props: DatasourceCardProps) => {
   const dispatch = useDispatch();
   const pluginImages = useSelector(getPluginImages);
