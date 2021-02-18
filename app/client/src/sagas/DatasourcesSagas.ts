@@ -82,7 +82,7 @@ function* fetchDatasourcesSaga() {
 }
 
 export function* deleteDatasourceSaga(
-  actionPayload: ReduxAction<{ id: string }>,
+  actionPayload: ReduxActionWithCallbacks<{ id: string }, unknown, unknown>,
 ) {
   try {
     const id = actionPayload.payload.id;
@@ -118,6 +118,9 @@ export function* deleteDatasourceSaga(
           id: response.data.id,
         },
       });
+      if (actionPayload.onSuccess) {
+        yield put(actionPayload.onSuccess);
+      }
     }
   } catch (error) {
     Toaster.show({
@@ -128,6 +131,9 @@ export function* deleteDatasourceSaga(
       type: ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR,
       payload: { error, id: actionPayload.payload.id, show: false },
     });
+    if (actionPayload.onError) {
+      yield put(actionPayload.onError);
+    }
   }
 }
 
@@ -328,17 +334,6 @@ function* createDatasourceFromFormSaga(
         type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
         payload: response.data,
       });
-      yield put(
-        setDatsourceEditorMode({ id: response.data.id, viewMode: false }),
-      );
-
-      const applicationId = yield select(getCurrentApplicationId);
-      const pageId = yield select(getCurrentPageId);
-
-      yield put(initialize(DATASOURCE_DB_FORM, _.omit(response.data, "name")));
-      history.push(
-        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, response.data.id),
-      );
       Toaster.show({
         text: `${response.data.name} Datasource created`,
         variant: Variant.success,

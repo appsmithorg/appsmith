@@ -28,6 +28,7 @@ import {
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   DATA_SOURCES_EDITOR_URL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  DATA_SOURCES_EDITOR_ID_URL,
 } from "constants/routes";
 import {
   getCurrentApplicationId,
@@ -42,6 +43,7 @@ import {
   getActions,
   getPlugins,
   getDatasources,
+  getPlugin,
 } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { createActionRequest, setActionProperty } from "actions/actionActions";
@@ -397,6 +399,19 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   }
 }
 
+function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
+  const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
+  // Only look at API plugins
+  if (plugin.type !== "API") return;
+
+  const applicationId = yield select(getCurrentApplicationId);
+  const pageId = yield select(getCurrentPageId);
+
+  history.push(
+    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, actionPayload.payload.id),
+  );
+}
+
 function* handleCreateNewApiActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
 ) {
@@ -536,6 +551,10 @@ export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
+    takeEvery(
+      ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
+      handleDatasourceCreatedSaga,
+    ),
     takeEvery(ReduxActionTypes.SAVE_ACTION_NAME_INIT, handleApiNameChangeSaga),
     takeEvery(
       ReduxActionTypes.SAVE_ACTION_NAME_SUCCESS,

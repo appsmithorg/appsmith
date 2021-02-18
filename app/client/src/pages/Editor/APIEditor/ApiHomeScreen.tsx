@@ -8,9 +8,9 @@ import InfiniteScroll from "react-infinite-scroller";
 import { DEFAULT_PROVIDER_OPTION } from "constants/ApiEditorConstants";
 import {
   getCurlImportPageURL,
-  INTEGRATIONS_EDITOR_URL,
   getProviderTemplatesURL,
 } from "constants/routes";
+import { SAAS_EDITOR_URL } from "pages/Editor/SaaSEditor/constants";
 import { AppState } from "reducers";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getImportedCollections } from "selectors/applicationSelectors";
@@ -464,7 +464,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
       getCurlImportPageURL(applicationId, pageId) + location.search;
 
     const googleSheetsURL =
-      INTEGRATIONS_EDITOR_URL(applicationId, pageId, "google-sheets-plugin") +
+      SAAS_EDITOR_URL(applicationId, pageId, "google-sheets-plugin") +
       location.search;
 
     const PROVIDER_CATEGORIES_OPTIONS = providerCategories.map((category) => ({

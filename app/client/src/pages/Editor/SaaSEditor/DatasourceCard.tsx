@@ -3,7 +3,7 @@ import { isStoredDatasource } from "entities/Action";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import React from "react";
 import { isNil } from "lodash";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 import { useParams } from "react-router";
 
@@ -16,8 +16,7 @@ import { AppState } from "reducers";
 import history from "utils/history";
 
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
-import { setDatsourceEditorMode } from "actions/datasourceActions";
+import { SAAS_EDITOR_DATASOURCE_ID_URL } from "./constants";
 
 const Wrapper = styled.div`
   border: 2px solid #d6d6d6;
@@ -84,9 +83,12 @@ type DatasourceCardProps = {
 // TODO: This is largely a quick copy pasta and edit of QueryEditor/DatasourceCard.tsx
 // When we move Google Sheets over to regular oauth2 integrations, we will need to refactor this.
 const DatasourceCard = (props: DatasourceCardProps) => {
-  const dispatch = useDispatch();
   const pluginImages = useSelector(getPluginImages);
-  const params = useParams<{ applicationId: string; pageId: string }>();
+  const params = useParams<{
+    applicationId: string;
+    pageId: string;
+    pluginPackageName: string;
+  }>();
   const { datasource } = props;
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
@@ -103,11 +105,11 @@ const DatasourceCard = (props: DatasourceCardProps) => {
   const QUERY = queriesWithThisDatasource > 1 ? "APIs" : "API";
 
   const editDatasource = () => {
-    dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
     history.push(
-      DATA_SOURCES_EDITOR_ID_URL(
+      SAAS_EDITOR_DATASOURCE_ID_URL(
         params.applicationId,
         params.pageId,
+        params.pluginPackageName,
         datasource.id,
       ),
     );
