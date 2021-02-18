@@ -97,8 +97,7 @@ class RichTextEditorWidget extends BaseWidget<
   }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
-      value: VALIDATION_TYPES.TEXT,
-      html: VALIDATION_TYPES.TEXT,
+      text: VALIDATION_TYPES.TEXT,
       placeholder: VALIDATION_TYPES.TEXT,
       defaultValue: VALIDATION_TYPES.TEXT,
       isDisabled: VALIDATION_TYPES.BOOLEAN,
@@ -115,21 +114,19 @@ class RichTextEditorWidget extends BaseWidget<
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      value: undefined,
-      html: undefined,
+      text: undefined,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      value: "defaultText",
-      html: "defaultHtml",
+      text: "defaultText",
     };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
-      text: `{{this.html ? this.html : this.value}}`,
+      value: `{{this.text}}`,
     };
   }
 
@@ -143,10 +140,10 @@ class RichTextEditorWidget extends BaseWidget<
   };
 
   getPageView() {
-    const defaultValue =
-      (this.props.html
-        ? this.props.html
-        : this.props.value?.replace(/\n/g, "<br/>")) || "";
+    let defaultValue = this.props.text || "";
+    if (this.props.inputType === "text") {
+      defaultValue = defaultValue.replace(/\n/g, "<br/>");
+    }
     return (
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
@@ -169,9 +166,8 @@ class RichTextEditorWidget extends BaseWidget<
 
 export interface RichTextEditorWidgetProps extends WidgetProps, WithMeta {
   defaultText?: string;
-  value?: string;
-  html?: string;
   text: string;
+  inputType: string;
   placeholder?: string;
   onTextChange?: string;
   isDisabled?: boolean;
