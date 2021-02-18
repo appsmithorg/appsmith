@@ -237,9 +237,9 @@ public class DynamoPluginTest {
                             ((Map<String, Object>)((Map<String, Object>) result.getBody()).get("raw")).get("Items");
                     assertEquals(2, items.size());
 
-                    for(int i=0; i<items.size(); i++) {
+                    for (int i=0; i<items.size(); i++) {
                         Map<String, Object> item = items.get(i);
-                        for(Map.Entry<String, Object> entry: item.entrySet()) {
+                        for (Map.Entry<String, Object> entry: item.entrySet()) {
                             Object rawValue = ((Map<String, Object>) entry.getValue()).get("S");
                             Object transformedValue =
                                     ((List<Map<String, Object>>)((Map<String, Object>) result.getBody()).get("Items"))

@@ -87,23 +87,23 @@ public class DynamoPlugin extends BasePlugin {
         private final Scheduler scheduler = Schedulers.elastic();
 
         public Object extractValue(Object rawItem) {
-            if(rawItem instanceof Map) {
+            if (rawItem instanceof Map) {
                 Map<String, Object> extractedValueMap = new HashMap<>();
                 Map<String, Object> rawItemAsMap = (Map<String, Object>) rawItem;
-                for(Map.Entry<String, Object> entry: rawItemAsMap.entrySet()) {
+                for (Map.Entry<String, Object> entry: rawItemAsMap.entrySet()) {
                     switch (entry.getKey()) {
                         case AMAZON_S3_TYPE_NUMBER_LABEL:
                         case AMAZON_S3_TYPE_STRING_LABEL:
                         case AMAZON_S3_TYPE_BINARY_LABEL:
                         case AMAZON_S3_TYPE_BOOLEAN_LABEL:
                         case AMAZON_S3_TYPE_NULL_LABEL:
-                            if(entry.getValue() != null) {
+                            if (entry.getValue() != null) {
                                 return entry.getValue();
                             }
                         case AMAZON_S3_TYPE_STRING_SET_LABEL:
                         case AMAZON_S3_TYPE_NUMBER_SET_LABEL:
                         case AMAZON_S3_TYPE_BINARY_SET_LABEL:
-                            if(entry.getValue() != null && ((List<Object>)entry.getValue()).size() > 0) {
+                            if (entry.getValue() != null && ((List<Object>)entry.getValue()).size() > 0) {
                                 return entry.getValue();
                             }
 
@@ -111,7 +111,7 @@ public class DynamoPlugin extends BasePlugin {
                         case AMAZON_S3_TYPE_LIST_LABEL:
                             List<Object> extractedValueList = new ArrayList<>();
                             List<Object> rawValueAsList = (List<Object>) entry.getValue();
-                            if(rawValueAsList.size() > 0) {
+                            if (rawValueAsList.size() > 0) {
                                 for (Object listItem : rawValueAsList) {
                                     extractedValueList.add(extractValue(listItem));
                                 }
@@ -122,7 +122,7 @@ public class DynamoPlugin extends BasePlugin {
                             break;
                         case AMAZON_S3_TYPE_MAP_LABEL:
                             Map<String, Object> rawValueAsMap = (Map<String, Object>) entry.getValue();
-                            if(rawValueAsMap.size() > 0) {
+                            if (rawValueAsMap.size() > 0) {
                                 for (Map.Entry<String, Object> mapItem : rawValueAsMap.entrySet()) {
                                     extractedValueMap.put(mapItem.getKey(), extractValue(mapItem.getValue()));
                                 }
@@ -137,7 +137,7 @@ public class DynamoPlugin extends BasePlugin {
                 }
 
                 return extractedValueMap;
-            } else if(rawItem instanceof List) {
+            } else if (rawItem instanceof List) {
                 List<Object> extractedValueList = new ArrayList<>();
                 List<Object> rawItemAsList = (List<Object>) rawItem;
                 for (Object listItem : rawItemAsList) {
@@ -154,19 +154,19 @@ public class DynamoPlugin extends BasePlugin {
          *   https://github.com/appsmithorg/appsmith/issues/3010
          */
         public Object getTransformedResponse(Map<String, Object> rawResponse, String action) {
-            if(action.equals(SCAN_ACTION_VALUE)) {
+            if (action.equals(SCAN_ACTION_VALUE)) {
                 Map<String, Object> transformedResponse = new HashMap<>();
                 ArrayList<Object> extractedResponse = new ArrayList<>();
                 transformedResponse.put(RAW_RESPONSE_LABEL, rawResponse);
                 transformedResponse.put(TRANSFORMED_RESPONSE_LABEL, extractedResponse);
 
-                for(Map.Entry<String, Object> responseEntry: rawResponse.entrySet()) {
+                for (Map.Entry<String, Object> responseEntry: rawResponse.entrySet()) {
                     if (!responseEntry.getKey().equals(ITEMS_KEY)) {
                         transformedResponse.put(responseEntry.getKey(), responseEntry.getValue());
                     }
                     else {
                         Collection<Object> rawItems = (Collection<Object>) (rawResponse.get(ITEMS_KEY));
-                        for(Object item: rawItems) {
+                        for (Object item: rawItems) {
                             Object value = extractValue(item);
                             extractedResponse.add(value);
                         }
