@@ -1,5 +1,8 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -9,9 +12,6 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -62,7 +62,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -929,12 +928,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     /**
      * !!!WARNING!!! This function edits the parameters actionUpdates and messages which are eventually returned back to
      * the caller with the updates values.
+     *
      * @param onLoadActions : All the actions which have been found to be on page load
      * @param pageId
      * @param actionUpdates : Empty array list which would be set in this function with all the page actions whose
      *                      execute on load setting has changed (whether flipped from true to false, or vice versa)
-     * @param messages : Empty array list which would be set in this function with all the messages that should be
-     *                 displayed to the developer user communicating the action executeOnLoad changes.
+     * @param messages      : Empty array list which would be set in this function with all the messages that should be
+     *                      displayed to the developer user communicating the action executeOnLoad changes.
      * @return
      */
     @Override
@@ -963,7 +963,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         return existingOnPageLoadActionsMono
                 .zipWith(pageActionsFlux.collectList())
-                .flatMap( tuple -> {
+                .flatMap(tuple -> {
                     List<ActionDTO> existingOnPageLoadActions = tuple.getT1();
                     List<ActionDTO> pageActions = tuple.getT2();
 
@@ -1028,7 +1028,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     // Add newly turned on page actions to report back to the caller
                     actionUpdates.addAll(
-                           addActionUpdatesForActionNames(pageActions, turnedOnActionNames)
+                            addActionUpdatesForActionNames(pageActions, turnedOnActionNames)
                     );
 
                     // Add newly turned off page actions to report back to the caller
@@ -1057,16 +1057,16 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                                                        Set<String> actionNames) {
 
         return pageActions
-                        .stream()
-                        .filter(pageAction -> actionNames.contains(pageAction.getName()))
-                        .map(pageAction -> {
-                            LayoutActionUpdateDTO layoutActionUpdateDTO = new LayoutActionUpdateDTO();
-                            layoutActionUpdateDTO.setId(pageAction.getId());
-                            layoutActionUpdateDTO.setName(pageAction.getName());
-                            layoutActionUpdateDTO.setExecuteOnLoad(pageAction.getExecuteOnLoad());
-                            return layoutActionUpdateDTO;
-                        })
-                        .collect(Collectors.toList());
+                .stream()
+                .filter(pageAction -> actionNames.contains(pageAction.getName()))
+                .map(pageAction -> {
+                    LayoutActionUpdateDTO layoutActionUpdateDTO = new LayoutActionUpdateDTO();
+                    layoutActionUpdateDTO.setId(pageAction.getId());
+                    layoutActionUpdateDTO.setName(pageAction.getName());
+                    layoutActionUpdateDTO.setExecuteOnLoad(pageAction.getExecuteOnLoad());
+                    return layoutActionUpdateDTO;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -1085,9 +1085,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
 
         // If action has EXECUTE permission for anonymous, check and assign the same to the datasource.
-        if (isPermissionPresentForUser(actionPolicies, EXECUTE_ACTIONS.getValue(), FieldName.ANONYMOUS_USER)) {
+        if (policyUtils.isPermissionPresentForUser(actionPolicies, EXECUTE_ACTIONS.getValue(), FieldName.ANONYMOUS_USER)) {
             // Check if datasource has execute permission
-            if (isPermissionPresentForUser(datasource.getPolicies(), EXECUTE_DATASOURCES.getValue(), FieldName.ANONYMOUS_USER)) {
+            if (policyUtils.isPermissionPresentForUser(datasource.getPolicies(), EXECUTE_DATASOURCES.getValue(), FieldName.ANONYMOUS_USER)) {
                 // Datasource has correct permission. Return as is
                 return Mono.just(datasource);
             }
@@ -1107,29 +1107,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
 
         return Mono.just(datasource);
-    }
-
-    private Boolean isPermissionPresentForUser(Set<Policy> policies, String permission, String username) {
-
-        if (policies == null || policies.isEmpty()) {
-            return false;
-        }
-
-        Optional<Policy> publicExecutePolicyOptional = policies.stream().filter(policy -> {
-            if (policy.getPermission().equals(permission)) {
-                Set<String> users = policy.getUsers();
-                if (users.contains(username)) {
-                    return true;
-                }
-            }
-            return false;
-        }).findFirst();
-
-        if (publicExecutePolicyOptional.isPresent()) {
-            return true;
-        }
-
-        return false;
     }
 
 }
