@@ -58,6 +58,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -683,9 +684,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     } else if (pluginType == PluginType.DB) {
                         requestData.putAll(Map.of(
                                 "query", ObjectUtils.defaultIfNull(actionConfiguration.getBody(), ""),
-                                "properties", actionConfiguration.getPluginSpecifiedTemplates()
-                                        .stream()
-                                        .collect(Collectors.toMap(Property::getKey, Property::getValue))
+                                "properties", actionConfiguration.getPluginSpecifiedTemplates() == null
+                                        ? Collections.emptyMap()
+                                        : actionConfiguration.getPluginSpecifiedTemplates()
+                                            .stream()
+                                            .collect(Collectors.toMap(Property::getKey, Property::getValue))
                         ));
                     }
 
@@ -713,6 +716,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     analyticsService.sendEvent(AnalyticsEvents.EXECUTE_ACTION.getEventName(), user.getUsername(), data);
                     return user;
+                })
+                .onErrorResume(error -> {
+                    log.warn("Error sending action execution data point", error);
+                    return Mono.empty();
                 })
                 .then();
     }
