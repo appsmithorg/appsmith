@@ -65,13 +65,7 @@ public class PostgresPlugin extends BasePlugin {
 
     private static final int MAXIMUM_POOL_SIZE = 5;
 
-<<<<<<< HEAD
-   
-
-    private static final long LEAK_DETECTION_TIME_MS = 60*1000;
-=======
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
->>>>>>> e5574c194589a3a76d3067f79757c7dd2008401d
 
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
