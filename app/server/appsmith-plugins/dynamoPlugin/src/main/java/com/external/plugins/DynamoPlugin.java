@@ -426,7 +426,8 @@ public class DynamoPlugin extends BasePlugin {
 
         } else if (valueObj instanceof SdkBytes) {
             SdkBytes response = (SdkBytes) valueObj;
-            return response.toString();
+
+            return new String(response.asByteArray());
         }else if (valueObj instanceof Map) {
             final Map<?, ?> valueAsMap = (Map<?, ?>) valueObj;
             final Map<Object, Object> plainMap = new HashMap<>();
