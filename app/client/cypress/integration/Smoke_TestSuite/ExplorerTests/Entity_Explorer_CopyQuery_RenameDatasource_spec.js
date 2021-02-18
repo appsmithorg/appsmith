@@ -2,6 +2,7 @@ const queryLocators = require("../../../locators/QueryEditor.json");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../locators/commonlocators.json");
+const explorer = require("../../../locators/explorerlocators.json");
 
 const pageid = "MyPage";
 let updatedName;
@@ -20,7 +21,7 @@ describe("Entity explorer tests related to copy query", function() {
 
     cy.NavigateToQueryEditor();
 
-    cy.get("@createDatasource").then(httpResponse => {
+    cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
       cy.contains(".t--datasource-name", datasourceName)
@@ -42,9 +43,12 @@ describe("Entity explorer tests related to copy query", function() {
 
     cy.EvaluateCurrentValue("select * from users");
 
-    cy.get("@createDatasource").then(httpResponse => {
+    cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
+      cy.get(`.t--entity.action:contains(Query1)`)
+        .find(explorer.collapse)
+        .click();
       cy.get(apiwidget.propertyList).then(function($lis) {
         expect($lis).to.have.length(3);
         expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
@@ -65,6 +69,9 @@ describe("Entity explorer tests related to copy query", function() {
     cy.copyEntityToPage(pageid);
     cy.SearchEntityandOpen("Query1Copy");
     cy.runQuery();
+    cy.get(`.t--entity.action:contains(Query1Copy)`)
+      .find(explorer.collapse)
+      .click();
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{Query1Copy.isLoading}}");
@@ -80,7 +87,7 @@ describe("Entity explorer tests related to copy query", function() {
     cy.get(`.t--entity-name:contains(${datasourceName})`)
       .last()
       .click();
-    cy.generateUUID().then(uid => {
+    cy.generateUUID().then((uid) => {
       updatedName = uid;
       cy.log("complete uid :" + updatedName);
       updatedName = uid.replace(/-/g, "_").slice(1, 15);
