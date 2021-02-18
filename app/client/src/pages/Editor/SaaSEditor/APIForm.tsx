@@ -1,5 +1,5 @@
 import React from "react";
-import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
+import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
 import { Icon, Popover, Spinner, Tag } from "@blueprintjs/core";
 import {
@@ -23,23 +23,28 @@ import { Colors } from "constants/Colors";
 import JSONViewer from "pages/Editor/QueryEditor/JSONViewer";
 import FormControl from "../FormControl";
 import Table from "pages/Editor/QueryEditor/Table";
-import { Action } from "entities/Action";
+import { Action, SaaSAction } from "entities/Action";
 import { connect, useDispatch } from "react-redux";
 import { AppState } from "reducers";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import {
   getPluginResponseTypes,
   getPluginDocumentationLinks,
+  getAction,
+  getPluginImages,
+  getDatasourceByPluginId,
+  getActionResponses,
 } from "selectors/entitiesSelector";
 
 import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
+import { saasActionSettingsConfig } from "mockResponses/ActionSettings";
 import { addTableWidgetFromQuery } from "actions/widgetActions";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
+import { RouteComponentProps } from "react-router";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -268,13 +273,11 @@ type QueryFormProps = {
   isRunning: boolean;
   dataSources: Datasource[];
   DATASOURCES_OPTIONS: any;
-  executedQueryData: {
-    body: Record<string, any>[] | string;
-    isExecutionSuccess: boolean;
+  executedQueryData?: {
+    body: any;
+    isExecutionSuccess?: boolean;
   };
-  applicationId: string;
   runErrorMessage: string | undefined;
-  pageId: string;
   location: {
     state: any;
   };
@@ -289,20 +292,28 @@ type ReduxProps = {
   documentationLink: string | undefined;
 };
 
-export type StateAndRouteProps = QueryFormProps & ReduxProps;
+export type StateAndRouteProps = QueryFormProps &
+  ReduxProps &
+  RouteComponentProps<{
+    apiId: string;
+    applicationId: string;
+    pageId: string;
+    pluginPackageName: string;
+  }>;
 
 type Props = StateAndRouteProps & InjectedFormProps<Action, StateAndRouteProps>;
 
 const QueryEditorForm: React.FC<Props> = (props: Props) => {
   const {
+    match: {
+      params: { pageId, applicationId },
+    },
     handleSubmit,
     isDeleting,
     isRunning,
     onRunClick,
     onDeleteClick,
     DATASOURCES_OPTIONS,
-    pageId,
-    applicationId,
     dataSources,
     executedQueryData,
     runErrorMessage,
@@ -575,7 +586,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               panelComponent: (
                 <SettingsWrapper>
                   <ActionSettings
-                    actionSettingsConfig={queryActionSettingsConfig}
+                    actionSettingsConfig={saasActionSettingsConfig}
                     formName={SAAS_EDITOR_FORM}
                   />
                 </SettingsWrapper>
@@ -611,18 +622,47 @@ const renderEachConfig = (section: any): any => {
   });
 };
 
-const valueSelector = formValueSelector(SAAS_EDITOR_FORM);
-const mapStateToProps = (state: AppState) => {
-  const actionName = valueSelector(state, "name");
-  const pluginId = valueSelector(state, "datasource.pluginId");
+const mapStateToProps = (state: AppState, props: any) => {
+  const { apiId } = props.match.params;
+  const { runErrorMessage } = state.ui.queryPane;
+  const { plugins } = state.entities;
+  const { editorConfigs, loadingFormConfigs } = plugins;
+  const pluginImages = getPluginImages(state);
+
+  const action = getAction(state, apiId);
+  const actionName = action?.name ?? "";
+  const pluginId = action?.pluginId ?? "";
   const responseTypes = getPluginResponseTypes(state);
   const documentationLinks = getPluginDocumentationLinks(state);
+  let editorConfig: any;
 
+  if (editorConfigs && pluginId) {
+    editorConfig = editorConfigs[pluginId];
+  }
+  const dataSources = getDatasourceByPluginId(state, pluginId);
+  const DATASOURCES_OPTIONS = dataSources.map((dataSource) => ({
+    label: dataSource.name,
+    value: dataSource.id,
+    image: pluginImages[dataSource.pluginId],
+  }));
+
+  const responses = getActionResponses(state);
   return {
+    isRunning: state.ui.queryPane.isRunning[apiId],
+    isDeleting: state.ui.queryPane.isDeleting[apiId],
+    loadingFormConfigs,
+    editorConfig,
     actionName,
     pluginId,
     responseType: responseTypes[pluginId],
+    formData: getFormValues(SAAS_EDITOR_FORM)(state) as SaaSAction,
     documentationLink: documentationLinks[pluginId],
+    initialValues: action,
+    dataSources,
+
+    DATASOURCES_OPTIONS,
+    executedQueryData: responses[apiId],
+    runErrorMessage: runErrorMessage[apiId],
   };
 };
 
