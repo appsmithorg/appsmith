@@ -14,11 +14,7 @@ import { Colors } from "constants/Colors";
 import _ from "lodash";
 import { RequestView } from "./RequestView";
 import { useLocalStorage } from "utils/hooks/localstorage";
-import {
-  CHECK_REQUEST_BODY,
-  DONT_SHOW_THIS_AGAIN,
-  SHOW_REQUEST,
-} from "constants/messages";
+import { CHECK_REQUEST_BODY, SHOW_REQUEST } from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
 import Text, { Case, TextType } from "components/ads/Text";
 import Icon from "components/ads/Icon";
@@ -26,6 +22,7 @@ import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import Callout from "components/ads/Callout";
 import Button from "components/ads/Button";
+import { Link } from "interweave-autolink";
 
 const ResponseContainer = styled.div`
   position: relative;
@@ -105,6 +102,7 @@ const NoResponseContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   .${Classes.ICON} {
     margin-right: 0px;
     svg {
@@ -121,19 +119,13 @@ const NoResponseContainer = styled.div`
 const FailedMessage = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
 `;
 
-const ButtonContainer = styled.div`
+const ShowRequestText = styled.a`
   display: flex;
-  align-items: center;
-  span {
-    color: ${Colors.Galliano};
-    cursor: pointer;
-  }
-  button {
-    margin-left: ${(props) => props.theme.spaces[9]}px;
+  margin-left: ${(props) => props.theme.spaces[1] + 1}px;
+  .${Classes.ICON} {
+    margin-left: ${(props) => props.theme.spaces[1] + 1}px;
   }
 `;
 
@@ -194,32 +186,26 @@ const ApiResponseView = (props: Props) => {
         <ResponseTabWrapper>
           {hasFailed && !isRunning && requestDebugVisible && (
             <Callout
-              variant={Variant.warning}
-              fill
+              text={CHECK_REQUEST_BODY}
               label={
                 <FailedMessage>
-                  <Text type={TextType.P2}>{CHECK_REQUEST_BODY}</Text>
-                  <ButtonContainer>
-                    <Text
-                      type={TextType.H6}
-                      case={Case.UPPERCASE}
-                      onClick={() => {
-                        setRequestDebugVisible(false);
-                      }}
-                    >
-                      {DONT_SHOW_THIS_AGAIN}
+                  <ShowRequestText
+                    href={"#!"}
+                    onClick={() => {
+                      setSelectedIndex(1);
+                    }}
+                  >
+                    <Text type={TextType.H6} case={Case.UPPERCASE}>
+                      {SHOW_REQUEST}
                     </Text>
-                    <Button
-                      tag="button"
-                      text={SHOW_REQUEST}
-                      variant={Variant.info}
-                      onClick={() => {
-                        setSelectedIndex(1);
-                      }}
-                    />
-                  </ButtonContainer>
+                    <Icon name="right-arrow" />
+                  </ShowRequestText>
                 </FailedMessage>
               }
+              variant={Variant.warning}
+              fill
+              closeButton
+              onClose={() => setRequestDebugVisible(false)}
             />
           )}
           {_.isEmpty(response.statusCode) ? (
