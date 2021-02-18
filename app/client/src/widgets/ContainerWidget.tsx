@@ -1,5 +1,5 @@
 import React, { createContext, forwardRef } from "react";
-import { map, sortBy, compact } from "lodash";
+import { map, sortBy, compact, get } from "lodash";
 import {
   ListChildComponentProps,
   FixedSizeList as List,
@@ -94,6 +94,7 @@ class ContainerWidget extends BaseWidget<
     const { componentWidth, componentHeight } = this.getComponentDimensions();
 
     if (childWidgetData.type !== WidgetTypes.CANVAS_WIDGET) {
+      // This path will exist IF CURRENT WIDGET IS CANVAS_WIDGET
       childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
       childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
     } else {
@@ -221,7 +222,11 @@ class ContainerWidget extends BaseWidget<
 
     const VirtualizedList = () => (
       <StickyList
-        height={this.props.minHeight || componentHeight}
+        height={
+          this.props.type === WidgetTypes.CANVAS_WIDGET
+            ? this.props.minHeight
+            : this.props.componentHeight
+        }
         itemCount={sortedChildren.length}
         itemSize={rowHeight}
         width={componentWidth}
