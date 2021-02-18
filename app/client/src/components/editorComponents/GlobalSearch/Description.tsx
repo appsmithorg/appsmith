@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import marked from "marked";
+import { uniq } from "lodash";
 
 type Props = {
   activeItem: any;
@@ -18,7 +19,7 @@ const algoliaHighlightTag = "ais-highlight-0000000000";
  * description header (since it might be present for a lot of results)
  */
 const strip = (text: string) =>
-  text.replace(/<img .*?>|description: &gt;-|description:|{% .*?%}/g, "");
+  text.replace(/<img .*?>|description: &gt;-|description:|{% .*?%}|\\n/g, "");
 
 const Container = styled.div`
   flex: 1;
@@ -45,7 +46,8 @@ const Container = styled.div`
   overflow: auto;
   & * {
     max-width: 100%;
-    white-space: pre-wrap;
+    white-space: normal;
+    overflow-wrap: break-word;
   }
 `;
 
@@ -61,8 +63,14 @@ const getDocumentationPreviewContent = (
 
     const hasMatches = matchedWords.length > 0;
     if (hasMatches) {
-      content = documentObj?.querySelector(algoliaHighlightTag)?.parentElement
-        ?.innerHTML;
+      const parents = Array.from(
+        documentObj?.querySelectorAll(algoliaHighlightTag),
+      ).map((match: any) => match?.parentElement?.innerHTML);
+      const uniqueParents = uniq(parents);
+      content = uniqueParents.reduce(
+        (res, curr) => `${res} <p>${curr}</p>`,
+        "",
+      );
     } else {
       content = documentObj?.querySelector("p")?.innerHTML;
     }

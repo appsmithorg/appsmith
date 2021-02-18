@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import { Highlight as AlgoliaHighlight } from "react-instantsearch-dom";
 import { Hit as IHit } from "react-instantsearch-core";
 import styled, { withTheme } from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
 import {
   Theme,
   getTypographyByKey,
