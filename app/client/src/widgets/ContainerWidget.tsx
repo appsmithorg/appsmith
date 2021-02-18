@@ -1,6 +1,10 @@
-import React from "react";
+import React, { createContext, forwardRef } from "react";
 import { map, sortBy, compact } from "lodash";
-import { ListChildComponentProps, FixedSizeList as List } from "react-window";
+import {
+  ListChildComponentProps,
+  FixedSizeList as List,
+  FixedSizeListProps as ListProps,
+} from "react-window";
 
 import ContainerComponent, {
   ContainerStyle,
@@ -16,6 +20,15 @@ import {
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import * as Sentry from "@sentry/react";
 
+export interface StickyListContextInterface {
+  stickyIndices: number[];
+  ItemRenderer: any;
+}
+
+const StickyListContext = createContext<StickyListContextInterface | null>(
+  null,
+);
+StickyListContext.displayName = "StickyListContext";
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
@@ -134,22 +147,76 @@ class ContainerWidget extends BaseWidget<
 
     const rowHeight = sortedChildren[0].bottomRow * snapSpaces.snapRowSpace;
 
+    // eslint-disable-next-line
+    const innerElementType = forwardRef<any, any>(
+      ({ children, ...rest }, ref) => (
+        <StickyListContext.Consumer>
+          {(props) => (
+            <div ref={ref} {...rest}>
+              {props?.stickyIndices.map((index: number) => (
+                <Row
+                  data={this.props.children}
+                  index={index}
+                  key={index}
+                  style={{
+                    top: index * 35,
+                    left: 0,
+                    width: "100%",
+                    height: 35,
+                  }}
+                />
+              ))}
+
+              {children}
+            </div>
+          )}
+        </StickyListContext.Consumer>
+      ),
+    );
+
     const Row = (childProps: ListChildComponentProps) => {
       const row = this.renderChildWidget(sortedChildren[childProps.index]);
 
       return <div key={`virtualized-row-${childProps.index}`}>{row}</div>;
     };
 
+    const ItemWrapper = (childProps: ListChildComponentProps) => {
+      const { ItemRenderer, stickyIndices } = childProps.data;
+      if (stickyIndices && stickyIndices.includes(childProps.index)) {
+        return null;
+      }
+      return <ItemRenderer index={childProps.index} style={childProps.style} />;
+    };
+
+    const StickyList = (listProps: ListProps & { stickyIndices: number[] }) => {
+      const { children, stickyIndices, ...rest } = listProps;
+
+      return (
+        <StickyListContext.Provider
+          value={{ ItemRenderer: children, stickyIndices }}
+        >
+          <List
+            itemData={{ ItemRenderer: listProps.children, stickyIndices }}
+            {...rest}
+          >
+            {ItemWrapper}
+          </List>
+        </StickyListContext.Provider>
+      );
+    };
+
     const VirtualizedList = () => (
-      <List
+      <StickyList
         height={componentHeight - (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2}
         itemCount={sortedChildren.length}
         itemSize={rowHeight}
         width={componentWidth}
+        innerElementType={innerElementType}
+        stickyIndices={[0]}
         className="appsmith-virtualized-container"
       >
         {Row}
-      </List>
+      </StickyList>
     );
 
     return <VirtualizedList />;
