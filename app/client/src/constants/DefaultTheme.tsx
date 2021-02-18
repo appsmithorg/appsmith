@@ -801,6 +801,7 @@ type ColorType = {
     text: ShadeColor;
     dividerBg: ShadeColor;
     iconHoverBg: ShadeColor;
+    tabBg: ShadeColor;
     requestTree: {
       bg: string;
       header: {
@@ -1219,6 +1220,7 @@ export const dark: ColorType = {
   },
   apiPane: {
     bg: darkShades[0],
+    tabBg: lightShades[10],
     text: darkShades[6],
     dividerBg: darkShades[4],
     iconHoverBg: darkShades[1],
@@ -1603,7 +1605,8 @@ export const light: ColorType = {
     border: "#E0DEDE",
   },
   apiPane: {
-    bg: lightShades[11],
+    bg: lightShades[0],
+    tabBg: lightShades[11],
     text: lightShades[6],
     dividerBg: lightShades[3],
     iconHoverBg: lightShades[1],
@@ -1660,7 +1663,7 @@ export const light: ColorType = {
   },
   codeMirror: {
     background: {
-      defaultState: "#EBEBEB",
+      defaultState: lightShades[0],
       hoverState: lightShades[12],
     },
     text: "#090707",

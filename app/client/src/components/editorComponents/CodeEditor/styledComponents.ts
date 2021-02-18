@@ -188,7 +188,7 @@ const getBorderStyle = (
 };
 
 const editorBackground = (theme?: EditorTheme) => {
-  let bg = "#FFFFFF";
+  let bg = "#FAFAFA";
   switch (theme) {
     case EditorTheme.DARK:
       bg = "#1A191C";
@@ -281,7 +281,9 @@ export const EditorWrapper = styled.div<{
           ? `border-bottom: 1px solid ${Colors.MERCURY}`
           : `border: 1px solid ${Colors.MERCURY}`};
       background: ${(props) =>
-        props.isFocused || props.fill ? Colors.MERCURY : Colors.WHITE};
+        props.isFocused || props.fill
+          ? Colors.MERCURY
+          : props.theme.colors.codeMirror.background.defaultState};
       color: ${Colors.CHARCOAL};
       & {
         span.cm-operator {
@@ -301,7 +303,9 @@ export const EditorWrapper = styled.div<{
           ? `border-bottom: 1px solid ${Colors.NERO}`
           : `border: 1px solid ${Colors.NERO}`};
       background: ${(props) =>
-        props.isFocused || props.fill ? Colors.NERO : Colors.BALTIC_SEA};
+        props.isFocused || props.fill
+          ? Colors.NERO
+          : props.theme.colors.codeMirror.background.defaultState};
       color: ${Colors.LIGHT_GREY};
     }
     .cm-s-duotone-light .CodeMirror-linenumber,
