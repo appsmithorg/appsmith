@@ -44,4 +44,9 @@ describe("API associated with Datasource", function() {
     // Click on "Refresh"
     // Ensure loading icon
   });
+  it("User must be displayed with error message when tried to run an empty API ", function() {
+    // Navigate to the API
+    // Click on "RUN"
+    // Ensure an Information j /Ún80jq3message is dispalyed in the Response Body
+  });
 });
