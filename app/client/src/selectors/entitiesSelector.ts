@@ -137,6 +137,9 @@ export const getDBPlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter((plugin) => plugin.type === QUERY_CONSTANT),
 );
 
+export const getDatasourceByPluginId = (state: AppState, pluginId: string) =>
+  state.entities.datasources.list.filter((d) => d.pluginId === pluginId);
+
 export const getDBDatasources = createSelector(
   getDBPlugins,
   getEntities,
