@@ -23,6 +23,9 @@ describe("Entity explorer API pane related testcases", function() {
     cy.SaveAndRunAPI();
     cy.validateRequest(testdata.baseUrl, testdata.methods, testdata.Get);
     cy.ResponseStatusCheck(testdata.successStatusCode);
+    cy.get(`.t--entity.action:contains(FirstAPI)`)
+      .find(explorer.collapse)
+      .click();
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FirstAPI.isLoading}}");
