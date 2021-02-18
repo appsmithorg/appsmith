@@ -216,7 +216,7 @@ public class PostgresPluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParametrized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
@@ -247,7 +247,7 @@ public class PostgresPluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.executeParametrized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
@@ -425,7 +425,7 @@ public class PostgresPluginTest {
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
                 .flatMap(pool -> {
                     pool.close();
-                    return pluginExecutor.executeParametrized(pool, new ExecuteActionDTO(), dsConfig, actionConfiguration);
+                    return pluginExecutor.executeParameterized(pool, new ExecuteActionDTO(), dsConfig, actionConfiguration);
                 });
 
         StepVerifier.create(resultMono)
@@ -434,7 +434,7 @@ public class PostgresPluginTest {
     }
 
     @Test
-    public void testPreparedStatementWithAndWithoutQuotes() {
+    public void testPreparedStatementWithoutQuotes() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -456,7 +456,7 @@ public class PostgresPluginTest {
         Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
 
         Mono<ActionExecutionResult> resultMono = connectionCreateMono
-                .flatMap(pool -> pluginExecutor.executeParametrized(pool, executeActionDTO, dsConfig, actionConfiguration));
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -497,11 +497,31 @@ public class PostgresPluginTest {
 
                 })
                 .verifyComplete();
+    }
 
-        // Now test with the bindings surrounded by double quotes
+    @Test
+    public void testPreparedStatementWithDoubleQuotes() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM public.\"users\" where id = \"{{binding1}}\";");
-        resultMono = connectionCreateMono
-                .flatMap(pool -> pluginExecutor.executeParametrized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param = new Param();
+        param.setKey("binding1");
+        param.setValue("1");
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -542,11 +562,31 @@ public class PostgresPluginTest {
 
                 })
                 .verifyComplete();
+    }
 
-        // Now test with the bindings surrounded by single quotes
+    @Test
+    public void testPreparedStatementWithSingleQuotes() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT * FROM public.\"users\" where id = '{{binding1}}';");
-        resultMono = connectionCreateMono
-                .flatMap(pool -> pluginExecutor.executeParametrized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param = new Param();
+        param.setKey("binding1");
+        param.setValue("1");
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {

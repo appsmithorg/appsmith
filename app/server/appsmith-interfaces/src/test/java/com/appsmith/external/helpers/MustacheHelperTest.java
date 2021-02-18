@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers;
+package com.appsmith.external.helpers;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Connection;

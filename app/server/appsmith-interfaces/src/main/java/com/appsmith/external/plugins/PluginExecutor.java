@@ -20,7 +20,7 @@ public interface PluginExecutor<C> extends ExtensionPoint {
 
     /**
      * This function is implemented by the plugins by default to execute the action.
-     *
+     * <p>
      * If executeParametrized has a custom implementation by a plugin, this function would not be used.
      *
      * @param connection              : This is the connection that is established to the data source. This connection is according
@@ -63,11 +63,11 @@ public interface PluginExecutor<C> extends ExtensionPoint {
      * This function checks if the datasource is valid. It should only check if all the mandatory fields are filled and
      * if the values are of the right format. It does NOT check the validity of those fields.
      * Please use {@link #testDatasource(DatasourceConfiguration)} to establish the correctness of those fields.
-     *
+     * <p>
      * If the datasource configuration is valid, it should return an empty set of invalid strings.
      * If not, it should return the list of invalid messages as a set.
      *
-     * @param datasourceConfiguration   : The datasource to be validated
+     * @param datasourceConfiguration : The datasource to be validated
      * @return Set                      : The set of invalid strings informing the user of all the invalid fields
      */
     Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration);
@@ -96,7 +96,7 @@ public interface PluginExecutor<C> extends ExtensionPoint {
     /**
      * Appsmith Server calls this function for execution of the action.
      * Default implementation which takes the variables that need to be substituted and then calls the plugin execute function
-     *
+     * <p>
      * Plugins requiring their custom implementation of variable substitution should override this function and then are
      * responsible both for variable substitution and final execution.
      *
@@ -108,16 +108,17 @@ public interface PluginExecutor<C> extends ExtensionPoint {
      * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
      * @return ActionExecutionResult  : This object is returned to the user which contains the result values from the execution.
      */
-    default Mono<ActionExecutionResult> executeParametrized(C connection,
-                                                            ExecuteActionDTO executeActionDTO,
-                                                            DatasourceConfiguration datasourceConfiguration,
-                                                            ActionConfiguration actionConfiguration) {
+    default Mono<ActionExecutionResult> executeParameterized(C connection,
+                                                             ExecuteActionDTO executeActionDTO,
+                                                             DatasourceConfiguration datasourceConfiguration,
+                                                             ActionConfiguration actionConfiguration) {
         prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
         return this.execute(connection, datasourceConfiguration, actionConfiguration);
     }
 
     /**
      * This function is responsible for preparing the action and datasource configurations to be ready for execution.
+     *
      * @param executeActionDTO
      * @param actionConfiguration
      * @param datasourceConfiguration

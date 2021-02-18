@@ -569,7 +569,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             .flatMap(datasourceContextService::getDatasourceContext)
                             // Now that we have the context (connection details), execute the action.
                             .flatMap(
-                                    resourceContext -> pluginExecutor.executeParametrized(
+                                    resourceContext -> pluginExecutor.executeParameterized(
                                             resourceContext.getConnection(),
                                             executeActionDTO,
                                             datasourceConfiguration,

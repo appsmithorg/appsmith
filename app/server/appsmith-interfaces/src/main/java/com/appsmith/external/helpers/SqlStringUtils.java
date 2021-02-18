@@ -33,6 +33,8 @@ public class SqlStringUtils {
     // The final replacement string of ? for replacing '?' or "?"
     private static String postQuoteTrimmingQuestionMark = "\\?";
 
+    private static Pattern quoteQuestionPattern = Pattern.compile(regexQuotesTrimming);
+
     public static class DateValidatorUsingDateFormat extends DateValidator {
         private String dateFormat;
 
@@ -83,6 +85,7 @@ public class SqlStringUtils {
             // Not double
         }
 
+        // Creating a copy of the input in lower case form to do simple string equality to check for boolean/null types.
         String copyInput = String.valueOf(input).toLowerCase().trim();
         if (copyInput.equals("true") || copyInput.equals("false")) {
             return DataType.BOOLEAN;
@@ -146,15 +149,15 @@ public class SqlStringUtils {
 
         try {
             switch (valueType) {
-                case BINARY : {
+                case BINARY: {
                     preparedStatement.setBinaryStream(index, IOUtils.toInputStream(value));
                     break;
                 }
-                case BYTES : {
+                case BYTES: {
                     preparedStatement.setBytes(index, value.getBytes("UTF-8"));
                     break;
                 }
-                case INTEGER : {
+                case INTEGER: {
                     preparedStatement.setInt(index, Integer.parseInt(value));
                     break;
                 }
@@ -186,11 +189,11 @@ public class SqlStringUtils {
                     preparedStatement.setString(index, value);
                     break;
                 }
-                default :
+                default:
                     break;
             }
 
-        } catch(SQLException | IllegalArgumentException e) {
+        } catch (SQLException | IllegalArgumentException e) {
             String message = "Query Preparation failed while inserting value : "
                     + value + " for binding : {{" + binding + "}}. Please check the query again.\nError : " + e.getMessage();
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
@@ -200,7 +203,7 @@ public class SqlStringUtils {
     }
 
     private static boolean isBinary(String input) {
-        for(int i = 0; i < input.length(); i++) {
+        for (int i = 0; i < input.length(); i++) {
             int tempB = input.charAt(i);
             if (tempB == '0' || tempB == '1') {
                 continue;
@@ -225,7 +228,7 @@ public class SqlStringUtils {
         String body = updatedActionConfiguration.getBody();
 
         // Trim the quotes around ? if present
-        body = Pattern.compile(regexQuotesTrimming).matcher(body).replaceAll(postQuoteTrimmingQuestionMark);
+        body = quoteQuestionPattern.matcher(body).replaceAll(postQuoteTrimmingQuestionMark);
 
         return body;
     }

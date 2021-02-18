@@ -1,6 +1,5 @@
-package com.appsmith.server.helpers;
+package com.appsmith.external.helpers;
 
-import com.appsmith.external.helpers.BeanCopyUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

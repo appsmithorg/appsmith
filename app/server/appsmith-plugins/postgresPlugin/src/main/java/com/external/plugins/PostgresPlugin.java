@@ -65,7 +65,7 @@ public class PostgresPlugin extends BasePlugin {
 
     private static final int MAXIMUM_POOL_SIZE = 5;
 
-    private static final long LEAK_DETECTION_TIME_MS = 60*1000;
+    private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
 
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -78,45 +78,45 @@ public class PostgresPlugin extends BasePlugin {
 
         private static final String TABLES_QUERY =
                 "select a.attname                                                      as name,\n" +
-                "       t1.typname                                                     as column_type,\n" +
-                "       case when a.atthasdef then pg_get_expr(d.adbin, d.adrelid) end as default_expr,\n" +
-                "       c.relkind                                                      as kind,\n" +
-                "       c.relname                                                      as table_name,\n" +
-                "       n.nspname                                                      as schema_name\n" +
-                "from pg_catalog.pg_attribute a\n" +
-                "         left join pg_catalog.pg_type t1 on t1.oid = a.atttypid\n" +
-                "         inner join pg_catalog.pg_class c on a.attrelid = c.oid\n" +
-                "         left join pg_catalog.pg_namespace n on c.relnamespace = n.oid\n" +
-                "         left join pg_catalog.pg_attrdef d on d.adrelid = c.oid and d.adnum = a.attnum\n" +
-                "where a.attnum > 0\n" +
-                "  and not a.attisdropped\n" +
-                "  and n.nspname not in ('information_schema', 'pg_catalog')\n" +
-                "  and c.relkind in ('r', 'v')\n" +
-                "  and pg_catalog.pg_table_is_visible(a.attrelid)\n" +
-                "order by c.relname, a.attnum;";
+                        "       t1.typname                                                     as column_type,\n" +
+                        "       case when a.atthasdef then pg_get_expr(d.adbin, d.adrelid) end as default_expr,\n" +
+                        "       c.relkind                                                      as kind,\n" +
+                        "       c.relname                                                      as table_name,\n" +
+                        "       n.nspname                                                      as schema_name\n" +
+                        "from pg_catalog.pg_attribute a\n" +
+                        "         left join pg_catalog.pg_type t1 on t1.oid = a.atttypid\n" +
+                        "         inner join pg_catalog.pg_class c on a.attrelid = c.oid\n" +
+                        "         left join pg_catalog.pg_namespace n on c.relnamespace = n.oid\n" +
+                        "         left join pg_catalog.pg_attrdef d on d.adrelid = c.oid and d.adnum = a.attnum\n" +
+                        "where a.attnum > 0\n" +
+                        "  and not a.attisdropped\n" +
+                        "  and n.nspname not in ('information_schema', 'pg_catalog')\n" +
+                        "  and c.relkind in ('r', 'v')\n" +
+                        "  and pg_catalog.pg_table_is_visible(a.attrelid)\n" +
+                        "order by c.relname, a.attnum;";
 
         public static final String KEYS_QUERY =
                 "select c.conname                                         as constraint_name,\n" +
-                "       c.contype                                         as constraint_type,\n" +
-                "       sch.nspname                                       as self_schema,\n" +
-                "       tbl.relname                                       as self_table,\n" +
-                "       array_agg(col.attname order by u.attposition)     as self_columns,\n" +
-                "       f_sch.nspname                                     as foreign_schema,\n" +
-                "       f_tbl.relname                                     as foreign_table,\n" +
-                "       array_agg(f_col.attname order by f_u.attposition) as foreign_columns,\n" +
-                "       pg_get_constraintdef(c.oid)                       as definition\n" +
-                "from pg_constraint c\n" +
-                "         left join lateral unnest(c.conkey) with ordinality as u(attnum, attposition) on true\n" +
-                "         left join lateral unnest(c.confkey) with ordinality as f_u(attnum, attposition)\n" +
-                "                   on f_u.attposition = u.attposition\n" +
-                "         join pg_class tbl on tbl.oid = c.conrelid\n" +
-                "         join pg_namespace sch on sch.oid = tbl.relnamespace\n" +
-                "         left join pg_attribute col on (col.attrelid = tbl.oid and col.attnum = u.attnum)\n" +
-                "         left join pg_class f_tbl on f_tbl.oid = c.confrelid\n" +
-                "         left join pg_namespace f_sch on f_sch.oid = f_tbl.relnamespace\n" +
-                "         left join pg_attribute f_col on (f_col.attrelid = f_tbl.oid and f_col.attnum = f_u.attnum)\n" +
-                "group by constraint_name, constraint_type, self_schema, self_table, definition, foreign_schema, foreign_table\n" +
-                "order by self_schema, self_table;";
+                        "       c.contype                                         as constraint_type,\n" +
+                        "       sch.nspname                                       as self_schema,\n" +
+                        "       tbl.relname                                       as self_table,\n" +
+                        "       array_agg(col.attname order by u.attposition)     as self_columns,\n" +
+                        "       f_sch.nspname                                     as foreign_schema,\n" +
+                        "       f_tbl.relname                                     as foreign_table,\n" +
+                        "       array_agg(f_col.attname order by f_u.attposition) as foreign_columns,\n" +
+                        "       pg_get_constraintdef(c.oid)                       as definition\n" +
+                        "from pg_constraint c\n" +
+                        "         left join lateral unnest(c.conkey) with ordinality as u(attnum, attposition) on true\n" +
+                        "         left join lateral unnest(c.confkey) with ordinality as f_u(attnum, attposition)\n" +
+                        "                   on f_u.attposition = u.attposition\n" +
+                        "         join pg_class tbl on tbl.oid = c.conrelid\n" +
+                        "         join pg_namespace sch on sch.oid = tbl.relnamespace\n" +
+                        "         left join pg_attribute col on (col.attrelid = tbl.oid and col.attnum = u.attnum)\n" +
+                        "         left join pg_class f_tbl on f_tbl.oid = c.confrelid\n" +
+                        "         left join pg_namespace f_sch on f_sch.oid = f_tbl.relnamespace\n" +
+                        "         left join pg_attribute f_col on (f_col.attrelid = f_tbl.oid and f_col.attnum = f_u.attnum)\n" +
+                        "group by constraint_name, constraint_type, self_schema, self_table, definition, foreign_schema, foreign_table\n" +
+                        "order by self_schema, self_table;";
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
 
@@ -135,7 +135,7 @@ public class PostgresPlugin extends BasePlugin {
          * @return
          */
         @Override
-        public Mono<ActionExecutionResult> executeParametrized(HikariDataSource connection,
+        public Mono<ActionExecutionResult> executeParameterized(HikariDataSource connection,
                                                                 ExecuteActionDTO executeActionDTO,
                                                                 DatasourceConfiguration datasourceConfiguration,
                                                                 ActionConfiguration actionConfiguration) {
@@ -150,7 +150,7 @@ public class PostgresPlugin extends BasePlugin {
             Boolean isPreparedStatement;
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            if(properties.get(PREPARED_STATEMENT_INDEX) == null) {
+            if (properties.get(PREPARED_STATEMENT_INDEX) == null) {
                 // If the configuration does not exist, default to true
                 // Note this is not possible today since the query editor sets a default value for this field.
                 isPreparedStatement = true;
@@ -162,15 +162,15 @@ public class PostgresPlugin extends BasePlugin {
             if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
                 return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null);
-            } else {
-                //Prepared Statement
-                // First extract all the bindings in order
-                List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
-                // Replace all the bindings with a ? as expected in a prepared statement.
-                String updatedQuery = SqlStringUtils.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
-                actionConfiguration.setBody(updatedQuery);
-                return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
             }
+
+            //Prepared Statement
+            // First extract all the bindings in order
+            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+            // Replace all the bindings with a ? as expected in a prepared statement.
+            String updatedQuery = SqlStringUtils.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
+            actionConfiguration.setBody(updatedQuery);
+            return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
         }
 
         private Mono<ActionExecutionResult> executeCommon(HikariDataSource connection,
@@ -213,7 +213,7 @@ public class PostgresPlugin extends BasePlugin {
                         "] Hikari Pool stats : active - " + activeConnections +
                         ", idle - " + idleConnections +
                         ", awaiting - " + threadsAwaitingConnection +
-                        ", total - " + totalConnections );
+                        ", total - " + totalConnections);
                 try {
                     if (FALSE.equals(preparedStatement)) {
                         statement = connectionFromPool.createStatement();
@@ -223,12 +223,12 @@ public class PostgresPlugin extends BasePlugin {
                         PreparedStatement preparedQuery = connectionFromPool.prepareStatement(query);
                         if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
                             List<Param> params = executeActionDTO.getParams();
-                            for (int i=0; i<mustacheValuesInOrder.size(); i++) {
+                            for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
                                 String key = mustacheValuesInOrder.get(i);
                                 Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
                                 if (matchingParam.isPresent()) {
                                     String value = matchingParam.get().getValue();
-                                    preparedQuery = SqlStringUtils.setValueInPreparedStatement(i+1, key,
+                                    preparedQuery = SqlStringUtils.setValueInPreparedStatement(i + 1, key,
                                             value, preparedQuery);
                                 }
                             }
@@ -309,7 +309,7 @@ public class PostgresPlugin extends BasePlugin {
                     System.out.println(Thread.currentThread().getName() + ": After executing postgres query, Hikari Pool stats active - " + activeConnections +
                             ", idle - " + idleConnections +
                             ", awaiting - " + threadsAwaitingConnection +
-                            ", total - " + totalConnections );
+                            ", total - " + totalConnections);
                     if (resultSet != null) {
                         try {
                             resultSet.close();
@@ -469,7 +469,7 @@ public class PostgresPlugin extends BasePlugin {
                         " Hikari Pool stats : active - " + activeConnections +
                         ", idle - " + idleConnections +
                         ", awaiting - " + threadsAwaitingConnection +
-                        ", total - " + totalConnections );
+                        ", total - " + totalConnections);
 
                 // Ref: <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
                 try (Statement statement = connectionFromPool.createStatement()) {
@@ -612,7 +612,7 @@ public class PostgresPlugin extends BasePlugin {
                     System.out.println(Thread.currentThread().getName() + ": After postgres db structure, Hikari Pool stats active - " + activeConnections +
                             ", idle - " + idleConnections +
                             ", awaiting - " + threadsAwaitingConnection +
-                            ", total - " + totalConnections );
+                            ", total - " + totalConnections);
 
                     if (connectionFromPool != null) {
                         try {
@@ -639,6 +639,7 @@ public class PostgresPlugin extends BasePlugin {
 
     /**
      * This function is blocking in nature which connects to the database and creates a connection pool
+     *
      * @param datasourceConfiguration
      * @return connection pool
      */
@@ -702,6 +703,7 @@ public class PostgresPlugin extends BasePlugin {
     /**
      * First checks if the connection pool is still valid. If yes, we fetch a connection from the pool and return
      * In case a connection is not available in the pool, SQL Exception is thrown
+     *
      * @param connectionPool
      * @return SQL Connection
      */
