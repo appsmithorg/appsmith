@@ -129,7 +129,7 @@
           "label": "Expiry Duration of Signed URL (Minutes)",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
           "controlType": "INPUT_TEXT",
-          "initialValue": "10080",
+          "initialValue": "5",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
             "comparison": "NOT_EQUALS",

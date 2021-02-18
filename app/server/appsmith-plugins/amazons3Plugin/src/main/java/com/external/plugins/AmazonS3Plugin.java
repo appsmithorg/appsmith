@@ -65,7 +65,7 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final int USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX = 6;
     private static final int URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX = 7;
     private static final int CLIENT_REGION_PROPERTY_INDEX = 0;
-    private static final int DEFAULT_URL_EXPIRY_IN_MINUTES = 10080; // 7 days - max possible
+    private static final int DEFAULT_URL_EXPIRY_IN_MINUTES = 5; // max 7 days is possible
     private static final String YES = "YES";
     private static final String BASE64_DELIMITER = ";base64,";
 
@@ -372,11 +372,11 @@ public class AmazonS3Plugin extends BasePlugin {
                             } else {
                                 try {
                                     durationInMinutes = Integer
-                                                            .parseInt(
-                                                                    properties
-                                                                    .get(URL_EXPIRY_DURATION_PROPERTY_INDEX)
-                                                                    .getValue()
-                                                            );
+                                            .parseInt(
+                                                    properties
+                                                            .get(URL_EXPIRY_DURATION_PROPERTY_INDEX)
+                                                            .getValue()
+                                            );
                                 } catch (NumberFormatException e) {
                                     throw new AppsmithPluginException(
                                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -510,8 +510,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         return Mono.error(
                                 new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_ERROR,
-                                        "Query execution failed in S3 Plugin when executing action: "
-                                                + s3Action + " : " + e.getMessage()
+                                        "Query failed when executing " + s3Action + " action: " + e.getMessage()
                                 )
                         );
                     })
