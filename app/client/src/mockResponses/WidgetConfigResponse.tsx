@@ -226,8 +226,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
     },
     MODAL_WIDGET: {
-      rows: 456,
-      columns: 456,
+      rows: 6,
+      columns: 6,
       size: "MODAL_SMALL",
       canEscapeKeyClose: true,
       detachFromLayout: true,
