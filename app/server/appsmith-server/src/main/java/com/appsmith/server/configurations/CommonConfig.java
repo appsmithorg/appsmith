@@ -14,6 +14,7 @@ import reactor.core.scheduler.Schedulers;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -33,9 +34,14 @@ public class CommonConfig {
     private Set<String> adminEmails = Collections.emptySet();
 
     @Value("${oauth2.allowed-domains}")
-    private String allowedDomainList;
+    private String allowedDomainsForOauthString;
 
-    private List<String> domainList;
+    private List<String> allowedDomainsForOauth;
+
+    @Value("${signup.allowed-domains}")
+    private String allowedDomainsString;
+
+    private List<String> allowedDomains;
 
     @Bean
     public Scheduler scheduler() {
@@ -55,13 +61,25 @@ public class CommonConfig {
         return objectMapper;
     }
 
+    public List<String> getOauthAllowedDomains() {
+        if (allowedDomainsForOauth == null) {
+            allowedDomainsForOauth = StringUtils.hasText(allowedDomainsForOauthString)
+                    ? Arrays.asList(allowedDomainsForOauthString.trim().split("\\s*,[,\\s]*"))
+                    : new ArrayList<>();
+            allowedDomainsForOauth.addAll(getAllowedDomains());
+        }
+
+        return allowedDomainsForOauth;
+    }
+
     public List<String> getAllowedDomains() {
-        if (domainList == null) {
-            domainList = StringUtils.hasText(allowedDomainList)
-                    ? Arrays.asList(allowedDomainList.trim().split("\\s*,[,\\s]*"))
+        if (allowedDomains == null) {
+            allowedDomains = StringUtils.hasText(allowedDomainsString)
+                    ? Arrays.asList(allowedDomainsString.trim().split("\\s*,[,\\s]*"))
                     : Collections.emptyList();
         }
 
-        return domainList;
+        return allowedDomains;
     }
+
 }

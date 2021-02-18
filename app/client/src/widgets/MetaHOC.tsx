@@ -50,6 +50,16 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       const defaultProperties = WrappedWidget.getDefaultPropertiesMap();
       Object.keys(metaProperties).forEach((metaProperty) => {
         const defaultProperty = defaultProperties[metaProperty];
+        /*
+          Generally the meta property value of a widget will directly be
+          controlled by itself and the platform will not interfere except:
+          When we reset the meta property value to it's default property value.
+          This operation happens by the platform and is outside the widget logic
+          so to identify this change, we want to see if the meta value has
+          changed to the current default value. If this has happened, we should
+          set the state of the meta property value (controlled by inside the
+          widget) to the current value that is outside (controlled by platform)
+        */
         if (
           !_.isEqual(prevProps[metaProperty], this.props[metaProperty]) &&
           _.isEqual(this.props[defaultProperty], this.props[metaProperty])
@@ -81,11 +91,13 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     handleUpdateWidgetMetaProperty() {
       const { updateWidgetMetaProperty, executeAction } = this.context;
       const { widgetId, widgetName } = this.props;
-      // We have kept a map of all updated properties. After debouncing we will
-      // go through these properties and update with the final value. This way
-      // we will only update a certain property once per debounce interval.
-      // Then we will execute any action associated with the trigger of
-      // that value changing
+      /*
+       We have kept a map of all updated properties. After debouncing we will
+       go through these properties and update with the final value. This way
+       we will only update a certain property once per debounce interval.
+       Then we will execute any action associated with the trigger of
+       that value changing
+      */
       [...this.updatedProperties.keys()].forEach((propertyName) => {
         if (updateWidgetMetaProperty) {
           const propertyValue = this.state[propertyName];

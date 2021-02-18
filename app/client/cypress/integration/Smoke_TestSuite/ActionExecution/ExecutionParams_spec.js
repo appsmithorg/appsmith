@@ -22,7 +22,7 @@ describe("API Panel Test Functionality", function() {
     cy.SearchEntityandOpen("Table1");
     cy.testJsontext("tabledata", "{{MultiApi.data");
     // Assert 'posts' data (default)
-    cy.readTabledataPublish("0", "2").then(cellData => {
+    cy.readTabledataPublish("0", "2").then((cellData) => {
       expect(cellData).to.be.equal(
         "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
       );
@@ -58,7 +58,7 @@ describe("API Panel Test Functionality", function() {
     cy.wait("@postExecute");
 
     // Assert on load data in table
-    cy.readTabledataPublish("0", "2").then(cellData => {
+    cy.readTabledataPublish("0", "2").then((cellData) => {
       expect(cellData).to.be.equal(
         "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
       );
@@ -71,7 +71,7 @@ describe("API Panel Test Functionality", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     // Assert statically bound "users" data
-    cy.readTabledataPublish("1", "1").then(cellData => {
+    cy.readTabledataPublish("1", "1").then((cellData) => {
       expect(cellData).to.be.equal("Ervin Howell");
     });
 
@@ -82,7 +82,7 @@ describe("API Panel Test Functionality", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     // Assert dynamically bound "todos" data
-    cy.readTabledataPublish("0", "2").then(cellData => {
+    cy.readTabledataPublish("0", "2").then((cellData) => {
       expect(cellData).to.be.equal("delectus aut autem");
     });
   });
