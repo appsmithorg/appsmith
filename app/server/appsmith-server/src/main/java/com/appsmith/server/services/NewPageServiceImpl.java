@@ -223,8 +223,10 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                                         FieldName.PAGE, pageFromDb.getId()));
                             }
                             pageNameIdDTO.setName(pageFromDb.getPublishedPage().getName());
+                            pageNameIdDTO.setIsHidden(pageFromDb.getPublishedPage().getIsHidden());
                         } else {
                             pageNameIdDTO.setName(pageFromDb.getUnpublishedPage().getName());
+                            pageNameIdDTO.setIsHidden(pageFromDb.getUnpublishedPage().getIsHidden());
                         }
 
                         if (pageNameIdDTO.getId().equals(defaultPageId)) {
