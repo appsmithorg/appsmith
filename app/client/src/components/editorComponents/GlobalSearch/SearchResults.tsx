@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useContext } from "react";
+import React, { useEffect, useRef, useContext, useMemo } from "react";
+import { useSelector } from "react-redux";
 import { Highlight as AlgoliaHighlight } from "react-instantsearch-dom";
 import { Hit as IHit } from "react-instantsearch-core";
 import styled, { withTheme } from "styled-components";
@@ -11,6 +12,16 @@ import {
 import scrollIntoView from "scroll-into-view-if-needed";
 import { getItemType, SEARCH_ITEM_TYPES } from "./utils";
 import SearchContext from "./GlobalSearchContext";
+import {
+  getWidgetIcon,
+  getPluginIcon,
+} from "pages/Editor/Explorer/ExplorerIcons";
+import { HelpIcons } from "icons/HelpIcons";
+import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
+import { AppState } from "reducers";
+import { keyBy } from "lodash";
+
+const DocumentIcon = HelpIcons.DOCUMENT;
 
 type ItemProps = {
   item: IHit | any;
@@ -52,20 +63,26 @@ const ItemTitle = styled.div`
   margin-left: ${(props) => props.theme.spaces[5]}px;
 `;
 
+const StyledDocumentIcon = styled(DocumentIcon)`
+  svg {
+    width: 12px;
+    height: 12px;
+    path {
+      fill: transparent;
+    }
+  }
+`;
+
 const DocumentationItem = withTheme((props: any) => {
   const searchContext = useContext(SearchContext);
   return (
     <>
-      <Icon
-        name="link"
-        size={IconSize.LARGE}
-        fillColor={props.theme.colors.globalSearch.searchItemText}
-        onClick={() => searchContext.handleItemLinkClick(props.item)}
-      />
+      <span onClick={() => searchContext.handleItemLinkClick(props.item)}>
+        <StyledDocumentIcon />
+      </span>
       <ItemTitle>
         <span>
-          <AlgoliaHighlight attribute="title" hit={props.item} /> -
-          Documentation
+          <AlgoliaHighlight attribute="title" hit={props.item} />
         </span>
       </ItemTitle>
     </>
@@ -73,7 +90,8 @@ const DocumentationItem = withTheme((props: any) => {
 });
 
 const Highlight = ({ match, text }: { match: string; text: string }) => {
-  const parts = text?.split(match);
+  const regEx = new RegExp(match, "ig");
+  const parts = text?.split(regEx);
   if (parts.length === 1) return <span>{text}</span>;
 
   return (
@@ -90,16 +108,16 @@ const Highlight = ({ match, text }: { match: string; text: string }) => {
   );
 };
 
-const changeConstantCaseToSentenceCase = (textArg: string) => {
-  if (!textArg) return "";
-  const text = textArg.trim();
+// const changeConstantCaseToSentenceCase = (textArg: string) => {
+//   if (!textArg) return "";
+//   const text = textArg.trim();
 
-  return text.split("_").reduce((res, word, index) => {
-    if (index === 0)
-      return `${word[0].toUpperCase()}${word.slice(1).toLowerCase()}`;
-    else return `${res} ${word.toLowerCase()}`;
-  }, "");
-};
+//   return text.split("_").reduce((res, word, index) => {
+//     if (index === 0)
+//       return `${word[0].toUpperCase()}${word.slice(1).toLowerCase()}`;
+//     else return `${res} ${word.toLowerCase()}`;
+//   }, "");
+// };
 
 const WidgetItem = withTheme((props: any) => {
   const { query, item } = props;
@@ -108,15 +126,11 @@ const WidgetItem = withTheme((props: any) => {
 
   return (
     <>
-      <Icon
-        name="link"
-        size={IconSize.LARGE}
-        fillColor={props.theme.colors.globalSearch.searchItemText}
-        onClick={() => searchContext.handleItemLinkClick(props.item)}
-      />
+      <span onClick={() => searchContext.handleItemLinkClick(props.item)}>
+        {getWidgetIcon(type)}
+      </span>
       <ItemTitle>
         <Highlight match={query} text={widgetName} />
-        {` - ${changeConstantCaseToSentenceCase(type)}`}
       </ItemTitle>
     </>
   );
@@ -125,20 +139,24 @@ const WidgetItem = withTheme((props: any) => {
 const ActionItem = withTheme((props: any) => {
   const { item, query } = props;
   const { config } = item || {};
-  const actionType = config?.pluginType === "API" ? "API" : "Query";
   const title = config.name;
   const searchContext = useContext(SearchContext);
+  const { pluginType } = config;
+  const plugins = useSelector((state: AppState) => {
+    return state.entities.plugins.list;
+  });
+  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const icon = getActionConfig(pluginType)?.getIcon(
+    item.config,
+    pluginGroups[item.config.datasource.pluginId],
+  );
   return (
     <>
-      <Icon
-        name="link"
-        size={IconSize.LARGE}
-        fillColor={props.theme.colors.globalSearch.searchItemText}
-        onClick={() => searchContext.handleItemLinkClick(props.item)}
-      />
+      <span onClick={() => searchContext.handleItemLinkClick(props.item)}>
+        {icon}
+      </span>
       <ItemTitle>
         <Highlight match={query} text={title} />
-        {` - ${actionType}`}
       </ItemTitle>
     </>
   );
@@ -148,14 +166,16 @@ const DatasourceItem = withTheme((props: any) => {
   const searchContext = useContext(SearchContext);
   const { item, query } = props;
   const title = item?.name;
+  const plugins = useSelector((state: AppState) => {
+    return state.entities.plugins.list;
+  });
+  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const icon = getPluginIcon(pluginGroups[item.pluginId]);
   return (
     <>
-      <Icon
-        name="link"
-        size={IconSize.LARGE}
-        fillColor={props.theme.colors.globalSearch.searchItemText}
-        onClick={() => searchContext.handleItemLinkClick(props.item)}
-      />
+      <span onClick={() => searchContext.handleItemLinkClick(props.item)}>
+        {icon}
+      </span>
       <ItemTitle>
         <Highlight match={query} text={title} />
       </ItemTitle>

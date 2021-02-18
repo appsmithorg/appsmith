@@ -21,11 +21,7 @@ const StyledHelpBar = styled.div`
   max-width: 350px;
 `;
 
-const comboText = (
-  <>
-    <kbd>Shift</kbd> + <kbd>O</kbd>
-  </>
-);
+const comboText = <>(⌘ / ctrl) + k</>;
 
 type Props = {
   toggleShowModal: () => void;

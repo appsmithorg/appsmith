@@ -125,7 +125,7 @@ const GlobalSearch = () => {
       ...filteredWidgets,
       ...filteredActions,
       ...datasourcesList,
-      ...documentationSearchResults,
+      ...(query && documentationSearchResults),
     ];
   }, [
     filteredWidgets,
