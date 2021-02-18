@@ -35,6 +35,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MustacheHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
@@ -93,6 +94,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private final NewPageService newPageService;
     private final ApplicationService applicationService;
     private final SessionUserService sessionUserService;
+    private final PolicyUtils policyUtils;
 
     public NewActionServiceImpl(Scheduler scheduler,
                                 Validator validator,
@@ -108,7 +110,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 PolicyGenerator policyGenerator,
                                 NewPageService newPageService,
                                 ApplicationService applicationService,
-                                SessionUserService sessionUserService) {
+                                SessionUserService sessionUserService,
+                                PolicyUtils policyUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -120,6 +123,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         this.newPageService = newPageService;
         this.applicationService = applicationService;
         this.sessionUserService = sessionUserService;
+        this.policyUtils = policyUtils;
     }
 
     private Boolean validateActionName(String name) {
@@ -295,7 +299,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         // datasource is found. Update the action.
                         newAction.setOrganizationId(datasource.getOrganizationId());
                         return datasource;
-                    });
+                    })
+                    // If the action is publicly executable, update the datasource policy
+                    .flatMap(datasource -> updateDatasourcePolicyForPublicAction(newAction.getPolicies(), datasource));
         }
 
         Mono<Plugin> pluginMono = datasourceMono.flatMap(datasource -> {
@@ -972,12 +978,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     /**
      * !!!WARNING!!! This function edits the parameters actionUpdates and messages which are eventually returned back to
      * the caller with the updates values.
+     *
      * @param onLoadActions : All the actions which have been found to be on page load
      * @param pageId
      * @param actionUpdates : Empty array list which would be set in this function with all the page actions whose
      *                      execute on load setting has changed (whether flipped from true to false, or vice versa)
-     * @param messages : Empty array list which would be set in this function with all the messages that should be
-     *                 displayed to the developer user communicating the action executeOnLoad changes.
+     * @param messages      : Empty array list which would be set in this function with all the messages that should be
+     *                      displayed to the developer user communicating the action executeOnLoad changes.
      * @return
      */
     @Override
@@ -1006,7 +1013,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         return existingOnPageLoadActionsMono
                 .zipWith(pageActionsFlux.collectList())
-                .flatMap( tuple -> {
+                .flatMap(tuple -> {
                     List<ActionDTO> existingOnPageLoadActions = tuple.getT1();
                     List<ActionDTO> pageActions = tuple.getT2();
 
@@ -1071,7 +1078,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     // Add newly turned on page actions to report back to the caller
                     actionUpdates.addAll(
-                           addActionUpdatesForActionNames(pageActions, turnedOnActionNames)
+                            addActionUpdatesForActionNames(pageActions, turnedOnActionNames)
                     );
 
                     // Add newly turned off page actions to report back to the caller
@@ -1100,16 +1107,16 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                                                        Set<String> actionNames) {
 
         return pageActions
-                        .stream()
-                        .filter(pageAction -> actionNames.contains(pageAction.getName()))
-                        .map(pageAction -> {
-                            LayoutActionUpdateDTO layoutActionUpdateDTO = new LayoutActionUpdateDTO();
-                            layoutActionUpdateDTO.setId(pageAction.getId());
-                            layoutActionUpdateDTO.setName(pageAction.getName());
-                            layoutActionUpdateDTO.setExecuteOnLoad(pageAction.getExecuteOnLoad());
-                            return layoutActionUpdateDTO;
-                        })
-                        .collect(Collectors.toList());
+                .stream()
+                .filter(pageAction -> actionNames.contains(pageAction.getName()))
+                .map(pageAction -> {
+                    LayoutActionUpdateDTO layoutActionUpdateDTO = new LayoutActionUpdateDTO();
+                    layoutActionUpdateDTO.setId(pageAction.getId());
+                    layoutActionUpdateDTO.setName(pageAction.getName());
+                    layoutActionUpdateDTO.setExecuteOnLoad(pageAction.getExecuteOnLoad());
+                    return layoutActionUpdateDTO;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -1119,6 +1126,37 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return actionMono
                 .flatMap(toDelete -> repository.delete(toDelete).thenReturn(toDelete))
                 .flatMap(analyticsService::sendDeleteEvent);
+    }
+
+    private Mono<Datasource> updateDatasourcePolicyForPublicAction(Set<Policy> actionPolicies, Datasource datasource) {
+        if (datasource.getId() == null) {
+            // This seems to be a nested datasource. Return as is.
+            return Mono.just(datasource);
+        }
+
+        // If action has EXECUTE permission for anonymous, check and assign the same to the datasource.
+        if (policyUtils.isPermissionPresentForUser(actionPolicies, EXECUTE_ACTIONS.getValue(), FieldName.ANONYMOUS_USER)) {
+            // Check if datasource has execute permission
+            if (policyUtils.isPermissionPresentForUser(datasource.getPolicies(), EXECUTE_DATASOURCES.getValue(), FieldName.ANONYMOUS_USER)) {
+                // Datasource has correct permission. Return as is
+                return Mono.just(datasource);
+            }
+            // Add the permission to datasource
+            AclPermission datasourcePermission = EXECUTE_DATASOURCES;
+
+            User user = new User();
+            user.setName(FieldName.ANONYMOUS_USER);
+            user.setEmail(FieldName.ANONYMOUS_USER);
+            user.setIsAnonymous(true);
+
+            Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(datasourcePermission), user);
+
+            Datasource updatedDatasource = policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+
+            return datasourceService.save(updatedDatasource);
+        }
+
+        return Mono.just(datasource);
     }
 
 }
