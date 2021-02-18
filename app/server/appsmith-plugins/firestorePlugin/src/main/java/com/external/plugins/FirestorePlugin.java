@@ -247,9 +247,30 @@ public class FirestorePlugin extends BasePlugin {
             final Op operator = properties.size() > 4 && properties.get(4) != null ? Op.valueOf(properties.get(4).getValue()) : null;
             final String queryValue = properties.size() > 5 && properties.get(5) != null ? properties.get(5).getValue() : null;
 
+            final List<String> orderingFields = List.of("symbol", "name");
+            final Map<String, Object> startAfter = Map.of("symbol", "HDFC");
+            final Map<String, Object> endBefore = Map.of("symbol", "HDFC");
+
             return Mono.just(query)
                     // Apply ordering, if provided.
-                    .map(query1 -> StringUtils.isEmpty(orderBy) ? query1 : query1.orderBy(orderBy))
+                    // .map(query1 -> StringUtils.isEmpty(orderBy) ? query1 : query1.orderBy(orderBy))
+                    .map(query1 -> {
+                        Query q = query1;
+                        final List<Object> startAfterValues = new ArrayList<>();
+                        final List<Object> endBeforeValues = new ArrayList<>();
+                        for (final String field : orderingFields) {
+                            q = q.orderBy(field);
+                            startAfterValues.add(startAfter.get(field));
+                            endBeforeValues.add(endBefore.get(field));
+                        }
+                        if (!CollectionUtils.isEmpty(startAfter)) {
+                            q = q.startAfter(startAfterValues.toArray());
+                        }
+                        if (!CollectionUtils.isEmpty(endBefore)) {
+                            q = q.endBefore(endBeforeValues.toArray());
+                        }
+                        return q;
+                    })
                     // Apply where condition, if provided.
                     .flatMap(query1 -> {
                         if (StringUtils.isEmpty(queryFieldPath) || operator == null || queryValue == null) {
