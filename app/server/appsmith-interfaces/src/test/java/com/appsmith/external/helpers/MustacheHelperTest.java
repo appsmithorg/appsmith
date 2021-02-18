@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers;
+package com.appsmith.external.helpers;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Connection;
@@ -14,11 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeys;
-import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromFields;
-import static com.appsmith.server.helpers.MustacheHelper.render;
-import static com.appsmith.server.helpers.MustacheHelper.renderFieldValues;
-import static com.appsmith.server.helpers.MustacheHelper.tokenize;
+import static com.appsmith.external.helpers.MustacheHelper.extractMustacheKeys;
+import static com.appsmith.external.helpers.MustacheHelper.extractMustacheKeysFromFields;
+import static com.appsmith.external.helpers.MustacheHelper.render;
+import static com.appsmith.external.helpers.MustacheHelper.renderFieldValues;
+import static com.appsmith.external.helpers.MustacheHelper.tokenize;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings(
