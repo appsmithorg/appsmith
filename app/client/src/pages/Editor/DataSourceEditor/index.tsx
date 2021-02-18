@@ -15,7 +15,6 @@ import {
   deleteDatasource,
   switchDatasource,
   setDatsourceEditorMode,
-  redirectAuthorizationCode,
 } from "actions/datasourceActions";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import DatasourceHome from "./DatasourceHome";
@@ -214,18 +213,6 @@ class DatasourceEditorRouter extends React.Component<Props> {
           location={location}
         />
       );
-    }
-    if (pluginDatasourceForm === "Oauth2DatasourceForm") {
-      const props = {
-        ...this.props,
-        updateDatasource: (data: any) => {
-          this.props.updateDatasource(
-            data,
-            redirectAuthorizationCode(pageId, data.id),
-          );
-        },
-      };
-      return <DataSourceEditor {...props} />;
     }
 
     // Default to old flow

@@ -22,7 +22,7 @@ import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import styled from "styled-components";
 import { Spinner, Button } from "@blueprintjs/core";
-import DatasourceCard from "./DatasourceCard";
+import DatasourceCard from "pages/Editor/SaaSEditor/DatasourceCard";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { API_EDITOR_URL } from "constants/routes";
 
@@ -78,7 +78,7 @@ type RouteProps = RouteComponentProps<{
 }>;
 
 type Props = StateProps & DispatchFunctions & RouteProps;
-class Oauth2IntegrationEditor extends React.Component<Props> {
+class ListView extends React.Component<Props> {
   handleCreateNewDatasource = (pluginId: string) => {
     this.props.selectPlugin(pluginId);
     this.props.createDatasource({ pluginId });
@@ -198,7 +198,4 @@ const mapDispatchToProps = (dispatch: any): DispatchFunctions => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Oauth2IntegrationEditor);
+export default connect(mapStateToProps, mapDispatchToProps)(ListView);
