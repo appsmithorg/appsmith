@@ -35,6 +35,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.NewActionRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
@@ -668,20 +670,42 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     final PluginType pluginType = action.getPluginType();
                     final ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
+                    final ObjectMapper objectMapper = new ObjectMapper();
 
                     final Map<String, Object> requestData = new HashMap<>();
                     if (pluginType == PluginType.API) {
+
+                        String headersJson;
+                        try {
+                            headersJson = objectMapper.writeValueAsString(actionConfiguration
+                                    .getHeaders()
+                                    .stream()
+                                    .filter(p -> !StringUtils.isEmpty(p.getKey()))
+                                    .collect(Collectors.toMap(Property::getKey, Property::getValue, (a, b) -> b)));
+                        } catch (JsonProcessingException e) {
+                            log.warn("Couldn't serialize headers to JSON", e);
+                            headersJson = "";
+                        }
+
+                        String paramsJson;
+                        try {
+                            paramsJson = objectMapper.writeValueAsString(actionConfiguration
+                                    .getQueryParameters()
+                                    .stream()
+                                    .filter(p -> !StringUtils.isEmpty(p.getKey()))
+                                    .collect(Collectors.toMap(Property::getKey, Property::getValue, (a, b) -> b)));
+                        } catch (JsonProcessingException e) {
+                            log.warn("Couldn't serialize params to JSON", e);
+                            paramsJson = "";
+                        }
+
                         requestData.putAll(Map.of(
                                 "url", actionDTO.getDatasource().getDatasourceConfiguration().getUrl() + actionConfiguration.getPath(),
-                                "headers", actionConfiguration
-                                        .getHeaders()
-                                        .stream()
-                                        .collect(Collectors.toMap(Property::getKey, Property::getValue)),
-                                "parameters", actionConfiguration
-                                        .getQueryParameters()
-                                        .stream()
-                                        .collect(Collectors.toMap(Property::getKey, Property::getValue))
+                                "headers", headersJson,
+                                "parameters", paramsJson,
+                                "body", ObjectUtils.defaultIfNull(actionConfiguration.getBody(), "")
                         ));
+
                     } else if (pluginType == PluginType.DB) {
                         requestData.putAll(Map.of(
                                 "query", ObjectUtils.defaultIfNull(actionConfiguration.getBody(), ""),
@@ -1061,7 +1085,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         ActionConfiguration updatedActionConfiguration = MustacheHelper.renderFieldValues(actionConfiguration, replaceParamsMap);
         return updatedActionConfiguration.getBody();
     }
-  
+
     private Mono<Datasource> updateDatasourcePolicyForPublicAction(Set<Policy> actionPolicies, Datasource datasource) {
         if (datasource.getId() == null) {
             // This seems to be a nested datasource. Return as is.
