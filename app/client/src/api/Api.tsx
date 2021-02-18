@@ -55,9 +55,8 @@ axiosInstance.interceptors.response.use(
     return response.data;
   },
   function(error: any) {
-    // Return error when there is no internet, error.response
-    // is undefined in this case
-    if (!error.response) {
+    // Return error when there is no internet
+    if (!window.navigator.onLine) {
       return Promise.reject({
         ...error,
         message: ERROR_0,
@@ -70,7 +69,11 @@ axiosInstance.interceptors.response.use(
     }
 
     // Return modified response if action execution failed
-    if (error.config && error.config.url.match(executeActionRegex)) {
+    if (
+      error.config &&
+      error.config.url.match(executeActionRegex) &&
+      error.response
+    ) {
       return makeExecuteActionResponse(error.response);
     }
     // Return error if any timeout happened in other api calls
