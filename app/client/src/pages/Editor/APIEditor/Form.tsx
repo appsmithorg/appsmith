@@ -269,12 +269,11 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 </Text>
               }
             >
-              <IconContainer>
+              <IconContainer onClick={handleClose}>
                 <Icon
                   name="close-modal"
                   size={IconSize.LARGE}
                   className="close-modal-icon"
-                  onClick={handleClose}
                 />
               </IconContainer>
             </TooltipComponent>
