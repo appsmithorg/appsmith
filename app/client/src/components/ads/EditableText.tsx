@@ -45,7 +45,7 @@ export type EditableTextProps = CommonComponentProps & {
   underline?: boolean;
 };
 
-const EditableTextWrapper = styled.div<{
+export const EditableTextWrapper = styled.div<{
   filled: boolean;
 }>`
   width: ${(props) => (!props.filled ? "234px" : "100%")};
