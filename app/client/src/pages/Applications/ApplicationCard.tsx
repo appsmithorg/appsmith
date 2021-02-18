@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
-import styled from "styled-components";
+import React, { useEffect, useState, useRef, useContext } from "react";
+import styled, { ThemeContext } from "styled-components";
 import {
   getApplicationViewerPageURL,
   BUILDER_PAGE_URL,
@@ -36,8 +36,6 @@ import EditableText, {
 import ColorSelector from "components/ads/ColorSelector";
 import MenuDivider from "components/ads/MenuDivider";
 import IconSelector from "components/ads/IconSelector";
-// import { appCardColors } from "constants/AppConstants";
-import { getThemeDetails } from "selectors/themeSelectors";
 import { useSelector } from "react-redux";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 import {
@@ -245,11 +243,11 @@ const ContextDropdownWrapper = styled.div`
 
 export const ApplicationCard = (props: ApplicationCardProps) => {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const themeDetails = useSelector(getThemeDetails);
+  const theme = useContext(ThemeContext);
   const isSavingName = useSelector(getIsSavingAppName);
   const initialsAndColorCode = getInitialsAndColorCode(
     props.application.name,
-    themeDetails.theme.colors.appCardColors,
+    theme.colors.appCardColors,
   );
   let initials = initialsAndColorCode[0];
 
@@ -265,9 +263,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     if (props.application.color) {
       colorCode = props.application.color;
     } else {
-      colorCode = getRandomPaletteColor(
-        themeDetails.theme.colors.appCardColors,
-      );
+      colorCode = getRandomPaletteColor(theme.colors.appCardColors);
     }
     setSelectedColor(colorCode);
   }, [props.application.color]);
@@ -376,7 +372,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         position={Position.RIGHT_TOP}
         target={
           <MoreOptionsContainer>
-            <Icon name="context-menu" size={IconSize.XXXL}></Icon>
+            <Icon name="context-menu" size={IconSize.XXXL} />
           </MoreOptionsContainer>
         }
         className="more"
@@ -402,7 +398,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
             onTextChanged={(value: string) => {
               setLastUpdatedValue(value);
             }}
-            valueTransform={(value: any) => value.toUpperCase()}
             placeholder={"Edit text input"}
             hideEditIcon={false}
             isInvalid={(value: string) => {
@@ -415,7 +410,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
             savingState={
               isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
             }
-            fill={true}
+            fill
             onBlur={(value: string) => {
               props.update &&
                 props.update(props.application.id, {
@@ -423,13 +418,14 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
                 });
             }}
             className="t--application-name"
+            underline
           />
         )}
         {hasEditPermission && (
           <>
             <ColorSelector
               defaultValue={selectedColor}
-              colorPalette={themeDetails.theme.colors.appCardColors}
+              colorPalette={theme.colors.appCardColors}
               fill={true}
               onSelect={updateColor}
             />
@@ -448,7 +444,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           </>
         )}
         {moreActionItems.map((item: MenuItemProps) => {
-          return <MenuItem key={item.text} {...item}></MenuItem>;
+          return <MenuItem key={item.text} {...item} />;
         })}
       </Menu>
     </ContextDropdownWrapper>

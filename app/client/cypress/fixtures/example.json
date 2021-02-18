@@ -88,6 +88,7 @@
   "dropdownInput": "TestD",
   "radioInputName": "Test Radio",
   "checkbocInputName": "value",
+  "switchInputName": "Switch1",
   "defaultimage": "https://i0.wp.com/www.heyuguys.com/images/2016/04/The-Joker.png?fit=1920%2C960",
   "NewImage": "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png",
   "textfun": "{{Table1.selectedRow.userName}}",
@@ -173,5 +174,21 @@
     "Test3"
   ],
   "paginationUrl": "https://mock-api.appsmith.com/",
-  "paginationParam": "users?page={{Table1.pageNo}}&size={{Table1.pageSize }}"
+  "paginationParam": "users?page={{Table1.pageNo}}&size={{Table1.pageSize }}",
+  "TableInputUpdate": [
+    {
+      "id": 2381224,
+      "email": "michael.lawson@reqres.in",
+      "userName": "Michael Lawson",
+      "productName": "Chicken Sandwich",
+      "orderAmount": 4.99
+    },
+    {
+      "id": 2736212,
+      "email": "lindsay.ferguson@reqres.in",
+      "userName": "Lindsay Ferguson",
+      "productName": "Tuna Salad",
+      "orderAmount": 9.99
+    }
+  ]
 }

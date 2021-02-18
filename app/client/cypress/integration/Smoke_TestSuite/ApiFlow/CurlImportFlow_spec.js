@@ -26,6 +26,7 @@ describe("Test curl import flow", function() {
     cy.RunAPI();
     cy.ResponseStatusCheck("200 OK");
     cy.get(ApiEditor.formActionButtons).should("be.visible");
+    cy.get(ApiEditor.ApiActionMenu).click();
     cy.get(ApiEditor.ApiDeleteBtn).click();
     cy.wait("@deleteAction");
     cy.get("@deleteAction").then((response) => {

@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 
 @Service
 @Slf4j
@@ -364,5 +364,10 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     @Override
     public Flux<NewPage> saveAll(List<NewPage> pages) {
         return repository.saveAll(pages);
+    }
+
+    @Override
+    public Mono<String> getNameByPageId(String pageId, boolean isPublishedName) {
+        return repository.getNameByPageId(pageId, isPublishedName);
     }
 }

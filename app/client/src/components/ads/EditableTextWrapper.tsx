@@ -92,10 +92,10 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
         hideEditIcon={props.hideEditIcon}
         isEditingDefault={props.isNewApp}
         savingState={props.savingState}
-        fill={props.fill}
+        fill={!!props.fill}
         onBlur={(value) => {
           setIsEditing(false);
-          props.onBlur(value);
+          props.onBlur && props.onBlur(value);
         }}
         className={props.className}
         onTextChanged={() => setIsEditing(true)}

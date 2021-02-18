@@ -53,14 +53,17 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 5,
       widgetName: "Input",
       version: 1,
+      resetOnSubmit: true,
     },
-    // SWITCH_WIDGET: {
-    //   isOn: false,
-    //   label: "Switch",
-    //   rows: 1,
-    //   columns: 4,
-    //   widgetName: "Switch",
-    // },
+    SWITCH_WIDGET: {
+      label: "Label",
+      rows: 1,
+      columns: 2,
+      defaultSwitchState: true,
+      widgetName: "Switch",
+      alignWidget: "LEFT",
+      version: 1,
+    },
     ICON_WIDGET: {
       widgetName: "Icon",
       rows: 1,
@@ -126,6 +129,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       label: "Data",
       widgetName: "Table",
       searchKey: "",
+      textSize: "PARAGRAPH",
+      horizontalAlignment: "LEFT",
+      verticalAlignment: "CENTER",
+      primaryColumns: {},
+      derivedColumns: {},
       tableData: [
         {
           id: 2381224,
@@ -172,6 +180,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       defaultCheckedState: true,
       widgetName: "Checkbox",
       version: 1,
+      alignWidget: "LEFT",
     },
     RADIO_GROUP_WIDGET: {
       rows: 2,
