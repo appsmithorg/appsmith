@@ -302,6 +302,7 @@ export default class WidgetBuilderRegistry {
       DatePickerWidget2.getTriggerPropertyMap(),
       DatePickerWidget2.getDefaultPropertiesMap(),
       DatePickerWidget2.getMetaPropertiesMap(),
+      DatePickerWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
       "TABS_WIDGET",
