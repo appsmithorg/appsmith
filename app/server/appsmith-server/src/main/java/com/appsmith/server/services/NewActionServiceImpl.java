@@ -35,6 +35,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MustacheHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
@@ -61,6 +62,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -90,6 +92,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private final NewPageService newPageService;
     private final ApplicationService applicationService;
     private final SessionUserService sessionUserService;
+    private final PolicyUtils policyUtils;
 
     public NewActionServiceImpl(Scheduler scheduler,
                                 Validator validator,
@@ -105,7 +108,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 PolicyGenerator policyGenerator,
                                 NewPageService newPageService,
                                 ApplicationService applicationService,
-                                SessionUserService sessionUserService) {
+                                SessionUserService sessionUserService,
+                                PolicyUtils policyUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -117,6 +121,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         this.newPageService = newPageService;
         this.applicationService = applicationService;
         this.sessionUserService = sessionUserService;
+        this.policyUtils = policyUtils;
     }
 
     private Boolean validateActionName(String name) {
@@ -292,7 +297,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         // datasource is found. Update the action.
                         newAction.setOrganizationId(datasource.getOrganizationId());
                         return datasource;
-                    });
+                    })
+                    // If the action is publicly executable, update the datasource policy
+                    .flatMap(datasource -> updateDatasourcePolicyForPublicAction(newAction.getPolicies(), datasource));
         }
 
         Mono<Plugin> pluginMono = datasourceMono.flatMap(datasource -> {
@@ -1069,6 +1076,60 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return actionMono
                 .flatMap(toDelete -> repository.delete(toDelete).thenReturn(toDelete))
                 .flatMap(analyticsService::sendDeleteEvent);
+    }
+
+    private Mono<Datasource> updateDatasourcePolicyForPublicAction(Set<Policy> actionPolicies, Datasource datasource) {
+        if (datasource.getId() == null) {
+            // This seems to be a nested datasource. Return as is.
+            return Mono.just(datasource);
+        }
+
+        // If action has EXECUTE permission for anonymous, check and assign the same to the datasource.
+        if (isPermissionPresentForUser(actionPolicies, EXECUTE_ACTIONS.getValue(), FieldName.ANONYMOUS_USER)) {
+            // Check if datasource has execute permission
+            if (isPermissionPresentForUser(datasource.getPolicies(), EXECUTE_DATASOURCES.getValue(), FieldName.ANONYMOUS_USER)) {
+                // Datasource has correct permission. Return as is
+                return Mono.just(datasource);
+            }
+            // Add the permission to datasource
+            AclPermission datasourcePermission = EXECUTE_DATASOURCES;
+
+            User user = new User();
+            user.setName(FieldName.ANONYMOUS_USER);
+            user.setEmail(FieldName.ANONYMOUS_USER);
+            user.setIsAnonymous(true);
+
+            Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(datasourcePermission), user);
+
+            Datasource updatedDatasource = policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+
+            return datasourceService.save(updatedDatasource);
+        }
+
+        return Mono.just(datasource);
+    }
+
+    private Boolean isPermissionPresentForUser(Set<Policy> policies, String permission, String username) {
+
+        if (policies == null || policies.isEmpty()) {
+            return false;
+        }
+
+        Optional<Policy> publicExecutePolicyOptional = policies.stream().filter(policy -> {
+            if (policy.getPermission().equals(permission)) {
+                Set<String> users = policy.getUsers();
+                if (users.contains(username)) {
+                    return true;
+                }
+            }
+            return false;
+        }).findFirst();
+
+        if (publicExecutePolicyOptional.isPresent()) {
+            return true;
+        }
+
+        return false;
     }
 
 }
