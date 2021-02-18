@@ -1,13 +1,13 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.PaginationField;
-import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
@@ -29,11 +29,9 @@ import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
-import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.MustacheHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -54,8 +52,6 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -68,15 +64,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -572,21 +569,19 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     ActionConfiguration actionConfiguration = action.getActionConfiguration();
 
-                    prepareConfigurationsForExecution(action, datasource, executeActionDTO, actionConfiguration, datasourceConfiguration);
-
                     Integer timeoutDuration = actionConfiguration.getTimeoutInMillisecond();
 
-                    log.debug("[{}]Execute Action called in Page {}, for action id : {}  action name : {}, {}, {}",
+                    log.debug("[{}]Execute Action called in Page {}, for action id : {}  action name : {}",
                             Thread.currentThread().getName(),
-                            action.getPageId(), actionId, action.getName(), datasourceConfiguration,
-                            actionConfiguration);
+                            action.getPageId(), actionId, action.getName());
 
                     Mono<ActionExecutionResult> executionMono = Mono.just(datasource)
                             .flatMap(datasourceContextService::getDatasourceContext)
                             // Now that we have the context (connection details), execute the action.
                             .flatMap(
-                                    resourceContext -> pluginExecutor.execute(
+                                    resourceContext -> pluginExecutor.executeParameterized(
                                             resourceContext.getConnection(),
+                                            executeActionDTO,
                                             datasourceConfiguration,
                                             actionConfiguration
                                     )
@@ -693,8 +688,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 "properties", actionConfiguration.getPluginSpecifiedTemplates() == null
                                         ? Collections.emptyMap()
                                         : actionConfiguration.getPluginSpecifiedTemplates()
-                                            .stream()
-                                            .collect(Collectors.toMap(Property::getKey, Property::getValue))
+                                        .stream()
+                                        .collect(Collectors.toMap(Property::getKey, Property::getValue))
                         ));
                     }
 
@@ -728,84 +723,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     return Mono.empty();
                 })
                 .then();
-    }
-
-    private void prepareConfigurationsForExecution(ActionDTO action,
-                                                   Datasource datasource,
-                                                   ExecuteActionDTO executeActionDTO,
-                                                   ActionConfiguration actionConfiguration,
-                                                   DatasourceConfiguration datasourceConfiguration) {
-        DatasourceConfiguration datasourceConfigurationTemp;
-        ActionConfiguration actionConfigurationTemp;
-
-        //Do variable substitution
-        //Do this only if params have been provided in the execute command
-        if (executeActionDTO.getParams() != null && !executeActionDTO.getParams().isEmpty()) {
-            Map<String, String> replaceParamsMap = executeActionDTO
-                    .getParams()
-                    .stream()
-                    .collect(Collectors.toMap(
-                            // Trimming here for good measure. If the keys have space on either side,
-                            // Mustache won't be able to find the key.
-                            // We also add a backslash before every double-quote or backslash character
-                            // because we apply the template replacing in a JSON-stringified version of
-                            // these properties, where these two characters are escaped.
-                            p -> p.getKey().trim(), // .replaceAll("[\"\n\\\\]", "\\\\$0"),
-                            Param::getValue,
-                            // In case of a conflict, we pick the older value
-                            (oldValue, newValue) -> oldValue)
-                    );
-
-            datasourceConfigurationTemp = variableSubstitution(datasource.getDatasourceConfiguration(), replaceParamsMap);
-            actionConfigurationTemp = variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
-        } else {
-            datasourceConfigurationTemp = datasource.getDatasourceConfiguration();
-            actionConfigurationTemp = action.getActionConfiguration();
-        }
-
-        // If the action is paginated, update the configurations to update the correct URL.
-        if (action.getActionConfiguration() != null &&
-                action.getActionConfiguration().getPaginationType() != null &&
-                PaginationType.URL.equals(action.getActionConfiguration().getPaginationType()) &&
-                executeActionDTO.getPaginationField() != null) {
-            datasourceConfiguration = updateDatasourceConfigurationForPagination(actionConfigurationTemp, datasourceConfigurationTemp, executeActionDTO.getPaginationField());
-            actionConfiguration = updateActionConfigurationForPagination(actionConfigurationTemp, executeActionDTO.getPaginationField());
-        } else {
-            datasourceConfiguration = datasourceConfigurationTemp;
-            actionConfiguration = actionConfigurationTemp;
-        }
-
-        // Filter out any empty headers
-        if (actionConfiguration.getHeaders() != null && !actionConfiguration.getHeaders().isEmpty()) {
-            List<Property> headerList = actionConfiguration.getHeaders().stream()
-                    .filter(header -> !StringUtils.isEmpty(header.getKey()))
-                    .collect(Collectors.toList());
-            actionConfiguration.setHeaders(headerList);
-        }
-    }
-
-    private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,
-                                                                       PaginationField paginationField) {
-        if (PaginationField.NEXT.equals(paginationField) || PaginationField.PREV.equals(paginationField)) {
-            actionConfiguration.setPath("");
-            actionConfiguration.setQueryParameters(null);
-        }
-        return actionConfiguration;
-    }
-
-    private DatasourceConfiguration updateDatasourceConfigurationForPagination(ActionConfiguration actionConfiguration,
-                                                                               DatasourceConfiguration datasourceConfiguration,
-                                                                               PaginationField paginationField) {
-        if (PaginationField.NEXT.equals(paginationField)) {
-            if (actionConfiguration.getNext() == null) {
-                datasourceConfiguration.setUrl(null);
-            } else {
-                datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), StandardCharsets.UTF_8));
-            }
-        } else if (PaginationField.PREV.equals(paginationField)) {
-            datasourceConfiguration.setUrl(actionConfiguration.getPrev());
-        }
-        return datasourceConfiguration;
     }
 
     /**
@@ -1128,6 +1045,23 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .flatMap(analyticsService::sendDeleteEvent);
     }
 
+    public List<String> extractMustacheKeysInOrder(String query) {
+        return MustacheHelper.extractMustacheKeysInOrder(query);
+    }
+
+    @Override
+    public String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings) {
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(query);
+        Map<String, String> replaceParamsMap = mustacheBindings
+                .stream()
+                .collect(Collectors.toMap(Function.identity(), v -> "?"));
+
+        ActionConfiguration updatedActionConfiguration = MustacheHelper.renderFieldValues(actionConfiguration, replaceParamsMap);
+        return updatedActionConfiguration.getBody();
+    }
+  
     private Mono<Datasource> updateDatasourcePolicyForPublicAction(Set<Policy> actionPolicies, Datasource datasource) {
         if (datasource.getId() == null) {
             // This seems to be a nested datasource. Return as is.

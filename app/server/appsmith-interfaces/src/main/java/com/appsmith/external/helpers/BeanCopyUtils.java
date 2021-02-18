@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers;
+package com.appsmith.external.helpers;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;

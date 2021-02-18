@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers;
+package com.appsmith.external.helpers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.appsmith.server.helpers.BeanCopyUtils.isDomainModel;
+import static com.appsmith.external.helpers.BeanCopyUtils.isDomainModel;
 
 @Slf4j
 public class MustacheHelper {
@@ -148,6 +148,22 @@ public class MustacheHelper {
      */
     public static Set<String> extractMustacheKeys(String template) {
         Set<String> keys = new HashSet<>();
+
+        for (String token : tokenize(template)) {
+            if (token.startsWith("{{") && token.endsWith("}}")) {
+                // Allowing empty tokens to be added, to be compatible with the previous `extractMustacheKeys` method.
+                // Calling `.trim()` before adding because Mustache compiler strips keys in the template before looking
+                // up a value. Addresses https://www.notion.so/appsmith/Bindings-with-a-space-at-the-start-fail-to-execute-properly-in-the-API-pane-2eb65d5c6064466b9ef059fa01ef3261
+                keys.add(token.substring(2, token.length() - 2).trim());
+            }
+        }
+
+        return keys;
+    }
+
+    // For prepared statements we should extract the bindings in order in a list and include duplicate bindings as well.
+    public static List<String> extractMustacheKeysInOrder(String template) {
+        List<String> keys = new ArrayList<>();
 
         for (String token : tokenize(template)) {
             if (token.startsWith("{{") && token.endsWith("}}")) {
