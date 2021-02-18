@@ -22,6 +22,7 @@ describe("FilePicker Widget Functionality", function() {
 
   it("FilePicker Widget Functionality", function() {
     cy.SearchEntityandOpen("FilePicker1");
+    //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     //Checking the edit props for FilePicker and also the properties of FilePicker widget
     cy.testCodeMirror("Upload Files");
@@ -37,6 +38,7 @@ describe("FilePicker Widget Functionality", function() {
       .attachFile(fixturePath);
     cy.get(commonlocators.filePickerUploadButton).click();
     cy.get(".bp3-spinner").should("have.length", 1);
+    //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.get("button").contains("1 files selected");
   });

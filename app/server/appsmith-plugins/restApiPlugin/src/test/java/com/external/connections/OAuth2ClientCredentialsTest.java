@@ -1,5 +1,6 @@
 package com.external.connections;
 
+import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import org.junit.Test;
@@ -32,24 +33,27 @@ public class OAuth2ClientCredentialsTest {
     @Test
     public void testValidConnection() {
         OAuth2 oAuth2 = new OAuth2();
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse();
         oAuth2.setIsTokenHeader(true);
-        oAuth2.setToken("SomeToken");
+        authenticationResponse.setToken("SomeToken");
         oAuth2.setIsEncrypted(false);
-        oAuth2.setExpiresAt(Instant.now().plusSeconds(1200));
+        authenticationResponse.setExpiresAt(Instant.now().plusSeconds(1200));
+        oAuth2.setAuthenticationResponse(authenticationResponse);
         OAuth2ClientCredentials connection = OAuth2ClientCredentials.create(oAuth2).block(Duration.ofMillis(100));
         assertThat(connection).isNotNull();
-        assertThat(connection.getExpiresAt()).isEqualTo(oAuth2.getExpiresAt());
-        assertThat(connection.getHeaderPrefix()).isEqualTo("Bearer");
+        assertThat(connection.getExpiresAt()).isEqualTo(authenticationResponse.getExpiresAt());
         assertThat(connection.getToken()).isEqualTo("SomeToken");
     }
 
     @Test
     public void testStaleFilter() {
         OAuth2 oAuth2 = new OAuth2();
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse();
         oAuth2.setIsTokenHeader(true);
-        oAuth2.setToken("SomeToken");
+        authenticationResponse.setToken("SomeToken");
         oAuth2.setIsEncrypted(false);
-        oAuth2.setExpiresAt(Instant.now().plusSeconds(1200));
+        authenticationResponse.setExpiresAt(Instant.now().plusSeconds(1200));
+        oAuth2.setAuthenticationResponse(authenticationResponse);
         OAuth2ClientCredentials connection = OAuth2ClientCredentials.create(oAuth2).block(Duration.ofMillis(100));
         connection.setExpiresAt(Instant.now());
 

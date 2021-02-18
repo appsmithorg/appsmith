@@ -16,6 +16,88 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     super(props);
     this.onImageClick = this.onImageClick.bind(this);
   }
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Renders the url or Base64 in the widget",
+            propertyName: "image",
+            label: "Image",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter URL / Base64",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Renders the url or Base64 when no image is provided",
+            propertyName: "defaultImage",
+            label: "Default Image",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter URL / Base64",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Controls the max zoom of the widget",
+            propertyName: "maxZoomLevel",
+            label: "Max Zoom Level",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "1x (No Zoom)",
+                value: 1,
+              },
+              {
+                label: "2x",
+                value: 2,
+              },
+              {
+                label: "4x",
+                value: 4,
+              },
+              {
+                label: "8x",
+                value: 8,
+              },
+              {
+                label: "16x",
+                value: 16,
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText:
+              "Triggers an action when a user changes the selected option",
+            propertyName: "onClick",
+            label: "onClick",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,

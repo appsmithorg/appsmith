@@ -2,7 +2,6 @@ const commonlocators = require("../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../locators/FormWidgets.json");
 const dsl = require("../../../fixtures/formdsl1.json");
 const publishPage = require("../../../locators/publishWidgetspage.json");
-const pages = require("../../../locators/Pages.json");
 
 describe("RichTextEditor Widget Functionality", function() {
   before(() => {
@@ -33,6 +32,7 @@ describe("RichTextEditor Widget Functionality", function() {
 
     // validate after reload
     cy.reload(true);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.validateHTMLText(
       formWidgetsPage.richTextEditorWidget,

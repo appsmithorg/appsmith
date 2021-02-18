@@ -15,6 +15,7 @@ import {
   DynamicPath,
   getEntityDynamicBindingPathList,
 } from "../../utils/DynamicBindingUtils";
+import { getAllPathsFromPropertyConfig } from "../Widget/utils";
 
 export type ActionDescription<T> = {
   type: string;
@@ -48,10 +49,13 @@ export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
     | ActionDispatcher<RunActionPayload, [string, string, string]>
     | Record<string, any>;
   dynamicBindingPathList: DynamicPath[];
+  bindingPaths: Record<string, boolean>;
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
 }
 
 export interface DataTreeWidget extends WidgetProps {
+  bindingPaths: Record<string, boolean>;
+  triggerPaths: Record<string, boolean>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
 }
 
@@ -115,6 +119,10 @@ export class DataTreeFactory {
         data: action.data ? action.data.body : {},
         ENTITY_TYPE: ENTITY_TYPE.ACTION,
         isLoading: action.isLoading,
+        bindingPaths: {
+          data: true,
+          isLoading: true,
+        },
       };
     });
     Object.keys(widgets).forEach((w) => {
@@ -129,6 +137,19 @@ export class DataTreeFactory {
       const defaultProps = WidgetFactory.getWidgetDefaultPropertiesMap(
         widget.type,
       );
+      const propertyPaneConfigs = WidgetFactory.getWidgetPropertyPaneConfig(
+        widget.type,
+      );
+      const { bindingPaths, triggerPaths } = getAllPathsFromPropertyConfig(
+        widget,
+        propertyPaneConfigs,
+        Object.fromEntries(
+          Object.keys(derivedPropertyMap).map((key) => [key, true]),
+        ),
+      );
+      Object.keys(defaultMetaProps).forEach((defaultPath) => {
+        bindingPaths[defaultPath] = true;
+      });
       const derivedProps: any = {};
       const dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
       dynamicBindingPathList.forEach((dynamicPath) => {
@@ -148,6 +169,7 @@ export class DataTreeFactory {
         dynamicBindingPathList.push({
           key: propertyName,
         });
+        bindingPaths[propertyName] = true;
       });
       const unInitializedDefaultProps: Record<string, undefined> = {};
       Object.values(defaultProps).forEach((propertyName) => {
@@ -162,6 +184,8 @@ export class DataTreeFactory {
         ...derivedProps,
         ...unInitializedDefaultProps,
         dynamicBindingPathList,
+        bindingPaths,
+        triggerPaths,
         ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       };
     });
