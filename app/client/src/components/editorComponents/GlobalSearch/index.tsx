@@ -61,9 +61,14 @@ const GlobalSearch = () => {
     setActiveItemIndex(0);
   }, []);
 
-  const [documentationSearchResults, setDocumentationSearchResults] = useState<
-    Array<any>
-  >([]);
+  const [
+    documentationSearchResults,
+    setDocumentationSearchResultsInState,
+  ] = useState<Array<any>>([]);
+
+  const setDocumentationSearchResults = useCallback((res) => {
+    setDocumentationSearchResultsInState(res);
+  }, []);
 
   const [activeItemIndex, setActiveItemIndex] = useState(0);
   const allWidgets = useSelector(getAllPageWidgets);
