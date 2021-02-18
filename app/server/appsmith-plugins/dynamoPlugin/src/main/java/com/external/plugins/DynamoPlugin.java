@@ -160,7 +160,12 @@ public class DynamoPlugin extends BasePlugin {
                             requestClass
                     );
                     final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, plainToSdk(parameters, requestClass));
+                    // TODO: remove it.
+                    System.out.println("devtest: get raw response");
+                    System.out.println("devtest: response: " + response);
                     Object rawResponse = sdkToPlain(response);
+                    // TODO: remove it.
+                    System.out.println("devtest: " + rawResponse);
                     Object transformedResponse = getTransformedResponse(rawResponse, action);
                     result.setBody(transformedResponse);
                 } catch (AppsmithPluginException | InvocationTargetException | IllegalAccessException | NoSuchMethodException | ClassNotFoundException e) {
@@ -409,7 +414,7 @@ public class DynamoPlugin extends BasePlugin {
 
     private static Object sdkToPlain(Object valueObj) {
         if (valueObj instanceof SdkPojo) {
-            final SdkPojo response = (SdkPojo) valueObj;
+            SdkPojo response = (SdkPojo) valueObj;
             final Map<String, Object> plain = new HashMap<>();
 
             for (final SdkField<?> field : response.sdkFields()) {
@@ -419,7 +424,10 @@ public class DynamoPlugin extends BasePlugin {
 
             return plain;
 
-        } else if (valueObj instanceof Map) {
+        } else if (valueObj instanceof SdkBytes) {
+            SdkBytes response = (SdkBytes) valueObj;
+            return response.toString();
+        }else if (valueObj instanceof Map) {
             final Map<?, ?> valueAsMap = (Map<?, ?>) valueObj;
             final Map<Object, Object> plainMap = new HashMap<>();
 
@@ -438,7 +446,6 @@ public class DynamoPlugin extends BasePlugin {
             }
 
             return plainList;
-
         }
 
         return valueObj;
