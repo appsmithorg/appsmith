@@ -112,6 +112,7 @@ public class FirestorePluginTest {
                     assertEquals("one", first.remove("name"));
                     assertFalse((Boolean) first.remove("isPlural"));
                     assertEquals(1L, first.remove("value"));
+                    assertEquals(Map.of("id", "one", "path", "initial/one"), first.remove("$ref"));
                     assertEquals(Collections.emptyMap(), first);
                 })
                 .verifyComplete();
@@ -138,6 +139,7 @@ public class FirestorePluginTest {
                     assertNotNull(doc.remove("dt"));
                     assertEquals("abc def", ((Blob) doc.remove("bytes")).toByteString().toStringUtf8());
                     assertNull(doc.remove("null-ref"));
+                    assertEquals(Map.of("id", "two", "path", "initial/two"), doc.remove("$ref"));
                     assertEquals(Collections.emptyMap(), doc);
                 })
                 .verifyComplete();
@@ -166,6 +168,7 @@ public class FirestorePluginTest {
                             Map.of("path", "initial/one", "id", "one"),
                             Map.of("path", "initial/two", "id", "two")
                     ), doc.remove("ref-list"));
+                    assertEquals(Map.of("id", "inner-ref", "path", "initial/inner-ref"), doc.remove("$ref"));
                     assertEquals(Collections.emptyMap(), doc);
                 })
                 .verifyComplete();
@@ -192,6 +195,7 @@ public class FirestorePluginTest {
                     assertEquals("one", first.remove("name"));
                     assertFalse((Boolean) first.remove("isPlural"));
                     assertEquals(1L, first.remove("value"));
+                    assertEquals(Map.of("id", "one", "path", "initial/one"), first.remove("$ref"));
                     assertEquals(Collections.emptyMap(), first);
 
                     final Map<String, Object> second = results.stream().filter(d -> "two".equals(d.get("name"))).findFirst().orElse(null);
@@ -204,6 +208,7 @@ public class FirestorePluginTest {
                     assertNotNull(second.remove("dt"));
                     assertEquals("abc def", ((Blob) second.remove("bytes")).toByteString().toStringUtf8());
                     assertNull(second.remove("null-ref"));
+                    assertEquals(Map.of("id", "two", "path", "initial/two"), second.remove("$ref"));
                     assertEquals(Collections.emptyMap(), second);
 
                     final Map<String, Object> third = results.stream().filter(d -> "third".equals(d.get("name"))).findFirst().orElse(null);
@@ -218,6 +223,7 @@ public class FirestorePluginTest {
                             Map.of("path", "initial/one", "id", "one"),
                             Map.of("path", "initial/two", "id", "two")
                     ), third.remove("ref-list"));
+                    assertEquals(Map.of("id", "inner-ref", "path", "initial/inner-ref"), third.remove("$ref"));
                     assertEquals(Collections.emptyMap(), third);
                 })
                 .verifyComplete();

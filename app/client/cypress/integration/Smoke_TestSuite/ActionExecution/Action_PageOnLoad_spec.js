@@ -17,7 +17,8 @@ describe("API Panel Test Functionality", function() {
 
     cy.SearchEntityandOpen("Table1");
     cy.testJsontext("tabledata", "{{PageLoadApi.data.data");
-
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
     cy.wait("@updateLayout");
 
     cy.reload();

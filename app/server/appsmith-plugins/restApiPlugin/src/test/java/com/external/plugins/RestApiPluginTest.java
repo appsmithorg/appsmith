@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -22,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import javax.crypto.SecretKey;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -61,8 +63,8 @@ public class RestApiPluginTest {
     @Test
     public void testEncodingFunctionWithEncodeParamsToggleTrue() throws UnsupportedEncodingException {
         String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
-                                                                           "application/x-www-form-urlencoded",
-                                                                           true);
+                "application/x-www-form-urlencoded",
+                true);
         String expected_value = null;
         try {
             expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
@@ -75,8 +77,8 @@ public class RestApiPluginTest {
     @Test
     public void testEncodingFunctionWithEncodeParamsToggleFalse() throws UnsupportedEncodingException {
         String encoded_value = pluginExecutor.convertPropertyListToReqBody(List.of(new Property("key", "valüe")),
-                                                                           "application/x-www-form-urlencoded",
-                                                                           false);
+                "application/x-www-form-urlencoded",
+                false);
         String expected_value = null;
         try {
             expected_value = "key=" + URLEncoder.encode("valüe", StandardCharsets.UTF_8.toString());
@@ -268,12 +270,27 @@ public class RestApiPluginTest {
 
         Mono<RestApiPlugin.RestApiPluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
         Mono<ActionExecutionResult> resultMono = pluginExecutorMono.flatMap(executor -> executor.execute(null,
-                                                                                                         dsConfig,
-                                                                                                         actionConfig));
+                dsConfig,
+                actionConfig));
         StepVerifier.create(resultMono)
                 .verifyErrorSatisfies(e -> {
                     assertTrue(e instanceof IllegalArgumentException);
                     assertTrue(e.getMessage().contains("Invalid character ' ' for QUERY_PARAM in \"query val\""));
                 });
+    }
+
+    @Test
+    public void testValidateDatasource_invalidAuthentication() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        OAuth2 oAuth2 = new OAuth2();
+        oAuth2.setGrantType(OAuth2.Type.CLIENT_CREDENTIALS);
+        datasourceConfiguration.setAuthentication(oAuth2);
+
+        Mono<RestApiPlugin.RestApiPluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
+        Mono<Set<String>> invalidsMono = pluginExecutorMono.map(executor -> executor.validateDatasource(datasourceConfiguration));
+
+        StepVerifier
+                .create(invalidsMono)
+                .assertNext(invalids -> invalids.containsAll(Set.of("Missing Client ID", "Missing Client Secret", "Missing Access Token URL")));
     }
 }

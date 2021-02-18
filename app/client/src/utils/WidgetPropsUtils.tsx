@@ -22,6 +22,7 @@ import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { isString } from "lodash";
 import log from "loglevel";
+import { tableWidgetPropertyPaneMigrations } from "utils/migrations/TableWidget";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -303,9 +304,7 @@ const rteDefaultValueMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ): ContainerWidgetProps<WidgetProps> => {
   if (currentDSL.type === WidgetTypes.RICH_TEXT_EDITOR_WIDGET) {
-    currentDSL.defaultHtml = currentDSL.defaultText;
-    currentDSL.defaultText = undefined;
-    // Canvases inside tabs have `name` property as well
+    currentDSL.inputType = "html";
   }
   currentDSL.children?.forEach((children) =>
     rteDefaultValueMigration(children),
@@ -377,8 +376,13 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 9) {
-    currentDSL = rteDefaultValueMigration(currentDSL);
+    currentDSL = tableWidgetPropertyPaneMigrations(currentDSL);
     currentDSL.version = 10;
+  }
+
+  if (currentDSL.version === 10) {
+    currentDSL = rteDefaultValueMigration(currentDSL);
+    currentDSL.version = 11;
   }
 
   return currentDSL;
