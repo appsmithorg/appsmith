@@ -104,3 +104,10 @@ div.bp3-popover-arrow {
   border-bottom: 1px solid #E7E7E7 !important;
 }
 
+.sticky {
+  position: sticky !important;
+  position: -webkit-sticky;
+  z-index: 2;
+  width: 100%;
+  top: 0;
+}

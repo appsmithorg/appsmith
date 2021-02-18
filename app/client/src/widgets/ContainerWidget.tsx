@@ -91,7 +91,6 @@ class ContainerWidget extends BaseWidget<
     }
 
     const snapSpaces = this.getSnapSpaces();
-    const isVirtualized = this.props.virtualizedEnabled;
     const { componentWidth, componentHeight } = this.getComponentDimensions();
 
     if (childWidgetData.type !== WidgetTypes.CANVAS_WIDGET) {
@@ -109,6 +108,8 @@ class ContainerWidget extends BaseWidget<
       childWidgetData.shouldScrollContents = false;
       childWidgetData.canExtend = this.props.shouldScrollContents;
     }
+
+    console.log({ bottomRow: childWidgetData.bottomRow });
 
     childWidgetData.parentId = this.props.widgetId;
 
@@ -145,6 +146,7 @@ class ContainerWidget extends BaseWidget<
       (child) => child.topRow,
     );
 
+    console.log({ componentHeight, props: this.props });
     const rowHeight = sortedChildren[0].bottomRow * snapSpaces.snapRowSpace;
 
     // eslint-disable-next-line
@@ -154,15 +156,13 @@ class ContainerWidget extends BaseWidget<
           {(props) => (
             <div ref={ref} {...rest}>
               {props?.stickyIndices.map((index: number) => (
-                <Row
+                <StickyRow
                   data={this.props.children}
                   index={index}
                   key={index}
                   style={{
-                    top: index * 35,
                     left: 0,
                     width: "100%",
-                    height: 35,
                   }}
                 />
               ))}
@@ -173,6 +173,20 @@ class ContainerWidget extends BaseWidget<
         </StickyListContext.Consumer>
       ),
     );
+
+    const StickyRow = (childProps: ListChildComponentProps) => {
+      const row = this.renderChildWidget(sortedChildren[childProps.index]);
+
+      return (
+        <div
+          style={{ height: `${rowHeight}px` }}
+          key={`virtualized-row-${childProps.index}`}
+          className="sticky"
+        >
+          {row}
+        </div>
+      );
+    };
 
     const Row = (childProps: ListChildComponentProps) => {
       const row = this.renderChildWidget(sortedChildren[childProps.index]);
@@ -207,7 +221,7 @@ class ContainerWidget extends BaseWidget<
 
     const VirtualizedList = () => (
       <StickyList
-        height={componentHeight - (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2}
+        height={this.props.minHeight || componentHeight}
         itemCount={sortedChildren.length}
         itemSize={rowHeight}
         width={componentWidth}

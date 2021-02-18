@@ -38,7 +38,7 @@ export const PositionedContainer = (props: PositionedContainerProps) => {
       //Before you remove: This is used by property pane to reference the element
       className={
         generateClassName(props.widgetId) +
-        " " +
+        " positioned-widget " +
         `t--widget-${props.widgetType
           .split("_")
           .join("")

@@ -52,9 +52,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const { componentWidth, componentHeight } = this.getComponentDimensions();
 
     childWidgetData.parentId = this.props.widgetId;
-    childWidgetData.shouldScrollContents = true;
+    childWidgetData.shouldScrollContents = false;
     childWidgetData.canExtend = this.props.shouldScrollContents;
-    childWidgetData.bottomRow = childWidgetData.bottomRow;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.minHeight = componentHeight;
     childWidgetData.rightColumn = componentWidth;
@@ -77,7 +76,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         topRow: index * children[0].bottomRow,
         bottomRow: (index + 1) * children[0].bottomRow,
         resizeDisabled: index > 0,
-        isVisible: this.props.renderMode === RenderModes.PAGE || index === 0,
         widgetId: index > 0 ? `list-item-${index}` : child.widgetId,
       };
     });
