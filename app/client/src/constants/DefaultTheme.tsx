@@ -507,6 +507,7 @@ const darkShades = [
   "#D4D4D4",
   "#E9E9E9",
   "#FFFFFF",
+  "#157A96",
 ] as const;
 
 const lightShades = [
@@ -522,6 +523,7 @@ const lightShades = [
   "#302D2D",
   "#090707",
   "#FFFFFF",
+  "#6A86CE",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -600,6 +602,11 @@ type ColorType = {
     menuBg: ShadeColor;
     menuShadow: string;
     selected: {
+      text: ShadeColor;
+      bg: ShadeColor;
+      icon: ShadeColor;
+    };
+    hovered: {
       text: ShadeColor;
       bg: ShadeColor;
       icon: ShadeColor;
@@ -1019,6 +1026,11 @@ export const dark: ColorType = {
       bg: darkShades[4],
       icon: darkShades[8],
     },
+    hovered: {
+      text: darkShades[9],
+      bg: darkShades[10],
+      icon: darkShades[8],
+    },
     icon: darkShades[6],
   },
   toggle: {
@@ -1262,7 +1274,7 @@ export const dark: ColorType = {
   codeMirror: {
     background: {
       defaultState: "#262626",
-      hoverState: "#1A191C",
+      hoverState: darkShades[10],
     },
     text: "#FFFFFF",
     dataType: {
@@ -1396,6 +1408,11 @@ export const light: ColorType = {
     selected: {
       text: lightShades[9],
       bg: lightShades[2],
+      icon: lightShades[8],
+    },
+    hovered: {
+      text: lightShades[11],
+      bg: lightShades[12],
       icon: lightShades[8],
     },
     icon: lightShades[7],
@@ -1641,7 +1658,7 @@ export const light: ColorType = {
   codeMirror: {
     background: {
       defaultState: "#EBEBEB",
-      hoverState: "#FAFAFA",
+      hoverState: lightShades[12],
     },
     text: "#090707",
     dataType: {

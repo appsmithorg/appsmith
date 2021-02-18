@@ -45,6 +45,15 @@ export const HintStyles = createGlobalStyle<{
     font-size: 12px;
     line-height: 15px;
     letter-spacing: -0.24px;
+    &:hover {
+      background: ${(props) =>
+        props.theme.colors.codeMirror.background.hoverState};
+      border-radius: 0px;
+      color: #fff;
+      &:after {
+        color: #fff;
+      }
+    }
   }
 
   .datasource-hint {
@@ -55,12 +64,6 @@ export const HintStyles = createGlobalStyle<{
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  li.CodeMirror-hint-active {
-    background: ${(props) =>
-      props.theme.colors.codeMirror.background.hoverState};
-    border-radius: 0px;
   }
   .CodeMirror-Tern-completion {
     padding-left: ${(props) => props.theme.spaces[11]}px !important;
@@ -131,6 +134,15 @@ export const HintStyles = createGlobalStyle<{
   }
   .CodeMirror-Tern-tooltip {
     z-index: 20 !important;
+  }
+  li.CodeMirror-hint-active {
+    background: ${(props) =>
+      props.theme.colors.codeMirror.background.hoverState};
+    border-radius: 0px;
+    color: #fff;
+    &:after {
+      color: #fff;
+    }
   }
   .CodeMirror-Tern-hint-doc {
     display: none;
