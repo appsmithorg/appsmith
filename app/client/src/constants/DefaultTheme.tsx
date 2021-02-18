@@ -679,6 +679,7 @@ type ColorType = {
     normal: ShadeColor;
     hover: ShadeColor;
     border: ShadeColor;
+    countBg: ShadeColor;
   };
   settingHeading: ShadeColor;
   table: {
@@ -1099,6 +1100,7 @@ export const dark: ColorType = {
     normal: darkShades[6],
     hover: darkShades[7],
     border: darkShades[3],
+    countBg: darkShades[4],
   },
   settingHeading: darkShades[9],
   table: {
@@ -1483,6 +1485,7 @@ export const light: ColorType = {
     normal: lightShades[6],
     hover: lightShades[10],
     border: lightShades[3],
+    countBg: lightShades[3],
   },
   settingHeading: lightShades[9],
   table: {
