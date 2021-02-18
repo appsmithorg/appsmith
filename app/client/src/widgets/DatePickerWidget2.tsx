@@ -25,8 +25,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
       dateFormat: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
       datePickerType: VALIDATION_TYPES.TEXT,
-      maxDate: VALIDATION_TYPES.MAX_DATE,
-      minDate: VALIDATION_TYPES.MIN_DATE,
+      maxDate: VALIDATION_TYPES.DATE,
+      minDate: VALIDATION_TYPES.DATE,
       isRequired: VALIDATION_TYPES.BOOLEAN,
       // onDateSelected: VALIDATION_TYPES.ACTION_SELECTOR,
       // onDateRangeSelected: VALIDATION_TYPES.ACTION_SELECTOR,
@@ -60,6 +60,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   }
 
   getPageView() {
+    console.log(this.props);
     return (
       <DatePickerComponent
         label={`${this.props.label}`}

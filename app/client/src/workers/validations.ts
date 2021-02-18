@@ -390,7 +390,10 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
-    const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
+    const dateFormat =
+      props.version === 2
+        ? ISO_DATE_FORMAT
+        : props.dateFormat || ISO_DATE_FORMAT;
 
     if (dateString === undefined) {
       return {
@@ -435,31 +438,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
     const parsedCurrentDate = moment(dateString, dateFormat);
-    let isValid = parsedCurrentDate.isValid();
-    // checking for max/min date range
-    if (isValid) {
-      if (props.evaluatedValues?.minDate) {
-        const parsedMinDate = moment(props.minDate, dateFormat);
-        if (
-          props.minDate &&
-          parsedMinDate.isValid() &&
-          parsedCurrentDate.isBefore(parsedMinDate)
-        ) {
-          isValid = false;
-        }
-      }
-      const parsedMaxDate = moment(props.maxDate, dateFormat);
-      if (props.evaluatedValues?.minDate) {
-        if (
-          isValid &&
-          props.maxDate &&
-          parsedMaxDate.isValid() &&
-          parsedCurrentDate.isAfter(parsedMaxDate)
-        ) {
-          isValid = false;
-        }
-      }
-    }
+    const isValid = parsedCurrentDate.isValid();
     if (!isValid) {
       return {
         isValid: isValid,
