@@ -21,8 +21,6 @@ import Icon from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import Callout from "components/ads/Callout";
-import Button from "components/ads/Button";
-import { Link } from "interweave-autolink";
 
 const ResponseContainer = styled.div`
   position: relative;
