@@ -123,30 +123,33 @@ const PostBodyData = (props: Props) => {
             displayFormatObject &&
             displayFormatObject.value === POST_BODY_FORMATS[3]
           ) {
+            // Dont update the content type header if raw has been selected
             setDisplayFormat(apiId, POST_BODY_FORMAT_OPTIONS[3]);
             return;
           }
 
-          const elementsIndex = actionConfigurationHeaders.findIndex(
+          const contentTypeHeaderIndex = actionConfigurationHeaders.findIndex(
             (element: { key: string; value: string }) =>
               element &&
               element.key &&
               element.key.trim().toLowerCase() === CONTENT_TYPE,
           );
 
-          if (elementsIndex >= 0 && displayFormatObject) {
-            const updatedHeaders = [...actionConfigurationHeaders];
+          // If there is an existing header with content type, use that or
+          // create a new header
+          const indexToUpdate =
+            contentTypeHeaderIndex > -1
+              ? contentTypeHeaderIndex
+              : actionConfigurationHeaders.length;
 
-            updatedHeaders[elementsIndex] = {
-              ...updatedHeaders[elementsIndex],
-              key: CONTENT_TYPE,
-              value: displayFormatObject.value,
-            };
+          const updatedHeaders = [...actionConfigurationHeaders];
 
-            onDisplayFormatChange(updatedHeaders);
-          } else {
-            setDisplayFormat(apiId, POST_BODY_FORMAT_OPTIONS[3]);
-          }
+          updatedHeaders[indexToUpdate] = {
+            key: CONTENT_TYPE,
+            value: displayFormatObject.value,
+          };
+
+          onDisplayFormatChange(updatedHeaders);
         }}
       />
 
