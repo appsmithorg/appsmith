@@ -34,7 +34,7 @@ describe("adding role without Email Id", function() {
     // Ensure role is "App Viewer"
     // Ensure user is not able to  delete or add any user for the application
   });
-  it("Ensure On invaild Email Id the box must get highlighted", function() {
+  it("Ensure On invalid Email Id the box must get highlighted", function() {
     // Navigate to Home page
     // Click on the Share option
     // Ensure the pop up opens

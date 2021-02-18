@@ -365,4 +365,9 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     public Flux<NewPage> saveAll(List<NewPage> pages) {
         return repository.saveAll(pages);
     }
+
+    @Override
+    public Mono<String> getNameByPageId(String pageId, boolean isPublishedName) {
+        return repository.getNameByPageId(pageId, isPublishedName);
+    }
 }
