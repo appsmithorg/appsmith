@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from "react";
 
-import styled, { Skin } from "constants/DefaultTheme";
+import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { AnyStyledComponent } from "styled-components";
 import {
   ControlWrapper,
   StyledInputGroup,
-  StyledPropertyPaneButtonHolder,
+  StyledPropertyPaneButton,
 } from "./StyledControls";
 
 import { DropDownOptionWithKey } from "./OptionControl";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { generateReactKey } from "utils/generators";
 import { Category, Size } from "components/ads/Button";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 function updateOptionLabel<T>(
   options: Array<T>,
@@ -74,7 +73,6 @@ type KeyValueComponentProps = {
   pairs: DropdownOption[];
   updatePairs: UpdatePairFunction;
   addLabel?: string;
-  theme?: EditorTheme;
 };
 export function KeyValueComponent(props: KeyValueComponentProps) {
   const [renderPairs, setRenderPairs] = useState<DropDownOptionWithKey[]>([]);
@@ -177,19 +175,14 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
         );
       })}
 
-      <StyledPropertyPaneButtonHolder
+      <StyledPropertyPaneButton
         tag="button"
         type="button"
         text={props.addLabel || "Option"}
         onClick={addPair}
         size={Size.medium}
         category={Category.tertiary}
-        skin={props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
       />
     </React.Fragment>
   );
 }
-
-KeyValueComponent.defaultProps = {
-  theme: "DARK",
-};

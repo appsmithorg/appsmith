@@ -1,11 +1,8 @@
 import React from "react";
 import _ from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
-import {
-  ControlWrapper,
-  StyledPropertyPaneButtonHolder,
-} from "./StyledControls";
-import styled, { Skin } from "constants/DefaultTheme";
+import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
+import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { AnyStyledComponent } from "styled-components";
 import CodeEditor from "components/editorComponents/CodeEditor";
@@ -260,14 +257,13 @@ class ChartDataControl extends BaseControl<ControlProps> {
           );
         })}
 
-        <StyledPropertyPaneButtonHolder
+        <StyledPropertyPaneButton
           tag="button"
           type="button"
           text="Add Series"
           onClick={this.addOption}
           size={Size.medium}
           category={Category.tertiary}
-          skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
         />
       </React.Fragment>
     );

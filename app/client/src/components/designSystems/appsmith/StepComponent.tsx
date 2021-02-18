@@ -2,8 +2,6 @@ import React from "react";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
-import { Colors } from "constants/Colors";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 const StyledIncreaseIcon = styled(
   ControlIcons.INCREASE_CONTROL as AnyStyledComponent,
@@ -13,7 +11,7 @@ const StyledIncreaseIcon = styled(
   align-items: center;
   position: relative;
   cursor: pointer;
-  width: 60px;
+  width: 40px;
   height: 32px;
   svg {
     path {
@@ -30,7 +28,7 @@ const StyledDecreaseIcon = styled(
   align-items: center;
   position: relative;
   cursor: pointer;
-  width: 60px;
+  width: 40px;
   height: 32px;
   svg {
     path {
@@ -39,29 +37,26 @@ const StyledDecreaseIcon = styled(
   }
 `;
 
-const StepWrapper = styled.div<{ themeMode: EditorTheme }>`
+const StepWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  background: ${(props) =>
-    props.themeMode === EditorTheme.DARK ? Colors.NERO : Colors.ALTO};
+  background: #121518;
+  border-radius: 4px;
   height: 32px;
   line-height: 32px;
-  margin-top: 6px;
 `;
 
-const InputWrapper = styled.div<{ themeMode: EditorTheme }>`
-  width: calc(100% - 120px);
+const InputWrapper = styled.div`
+  width: calc(100% - 80px);
   height: 32px;
   line-height: 32px;
+  background: #23292e;
   font-size: 14px;
+  color: ${(props) => props.theme.colors.textOnDarkBG};
   text-align: center;
   letter-spacing: 1.44px;
-  background: ${(props) =>
-    props.themeMode === EditorTheme.DARK ? Colors.CODE_GRAY : Colors.WHITE};
-  color: ${(props) =>
-    props.themeMode === EditorTheme.DARK ? Colors.LIGHT_GREY : Colors.CHARCOAL};
 `;
 
 interface StepComponentProps {
@@ -71,7 +66,6 @@ interface StepComponentProps {
   steps: number;
   displayFormat: (value: number) => string;
   onChange: (value: number) => void;
-  theme: EditorTheme;
 }
 
 export const StepComponent = (props: StepComponentProps) => {
@@ -90,11 +84,9 @@ export const StepComponent = (props: StepComponentProps) => {
     props.onChange(value);
   }
   return (
-    <StepWrapper themeMode={props.theme}>
+    <StepWrapper>
       <StyledDecreaseIcon height={2} width={12} onClick={decrease} />
-      <InputWrapper themeMode={props.theme}>
-        {props.displayFormat(props.value)}
-      </InputWrapper>
+      <InputWrapper>{props.displayFormat(props.value)}</InputWrapper>
       <StyledIncreaseIcon height={12} width={12} onClick={increase} />
     </StepWrapper>
   );

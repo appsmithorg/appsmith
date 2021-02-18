@@ -73,6 +73,7 @@ export const Colors: Record<string, string> = {
   Gallery: "#F0F0F0",
   Galliano: "#E0B30E",
   ALTO_2: "#E0DEDE",
+  SILVER_CHALICE: "#A9A7A7",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

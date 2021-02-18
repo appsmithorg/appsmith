@@ -56,16 +56,44 @@ export const ControlPropertyLabelContainer = styled.div`
 `;
 
 export const JSToggleButton = styled.span<{ active: boolean }>`
-  margin: 0 3px;
+  margin: 0 4px;
   cursor: pointer;
-  height: 24px;
-  svg {
-    height: 24px;
+  border-radius: 4px;
+  height: auto;
+  width: 28px;
+  height: 16px;
+  border: 0.5px solid #6a86ce;
+  background-color: ${(props) =>
+    props.active ? "#6A86CE" : props.theme.colors.propertyPane.addButtonBG};
+
+  &:hover {
+    background-color: ${(props) =>
+      props.theme.colors.propertyPane.jsButtonHoverBG};
+
+    &&& svg {
+      path {
+        fill: ${(props) => (props.active ? "#6A86CE" : "#6A86CE")};
+      }
+    }
+  }
+
+  & > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &&& svg {
+    width: 28px;
+    height: 16px;
+    transform: scale(1.6);
+
     rect {
-      fill: ${(props) =>
-        props.active
-          ? props.theme.colors.primaryOld
-          : props.theme.colors.paneIcon};
+      fill: transparent;
+    }
+
+    path {
+      fill: ${(props) => (props.active ? "#ffffff" : "#6A86CE")};
     }
   }
 `;
@@ -414,37 +442,17 @@ export const StyledHiddenIcon = styled(
 `;
 
 export const StyledPropertyPaneButton = styled(Button)`
-  &&&& {
-    background-color: ${(props) => props.theme.colors.infoOld};
-    color: #ffffff;
-    margin-top: 4px;
-    .bp3-icon {
-      color: #ffffff;
-      margin-right: 4px;
-    }
-    svg {
-      width: 14px;
-      height: 14px;
-    }
-  }
-`;
-
-export const StyledPropertyPaneButtonHolder = styled(Button)<{
-  skin: Skin;
-}>`
   margin-top: 4px;
   margin-left: auto;
   display: flex;
   justify-content: flex-end;
-  background-color: ${(props) =>
-    props.theme.propertyPaneDesign.propertyPaneButton[props.skin].colorBG};
 
   &,
   &:active,
   &:hover {
     border-color: transparent;
-    color: ${(props) =>
-      props.theme.propertyPaneDesign.propertyPaneButton[props.skin].colorText};
+    color: ${(props) => props.theme.colors.propertyPane.addButtonBG};
+    background-color: ${(props) => props.theme.colors.propertyPane.buttonBg};
   }
 
   svg {

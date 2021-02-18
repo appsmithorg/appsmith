@@ -411,32 +411,6 @@ export type Theme = {
     };
   };
   iconSizes: IconSizeType;
-  ads: {
-    stepComponent: {
-      [Skin.LIGHT]: {
-        stepBG: Color;
-        inputBG: Color;
-        inputText: Color;
-      };
-      [Skin.DARK]: {
-        stepBG: Color;
-        inputBG: Color;
-        inputText: Color;
-      };
-    };
-  };
-  propertyPaneDesign: {
-    propertyPaneButton: {
-      [Skin.LIGHT]: {
-        colorBG: Color;
-        colorText: Color;
-      };
-      [Skin.DARK]: {
-        colorBG: Color;
-        colorText: Color;
-      };
-    };
-  };
 };
 
 type IconSizeType = {
@@ -919,6 +893,9 @@ type ColorType = {
     radioGroupBg: ShadeColor;
     radioGroupText: ShadeColor;
     deleteIconColor: string;
+    zoomButtonBG: string;
+    addButtonBG: ShadeColor;
+    jsButtonHoverBG: ShadeColor;
   };
 };
 
@@ -1343,6 +1320,9 @@ export const dark: ColorType = {
     radioGroupBg: darkShades[0],
     radioGroupText: darkShades[7],
     deleteIconColor: "#A3B3BF",
+    zoomButtonBG: darkShades[3],
+    addButtonBG: lightShades[10],
+    jsButtonHoverBG: darkShades[2],
   },
 };
 
@@ -1740,6 +1720,9 @@ export const light: ColorType = {
     radioGroupBg: lightShades[0],
     radioGroupText: lightShades[8],
     deleteIconColor: "#A3B3BF",
+    zoomButtonBG: "#E0DEDE",
+    addButtonBG: lightShades[11],
+    jsButtonHoverBG: lightShades[2],
   },
 };
 
@@ -2072,32 +2055,6 @@ export const theme: Theme = {
       none: {
         color: "transparent",
         background: "transparent",
-      },
-    },
-  },
-  ads: {
-    stepComponent: {
-      [Skin.LIGHT]: {
-        stepBG: Colors.ALTO_2,
-        inputBG: Colors.WHITE,
-        inputText: Colors.CHARCOAL,
-      },
-      [Skin.DARK]: {
-        stepBG: Colors.NERO,
-        inputBG: Colors.CODE_GRAY,
-        inputText: Colors.LIGHT_GREY,
-      },
-    },
-  },
-  propertyPaneDesign: {
-    propertyPaneButton: {
-      [Skin.LIGHT]: {
-        colorBG: Colors.LIGHT_GREY,
-        colorText: Colors.CODE_GRAY,
-      },
-      [Skin.DARK]: {
-        colorBG: Colors.CHARCOAL,
-        colorText: Colors.WHITE,
       },
     },
   },

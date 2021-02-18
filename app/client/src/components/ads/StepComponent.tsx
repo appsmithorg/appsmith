@@ -1,7 +1,7 @@
 import React from "react";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
-import styled, { Skin } from "constants/DefaultTheme";
+import styled from "constants/DefaultTheme";
 
 const StyledIncreaseIcon = styled(
   ControlIcons.INCREASE_CONTROL as AnyStyledComponent,
@@ -27,32 +27,31 @@ const StyledDecreaseIcon = styled(
   height: 32px;
 `;
 
-const StepWrapper = styled.div<{ skin: Skin }>`
+const StepWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  background: ${(props) => props.theme.ads.stepComponent[props.skin].stepBG};
   height: 32px;
   line-height: 32px;
   margin-top: 6px;
-
+  background-color: ${(props) => props.theme.colors.propertyPane.zoomButtonBG};
   && svg {
     path {
-      fill: ${(props) => props.theme.ads.stepComponent[props.skin].inputText};
+      fill: ${(props) => props.theme.colors.propertyPane.radioGroupText};
     }
   }
 `;
 
-const InputWrapper = styled.div<{ skin: Skin }>`
+const InputWrapper = styled.div`
   width: calc(100% - 120px);
   height: 32px;
   line-height: 32px;
   font-size: 14px;
   text-align: center;
   letter-spacing: 1.44px;
-  background: ${(props) => props.theme.ads.stepComponent[props.skin].inputBG};
-  color: ${(props) => props.theme.ads.stepComponent[props.skin].inputText};
+  color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
+  background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
 `;
 
 interface StepComponentProps {
@@ -62,7 +61,6 @@ interface StepComponentProps {
   steps: number;
   displayFormat: (value: number) => string;
   onChange: (value: number) => void;
-  skin: Skin;
 }
 
 export const StepComponent = (props: StepComponentProps) => {
@@ -81,11 +79,9 @@ export const StepComponent = (props: StepComponentProps) => {
     props.onChange(value);
   }
   return (
-    <StepWrapper skin={props.skin}>
+    <StepWrapper>
       <StyledDecreaseIcon height={2} width={12} onClick={decrease} />
-      <InputWrapper skin={props.skin}>
-        {props.displayFormat(props.value)}
-      </InputWrapper>
+      <InputWrapper>{props.displayFormat(props.value)}</InputWrapper>
       <StyledIncreaseIcon height={12} width={12} onClick={increase} />
     </StepWrapper>
   );
