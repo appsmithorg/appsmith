@@ -170,7 +170,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   }
 
   getPageView() {
-    console.log(this.props);
     return (
       <DatePickerComponent
         label={`${this.props.label}`}

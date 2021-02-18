@@ -109,10 +109,10 @@ class DatePickerComponent extends React.Component<
     const isValid = this.state.selectedDate
       ? this.isValidDate(new Date(this.state.selectedDate))
       : true;
-    const value = this.state.selectedDate
-      ? new Date(this.state.selectedDate)
-      : null;
-    console.log({ isValid });
+    const value =
+      isValid && this.state.selectedDate
+        ? new Date(this.state.selectedDate)
+        : null;
     return (
       <StyledControlGroup
         fill
@@ -148,8 +148,8 @@ class DatePickerComponent extends React.Component<
               closeOnSelection
               onChange={this.onDateSelected}
               value={value}
-              minDate={isValid ? minDate : undefined}
-              maxDate={isValid ? maxDate : undefined}
+              minDate={minDate}
+              maxDate={maxDate}
             />
           </ErrorTooltip>
         }
