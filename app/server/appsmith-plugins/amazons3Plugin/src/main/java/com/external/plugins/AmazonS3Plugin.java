@@ -160,9 +160,9 @@ public class AmazonS3Plugin extends BasePlugin {
                                         ArrayList<String> listOfFiles,
                                         Date expiryDateTime) {
             ArrayList<String> urlList = new ArrayList<>();
-            for(String filePath : listOfFiles) {
+            for(int i=0; i<listOfFiles.size(); i++) {
                 GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName,
-                                                                                                          filePath)
+                                                                                                          listOfFiles.get(i))
                                                                               .withMethod(HttpMethod.GET)
                                                                               .withExpiration(expiryDateTime);
                 URL url = connection.generatePresignedUrl(generatePresignedUrlRequest);
@@ -310,8 +310,8 @@ public class AmazonS3Plugin extends BasePlugin {
                 return Mono.error(
                         new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_ERROR,
-                                "Mandatory parameter 'Action' is missing. Did you forget to select one of the actions" +
-                                " from the Action dropdown ?"
+                            "Mandatory parameter 'Action' is missing. Did you forget to select one of the actions" +
+                            " from the Action dropdown ?"
                         )
                 );
             }
@@ -389,11 +389,11 @@ public class AmazonS3Plugin extends BasePlugin {
                             else {
                                 try {
                                     durationInMinutes = Integer
-                                            .parseInt(
-                                                    properties
-                                                            .get(URL_EXPIRY_DURATION_PROPERTY_INDEX)
-                                                            .getValue()
-                                            );
+                                                            .parseInt(
+                                                                    properties
+                                                                    .get(URL_EXPIRY_DURATION_PROPERTY_INDEX)
+                                                                    .getValue()
+                                                            );
                                 } catch (NumberFormatException e) {
                                     throw new AppsmithPluginException(
                                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -544,11 +544,11 @@ public class AmazonS3Plugin extends BasePlugin {
 
             if(datasourceConfiguration == null) {
                 return Mono.error(
-                  new AppsmithPluginException(
-                          AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                          "Mandatory fields 'Access Key', 'Secret Key', 'Region' missing. Did you forget to edit " +
-                          "the 'Access Key'/'Secret Key'/'Region' fields in the datasource creation form ?"
-                  )
+                        new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                "Mandatory fields 'Access Key', 'Secret Key', 'Region' missing. Did you forget to edit " +
+                                "the 'Access Key'/'Secret Key'/'Region' fields in the datasource creation form ?"
+                        )
                 );
             }
 
@@ -557,9 +557,9 @@ public class AmazonS3Plugin extends BasePlugin {
             } catch (ClassNotFoundException e) {
                 return Mono.error(
                         new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
-                            "Appsmith server has failed to load AWS S3 driver class. Please reach out to Appsmith " +
-                            "customer support to resolve this."
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Appsmith server has failed to load AWS S3 driver class. Please reach out to Appsmith " +
+                                "customer support to resolve this."
                         )
                 );
             }
@@ -715,8 +715,8 @@ public class AmazonS3Plugin extends BasePlugin {
             if(datasourceConfiguration == null) {
                 return Mono.just(
                         new DatasourceTestResult(
-                    "At least one of the mandatory fields in S3 datasource creation form is empty - " +
-                            "'Access Key'/'Secret Key'/'Region'. Please fill all the mandatory fields and try again."
+                                "At least one of the mandatory fields in S3 datasource creation form is empty - " +
+                                "'Access Key'/'Secret Key'/'Region'. Please fill all the mandatory fields and try again."
                         )
                 );
             }
