@@ -146,7 +146,6 @@ class ContainerWidget extends BaseWidget<
       (child) => child.topRow,
     );
 
-    console.log({ componentHeight, props: this.props });
     const rowHeight = sortedChildren[0].bottomRow * snapSpaces.snapRowSpace;
 
     // eslint-disable-next-line
@@ -175,7 +174,8 @@ class ContainerWidget extends BaseWidget<
     );
 
     const StickyRow = (childProps: ListChildComponentProps) => {
-      const row = this.renderChildWidget(sortedChildren[childProps.index]);
+      const child = sortedChildren[childProps.index];
+      const row = this.renderChildWidget(child);
 
       return (
         <div

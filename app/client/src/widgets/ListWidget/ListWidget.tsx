@@ -76,6 +76,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         topRow: index * children[0].bottomRow,
         bottomRow: (index + 1) * children[0].bottomRow,
         resizeDisabled: index > 0,
+        isVisible: index === 0,
+        isDisabled: true,
         widgetId: index > 0 ? `list-item-${index}` : child.widgetId,
       };
     });
@@ -114,33 +116,33 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
                       `children.[${j}].children[${k}].${key}`,
                       get(template, `${child.widgetName}.${key}.[${i}]`),
                     );
+                  }
 
-                    // disabled config options for items other than template
-                    if (i > 0) {
-                      set(
-                        children[i],
-                        `children.[${j}].children[${k}].widgetId`,
-                        `list-widget-child-id-${i}`,
-                      );
+                  // disabled config options for items other than template
+                  if (i > 0) {
+                    set(
+                      children[i],
+                      `children.[${j}].children[${k}].widgetId`,
+                      `list-widget-child-id-${i}`,
+                    );
 
-                      set(
-                        children[i],
-                        `children.[${j}].children[${k}].resizeDisabled`,
-                        true,
-                      );
+                    set(
+                      children[i],
+                      `children.[${j}].children[${k}].resizeDisabled`,
+                      true,
+                    );
 
-                      set(
-                        children[i],
-                        `children.[${j}].children[${k}].settingsControlDisabled`,
-                        true,
-                      );
+                    set(
+                      children[i],
+                      `children.[${j}].children[${k}].settingsControlDisabled`,
+                      true,
+                    );
 
-                      set(
-                        children[i],
-                        `children.[${j}].children[${k}].dragDisabled`,
-                        true,
-                      );
-                    }
+                    set(
+                      children[i],
+                      `children.[${j}].children[${k}].dragDisabled`,
+                      true,
+                    );
                   }
                 }
               }
