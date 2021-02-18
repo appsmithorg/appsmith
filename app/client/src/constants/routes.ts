@@ -73,40 +73,6 @@ export const DATA_SOURCES_EDITOR_ID_URL = (
 ): string =>
   `${DATA_SOURCES_EDITOR_URL(applicationId, pageId)}/${datasourceId}`;
 
-export const INTEGRATIONS_EDITOR_URL = (
-  applicationId = ":applicationId",
-  pageId = ":pageId",
-  pluginPackageName = ":pluginPackageName",
-): string =>
-  `${BUILDER_PAGE_URL(
-    applicationId,
-    pageId,
-  )}/integrations/${pluginPackageName}`;
-
-export const INTEGRATIONS_EDITOR_DATASOURCES_ID_URL = (
-  applicationId = ":applicationId",
-  pageId = ":pageId",
-  pluginPackageName = ":pluginPackageName",
-  datasourceId: ":datasourceId",
-): string =>
-  `${INTEGRATIONS_EDITOR_URL(
-    applicationId,
-    pageId,
-    pluginPackageName,
-  )}/datasources/${datasourceId}`;
-
-export const INTEGRATIONS_EDITOR_API_ID_URL = (
-  applicationId = ":applicationId",
-  pageId = ":pageId",
-  pluginPackageName = ":pluginPackageName",
-  apiId: ":apiId",
-): string =>
-  `${INTEGRATIONS_EDITOR_URL(
-    applicationId,
-    pageId,
-    pluginPackageName,
-  )}/api/${apiId}`;
-
 export const QUERIES_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
