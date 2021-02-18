@@ -52,9 +52,18 @@ public class DynamoPlugin extends BasePlugin {
 
     private static final String SCAN_ACTION_VALUE = "Scan";
     private static final String ITEMS_KEY = "Items";
-    private static final String TRANSFORMED_DATA_LABEL = "value";
-    private static final String RAW_DATA_LABEL = "raw";
-    private static final String S_FIELD_LABEL = "S";
+    private static final String AMAZON_S3_TYPE_STRING_LABEL = "S";
+    private static final String AMAZON_S3_TYPE_NUMBER_LABEL = "N";
+    private static final String AMAZON_S3_TYPE_BINARY_LABEL = "B";
+    private static final String AMAZON_S3_TYPE_BOOLEAN_LABEL = "BOOL";
+    private static final String AMAZON_S3_TYPE_NULL_LABEL = "NUL";
+    private static final String AMAZON_S3_TYPE_STRING_SET_LABEL = "SS";
+    private static final String AMAZON_S3_TYPE_NUMBER_SET_LABEL = "NS";
+    private static final String AMAZON_S3_TYPE_BINARY_SET_LABEL = "BS";
+    private static final String AMAZON_S3_TYPE_MAP_LABEL = "M";
+    private static final String AMAZON_S3_TYPE_LIST_LABEL = "L";
+    private static final String RAW_RESPONSE_LABEL = "raw";
+    private static final String TRANSFORMED_RESPONSE_LABEL = "Items";
 
     public DynamoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -77,35 +86,90 @@ public class DynamoPlugin extends BasePlugin {
 
         private final Scheduler scheduler = Schedulers.elastic();
 
+        public Object extractValue(Object rawItem) {
+            if(rawItem instanceof Map) {
+                Map<String, Object> extractedValueMap = new HashMap<>();
+                Map<String, Object> rawItemAsMap = (Map<String, Object>) rawItem;
+                for(Map.Entry<String, Object> entry: rawItemAsMap.entrySet()) {
+                    switch (entry.getKey()) {
+                        case AMAZON_S3_TYPE_NUMBER_LABEL:
+                        case AMAZON_S3_TYPE_STRING_LABEL:
+                        case AMAZON_S3_TYPE_BINARY_LABEL:
+                        case AMAZON_S3_TYPE_BOOLEAN_LABEL:
+                        case AMAZON_S3_TYPE_NULL_LABEL:
+                            if(entry.getValue() != null) {
+                                return entry.getValue();
+                            }
+                        case AMAZON_S3_TYPE_STRING_SET_LABEL:
+                        case AMAZON_S3_TYPE_NUMBER_SET_LABEL:
+                        case AMAZON_S3_TYPE_BINARY_SET_LABEL:
+                            if(entry.getValue() != null && ((List<Object>)entry.getValue()).size() > 0) {
+                                return entry.getValue();
+                            }
+
+                            break;
+                        case AMAZON_S3_TYPE_LIST_LABEL:
+                            List<Object> extractedValueList = new ArrayList<>();
+                            List<Object> rawValueAsList = (List<Object>) entry.getValue();
+                            if(rawValueAsList.size() > 0) {
+                                for (Object listItem : rawValueAsList) {
+                                    extractedValueList.add(extractValue(listItem));
+                                }
+
+                                return extractedValueList;
+                            }
+
+                            break;
+                        case AMAZON_S3_TYPE_MAP_LABEL:
+                            Map<String, Object> rawValueAsMap = (Map<String, Object>) entry.getValue();
+                            if(rawValueAsMap.size() > 0) {
+                                for (Map.Entry<String, Object> mapItem : rawValueAsMap.entrySet()) {
+                                    extractedValueMap.put(mapItem.getKey(), extractValue(mapItem.getValue()));
+                                }
+
+                                return extractedValueMap;
+                            }
+
+                            break;
+                        default:
+                            extractedValueMap.put(entry.getKey(), extractValue(entry.getValue()));
+                    }
+                }
+
+                return extractedValueMap;
+            } else if(rawItem instanceof List) {
+                List<Object> extractedValueList = new ArrayList<>();
+                List<Object> rawItemAsList = (List<Object>) rawItem;
+                for (Object listItem : rawItemAsList) {
+                    extractedValueList.add(extractValue(listItem));
+                }
+
+                return extractedValueList;
+            }
+
+            return rawItem;
+        }
         /*
          * - Transform response for easy consumption. For details please visit
          *   https://github.com/appsmithorg/appsmith/issues/3010
          */
-        public Object getTransformedResponse(Object rawResponse, String action) {
-            Map<String, Object> transformedResponse = new HashMap<>();
-
+        public Object getTransformedResponse(Map<String, Object> rawResponse, String action) {
             if(action.equals(SCAN_ACTION_VALUE)) {
-                for(Map.Entry<String, Object> responseEntry: ((Map<String, Object>) (rawResponse)).entrySet()) {
-                    if(responseEntry.getKey().equals(ITEMS_KEY)) {
-                        ArrayList<Object> transformedItems = new ArrayList<>();
-                        transformedResponse.put(ITEMS_KEY, transformedItems);
+                Map<String, Object> transformedResponse = new HashMap<>();
+                ArrayList<Object> extractedResponse = new ArrayList<>();
+                transformedResponse.put(RAW_RESPONSE_LABEL, rawResponse);
+                transformedResponse.put(TRANSFORMED_RESPONSE_LABEL, extractedResponse);
 
-                        Collection<Object> rawItems = (Collection<Object>) ((Map<String, Object>) (rawResponse))
-                                                       .get(ITEMS_KEY);
-                        for(Object item: rawItems) {
-                            HashMap<String, Object> aggregateEntry = new HashMap<>();
-                            transformedItems.add(aggregateEntry);
-                            for(Map.Entry<String, Object> entry : ((Map<String, Object>)item).entrySet()) {
-                                Map<String, Object> fields = (Map<String, Object>) entry.getValue();
-                                Map<String, Object> rawAndTransformedObjects = new HashMap<>();
-                                rawAndTransformedObjects.put(TRANSFORMED_DATA_LABEL, fields.get(S_FIELD_LABEL));
-                                rawAndTransformedObjects.put(RAW_DATA_LABEL, fields);
-                                aggregateEntry.put(entry.getKey(), rawAndTransformedObjects);
-                            }
-                        }
+                for(Map.Entry<String, Object> responseEntry: rawResponse.entrySet()) {
+                    if (!responseEntry.getKey().equals(ITEMS_KEY)) {
+                        transformedResponse.put(responseEntry.getKey(), responseEntry.getValue());
                     }
                     else {
-                        transformedResponse.put(responseEntry.getKey(), responseEntry.getValue());
+                        Collection<Object> rawItems = (Collection<Object>) (rawResponse.get(ITEMS_KEY));
+                        for(Object item: rawItems) {
+                            Object value = extractValue(item);
+                            extractedResponse.add(value);
+                        }
                     }
                 }
 
@@ -160,13 +224,8 @@ public class DynamoPlugin extends BasePlugin {
                             requestClass
                     );
                     final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, plainToSdk(parameters, requestClass));
-                    // TODO: remove it.
-                    System.out.println("devtest: get raw response");
-                    System.out.println("devtest: response: " + response);
                     Object rawResponse = sdkToPlain(response);
-                    // TODO: remove it.
-                    System.out.println("devtest: " + rawResponse);
-                    Object transformedResponse = getTransformedResponse(rawResponse, action);
+                    Object transformedResponse = getTransformedResponse((Map<String, Object>)rawResponse, action);
                     result.setBody(transformedResponse);
                 } catch (AppsmithPluginException | InvocationTargetException | IllegalAccessException | NoSuchMethodException | ClassNotFoundException e) {
                     final String message = "Error executing the DynamoDB Action: " + (e.getCause() == null ? e : e.getCause()).getMessage();
@@ -428,7 +487,7 @@ public class DynamoPlugin extends BasePlugin {
             SdkBytes response = (SdkBytes) valueObj;
 
             return new String(response.asByteArray());
-        }else if (valueObj instanceof Map) {
+        } else if (valueObj instanceof Map) {
             final Map<?, ?> valueAsMap = (Map<?, ?>) valueObj;
             final Map<Object, Object> plainMap = new HashMap<>();
 
