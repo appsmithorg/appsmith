@@ -99,7 +99,10 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
     }
 
     path {
-      fill: ${(props) => (props.active ? "#ffffff" : "#6A86CE")};
+      fill: ${(props) =>
+        props.active
+          ? props.theme.colors.WHITE
+          : props.theme.colors.propertyPane.activeButtonText};
     }
   }
 `;
