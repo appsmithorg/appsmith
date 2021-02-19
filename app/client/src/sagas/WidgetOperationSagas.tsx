@@ -701,6 +701,43 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
     });
 
     yield put(updateAndSaveLayout(widgets));
+
+    const widget = yield select(getWidget, action.payload.widgetId);
+
+    // getting enhancement of the deleted widget from config
+    const enhancements = get(
+      WidgetConfigResponse,
+      `config.${widget.type}.propertyPaneEnhancements`,
+    );
+    let enhancementsMap = yield select(getEnhancementsMap);
+
+    // if there is a enhancement, pass on the enhancement to every child to be retrived later on
+    if (enhancements) {
+      enhancementsMap = yield generateEnhancementsMap(
+        action.payload.widgetId,
+        get(enhancementsMap, `${action.payload.widgetId}.parentId`),
+        widgets,
+        widget.type,
+        enhancementsMap,
+      );
+    }
+
+    // when adding a child, if parent is already in the enhancementsMap, use parent type.
+    if (enhancementsMap[widget.parentId]) {
+      enhancementsMap = yield generateEnhancementsMap(
+        action.payload.widgetId,
+        get(enhancementsMap, `${action.payload.widgetId}.parentId`),
+        widgets,
+        get(enhancementsMap, `${widget.parentId}.type`),
+        enhancementsMap,
+      );
+    }
+
+    yield put({
+      type: ReduxActionTypes.SET_PROPERTY_PANE_ENHANCEMENTS,
+      payload: enhancementsMap,
+    });
+
     yield flushDeletedWidgets(action.payload.widgetId);
   }
 }
