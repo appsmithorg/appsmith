@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.constants.Context;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -182,6 +183,21 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private void generateAndSetActionPolicies(NewPage page, NewAction action) {
         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(page.getPolicies(), Page.class, Action.class);
         action.setPolicies(documentPolicies);
+    }
+
+    @Override
+    public Mono<ActionDTO> createActionWithContext(ActionDTO action, Context context) {
+        switch (context) {
+            case PAGE_CLONE:
+                Boolean executeOnLoad = action.getExecuteOnLoad();
+                return createAction(action)
+                        .map(newAction -> {
+                            newAction.setExecuteOnLoad(executeOnLoad);
+                            return newAction;
+                        });
+            default:
+                return createAction(action);
+        }
     }
 
     @Override

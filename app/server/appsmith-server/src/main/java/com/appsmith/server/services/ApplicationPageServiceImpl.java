@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.constants.Context;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -376,8 +377,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 // Set new page id in the actionDTO
                                 action.getUnpublishedAction().setPageId(newPageId);
 
+                                //TODO: fix
                                 // Now create the new action from the template of the source action.
-                                return newActionService.createAction(action.getUnpublishedAction());
+                                return newActionService.createActionWithContext(action.getUnpublishedAction(),
+                                        Context.PAGE_CLONE);
+                                //return newActionService.createAction(action.getUnpublishedAction());
                             })
                             .collectList()
                             .thenReturn(clonedPage);
