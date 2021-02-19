@@ -89,12 +89,16 @@ const PropertyPaneView = (
 };
 
 class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
+  private panelWrapperRef = React.createRef<HTMLDivElement>();
+
   getTheme() {
     if (this.props.themeMode === "LIGHT") {
       return EditorTheme.LIGHT;
     }
     return EditorTheme.DARK;
   }
+
+
 
   render() {
     if (this.props.isVisible) {
@@ -125,11 +129,16 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     return (
       <PropertyPaneWrapper
         themeMode={this.getTheme()}
+        ref={this.panelWrapperRef}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
       >
         <StyledPanelStack
+          onOpen={() => {
+            const parent = this.panelWrapperRef.current;
+            parent?.scrollTo(0, 0);
+          }}
           initialPanel={{
             component: PropertyPaneView,
             props: {
