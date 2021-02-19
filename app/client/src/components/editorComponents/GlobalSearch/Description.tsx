@@ -73,8 +73,11 @@ const getDocumentationPreviewContent = (
     });
 
     // update link hrefs and target
+    const aisTagEncoded = new RegExp(
+      `%3C${algoliaHighlightTag}%3E|%3C/${algoliaHighlightTag}%3E`,
+      "g",
+    );
     Array.from(documentObj.querySelectorAll("a")).forEach((match) => {
-      match.innerHTML = match.innerHTML.replace(aisTag, "");
       match.target = "_blank";
       try {
         const hrefURL = new URL(match.href);
@@ -82,6 +85,7 @@ const getDocumentationPreviewContent = (
         match.href = !isRelativeURL
           ? match.href
           : `${HelpBaseURL}/${match.getAttribute("href")}`;
+        match.href = match.href.replace(aisTagEncoded, "");
       } catch (e) {}
     });
 
