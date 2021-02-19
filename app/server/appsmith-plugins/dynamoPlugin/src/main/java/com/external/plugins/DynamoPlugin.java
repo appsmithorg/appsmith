@@ -100,6 +100,8 @@ public class DynamoPlugin extends BasePlugin {
                             if (entry.getValue() != null) {
                                 return entry.getValue();
                             }
+
+                            break;
                         case AMAZON_S3_TYPE_STRING_SET_LABEL:
                         case AMAZON_S3_TYPE_NUMBER_SET_LABEL:
                         case AMAZON_S3_TYPE_BINARY_SET_LABEL:
