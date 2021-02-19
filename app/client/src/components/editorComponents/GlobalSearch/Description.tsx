@@ -49,6 +49,9 @@ const Container = styled.div`
     white-space: normal;
     overflow-wrap: break-word;
   }
+  & code {
+    display: block;
+  }
 `;
 
 const getDocumentationPreviewContent = (
