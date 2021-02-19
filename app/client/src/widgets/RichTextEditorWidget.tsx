@@ -131,6 +131,11 @@ class RichTextEditorWidget extends BaseWidget<
   }
 
   onValueChange = (text: string) => {
+    if (this.props.inputType === "text") {
+      text = text.replace(/\&lt\;/g, "<");
+      text = text.replace(/\&gt\;>/g, ">");
+      text = text.replace(/\<br\/\>/g, "\n");
+    }
     this.props.updateWidgetMetaProperty("text", text, {
       dynamicString: this.props.onTextChange,
       event: {
@@ -142,6 +147,8 @@ class RichTextEditorWidget extends BaseWidget<
   getPageView() {
     let defaultValue = this.props.text || "";
     if (this.props.inputType === "text") {
+      defaultValue = defaultValue.replace(/\</g, "&lt;");
+      defaultValue = defaultValue.replace(/\>/g, "&gt;");
       defaultValue = defaultValue.replace(/\n/g, "<br/>");
     }
     return (
@@ -153,6 +160,7 @@ class RichTextEditorWidget extends BaseWidget<
           placeholder={this.props.placeholder}
           key={this.props.widgetId}
           isDisabled={this.props.isDisabled}
+          formatType={this.props.inputType}
           isVisible={this.props.isVisible}
         />
       </Suspense>

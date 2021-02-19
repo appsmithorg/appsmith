@@ -3,8 +3,6 @@ import { debounce } from "lodash";
 import styled from "styled-components";
 import { useScript, ScriptStatus } from "utils/hooks/useScript";
 
-import { isString } from "utils/helpers";
-
 const StyledRTEditor = styled.div`
   && {
     width: 100%;
@@ -15,11 +13,16 @@ const StyledRTEditor = styled.div`
   }
 `;
 
+export enum RTEFormats {
+  TEXT = "text",
+  HTML = "html",
+}
 export interface RichtextEditorComponentProps {
   defaultValue?: string;
   placeholder?: string;
   widgetId: string;
   isDisabled?: boolean;
+  formatType: RTEFormats;
   isVisible?: boolean;
   onValueChange: (valueAsString: string) => void;
 }
@@ -50,10 +53,10 @@ export const RichtextEditorComponent = (
       (editorContent.current.length === 0 ||
         editorContent.current !== props.defaultValue)
     ) {
-      const content = getContent();
+      const content = props.defaultValue;
 
       editorInstance.setContent(content, {
-        format: "html",
+        format: props.formatType,
       });
     }
   }, [props.defaultValue, editorInstance, isEditorInitialised]);
@@ -73,20 +76,20 @@ export const RichtextEditorComponent = (
       resize: false,
       setup: (editor: any) => {
         editor.mode.set(props.isDisabled === true ? "readonly" : "design");
-        const content = getContent();
-        editor.setContent(content, { format: "html" });
+        const content = props.defaultValue;
+        editor.setContent(content, { format: props.formatType });
         editor
           .on("Change", () => {
-            onChange(editor.getContent());
+            onChange(editor.getContent({ format: props.formatType }));
           })
           .on("Undo", () => {
-            onChange(editor.getContent());
+            onChange(editor.getContent({ format: props.formatType }));
           })
           .on("Redo", () => {
-            onChange(editor.getContent());
+            onChange(editor.getContent({ format: props.formatType }));
           })
           .on("KeyUp", () => {
-            onChange(editor.getContent());
+            onChange(editor.getContent({ format: props.formatType }));
           });
         setEditorInstance(editor);
         editor.on("init", () => {
@@ -107,15 +110,6 @@ export const RichtextEditorComponent = (
       editorInstance !== null && editorInstance.remove();
     };
   }, [status]);
-
-  /**
-   * get content for rich text editor
-   */
-  const getContent = () => {
-    return props.defaultValue && isString(props.defaultValue)
-      ? props.defaultValue
-      : props.defaultValue;
-  };
 
   if (status !== ScriptStatus.READY) return null;
 
