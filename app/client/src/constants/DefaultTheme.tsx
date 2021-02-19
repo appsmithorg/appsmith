@@ -894,7 +894,6 @@ type ColorType = {
     radioGroupText: ShadeColor;
     deleteIconColor: string;
     zoomButtonBG: string;
-    addButtonBG: ShadeColor;
     activeButtonText: string;
     jsButtonHoverBG: ShadeColor;
   };
@@ -1322,7 +1321,6 @@ export const dark: ColorType = {
     radioGroupText: darkShades[7],
     deleteIconColor: "#A3B3BF",
     zoomButtonBG: darkShades[3],
-    addButtonBG: lightShades[10],
     activeButtonText: "#6A86CE",
     jsButtonHoverBG: darkShades[2],
   },
@@ -1723,7 +1721,6 @@ export const light: ColorType = {
     radioGroupText: lightShades[8],
     deleteIconColor: "#A3B3BF",
     zoomButtonBG: "#E0DEDE",
-    addButtonBG: lightShades[11],
     activeButtonText: "#6A86CE",
     jsButtonHoverBG: lightShades[2],
   },

@@ -67,7 +67,7 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
   background-color: ${(props) =>
     props.active
       ? props.theme.colors.propertyPane.activeButtonText
-      : props.theme.colors.propertyPane.addButtonBG};
+      : props.theme.colors.propertyPane.buttonText};
 
   &:hover {
     background-color: ${(props) =>
