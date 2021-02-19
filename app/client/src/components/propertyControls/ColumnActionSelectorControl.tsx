@@ -83,6 +83,7 @@ class ColumnActionSelectorControl extends BaseControl<
           })}
 
         <StyledPropertyPaneButton
+          icon="plus"
           tag="button"
           type="button"
           text="New Button"

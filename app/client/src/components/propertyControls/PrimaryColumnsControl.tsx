@@ -54,7 +54,8 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
 
 const AddColumnButton = styled(StyledPropertyPaneButton)`
   width: 100%;
-  display: block;
+  display: flex;
+  justify-content: center;
   &&&& {
     margin-top: 12px;
     margin-bottom: 8px;
@@ -201,6 +202,8 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
         />
 
         <AddColumnButton
+          className="t--add-column-btn"
+          icon="plus"
           tag="button"
           type="button"
           text="Add a new column"

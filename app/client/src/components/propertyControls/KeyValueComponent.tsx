@@ -176,6 +176,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
       })}
 
       <StyledPropertyPaneButton
+        icon="plus"
         tag="button"
         type="button"
         text={props.addLabel || "Option"}

@@ -258,6 +258,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
         })}
 
         <StyledPropertyPaneButton
+          icon="plus"
           tag="button"
           type="button"
           text="Add Series"

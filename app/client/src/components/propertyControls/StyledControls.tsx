@@ -62,9 +62,12 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
   height: auto;
   width: 28px;
   height: 16px;
-  border: 0.5px solid #6a86ce;
+  border: 0.5px solid
+    ${(props) => props.theme.colors.propertyPane.activeButtonText};
   background-color: ${(props) =>
-    props.active ? "#6A86CE" : props.theme.colors.propertyPane.addButtonBG};
+    props.active
+      ? props.theme.colors.propertyPane.activeButtonText
+      : props.theme.colors.propertyPane.addButtonBG};
 
   &:hover {
     background-color: ${(props) =>
@@ -72,7 +75,10 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
 
     &&& svg {
       path {
-        fill: ${(props) => (props.active ? "#6A86CE" : "#6A86CE")};
+        fill: ${(props) =>
+          props.active
+            ? props.theme.colors.propertyPane.activeButtonText
+            : props.theme.colors.propertyPane.activeButtonText};
       }
     }
   }
@@ -451,12 +457,16 @@ export const StyledPropertyPaneButton = styled(Button)`
   &:active,
   &:hover {
     border-color: transparent;
-    color: ${(props) => props.theme.colors.propertyPane.addButtonBG};
+    color: ${(props) => props.theme.colors.propertyPane.buttonText};
     background-color: ${(props) => props.theme.colors.propertyPane.buttonBg};
   }
 
-  svg {
+  &&& svg {
     width: 14px;
     height: 14px;
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.buttonText};
+      stroke: ${(props) => props.theme.colors.propertyPane.buttonText};
+    }
   }
 `;

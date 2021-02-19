@@ -154,6 +154,7 @@ class TabControl extends BaseControl<ControlProps> {
         />
         <StyledPropertyPaneButtonWrapper>
           <StyledPropertyPaneButton
+            icon="plus"
             tag="button"
             type="button"
             text="Add a Tab"
