@@ -12,7 +12,7 @@ import {
   createDatasourceFromForm,
   selectPlugin,
 } from "actions/datasourceActions";
-import { ApiAction } from "entities/Action";
+import { ApiAction, SaaSAction } from "entities/Action";
 import { createActionRequest } from "actions/actionActions";
 import { Datasource } from "entities/Datasource";
 import { createNewApiName } from "utils/AppsmithUtils";
@@ -68,7 +68,7 @@ interface StateProps {
 interface DispatchFunctions {
   createDatasource: (data: any) => void;
   selectPlugin: (pluginId: string) => void;
-  createAction: (data: Partial<ApiAction> & { eventData: any }) => void;
+  createAction: (data: Partial<SaaSAction>) => void;
 }
 
 type RouteProps = RouteComponentProps<{
@@ -83,18 +83,23 @@ class ListView extends React.Component<Props> {
     this.props.selectPlugin(pluginId);
     this.props.createDatasource({ pluginId });
   };
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   handleCreateNewAPI = (datasource: Datasource) => {
     const { actions, location } = this.props;
     const params: string = location.search;
     const pageId = new URLSearchParams(params).get("importTo");
 
     if (pageId) {
-      // TODO: Ask Nidhi to give me a prefix as part of a plugin
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const newQueryName = createNewApiName(actions, pageId);
-      //const data: any = {};
-      //this.props.createAction(data);
+      const newApiName = createNewApiName(actions, pageId);
+
+      this.props.createAction({
+        name: newApiName,
+        pageId: pageId,
+        pluginId: datasource.pluginId,
+        datasource: {
+          id: datasource.id,
+        },
+      });
     }
   };
 
@@ -192,7 +197,7 @@ const mapDispatchToProps = (dispatch: any): DispatchFunctions => {
   return {
     selectPlugin: (pluginId: string) => dispatch(selectPlugin(pluginId)),
     createDatasource: (data: any) => dispatch(createDatasourceFromForm(data)),
-    createAction: (data: Partial<ApiAction> & { eventData: any }) => {
+    createAction: (data: Partial<SaaSAction>) => {
       dispatch(createActionRequest(data));
     },
   };
