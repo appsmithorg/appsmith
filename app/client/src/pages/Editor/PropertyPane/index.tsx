@@ -86,6 +86,7 @@ export interface PropertyPaneEnhancements {
 }
 
 class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
+  private panelWrapperRef = React.createRef<HTMLDivElement>();
   render() {
     const { isVisible, widgetProperties } = this.props;
 
@@ -129,11 +130,16 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
 
     return (
       <PropertyPaneWrapper
+        ref={this.panelWrapperRef}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
       >
         <StyledPanelStack
+          onOpen={() => {
+            const parent = this.panelWrapperRef.current;
+            parent?.scrollTo(0, 0);
+          }}
           initialPanel={{
             component: PropertyPaneView,
             props: {

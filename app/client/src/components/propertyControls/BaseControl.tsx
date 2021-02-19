@@ -36,8 +36,10 @@ export interface ControlBuilder<T extends ControlProps> {
 
 export interface ControlProps extends ControlData, ControlFunctions {
   key?: string;
+  additionalAutoComplete?: Record<string, Record<string, unknown>>;
 }
-export interface ControlData extends PropertyPaneControlConfig {
+export interface ControlData
+  extends Omit<PropertyPaneControlConfig, "additionalAutoComplete"> {
   propertyValue?: any;
   isValid: boolean;
   errorMessage?: string;

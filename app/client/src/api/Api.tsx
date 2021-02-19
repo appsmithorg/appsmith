@@ -9,7 +9,11 @@ import { ActionApiResponse } from "./ActionAPI";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import history from "utils/history";
 import { convertObjectToQueryParams } from "utils/AppsmithUtils";
-import { ERROR_500, SERVER_API_TIMEOUT_ERROR } from "../constants/messages";
+import {
+  ERROR_0,
+  ERROR_500,
+  SERVER_API_TIMEOUT_ERROR,
+} from "../constants/messages";
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {
@@ -51,10 +55,19 @@ axiosInstance.interceptors.response.use(
     return response.data;
   },
   function(error: any) {
+    // Return error when there is no internet
+    if (!window.navigator.onLine) {
+      return Promise.reject({
+        ...error,
+        message: ERROR_0,
+      });
+    }
+
     // Return if the call was cancelled via cancel token
     if (axios.isCancel(error)) {
       return;
     }
+
     // Return modified response if action execution failed
     if (error.config && error.config.url.match(executeActionRegex)) {
       return makeExecuteActionResponse(error.response);

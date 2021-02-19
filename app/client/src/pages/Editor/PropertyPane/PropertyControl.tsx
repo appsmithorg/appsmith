@@ -224,8 +224,9 @@ const PropertyControl = memo((props: Props) => {
     );
 
     const { isValid, validationMessage } = getPropertyValidation(propertyName);
+    const { additionalAutoComplete, ...rest } = props;
     const config = {
-      ...props,
+      ...rest,
       isValid,
       propertyValue,
       validationMessage,
@@ -332,6 +333,9 @@ const PropertyControl = memo((props: Props) => {
                 },
                 isDynamic,
                 getCustomJSControl(),
+                additionalAutoComplete
+                  ? additionalAutoComplete(widgetProperties)
+                  : undefined,
               )}
             </Indicator>
           </Boxed>
