@@ -32,5 +32,5 @@ if [ "$target" == "ci" ]; then
     --parallel --group "Electrons on Gitlab CI" \
     --spec "cypress/integration/Smoke_TestSuite/**/*.js"
 else
-    $(npm bin)/cypress run --headless --browser chrome --spec "cypress/integration/Smoke_TestSuite/*/*"
+    $(npm bin)/cypress run --headless --browser chrome --spec "cypress/integration/Smoke_TestSuite/**/*.js"
 fi
