@@ -12,9 +12,10 @@ import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta, { WithMeta } from "./MetaHOC";
+const showdown = require("showdown");
 
 export enum RTEFormats {
-  TEXT = "text",
+  MARKDOWN = "markdown",
   HTML = "html",
 }
 const RichTextEditorComponent = lazy(() =>
@@ -42,8 +43,8 @@ class RichTextEditorWidget extends BaseWidget<
             controlType: "DROP_DOWN",
             options: [
               {
-                label: "Text",
-                value: "text",
+                label: "Markdown",
+                value: "markdown",
               },
               {
                 label: "HTML",
@@ -135,11 +136,6 @@ class RichTextEditorWidget extends BaseWidget<
   }
 
   onValueChange = (text: string) => {
-    if (this.props.inputType === RTEFormats.TEXT) {
-      text = text.replace(/\&lt\;/g, "<");
-      text = text.replace(/\&gt\;>/g, ">");
-      text = text.replace(/\<br\/\>/g, "\n");
-    }
     this.props.updateWidgetMetaProperty("text", text, {
       dynamicString: this.props.onTextChange,
       event: {
@@ -150,10 +146,9 @@ class RichTextEditorWidget extends BaseWidget<
 
   getPageView() {
     let defaultValue = this.props.text || "";
-    if (this.props.inputType === RTEFormats.TEXT) {
-      defaultValue = defaultValue.replace(/\</g, "&lt;");
-      defaultValue = defaultValue.replace(/\>/g, "&gt;");
-      defaultValue = defaultValue.replace(/\n/g, "<br/>");
+    if (this.props.inputType === RTEFormats.MARKDOWN) {
+      const converter = new showdown.Converter();
+      defaultValue = converter.makeHtml(defaultValue);
     }
     return (
       <Suspense fallback={<Skeleton />}>
@@ -164,7 +159,7 @@ class RichTextEditorWidget extends BaseWidget<
           placeholder={this.props.placeholder}
           key={this.props.widgetId}
           isDisabled={this.props.isDisabled}
-          formatType={this.props.inputType}
+          formatType={RTEFormats.HTML}
           isVisible={this.props.isVisible}
         />
       </Suspense>
