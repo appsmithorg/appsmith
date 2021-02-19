@@ -14,10 +14,7 @@ import { Datasource } from "entities/Datasource";
 import { reduxForm, InjectedFormProps, getFormValues } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import BackButton from "pages/Editor/DataSourceEditor/BackButton";
-import {
-  getConfigInitialValues,
-  isHidden,
-} from "components/formControls/utils";
+import { isHidden } from "components/formControls/utils";
 import log from "loglevel";
 import { Spinner } from "@blueprintjs/core";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
@@ -36,6 +33,13 @@ import { historyPush } from "actions/utilActions";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { createActionRequest } from "actions/actionActions";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import {
+  SAAS_AUTHORIZATION_APPSMITH_ERROR,
+  SAAS_AUTHORIZATION_FAILED,
+  SAAS_AUTHORIZATION_SUCCESSFUL,
+} from "constants/messages";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 
 interface StateProps {
   isSaving: boolean;
@@ -146,6 +150,22 @@ class DatasourceSaaSEditor extends React.Component<Props> {
     this.configDetails = {};
     if (this.props.pluginId) {
       this.props.fetchPluginForm(this.props.pluginId);
+    }
+    const search = new URLSearchParams(this.props.location.search);
+    const status = search.get("response_status");
+
+    if (status) {
+      const display_message = search.get("display_message");
+      // Set default error message
+      let message = SAAS_AUTHORIZATION_FAILED;
+      let variant = Variant.danger;
+      if (status === "success") {
+        message = SAAS_AUTHORIZATION_SUCCESSFUL;
+        variant = Variant.success;
+      } else if (status === "appsmith_error") {
+        message = SAAS_AUTHORIZATION_APPSMITH_ERROR;
+      }
+      Toaster.show({ text: display_message || message, variant });
     }
   }
 
