@@ -4,6 +4,7 @@ const queryLocators = require("../../../locators/QueryEditor.json");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../locators/commonlocators.json");
+const explorer = require("../../../locators/explorerlocators.json");
 
 const pageid = "MyPage";
 let datasourceName;
