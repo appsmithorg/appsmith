@@ -61,7 +61,7 @@ class CanvasWidget extends ContainerWidget {
   }
 
   getCanvasView() {
-    return this.getPageView();
+    return this.renderAsDropTarget();
   }
 }
 

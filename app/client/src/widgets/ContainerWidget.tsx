@@ -222,11 +222,7 @@ class ContainerWidget extends BaseWidget<
 
     const VirtualizedList = () => (
       <StickyList
-        height={
-          this.props.type === WidgetTypes.CANVAS_WIDGET
-            ? this.props.minHeight
-            : this.props.componentHeight
-        }
+        height={this.props.minHeight || componentHeight}
         itemCount={sortedChildren.length}
         itemSize={rowHeight}
         width={componentWidth}
