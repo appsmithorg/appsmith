@@ -15,7 +15,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
   });
   it("Create a PostgresDataSource", () => {
     cy.createPostgresDatasource();
-    cy.get("@createDatasource").then(httpResponse => {
+    cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });
@@ -39,7 +39,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
     cy.get(".t--add-widget").click();
     cy.SearchEntityandOpen("Table1");
     cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "0").then(tabData => {
+    cy.readTabledataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;
       cy.log("the value is" + tabValue);
       expect(tabValue).to.be.equal("5");
@@ -57,7 +57,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
   });
   it("validation of data displayed in input widget based on row data selected", function() {
     cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "0").then(tabData => {
+    cy.readTabledataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;
       cy.log("the value is" + tabValue);
       expect(tabValue).to.be.equal("5");

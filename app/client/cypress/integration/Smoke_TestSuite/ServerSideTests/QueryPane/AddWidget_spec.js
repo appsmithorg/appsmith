@@ -6,7 +6,7 @@ let datasourceName;
 describe("Add widget", function() {
   beforeEach(() => {
     cy.createPostgresDatasource();
-    cy.get("@createDatasource").then(httpResponse => {
+    cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });
@@ -32,7 +32,7 @@ describe("Add widget", function() {
     cy.get(".t--add-widget").click();
     cy.SearchEntityandOpen("Table1");
     cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "0").then(tabData => {
+    cy.readTabledataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("5");
       cy.log("the value is " + tabValue);

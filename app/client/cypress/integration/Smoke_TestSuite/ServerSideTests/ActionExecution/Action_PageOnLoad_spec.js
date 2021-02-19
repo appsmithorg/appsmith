@@ -11,9 +11,7 @@ describe("API Panel Test Functionality", function() {
     cy.enterDatasourceAndPath("https://reqres.in/api/", "users");
     cy.WaitAutoSave();
     cy.get("li:contains('Settings')").click({ force: true });
-    cy.get("[data-cy=executeOnLoad]")
-      .find(".bp3-switch")
-      .click();
+    cy.get("[data-cy=executeOnLoad]").click({ force: true });
 
     cy.wait("@setExecuteOnLoad");
 
@@ -36,9 +34,7 @@ describe("API Panel Test Functionality", function() {
     cy.enterDatasourceAndPath("https://abc.com", "users");
     cy.WaitAutoSave();
     cy.get("li:contains('Settings')").click({ force: true });
-    cy.get("[data-cy=executeOnLoad]")
-      .find(".bp3-switch")
-      .click();
+    cy.get("[data-cy=executeOnLoad]").click({ force: true });
 
     cy.wait("@setExecuteOnLoad");
 
