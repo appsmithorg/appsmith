@@ -111,3 +111,12 @@ div.bp3-popover-arrow {
   width: 100%;
   top: 0;
 }
+
+.appsmith-virtualized-container::-webkit-scrollbar {
+  display: none;
+}
+
+.appsmith-virtualized-container {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}

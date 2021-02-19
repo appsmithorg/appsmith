@@ -196,8 +196,6 @@ class ContainerWidget extends BaseWidget<
     const firstChild = get(this.props, "children[0]");
     const rowHeight = firstChild.bottomRow * snapSpaces.snapRowSpace;
 
-    // eslint-disable-next-line
-
     const Row = (childProps: ListChildComponentProps) => {
       const row = this.renderChildWidget(children[childProps.index]);
 
