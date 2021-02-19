@@ -19,7 +19,10 @@ const algoliaHighlightTag = "ais-highlight-0000000000";
  * description header (since it might be present for a lot of results)
  */
 const strip = (text: string) =>
-  text.replace(/<img .*?>|description: &gt;-|description:|{% .*?%}|\\n/g, "");
+  text.replaceAll(
+    /<img .*?>|description: &gt;-|description:|{% .*?%}|\\n/g,
+    "",
+  );
 
 const Container = styled.div`
   flex: 1;
@@ -59,22 +62,17 @@ const getDocumentationPreviewContent = (
     const parsedDocument = marked(value);
     const domparser = new DOMParser();
     const documentObj = domparser.parseFromString(parsedDocument, "text/html");
-    let content;
 
-    const hasMatches = matchedWords.length > 0;
-    if (hasMatches) {
-      const parents = Array.from(
-        documentObj?.querySelectorAll(algoliaHighlightTag),
-      ).map((match: any) => match?.parentElement?.innerHTML);
-      const uniqueParents = uniq(parents);
-      content = uniqueParents.reduce(
-        (res, curr) => `${res} <p>${curr}</p>`,
-        "",
-      );
-    } else {
-      content = documentObj?.querySelector("p")?.innerHTML;
-    }
-    return content ? strip(content).trim() : undefined;
+    const aisTag = new RegExp(
+      `&lt;${algoliaHighlightTag}&gt;|&lt;/${algoliaHighlightTag}&gt;`,
+      "g",
+    );
+    Array.from(documentObj.querySelectorAll("code")).forEach((match) => {
+      match.innerHTML = match.innerHTML.replace(aisTag, "");
+    });
+
+    const content = strip(documentObj.body.innerHTML).trim();
+    return content;
   } catch (e) {
     return;
   }
