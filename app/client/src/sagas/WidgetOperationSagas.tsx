@@ -1286,7 +1286,19 @@ function* pasteWidgetSaga() {
     const stateWidgets = yield select(getWidgets);
     let widgets = { ...stateWidgets };
 
-    const selectedWidget = yield select(getSelectedWidget);
+    let selectedWidget = yield select(getSelectedWidget);
+
+    // when grid is selected, user has pasted the widget, paste in the tempalte container instead
+    if (selectedWidget.type === WidgetTypes.LIST_WIDGET) {
+      const childrenIds: string[] = yield call(
+        getWidgetChildren,
+        selectedWidget.children[0],
+      );
+      const firstChildId = childrenIds[0];
+
+      selectedWidget = yield select(getWidget, firstChildId);
+    }
+
     const enhancementsMap = yield select(getEnhancementsMap);
     let newWidgetParentId = MAIN_CONTAINER_WIDGET_ID;
     let parentWidget = widgets[MAIN_CONTAINER_WIDGET_ID];
