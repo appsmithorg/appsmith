@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { debounce } from "lodash";
 import styled from "styled-components";
 import { useScript, ScriptStatus } from "utils/hooks/useScript";
+import { RTEFormats } from "widgets/RichTextEditorWidget";
 
 const StyledRTEditor = styled.div`
   && {
@@ -13,10 +14,6 @@ const StyledRTEditor = styled.div`
   }
 `;
 
-export enum RTEFormats {
-  TEXT = "text",
-  HTML = "html",
-}
 export interface RichtextEditorComponentProps {
   defaultValue?: string;
   placeholder?: string;

@@ -13,6 +13,10 @@ import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta, { WithMeta } from "./MetaHOC";
 
+export enum RTEFormats {
+  TEXT = "text",
+  HTML = "html",
+}
 const RichTextEditorComponent = lazy(() =>
   retryPromise(() =>
     import(
@@ -131,7 +135,7 @@ class RichTextEditorWidget extends BaseWidget<
   }
 
   onValueChange = (text: string) => {
-    if (this.props.inputType === "text") {
+    if (this.props.inputType === RTEFormats.TEXT) {
       text = text.replace(/\&lt\;/g, "<");
       text = text.replace(/\&gt\;>/g, ">");
       text = text.replace(/\<br\/\>/g, "\n");
@@ -146,7 +150,7 @@ class RichTextEditorWidget extends BaseWidget<
 
   getPageView() {
     let defaultValue = this.props.text || "";
-    if (this.props.inputType === "text") {
+    if (this.props.inputType === RTEFormats.TEXT) {
       defaultValue = defaultValue.replace(/\</g, "&lt;");
       defaultValue = defaultValue.replace(/\>/g, "&gt;");
       defaultValue = defaultValue.replace(/\n/g, "<br/>");
