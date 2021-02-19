@@ -1,7 +1,7 @@
 - hosts: local
   gather_facts: False
   vars:
-    ci_project_dir: "{{ lookup('env','CI_PROJECT_DIR') }}"
+    ci_project_dir: "{{ lookup('env','GITHUB_WORKSPACE') }}"
   tasks:
     - name: Setup EC2 instance
       import_role:
@@ -9,7 +9,7 @@
 
 - hosts: aws_host
   vars:
-    ci_project_dir: "{{ lookup('env','CI_PROJECT_DIR') }}"
+    ci_project_dir: "{{ lookup('env','GITHUB_WORKSPACE') }}"
 
   tasks:
     - name: Base install
@@ -26,7 +26,7 @@
 
 - hosts: local
   vars:
-    ci_project_dir: "{{ lookup('env','CI_PROJECT_DIR') }}"
+    ci_project_dir: "{{ lookup('env','GITHUB_WORKSPACE') }}"
   tasks:
     - name: Bundle AMI
       import_role:
@@ -38,7 +38,7 @@
 - hosts: local
   gather_facts: False
   vars:
-    ci_project_dir: "{{ lookup('env','CI_PROJECT_DIR') }}"
+    ci_project_dir: "{{ lookup('env','GITHUB_WORKSPACE') }}"
   tasks:
     - name: Setup EC2 instance from AMI
       import_role:

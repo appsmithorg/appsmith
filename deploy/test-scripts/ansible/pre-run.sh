@@ -15,7 +15,7 @@ sudo apt-add-repository --yes --update ppa:ansible/ansible
 sudo apt -y install ansible
 
 # Install python3 & pip
-sudo apt -y install python3-pip
+sudo apt -y install python3-pip python3-setuptools
 pip3 install boto boto3 botocore --user
 
 # Install terraform
@@ -34,7 +34,7 @@ wait_for_containers_start() {
 }
 
 # Generate variables.tf of terraform
-cat <<EOF >$CI_PROJECT_DIR/deploy/test-scripts/ansible/terraform/variables.tf
+cat <<EOF >$GITHUB_WORKSPACE/deploy/test-scripts/ansible/terraform/variables.tf
 ## Required variables configuration ##
 variable "profile" {
   description = "Aws Credentials Profile name"
@@ -85,14 +85,14 @@ terraform plan
 terraform apply -auto-approve
 
 # Get EC2 instance public IP
-instance_ip=$(head -n 1 $CI_PROJECT_DIR/deploy/test-scripts/ansible/public_ip.txt)
+instance_ip=$(head -n 1 $GITHUB_WORKSPACE/deploy/test-scripts/ansible/public_ip.txt)
 
 
 # Store EC2 instance public IP to ansible playbook's inventory
-echo "appsmith ansible_host=$instance_ip ansible_port=22 ansible_user=ubuntu ansible_ssh_private_key_file=$key_path/id_rsa ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >$CI_PROJECT_DIR/deploy/ansible/appsmith_playbook/inventory
+echo "appsmith ansible_host=$instance_ip ansible_port=22 ansible_user=ubuntu ansible_ssh_private_key_file=$key_path/id_rsa ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >$GITHUB_WORKSPACE/deploy/ansible/appsmith_playbook/inventory
 
 # Generate appsmith-vars.yml
-cat <<EOF >$CI_PROJECT_DIR/deploy/ansible/appsmith_playbook/appsmith-vars.yml
+cat <<EOF >$GITHUB_WORKSPACE/deploy/ansible/appsmith_playbook/appsmith-vars.yml
 ---
 user_email: 'youremail@appsmith.com'
 install_dir: '/home/ubuntu/appsmith'
@@ -140,7 +140,7 @@ EOF
 wait_for_containers_start 60
 
 # Run Ansible
-cd $CI_PROJECT_DIR/deploy/ansible/appsmith_playbook
+cd $GITHUB_WORKSPACE/deploy/ansible/appsmith_playbook
 ansible-playbook -i inventory main.yml --extra-var "@appsmith-vars.yml"
 
 wait_for_containers_start 90

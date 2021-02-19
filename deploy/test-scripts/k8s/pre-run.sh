@@ -22,7 +22,7 @@ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 sudo apt -y install expect
 
 # Generate variables.tf of terraform
-cat <<EOF >$CI_PROJECT_DIR/deploy/test-scripts/k8s/terraform/variables.tf
+cat <<EOF >$GITHUB_WORKSPACE/deploy/test-scripts/k8s/terraform/variables.tf
 ## Required variables configuration ##
 
 variable "profile" {
@@ -65,10 +65,10 @@ terraform plan
 terraform apply -auto-approve
 
 # Get cluster namme
-cluster_name=$(head -n 1 $CI_PROJECT_DIR/deploy/test-scripts/k8s/cluster_name.txt)
+cluster_name=$(head -n 1 $GITHUB_WORKSPACE/deploy/test-scripts/k8s/cluster_name.txt)
 
 # Get region
-region=$(head -n 1 $CI_PROJECT_DIR/deploy/test-scripts/k8s/region.txt)
+region=$(head -n 1 $GITHUB_WORKSPACE/deploy/test-scripts/k8s/region.txt)
 
 # Connect to EKS
 aws eks --region $region update-kubeconfig --name $cluster_name
@@ -84,13 +84,13 @@ kubectl wait --namespace ingress-nginx \
 
 # Create disable-analytics.sh file
 cd ..
-cat >$CI_PROJECT_DIR/deploy/k8s/disable_analytics.sh <<EOF
+cat >$GITHUB_WORKSPACE/deploy/k8s/disable_analytics.sh <<EOF
 chmod +x $INSTALL_DIR/config-template/appsmith-configmap.yaml
 echo '  APPSMITH_SEGMENT_CE_KEY: ""' >>$INSTALL_DIR/config-template/appsmith-configmap.yaml
 EOF
 
 # Run install.k8s.sh
-$CI_PROJECT_DIR/deploy/test-scripts/k8s/script.exp
+$GITHUB_WORKSPACE/deploy/test-scripts/k8s/script.exp
 
 wait_for_containers_start() {
   local timeout=$1

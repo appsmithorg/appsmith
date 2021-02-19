@@ -5,7 +5,7 @@ email=example%40appsmith.com
 password=$(openssl rand -base64 12)
 
 # Get EC2 instance public ip
-public_ip=$(head -n 1 $CI_PROJECT_DIR/deploy/test-scripts/aws-ami/public_ip.txt)
+public_ip=$(head -n 1 $GITHUB_WORKSPACE/deploy/test-scripts/aws-ami/public_ip.txt)
 
 # Check Backend API
 status_code=$(curl -s -o /dev/null -I -w "%{http_code}" http://$public_ip/api/v1 || true)

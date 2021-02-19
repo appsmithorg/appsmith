@@ -5,7 +5,7 @@ email=example%40appsmith.com
 password=$(openssl rand -base64 12)
 
 # Get EC2 instance public IP
-instance_ip=$(head -n 1 $CI_PROJECT_DIR/deploy/test-scripts/docker-compose/public_ip.txt)
+instance_ip=$(head -n 1 $GITHUB_WORKSPACE/deploy/test-scripts/docker-compose/public_ip.txt)
 
 # Backend API
 status_code=$(curl -s -o /dev/null -I -w "%{http_code}" http://$instance_ip/api/v1 || true)
