@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -70,9 +71,19 @@ public class FirestorePlugin extends BasePlugin {
         private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
+        @Deprecated
         public Mono<ActionExecutionResult> execute(Firestore connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
+            return Mono.empty();
+        }
+
+        @Override
+        public Mono<ActionExecutionResult> executeParameterized(
+                Firestore connection,
+                ExecuteActionDTO executeActionDTO,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
 
             final String path = actionConfiguration.getPath();
 
