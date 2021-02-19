@@ -27,8 +27,8 @@ import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { getSelectedWidget } from "selectors/ui";
 
 const StyledContainer = styled.div`
-  width: 660px;
-  height: 40vh;
+  width: 750px;
+  height: 45vh;
   background: ${(props) => props.theme.colors.globalSearch.containerBackground};
   box-shadow: ${(props) => props.theme.colors.globalSearch.containerShadow};
   display: flex;

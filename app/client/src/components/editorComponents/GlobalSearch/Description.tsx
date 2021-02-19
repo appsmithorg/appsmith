@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import marked from "marked";
+import { HelpBaseURL } from "constants/HelpConstants";
 
 type Props = {
   activeItem: any;
@@ -18,10 +19,7 @@ const algoliaHighlightTag = "ais-highlight-0000000000";
  * description header (since it might be present for a lot of results)
  */
 const strip = (text: string) =>
-  text.replaceAll(
-    /<img .*?>|description: &gt;-|description:|{% .*?%}|\\n/g,
-    "",
-  );
+  text.replaceAll(/description: &gt;-|description:|{% .*?%}|\\n/g, "");
 
 const Container = styled.div`
   flex: 1;
@@ -62,13 +60,26 @@ const getDocumentationPreviewContent = (
     const domparser = new DOMParser();
     const documentObj = domparser.parseFromString(parsedDocument, "text/html");
 
-    // removes algolia highlight within from code sections
+    // remove algolia highlight within from code sections
     const aisTag = new RegExp(
       `&lt;${algoliaHighlightTag}&gt;|&lt;/${algoliaHighlightTag}&gt;`,
       "g",
     );
     Array.from(documentObj.querySelectorAll("code")).forEach((match) => {
       match.innerHTML = match.innerHTML.replace(aisTag, "");
+    });
+
+    // update link hrefs and target
+    Array.from(documentObj.querySelectorAll("a")).forEach((match) => {
+      match.innerHTML = match.innerHTML.replace(aisTag, "");
+      match.target = "_blank";
+      try {
+        const hrefURL = new URL(match.href);
+        const isRelativeURL = hrefURL.hostname === window.location.hostname;
+        match.href = !isRelativeURL
+          ? match.href
+          : `${HelpBaseURL}/${match.getAttribute("href")}`;
+      } catch (e) {}
     });
 
     const content = strip(documentObj.body.innerHTML).trim();
@@ -87,11 +98,17 @@ const DocumentationDescription = ({ activeItem }: { activeItem: any }) => {
   );
 };
 
+const HitEnterMessage = () => (
+  <span>
+    Hit <kbd>↵ Return</kbd> to navigate
+  </span>
+);
+
 const descriptionByType = {
   [SEARCH_ITEM_TYPES.documentation]: DocumentationDescription,
-  [SEARCH_ITEM_TYPES.action]: () => null,
-  [SEARCH_ITEM_TYPES.widget]: () => null,
-  [SEARCH_ITEM_TYPES.datasource]: () => null,
+  [SEARCH_ITEM_TYPES.action]: HitEnterMessage,
+  [SEARCH_ITEM_TYPES.widget]: HitEnterMessage,
+  [SEARCH_ITEM_TYPES.datasource]: HitEnterMessage,
 };
 
 const Description = (props: Props) => {

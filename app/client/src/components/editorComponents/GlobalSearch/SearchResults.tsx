@@ -19,6 +19,7 @@ import { HelpIcons } from "icons/HelpIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { AppState } from "reducers";
 import { keyBy } from "lodash";
+import Icon, { IconSize } from "components/ads/Icon";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 
@@ -60,6 +61,10 @@ const SearchItemContainer = styled.div<{ isActiveItem: boolean }>`
 
 const ItemTitle = styled.div`
   margin-left: ${(props) => props.theme.spaces[5]}px;
+  display: flex;
+  justify-content: space-between;
+  flex: 1;
+  align-items: center;
 `;
 
 const StyledDocumentIcon = styled(DocumentIcon)`
@@ -72,6 +77,37 @@ const StyledDocumentIcon = styled(DocumentIcon)`
   }
 `;
 
+const StyleActionLink = styled.div<{ isActiveItem?: boolean }>`
+  visibility: ${(props) => (props.isActiveItem ? "visible" : "hidden")};
+  ${SearchItemContainer}:hover & {
+    visibility: visible;
+  }
+`;
+
+const ActionLink = withTheme(
+  ({
+    item,
+    theme,
+    isActiveItem,
+  }: {
+    item: any;
+    theme: Theme;
+    isActiveItem?: boolean;
+  }) => {
+    const searchContext = useContext(SearchContext);
+    return (
+      <StyleActionLink isActiveItem={isActiveItem}>
+        <Icon
+          name="link"
+          size={IconSize.LARGE}
+          fillColor={theme.colors.globalSearch.searchItemText}
+          onClick={() => searchContext.handleItemLinkClick(item)}
+        />
+      </StyleActionLink>
+    );
+  },
+);
+
 const DocumentationItem = withTheme((props: any) => {
   const searchContext = useContext(SearchContext);
   return (
@@ -83,6 +119,7 @@ const DocumentationItem = withTheme((props: any) => {
         <span>
           <AlgoliaHighlight attribute="title" hit={props.item} />
         </span>
+        <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
       </ItemTitle>
     </>
   );
@@ -130,6 +167,7 @@ const WidgetItem = withTheme((props: any) => {
       </span>
       <ItemTitle>
         <Highlight match={query} text={widgetName} />
+        <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
       </ItemTitle>
     </>
   );
@@ -156,6 +194,7 @@ const ActionItem = withTheme((props: any) => {
       </span>
       <ItemTitle>
         <Highlight match={query} text={title} />
+        <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
       </ItemTitle>
     </>
   );
@@ -177,6 +216,7 @@ const DatasourceItem = withTheme((props: any) => {
       </span>
       <ItemTitle>
         <Highlight match={query} text={title} />
+        <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
       </ItemTitle>
     </>
   );
@@ -212,7 +252,7 @@ const SearchItem = withTheme((props: ItemProps) => {
       className="t--docHit"
       isActiveItem={isActiveItem}
     >
-      <Item hit={item} item={item} query={query} />
+      <Item hit={item} item={item} query={query} isActiveItem={isActiveItem} />
     </SearchItemContainer>
   );
 });

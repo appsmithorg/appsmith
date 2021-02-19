@@ -16,7 +16,7 @@ class GlobalSearchHotKeys extends React.Component<Props> {
   get hotKeysConfig() {
     return [
       {
-        combo: "shift + o",
+        combo: "mod + k",
         onKeyDown: this.props.toggleShow,
         hideWhenModalClosed: false,
         allowInInput: false,
