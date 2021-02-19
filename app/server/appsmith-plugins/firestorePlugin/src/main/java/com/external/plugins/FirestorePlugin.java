@@ -240,6 +240,20 @@ public class FirestorePlugin extends BasePlugin {
             ));
         }
 
+        private String getPropertyAt(List<Property> properties, int index, String defaultValue) {
+            if (properties.size() <= index) {
+                return defaultValue;
+            }
+
+            final Property property = properties.get(index);
+            if (property == null) {
+                return defaultValue;
+            }
+
+            final String value = property.getValue();
+            return value != null ? value : defaultValue;
+        }
+
         private Mono<ActionExecutionResult> methodGetCollection(CollectionReference query, List<Property> properties) {
             final String orderBy = properties.size() > 1 && properties.get(1) != null ? properties.get(1).getValue() : null;
             final int limit = properties.size() > 2 && properties.get(2) != null ? Integer.parseInt(properties.get(2).getValue()) : 10;
@@ -247,9 +261,31 @@ public class FirestorePlugin extends BasePlugin {
             final Op operator = properties.size() > 4 && properties.get(4) != null ? Op.valueOf(properties.get(4).getValue()) : null;
             final String queryValue = properties.size() > 5 && properties.get(5) != null ? properties.get(5).getValue() : null;
 
+            // final String orderByString = getPropertyAt(properties, 1, "");
+            // try {
+            //     objectMapper.readValue(orderByString, List.class);
+            // } catch (IOException e) {
+            //     // TODO: Investigate how many actions are using this today on prod.
+            //     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, orderByString, e));
+            // }
+
             final List<String> orderingFields = List.of("symbol", "name");
-            final Map<String, Object> startAfter = Map.of("symbol", "HDFC");
-            final Map<String, Object> endBefore = Map.of("symbol", "HDFC");
+
+            final Map<String, Object> startAfter;
+            final String startAfterJson = getPropertyAt(properties, 6, "{}");
+            try {
+                startAfter = StringUtils.isEmpty(startAfterJson) ? Collections.emptyMap() : objectMapper.readValue(startAfterJson, Map.class);
+            } catch (IOException e) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, startAfterJson, e));
+            }
+
+            final Map<String, Object> endBefore;
+            final String endBeforeJson = getPropertyAt(properties, 6, "{}");
+            try {
+                endBefore = StringUtils.isEmpty(endBeforeJson) ? Collections.emptyMap() : objectMapper.readValue(startAfterJson, Map.class);
+            } catch (IOException e) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, endBeforeJson, e));
+            }
 
             return Mono.just(query)
                     // Apply ordering, if provided.
