@@ -85,6 +85,16 @@ const getDocumentationPreviewContent = (
       } catch (e) {}
     });
 
+    //replace hints with code tags
+    documentObj.body.innerHTML = documentObj.body.innerHTML.replace(
+      /{% hint .*?%}/,
+      "<code>",
+    );
+    documentObj.body.innerHTML = documentObj.body.innerHTML.replace(
+      /{% endhint .*?%}/,
+      "</code>",
+    );
+
     const content = strip(documentObj.body.innerHTML).trim();
     return content;
   } catch (e) {
