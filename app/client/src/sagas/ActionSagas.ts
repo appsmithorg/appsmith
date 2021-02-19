@@ -42,15 +42,14 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
-import { Action, ActionViewMode } from "entities/Action";
+import { Action, ActionViewMode, PluginType } from "entities/Action";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getCurrentPageNameByActionId,
   getPageNameByPageId,
+  getPlugin,
 } from "selectors/entitiesSelector";
-import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
   API_EDITOR_URL,
@@ -67,6 +66,7 @@ import { getEditorConfig, getDatasources } from "selectors/entitiesSelector";
 import PluginsApi from "api/PluginApi";
 import _, { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
+import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -253,7 +253,7 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
     );
     let action = yield select(getAction, actionPayload.payload.id);
     if (!action) throw new Error("Could not find action to update");
-    const isApi = action.pluginType === "API";
+    const isApi = action.pluginType === PluginType.API;
 
     if (isApi) {
       action = transformRestAction(action);
@@ -269,13 +269,19 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
         response.data.id,
       );
 
-      if (action.pluginType === QUERY_CONSTANT) {
+      if (action.pluginType === PluginType.DB) {
         AnalyticsUtil.logEvent("SAVE_QUERY", {
           queryName: action.name,
           pageName,
         });
-      } else if (action.pluginType === PLUGIN_TYPE_API) {
+      } else if (action.pluginType === PluginType.API) {
         AnalyticsUtil.logEvent("SAVE_API", {
+          apiId: response.data.id,
+          apiName: response.data.name,
+          pageName: pageName,
+        });
+      } else if (action.pluginType === PluginType.SAAS) {
+        AnalyticsUtil.logEvent("SAVE_SAAS", {
           apiId: response.data.id,
           apiName: response.data.name,
           pageName: pageName,
@@ -308,8 +314,9 @@ export function* deleteActionSaga(
     const name = actionPayload.payload.name;
     const action = yield select(getAction, id);
 
-    const isApi = action.pluginType === PLUGIN_TYPE_API;
-    const isQuery = action.pluginType === QUERY_CONSTANT;
+    const isApi = action.pluginType === PluginType.API;
+    const isQuery = action.pluginType === PluginType.DB;
+    const isSaas = action.pluginType === PluginType.SAAS;
 
     const response: GenericApiResponse<Action> = yield ActionAPI.deleteAction(
       id,
@@ -328,6 +335,14 @@ export function* deleteActionSaga(
           apiID: id,
         });
       }
+      if (isSaas) {
+        const pageName = yield select(getCurrentPageNameByActionId, id);
+        AnalyticsUtil.logEvent("DELETE_SAAS", {
+          apiName: action.name,
+          pageName,
+          apiID: id,
+        });
+      }
       if (isQuery) {
         AnalyticsUtil.logEvent("DELETE_QUERY", {
           queryName: action.name,
@@ -337,9 +352,10 @@ export function* deleteActionSaga(
       yield put(deleteActionSuccess({ id }));
       const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
-      if (isApi) {
+      if (isApi || isSaas) {
         history.push(API_EDITOR_URL(applicationId, pageId));
       }
+
       if (isQuery) {
         history.push(QUERIES_EDITOR_URL(applicationId, pageId));
       }
@@ -619,8 +635,9 @@ function* toggleActionExecuteOnLoadSaga(
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const action: Action = yield select(getAction, id);
-  const isApi = action.pluginType === PLUGIN_TYPE_API;
-  const isQuery = action.pluginType === QUERY_CONSTANT;
+  const isApi = action.pluginType === PluginType.API;
+  const isQuery = action.pluginType === PluginType.DB;
+  const isSaas = action.pluginType === PluginType.DB;
   const applicationId = yield select(getCurrentApplicationId);
 
   if (isApi) {
@@ -629,6 +646,17 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   if (isQuery) {
     history.push(
       QUERIES_EDITOR_ID_URL(applicationId, action.pageId, action.id),
+    );
+  }
+  if (isSaas) {
+    const plugin = yield select(getPlugin, action.pluginId);
+    history.push(
+      SAAS_EDITOR_API_ID_URL(
+        applicationId,
+        action.pageId,
+        plugin.packageName,
+        action.id,
+      ),
     );
   }
 }

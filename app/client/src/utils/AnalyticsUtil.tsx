@@ -38,6 +38,8 @@ export type EventName =
   | "PREVIEW_APP"
   | "EDITOR_OPEN"
   | "CREATE_ACTION"
+  | "SAVE_SAAS"
+  | "DELETE_SAAS"
   | "SAVE_API"
   | "SAVE_API_CLICK"
   | "RUN_API"

@@ -66,8 +66,10 @@ const actionPathFromName = (actionName: string, name: string): string => {
   return `${actionName}.${path}`;
 };
 
-const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
-const mapStateToProps = (state: AppState) => {
+const mapStateToProps = (state: AppState, props: DynamicInputControlProps) => {
+  const valueSelector = formValueSelector(
+    props.formName || QUERY_EDITOR_FORM_NAME,
+  );
   const actionName = valueSelector(state, "name");
   return {
     actionName: actionName,

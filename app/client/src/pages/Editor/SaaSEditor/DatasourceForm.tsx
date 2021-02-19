@@ -142,7 +142,6 @@ class DatasourceSaaSEditor extends React.Component<Props> {
   configDetails: Record<string, any> = {};
 
   componentDidMount() {
-    console.log("MY MAN");
     this.requiredFields = {};
     this.configDetails = {};
     if (this.props.pluginId) {
@@ -320,9 +319,7 @@ class DatasourceSaaSEditor extends React.Component<Props> {
         params: { applicationId, datasourceId, pageId, pluginPackageName },
       },
       isSaving,
-
       isDeleting,
-
       deleteDatasource,
     } = this.props;
 
@@ -479,7 +476,6 @@ const mapStateToProps = (state: AppState, props: any) => {
   const { formConfigs, loadingFormConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_SAAS_FORM)(state) as Datasource;
   const pluginId = _.get(datasource, "pluginId", "");
-  console.log(getConfigInitialValues(formConfigs[pluginId]));
   return {
     isSaving: datasources.loading,
     isDeleting: datasources.isDeleting,
