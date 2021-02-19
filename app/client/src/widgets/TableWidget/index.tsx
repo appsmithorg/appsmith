@@ -903,6 +903,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
         return prev + `{{(currentRow) => { ${next} }}} `;
       }, "");
+
       super.executeAction({
         dynamicString: modifiedAction,
         event: {
