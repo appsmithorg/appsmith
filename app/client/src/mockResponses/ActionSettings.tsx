@@ -45,14 +45,21 @@ export const apiActionSettingsConfig = [
       {
         label: "Run API on Page load",
         configProperty: "executeOnLoad",
-        controlType: "SWITCH",
+        controlType: "CHECKBOX",
         info: "Will refresh data each time the page is loaded",
       },
       {
         label: "Request confirmation before running API",
         configProperty: "confirmBeforeExecute",
-        controlType: "SWITCH",
+        controlType: "CHECKBOX",
         info: "Ask confirmation from the user each time before refreshing data",
+      },
+      {
+        label: "Encode query params",
+        configProperty: "actionConfiguration.encodeParamsToggle",
+        controlType: "CHECKBOX",
+        info:
+          "Encode query params for all APIs. Also encode form body when Content-Type header is set to x-www-form-encoded",
       },
       // {
       //   label: "Cache response",
@@ -69,8 +76,8 @@ export const apiActionSettingsConfig = [
         label: "API timeout (in milliseconds)",
         info: "Maximum time after which the API will return",
         configProperty: "actionConfiguration.timeoutInMillisecond",
-        controlType: "INPUT_TEXT",
-        dataType: "NUMBER",
+        controlType: "NUMBER_INPUT",
+        dataType: "number",
       },
     ],
   },

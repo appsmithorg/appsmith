@@ -30,6 +30,98 @@ class FormButtonWidget extends BaseWidget<
     };
   }
 
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "text",
+            label: "Label",
+            helpText: "Sets the label of the button",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "buttonStyle",
+            label: "Button Style",
+            helpText: "Changes the style of the button",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Primary Button",
+                value: "PRIMARY_BUTTON",
+              },
+              {
+                label: "Secondary Button",
+                value: "SECONDARY_BUTTON",
+              },
+              {
+                label: "Danger Button",
+                value: "DANGER_BUTTON",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            helpText:
+              "Disables the button when the parent form has a required widget that is not filled",
+            propertyName: "disabledWhenInvalid",
+            label: "Disabled Invalid Forms",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            helpText:
+              "Resets the fields within the parent form when the click action succeeds",
+            propertyName: "resetFormOnClick",
+            label: "Reset Form on Success",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            helpText: "Controls the visibility of the widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "googleRecaptchaKey",
+            label: "Google Recaptcha Key",
+            helpText: "Sets Google Recaptcha v3 site key for button",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter google recaptcha key",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when the button is clicked",
+            propertyName: "onClick",
+            label: "onClick",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
+
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       recaptchaToken: undefined,

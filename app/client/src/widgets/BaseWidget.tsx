@@ -110,6 +110,22 @@ abstract class BaseWidget<
     updateWidget && updateWidget(operationName, widgetId, widgetProperties);
   }
 
+  deleteWidgetProperty(propertyPaths: string[]): void {
+    const { deleteWidgetProperty } = this.context;
+    const { widgetId } = this.props;
+    if (deleteWidgetProperty && widgetId) {
+      deleteWidgetProperty(widgetId, propertyPaths);
+    }
+  }
+
+  batchUpdateWidgetProperty(updates: Record<string, unknown>): void {
+    const { batchUpdateWidgetProperty } = this.context;
+    const { widgetId } = this.props;
+    if (batchUpdateWidgetProperty && widgetId) {
+      batchUpdateWidgetProperty(widgetId, updates);
+    }
+  }
+
   updateWidgetProperty(propertyName: string, propertyValue: any): void {
     const { updateWidgetProperty } = this.context;
     const { widgetId } = this.props;

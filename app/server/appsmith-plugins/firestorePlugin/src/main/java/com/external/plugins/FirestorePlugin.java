@@ -1,5 +1,7 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -7,8 +9,6 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.google.api.core.ApiFuture;
@@ -18,7 +18,6 @@ import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;
-import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.FirebaseApp;
@@ -370,8 +369,10 @@ public class FirestorePlugin extends BasePlugin {
                 return resultMap;
 
             } else if (objResult instanceof DocumentSnapshot) {
+                // Individual document.
                 DocumentSnapshot documentSnapshot = (DocumentSnapshot) objResult;
                 Map<String, Object> resultMap = new HashMap<>();
+                resultMap.put("$ref", resultToMap(documentSnapshot.getReference()));
                 if (documentSnapshot.getData() != null) {
                     for (final Map.Entry<String, Object> entry : documentSnapshot.getData().entrySet()) {
                         resultMap.put(entry.getKey(), resultToMap(entry.getValue(), false));
@@ -380,23 +381,16 @@ public class FirestorePlugin extends BasePlugin {
                 return resultMap;
 
             } else if (objResult instanceof QuerySnapshot) {
-                QuerySnapshot querySnapshot = (QuerySnapshot) objResult;
-                List<Map<String, Object>> documents = new ArrayList<>();
-                for (QueryDocumentSnapshot documentSnapshot : querySnapshot.getDocuments()) {
-                    final Map<String, Object> data = documentSnapshot.getData();
-                    for (final Map.Entry<String, Object> entry : data.entrySet()) {
-                        data.put(entry.getKey(), resultToMap(entry.getValue(), false));
-                    }
-                    documents.add(data);
-                }
-                return documents;
+                // Result of a GET_COLLECTION operation.
+                return resultToMap(((QuerySnapshot) objResult).getDocuments());
 
             } else if (objResult instanceof DocumentReference) {
+                // A reference containing details of another document.
                 DocumentReference documentReference = (DocumentReference) objResult;
-                Map<String, Object> resultMap = new HashMap<>();
-                resultMap.put("id", documentReference.getId());
-                resultMap.put("path", documentReference.getPath());
-                return resultMap;
+                return Map.of(
+                        "id", documentReference.getId(),
+                        "path", documentReference.getPath()
+                );
 
             } else if (objResult instanceof Map) {
                 Map<String, Object> resultMap = (Map) objResult;

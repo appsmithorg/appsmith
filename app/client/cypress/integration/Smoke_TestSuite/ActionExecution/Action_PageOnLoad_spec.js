@@ -11,15 +11,14 @@ describe("API Panel Test Functionality", function() {
     cy.enterDatasourceAndPath("https://reqres.in/api/", "users");
     cy.WaitAutoSave();
     cy.get("li:contains('Settings')").click({ force: true });
-    cy.get("[data-cy=executeOnLoad]")
-      .find(".bp3-switch")
-      .click();
+    cy.get("[data-cy=executeOnLoad]").click({ force: true });
 
     cy.wait("@setExecuteOnLoad");
 
     cy.SearchEntityandOpen("Table1");
     cy.testJsontext("tabledata", "{{PageLoadApi.data.data");
-
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
     cy.wait("@updateLayout");
 
     cy.reload();
@@ -36,9 +35,7 @@ describe("API Panel Test Functionality", function() {
     cy.enterDatasourceAndPath("https://abc.com", "users");
     cy.WaitAutoSave();
     cy.get("li:contains('Settings')").click({ force: true });
-    cy.get("[data-cy=executeOnLoad]")
-      .find(".bp3-switch")
-      .click();
+    cy.get("[data-cy=executeOnLoad]").click({ force: true });
 
     cy.wait("@setExecuteOnLoad");
 

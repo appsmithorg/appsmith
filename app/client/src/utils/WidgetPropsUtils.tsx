@@ -22,6 +22,7 @@ import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { isString } from "lodash";
 import log from "loglevel";
+import { tableWidgetPropertyPaneMigrations } from "utils/migrations/TableWidget";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -373,9 +374,14 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = 9;
   }
 
-  if (currentDSL.version === 8) {
+  if (currentDSL.version === 9) {
+    currentDSL = tableWidgetPropertyPaneMigrations(currentDSL);
+    currentDSL.version = 10;
+  }
+
+  if (currentDSL.version === 10) {
     currentDSL = addVersionNumberMigration(currentDSL);
-    currentDSL.version = 9;
+    currentDSL.version = 11;
   }
 
   return currentDSL;

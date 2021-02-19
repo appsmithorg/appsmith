@@ -475,6 +475,8 @@ const BASE_WIDGET: DataTreeWidget = {
   type: WidgetTypes.SKELETON_WIDGET,
   parentId: "0",
   version: 1,
+  bindingPaths: {},
+  triggerPaths: {},
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
 };
 
@@ -490,15 +492,22 @@ const BASE_ACTION: DataTreeAction = {
   run: {},
   data: {},
   ENTITY_TYPE: ENTITY_TYPE.ACTION,
+  bindingPaths: {
+    isLoading: true,
+    data: true,
+  },
 };
 
 describe("DataTreeEvaluator", () => {
-  const unEvalTree = {
+  const unEvalTree: Record<string, DataTreeWidget> = {
     Text1: {
       ...BASE_WIDGET,
       widgetName: "Text1",
       text: "Label",
       type: WidgetTypes.TEXT_WIDGET,
+      bindingPaths: {
+        text: true,
+      },
     },
     Text2: {
       ...BASE_WIDGET,
@@ -506,6 +515,9 @@ describe("DataTreeEvaluator", () => {
       text: "{{Text1.text}}",
       dynamicBindingPathList: [{ key: "text" }],
       type: WidgetTypes.TEXT_WIDGET,
+      bindingPaths: {
+        text: true,
+      },
     },
     Text3: {
       ...BASE_WIDGET,
@@ -513,6 +525,9 @@ describe("DataTreeEvaluator", () => {
       text: "{{Text1.text}}",
       dynamicBindingPathList: [{ key: "text" }],
       type: WidgetTypes.TEXT_WIDGET,
+      bindingPaths: {
+        text: true,
+      },
     },
     Dropdown1: {
       ...BASE_WIDGET,
@@ -527,18 +542,40 @@ describe("DataTreeEvaluator", () => {
         },
       ],
       type: WidgetTypes.DROP_DOWN_WIDGET,
+      bindingPaths: {
+        options: true,
+        defaultOptionValue: true,
+        isRequired: true,
+        isVisible: true,
+        isDisabled: true,
+        isValid: true,
+        selectedOption: true,
+        selectedOptionArr: true,
+        selectedIndex: true,
+        selectedIndexArr: true,
+        value: true,
+        selectedOptionValues: true,
+      },
     },
     Table1: {
       ...BASE_WIDGET,
       tableData: "{{Api1.data.map(datum => ({ ...datum, raw: Text1.text }) )}}",
       dynamicBindingPathList: [{ key: "tableData" }],
       type: WidgetTypes.TABLE_WIDGET,
+      bindingPaths: {
+        tableData: true,
+        selectedRow: true,
+        selectedRows: true,
+      },
     },
     Text4: {
       ...BASE_WIDGET,
       text: "{{Table1.selectedRow.test}}",
       dynamicBindingPathList: [{ key: "text" }],
       type: WidgetTypes.TEXT_WIDGET,
+      bindingPaths: {
+        text: true,
+      },
     },
   };
   const evaluator = new DataTreeEvaluator(WIDGET_CONFIG_MAP);
@@ -636,6 +673,11 @@ describe("DataTreeEvaluator", () => {
         defaultText: "Default value",
         widgetName: "Input1",
         type: WidgetTypes.INPUT_WIDGET,
+        bindingPaths: {
+          defaultText: true,
+          isValid: true,
+          value: true,
+        },
       },
     };
 
@@ -646,7 +688,7 @@ describe("DataTreeEvaluator", () => {
   it("Evaluates for value changes in nested diff paths", () => {
     const updatedUnEvalTree = {
       ...unEvalTree,
-      Dropdown1: {
+      Dropdown2: {
         ...BASE_WIDGET,
         options: [
           {
@@ -659,11 +701,25 @@ describe("DataTreeEvaluator", () => {
           },
         ],
         type: WidgetTypes.DROP_DOWN_WIDGET,
+        bindingPaths: {
+          options: true,
+          defaultOptionValue: true,
+          isRequired: true,
+          isVisible: true,
+          isDisabled: true,
+          isValid: true,
+          selectedOption: true,
+          selectedOptionArr: true,
+          selectedIndex: true,
+          selectedIndexArr: true,
+          value: true,
+          selectedOptionValues: true,
+        },
       },
     };
     const updatedEvalTree = evaluator.updateDataTree(updatedUnEvalTree);
     expect(updatedEvalTree).toHaveProperty(
-      "Dropdown1.options.0.label",
+      "Dropdown2.options.0.label",
       "newValue",
     );
   });

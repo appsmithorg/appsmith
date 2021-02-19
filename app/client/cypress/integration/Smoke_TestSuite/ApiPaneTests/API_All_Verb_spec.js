@@ -1,9 +1,11 @@
 const testdata = require("../../../fixtures/testdata.json");
 const apiwidget = require("../../../locators/apiWidgetslocator.json");
+const ApiEditor = require("../../../locators/ApiEditor.json");
 
 describe("API Panel Test Functionality", function() {
   afterEach(function() {
-    cy.get(".t--apiFormDeleteBtn").click();
+    cy.get(ApiEditor.ApiActionMenu).click({ force: true });
+    cy.get(apiwidget.deleteAPI).click({ force: true });
     cy.wait("@deleteAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -24,8 +26,9 @@ describe("API Panel Test Functionality", function() {
       testdata.headerKey,
       testdata.headerValue,
     );
-    cy.readFile("cypress/fixtures/putjson.txt").then(json => {
+    cy.readFile("cypress/fixtures/putjson.txt").then((json) => {
       cy.log(json);
+      cy.contains(ApiEditor.bodyTab).click({ force: true });
       cy.xpath(apiwidget.postbody)
         .click({ force: true })
         .focus()
@@ -50,8 +53,9 @@ describe("API Panel Test Functionality", function() {
       testdata.headerKey,
       testdata.headerValue,
     );
-    cy.readFile("cypress/fixtures/postjson.txt").then(json => {
+    cy.readFile("cypress/fixtures/postjson.txt").then((json) => {
       cy.log(json);
+      cy.contains(ApiEditor.bodyTab).click({ force: true });
       cy.xpath(apiwidget.postbody)
         .click({ force: true })
         .focus()
@@ -76,8 +80,9 @@ describe("API Panel Test Functionality", function() {
       testdata.headerKey,
       testdata.headerValue,
     );
-    cy.readFile("cypress/fixtures/patchjson.txt").then(json => {
+    cy.readFile("cypress/fixtures/patchjson.txt").then((json) => {
       cy.log(json);
+      cy.contains(ApiEditor.bodyTab).click({ force: true });
       cy.xpath(apiwidget.postbody)
         .click({ force: true })
         .focus()

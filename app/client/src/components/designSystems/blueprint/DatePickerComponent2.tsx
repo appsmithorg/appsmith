@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { labelStyle } from "constants/DefaultTheme";
+import { labelStyle, IntentColors } from "constants/DefaultTheme";
 import { ControlGroup, Classes, Label } from "@blueprintjs/core";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
@@ -11,22 +11,27 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { TimePrecision } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
+import ErrorTooltip from "components/editorComponents/ErrorTooltip";
+import { DATE_WIDGET_DEFAULT_VALIDATION_ERROR } from "constants/messages";
 
-const StyledControlGroup = styled(ControlGroup)`
+const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {
     .${Classes.INPUT} {
       box-shadow: none;
       border: 1px solid;
-      border-color: ${Colors.GEYSER_LIGHT};
+      border-color: ${(props) =>
+        !props.isValid ? IntentColors.danger : Colors.GEYSER_LIGHT};
       border-radius: ${(props) => props.theme.radii[1]}px;
       width: 100%;
       height: inherit;
       align-items: center;
       &:active {
-        border-color: ${Colors.HIT_GRAY};
+        border-color: ${(props) =>
+          !props.isValid ? IntentColors.danger : Colors.HIT_GRAY};
       }
       &:focus {
-        border-color: ${Colors.MYSTIC};
+        border-color: ${(props) =>
+          !props.isValid ? IntentColors.danger : Colors.MYSTIC};
       }
     }
     .${Classes.INPUT_GROUP} {
@@ -47,7 +52,9 @@ const StyledControlGroup = styled(ControlGroup)`
   }
   &&& {
     input {
-      border: 1px solid ${Colors.HIT_GRAY};
+      border: 1px solid;
+      border-color: ${(props) =>
+        !props.isValid ? IntentColors.danger : Colors.HIT_GRAY};
       border-radius: ${(props) => props.theme.radii[1]}px;
       box-shadow: none;
       color: ${Colors.OXFORD_BLUE};
@@ -99,13 +106,17 @@ class DatePickerComponent extends React.Component<
           .clone()
           .set({ month: 11, date: 31, year: year + 20 })
           .toDate();
-    const value = this.state.selectedDate
-      ? new Date(this.state.selectedDate)
-      : null;
-
+    const isValid = this.state.selectedDate
+      ? this.isValidDate(new Date(this.state.selectedDate))
+      : true;
+    const value =
+      isValid && this.state.selectedDate
+        ? new Date(this.state.selectedDate)
+        : null;
     return (
       <StyledControlGroup
         fill
+        isValid={isValid}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
@@ -122,24 +133,56 @@ class DatePickerComponent extends React.Component<
           </Label>
         )}
         {
-          <DateInput
-            className={this.props.isLoading ? "bp3-skeleton" : ""}
-            formatDate={this.formatDate}
-            parseDate={this.parseDate}
-            placeholder={"Select Date"}
-            disabled={this.props.isDisabled}
-            showActionsBar={true}
-            timePrecision={TimePrecision.MINUTE}
-            closeOnSelection
-            onChange={this.onDateSelected}
-            value={value}
-            minDate={minDate}
-            maxDate={maxDate}
-          />
+          <ErrorTooltip
+            isOpen={!isValid}
+            message={DATE_WIDGET_DEFAULT_VALIDATION_ERROR}
+          >
+            <DateInput
+              className={this.props.isLoading ? "bp3-skeleton" : ""}
+              formatDate={this.formatDate}
+              parseDate={this.parseDate}
+              placeholder={"Select Date"}
+              disabled={this.props.isDisabled}
+              showActionsBar={true}
+              timePrecision={TimePrecision.MINUTE}
+              closeOnSelection
+              onChange={this.onDateSelected}
+              value={value}
+              minDate={minDate}
+              maxDate={maxDate}
+            />
+          </ErrorTooltip>
         }
       </StyledControlGroup>
     );
   }
+
+  isValidDate = (date: Date): boolean => {
+    let isValid = true;
+    const parsedCurrentDate = moment(date);
+    if (this.props.minDate) {
+      const parsedMinDate = moment(this.props.minDate);
+      if (
+        this.props.minDate &&
+        parsedMinDate.isValid() &&
+        parsedCurrentDate.isBefore(parsedMinDate)
+      ) {
+        isValid = false;
+      }
+    }
+    if (this.props.maxDate) {
+      const parsedMaxDate = moment(this.props.maxDate);
+      if (
+        isValid &&
+        this.props.maxDate &&
+        parsedMaxDate.isValid() &&
+        parsedCurrentDate.isAfter(parsedMaxDate)
+      ) {
+        isValid = false;
+      }
+    }
+    return isValid;
+  };
 
   formatDate = (date: Date): string => {
     const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;

@@ -88,6 +88,8 @@ import {
 import copy from "copy-to-clipboard";
 import { EMPTY_RESPONSE } from "../components/editorComponents/ApiResponseView";
 
+import localStorage from "utils/localStorage";
+
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
   NEW_WINDOW = "NEW_WINDOW",

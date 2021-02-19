@@ -1,23 +1,27 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { CommonComponentProps, Classes, Variant } from "./common";
-import Text, { TextType } from "./Text";
 import styled from "styled-components";
+import Icon, { IconSize } from "./Icon";
+import { Colors } from "constants/Colors";
+import Text, { TextType } from "./Text";
 
 type CalloutProps = CommonComponentProps & {
   variant?: Variant;
-  text: string;
   fill?: boolean;
+  closeButton?: boolean;
+  text?: string;
+  label?: ReactNode;
+  onClose?: () => void;
 };
 
 const CalloutContainer = styled.div<{
-  variant?: Variant;
+  variant: Variant;
   fill?: boolean;
 }>`
-  padding: ${(props) => props.theme.spaces[5]}px
-    ${(props) => props.theme.spaces[11] + 1}px;
-  background: ${(props) =>
-    props.variant ? props.theme.colors.callout[props.variant].bgColor : null};
-  height: 42px;
+  position: relative;
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[12]}px;
+  background: ${(props) => props.theme.colors.callout[props.variant].bgColor};
 
   ${(props) =>
     props.fill
@@ -28,21 +32,58 @@ const CalloutContainer = styled.div<{
   `
       : null};
 
-  .${Classes.TEXT} {
-    color: ${(props) =>
-      props.variant ? props.theme.colors.callout[props.variant].color : null};
+  .${Classes.ICON} {
+    cursor: default;
+    margin-right: ${(props) => props.theme.spaces[4]}px;
+    svg path {
+      fill: ${(props) =>
+        props.variant === Variant.danger
+          ? Colors.WHITE
+          : props.theme.colors.callout[props.variant].color};
+    }
+  }
+  a {
+    color: ${(props) => props.theme.colors.callout[props.variant].color};
+    &:hover {
+      text-decoration-color: ${(props) =>
+        props.theme.colors.callout[props.variant].color};
+    }
+    span {
+      color: ${(props) => props.theme.colors.callout[props.variant].color};
+    }
+  }
+`;
+const Label = styled.div<{ variant: Variant }>`
+  position: absolute;
+  right: ${(props) => props.theme.spaces[12]}px;
+  top: ${(props) => props.theme.spaces[5]}px;
+  .${Classes.ICON} {
+    margin-right: 0px !important;
+    cursor: pointer;
+    svg path {
+      fill: ${(props) => props.theme.colors.callout[props.variant].color};
+    }
   }
 `;
 
 Callout.defaultProps = {
   fill: false,
-  variant: "note",
+  variant: Variant.info,
 };
 
 function Callout(props: CalloutProps) {
   return (
-    <CalloutContainer variant={props.variant} fill={props.fill}>
+    <CalloutContainer variant={props.variant || Variant.info} fill={props.fill}>
+      {props.text && props.variant !== Variant.info ? (
+        <Icon name={props.variant} size={IconSize.MEDIUM} />
+      ) : null}
       <Text type={TextType.P2}>{props.text}</Text>
+      {props.label ? props.label : null}
+      {props.closeButton ? (
+        <Label variant={props.variant || Variant.info} onClick={props.onClose}>
+          <Icon name="close-modal" />
+        </Label>
+      ) : null}
     </CalloutContainer>
   );
 }

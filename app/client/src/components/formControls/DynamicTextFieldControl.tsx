@@ -3,6 +3,7 @@ import { formValueSelector, change } from "redux-form";
 import { connect } from "react-redux";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
+import FormLabel from "components/editorComponents/FormLabel";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import {
   EditorSize,
@@ -56,7 +57,7 @@ class DynamicTextControl extends BaseControl<
   }
 
   render() {
-    const { responseType } = this.props;
+    const { responseType, label } = this.props;
     const isNewQuery =
       new URLSearchParams(window.location.search).get("showTemplate") ===
       "true";
@@ -69,6 +70,7 @@ class DynamicTextControl extends BaseControl<
 
     return (
       <Wrapper>
+        <FormLabel>{label}</FormLabel>
         {showTemplate ? (
           <TemplateMenu
             createTemplate={(templateString) => {

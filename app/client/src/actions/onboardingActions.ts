@@ -1,12 +1,8 @@
-import { OnboardingStep } from "constants/OnboardingConstants";
+import {
+  OnboardingHelperConfig,
+  OnboardingStep,
+} from "constants/OnboardingConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-
-export const showTooltip = (payload: OnboardingStep) => {
-  return {
-    type: ReduxActionTypes.SHOW_ONBOARDING_TOOLTIP,
-    payload,
-  };
-};
 
 export const showIndicator = (payload: OnboardingStep) => {
   return {
@@ -32,5 +28,46 @@ export const setOnboardingState = (payload: boolean) => {
   return {
     type: ReduxActionTypes.SET_ONBOARDING_STATE,
     payload,
+  };
+};
+
+export const showOnboardingHelper = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SHOW_ONBOARDING_HELPER,
+    payload,
+  };
+};
+
+export const setHelperConfig = (payload: OnboardingHelperConfig) => {
+  return {
+    type: ReduxActionTypes.SET_HELPER_CONFIG,
+    payload,
+  };
+};
+
+export const setCurrentSubstep = (payload: number) => {
+  return {
+    type: ReduxActionTypes.SET_ONBOARDING_SUBSTEP,
+    payload,
+  };
+};
+
+export const showWelcomeHelper = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SHOW_ONBOARDING_WELCOME_HELPER,
+    payload,
+  };
+};
+
+export const showOnboardingLoader = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SHOW_ONBOARDING_LOADER,
+    payload,
+  };
+};
+
+export const showEndOnboardingHelper = () => {
+  return {
+    type: ReduxActionTypes.SHOW_END_ONBOARDING_HELPER,
   };
 };
