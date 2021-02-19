@@ -44,8 +44,8 @@ const DBQueryGroup = (props: any) => {
   const actions = useActions("");
   const datasources = useFilteredDatasources("");
   const plugins = useSelector(getPlugins);
-  const dbPluginMap = ACTION_PLUGIN_MAP.filter(
-    (plugin) => plugin?.type === PluginType.DB,
+  const dbPluginMap = ACTION_PLUGIN_MAP.filter((plugin) =>
+    plugin?.types.includes(PluginType.DB),
   );
   const addedWidget = useSelector(
     (state: AppState) => state.ui.onBoarding.addedWidget,
