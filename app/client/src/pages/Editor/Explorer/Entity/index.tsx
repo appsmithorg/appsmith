@@ -19,6 +19,7 @@ import useClick from "utils/hooks/useClick";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
+  RIGHT_ICON = "entity-right-icon",
   ADD_BUTTON = "t--entity-add-btn",
   NAME = "t--entity-name",
   COLLAPSE_TOGGLE = "t--entity-collapse-toggle",
@@ -26,8 +27,9 @@ export enum EntityClassNames {
   PROPERTY = "t--entity-property",
 }
 
-const Wrapper = styled.div<{ active: boolean }>`
+const Wrapper = styled.div<{ active: boolean; dim: boolean }>`
   line-height: ${(props) => props.theme.lineHeights[2]}px;
+  opacity: ${(props) => (props.dim ? 0.4 : 1)};
 `;
 
 export const EntityItem = styled.div<{
@@ -44,7 +46,7 @@ export const EntityItem = styled.div<{
   width: 100%;
   display: inline-grid;
   grid-template-columns: ${(props) =>
-    props.spaced ? "20px auto 1fr 30px" : "8px auto 1fr 30px"};
+    props.spaced ? "20px auto 1fr auto 30px" : "8px auto 1fr auto 30px"};
   border-radius: 0;
   color: ${(props) => (props.active ? Colors.WHITE : Colors.ALTO)};
   cursor: pointer;
@@ -71,6 +73,13 @@ export const EntityItem = styled.div<{
   &&&&:hover .${EntityClassNames.CONTEXT_MENU} {
     visibility: visible;
   }
+
+  & .${EntityClassNames.RIGHT_ICON} {
+    visibility: hidden;
+  }
+  &:hover .${EntityClassNames.RIGHT_ICON} {
+    visibility: visible;
+  }
 `;
 
 const IconWrapper = styled.span`
@@ -83,6 +92,8 @@ export type EntityProps = {
   name: string;
   children?: ReactNode;
   icon: ReactNode;
+  rightIcon?: ReactNode;
+  dim?: boolean;
   disabled?: boolean;
   action?: () => void;
   active?: boolean;
@@ -148,6 +159,7 @@ export const Entity = forwardRef(
         active={!!props.active}
         className={`${EntityClassNames.WRAPPER} ${props.className}`}
         ref={ref}
+        dim={!!props.dim}
       >
         <EntityItem
           active={!!props.active}
@@ -172,6 +184,9 @@ export const Entity = forwardRef(
             updateEntityName={updateNameCallback}
             searchKeyword={props.searchKeyword}
           />
+          <IconWrapper className={EntityClassNames.RIGHT_ICON}>
+            {props.rightIcon}
+          </IconWrapper>
           <AddButton
             onClick={props.onCreate}
             className={`${EntityClassNames.ADD_BUTTON}`}

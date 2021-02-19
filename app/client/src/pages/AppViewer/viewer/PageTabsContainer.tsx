@@ -50,7 +50,7 @@ export const PageTabsContainer = (props: AppViewerHeaderProps) => {
   const { currentApplicationDetails, pages } = props;
 
   // Mark default page as first page
-  const appPages = pages;
+  const appPages = pages.filter((page) => !page.isHidden);
   if (appPages.length > 1) {
     appPages.forEach((item, i) => {
       if (item.isDefault) {

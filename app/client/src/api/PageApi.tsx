@@ -66,6 +66,7 @@ export interface CreatePageRequest {
 export interface UpdatePageRequest {
   id: string;
   name: string;
+  isHidden?: boolean;
 }
 
 export interface CreatePageResponse extends ApiResponse {
@@ -78,6 +79,7 @@ export interface FetchPageListResponse extends ApiResponse {
       id: string;
       name: string;
       isDefault: boolean;
+      isHidden?: boolean;
       layouts: Array<PageLayout>;
     }>;
     organizationId: string;

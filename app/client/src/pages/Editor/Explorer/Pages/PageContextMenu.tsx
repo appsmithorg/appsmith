@@ -9,7 +9,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { clonePageInit } from "actions/pageActions";
+import { clonePageInit, updatePage } from "actions/pageActions";
 
 export const PageContextMenu = (props: {
   pageId: string;
@@ -17,6 +17,7 @@ export const PageContextMenu = (props: {
   applicationId: string;
   className?: string;
   isDefaultPage: boolean;
+  isHidden: boolean;
 }) => {
   const dispatch = useDispatch();
 
@@ -58,6 +59,11 @@ export const PageContextMenu = (props: {
     props.pageId,
   ]);
 
+  const setHiddenField = useCallback(
+    () => dispatch(updatePage(props.pageId, props.name, !props.isHidden)),
+    [dispatch, props.pageId, props.name, props.isHidden],
+  );
+
   const optionTree: TreeDropdownOption[] = [
     {
       value: "rename",
@@ -68,6 +74,11 @@ export const PageContextMenu = (props: {
       value: "clone",
       onSelect: clonePage,
       label: "Clone",
+    },
+    {
+      value: props.isHidden ? "show" : "hide",
+      onSelect: setHiddenField,
+      label: props.isHidden ? "Show" : "Hide",
     },
   ];
   if (!props.isDefaultPage) {
