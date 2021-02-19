@@ -5,27 +5,15 @@
       "id": 1,
       "children": [
         {
-          "label": "Sheet Id Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].key",
-          "controlType": "INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "sheetId"
-        },
-        {
-          "label": "Sheet Id",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-          "controlType": "INPUT_TEXT"
-        },
-        {
           "label": "Method Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "method"
         },
         {
           "label": "Method",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
           "controlType": "DROP_DOWN",
           "isRequired": true,
           "initialValue": "GET",
@@ -59,33 +47,42 @@
               "value": "COPY"
             },
             {
-              "label": "Delete Document",
-              "value": "DELETE_DOCUMENT"
+              "label": "List available spreadsheets",
+              "value": "LIST"
+            },
+            {
+              "label": "Get spreadsheet information",
+              "value": "INFO"
             }
           ]
         },
         {
-          "label": "Document/Collection Path",
-          "configProperty": "actionConfiguration.path",
-          "controlType": "INPUT_TEXT",
-          "isRequired": true,
-          "initialValue": ""
-        },
-        {
-          "label": "Order By Key",
+          "label": "Sheet Id Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
-          "initialValue": "orderBy"
+          "initialValue": "sheetId"
         },
         {
-          "label": "Order By",
+          "label": "Sheet Id",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+          "controlType": "INPUT_TEXT"
+        },
+        {
+          "label": "Range Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "range"
+        },
+        {
+          "label": "Range",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
           "controlType": "INPUT_TEXT",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "NOT_EQUALS",
-            "value": "GET_COLLECTION"
+            "comparison": "IN",
+            "value": ["GET", "APPEND", "UPDATE", "BULK_UPDATE", "CLEAR", "CREATE", "COPY" ,"DELETE", "LIST", "INFO"]
           },
           "initialValue": ""
         },
