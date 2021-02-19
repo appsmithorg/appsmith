@@ -47,7 +47,6 @@ public class ActionConfiguration {
     // DB action fields
 
     // JS action fields
-
     String jsFunction;
 
     /*

@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers;
+package com.appsmith.external.helpers;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

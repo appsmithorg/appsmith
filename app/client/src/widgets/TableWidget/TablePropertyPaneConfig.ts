@@ -500,7 +500,14 @@ export default [
                   propertyName: "onClick",
                   label: "onClick",
                   controlType: "ACTION_SELECTOR",
-                  customJSControl: "COMPUTE_VALUE",
+                  additionalAutoComplete: (props: TableWidgetProps) => ({
+                    currentRow: Object.assign(
+                      {},
+                      ...Object.keys(props.primaryColumns).map((key) => ({
+                        [key]: "",
+                      })),
+                    ),
+                  }),
                   isJSConvertible: true,
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,

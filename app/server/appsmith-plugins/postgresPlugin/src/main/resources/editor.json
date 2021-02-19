@@ -5,6 +5,23 @@
       "id": 1,
       "children": [
         {
+          "label": "Use Prepared Statement",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "true",
+          "options": [
+            {
+              "label": "Turn on Prepared Statement to prevent SQL injections",
+              "value": "true"
+            },
+            {
+              "label": "Turn off Prepared Statement to configure dynamic setting of column names using bindings",
+              "value": "false"
+            }
+          ]
+        },
+        {
           "label": "",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT"
