@@ -35,7 +35,6 @@ describe("Checking for error message on Organisation Name ", function() {
     // Enter the name "XYZ"
     // Ensure the application can be created with the same name
   });
-
   it("User must not be able to add empty organisation name", function() {
     // Navigate to home Page
     // Click on the "Create Organisation" button

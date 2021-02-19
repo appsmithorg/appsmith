@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.helpers.MustacheHelper.extractWordsAndAddToSet;
+import static com.appsmith.external.helpers.MustacheHelper.extractWordsAndAddToSet;
 
 @Slf4j
 @Component

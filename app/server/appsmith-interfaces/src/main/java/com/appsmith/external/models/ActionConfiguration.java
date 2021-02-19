@@ -32,7 +32,7 @@ public class ActionConfiguration {
     // API fields
     String path;
     List<Property> headers;
-    Boolean encodeParamsToggle;
+    Boolean encodeParamsToggle = true;
     List<Property> queryParameters;
     String body;
     // For form-data input instead of json use the following
@@ -47,7 +47,6 @@ public class ActionConfiguration {
     // DB action fields
 
     // JS action fields
-
     String jsFunction;
 
     /*

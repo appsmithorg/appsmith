@@ -7,6 +7,7 @@ export const updateWidgetPropertyRequest = (
   propertyPath: string,
   propertyValue: any,
   renderMode: RenderMode,
+  isDynamicTrigger?: boolean,
 ): ReduxAction<UpdateWidgetPropertyRequestPayload> => {
   return {
     type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
@@ -15,6 +16,7 @@ export const updateWidgetPropertyRequest = (
       propertyPath,
       propertyValue,
       renderMode,
+      isDynamicTrigger,
     },
   };
 };
@@ -45,12 +47,12 @@ export const batchUpdateWidgetProperty = (
 
 export const deleteWidgetProperty = (
   widgetId: string,
-  propertyPath: string,
+  propertyPaths: string[],
 ): ReduxAction<DeleteWidgetPropertyPayload> => ({
   type: ReduxActionTypes.DELETE_WIDGET_PROPERTY,
   payload: {
     widgetId,
-    propertyPath,
+    propertyPaths,
   },
 });
 
@@ -74,6 +76,7 @@ export interface UpdateWidgetPropertyRequestPayload {
   propertyPath: string;
   propertyValue: any;
   renderMode: RenderMode;
+  isDynamicTrigger?: boolean;
 }
 
 export interface UpdateWidgetPropertyPayload {
@@ -89,5 +92,5 @@ export interface SetWidgetDynamicPropertyPayload {
 
 export interface DeleteWidgetPropertyPayload {
   widgetId: string;
-  propertyPath: string;
+  propertyPaths: string[];
 }
