@@ -1,11 +1,16 @@
 import { BUILDER_PAGE_URL, convertToQueryParams } from "constants/routes";
 
+export const SAAS_BASE_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+) => `${BUILDER_PAGE_URL(applicationId, pageId)}/saas`;
+
 export const SAAS_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
   pluginPackageName = ":pluginPackageName",
 ): string => {
-  return `${BUILDER_PAGE_URL(applicationId, pageId)}/saas/${pluginPackageName}`;
+  return `${SAAS_BASE_URL(applicationId, pageId)}/${pluginPackageName}`;
 };
 
 export const SAAS_EDITOR_DATASOURCE_ID_URL = (
