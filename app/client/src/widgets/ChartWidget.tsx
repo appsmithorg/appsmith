@@ -8,6 +8,7 @@ import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/ActionConstants";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -33,16 +34,11 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     };
   }
 
-  onDataPointClick = () => {
-    if (this.props.onDataPointClick) {
-      super.executeAction({
-        dynamicString: this.props.onDataPointClick,
-        event: {
-          type: EventType.ON_DATA_POINT_CLICK,
-        },
-      });
-    }
-  };
+  static getMetaPropertiesMap(): Record<string, undefined> {
+    return {
+      selectedDataPoint: undefined,
+    };
+  }
 
   static getPropertyPaneConfig() {
     return [
@@ -175,6 +171,19 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     ];
   }
 
+  onDataPointClick = (selectedDataPoint: { x: any; y: any }) => {
+    this.props.updateWidgetMetaProperty(
+      "selectedDataPoint",
+      selectedDataPoint,
+      {
+        dynamicString: this.props.onDataPointClick,
+        event: {
+          type: EventType.ON_DATA_POINT_CLICK,
+        },
+      },
+    );
+  };
+
   getPageView() {
     return (
       <Suspense fallback={<Skeleton />}>
@@ -217,7 +226,7 @@ export interface ChartData {
   data: ChartDataPoint[];
 }
 
-export interface ChartWidgetProps extends WidgetProps {
+export interface ChartWidgetProps extends WidgetProps, WithMeta {
   chartType: ChartType;
   chartData: ChartData[];
   xAxisName: string;
@@ -226,7 +235,8 @@ export interface ChartWidgetProps extends WidgetProps {
   isVisible?: boolean;
   allowHorizontalScroll: boolean;
   onDataPointClick?: string;
+  selectedDataPoint?: ChartDataPoint;
 }
 
 export default ChartWidget;
-export const ProfiledChartWidget = Sentry.withProfiler(ChartWidget);
+export const ProfiledChartWidget = Sentry.withProfiler(withMeta(ChartWidget));
