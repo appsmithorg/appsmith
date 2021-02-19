@@ -102,16 +102,24 @@ class ListView extends React.Component<Props> {
   };
 
   handleCreateNewAPI = (datasource: Datasource) => {
-    const { actions, location } = this.props;
+    const {
+      match: {
+        params: { pageId },
+      },
+      actions,
+      location,
+    } = this.props;
     const params: string = location.search;
-    const pageId = new URLSearchParams(params).get("importTo");
-
-    if (pageId) {
-      const newApiName = createNewApiName(actions, pageId);
+    let pgId = new URLSearchParams(params).get("importTo");
+    if (!pgId) {
+      pgId = pageId;
+    }
+    if (pgId) {
+      const newApiName = createNewApiName(actions, pgId);
 
       this.props.createAction({
         name: newApiName,
-        pageId: pageId,
+        pageId: pgId,
         pluginId: datasource.pluginId,
         datasource: {
           id: datasource.id,
