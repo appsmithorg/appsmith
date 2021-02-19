@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import marked from "marked";
-import { uniq } from "lodash";
 
 type Props = {
   activeItem: any;
@@ -58,11 +57,12 @@ const getDocumentationPreviewContent = (
   activeItem: any,
 ): string | undefined => {
   try {
-    const { value, matchedWords } = activeItem?._highlightResult?.document;
+    const { value } = activeItem?._highlightResult?.document;
     const parsedDocument = marked(value);
     const domparser = new DOMParser();
     const documentObj = domparser.parseFromString(parsedDocument, "text/html");
 
+    // removes algolia highlight within from code sections
     const aisTag = new RegExp(
       `&lt;${algoliaHighlightTag}&gt;|&lt;/${algoliaHighlightTag}&gt;`,
       "g",
