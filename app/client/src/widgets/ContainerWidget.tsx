@@ -110,8 +110,6 @@ class ContainerWidget extends BaseWidget<
       childWidgetData.canExtend = this.props.shouldScrollContents;
     }
 
-    console.log({ bottomRow: childWidgetData.bottomRow });
-
     childWidgetData.parentId = this.props.widgetId;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
@@ -222,7 +220,11 @@ class ContainerWidget extends BaseWidget<
 
     const VirtualizedList = () => (
       <StickyList
-        height={this.props.minHeight || componentHeight}
+        height={
+          this.props.type === WidgetTypes.CANVAS_WIDGET
+            ? this.props.minHeight
+            : this.props.componentHeight
+        }
         itemCount={sortedChildren.length}
         itemSize={rowHeight}
         width={componentWidth}
