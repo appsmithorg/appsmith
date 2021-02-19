@@ -69,4 +69,4 @@ wait_for_containers_start() {
   done
 }
 
-wait_for_containers_start 160
+wait_for_containers_start 300
