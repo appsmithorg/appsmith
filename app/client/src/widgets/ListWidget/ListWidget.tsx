@@ -53,10 +53,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     childWidgetData.parentId = this.props.widgetId;
     childWidgetData.shouldScrollContents = false;
-    childWidgetData.canExtend = this.props.shouldScrollContents;
+    childWidgetData.canExtend =
+      childWidgetData.virtualizedEnabled ?? this.props.shouldScrollContents;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.minHeight = componentHeight;
     childWidgetData.rightColumn = componentWidth;
+    childWidgetData.noPad = true;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
@@ -162,7 +164,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   // {
-  //   grid: {
+  //   list: {
   //     children: [ <--- children
   //       {
   //         canvas: { <--- childCanvas

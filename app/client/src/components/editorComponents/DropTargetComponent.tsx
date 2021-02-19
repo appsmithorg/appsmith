@@ -38,6 +38,7 @@ type DropTargetComponentProps = WidgetProps & {
   snapColumnSpace: number;
   snapRowSpace: number;
   minHeight: number;
+  noPad?: boolean;
 };
 
 const StyledDropTarget = styled.div`

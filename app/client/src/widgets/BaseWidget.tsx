@@ -236,7 +236,6 @@ abstract class BaseWidget<
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
         style={style}
-        resizeDisabled={this.props.resizeDisabled}
       >
         {content}
       </PositionedContainer>
@@ -254,7 +253,7 @@ abstract class BaseWidget<
       case RenderModes.CANVAS:
         content = this.getCanvasView();
         if (!this.props.detachFromLayout) {
-          content = this.makeResizable(content);
+          if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
           if (!this.props.dragDisabled) content = this.makeDraggable(content);
           content = this.makePositioned(content);
@@ -306,10 +305,11 @@ abstract class BaseWidget<
       componentHeight,
       componentWidth,
       yPosition:
-        this.props.topRow * this.props.parentRowSpace + CONTAINER_GRID_PADDING,
+        this.props.topRow * this.props.parentRowSpace +
+        (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
       xPosition:
         this.props.leftColumn * this.props.parentColumnSpace +
-        CONTAINER_GRID_PADDING,
+        (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
       xPositionUnit: CSSUnits.PIXEL,
       yPositionUnit: CSSUnits.PIXEL,
     };
@@ -374,6 +374,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   // Examples: MainContainer is detached from layout,
   // MODAL_WIDGET is also detached from layout.
   detachFromLayout?: boolean;
+  noContainerOffset?: boolean; // This won't offset the child in parent
 }
 
 export const WIDGET_STATIC_PROPS = {
@@ -391,6 +392,7 @@ export const WIDGET_STATIC_PROPS = {
   parentId: true,
   renderMode: true,
   detachFromLayout: true,
+  noContainerOffset: false,
 };
 
 export interface WidgetDisplayProps {

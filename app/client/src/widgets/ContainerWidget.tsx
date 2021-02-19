@@ -9,7 +9,11 @@ import {
 import ContainerComponent, {
   ContainerStyle,
 } from "components/designSystems/appsmith/ContainerComponent";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
+import {
+  RenderModes,
+  WidgetType,
+  WidgetTypes,
+} from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   GridDefaults,
@@ -25,10 +29,54 @@ export interface StickyListContextInterface {
   ItemRenderer: any;
 }
 
-const StickyListContext = createContext<StickyListContextInterface | null>(
-  null,
-);
-StickyListContext.displayName = "StickyListContext";
+// const StickyRow = (props: {
+//   data: ListChildComponentProps;
+//   children: any[];
+//   renderFn: (el: WidgetProps) => React.ReactNode;
+//   rowHeight: number;
+// }) => {
+//   const child = props.children[props.data.index];
+//   const row = props.renderFn(child);
+
+//   return (
+//     <div
+//       style={{ height: `${props.rowHeight}px` }}
+//       key={`virtualized-row-${props.data.index}`}
+//       className="sticky"
+//     >
+//       {row}
+//     </div>
+//   );
+// };
+
+// const innerElementType = forwardRef<any, any>(({ children, ...rest }, ref) => (
+//   <StickyListContext.Consumer>
+//     {(props) => (
+//       <div ref={ref} {...rest}>
+//         {props?.stickyIndices.map((index: number) => (
+//           <StickyRow
+//             data={children}
+//             index={index}
+//             key={index}
+//             style={{
+//               left: 0,
+//               width: "100%",
+//             }}
+//           />
+//         ))}
+
+//         {children}
+//       </div>
+//     )}
+//   </StickyListContext.Consumer>
+// ));
+
+// innerElementType.displayName = "InnerElement";
+
+// const StickyListContext = createContext<StickyListContextInterface | null>(
+//   null,
+// );
+// StickyListContext.displayName = "StickyListContext";
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
@@ -75,11 +123,15 @@ class ContainerWidget extends BaseWidget<
 
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
+    const padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
+    let width = componentWidth;
+    if (!this.props.noPad) width -= padding;
+    else width -= WIDGET_PADDING * 3;
+
     return {
       snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       snapColumnSpace: componentWidth
-        ? (componentWidth - (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2) /
-          GridDefaults.DEFAULT_GRID_COLUMNS
+        ? width / GridDefaults.DEFAULT_GRID_COLUMNS
         : 0,
     };
   };
@@ -90,25 +142,16 @@ class ContainerWidget extends BaseWidget<
       return null;
     }
 
-    const snapSpaces = this.getSnapSpaces();
     const { componentWidth, componentHeight } = this.getComponentDimensions();
 
-    if (childWidgetData.type !== WidgetTypes.CANVAS_WIDGET) {
-      // This path will exist IF CURRENT WIDGET IS CANVAS_WIDGET
-      childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
-      childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
-    } else {
-      // This is for the detached child like the default CANVAS_WIDGET child
-
-      childWidgetData.rightColumn = componentWidth;
-      childWidgetData.bottomRow = this.props.shouldScrollContents
-        ? childWidgetData.bottomRow
-        : componentHeight;
-      childWidgetData.minHeight = componentHeight;
-      childWidgetData.isVisible = this.props.isVisible;
-      childWidgetData.shouldScrollContents = false;
-      childWidgetData.canExtend = this.props.shouldScrollContents;
-    }
+    childWidgetData.rightColumn = componentWidth;
+    childWidgetData.bottomRow = this.props.shouldScrollContents
+      ? childWidgetData.bottomRow
+      : componentHeight;
+    childWidgetData.minHeight = componentHeight;
+    childWidgetData.isVisible = this.props.isVisible;
+    childWidgetData.shouldScrollContents = false;
+    childWidgetData.canExtend = this.props.shouldScrollContents;
 
     childWidgetData.parentId = this.props.widgetId;
 
@@ -120,7 +163,11 @@ class ContainerWidget extends BaseWidget<
 
     // if container is virtualized, render a virtualized list
     if (isVirtualized) {
-      return this.renderVirtualizedContainer();
+      if (this.props.renderMode !== RenderModes.CANVAS) {
+        return this.renderVirtualizedContainer();
+      } else {
+        return this.renderVirtualizedTemplate();
+      }
     }
 
     return map(
@@ -132,108 +179,44 @@ class ContainerWidget extends BaseWidget<
     );
   };
 
+  renderVirtualizedTemplate = () => {
+    const firstChild = get(this.props, "children[0]");
+    return this.renderChildWidget(firstChild);
+  };
+
   /**
    * creates a virtualized list component using react-window's VariableList
    *
    * @param props
    */
   renderVirtualizedContainer = () => {
-    const { componentWidth, componentHeight } = this.getComponentDimensions();
+    const { componentWidth } = this.getComponentDimensions();
     const snapSpaces = this.getSnapSpaces();
-    const sortedChildren = sortBy(
-      compact(this.props.children),
-      (child) => child.topRow,
-    );
-
-    const rowHeight = sortedChildren[0].bottomRow * snapSpaces.snapRowSpace;
+    const children = get(this.props, "children", []);
+    const firstChild = get(this.props, "children[0]");
+    const rowHeight = firstChild.bottomRow * snapSpaces.snapRowSpace;
 
     // eslint-disable-next-line
-    const innerElementType = forwardRef<any, any>(
-      ({ children, ...rest }, ref) => (
-        <StickyListContext.Consumer>
-          {(props) => (
-            <div ref={ref} {...rest}>
-              {props?.stickyIndices.map((index: number) => (
-                <StickyRow
-                  data={this.props.children}
-                  index={index}
-                  key={index}
-                  style={{
-                    left: 0,
-                    width: "100%",
-                  }}
-                />
-              ))}
-
-              {children}
-            </div>
-          )}
-        </StickyListContext.Consumer>
-      ),
-    );
-
-    const StickyRow = (childProps: ListChildComponentProps) => {
-      const child = sortedChildren[childProps.index];
-      const row = this.renderChildWidget(child);
-
-      return (
-        <div
-          style={{ height: `${rowHeight}px` }}
-          key={`virtualized-row-${childProps.index}`}
-          className="sticky"
-        >
-          {row}
-        </div>
-      );
-    };
 
     const Row = (childProps: ListChildComponentProps) => {
-      const row = this.renderChildWidget(sortedChildren[childProps.index]);
+      const row = this.renderChildWidget(children[childProps.index]);
 
-      return <div key={`virtualized-row-${childProps.index}`}>{row}</div>;
+      return <>{row}</>;
     };
 
-    const ItemWrapper = (childProps: ListChildComponentProps) => {
-      const { ItemRenderer, stickyIndices } = childProps.data;
-      if (stickyIndices && stickyIndices.includes(childProps.index)) {
-        return null;
-      }
-      return <ItemRenderer index={childProps.index} style={childProps.style} />;
-    };
-
-    const StickyList = (listProps: ListProps & { stickyIndices: number[] }) => {
-      const { children, stickyIndices, ...rest } = listProps;
-
-      return (
-        <StickyListContext.Provider
-          value={{ ItemRenderer: children, stickyIndices }}
-        >
-          <List
-            itemData={{ ItemRenderer: listProps.children, stickyIndices }}
-            {...rest}
-          >
-            {ItemWrapper}
-          </List>
-        </StickyListContext.Provider>
-      );
-    };
+    const virtualizedContainerHeight =
+      this.props.componentHeight || this.props.minHeight;
 
     const VirtualizedList = () => (
-      <StickyList
-        height={
-          this.props.type === WidgetTypes.CANVAS_WIDGET
-            ? this.props.minHeight
-            : this.props.componentHeight
-        }
-        itemCount={sortedChildren.length}
+      <List
+        height={virtualizedContainerHeight}
+        itemCount={children.length}
         itemSize={rowHeight}
-        width={componentWidth}
-        innerElementType={innerElementType}
-        stickyIndices={[0]}
+        width={componentWidth - 20}
         className="appsmith-virtualized-container"
       >
         {Row}
-      </StickyList>
+      </List>
     );
 
     return <VirtualizedList />;
@@ -261,6 +244,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   children?: T[];
   containerStyle?: ContainerStyle;
   shouldScrollContents?: boolean;
+  noPad?: boolean;
 }
 
 export default ContainerWidget;
