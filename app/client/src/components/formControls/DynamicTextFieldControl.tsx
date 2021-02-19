@@ -78,7 +78,11 @@ class DynamicTextControl extends BaseControl<
                 {
                   showTemplateMenu: false,
                 },
-                () => this.props.createTemplate(templateString),
+                () =>
+                  this.props.createTemplate(
+                    templateString,
+                    this.props.formName,
+                  ),
               );
             }}
             pluginId={this.props.pluginId}
@@ -100,13 +104,15 @@ class DynamicTextControl extends BaseControl<
 
 export interface DynamicTextFieldProps extends ControlProps {
   actionName: string;
-  createTemplate: (template: any) => any;
+  createTemplate: (template: any, formName: string) => any;
   pluginId: string;
   responseType: string;
 }
 
-const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
-const mapStateToProps = (state: AppState) => {
+const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {
+  const valueSelector = formValueSelector(
+    props.formName || QUERY_EDITOR_FORM_NAME,
+  );
   const actionName = valueSelector(state, "name");
   const pluginId = valueSelector(state, "datasource.pluginId");
   const responseTypes = getPluginResponseTypes(state);
@@ -119,7 +125,7 @@ const mapStateToProps = (state: AppState) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
-  createTemplate: (template: any) => {
+  createTemplate: (template: any, formName: string) => {
     const params = getQueryParams();
     if (params.showTemplate) {
       params.showTemplate = "false";
@@ -128,7 +134,9 @@ const mapDispatchToProps = (dispatch: any) => ({
       ...window.location,
       search: convertObjectToQueryParams(params),
     });
-    dispatch(change(QUERY_EDITOR_FORM_NAME, QUERY_BODY_FIELD, template));
+    dispatch(
+      change(formName || QUERY_EDITOR_FORM_NAME, QUERY_BODY_FIELD, template),
+    );
   },
 });
 

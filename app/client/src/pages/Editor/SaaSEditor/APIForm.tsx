@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
 import { Icon, Popover, Spinner, Tag } from "@blueprintjs/core";
@@ -34,8 +34,9 @@ import {
   getPluginImages,
   getDatasourceByPluginId,
   getActionResponses,
+  getPlugin,
 } from "selectors/entitiesSelector";
-
+import { Plugin } from "api/PluginApi";
 import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import ActionSettings from "pages/Editor/ActionSettings";
@@ -45,6 +46,8 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { RouteComponentProps } from "react-router";
+import { deleteAction, runActionInit } from "actions/actionActions";
+import { fetchPluginForm } from "actions/pluginActions";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -267,8 +270,6 @@ const DocumentationLink = styled.a`
 const OutputWrapper = styled.div``;
 
 type QueryFormProps = {
-  onDeleteClick: () => void;
-  onRunClick: () => void;
   isDeleting: boolean;
   isRunning: boolean;
   dataSources: Datasource[];
@@ -289,6 +290,7 @@ type ReduxProps = {
   actionName: string;
   responseType: string | undefined;
   pluginId: string;
+  plugin?: Plugin;
   documentationLink: string | undefined;
 };
 
@@ -306,13 +308,11 @@ type Props = StateAndRouteProps & InjectedFormProps<Action, StateAndRouteProps>;
 const QueryEditorForm: React.FC<Props> = (props: Props) => {
   const {
     match: {
-      params: { pageId, applicationId },
+      params: { pageId, applicationId, apiId },
     },
     handleSubmit,
     isDeleting,
     isRunning,
-    onRunClick,
-    onDeleteClick,
     DATASOURCES_OPTIONS,
     dataSources,
     executedQueryData,
@@ -322,6 +322,8 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     loadingFormConfigs,
     editorConfig,
     actionName,
+    plugin,
+    pluginId,
   } = props;
 
   let error = runErrorMessage;
@@ -358,13 +360,28 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     dispatch(addTableWidgetFromQuery(actionName));
   };
 
+  const onDeleteClick = () => {
+    dispatch(deleteAction({ id: apiId, name: actionName }));
+  };
+
+  const onRunClick = () => {
+    dispatch(runActionInit(apiId));
+  };
+
+  useEffect(() => {
+    if (!pluginId) return;
+    dispatch(fetchPluginForm({ id: pluginId }));
+  }, [pluginId]);
+
   const MenuList = (props: MenuListComponentProps<{ children: Node }>) => {
     return (
       <>
         <components.MenuList {...props}>{props.children}</components.MenuList>
         <CreateDatasource
           onClick={() => {
-            history.push(SAAS_EDITOR_URL(applicationId, pageId));
+            history.push(
+              SAAS_EDITOR_URL(applicationId, pageId, plugin?.packageName),
+            );
           }}
         >
           <Icon icon="plus" iconSize={11} className="createIcon" />
@@ -467,7 +484,13 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                   </p>
                   <Button
                     onClick={() =>
-                      history.push(SAAS_EDITOR_URL(applicationId, pageId))
+                      history.push(
+                        SAAS_EDITOR_URL(
+                          applicationId,
+                          pageId,
+                          plugin?.packageName,
+                        ),
+                      )
                     }
                     text="Add Datasource"
                     intent="primary"
@@ -537,7 +560,13 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                       </p>
                       <Button
                         onClick={() =>
-                          history.push(SAAS_EDITOR_URL(applicationId, pageId))
+                          history.push(
+                            SAAS_EDITOR_URL(
+                              applicationId,
+                              pageId,
+                              plugin?.packageName,
+                            ),
+                          )
                         }
                         text="Add a Datasource"
                         intent="primary"
@@ -632,6 +661,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   const action = getAction(state, apiId);
   const actionName = action?.name ?? "";
   const pluginId = action?.pluginId ?? "";
+  const plugin = getPlugin(state, pluginId);
   const responseTypes = getPluginResponseTypes(state);
   const documentationLinks = getPluginDocumentationLinks(state);
   let editorConfig: any;
@@ -654,12 +684,12 @@ const mapStateToProps = (state: AppState, props: any) => {
     editorConfig,
     actionName,
     pluginId,
+    plugin,
     responseType: responseTypes[pluginId],
     formData: getFormValues(SAAS_EDITOR_FORM)(state) as SaaSAction,
     documentationLink: documentationLinks[pluginId],
     initialValues: action,
     dataSources,
-
     DATASOURCES_OPTIONS,
     executedQueryData: responses[apiId],
     runErrorMessage: runErrorMessage[apiId],
