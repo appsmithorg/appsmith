@@ -25,9 +25,7 @@ describe("Binding the API with pageOnLoad and input Widgets", function() {
 
   it("Input widget updated with deafult data", function() {
     cy.SearchEntityandOpen("Input1");
-    cy.get(widgetsPage.defaultInput)
-      .type(testdata.command)
-      .type("3");
+    cy.get(widgetsPage.defaultInput).type("3");
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",
