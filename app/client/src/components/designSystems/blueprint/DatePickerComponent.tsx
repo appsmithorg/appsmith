@@ -211,9 +211,6 @@ class DatePickerComponent extends React.Component<
       const date = selectedDate ? this.formatDate(selectedDate) : "";
       this.setState({ selectedDate: date });
 
-      // if date is null ( if date is cleared ), don't call onDateSelected
-      if (!selectedDate) return false;
-
       onDateSelected(date);
     }
   };

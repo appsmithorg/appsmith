@@ -112,7 +112,6 @@ class DatePickerControl extends BaseControl<
         : undefined;
       const isValid = this.validateDate(date);
       if (!isValid) return;
-
       // if everything is ok, put date in state
       this.setState({ selectedDate: selectedDate });
       this.updateProperty(this.props.propertyName, selectedDate);
@@ -127,8 +126,7 @@ class DatePickerControl extends BaseControl<
       this.props.widgetProperties.version === 2
         ? ISO_DATE_FORMAT
         : this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
-    const parsedSelectedDate = moment(date, dateFormat);
-    return parsedSelectedDate.isValid();
+    return date ? moment(date, dateFormat).isValid() : true;
   };
 
   formatDate = (date: Date): string => {
