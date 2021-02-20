@@ -815,6 +815,21 @@ Cypress.Commands.add("RenameEntity", (value) => {
   cy.wait(3000);
 });
 
+Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
+  cy.get(apiwidget.createapi).click({ force: true });
+  cy.wait("@createNewApi");
+  cy.get(apiwidget.resourceUrl).should("be.visible");
+  cy.get(apiwidget.ApiName).click({ force: true });
+  cy.get(apiwidget.apiTxt)
+    .clear()
+    .type(apiname, { force: true })
+    .should("have.value", apiname);
+  cy.get(".t--nameOfApi .error-message").should(($x) => {
+    console.log($x);
+    expect($x).contain(apiname.concat(" is already being used."));
+  });
+});
+
 Cypress.Commands.add("validateMessage", (value) => {
   cy.get(".bp3-popover-content").should(($x) => {
     console.log($x);
