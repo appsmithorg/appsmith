@@ -342,7 +342,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     }
                     return updatedAction;
                 })
-                .flatMap(super::create)
+                .flatMap(repository::save)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
