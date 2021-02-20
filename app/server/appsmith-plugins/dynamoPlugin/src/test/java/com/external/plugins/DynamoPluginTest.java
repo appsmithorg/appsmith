@@ -241,7 +241,6 @@ public class DynamoPluginTest {
 
     @Test
     public void testBatchGetItem() {
-        //language=JSON
         final String body = "{\n" +
                 "    \"RequestItems\": {\n" +
                 "        \"cities\": {\n" +
