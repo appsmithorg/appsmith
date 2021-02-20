@@ -317,6 +317,7 @@ public class DynamoPlugin extends BasePlugin {
                     final Method setterMethod = findMethod(builderType, m -> m.getName().equals(setterName) && !m.getParameterTypes()[0].getName().startsWith("[L"));
                     Type valueType = ((ParameterizedType) setterMethod.getGenericParameterTypes()[0]).getActualTypeArguments()[0];
                     if (valueType instanceof WildcardType) {
+                        // This occurs when the method's parameter is typed as `Collection<? extends Map<...>>`. Example op: `BatchGetItem`.
                         valueType = ((WildcardType) valueType).getUpperBounds()[0];
                     }
                     final Collection<Object> reTypedList = new ArrayList<>();
@@ -350,6 +351,14 @@ public class DynamoPlugin extends BasePlugin {
 
         if (mapping == null) {
             return null;
+        }
+
+        if (!(type instanceof ParameterizedType)) {
+            // This shouldn't happen. If it did, it's a case we haven't yet seen so far on Appsmith.
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_ERROR,
+                    "Invalid type reference " + type
+            );
         }
 
         final ParameterizedType ptype = (ParameterizedType) type;
