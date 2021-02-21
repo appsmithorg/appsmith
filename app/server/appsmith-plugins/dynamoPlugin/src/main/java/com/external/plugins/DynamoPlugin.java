@@ -192,31 +192,36 @@ public class DynamoPlugin extends BasePlugin {
                         );
                 }
 
-                Object extractedResponse = new Object();
-                transformedResponse.put(topLevelKey, extractedResponse);
-
                 for (Map.Entry<String, Object> responseEntry: rawResponse.entrySet()) {
                     if (!responseEntry.getKey().equals(topLevelKey)) {
                         transformedResponse.put(responseEntry.getKey(), responseEntry.getValue());
                     }
                     else {
                         if(action.equals(SCAN_ACTION_VALUE)) {
-                            extractedResponse = new ArrayList<>();
+                            ArrayList<Object> extractedResponse = new ArrayList<>();
+                            transformedResponse.put(topLevelKey, extractedResponse);
+
                             Collection<Object> rawItems = (Collection<Object>) (rawResponse.get(topLevelKey));
-                            for (Object item : rawItems) {
-                                Object value = extractValue(item);
-                                ((ArrayList<Object>)extractedResponse).add(value);
+                            if(rawItems != null) {
+                                for (Object item : rawItems) {
+                                    Object value = extractValue(item);
+                                    extractedResponse.add(value);
+                                }
                             }
                         }
                         else if (action.equals(PUT_ITEM_ACTION_VALUE)
                                 || action.equals(GET_ITEM_ACTION_VALUE)
                                 || action.equals(UPDATE_ITEM_ACTION_VALUE)
                                 || action.equals(DELETE_ITEM_ACTION_VALUE)) {
-                            extractedResponse = new HashMap<String, Object>();
-                            HashMap<String, Object> rawItem = (HashMap<String, Object>) rawResponse.get(ITEM_KEY);
-                            for (Map.Entry<String, Object> entry : rawItem.entrySet()) {
-                                Object value = extractValue(entry.getValue());
-                                ((HashMap<String, Object>)extractedResponse).put(entry.getKey(), value);
+                            HashMap<String, Object> extractedResponse = new HashMap<>();
+                            transformedResponse.put(topLevelKey, extractedResponse);
+
+                            HashMap<String, Object> rawItem = (HashMap<String, Object>) rawResponse.get(topLevelKey);
+                            if(rawItem != null) {
+                                for (Map.Entry<String, Object> entry : rawItem.entrySet()) {
+                                    Object value = extractValue(entry.getValue());
+                                    extractedResponse.put(entry.getKey(), value);
+                                }
                             }
                         }
                     }
@@ -224,47 +229,6 @@ public class DynamoPlugin extends BasePlugin {
 
                 return transformedResponse;
             }
-
-            /*else if (action.equals(GET_ITEM_ACTION_VALUE)) {
-                HashMap<String, Object> extractedResponse = new HashMap<>();
-                transformedResponse.put(RAW_RESPONSE_LABEL, rawResponse);
-                transformedResponse.put(ITEM_KEY, extractedResponse);
-
-                for (Map.Entry<String, Object> responseEntry : rawResponse.entrySet()) {
-                    if (!responseEntry.getKey().equals(ITEM_KEY)) {
-                        transformedResponse.put(responseEntry.getKey(), responseEntry.getValue());
-                    } else {
-                        HashMap<String, Object> rawItem = (HashMap<String, Object>) rawResponse.get(ITEM_KEY);
-                        for (Map.Entry<String, Object> entry : rawItem.entrySet()) {
-                            Object value = extractValue(entry.getValue());
-                            extractedResponse.put(entry.getKey(), value);
-                        }
-                    }
-                }
-
-                return transformedResponse;
-            }
-            else if (action.equals(PUT_ITEM_ACTION_VALUE)
-                    || action.equals(UPDATE_ITEM_ACTION_VALUE)
-                    || action.equals(DELETE_ITEM_ACTION_VALUE)) {
-                HashMap<String, Object> extractedResponse = new HashMap<>();
-                transformedResponse.put(RAW_RESPONSE_LABEL, rawResponse);
-                transformedResponse.put(ATTRIBUTES_KEY, extractedResponse);
-
-                for (Map.Entry<String, Object> responseEntry : rawResponse.entrySet()) {
-                    if (!responseEntry.getKey().equals(ATTRIBUTES_KEY)) {
-                        transformedResponse.put(responseEntry.getKey(), responseEntry.getValue());
-                    } else {
-                        HashMap<String, Object> rawItem = (HashMap<String, Object>) rawResponse.get(ATTRIBUTES_KEY);
-                        for (Map.Entry<String, Object> entry : rawItem.entrySet()) {
-                            Object value = extractValue(entry.getValue());
-                            extractedResponse.put(entry.getKey(), value);
-                        }
-                    }
-                }
-*/
-            /*    return transformedResponse;
-            }*/
 
             return rawResponse;
         }
@@ -315,6 +279,8 @@ public class DynamoPlugin extends BasePlugin {
                     );
                     final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, plainToSdk(parameters, requestClass));
                     Object rawResponse = sdkToPlain(response);
+                    //TODO: remove it
+                    System.out.println("devtest: raw response: " + rawResponse);
                     Object transformedResponse = getTransformedResponse((Map<String, Object>)rawResponse, action);
                     result.setBody(transformedResponse);
                 } catch (AppsmithPluginException | InvocationTargetException | IllegalAccessException | NoSuchMethodException | ClassNotFoundException e) {
