@@ -30,6 +30,7 @@ import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -160,10 +161,17 @@ public class DynamoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    assertArrayEquals(
-                            new String[]{"cities"},
-                            ((Map<String, List<String>>) result.getBody()).get("TableNames").toArray()
-                    );
+
+                   HashSet<String> expectedTables = new HashSet<>();
+                   expectedTables.add("cities");
+                   expectedTables.add("allTypes");
+
+                   HashSet<String> actualTables = new HashSet<>();
+                   actualTables.add(((Map<String, ArrayList<String>>) result.getBody()).get("TableNames").get(0));
+                   actualTables.add(((Map<String, ArrayList<String>>) result.getBody()).get("TableNames").get(1));
+
+                   assertTrue(expectedTables.equals(actualTables));
+
                 })
                 .verifyComplete();
     }
@@ -311,12 +319,16 @@ public class DynamoPluginTest {
                 .assertNext(structure -> {
                     assertNotNull(structure);
                     assertNotNull(structure.getTables());
-                    assertEquals(
-                            List.of("cities"),
-                            structure.getTables().stream()
-                                    .map(DatasourceStructure.Table::getName)
-                                    .collect(Collectors.toList())
-                    );
+
+                    HashSet<String> expectedTables = new HashSet<>();
+                    expectedTables.add("cities");
+                    expectedTables.add("allTypes");
+
+                    HashSet<String> actualTables = new HashSet<>();
+                    actualTables.add(structure.getTables().get(0).getName());
+                    actualTables.add(structure.getTables().get(1).getName());
+
+                    assertTrue(expectedTables.equals(actualTables));
                 })
                 .verifyComplete();
     }
