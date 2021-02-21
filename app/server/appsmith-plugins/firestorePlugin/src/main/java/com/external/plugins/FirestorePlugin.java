@@ -76,7 +76,7 @@ public class FirestorePlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(Firestore connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
-            return Mono.empty();
+            return executeParameterized(connection, null, datasourceConfiguration, actionConfiguration);
         }
 
         @Override
@@ -117,7 +117,7 @@ public class FirestorePlugin extends BasePlugin {
                 ));
             }
 
-            final PaginationField paginationField = executeActionDTO.getPaginationField();
+            final PaginationField paginationField = executeActionDTO == null ? null : executeActionDTO.getPaginationField();
 
             return Mono
                     .justOrEmpty(actionConfiguration.getBody())
@@ -273,10 +273,15 @@ public class FirestorePlugin extends BasePlugin {
         }
 
         private Mono<ActionExecutionResult> methodGetCollection(CollectionReference query, List<Property> properties, PaginationField paginationField) {
-            final int limit = properties.size() > 2 && properties.get(2) != null ? Integer.parseInt(properties.get(2).getValue()) : 10;
-            final String queryFieldPath = properties.size() > 3 && properties.get(3) != null ? properties.get(3).getValue() : null;
-            final Op operator = properties.size() > 4 && properties.get(4) != null ? Op.valueOf(properties.get(4).getValue()) : null;
-            final String queryValue = properties.size() > 5 && properties.get(5) != null ? properties.get(5).getValue() : null;
+            final String limitString = getPropertyAt(properties, 2, "10");
+            final int limit = StringUtils.isEmpty(limitString) ? 10 : Integer.parseInt(limitString);
+
+            final String queryFieldPath = getPropertyAt(properties, 3, null);
+
+            final String operatorString = getPropertyAt(properties, 4, null);
+            final Op operator = StringUtils.isEmpty(operatorString) ? null : Op.valueOf(operatorString);
+
+            final String queryValue = getPropertyAt(properties, 5, null);
 
             final String orderByString = getPropertyAt(properties, 1, "");
             final List<String> orderings;
@@ -299,7 +304,7 @@ public class FirestorePlugin extends BasePlugin {
 
             Map<String, Object> endBeforeTemp = null;
             if (PaginationField.PREV.equals(paginationField)) {
-                final String endBeforeJson = getPropertyAt(properties, 6, "{}");
+                final String endBeforeJson = getPropertyAt(properties, 7, "{}");
                 try {
                     endBeforeTemp = StringUtils.isEmpty(endBeforeJson) ? Collections.emptyMap() : objectMapper.readValue(endBeforeJson, Map.class);
                 } catch (IOException e) {
