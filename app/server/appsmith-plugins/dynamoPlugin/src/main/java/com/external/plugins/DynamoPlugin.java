@@ -51,7 +51,13 @@ import java.util.function.Predicate;
 public class DynamoPlugin extends BasePlugin {
 
     private static final String SCAN_ACTION_VALUE = "Scan";
+    private static final String GET_ITEM_ACTION_VALUE = "GetItem";
+    private static final String PUT_ITEM_ACTION_VALUE = "PutItem";
+    private static final String UPDATE_ITEM_ACTION_VALUE = "UpdateItem";
+    private static final String DELETE_ITEM_ACTION_VALUE = "DeleteItem";
     private static final String ITEMS_KEY = "Items";
+    private static final String ITEM_KEY = "Item";
+    private static final String ATTRIBUTES_KEY = "Attributes";
     private static final String AMAZON_S3_TYPE_STRING_LABEL = "S";
     private static final String AMAZON_S3_TYPE_NUMBER_LABEL = "N";
     private static final String AMAZON_S3_TYPE_BINARY_LABEL = "B";
@@ -63,7 +69,6 @@ public class DynamoPlugin extends BasePlugin {
     private static final String AMAZON_S3_TYPE_MAP_LABEL = "M";
     private static final String AMAZON_S3_TYPE_LIST_LABEL = "L";
     private static final String RAW_RESPONSE_LABEL = "raw";
-    private static final String TRANSFORMED_RESPONSE_LABEL = "Items";
 
     public DynamoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -155,28 +160,111 @@ public class DynamoPlugin extends BasePlugin {
          * - Transform response for easy consumption. For details please visit
          *   https://github.com/appsmithorg/appsmith/issues/3010
          */
-        public Object getTransformedResponse(Map<String, Object> rawResponse, String action) {
-            if (action.equals(SCAN_ACTION_VALUE)) {
-                Map<String, Object> transformedResponse = new HashMap<>();
-                ArrayList<Object> extractedResponse = new ArrayList<>();
+        public Object getTransformedResponse(Map<String, Object> rawResponse,
+                                             String action) throws AppsmithPluginException {
+            Map<String, Object> transformedResponse = new HashMap<>();
+
+            if (action.equals(SCAN_ACTION_VALUE)
+                || action.equals(GET_ITEM_ACTION_VALUE)
+                || action.equals(PUT_ITEM_ACTION_VALUE)
+                || action.equals(UPDATE_ITEM_ACTION_VALUE)
+                || action.equals(DELETE_ITEM_ACTION_VALUE)) {
                 transformedResponse.put(RAW_RESPONSE_LABEL, rawResponse);
-                transformedResponse.put(TRANSFORMED_RESPONSE_LABEL, extractedResponse);
+
+                String topLevelKey;
+                switch (action) {
+                    case SCAN_ACTION_VALUE:
+                        topLevelKey = ITEMS_KEY;
+                        break;
+                    case GET_ITEM_ACTION_VALUE:
+                        topLevelKey = ITEM_KEY;
+                        break;
+                    case PUT_ITEM_ACTION_VALUE:
+                    case UPDATE_ITEM_ACTION_VALUE:
+                    case DELETE_ITEM_ACTION_VALUE:
+                        topLevelKey = ATTRIBUTES_KEY;
+                        break;
+                    default:
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Appsmith has encountered an unexpected error when transforming raw DynamoDb response" +
+                                ". Please reach out to Appsmith customer support to resolve this."
+                        );
+                }
+
+                Object extractedResponse = new Object();
+                transformedResponse.put(topLevelKey, extractedResponse);
 
                 for (Map.Entry<String, Object> responseEntry: rawResponse.entrySet()) {
-                    if (!responseEntry.getKey().equals(ITEMS_KEY)) {
+                    if (!responseEntry.getKey().equals(topLevelKey)) {
                         transformedResponse.put(responseEntry.getKey(), responseEntry.getValue());
                     }
                     else {
-                        Collection<Object> rawItems = (Collection<Object>) (rawResponse.get(ITEMS_KEY));
-                        for (Object item: rawItems) {
-                            Object value = extractValue(item);
-                            extractedResponse.add(value);
+                        if(action.equals(SCAN_ACTION_VALUE)) {
+                            extractedResponse = new ArrayList<>();
+                            Collection<Object> rawItems = (Collection<Object>) (rawResponse.get(topLevelKey));
+                            for (Object item : rawItems) {
+                                Object value = extractValue(item);
+                                ((ArrayList<Object>)extractedResponse).add(value);
+                            }
+                        }
+                        else if (action.equals(PUT_ITEM_ACTION_VALUE)
+                                || action.equals(GET_ITEM_ACTION_VALUE)
+                                || action.equals(UPDATE_ITEM_ACTION_VALUE)
+                                || action.equals(DELETE_ITEM_ACTION_VALUE)) {
+                            extractedResponse = new HashMap<String, Object>();
+                            HashMap<String, Object> rawItem = (HashMap<String, Object>) rawResponse.get(ITEM_KEY);
+                            for (Map.Entry<String, Object> entry : rawItem.entrySet()) {
+                                Object value = extractValue(entry.getValue());
+                                ((HashMap<String, Object>)extractedResponse).put(entry.getKey(), value);
+                            }
                         }
                     }
                 }
 
                 return transformedResponse;
             }
+
+            /*else if (action.equals(GET_ITEM_ACTION_VALUE)) {
+                HashMap<String, Object> extractedResponse = new HashMap<>();
+                transformedResponse.put(RAW_RESPONSE_LABEL, rawResponse);
+                transformedResponse.put(ITEM_KEY, extractedResponse);
+
+                for (Map.Entry<String, Object> responseEntry : rawResponse.entrySet()) {
+                    if (!responseEntry.getKey().equals(ITEM_KEY)) {
+                        transformedResponse.put(responseEntry.getKey(), responseEntry.getValue());
+                    } else {
+                        HashMap<String, Object> rawItem = (HashMap<String, Object>) rawResponse.get(ITEM_KEY);
+                        for (Map.Entry<String, Object> entry : rawItem.entrySet()) {
+                            Object value = extractValue(entry.getValue());
+                            extractedResponse.put(entry.getKey(), value);
+                        }
+                    }
+                }
+
+                return transformedResponse;
+            }
+            else if (action.equals(PUT_ITEM_ACTION_VALUE)
+                    || action.equals(UPDATE_ITEM_ACTION_VALUE)
+                    || action.equals(DELETE_ITEM_ACTION_VALUE)) {
+                HashMap<String, Object> extractedResponse = new HashMap<>();
+                transformedResponse.put(RAW_RESPONSE_LABEL, rawResponse);
+                transformedResponse.put(ATTRIBUTES_KEY, extractedResponse);
+
+                for (Map.Entry<String, Object> responseEntry : rawResponse.entrySet()) {
+                    if (!responseEntry.getKey().equals(ATTRIBUTES_KEY)) {
+                        transformedResponse.put(responseEntry.getKey(), responseEntry.getValue());
+                    } else {
+                        HashMap<String, Object> rawItem = (HashMap<String, Object>) rawResponse.get(ATTRIBUTES_KEY);
+                        for (Map.Entry<String, Object> entry : rawItem.entrySet()) {
+                            Object value = extractValue(entry.getValue());
+                            extractedResponse.put(entry.getKey(), value);
+                        }
+                    }
+                }
+*/
+            /*    return transformedResponse;
+            }*/
 
             return rawResponse;
         }
@@ -403,6 +491,7 @@ public class DynamoPlugin extends BasePlugin {
                     // result in the map. Generic types in the setter method's signature are used to convert the values.
                     final Method setterMethod = findMethod(builderType, m -> m.getName().equals(setterName));
                     final ParameterizedType valueType = (ParameterizedType) setterMethod.getGenericParameterTypes()[0];
+
                     final Map<String, Object> transformedMap = new HashMap<>();
                     for (final Map.Entry<String, Object> innerEntry : ((Map<String, Object>) value).entrySet()) {
                         Object innerValue = innerEntry.getValue();
