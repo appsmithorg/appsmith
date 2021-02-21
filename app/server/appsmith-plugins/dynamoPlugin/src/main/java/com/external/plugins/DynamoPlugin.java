@@ -165,10 +165,10 @@ public class DynamoPlugin extends BasePlugin {
             Map<String, Object> transformedResponse = new HashMap<>();
 
             if (action.equals(SCAN_ACTION_VALUE)
-                || action.equals(GET_ITEM_ACTION_VALUE)
-                || action.equals(PUT_ITEM_ACTION_VALUE)
-                || action.equals(UPDATE_ITEM_ACTION_VALUE)
-                || action.equals(DELETE_ITEM_ACTION_VALUE)) {
+                    || action.equals(GET_ITEM_ACTION_VALUE)
+                    || action.equals(PUT_ITEM_ACTION_VALUE)
+                    || action.equals(UPDATE_ITEM_ACTION_VALUE)
+                    || action.equals(DELETE_ITEM_ACTION_VALUE)) {
                 transformedResponse.put(RAW_RESPONSE_LABEL, rawResponse);
 
                 String topLevelKey;
@@ -188,7 +188,7 @@ public class DynamoPlugin extends BasePlugin {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
                                 "Appsmith has encountered an unexpected error when transforming raw DynamoDb response" +
-                                ". Please reach out to Appsmith customer support to resolve this."
+                                        ". Please reach out to Appsmith customer support to resolve this."
                         );
                 }
 
@@ -197,12 +197,12 @@ public class DynamoPlugin extends BasePlugin {
                         transformedResponse.put(responseEntry.getKey(), responseEntry.getValue());
                     }
                     else {
-                        if(action.equals(SCAN_ACTION_VALUE)) {
+                        if (action.equals(SCAN_ACTION_VALUE)) {
                             ArrayList<Object> extractedResponse = new ArrayList<>();
                             transformedResponse.put(topLevelKey, extractedResponse);
 
                             Collection<Object> rawItems = (Collection<Object>) (rawResponse.get(topLevelKey));
-                            if(rawItems != null) {
+                            if (rawItems != null) {
                                 for (Object item : rawItems) {
                                     Object value = extractValue(item);
                                     extractedResponse.add(value);
@@ -210,14 +210,14 @@ public class DynamoPlugin extends BasePlugin {
                             }
                         }
                         else if (action.equals(PUT_ITEM_ACTION_VALUE)
-                                || action.equals(GET_ITEM_ACTION_VALUE)
-                                || action.equals(UPDATE_ITEM_ACTION_VALUE)
-                                || action.equals(DELETE_ITEM_ACTION_VALUE)) {
+                                    || action.equals(GET_ITEM_ACTION_VALUE)
+                                    || action.equals(UPDATE_ITEM_ACTION_VALUE)
+                                    || action.equals(DELETE_ITEM_ACTION_VALUE)) {
                             HashMap<String, Object> extractedResponse = new HashMap<>();
                             transformedResponse.put(topLevelKey, extractedResponse);
 
                             HashMap<String, Object> rawItem = (HashMap<String, Object>) rawResponse.get(topLevelKey);
-                            if(rawItem != null) {
+                            if (rawItem != null) {
                                 for (Map.Entry<String, Object> entry : rawItem.entrySet()) {
                                     Object value = extractValue(entry.getValue());
                                     extractedResponse.put(entry.getKey(), value);
@@ -279,8 +279,6 @@ public class DynamoPlugin extends BasePlugin {
                     );
                     final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, plainToSdk(parameters, requestClass));
                     Object rawResponse = sdkToPlain(response);
-                    //TODO: remove it
-                    System.out.println("devtest: raw response: " + rawResponse);
                     Object transformedResponse = getTransformedResponse((Map<String, Object>)rawResponse, action);
                     result.setBody(transformedResponse);
                 } catch (AppsmithPluginException | InvocationTargetException | IllegalAccessException | NoSuchMethodException | ClassNotFoundException e) {
