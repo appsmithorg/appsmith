@@ -315,6 +315,13 @@ public class FirestorePlugin extends BasePlugin {
             final Map<String, Object> startAfter = startAfterTemp;
             final Map<String, Object> endBefore = endBeforeTemp;
 
+            if (paginationField != null && CollectionUtils.isEmpty(orderings)) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Cannot do pagination without specifying an ordering."
+                ));
+            }
+
             return Mono.just(query)
                     // Apply ordering, if provided.
                     // .map(query1 -> StringUtils.isEmpty(orderBy) ? query1 : query1.orderBy(orderBy))

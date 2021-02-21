@@ -63,7 +63,7 @@
           "initialValue": "orderBy"
         },
         {
-          "label": "Order By",
+          "label": "Order By (JSON array of field names to order by)",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
           "controlType": "INPUT_TEXT",
           "hidden": {
