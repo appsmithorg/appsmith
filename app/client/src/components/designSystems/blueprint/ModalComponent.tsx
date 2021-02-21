@@ -2,6 +2,7 @@ import React, { ReactNode, RefObject, useRef, useEffect } from "react";
 import { Overlay, Classes } from "@blueprintjs/core";
 import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
+
 const Container = styled.div<{
   width: number;
   height: number;
@@ -25,11 +26,10 @@ const Container = styled.div<{
       justify-content: center;
       align-items: center;
       & .${Classes.OVERLAY_CONTENT} {
-        margin-top: -${(props) => props.theme.headerHeight};
         width: ${(props) => props.width}px;
         min-height: ${(props) => props.height}px;
         background: white;
-        border-radius: ${(props) => props.theme.radii[1]}px;
+        border-radius: ${(props) => props.theme.radii[0]}px;
         top: ${(props) => props.top}px;
         left: ${(props) => props.left}px;
       }

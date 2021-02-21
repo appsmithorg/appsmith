@@ -7,7 +7,6 @@ import { CanvasWidgetsReduxState } from "./entityReducers/canvasWidgetsReducer";
 import { EditorReduxState } from "./uiReducers/editorReducer";
 import { ErrorReduxState } from "./uiReducers/errorReducer";
 import { ActionDataState } from "./entityReducers/actionsReducer";
-import { PropertyPaneConfigState } from "./entityReducers/propertyPaneConfigReducer";
 import { PropertyPaneReduxState } from "./uiReducers/propertyPaneReducer";
 import { WidgetConfigReducerState } from "./entityReducers/widgetConfigReducer";
 import { WidgetSidebarReduxState } from "./uiReducers/widgetSidebarReducer";
@@ -39,6 +38,8 @@ import { EvaluatedTreeState } from "./evaluationReducers/treeReducer";
 import { EvaluationDependencyState } from "./evaluationReducers/dependencyReducer";
 import { PageWidgetsReduxState } from "./uiReducers/pageWidgetsReducer";
 import { OnboardingState } from "./uiReducers/onBoardingReducer";
+import { ReleasesState } from "./uiReducers/releasesReducer";
+import { LoadingEntitiesState } from "./evaluationReducers/loadingEntitiesReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -76,11 +77,11 @@ export interface AppState {
     datasourceName: DatasourceNameReduxState;
     theme: ThemeState;
     onBoarding: OnboardingState;
+    releases: ReleasesState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
     actions: ActionDataState;
-    propertyConfig: PropertyPaneConfigState;
     widgetConfig: WidgetConfigReducerState;
     datasources: DatasourceDataState;
     pageList: PageListReduxState;
@@ -91,5 +92,6 @@ export interface AppState {
   evaluations: {
     tree: EvaluatedTreeState;
     dependencies: EvaluationDependencyState;
+    loadingEntities: LoadingEntitiesState;
   };
 }

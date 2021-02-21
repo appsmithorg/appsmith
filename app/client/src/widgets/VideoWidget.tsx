@@ -28,6 +28,74 @@ export enum PlayState {
 }
 
 class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
+  static getPropertyPaneConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "url",
+            label: "URL",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter url",
+            inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "autoPlay",
+            label: "Auto Play",
+            helpText: "Video will be automatically played",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when the video is played",
+            propertyName: "onPlay",
+            label: "onPlay",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the video is paused",
+            propertyName: "onPause",
+            label: "onPause",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the video ends",
+            propertyName: "onEnd",
+            label: "onEnd",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
   private _player = React.createRef<ReactPlayer>();
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {

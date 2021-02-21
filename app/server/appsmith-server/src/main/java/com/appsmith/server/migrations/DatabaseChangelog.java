@@ -19,17 +19,21 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
-import com.appsmith.server.domains.Page;    
+import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QDatasource;
+import com.appsmith.server.domains.QNewAction;
+import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
@@ -59,6 +63,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StreamUtils;
 
@@ -77,11 +82,11 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -97,7 +102,7 @@ public class DatabaseChangelog {
      * from an index with the fields `"organizationId", "name"`. If an index exists with the first ordering and we try
      * to **ensure** an index with the same name but the second ordering of fields, errors will show up and bad things
      * WILL happen.
-     *
+     * <p>
      * Also, please check out the following blog on how to best create indexes :
      * https://emptysqua.re/blog/optimizing-mongodb-compound-indexes/
      */
@@ -584,11 +589,11 @@ public class DatabaseChangelog {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             if ("postgres-plugin".equals(plugin.getPackageName())) {
                 plugin.setDocumentationLink(
-                        "https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-postgres");
+                        "");
 
             } else if ("mongo-plugin".equals(plugin.getPackageName())) {
                 plugin.setDocumentationLink(
-                        "https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-mongodb");
+                        "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mongodb");
 
             } else {
                 continue;
@@ -963,7 +968,7 @@ public class DatabaseChangelog {
 
         ensureIndexes(mongoTemplate, PasswordResetToken.class,
                 makeIndex(FieldName.CREATED_AT)
-                    .expire(2, TimeUnit.DAYS),
+                        .expire(2, TimeUnit.DAYS),
                 makeIndex(FieldName.EMAIL).unique()
         );
     }
@@ -977,7 +982,7 @@ public class DatabaseChangelog {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.JSON);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.jpg");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-elasticsearch");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-elasticsearch");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -997,7 +1002,7 @@ public class DatabaseChangelog {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.JSON);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/DynamoDB.png");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-dynamodb");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-dynamodb");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1027,7 +1032,7 @@ public class DatabaseChangelog {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.TABLE);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/redis.jpg");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-redis");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redis");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1047,7 +1052,7 @@ public class DatabaseChangelog {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.TABLE);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/MsSQL.jpg");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-mssql");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mssql");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1221,8 +1226,8 @@ public class DatabaseChangelog {
 
         ensureIndexes(mongoTemplate, NewAction.class,
                 makeIndex("applicationId", "deleted", "unpublishedAction.pageId")
-                          .named("applicationId_deleted_unpublishedPageId_compound_index")
-                );
+                        .named("applicationId_deleted_unpublishedPageId_compound_index")
+        );
     }
 
     @ChangeSet(order = "042", id = "update-action-index-to-single-multiple-indices", author = "")
@@ -1255,7 +1260,7 @@ public class DatabaseChangelog {
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Firestore.png");
-        plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-firestore");
+        plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-firestore");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
@@ -1554,7 +1559,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "048", id = "add-redshift-plugin", author = "")
-    public void addRedshiftPlugin (MongoTemplate mongoTemplate){
+    public void addRedshiftPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Redshift");
         plugin.setType(PluginType.DB);
@@ -1562,7 +1567,7 @@ public class DatabaseChangelog {
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.TABLE);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Redshift.png");
-        plugin.setDocumentationLink("https://docs.appsmith.com/core-concepts/connecting-to-databases/querying-redshift");
+        plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redshift");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
@@ -1571,5 +1576,183 @@ public class DatabaseChangelog {
         }
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
+
+    @ChangeSet(order = "049", id = "clear-userdata-collection", author = "")
+    public void clearUserDataCollection(MongoTemplate mongoTemplate) {
+        mongoTemplate.dropCollection(UserData.class);
+    }
+
+    @ChangeSet(order = "050", id = "update-database-documentation-links-v1-2-1", author = "")
+    public void updateDatabaseDocumentationLinks_v1_2_1(MongoTemplate mongoTemplate) {
+        for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
+            switch (plugin.getPackageName()) {
+                case "postgres-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-postgres");
+                    break;
+                case "mongo-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mongodb");
+                    break;
+                case "elasticsearch-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-elasticsearch");
+                    break;
+                case "dynamo-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-dynamodb");
+                    break;
+                case "redis-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redis");
+                    break;
+                case "mssql-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mssql");
+                    break;
+                case "firestore-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-firestore");
+                    break;
+                case "redshift-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redshift");
+                    break;
+                case "mysql-plugin":
+                    plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mysql");
+                    break;
+                default:
+                    continue;
+            }
+
+            mongoTemplate.save(plugin);
+        }
+    }
+
+    @ChangeSet(order = "051", id = "add-amazons3-plugin", author = "")
+    public void addAmazonS3Plugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Amazon S3");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("amazons3-plugin");
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/AmazonS3.jpeg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-amazon-s3");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
+
+    @ChangeSet(order = "052", id = "add-app-viewer-invite-policy", author = "")
+    public void addAppViewerInvitePolicy(MongoTemplate mongoTemplate) {
+        final List<Organization> organizations = mongoTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QOrganization.organization.userRoles) + ".role").is(AppsmithRole.ORGANIZATION_VIEWER.name())
+                )),
+                Organization.class
+        );
+
+        for (final Organization org : organizations) {
+            final Set<String> viewers = org.getUserRoles().stream()
+                    .filter(role -> AppsmithRole.ORGANIZATION_VIEWER == role.getRole())
+                    .map(UserRole::getUsername)
+                    .collect(Collectors.toSet());
+            mongoTemplate.updateFirst(
+                    query(new Criteria().andOperator(
+                            where(fieldName(QOrganization.organization.id)).is(org.getId()),
+                            where(fieldName(QOrganization.organization.policies) + ".permission").is(ORGANIZATION_INVITE_USERS.getValue())
+                    )),
+                    new Update().addToSet("policies.$.users").each(viewers.toArray()),
+                    Organization.class
+            );
+        }
+
+    }
+
+    @ChangeSet(order = "053", id = "update-plugin-datasource-form-components", author = "")
+    public void updatePluginDatasourceFormComponents(MongoTemplate mongoTemplate) {
+        for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
+            switch (plugin.getPackageName()) {
+                case "postgres-plugin":
+                case "mongo-plugin":
+                case "elasticsearch-plugin":
+                case "dynamo-plugin":
+                case "redis-plugin":
+                case "mssql-plugin":
+                case "firestore-plugin":
+                case "redshift-plugin":
+                case "mysql-plugin":
+                case "amazons3-plugin":
+                    plugin.setDatasourceComponent("AutoForm");
+                    break;
+                case "restapi-plugin":
+                    plugin.setDatasourceComponent("RestAPIDatasourceForm");
+                    break;
+                default:
+                    continue;
+            }
+
+            mongoTemplate.save(plugin);
+        }
+    }
+
+    @ChangeSet(order = "054", id = "update-database-encode-params-toggle", author = "")
+    public void updateEncodeParamsToggle(MongoTemplate mongoTemplate) {
+
+        for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
+            if (action.getPluginType() != null && action.getPluginType().equals("API")) {
+
+            }
+            if (action.getUnpublishedAction() != null
+                    && action.getUnpublishedAction().getActionConfiguration() != null) {
+                action.getUnpublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+            }
+
+            if (action.getPublishedAction() != null
+                    && action.getPublishedAction().getActionConfiguration() != null) {
+                action.getPublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+            }
+
+            mongoTemplate.save(action);
+        }
+    }
+
+    @ChangeSet(order = "055", id = "update-postgres-plugin-preparedStatement-config", author = "")
+    public void updatePostgresActionsSetPreparedStatementConfiguration(MongoTemplate mongoTemplate) {
+
+        List<Plugin> plugins = mongoTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QPlugin.plugin.packageName)).is("postgres-plugin")
+                )),
+                Plugin.class);
+
+        if (plugins.size() < 1) {
+            return;
+        }
+
+        Plugin postgresPlugin = plugins.get(0);
+
+        // Fetch all the actions built on top of a postgres database
+        List<NewAction> postgresActions = mongoTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(postgresPlugin.getId())
+                )),
+                NewAction.class
+        );
+
+        for (NewAction action : postgresActions) {
+            List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+            pluginSpecifiedTemplates.add(new Property("preparedStatement", "false"));
+
+            // We have found an action of postgres plugin type
+            if (action.getUnpublishedAction().getActionConfiguration() != null) {
+                action.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            }
+
+            if (action.getPublishedAction() != null && action.getPublishedAction().getActionConfiguration() != null) {
+                action.getPublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            }
+
+            mongoTemplate.save(action);
+        }
     }
 }

@@ -1,7 +1,9 @@
+import Boxed from "components/editorComponents/Onboarding/Boxed";
+import { OnboardingStep } from "constants/OnboardingConstants";
 import {
   DatasourceStructure as DatasourceStructureType,
   DatasourceTable,
-} from "api/DatasourcesApi";
+} from "entities/Datasource";
 import React, { memo, ReactNode } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
 import { useEntityUpdateState } from "../hooks";
@@ -26,12 +28,17 @@ export const DatasourceStructureContainer = memo((props: Props) => {
       view = props.datasourceStructure.tables.map(
         (structure: DatasourceTable) => {
           return (
-            <DatasourceStructure
+            <Boxed
               key={`${props.datasourceId}${structure.name}`}
-              dbStructure={structure}
-              step={props.step + 1}
-              datasourceId={props.datasourceId}
-            />
+              step={OnboardingStep.DEPLOY}
+              show={structure.name === "public.standup_updates"}
+            >
+              <DatasourceStructure
+                dbStructure={structure}
+                step={props.step + 1}
+                datasourceId={props.datasourceId}
+              />
+            </Boxed>
           );
         },
       );

@@ -101,7 +101,7 @@ export type EvalError = {
 
 export enum EVAL_WORKER_ACTIONS {
   EVAL_TREE = "EVAL_TREE",
-  EVAL_SINGLE = "EVAL_SINGLE",
+  EVAL_ACTION_BINDINGS = "EVAL_ACTION_BINDINGS",
   EVAL_TRIGGER = "EVAL_TRIGGER",
   CLEAR_PROPERTY_CACHE = "CLEAR_PROPERTY_CACHE",
   CLEAR_PROPERTY_CACHE_OF_WIDGET = "CLEAR_PROPERTY_CACHE_OF_WIDGET",
@@ -249,3 +249,11 @@ export const unsafeFunctionForEval = [
   "setInterval",
   "Promise",
 ];
+
+export const isChildPropertyPath = (
+  parentPropertyPath: string,
+  childPropertyPath: string,
+): boolean =>
+  parentPropertyPath === childPropertyPath ||
+  childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
+  childPropertyPath.startsWith(`${parentPropertyPath}[`);

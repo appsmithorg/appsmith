@@ -1,31 +1,20 @@
-const onboarding = require("../../../locators/Onboarding.json");
 const explorer = require("../../../locators/explorerlocators.json");
 const homePage = require("../../../locators/HomePage.json");
-const loginPage = require("../../../locators/LoginPage.json");
+const commonlocators = require("../../../locators/commonlocators.json");
 
 describe("Onboarding", function() {
   it("Onboarding flow", function() {
-    cy.LogOut();
+    cy.get(commonlocators.homeIcon).click({ force: true });
 
-    cy.visit("/user/signup");
-    cy.get("input[name='email']").type(Cypress.env("USERNAME"));
-    cy.get(loginPage.password).type(Cypress.env("PASSWORD"));
-    cy.get(loginPage.submitBtn).click();
+    cy.get(".t--welcome-tour").click();
+    cy.get(".t--onboarding-action").click();
 
-    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-
-    cy.get(homePage.createNew)
-      .first()
-      .click({ force: true });
     cy.wait("@createNewApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
-    cy.get("#loading").should("not.exist");
-
-    //Onboarding
-    cy.contains(".t--create-database", "Explore Appsmith").click();
+    cy.get(".t--start-building").click();
 
     // Create and run query
     cy.get(".t--onboarding-indicator").should("be.visible");
@@ -36,7 +25,9 @@ describe("Onboarding", function() {
     cy.get(".t--add-widget").click();
     cy.dragAndDropToCanvas("tablewidget", { x: 30, y: -30 });
 
-    cy.get(onboarding.tooltipSnippet).click({ force: true });
+    // Click on "Show me how" and then copy hint
+    cy.get(".t--onboarding-action").click();
+    cy.get(".t--onboarding-snippet").click({ force: true });
 
     cy.get(".t--property-control-tabledata" + " .CodeMirror textarea")
       .first()
@@ -47,7 +38,7 @@ describe("Onboarding", function() {
       cy.get(".t--property-control-tabledata" + " .CodeMirror")
         .first()
         .then((editor) => {
-          editor[0].CodeMirror.setValue("{{ExampleQuery.data}}");
+          editor[0].CodeMirror.setValue("{{fetch_standup_updates.data}}");
         });
     });
     cy.closePropertyPane();
@@ -55,10 +46,22 @@ describe("Onboarding", function() {
 
     cy.openPropertyPane("tablewidget");
     cy.closePropertyPane();
+    cy.get(".t--application-feedback-btn").should("not.exist");
 
-    cy.get(".t--application-feedback-btn").should("not.be.visible");
+    cy.contains(".t--onboarding-helper-title", "Capture Hero Updates");
+    cy.get(".t--onboarding-cheat-action").click();
+    cy.contains(".t--onboarding-helper-title", "Deploy the Standup Dashboard");
+  });
 
-    // Publish
+  // Similar to PublishtheApp command with little changes
+  it("Publish app", function() {
+    cy.server();
+    cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
+
+    // Wait before publish
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+
     cy.window().then((window) => {
       cy.stub(window, "open").callsFake((url) => {
         window.location.href = Cypress.config().baseUrl + url.substring(1);
@@ -68,6 +71,9 @@ describe("Onboarding", function() {
     cy.get(homePage.publishButton).click();
     cy.wait("@publishApp");
 
-    cy.get(".t--continue-on-my-own").click();
+    cy.url().should("include", "/pages");
+    cy.log("pagename: " + localStorage.getItem("PageName"));
+
+    cy.get(".t--onboarding-secondary-action").click();
   });
 });

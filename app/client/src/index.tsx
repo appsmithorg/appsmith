@@ -10,12 +10,17 @@ import store from "./store";
 import { LayersContext, Layers } from "constants/Layers";
 import AppRouter from "./AppRouter";
 import * as Sentry from "@sentry/react";
-import { getThemeDetails } from "selectors/themeSelectors";
+import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { setThemeMode } from "actions/themeActions";
-import { ThemeMode } from "reducers/uiReducers/themeReducer";
 import { StyledToastContainer } from "components/ads/Toast";
+import localStorage from "utils/localStorage";
+
+// enable autofreeze only in development
+import { setAutoFreeze } from "immer";
+const shouldAutoFreeze = process.env.NODE_ENV === "development";
+setAutoFreeze(shouldAutoFreeze);
 
 import AppErrorBoundary from "./AppErrorBoundry";
 appInitializer();
@@ -60,7 +65,7 @@ class ThemedApp extends React.Component<{
   }
 }
 const mapStateToProps = (state: AppState) => ({
-  currentTheme: getThemeDetails(state).theme,
+  currentTheme: getCurrentThemeDetails(state),
 });
 const mapDispatchToProps = (dispatch: any) => ({
   setTheme: (mode: ThemeMode) => {
@@ -74,3 +79,8 @@ const ThemedAppWithProps = connect(
 )(ThemedApp);
 
 ReactDOM.render(<App />, document.getElementById("root"));
+
+// expose store when run in Cypress
+if ((window as any).Cypress) {
+  (window as any).store = store;
+}

@@ -1,42 +1,45 @@
 import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
   ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
-  WidgetAddChild,
-  WidgetResize,
-  WidgetMove,
-  WidgetDelete,
+  saveLayout,
   updateAndSaveLayout,
+  WidgetAddChild,
   WidgetAddChildren,
+  WidgetDelete,
+  WidgetMove,
+  WidgetResize,
 } from "actions/pageActions";
 import {
-  FlattenedWidgetProps,
   CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
-  getWidgets,
-  getWidget,
   getSelectedWidget,
+  getWidget,
   getWidgetMetaProps,
+  getWidgets,
 } from "./selectors";
 import {
   generateWidgetProps,
   updateWidgetPosition,
 } from "utils/WidgetPropsUtils";
 import {
+  all,
   call,
   put,
   select,
   takeEvery,
   takeLatest,
-  all,
 } from "redux-saga/effects";
 import { convertToString, getNextEntityName } from "utils/AppsmithUtils";
 import {
+  DeleteWidgetPropertyPayload,
   SetWidgetDynamicPropertyPayload,
   updateWidgetProperty,
+  UpdateWidgetPropertyPayload,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
 import {
@@ -44,12 +47,13 @@ import {
   getEntityDynamicBindingPathList,
   getWidgetDynamicPropertyPathList,
   getWidgetDynamicTriggerPathList,
+  isChildPropertyPath,
   isDynamicValue,
   isPathADynamicBinding,
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _ from "lodash";
+import _, { cloneDeep, isString } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
@@ -58,24 +62,23 @@ import {
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import {
   GridDefaults,
-  WidgetTypes,
   MAIN_CONTAINER_WIDGET_ID,
-  WIDGET_DELETE_UNDO_TIMEOUT,
   RenderModes,
+  WIDGET_DELETE_UNDO_TIMEOUT,
   WidgetType,
+  WidgetTypes,
 } from "constants/WidgetConstants";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import {
+  flushDeletedWidgets,
+  getCopiedWidgets,
+  getDeletedWidgets,
   saveCopiedWidgets,
   saveDeletedWidgets,
-  flushDeletedWidgets,
-  getDeletedWidgets,
-  getCopiedWidgets,
 } from "utils/storage";
 import { generateReactKey } from "utils/generators";
 import { flashElementById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { cloneDeep } from "lodash";
 import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/WidgetEntity";
 import {
@@ -84,16 +87,16 @@ import {
 } from "selectors/editorSelectors";
 import { forceOpenPropertyPane } from "actions/widgetActions";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import {
-  validateProperty,
   clearEvalPropertyCacheOfWidget,
+  validateProperty,
 } from "./EvaluationsSaga";
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 
-function getChildWidgetProps(
+function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
@@ -101,12 +104,18 @@ function getChildWidgetProps(
   const { leftColumn, topRow, newWidgetId, props, type } = params;
   let { rows, columns, parentColumnSpace, parentRowSpace, widgetName } = params;
   let minHeight = undefined;
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   const { blueprint = undefined, ...restDefaultConfig } = {
     ...(WidgetConfigResponse as any).config[type],
   };
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-    widgetName = getNextEntityName(restDefaultConfig.widgetName, widgetNames);
+    const entityNames = yield call(getEntityNames);
+
+    widgetName = getNextEntityName(restDefaultConfig.widgetName, [
+      ...widgetNames,
+      ...entityNames,
+    ]);
   }
   if (type === WidgetTypes.CANVAS_WIDGET) {
     columns =
@@ -220,7 +229,7 @@ function* generateChildWidgets(
   // Add the parentId prop to this widget
   widget.parentId = parent.widgetId;
   // Remove the blueprint from the widget (if any)
-  // as blueprints are not useful beyont this point.
+  // as blueprints are not useful beyond this point.
   delete widget.blueprint;
   return { widgetId: widget.widgetId, widgets };
 }
@@ -277,15 +286,18 @@ export function* addChildrenSaga(
     const stateWidgets = yield select(getWidgets);
     const widgets = { ...stateWidgets };
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
+    const entityNames = yield call(getEntityNames);
 
     children.forEach((child) => {
       // Create only if it doesn't already exist
       if (!widgets[child.widgetId]) {
         const defaultConfig: any = WidgetConfigResponse.config[child.type];
-        const newWidgetName = getNextEntityName(
-          defaultConfig.widgetName,
-          widgetNames,
-        );
+        const newWidgetName = getNextEntityName(defaultConfig.widgetName, [
+          ...widgetNames,
+          ...entityNames,
+        ]);
+        // update the list of widget names for the next iteration
+        widgetNames.push(newWidgetName);
         widgets[child.widgetId] = {
           ...child,
           widgetName: newWidgetName,
@@ -458,21 +470,21 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
   const deletedWidgets: FlattenedWidgetProps[] = yield getDeletedWidgets(
     action.payload.widgetId,
   );
-  // Find the parent in the list of deleted widgets
-  const deletedWidget = deletedWidgets.find(
-    (widget) => widget.widgetId === action.payload.widgetId,
-  );
+  if (deletedWidgets && Array.isArray(deletedWidgets)) {
+    // Find the parent in the list of deleted widgets
+    const deletedWidget = deletedWidgets.find(
+      (widget) => widget.widgetId === action.payload.widgetId,
+    );
 
-  // If the deleted widget is infact available.
-  if (deletedWidget) {
-    // Log an undo event
-    AnalyticsUtil.logEvent("WIDGET_DELETE_UNDO", {
-      widgetName: deletedWidget.widgetName,
-      widgetType: deletedWidget.type,
-    });
-  }
+    // If the deleted widget is in fact available.
+    if (deletedWidget) {
+      // Log an undo event
+      AnalyticsUtil.logEvent("WIDGET_DELETE_UNDO", {
+        widgetName: deletedWidget.widgetName,
+        widgetType: deletedWidget.type,
+      });
+    }
 
-  if (deletedWidgets) {
     // Get the current list of widgets from reducer
     const stateWidgets = yield select(getWidgets);
     let widgets = { ...stateWidgets };
@@ -519,7 +531,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
         }
         let newChildren = [widget.widgetId];
         if (widgets[widget.parentId].children) {
-          // Concatenate the list of paren't children with the current widgetId
+          // Concatenate the list of parents children with the current widgetId
           newChildren = newChildren.concat(widgets[widget.parentId].children);
         }
         widgets = {
@@ -633,79 +645,100 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   }
 }
 
-function* updateDynamicTriggers(
+enum DynamicPathUpdateEffectEnum {
+  ADD = "ADD",
+  REMOVE = "REMOVE",
+  NOOP = "NOOP",
+}
+
+type DynamicPathUpdate = {
+  propertyPath: string;
+  effect: DynamicPathUpdateEffectEnum;
+};
+
+function getDynamicTriggerPathListUpdate(
   widget: WidgetProps,
   propertyPath: string,
   propertyValue: string,
-) {
-  // TODO WIDGETFACTORY
-  const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
-    widget.type,
-  );
-  if (propertyPath in triggerProperties) {
-    let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
-      widget,
-    );
-    if (propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
-      dynamicTriggerPathList.push({
-        key: propertyPath,
-      });
-    }
-    if (!propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
-      dynamicTriggerPathList = _.reject(dynamicTriggerPathList, {
-        key: propertyValue,
-      });
-    }
-    yield put(
-      updateWidgetProperty(
-        widget.widgetId,
-        "dynamicTriggerPathList",
-        dynamicTriggerPathList,
-      ),
-    );
-    return true;
+  isDynamicTrigger?: boolean,
+): DynamicPathUpdate {
+  if (
+    (propertyValue && !isPathADynamicTrigger(widget, propertyPath)) ||
+    isDynamicTrigger
+  ) {
+    return {
+      propertyPath,
+      effect: DynamicPathUpdateEffectEnum.ADD,
+    };
+  } else if (!propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
+    return {
+      propertyPath,
+      effect: DynamicPathUpdateEffectEnum.REMOVE,
+    };
   }
-  return false;
+  return {
+    propertyPath,
+    effect: DynamicPathUpdateEffectEnum.NOOP,
+  };
 }
 
-function* updateDynamicBindings(
+function getDynamicBindingPathListUpdate(
   widget: WidgetProps,
-  propertyName: string,
+  propertyPath: string,
   propertyValue: any,
-) {
+): DynamicPathUpdate {
   let stringProp = propertyValue;
   if (_.isObject(propertyValue)) {
     // Stringify this because composite controls may have bindings in the sub controls
     stringProp = JSON.stringify(propertyValue);
   }
+
+  //TODO(abhinav): This is not appropriate from the platform's archtecture's point of view.
+  // Figure out a holistic solutions where we donot have to stringify above.
+  if (propertyPath === "primaryColumns" || propertyPath === "derivedColumns") {
+    return {
+      propertyPath,
+      effect: DynamicPathUpdateEffectEnum.NOOP,
+    };
+  }
+
   const isDynamic = isDynamicValue(stringProp);
-  let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
-    widget,
-  );
-  if (!isDynamic && isPathADynamicBinding(widget, propertyName)) {
-    dynamicBindingPathList = _.reject(dynamicBindingPathList, {
-      key: propertyName,
-    });
+  if (!isDynamic && isPathADynamicBinding(widget, propertyPath)) {
+    return {
+      propertyPath,
+      effect: DynamicPathUpdateEffectEnum.REMOVE,
+    };
+  } else if (isDynamic && !isPathADynamicBinding(widget, propertyPath)) {
+    return {
+      propertyPath,
+      effect: DynamicPathUpdateEffectEnum.ADD,
+    };
   }
-  if (isDynamic && !isPathADynamicBinding(widget, propertyName)) {
-    dynamicBindingPathList.push({
-      key: propertyName,
+  return {
+    propertyPath,
+    effect: DynamicPathUpdateEffectEnum.NOOP,
+  };
+}
+
+function applyDynamicPathUpdates(
+  currentList: DynamicPath[],
+  update: DynamicPathUpdate,
+): DynamicPath[] {
+  if (update.effect === DynamicPathUpdateEffectEnum.ADD) {
+    currentList.push({
+      key: update.propertyPath,
     });
+  } else if (update.effect === DynamicPathUpdateEffectEnum.REMOVE) {
+    _.reject(currentList, { key: update.propertyPath });
   }
-  yield put(
-    updateWidgetProperty(
-      widget.widgetId,
-      "dynamicBindingPathList",
-      dynamicBindingPathList,
-    ),
-  );
+  return currentList;
 }
 
 function* updateWidgetPropertySaga(
   updateAction: ReduxAction<UpdateWidgetPropertyRequestPayload>,
 ) {
   const {
-    payload: { propertyValue, propertyName, widgetId },
+    payload: { propertyValue, propertyPath, widgetId, isDynamicTrigger },
   } = updateAction;
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
@@ -714,68 +747,243 @@ function* updateWidgetPropertySaga(
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
   const widget = { ...stateWidget };
 
-  const dynamicTriggersUpdated = yield updateDynamicTriggers(
-    widget,
-    propertyName,
-    propertyValue,
+  // Holder object to collect all updates
+  const updates: Record<string, unknown> = {
+    [propertyPath]: propertyValue,
+  };
+
+  // Check if the path is a of a dynamic trigger property
+  const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
+    widget.type,
   );
-  if (!dynamicTriggersUpdated) {
-    yield updateDynamicBindings(widget, propertyName, propertyValue);
+  const isTriggerProperty =
+    propertyPath in triggerProperties || isDynamicTrigger;
+  // If it is a trigger property, it will go in a different list than the general
+  // dynamicBindingPathList.
+  if (isTriggerProperty) {
+    const currentDynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
+      widget,
+    );
+    const effect = getDynamicTriggerPathListUpdate(
+      widget,
+      propertyPath,
+      propertyValue,
+      isDynamicTrigger,
+    );
+    updates.dynamicTriggerPathList = applyDynamicPathUpdates(
+      currentDynamicTriggerPathList,
+      effect,
+    );
+  } else {
+    const currentDynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
+      widget,
+    );
+    const effect = getDynamicBindingPathListUpdate(
+      widget,
+      propertyPath,
+      propertyValue,
+    );
+    updates.dynamicBindingPathList = applyDynamicPathUpdates(
+      currentDynamicBindingPathList,
+      effect,
+    );
   }
 
-  yield put(updateWidgetProperty(widgetId, propertyName, propertyValue));
+  // Send the updates
+  yield put(updateWidgetProperty(widgetId, updates));
+
   const stateWidgets = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
+
+  // Save the layout
   yield put(updateAndSaveLayout(widgets));
 }
 
 function* setWidgetDynamicPropertySaga(
   action: ReduxAction<SetWidgetDynamicPropertyPayload>,
 ) {
-  const { isDynamic, propertyName, widgetId } = action.payload;
+  const { isDynamic, propertyPath, widgetId } = action.payload;
   const widget: WidgetProps = yield select(getWidget, widgetId);
-  // const tree = yield select(evaluateDataTree);
-  const propertyValue = _.get(widget, propertyName);
+  const propertyValue = _.get(widget, propertyPath);
   let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
+  const propertyUpdates: Record<string, unknown> = {};
   if (isDynamic) {
     dynamicPropertyPathList.push({
-      key: propertyName,
+      key: propertyPath,
     });
-    const value = convertToString(propertyValue);
-    yield put(updateWidgetProperty(widgetId, propertyName, value));
+    propertyUpdates[propertyPath] = convertToString(propertyValue);
   } else {
     dynamicPropertyPathList = _.reject(dynamicPropertyPathList, {
-      key: propertyName,
+      key: propertyPath,
     });
     const { parsed } = yield call(
       validateProperty,
       widget.type,
-      propertyName,
+      propertyPath,
       propertyValue,
       widget,
     );
-    yield put(updateWidgetProperty(widgetId, propertyName, parsed));
+    propertyUpdates[propertyPath] = parsed;
   }
-  yield put(
-    updateWidgetProperty(
-      widgetId,
-      "dynamicPropertyPathList",
-      dynamicPropertyPathList,
-    ),
-  );
+  propertyUpdates.dynamicPropertyPathList = dynamicPropertyPathList;
+
+  yield put(updateWidgetProperty(widgetId, propertyUpdates));
+
+  const stateWidgets = yield select(getWidgets);
+  const widgets = { ...stateWidgets, [widgetId]: widget };
+
+  // Save the layout
+  yield put(updateAndSaveLayout(widgets));
 }
+
+function* batchUpdateWidgetPropertySaga(
+  action: ReduxAction<UpdateWidgetPropertyPayload>,
+) {
+  const { updates, widgetId } = action.payload;
+  if (!widgetId) {
+    // Handling the case where sometimes widget id is not passed through here
+    return;
+  }
+  const widget: WidgetProps = yield select(getWidget, widgetId);
+  const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
+    widget.type,
+  );
+  const propertyUpdates: Record<string, unknown> = {};
+  const currentDynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
+    widget,
+  );
+  const currentDynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
+    widget,
+  );
+  const dynamicTriggerPathListUpdates: DynamicPathUpdate[] = [];
+  const dynamicBindingPathListUpdates: DynamicPathUpdate[] = [];
+  Object.entries(updates).forEach(([propertyPath, propertyValue]) => {
+    // Set the actual property update
+    propertyUpdates[propertyPath] = propertyValue;
+
+    // Check if the path is a of a dynamic trigger property
+    const isTriggerProperty = propertyPath in triggerProperties;
+
+    // If it is a trigger property, it will go in a different list than the general
+    // dynamicBindingPathList.
+    if (isTriggerProperty && _.isString(propertyValue)) {
+      dynamicTriggerPathListUpdates.push(
+        getDynamicTriggerPathListUpdate(widget, propertyPath, propertyValue),
+      );
+    } else {
+      dynamicBindingPathListUpdates.push(
+        getDynamicBindingPathListUpdate(widget, propertyPath, propertyValue),
+      );
+    }
+  });
+
+  propertyUpdates.dynamicTriggerPathList = dynamicTriggerPathListUpdates.reduce(
+    applyDynamicPathUpdates,
+    currentDynamicTriggerPathList,
+  );
+  propertyUpdates.dynamicBindingPathList = dynamicBindingPathListUpdates.reduce(
+    applyDynamicPathUpdates,
+    currentDynamicBindingPathList,
+  );
+
+  // Send the updates
+  yield put(updateWidgetProperty(widgetId, propertyUpdates));
+
+  // Save the layout
+  yield put(saveLayout());
+}
+
+function* deleteWidgetPropertySaga(
+  action: ReduxAction<DeleteWidgetPropertyPayload>,
+) {
+  const { widgetId, propertyPaths } = action.payload;
+  if (!widgetId) {
+    // Handling the case where sometimes widget id is not passed through here
+    return;
+  }
+  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
+  let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
+    stateWidget,
+  );
+  let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
+    stateWidget,
+  );
+
+  propertyPaths.forEach((propertyPath) => {
+    dynamicTriggerPathList = dynamicTriggerPathList.filter((dynamicPath) => {
+      return !isChildPropertyPath(propertyPath, dynamicPath.key);
+    });
+
+    dynamicBindingPathList = dynamicBindingPathList.filter((dynamicPath) => {
+      return !isChildPropertyPath(propertyPath, dynamicPath.key);
+    });
+  });
+
+  // yield put(
+  //   updateWidgetProperty(widgetId, {
+  //     dynamicTriggerPathList,
+  //     dynamicBindingPathList,
+  //   }),
+  // );
+
+  const stateWidgets = yield select(getWidgets);
+  // Cloning because we probably froze the properties earlier
+  // TODO(abhinav): Check if we need to use immer to handle this.
+  let widget = _.cloneDeep(stateWidget);
+  widget.dynamicBindingPathList = dynamicBindingPathList;
+  widget.dynamicTriggerPathList = dynamicTriggerPathList;
+  propertyPaths.forEach((propertyPath) => {
+    widget = unsetPropertyPath(widget, propertyPath) as WidgetProps;
+  });
+
+  const widgets = { ...stateWidgets, [widgetId]: widget };
+
+  // Save the layout
+  yield put(updateAndSaveLayout(widgets));
+}
+
+//TODO(abhinav): Move this to helpers and add tests
+const unsetPropertyPath = (obj: Record<string, unknown>, path: string) => {
+  const regex = /(.*)\[\d+\]$/;
+  if (regex.test(path)) {
+    const matches = path.match(regex);
+    if (
+      matches &&
+      Array.isArray(matches) &&
+      matches[1] &&
+      matches[1].length > 0
+    ) {
+      _.unset(obj, path);
+      const arr = _.get(obj, matches[1]);
+      if (arr && Array.isArray(arr)) {
+        _.set(obj, matches[1], arr.filter(Boolean));
+      }
+    }
+  } else {
+    _.unset(obj, path);
+  }
+  return obj;
+};
 
 function* getWidgetChildren(widgetId: string): any {
   const childrenIds: string[] = [];
   const widget = yield select(getWidget, widgetId);
-  const { children } = widget;
+  // When a form widget tries to resetChildrenMetaProperties
+  // But one or more of its container like children
+  // have just been deleted, widget can be undefined
+  if (widget === undefined) {
+    return [];
+  }
+  const { children = [] } = widget;
   if (children && children.length) {
     for (const childIndex in children) {
-      const child = children[childIndex];
-      childrenIds.push(child);
-      const grandChildren = yield call(getWidgetChildren, child);
-      if (grandChildren.length) {
-        childrenIds.push(...grandChildren);
+      if (children.hasOwnProperty(childIndex)) {
+        const child = children[childIndex];
+        childrenIds.push(child);
+        const grandChildren = yield call(getWidgetChildren, child);
+        if (grandChildren.length) {
+          childrenIds.push(...grandChildren);
+        }
       }
     }
   }
@@ -789,39 +997,6 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
     const childId = childrenIds[childIndex];
     yield put(resetWidgetMetaProperty(childId));
   }
-  yield call(resetEvaluatedWidgetMetaProperties, childrenIds);
-}
-
-// This is needed because evaluation takes some time and we can reset the props
-// in the evaluated value much faster like this
-function* resetEvaluatedWidgetMetaProperties(widgetIds: string[]) {
-  const evaluatedDataTree = yield select(getDataTree);
-  const updates: Record<string, DataTreeWidget> = {};
-  for (const index in widgetIds) {
-    const widgetId = widgetIds[index];
-    const widget = _.find(evaluatedDataTree, { widgetId }) as DataTreeWidget;
-    const widgetToUpdate = { ...widget };
-    const metaPropsMap = WidgetFactory.getWidgetMetaPropertiesMap(widget.type);
-    const defaultPropertiesMap = WidgetFactory.getWidgetDefaultPropertiesMap(
-      widget.type,
-    );
-    Object.keys(metaPropsMap).forEach((metaProp) => {
-      if (metaProp in defaultPropertiesMap) {
-        widgetToUpdate[metaProp] = widget[defaultPropertiesMap[metaProp]];
-      } else {
-        widgetToUpdate[metaProp] = metaPropsMap[metaProp];
-      }
-    });
-    updates[widget.widgetName] = widgetToUpdate;
-  }
-  const newEvaluatedDataTree = {
-    ...evaluatedDataTree,
-    ...updates,
-  };
-  yield put({
-    type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: newEvaluatedDataTree,
-  });
 }
 
 function* updateCanvasSize(
@@ -840,7 +1015,9 @@ function* updateCanvasSize(
     // TODO(abhinav): This considers that the topRow will always be zero
     // Check this out when non canvas widgets are updating snapRows
     // erstwhile: Math.round((rows * props.snapRowSpace) / props.parentRowSpace),
-    yield put(updateWidgetProperty(canvasWidgetId, "bottomRow", newBottomRow));
+    yield put(
+      updateWidgetProperty(canvasWidgetId, { bottomRow: newBottomRow }),
+    );
   }
 }
 
@@ -849,11 +1026,9 @@ function* createWidgetCopy() {
   if (!selectedWidget) return;
   const widgets = yield select(getWidgets);
   const widgetsToStore = getAllWidgetsInTree(selectedWidget.widgetId, widgets);
-  const saveResult = yield saveCopiedWidgets(
+  return yield saveCopiedWidgets(
     JSON.stringify({ widgetId: selectedWidget.widgetId, list: widgetsToStore }),
   );
-
-  return saveResult;
 }
 
 function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
@@ -884,7 +1059,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
 }
 
-function calculateNewWidgetPosition(
+export function calculateNewWidgetPosition(
   widget: WidgetProps,
   parentId: string,
   canvasWidgets: FlattenedWidgetProps[],
@@ -910,11 +1085,25 @@ function calculateNewWidgetPosition(
   };
 }
 
-function getNextWidgetName(widgets: CanvasWidgetsReduxState, type: WidgetType) {
+function* getEntityNames() {
+  const evalTree = yield select(getDataTree);
+  return Object.keys(evalTree);
+}
+
+function getNextWidgetName(
+  widgets: CanvasWidgetsReduxState,
+  type: WidgetType,
+  evalTree: Record<string, unknown>,
+) {
   // Compute the new widget's name
   const defaultConfig: any = WidgetConfigResponse.config[type];
   const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-  return getNextEntityName(defaultConfig.widgetName, widgetNames);
+  const entityNames = Object.keys(evalTree);
+
+  return getNextEntityName(defaultConfig.widgetName, [
+    ...widgetNames,
+    ...entityNames,
+  ]);
 }
 
 function* pasteWidgetSaga() {
@@ -1006,6 +1195,8 @@ function* pasteWidgetSaga() {
       widgets,
     );
 
+    const evalTree = yield select(getDataTree);
+
     // Get a flat list of all the widgets to be updated
     const widgetList = copiedWidgets.list;
     const widgetIdMap: Record<string, string> = {};
@@ -1046,6 +1237,43 @@ function* pasteWidgetSaga() {
         } catch (error) {
           log.debug("Error updating tabs", error);
         }
+      }
+
+      // Update the table widget column properties
+      if (widget.type === WidgetTypes.TABLE_WIDGET) {
+        try {
+          const oldWidgetName = widget.widgetName;
+          const newWidgetName = getNextWidgetName(
+            widgets,
+            widget.type,
+            evalTree,
+          );
+          // If the primaryColumns of the table exist
+          if (widget.primaryColumns) {
+            // For each column
+            for (const [columnId, column] of Object.entries(
+              widget.primaryColumns,
+            )) {
+              // For each property in the column
+              for (const [key, value] of Object.entries(
+                column as ColumnProperties,
+              )) {
+                // Replace reference of previous widget with the new widgetName
+                // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
+                widget.primaryColumns[columnId][key] = isString(value)
+                  ? value.replace(`${oldWidgetName}.`, `${newWidgetName}.`)
+                  : value;
+              }
+            }
+          }
+          // Use the new widget name we used to replace the column properties above.
+          widget.widgetName = newWidgetName;
+        } catch (error) {
+          log.debug("Error updating table widget properties", error);
+        }
+      } else {
+        // Generate a new unique widget name
+        widget.widgetName = getNextWidgetName(widgets, widget.type, evalTree);
       }
 
       // If it is the copied widget, update position properties
@@ -1101,7 +1329,7 @@ function* pasteWidgetSaga() {
         if (newParentId) widget.parentId = newParentId;
       }
       // Generate a new unique widget name
-      widget.widgetName = getNextWidgetName(widgets, widget.type);
+      widget.widgetName = getNextWidgetName(widgets, widget.type, evalTree);
       // Add the new widget to the canvas widgets
       widgets[widget.widgetId] = widget;
     });
@@ -1158,7 +1386,8 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
     const rows = 7;
     const queryName = action.payload;
     const widgets = yield select(getWidgets);
-    const widgetName = getNextWidgetName(widgets, "TABLE_WIDGET");
+    const evalTree = yield select(getDataTree);
+    const widgetName = getNextWidgetName(widgets, "TABLE_WIDGET", evalTree);
 
     let newWidget = {
       type: WidgetTypes.TABLE_WIDGET,
@@ -1170,10 +1399,10 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       rightColumn: columns,
       columns,
       rows,
-      parentId: "0",
+      parentId: MAIN_CONTAINER_WIDGET_ID,
       widgetName,
       renderMode: RenderModes.CANVAS,
-      parentRowSpace: 1,
+      parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       parentColumnSpace: 1,
       isLoading: false,
       props: {
@@ -1186,7 +1415,11 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       topRow,
       rightColumn,
       bottomRow,
-    } = yield calculateNewWidgetPosition(newWidget, "0", widgets);
+    } = yield calculateNewWidgetPosition(
+      newWidget,
+      MAIN_CONTAINER_WIDGET_ID,
+      widgets,
+    );
 
     newWidget = {
       ...newWidget,
@@ -1229,7 +1462,7 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
 // in the entity explorer so that the selected widget is visible
-function* selectedWidgetAncestorySaga(
+function* selectedWidgetAncestrySaga(
   action: ReduxAction<{ widgetId: string }>,
 ) {
   try {
@@ -1256,7 +1489,7 @@ function* selectedWidgetAncestorySaga(
       payload: widgetIdsExpandList,
     });
   } catch (error) {
-    log.debug("Could not compute selected widget's ancestory", error);
+    log.debug("Could not compute selected widget's ancestry", error);
   }
 }
 
@@ -1282,12 +1515,20 @@ export default function* widgetOperationSagas() {
       ReduxActionTypes.RESET_CHILDREN_WIDGET_META,
       resetChildrenMetaSaga,
     ),
+    takeEvery(
+      ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,
+      batchUpdateWidgetPropertySaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.DELETE_WIDGET_PROPERTY,
+      deleteWidgetPropertySaga,
+    ),
     takeLatest(ReduxActionTypes.UPDATE_CANVAS_SIZE, updateCanvasSize),
     takeLatest(ReduxActionTypes.COPY_SELECTED_WIDGET_INIT, copyWidgetSaga),
     takeEvery(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
     takeEvery(ReduxActionTypes.UNDO_DELETE_WIDGET, undoDeleteSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
-    takeLatest(ReduxActionTypes.SELECT_WIDGET, selectedWidgetAncestorySaga),
+    takeLatest(ReduxActionTypes.SELECT_WIDGET, selectedWidgetAncestrySaga),
   ]);
 }

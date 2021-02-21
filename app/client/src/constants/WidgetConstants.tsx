@@ -21,6 +21,7 @@ export enum WidgetTypes {
   FILE_PICKER_WIDGET = "FILE_PICKER_WIDGET",
   VIDEO_WIDGET = "VIDEO_WIDGET",
   SKELETON_WIDGET = "SKELETON_WIDGET",
+  SWITCH_WIDGET = "SWITCH_WIDGET",
 }
 
 export type WidgetType = keyof typeof WidgetTypes;
@@ -88,3 +89,5 @@ export const MAIN_CONTAINER_WIDGET_ID = "0";
 export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
 
 export const WIDGET_DELETE_UNDO_TIMEOUT = 7000;
+
+export const DEFAULT_CENTER = { lat: -34.397, lng: 150.644 };

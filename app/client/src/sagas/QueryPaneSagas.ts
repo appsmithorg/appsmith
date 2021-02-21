@@ -34,7 +34,7 @@ import {
   getDatasource,
   getPluginTemplates,
 } from "selectors/entitiesSelector";
-import { RestAction } from "entities/Action";
+import { QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { getQueryParams } from "utils/AppsmithUtils";
@@ -138,7 +138,7 @@ function* formValueChangeSaga(
   );
 }
 
-function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
+function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   const {
     id,
     pluginType,
@@ -164,7 +164,6 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
     const showTemplate = !(
       !!actionConfiguration.body || isEmpty(queryTemplate)
     );
-
     history.replace(
       QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",

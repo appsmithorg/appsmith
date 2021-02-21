@@ -63,7 +63,7 @@ export const JSDependencies = () => {
   const toggleDependencies = () => setIsOpen(!isOpen);
   const showDocs = (e: any) => {
     window.open(
-      "https://docs.appsmith.com/core-concepts/connecting-ui-and-logic/working-with-js-libraries",
+      "https://docs.appsmith.com/v/v1.2.1/core-concepts/writing-code/ext-libraries",
       "appsmith-docs:working-with-js-libraries",
     );
     e.stopPropagation();
@@ -82,7 +82,7 @@ export const JSDependencies = () => {
     <Wrapper>
       <Title onClick={toggleDependencies}>
         <Icon icon={icon} />
-        <span>Dependencies</span>
+        <span>JS libraries you can use</span>
         <Tooltip content={TooltipContent} position="top" boundary="viewport">
           <Help
             icon="help"

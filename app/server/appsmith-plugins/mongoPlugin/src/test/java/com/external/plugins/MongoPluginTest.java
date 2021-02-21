@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Connection;
@@ -34,9 +35,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for MongoPlugin
@@ -152,7 +154,10 @@ public class MongoPluginTest {
          */
         MongoPlugin.MongoPluginExecutor mongoPluginExecutor    = new MongoPlugin.MongoPluginExecutor();
         MongoPlugin.MongoPluginExecutor spyMongoPluginExecutor = spy(mongoPluginExecutor);
-        when(spyMongoPluginExecutor.datasourceCreate(any())).thenReturn(Mono.error(mockMongoCommandException));
+        /* Please check this out before modifying this line: https://stackoverflow
+         * .com/questions/11620103/mockito-trying-to-spy-on-method-is-calling-the-original-method
+         */
+        doReturn(Mono.error(mockMongoCommandException)).when(spyMongoPluginExecutor).datasourceCreate(any());
 
         /*
          * 1. Test that MongoCommandException with error code "Unauthorized" is caught and no error is reported.
@@ -190,6 +195,29 @@ public class MongoPluginTest {
                     assertEquals(2, ((ArrayNode) result.getBody()).size());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteInvalidReadQuery() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("{\n" +
+                "      find: \"users\",\n" +
+                "      filter: { $is: {} },\n" +
+                "      sort: { id: 1 },\n" +
+                "      limit: 10,\n" +
+                "    }");
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .expectErrorMatches(throwable ->
+                        throwable instanceof AppsmithPluginException &&
+                        throwable.getMessage().equals("unknown top level operator: $is")
+                )
+                .verify();
     }
 
     @Test

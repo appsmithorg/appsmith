@@ -39,6 +39,7 @@ check_ports_occupied() {
         }' > /dev/null
         echo "+++++++++++ ERROR ++++++++++++++++++++++"
         echo "Appsmith requires ports 80 & 443 to be open. Please shut down any other service(s) that may be running on these ports."
+        echo "You can run appsmith on another port following this guide https://docs.appsmith.com/v/v1.2.1/troubleshooting-guide/deployment-errors"
         echo "++++++++++++++++++++++++++++++++++++++++"
         echo ""
         exit 1
@@ -68,7 +69,7 @@ install_docker() {
             sudo SUSEConnect -p sle-module-containers/$os_sp/$os_arch -r ''
         fi
         $zypper_cmd install docker docker-runc containerd
-        sudo systemctl enable docker.service 
+        sudo systemctl enable docker.service
     else
         yum_cmd="sudo yum --assumeyes --quiet"
         $yum_cmd install yum-utils
@@ -138,6 +139,11 @@ check_os() {
             os="debian"
             package_manager="apt-get"
             ;;
+        Linux\ Mint*)
+            desired_os=1
+            os="linux mint"
+            package_manager="apt-get"
+            ;;
         Red\ Hat*)
             desired_os=1
             os="red hat"
@@ -179,7 +185,7 @@ overwrite_file() {
     fi
 }
 
-# This function prompts the user for an input for a non-empty Mongo root password. 
+# This function prompts the user for an input for a non-empty Mongo root password.
 read_mongo_password() {
     read -srp 'Set the mongo password: ' mongo_root_password
     while [[ -z $mongo_root_password ]]; do
@@ -190,10 +196,10 @@ read_mongo_password() {
         echo "++++++++++++++++++++++++++++++++++++++++"
         echo ""
         read -srp 'Set the mongo password: ' mongo_root_password
-    done 
+    done
 }
 
-# This function prompts the user for an input for a non-empty Mongo username. 
+# This function prompts the user for an input for a non-empty Mongo username.
 read_mongo_username() {
     read -rp 'Set the mongo root user: ' mongo_root_user
     while [[ -z $mongo_root_user ]]; do
@@ -242,8 +248,13 @@ urlencode() {
 }
 
 generate_password() {
-    # Picked up the following method of generation from : https://gist.github.com/earthgecko/3089509
-    LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 13 | head -n 1
+    local gen_string="$(/usr/bin/python -c 'import random, string; print("".join(random.choice(string.ascii_letters + string.digits) for _ in range(13)))' 2>/dev/null)"
+    if [[ -n $gen_string ]]; then
+        echo "$gen_string"
+    else
+        # Picked up the following method of generation from : https://gist.github.com/earthgecko/3089509
+        LC_ALL=C tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 13 | head -n 1
+    fi
 }
 
 confirm() {
@@ -378,12 +389,13 @@ ask_telemetry() {
     echo "+++++++++++ IMPORTANT ++++++++++++++++++++++"
     echo -e "Thank you for installing appsmith! We want to be transparent and request that you share anonymous usage data with us."
     echo -e "This data is purely statistical in nature and helps us understand your needs & provide better support to your self-hosted instance."
-    echo -e "You can read more about what information is collected in our documentation https://docs.appsmith.com/telemetry/telemetry"
+    echo -e "You can read more about what information is collected in our documentation https://docs.appsmith.com/v/v1.2.1/setup/telemetry"
     echo -e ""
     if confirm y 'Would you like to share anonymous usage data and receive better support?'; then
         disable_telemetry="false"
     else
         disable_telemetry="true"
+        echo "Please note that even though telemetry is disabled, your Appsmith server will connect to cloud to fetch release notes and to check for updates."
     fi
     echo "++++++++++++++++++++++++++++++++++++++++++++"
 
@@ -425,7 +437,7 @@ curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30o
 
 if [[ $desired_os -eq 0 ]];then
     echo ""
-    echo "This script is currently meant to install Appsmith on Mac OS X, Ubuntu, SLES or openSUSE machines."
+    echo "This script is currently meant to install Appsmith on Mac OS X, Ubuntu, Debian, Linux Mint, Red Hat, CentOS, SLES or openSUSE machines."
     echo_contact_support " if you wish to extend this support."
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \
@@ -524,8 +536,7 @@ echo "Installing Appsmith to '$install_dir'."
 mkdir -p "$install_dir"
 echo ""
 
-echo "Appsmith needs a MongoDB instance to run"
-if confirm y "Initialise a new database? (Recommended)"; then
+if confirm y "Is this a fresh installation?"; then
     mongo_host="mongo"
     mongo_database="appsmith"
 
@@ -540,6 +551,7 @@ else
     read -rp 'Enter your existing appsmith mongo db host: ' mongo_host
     read -rp 'Enter your existing appsmith mongo root user: ' mongo_root_user
     read -srp 'Enter your existing appsmith mongo password: ' mongo_root_password
+    echo ""
     read -rp 'Enter your existing appsmith mongo database name: ' mongo_database
     # It is possible that this isn't the first installation.
     echo ""
@@ -605,7 +617,7 @@ if confirm n "Do you have a custom domain that you would like to link? (Only for
     echo "+++++++++++ IMPORTANT PLEASE READ ++++++++++++++++++++++"
     echo "Please update your DNS records with your domain registrar"
     echo "You can read more about this in our Documentation"
-    echo "https://docs.appsmith.com/v/v1.1/quick-start#custom-domains"
+    echo "https://docs.appsmith.com/v/v1.2.1/setup#custom-domains"
     echo "+++++++++++++++++++++++++++++++++++++++++++++++"
     echo ""
     echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
@@ -682,7 +694,8 @@ if [[ $status_code -ne 401 ]]; then
     echo "The containers didn't seem to start correctly. Please run the following command to check containers that may have errored out:"
     echo ""
     echo -e "cd \"$install_dir\" && sudo docker-compose ps -a"
-    echo "For troubleshooting help, please reach out to us via our Discord server: https://discord.com/invite/rBTTVJp"
+    echo "Please read our troubleshooting guide https://docs.appsmith.com/v/v1.2.1/troubleshooting-guide/deployment-errors"
+    echo "or reach us on Discord for support https://discord.com/invite/rBTTVJp"
     echo "++++++++++++++++++++++++++++++++++++++++"
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \

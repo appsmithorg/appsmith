@@ -71,7 +71,10 @@ describe("Input Widget Functionality", function() {
     /**
      * @param{Show Alert} Css for InputChange
      */
-    cy.getAlert(commonlocators.optionchangetextInput);
+    cy.getAlert(
+      commonlocators.optionchangetextInput,
+      widgetsPage.inputOnTextChange,
+    );
     cy.PublishtheApp();
   });
   it("Input Widget Functionality To Validate Default Text and Placeholder", function() {
@@ -101,7 +104,7 @@ describe("Input Widget Functionality", function() {
     cy.openPropertyPane("inputwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.inputWidget + " " + "input").should("not.be.visible");
+    cy.get(publish.inputWidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click({ force: true });
   });
   it("Input Functionality To Check Visible Widget", function() {
@@ -115,15 +118,19 @@ describe("Input Widget Functionality", function() {
   it("Input Functionality To check number input type with custom regex", function() {
     cy.openPropertyPane("inputwidget");
     cy.get(commonlocators.dataType).click();
-    cy.get(
+    /*cy.get(
       `${commonlocators.dataType} .single-select:contains("Number")`,
-    ).click();
+    ).click();*/
+    cy.get("ul.bp3-menu")
+      .children()
+      .contains("Number")
+      .click();
     cy.testJsontext("regex", "^s*(?=.*[1-9])d*(?:.d{1,2})?s*$");
     cy.get(widgetsPage.innertext)
       .click()
       .clear()
       .type("1.255");
-    cy.get(".bp3-popover-content").should($x => {
+    cy.get(".bp3-popover-content").should(($x) => {
       expect($x).contain("Invalid input");
     });
     cy.get(widgetsPage.innertext)

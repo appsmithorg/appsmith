@@ -92,12 +92,16 @@ export const HelpMap = {
     searchKey: "Apis",
   },
   API_BINDING: {
-    path: "/core-concepts/apis/taking-inputs-from-widgets",
+    path: "/core-concepts/capturing-data-write",
     searchKey: "Taking Inputs from Widgets",
   },
   DATASOURCE_FORM: {
     path: "/core-concepts/connecting-to-databases",
     searchKey: "Connecting to databases",
+  },
+  SWITCH_WIDGET: {
+    path: "/widget-reference/switch",
+    searchKey: "Switch",
   },
 };
 

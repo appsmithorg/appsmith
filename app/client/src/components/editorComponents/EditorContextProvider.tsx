@@ -5,7 +5,11 @@ import { WidgetOperation } from "widgets/BaseWidget";
 
 import { updateWidget } from "actions/pageActions";
 import { executeAction, disableDragAction } from "actions/widgetActions";
-import { updateWidgetPropertyRequest } from "actions/controlActions";
+import {
+  updateWidgetPropertyRequest,
+  deleteWidgetProperty as deletePropertyAction,
+  batchUpdateWidgetProperty as batchUpdatePropertyAction,
+} from "actions/controlActions";
 
 import { ExecuteActionPayload } from "constants/ActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
@@ -36,6 +40,11 @@ export type EditorContextType = {
   resetChildrenMetaProperty?: (widgetId: string) => void;
   disableDrag?: (disable: boolean) => void;
   occupiedSpaces?: { [containerWidgetId: string]: OccupiedSpace[] };
+  deleteWidgetProperty?: (widgetId: string, propertyPaths: string[]) => void;
+  batchUpdateWidgetProperty?: (
+    widgetId: string,
+    updates: Record<string, unknown>,
+  ) => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -52,6 +61,8 @@ const EditorContextProvider = (props: EditorContextProviderProps) => {
     disableDrag,
     children,
     resetChildrenMetaProperty,
+    deleteWidgetProperty,
+    batchUpdateWidgetProperty,
   } = props;
   return (
     <EditorContext.Provider
@@ -62,6 +73,8 @@ const EditorContextProvider = (props: EditorContextProviderProps) => {
         updateWidgetMetaProperty,
         disableDrag,
         resetChildrenMetaProperty,
+        deleteWidgetProperty,
+        batchUpdateWidgetProperty,
       }}
     >
       {children}
@@ -101,6 +114,14 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(resetChildrenMetaProperty(widgetId)),
     disableDrag: (disable: boolean) => {
       dispatch(disableDragAction(disable));
+    },
+    deleteWidgetProperty: (widgetId: string, propertyPaths: string[]) =>
+      dispatch(deletePropertyAction(widgetId, propertyPaths)),
+    batchUpdateWidgetProperty: (
+      widgetId: string,
+      updates: Record<string, unknown>,
+    ) => {
+      dispatch(batchUpdatePropertyAction(widgetId, updates));
     },
   };
 };

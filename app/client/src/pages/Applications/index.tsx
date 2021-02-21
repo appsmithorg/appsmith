@@ -1,38 +1,47 @@
-import React, { Component, Fragment, useEffect, useRef, useState } from "react";
-import styled from "styled-components";
-import { connect, useSelector, useDispatch } from "react-redux";
+import React, {
+  Component,
+  Fragment,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import styled, { ThemeContext } from "styled-components";
+import { connect, useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import { AppState } from "reducers";
-import { Card, Dialog, Classes as BlueprintClasses } from "@blueprintjs/core";
+import { Card, Classes as BlueprintClasses, Dialog } from "@blueprintjs/core";
 import {
   getApplicationList,
-  getIsFetchingApplications,
-  getIsCreatingApplication,
-  getCreateApplicationError,
-  getIsDeletingApplication,
-  getUserApplicationsOrgsList,
-  getUserApplicationsOrgs,
-  getIsDuplicatingApplication,
   getApplicationSearchKeyword,
+  getCreateApplicationError,
+  getIsCreatingApplication,
+  getIsDeletingApplication,
+  getIsDuplicatingApplication,
+  getIsFetchingApplications,
   getIsSavingOrgInfo,
+  getUserApplicationsOrgs,
+  getUserApplicationsOrgsList,
 } from "selectors/applicationSelectors";
 import {
-  ReduxActionTypes,
   ApplicationPayload,
+  ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import PageSectionDivider from "pages/common/PageSectionDivider";
 import ApplicationCard from "./ApplicationCard";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
-import { PERMISSION_TYPE, isPermitted } from "./permissionHelpers";
+import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+// import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
 import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
 import {
-  getOnSelectAction,
   DropdownOnSelectActions,
+  getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import Button, { Size } from "components/ads/Button";
 import Text, { TextType } from "components/ads/Text";
@@ -63,8 +72,11 @@ import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import Spinner from "components/ads/Spinner";
 import ProfileImage from "pages/common/ProfileImage";
-import { getThemeDetails } from "selectors/themeSelectors";
 import { AppIconCollection } from "components/ads/AppIcon";
+import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
+import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
+import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -203,6 +215,7 @@ const ApplicationContainer = styled.div`
         props.theme.homePage.leftPane.rightMargin +
         props.theme.homePage.leftPane.leftPadding}px
   );
+  scroll-behavior: smooth;
 `;
 
 const ItemWrapper = styled.div`
@@ -264,7 +277,7 @@ function LeftPaneSection(props: {
         label={props.heading}
         textType={TextType.H6}
         isFetchingApplications={props.isFetchingApplications}
-      ></Item>
+      />
       {props.children}
     </>
   );
@@ -280,6 +293,7 @@ const StyledAnchor = styled.a`
 const WorkpsacesNavigator = styled.div`
   overflow: auto;
   height: calc(100vh - ${(props) => props.theme.homePage.header + 36 + 25}px);
+  padding-bottom: 88px;
 `;
 
 const textIconStyles = (props: { color: string; hover: string }) => {
@@ -345,9 +359,30 @@ const ApplicationAddCardWrapper = styled(Card)`
   }}
 `;
 
-function LeftPane() {
+const OrgMenuItem = ({ org, isFetchingApplications, selected }: any) => {
   const menuRef = useRef<HTMLAnchorElement>(null);
-  const [selectedOrg, setSelectedOrg] = useState<string>("");
+  useEffect(() => {
+    if (selected) {
+      menuRef.current?.scrollIntoView({ behavior: "smooth" });
+      menuRef.current?.click();
+    }
+  }, [selected]);
+
+  return (
+    <MenuItem
+      ref={menuRef}
+      className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+      icon="workspace"
+      key={org.organization.slug}
+      href={`${window.location.pathname}#${org.organization.slug}`}
+      text={org.organization.name}
+      ellipsize={20}
+      selected={selected}
+    />
+  );
+};
+
+function LeftPane() {
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const NewWorkspaceTrigger = (
@@ -367,19 +402,10 @@ function LeftPane() {
     userOrgs = loadingUserOrgs as any;
   }
 
-  const urlHash = decodeURI(
-    window.location.hash.substring(1, window.location.hash.length),
-  );
+  const location = useLocation();
+  const urlHash = location.hash.slice(1);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (menuRef && menuRef.current) {
-        menuRef.current.scrollIntoView({ behavior: "smooth" });
-        menuRef.current.click();
-      }
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [fetchedUserOrgs]);
+  const initiateOnboarding = useIntiateOnboarding();
 
   return (
     <LeftPaneWrapper>
@@ -393,26 +419,44 @@ function LeftPane() {
             Form={CreateOrganizationForm}
             title={CREATE_ORGANIZATION_FORM_NAME}
           />
-          {/* {CreateOrg} */}
           {userOrgs &&
             userOrgs.map((org: any) => (
-              <MenuItem
-                {...(urlHash === org.organization.name ? { ref: menuRef } : {})}
-                className={
-                  isFetchingApplications ? BlueprintClasses.SKELETON : ""
-                }
-                icon="workspace"
-                key={org.organization.id}
-                href={`${window.location.pathname}#${org.organization.name}`}
-                text={org.organization.name}
-                ellipsize={20}
-                onSelect={() => setSelectedOrg(org.organization.id)}
-                selected={
-                  selectedOrg === org.organization.id &&
-                  urlHash === org.organization.name
-                }
+              <OrgMenuItem
+                key={org.organization.slug}
+                org={org}
+                isFetchingApplications={isFetchingApplications}
+                selected={urlHash === org.organization.slug}
               />
             ))}
+          <div style={{ marginTop: 12 }}>
+            <Item
+              label={"GETTING STARTED"}
+              textType={TextType.H6}
+              isFetchingApplications={isFetchingApplications}
+            ></Item>
+          </div>
+          <MenuItem
+            className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+            icon="book"
+            text={"Documentation"}
+            onSelect={() => {
+              window.open("https://docs.appsmith.com/", "_blank");
+            }}
+          />
+          <MenuItem
+            className={
+              isFetchingApplications
+                ? BlueprintClasses.SKELETON
+                : "t--welcome-tour"
+            }
+            icon="shine"
+            text={"Welcome Tour"}
+            onSelect={() => {
+              AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
+
+              initiateOnboarding();
+            }}
+          />
         </WorkpsacesNavigator>
       </LeftPaneSection>
     </LeftPaneWrapper>
@@ -464,7 +508,7 @@ const NoSearchResultImg = styled.img`
 
 const ApplicationsSection = (props: any) => {
   const dispatch = useDispatch();
-  const themeDetails = useSelector(getThemeDetails);
+  const theme = useContext(ThemeContext);
   const isSavingOrgInfo = useSelector(getIsSavingOrgInfo);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const userOrgs = useSelector(getUserApplicationsOrgsList);
@@ -503,12 +547,16 @@ const ApplicationsSection = (props: any) => {
     );
   };
 
-  const OrgMenuTarget = (props: { orgName: string; disabled?: boolean }) => {
-    const { orgName, disabled } = props;
+  const OrgMenuTarget = (props: {
+    orgName: string;
+    disabled?: boolean;
+    orgSlug: string;
+  }) => {
+    const { orgName, disabled, orgSlug } = props;
 
-    const OrgName = (
+    return (
       <OrgNameWrapper disabled={disabled} className="t--org-name">
-        <StyledAnchor id={orgName}></StyledAnchor>
+        <StyledAnchor id={orgSlug} />
         <OrgNameHolder
           type={TextType.H1}
           className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
@@ -519,17 +567,14 @@ const ApplicationsSection = (props: any) => {
           >
             {orgName}
           </OrgNameElement>
-          <Icon name="downArrow" size={IconSize.XXS}></Icon>
+          <Icon name="downArrow" size={IconSize.XXS} />
         </OrgNameHolder>
       </OrgNameWrapper>
     );
-    return OrgName;
   };
 
   const createNewApplication = (applicationName: string, orgId: string) => {
-    const color = getRandomPaletteColor(
-      themeDetails.theme.colors.appCardColors,
-    );
+    const color = getRandomPaletteColor(theme.colors.appCardColors);
     const icon =
       AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
 
@@ -582,6 +627,7 @@ const ApplicationsSection = (props: any) => {
                   target={OrgMenuTarget({
                     orgName: organization.name,
                     disabled: !hasManageOrgPermissions,
+                    orgSlug: organization.slug,
                   })}
                   position={Position.BOTTOM_RIGHT}
                   className="t--org-name"
@@ -605,6 +651,7 @@ const ApplicationsSection = (props: any) => {
                     onBlur={(value: string) => {
                       OrgNameChange(value, organization.id);
                     }}
+                    underline
                   />
                   <MenuItem
                     icon="general"
@@ -620,7 +667,7 @@ const ApplicationsSection = (props: any) => {
                     text="Share"
                     icon="share"
                     onSelect={() => setSelectedOrgId(organization.id)}
-                  ></MenuItem>
+                  />
                   <MenuItem
                     icon="user"
                     text="Members"
@@ -654,15 +701,13 @@ const ApplicationsSection = (props: any) => {
                 !isFetchingApplications && (
                   <OrgShareUsers>
                     <UserImageContainer>
-                      {userRoles
-                        .slice(0, 5)
-                        .map((el: UserRoles, index: number) => (
-                          <ProfileImage
-                            className="org-share-user-icons"
-                            userName={el.name ? el.name : el.username}
-                            key={el.username}
-                          />
-                        ))}
+                      {userRoles.slice(0, 5).map((el: UserRoles) => (
+                        <ProfileImage
+                          className="org-share-user-icons"
+                          userName={el.name ? el.name : el.username}
+                          key={el.username}
+                        />
+                      ))}
                       {userRoles.length > 5 ? (
                         <ProfileImage
                           className="org-share-user-icons"
@@ -719,7 +764,7 @@ const ApplicationsSection = (props: any) => {
                             className="t--create-app-popup"
                             name={"plus"}
                             size={IconSize.LARGE}
-                          ></Icon>
+                          />
                           <CreateNewLabel
                             type={TextType.H4}
                             className="createnew"
@@ -758,6 +803,7 @@ const ApplicationsSection = (props: any) => {
     <ApplicationContainer className="t--applications-container">
       {organizationsListComponent}
       <HelpModal page={"Applications"} />
+      <WelcomeHelper />
     </ApplicationContainer>
   );
 };
@@ -797,6 +843,7 @@ class Applications extends Component<
   public render() {
     return (
       <PageWrapper displayName="Applications">
+        <ProductUpdatesModal />
         <LeftPane />
         <SubHeader
           search={{
@@ -804,9 +851,7 @@ class Applications extends Component<
             queryFn: this.props.searchApplications,
           }}
         />
-        <ApplicationsSection
-          searchKeyword={this.props.searchKeyword}
-        ></ApplicationsSection>
+        <ApplicationsSection searchKeyword={this.props.searchKeyword} />
       </PageWrapper>
     );
   }

@@ -34,6 +34,7 @@ import { AppState } from "reducers";
 import {
   FetchApplicationPayload,
   setDefaultApplicationPageSuccess,
+  resetCurrentApplication,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -137,6 +138,11 @@ export function* getAllApplicationSaga() {
       yield put({
         type: ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS,
         payload: organizationApplication,
+      });
+      const { newReleasesCount, releaseItems } = response.data || {};
+      yield put({
+        type: ReduxActionTypes.FETCH_RELEASES_SUCCESS,
+        payload: { newReleasesCount, releaseItems },
       });
     }
   } catch (error) {
@@ -375,6 +381,8 @@ export function* createApplicationSaga(
         },
       });
     } else {
+      yield put(resetCurrentApplication());
+
       const request: CreateApplicationRequest = {
         name: applicationName,
         icon: icon,

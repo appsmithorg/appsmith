@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 
 @Service
 @Slf4j
@@ -162,7 +162,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                 .flatMap(application -> {
                     if (Boolean.TRUE.equals(view)) {
                         if (application.getPublishedPages() == null || application.getPublishedPages().isEmpty()) {
-                            // We are trying to fetch published pages but they doesnt exist because the application
+                            // We are trying to fetch published pages but they don't exist because the application
                             // hasn't been published yet
                             return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
                                     FieldName.PUBLISHED_APPLICATION, application.getId()));
@@ -223,8 +223,10 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                                         FieldName.PAGE, pageFromDb.getId()));
                             }
                             pageNameIdDTO.setName(pageFromDb.getPublishedPage().getName());
+                            pageNameIdDTO.setIsHidden(pageFromDb.getPublishedPage().getIsHidden());
                         } else {
                             pageNameIdDTO.setName(pageFromDb.getUnpublishedPage().getName());
+                            pageNameIdDTO.setIsHidden(pageFromDb.getUnpublishedPage().getIsHidden());
                         }
 
                         if (pageNameIdDTO.getId().equals(defaultPageId)) {
@@ -364,5 +366,10 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     @Override
     public Flux<NewPage> saveAll(List<NewPage> pages) {
         return repository.saveAll(pages);
+    }
+
+    @Override
+    public Mono<String> getNameByPageId(String pageId, boolean isPublishedName) {
+        return repository.getNameByPageId(pageId, isPublishedName);
     }
 }

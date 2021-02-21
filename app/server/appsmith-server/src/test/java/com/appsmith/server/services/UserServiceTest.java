@@ -168,7 +168,7 @@ public class UserServiceTest {
                     assertThat(user).isNotNull();
                     assertThat(user.getId()).isNotNull();
                     assertThat(user.getEmail()).isEqualTo("new-user-email@email.com");
-                    assertThat(user.getName()).isEqualTo("new-user-email@email.com");
+                    assertThat(user.getName()).isNullOrEmpty();
                     assertThat(user.getPolicies()).isNotEmpty();
                     assertThat(user.getPolicies()).containsAll(Set.of(manageUserPolicy, manageUserOrgPolicy, readUserPolicy, readUserOrgPolicy));
                     // Since there is a template organization, the user won't have an empty default organization. They
@@ -261,30 +261,6 @@ public class UserServiceTest {
                     assertThat(user).isNotNull();
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    @WithMockAppsmithUser
-    public void confirmInviteTokenFlow() {
-        User newUser = new User();
-        newUser.setEmail("newEmail@newEmail.com");
-        newUser.setIsEnabled(false);
-        newUser.setInviteToken("inviteToken");
-
-        userRepository.save(newUser).block();
-
-        newUser.setPassword("newPassword");
-
-        Mono<User> afterConfirmationUserMono = userService.confirmInviteUser(newUser, "http://localhost:8080")
-                .then(userRepository.findByEmail("newEmail@newEmail.com"));
-
-        StepVerifier.create(afterConfirmationUserMono)
-                .assertNext(user -> {
-                    assertThat(user).isNotNull();
-                    assertThat(user.getIsEnabled()).isTrue();
-                })
-                .verifyComplete();
-
     }
 
     @Test
@@ -420,4 +396,3 @@ public class UserServiceTest {
         }
     }
 }
-

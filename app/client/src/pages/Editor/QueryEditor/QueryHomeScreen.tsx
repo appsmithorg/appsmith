@@ -6,7 +6,7 @@ import { AppState } from "reducers";
 import { createNewQueryName } from "utils/AppsmithUtils";
 import { getPluginImages } from "selectors/entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { createActionRequest } from "actions/actionActions";
 import { Page } from "constants/ReduxActionConstants";
 import {
@@ -25,7 +25,7 @@ const QueryHomePage = styled.div`
   overflow: auto;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
 
   .sectionHeader {
     font-weight: ${(props) => props.theme.fontWeights[2]};
@@ -93,6 +93,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
           from: "home-screen",
           dataSource: dataSource.name,
         },
+        pluginId: dataSource.pluginId,
         actionConfiguration: {},
       });
     }

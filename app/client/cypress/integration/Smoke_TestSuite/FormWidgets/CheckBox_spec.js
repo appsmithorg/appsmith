@@ -62,14 +62,14 @@ describe("Checkbox Widget Functionality", function() {
     cy.openPropertyPane("checkboxwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.checkboxWidget + " " + "input").should("not.be.visible");
+    cy.get(publish.checkboxWidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click();
   });
   it("Checkbox Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("checkboxwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.checkboxWidget + " " + "input").should("be.visible");
+    cy.get(publish.checkboxWidget + " " + "input").should("be.checked");
     cy.get(publish.backToEditor).click();
   });
 
@@ -88,6 +88,21 @@ describe("Checkbox Widget Functionality", function() {
       .contains("Submit")
       .should("not.have.attr", "disabled");
 
+    cy.get(publish.backToEditor).click();
+  });
+  it("Checkbox Functionality To swap label placement of  checkbox", function() {
+    cy.openPropertyPane("checkboxwidget");
+    cy.get(publish.checkboxWidget + " " + ".bp3-align-right").should(
+      "not.exist",
+    );
+    cy.get(publish.checkboxWidget + " " + ".bp3-align-left").should("exist");
+    cy.get(commonlocators.optionalignment).click();
+    cy.dropdownDynamic("Right");
+    cy.PublishtheApp();
+    cy.get(publish.checkboxWidget + " " + ".bp3-align-right").should("exist");
+    cy.get(publish.checkboxWidget + " " + ".bp3-align-left").should(
+      "not.exist",
+    );
     cy.get(publish.backToEditor).click();
   });
 });

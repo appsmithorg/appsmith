@@ -14,7 +14,7 @@ import {
 import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import {
-  DEFAULT_API_ACTION,
+  DEFAULT_API_ACTION_CONFIG,
   POST_BODY_FORMAT_OPTIONS,
   REST_PLUGIN_PACKAGE_NAME,
   POST_BODY_FORMATS,
@@ -44,10 +44,10 @@ import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugins } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { createActionRequest, setActionProperty } from "actions/actionActions";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
-import { RestAction } from "entities/Action";
+import { Action, ApiAction } from "entities/Action";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import log from "loglevel";
 import PerformanceTracker, {
@@ -56,6 +56,8 @@ import PerformanceTracker, {
 import { EventLocation } from "utils/AnalyticsUtil";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import { checkCurrentStep } from "./OnboardingSagas";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -140,7 +142,7 @@ function* initializeExtraFormDataSaga() {
   const headers = get(
     values,
     "actionConfiguration.headers",
-    DEFAULT_API_ACTION.actionConfiguration?.headers,
+    DEFAULT_API_ACTION_CONFIG.headers,
   );
 
   const queryParameters = get(
@@ -157,7 +159,7 @@ function* initializeExtraFormDataSaga() {
         change(
           API_EDITOR_FORM_NAME,
           "actionConfiguration.queryParameters",
-          DEFAULT_API_ACTION.actionConfiguration?.queryParameters,
+          DEFAULT_API_ACTION_CONFIG.queryParameters,
         ),
       );
   }
@@ -302,7 +304,7 @@ function* formValueChangeSaga(
   ]);
 }
 
-function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
+function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const { id, pluginType } = actionPayload.payload;
   const action = yield select(getAction, id);
   const data = { ...action };
@@ -336,9 +338,11 @@ function* handleCreateNewApiActionSaga(
       (a: ActionData) => a.config.pageId === pageId,
     );
     const newActionName = createNewApiName(pageActions, pageId);
+    // Note: Do NOT send pluginId on top level here.
+    // It breaks embedded rest datasource flow.
     yield put(
       createActionRequest({
-        ...DEFAULT_API_ACTION,
+        actionConfiguration: DEFAULT_API_ACTION_CONFIG,
         name: newActionName,
         datasource: {
           name: "DEFAULT_REST_DATASOURCE",
@@ -350,7 +354,7 @@ function* handleCreateNewApiActionSaga(
           from: action.payload.from,
         },
         pageId,
-      }),
+      } as ApiAction), // We don't have recursive partial in typescript for now.
     );
     history.push(
       API_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
@@ -381,21 +385,36 @@ function* handleCreateNewQueryActionSaga(
       .map((a: ActionData) => a.config.name);
     const newQueryName = getNextEntityName("Query", pageApiNames);
     const dataSourceId = validDataSources[0].id;
-    yield put(
-      createActionRequest({
-        name: newQueryName,
-        pageId,
-        datasource: {
-          id: dataSourceId,
-        },
-        eventData: {
-          actionType: "Query",
-          from: action.payload.from,
-          dataSource: validDataSources[0].name,
-        },
-        actionConfiguration: {},
-      }),
+    let createActionPayload = {
+      name: newQueryName,
+      pageId,
+      datasource: {
+        id: dataSourceId,
+      },
+      eventData: {
+        actionType: "Query",
+        from: action.payload.from,
+        dataSource: validDataSources[0].name,
+      },
+      actionConfiguration: {},
+    };
+
+    //For onboarding
+    const updateActionPayload = yield select(
+      checkCurrentStep,
+      OnboardingStep.ADD_INPUT_WIDGET,
     );
+    if (updateActionPayload) {
+      createActionPayload = {
+        ...createActionPayload,
+        name: "add_standup_updates",
+        actionConfiguration: {
+          body: `Insert into standup_updates("name", "notes") values ('{{appsmith.user.email}}', '{{ Standup_Input.text }}')`,
+        },
+      };
+    }
+
+    yield put(createActionRequest(createActionPayload));
     history.push(
       QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
     );

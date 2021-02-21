@@ -11,9 +11,8 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import ActionAPI, { ActionCreateUpdateResponse, Property } from "api/ActionAPI";
-import _ from "lodash";
 import { GenericApiResponse } from "api/ApiResponses";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
@@ -44,12 +43,11 @@ import {
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
-import { Action, RestAction } from "entities/Action";
+import { Action, ActionViewMode } from "entities/Action";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getCurrentPageNameByActionId,
-  getDatasource,
   getPageNameByPageId,
 } from "selectors/entitiesSelector";
 import { getDataSources } from "selectors/editorSelectors";
@@ -66,13 +64,50 @@ import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { getEditorConfig } from "selectors/entitiesSelector";
+import PluginsApi from "api/PluginApi";
+import _, { merge } from "lodash";
+import { getConfigInitialValues } from "components/formControls/utils";
 
 export function* createActionSaga(
-  actionPayload: ReduxAction<Partial<Action> & { eventData: any }>,
+  actionPayload: ReduxAction<
+    Partial<Action> & { eventData: any; pluginId: string }
+  >,
 ) {
   try {
+    let payload = actionPayload.payload;
+    if (actionPayload.payload.pluginId) {
+      let formConfig;
+      formConfig = yield select(
+        getEditorConfig,
+        actionPayload.payload.pluginId,
+      );
+
+      if (!formConfig) {
+        const formConfigResponse: GenericApiResponse<any> = yield PluginsApi.fetchFormConfig(
+          actionPayload.payload.pluginId,
+        );
+        yield validateResponse(formConfigResponse);
+        yield put({
+          type: ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
+          payload: {
+            id: actionPayload.payload.pluginId,
+            ...formConfigResponse.data,
+          },
+        });
+
+        formConfig = yield select(
+          getEditorConfig,
+          actionPayload.payload.pluginId,
+        );
+      }
+
+      const initialValues = yield call(getConfigInitialValues, formConfig);
+      payload = merge(initialValues, actionPayload.payload);
+    }
+
     const response: ActionCreateUpdateResponse = yield ActionAPI.createAPI(
-      actionPayload.payload,
+      payload,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -93,16 +128,7 @@ export function* createActionSaga(
         ...actionPayload.payload.eventData,
       });
 
-      let newAction = response.data;
-
-      if (newAction.datasource.id) {
-        const datasource = yield select(getDatasource, newAction.datasource.id);
-
-        newAction = {
-          ...newAction,
-          datasource,
-        };
-      }
+      const newAction = response.data;
 
       yield put(createActionSuccess(newAction));
     }
@@ -121,7 +147,7 @@ export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
     { mode: "EDITOR", appId: applicationId },
   );
   try {
-    const response: GenericApiResponse<RestAction[]> = yield ActionAPI.fetchActions(
+    const response: GenericApiResponse<Action[]> = yield ActionAPI.fetchActions(
       applicationId,
     );
     const isValidResponse = yield validateResponse(response);
@@ -155,14 +181,22 @@ export function* fetchActionsForViewModeSaga(
     { mode: "VIEWER", appId: applicationId },
   );
   try {
-    const response: GenericApiResponse<RestAction[]> = yield ActionAPI.fetchActionsForViewMode(
+    const response: GenericApiResponse<ActionViewMode[]> = yield ActionAPI.fetchActionsForViewMode(
       applicationId,
     );
+    const correctFormatResponse = response.data.map((action) => {
+      return {
+        ...action,
+        actionConfiguration: {
+          timeoutInMillisecond: action.timeoutInMillisecond,
+        },
+      };
+    });
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
-        payload: response.data,
+        payload: correctFormatResponse,
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_ACTIONS_API,
@@ -189,7 +223,7 @@ export function* fetchActionsForPageSaga(
     { pageId: pageId },
   );
   try {
-    const response: GenericApiResponse<RestAction[]> = yield call(
+    const response: GenericApiResponse<Action[]> = yield call(
       ActionAPI.fetchActionsByPageId,
       pageId,
     );
@@ -218,18 +252,15 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
       PerformanceTransactionName.UPDATE_ACTION_API,
       { actionid: actionPayload.payload.id },
     );
-    let action: Action = yield select(getAction, actionPayload.payload.id);
+    let action = yield select(getAction, actionPayload.payload.id);
+    if (!action) throw new Error("Could not find action to update");
     const isApi = action.pluginType === "API";
-    const isDB = action.pluginType === "DB";
 
     if (isApi) {
       action = transformRestAction(action);
     }
-    if (isApi || isDB) {
-      action = _.omit(action, "name") as RestAction;
-    }
 
-    const response: GenericApiResponse<RestAction> = yield ActionAPI.updateAPI(
+    const response: GenericApiResponse<Action> = yield ActionAPI.updateAPI(
       action,
     );
     const isValidResponse = yield validateResponse(response);
@@ -252,25 +283,11 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
         });
       }
 
-      let updatedAction = response.data;
-
-      if (updatedAction.datasource.id) {
-        const datasource = yield select(
-          getDatasource,
-          updatedAction.datasource.id,
-        );
-
-        updatedAction = {
-          ...updatedAction,
-          datasource,
-        };
-      }
-
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.UPDATE_ACTION_API,
       );
 
-      yield put(updateActionSuccess({ data: updatedAction }));
+      yield put(updateActionSuccess({ data: response.data }));
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(
@@ -295,7 +312,7 @@ export function* deleteActionSaga(
     const isApi = action.pluginType === PLUGIN_TYPE_API;
     const isQuery = action.pluginType === QUERY_CONSTANT;
 
-    const response: GenericApiResponse<RestAction> = yield ActionAPI.deleteAction(
+    const response: GenericApiResponse<Action> = yield ActionAPI.deleteAction(
       id,
     );
     const isValidResponse = yield validateResponse(response);
@@ -344,7 +361,7 @@ function* moveActionSaga(
     name: string;
   }>,
 ) {
-  const actionObject: RestAction = yield select(getAction, action.payload.id);
+  const actionObject: Action = yield select(getAction, action.payload.id);
   const withoutBindings = removeBindingsFromActionObject(actionObject);
   try {
     const response = yield ActionAPI.moveAction({
@@ -387,16 +404,18 @@ function* moveActionSaga(
 function* copyActionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {
-  let actionObject: RestAction = yield select(getAction, action.payload.id);
-  if (action.payload.destinationPageId !== actionObject.pageId) {
-    actionObject = removeBindingsFromActionObject(actionObject);
-  }
+  let actionObject: Action = yield select(getAction, action.payload.id);
   try {
-    const copyAction = {
-      ...(_.omit(actionObject, "id") as RestAction),
+    if (!actionObject) throw new Error("Could not find action to copy");
+    if (action.payload.destinationPageId !== actionObject.pageId) {
+      actionObject = removeBindingsFromActionObject(actionObject);
+    }
+
+    const copyAction = Object.assign({}, actionObject, {
       name: action.payload.name,
       pageId: action.payload.destinationPageId,
-    };
+    }) as Partial<Action>;
+    delete copyAction.id;
     const response = yield ActionAPI.createAPI(copyAction);
     const datasources = yield select(getDataSources);
 
@@ -429,7 +448,9 @@ function* copyActionSaga(
     yield put(copyActionSuccess(payload));
   } catch (e) {
     Toaster.show({
-      text: `Error while copying action ${actionObject.name}`,
+      text: `Error while copying action ${
+        actionObject ? actionObject.name : ""
+      }`,
       variant: Variant.danger,
     });
     yield put(copyActionError(action.payload));

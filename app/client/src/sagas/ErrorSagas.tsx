@@ -14,9 +14,22 @@ import { AUTH_LOGIN_URL } from "constants/routes";
 import { ERROR_CODES } from "constants/ApiConstants";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { put, takeLatest, call, select } from "redux-saga/effects";
-import { ERROR_401, ERROR_500, ERROR_0 } from "constants/messages";
-import { DEFAULT_ERROR_MESSAGE, DEFAULT_ACTION_ERROR } from "constants/errors";
+import {
+  ERROR_401,
+  ERROR_500,
+  ERROR_0,
+  DEFAULT_ERROR_MESSAGE,
+} from "constants/messages";
+
+/**
+ * making with error message with action name
+ *
+ * @param action
+ */
+export const getDefaultActionError = (action: string) =>
+  `Incurred an error when ${action}`;
 
 export function* callAPI(apiCall: any, requestPayload: any) {
   try {
@@ -25,6 +38,12 @@ export function* callAPI(apiCall: any, requestPayload: any) {
     return yield error;
   }
 }
+
+/**
+ * transforn server errors to client error codes
+ *
+ * @param code
+ */
 const getErrorMessage = (code: number) => {
   switch (code) {
     case 401:
@@ -36,6 +55,12 @@ const getErrorMessage = (code: number) => {
   }
 };
 
+/**
+ * validates if response does have any errors
+ *
+ * @param response
+ * @param show
+ */
 export function* validateResponse(response: ApiResponse | any, show = true) {
   if (!response) {
     throw Error("");
@@ -71,23 +96,29 @@ type ErrorPayloadType = {
   message?: string;
   crash?: boolean;
 };
-let ActionErrorDisplayMap: {
+const ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
-} = {};
-
-Object.keys(ReduxActionErrorTypes).forEach((type: string) => {
-  ActionErrorDisplayMap[type] = () =>
-    DEFAULT_ERROR_MESSAGE + " action: " + type;
-});
-
-ActionErrorDisplayMap = {
-  ...ActionErrorDisplayMap,
+} = {
   [ReduxActionErrorTypes.API_ERROR]: (error) =>
     get(error, "message", DEFAULT_ERROR_MESSAGE),
   [ReduxActionErrorTypes.FETCH_PAGE_ERROR]: () =>
-    DEFAULT_ACTION_ERROR("fetching the page"),
+    getDefaultActionError("fetching the page"),
   [ReduxActionErrorTypes.SAVE_PAGE_ERROR]: () =>
-    DEFAULT_ACTION_ERROR("saving the page"),
+    getDefaultActionError("saving the page"),
+};
+
+const getErrorMessageFromActionType = (
+  type: string,
+  error: ErrorPayloadType,
+): string => {
+  const actionErrorMessage = get(error, "message");
+  if (actionErrorMessage === undefined) {
+    if (type in ActionErrorDisplayMap) {
+      return ActionErrorDisplayMap[type](error);
+    }
+    return DEFAULT_ERROR_MESSAGE;
+  }
+  return actionErrorMessage;
 };
 
 enum ErrorEffectTypes {
@@ -96,21 +127,22 @@ enum ErrorEffectTypes {
   LOG_ERROR = "LOG_ERROR",
 }
 
-export function* errorSaga(
-  errorAction: ReduxAction<{
-    error: ErrorPayloadType;
-    show?: boolean;
-    crash?: boolean;
-  }>,
-) {
+export interface ErrorActionPayload {
+  error: ErrorPayloadType;
+  show?: boolean;
+  crash?: boolean;
+}
+
+export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   const effects = [ErrorEffectTypes.LOG_ERROR];
   const { type, payload } = errorAction;
   const { show = true, error } = payload || {};
-  const message = get(error, "message", ActionErrorDisplayMap[type](error));
+  const message = getErrorMessageFromActionType(type, error);
 
   if (show) {
     effects.push(ErrorEffectTypes.SHOW_ALERT);
   }
+
   if (error && error.crash) {
     effects.push(ErrorEffectTypes.SAFE_CRASH);
   }
@@ -166,7 +198,7 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
   // if user is not logged and the error is "PAGE_NOT_FOUND",
   // redirecting user to login page with redirecTo param
   if (
-    get(user, "email") === "anonymousUser" &&
+    get(user, "email") === ANONYMOUS_USERNAME &&
     code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
     window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;

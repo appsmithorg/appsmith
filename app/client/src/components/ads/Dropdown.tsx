@@ -3,6 +3,7 @@ import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
+import { Popover, Position } from "@blueprintjs/core";
 
 type DropdownOption = {
   label?: string;
@@ -16,10 +17,11 @@ type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
   selected: DropdownOption;
   onSelect?: (value?: string) => void;
+  width?: number;
 };
 
-const DropdownContainer = styled.div`
-  width: 260px;
+const DropdownContainer = styled.div<{ width?: number }>`
+  width: ${(props) => props.width || 260}px;
   position: relative;
 `;
 
@@ -56,15 +58,12 @@ const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
   }
 `;
 
-const DropdownWrapper = styled.div`
-  position: absolute;
-  top: 38px;
-  left: 0px;
+const DropdownWrapper = styled.div<{ width?: number }>`
+  width: ${(props) => props.width || 260}px;
   z-index: 1;
   margin-top: ${(props) => props.theme.spaces[2] - 1}px;
   background: ${(props) => props.theme.colors.dropdown.menuBg};
   box-shadow: 0px 12px 28px ${(props) => props.theme.colors.dropdown.menuShadow};
-  width: 100%;
 `;
 
 const OptionWrapper = styled.div<{ selected: boolean }>`
@@ -113,21 +112,21 @@ const LabelWrapper = styled.div<{ label?: string }>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-
-  ${(props) =>
-    props.label
-      ? `
-    .${Classes.TEXT}:last-child {
-      margin-top: ${props.theme.spaces[2] - 1}px;
+  span:last-child {
+    margin-top: ${(props) => props.theme.spaces[2] - 1}px;
+  }
+  &:hover {
+    .${Classes.TEXT} {
+      color: ${(props) => props.theme.colors.dropdown.selected.text};
     }
-    `
-      : null}
+  }
 `;
 
 export default function Dropdown(props: DropdownProps) {
   const { onSelect } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
+  const [containerWidth, setContainerWidth] = useState(0);
 
   useEffect(() => {
     setSelected(props.selected);
@@ -143,50 +142,60 @@ export default function Dropdown(props: DropdownProps) {
     [onSelect],
   );
 
+  const measuredRef = useCallback((node) => {
+    if (node !== null) {
+      setContainerWidth(node.getBoundingClientRect().width);
+    }
+  }, []);
+
   return (
     <DropdownContainer
       tabIndex={0}
-      onBlur={() => setIsOpen(false)}
       data-cy={props.cypressSelector}
+      ref={measuredRef}
+      width={props.width}
     >
-      <Selected
-        isOpen={isOpen}
-        disabled={props.disabled}
-        onClick={() => setIsOpen(!isOpen)}
+      <Popover
+        minimal
+        position={Position.BOTTOM_RIGHT}
+        isOpen={isOpen && !props.disabled}
+        onInteraction={(state) => setIsOpen(state)}
+        boundary="viewport"
       >
-        <Text type={TextType.P1}>{selected.value}</Text>
-        <Icon name="downArrow" size={IconSize.XXS} />
-      </Selected>
-
-      {isOpen && !props.disabled ? (
-        <DropdownWrapper>
+        <Selected
+          isOpen={isOpen}
+          disabled={props.disabled}
+          onClick={() => setIsOpen(!isOpen)}
+          className={props.className}
+        >
+          <Text type={TextType.P1}>{selected.value}</Text>
+          <Icon name="downArrow" size={IconSize.XXS} />
+        </Selected>
+        <DropdownWrapper width={containerWidth}>
           {props.options.map((option: DropdownOption, index: number) => {
             return (
               <OptionWrapper
                 key={index}
                 selected={selected.value === option.value}
                 onClick={() => optionClickHandler(option)}
+                className="t--dropdown-option"
               >
                 {option.icon ? (
                   <Icon name={option.icon} size={IconSize.LARGE} />
                 ) : null}
-                <LabelWrapper label={option.label}>
-                  {option.label ? (
-                    <div className="label-title">
-                      <Text type={TextType.H5}>{option.value}</Text>
-                    </div>
-                  ) : (
-                    <Text type={TextType.P1}>{option.value}</Text>
-                  )}
-                  {option.label ? (
+                {option.label && option.value ? (
+                  <LabelWrapper className="label-container">
+                    <Text type={TextType.H5}>{option.value}</Text>
                     <Text type={TextType.P3}>{option.label}</Text>
-                  ) : null}
-                </LabelWrapper>
+                  </LabelWrapper>
+                ) : (
+                  <Text type={TextType.P1}>{option.value}</Text>
+                )}
               </OptionWrapper>
             );
           })}
         </DropdownWrapper>
-      ) : null}
+      </Popover>
     </DropdownContainer>
   );
 }

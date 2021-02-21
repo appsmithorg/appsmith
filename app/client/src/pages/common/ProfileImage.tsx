@@ -1,9 +1,7 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { getThemeDetails } from "selectors/themeSelectors";
+import React, { useContext } from "react";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import Text, { TextType } from "components/ads/Text";
-import styled from "styled-components";
+import styled, { ThemeContext } from "styled-components";
 
 export const Profile = styled.div<{ backgroundColor?: string }>`
   width: 34px;
@@ -14,6 +12,9 @@ export const Profile = styled.div<{ backgroundColor?: string }>`
   justify-content: center;
   cursor: pointer;
   background-color: ${(props) => props.backgroundColor};
+  && span {
+    color: ${(props) => props.theme.colors.text.highlight};
+  }
 `;
 
 export default function ProfileImage(props: {
@@ -21,11 +22,11 @@ export default function ProfileImage(props: {
   className?: string;
   commonName?: string;
 }) {
-  const themeDetails = useSelector(getThemeDetails);
+  const theme = useContext(ThemeContext);
 
   const initialsAndColorCode = getInitialsAndColorCode(
     props.commonName || props.userName,
-    themeDetails.theme.colors.appCardColors,
+    theme.colors.appCardColors,
   );
 
   return (

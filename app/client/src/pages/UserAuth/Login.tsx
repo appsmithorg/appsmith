@@ -9,13 +9,11 @@ import {
 } from "constants/forms";
 import { FORGOT_PASSWORD_URL, SIGN_UP_URL } from "constants/routes";
 import {
-  LOGIN_PAGE_SUBTITLE,
   LOGIN_PAGE_TITLE,
   LOGIN_PAGE_EMAIL_INPUT_LABEL,
   LOGIN_PAGE_PASSWORD_INPUT_LABEL,
   LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER,
   LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER,
-  FORM_VALIDATION_EMPTY_EMAIL,
   FORM_VALIDATION_EMPTY_PASSWORD,
   FORM_VALIDATION_INVALID_EMAIL,
   FORM_VALIDATION_INVALID_PASSWORD,
@@ -24,29 +22,28 @@ import {
   LOGIN_PAGE_SIGN_UP_LINK_TEXT,
   LOGIN_PAGE_INVALID_CREDS_ERROR,
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
-  FORM_VALIDATION_PASSWORD_RULE,
+  NEW_TO_APPSMITH,
 } from "constants/messages";
-import Divider from "components/editorComponents/Divider";
-import FormMessage from "components/editorComponents/form/FormMessage";
-import FormGroup from "components/editorComponents/form/FormGroup";
-import FormTextField from "components/editorComponents/form/FormTextField";
-import Button from "components/editorComponents/Button";
+import FormMessage from "components/ads/formFields/FormMessage";
+import FormGroup from "components/ads/formFields/FormGroup";
+import FormTextField from "components/ads/formFields/TextField";
+import Button, { Size } from "components/ads/Button";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 import { LoginFormValues } from "./helpers";
+import { withTheme } from "styled-components";
+import { Theme } from "constants/DefaultTheme";
 
 import {
-  AuthCardContainer,
   SpacedSubmitForm,
   FormActions,
   AuthCardHeader,
-  AuthCardFooter,
   AuthCardNavLink,
-  AuthCardBody,
+  SignUpLinkSection,
+  ForgotPasswordLink,
 } from "./StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "configs";
-import { TncPPLinks } from "./SignUp";
 import { LOGIN_SUBMIT_PATH } from "constants/ApiConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -55,16 +52,14 @@ const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
   const errors: LoginFormValues = {};
-  const email = values[LOGIN_FORM_EMAIL_FIELD_NAME];
+  const email = values[LOGIN_FORM_EMAIL_FIELD_NAME] || "";
   const password = values[LOGIN_FORM_PASSWORD_FIELD_NAME];
   if (!password || isEmptyString(password)) {
     errors[LOGIN_FORM_PASSWORD_FIELD_NAME] = FORM_VALIDATION_EMPTY_PASSWORD;
   } else if (!isStrongPassword(password)) {
     errors[LOGIN_FORM_PASSWORD_FIELD_NAME] = FORM_VALIDATION_INVALID_PASSWORD;
   }
-  if (!email || isEmptyString(email)) {
-    errors[LOGIN_FORM_EMAIL_FIELD_NAME] = FORM_VALIDATION_EMPTY_EMAIL;
-  } else if (!isEmail(email)) {
+  if (!isEmptyString(email) && !isEmail(email)) {
     errors[LOGIN_FORM_EMAIL_FIELD_NAME] = FORM_VALIDATION_INVALID_EMAIL;
   }
 
@@ -74,14 +69,17 @@ const validate = (values: LoginFormValues) => {
 type LoginFormProps = { emailValue: string } & InjectedFormProps<
   LoginFormValues,
   { emailValue: string }
->;
+> & {
+    theme: Theme;
+  };
 
 const SocialLoginList: string[] = [];
-if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
 if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
+if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
 
 export const Login = (props: LoginFormProps) => {
-  const { error, valid } = props;
+  const { error, valid, emailValue: email } = props;
+  const isFormValid = valid && email && !isEmptyString(email);
   const location = useLocation();
 
   const queryParams = new URLSearchParams(location.search);
@@ -103,7 +101,19 @@ export const Login = (props: LoginFormProps) => {
   }
 
   return (
-    <AuthCardContainer>
+    <>
+      <AuthCardHeader>
+        <h1>{LOGIN_PAGE_TITLE}</h1>
+      </AuthCardHeader>
+      <SignUpLinkSection>
+        {NEW_TO_APPSMITH}
+        <AuthCardNavLink
+          to={signupURL}
+          style={{ marginLeft: props.theme.spaces[3] }}
+        >
+          {LOGIN_PAGE_SIGN_UP_LINK_TEXT}
+        </AuthCardNavLink>
+      </SignUpLinkSection>
       {showError && (
         <FormMessage
           intent="warning"
@@ -117,68 +127,56 @@ export const Login = (props: LoginFormProps) => {
           ]}
         />
       )}
-      <AuthCardHeader>
-        <h1>{LOGIN_PAGE_TITLE}</h1>
-        <h5>{LOGIN_PAGE_SUBTITLE}</h5>
-      </AuthCardHeader>
-      <AuthCardBody>
-        <SpacedSubmitForm method="POST" action={loginURL}>
-          <FormGroup
-            intent={error ? "danger" : "none"}
-            label={LOGIN_PAGE_EMAIL_INPUT_LABEL}
-          >
-            <FormTextField
-              name={LOGIN_FORM_EMAIL_FIELD_NAME}
-              type="email"
-              placeholder={LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER}
-              autoFocus
-            />
-          </FormGroup>
-          <FormGroup
-            intent={error ? "danger" : "none"}
-            label={LOGIN_PAGE_PASSWORD_INPUT_LABEL}
-            helperText={FORM_VALIDATION_PASSWORD_RULE}
-          >
-            <FormTextField
-              type="password"
-              name={LOGIN_FORM_PASSWORD_FIELD_NAME}
-              placeholder={LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER}
-            />
-          </FormGroup>
-          <Link to={forgotPasswordURL}>{LOGIN_PAGE_FORGOT_PASSWORD_TEXT}</Link>
-          <FormActions>
-            <Button
-              type="submit"
-              disabled={!valid}
-              text={LOGIN_PAGE_LOGIN_BUTTON_TEXT}
-              intent="primary"
-              filled
-              size="large"
-              onClick={() => {
-                PerformanceTracker.startTracking(
-                  PerformanceTransactionName.LOGIN_CLICK,
-                );
-                AnalyticsUtil.logEvent("LOGIN_CLICK", {
-                  loginMethod: "EMAIL",
-                });
-              }}
-            />
-          </FormActions>
-        </SpacedSubmitForm>
-        {SocialLoginList.length > 0 && (
-          <>
-            <Divider />
-            <ThirdPartyAuth type={"SIGNIN"} logins={SocialLoginList} />
-          </>
-        )}
-      </AuthCardBody>
-      <AuthCardNavLink to={signupURL}>
-        {LOGIN_PAGE_SIGN_UP_LINK_TEXT}
-      </AuthCardNavLink>
-      <AuthCardFooter>
-        <TncPPLinks />
-      </AuthCardFooter>
-    </AuthCardContainer>
+      {SocialLoginList.length > 0 && (
+        <ThirdPartyAuth type={"SIGNIN"} logins={SocialLoginList} />
+      )}
+      <SpacedSubmitForm method="POST" action={loginURL}>
+        <FormGroup
+          intent={error ? "danger" : "none"}
+          label={LOGIN_PAGE_EMAIL_INPUT_LABEL}
+        >
+          <FormTextField
+            name={LOGIN_FORM_EMAIL_FIELD_NAME}
+            type="email"
+            placeholder={LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER}
+            autoFocus
+          />
+        </FormGroup>
+        <FormGroup
+          intent={error ? "danger" : "none"}
+          label={LOGIN_PAGE_PASSWORD_INPUT_LABEL}
+          // helperText={FORM_VALIDATION_PASSWORD_RULE}
+        >
+          <FormTextField
+            type="password"
+            name={LOGIN_FORM_PASSWORD_FIELD_NAME}
+            placeholder={LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER}
+          />
+        </FormGroup>
+
+        <FormActions>
+          <Button
+            tag="button"
+            type="submit"
+            disabled={!isFormValid}
+            text={LOGIN_PAGE_LOGIN_BUTTON_TEXT}
+            fill
+            size={Size.large}
+            onClick={() => {
+              PerformanceTracker.startTracking(
+                PerformanceTransactionName.LOGIN_CLICK,
+              );
+              AnalyticsUtil.logEvent("LOGIN_CLICK", {
+                loginMethod: "EMAIL",
+              });
+            }}
+          />
+        </FormActions>
+      </SpacedSubmitForm>
+      <ForgotPasswordLink>
+        <Link to={forgotPasswordURL}>{LOGIN_PAGE_FORGOT_PASSWORD_TEXT}</Link>
+      </ForgotPasswordLink>
+    </>
   );
 };
 
@@ -190,5 +188,5 @@ export default connect((state) => ({
     validate,
     touchOnBlur: true,
     form: LOGIN_FORM_NAME,
-  })(Login),
+  })(withTheme(Login)),
 );

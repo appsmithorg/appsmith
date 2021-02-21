@@ -1,7 +1,7 @@
 import React from "react";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
-import { Icon, Popover, Position, Spinner, Tag } from "@blueprintjs/core";
+import { Icon, Popover, Spinner, Tag } from "@blueprintjs/core";
 import {
   components,
   MenuListComponentProps,
@@ -9,21 +9,21 @@ import {
   OptionTypeBase,
   SingleValueProps,
 } from "react-select";
-import { isString } from "lodash";
+import { isString, isArray } from "lodash";
 import history from "utils/history";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
 import FormRow from "components/editorComponents/FormRow";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
-import { Datasource } from "api/DatasourcesApi";
+import { Datasource } from "entities/Datasource";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Colors } from "constants/Colors";
 import JSONViewer from "./JSONViewer";
 import FormControl from "../FormControl";
 import Table from "./Table";
-import { RestAction } from "entities/Action";
+import { Action } from "entities/Action";
 import { connect, useDispatch } from "react-redux";
 import { AppState } from "reducers";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
@@ -37,7 +37,6 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
 import { addTableWidgetFromQuery } from "actions/widgetActions";
-import OnboardingToolTip from "components/editorComponents/Onboarding/Tooltip";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
@@ -47,7 +46,7 @@ const QueryFormContainer = styled.form`
   flex-direction: column;
   padding: 20px 0px;
   width: 100%;
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
   a {
     font-size: 14px;
     line-height: 20px;
@@ -271,6 +270,7 @@ type QueryFormProps = {
   DATASOURCES_OPTIONS: any;
   executedQueryData: {
     body: Record<string, any>[] | string;
+    isExecutionSuccess: boolean;
   };
   applicationId: string;
   runErrorMessage: string | undefined;
@@ -291,8 +291,7 @@ type ReduxProps = {
 
 export type StateAndRouteProps = QueryFormProps & ReduxProps;
 
-type Props = StateAndRouteProps &
-  InjectedFormProps<RestAction, StateAndRouteProps>;
+type Props = StateAndRouteProps & InjectedFormProps<Action, StateAndRouteProps>;
 
 const QueryEditorForm: React.FC<Props> = (props: Props) => {
   const {
@@ -316,16 +315,32 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
 
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
+  let displayMessage = "";
 
   if (executedQueryData) {
-    if (isString(executedQueryData.body)) {
-      error = executedQueryData.body;
+    if (!executedQueryData.isExecutionSuccess) {
+      error = String(executedQueryData.body);
+    } else if (isString(executedQueryData.body)) {
+      output = JSON.parse(executedQueryData.body);
     } else {
       output = executedQueryData.body;
     }
   }
 
-  const isSQL = responseType === "TABLE";
+  // Constructing the header of the response based on the response
+  if (!output) {
+    displayMessage = "No data records to display";
+  } else if (isArray(output)) {
+    // The returned output is an array
+    displayMessage = output.length
+      ? "Query response"
+      : "No data records to display";
+  } else {
+    // Output is a JSON object. We can display a single object
+    displayMessage = "Query response";
+  }
+
+  const isTableResponse = responseType === "TABLE";
 
   const dispatch = useDispatch();
   const onAddWidget = () => {
@@ -456,8 +471,8 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             </>
           ) : (
             <OnboardingIndicator
-              step={OnboardingStep.RUN_QUERY}
-              offset={{ left: -5 }}
+              step={OnboardingStep.EXAMPLE_DATABASE}
+              width={75}
             >
               <ActionButton
                 className="t--run-query"
@@ -536,11 +551,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                   {!error && output && dataSources.length && (
                     <OutputWrapper>
                       <OutputHeader>
-                        <p className="statementTextArea">
-                          {output.length
-                            ? "Query response"
-                            : "No data records to display"}
-                        </p>
+                        <p className="statementTextArea">{displayMessage}</p>
                         {!!output.length && (
                           <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
                             <AddWidgetButton
@@ -552,17 +563,8 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                           </Boxed>
                         )}
                       </OutputHeader>
-                      {isSQL ? (
-                        <OnboardingToolTip
-                          position={Position.TOP}
-                          step={[OnboardingStep.RUN_QUERY_SUCCESS]}
-                          offset={{
-                            enabled: true,
-                            offset: "-200, 0",
-                          }}
-                        >
-                          <Table data={output} />
-                        </OnboardingToolTip>
+                      {isTableResponse ? (
+                        <Table data={output} />
                       ) : (
                         <JSONViewer src={output} />
                       )}
@@ -596,23 +598,13 @@ const renderEachConfig = (section: any): any => {
       return renderEachConfig(formControlOrSection);
     } else {
       try {
-        const { configProperty, controlType } = formControlOrSection;
+        const { configProperty } = formControlOrSection;
         return (
           <FieldWrapper key={configProperty}>
-            <OnboardingToolTip
-              step={[OnboardingStep.RUN_QUERY]}
-              show={controlType === "QUERY_DYNAMIC_TEXT"}
-              position={Position.TOP_LEFT}
-              offset={{
-                enabled: true,
-                offset: "200, 0",
-              }}
-            >
-              <FormControl
-                config={formControlOrSection}
-                formName={QUERY_EDITOR_FORM_NAME}
-              />
-            </OnboardingToolTip>
+            <FormControl
+              config={formControlOrSection}
+              formName={QUERY_EDITOR_FORM_NAME}
+            />
           </FieldWrapper>
         );
       } catch (e) {
@@ -639,7 +631,7 @@ const mapStateToProps = (state: AppState) => {
 };
 
 export default connect(mapStateToProps)(
-  reduxForm<RestAction, StateAndRouteProps>({
+  reduxForm<Action, StateAndRouteProps>({
     form: QUERY_EDITOR_FORM_NAME,
     enableReinitialize: true,
   })(QueryEditorForm),

@@ -4,7 +4,7 @@ export const Colors: Record<string, string> = {
   WHITE_SMOKE: "#F4F4F4",
   POLAR: "#E9FAF3",
   GEYSER: "#D3DEE3",
-  GEYSER_LIGHT: "#D0D7DD",
+  GEYSER_LIGHT: "#E7E7E7",
   ATHENS_GRAY: "#EBEFF2",
   CONCRETE: "#F3F3F3",
   MYSTIC: "#E1E8ED",
@@ -36,11 +36,11 @@ export const Colors: Record<string, string> = {
   MAKO: "#464D53",
   ALTO: "#DFDFDF",
 
-  GREEN: "#29CCA3",
+  GREEN: "#03B365",
   JUNGLE_GREEN: "#24BA91",
   JUNGLE_GREEN_DARKER: "#30A481",
   EUCALYPTUS: "#218358",
-  RED: "#CE4257",
+  RED: "#B30338",
   ERROR_RED: "#E22C2C",
   PURPLE: "#6871EF",
   OXFORD_BLUE: "#2E3D49",
@@ -66,6 +66,12 @@ export const Colors: Record<string, string> = {
   RIVER_BED: "#4A545B",
   BALTIC_SEA: "#1A191C",
   THUNDER: "#231F20",
+  WHITE_SNOW: "#F7F7F7",
+  NERO: "#2B2B2B",
+  CHARCOAL: "#4B4848",
+  LIGHT_GREY: "#D4D4D4",
+  Gallery: "#F0F0F0",
+  Galliano: "#E0B30E",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

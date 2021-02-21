@@ -5,6 +5,7 @@ import { MarkerProps } from "widgets/MapWidget";
 import PickMyLocation from "./PickMyLocation";
 import styled from "styled-components";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
+import { getBorderCSSShorthand } from "constants/DefaultTheme";
 
 interface MapComponentProps {
   apiKey: string;
@@ -38,6 +39,8 @@ const MapWrapper = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
+  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+  border-radius: 0;
 `;
 
 const MapContainerWrapper = styled.div`
@@ -148,7 +151,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
             props.selectedMarker.lat === marker.lat &&
             props.selectedMarker.long === marker.long
           }
-          onClick={(e) => {
+          onClick={() => {
             setMapCenter({
               ...marker,
               lng: marker.long,

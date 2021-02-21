@@ -5,8 +5,6 @@ import history from "utils/history";
 import { saveActionName } from "actions/actionActions";
 import EntityProperties from "../Entity/EntityProperties";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { ExplorerURLParams } from "../helpers";
-import { useParams } from "react-router";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -26,7 +24,6 @@ type ExplorerActionEntityProps = {
 };
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
-  const { pageId } = useParams<ExplorerURLParams>();
   const switchToAction = useCallback(() => {
     PerformanceTracker.startTracking(PerformanceTransactionName.OPEN_ACTION, {
       url: props.url,

@@ -7,9 +7,7 @@ import {
 import { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 
-export const createActionRequest = (
-  payload: Partial<Action> & { eventData: any },
-) => {
+export const createActionRequest = (payload: Partial<Action>) => {
   return {
     type: ReduxActionTypes.CREATE_ACTION_INIT,
     payload,
@@ -231,7 +229,13 @@ export const updateActionProperty = (
   });
 };
 
-export const setActionsToExecuteOnPageLoad = (actions: string[]) => {
+export const setActionsToExecuteOnPageLoad = (
+  actions: Array<{
+    executeOnLoad: boolean;
+    id: string;
+    name: string;
+  }>,
+) => {
   return {
     type: ReduxActionTypes.SET_ACTION_TO_EXECUTE_ON_PAGELOAD,
     payload: actions,

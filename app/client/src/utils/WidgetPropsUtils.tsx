@@ -22,6 +22,7 @@ import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { isString } from "lodash";
 import log from "loglevel";
+import { tableWidgetPropertyPaneMigrations } from "utils/migrations/TableWidget";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -258,6 +259,47 @@ const dynamicPathListMigration = (
   return currentDSL;
 };
 
+const canvasNameConflictMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+  props = { counter: 1 },
+): ContainerWidgetProps<WidgetProps> => {
+  if (
+    currentDSL.type === WidgetTypes.CANVAS_WIDGET &&
+    currentDSL.widgetName.startsWith("Canvas")
+  ) {
+    currentDSL.widgetName = `Canvas${props.counter}`;
+    // Canvases inside tabs have `name` property as well
+    if (currentDSL.name) {
+      currentDSL.name = currentDSL.widgetName;
+    }
+    props.counter++;
+  }
+  currentDSL.children?.forEach((c) => canvasNameConflictMigration(c, props));
+
+  return currentDSL;
+};
+
+const renamedCanvasNameConflictMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+  props = { counter: 1 },
+): ContainerWidgetProps<WidgetProps> => {
+  // Rename all canvas widgets except for MainContainer
+  if (
+    currentDSL.type === WidgetTypes.CANVAS_WIDGET &&
+    currentDSL.widgetName !== "MainContainer"
+  ) {
+    currentDSL.widgetName = `Canvas${props.counter}`;
+    // Canvases inside tabs have `name` property as well
+    if (currentDSL.name) {
+      currentDSL.name = currentDSL.widgetName;
+    }
+    props.counter++;
+  }
+  currentDSL.children?.forEach((c) => canvasNameConflictMigration(c, props));
+
+  return currentDSL;
+};
+
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
 const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
@@ -308,6 +350,21 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   if (currentDSL.version === 6) {
     currentDSL = dynamicPathListMigration(currentDSL);
     currentDSL.version = 7;
+  }
+
+  if (currentDSL.version === 7) {
+    currentDSL = canvasNameConflictMigration(currentDSL);
+    currentDSL.version = 8;
+  }
+
+  if (currentDSL.version === 8) {
+    currentDSL = renamedCanvasNameConflictMigration(currentDSL);
+    currentDSL.version = 9;
+  }
+
+  if (currentDSL.version === 9) {
+    currentDSL = tableWidgetPropertyPaneMigrations(currentDSL);
+    currentDSL.version = 10;
   }
 
   return currentDSL;
@@ -529,9 +586,10 @@ export const generateWidgetProps = (
   parentRowSpace: number,
   parentColumnSpace: number,
   widgetName: string,
-  widgetConfig: { widgetId: string; renderMode: RenderMode } & Partial<
-    WidgetProps
-  >,
+  widgetConfig: {
+    widgetId: string;
+    renderMode: RenderMode;
+  } & Partial<WidgetProps>,
 ): ContainerWidgetProps<WidgetProps> => {
   if (parent) {
     const sizes = {

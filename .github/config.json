@@ -225,6 +225,11 @@
       "color": "10b5ce",
       "description": ""
     },
+    "Onboarding": {
+      "name": "Onboarding",
+      "color": "079829",
+      "description": ""
+    },
     "Pages": {
       "name": "Pages",
       "color": "dee258",
@@ -334,6 +339,11 @@
       "name": "Verified",
       "color": "9bf416",
       "description": ""
+    },
+    "Version Control": {
+      "name": "Version Control",
+      "color": "C4568E#C4568E16",
+      "description": "Git Sync, Backup and Restore of applications"
     },
     "Video Widget": {
       "name": "Video Widget",
@@ -672,6 +682,21 @@
               {
                 "type": "hasLabel",
                 "label": "Editor",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Version Control",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Platform",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Onboarding",
                 "value": true
               }
             ]

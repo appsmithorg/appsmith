@@ -4,7 +4,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { Datasource, DatasourceStructure } from "api/DatasourcesApi";
+import { Datasource, DatasourceStructure } from "entities/Datasource";
 
 export interface DatasourceDataState {
   list: Datasource[];
