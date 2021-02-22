@@ -90,8 +90,8 @@ export const PageContextMenu = (props: {
       // Possibly support ReactNode in TreeOption
       label: ((
         <StyledSwitch
-          label="Page Visibility"
-          checked={props.isHidden}
+          label={props.isHidden ? "Show" : "Hide"}
+          checked={!props.isHidden}
           alignIndicator={"right"}
         />
       ) as ReactNode) as string,

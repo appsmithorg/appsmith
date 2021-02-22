@@ -84,7 +84,8 @@ class AppViewer extends Component<
   };
 
   public render() {
-    const { isInitialized } = this.props;
+    const { isInitialized, pages } = this.props;
+    const visiblePages = pages.filter((page) => !page.isHidden);
     return (
       <EditorContext.Provider
         value={{
@@ -93,7 +94,7 @@ class AppViewer extends Component<
           resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
         }}
       >
-        <AppViewerBody hasPages={this.props.pages.length > 1}>
+        <AppViewerBody hasPages={visiblePages.length > 1}>
           {isInitialized && this.state.registered && (
             <Switch>
               <SentryRoute
