@@ -45,10 +45,18 @@ export type EditableTextProps = CommonComponentProps & {
   underline?: boolean;
 };
 
-const EditableTextWrapper = styled.div<{
+export const EditableTextWrapper = styled.div<{
   filled: boolean;
 }>`
-  width: ${(props) => (!props.filled ? "234px" : "100%")};
+  ${(props) =>
+    !props.filled
+      ? `
+    width: 243px;
+  `
+      : `
+    width: 100%;
+    flex: 1;
+  `}
   .error-message {
     margin-left: ${(props) => props.theme.spaces[5]}px;
     color: ${(props) => props.theme.colors.danger.main};
@@ -110,7 +118,6 @@ const TextContainer = styled.div<{
         border-bottom-style: solid;
         border-bottom-width: 1px;
         width: fit-content;
-        max-width: 194px;
       `
         : null}
   }

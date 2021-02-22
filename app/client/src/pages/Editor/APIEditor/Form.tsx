@@ -177,6 +177,8 @@ interface APIFormProps {
   actionName: string;
   apiId: string;
   apiName: string;
+  headersCount: number;
+  paramsCount: number;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -227,6 +229,8 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     actionConfigurationBody,
     httpMethodFromForm,
     actionName,
+    headersCount,
+    paramsCount,
   } = props;
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
@@ -269,12 +273,11 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 </Text>
               }
             >
-              <IconContainer>
+              <IconContainer onClick={handleClose}>
                 <Icon
                   name="close-modal"
                   size={IconSize.LARGE}
                   className="close-modal-icon"
-                  onClick={handleClose}
                 />
               </IconContainer>
             </TooltipComponent>
@@ -324,6 +327,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               {
                 key: "headers",
                 title: "Headers",
+                count: headersCount,
                 panelComponent: (
                   <TabSection>
                     {apiBindHelpSectionVisible && (
@@ -358,7 +362,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                       actionConfig={actionConfigurationHeaders}
                       placeholder="Value"
                       dataTreePath={`${actionName}.config.headers`}
-                      pushFields
                     />
                   </TabSection>
                 ),
@@ -366,6 +369,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               {
                 key: "params",
                 title: "Params",
+                count: paramsCount,
                 panelComponent: (
                   <TabSection>
                     <KeyValueFieldArray
@@ -373,7 +377,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                       name="actionConfiguration.queryParameters"
                       label="Params"
                       dataTreePath={`${actionName}.config.queryParameters`}
-                      pushFields
                     />
                   </TabSection>
                 ),
@@ -448,6 +451,11 @@ export default connect((state: AppState) => {
   );
   const apiId = selector(state, "id");
   const actionName = getApiName(state, apiId) || "";
+  const headers = selector(state, "actionConfiguration.headers");
+  const headersCount = Array.isArray(headers) ? headers.length : 0;
+
+  const params = selector(state, "actionConfiguration.queryParameters");
+  const paramsCount = Array.isArray(params) ? params.length : 0;
 
   return {
     actionName,
@@ -455,6 +463,8 @@ export default connect((state: AppState) => {
     httpMethodFromForm,
     actionConfigurationBody,
     actionConfigurationHeaders,
+    headersCount,
+    paramsCount,
   };
 })(
   reduxForm<Action, APIFormProps>({

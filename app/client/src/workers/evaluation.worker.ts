@@ -19,11 +19,11 @@ import {
   isPathADynamicBinding,
   isPathADynamicTrigger,
   unsafeFunctionForEval,
-} from "../utils/DynamicBindingUtils";
+} from "utils/DynamicBindingUtils";
 import _ from "lodash";
-import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
+import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import toposort from "toposort";
-import { DATA_BIND_REGEX } from "../constants/BindingsConstants";
+import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import equal from "fast-deep-equal/es6";
 import unescapeJS from "unescape-js";
 
@@ -46,7 +46,7 @@ import {
 import {
   EXECUTION_PARAM_KEY,
   EXECUTION_PARAM_REFERENCE_REGEX,
-} from "../constants/ActionConstants";
+} from "constants/ActionConstants";
 
 const ctx: Worker = self as any;
 
@@ -152,7 +152,17 @@ ctx.addEventListener(
           callbackData,
         );
         const cleanTriggers = removeFunctions(triggers);
-        const errors = dataTreeEvaluator.errors;
+        // Transforming eval errors into eval trigger errors. Since trigger
+        // errors occur less, we want to treat it separately
+        const errors = dataTreeEvaluator.errors.map((error) => {
+          if (error.type === EvalErrorTypes.EVAL_ERROR) {
+            return {
+              ...error,
+              type: EvalErrorTypes.EVAL_TRIGGER_ERROR,
+            };
+          }
+          return error;
+        });
         dataTreeEvaluator.clearErrors();
         return { triggers: cleanTriggers, errors };
       }
