@@ -76,6 +76,7 @@ export const EntityItem = styled.div<{
 
   & .${EntityClassNames.RIGHT_ICON} {
     visibility: hidden;
+    padding-right: ${(props) => props.theme.spaces[2]}px;
   }
   &:hover .${EntityClassNames.RIGHT_ICON} {
     visibility: visible;
