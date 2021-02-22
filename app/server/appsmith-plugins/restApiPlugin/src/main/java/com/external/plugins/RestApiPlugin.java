@@ -1,13 +1,16 @@
 package com.external.plugins;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.PaginationField;
+import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.connections.APIConnection;
@@ -45,6 +48,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -78,6 +82,45 @@ public class RestApiPlugin extends BasePlugin {
         private final String IS_SEND_SESSION_ENABLED_KEY = "isSendSessionEnabled";
         private final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
         private final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
+
+        /**
+         * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
+         * also update the datasource and action configuration for pagination and some minor cleanup of the configuration before execution
+         *
+         * @param connection              : This is the connection that is established to the data source. This connection is according
+         *                                to the parameters in Datasource Configuration
+         * @param executeActionDTO        : This is the data structure sent by the client during execute. This contains the params
+         *                                which would be used for substitution
+         * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
+         * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
+         * @return
+         */
+        @Override
+        public Mono<ActionExecutionResult> executeParameterized(APIConnection connection,
+                                                                ExecuteActionDTO executeActionDTO,
+                                                                DatasourceConfiguration datasourceConfiguration,
+                                                                ActionConfiguration actionConfiguration) {
+
+            prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+
+            // If the action is paginated, update the configurations to update the correct URL.
+            if (actionConfiguration != null &&
+                    actionConfiguration.getPaginationType() != null &&
+                    PaginationType.URL.equals(actionConfiguration.getPaginationType()) &&
+                    executeActionDTO.getPaginationField() != null) {
+                datasourceConfiguration = updateDatasourceConfigurationForPagination(actionConfiguration, datasourceConfiguration, executeActionDTO.getPaginationField());
+                actionConfiguration = updateActionConfigurationForPagination(actionConfiguration, executeActionDTO.getPaginationField());
+            }
+            // Filter out any empty headers
+            if (actionConfiguration.getHeaders() != null && !actionConfiguration.getHeaders().isEmpty()) {
+                List<Property> headerList = actionConfiguration.getHeaders().stream()
+                        .filter(header -> !org.springframework.util.StringUtils.isEmpty(header.getKey()))
+                        .collect(Collectors.toList());
+                actionConfiguration.setHeaders(headerList);
+            }
+
+            return this.execute(connection, datasourceConfiguration, actionConfiguration);
+        }
 
         @Override
         public Mono<ActionExecutionResult> execute(APIConnection apiConnection,
@@ -579,5 +622,30 @@ public class RestApiPlugin extends BasePlugin {
             log.debug("Got request in actionExecutionResult as: {}", actionExecutionRequest);
             return actionExecutionRequest;
         }
+
+        private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,
+                                                                           PaginationField paginationField) {
+            if (PaginationField.NEXT.equals(paginationField) || PaginationField.PREV.equals(paginationField)) {
+                actionConfiguration.setPath("");
+                actionConfiguration.setQueryParameters(null);
+            }
+            return actionConfiguration;
+        }
+
+        private DatasourceConfiguration updateDatasourceConfigurationForPagination(ActionConfiguration actionConfiguration,
+                                                                                   DatasourceConfiguration datasourceConfiguration,
+                                                                                   PaginationField paginationField) {
+            if (PaginationField.NEXT.equals(paginationField)) {
+                if (actionConfiguration.getNext() == null) {
+                    datasourceConfiguration.setUrl(null);
+                } else {
+                    datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), StandardCharsets.UTF_8));
+                }
+            } else if (PaginationField.PREV.equals(paginationField)) {
+                datasourceConfiguration.setUrl(actionConfiguration.getPrev());
+            }
+            return datasourceConfiguration;
+        }
     }
+
 }

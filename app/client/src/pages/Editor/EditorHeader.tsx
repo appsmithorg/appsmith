@@ -50,6 +50,7 @@ import OnboardingIndicator from "components/editorComponents/Onboarding/Indicato
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 
 const HeaderWrapper = styled(StyledHeader)`
+  width: 100%;
   padding-right: 0;
   padding-left: ${(props) => props.theme.spaces[7]}px;
   background-color: ${(props) => props.theme.colors.header.background};
@@ -83,6 +84,7 @@ const HeaderWrapper = styled(StyledHeader)`
 const HeaderSection = styled.div`
   display: flex;
   flex: 1;
+  overflow: auto;
   align-items: center;
   :nth-child(1) {
     justify-content: flex-start;
@@ -211,7 +213,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
                 defaultValue={currentApplication.name || ""}
                 editInteractionKind={EditInteractionKind.SINGLE}
                 className="t--application-name editable-application-name"
-                fill={false}
+                fill={true}
                 savingState={
                   isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
                 }
