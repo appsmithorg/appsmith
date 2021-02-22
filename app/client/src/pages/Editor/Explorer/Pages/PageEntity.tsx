@@ -79,7 +79,6 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
       contextMenu={contextMenu}
       onNameEdit={resolveAsSpaceChar}
       rightIcon={rightIcon}
-      dim={!!props.page.isHidden}
     >
       <ExplorerWidgetGroup
         step={props.step + 1}

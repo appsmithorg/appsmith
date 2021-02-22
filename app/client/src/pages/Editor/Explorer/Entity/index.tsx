@@ -35,7 +35,6 @@ export const EntityItem = styled.div<{
   active: boolean;
   step: number;
   spaced: boolean;
-  dim: boolean;
 }>`
   position: relative;
   font-size: 12px;
@@ -49,7 +48,6 @@ export const EntityItem = styled.div<{
     props.spaced ? "20px auto 1fr auto 30px" : "8px auto 1fr auto 30px"};
   border-radius: 0;
   color: ${(props) => (props.active ? Colors.WHITE : Colors.ALTO)};
-  opacity: ${(props) => (props.dim ? 0.4 : 1)};
   cursor: pointer;
   align-items: center;
   &:hover {
@@ -95,7 +93,6 @@ export type EntityProps = {
   children?: ReactNode;
   icon: ReactNode;
   rightIcon?: ReactNode;
-  dim?: boolean;
   disabled?: boolean;
   action?: () => void;
   active?: boolean;
@@ -164,7 +161,6 @@ export const Entity = forwardRef(
       >
         <EntityItem
           active={!!props.active}
-          dim={!!props.dim}
           step={props.step}
           spaced={!!props.children}
         >

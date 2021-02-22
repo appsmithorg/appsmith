@@ -11,13 +11,12 @@ import { ContextMenuPopoverModifiers } from "../helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { clonePageInit, updatePage } from "actions/pageActions";
 import styled from "styled-components";
-import { Switch } from "@blueprintjs/core";
+import { Icon } from "@blueprintjs/core";
 
-const StyledSwitch = styled(Switch)`
-  margin-bottom: 0px;
-  &&&&& input:checked ~ span {
-    background: #29cca3;
-  }
+const CustomLabel = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 export const PageContextMenu = (props: {
@@ -89,11 +88,10 @@ export const PageContextMenu = (props: {
       onSelect: setHiddenField,
       // Possibly support ReactNode in TreeOption
       label: ((
-        <StyledSwitch
-          label={props.isHidden ? "Show" : "Hide"}
-          checked={!props.isHidden}
-          alignIndicator={"right"}
-        />
+        <CustomLabel>
+          {props.isHidden ? "Show" : "Hide"}
+          <Icon icon={props.isHidden ? "eye-off" : "eye-open"} iconSize={14} />
+        </CustomLabel>
       ) as ReactNode) as string,
     },
   ];
