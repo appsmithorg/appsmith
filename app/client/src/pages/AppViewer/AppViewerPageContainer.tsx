@@ -14,6 +14,7 @@ import AppPage from "./AppPage";
 import {
   getCanvasWidgetDsl,
   getCurrentPageName,
+  getIsCurrentPageHidden,
 } from "selectors/editorSelectors";
 import EndTourHelper from "components/editorComponents/Onboarding/EndTourHelper";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
@@ -37,6 +38,7 @@ type AppViewerPageContainerProps = {
   widgets?: ContainerWidgetProps<WidgetProps>;
   currentPageName?: string;
   currentAppName?: string;
+  isCurrentPageHidden?: boolean;
   fetchPage: (pageId: string, bustCache?: boolean) => void;
   currentAppPermissions?: string[];
 } & RouteComponentProps<AppViewerRouteParams>;
@@ -97,12 +99,13 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
     if (this.props.isFetchingPage) {
       return pageLoading;
     } else if (
-      !this.props.isFetchingPage &&
-      !(
-        this.props.widgets &&
-        this.props.widgets.children &&
-        this.props.widgets.children.length > 0
-      )
+      !!this.props.isCurrentPageHidden ||
+      (!this.props.isFetchingPage &&
+        !(
+          this.props.widgets &&
+          this.props.widgets.children &&
+          this.props.widgets.children.length > 0
+        ))
     ) {
       return pageNotFound;
     } else if (!this.props.isFetchingPage && this.props.widgets) {
@@ -128,6 +131,7 @@ const mapStateToProps = (state: AppState) => {
     isFetchingPage: getIsFetchingPage(state),
     widgets: getCanvasWidgetDsl(state),
     currentPageName: getCurrentPageName(state),
+    isCurrentPageHidden: getIsCurrentPageHidden(state),
     currentAppName: currentApp?.name,
     currentAppPermissions: currentApp?.userPermissions,
   };

@@ -85,6 +85,13 @@ export const getCurrentPageId = (state: AppState) =>
 export const getCurrentApplicationId = (state: AppState) =>
   state.entities.pageList.applicationId;
 
+export const getIsCurrentPageHidden = createSelector(
+  getPageListState,
+  (pageList: PageListReduxState) =>
+    pageList.pages.find((page) => page.pageId === pageList.currentPageId)
+      ?.isHidden,
+);
+
 export const getCurrentPageName = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>
