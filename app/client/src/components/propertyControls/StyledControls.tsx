@@ -1,14 +1,15 @@
-import { Select, MultiSelect } from "@blueprintjs/select";
+import { MultiSelect } from "@blueprintjs/select";
 import { Switch, Classes, Popover, MenuItem, Menu } from "@blueprintjs/core";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput, DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
-import styled, { Skin, createGlobalStyle } from "constants/DefaultTheme";
+import styled, { Skin } from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 import Button from "components/ads/Button";
 import TextInput from "components/ads/TextInput";
+import Dropdown from "components/ads/Dropdown";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -102,74 +103,13 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
 `;
 
 export const StyledDropDownContainer = styled.div`
-  &&&& .${Classes.BUTTON} {
-    box-shadow: none;
-    border-radius: 4px;
-    background-color: ${Colors.SHARK};
-    color: ${Colors.CADET_BLUE};
-    background-image: none;
-    &.code-highlight {
-      .language-javascript {
-        border: none;
-        box-shadow: none;
-        background: transparent;
-        white-space: normal;
-        word-break: break-word;
-      }
-      .bp3-button-text {
-        white-space: normal;
-        word-break: break-word;
-        display: block;
-        overflow: auto;
-        overflow-y: hidden;
-      }
-    }
-  }
   width: 100%;
 `;
 
-export const DropdownStyles = createGlobalStyle`
-  .select-popover-wrapper {
-    width: 100%;
-    border-radius: ${(props) => props.theme.radii[1]}px;
-    box-shadow:  0px 2px 4px rgba(67, 70, 74, 0.14);
-    padding: ${(props) => props.theme.spaces[3]}px;
-    background: white;
-    && .${Classes.MENU} {
-      max-width: 100%;
-      max-height: auto;
-    }
-    &&&& .${Classes.MENU_ITEM} {
-      padding: ${(props) => props.theme.spaces[3]}px
-      ${(props) => props.theme.spaces[4]}px;
-      background: ${(props) =>
-        props.theme.colors.treeDropdown.darkMenuBg.normal};
-      color: ${(props) => props.theme.colors.treeDropdown.darkMenuText.normal};
-      border-radius: 0px;
-      &:hover {
-        background: ${(props) =>
-          props.theme.colors.treeDropdown.darkMenuBg.hover};
-      }
-      &.${Classes.ACTIVE} {
-        background: ${(props) =>
-          props.theme.colors.treeDropdown.darkMenuBg.hover};
-        color: ${(props) => props.theme.colors.treeDropdown.darkMenuText.hover};
-        position: relative;
-        &.single-select {
-          &:before {
-            left: 0;
-            top: -2px;
-            position: absolute;
-            content: "";
-            background: ${(props) => props.theme.colors.primaryOld};
-            border-radius: 0px;
-            width: 4px;
-            height: 100%;
-          }
-        }
-      }
-    }
-  }
+export const StyledDropDown = styled(Dropdown)`
+  padding: 6px 8px;
+  height: auto;
+  background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
 `;
 
 export const StyledMenu = styled(Menu)`
@@ -179,38 +119,6 @@ export const StyledMenu = styled(Menu)`
   }
   .bp3-submenu .bp3-menu {
     background: ${(props) => props.theme.dropdown[Skin.DARK].background};
-  }
-`;
-
-const DropDown = Select.ofType<DropdownOption>();
-export const StyledDropDown = styled(DropDown)`
-  div {
-    flex: 1 1 auto;
-  }
-  span {
-    width: 100%;
-    position: relative;
-  }
-  &&&& .${Classes.BUTTON} {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: space-between;
-    border-radius: 0px;
-    background-color: ${(props) => props.theme.colors.treeDropdown.targetBg};
-    color: ${(props) => props.theme.colors.treeDropdown.darkMenuText.normal};
-  }
-  &&&& .${Classes.BUTTON_TEXT} {
-    text-overflow: ellipsis;
-    text-align: left;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-  }
-  &&&& .${Classes.ICON} {
-    width: fit-content;
-    color: ${Colors.SLATE_GRAY};
   }
 `;
 

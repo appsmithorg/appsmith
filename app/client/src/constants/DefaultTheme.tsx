@@ -578,6 +578,7 @@ const lightShades = [
   "#FFFFFF",
   "#6A86CE",
   "#E0DEDE",
+  "#EBEBEB",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -960,6 +961,8 @@ type ColorType = {
     zoomButtonBG: ShadeColor;
     activeButtonText: ShadeColor;
     jsButtonHoverBG: ShadeColor;
+    dropdownSelectBg: ShadeColor;
+    dropdownSelectHoverBg: ShadeColor;
   };
 };
 
@@ -1394,6 +1397,8 @@ export const dark: ColorType = {
     zoomButtonBG: darkShades[3],
     activeButtonText: lightShades[12],
     jsButtonHoverBG: darkShades[2],
+    dropdownSelectBg: darkShades[2],
+    dropdownSelectHoverBg: darkShades[10],
   },
 };
 
@@ -1801,6 +1806,8 @@ export const light: ColorType = {
     zoomButtonBG: lightShades[13],
     activeButtonText: lightShades[12],
     jsButtonHoverBG: lightShades[2],
+    dropdownSelectBg: lightShades[14],
+    dropdownSelectHoverBg: lightShades[12],
   },
 };
 
