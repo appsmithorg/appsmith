@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { ReactNode, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import TreeDropdown, {
   TreeDropdownOption,
@@ -10,6 +10,15 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { clonePageInit, updatePage } from "actions/pageActions";
+import styled from "styled-components";
+import { Switch } from "@blueprintjs/core";
+
+const StyledSwitch = styled(Switch)`
+  margin-bottom: 0px;
+  &&&&& input:checked ~ span {
+    background: #29cca3;
+  }
+`;
 
 export const PageContextMenu = (props: {
   pageId: string;
@@ -76,9 +85,16 @@ export const PageContextMenu = (props: {
       label: "Clone",
     },
     {
-      value: props.isHidden ? "show" : "hide",
+      value: "visibility",
       onSelect: setHiddenField,
-      label: props.isHidden ? "Show" : "Hide",
+      // Possibly support ReactNode in TreeOption
+      label: ((
+        <StyledSwitch
+          label="Page Visibility"
+          checked={props.isHidden}
+          alignIndicator={"right"}
+        />
+      ) as ReactNode) as string,
     },
   ];
   if (!props.isDefaultPage) {
