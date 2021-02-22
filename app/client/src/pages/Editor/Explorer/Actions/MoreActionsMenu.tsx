@@ -123,6 +123,7 @@ export const MoreActionsMenu = (props: EntityContextMenuProps) => {
       selectedValue=""
       optionTree={[
         {
+          icon: "duplicate",
           value: "copy",
           onSelect: noop,
           label: "Copy to page",
@@ -134,6 +135,7 @@ export const MoreActionsMenu = (props: EntityContextMenuProps) => {
           }),
         },
         {
+          icon: "swap-horizontal",
           value: "move",
           onSelect: noop,
           label: "Move to page",
@@ -151,6 +153,7 @@ export const MoreActionsMenu = (props: EntityContextMenuProps) => {
               : [{ value: "No Pages", onSelect: noop, label: "No Pages" }],
         },
         {
+          icon: "trash",
           value: "delete",
           onSelect: () => deleteActionFromPage(props.id, props.name),
           label: "Delete",

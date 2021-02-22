@@ -506,7 +506,7 @@ const darkShades = [
   "#D4D4D4",
   "#E9E9E9",
   "#FFFFFF",
-  "#6A86CE",
+  "#157A96",
 ] as const;
 
 const lightShades = [
@@ -522,6 +522,7 @@ const lightShades = [
   "#302D2D",
   "#090707",
   "#FFFFFF",
+  "#6A86CE",
   "#E0DEDE",
 ] as const;
 
@@ -605,6 +606,11 @@ type ColorType = {
       bg: ShadeColor;
       icon: ShadeColor;
     };
+    hovered: {
+      text: ShadeColor;
+      bg: ShadeColor;
+      icon: ShadeColor;
+    };
     icon: ShadeColor;
   };
   toggle: {
@@ -673,6 +679,7 @@ type ColorType = {
     normal: ShadeColor;
     hover: ShadeColor;
     border: ShadeColor;
+    countBg: ShadeColor;
   };
   settingHeading: ShadeColor;
   table: {
@@ -794,6 +801,7 @@ type ColorType = {
     text: ShadeColor;
     dividerBg: ShadeColor;
     iconHoverBg: ShadeColor;
+    tabBg: ShadeColor;
     requestTree: {
       bg: string;
       header: {
@@ -1041,6 +1049,11 @@ export const dark: ColorType = {
       bg: darkShades[4],
       icon: darkShades[8],
     },
+    hovered: {
+      text: darkShades[9],
+      bg: darkShades[10],
+      icon: darkShades[8],
+    },
     icon: darkShades[6],
   },
   toggle: {
@@ -1109,6 +1122,7 @@ export const dark: ColorType = {
     normal: darkShades[6],
     hover: darkShades[7],
     border: darkShades[3],
+    countBg: darkShades[4],
   },
   settingHeading: darkShades[9],
   table: {
@@ -1227,6 +1241,7 @@ export const dark: ColorType = {
   },
   apiPane: {
     bg: darkShades[0],
+    tabBg: lightShades[10],
     text: darkShades[6],
     dividerBg: darkShades[4],
     iconHoverBg: darkShades[1],
@@ -1268,7 +1283,7 @@ export const dark: ColorType = {
   codeMirror: {
     background: {
       defaultState: "#262626",
-      hoverState: "#1A191C",
+      hoverState: darkShades[10],
     },
     text: "#FFFFFF",
     dataType: {
@@ -1323,7 +1338,7 @@ export const dark: ColorType = {
     radioGroupText: darkShades[7],
     deleteIconColor: "#A3B3BF",
     zoomButtonBG: darkShades[3],
-    activeButtonText: darkShades[10],
+    activeButtonText: lightShades[12],
     jsButtonHoverBG: darkShades[2],
   },
 };
@@ -1441,6 +1456,11 @@ export const light: ColorType = {
       bg: lightShades[2],
       icon: lightShades[8],
     },
+    hovered: {
+      text: lightShades[11],
+      bg: lightShades[12],
+      icon: lightShades[8],
+    },
     icon: lightShades[7],
   },
   toggle: {
@@ -1509,6 +1529,7 @@ export const light: ColorType = {
     normal: lightShades[6],
     hover: lightShades[10],
     border: lightShades[3],
+    countBg: lightShades[3],
   },
   settingHeading: lightShades[9],
   table: {
@@ -1626,7 +1647,8 @@ export const light: ColorType = {
     border: "#E0DEDE",
   },
   apiPane: {
-    bg: lightShades[11],
+    bg: lightShades[0],
+    tabBg: lightShades[11],
     text: lightShades[6],
     dividerBg: lightShades[3],
     iconHoverBg: lightShades[1],
@@ -1667,8 +1689,8 @@ export const light: ColorType = {
   },
   codeMirror: {
     background: {
-      defaultState: "#EBEBEB",
-      hoverState: "#FAFAFA",
+      defaultState: lightShades[0],
+      hoverState: lightShades[12],
     },
     text: "#090707",
     dataType: {
@@ -1722,8 +1744,8 @@ export const light: ColorType = {
     radioGroupBg: lightShades[0],
     radioGroupText: lightShades[8],
     deleteIconColor: "#A3B3BF",
-    zoomButtonBG: lightShades[12],
-    activeButtonText: darkShades[10],
+    zoomButtonBG: lightShades[13],
+    activeButtonText: lightShades[12],
     jsButtonHoverBG: lightShades[2],
   },
 };

@@ -7,19 +7,9 @@
         {
           "label": "Use Prepared Statement",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-          "controlType": "DROP_DOWN",
+          "controlType": "SWITCH",
           "isRequired": true,
-          "initialValue": "true",
-          "options": [
-            {
-              "label": "Turn on Prepared Statement to prevent SQL injections",
-              "value": "true"
-            },
-            {
-              "label": "Turn off Prepared Statement to configure dynamic setting of column names using bindings",
-              "value": "false"
-            }
-          ]
+          "initialValue": true
         },
         {
           "label": "",
