@@ -21,6 +21,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import MultiSwitch from "components/ads/MultiSwitch";
+import { BodyFormData } from "entities/Action";
 
 const PostBodyContainer = styled.div`
   padding: 12px 0px 0px;
@@ -49,6 +50,8 @@ interface PostDataProps {
   ) => void;
   dataTreePath: string;
   theme?: EditorTheme;
+  bodyFormData?: BodyFormData[];
+  addBodyFormData: () => void;
 }
 
 type Props = PostDataProps;
@@ -61,6 +64,8 @@ const PostBodyData = (props: Props) => {
     setDisplayFormat,
     apiId,
     dataTreePath,
+    bodyFormData,
+    addBodyFormData,
   } = props;
 
   return (
@@ -149,6 +154,14 @@ const PostBodyData = (props: Props) => {
           };
 
           onDisplayFormatChange(updatedHeaders);
+          if (
+            displayFormatObject &&
+            displayFormatObject.value === POST_BODY_FORMATS[1]
+          ) {
+            if (!bodyFormData) {
+              addBodyFormData();
+            }
+          }
         }}
       />
 
@@ -168,6 +181,13 @@ const mapDispatchToProps = (dispatch: any) => ({
   onDisplayFormatChange: (value: any[]) =>
     dispatch(
       change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", value),
+    ),
+  addBodyFormData: () =>
+    dispatch(
+      change(API_EDITOR_FORM_NAME, "actionConfiguration.bodyFormData", [
+        { key: "", value: "" },
+        { key: "", value: "" },
+      ]),
     ),
   setDisplayFormat: (
     id: string,
@@ -189,6 +209,7 @@ export default connect((state: AppState) => {
   const apiId = selector(state, "id");
   const extraFormData = state.ui.apiPane.extraformData[apiId] || {};
   const headers = selector(state, "actionConfiguration.headers");
+  const bodyFormData = selector(state, "actionConfiguration.bodyFormData");
   let contentType;
   if (headers) {
     contentType = headers.find(
@@ -202,5 +223,6 @@ export default connect((state: AppState) => {
       extraFormData["displayFormat"] || POST_BODY_FORMAT_OPTIONS[3],
     contentType,
     apiId,
+    bodyFormData,
   };
 }, mapDispatchToProps)(PostBodyData);
