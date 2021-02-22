@@ -14,6 +14,7 @@ import {
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import moment from "moment";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getPropertyPaneConfig() {
@@ -40,23 +41,28 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isJSConvertible: true,
             options: [
               {
-                label: "YYYY-MM-DD",
+                label: moment().format("YYYY-MM-DD"),
+                subText: "YYYY-MM-DD",
                 value: "YYYY-MM-DD",
               },
               {
-                label: "YYYY-MM-DD HH:mm",
+                label: moment().format("YYYY-MM-DD HH:mm"),
+                subText: "YYYY-MM-DD HH:mm",
                 value: "YYYY-MM-DD HH:mm",
               },
               {
-                label: "YYYY-MM-DDTHH:mm:ss.sssZ",
+                label: moment().format("YYYY-MM-DDTHH:mm:ss.sssZ"),
+                subText: "YYYY-MM-DDTHH:mm:ss.sssZ",
                 value: "YYYY-MM-DDTHH:mm:ss.sssZ",
               },
               {
-                label: "DD/MM/YYYY",
+                label: moment().format("DD/MM/YYYY"),
+                subText: "DD/MM/YYYY",
                 value: "DD/MM/YYYY",
               },
               {
-                label: "DD/MM/YYYY HH:mm",
+                label: moment().format("DD/MM/YYYY HH:mm"),
+                subText: "DD/MM/YYYY HH:mm",
                 value: "DD/MM/YYYY HH:mm",
               },
             ],
