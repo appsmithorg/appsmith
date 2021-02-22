@@ -58,16 +58,16 @@ public class DynamoPlugin extends BasePlugin {
     private static final String ITEMS_KEY = "Items";
     private static final String ITEM_KEY = "Item";
     private static final String ATTRIBUTES_KEY = "Attributes";
-    private static final String AMAZON_S3_TYPE_STRING_LABEL = "S";
-    private static final String AMAZON_S3_TYPE_NUMBER_LABEL = "N";
-    private static final String AMAZON_S3_TYPE_BINARY_LABEL = "B";
-    private static final String AMAZON_S3_TYPE_BOOLEAN_LABEL = "BOOL";
-    private static final String AMAZON_S3_TYPE_NULL_LABEL = "NUL";
-    private static final String AMAZON_S3_TYPE_STRING_SET_LABEL = "SS";
-    private static final String AMAZON_S3_TYPE_NUMBER_SET_LABEL = "NS";
-    private static final String AMAZON_S3_TYPE_BINARY_SET_LABEL = "BS";
-    private static final String AMAZON_S3_TYPE_MAP_LABEL = "M";
-    private static final String AMAZON_S3_TYPE_LIST_LABEL = "L";
+    private static final String DYNAMO_TYPE_STRING_LABEL = "S";
+    private static final String DYNAMO_TYPE_NUMBER_LABEL = "N";
+    private static final String DYNAMO_TYPE_BINARY_LABEL = "B";
+    private static final String DYNAMO_TYPE_BOOLEAN_LABEL = "BOOL";
+    private static final String DYNAMO_TYPE_NULL_LABEL = "NUL";
+    private static final String DYNAMO_TYPE_STRING_SET_LABEL = "SS";
+    private static final String DYNAMO_TYPE_NUMBER_SET_LABEL = "NS";
+    private static final String DYNAMO_TYPE_BINARY_SET_LABEL = "BS";
+    private static final String DYNAMO_TYPE_MAP_LABEL = "M";
+    private static final String DYNAMO_TYPE_LIST_LABEL = "L";
     private static final String RAW_RESPONSE_LABEL = "raw";
 
     public DynamoPlugin(PluginWrapper wrapper) {
@@ -97,25 +97,25 @@ public class DynamoPlugin extends BasePlugin {
                 Map<String, Object> rawItemAsMap = (Map<String, Object>) rawItem;
                 for (Map.Entry<String, Object> entry: rawItemAsMap.entrySet()) {
                     switch (entry.getKey()) {
-                        case AMAZON_S3_TYPE_NUMBER_LABEL:
-                        case AMAZON_S3_TYPE_STRING_LABEL:
-                        case AMAZON_S3_TYPE_BINARY_LABEL:
-                        case AMAZON_S3_TYPE_BOOLEAN_LABEL:
-                        case AMAZON_S3_TYPE_NULL_LABEL:
+                        case DYNAMO_TYPE_NUMBER_LABEL:
+                        case DYNAMO_TYPE_STRING_LABEL:
+                        case DYNAMO_TYPE_BINARY_LABEL:
+                        case DYNAMO_TYPE_BOOLEAN_LABEL:
+                        case DYNAMO_TYPE_NULL_LABEL:
                             if (entry.getValue() != null) {
                                 return entry.getValue();
                             }
 
                             break;
-                        case AMAZON_S3_TYPE_STRING_SET_LABEL:
-                        case AMAZON_S3_TYPE_NUMBER_SET_LABEL:
-                        case AMAZON_S3_TYPE_BINARY_SET_LABEL:
+                        case DYNAMO_TYPE_STRING_SET_LABEL:
+                        case DYNAMO_TYPE_NUMBER_SET_LABEL:
+                        case DYNAMO_TYPE_BINARY_SET_LABEL:
                             if (entry.getValue() != null && ((List<Object>)entry.getValue()).size() > 0) {
                                 return entry.getValue();
                             }
 
                             break;
-                        case AMAZON_S3_TYPE_LIST_LABEL:
+                        case DYNAMO_TYPE_LIST_LABEL:
                             List<Object> extractedValueList = new ArrayList<>();
                             List<Object> rawValueAsList = (List<Object>) entry.getValue();
                             if (rawValueAsList.size() > 0) {
@@ -127,7 +127,7 @@ public class DynamoPlugin extends BasePlugin {
                             }
 
                             break;
-                        case AMAZON_S3_TYPE_MAP_LABEL:
+                        case DYNAMO_TYPE_MAP_LABEL:
                             Map<String, Object> rawValueAsMap = (Map<String, Object>) entry.getValue();
                             if (rawValueAsMap.size() > 0) {
                                 for (Map.Entry<String, Object> mapItem : rawValueAsMap.entrySet()) {
