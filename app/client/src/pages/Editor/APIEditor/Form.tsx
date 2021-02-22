@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { connect, useSelector } from "react-redux";
-import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
+import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
   HTTP_METHODS,
@@ -11,8 +11,8 @@ import FormRow from "components/editorComponents/FormRow";
 import { PaginationField } from "api/ActionAPI";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import Pagination from "./Pagination";
-import { PaginationType, Action } from "entities/Action";
-import { HelpMap, HelpBaseURL } from "constants/HelpConstants";
+import { Action, PaginationType } from "entities/Action";
+import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
@@ -40,6 +40,7 @@ import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
+import { getCurrentThemeMode, ThemeMode } from "selectors/themeSelectors";
 
 const Form = styled.form`
   display: flex;
@@ -179,6 +180,7 @@ interface APIFormProps {
   apiName: string;
   headersCount: number;
   paramsCount: number;
+  themeMode: ThemeMode;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -231,6 +233,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     actionName,
     headersCount,
     paramsCount,
+    themeMode,
   } = props;
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
@@ -255,9 +258,8 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     e.stopPropagation();
     history.replace(BUILDER_PAGE_URL(applicationId, pageId));
   };
-
-  // Enforcing the light theme
-  const theme = EditorTheme.LIGHT;
+  const theme =
+    themeMode === ThemeMode.LIGHT ? EditorTheme.LIGHT : EditorTheme.DARK;
 
   return (
     <Form onSubmit={handleSubmit}>
@@ -456,6 +458,7 @@ export default connect((state: AppState) => {
 
   const params = selector(state, "actionConfiguration.queryParameters");
   const paramsCount = Array.isArray(params) ? params.length : 0;
+  const themeMode = getCurrentThemeMode(state);
 
   return {
     actionName,
@@ -465,6 +468,7 @@ export default connect((state: AppState) => {
     actionConfigurationHeaders,
     headersCount,
     paramsCount,
+    themeMode,
   };
 })(
   reduxForm<Action, APIFormProps>({

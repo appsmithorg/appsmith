@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import styled, { ThemeProvider } from "styled-components";
+import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AppsmithLogo from "assets/images/appsmith_logo.png";
 import { EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
@@ -186,65 +186,63 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   }
 
   return (
-    <ThemeProvider theme={props.lightTheme}>
-      <HeaderWrapper hasPages={pages.length > 1}>
-        <HtmlTitle />
-        <HeaderRow justify={"space-between"}>
-          <HeaderSection justify={"flex-start"}>
-            <PrimaryLogoLink to={APPLICATIONS_URL}>
-              <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
-            </PrimaryLogoLink>
-          </HeaderSection>
-          <HeaderSection justify={"center"} className="current-app-name">
-            {currentApplicationDetails && (
-              <Text type={TextType.H4}>{currentApplicationDetails.name}</Text>
-            )}
-          </HeaderSection>
-          <HeaderSection justify={"flex-end"}>
-            {currentApplicationDetails && (
-              <>
-                <FormDialogComponent
-                  trigger={
-                    <Button
-                      text={"Share"}
-                      icon={"share"}
-                      size={Size.small}
-                      className="t--application-share-btn header__application-share-btn"
-                    />
-                  }
-                  Form={AppInviteUsersForm}
-                  orgId={currentOrgId}
-                  applicationId={currentApplicationDetails.id}
-                  title={currentApplicationDetails.name}
-                  canOutsideClickClose={true}
-                />
-                {CTA && (
-                  <HeaderRightItemContainer>{CTA}</HeaderRightItemContainer>
-                )}
-              </>
-            )}
-            {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
-              <HeaderRightItemContainer>
-                <ProfileDropdown
-                  userName={currentUser?.username || ""}
-                  hideThemeSwitch
-                  modifiers={{
-                    offset: {
-                      enabled: true,
-                      offset: `0, ${pages.length > 1 ? 35 : 0}`,
-                    },
-                  }}
-                />
-              </HeaderRightItemContainer>
-            )}
-          </HeaderSection>
-        </HeaderRow>
-        <PageTabsContainer
-          pages={pages}
-          currentApplicationDetails={currentApplicationDetails}
-        />
-      </HeaderWrapper>
-    </ThemeProvider>
+    <HeaderWrapper hasPages={pages.length > 1}>
+      <HtmlTitle />
+      <HeaderRow justify={"space-between"}>
+        <HeaderSection justify={"flex-start"}>
+          <PrimaryLogoLink to={APPLICATIONS_URL}>
+            <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
+          </PrimaryLogoLink>
+        </HeaderSection>
+        <HeaderSection justify={"center"} className="current-app-name">
+          {currentApplicationDetails && (
+            <Text type={TextType.H4}>{currentApplicationDetails.name}</Text>
+          )}
+        </HeaderSection>
+        <HeaderSection justify={"flex-end"}>
+          {currentApplicationDetails && (
+            <>
+              <FormDialogComponent
+                trigger={
+                  <Button
+                    text={"Share"}
+                    icon={"share"}
+                    size={Size.small}
+                    className="t--application-share-btn header__application-share-btn"
+                  />
+                }
+                Form={AppInviteUsersForm}
+                orgId={currentOrgId}
+                applicationId={currentApplicationDetails.id}
+                title={currentApplicationDetails.name}
+                canOutsideClickClose={true}
+              />
+              {CTA && (
+                <HeaderRightItemContainer>{CTA}</HeaderRightItemContainer>
+              )}
+            </>
+          )}
+          {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
+            <HeaderRightItemContainer>
+              <ProfileDropdown
+                userName={currentUser?.username || ""}
+                hideThemeSwitch
+                modifiers={{
+                  offset: {
+                    enabled: true,
+                    offset: `0, ${pages.length > 1 ? 35 : 0}`,
+                  },
+                }}
+              />
+            </HeaderRightItemContainer>
+          )}
+        </HeaderSection>
+      </HeaderRow>
+      <PageTabsContainer
+        pages={pages}
+        currentApplicationDetails={currentApplicationDetails}
+      />
+    </HeaderWrapper>
   );
 };
 
