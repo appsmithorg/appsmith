@@ -50,6 +50,9 @@ const Container = styled.div`
   & img {
     max-width: 100%;
   }
+  & code {
+    display: block;
+  }
 `;
 
 const getDocumentationPreviewContent = (

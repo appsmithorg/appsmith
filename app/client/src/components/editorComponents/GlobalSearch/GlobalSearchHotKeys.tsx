@@ -40,7 +40,11 @@ class GlobalSearchHotKeys extends React.Component<Props> {
       },
       {
         combo: "return",
-        onKeyDown: () => this.props.handleItemLinkClick(null, "ENTER_KEY"),
+        onKeyDown: () => {
+          const activeElement = document.activeElement as any;
+          activeElement?.blur(); // scroll into view doesn't work with the search input focused
+          this.props.handleItemLinkClick(null, "ENTER_KEY");
+        },
         hideWhenModalClosed: true,
         allowInInput: true,
       },
