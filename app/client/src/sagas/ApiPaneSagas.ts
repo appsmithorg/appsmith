@@ -21,6 +21,7 @@ import {
   CONTENT_TYPE_HEADER_KEY,
   ApiContentTypes,
   EMPTY_KEY_VALUE_PAIRS,
+  CONTENT_TYPE,
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
