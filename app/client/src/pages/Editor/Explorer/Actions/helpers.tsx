@@ -125,9 +125,8 @@ export const ACTION_PLUGIN_MAP: Array<
 });
 
 export const getActionConfig = (type: PluginType) =>
-  ACTION_PLUGIN_MAP.find(
-    (configByType: ActionGroupConfig | undefined) =>
-      configByType?.type === type,
+  ACTION_PLUGIN_MAP.find((configByType: ActionGroupConfig | undefined) =>
+    configByType?.types.includes(type),
   );
 
 export const getPluginGroups = (

@@ -36,6 +36,7 @@ import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { Theme } from "constants/DefaultTheme";
+import { SAAS_EDITOR_API_ID_URL } from "../SaaSEditor/constants";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -220,6 +221,16 @@ class ApiEditor extends React.Component<Props> {
                 location={this.props.location}
               />
             )}
+
+            {formUiComponent === "SaaSEditorForm" &&
+              this.props.history.push(
+                SAAS_EDITOR_API_ID_URL(
+                  this.props.match.params.applicationId,
+                  this.props.match.params.pageId,
+                  this.props.plugins[this.props.pluginId]?.packageName ?? "",
+                  this.props.match.params.apiId,
+                ),
+              )}
           </>
         ) : (
           apiHomeScreen
