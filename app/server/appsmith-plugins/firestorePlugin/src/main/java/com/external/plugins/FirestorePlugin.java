@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -74,7 +75,10 @@ public class FirestorePlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
+            final Map<String, Object> requestData = new HashMap<>();
+
             final String path = actionConfiguration.getPath();
+            requestData.put("path", path);
 
             if (StringUtils.isBlank(path)) {
                 return Mono.error(new AppsmithPluginException(
@@ -101,11 +105,15 @@ public class FirestorePlugin extends BasePlugin {
                         "Missing Firestore method."
                 ));
             }
+            requestData.put("method", method.toString());
 
             return Mono
                     .justOrEmpty(actionConfiguration.getBody())
                     .defaultIfEmpty("")
                     .flatMap(strBody -> {
+
+                        requestData.put("query", strBody);
+
                         if (StringUtils.isBlank(strBody)) {
                             return Mono.just(Collections.emptyMap());
                         }
@@ -134,6 +142,12 @@ public class FirestorePlugin extends BasePlugin {
                         } else {
                             return handleCollectionLevelMethod(connection, path, method, properties, mapBody);
                         }
+                    })
+                    .map(result -> {
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setBody(requestData);
+                        result.setRequest(request);
+                        return result;
                     })
                     .subscribeOn(scheduler);
         }
