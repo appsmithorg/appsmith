@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.constants.Context;
+import com.appsmith.external.helpers.AppsmithEventContext;
+import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -186,22 +187,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     @Override
-    public Mono<ActionDTO> createActionWithContext(ActionDTO action, Context context) {
-        switch (context) {
-            case PAGE_CLONE:
-                Boolean executeOnLoad = action.getExecuteOnLoad();
-                return createAction(action)
-                        .map(newAction -> {
-                            newAction.setExecuteOnLoad(executeOnLoad);
-                            return newAction;
-                        });
-            default:
-                return createAction(action);
-        }
-    }
-
-    @Override
-    public Mono<ActionDTO> createAction(ActionDTO action) {
+    public Mono<ActionDTO> createActionWithContext(ActionDTO action, AppsmithEventContext appsmithEventContext) {
         if (action.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
@@ -238,14 +224,23 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         newAction.setOrganizationId(datasource.getOrganizationId());
                     }
 
-                    // New actions will never be set to auto-magical execution
-                    action.setExecuteOnLoad(false);
+                    // New actions will never be set to auto-magical execution, unless it is triggered during a
+                    // page/app clone event.
+                    if(appsmithEventContext == null
+                            || appsmithEventContext.getAppsmithEventContextType() != AppsmithEventContextType.CLONE_PAGE) {
+                        action.setExecuteOnLoad(false);
+                    }
 
                     newAction.setUnpublishedAction(action);
 
                     return Mono.just(newAction);
                 })
                 .flatMap(this::validateAndSaveActionToRepository);
+    }
+
+    @Override
+    public Mono<ActionDTO> createAction(ActionDTO action) {
+        return createActionWithContext(action, null);
     }
 
     private Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
