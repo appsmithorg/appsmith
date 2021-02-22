@@ -4,6 +4,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -99,8 +101,13 @@ public class MongoPlugin extends BasePlugin {
                 throw new StaleConnectionException();
             }
 
+            final Map<String, Object> requestData = new HashMap<>();
+
             MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
+
             Bson command = Document.parse(actionConfiguration.getBody());
+            requestData.put("query", actionConfiguration.getBody());
+
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
             ActionExecutionResult result = new ActionExecutionResult();
 
@@ -179,6 +186,12 @@ public class MongoPlugin extends BasePlugin {
                         }
 
                         return Mono.just(result);
+                    })
+                    .map(actionExecutionResult -> {
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setBody(requestData);
+                        actionExecutionResult.setRequest(request);
+                        return actionExecutionResult;
                     })
                     .subscribeOn(scheduler);
         }
