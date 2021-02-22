@@ -18,7 +18,11 @@ import {
   toggleShowGlobalSearchModal,
   setGlobalSearchQuery,
 } from "actions/globalSearchActions";
-import { getItemType, SEARCH_ITEM_TYPES } from "./utils";
+import {
+  getItemType,
+  SEARCH_ITEM_TYPES,
+  getDefaultDocumentationResults,
+} from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
@@ -52,6 +56,15 @@ const isModalOpenSelector = (state: AppState) =>
 const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
 
 const GlobalSearch = () => {
+  const [defaultDocs, setDefaultDocs] = useState<any[]>([]);
+
+  if (defaultDocs.length === 0) {
+    (async () => {
+      const defaultDocs = await getDefaultDocumentationResults();
+      setDefaultDocs(defaultDocs);
+    })();
+  }
+
   const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
   const toggleShow = () => dispatch(toggleShowGlobalSearchModal());
@@ -125,7 +138,7 @@ const GlobalSearch = () => {
       ...filteredWidgets,
       ...filteredActions,
       ...datasourcesList,
-      ...(query && documentationSearchResults),
+      ...(query ? documentationSearchResults : defaultDocs),
     ];
   }, [
     filteredWidgets,
@@ -231,6 +244,7 @@ const GlobalSearch = () => {
                 <Description
                   activeItem={activeItem}
                   activeItemType={activeItemType}
+                  query={query}
                 />
               </div>
             </StyledContainer>

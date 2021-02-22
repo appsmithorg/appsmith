@@ -8,8 +8,10 @@ import {
   getTypographyByKey,
   scrollbarDark,
 } from "constants/DefaultTheme";
+import Highlight from "./Highlight";
+import ActionLink, { StyledActionLink } from "./ActionLink";
 import scrollIntoView from "scroll-into-view-if-needed";
-import { getItemType, SEARCH_ITEM_TYPES } from "./utils";
+import { getItemType, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import SearchContext from "./GlobalSearchContext";
 import {
   getWidgetIcon,
@@ -19,7 +21,6 @@ import { HelpIcons } from "icons/HelpIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { AppState } from "reducers";
 import { keyBy } from "lodash";
-import Icon, { IconSize } from "components/ads/Icon";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 
@@ -30,7 +31,7 @@ type ItemProps = {
   query: string;
 };
 
-const SearchItemContainer = styled.div<{ isActiveItem: boolean }>`
+export const SearchItemContainer = styled.div<{ isActiveItem: boolean }>`
   ${(props) => getTypographyByKey(props, "p3")};
   [class^="ais-"] {
     ${(props) => getTypographyByKey(props, "p3")};
@@ -57,6 +58,9 @@ const SearchItemContainer = styled.div<{ isActiveItem: boolean }>`
     text-decoration-color: ${(props) =>
       props.theme.colors.globalSearch.highlightedTextUnderline};
   }
+  &:hover ${StyledActionLink} {
+    visibility: visible;
+  }
 `;
 
 const ItemTitle = styled.div`
@@ -77,37 +81,6 @@ const StyledDocumentIcon = styled(DocumentIcon)`
   }
 `;
 
-const StyleActionLink = styled.div<{ isActiveItem?: boolean }>`
-  visibility: ${(props) => (props.isActiveItem ? "visible" : "hidden")};
-  ${SearchItemContainer}:hover & {
-    visibility: visible;
-  }
-`;
-
-const ActionLink = withTheme(
-  ({
-    item,
-    theme,
-    isActiveItem,
-  }: {
-    item: any;
-    theme: Theme;
-    isActiveItem?: boolean;
-  }) => {
-    const searchContext = useContext(SearchContext);
-    return (
-      <StyleActionLink isActiveItem={isActiveItem}>
-        <Icon
-          name="link"
-          size={IconSize.LARGE}
-          fillColor={theme.colors.globalSearch.searchItemText}
-          onClick={() => searchContext.handleItemLinkClick(item)}
-        />
-      </StyleActionLink>
-    );
-  },
-);
-
 const DocumentationItem = withTheme((props: any) => {
   const searchContext = useContext(SearchContext);
   return (
@@ -125,40 +98,11 @@ const DocumentationItem = withTheme((props: any) => {
   );
 });
 
-const Highlight = ({ match, text }: { match: string; text: string }) => {
-  const regEx = new RegExp(match, "ig");
-  const parts = text?.split(regEx);
-  if (parts.length === 1) return <span>{text}</span>;
-
-  return (
-    <span>
-      {parts.map((part, index) => (
-        <React.Fragment key={index}>
-          {part}
-          {index !== parts.length - 1 && (
-            <span className="search-highlighted">{match}</span>
-          )}
-        </React.Fragment>
-      ))}
-    </span>
-  );
-};
-
-// const changeConstantCaseToSentenceCase = (textArg: string) => {
-//   if (!textArg) return "";
-//   const text = textArg.trim();
-
-//   return text.split("_").reduce((res, word, index) => {
-//     if (index === 0)
-//       return `${word[0].toUpperCase()}${word.slice(1).toLowerCase()}`;
-//     else return `${res} ${word.toLowerCase()}`;
-//   }, "");
-// };
-
 const WidgetItem = withTheme((props: any) => {
   const { query, item } = props;
-  const { widgetName, type } = item || {};
+  const { type } = item || {};
   const searchContext = useContext(SearchContext);
+  const title = getItemTitle(item);
 
   return (
     <>
@@ -166,7 +110,7 @@ const WidgetItem = withTheme((props: any) => {
         {getWidgetIcon(type)}
       </span>
       <ItemTitle>
-        <Highlight match={query} text={widgetName} />
+        <Highlight match={query} text={title} />
         <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
       </ItemTitle>
     </>
@@ -176,7 +120,7 @@ const WidgetItem = withTheme((props: any) => {
 const ActionItem = withTheme((props: any) => {
   const { item, query } = props;
   const { config } = item || {};
-  const title = config.name;
+  const title = getItemTitle(item);
   const searchContext = useContext(SearchContext);
   const { pluginType } = config;
   const plugins = useSelector((state: AppState) => {
@@ -203,12 +147,13 @@ const ActionItem = withTheme((props: any) => {
 const DatasourceItem = withTheme((props: any) => {
   const searchContext = useContext(SearchContext);
   const { item, query } = props;
-  const title = item?.name;
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const icon = getPluginIcon(pluginGroups[item.pluginId]);
+  const title = getItemTitle(item);
+
   return (
     <>
       <span onClick={() => searchContext.handleItemLinkClick(props.item)}>

@@ -6,7 +6,6 @@ const StyledDocsSearchModal = styled.div`
   & {
     .${Classes.OVERLAY} {
       position: fixed;
-      top: ${(props) => props.theme.smallHeaderHeight};
       bottom: 0;
       left: 0;
       right: 0;

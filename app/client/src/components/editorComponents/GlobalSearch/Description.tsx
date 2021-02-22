@@ -1,20 +1,22 @@
 import React from "react";
-import styled from "styled-components";
-import { SEARCH_ITEM_TYPES } from "./utils";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import styled, { withTheme } from "styled-components";
+import ActionLink from "./ActionLink";
+import Highlight from "./Highlight";
+import { getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
+import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import marked from "marked";
 import { HelpBaseURL } from "constants/HelpConstants";
 
 type Props = {
   activeItem: any;
   activeItemType?: SEARCH_ITEM_TYPES;
+  query: string;
 };
 
 const algoliaHighlightTag = "ais-highlight-0000000000";
 
 /**
  * strip:
- * image tags,
  * gitbook plugin tags,
  * description header (since it might be present for a lot of results)
  */
@@ -44,13 +46,8 @@ const Container = styled.div`
       props.theme.colors.globalSearch.highlightedTextUnderline};
   }
   overflow: auto;
-  & * {
+  & img {
     max-width: 100%;
-    white-space: normal;
-    overflow-wrap: break-word;
-  }
-  & code {
-    display: block;
   }
 `;
 
@@ -106,8 +103,8 @@ const getDocumentationPreviewContent = (
   }
 };
 
-const DocumentationDescription = ({ activeItem }: { activeItem: any }) => {
-  const content = getDocumentationPreviewContent(activeItem);
+const DocumentationDescription = ({ item }: { item: any }) => {
+  const content = getDocumentationPreviewContent(item);
   return content ? (
     <div dangerouslySetInnerHTML={{ __html: content }} />
   ) : (
@@ -115,10 +112,28 @@ const DocumentationDescription = ({ activeItem }: { activeItem: any }) => {
   );
 };
 
-const HitEnterMessage = () => (
-  <span>
-    Hit <kbd>↵ Return</kbd> to navigate
-  </span>
+const HitEnterMessage = withTheme(
+  ({ item, query, theme }: { item: any; query: string; theme: Theme }) => {
+    const title = getItemTitle(item);
+
+    return (
+      <span style={{ display: "flex", alignItems: "center" }}>
+        Hit{" "}
+        <kbd
+          style={{ marginLeft: theme.spaces[1], marginRight: theme.spaces[1] }}
+        >
+          ↵ Return
+        </kbd>{" "}
+        to navigate to
+        <span
+          style={{ marginLeft: theme.spaces[1], marginRight: theme.spaces[1] }}
+        >
+          <Highlight match={query} text={title} />
+        </span>
+        <ActionLink item={item} isActiveItem={true} />
+      </span>
+    );
+  },
 );
 
 const descriptionByType = {
@@ -137,7 +152,7 @@ const Description = (props: Props) => {
 
   return (
     <Container>
-      <Component activeItem={activeItem} />
+      <Component item={activeItem} query={props.query} />
     </Container>
   );
 };
