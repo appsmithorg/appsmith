@@ -1,4 +1,4 @@
-const testdata = require("../../../fixtures/testdata.json");
+const testdata = require("../../../../fixtures/testdata.json");
 
 describe("Datasource form related tests", function() {
   it("Check whether the delete button has the right color", function() {

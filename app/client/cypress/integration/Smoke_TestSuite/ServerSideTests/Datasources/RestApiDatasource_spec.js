@@ -1,4 +1,4 @@
-const testdata = require("../../../fixtures/testdata.json");
+const testdata = require("../../../../fixtures/testdata.json");
 
 describe("Create a rest datasource", function() {
   it("Create a rest datasource", function() {
