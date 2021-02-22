@@ -1,4 +1,3 @@
-import { DataTreeEvaluator } from "./evaluation.worker";
 import {
   DataTreeAction,
   DataTreeWidget,
@@ -7,6 +6,7 @@ import {
 import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { RenderModes, WidgetTypes } from "../constants/WidgetConstants";
 import { PluginType } from "../entities/Action";
+import DataTreeEvaluator from "workers/DataTreeEvaluator";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
