@@ -387,7 +387,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const action = yield select(getAction, id);
   const data = { ...action };
 
-  if (pluginType === "API") {
+  if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
@@ -538,6 +538,15 @@ function* handleApiNameChangeSuccessSaga(
       },
     });
     return;
+  }
+  if (actionObj.pluginType === PluginType.API) {
+    const params = getQueryParams();
+    if (params.editName) {
+      params.editName = "false";
+    }
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+    history.push(API_EDITOR_ID_URL(applicationId, pageId, actionId, params));
   }
 }
 

@@ -40,6 +40,7 @@ export type EventName =
   | "CREATE_ACTION"
   | "SAVE_SAAS"
   | "DELETE_SAAS"
+  | "RUN_SAAS_API"
   | "SAVE_API"
   | "SAVE_API_CLICK"
   | "RUN_API"
