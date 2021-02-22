@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class DynamoPlugin extends BasePlugin {
 
@@ -92,7 +93,19 @@ public class DynamoPlugin extends BasePlugin {
         private final Scheduler scheduler = Schedulers.elastic();
 
         public Object extractValue(Object rawItem) {
-            if (rawItem instanceof Map) {
+
+            if(!(rawItem instanceof List)
+                    && !(rawItem instanceof Map)) {
+                return rawItem;
+            }
+
+            if (rawItem instanceof List) {
+                return ((List<Object>) rawItem)
+                        .stream()
+                        .map(item -> extractValue(item))
+                        .collect(Collectors.toList());
+            }
+            else { /* map type */
                 Map<String, Object> extractedValueMap = new HashMap<>();
                 Map<String, Object> rawItemAsMap = (Map<String, Object>) rawItem;
                 for (Map.Entry<String, Object> entry: rawItemAsMap.entrySet()) {
@@ -116,25 +129,29 @@ public class DynamoPlugin extends BasePlugin {
 
                             break;
                         case DYNAMO_TYPE_LIST_LABEL:
-                            List<Object> extractedValueList = new ArrayList<>();
+                            /*
+                             * - If size of rawValueAsList is 0, then we don't want to return.
+                             */
                             List<Object> rawValueAsList = (List<Object>) entry.getValue();
                             if (rawValueAsList.size() > 0) {
-                                for (Object listItem : rawValueAsList) {
-                                    extractedValueList.add(extractValue(listItem));
-                                }
-
-                                return extractedValueList;
+                                return rawValueAsList
+                                        .stream()
+                                        .map(listItem -> extractValue(listItem))
+                                        .collect(Collectors.toList());
                             }
 
                             break;
                         case DYNAMO_TYPE_MAP_LABEL:
+                            /*
+                             * - If size of rawValueAsMap is 0, then we don't want to return.
+                             */
                             Map<String, Object> rawValueAsMap = (Map<String, Object>) entry.getValue();
                             if (rawValueAsMap.size() > 0) {
-                                for (Map.Entry<String, Object> mapItem : rawValueAsMap.entrySet()) {
-                                    extractedValueMap.put(mapItem.getKey(), extractValue(mapItem.getValue()));
-                                }
-
-                                return extractedValueMap;
+                                return rawValueAsMap
+                                        .entrySet()
+                                        .stream()
+                                        .map(item -> Map.entry(item.getKey(), extractValue(item.getValue())))
+                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
                             }
 
                             break;
@@ -144,93 +161,98 @@ public class DynamoPlugin extends BasePlugin {
                 }
 
                 return extractedValueMap;
-            } else if (rawItem instanceof List) {
-                List<Object> extractedValueList = new ArrayList<>();
-                List<Object> rawItemAsList = (List<Object>) rawItem;
-                for (Object listItem : rawItemAsList) {
-                    extractedValueList.add(extractValue(listItem));
-                }
-
-                return extractedValueList;
             }
-
-            return rawItem;
         }
         /*
          * - Transform response for easy consumption. For details please visit
          *   https://github.com/appsmithorg/appsmith/issues/3010
+         * - TODO: Update support for BatchGetItem and TransactGetItem as soon as PR https://github.com/appsmithorg/appsmith/pull/3120
+         *   is merged.
          */
         public Object getTransformedResponse(Map<String, Object> rawResponse,
                                              String action) throws AppsmithPluginException {
+
             Map<String, Object> transformedResponse = new HashMap<>();
 
-            if (SCAN_ACTION_VALUE.equals(action)
-                    || GET_ITEM_ACTION_VALUE.equals(action)
-                    || PUT_ITEM_ACTION_VALUE.equals(action)
-                    || UPDATE_ITEM_ACTION_VALUE.equals(action)
-                    || DELETE_ITEM_ACTION_VALUE.equals(action)) {
-                transformedResponse.put(RAW_RESPONSE_LABEL, rawResponse);
-
-                String topLevelKey;
-                switch (action) {
-                    case SCAN_ACTION_VALUE:
-                        topLevelKey = ITEMS_KEY;
-                        break;
-                    case GET_ITEM_ACTION_VALUE:
-                        topLevelKey = ITEM_KEY;
-                        break;
-                    case PUT_ITEM_ACTION_VALUE:
-                    case UPDATE_ITEM_ACTION_VALUE:
-                    case DELETE_ITEM_ACTION_VALUE:
-                        topLevelKey = ATTRIBUTES_KEY;
-                        break;
-                    default:
-                        throw new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Appsmith has encountered an unexpected error when transforming raw DynamoDb response" +
-                                        ". Please reach out to Appsmith customer support to resolve this."
-                        );
-                }
-
-                for (Map.Entry<String, Object> responseEntry: rawResponse.entrySet()) {
-                    if (!responseEntry.getKey().equals(topLevelKey)) {
-                        transformedResponse.put(responseEntry.getKey(), responseEntry.getValue());
-                    }
-                    else {
-                        if (SCAN_ACTION_VALUE.equals(action)) {
-                            ArrayList<Object> extractedResponse = new ArrayList<>();
-                            transformedResponse.put(topLevelKey, extractedResponse);
-
-                            Collection<Object> rawItems = (Collection<Object>) (rawResponse.get(topLevelKey));
-                            if (rawItems != null) {
-                                for (Object item : rawItems) {
-                                    Object value = extractValue(item);
-                                    extractedResponse.add(value);
-                                }
-                            }
-                        }
-                        else if (PUT_ITEM_ACTION_VALUE.equals(action)
-                                    || GET_ITEM_ACTION_VALUE.equals(action)
-                                    || UPDATE_ITEM_ACTION_VALUE.equals(action)
-                                    || DELETE_ITEM_ACTION_VALUE.equals(action)) {
-                            HashMap<String, Object> extractedResponse = new HashMap<>();
-                            transformedResponse.put(topLevelKey, extractedResponse);
-
-                            HashMap<String, Object> rawItem = (HashMap<String, Object>) rawResponse.get(topLevelKey);
-                            if (rawItem != null) {
-                                for (Map.Entry<String, Object> entry : rawItem.entrySet()) {
-                                    Object value = extractValue(entry.getValue());
-                                    extractedResponse.put(entry.getKey(), value);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                return transformedResponse;
+            if (!SCAN_ACTION_VALUE.equals(action)
+                    && !GET_ITEM_ACTION_VALUE.equals(action)
+                    && !PUT_ITEM_ACTION_VALUE.equals(action)
+                    && !UPDATE_ITEM_ACTION_VALUE.equals(action)
+                    && !DELETE_ITEM_ACTION_VALUE.equals(action)) {
+                return rawResponse;
             }
 
-            return rawResponse;
+            transformedResponse.put(RAW_RESPONSE_LABEL, rawResponse);
+
+            String topLevelKey;
+            switch (action) {
+                case SCAN_ACTION_VALUE:
+                    topLevelKey = ITEMS_KEY;
+                    break;
+                case GET_ITEM_ACTION_VALUE:
+                    topLevelKey = ITEM_KEY;
+                    break;
+                case PUT_ITEM_ACTION_VALUE:
+                case UPDATE_ITEM_ACTION_VALUE:
+                case DELETE_ITEM_ACTION_VALUE:
+                    topLevelKey = ATTRIBUTES_KEY;
+                    break;
+                default:
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_ERROR,
+                            "Appsmith has encountered an unexpected error when transforming raw DynamoDb response" +
+                                    ". Please reach out to Appsmith customer support to resolve this."
+                    );
+            }
+
+            for (Map.Entry<String, Object> responseEntry: rawResponse.entrySet()) {
+                if (!responseEntry.getKey().equals(topLevelKey)) {
+                    transformedResponse.put(responseEntry.getKey(), responseEntry.getValue());
+                }
+                else {
+                    if (rawResponse.get(topLevelKey) instanceof Collection) {
+                        /*
+                         * - Need to have an empty list if rawItems is null.
+                         */
+                        List<Object> extractedResponse = new ArrayList<>();
+                        Collection<Object> rawItems = (Collection<Object>) (rawResponse.get(topLevelKey));
+                        if (rawItems != null) {
+                            /*
+                             * - Insert transformed values into extractedResponse list.
+                             */
+                            rawItems
+                                    .stream()
+                                    .map(item -> extractValue(item))
+                                    .map(item -> extractedResponse.add(item))
+                                    .collect(Collectors.toList());
+                        }
+
+                        transformedResponse.put(topLevelKey, extractedResponse);
+                    }
+                    else if (rawResponse.get(topLevelKey) instanceof Map) {
+                        /*
+                         * - Need to have an empty map if rawItems is null.
+                         */
+                        HashMap<String, Object> extractedResponse = new HashMap<>();
+                        HashMap<String, Object> rawItems = (HashMap<String, Object>) rawResponse.get(topLevelKey);
+                        if (rawItems != null) {
+                            /*
+                             * - Insert transformed values into extractedResponse map.
+                             */
+                            rawItems
+                                    .entrySet()
+                                    .stream()
+                                    .map(item -> Map.entry(item.getKey(), extractValue(item.getValue())))
+                                    .map(item -> extractedResponse.put(item.getKey(), item.getValue()))
+                                    .collect(Collectors.toList());
+                        }
+
+                        transformedResponse.put(topLevelKey, extractedResponse);
+                    }
+                }
+            }
+
+            return transformedResponse;
         }
 
         @Override
