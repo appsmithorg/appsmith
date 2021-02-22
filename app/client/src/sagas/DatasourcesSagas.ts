@@ -334,6 +334,13 @@ function* createDatasourceFromFormSaga(
         type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
         payload: response.data,
       });
+      // Todo: refactor later
+      yield put(
+        setDatsourceEditorMode({
+          id: response.data.id,
+          viewMode: false,
+        }),
+      );
       Toaster.show({
         text: `${response.data.name} Datasource created`,
         variant: Variant.success,

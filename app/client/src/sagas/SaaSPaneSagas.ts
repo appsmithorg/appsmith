@@ -21,7 +21,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { Action } from "entities/Action";
+import { Action, PluginType } from "entities/Action";
 import { SAAS_EDITOR_FORM } from "constants/forms";
 import { getFormData } from "selectors/formSelectors";
 import { setActionProperty } from "actions/actionActions";
@@ -31,7 +31,7 @@ import { autofill } from "redux-form";
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
   // Only look at SAAS plugins
-  if (plugin.type !== "SAAS") return;
+  if (plugin.type !== PluginType.SAAS) return;
 
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
