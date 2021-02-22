@@ -44,7 +44,7 @@
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
               "validationRegex": "^((?![/:]).)*$",
-              "placeholder": "E.g., myapp.abcde.mongodb.net"
+              "placeholder": "myapp.abcde.mongodb.net"
             },
             {
               "label": "Port",
