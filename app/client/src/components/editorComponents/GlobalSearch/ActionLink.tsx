@@ -4,6 +4,7 @@ import { Theme } from "constants/DefaultTheme";
 import { useContext } from "react";
 import styled, { withTheme } from "styled-components";
 import SearchContext from "./GlobalSearchContext";
+import { SearchItem } from "./utils";
 
 export const StyledActionLink = styled.span<{ isActiveItem?: boolean }>`
   visibility: ${(props) => (props.isActiveItem ? "visible" : "hidden")};
@@ -16,7 +17,7 @@ export const ActionLink = withTheme(
     theme,
     isActiveItem,
   }: {
-    item: any;
+    item: SearchItem;
     theme: Theme;
     isActiveItem?: boolean;
   }) => {
@@ -27,7 +28,7 @@ export const ActionLink = withTheme(
           name="link"
           size={IconSize.LARGE}
           fillColor={theme.colors.globalSearch.searchItemText}
-          onClick={() => searchContext.handleItemLinkClick(item)}
+          onClick={() => searchContext?.handleItemLinkClick(item)}
         />
       </StyledActionLink>
     );

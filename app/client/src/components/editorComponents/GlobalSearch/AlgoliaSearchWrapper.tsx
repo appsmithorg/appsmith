@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import algoliasearch from "algoliasearch/lite";
 import { InstantSearch } from "react-instantsearch-dom";
-import "instantsearch.css/themes/algolia.css";
 import { getAppsmithConfigs } from "configs";
 import { debounce } from "lodash";
 

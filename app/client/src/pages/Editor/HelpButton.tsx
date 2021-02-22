@@ -53,12 +53,7 @@ const HelpButton = () => {
         <Trigger />
       </>
       <div style={{ width: HELP_MODAL_WIDTH }}>
-        <DocumentationSearch
-          hitsPerPage={4}
-          hideSearch
-          hideMinimizeBtn
-          showVersionOnTop
-        />
+        <DocumentationSearch hitsPerPage={4} hideSearch hideMinimizeBtn />
       </div>
     </Popover>
   );

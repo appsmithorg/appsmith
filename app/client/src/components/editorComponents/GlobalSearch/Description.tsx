@@ -6,9 +6,10 @@ import { getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import marked from "marked";
 import { HelpBaseURL } from "constants/HelpConstants";
+import { SearchItem } from "./utils";
 
 type Props = {
-  activeItem: any;
+  activeItem: SearchItem;
   activeItemType?: SEARCH_ITEM_TYPES;
   query: string;
 };
@@ -52,7 +53,7 @@ const Container = styled.div`
 `;
 
 const getDocumentationPreviewContent = (
-  activeItem: any,
+  activeItem: SearchItem,
 ): string | undefined => {
   try {
     const { value } = activeItem?._highlightResult?.document;
@@ -103,17 +104,21 @@ const getDocumentationPreviewContent = (
   }
 };
 
-const DocumentationDescription = ({ item }: { item: any }) => {
+const DocumentationDescription = ({ item }: { item: SearchItem }) => {
   const content = getDocumentationPreviewContent(item);
-  return content ? (
-    <div dangerouslySetInnerHTML={{ __html: content }} />
-  ) : (
-    <div>no preview</div>
-  );
+  return content ? <div dangerouslySetInnerHTML={{ __html: content }} /> : null;
 };
 
 const HitEnterMessage = withTheme(
-  ({ item, query, theme }: { item: any; query: string; theme: Theme }) => {
+  ({
+    item,
+    query,
+    theme,
+  }: {
+    item: SearchItem;
+    query: string;
+    theme: Theme;
+  }) => {
     const title = getItemTitle(item);
 
     return (

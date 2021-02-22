@@ -279,18 +279,11 @@ const HelpContainer = styled.div`
   flex-direction: column;
 `;
 
-const VersionContainer = styled.div<{ showVersionOnTop?: boolean }>`
+const HelpFooter = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  ${(props) =>
-    props.showVersionOnTop
-      ? `
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  `
-      : `
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  `}
   padding: 5px 10px;
   height: 30px;
   color: rgba(255, 255, 255, 0.7);
@@ -315,7 +308,6 @@ type Props = {
   dispatch: any;
   hideSearch?: boolean;
   hideMinimizeBtn?: boolean;
-  showVersionOnTop?: boolean;
 };
 type State = { showResults: boolean };
 
@@ -386,12 +378,6 @@ class DocumentationSearch extends React.Component<Props, State> {
     if (!algolia.enabled) return null;
     return (
       <SearchContainer className="ais-InstantSearch t--docSearchModal">
-        {appVersion.id && this.props.showVersionOnTop && (
-          <VersionContainer showVersionOnTop={this.props.showVersionOnTop}>
-            <span>Appsmith {appVersion.id}</span>
-            <span>Released {moment(appVersion.releaseDate).fromNow()}</span>
-          </VersionContainer>
-        )}
         {!this.props.hideMinimizeBtn && (
           <Icon
             className="t--docsMinimize"
@@ -438,11 +424,11 @@ class DocumentationSearch extends React.Component<Props, State> {
                 </ul>
               )}
             </HelpBody>
-            {appVersion.id && !this.props.showVersionOnTop && (
-              <VersionContainer showVersionOnTop={this.props.showVersionOnTop}>
+            {appVersion.id && (
+              <HelpFooter>
                 <span>Appsmith {appVersion.id}</span>
                 <span>Released {moment(appVersion.releaseDate).fromNow()}</span>
-              </VersionContainer>
+              </HelpFooter>
             )}
           </HelpContainer>
         </InstantSearch>

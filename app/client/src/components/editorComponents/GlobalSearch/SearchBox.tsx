@@ -46,7 +46,7 @@ const SearchBox = ({ query, setQuery }: SearchBoxProps) => {
   const { modalOpen } = useSelector((state: AppState) => state.ui.globalSearch);
   const updateSearchQuery = useCallback(
     (query) => {
-      // to prevent key combo to open modal (shift + o) from trigging query update
+      // to prevent key combo to open modal from trigging query update
       if (!listenToChange) return;
       setQuery(query);
     },
@@ -78,8 +78,6 @@ const SearchBox = ({ query, setQuery }: SearchBoxProps) => {
         {query && <Icon name="close" onClick={() => updateSearchQuery("")} />}
       </InputContainer>
       <Separator />
-      {/* <button onClick={() => refine("")}>Reset query</button>
-      {isSearchStalled ? "My search is stalled" : ""} */}
     </Container>
   );
 };

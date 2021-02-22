@@ -1,3 +1,5 @@
+import { Datasource } from "entities/Datasource";
+
 export enum SEARCH_ITEM_TYPES {
   documentation = "documentation",
   action = "action",
@@ -5,8 +7,21 @@ export enum SEARCH_ITEM_TYPES {
   datasource = "datasource",
 }
 
+export type DocSearchItem = {
+  document?: string;
+  title: string;
+  _highlightResult: {
+    document: { value: string };
+    title: { value: string };
+  };
+  kind: string;
+  path: string;
+};
+
+export type SearchItem = DocSearchItem | Datasource | any;
+
 // todo better checks here?
-export const getItemType = (item: any): SEARCH_ITEM_TYPES => {
+export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
   let type: SEARCH_ITEM_TYPES;
   if (item.widgetName) type = SEARCH_ITEM_TYPES.widget;
   else if (item.kind === "document") type = SEARCH_ITEM_TYPES.documentation;
@@ -16,7 +31,7 @@ export const getItemType = (item: any): SEARCH_ITEM_TYPES => {
   return type;
 };
 
-export const getItemTitle = (item: any): string => {
+export const getItemTitle = (item: SearchItem): string => {
   const type = getItemType(item);
 
   switch (type) {
@@ -77,7 +92,7 @@ export const getDefaultDocumentationResults = async () => {
           },
         },
         ...doc,
-      };
+      } as DocSearchItem;
     }),
   );
 

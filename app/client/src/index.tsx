@@ -17,8 +17,6 @@ import { setThemeMode } from "actions/themeActions";
 import { StyledToastContainer } from "components/ads/Toast";
 import localStorage from "utils/localStorage";
 
-import * as log from "loglevel";
-
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
@@ -86,5 +84,3 @@ ReactDOM.render(<App />, document.getElementById("root"));
 if ((window as any).Cypress) {
   (window as any).store = store;
 }
-
-log.disableAll();

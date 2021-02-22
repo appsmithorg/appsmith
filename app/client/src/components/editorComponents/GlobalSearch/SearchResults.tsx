@@ -11,7 +11,12 @@ import {
 import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
 import scrollIntoView from "scroll-into-view-if-needed";
-import { getItemType, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
+import {
+  getItemType,
+  getItemTitle,
+  SEARCH_ITEM_TYPES,
+  SearchItem,
+} from "./utils";
 import SearchContext from "./GlobalSearchContext";
 import {
   getWidgetIcon,
@@ -20,16 +25,9 @@ import {
 import { HelpIcons } from "icons/HelpIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { AppState } from "reducers";
-import { keyBy } from "lodash";
+import { keyBy, noop } from "lodash";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
-
-type ItemProps = {
-  item: IHit | any;
-  index: number;
-  theme: Theme;
-  query: string;
-};
 
 export const SearchItemContainer = styled.div<{ isActiveItem: boolean }>`
   ${(props) => getTypographyByKey(props, "p3")};
@@ -81,91 +79,114 @@ const StyledDocumentIcon = styled(DocumentIcon)`
   }
 `;
 
-const DocumentationItem = withTheme((props: any) => {
-  const searchContext = useContext(SearchContext);
-  return (
-    <>
-      <span onClick={() => searchContext.handleItemLinkClick(props.item)}>
-        <StyledDocumentIcon />
-      </span>
-      <ItemTitle>
-        <span>
-          <AlgoliaHighlight attribute="title" hit={props.item} />
+const DocumentationItem = withTheme(
+  (props: { item: SearchItem; theme: Theme; isActiveItem: boolean }) => {
+    const searchContext = useContext(SearchContext);
+    return (
+      <>
+        <span onClick={() => searchContext?.handleItemLinkClick(props.item)}>
+          <StyledDocumentIcon />
         </span>
-        <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
-      </ItemTitle>
-    </>
-  );
-});
+        <ItemTitle>
+          <span>
+            <AlgoliaHighlight attribute="title" hit={props.item} />
+          </span>
+          <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
+        </ItemTitle>
+      </>
+    );
+  },
+);
 
-const WidgetItem = withTheme((props: any) => {
-  const { query, item } = props;
-  const { type } = item || {};
-  const searchContext = useContext(SearchContext);
-  const title = getItemTitle(item);
+const WidgetItem = withTheme(
+  (props: {
+    query: string;
+    item: SearchItem;
+    isActiveItem: boolean;
+    theme: Theme;
+  }) => {
+    const { query, item } = props;
+    const { type } = item || {};
+    const searchContext = useContext(SearchContext);
+    const title = getItemTitle(item);
 
-  return (
-    <>
-      <span onClick={() => searchContext.handleItemLinkClick(props.item)}>
-        {getWidgetIcon(type)}
-      </span>
-      <ItemTitle>
-        <Highlight match={query} text={title} />
-        <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
-      </ItemTitle>
-    </>
-  );
-});
+    return (
+      <>
+        <span onClick={() => searchContext?.handleItemLinkClick(props.item)}>
+          {getWidgetIcon(type)}
+        </span>
+        <ItemTitle>
+          <Highlight match={query} text={title} />
+          <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
+        </ItemTitle>
+      </>
+    );
+  },
+);
 
-const ActionItem = withTheme((props: any) => {
-  const { item, query } = props;
-  const { config } = item || {};
-  const title = getItemTitle(item);
-  const searchContext = useContext(SearchContext);
-  const { pluginType } = config;
-  const plugins = useSelector((state: AppState) => {
-    return state.entities.plugins.list;
-  });
-  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const icon = getActionConfig(pluginType)?.getIcon(
-    item.config,
-    pluginGroups[item.config.datasource.pluginId],
-  );
-  return (
-    <>
-      <span onClick={() => searchContext.handleItemLinkClick(props.item)}>
-        {icon}
-      </span>
-      <ItemTitle>
-        <Highlight match={query} text={title} />
-        <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
-      </ItemTitle>
-    </>
-  );
-});
+const ActionItem = withTheme(
+  (props: {
+    query: string;
+    item: SearchItem;
+    isActiveItem: boolean;
+    theme: Theme;
+  }) => {
+    const { item, query } = props;
+    const { config } = item || {};
+    const title = getItemTitle(item);
+    const searchContext = useContext(SearchContext);
+    const { pluginType } = config;
+    const plugins = useSelector((state: AppState) => {
+      return state.entities.plugins.list;
+    });
+    const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+    const icon = getActionConfig(pluginType)?.getIcon(
+      item.config,
+      pluginGroups[item.config.datasource.pluginId],
+    );
+    return (
+      <>
+        <span onClick={() => searchContext?.handleItemLinkClick(props.item)}>
+          {icon}
+        </span>
+        <ItemTitle>
+          <Highlight match={query} text={title} />
+          <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
+        </ItemTitle>
+      </>
+    );
+  },
+);
 
-const DatasourceItem = withTheme((props: any) => {
-  const searchContext = useContext(SearchContext);
-  const { item, query } = props;
-  const plugins = useSelector((state: AppState) => {
-    return state.entities.plugins.list;
-  });
-  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const icon = getPluginIcon(pluginGroups[item.pluginId]);
-  const title = getItemTitle(item);
+const DatasourceItem = withTheme(
+  (props: {
+    query: string;
+    item: SearchItem;
+    isActiveItem: boolean;
+    theme: Theme;
+  }) => {
+    const searchContext = useContext(SearchContext);
+    const { item, query } = props;
+    const plugins = useSelector((state: AppState) => {
+      return state.entities.plugins.list;
+    });
+    const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+    const icon = getPluginIcon(pluginGroups[item.pluginId]);
+    const title = getItemTitle(item);
 
-  return (
-    <>
-      <span onClick={() => searchContext.handleItemLinkClick(props.item)}>
-        {icon}
-      </span>
-      <ItemTitle>
-        <Highlight match={query} text={title} />
-        <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
-      </ItemTitle>
-    </>
-  );
-});
+    return (
+      <>
+        <span onClick={() => searchContext?.handleItemLinkClick(props.item)}>
+          {icon}
+        </span>
+        <ItemTitle>
+          <Highlight match={query} text={title} />
+          <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
+        </ItemTitle>
+      </>
+    );
+  },
+);
 
 const SearchItemByType = {
   [SEARCH_ITEM_TYPES.documentation]: DocumentationItem,
@@ -174,10 +195,20 @@ const SearchItemByType = {
   [SEARCH_ITEM_TYPES.datasource]: DatasourceItem,
 };
 
-const SearchItem = withTheme((props: ItemProps) => {
+type ItemProps = {
+  item: IHit | SearchItem;
+  index: number;
+  theme: Theme;
+  query: string;
+};
+
+const SearchItemComponent = withTheme((props: ItemProps) => {
   const { item, index, query } = props;
   const itemRef = useRef<HTMLDivElement>(null);
-  const { activeItemIndex } = useContext(SearchContext);
+  const searchContext = useContext(SearchContext);
+  const activeItemIndex = searchContext?.activeItemIndex;
+  const setActiveItemIndex = searchContext?.setActiveItemIndex || noop;
+
   const isActiveItem = activeItemIndex === index;
 
   useEffect(() => {
@@ -188,7 +219,6 @@ const SearchItem = withTheme((props: ItemProps) => {
 
   const itemType = getItemType(item);
   const Item = SearchItemByType[itemType];
-  const { setActiveItemIndex } = useContext(SearchContext);
 
   return (
     <SearchItemContainer
@@ -197,7 +227,7 @@ const SearchItem = withTheme((props: ItemProps) => {
       className="t--docHit"
       isActiveItem={isActiveItem}
     >
-      <Item hit={item} item={item} query={query} isActiveItem={isActiveItem} />
+      <Item item={item} query={query} isActiveItem={isActiveItem} />
     </SearchItemContainer>
   );
 });
@@ -213,13 +243,18 @@ const SearchResults = ({
   searchResults,
   query,
 }: {
-  searchResults: any[];
+  searchResults: SearchItem[];
   query: string;
 }) => {
   return (
     <SearchResultsContainer>
-      {searchResults.map((item: any, index: number) => (
-        <SearchItem key={index} index={index} item={item} query={query} />
+      {searchResults.map((item: SearchItem, index: number) => (
+        <SearchItemComponent
+          key={index}
+          index={index}
+          item={item}
+          query={query}
+        />
       ))}
     </SearchResultsContainer>
   );

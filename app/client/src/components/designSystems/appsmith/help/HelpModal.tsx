@@ -50,8 +50,8 @@ const HelpButton = styled.button<{
 
 const MODAL_WIDTH = HELP_MODAL_WIDTH;
 const MODAL_HEIGHT = HELP_MODAL_HEIGHT;
-const MODAL_BOTTOM_DISTANCE = 45;
-const MODAL_RIGHT_DISTANCE = 30;
+const MODAL_BOTTOM_DISTANCE = 100;
+const MODAL_RIGHT_DISTANCE = 27;
 
 const HelpIcon = HelpIcons.HELP_ICON;
 const CloseIcon = HelpIcons.CLOSE_ICON;

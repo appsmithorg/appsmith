@@ -22,6 +22,8 @@ import {
   getItemType,
   SEARCH_ITEM_TYPES,
   getDefaultDocumentationResults,
+  DocSearchItem,
+  SearchItem,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -29,6 +31,7 @@ import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { useFilteredDatasources } from "pages/Editor/Explorer/hooks";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { getSelectedWidget } from "selectors/ui";
+import { Datasource } from "entities/Datasource";
 
 const StyledContainer = styled.div`
   width: 750px;
@@ -56,7 +59,7 @@ const isModalOpenSelector = (state: AppState) =>
 const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
 
 const GlobalSearch = () => {
-  const [defaultDocs, setDefaultDocs] = useState<any[]>([]);
+  const [defaultDocs, setDefaultDocs] = useState<DocSearchItem[]>([]);
 
   if (defaultDocs.length === 0) {
     (async () => {
@@ -77,7 +80,7 @@ const GlobalSearch = () => {
   const [
     documentationSearchResults,
     setDocumentationSearchResultsInState,
-  ] = useState<Array<any>>([]);
+  ] = useState<Array<DocSearchItem>>([]);
 
   const setDocumentationSearchResults = useCallback((res) => {
     setDocumentationSearchResultsInState(res);
@@ -100,6 +103,8 @@ const GlobalSearch = () => {
   const resetSearchQuery = useSelector(searchQuerySelector);
   const selectedWidgetId = useSelector(getSelectedWidget);
 
+  // keeping query in component state until we can figure out fixed for the perf issues
+  // this is used to update query from outside the component, for ex. using the help button within prop. pane
   useEffect(() => {
     if (modalOpen) {
       setQuery(resetSearchQuery);
@@ -109,7 +114,7 @@ const GlobalSearch = () => {
   }, [modalOpen]);
 
   const datasourcesList = useMemo(() => {
-    return Object.entries(datasourcesMap).reduce((res: any[], curr) => {
+    return Object.entries(datasourcesMap).reduce((res: Datasource[], curr) => {
       const [, value] = curr;
       return [...res, ...value];
     }, []);
@@ -166,11 +171,11 @@ const GlobalSearch = () => {
 
   const { navigateToWidget } = useNavigateToWidget();
 
-  const handleDocumentationItemClick = (item: any) => {
+  const handleDocumentationItemClick = (item: SearchItem) => {
     window.open(item.path.replace("master", HelpBaseURL), "_blank");
   };
 
-  const handleWidgetClick = (activeItem: any) => {
+  const handleWidgetClick = (activeItem: SearchItem) => {
     toggleShow();
     navigateToWidget(
       activeItem.widgetId,
@@ -181,7 +186,7 @@ const GlobalSearch = () => {
     );
   };
 
-  const handleActionClick = (item: any) => {
+  const handleActionClick = (item: SearchItem) => {
     const { config } = item;
     const { pageId, pluginType, id } = config;
     const actionConfig = getActionConfig(pluginType);
@@ -190,7 +195,7 @@ const GlobalSearch = () => {
     url && history.push(url);
   };
 
-  const handleDatasourceClick = (item: any) => {
+  const handleDatasourceClick = (item: SearchItem) => {
     toggleShow();
     history.push(
       DATA_SOURCES_EDITOR_ID_URL(params.applicationId, params.pageId, item.id),
@@ -204,7 +209,7 @@ const GlobalSearch = () => {
     [SEARCH_ITEM_TYPES.datasource]: handleDatasourceClick,
   };
 
-  const handleItemLinkClick = (item?: any) => {
+  const handleItemLinkClick = (item?: SearchItem) => {
     const _item = item || activeItem;
     const type = getItemType(_item) as SEARCH_ITEM_TYPES;
     itemClickHandlerByType[type](_item);
