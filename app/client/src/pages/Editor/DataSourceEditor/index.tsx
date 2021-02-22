@@ -119,6 +119,7 @@ class DataSourceEditor extends React.Component<Props> {
         viewMode={viewMode}
         setDatasourceEditorMode={setDatasourceEditorMode}
         pluginType={pluginType}
+        formName={DATASOURCE_DB_FORM}
       />
     );
   }

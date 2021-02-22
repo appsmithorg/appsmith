@@ -40,10 +40,6 @@ import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import Spinner from "components/editorComponents/Spinner";
 import CurlLogo from "assets/images/Curl-logo.svg";
-// TODO: Check license etc https://commons.wikimedia.org/wiki/File:Google_Sheets_logo.svg
-// It looks different from https://about.google/brand-resource-center/logos-list/#google-sheets
-// But someone with a better understanding of licensing should look at this nevertheless
-import GoogleSheetsLogo from "assets/images/google-sheets-logo.svg";
 import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
 import { Plugin } from "api/PluginApi";
 import { createNewApiAction, setCurrentCategory } from "actions/apiPaneActions";
@@ -52,6 +48,7 @@ import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/ApiConstants";
 import { getAppsmithConfigs } from "configs";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
+import { PluginType } from "entities/Action";
 const { enableRapidAPI } = getAppsmithConfigs();
 
 const SearchContainer = styled.div`
@@ -187,7 +184,7 @@ const StyledContainer = styled.div`
   .curlImage {
     width: 55px;
   }
-  .sheetsImage {
+  .saasImage.t--saas-google-sheets-plugin-image {
     width: 40px;
   }
   .createIcon {
@@ -463,10 +460,6 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
     const curlImportURL =
       getCurlImportPageURL(applicationId, pageId) + location.search;
 
-    const googleSheetsURL =
-      SAAS_EDITOR_URL(applicationId, pageId, "google-sheets-plugin") +
-      location.search;
-
     const PROVIDER_CATEGORIES_OPTIONS = providerCategories.map((category) => ({
       label: category,
       value: category,
@@ -604,19 +597,30 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
               </Card>
             </Link>
             {/**
-             * Sheets card is a one time thing, we'll figure a longer term solution out after this implementation.
-             * It should first take you to a data source selection screen then to the Editor.
+             * Loop over all Saas plugins
              */}
-            <Link to={googleSheetsURL}>
-              <Card interactive={false} className="eachCard">
-                <img
-                  src={GoogleSheetsLogo}
-                  className="sheetsImage t--googleSheetsImage"
-                  alt="Google Sheets"
-                />
-                <p className="textBtn">Google Sheets</p>
-              </Card>
-            </Link>
+            {this.props.plugins
+              .filter((p) => p.type === PluginType.SAAS)
+              .map((p) => (
+                <Link
+                  key={p.id}
+                  to={
+                    SAAS_EDITOR_URL(applicationId, pageId, p.packageName) +
+                    location.search
+                  }
+                >
+                  <Card interactive={false} className="eachCard">
+                    <img
+                      src={p.iconLocation}
+                      className={
+                        "saasImage t--saas-" + p.packageName + "-image"
+                      }
+                      alt={p.name}
+                    />
+                    <p className="textBtn">{p.name}</p>
+                  </Card>
+                </Link>
+              ))}
           </ApiCard>
         </StyledContainer>
         {/* Imported APIs section start */}
