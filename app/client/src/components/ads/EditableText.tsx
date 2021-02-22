@@ -118,7 +118,6 @@ const TextContainer = styled.div<{
         border-bottom-style: solid;
         border-bottom-width: 1px;
         width: fit-content;
-        max-width: 194px;
       `
         : null}
   }
