@@ -120,6 +120,11 @@ const HeaderRightItemContainer = styled.div`
   height: 100%;
 `;
 
+const PrimaryLogoLink = styled(Link)`
+  display: flex;
+  align-items: center;
+`;
+
 type AppViewerHeaderProps = {
   url?: string;
   currentApplicationDetails?: ApplicationPayload;
@@ -186,9 +191,9 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
         <HtmlTitle />
         <HeaderRow justify={"space-between"}>
           <HeaderSection justify={"flex-start"}>
-            <Link to={APPLICATIONS_URL} style={{ display: "flex" }}>
+            <PrimaryLogoLink to={APPLICATIONS_URL}>
               <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
-            </Link>
+            </PrimaryLogoLink>
           </HeaderSection>
           <HeaderSection justify={"center"} className="current-app-name">
             {currentApplicationDetails && (
