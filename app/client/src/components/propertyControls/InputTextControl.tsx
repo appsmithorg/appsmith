@@ -68,6 +68,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
       dataTreePath,
       validationMessage,
       defaultValue,
+      additionalAutoComplete,
     } = this.props;
     return (
       <InputText
@@ -79,6 +80,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
         expected={expected}
         placeholder={placeholderText}
         dataTreePath={dataTreePath}
+        additionalAutocomplete={additionalAutoComplete}
       />
     );
   }

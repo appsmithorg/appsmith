@@ -113,10 +113,15 @@ div.bp3-popover-arrow {
 }
 
 .appsmith-virtualized-container::-webkit-scrollbar {
-  display: none;
+  width: 5px;
+  height: 8px;
+  background-color: #ff0000; /* or add it to the track */
+}
+.appsmith-virtualized-container::-webkit-scrollbar-thumb {
+  background: #000;
 }
 
 .appsmith-virtualized-container {
   -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  scrollbar-width: 5px;  /* Firefox */
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { get, set } from "lodash";
+import { get, set, xor } from "lodash";
 import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -38,6 +38,44 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {};
+  }
+
+  getCurrentItemStructure = (items: Array<Record<string, unknown>>) => {
+    return Array.isArray(items) && items.length > 0
+      ? Object.assign(
+          {},
+          ...Object.keys(items[0]).map((key) => ({
+            [key]: "",
+          })),
+        )
+      : {};
+  };
+
+  componentDidMount() {
+    if (
+      !this.props.childAutoComplete ||
+      (Object.keys(this.props.childAutoComplete).length === 0 &&
+        this.props.items &&
+        Array.isArray(this.props.items))
+    ) {
+      const structure = this.getCurrentItemStructure(this.props.items);
+      super.updateWidgetProperty("childAutoComplete", {
+        currentItem: structure,
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
+    const oldRowStructure = this.getCurrentItemStructure(prevProps.items);
+    const newRowStructure = this.getCurrentItemStructure(this.props.items);
+
+    if (
+      xor(Object.keys(oldRowStructure), Object.keys(newRowStructure)).length > 0
+    ) {
+      super.updateWidgetProperty("childAutoComplete", {
+        currentItem: newRowStructure,
+      });
+    }
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
@@ -249,6 +287,7 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   shouldScrollContents?: boolean;
   onListItemClick?: string;
   items: Array<Record<string, unknown>>;
+  currentItemStructure?: Record<string, string>;
 }
 
 export default ListWidget;

@@ -408,7 +408,9 @@ export interface WidgetDataProps
     WidgetPositionProps,
     WidgetDisplayProps {
   propertyPaneEnhancements?: {
-    additionalAutocomplete: Record<string, unknown>;
+    additionalAutocomplete: (
+      props: any,
+    ) => Record<string, Record<string, unknown>>;
     beforeChildPropertyUpdate: (
       widgetName: string,
       parentWidgetId: string,

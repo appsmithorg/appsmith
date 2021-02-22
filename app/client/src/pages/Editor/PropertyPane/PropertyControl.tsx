@@ -38,6 +38,8 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 import { PropertyPaneEnhancements } from ".";
 import { getWidgets } from "sagas/selectors";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
+import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
+import { AppState } from "reducers";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -49,6 +51,11 @@ const PropertyControl = memo((props: Props) => {
   const stateWidgets = useSelector(getWidgets);
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
   const enhancementsMap = useSelector(getEnhancementsMap);
+  const enhancementMap = enhancementsMap[widgetProperties.widgetId];
+  const parentId = enhancementMap?.parentId;
+  const parentWidgetProperties = useSelector((state: AppState) =>
+    parentId ? state.entities.canvasWidgets[parentId] : undefined,
+  );
 
   const toggleDynamicProperty = useCallback(
     (propertyName: string, isDynamic: boolean) => {
@@ -263,13 +270,34 @@ const PropertyControl = memo((props: Props) => {
       `${widgetProperties.widgetId}`,
     );
 
+    // if there is enhancementMap
+    // Check if enhancementMap has `additionAutocomplete` property
+    // Then run the additionAutocomplete function by passing the parent's properties
+
+    // get properties from evaluation
     const isListOrChildOfList =
       get(enhancementsMapOfWidget, "type") === WidgetTypes.LIST_WIDGET;
+
+    let enhancementAutocomplete = undefined;
+    if (!props.additionalAutoComplete && parentWidgetProperties?.type) {
+      enhancementAutocomplete = get(
+        WidgetConfigResponse,
+        `config.${parentWidgetProperties.type}.propertyPaneEnhancements.additionalAutocomplete`,
+      );
+    }
+
+    let additionAutocomplete = undefined;
+    if (additionalAutoComplete) {
+      additionAutocomplete = additionalAutoComplete(widgetProperties);
+    } else if (enhancementAutocomplete) {
+      additionAutocomplete = enhancementAutocomplete(parentWidgetProperties);
+    }
 
     // adding list widget properties in the config so that we can retrive in the control
     if (isListOrChildOfList) {
       const parentId = get(enhancementsMapOfWidget, "parentId");
 
+      // We should generate additionalAutoComplete instead of `listWidgetProperties`
       if (parentId) {
         config.listWidgetProperties = stateWidgets[parentId];
       } else {
@@ -284,11 +312,7 @@ const PropertyControl = memo((props: Props) => {
      * Note: "COMPUTE_LIST_VALUE" helps in showing currentItem automcomplete in property pane
      */
     const getCustomJSControl = () => {
-      if (props.customJSControl) return props.customJSControl;
-
-      if (isListOrChildOfList) {
-        return "COMPUTE_LIST_VALUE";
-      }
+      return props.customJSControl;
     };
 
     try {
@@ -333,9 +357,7 @@ const PropertyControl = memo((props: Props) => {
                 },
                 isDynamic,
                 getCustomJSControl(),
-                additionalAutoComplete
-                  ? additionalAutoComplete(widgetProperties)
-                  : undefined,
+                additionAutocomplete,
               )}
             </Indicator>
           </Boxed>

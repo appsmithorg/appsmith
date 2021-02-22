@@ -464,14 +464,9 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 8,
       gridType: "vertical",
       propertyPaneEnhancements: {
-        additionalAutocomplete: {
-          currentItem: (props: any) => {
-            const obj: any = {};
-            Object.keys(props.items[0]).forEach(
-              (key: string) => (obj[key] = ""),
-            );
-            return obj;
-          },
+        additionalAutocomplete: (props: any) => {
+          // Fix type
+          return props.childAutoComplete;
         },
         beforeChildPropertyUpdate: (
           widgetName: string,
@@ -495,6 +490,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
           value = `{{${parentWidgetName}.items.map((currentItem) => ${modifiedAction})}}`;
           const path = `template.${widgetName}.${propertyPath}`;
+
+          // Strip bindings from propertyValue
 
           return [
             {
