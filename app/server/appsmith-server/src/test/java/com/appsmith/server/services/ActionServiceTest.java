@@ -1,5 +1,8 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -7,22 +10,21 @@ import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
-import com.appsmith.server.dtos.ExecuteActionDTO;
+import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -55,8 +57,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -106,6 +112,12 @@ public class ActionServiceTest {
 
     @Autowired
     ActionCollectionService actionCollectionService;
+
+    @Autowired
+    PluginService pluginService;
+
+    @Autowired
+    ApplicationService applicationService;
 
     Application testApp = null;
 
@@ -502,7 +514,7 @@ public class ActionServiceTest {
 
         AppsmithPluginException pluginException = new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR);
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.error(pluginException));
+        Mockito.when(pluginExecutor.executeParameterized(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.error(pluginException));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
         Mono<ActionExecutionResult> executionResultMono = newActionService.executeAction(executeActionDTO);
@@ -547,7 +559,7 @@ public class ActionServiceTest {
 
         AppsmithPluginException pluginException = new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR);
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.error(pluginException));
+        Mockito.when(pluginExecutor.executeParameterized(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.error(pluginException));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
         Mono<ActionExecutionResult> executionResultMono = newActionService.executeAction(executeActionDTO);
@@ -587,7 +599,7 @@ public class ActionServiceTest {
         executeActionDTO.setViewMode(false);
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutor.executeParameterized(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.error(new StaleConnectionException())).thenReturn(Mono.error(new StaleConnectionException()));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
@@ -628,7 +640,7 @@ public class ActionServiceTest {
         executeActionDTO.setViewMode(false);
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutor.executeParameterized(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenAnswer(x -> Mono.delay(Duration.ofMillis(1000)).ofType(ActionExecutionResult.class));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
@@ -712,7 +724,7 @@ public class ActionServiceTest {
         mockResult.setBody("response-body");
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutor.executeParameterized(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenThrow(new StaleConnectionException())
                 .thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
@@ -755,7 +767,7 @@ public class ActionServiceTest {
 
     private Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration, ActionExecutionResult mockResult) {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.just(mockResult));
+        Mockito.when(pluginExecutor.executeParameterized(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
 
         Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(executeActionDTO);
@@ -880,6 +892,89 @@ public class ActionServiceTest {
                     assertThat(updatedAction).isNotNull();
                     assertThat(updatedAction.getActionConfiguration().getBody()).isEqualTo("New Body");
                     assertThat(updatedAction.getUserSetOnLoad()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void checkNewActionAndNewDatasourceAnonymousPermissionInPublicApp() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Application application = new Application();
+        application.setName("validApplicationPublic-ExplicitDatasource-Test");
+
+        Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
+                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
+                .build();
+
+        Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
+                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
+                .build();
+
+        Application createdApplication = applicationPageService.createApplication(application, orgId).block();
+
+        String pageId = createdApplication.getPages().get(0).getId();
+
+        Plugin plugin = pluginService.findByName("Installed Plugin Name").block();
+
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+
+        Mono<Application> publicAppMono = applicationService
+                .changeViewAccess(createdApplication.getId(), applicationAccessDTO)
+                .cache();
+
+        Datasource datasource = new Datasource();
+        datasource.setName("After Public Datasource");
+        datasource.setPluginId(plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setOrganizationId(orgId);
+
+        Datasource savedDatasource = datasourceService.create(datasource).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("After Public action");
+        action.setPageId(pageId);
+        action.setDatasource(savedDatasource);
+        ActionConfiguration actionConfiguration1 = new ActionConfiguration();
+        actionConfiguration1.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration1);
+
+        ActionDTO savedAction = newActionService.createAction(action).block();
+
+        Mono<Datasource> datasourceMono = publicAppMono
+                .then(datasourceService.findById(savedDatasource.getId()));
+
+        Mono<NewAction> actionMono = publicAppMono
+                .then(newActionService.findById(savedAction.getId()));
+
+        StepVerifier
+                .create(Mono.zip(datasourceMono, actionMono))
+                .assertNext(tuple -> {
+                    Datasource datasourceFromDb = tuple.getT1();
+                    NewAction actionFromDb = tuple.getT2();
+
+                    // Check that the datasource used in the app contains public execute permission
+                    assertThat(datasourceFromDb.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
+
+                    // Check that the action used in the app contains public execute permission
+                    assertThat(actionFromDb.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
+
                 })
                 .verifyComplete();
     }

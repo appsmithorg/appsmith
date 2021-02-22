@@ -13,6 +13,7 @@ import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { IconName } from "@blueprintjs/icons";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -260,7 +261,7 @@ export type SelectionType = "SINGLE_SELECT" | "MULTI_SELECT";
 export interface DropdownOption {
   label: string;
   value: string;
-  icon?: string;
+  icon?: IconName;
   subText?: string;
   id?: string;
   onSelect?: (option: DropdownOption) => void;

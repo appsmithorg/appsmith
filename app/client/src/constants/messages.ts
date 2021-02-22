@@ -159,7 +159,7 @@ export const LIGHTNING_MENU_API_CREATE_NEW = "Create new API";
 export const LIGHTNING_MENU_OPTION_TEXT = "Plain Text";
 export const LIGHTNING_MENU_OPTION_JS = "Write JS";
 export const LIGHTNING_MENU_OPTION_HTML = "Write HTML";
-export const CHECK_REQUEST_BODY = "Please check request body to debug?";
+export const CHECK_REQUEST_BODY = "Please check request body to debug";
 export const DONT_SHOW_THIS_AGAIN = "Don't show this again";
 export const SHOW_REQUEST = "Show Request";
 
@@ -167,8 +167,7 @@ export const TABLE_FILTER_COLUMN_TYPE_CALLOUT =
   "Change column datatype to see filter operators";
 
 export const WIDGET_SIDEBAR_TITLE = "Widgets";
-export const WIDGET_SIDEBAR_CAPTION =
-  "To add a widget, please click + and add widget to the canvas.";
+export const WIDGET_SIDEBAR_CAPTION = "Drag and drop a widget onto the canvas.";
 export const GOOGLE_RECAPTCHA_KEY_ERROR =
   "Google Re-Captcha Token Generation failed! Please check the Re-captcha Site Key.";
 export const GOOGLE_RECAPTCHA_DOMAIN_ERROR =
