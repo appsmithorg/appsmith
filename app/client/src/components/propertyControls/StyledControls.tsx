@@ -1,12 +1,5 @@
 import { Select, MultiSelect } from "@blueprintjs/select";
-import {
-  Switch,
-  InputGroup,
-  Classes,
-  Popover,
-  MenuItem,
-  Menu,
-} from "@blueprintjs/core";
+import { Switch, Classes, Popover, MenuItem, Menu } from "@blueprintjs/core";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput, DateRangeInput } from "@blueprintjs/datetime";
@@ -15,6 +8,7 @@ import styled, { Skin, createGlobalStyle } from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 import Button from "components/ads/Button";
+import TextInput from "components/ads/TextInput";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -320,12 +314,11 @@ export const StyledDynamicInput = styled.div`
   }
 `;
 
-export const StyledInputGroup = styled(InputGroup)`
-  & > input {
-    placeholder-text: ${(props) => props.placeholder};
-    background: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
-    color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
-  }
+export const StyledInputGroup = styled(TextInput)`
+  width: 100%;
+  border-radius: 4px;
+  background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
+  color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
 `;
 
 export const StyledDatePicker = styled(DateInput)`

@@ -10,7 +10,7 @@ import {
   StyledPropertyPaneButton,
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
-import { DroppableComponent } from "components/designSystems/appsmith/DraggableListComponent";
+import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import EmptyDataState from "components/utils/EmptyDataState";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -36,7 +36,8 @@ const TabsWrapper = styled.div`
 
 const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-right: 2px;
-  width: 100%;
+  width: 150px;
+  margin-left: 30px;
   &&& {
     input {
       padding-left: 24px;
@@ -109,12 +110,12 @@ function ColumnControlComponent(props: RenderComponentProps) {
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
-        type="text"
+        dataType="text"
         placeholder="Column Title"
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          onChange(index, event.target.value);
+        onChange={(value: string) => {
+          onChange(index, value);
         }}
-        value={value}
+        defaultValue={value}
       />
       <StyledEditIcon
         className="t--edit-column-btn"
