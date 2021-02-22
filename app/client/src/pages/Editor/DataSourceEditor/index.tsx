@@ -24,6 +24,10 @@ import { Datasource } from "entities/Datasource";
 import { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { ReduxAction } from "constants/ReduxActionConstants";
+import {
+  SAAS_EDITOR_DATASOURCE_ID_URL,
+  SAAS_EDITOR_URL,
+} from "../SaaSEditor/constants";
 
 interface ReduxStateProps {
   formData: Datasource;
@@ -39,6 +43,7 @@ interface ReduxStateProps {
   viewMode: boolean;
   pluginType: string;
   pluginDatasourceForm: string;
+  pluginPackageName: string;
 }
 
 type Props = ReduxStateProps &
@@ -145,6 +150,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? true,
     pluginType: plugin?.type ?? "",
     pluginDatasourceForm: plugin?.datasourceComponent ?? "AutoForm",
+    pluginPackageName: plugin?.packageName ?? "",
   };
 };
 
@@ -183,11 +189,16 @@ class DatasourceEditorRouter extends React.Component<Props> {
       pluginImages,
       pluginId,
       pluginDatasourceForm,
+      pluginPackageName,
     } = this.props;
     if (!pluginId && datasourceId) {
       return <EntityNotFoundPane />;
     }
     if (!datasourceId) {
+      if (pluginDatasourceForm === "SaaSDatasourceForm") {
+        history.push(SAAS_EDITOR_URL(applicationId, pageId, pluginPackageName));
+        return;
+      }
       return (
         <DatasourceHome
           isSaving={isSaving}
@@ -213,6 +224,17 @@ class DatasourceEditorRouter extends React.Component<Props> {
           location={location}
         />
       );
+    }
+    if (pluginDatasourceForm === "SaaSDatasourceForm") {
+      history.push(
+        SAAS_EDITOR_DATASOURCE_ID_URL(
+          applicationId,
+          pageId,
+          pluginPackageName,
+          datasourceId,
+        ),
+      );
+      return;
     }
 
     // Default to old flow
