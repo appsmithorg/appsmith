@@ -46,7 +46,6 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   color: white;
   flex-direction: column;
   .${Classes.TEXT} {
-    max-width: 194px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -73,6 +72,10 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   & ${Profile} {
     width: 24px;
     height: 24px;
+  }
+
+  & .current-app-name {
+    overflow: auto;
   }
 `;
 

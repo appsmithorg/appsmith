@@ -35,6 +35,8 @@ const Container = styled.div`
   &&&& .${Classes.EDITABLE_TEXT_CONTENT} {
     min-width: 0;
   }
+  flex: 1;
+  overflow: auto;
 `;
 
 export default function EditableTextWrapper(props: EditableTextWrapperProps) {
