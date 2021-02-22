@@ -98,8 +98,6 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     return EditorTheme.DARK;
   }
 
-
-
   render() {
     if (this.props.isVisible) {
       log.debug("Property pane rendered");
