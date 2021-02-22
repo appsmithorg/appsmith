@@ -19,6 +19,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -276,7 +277,11 @@ public class AmazonS3Plugin extends BasePlugin {
                 );
             }
 
+            final Map<String, Object> requestData = new HashMap<>();
+
             final String path = actionConfiguration.getPath();
+            requestData.put("path", path);
+
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             if (CollectionUtils.isEmpty(properties)) {
                 return Mono.error(
@@ -298,7 +303,9 @@ public class AmazonS3Plugin extends BasePlugin {
                 );
             }
 
+
             AmazonS3Action s3Action = AmazonS3Action.valueOf(properties.get(ACTION_PROPERTY_INDEX).getValue());
+            requestData.put("action", s3Action.name());
 
             if ((s3Action == AmazonS3Action.UPLOAD_FILE_FROM_BODY || s3Action == AmazonS3Action.READ_FILE ||
                     s3Action == AmazonS3Action.DELETE_FILE) && StringUtils.isBlank(path)) {
@@ -332,6 +339,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         )
                 );
             }
+            requestData.put("bucket", bucketName);
 
             /*
              * - Allow users to upload empty file. Hence, only check for null value.
@@ -346,6 +354,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         )
                 );
             }
+            requestData.put("body", body);
 
             return Mono.fromCallable(() -> {
                 Object actionResult;
@@ -448,6 +457,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                 );
                             }
                         }
+                        requestData.put("expiry duration in minutes", durationInMinutes);
 
                         Calendar calendar = Calendar.getInstance();
                         calendar.add(Calendar.MINUTE, durationInMinutes);
@@ -513,6 +523,13 @@ public class AmazonS3Plugin extends BasePlugin {
                                         "Query failed when executing " + s3Action + " action: " + e.getMessage()
                                 )
                         );
+                    })
+                    // Now set the request in the result to be returned back to the server
+                    .map(actionExecutionResult -> {
+                        ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
+                        actionExecutionRequest.setBody(requestData);
+                        actionExecutionResult.setRequest(actionExecutionRequest);
+                        return actionExecutionResult;
                     })
                     .subscribeOn(scheduler);
         }

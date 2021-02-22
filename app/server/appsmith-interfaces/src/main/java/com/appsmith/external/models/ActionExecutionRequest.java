@@ -7,6 +7,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.http.HttpMethod;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -16,4 +18,5 @@ public class ActionExecutionRequest {
     JsonNode headers;
     HttpMethod httpMethod;
     String url;
+    List<String> executionParameters;
 }
