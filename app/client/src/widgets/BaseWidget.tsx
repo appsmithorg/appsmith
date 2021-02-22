@@ -36,6 +36,7 @@ import {
   WidgetDynamicPathListProps,
   WidgetEvaluatedProps,
 } from "../utils/DynamicBindingUtils";
+import { ControlType } from "constants/PropertyControlConstants";
 
 /***
  * BaseWidget
@@ -411,6 +412,7 @@ export interface WidgetDataProps
     additionalAutocomplete: (
       props: any,
     ) => Record<string, Record<string, unknown>>;
+    customJSControl: ControlType;
     beforeChildPropertyUpdate: (
       widgetName: string,
       parentWidgetId: string,

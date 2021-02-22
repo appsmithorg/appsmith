@@ -69,7 +69,7 @@ export function InputText(props: {
         additionalDynamicData={additionalDynamicData}
         promptMessage={
           <React.Fragment>
-            Use <CurlyBraces>{"{{"}</CurlyBraces>currentRow.columnIdentifier
+            Use <CurlyBraces>{"{{"}</CurlyBraces>currentItem.columnIdentifier
             <CurlyBraces>{"}}"}</CurlyBraces> to access any column in the table
           </React.Fragment>
         }
@@ -90,31 +90,20 @@ class ComputeListPropertyControl extends BaseControl<
       dataTreePath,
       validationMessage,
       defaultValue,
-      listWidgetProperties,
+      additionalAutoComplete,
     } = this.props;
 
-    console.log({ props: this.props });
-    const listId = this.props.listWidgetProperties.widgetName;
+    const listId = get(
+      this.props,
+      "additionalDynamicData.widgetProperties.widgetName",
+    );
+
     const value =
       propertyValue && isDynamicValue(propertyValue)
         ? this.getInputComputedValue(propertyValue, listId)
         : propertyValue
         ? propertyValue
         : defaultValue;
-    const evaluatedProperties = this.props.widgetProperties;
-
-    let items;
-
-    try {
-      if (!Array.isArray(evaluatedProperties.items)) {
-        items = JSON.parse(listWidgetProperties.items);
-      }
-    } catch (e) {}
-
-    const currentItem: { [key: string]: any } = {};
-    Object.keys(get(items, "0", {})).forEach(
-      (key: string) => (currentItem[key] = ""),
-    );
 
     return (
       <InputText
@@ -125,9 +114,7 @@ class ComputeListPropertyControl extends BaseControl<
         errorMessage={validationMessage}
         expected={expected}
         dataTreePath={dataTreePath}
-        additionalDynamicData={{
-          currentItem,
-        }}
+        additionalDynamicData={additionalAutoComplete || {}}
       />
     );
   }
@@ -139,11 +126,11 @@ class ComputeListPropertyControl extends BaseControl<
     )}`;
     const stringValue = JSToString(value);
 
-    console.log({ propertyValue, value, stringValue });
     return stringValue;
   };
 
   getComputedValue = (value: string, listId: string) => {
+    console.log({ value, listId });
     const stringToEvaluate = stringToJS(value);
     return `{{${listId}.items.map((currentItem) => ${stringToEvaluate})}}`;
   };
@@ -158,7 +145,7 @@ class ComputeListPropertyControl extends BaseControl<
     if (value) {
       const output = this.getComputedValue(
         value,
-        this.props.listWidgetProperties.widgetName,
+        get(this.props.additionalDynamicData, "widgetName"),
       );
 
       this.updateProperty(this.props.propertyName, output);

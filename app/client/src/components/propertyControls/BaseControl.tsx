@@ -47,7 +47,7 @@ export interface ControlData
   evaluatedValue: any;
   validationMessage?: string;
   widgetProperties: any;
-  listWidgetProperties: any;
+  additionalDynamicData?: any;
 }
 export interface ControlFunctions {
   onPropertyChange?: (

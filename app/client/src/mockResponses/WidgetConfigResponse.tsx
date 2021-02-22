@@ -7,6 +7,7 @@ import { WidgetTypes } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagas";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import ComputeListPropertyControl from "components/propertyControls/ComputeListPropertyControl";
 
 /**
  * this config sets the default values of properties being used in the widget
@@ -465,9 +466,9 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       gridType: "vertical",
       propertyPaneEnhancements: {
         additionalAutocomplete: (props: any) => {
-          // Fix type
           return props.childAutoComplete;
         },
+        customJSControl: ComputeListPropertyControl.getControlType(),
         beforeChildPropertyUpdate: (
           widgetName: string,
           parentWidgetId: string,
@@ -490,8 +491,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
           value = `{{${parentWidgetName}.items.map((currentItem) => ${modifiedAction})}}`;
           const path = `template.${widgetName}.${propertyPath}`;
-
-          // Strip bindings from propertyValue
 
           return [
             {
