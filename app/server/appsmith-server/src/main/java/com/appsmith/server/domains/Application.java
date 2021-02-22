@@ -65,7 +65,8 @@ public class Application extends BaseDomain {
         this.clonedFromApplicationId = application.getId();
         this.color = application.getColor();
         this.icon = application.getIcon();
-        this.appLayout = new AppLayout(application.getAppLayout().type, application.getAppLayout().getWidth());
+        this.appLayout = application.getAppLayout() == null ? null
+                : new AppLayout(application.getAppLayout().type, application.getAppLayout().getWidth());
     }
 
     public List<ApplicationPage> getPages() {
