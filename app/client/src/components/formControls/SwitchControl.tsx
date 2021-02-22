@@ -32,6 +32,15 @@ const Info = styled.div`
 `;
 
 export class SwitchField extends React.Component<Props, any> {
+  get value() {
+    const { input } = this.props;
+    if (typeof input.value !== "string") return !!input.value;
+    else {
+      if (input.value.toLocaleLowerCase() === "false") return false;
+      else return !!input.value;
+    }
+  }
+
   render() {
     const { label, isRequired, input, info } = this.props;
 
@@ -42,7 +51,7 @@ export class SwitchField extends React.Component<Props, any> {
             {label} {isRequired && "*"}
           </StyledFormLabel>
           <StyledSwitch
-            checked={input.value}
+            checked={this.value}
             onChange={(value) => input.onChange(value)}
             large
           />
