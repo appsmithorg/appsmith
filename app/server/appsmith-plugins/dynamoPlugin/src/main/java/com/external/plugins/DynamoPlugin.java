@@ -164,11 +164,11 @@ public class DynamoPlugin extends BasePlugin {
                                              String action) throws AppsmithPluginException {
             Map<String, Object> transformedResponse = new HashMap<>();
 
-            if (action.equals(SCAN_ACTION_VALUE)
-                    || action.equals(GET_ITEM_ACTION_VALUE)
-                    || action.equals(PUT_ITEM_ACTION_VALUE)
-                    || action.equals(UPDATE_ITEM_ACTION_VALUE)
-                    || action.equals(DELETE_ITEM_ACTION_VALUE)) {
+            if (SCAN_ACTION_VALUE.equals(action)
+                    || GET_ITEM_ACTION_VALUE.equals(action)
+                    || PUT_ITEM_ACTION_VALUE.equals(action)
+                    || UPDATE_ITEM_ACTION_VALUE.equals(action)
+                    || DELETE_ITEM_ACTION_VALUE.equals(action)) {
                 transformedResponse.put(RAW_RESPONSE_LABEL, rawResponse);
 
                 String topLevelKey;
@@ -197,7 +197,7 @@ public class DynamoPlugin extends BasePlugin {
                         transformedResponse.put(responseEntry.getKey(), responseEntry.getValue());
                     }
                     else {
-                        if (action.equals(SCAN_ACTION_VALUE)) {
+                        if (SCAN_ACTION_VALUE.equals(action)) {
                             ArrayList<Object> extractedResponse = new ArrayList<>();
                             transformedResponse.put(topLevelKey, extractedResponse);
 
@@ -209,10 +209,10 @@ public class DynamoPlugin extends BasePlugin {
                                 }
                             }
                         }
-                        else if (action.equals(PUT_ITEM_ACTION_VALUE)
-                                    || action.equals(GET_ITEM_ACTION_VALUE)
-                                    || action.equals(UPDATE_ITEM_ACTION_VALUE)
-                                    || action.equals(DELETE_ITEM_ACTION_VALUE)) {
+                        else if (PUT_ITEM_ACTION_VALUE.equals(action)
+                                    || GET_ITEM_ACTION_VALUE.equals(action)
+                                    || UPDATE_ITEM_ACTION_VALUE.equals(action)
+                                    || DELETE_ITEM_ACTION_VALUE.equals(action)) {
                             HashMap<String, Object> extractedResponse = new HashMap<>();
                             transformedResponse.put(topLevelKey, extractedResponse);
 
