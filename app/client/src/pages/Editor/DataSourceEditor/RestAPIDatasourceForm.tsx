@@ -228,22 +228,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     const { formData } = this.props;
     if (!formData) return true;
     if (!formData.url) return true;
-    if (formData.authType === AuthType.OAuth2) {
-      const { authentication } = formData;
-      // weird state, wait for state to get fixed
-      if (!authentication) return true;
-      if (
-        [GrantType.ClientCredentials, GrantType.AuthorizationCode].includes(
-          authentication.grantType,
-        )
-      ) {
-        if (!authentication.accessTokenUrl) return true;
-        if (!authentication.clientId) return true;
-      }
-      if (authentication.grantType === GrantType.AuthorizationCode) {
-        if (!authentication.authorizationUrl) return true;
-      }
-    }
     return false;
   };
 
