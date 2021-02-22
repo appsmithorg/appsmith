@@ -279,6 +279,35 @@ public class DynamoPluginTest {
     }
 
     @Test
+    public void testTransactGetItems() {
+        final String body =
+                "{\n" +
+                "  \"ReturnConsumedCapacity\": \"NONE\",\n" +
+                "  \"TransactItems\": [\n" +
+                "    {\n" +
+                "      \"Get\": {\n" +
+                "        \"Key\": {\n" +
+                "          \"Id\": {\n" +
+                "            \"S\": \"1\"\n" +
+                "          }\n" +
+                "        },\n" +
+                "        \"TableName\": \"cities\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+
+        StepVerifier.create(execute("TransactGetItems", body))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    final Map<String, ?> response = (Map) result.getBody();
+                    assertEquals("New Delhi", ((List<Map<String, Map<String, Map<String, String>>>>) response.get("Responses")).get(0).get("Item").get("City").get("S"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testStructure() {
         final Mono<DatasourceStructure> structureMono = pluginExecutor
                 .datasourceCreate(dsConfig)

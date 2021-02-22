@@ -293,22 +293,27 @@ public class DynamoPlugin extends BasePlugin {
                     // For maps, we go recursive, applying this transformation to each value, and replacing with the
                     // result in the map. Generic types in the setter method's signature are used to convert the values.
                     final Method setterMethod = findMethod(builderType, m -> m.getName().equals(setterName));
-                    final ParameterizedType valueType = (ParameterizedType) setterMethod.getGenericParameterTypes()[0];
-                    final Map<String, Object> transformedMap = new HashMap<>();
-                    for (final Map.Entry<String, Object> innerEntry : ((Map<String, Object>) value).entrySet()) {
-                        Object innerValue = innerEntry.getValue();
-                        if (innerValue instanceof Map) {
-                            innerValue = plainToSdk((Map) innerValue, (Class<?>) valueType.getActualTypeArguments()[1]);
+                    final Type parameterType = setterMethod.getGenericParameterTypes()[0];
+                    if (parameterType instanceof ParameterizedType) {
+                        final ParameterizedType valueType = (ParameterizedType) parameterType;
+                        final Map<String, Object> transformedMap = new HashMap<>();
+                        for (final Map.Entry<String, Object> innerEntry : ((Map<String, Object>) value).entrySet()) {
+                            Object innerValue = innerEntry.getValue();
+                            if (innerValue instanceof Map) {
+                                innerValue = plainToSdk((Map) innerValue, (Class<?>) valueType.getActualTypeArguments()[1]);
+                            }
+                            transformedMap.put(innerEntry.getKey(), innerValue);
                         }
-                        transformedMap.put(innerEntry.getKey(), innerValue);
+                        value = transformedMap;
+                        if (!Map.class.isAssignableFrom((Class<?>) valueType.getRawType())) {
+                            // Some setters don't take a plain map. For example, some require an `AttributeValue` instance
+                            // for objects that are just maps in JSON. So, we make that conversion here.
+                            value = plainToSdk((Map) value, (Class<T>) valueType.getRawType());
+                        }
+                        setterMethod.invoke(builder, value);
+                    } else if (parameterType instanceof Class) {
+                        setterMethod.invoke(builder, plainToSdk((Map) value, (Class) parameterType));
                     }
-                    value = transformedMap;
-                    if (!Map.class.isAssignableFrom((Class<?>) valueType.getRawType())) {
-                        // Some setters don't take a plain map. For example, some require an `AttributeValue` instance
-                        // for objects that are just maps in JSON. So, we make that conversion here.
-                        value = plainToSdk((Map) value, (Class<T>) valueType.getRawType());
-                    }
-                    setterMethod.invoke(builder, value);
 
                 } else if (value instanceof Collection) {
                     // For linear collections, the process is similar to that of maps.
@@ -354,11 +359,7 @@ public class DynamoPlugin extends BasePlugin {
         }
 
         if (!(type instanceof ParameterizedType)) {
-            // This shouldn't happen. If it did, it's a case we haven't yet seen so far on Appsmith.
-            throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Invalid type reference " + type
-            );
+            return plainToSdk(mapping, (Class) type);
         }
 
         final ParameterizedType ptype = (ParameterizedType) type;
