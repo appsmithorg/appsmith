@@ -1,9 +1,7 @@
-import styled from "styled-components";
 import { Select, MultiSelect } from "@blueprintjs/select";
 import {
   Switch,
   InputGroup,
-  Button,
   Classes,
   Popover,
   MenuItem,
@@ -13,9 +11,10 @@ import { DropdownOption } from "widgets/DropdownWidget";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput, DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
-import { Skin, createGlobalStyle } from "constants/DefaultTheme";
+import styled, { Skin, createGlobalStyle } from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
+import Button from "components/ads/Button";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -57,16 +56,53 @@ export const ControlPropertyLabelContainer = styled.div`
 `;
 
 export const JSToggleButton = styled.span<{ active: boolean }>`
-  margin: 0 3px;
+  margin: 0 4px;
   cursor: pointer;
-  height: 24px;
-  svg {
-    height: 24px;
+  border-radius: 4px;
+  height: auto;
+  width: 28px;
+  height: 16px;
+  border: 0.5px solid
+    ${(props) => props.theme.colors.propertyPane.activeButtonText};
+  background-color: ${(props) =>
+    props.active
+      ? props.theme.colors.propertyPane.activeButtonText
+      : props.theme.colors.propertyPane.buttonText};
+
+  &:hover {
+    background-color: ${(props) =>
+      props.theme.colors.propertyPane.jsButtonHoverBG};
+
+    &&& svg {
+      path {
+        fill: ${(props) =>
+          props.active
+            ? props.theme.colors.propertyPane.activeButtonText
+            : props.theme.colors.propertyPane.activeButtonText};
+      }
+    }
+  }
+
+  & > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &&& svg {
+    width: 28px;
+    height: 16px;
+    transform: scale(1.6);
+
     rect {
+      fill: transparent;
+    }
+
+    path {
       fill: ${(props) =>
         props.active
-          ? props.theme.colors.primaryOld
-          : props.theme.colors.paneIcon};
+          ? props.theme.colors.WHITE
+          : props.theme.colors.propertyPane.activeButtonText};
     }
   }
 `;
@@ -308,22 +344,6 @@ export const StyledDateRangePicker = styled(DateRangeInput)`
   }
 `;
 
-export const StyledPropertyPaneButton = styled(Button)`
-  &&&& {
-    background-color: ${(props) => props.theme.colors.propertyPane.buttonBg};
-    color: ${(props) => props.theme.colors.propertyPane.buttonText};
-    margin-top: 4px;
-    .bp3-icon {
-      color: ${(props) => props.theme.colors.propertyPane.buttonText};
-      margin-right: 4px;
-    }
-    svg {
-      width: 14px;
-      height: 14px;
-    }
-  }
-`;
-
 export const FieldWrapper = styled.div`
   position: relative;
   width: 100%;
@@ -426,6 +446,30 @@ export const StyledHiddenIcon = styled(
     position: relative;
     path {
       fill: ${(props) => props.theme.colors.paneSectionLabel};
+    }
+  }
+`;
+
+export const StyledPropertyPaneButton = styled(Button)`
+  margin-top: 4px;
+  margin-left: auto;
+  display: flex;
+  justify-content: flex-end;
+
+  &,
+  &:active,
+  &:hover {
+    border-color: transparent;
+    color: ${(props) => props.theme.colors.propertyPane.buttonText};
+    background-color: ${(props) => props.theme.colors.propertyPane.buttonBg};
+  }
+
+  &&& svg {
+    width: 14px;
+    height: 14px;
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.buttonText};
+      stroke: ${(props) => props.theme.colors.propertyPane.buttonText};
     }
   }
 `;

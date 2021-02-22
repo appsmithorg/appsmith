@@ -506,6 +506,7 @@ const darkShades = [
   "#D4D4D4",
   "#E9E9E9",
   "#FFFFFF",
+  "#6A86CE",
 ] as const;
 
 const lightShades = [
@@ -521,6 +522,7 @@ const lightShades = [
   "#302D2D",
   "#090707",
   "#FFFFFF",
+  "#E0DEDE",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -893,6 +895,9 @@ type ColorType = {
     radioGroupBg: ShadeColor;
     radioGroupText: ShadeColor;
     deleteIconColor: string;
+    zoomButtonBG: ShadeColor;
+    activeButtonText: ShadeColor;
+    jsButtonHoverBG: ShadeColor;
   };
 };
 
@@ -1317,6 +1322,9 @@ export const dark: ColorType = {
     radioGroupBg: darkShades[0],
     radioGroupText: darkShades[7],
     deleteIconColor: "#A3B3BF",
+    zoomButtonBG: darkShades[3],
+    activeButtonText: darkShades[10],
+    jsButtonHoverBG: darkShades[2],
   },
 };
 
@@ -1714,6 +1722,9 @@ export const light: ColorType = {
     radioGroupBg: lightShades[0],
     radioGroupText: lightShades[8],
     deleteIconColor: "#A3B3BF",
+    zoomButtonBG: lightShades[12],
+    activeButtonText: darkShades[10],
+    jsButtonHoverBG: lightShades[2],
   },
 };
 

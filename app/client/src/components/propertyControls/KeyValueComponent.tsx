@@ -12,6 +12,7 @@ import {
 import { DropDownOptionWithKey } from "./OptionControl";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { generateReactKey } from "utils/generators";
+import { Category, Size } from "components/ads/Button";
 
 function updateOptionLabel<T>(
   options: Array<T>,
@@ -173,12 +174,15 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
           </StyledOptionControlWrapper>
         );
       })}
+
       <StyledPropertyPaneButton
+        icon="plus"
+        tag="button"
+        type="button"
         text={props.addLabel || "Option"}
-        icon={"plus"}
-        color={"#FFFFFF"}
-        minimal={true}
         onClick={addPair}
+        size={Size.medium}
+        category={Category.tertiary}
       />
     </React.Fragment>
   );

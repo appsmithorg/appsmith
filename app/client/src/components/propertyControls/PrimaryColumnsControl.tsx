@@ -20,6 +20,7 @@ import {
   reorderColumns,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import { debounce } from "lodash";
+import { Size, Category } from "components/ads/Button";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -53,6 +54,8 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
 
 const AddColumnButton = styled(StyledPropertyPaneButton)`
   width: 100%;
+  display: flex;
+  justify-content: center;
   &&&& {
     margin-top: 12px;
     margin-bottom: 8px;
@@ -197,13 +200,16 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
           toggleVisibility={this.toggleVisibility}
           onEdit={this.onEdit}
         />
+
         <AddColumnButton
           className="t--add-column-btn"
-          text="Add a new column"
           icon="plus"
-          color="#FFFFFF"
-          minimal={true}
+          tag="button"
+          type="button"
+          text="Add a new column"
           onClick={this.addNewColumn}
+          size={Size.medium}
+          category={Category.tertiary}
         />
       </TabsWrapper>
     );

@@ -10,6 +10,7 @@ import { DroppableComponent } from "../designSystems/appsmith/DraggableListCompo
 import { getNextEntityName } from "utils/AppsmithUtils";
 import _ from "lodash";
 import * as Sentry from "@sentry/react";
+import { Category, Size } from "components/ads/Button";
 
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   padding: 0;
@@ -153,10 +154,13 @@ class TabControl extends BaseControl<ControlProps> {
         />
         <StyledPropertyPaneButtonWrapper>
           <StyledPropertyPaneButton
+            icon="plus"
+            tag="button"
+            type="button"
             text="Add a Tab"
-            color="#FFFFFF"
-            minimal
             onClick={this.addOption}
+            size={Size.medium}
+            category={Category.tertiary}
           />
         </StyledPropertyPaneButtonWrapper>
       </TabsWrapper>
