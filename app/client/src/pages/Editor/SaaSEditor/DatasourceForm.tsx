@@ -3,21 +3,13 @@ import styled from "styled-components";
 import _ from "lodash";
 import { DATASOURCE_SAAS_FORM } from "constants/forms";
 import { SAAS_EDITOR_URL } from "./constants";
-import FormControl from "../FormControl";
-import Collapsible from "pages/Editor/DataSourceEditor/Collapsible";
 import history from "utils/history";
-
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
-import { ControlProps } from "components/formControls/BaseControl";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
 import { reduxForm, InjectedFormProps, getFormValues } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import BackButton from "pages/Editor/DataSourceEditor/BackButton";
-import { isHidden } from "components/formControls/utils";
-import log from "loglevel";
-import { Spinner } from "@blueprintjs/core";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -40,13 +32,20 @@ import {
 } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import {
+  ActionButton,
+  FormTitleContainer,
+  Header,
+  JSONtoForm,
+  JSONtoFormProps,
+  PluginImage,
+  SaveButtonContainer,
+} from "../DataSourceEditor/JSONtoForm";
 
-interface StateProps {
+interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
   isDeleting: boolean;
   loadingFormConfigs: boolean;
-  formData: Datasource;
-  formConfig: any[];
   isNewDatasource: boolean;
   pluginImage: string;
   pluginId: string;
@@ -71,60 +70,6 @@ type DatasourceSaaSEditorProps = StateProps &
 type Props = DatasourceSaaSEditorProps &
   InjectedFormProps<Datasource, DatasourceSaaSEditorProps>;
 
-export const LoadingContainer = styled(CenteredWrapper)`
-  height: 50%;
-`;
-
-const DBForm = styled.div`
-  padding: 20px;
-  margin-left: 10px;
-  margin-right: 0px;
-  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
-  overflow: auto;
-  .backBtn {
-    padding-bottom: 1px;
-    cursor: pointer;
-  }
-  .backBtnText {
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-  }
-`;
-
-const PluginImage = styled.img`
-  height: 40px;
-  width: auto;
-`;
-
-export const FormTitleContainer = styled.div`
-  flex-direction: row;
-  display: flex;
-  align-items: center;
-`;
-
-export const Header = styled.div`
-  flex-direction: row;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 16px;
-`;
-
-const SaveButtonContainer = styled.div`
-  margin-top: 24px;
-  display: flex;
-  justify-content: flex-end;
-`;
-
-const ActionButton = styled(BaseButton)`
-  &&& {
-    max-width: 72px;
-    margin-right: 9px;
-    min-height: 32px;
-  }
-`;
-
 const StyledButton = styled(Button)`
   &&&& {
     width: 180px;
@@ -141,13 +86,9 @@ const CreateApiButton = styled(BaseButton)`
   }
 `;
 
-class DatasourceSaaSEditor extends React.Component<Props> {
-  requiredFields: Record<string, any> = {};
-  configDetails: Record<string, any> = {};
-
+class DatasourceSaaSEditor extends JSONtoForm<Props> {
   componentDidMount() {
-    this.requiredFields = {};
-    this.configDetails = {};
+    super.componentDidMount();
     if (this.props.pluginId) {
       this.props.fetchPluginForm(this.props.pluginId);
     }
@@ -170,141 +111,11 @@ class DatasourceSaaSEditor extends React.Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (
-      prevProps.match.params.datasourceId !==
-      this.props.match.params.datasourceId
-    ) {
-      this.requiredFields = {};
-      this.configDetails = {};
-    }
+    super.componentDidUpdate(prevProps);
     if (this.props.pluginId && prevProps.pluginId !== this.props.pluginId) {
       this.props.fetchPluginForm(this.props.pluginId);
     }
   }
-
-  validate = () => {
-    const errors = {} as any;
-    const requiredFields = Object.keys(this.requiredFields);
-    const values = this.props.formData;
-
-    requiredFields.forEach((fieldConfigProperty) => {
-      const fieldConfig = this.requiredFields[fieldConfigProperty];
-      if (fieldConfig.controlType === "KEYVALUE_ARRAY") {
-        const configProperty = fieldConfig.configProperty.split("[*].");
-        const arrayValues = _.get(values, configProperty[0]);
-        const keyValueArrayErrors: Record<string, string>[] = [];
-
-        arrayValues.forEach((value: any, index: number) => {
-          const objectKeys = Object.keys(value);
-          const keyValueErrors: Record<string, string> = {};
-
-          if (!value[objectKeys[0]]) {
-            keyValueErrors[objectKeys[0]] = "This field is required";
-            keyValueArrayErrors[index] = keyValueErrors;
-          }
-          if (!value[objectKeys[1]]) {
-            keyValueErrors[objectKeys[1]] = "This field is required";
-            keyValueArrayErrors[index] = keyValueErrors;
-          }
-        });
-
-        if (keyValueArrayErrors.length) {
-          _.set(errors, configProperty[0], keyValueArrayErrors);
-        }
-      } else if (fieldConfig.controlType === "KEY_VAL_INPUT") {
-        const value = _.get(values, fieldConfigProperty, []);
-
-        if (value.length) {
-          const values = Object.values(value[0]);
-          const isNotBlank = values.every((value) => value);
-
-          if (!isNotBlank) {
-            _.set(errors, fieldConfigProperty, "This field is required");
-          }
-        }
-      } else {
-        const value = _.get(values, fieldConfigProperty);
-
-        if (!value) {
-          _.set(errors, fieldConfigProperty, "This field is required");
-        }
-      }
-    });
-
-    return !_.isEmpty(errors) || this.props.invalid;
-  };
-
-  render() {
-    const { formConfig, loadingFormConfigs } = this.props;
-    if (loadingFormConfigs) {
-      return (
-        <LoadingContainer>
-          <Spinner size={30} />
-        </LoadingContainer>
-      );
-    }
-    const content = this.renderDataSourceConfigForm(formConfig);
-    return <DBForm>{content}</DBForm>;
-  }
-
-  normalizeValues = () => {
-    let { formData } = this.props;
-    const checked: Record<string, any> = {};
-    const configProperties = Object.keys(this.configDetails);
-
-    for (const configProperty of configProperties) {
-      const controlType = this.configDetails[configProperty];
-
-      if (controlType === "KEYVALUE_ARRAY") {
-        const properties = configProperty.split("[*].");
-
-        if (checked[properties[0]]) continue;
-
-        checked[properties[0]] = 1;
-        const values = _.get(formData, properties[0]);
-        const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
-
-        values.forEach(
-          (object: { [s: string]: unknown } | ArrayLike<unknown>) => {
-            const isEmpty = Object.values(object).every((x) => x === "");
-
-            if (!isEmpty) {
-              newValues.push(object);
-            }
-          },
-        );
-
-        if (newValues.length) {
-          formData = _.set(formData, properties[0], newValues);
-        } else {
-          formData = _.set(formData, properties[0], []);
-        }
-      } else if (controlType === "KEY_VAL_INPUT") {
-        if (checked[configProperty]) continue;
-
-        const values = _.get(formData, configProperty);
-        const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
-
-        values.forEach(
-          (object: { [s: string]: unknown } | ArrayLike<unknown>) => {
-            const isEmpty = Object.values(object).every((x) => x === "");
-
-            if (!isEmpty) {
-              newValues.push(object);
-            }
-          },
-        );
-
-        if (newValues.length) {
-          formData = _.set(formData, configProperty, newValues);
-        } else {
-          formData = _.set(formData, configProperty, []);
-        }
-      }
-    }
-
-    return formData;
-  };
 
   save = (onSuccess?: ReduxAction<unknown>) => {
     const normalizedValues = this.normalizeValues();
@@ -332,6 +143,15 @@ class DatasourceSaaSEditor extends React.Component<Props> {
       }),
     );
   };
+
+  render() {
+    const { formConfig, loadingFormConfigs } = this.props;
+    if (loadingFormConfigs) {
+      return this.renderLoader();
+    }
+    const content = this.renderDataSourceConfigForm(formConfig);
+    return this.renderForm(content);
+  }
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
@@ -411,84 +231,8 @@ class DatasourceSaaSEditor extends React.Component<Props> {
       </form>
     );
   };
-
-  renderMainSection = (section: any, index: number) => {
-    if (isHidden(this.props.formData, section.hidden)) return null;
-    return (
-      <Collapsible title={section.sectionName} defaultIsOpen={index === 0}>
-        {this.renderEachConfig(section)}
-      </Collapsible>
-    );
-  };
-
-  renderSingleConfig = (
-    config: ControlProps,
-    multipleConfig?: ControlProps[],
-  ) => {
-    multipleConfig = multipleConfig || [];
-    try {
-      this.setupConfig(config);
-      return (
-        <div key={config.configProperty} style={{ marginTop: "16px" }}>
-          <FormControl
-            config={config}
-            formName={DATASOURCE_SAAS_FORM}
-            multipleConfig={multipleConfig}
-          />
-        </div>
-      );
-    } catch (e) {
-      log.error(e);
-    }
-  };
-
-  setupConfig = (config: ControlProps) => {
-    const { controlType, isRequired, configProperty } = config;
-    this.configDetails[configProperty] = controlType;
-
-    if (isRequired) {
-      this.requiredFields[configProperty] = config;
-    }
-  };
-
-  isKVArray = (children: Array<ControlProps>) => {
-    if (!Array.isArray(children) || children.length < 2) return false;
-    return (
-      children[0].controlType && children[0].controlType === "KEYVALUE_ARRAY"
-    );
-  };
-
-  renderKVArray = (children: Array<ControlProps>) => {
-    try {
-      // setup config for each child
-      children.forEach((c) => this.setupConfig(c));
-      // We pass last child for legacy reasons, to keep the logic here exactly same as before.
-      return this.renderSingleConfig(children[children.length - 1], children);
-    } catch (e) {
-      log.error(e);
-    }
-  };
-
-  renderEachConfig = (section: any) => {
-    return (
-      <div key={section.sectionName}>
-        {_.map(section.children, (propertyControlOrSection: ControlProps) => {
-          // If the section is hidden, skip rendering
-          if (isHidden(this.props.formData, section.hidden)) return null;
-          if ("children" in propertyControlOrSection) {
-            const { children } = propertyControlOrSection;
-            if (this.isKVArray(children)) {
-              return this.renderKVArray(children);
-            }
-            return this.renderEachConfig(propertyControlOrSection);
-          } else {
-            return this.renderSingleConfig(propertyControlOrSection);
-          }
-        })}
-      </div>
-    );
-  };
 }
+
 const mapStateToProps = (state: AppState, props: any) => {
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
@@ -508,6 +252,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     initialValues: datasource,
     pluginId: pluginId,
     actions: state.entities.actions,
+    formName: DATASOURCE_SAAS_FORM,
   };
 };
 
