@@ -94,7 +94,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
           </Text>
         </Flex>
       </FlexContainer>
-      {props.fields.length && (
+      {props.fields.length > 0 && (
         <React.Fragment>
           {props.fields.map((field: any, index: number) => {
             const otherProps: Record<string, any> = {};
@@ -186,20 +186,18 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
               </FormRowWithLabel>
             );
           })}
-          <AddMoreAction
-            onClick={() => props.fields.push({ key: "", value: "" })}
-          >
-            <Icon
-              name="add-more"
-              className="t--addApiHeader"
-              size={IconSize.LARGE}
-            />
-            <Text type={TextType.H5} case={Case.UPPERCASE}>
-              Add more
-            </Text>
-          </AddMoreAction>
         </React.Fragment>
       )}
+      <AddMoreAction onClick={() => props.fields.push({ key: "", value: "" })}>
+        <Icon
+          name="add-more"
+          className="t--addApiHeader"
+          size={IconSize.LARGE}
+        />
+        <Text type={TextType.H5} case={Case.UPPERCASE}>
+          Add more
+        </Text>
+      </AddMoreAction>
     </KeyValueStackContainer>
   );
 };

@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { EditorTheme } from "./EditorConfig";
 
 const Wrapper = styled.span<{
@@ -11,15 +10,11 @@ const Wrapper = styled.span<{
 }>`
   padding: ${(props) => (props.customMessage ? 6 : 8)}px;
   font-size: 12px;
-  color: #858282;
+  color: #ffffff;
   box-shadow: 0px 12px 34px -6px rgba(0, 0, 0, 0.75);
   border-radius: 0px;
   background-color: ${(props) =>
-    props.editorTheme === EditorTheme.DARK
-      ? Colors.MINE_SHAFT
-      : props.editorTheme === EditorTheme.LIGHT
-      ? Colors.MERCURY
-      : Colors.BLUE_CHARCOAL};
+    props.theme.colors.codeMirror.background.hoverState};
   position: absolute;
   bottom: ${(props) => -props.bottomOffset}px;
   width: 100%;
@@ -29,8 +24,8 @@ const Wrapper = styled.span<{
 `;
 
 const CurlyBraces = styled.span`
-  color: white;
-  background-color: #f3672a;
+  color: ${(props) => props.theme.colors.codeMirror.background.hoverState};
+  background-color: #ffffff;
   border-radius: 2px;
   padding: 2px;
   margin: 0px 2px;

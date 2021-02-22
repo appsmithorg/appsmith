@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -106,6 +107,7 @@ public class PolicyUtils {
 
     /**
      * Given a set of AclPermissions, generate all policies (including policies from lateral permissions) for the user.
+     *
      * @param permissions
      * @param user
      * @return
@@ -162,19 +164,19 @@ public class PolicyUtils {
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIds(Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
 
         return datasourceRepository
-                        .findAllByIds(ids, MANAGE_DATASOURCES)
-                        // In case we have come across a datasource the current user is not allowed to manage, move on.
-                        .switchIfEmpty(Mono.empty())
-                        .flatMap(datasource -> {
-                            Datasource updatedDatasource;
-                            if (addPolicyToObject) {
-                                updatedDatasource = addPoliciesToExistingObject(datasourcePolicyMap, datasource);
-                            } else {
-                                updatedDatasource = removePoliciesFromExistingObject(datasourcePolicyMap, datasource);
-                            }
+                .findAllByIds(ids, MANAGE_DATASOURCES)
+                // In case we have come across a datasource the current user is not allowed to manage, move on.
+                .switchIfEmpty(Mono.empty())
+                .flatMap(datasource -> {
+                    Datasource updatedDatasource;
+                    if (addPolicyToObject) {
+                        updatedDatasource = addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                    } else {
+                        updatedDatasource = removePoliciesFromExistingObject(datasourcePolicyMap, datasource);
+                    }
 
-                            return Mono.just(updatedDatasource);
-                        })
+                    return Mono.just(updatedDatasource);
+                })
                 .collectList()
                 .flatMapMany(datasources -> datasourceRepository.saveAll(datasources));
     }
@@ -223,6 +225,7 @@ public class PolicyUtils {
      * 1. Instead of bulk updating actions page wise, we do bulk update of actions in one go for the entire application.
      * 2. If the action is associated with different pages (in published/unpublished page due to movement of action), fetching
      * actions by applicationId ensures that we update ALL the actions and don't have to do special handling for the same.
+     *
      * @param applicationId
      * @param newActionPoliciesMap
      * @param addPolicyToObject
@@ -252,5 +255,28 @@ public class PolicyUtils {
         return policyGenerator.getAllChildPolicies(extractedInterestingPolicySet, sourceEntity, destinationEntity)
                 .stream()
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+    }
+
+    public Boolean isPermissionPresentForUser(Set<Policy> policies, String permission, String username) {
+
+        if (policies == null || policies.isEmpty()) {
+            return false;
+        }
+
+        Optional<Policy> requestedPermissionPolicyOptional = policies.stream().filter(policy -> {
+            if (policy.getPermission().equals(permission)) {
+                Set<String> users = policy.getUsers();
+                if (users.contains(username)) {
+                    return true;
+                }
+            }
+            return false;
+        }).findFirst();
+
+        if (requestedPermissionPolicyOptional.isPresent()) {
+            return true;
+        }
+
+        return false;
     }
 }
