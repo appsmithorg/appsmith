@@ -90,7 +90,7 @@ export const PageContextMenu = (props: {
       label: ((
         <CustomLabel>
           {props.isHidden ? "Show" : "Hide"}
-          <Icon icon={props.isHidden ? "eye-off" : "eye-open"} iconSize={14} />
+          <Icon icon={props.isHidden ? "eye-open" : "eye-off"} iconSize={14} />
         </CustomLabel>
       ) as ReactNode) as string,
     },
