@@ -15,16 +15,16 @@ import {
 } from "constants/ReduxActionConstants";
 import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
-import { GracefulWorkerService } from "../utils/WorkerUtil";
+import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
-} from "../utils/DynamicBindingUtils";
+} from "utils/DynamicBindingUtils";
 import log from "loglevel";
-import { WidgetType } from "../constants/WidgetConstants";
-import { WidgetProps } from "../widgets/BaseWidget";
+import { WidgetType } from "constants/WidgetConstants";
+import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "../utils/PerformanceTracker";
@@ -41,22 +41,36 @@ const worker = new GracefulWorkerService(Worker);
 const evalErrorHandler = (errors: EvalError[]) => {
   if (!errors) return;
   errors.forEach((error) => {
-    if (error.type === EvalErrorTypes.DEPENDENCY_ERROR) {
-      Toaster.show({
-        text: error.message,
-        variant: Variant.danger,
-      });
+    switch (error.type) {
+      case EvalErrorTypes.DEPENDENCY_ERROR: {
+        Toaster.show({
+          text: error.message,
+          variant: Variant.danger,
+        });
+        break;
+      }
+      case EvalErrorTypes.EVAL_TREE_ERROR: {
+        Toaster.show({
+          text: "Unexpected error occurred while evaluating the app",
+          variant: Variant.danger,
+        });
+        break;
+      }
+      case EvalErrorTypes.BAD_UNEVAL_TREE_ERROR: {
+        Sentry.captureException(error);
+        break;
+      }
+      case EvalErrorTypes.EVAL_TRIGGER_ERROR: {
+        Toaster.show({
+          text: `Error occurred when executing trigger: ${error.message}`,
+          variant: Variant.danger,
+        });
+        break;
+      }
+      default: {
+        Sentry.captureException(error);
+      }
     }
-    if (error.type === EvalErrorTypes.EVAL_TREE_ERROR) {
-      Toaster.show({
-        text: "Unexpected error occurred while evaluating the app",
-        variant: Variant.danger,
-      });
-    }
-    if (error.type === EvalErrorTypes.BAD_UNEVAL_TREE_ERROR) {
-      Sentry.captureException(error);
-    }
-    log.debug(error);
   });
 };
 
