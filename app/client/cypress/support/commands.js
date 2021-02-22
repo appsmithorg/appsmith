@@ -1339,7 +1339,6 @@ Cypress.Commands.add("DeleteModal", () => {
 });
 
 Cypress.Commands.add("Createpage", (Pagename) => {
-  cy.get(pages.pagesIcon).click({ force: true });
   cy.get(pages.AddPage)
     .first()
     .click();

@@ -4,6 +4,7 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+const explorer = require("../../../../locators/explorerlocators.json");
 
 const pageid = "MyPage";
 let datasourceName;
@@ -92,6 +93,9 @@ describe("Entity explorer tests related to query and datasource", function() {
 
     cy.EvaluateCurrentValue("select * from users");
 
+    cy.get(`.t--entity.action:contains(Query1)`)
+      .find(explorer.collapse)
+      .click();
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
