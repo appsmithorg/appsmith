@@ -84,7 +84,7 @@ const DocumentationItem = withTheme(
     const searchContext = useContext(SearchContext);
     return (
       <>
-        <span onClick={() => searchContext?.handleItemLinkClick(props.item)}>
+        <span>
           <StyledDocumentIcon />
         </span>
         <ItemTitle>
@@ -112,9 +112,7 @@ const WidgetItem = withTheme(
 
     return (
       <>
-        <span onClick={() => searchContext?.handleItemLinkClick(props.item)}>
-          {getWidgetIcon(type)}
-        </span>
+        <span>{getWidgetIcon(type)}</span>
         <ItemTitle>
           <Highlight match={query} text={title} />
           <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
@@ -146,9 +144,7 @@ const ActionItem = withTheme(
     );
     return (
       <>
-        <span onClick={() => searchContext?.handleItemLinkClick(props.item)}>
-          {icon}
-        </span>
+        <span>{icon}</span>
         <ItemTitle>
           <Highlight match={query} text={title} />
           <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
@@ -176,9 +172,7 @@ const DatasourceItem = withTheme(
 
     return (
       <>
-        <span onClick={() => searchContext?.handleItemLinkClick(props.item)}>
-          {icon}
-        </span>
+        <span>{icon}</span>
         <ItemTitle>
           <Highlight match={query} text={title} />
           <ActionLink item={props.item} isActiveItem={props.isActiveItem} />

@@ -32,6 +32,7 @@ import { useFilteredDatasources } from "pages/Editor/Explorer/hooks";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { getSelectedWidget } from "selectors/ui";
 import { Datasource } from "entities/Datasource";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledContainer = styled.div`
   width: 750px;
@@ -171,7 +172,7 @@ const GlobalSearch = () => {
 
   const { navigateToWidget } = useNavigateToWidget();
 
-  const handleDocumentationItemClick = (item: SearchItem) => {
+  const handleDocumentationItemClick = (item: SearchItem, source?: string) => {
     window.open(item.path.replace("master", HelpBaseURL), "_blank");
   };
 
@@ -209,10 +210,16 @@ const GlobalSearch = () => {
     [SEARCH_ITEM_TYPES.datasource]: handleDatasourceClick,
   };
 
-  const handleItemLinkClick = (item?: SearchItem) => {
+  const handleItemLinkClick = (item?: SearchItem, source?: string) => {
     const _item = item || activeItem;
     const type = getItemType(_item) as SEARCH_ITEM_TYPES;
-    itemClickHandlerByType[type](_item);
+
+    AnalyticsUtil.logEvent("NAVIGATE_TO_ENTITY_FROM_OMNIBAR", {
+      type,
+      source,
+    });
+
+    itemClickHandlerByType[type](_item, source);
   };
 
   const searchContext = {

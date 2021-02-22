@@ -5,6 +5,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import Text, { TextType } from "components/ads/Text";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { HELPBAR_PLACEHOLDER } from "constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledHelpBar = styled.div`
   padding: 0 ${(props) => props.theme.spaces[4]}px;
@@ -39,7 +40,10 @@ const HelpBar = ({ toggleShowModal }: Props) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
-  toggleShowModal: () => dispatch(toggleShowGlobalSearchModal()),
+  toggleShowModal: () => {
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "NAVBAR_CLICK" });
+    dispatch(toggleShowGlobalSearchModal());
+  },
 });
 
 export default connect(null, mapDispatchToProps)(HelpBar);

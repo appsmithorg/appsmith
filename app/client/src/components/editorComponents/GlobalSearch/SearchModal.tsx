@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Overlay, Classes } from "@blueprintjs/core";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledDocsSearchModal = styled.div`
   & {
@@ -33,6 +34,9 @@ const DocsSearchModal = ({ modalOpen, toggleShow, children }: Props) => (
       onClose={toggleShow}
       hasBackdrop={true}
       usePortal={false}
+      onClosing={() => {
+        AnalyticsUtil.logEvent("CLOSE_OMNIBAR");
+      }}
     >
       <div className={Classes.OVERLAY_CONTENT}>{children}</div>
     </Overlay>
