@@ -27,15 +27,15 @@ export enum EntityClassNames {
   PROPERTY = "t--entity-property",
 }
 
-const Wrapper = styled.div<{ active: boolean; dim: boolean }>`
+const Wrapper = styled.div<{ active: boolean }>`
   line-height: ${(props) => props.theme.lineHeights[2]}px;
-  opacity: ${(props) => (props.dim ? 0.4 : 1)};
 `;
 
 export const EntityItem = styled.div<{
   active: boolean;
   step: number;
   spaced: boolean;
+  dim: boolean;
 }>`
   position: relative;
   font-size: 12px;
@@ -49,6 +49,7 @@ export const EntityItem = styled.div<{
     props.spaced ? "20px auto 1fr auto 30px" : "8px auto 1fr auto 30px"};
   border-radius: 0;
   color: ${(props) => (props.active ? Colors.WHITE : Colors.ALTO)};
+  opacity: ${(props) => (props.dim ? 0.4 : 1)};
   cursor: pointer;
   align-items: center;
   &:hover {
@@ -160,10 +161,10 @@ export const Entity = forwardRef(
         active={!!props.active}
         className={`${EntityClassNames.WRAPPER} ${props.className}`}
         ref={ref}
-        dim={!!props.dim}
       >
         <EntityItem
           active={!!props.active}
+          dim={!!props.dim}
           step={props.step}
           spaced={!!props.children}
         >
