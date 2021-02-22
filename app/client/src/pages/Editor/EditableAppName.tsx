@@ -1,7 +1,4 @@
-import EditableText, {
-  EditableTextProps,
-  EditableTextWrapper as AdsEditableTextWrapper,
-} from "components/ads/EditableText";
+import EditableText, { EditableTextProps } from "components/ads/EditableText";
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Variant } from "components/ads/common";
@@ -40,9 +37,6 @@ const Container = styled.div`
   }
   flex: 1;
   overflow: auto;
-  ${AdsEditableTextWrapper} {
-    flex: 1;
-  }
 `;
 
 export default function EditableTextWrapper(props: EditableTextWrapperProps) {

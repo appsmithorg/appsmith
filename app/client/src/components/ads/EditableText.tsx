@@ -48,7 +48,15 @@ export type EditableTextProps = CommonComponentProps & {
 export const EditableTextWrapper = styled.div<{
   filled: boolean;
 }>`
-  width: ${(props) => (!props.filled ? "234px" : "100%")};
+  ${(props) =>
+    !props.filled
+      ? `
+    width: 243px;
+  `
+      : `
+    width: 100%;
+    flex: 1;
+  `}
   .error-message {
     margin-left: ${(props) => props.theme.spaces[5]}px;
     color: ${(props) => props.theme.colors.danger.main};
