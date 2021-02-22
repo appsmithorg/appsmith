@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -76,6 +77,8 @@ public class DynamoPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
+            final Map<String, Object> requestData = new HashMap<>();
+
             return Mono.fromCallable(() -> {
                 ActionExecutionResult result = new ActionExecutionResult();
 
@@ -86,8 +89,11 @@ public class DynamoPlugin extends BasePlugin {
                             "Missing action name (like `ListTables`, `GetItem` etc.)."
                     );
                 }
+                requestData.put("action", action);
 
                 final String body = actionConfiguration.getBody();
+                requestData.put("query", body);
+
                 Map<String, Object> parameters = null;
                 try {
                     if (!StringUtils.isEmpty(body)) {
@@ -98,6 +104,7 @@ public class DynamoPlugin extends BasePlugin {
                     log.warn(message, e);
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
                 }
+                requestData.put("parameters", parameters);
 
                 final Class<?> requestClass;
                 try {
@@ -127,6 +134,12 @@ public class DynamoPlugin extends BasePlugin {
                 System.out.println(Thread.currentThread().getName() + ": In the DynamoPlugin, got action execution result");
                 return result;
             })
+                    .map(actionExecutionResult -> {
+                        ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
+                        actionExecutionRequest.setBody(requestData);
+                        actionExecutionResult.setRequest(actionExecutionRequest);
+                        return actionExecutionResult;
+                    })
                     .subscribeOn(scheduler);
         }
 
