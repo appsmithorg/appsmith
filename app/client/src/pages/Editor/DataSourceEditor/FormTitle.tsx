@@ -38,8 +38,8 @@ const FormTitle = (props: FormTitleProps) => {
     | undefined = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
   );
+
   const datasources: Datasource[] = useSelector(getDataSources);
-  const evalTree = useSelector(getDataTree);
   const [forceUpdate, setForceUpdate] = useState(false);
   const dispatch = useDispatch();
   const saveStatus: {
@@ -68,7 +68,7 @@ const FormTitle = (props: FormTitleProps) => {
           datasourcesNames[datasource.name] = datasource;
         });
 
-      return !isNameValid(name, { ...datasourcesNames, ...evalTree });
+      return !isNameValid(name, { ...datasourcesNames });
     },
     [datasources, currentDatasource],
   );
