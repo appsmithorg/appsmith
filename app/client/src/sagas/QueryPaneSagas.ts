@@ -36,7 +36,7 @@ import {
   getPluginTemplates,
   getPlugin,
 } from "selectors/entitiesSelector";
-import { QueryAction } from "entities/Action";
+import { PluginType, QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { isEmpty, merge } from "lodash";
@@ -188,10 +188,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
   // Only look at db plugins
-  if (plugin.type !== "DB") return;
-  yield put(
-    setDatsourceEditorMode({ id: actionPayload.payload.id, viewMode: false }),
-  );
+  if (plugin.type !== PluginType.DB) return;
 
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);

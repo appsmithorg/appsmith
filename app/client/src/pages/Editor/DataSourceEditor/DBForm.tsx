@@ -142,9 +142,6 @@ class DatasourceDBEditor extends React.Component<
   constructor(props: Props) {
     super(props);
 
-    this.state = {
-      viewMode: true,
-    };
     this.requiredFields = {};
     this.configDetails = {};
   }
