@@ -81,7 +81,6 @@ const StyledDocumentIcon = styled(DocumentIcon)`
 
 const DocumentationItem = withTheme(
   (props: { item: SearchItem; theme: Theme; isActiveItem: boolean }) => {
-    const searchContext = useContext(SearchContext);
     return (
       <>
         <span>
@@ -107,7 +106,6 @@ const WidgetItem = withTheme(
   }) => {
     const { query, item } = props;
     const { type } = item || {};
-    const searchContext = useContext(SearchContext);
     const title = getItemTitle(item);
 
     return (
@@ -132,7 +130,6 @@ const ActionItem = withTheme(
     const { item, query } = props;
     const { config } = item || {};
     const title = getItemTitle(item);
-    const searchContext = useContext(SearchContext);
     const { pluginType } = config;
     const plugins = useSelector((state: AppState) => {
       return state.entities.plugins.list;
@@ -161,7 +158,6 @@ const DatasourceItem = withTheme(
     isActiveItem: boolean;
     theme: Theme;
   }) => {
-    const searchContext = useContext(SearchContext);
     const { item, query } = props;
     const plugins = useSelector((state: AppState) => {
       return state.entities.plugins.list;

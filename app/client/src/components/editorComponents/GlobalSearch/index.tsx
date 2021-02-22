@@ -172,7 +172,7 @@ const GlobalSearch = () => {
 
   const { navigateToWidget } = useNavigateToWidget();
 
-  const handleDocumentationItemClick = (item: SearchItem, source?: string) => {
+  const handleDocumentationItemClick = (item: SearchItem) => {
     window.open(item.path.replace("master", HelpBaseURL), "_blank");
   };
 
@@ -210,16 +210,16 @@ const GlobalSearch = () => {
     [SEARCH_ITEM_TYPES.datasource]: handleDatasourceClick,
   };
 
-  const handleItemLinkClick = (item?: SearchItem, source?: string) => {
-    const _item = item || activeItem;
-    const type = getItemType(_item) as SEARCH_ITEM_TYPES;
+  const handleItemLinkClick = (itemArg?: SearchItem, source?: string) => {
+    const item = itemArg || activeItem;
+    const type = getItemType(item) as SEARCH_ITEM_TYPES;
 
     AnalyticsUtil.logEvent("NAVIGATE_TO_ENTITY_FROM_OMNIBAR", {
       type,
       source,
     });
 
-    itemClickHandlerByType[type](_item, source);
+    itemClickHandlerByType[type](item);
   };
 
   const searchContext = {
