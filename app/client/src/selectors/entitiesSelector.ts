@@ -4,10 +4,9 @@ import {
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
 import { ActionResponse } from "api/ActionAPI";
-import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { createSelector } from "reselect";
 import { Datasource } from "entities/Datasource";
-import { Action } from "entities/Action";
+import { Action, PluginType } from "entities/Action";
 import { find } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
@@ -134,7 +133,7 @@ export const getPluginEditorConfigs = (state: AppState) =>
   state.entities.plugins.editorConfigs;
 
 export const getDBPlugins = createSelector(getPlugins, (plugins) =>
-  plugins.filter((plugin) => plugin.type === QUERY_CONSTANT),
+  plugins.filter((plugin) => plugin.type === PluginType.DB),
 );
 
 export const getDatasourceByPluginId = (state: AppState, pluginId: string) =>
@@ -224,7 +223,7 @@ export const getQueryActionsForCurrentPage = createSelector(
   getActionsForCurrentPage,
   (actions) => {
     return actions.filter((action) => {
-      return action.config.pluginType === QUERY_CONSTANT;
+      return action.config.pluginType === PluginType.DB;
     });
   },
 );

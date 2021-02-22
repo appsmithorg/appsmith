@@ -8,5 +8,3 @@ export const PLUGIN_PACKAGE_DBS = [
   PLUGIN_PACKAGE_POSTGRES,
   PLUGIN_PACKAGE_MONGO,
 ];
-
-export const QUERY_CONSTANT = "DB";

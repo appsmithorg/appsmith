@@ -40,13 +40,11 @@ import { PluginType, QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { getQueryParams } from "utils/AppsmithUtils";
-import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { Datasource } from "entities/Datasource";
-import { setDatsourceEditorMode } from "actions/datasourceActions";
 import _ from "lodash";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -220,7 +218,7 @@ function* handleNameChangeSuccessSaga(
     });
     return;
   }
-  if (actionObj.pluginType === QUERY_CONSTANT) {
+  if (actionObj.pluginType === PluginType.DB) {
     const params = getQueryParams();
     if (params.editName) {
       params.editName = "false";

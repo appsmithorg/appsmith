@@ -36,7 +36,6 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   ],
 };
 
-export const PLUGIN_TYPE_API = "API";
 export const DEFAULT_PROVIDER_OPTION = "Business Software";
 export const CONTENT_TYPE = "content-type";
 

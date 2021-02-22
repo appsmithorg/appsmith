@@ -19,7 +19,6 @@ import {
   REST_PLUGIN_PACKAGE_NAME,
   POST_BODY_FORMATS,
   CONTENT_TYPE,
-  PLUGIN_TYPE_API,
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
@@ -315,7 +314,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const action = yield select(getAction, id);
   const data = { ...action };
 
-  if (pluginType === "API") {
+  if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
@@ -467,7 +466,7 @@ function* handleApiNameChangeSuccessSaga(
     });
     return;
   }
-  if (actionObj.pluginType === PLUGIN_TYPE_API) {
+  if (actionObj.pluginType === PluginType.API) {
     const params = getQueryParams();
     if (params.editName) {
       params.editName = "false";
