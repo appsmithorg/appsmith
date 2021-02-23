@@ -40,7 +40,6 @@ import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
-import { getCurrentThemeMode, ThemeMode } from "selectors/themeSelectors";
 
 const Form = styled.form`
   display: flex;
@@ -180,7 +179,6 @@ interface APIFormProps {
   apiName: string;
   headersCount: number;
   paramsCount: number;
-  themeMode: ThemeMode;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -233,7 +231,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     actionName,
     headersCount,
     paramsCount,
-    themeMode,
   } = props;
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
@@ -258,8 +255,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     e.stopPropagation();
     history.replace(BUILDER_PAGE_URL(applicationId, pageId));
   };
-  const theme =
-    themeMode === ThemeMode.LIGHT ? EditorTheme.LIGHT : EditorTheme.DARK;
+  const theme = EditorTheme.LIGHT;
 
   return (
     <Form onSubmit={handleSubmit}>
@@ -458,7 +454,6 @@ export default connect((state: AppState) => {
 
   const params = selector(state, "actionConfiguration.queryParameters");
   const paramsCount = Array.isArray(params) ? params.length : 0;
-  const themeMode = getCurrentThemeMode(state);
 
   return {
     actionName,
@@ -468,7 +463,6 @@ export default connect((state: AppState) => {
     actionConfigurationHeaders,
     headersCount,
     paramsCount,
-    themeMode,
   };
 })(
   reduxForm<Action, APIFormProps>({
