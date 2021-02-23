@@ -97,7 +97,7 @@ public class PluginServiceTest {
                     assertThat(form).isNotNull();
                     assertThat(form.get("form")).isNotNull();
                     assertThat(form.get("editor")).isNull();
-                    assertThat(form.get("editor")).isNull();
+                    assertThat(form.get("setting")).isNull();
                 })
                 .verifyComplete();
     }
