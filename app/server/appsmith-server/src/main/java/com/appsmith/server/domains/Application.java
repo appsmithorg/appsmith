@@ -74,6 +74,7 @@ public class Application extends BaseDomain {
     }
 
     @Data
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class AppLayout implements Serializable {
         Type type;
