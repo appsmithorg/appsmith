@@ -128,7 +128,6 @@ export function* getAllApplicationSaga() {
             : userOrgs.applications.map((application: ApplicationObject) => {
                 return {
                   ...application,
-                  pageCount: application.pages ? application.pages.length : 0,
                   defaultPageId: getDefaultPageId(application.pages),
                 };
               }),
@@ -295,7 +294,6 @@ export function* duplicateApplicationSaga(
     if (isValidResponse) {
       const application: ApplicationPayload = {
         ...response.data,
-        pageCount: response.data.pages ? response.data.pages.length : 0,
         defaultPageId: getDefaultPageId(response.data.pages),
       };
       yield put({
@@ -397,7 +395,6 @@ export function* createApplicationSaga(
       if (isValidResponse) {
         const application: ApplicationPayload = {
           ...response.data,
-          pageCount: response.data.pages ? response.data.pages.length : 0,
           defaultPageId: getDefaultPageId(response.data.pages),
         };
         AnalyticsUtil.logEvent("CREATE_APP", {
