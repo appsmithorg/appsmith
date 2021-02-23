@@ -5,7 +5,6 @@
   },
   "data": {
     "invalids": [
-      "Command failed with error 8000 (AtlasError): 'user is not allowed to do action [listDatabases] on [admin.]' on server cypress-test-shard-00-01.zljea.mongodb.net:27017. The full response is {\"ok\": 0, \"errmsg\": \"user is not allowed to do action [listDatabases] on [admin.]\", \"code\": 8000, \"codeName\": \"AtlasError\"}"
     ],
     "success": false
   }
