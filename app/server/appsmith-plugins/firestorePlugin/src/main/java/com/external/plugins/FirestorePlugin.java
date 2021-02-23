@@ -324,7 +324,6 @@ public class FirestorePlugin extends BasePlugin {
 
             return Mono.just(query)
                     // Apply ordering, if provided.
-                    // .map(query1 -> StringUtils.isEmpty(orderBy) ? query1 : query1.orderBy(orderBy))
                     .map(query1 -> {
                         Query q = query1;
                         final List<Object> startAfterValues = new ArrayList<>();
