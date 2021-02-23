@@ -55,6 +55,8 @@ import net.minidev.json.JSONObject;
 import org.apache.commons.lang.ObjectUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
@@ -1720,6 +1722,10 @@ public class DatabaseChangelog {
                         && action.getPublishedAction().getActionConfiguration() != null) {
                     action.getPublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
                 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 717e2931a... Safety net
                 mongoTemplate.save(action);
             }
         }
@@ -2012,5 +2018,19 @@ public class DatabaseChangelog {
         }
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
+
+    @ChangeSet(order = "057", id = "add-plugin-setting-test", author = "")
+    public void addRandomPluginSetting(MongoTemplate mongoTemplate,
+                                       Environment env) {
+        for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
+            if ("google-sheets-plugin".equals(plugin.getPackageName())) {
+                plugin.setDocumentationLink(env.getProperty("plugin.test"));
+            } else {
+                continue;
+            }
+
+            mongoTemplate.save(plugin);
+        }
     }
 }

@@ -25,7 +25,7 @@ export const SAAS_EDITOR_DATASOURCE_ID_URL = (
     applicationId,
     pageId,
     pluginPackageName,
-  )}/datasoure/${datasourceId}${queryParams}`;
+  )}/datasources/${datasourceId}${queryParams}`;
 };
 
 export const SAAS_EDITOR_API_ID_URL = (
