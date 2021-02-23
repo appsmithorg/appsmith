@@ -76,7 +76,7 @@ public class FirestorePlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(Firestore connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
-            return executeParameterized(connection, null, datasourceConfiguration, actionConfiguration);
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
 
         @Override
