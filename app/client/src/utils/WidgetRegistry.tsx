@@ -441,7 +441,6 @@ export default class WidgetBuilderRegistry {
       SkeletonWidget.getDefaultPropertiesMap(),
       SkeletonWidget.getMetaPropertiesMap(),
     );
-
     WidgetFactory.registerWidgetBuilder(
       WidgetTypes.LIST_WIDGET,
       {
@@ -455,6 +454,20 @@ export default class WidgetBuilderRegistry {
       ListWidget.getDefaultPropertiesMap(),
       ListWidget.getMetaPropertiesMap(),
       ListWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MODAL_WIDGET,
+      {
+        buildWidget(widgetData: ModalWidgetProps): JSX.Element {
+          return <ProfiledModalWidget {...widgetData} />;
+        },
+      },
+      ModalWidget.getPropertyValidationMap(),
+      ModalWidget.getDerivedPropertiesMap(),
+      ModalWidget.getTriggerPropertyMap(),
+      ModalWidget.getDefaultPropertiesMap(),
+      ModalWidget.getMetaPropertiesMap(),
+      ModalWidget.getPropertyPaneConfig(),
     );
   }
 }

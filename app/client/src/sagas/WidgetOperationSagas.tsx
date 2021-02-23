@@ -253,7 +253,6 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
 
     // NOTE: widgetId here is the parentId of the dropped widget ( we should rename it to avoid confusion )
     const { widgetId } = addChildAction.payload;
-
     // Get the current parent widget whose child will be the new widget.
     const stateParent: FlattenedWidgetProps = yield select(getWidget, widgetId);
     // const parent = Object.assign({}, stateParent);
@@ -314,6 +313,13 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       root = widgets[root.parentId];
     }
 
+    yield put({
+      type: ReduxActionTypes.WIDGET_CHILD_ADDED,
+      payload: {
+        widgetId: childWidgetPayload.widgetId,
+        type: addChildAction.payload.type,
+      },
+    });
     yield put(updateAndSaveLayout(widgets));
 
     // getting enhancement of the dropped widget from config
