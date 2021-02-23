@@ -281,24 +281,20 @@ export default [
                       value: "YYYY-MM-DD",
                     },
                     {
-                      label: "YYYY-MM-DDTHH:mm:ss",
-                      value: "YYYY-MM-DDTHH:mm:ss",
+                      label: "YYYY-MM-DD HH:mm",
+                      value: "YYYY-MM-DD HH:mm",
                     },
                     {
-                      label: "YYYY-MM-DD hh:mm:ss",
-                      value: "YYYY-MM-DD hh:mm:ss",
+                      label: "YYYY-MM-DDTHH:mm:ss.sssZ",
+                      value: "YYYY-MM-DDTHH:mm:ss.sssZ",
                     },
                     {
-                      label: "DD-MM-YYYY HH:mm",
-                      value: "DD-MM-YYYY HH:mm",
+                      label: "DD/MM/YYYY",
+                      value: "DD/MM/YYYY",
                     },
                     {
-                      label: "DD-MM-YYYY",
-                      value: "DD-MM-YYYY",
-                    },
-                    {
-                      label: "Do MMM YYYY",
-                      value: "Do MMM YYYY",
+                      label: "DD/MM/YYYY HH:mm",
+                      value: "DD/MM/YYYY HH:mm",
                     },
                   ],
                   updateHook: updateDerivedColumnsHook,
