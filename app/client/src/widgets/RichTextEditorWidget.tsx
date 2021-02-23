@@ -159,7 +159,6 @@ class RichTextEditorWidget extends BaseWidget<
           placeholder={this.props.placeholder}
           key={this.props.widgetId}
           isDisabled={this.props.isDisabled}
-          formatType={RTEFormats.HTML}
           isVisible={this.props.isVisible}
         />
       </Suspense>

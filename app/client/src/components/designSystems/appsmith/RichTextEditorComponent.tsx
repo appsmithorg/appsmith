@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { debounce } from "lodash";
 import styled from "styled-components";
 import { useScript, ScriptStatus } from "utils/hooks/useScript";
-import { RTEFormats } from "widgets/RichTextEditorWidget";
 
 const StyledRTEditor = styled.div`
   && {
@@ -19,7 +18,6 @@ export interface RichtextEditorComponentProps {
   placeholder?: string;
   widgetId: string;
   isDisabled?: boolean;
-  formatType: RTEFormats;
   isVisible?: boolean;
   onValueChange: (valueAsString: string) => void;
 }
@@ -53,7 +51,7 @@ export const RichtextEditorComponent = (
       const content = props.defaultValue;
 
       editorInstance.setContent(content, {
-        format: props.formatType,
+        format: "html",
       });
     }
   }, [props.defaultValue, editorInstance, isEditorInitialised]);
@@ -74,19 +72,19 @@ export const RichtextEditorComponent = (
       setup: (editor: any) => {
         editor.mode.set(props.isDisabled === true ? "readonly" : "design");
         const content = props.defaultValue;
-        editor.setContent(content, { format: props.formatType });
+        editor.setContent(content, { format: "html" });
         editor
           .on("Change", () => {
-            onChange(editor.getContent({ format: props.formatType }));
+            onChange(editor.getContent({ format: "html" }));
           })
           .on("Undo", () => {
-            onChange(editor.getContent({ format: props.formatType }));
+            onChange(editor.getContent({ format: "html" }));
           })
           .on("Redo", () => {
-            onChange(editor.getContent({ format: props.formatType }));
+            onChange(editor.getContent({ format: "html" }));
           })
           .on("KeyUp", () => {
-            onChange(editor.getContent({ format: props.formatType }));
+            onChange(editor.getContent({ format: "html" }));
           });
         setEditorInstance(editor);
         editor.on("init", () => {
