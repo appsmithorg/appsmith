@@ -1,13 +1,14 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.util.SafeEncoder;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -48,12 +50,17 @@ public class RedisPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(Jedis jedis,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
-            return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
+
+            final Map<String, Object> requestData = new HashMap<>();
+
+            return Mono.fromCallable(() -> {
                 String body = actionConfiguration.getBody();
                 if (StringUtils.isNullOrEmpty(body)) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             String.format("Body is null or empty [%s]", body)));
                 }
+
+                requestData.put("query", body);
 
                 // First value will be the redis command and others are arguments for that command
                 String[] bodySplitted = body.trim().split("\\s+");
@@ -82,6 +89,13 @@ public class RedisPlugin extends BasePlugin {
                 return Mono.just(actionExecutionResult);
             })
                     .flatMap(obj -> obj)
+                    .map(actionExecutionResult -> {
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setBody(requestData);
+                        ActionExecutionResult result = (ActionExecutionResult) actionExecutionResult;
+                        result.setRequest(request);
+                        return result;
+                    })
                     .subscribeOn(scheduler);
         }
 
