@@ -1,10 +1,6 @@
-import React, { createContext, forwardRef } from "react";
+import React from "react";
 import { map, sortBy, compact, get } from "lodash";
-import {
-  ListChildComponentProps,
-  FixedSizeList as List,
-  FixedSizeListProps as ListProps,
-} from "react-window";
+import { ListChildComponentProps, FixedSizeList as List } from "react-window";
 
 import ContainerComponent, {
   ContainerStyle,

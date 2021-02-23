@@ -17,11 +17,7 @@ import {
   deleteWidgetProperty,
   batchUpdateWidgetProperty,
 } from "actions/controlActions";
-import {
-  RenderModes,
-  WidgetType,
-  WidgetTypes,
-} from "constants/WidgetConstants";
+import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
@@ -40,7 +36,6 @@ import { getWidgets } from "sagas/selectors";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { AppState } from "reducers";
-import ComputeListPropertyControl from "components/propertyControls/ComputeListPropertyControl";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -49,7 +44,6 @@ type Props = PropertyPaneControlConfig & {
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
-  const stateWidgets = useSelector(getWidgets);
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
   const enhancementsMap = useSelector(getEnhancementsMap);
   const enhancementMap = enhancementsMap[widgetProperties.widgetId];

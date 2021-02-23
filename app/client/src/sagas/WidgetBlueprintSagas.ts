@@ -3,7 +3,6 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
 import { call } from "redux-saga/effects";
-import { get } from "lodash";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];

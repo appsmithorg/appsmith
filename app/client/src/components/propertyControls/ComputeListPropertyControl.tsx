@@ -121,7 +121,7 @@ class ComputeListPropertyControl extends BaseControl<
     );
   }
 
-  getInputComputedValue = (propertyValue: string, listId: string) => {
+  getInputComputedValue = (propertyValue: string) => {
     const value = `${propertyValue.substring(
       `{{List1.items.map((currentItem) => `.length,
       propertyValue.length - 3,
@@ -131,7 +131,7 @@ class ComputeListPropertyControl extends BaseControl<
     return stringValue;
   };
 
-  getComputedValue = (value: string, listId: string) => {
+  getComputedValue = (value: string) => {
     const stringToEvaluate = stringToJS(value);
     return `{{List1.items.map((currentItem) => ${stringToEvaluate})}}`;
   };

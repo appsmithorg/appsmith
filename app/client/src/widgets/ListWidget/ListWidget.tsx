@@ -7,11 +7,7 @@ import { removeFalsyEntries } from "utils/helpers";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
-import {
-  RenderModes,
-  WidgetType,
-  WidgetTypes,
-} from "constants/WidgetConstants";
+import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import {
   BASE_WIDGET_VALIDATION,
   WidgetPropertyValidationType,
