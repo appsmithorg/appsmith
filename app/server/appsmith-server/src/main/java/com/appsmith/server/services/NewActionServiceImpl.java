@@ -224,10 +224,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         newAction.setOrganizationId(datasource.getOrganizationId());
                     }
 
-                    // New actions will never be set to auto-magical execution, unless it is triggered during a
-                    // page/app clone event.
-                    if(appsmithEventContext == null
-                            || appsmithEventContext.getAppsmithEventContextType() != AppsmithEventContextType.CLONE_PAGE) {
+                    // New actions will never be set to auto-magical execution, unless it is triggered via a
+                    // page or application clone event.
+                    if (!AppsmithEventContextType.CLONE_PAGE.equals(appsmithEventContext)) {
                         action.setExecuteOnLoad(false);
                     }
 
@@ -240,7 +239,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     @Override
     public Mono<ActionDTO> createAction(ActionDTO action) {
-        return createAction(action, null);
+        AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
+        return createAction(action, eventContext);
     }
 
     private Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
