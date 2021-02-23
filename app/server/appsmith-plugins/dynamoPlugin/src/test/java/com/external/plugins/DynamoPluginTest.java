@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeDefinition;
@@ -27,11 +28,13 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -94,6 +97,42 @@ public class DynamoPluginTest {
                 ))
                 .build());
 
+        ddb.createTable(CreateTableRequest.builder()
+                .tableName("allTypes")
+                .attributeDefinitions(
+                        AttributeDefinition.builder().attributeName("Id").attributeType(ScalarAttributeType.N).build()
+                )
+                .keySchema(
+                        KeySchemaElement.builder().attributeName("Id").keyType(KeyType.HASH).build()
+                )
+                .provisionedThroughput(
+                        ProvisionedThroughput.builder().readCapacityUnits(5L).writeCapacityUnits(5L).build()
+                )
+                .build());
+
+        String testPayload1 = "payload1";
+        SdkBytes bytesValue1 = SdkBytes.fromByteArray(testPayload1.getBytes());
+        String testPayload2 = "payload2";
+        SdkBytes bytesValue2 = SdkBytes.fromByteArray(testPayload2.getBytes());
+        AttributeValue mapValue = AttributeValue.builder().s("mapValue").build();
+        AttributeValue listValue1 = AttributeValue.builder().s("listValue1").build();
+        AttributeValue listValue2 = AttributeValue.builder().s("listValue2").build();
+        ddb.putItem(PutItemRequest.builder()
+                .tableName("allTypes")
+                .item(Map.of(
+                        "Id", AttributeValue.builder().n("1").build(),
+                        "StringType", AttributeValue.builder().s("str").build(),
+                        "BooleanType", AttributeValue.builder().bool(true).build(),
+                        "BinaryType", AttributeValue.builder().b(bytesValue1).build(),
+                        "NullType", AttributeValue.builder().nul(true).build(),
+                        "StringSetType", AttributeValue.builder().ss("str1", "str2").build(),
+                        "NumberSetType", AttributeValue.builder().ns("1", "2").build(),
+                        "BinarySetType", AttributeValue.builder().bs(bytesValue1, bytesValue2).build(),
+                        "MapType", AttributeValue.builder().m(Map.of("mapKey", mapValue)).build(),
+                        "ListType", AttributeValue.builder().l(listValue1, listValue2).build()
+                ))
+                .build());
+
         Endpoint endpoint = new Endpoint();
         endpoint.setHost(host);
         endpoint.setPort(port.longValue());
@@ -122,10 +161,17 @@ public class DynamoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    assertArrayEquals(
-                            new String[]{"cities"},
-                            ((Map<String, List<String>>) result.getBody()).get("TableNames").toArray()
-                    );
+
+                   HashSet<String> expectedTables = new HashSet<>();
+                   expectedTables.add("cities");
+                   expectedTables.add("allTypes");
+
+                   HashSet<String> actualTables = new HashSet<>();
+                   actualTables.add(((Map<String, ArrayList<String>>) result.getBody()).get("TableNames").get(0));
+                   actualTables.add(((Map<String, ArrayList<String>>) result.getBody()).get("TableNames").get(1));
+
+                   assertTrue(expectedTables.equals(actualTables));
+
                 })
                 .verifyComplete();
     }
@@ -163,8 +209,13 @@ public class DynamoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    final Map<String, Map<String, Object>> item = ((Map<String, Map<String, Map<String, Object>>>) result.getBody()).get("Item");
-                    assertEquals("New Delhi", item.get("City").get("S"));
+                    Map<String, Object> resultBody = (Map<String, Object>) result.getBody();
+                    Map<String, Object> rawResponse = (Map<String, Object>) resultBody.get("raw");
+                    Map<String, Map<String, String>> rawItem = (Map<String, Map<String, String>>) rawResponse.get("Item");
+                    assertEquals("New Delhi", rawItem.get("City").get("S"));
+
+                    Map<String, String> transformedItem = (Map<String, String>) resultBody.get("Item");
+                    assertEquals("New Delhi", transformedItem.get("City"));
                 })
                 .verifyComplete();
     }
@@ -216,8 +267,14 @@ public class DynamoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    final Map<String, Map<String, Object>> attributes = ((Map<String, Map<String, Map<String, Object>>>) result.getBody()).get("Attributes");
-                    assertEquals("Bengaluru", attributes.get("City").get("S"));
+                    Map<String, Object> resultBody = (Map<String, Object>) result.getBody();
+                    Map<String, Object> rawResponse = (Map<String, Object>) resultBody.get("raw");
+                    Map<String, Map<String, Object>> rawItem = (Map<String, Map<String, Object>>) rawResponse.get(
+                            "Attributes");
+                    assertEquals("Bengaluru", rawItem.get("City").get("S"));
+
+                    Map<String, String> transformedItem = (Map<String, String>) resultBody.get("Attributes");
+                    assertEquals("Bengaluru", transformedItem.get("City"));
                 })
                 .verifyComplete();
     }
@@ -233,8 +290,21 @@ public class DynamoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    final List<Object> items = (List<Object>) ((Map<String, Object>) result.getBody()).get("Items");
+
+                    List<Map<String, Object>> items = (List<Map<String, Object>>)
+                            ((Map<String, Object>)((Map<String, Object>) result.getBody()).get("raw")).get("Items");
                     assertEquals(2, items.size());
+
+                    for (int i=0; i<items.size(); i++) {
+                        Map<String, Object> item = items.get(i);
+                        for (Map.Entry<String, Object> entry: item.entrySet()) {
+                            Object rawValue = ((Map<String, Object>) entry.getValue()).get("S");
+                            Object transformedValue =
+                                    ((List<Map<String, Object>>)((Map<String, Object>) result.getBody()).get("Items"))
+                                            .get(i).get(entry.getKey());
+                            assertTrue(rawValue.equals(transformedValue));
+                        }
+                    }
                 })
                 .verifyComplete();
     }
@@ -271,9 +341,18 @@ public class DynamoPluginTest {
                             Collections.emptyMap(),
                             response.remove("UnprocessedKeys")
                     );
-                    final List<Map<String, Map<String, String>>> items = (List<Map<String, Map<String, String>>>) ((Map) response.get("Responses")).get("cities");
-                    assertEquals("New Delhi", items.get(0).get("City").get("S"));
-                    assertEquals("Bengaluru", items.get(1).get("City").get("S"));
+
+                    // Test raw response
+                    Map<String, Object> rawResponse =
+                            (Map<String, Object>) ((Map<String, Object>) response.get("raw")).get(
+                                    "Responses");
+                    ArrayList<Map<String, Object>> rawCitiesList = (ArrayList<Map<String, Object>>) rawResponse.get("cities");
+                    assertEquals("New Delhi", ((Map<String, Object>)(rawCitiesList.get(0)).get("City")).get("S"));
+
+                    // Test transformed response
+                    Map<String, Object> transformedResponse = (Map<String, Object>) response.get("Responses");
+                    ArrayList<Map<String, Object>> transformedCitiesList = (ArrayList<Map<String, Object>>) transformedResponse.get("cities");
+                    assertEquals("New Delhi", transformedCitiesList.get(0).get("City"));
                 })
                 .verifyComplete();
     }
@@ -301,8 +380,21 @@ public class DynamoPluginTest {
                 .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
+
                     final Map<String, ?> response = (Map) result.getBody();
-                    assertEquals("New Delhi", ((List<Map<String, Map<String, Map<String, String>>>>) response.get("Responses")).get(0).get("Item").get("City").get("S"));
+
+                    // Test raw response
+                    ArrayList<Map<String, Object>> rawResponse =
+                            (ArrayList<Map<String, Object>>) ((Map<String, Object>) response.get("raw")).get(
+                            "Responses");
+                    assertEquals("New Delhi",
+                            ((Map<String, Map<String, Object>>)rawResponse.get(0).get("Item")).get("City").get("S"));
+
+                    // Test transformed response
+                    ArrayList<Map<String, Object>> transformedResponse = (ArrayList<Map<String, Object>>) response.get("Responses");
+                    assertEquals("New Delhi",
+                            ((Map<String, Object>)transformedResponse.get(0).get("Item")).get("City"));
+
                 })
                 .verifyComplete();
     }
@@ -317,14 +409,85 @@ public class DynamoPluginTest {
                 .assertNext(structure -> {
                     assertNotNull(structure);
                     assertNotNull(structure.getTables());
-                    assertEquals(
-                            List.of("cities"),
-                            structure.getTables().stream()
-                                    .map(DatasourceStructure.Table::getName)
-                                    .collect(Collectors.toList())
-                    );
+
+                    HashSet<String> expectedTables = new HashSet<>();
+                    expectedTables.add("cities");
+                    expectedTables.add("allTypes");
+
+                    HashSet<String> actualTables = new HashSet<>();
+                    actualTables.add(structure.getTables().get(0).getName());
+                    actualTables.add(structure.getTables().get(1).getName());
+
+                    assertTrue(expectedTables.equals(actualTables));
                 })
                 .verifyComplete();
     }
 
+    /*
+     * - "allTypes" table contains data of all type supported by DynamoDb.
+     * - This test aims to test the data type handling capability of the plugin.
+     */
+    @Test
+    public void testParsingCapabilityForAllTypes() {
+        final String body = "{\n" +
+                "  \"TableName\": \"allTypes\"\n" +
+                "}\n";
+
+        StepVerifier.create(execute("Scan", body))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+
+                    Map<String, Object> resultBody = (Map<String, Object>) result.getBody();
+                    Map<String, Object> rawResponse = (Map<String, Object>) resultBody.get("raw");
+
+                    /*
+                     * - Check if data under the "raw" section i.e. non-transformed data is correct.
+                     */
+                    ArrayList<Map<String, Object>> rawItems = (ArrayList<Map<String, Object>>) rawResponse.get(
+                            "Items");
+                    Map<String, Object> rawItemMap = rawItems.get(0);
+                    assertEquals("1", ((Map<String, Object>)rawItemMap.get("Id")).get("N"));
+                    assertEquals("str", ((Map<String, Object>)rawItemMap.get("StringType")).get("S"));
+                    assertEquals("true", ((Map<String, Object>)rawItemMap.get("BooleanType")).get("BOOL").toString());
+                    assertEquals("payload1", ((Map<String, Object>)rawItemMap.get("BinaryType")).get("B"));
+                    assertEquals("true", ((Map<String, Object>)rawItemMap.get("NullType")).get("NUL").toString());
+                    assertArrayEquals(new String[]{"str1", "str2"},
+                            ((ArrayList<String>)((Map<String, Object>)rawItemMap.get("StringSetType")).get("SS")).toArray());
+                    assertArrayEquals(new String[]{"payload1", "payload2"},
+                            ((ArrayList<String>)((Map<String, Object>)rawItemMap.get("BinarySetType")).get("BS")).toArray());
+                    assertArrayEquals(new String[]{"1", "2"},
+                            ((ArrayList<String>)((Map<String, Object>)rawItemMap.get("NumberSetType")).get("NS")).toArray());
+                    assertEquals("mapValue",
+                            ((Map<String, Map<String, Map<String, Object>>>)rawItemMap.get("MapType")).get("M")
+                                    .get("mapKey").get("S").toString());
+                    assertEquals("listValue1",
+                            ((HashMap<String, ArrayList<HashMap<String, Object>>>)rawItemMap.get("ListType")).get("L").get(0).get("S"));
+                    assertEquals("listValue2",
+                            ((HashMap<String, ArrayList<HashMap<String, Object>>>)rawItemMap.get("ListType")).get("L").get(1).get("S"));
+
+                    /*
+                     * - Check if the transformed data is correct.
+                     */
+                    ArrayList<Map<String, Object>> transformedItems = (ArrayList<Map<String, Object>>) resultBody.get("Items");
+                    Map<String, Object> transformedItemMap = transformedItems.get(0);
+                    assertEquals("1", transformedItemMap.get("Id"));
+                    assertEquals("str", transformedItemMap.get("StringType"));
+                    assertEquals("true", transformedItemMap.get("BooleanType").toString());
+                    assertEquals("payload1", transformedItemMap.get("BinaryType"));
+                    assertEquals("true", transformedItemMap.get("NullType").toString());
+                    assertArrayEquals(new String[]{"str1", "str2"},
+                            ((ArrayList<String>)transformedItemMap.get("StringSetType")).toArray());
+                    assertArrayEquals(new String[]{"payload1", "payload2"},
+                            ((ArrayList<String>)transformedItemMap.get("BinarySetType")).toArray());
+                    assertArrayEquals(new String[]{"1", "2"},
+                            ((ArrayList<String>)transformedItemMap.get("NumberSetType")).toArray());
+                    assertEquals("mapValue",
+                            ((Map<String, Object>)transformedItemMap.get("MapType")).get("mapKey").toString());
+                    assertEquals("listValue1", ((ArrayList<String>)transformedItemMap.get("ListType")).get(0));
+                    assertEquals("listValue2", ((ArrayList<String>)transformedItemMap.get("ListType")).get(1));
+                })
+                .verifyComplete();
+    }
 }
