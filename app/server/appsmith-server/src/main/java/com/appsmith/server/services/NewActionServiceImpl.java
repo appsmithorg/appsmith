@@ -187,7 +187,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     @Override
-    public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext appsmithEventContext) {
+    public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext) {
         if (action.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
@@ -226,7 +226,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     // New actions will never be set to auto-magical execution, unless it is triggered via a
                     // page or application clone event.
-                    if (!AppsmithEventContextType.CLONE_PAGE.equals(appsmithEventContext)) {
+                    if (!AppsmithEventContextType.CLONE_PAGE.equals(eventContext.getAppsmithEventContextType())) {
                         action.setExecuteOnLoad(false);
                     }
 
