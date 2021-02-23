@@ -1,8 +1,8 @@
-import { connect, useSelector } from "react-redux";
+import { connect } from "react-redux";
 import React, { Component } from "react";
 import styled from "styled-components";
 import { AppState } from "reducers";
-import { PanelStack, IPanel, Classes, IPanelProps } from "@blueprintjs/core";
+import { PanelStack, IPanel, Classes } from "@blueprintjs/core";
 
 import * as log from "loglevel";
 import {

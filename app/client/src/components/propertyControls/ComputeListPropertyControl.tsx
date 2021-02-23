@@ -93,10 +93,10 @@ class ComputeListPropertyControl extends BaseControl<
       additionalAutoComplete,
     } = this.props;
 
-    const listId = get(
-      this.props,
-      "additionalDynamicData.widgetProperties.widgetName",
-    );
+    // const listId = get(
+    //   this.props,
+    //   "additionalDynamicData.widgetProperties.widgetName",
+    // );
 
     const value =
       propertyValue && isDynamicValue(propertyValue)

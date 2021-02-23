@@ -32,7 +32,6 @@ import {
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { PropertyPaneEnhancements } from ".";
-import { getWidgets } from "sagas/selectors";
 import Indicator from "components/editorComponents/Onboarding/Indicator";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { AppState } from "reducers";
