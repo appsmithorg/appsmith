@@ -159,7 +159,7 @@ export interface WidgetEvaluatedProps {
   evaluatedValues?: Record<string, any>;
 }
 
-interface EntityWithBindings {
+export interface EntityWithBindings {
   dynamicBindingPathList?: DynamicPath[];
 }
 

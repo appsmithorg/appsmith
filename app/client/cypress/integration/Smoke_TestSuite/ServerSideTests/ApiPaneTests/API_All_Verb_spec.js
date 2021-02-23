@@ -21,7 +21,7 @@ describe("API Panel Test Functionality", function() {
     cy.log("Creation of FirstAPI Action successful");
     cy.SelectAction(testdata.putAction);
     cy.EnterSourceDetailsWithbody(
-      testdata.baseUrl2,
+      testdata.baseUrl,
       testdata.methodput,
       testdata.headerKey,
       testdata.headerValue,
@@ -35,7 +35,7 @@ describe("API Panel Test Functionality", function() {
         .type(json, { force: true });
       cy.WaitAutoSave();
       cy.RunAPI();
-      cy.validateRequest(testdata.baseUrl2, testdata.methodput, testdata.Put);
+      cy.validateRequest(testdata.baseUrl, testdata.methodput, testdata.Put);
     });
     cy.ResponseStatusCheck("200 OK");
     cy.log("Response code check successful");
@@ -48,7 +48,7 @@ describe("API Panel Test Functionality", function() {
     cy.log("Creation of FirstAPI Action successful");
     cy.SelectAction(testdata.postAction);
     cy.EnterSourceDetailsWithbody(
-      testdata.baseUrl2,
+      testdata.baseUrl,
       testdata.methodpost,
       testdata.headerKey,
       testdata.headerValue,
@@ -62,7 +62,7 @@ describe("API Panel Test Functionality", function() {
         .type(json, { force: true });
       cy.WaitAutoSave();
       cy.RunAPI();
-      cy.validateRequest(testdata.baseUrl2, testdata.methodpost, testdata.Post);
+      cy.validateRequest(testdata.baseUrl, testdata.methodpost, testdata.Post);
     });
     cy.ResponseStatusCheck("201 CREATED");
     cy.log("Response code check successful");
@@ -75,7 +75,7 @@ describe("API Panel Test Functionality", function() {
     cy.log("Creation of FirstAPI Action successful");
     cy.SelectAction(testdata.patchAction);
     cy.EnterSourceDetailsWithbody(
-      testdata.baseUrl2,
+      testdata.baseUrl,
       testdata.methodpatch,
       testdata.headerKey,
       testdata.headerValue,
@@ -90,7 +90,7 @@ describe("API Panel Test Functionality", function() {
       cy.WaitAutoSave();
       cy.RunAPI();
       cy.validateRequest(
-        testdata.baseUrl2,
+        testdata.baseUrl,
         testdata.methodpatch,
         testdata.Patch,
       );
@@ -106,19 +106,19 @@ describe("API Panel Test Functionality", function() {
     cy.log("Creation of FirstAPI Action successful");
     cy.SelectAction(testdata.deleteAction);
     cy.EnterSourceDetailsWithbody(
-      testdata.baseUrl2,
-      testdata.methodpatch,
+      testdata.baseUrl,
+      testdata.methoddelete,
       testdata.headerKey,
       testdata.headerValue,
     );
     cy.WaitAutoSave();
     cy.RunAPI();
     cy.validateRequest(
-      testdata.baseUrl2,
-      testdata.methodpatch,
+      testdata.baseUrl,
+      testdata.methoddelete,
       testdata.Delete,
     );
-    cy.ResponseStatusCheck("204 NO_CONTENT");
+    cy.ResponseStatusCheck("200");
     cy.log("Response code check successful");
   });
 

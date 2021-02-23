@@ -79,6 +79,7 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
       contextMenu={contextMenu}
       onNameEdit={resolveAsSpaceChar}
       rightIcon={rightIcon}
+      searchKeyword={props.searchKeyword}
     >
       <ExplorerWidgetGroup
         step={props.step + 1}

@@ -122,6 +122,7 @@ export class DataTreeFactory {
         bindingPaths: {
           data: true,
           isLoading: true,
+          config: true,
         },
       };
     });
