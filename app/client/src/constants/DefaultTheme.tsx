@@ -50,21 +50,75 @@ export const hideScrollbar = css`
   }
 `;
 
-export const scrollbarDark = css`
-  scrollbar-color: ${(props) => props.theme.colors.paneCard};
+export const scrollbarDark = css<{
+  backgroundColor?: Color;
+  barColor?: Color;
+}>`
   scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
 
-  &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${(props) => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
+  &::-webkit-scrollbar {
+    width: 12px;
+    height: 4px;
+    background-color: ${(props) =>
+      props.backgroundColor
+        ? props.backgroundColor
+        : getColorWithOpacity(props.theme.colors.scrollbarDarkBG, 0.5)};
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.paneCard};
-    border-radius: ${(props) => props.theme.radii[1]}px;
+    background-color: ${(props) =>
+      props.barColor
+        ? props.barColor
+        : getColorWithOpacity(props.theme.colors.scrollbarDark, 0.5)};
+    border-radius: ${(props) => props.theme.radii[3]}px;
+    border: 4px solid transparent;
+    background-clip: padding-box;
+  }
+
+  &::-webkit-scrollbar-button {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background-color: transparent;
+  }
+`;
+
+export const scrollbarLight = css<{
+  backgroundColor?: Color;
+  barColor?: Color;
+}>`
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    width: 12px;
+    height: 4px;
+    background-color: ${(props) =>
+      props.backgroundColor
+        ? props.backgroundColor
+        : getColorWithOpacity(props.theme.colors.textOnDarkBG, 0.5)};
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: ${(props) =>
+      props.barColor
+        ? props.barColor
+        : getColorWithOpacity(props.theme.colors.scrollbarLight, 0.5)};
+    border-radius: ${(props) => props.theme.radii[3]}px;
+    border: 4px solid transparent;
+    background-clip: padding-box;
+  }
+
+  &::-webkit-scrollbar-button {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background-color: transparent;
   }
 `;
 
@@ -1928,6 +1982,9 @@ export const theme: Theme = {
       array: "#CDFFA5",
       number: "#FFB2B2",
     },
+    scrollbarLight: Colors.CHARCOAL,
+    scrollbarDark: Colors.LIGHT_GREY,
+    scrollbarDarkBG: Colors.CODE_GRAY,
   },
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: {
@@ -2083,27 +2140,6 @@ export const theme: Theme = {
     },
   },
 };
-
-export const scrollbarLight = css<{ backgroundColor?: Color }>`
-  scrollbar-color: ${(props) => props.theme.colors.paneText};
-
-  scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-  &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${(props) =>
-        props.backgroundColor
-          ? props.backgroundColor
-          : getColorWithOpacity(props.theme.colors.paneText, 0.3)};
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.paneText};
-    border-radius: ${(props) => props.theme.radii[1]}px;
-  }
-`;
 
 export { css, createGlobalStyle, keyframes, ThemeProvider };
 
