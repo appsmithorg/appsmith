@@ -29,10 +29,11 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { useFilteredDatasources } from "pages/Editor/Explorer/hooks";
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
+import { BUILDER_PAGE_URL, DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { getSelectedWidget } from "selectors/ui";
 import { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getPageList } from "selectors/editorSelectors";
 
 const StyledContainer = styled.div`
   width: 750px;
@@ -58,6 +59,13 @@ const isModalOpenSelector = (state: AppState) =>
   state.ui.globalSearch.modalOpen;
 
 const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
+
+const attachKind = (source: any[], kind: string) => {
+  return source.map((s) => ({
+    ...s,
+    kind,
+  }));
+};
 
 const GlobalSearch = () => {
   const [defaultDocs, setDefaultDocs] = useState<DocSearchItem[]>([]);
@@ -100,6 +108,7 @@ const GlobalSearch = () => {
   const actions = useSelector(getActions);
   const datasourcesMap = useFilteredDatasources(query);
   const modalOpen = useSelector(isModalOpenSelector);
+  const pages = useSelector(getPageList) || [];
 
   const resetSearchQuery = useSelector(searchQuerySelector);
   const selectedWidgetId = useSelector(getSelectedWidget);
@@ -126,7 +135,8 @@ const GlobalSearch = () => {
 
     return searchableWidgets.filter(
       (widget: any) =>
-        widget.widgetName.toLowerCase().indexOf(query.toLocaleLowerCase()) > -1,
+        widget.widgetName.toLowerCase().indexOf(query?.toLocaleLowerCase()) >
+        -1,
     );
   }, [allWidgets, query]);
   const filteredActions = useMemo(() => {
@@ -134,13 +144,25 @@ const GlobalSearch = () => {
 
     return actions.filter(
       (action: any) =>
-        action.config.name.toLowerCase().indexOf(query.toLocaleLowerCase()) >
+        action.config.name.toLowerCase().indexOf(query?.toLocaleLowerCase()) >
         -1,
     );
   }, [actions, query]);
+  const filteredPages = useMemo(() => {
+    if (!query) return attachKind(pages, SEARCH_ITEM_TYPES.page);
+
+    return attachKind(
+      pages.filter(
+        (page: any) =>
+          page.pageName.toLowerCase().indexOf(query?.toLocaleLowerCase()) > -1,
+      ),
+      SEARCH_ITEM_TYPES.page,
+    );
+  }, [pages, query]);
 
   const searchResults = useMemo(() => {
     return [
+      ...filteredPages,
       ...filteredWidgets,
       ...filteredActions,
       ...datasourcesList,
@@ -203,11 +225,17 @@ const GlobalSearch = () => {
     );
   };
 
+  const handlePageClick = (item: SearchItem) => {
+    toggleShow();
+    history.push(BUILDER_PAGE_URL(params.applicationId, item.pageId));
+  };
+
   const itemClickHandlerByType = {
     [SEARCH_ITEM_TYPES.documentation]: handleDocumentationItemClick,
     [SEARCH_ITEM_TYPES.widget]: handleWidgetClick,
     [SEARCH_ITEM_TYPES.action]: handleActionClick,
     [SEARCH_ITEM_TYPES.datasource]: handleDatasourceClick,
+    [SEARCH_ITEM_TYPES.page]: handlePageClick,
   };
 
   const handleItemLinkClick = (itemArg?: SearchItem, source?: string) => {

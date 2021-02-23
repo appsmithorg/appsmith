@@ -4,17 +4,24 @@ const Highlight = ({ match, text }: { match: string; text: string }) => {
   const regEx = new RegExp(match, "ig");
   const parts = text?.split(regEx);
   if (parts?.length === 1) return <span>{text}</span>;
-
+  let lastIndex = 0;
   return (
     <span>
-      {parts?.map((part, index) => (
-        <React.Fragment key={index}>
-          {part}
-          {index !== parts.length - 1 && (
-            <span className="search-highlighted">{match}</span>
-          )}
-        </React.Fragment>
-      ))}
+      {parts?.map((part, index) => {
+        lastIndex += part.length;
+        const result = (
+          <React.Fragment key={index}>
+            {part}
+            {index !== parts.length - 1 && (
+              <span className="search-highlighted">
+                {text.slice(lastIndex, match.length)}
+              </span>
+            )}
+          </React.Fragment>
+        );
+        lastIndex += match.length;
+        return result;
+      })}
     </span>
   );
 };

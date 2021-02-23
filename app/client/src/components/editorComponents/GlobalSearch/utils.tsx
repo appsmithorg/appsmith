@@ -5,6 +5,7 @@ export enum SEARCH_ITEM_TYPES {
   action = "action",
   widget = "widget",
   datasource = "datasource",
+  page = "page",
 }
 
 export type DocSearchItem = {
@@ -25,6 +26,7 @@ export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
   let type: SEARCH_ITEM_TYPES;
   if (item.widgetName) type = SEARCH_ITEM_TYPES.widget;
   else if (item.kind === "document") type = SEARCH_ITEM_TYPES.documentation;
+  else if (item.kind === SEARCH_ITEM_TYPES.page) type = SEARCH_ITEM_TYPES.page;
   else if (item.config?.name) type = SEARCH_ITEM_TYPES.action;
   else type = SEARCH_ITEM_TYPES.datasource;
 
@@ -35,12 +37,14 @@ export const getItemTitle = (item: SearchItem): string => {
   const type = getItemType(item);
 
   switch (type) {
-    case "action":
+    case SEARCH_ITEM_TYPES.action:
       return item?.config?.name;
-    case "widget":
+    case SEARCH_ITEM_TYPES.widget:
       return item?.widgetName;
-    case "datasource":
+    case SEARCH_ITEM_TYPES.datasource:
       return item?.name;
+    case SEARCH_ITEM_TYPES.page:
+      return item?.pageName;
     default:
       return "";
   }
