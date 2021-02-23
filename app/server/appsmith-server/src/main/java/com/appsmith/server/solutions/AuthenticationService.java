@@ -78,7 +78,7 @@ public class AuthenticationService {
                             // The state is used internally to calculate the redirect url when returning control to the client
                             .queryParam(STATE, String.join(",", pageId, datasourceId, redirectUri));
                     // Adding optional scope parameter
-                    if (!oAuth2.getScope().isEmpty()) {
+                    if (oAuth2.getScope() != null && !oAuth2.getScope().isEmpty()) {
                         uriComponentsBuilder
                                 .queryParam(SCOPE, String.join(",", oAuth2.getScope()));
                     }
