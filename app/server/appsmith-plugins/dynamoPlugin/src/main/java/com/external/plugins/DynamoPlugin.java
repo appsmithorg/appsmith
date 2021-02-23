@@ -174,6 +174,14 @@ public class DynamoPlugin extends BasePlugin {
 
             Map<String, Object> transformedResponse = new HashMap<>();
 
+            /*
+             * - Any action other than the following do not return transformed response:
+             *  - Scan
+             *  - GetItem
+             *  - PutItem
+             *  - UpdateItem
+             *  - DeleteItem
+             */
             if (!SCAN_ACTION_VALUE.equals(action)
                     && !GET_ITEM_ACTION_VALUE.equals(action)
                     && !PUT_ITEM_ACTION_VALUE.equals(action)
@@ -182,8 +190,14 @@ public class DynamoPlugin extends BasePlugin {
                 return rawResponse;
             }
 
+            /*
+             * - Transformed response has section "raw", under which raw response appears.
+             */
             transformedResponse.put(RAW_RESPONSE_LABEL, rawResponse);
 
+            /*
+             * - Transform response based on action.
+             */
             String topLevelKey;
             switch (action) {
                 case SCAN_ACTION_VALUE:
@@ -220,10 +234,9 @@ public class DynamoPlugin extends BasePlugin {
                             /*
                              * - Insert transformed values into extractedResponse list.
                              */
-                            rawItems
+                            extractedResponse = rawItems
                                     .stream()
                                     .map(item -> extractValue(item))
-                                    .map(item -> extractedResponse.add(item))
                                     .collect(Collectors.toList());
                         }
 
@@ -233,18 +246,17 @@ public class DynamoPlugin extends BasePlugin {
                         /*
                          * - Need to have an empty map if rawItems is null.
                          */
-                        HashMap<String, Object> extractedResponse = new HashMap<>();
+                        Map<Object, Object> extractedResponse = new HashMap<>();
                         HashMap<String, Object> rawItems = (HashMap<String, Object>) rawResponse.get(topLevelKey);
                         if (rawItems != null) {
                             /*
                              * - Insert transformed values into extractedResponse map.
                              */
-                            rawItems
+                            extractedResponse = rawItems
                                     .entrySet()
                                     .stream()
                                     .map(item -> Map.entry(item.getKey(), extractValue(item.getValue())))
-                                    .map(item -> extractedResponse.put(item.getKey(), item.getValue()))
-                                    .collect(Collectors.toList());
+                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
                         }
 
                         transformedResponse.put(topLevelKey, extractedResponse);

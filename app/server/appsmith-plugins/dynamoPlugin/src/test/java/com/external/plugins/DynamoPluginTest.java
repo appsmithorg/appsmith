@@ -333,6 +333,10 @@ public class DynamoPluginTest {
                 .verifyComplete();
     }
 
+    /*
+     * - "allTypes" table contains data of all type supported by DynamoDb.
+     * - This test aims to test the data type handling capability of the plugin.
+     */
     @Test
     public void testParsingCapabilityForAllTypes() {
         final String body = "{\n" +
@@ -347,6 +351,10 @@ public class DynamoPluginTest {
 
                     Map<String, Object> resultBody = (Map<String, Object>) result.getBody();
                     Map<String, Object> rawResponse = (Map<String, Object>) resultBody.get("raw");
+
+                    /*
+                     * - Check if data under the "raw" section i.e. non-transformed data is correct.
+                     */
                     ArrayList<Map<String, Object>> rawItems = (ArrayList<Map<String, Object>>) rawResponse.get(
                             "Items");
                     Map<String, Object> rawItemMap = rawItems.get(0);
@@ -369,6 +377,9 @@ public class DynamoPluginTest {
                     assertEquals("listValue2",
                             ((HashMap<String, ArrayList<HashMap<String, Object>>>)rawItemMap.get("ListType")).get("L").get(1).get("S"));
 
+                    /*
+                     * - Check if the transformed data is correct.
+                     */
                     ArrayList<Map<String, Object>> transformedItems = (ArrayList<Map<String, Object>>) resultBody.get("Items");
                     Map<String, Object> transformedItemMap = transformedItems.get(0);
                     assertEquals("1", transformedItemMap.get("Id"));
