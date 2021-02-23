@@ -100,7 +100,7 @@ class ComputeListPropertyControl extends BaseControl<
 
     const value =
       propertyValue && isDynamicValue(propertyValue)
-        ? this.getInputComputedValue(propertyValue, listId)
+        ? this.getInputComputedValue(propertyValue)
         : propertyValue
         ? propertyValue
         : defaultValue;
@@ -143,16 +143,7 @@ class ComputeListPropertyControl extends BaseControl<
     } else {
       value = event;
     }
-    if (value) {
-      const output = this.getComputedValue(
-        value,
-        get(this.props.additionalDynamicData, "widgetName"),
-      );
-
-      this.updateProperty(this.props.propertyName, output);
-    } else {
-      this.updateProperty(this.props.propertyName, value);
-    }
+    this.updateProperty(this.props.propertyName, value);
   };
 
   static getControlType() {
