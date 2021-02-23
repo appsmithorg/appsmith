@@ -1,5 +1,6 @@
 import {
   ApplicationPayload,
+  Page,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -50,6 +51,8 @@ import { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsCurrentPageHidden,
+  getPageList,
 } from "selectors/editorSelectors";
 import { showCompletionDialog } from "./OnboardingSagas";
 
@@ -84,10 +87,16 @@ export function* publishApplicationSaga(
       });
 
       const applicationId = yield select(getCurrentApplicationId);
+      const pageList = yield select(getPageList);
+      const isCurrentPageHidden = yield select(getIsCurrentPageHidden);
       const currentPageId = yield select(getCurrentPageId);
+      const visiblePage = pageList.find((page: Page) => !page.isHidden);
+      const pageId =
+        isCurrentPageHidden && visiblePage ? visiblePage.pageId : currentPageId;
+
       let appicationViewPageUrl = getApplicationViewerPageURL(
         applicationId,
-        currentPageId,
+        pageId,
       );
 
       const showOnboardingCompletionDialog = yield select(showCompletionDialog);
