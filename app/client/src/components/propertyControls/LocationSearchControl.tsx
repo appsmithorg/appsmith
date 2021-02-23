@@ -9,15 +9,22 @@ import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 const StyledInput = styled.input`
   box-sizing: border-box;
   border: 1px solid transparent;
-  width: 100%;
-  height: 32px;
-  padding: 0 5px;
-  border-radius: 3px;
+  height: 38px;
+  padding: 0 14px;
   font-size: 14px;
-  outline: none;
-  text-overflow: ellipses;
-  background: #272821;
-  color: ${(props) => props.theme.colors.textOnDarkBG};
+  width: 100%;
+  border-radius: 4px;
+  background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
+  color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
+
+  &::placeholder {
+    color: ${(props) => props.theme.colors.textInput.placeholder};
+  }
+
+  &:focus {
+    border-color: ${(props) => props.theme.colors.info.main};
+    box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18);
+  }
 `;
 
 const { google } = getAppsmithConfigs();
