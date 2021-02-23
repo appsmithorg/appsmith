@@ -18,11 +18,15 @@ const algoliaHighlightTag = "ais-highlight-0000000000";
 
 /**
  * strip:
- * gitbook plugin tags,
- * description header (since it might be present for a lot of results)
+ * gitbook plugin tags
  */
-const strip = (text: string) =>
-  text.replaceAll(/description: &gt;-|description:|{% .*?%}|\\n/g, "");
+const strip = (text: string) => text.replaceAll(/{% .*?%}|\\n/gm, "");
+
+/**
+ * strip: description tag from the top
+ */
+const stripMarkdown = (text: string) =>
+  text.replaceAll(/---\n[description]([\S\s]*?)---/gm, "");
 
 const Container = styled.div`
   flex: 1;
@@ -50,16 +54,14 @@ const Container = styled.div`
   & img {
     max-width: 100%;
   }
-  & code {
-    display: block;
-  }
 `;
 
 const getDocumentationPreviewContent = (
   activeItem: SearchItem,
 ): string | undefined => {
   try {
-    const { value } = activeItem?._highlightResult?.document;
+    let { value } = activeItem?._highlightResult?.document;
+    value = stripMarkdown(value);
     const parsedDocument = marked(value);
     const domparser = new DOMParser();
     const documentObj = domparser.parseFromString(parsedDocument, "text/html");
