@@ -10,11 +10,41 @@ import {
   BASE_WIDGET_VALIDATION,
 } from "./WidgetValidation";
 import React from "react";
+import {
+  PropertyPaneConfig,
+  PropertyPaneControlConfig,
+} from "constants/PropertyControlConstants";
+import { generateReactKey } from "./generators";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
-export type TriggerPropertiesMap = Record<string, true>;
+export type TriggerPropertiesMap = Record<string, true | RegExp[]>;
 
+// TODO (abhinav): To enforce the property pane config structure in this function
+// Throw an error if the config is not of the desired format.
+const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
+  return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
+    sectionOrControlConfig.id = generateReactKey();
+    if (sectionOrControlConfig.children) {
+      sectionOrControlConfig.children = addPropertyConfigIds(
+        sectionOrControlConfig.children,
+      );
+    }
+    const config = sectionOrControlConfig as PropertyPaneControlConfig;
+    if (
+      config.panelConfig &&
+      config.panelConfig.children &&
+      Array.isArray(config.panelConfig.children)
+    ) {
+      config.panelConfig.children = addPropertyConfigIds(
+        config.panelConfig.children,
+      );
+
+      (sectionOrControlConfig as PropertyPaneControlConfig) = config;
+    }
+    return sectionOrControlConfig;
+  });
+};
 class WidgetFactory {
   static widgetMap: Map<
     WidgetType,
@@ -41,6 +71,10 @@ class WidgetFactory {
     Record<string, string>
   > = new Map();
   static metaPropertiesMap: Map<WidgetType, Record<string, any>> = new Map();
+  static propertyPaneConfigsMap: Map<
+    WidgetType,
+    readonly PropertyPaneConfig[]
+  > = new Map();
 
   static registerWidgetBuilder(
     widgetType: WidgetType,
@@ -50,6 +84,7 @@ class WidgetFactory {
     triggerPropertiesMap: TriggerPropertiesMap,
     defaultPropertiesMap: Record<string, string>,
     metaPropertiesMap: Record<string, any>,
+    propertyPaneConfig?: PropertyPaneConfig[],
   ) {
     this.widgetMap.set(widgetType, widgetBuilder);
     this.widgetPropValidationMap.set(widgetType, widgetPropertyValidation);
@@ -57,6 +92,12 @@ class WidgetFactory {
     this.triggerPropertiesMap.set(widgetType, triggerPropertiesMap);
     this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
     this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
+
+    propertyPaneConfig &&
+      this.propertyPaneConfigsMap.set(
+        widgetType,
+        Object.freeze(addPropertyConfigIds(propertyPaneConfig)),
+      );
   }
 
   static createWidget(
@@ -126,7 +167,7 @@ class WidgetFactory {
   ): Record<string, string> {
     const map = this.defaultPropertiesMap.get(widgetType);
     if (!map) {
-      console.error("Widget default properties not defined");
+      console.error("Widget default properties not defined", widgetType);
       return {};
     }
     return map;
@@ -139,6 +180,17 @@ class WidgetFactory {
     if (!map) {
       console.error("Widget meta properties not defined: ", widgetType);
       return {};
+    }
+    return map;
+  }
+
+  static getWidgetPropertyPaneConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const map = this.propertyPaneConfigsMap.get(type);
+    if (!map) {
+      console.error("Widget property pane configs not defined", type);
+      return [];
     }
     return map;
   }

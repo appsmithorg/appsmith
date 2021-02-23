@@ -1,4 +1,8 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+  ReduxActionWithCallbacks,
+} from "constants/ReduxActionConstants";
 import { CreateDatasourceConfig } from "api/DatasourcesApi";
 import { Datasource } from "entities/Datasource";
 
@@ -9,10 +13,29 @@ export const createDatasourceFromForm = (payload: CreateDatasourceConfig) => {
   };
 };
 
-export const updateDatasource = (payload: Datasource) => {
+export const updateDatasource = (
+  payload: Datasource,
+  onSuccess?: ReduxAction<unknown>,
+  onError?: ReduxAction<unknown>,
+): ReduxActionWithCallbacks<Datasource, unknown, unknown> => {
   return {
     type: ReduxActionTypes.UPDATE_DATASOURCE_INIT,
     payload,
+    onSuccess,
+    onError,
+  };
+};
+
+export const redirectAuthorizationCode = (
+  pageId: string,
+  datasourceId: string,
+) => {
+  return {
+    type: ReduxActionTypes.REDIRECT_AUTHORIZATION_CODE,
+    payload: {
+      pageId,
+      datasourceId,
+    },
   };
 };
 

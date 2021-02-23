@@ -22,15 +22,15 @@
     },
     "env": {
       "APPSMITH_MONGODB_URI": {
-        "description": "Your Mongo Database URI",
+        "description": "Your Mongo Database URI. Since Heroku doesn't support a managed MongoDB instance, you'll have to create a Mongo DB instance on another service such as https://cloud.mongodb.com",
         "value": ""
       },
       "APPSMITH_ENCRYPTION_PASSWORD": {
-        "description": "Encryption password to encrypt all credentials in the database",
+        "description": "Encryption password to encrypt all sensitive credentials in the database. You can use any random string (Eg. abcd). The more random, the better.",
         "value": ""
       },
       "APPSMITH_ENCRYPTION_SALT": {
-        "description" : "Encryption salt used to encrypt all credentials in the database",
+        "description" : "Encryption salt used to encrypt all sensitive credentials in the database. You can use any random string (Eg. abcd). The more random, the better.",
         "value": ""
       },
       "APPSMITH_MAIL_ENABLED": {

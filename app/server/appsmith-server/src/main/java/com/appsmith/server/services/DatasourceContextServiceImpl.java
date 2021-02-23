@@ -187,7 +187,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
 
     @Override
     public AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authentication) {
-        if (authentication != null && authentication.isEncrypted()) {
+        if (authentication != null && Boolean.TRUE.equals(authentication.isEncrypted())) {
             Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
                     .filter(e -> e.getValue() != null)
                     .collect(Collectors.toMap(

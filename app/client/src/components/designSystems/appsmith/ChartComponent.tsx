@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _, { isString } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
@@ -28,6 +28,7 @@ export interface ChartComponentProps {
   widgetId: string;
   isVisible?: boolean;
   allowHorizontalScroll: boolean;
+  onDataPointClick: (selectedDataPoint: { x: any; y: any }) => void;
 }
 
 const CanvasContainer = styled.div<ChartComponentProps>`
@@ -89,7 +90,15 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         },
       ];
     }
-    const data: ChartDataPoint[] = chartData[0].data;
+
+    let data: ChartDataPoint[] = chartData[0].data;
+    if (isString(chartData[0].data)) {
+      try {
+        data = JSON.parse(chartData[0].data);
+      } catch (e) {
+        data = [];
+      }
+    }
     if (data.length === 0) {
       return [
         {
@@ -233,6 +242,15 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       height: "100%",
       dataFormat: "json",
       dataSource: dataSource,
+      events: {
+        dataPlotClick: (evt: any) => {
+          const data = evt.data;
+          this.props.onDataPointClick({
+            x: data.categoryLabel,
+            y: data.dataValue,
+          });
+        },
+      },
     };
     this.chartInstance = new FusionCharts(chartConfig);
   };
