@@ -690,6 +690,37 @@ Cypress.Commands.add("switchToAPIInputTab", () => {
     .click({ force: true });
 });
 
+Cypress.Commands.add("selectDateFormat", (value) => {
+  cy.get(".t--property-control-dateformat button")
+    .first()
+    .click({ force: true });
+  cy.get("ul.bp3-menu")
+    .children()
+    .contains(value)
+    .click();
+});
+
+Cypress.Commands.add("assertDateFormat", () => {
+  cy.get(".t--draggable-datepickerwidget2 input")
+    .first()
+    .invoke("attr", "value")
+    .then((text) => {
+      const firstTxt = text;
+      cy.log("date time : ", firstTxt);
+      cy.get(commonlocators.labelTextStyle)
+        .first()
+        .should("contain", firstTxt);
+      cy.get(commonlocators.labelTextStyle)
+        .last()
+        .invoke("text")
+        .then((text) => {
+          const secondText = text;
+          cy.log("date time : ", secondText);
+          expect(firstTxt).not.to.equal(secondText);
+        });
+    });
+});
+
 Cypress.Commands.add("selectPaginationType", (option) => {
   cy.xpath(option).click({ force: true });
 });

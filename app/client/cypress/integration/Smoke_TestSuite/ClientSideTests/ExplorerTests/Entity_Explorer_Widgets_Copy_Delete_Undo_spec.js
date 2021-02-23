@@ -21,6 +21,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       formWidgetsPage.formInner,
     );
     cy.get(commonlocators.copyWidget).click();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.get(commonlocators.toastBody)
       .first()
@@ -36,6 +37,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       expect($lis.eq(1)).to.contain("{{FormTest.data}}");
     });
     cy.DeleteWidgetFromSideBar();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.get(apiwidget.propertyList).should("not.exist");
     /*
@@ -53,6 +55,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       "response.body.responseMeta.status",
       200,
     );
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(2);

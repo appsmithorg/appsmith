@@ -1,10 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import {
-  getBorderCSSShorthand,
-  labelStyle,
-  IntentColors,
-} from "constants/DefaultTheme";
+import { labelStyle, IntentColors } from "constants/DefaultTheme";
 import { ControlGroup, Classes, Label } from "@blueprintjs/core";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
@@ -22,12 +18,10 @@ const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {
     .${Classes.INPUT} {
       box-shadow: none;
-      color: ${Colors.OXFORD_BLUE};
-      font-size: ${(props) => props.theme.fontSizes[3]}px;
-      border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+      border: 1px solid;
       border-color: ${(props) =>
         !props.isValid ? IntentColors.danger : Colors.GEYSER_LIGHT};
-      border-radius: 0;
+      border-radius: ${(props) => props.theme.radii[1]}px;
       width: 100%;
       height: inherit;
       align-items: center;
@@ -36,11 +30,8 @@ const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
           !props.isValid ? IntentColors.danger : Colors.HIT_GRAY};
       }
       &:focus {
-        border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
         border-color: ${(props) =>
-          !props.isValid ? IntentColors.danger : "#80bdff"};
-        outline: 0;
-        box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
+          !props.isValid ? IntentColors.danger : Colors.MYSTIC};
       }
     }
     .${Classes.INPUT_GROUP} {
@@ -59,6 +50,17 @@ const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
       max-width: calc(30% - ${WIDGET_PADDING}px);
     }
   }
+  &&& {
+    input {
+      border: 1px solid;
+      border-color: ${(props) =>
+        !props.isValid ? IntentColors.danger : Colors.HIT_GRAY};
+      border-radius: ${(props) => props.theme.radii[1]}px;
+      box-shadow: none;
+      color: ${Colors.OXFORD_BLUE};
+      font-size: ${(props) => props.theme.fontSizes[3]}px;
+    }
+  }
 `;
 
 class DatePickerComponent extends React.Component<
@@ -73,17 +75,17 @@ class DatePickerComponent extends React.Component<
   }
 
   componentDidUpdate(prevProps: DatePickerComponentProps) {
-    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
     if (
       this.props.selectedDate !== this.state.selectedDate &&
-      !moment(this.props.selectedDate, dateFormat).isSame(
-        moment(prevProps.selectedDate, dateFormat),
+      !moment(this.props.selectedDate).isSame(
+        moment(prevProps.selectedDate),
         "seconds",
       )
     ) {
       this.setState({ selectedDate: this.props.selectedDate });
     }
   }
+
   getValidDate = (date: string, format: string) => {
     const _date = moment(date, format);
     return _date.isValid() ? _date.toDate() : undefined;
@@ -92,25 +94,24 @@ class DatePickerComponent extends React.Component<
   render() {
     const now = moment();
     const year = now.get("year");
-    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
     const minDate = this.props.minDate
-      ? this.getValidDate(this.props.minDate, dateFormat)
+      ? new Date(this.props.minDate)
       : now
           .clone()
           .set({ month: 0, date: 1, year: year - 100 })
           .toDate();
     const maxDate = this.props.maxDate
-      ? this.getValidDate(this.props.maxDate, dateFormat)
+      ? new Date(this.props.maxDate)
       : now
           .clone()
           .set({ month: 11, date: 31, year: year + 20 })
           .toDate();
     const isValid = this.state.selectedDate
-      ? this.isValidDate(this.parseDate(this.state.selectedDate))
+      ? this.isValidDate(new Date(this.state.selectedDate))
       : true;
     const value =
       isValid && this.state.selectedDate
-        ? this.parseDate(this.state.selectedDate)
+        ? new Date(this.state.selectedDate)
         : null;
     return (
       <StyledControlGroup
@@ -158,10 +159,9 @@ class DatePickerComponent extends React.Component<
 
   isValidDate = (date: Date): boolean => {
     let isValid = true;
-    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
     const parsedCurrentDate = moment(date);
     if (this.props.minDate) {
-      const parsedMinDate = moment(this.props.minDate, dateFormat);
+      const parsedMinDate = moment(this.props.minDate);
       if (
         this.props.minDate &&
         parsedMinDate.isValid() &&
@@ -171,7 +171,7 @@ class DatePickerComponent extends React.Component<
       }
     }
     if (this.props.maxDate) {
-      const parsedMaxDate = moment(this.props.maxDate, dateFormat);
+      const parsedMaxDate = moment(this.props.maxDate);
       if (
         isValid &&
         this.props.maxDate &&
@@ -190,10 +190,9 @@ class DatePickerComponent extends React.Component<
   };
 
   parseDate = (dateStr: string): Date => {
-    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
-    const date = moment(dateStr, dateFormat);
+    const date = moment(dateStr);
 
-    if (date.isValid()) return moment(dateStr, dateFormat).toDate();
+    if (date.isValid()) return moment(dateStr).toDate();
     else return moment().toDate();
   };
 
@@ -208,7 +207,7 @@ class DatePickerComponent extends React.Component<
     if (isUserChange) {
       const { onDateSelected } = this.props;
 
-      const date = selectedDate ? this.formatDate(selectedDate) : "";
+      const date = selectedDate ? selectedDate.toISOString() : "";
       this.setState({ selectedDate: date });
 
       onDateSelected(date);

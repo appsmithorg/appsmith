@@ -124,6 +124,15 @@ export const entityDefinitions = {
     selectedDate: "string",
     isDisabled: "bool",
   },
+  DATE_PICKER_WIDGET2: {
+    "!doc":
+      "Datepicker is used to capture the date and time from a user. It can be used to filter data base on the input date range as well as to capture personal information such as date of birth",
+    "!url": "https://docs.appsmith.com/widget-reference/datepicker",
+    isVisible: isVisible,
+    selectedDate: "string",
+    formattedDate: "string",
+    isDisabled: "bool",
+  },
   CHECKBOX_WIDGET: {
     "!doc":
       "Checkbox is a simple UI widget you can use when you want users to make a binary choice",
