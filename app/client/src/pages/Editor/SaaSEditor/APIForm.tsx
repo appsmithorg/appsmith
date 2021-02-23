@@ -25,6 +25,8 @@ import {
   EditorJSONtoFormProps,
 } from "../QueryEditor/EditorJSONtoForm";
 import { Datasource } from "entities/Datasource";
+import { getConfigInitialValues } from "components/formControls/utils";
+import { merge } from "lodash";
 
 type StateAndRouteProps = EditorJSONtoFormProps &
   RouteComponentProps<{
@@ -86,9 +88,12 @@ const mapStateToProps = (state: AppState, props: any) => {
   const responseTypes = getPluginResponseTypes(state);
   const documentationLinks = getPluginDocumentationLinks(state);
   let editorConfig: any;
-
+  const initialValues = {};
   if (editorConfigs && pluginId) {
     editorConfig = editorConfigs[pluginId];
+    if (editorConfig) {
+      merge(initialValues, getConfigInitialValues(editorConfig));
+    }
   }
   let settingConfig: any;
 
@@ -99,6 +104,9 @@ const mapStateToProps = (state: AppState, props: any) => {
   if (!settingConfig) {
     settingConfig = saasActionSettingsConfig;
   }
+  merge(initialValues, getConfigInitialValues(settingConfig));
+  merge(initialValues, action);
+
   const dataSources = getDatasourceByPluginId(state, pluginId);
   const DATASOURCES_OPTIONS = dataSources.map((dataSource: Datasource) => ({
     label: dataSource.name,
@@ -119,7 +127,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     responseType: responseTypes[pluginId],
     formData: getFormValues(SAAS_EDITOR_FORM)(state) as SaaSAction,
     documentationLink: documentationLinks[pluginId],
-    initialValues: action,
+    initialValues,
     dataSources,
     DATASOURCES_OPTIONS,
     executedQueryData: responses[apiId],
