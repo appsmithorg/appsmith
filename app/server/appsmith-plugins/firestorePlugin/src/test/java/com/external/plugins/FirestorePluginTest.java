@@ -128,7 +128,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_DOCUMENT")));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -150,7 +150,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_DOCUMENT")));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -177,7 +177,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_DOCUMENT")));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -206,7 +206,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_COLLECTION")));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -266,7 +266,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "SET_DOCUMENT")));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -287,7 +287,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "CREATE_DOCUMENT")));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -307,7 +307,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "UPDATE_DOCUMENT")));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -331,7 +331,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "DELETE_DOCUMENT")));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -359,7 +359,7 @@ public class FirestorePluginTest {
                 "}");
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
