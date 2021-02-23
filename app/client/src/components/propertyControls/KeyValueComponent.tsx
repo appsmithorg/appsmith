@@ -49,7 +49,7 @@ function updateOptionValue<T>(
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   padding: 0px 5px;
   position: absolute;
-  right: 22px;
+  right: 4px;
   cursor: pointer;
   && svg path {
     fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
@@ -65,6 +65,10 @@ const StyledOptionControlWrapper = styled(ControlWrapper)`
   justify-content: flex-start;
   padding-right: 16px;
   width: calc(100% - 10px);
+`;
+
+const StyledBox = styled.div`
+  width: 10px;
 `;
 
 type UpdatePairFunction = (pair: DropdownOption[]) => any;
@@ -149,18 +153,19 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
         return (
           <StyledOptionControlWrapper orientation={"HORIZONTAL"} key={pair.key}>
             <StyledOptionControlInputGroup
-              type={"text"}
+              dataType={"text"}
               placeholder={"Name"}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                updateKey(index, event.target.value);
+              onChange={(value: string) => {
+                updateKey(index, value);
               }}
               defaultValue={pair.label}
             />
-            <StyledOptionControlInputGroup
-              type={"text"}
+            <StyledBox />
+            <StyledInputGroup
+              dataType={"text"}
               placeholder={"Value"}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                updateValue(index, event.target.value);
+              onChange={(value: string) => {
+                updateValue(index, value);
               }}
               defaultValue={pair.value}
             />
