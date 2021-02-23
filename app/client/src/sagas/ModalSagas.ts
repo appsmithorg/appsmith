@@ -89,6 +89,17 @@ export function* showModalByNameSaga(
   }
 }
 
+export function* showIfModalSaga(
+  action: ReduxAction<{ widgetId: string; type: string }>,
+) {
+  if (action.payload.type === "MODAL_WIDGET") {
+    yield put({
+      type: ReduxActionTypes.SHOW_MODAL,
+      payload: { modalId: action.payload.widgetId },
+    });
+  }
+}
+
 export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   // First we close the currently open modals (if any)
   // Notice the empty payload.
@@ -184,5 +195,6 @@ export default function* modalSagas() {
     takeLatest(ReduxActionTypes.CREATE_MODAL_INIT, createModalSaga),
     takeLatest(ReduxActionTypes.SHOW_MODAL, showModalSaga),
     takeLatest(ReduxActionTypes.SHOW_MODAL_BY_NAME, showModalByNameSaga),
+    takeLatest(ReduxActionTypes.WIDGET_CHILD_ADDED, showIfModalSaga),
   ]);
 }
