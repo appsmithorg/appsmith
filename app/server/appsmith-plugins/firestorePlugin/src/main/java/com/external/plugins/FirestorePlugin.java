@@ -317,7 +317,7 @@ public class FirestorePlugin extends BasePlugin {
 
             if (paginationField != null && CollectionUtils.isEmpty(orderings)) {
                 return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Cannot do pagination without specifying an ordering."
                 ));
             }
