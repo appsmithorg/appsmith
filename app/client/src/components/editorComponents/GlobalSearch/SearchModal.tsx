@@ -14,7 +14,6 @@ const StyledDocsSearchModal = styled.div`
       justify-content: center;
       .${Classes.OVERLAY_CONTENT} {
         overflow: hidden;
-        position: relative;
         top: 10vh;
       }
     }
