@@ -143,6 +143,14 @@ public class FirestorePlugin extends BasePlugin {
                             return handleCollectionLevelMethod(connection, path, method, properties, mapBody);
                         }
                     })
+                    .onErrorResume(AppsmithPluginException.class, error  -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        result.setStatusCode(error.getAppErrorCode().toString());
+                        result.setBody(error.getMessage());
+                        return Mono.just(result);
+                    })
+                    // Now set the request in the result to be returned back to the server
                     .map(result -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setBody(requestData);

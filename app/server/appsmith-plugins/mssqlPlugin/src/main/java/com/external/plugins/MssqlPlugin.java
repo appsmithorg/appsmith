@@ -72,7 +72,7 @@ public class MssqlPlugin extends BasePlugin {
 
             final Map<String, Object> requestData = new HashMap<>();
 
-            return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
+            return Mono.fromCallable(() -> {
                 try {
                     if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
                         log.info("Encountered stale connection in MsSQL plugin. Reporting back.");
@@ -187,10 +187,19 @@ public class MssqlPlugin extends BasePlugin {
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
+                    .map(obj -> (ActionExecutionResult) obj)
+                    .onErrorResume(AppsmithPluginException.class, error  -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        result.setStatusCode(error.getAppErrorCode().toString());
+                        result.setBody(error.getMessage());
+                        return Mono.just(result);
+                    })
+                    // Now set the request in the result to be returned back to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setBody(requestData);
-                        ActionExecutionResult result = (ActionExecutionResult) actionExecutionResult;
+                        ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
                     })

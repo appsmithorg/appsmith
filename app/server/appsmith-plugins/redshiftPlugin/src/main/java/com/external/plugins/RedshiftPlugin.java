@@ -293,19 +293,28 @@ public class RedshiftPlugin extends BasePlugin {
                 return Mono.just(result);
             })
             .flatMap(obj -> obj)
-            .map(actionExecutionResult -> {
-                ActionExecutionRequest request = new ActionExecutionRequest();
-                request.setBody(requestData);
-                ActionExecutionResult result = (ActionExecutionResult) actionExecutionResult;
-                result.setRequest(request);
-                return result;
-            })
+            .map(obj -> (ActionExecutionResult) obj)
             .onErrorMap(e -> {
                 if(!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
                     return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
                 }
 
                 return e;
+            })
+            .onErrorResume(AppsmithPluginException.class, error  -> {
+                ActionExecutionResult result = new ActionExecutionResult();
+                result.setIsExecutionSuccess(false);
+                result.setStatusCode(error.getAppErrorCode().toString());
+                result.setBody(error.getMessage());
+                return Mono.just(result);
+            })
+            // Now set the request in the result to be returned back to the server
+            .map(actionExecutionResult -> {
+                ActionExecutionRequest request = new ActionExecutionRequest();
+                request.setBody(requestData);
+                ActionExecutionResult result = actionExecutionResult;
+                result.setRequest(request);
+                return result;
             })
             .subscribeOn(scheduler);
         }
