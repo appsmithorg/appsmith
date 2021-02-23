@@ -40,7 +40,6 @@ import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
-import { getAction, getPlugin } from "selectors/entitiesSelector";
 
 const Form = styled.form`
   display: flex;
