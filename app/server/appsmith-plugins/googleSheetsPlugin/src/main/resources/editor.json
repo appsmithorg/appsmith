@@ -27,11 +27,11 @@
               "value": "APPEND"
             },
             {
-              "label": "Set a range of values in a spreadsheet",
+              "label": "Update a range of values in a spreadsheet",
               "value": "UPDATE"
             },
             {
-              "label": "Set one or more range of values in a spreadsheet",
+              "label": "Update multiple ranges of values in a spreadsheet",
               "value": "BULK_UPDATE"
             },
             {
@@ -47,6 +47,10 @@
               "value": "COPY"
             },
             {
+              "label": "Delete a single sheet from a spreadsheet",
+              "value": "DELETE"
+            },
+            {
               "label": "List available spreadsheets",
               "value": "LIST"
             },
@@ -57,16 +61,24 @@
           ]
         },
         {
-          "label": "Sheet Id Key",
+          "label": "Spreadsheet Id Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "sheetId"
         },
         {
-          "label": "Sheet Id",
+          "label": "Spreadsheet Id",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-          "controlType": "INPUT_TEXT"
+          "controlType": "INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "IN",
+            "value": [
+              "CREATE",
+              "LIST"
+            ]
+          }
         },
         {
           "label": "Range Key",
@@ -82,121 +94,37 @@
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "IN",
-            "value": ["GET", "APPEND", "UPDATE", "BULK_UPDATE", "CLEAR", "CREATE", "COPY" ,"DELETE", "LIST", "INFO"]
+            "value": [
+              "CREATE",
+              "COPY",
+              "DELETE",
+              "LIST",
+              "INFO"
+            ]
           },
-          "initialValue": ""
+          "initialValue": "",
+          "placeholderText": "E.g: Sheet1!A1:D5"
         },
         {
-          "label": "Limit Documents Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].key",
+          "label": "Sheet Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
-          "initialValue": "limit"
+          "initialValue": "sheet"
         },
         {
-          "label": "Limit Documents",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+          "label": "Sheet Id",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
           "controlType": "INPUT_TEXT",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "NOT_EQUALS",
-            "value": "GET_COLLECTION"
+            "comparison": "NOT_IN",
+            "value": [
+              "COPY",
+              "DELETE"
+            ]
           },
-          "initialValue": "10"
-        },
-        {
-          "sectionName": "Query",
-          "id": 2,
-          "children": [
-            {
-              "label": "Field Path Key",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
-              "controlType": "INPUT_TEXT",
-              "hidden": true,
-              "initialValue": "fieldPath"
-            },
-            {
-              "label": "Where Condition: Field Path (leave emtpy to not apply any conditions)",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
-              "controlType": "INPUT_TEXT",
-              "hidden": {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                "comparison": "NOT_EQUALS",
-                "value": "GET_COLLECTION"
-              },
-              "initialValue": ""
-            },
-            {
-              "label": "Operator Key",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].key",
-              "controlType": "INPUT_TEXT",
-              "hidden": true,
-              "initialValue": "operator"
-            },
-            {
-              "label": "Where Condition: Operator",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
-              "controlType": "DROP_DOWN",
-              "hidden": {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                "comparison": "NOT_EQUALS",
-                "value": "GET_COLLECTION"
-              },
-              "initialValue": "EQ",
-              "options": [
-                {
-                  "label": "<",
-                  "value": "LT"
-                },
-                {
-                  "label": "<=",
-                  "value": "LTE"
-                },
-                {
-                  "label": "==",
-                  "value": "EQ"
-                },
-                {
-                  "label": ">=",
-                  "value": "GTE"
-                },
-                {
-                  "label": ">",
-                  "value": "GT"
-                },
-                {
-                  "label": "array-contains",
-                  "value": "ARRAY_CONTAINS"
-                },
-                {
-                  "label": "in",
-                  "value": "IN"
-                },
-                {
-                  "label": "array-contains-any",
-                  "value": "ARRAY_CONTAINS_ANY"
-                }
-              ]
-            },
-            {
-              "label": "Value Key",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].key",
-              "controlType": "INPUT_TEXT",
-              "hidden": true,
-              "initialValue": "fieldValue"
-            },
-            {
-              "label": "Where Condition: Value",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
-              "controlType": "INPUT_TEXT",
-              "hidden": {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                "comparison": "NOT_EQUALS",
-                "value": "GET_COLLECTION"
-              },
-              "initialValue": ""
-            }
-          ]
+          "initialValue": ""
         },
         {
           "label": "Body",
@@ -205,7 +133,13 @@
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "IN",
-            "value": ["GET_DOCUMENT", "GET_COLLECTION", "DELETE_DOCUMENT"]
+            "value": [
+              "GET",
+              "CLEAR",
+              "DELETE",
+              "LIST",
+              "INFO"
+            ]
           }
         }
       ]
