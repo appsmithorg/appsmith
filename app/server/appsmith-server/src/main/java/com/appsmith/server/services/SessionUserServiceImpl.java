@@ -54,7 +54,7 @@ public class SessionUserServiceImpl implements SessionUserService {
                 );
             } else {
                 log.error("Unrecognized session token type when updating user in session: {}.", currentToken.getClass());
-                return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL));
+                return Mono.error(new AppsmithException(AppsmithError.FAIL_UPDATE_USER_IN_SESSION));
             }
             context.setAuthentication(newToken);
             session.getAttributes().put(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME, context);
