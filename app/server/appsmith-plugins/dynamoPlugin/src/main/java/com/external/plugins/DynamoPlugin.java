@@ -53,12 +53,15 @@ public class DynamoPlugin extends BasePlugin {
 
     private static final String SCAN_ACTION_VALUE = "Scan";
     private static final String GET_ITEM_ACTION_VALUE = "GetItem";
+    private static final String BATCH_GET_ITEM_ACTION_VALUE = "GetBatchItem";
+    private static final String TRANSACT_GET_ITEMS_ACTION_VALUE = "TransactGetItems";
     private static final String PUT_ITEM_ACTION_VALUE = "PutItem";
     private static final String UPDATE_ITEM_ACTION_VALUE = "UpdateItem";
     private static final String DELETE_ITEM_ACTION_VALUE = "DeleteItem";
     private static final String ITEMS_KEY = "Items";
     private static final String ITEM_KEY = "Item";
     private static final String ATTRIBUTES_KEY = "Attributes";
+    private static final String RESPONSES_KEY = "Responses";
     private static final String DYNAMO_TYPE_STRING_LABEL = "S";
     private static final String DYNAMO_TYPE_NUMBER_LABEL = "N";
     private static final String DYNAMO_TYPE_BINARY_LABEL = "B";
@@ -166,8 +169,6 @@ public class DynamoPlugin extends BasePlugin {
         /*
          * - Transform response for easy consumption. For details please visit
          *   https://github.com/appsmithorg/appsmith/issues/3010
-         * - TODO: Update support for BatchGetItem and TransactGetItem as soon as PR https://github.com/appsmithorg/appsmith/pull/3120
-         *   is merged.
          */
         public Object getTransformedResponse(Map<String, Object> rawResponse,
                                              String action) throws AppsmithPluginException {
@@ -181,12 +182,16 @@ public class DynamoPlugin extends BasePlugin {
              *  - PutItem
              *  - UpdateItem
              *  - DeleteItem
+             *  - BatchGetItem
+             *  - TransactGetItem
              */
             if (!SCAN_ACTION_VALUE.equals(action)
                     && !GET_ITEM_ACTION_VALUE.equals(action)
                     && !PUT_ITEM_ACTION_VALUE.equals(action)
                     && !UPDATE_ITEM_ACTION_VALUE.equals(action)
-                    && !DELETE_ITEM_ACTION_VALUE.equals(action)) {
+                    && !DELETE_ITEM_ACTION_VALUE.equals(action)
+                    && !BATCH_GET_ITEM_ACTION_VALUE.equals(action)
+                    && !TRANSACT_GET_ITEMS_ACTION_VALUE.equals(action)) {
                 return rawResponse;
             }
 
@@ -210,6 +215,10 @@ public class DynamoPlugin extends BasePlugin {
                 case UPDATE_ITEM_ACTION_VALUE:
                 case DELETE_ITEM_ACTION_VALUE:
                     topLevelKey = ATTRIBUTES_KEY;
+                    break;
+                case BATCH_GET_ITEM_ACTION_VALUE:
+                case TRANSACT_GET_ITEMS_ACTION_VALUE:
+                    topLevelKey = RESPONSES_KEY;
                     break;
                 default:
                     throw new AppsmithPluginException(
