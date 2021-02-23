@@ -51,9 +51,9 @@ import {
   getCurrentPageNameByActionId,
   getEditorConfig,
   getPageNameByPageId,
+  getPlugin,
   getSettingConfig,
   getDatasources,
-  getPlugin,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import {
