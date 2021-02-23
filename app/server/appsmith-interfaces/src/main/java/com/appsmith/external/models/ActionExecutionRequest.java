@@ -14,7 +14,8 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 public class ActionExecutionRequest {
-    Object body;
+    Object query;
+
     JsonNode headers;
     HttpMethod httpMethod;
     String url;

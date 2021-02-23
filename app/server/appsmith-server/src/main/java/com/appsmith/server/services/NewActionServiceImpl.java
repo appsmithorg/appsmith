@@ -6,6 +6,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Param;
@@ -94,6 +95,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private final ApplicationService applicationService;
     private final SessionUserService sessionUserService;
     private final PolicyUtils policyUtils;
+    private final ObjectMapper objectMapper;
 
     public NewActionServiceImpl(Scheduler scheduler,
                                 Validator validator,
@@ -123,6 +125,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         this.applicationService = applicationService;
         this.sessionUserService = sessionUserService;
         this.policyUtils = policyUtils;
+        this.objectMapper = new ObjectMapper();
     }
 
     private Boolean validateActionName(String name) {
@@ -587,7 +590,20 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                             datasourceConfiguration,
                                             actionConfiguration
                                     )
-                            );
+                            )
+                            .flatMap(result -> Mono.zip(actionMono, actionDTOMono, datasourceMono)
+                                    .flatMap(tuple1 -> {
+                                        ActionExecutionResult actionExecutionResult = (ActionExecutionResult) result;
+
+                                        return Mono.when(sendExecuteAnalyticsEvent(tuple1.getT1(), tuple1.getT2(), tuple1.getT3(), executeActionDTO.getViewMode(), actionExecutionResult.getRequest()))
+                                                .thenReturn((ActionExecutionResult)result);
+                                    })
+//                                    .thenReturn((ActionExecutionResult)result)
+                            )
+                            .map(result -> {
+                                log.debug("post analytics, result is : {}", result);
+                                return (ActionExecutionResult) result;
+                            });
 
                     return Mono.zip(actionMono, actionDTOMono, datasourceMono)
                             .flatMap(tuple1 -> getAnalyticsMono(tuple1.getT1(), tuple1.getT2(), tuple1.getT3(), executeActionDTO))
@@ -747,6 +763,58 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     return Mono.empty();
                 })
                 .then();
+    }
+
+    private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(NewAction action, ActionDTO actionDTO, Datasource datasource, Boolean viewMode, ActionExecutionRequest request) {
+        // Since we're loading the application from DB *only* for analytics, we check if analytics is
+        // active before making the call to DB.
+        if (!analyticsService.isActive()) {
+            return Mono.empty();
+        }
+
+        return Mono.justOrEmpty(action.getApplicationId())
+                .flatMap(applicationService::findById)
+                .defaultIfEmpty(new Application())
+                .flatMap(application -> Mono.zip(
+                        Mono.just(application),
+                        sessionUserService.getCurrentUser(),
+                        newPageService.getNameByPageId(actionDTO.getPageId(), viewMode)
+                ))
+                .map(tuple -> {
+                    final Application application = tuple.getT1();
+                    final User user = tuple.getT2();
+                    final String pageName = tuple.getT3();
+
+                    final PluginType pluginType = action.getPluginType();
+                    final Map<String, Object> data = new HashMap<>();
+
+                    data.putAll(Map.of(
+                            "username", user.getUsername(),
+                            "type", pluginType,
+                            "name", actionDTO.getName(),
+                            "datasource", Map.of(
+                                    "name", datasource.getName()
+                            ),
+                            "orgId", application.getOrganizationId(),
+                            "appId", action.getApplicationId(),
+                            "appMode", Boolean.TRUE.equals(viewMode) ? "view" : "edit",
+                            "appName", application.getName(),
+                            "isExampleApp", application.isAppIsExample(),
+                            "request", request
+                    ));
+
+                    data.putAll(Map.of(
+                            "pageId", actionDTO.getPageId(),
+                            "pageName", pageName
+                    ));
+
+                    analyticsService.sendEvent(AnalyticsEvents.EXECUTE_ACTION.getEventName(), user.getUsername(), data);
+                    return request;
+                })
+                .onErrorResume(error -> {
+                    log.warn("Error sending action execution data point", error);
+                    return Mono.just(request);
+                });
     }
 
     /**
