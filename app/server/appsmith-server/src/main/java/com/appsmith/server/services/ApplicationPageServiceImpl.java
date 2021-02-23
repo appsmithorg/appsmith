@@ -386,7 +386,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                         action.getUnpublishedAction(),
                                         eventContext
                                 );
-                                //return newActionService.createAction(action.getUnpublishedAction());
                             })
                             .collectList()
                             .thenReturn(clonedPage);
