@@ -7,6 +7,7 @@ import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionExceptio
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.SqlStringUtils;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -41,6 +42,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -180,9 +182,12 @@ public class PostgresPlugin extends BasePlugin {
                                                           List<String> mustacheValuesInOrder,
                                                           ExecuteActionDTO executeActionDTO) {
 
+            final Map<String, Object> requestData = new HashMap<>();
+
             return Mono.fromCallable(() -> {
 
                 String query = actionConfiguration.getBody();
+                requestData.put("query", query);
 
                 Connection connectionFromPool;
 
@@ -223,15 +228,18 @@ public class PostgresPlugin extends BasePlugin {
                         PreparedStatement preparedQuery = connectionFromPool.prepareStatement(query);
                         if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
                             List<Param> params = executeActionDTO.getParams();
+                            List<String> parameters = new ArrayList<>();
                             for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
                                 String key = mustacheValuesInOrder.get(i);
                                 Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
                                 if (matchingParam.isPresent()) {
                                     String value = matchingParam.get().getValue();
+                                    parameters.add(value);
                                     preparedQuery = SqlStringUtils.setValueInPreparedStatement(i + 1, key,
                                             value, preparedQuery);
                                 }
                             }
+                            requestData.put("parameters", parameters);
                         }
                         System.out.println("Prepared query is : " + preparedQuery.toString());
                         isResultSet = preparedQuery.execute();
@@ -347,8 +355,11 @@ public class PostgresPlugin extends BasePlugin {
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
-                    .map(obj -> {
-                        ActionExecutionResult result = (ActionExecutionResult) obj;
+                    .map(actionExecutionResult -> {
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setBody(requestData);
+                        ActionExecutionResult result = (ActionExecutionResult) actionExecutionResult;
+                        result.setRequest(request);
                         return result;
                     })
                     .subscribeOn(scheduler);
