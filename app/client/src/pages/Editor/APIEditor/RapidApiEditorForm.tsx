@@ -220,11 +220,13 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
                           actionConfigurationHeaders &&
                           actionConfigurationHeaders
                         }
+                        pushFields
                       />
                     </HeadersSection>
                     <KeyValueFieldArray
                       name="actionConfiguration.queryParameters"
                       label="Params"
+                      pushFields
                     />
                     {postbodyResponsePresent && (
                       <PostbodyContainer>
@@ -238,6 +240,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
                               rightIcon={FormIcons.INFO_ICON}
                               addOrDeleteFields={false}
                               actionConfig={actionConfigurationBodyFormData}
+                              pushFields
                             />
                           </React.Fragment>
                         )}
