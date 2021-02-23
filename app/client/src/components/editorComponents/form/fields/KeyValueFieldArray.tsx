@@ -88,6 +88,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
       }
     }
   }, [props.fields, props.pushFields]);
+
   return (
     <KeyValueStackContainer>
       <FlexContainer>
