@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import _ from "lodash";
+import _, { merge } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "constants/forms";
 import { SAAS_EDITOR_URL } from "./constants";
 import history from "utils/history";
@@ -41,6 +41,7 @@ import {
   PluginImage,
   SaveButtonContainer,
 } from "../DataSourceEditor/JSONtoForm";
+import { getConfigInitialValues } from "components/formControls/utils";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -240,16 +241,22 @@ const mapStateToProps = (state: AppState, props: any) => {
   const { formConfigs, loadingFormConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_SAAS_FORM)(state) as Datasource;
   const pluginId = _.get(datasource, "pluginId", "");
+  const formConfig = formConfigs[pluginId];
+  const initialValues = {};
+  if (formConfig) {
+    merge(initialValues, getConfigInitialValues(formConfig));
+  }
+  merge(initialValues, datasource);
   return {
     isSaving: datasources.loading,
     isDeleting: datasources.isDeleting,
     loadingFormConfigs: loadingFormConfigs,
     formData: formData,
-    formConfig: formConfigs[pluginId],
+    formConfig,
     isNewDatasource:
       datasourcePane.newDatasource === props.match.params.datasourceId,
     pluginImage: getPluginImages(state)[pluginId],
-    initialValues: datasource,
+    initialValues,
     pluginId: pluginId,
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
