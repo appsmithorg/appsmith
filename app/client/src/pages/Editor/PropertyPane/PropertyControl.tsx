@@ -286,22 +286,13 @@ const PropertyControl = memo((props: Props) => {
     }
 
     /**
-     * if there is customJSControl being passed, use that,
-     * if the current widget is associated with list widget, use "COMPUTE_LIST_VALUE"
-     *
-     * Note: "COMPUTE_LIST_VALUE" helps in showing currentItem automcomplete in property pane
+     * if the current widget requires a customJSControl, use that.
      */
     const getCustomJSControl = () => {
       if (customJSControl) return customJSControl;
 
       return props.customJSControl;
     };
-
-    if (customJSControl === ComputeListPropertyControl.getControlType()) {
-      // config.additionalDynamicData = {
-      //   items:
-      // }
-    }
 
     try {
       return (

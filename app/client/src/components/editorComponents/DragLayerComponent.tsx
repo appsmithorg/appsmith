@@ -133,9 +133,9 @@ const DragLayerComponent = (props: DragLayerProps) => {
     return null;
   }
 
-  /* 
+  /*
   When the parent offsets are not updated, we don't need to show the dropzone, as the dropzone
-  will be rendered at an incorrect coordinates. 
+  will be rendered at an incorrect coordinates.
   We can be sure that the parent offset has been calculated
   when the coordiantes are not [0,0].
   */

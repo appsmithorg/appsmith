@@ -105,6 +105,8 @@ class ComputeListPropertyControl extends BaseControl<
         ? propertyValue
         : defaultValue;
 
+    console.log({ value });
+
     return (
       <InputText
         label={label}
@@ -121,7 +123,7 @@ class ComputeListPropertyControl extends BaseControl<
 
   getInputComputedValue = (propertyValue: string, listId: string) => {
     const value = `${propertyValue.substring(
-      `{{${listId}.items.map((currentItem) => `.length,
+      `{{List1.items.map((currentItem) => `.length,
       propertyValue.length - 3,
     )}`;
     const stringValue = JSToString(value);
@@ -130,9 +132,8 @@ class ComputeListPropertyControl extends BaseControl<
   };
 
   getComputedValue = (value: string, listId: string) => {
-    console.log({ value, listId });
     const stringToEvaluate = stringToJS(value);
-    return `{{${listId}.items.map((currentItem) => ${stringToEvaluate})}}`;
+    return `{{List1.items.map((currentItem) => ${stringToEvaluate})}}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
