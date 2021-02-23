@@ -240,7 +240,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     @Override
     public Mono<ActionDTO> createAction(ActionDTO action) {
-        return createActionWithContext(action, null);
+        return createActionWithContext(action, AppsmithEventContextType.DEFAULT);
     }
 
     private Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
