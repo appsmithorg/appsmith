@@ -53,7 +53,7 @@ public class DynamoPlugin extends BasePlugin {
 
     private static final String SCAN_ACTION_VALUE = "Scan";
     private static final String GET_ITEM_ACTION_VALUE = "GetItem";
-    private static final String BATCH_GET_ITEM_ACTION_VALUE = "GetBatchItem";
+    private static final String BATCH_GET_ITEM_ACTION_VALUE = "BatchGetItem";
     private static final String TRANSACT_GET_ITEMS_ACTION_VALUE = "TransactGetItems";
     private static final String PUT_ITEM_ACTION_VALUE = "PutItem";
     private static final String UPDATE_ITEM_ACTION_VALUE = "UpdateItem";
