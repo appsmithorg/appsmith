@@ -14,6 +14,22 @@ const PropertyPaneConfig = [
         isTriggerProperty: false,
       },
       {
+        propertyName: "backgroundColor",
+        label: "List Background",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+      },
+      {
+        propertyName: "itemBackgroundColor",
+        label: "List Item Background",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+      },
+      {
         helpText: "Use a html color name, HEX, RGB or RGBA value",
         placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
         propertyName: "backgroundColor",

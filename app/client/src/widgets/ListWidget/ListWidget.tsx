@@ -114,6 +114,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       return {
         ...child,
         gap,
+        backgroundColor: this.props.itemBackgroundColor,
         topRow: index * children[0].bottomRow + index * gap,
         bottomRow: (index + 1) * children[0].bottomRow + index * gap,
         resizeDisabled: index > 0,
