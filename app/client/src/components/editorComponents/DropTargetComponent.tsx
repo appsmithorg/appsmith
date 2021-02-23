@@ -290,6 +290,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
           parentRows={rows}
           parentCols={props.snapColumns}
           isResizing={isChildResizing}
+          noPad={props.noPad || false}
           force={isDragging && !isOver && !props.parentId}
         />
       </StyledDropTarget>
