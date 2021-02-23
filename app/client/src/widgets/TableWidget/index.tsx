@@ -950,17 +950,24 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         ),
       );
     } else {
-      this.props.updateWidgetMetaProperty("selectedRowIndex", index);
-      this.props.updateWidgetMetaProperty(
-        "selectedRow",
-        this.props.filteredTableData[index],
-        {
-          dynamicString: this.props.onRowSelected,
-          event: {
-            type: EventType.ON_ROW_SELECTED,
+      const selectedRowIndex = isNumber(this.props.selectedRowIndex)
+        ? this.props.selectedRowIndex
+        : -1;
+      if (selectedRowIndex === index) {
+        index = -1;
+      } else {
+        this.props.updateWidgetMetaProperty(
+          "selectedRow",
+          this.props.filteredTableData[index],
+          {
+            dynamicString: this.props.onRowSelected,
+            event: {
+              type: EventType.ON_ROW_SELECTED,
+            },
           },
-        },
-      );
+        );
+      }
+      this.props.updateWidgetMetaProperty("selectedRowIndex", index);
     }
   };
 

@@ -163,7 +163,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     row: { original: Record<string, unknown>; index: number },
     isSelected: boolean,
   ) => {
-    if (!isSelected || !!props.multiRowSelection) {
+    if (!isSelected || props.multiRowSelection || !props.multiRowSelection) {
       props.onRowClick(row.original, row.index);
     }
   };
