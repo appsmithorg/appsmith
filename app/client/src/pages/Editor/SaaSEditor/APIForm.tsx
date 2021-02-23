@@ -24,6 +24,7 @@ import {
   EditorJSONtoForm,
   EditorJSONtoFormProps,
 } from "../QueryEditor/EditorJSONtoForm";
+import { Datasource } from "entities/Datasource";
 
 type StateAndRouteProps = EditorJSONtoFormProps &
   RouteComponentProps<{
@@ -75,7 +76,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   const { apiId } = props.match.params;
   const { runErrorMessage } = state.ui.queryPane;
   const { plugins } = state.entities;
-  const { editorConfigs, loadingFormConfigs } = plugins;
+  const { editorConfigs, settingConfigs, loadingFormConfigs } = plugins;
   const pluginImages = getPluginImages(state);
 
   const action = getAction(state, apiId);
@@ -89,8 +90,17 @@ const mapStateToProps = (state: AppState, props: any) => {
   if (editorConfigs && pluginId) {
     editorConfig = editorConfigs[pluginId];
   }
+  let settingConfig: any;
+
+  if (settingConfigs && pluginId) {
+    settingConfig = settingConfigs[pluginId];
+  }
+
+  if (!settingConfig) {
+    settingConfig = saasActionSettingsConfig;
+  }
   const dataSources = getDatasourceByPluginId(state, pluginId);
-  const DATASOURCES_OPTIONS = dataSources.map((dataSource) => ({
+  const DATASOURCES_OPTIONS = dataSources.map((dataSource: Datasource) => ({
     label: dataSource.name,
     value: dataSource.id,
     image: pluginImages[dataSource.pluginId],
@@ -102,6 +112,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     isDeleting: state.ui.queryPane.isDeleting[apiId],
     loadingFormConfigs,
     editorConfig,
+    settingConfig,
     actionName,
     pluginId,
     plugin,
@@ -114,7 +125,6 @@ const mapStateToProps = (state: AppState, props: any) => {
     executedQueryData: responses[apiId],
     runErrorMessage: runErrorMessage[apiId],
     formName: SAAS_EDITOR_FORM,
-    actionSettingsConfig: saasActionSettingsConfig,
   };
 };
 

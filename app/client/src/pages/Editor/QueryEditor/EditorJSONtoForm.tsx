@@ -271,7 +271,7 @@ type QueryFormProps = {
   editorConfig?: any;
   loadingFormConfigs: boolean;
   formName: string;
-  actionSettingsConfig: any;
+  settingConfig: any;
 };
 
 type ReduxProps = {
@@ -302,6 +302,8 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
     documentationLink,
     loadingFormConfigs,
     editorConfig,
+    settingConfig,
+    formName,
     actionName,
   } = props;
 
@@ -489,7 +491,7 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
               panelComponent: (
                 <SettingsWrapper>
                   {editorConfig && editorConfig.length > 0 ? (
-                    editorConfig.map(renderEachConfig(props.formName))
+                    editorConfig.map(renderEachConfig(formName))
                   ) : (
                     <>
                       <ErrorMessage>An unexpected error occurred</ErrorMessage>
@@ -559,8 +561,8 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
               panelComponent: (
                 <SettingsWrapper>
                   <ActionSettings
-                    actionSettingsConfig={props.actionSettingsConfig}
-                    formName={props.formName}
+                    actionSettingsConfig={settingConfig}
+                    formName={formName}
                   />
                 </SettingsWrapper>
               ),
