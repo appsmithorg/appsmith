@@ -33,7 +33,7 @@ import {
 import {
   DynamicAutocompleteInputWrapper,
   EditorWrapper,
-  HintStyles,
+  // HintStyles,
   IconContainer,
 } from "components/editorComponents/CodeEditor/styledComponents";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
@@ -98,7 +98,7 @@ type State = {
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker],
-    hinting: [bindingHint],
+    hinting: [],
   };
 
   textArea = React.createRef<HTMLTextAreaElement>();
@@ -170,7 +170,7 @@ class CodeEditor extends Component<Props, State> {
       this.editor.setValue(inputValue);
       this.updateMarkings();
 
-      this.startAutocomplete();
+      // this.startAutocomplete();
     }
   }
 
@@ -389,7 +389,6 @@ class CodeEditor extends Component<Props, State> {
             hoverInteraction={hoverInteraction}
             fill={fill}
           >
-            <HintStyles editorTheme={theme || EditorTheme.LIGHT} />
             {this.props.leftIcon && (
               <IconContainer>{this.props.leftIcon}</IconContainer>
             )}
