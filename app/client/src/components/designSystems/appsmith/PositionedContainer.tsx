@@ -6,7 +6,7 @@ import styled from "styled-components";
 
 const PositionedWidget = styled.div`
   &:hover {
-    z-index: "1";
+    z-index: 1;
   }
 `;
 type PositionedContainerProps = {

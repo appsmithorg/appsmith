@@ -1,6 +1,9 @@
 import React from "react";
 import { map, sortBy, compact, get } from "lodash";
-import { ListChildComponentProps, FixedSizeList as List } from "react-window";
+import {
+  ListChildComponentProps,
+  VariableSizeList as List,
+} from "react-window";
 
 import ContainerComponent, {
   ContainerStyle,
@@ -25,54 +28,6 @@ export interface StickyListContextInterface {
   ItemRenderer: any;
 }
 
-// const StickyRow = (props: {
-//   data: ListChildComponentProps;
-//   children: any[];
-//   renderFn: (el: WidgetProps) => React.ReactNode;
-//   rowHeight: number;
-// }) => {
-//   const child = props.children[props.data.index];
-//   const row = props.renderFn(child);
-
-//   return (
-//     <div
-//       style={{ height: `${props.rowHeight}px` }}
-//       key={`virtualized-row-${props.data.index}`}
-//       className="sticky"
-//     >
-//       {row}
-//     </div>
-//   );
-// };
-
-// const innerElementType = forwardRef<any, any>(({ children, ...rest }, ref) => (
-//   <StickyListContext.Consumer>
-//     {(props) => (
-//       <div ref={ref} {...rest}>
-//         {props?.stickyIndices.map((index: number) => (
-//           <StickyRow
-//             data={children}
-//             index={index}
-//             key={index}
-//             style={{
-//               left: 0,
-//               width: "100%",
-//             }}
-//           />
-//         ))}
-
-//         {children}
-//       </div>
-//     )}
-//   </StickyListContext.Consumer>
-// ));
-
-// innerElementType.displayName = "InnerElement";
-
-// const StickyListContext = createContext<StickyListContextInterface | null>(
-//   null,
-// );
-// StickyListContext.displayName = "StickyListContext";
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
@@ -190,7 +145,6 @@ class ContainerWidget extends BaseWidget<
     const snapSpaces = this.getSnapSpaces();
     const children = get(this.props, "children", []);
     const firstChild = get(this.props, "children[0]");
-    const rowHeight = firstChild.bottomRow * snapSpaces.snapRowSpace;
 
     const Row = (childProps: ListChildComponentProps) => {
       const row = this.renderChildWidget(children[childProps.index]);
@@ -201,11 +155,21 @@ class ContainerWidget extends BaseWidget<
     const virtualizedContainerHeight =
       this.props.componentHeight || this.props.minHeight;
 
+    const getItemSize = (index: number) => {
+      const child = children[index];
+      const itemSize =
+        (child.bottomRow - child.topRow + parseInt(child.gap)) *
+        snapSpaces.snapRowSpace;
+
+      console.log({ itemSize, index });
+      return itemSize;
+    };
+
     const VirtualizedList = () => (
       <List
         height={virtualizedContainerHeight}
         itemCount={children.length}
-        itemSize={rowHeight}
+        itemSize={getItemSize}
         width={componentWidth - 20}
         className="appsmith-virtualized-container"
       >

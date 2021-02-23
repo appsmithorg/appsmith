@@ -27,7 +27,7 @@ const PropertyPaneConfig = [
         placeholderText: "0",
         propertyName: "gridGap",
         label: "Grid Gap",
-        controlType: "INPUT_TEXT",
+        controlType: "NUMBER_INPUT",
         isBindProperty: false,
         isTriggerProperty: false,
       },

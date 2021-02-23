@@ -114,10 +114,11 @@ div.bp3-popover-arrow {
 
 .appsmith-virtualized-container::-webkit-scrollbar {
   width: 5px;
-  height: 8px;
+  height: 0px;
   border-radius: 10px;
   background-color: #e1e1e1; /* or add it to the track */
 }
+
 .appsmith-virtualized-container::-webkit-scrollbar-thumb {
   background: #b2b2b2;
   border-radius: 10px;

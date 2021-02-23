@@ -6,6 +6,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import { removeFalsyEntries } from "utils/helpers";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { GridDefaults } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import {
@@ -106,11 +107,15 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   updatePosition = (
     children: ContainerWidgetProps<WidgetProps>[],
   ): ContainerWidgetProps<WidgetProps>[] => {
+    const gridGap = this.props.gridGap || 0;
     return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
+      const gap = gridGap;
+
       return {
         ...child,
-        topRow: index * children[0].bottomRow,
-        bottomRow: (index + 1) * children[0].bottomRow,
+        gap,
+        topRow: index * children[0].bottomRow + index * gap,
+        bottomRow: (index + 1) * children[0].bottomRow + index * gap,
         resizeDisabled: index > 0,
         widgetId: index > 0 ? `list-item-${index}` : child.widgetId,
       };

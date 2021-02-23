@@ -571,8 +571,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 [widget.widgetName]: widget,
               };
 
-              console.log({ template });
-
               parent.template = template;
 
               widgets[parentId] = parent;
