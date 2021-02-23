@@ -281,9 +281,7 @@ export const EditorWrapper = styled.div<{
           ? `border-bottom: 1px solid ${Colors.MERCURY}`
           : `border: 1px solid ${Colors.MERCURY}`};
       background: ${(props) =>
-        props.isFocused || props.fill
-          ? Colors.MERCURY
-          : props.theme.colors.codeMirror.background.defaultState};
+        props.isFocused || props.fill ? Colors.MERCURY : "#FAFAFA"};
       color: ${Colors.CHARCOAL};
       & {
         span.cm-operator {
@@ -303,9 +301,7 @@ export const EditorWrapper = styled.div<{
           ? `border-bottom: 1px solid ${Colors.NERO}`
           : `border: 1px solid ${Colors.NERO}`};
       background: ${(props) =>
-        props.isFocused || props.fill
-          ? Colors.NERO
-          : props.theme.colors.codeMirror.background.defaultState};
+        props.isFocused || props.fill ? Colors.NERO : "#262626"};
       color: ${Colors.LIGHT_GREY};
     }
     .cm-s-duotone-light .CodeMirror-linenumber,
