@@ -1,5 +1,4 @@
 import React from "react";
-import { get } from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import CodeEditor from "components/editorComponents/CodeEditor";
