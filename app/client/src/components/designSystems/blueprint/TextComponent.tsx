@@ -6,6 +6,7 @@ import { TextStyle, TextAlign } from "widgets/TextWidget";
 import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
 import { labelStyle } from "constants/DefaultTheme";
+import { FontStyleTypes } from "../appsmith/TableComponent/Constants";
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
 };
@@ -29,6 +30,9 @@ export const TextContainer = styled.div`
 export const StyledText = styled(Text)<{
   scroll: boolean;
   textAlign: string;
+  backgroundColor?: string;
+  textColor?: string;
+  fontStyle?: string;
 }>`
   height: 100%;
   overflow-y: ${(props) => (props.scroll ? "auto" : "hidden")};
@@ -38,6 +42,14 @@ export const StyledText = styled(Text)<{
   width: 100%;
   justify-content: flex-start;
   align-items: ${(props) => (props.scroll ? "flex-start" : "center")};
+  background: ${(props) => props?.backgroundColor};
+  color: ${(props) => props?.textColor};
+  font-style: ${(props) =>
+    props?.fontStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
+  text-decoration: ${(props) =>
+    props?.fontStyle?.includes(FontStyleTypes.UNDERLINE) ? "underline" : ""};
+  font-weight: ${(props) =>
+    props?.fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
   &.bp3-heading {
     font-weight: ${(props) => props.theme.fontWeights[4]};
     font-size: 21px;
@@ -57,6 +69,9 @@ export interface TextComponentProps extends ComponentProps {
   textStyle?: TextStyle;
   isLoading: boolean;
   shouldScroll?: boolean;
+  backgroundColor?: string;
+  textColor?: string;
+  fontStyle?: string;
 }
 
 class TextComponent extends React.Component<TextComponentProps> {
@@ -84,7 +99,15 @@ class TextComponent extends React.Component<TextComponentProps> {
   }
 
   render() {
-    const { textStyle, text, ellipsize, textAlign } = this.props;
+    const {
+      textStyle,
+      text,
+      ellipsize,
+      textAlign,
+      fontStyle,
+      textColor,
+      backgroundColor,
+    } = this.props;
     return (
       <TextContainer>
         <StyledText
@@ -92,6 +115,9 @@ class TextComponent extends React.Component<TextComponentProps> {
           textAlign={textAlign}
           className={this.getTextClass(textStyle)}
           ellipsize={ellipsize}
+          fontStyle={fontStyle}
+          textColor={textColor}
+          backgroundColor={backgroundColor}
         >
           <Interweave
             content={text}

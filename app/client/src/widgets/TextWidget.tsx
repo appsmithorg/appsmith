@@ -15,7 +15,6 @@ const LINE_HEIGHTS: { [key in TextStyle]: number } = {
   BODY: 1.5 * 14,
   HEADING: 1.28581 * 16,
   LABEL: 1.28581 * 14,
-  SUB_TEXT: 1.28581 * 12,
 };
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
@@ -34,24 +33,38 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isTriggerProperty: false,
           },
           {
-            propertyName: "textAlign",
-            helpText: "Sets the alignments of the text",
-            label: "Text Align",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Left",
-                value: "LEFT",
-              },
-              {
-                label: "Center",
-                value: "CENTER",
-              },
-              {
-                label: "Right",
-                value: "RIGHT",
-              },
-            ],
+            propertyName: "shouldScroll",
+            label: "Enable Scroll",
+            helpText: "Allows scrolling text instead of truncation",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "isVisible",
+            helpText: "Controls the visibility of the widget",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "backgroundColor",
+            label: "Cell Background",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "textColor",
+            label: "Text Color",
+            controlType: "COLOR_PICKER",
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -77,21 +90,82 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
           },
+          // {
+          //   propertyName: "textSize",
+          //   label: "Text Size",
+          //   controlType: "DROP_DOWN",
+          //   options: [
+          //     {
+          //       label: "Heading 1",
+          //       value: "HEADING1",
+          //       subText: "24px",
+          //       icon: "HEADING_ONE",
+          //     },
+          //     {
+          //       label: "Heading 2",
+          //       value: "HEADING2",
+          //       subText: "18px",
+          //       icon: "HEADING_TWO",
+          //     },
+          //     {
+          //       label: "Heading 3",
+          //       value: "HEADING3",
+          //       subText: "16px",
+          //       icon: "HEADING_THREE",
+          //     },
+          //     {
+          //       label: "Paragraph",
+          //       value: "PARAGRAPH",
+          //       subText: "14px",
+          //       icon: "PARAGRAPH",
+          //     },
+          //     {
+          //       label: "Paragraph 2",
+          //       value: "PARAGRAPH2",
+          //       subText: "12px",
+          //       icon: "PARAGRAPH_TWO",
+          //     },
+          //   ],
+          //   isBindProperty: false,
+          //   isTriggerProperty: false,
+          // },
           {
-            propertyName: "shouldScroll",
-            label: "Enable Scroll",
-            helpText: "Allows scrolling text instead of truncation",
-            controlType: "SWITCH",
+            propertyName: "fontStyle",
+            label: "Font Style",
+            controlType: "BUTTON_TABS",
+            options: [
+              {
+                icon: "BOLD_FONT",
+                value: "BOLD",
+              },
+              {
+                icon: "ITALICS_FONT",
+                value: "ITALIC",
+              },
+            ],
             isBindProperty: false,
             isTriggerProperty: false,
           },
           {
-            propertyName: "isVisible",
-            helpText: "Controls the visibility of the widget",
-            label: "Visible",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
+            propertyName: "textAlign",
+            label: "Text Align",
+            controlType: "ICON_TABS",
+            options: [
+              {
+                icon: "LEFT_ALIGN",
+                value: "LEFT",
+              },
+              {
+                icon: "CENTER_ALIGN",
+                value: "CENTER",
+              },
+              {
+                icon: "RIGHT_ALIGN",
+                value: "RIGHT",
+              },
+            ],
+            defaultValue: "LEFT",
+            isBindProperty: false,
             isTriggerProperty: false,
           },
         ],
@@ -121,6 +195,9 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         key={this.props.widgetId}
         textStyle={this.props.textStyle}
         text={this.props.text}
+        fontStyle={this.props.fontStyle}
+        textColor={this.props.textColor}
+        backgroundColor={this.props.backgroundColor}
         textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
         isLoading={this.props.isLoading}
         shouldScroll={this.props.shouldScroll}
@@ -140,14 +217,20 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   }
 }
 
-export type TextStyle = "BODY" | "HEADING" | "LABEL" | "SUB_TEXT";
+export type TextStyle = "BODY" | "HEADING" | "LABEL";
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
-export interface TextWidgetProps extends WidgetProps {
-  text?: string;
+export interface TextStyles {
+  backgroundColor?: string;
+  textColor?: string;
+  fontStyle?: string;
   textStyle: TextStyle;
+  textAlign?: TextAlign;
+}
+
+export interface TextWidgetProps extends WidgetProps, TextStyles {
+  text?: string;
   isLoading: boolean;
-  textAlign: TextAlign;
   shouldScroll: boolean;
 }
 
