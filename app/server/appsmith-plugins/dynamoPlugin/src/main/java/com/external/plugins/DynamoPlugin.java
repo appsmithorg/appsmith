@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,7 +117,8 @@ public class DynamoPlugin extends BasePlugin {
                             toLowerCamelCase(action),
                             requestClass
                     );
-                    final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, plainToSdk(parameters, requestClass));
+                    final Object sdkValue = plainToSdk(parameters, requestClass);
+                    final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, sdkValue);
                     result.setBody(sdkToPlain(response));
                 } catch (AppsmithPluginException | InvocationTargetException | IllegalAccessException | NoSuchMethodException | ClassNotFoundException e) {
                     final String message = "Error executing the DynamoDB Action: " + (e.getCause() == null ? e : e.getCause()).getMessage();
@@ -290,34 +293,43 @@ public class DynamoPlugin extends BasePlugin {
                     // For maps, we go recursive, applying this transformation to each value, and replacing with the
                     // result in the map. Generic types in the setter method's signature are used to convert the values.
                     final Method setterMethod = findMethod(builderType, m -> m.getName().equals(setterName));
-                    final ParameterizedType valueType = (ParameterizedType) setterMethod.getGenericParameterTypes()[0];
-                    final Map<String, Object> transformedMap = new HashMap<>();
-                    for (final Map.Entry<String, Object> innerEntry : ((Map<String, Object>) value).entrySet()) {
-                        Object innerValue = innerEntry.getValue();
-                        if (innerValue instanceof Map) {
-                            innerValue = plainToSdk((Map) innerValue, (Class<?>) valueType.getActualTypeArguments()[1]);
+                    final Type parameterType = setterMethod.getGenericParameterTypes()[0];
+                    if (parameterType instanceof ParameterizedType) {
+                        final ParameterizedType valueType = (ParameterizedType) parameterType;
+                        final Map<String, Object> transformedMap = new HashMap<>();
+                        for (final Map.Entry<String, Object> innerEntry : ((Map<String, Object>) value).entrySet()) {
+                            Object innerValue = innerEntry.getValue();
+                            if (innerValue instanceof Map) {
+                                innerValue = plainToSdk((Map) innerValue, (Class<?>) valueType.getActualTypeArguments()[1]);
+                            }
+                            transformedMap.put(innerEntry.getKey(), innerValue);
                         }
-                        transformedMap.put(innerEntry.getKey(), innerValue);
+                        value = transformedMap;
+                        if (!Map.class.isAssignableFrom((Class<?>) valueType.getRawType())) {
+                            // Some setters don't take a plain map. For example, some require an `AttributeValue` instance
+                            // for objects that are just maps in JSON. So, we make that conversion here.
+                            value = plainToSdk((Map) value, (Class<T>) valueType.getRawType());
+                        }
+                        setterMethod.invoke(builder, value);
+                    } else if (parameterType instanceof Class) {
+                        setterMethod.invoke(builder, plainToSdk((Map) value, (Class) parameterType));
                     }
-                    value = transformedMap;
-                    if (!Map.class.isAssignableFrom((Class<?>) valueType.getRawType())) {
-                        // Some setters don't take a plain map. For example, some require an `AttributeValue` instance
-                        // for objects that are just maps in JSON. So, we make that conversion here.
-                        value = plainToSdk((Map) value, (Class<T>) valueType.getRawType());
-                    }
-                    setterMethod.invoke(builder, value);
 
                 } else if (value instanceof Collection) {
                     // For linear collections, the process is similar to that of maps.
                     final Collection<Object> valueAsCollection = (Collection) value;
                     // Find method by name and exclude the varargs version of the method.
                     final Method setterMethod = findMethod(builderType, m -> m.getName().equals(setterName) && !m.getParameterTypes()[0].getName().startsWith("[L"));
-                    final ParameterizedType valueType = (ParameterizedType) setterMethod.getGenericParameterTypes()[0];
+                    Type valueType = ((ParameterizedType) setterMethod.getGenericParameterTypes()[0]).getActualTypeArguments()[0];
+                    if (valueType instanceof WildcardType) {
+                        // This occurs when the method's parameter is typed as `Collection<? extends Map<...>>`. Example op: `BatchGetItem`.
+                        valueType = ((WildcardType) valueType).getUpperBounds()[0];
+                    }
                     final Collection<Object> reTypedList = new ArrayList<>();
                     for (final Object innerValue : valueAsCollection) {
                         if (innerValue instanceof Map) {
-                            reTypedList.add(plainToSdk((Map) innerValue, (Class<?>) valueType.getActualTypeArguments()[0]));
-                        } else if (innerValue instanceof String && SdkBytes.class.isAssignableFrom((Class<?>) valueType.getActualTypeArguments()[0])) {
+                            reTypedList.add(plainToSdk((Map) innerValue, valueType));
+                        } else if (innerValue instanceof String && SdkBytes.class.isAssignableFrom((Class<?>) valueType)) {
                             reTypedList.add(SdkBytes.fromUtf8String((String) innerValue));
                         } else {
                             reTypedList.add(innerValue);
@@ -336,6 +348,34 @@ public class DynamoPlugin extends BasePlugin {
         }
 
         return (T) builderType.getMethod("build").invoke(builder);
+    }
+
+    public static Object plainToSdk(Map<String, Object> mapping, Type type)
+            throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, AppsmithPluginException,
+            IllegalAccessException {
+
+        if (mapping == null) {
+            return null;
+        }
+
+        if (!(type instanceof ParameterizedType)) {
+            return plainToSdk(mapping, (Class) type);
+        }
+
+        final ParameterizedType ptype = (ParameterizedType) type;
+
+        if (Map.class.equals(ptype.getRawType())) {
+            final Map<String, Object> convertedMap = new HashMap<>();
+            for (final Map.Entry<String, Object> entry : mapping.entrySet()) {
+                convertedMap.put(entry.getKey(), plainToSdk((Map) entry.getValue(), (Class<?>) ptype.getActualTypeArguments()[1]));
+            }
+            return convertedMap;
+        }
+
+        throw new AppsmithPluginException(
+                AppsmithPluginError.PLUGIN_ERROR,
+                "Unknown type to convert to SDK style " + type.getTypeName()
+        );
     }
 
     private static Method findMethod(Class<?> builderType, Predicate<Method> predicate) {

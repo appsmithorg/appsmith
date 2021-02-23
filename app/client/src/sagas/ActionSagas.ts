@@ -49,6 +49,7 @@ import {
   getCurrentPageNameByActionId,
   getPageNameByPageId,
   getPlugin,
+  getSettingConfig,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import {
@@ -76,13 +77,13 @@ export function* createActionSaga(
   try {
     let payload = actionPayload.payload;
     if (actionPayload.payload.pluginId) {
-      let formConfig;
-      formConfig = yield select(
+      let editorConfig;
+      editorConfig = yield select(
         getEditorConfig,
         actionPayload.payload.pluginId,
       );
 
-      if (!formConfig) {
+      if (!editorConfig) {
         const formConfigResponse: GenericApiResponse<any> = yield PluginsApi.fetchFormConfig(
           actionPayload.payload.pluginId,
         );
@@ -95,13 +96,24 @@ export function* createActionSaga(
           },
         });
 
-        formConfig = yield select(
+        editorConfig = yield select(
           getEditorConfig,
           actionPayload.payload.pluginId,
         );
       }
+      const settingConfig = yield select(
+        getSettingConfig,
+        actionPayload.payload.pluginId,
+      );
 
-      const initialValues = yield call(getConfigInitialValues, formConfig);
+      let initialValues = yield call(getConfigInitialValues, editorConfig);
+      if (settingConfig) {
+        const settingInitialValues = yield call(
+          getConfigInitialValues,
+          settingConfig,
+        );
+        initialValues = merge(initialValues, settingInitialValues);
+      }
       payload = merge(initialValues, actionPayload.payload);
     }
 

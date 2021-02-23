@@ -435,5 +435,20 @@ export default class WidgetBuilderRegistry {
       SkeletonWidget.getDefaultPropertiesMap(),
       SkeletonWidget.getMetaPropertiesMap(),
     );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MODAL_WIDGET,
+      {
+        buildWidget(widgetData: ModalWidgetProps): JSX.Element {
+          return <ProfiledModalWidget {...widgetData} />;
+        },
+      },
+      ModalWidget.getPropertyValidationMap(),
+      ModalWidget.getDerivedPropertiesMap(),
+      ModalWidget.getTriggerPropertyMap(),
+      ModalWidget.getDefaultPropertiesMap(),
+      ModalWidget.getMetaPropertiesMap(),
+      ModalWidget.getPropertyPaneConfig(),
+    );
   }
 }

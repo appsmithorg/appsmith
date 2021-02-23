@@ -8,8 +8,6 @@ import {
   getPluginDocumentationLinks,
 } from "selectors/entitiesSelector";
 
-import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
-
 import { EditorJSONtoForm, EditorJSONtoFormProps } from "./EditorJSONtoForm";
 
 const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
@@ -25,7 +23,6 @@ const mapStateToProps = (state: AppState) => {
     responseType: responseTypes[pluginId],
     documentationLink: documentationLinks[pluginId],
     formName: QUERY_EDITOR_FORM_NAME,
-    actionSettingsConfig: queryActionSettingsConfig,
   };
 };
 
