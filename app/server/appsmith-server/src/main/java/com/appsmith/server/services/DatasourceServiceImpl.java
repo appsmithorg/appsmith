@@ -21,6 +21,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,9 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     private final SequenceService sequenceService;
     private final NewActionRepository newActionRepository;
     private final EncryptionService encryptionService;
+
+    @Autowired
+    Environment env;
 
     @Autowired
     public DatasourceServiceImpl(Scheduler scheduler,
@@ -309,6 +313,19 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
         return pluginExecutorMono
                 .flatMap(pluginExecutor -> pluginExecutor.testDatasource(datasource.getDatasourceConfiguration()));
+    }
+
+    @Override
+    public Mono<Datasource> enrichDatasource(Datasource datasource) {
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource.getPluginId()))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())));
+
+        return pluginExecutorMono
+                .flatMap(pluginExecutor -> pluginExecutor.enrichDatasource(datasource.getDatasourceConfiguration(), env))
+                .flatMap(datasourceConfiguration -> {
+                    datasource.setDatasourceConfiguration((DatasourceConfiguration) datasourceConfiguration);
+                    return Mono.just(datasource);
+                });
     }
 
     @Override

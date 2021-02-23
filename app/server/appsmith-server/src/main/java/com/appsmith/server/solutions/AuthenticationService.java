@@ -9,12 +9,14 @@ import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PluginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
@@ -56,6 +58,8 @@ public class AuthenticationService {
 
     private final DatasourceService datasourceService;
 
+    private final PluginService pluginService;
+
     private final RedirectHelper redirectHelper;
 
     private final NewPageService newPageService;
@@ -80,7 +84,7 @@ public class AuthenticationService {
                     // Adding optional scope parameter
                     if (oAuth2.getScope() != null && !oAuth2.getScope().isEmpty()) {
                         uriComponentsBuilder
-                                .queryParam(SCOPE, String.join(",", oAuth2.getScope()));
+                                .queryParam(SCOPE, StringUtils.collectionToDelimitedString(oAuth2.getScope(), " "));
                     }
                     // Adding additional user-defined parameters, these would be authorization server specific
                     if (oAuth2.getCustomAuthenticationParameters() != null) {
@@ -100,7 +104,8 @@ public class AuthenticationService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "authentication"));
         }
 
-        return datasourceService.validateDatasource(datasource)
+        return datasourceService.enrichDatasource(datasource)
+                .flatMap(datasourceService::validateDatasource)
                 .flatMap(datasource1 -> {
                     if (!datasource1.getIsValid()) {
                         return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, datasource1.getInvalids().iterator().next()));
@@ -116,10 +121,15 @@ public class AuthenticationService {
         String scope = callbackDTO.getScope();
         // If there is an error code, return with that code to the client
         if (!StringUtils.isEmpty(error)) {
-            return this.getPageRedirectUrl(state, error);
+            return this.getPageRedirectUrl(state, null, error);
         }
+
+        Mono<Datasource> datasourceMono = datasourceService
+                .getById(state.split(",")[1])
+                .flatMap(datasourceService::enrichDatasource)
+                .cache();
         // Otherwise, proceed to retrieve the access token from the authorization server
-        return datasourceService.getById(state.split(",")[1])
+        return datasourceMono
                 .flatMap(datasource -> {
                     OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                     WebClient.Builder builder = WebClient.builder();
@@ -136,7 +146,7 @@ public class AuthenticationService {
                     map.add(CODE, code);
                     map.add(REDIRECT_URI, state.split(",")[2] + Url.DATASOURCE_URL + "/authorize");
                     if (!oAuth2.getScope().isEmpty()) {
-                        map.add(SCOPE, String.join(",", oAuth2.getScope()));
+                        map.add(SCOPE, StringUtils.collectionToDelimitedString(oAuth2.getScope(), " "));
                     }
 
                     // Add client credentials to header or body, as configured
@@ -176,15 +186,17 @@ public class AuthenticationService {
                                 return datasourceService.update(datasource.getId(), datasource);
                             });
                 })
+                .flatMap(datasource -> pluginService.findById(datasource.getPluginId()))
+                .map(Plugin::getPackageName)
                 // We have no use of the datasource object during redirection, we merely send the response as a success state
-                .flatMap((datasource -> this.getPageRedirectUrl(state, null)))
+                .flatMap((pluginName -> this.getPageRedirectUrl(state, pluginName, null)))
                 .onErrorResume(e -> {
                     log.debug("Error while retrieving access token: ", e);
-                    return this.getPageRedirectUrl(state, "appsmith_error");
+                    return this.getPageRedirectUrl(state, null, "appsmith_error");
                 });
     }
 
-    private Mono<String> getPageRedirectUrl(String state, String error) {
+    private Mono<String> getPageRedirectUrl(String state, String pluginName, String error) {
         final String[] splitState = state.split(",");
 
         final String pageId = splitState[0];
@@ -203,8 +215,9 @@ public class AuthenticationService {
                             Entity.PAGES + Entity.SLASH +
                             newPage.getId() + Entity.SLASH +
                             "edit" + Entity.SLASH +
+                            (pluginName != null && !pluginName.equals("restapi-plugin") ? "saas" + Entity.SLASH + pluginName + Entity.SLASH : "") +
                             Entity.DATASOURCES + Entity.SLASH +
-                            datasourceId + Entity.SLASH +
+                            datasourceId +
                             "?response_status=" + responseStatus;
                 })
                 .onErrorResume(e -> {
@@ -213,6 +226,13 @@ public class AuthenticationService {
                                     Entity.APPLICATIONS +
                                     "?response_status=" + responseStatus);
                 });
+    }
+
+    private Mono<String> getPluginName(Mono<Datasource> datasourceMono) {
+        return
+                datasourceMono
+                        .flatMap(datasource -> pluginService.findById(datasource.getPluginId())
+                                .map(Plugin::getPackageName));
     }
 
 }
