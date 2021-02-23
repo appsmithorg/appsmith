@@ -227,7 +227,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     // New actions will never be set to auto-magical execution, unless it is triggered during a
                     // page/app clone event.
                     if (!CLONE_PAGE.equals(appsmithEventContext)) {
-                            || appsmithEventContext.getAppsmithEventContextType() != AppsmithEventContextType.CLONE_PAGE) {
                         action.setExecuteOnLoad(false);
                     }
 
