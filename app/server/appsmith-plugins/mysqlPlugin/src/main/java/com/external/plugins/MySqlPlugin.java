@@ -4,6 +4,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -175,12 +176,16 @@ public class MySqlPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(Connection connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
+
+            final Map<String, Object> requestData = new HashMap<>();
+
             String query = actionConfiguration.getBody().trim();
 
             if (query == null) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
                         "parameter: Query."));
             }
+            requestData.put("query", query);
 
             boolean isSelectOrShowQuery = getIsSelectOrShowQuery(query);
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
@@ -224,13 +229,20 @@ public class MySqlPlugin extends BasePlugin {
             }
 
             return resultMono
-                    .flatMap(res -> {
+                    .map(res -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setIsExecutionSuccess(true);
                         System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action " +
                                 "execution result");
-                        return Mono.just(result);
+                        return result;
+                    })
+                    .map(actionExecutionResult -> {
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setBody(requestData);
+                        ActionExecutionResult result = actionExecutionResult;
+                        result.setRequest(request);
+                        return result;
                     })
                     .subscribeOn(scheduler);
 
