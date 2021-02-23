@@ -699,8 +699,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             paramsJson = "";
                         }
 
+                        String url = actionConfiguration.getPath();
+                        if (actionDTO.getDatasource() != null && actionDTO.getDatasource().getDatasourceConfiguration() != null) {
+                            url = ObjectUtils.defaultIfNull(actionDTO.getDatasource().getDatasourceConfiguration().getUrl(), "") + url;
+                        }
+
                         requestData.putAll(Map.of(
-                                "url", actionDTO.getDatasource().getDatasourceConfiguration().getUrl() + actionConfiguration.getPath(),
+                                "url", url,
                                 "headers", headersJson,
                                 "parameters", paramsJson,
                                 "body", ObjectUtils.defaultIfNull(actionConfiguration.getBody(), "")
