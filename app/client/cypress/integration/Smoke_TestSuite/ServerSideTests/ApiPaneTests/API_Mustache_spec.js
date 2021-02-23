@@ -11,12 +11,13 @@ describe("Moustache test Functionality", function() {
   it("Moustache test Functionality", function() {
     cy.openPropertyPane("textwidget");
     cy.widgetText("Api", widgetsPage.textWidget, widgetsPage.textInputval);
-    cy.testCodeMirror("/api/users/2");
+    cy.testCodeMirror("users");
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("TestAPINew");
     cy.log("Creation of API Action successful");
-    cy.enterDatasourceAndPath(testdata.baseUrl2, testdata.moustacheMethod);
+    cy.enterDatasourceAndPath(testdata.baseUrl, testdata.moustacheMethod);
+    cy.wait(300);
     cy.RunAPI();
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.log("Response code check successful");

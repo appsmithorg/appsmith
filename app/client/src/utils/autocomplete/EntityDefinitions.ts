@@ -171,6 +171,7 @@ export const entityDefinitions = {
     chartData: "chartData",
     xAxisName: "string",
     yAxisName: "string",
+    selectedDataPoint: "chartDataPoint",
   },
   FORM_WIDGET: (widget: any) => ({
     "!doc":
