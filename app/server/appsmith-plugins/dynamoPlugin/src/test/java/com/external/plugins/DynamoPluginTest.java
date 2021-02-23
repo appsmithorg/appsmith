@@ -341,9 +341,18 @@ public class DynamoPluginTest {
                             Collections.emptyMap(),
                             response.remove("UnprocessedKeys")
                     );
-                    final List<Map<String, Map<String, String>>> items = (List<Map<String, Map<String, String>>>) ((Map) response.get("Responses")).get("cities");
-                    assertEquals("New Delhi", items.get(0).get("City").get("S"));
-                    assertEquals("Bengaluru", items.get(1).get("City").get("S"));
+
+                    // Test raw response
+                    Map<String, Object> rawResponse =
+                            (Map<String, Object>) ((Map<String, Object>) response.get("raw")).get(
+                                    "Responses");
+                    ArrayList<Map<String, Object>> rawCitiesList = (ArrayList<Map<String, Object>>) rawResponse.get("cities");
+                    assertEquals("New Delhi", ((Map<String, Object>)(rawCitiesList.get(0)).get("City")).get("S"));
+
+                    // Test transformed response
+                    Map<String, Object> transformedResponse = (Map<String, Object>) response.get("Responses");
+                    ArrayList<Map<String, Object>> transformedCitiesList = (ArrayList<Map<String, Object>>) transformedResponse.get("cities");
+                    assertEquals("New Delhi", transformedCitiesList.get(0).get("City"));
                 })
                 .verifyComplete();
     }
@@ -371,8 +380,21 @@ public class DynamoPluginTest {
                 .assertNext(result -> {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
+
                     final Map<String, ?> response = (Map) result.getBody();
-                    assertEquals("New Delhi", ((List<Map<String, Map<String, Map<String, String>>>>) response.get("Responses")).get(0).get("Item").get("City").get("S"));
+
+                    // Test raw response
+                    ArrayList<Map<String, Object>> rawResponse =
+                            (ArrayList<Map<String, Object>>) ((Map<String, Object>) response.get("raw")).get(
+                            "Responses");
+                    assertEquals("New Delhi",
+                            ((Map<String, Map<String, Object>>)rawResponse.get(0).get("Item")).get("City").get("S"));
+
+                    // Test transformed response
+                    ArrayList<Map<String, Object>> transformedResponse = (ArrayList<Map<String, Object>>) response.get("Responses");
+                    assertEquals("New Delhi",
+                            ((Map<String, Object>)transformedResponse.get(0).get("Item")).get("City"));
+
                 })
                 .verifyComplete();
     }
