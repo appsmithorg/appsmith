@@ -101,6 +101,10 @@ export const getEditorConfig = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.editorConfigs[pluginId];
 };
 
+export const getSettingConfig = (state: AppState, pluginId: string): any[] => {
+  return state.entities.plugins.settingConfigs[pluginId];
+};
+
 export const getActions = (state: AppState): ActionDataState =>
   state.entities.actions;
 
