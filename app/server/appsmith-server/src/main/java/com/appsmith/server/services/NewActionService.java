@@ -23,7 +23,7 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Mono<ActionDTO> createAction(ActionDTO action);
 
-    Mono<ActionDTO> createActionWithContext(ActionDTO action, AppsmithEventContext appsmithEventContext);
+    Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext appsmithEventContext);
 
     NewAction extractAndSetJsonPathKeys(NewAction newAction);
 

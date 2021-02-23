@@ -187,7 +187,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     @Override
-    public Mono<ActionDTO> createActionWithContext(ActionDTO action, AppsmithEventContext appsmithEventContext) {
+    public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext appsmithEventContext) {
         if (action.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
@@ -240,7 +240,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     @Override
     public Mono<ActionDTO> createAction(ActionDTO action) {
-        return createActionWithContext(action, null);
+        return createAction(action, null);
     }
 
     private Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {

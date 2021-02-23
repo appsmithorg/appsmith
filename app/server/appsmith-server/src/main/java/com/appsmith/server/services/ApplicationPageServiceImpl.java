@@ -378,11 +378,14 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 // Set new page id in the actionDTO
                                 action.getUnpublishedAction().setPageId(newPageId);
 
-                                AppsmithEventContext eventContext = new AppsmithEventContext(
-                                        AppsmithEventContextType.CLONE_PAGE);
-
-                                // Now create the new action from the template of the source action.
-                                return newActionService.createActionWithContext(
+                                /*
+                                 * - Now create the new action from the template of the source action.
+                                 * - Use CLONE_PAGE context to make sure that page / application clone quirks are
+                                 *   taken care of - e.g. onPageLoad setting is copied from action setting instead of
+                                 *   being set to off by default.
+                                 */
+                                AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
+                                return newActionService.createAction(
                                         action.getUnpublishedAction(),
                                         eventContext
                                 );
