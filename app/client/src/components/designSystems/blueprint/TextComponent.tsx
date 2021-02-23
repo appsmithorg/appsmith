@@ -6,6 +6,7 @@ import { TextStyle, TextAlign } from "widgets/TextWidget";
 import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
 import { labelStyle } from "constants/DefaultTheme";
+import { isString } from "utils/helpers";
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
 };
@@ -95,6 +96,11 @@ class TextComponent extends React.Component<TextComponentProps> {
         >
           <Interweave
             content={text}
+            onBeforeParse={(source) => {
+              if (isString(source)) return source;
+
+              return JSON.stringify(source);
+            }}
             matchers={[new UrlMatcher("url"), new EmailMatcher("email")]}
           />
         </StyledText>
