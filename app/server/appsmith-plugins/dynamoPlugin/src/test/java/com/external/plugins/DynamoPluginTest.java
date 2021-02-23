@@ -27,6 +27,7 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -234,6 +235,74 @@ public class DynamoPluginTest {
                     assertNotNull(result.getBody());
                     final List<Object> items = (List<Object>) ((Map<String, Object>) result.getBody()).get("Items");
                     assertEquals(2, items.size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testBatchGetItem() {
+        final String body = "{\n" +
+                "    \"RequestItems\": {\n" +
+                "        \"cities\": {\n" +
+                "            \"Keys\": [\n" +
+                "                {\n" +
+                "                    \"Id\": {\n" +
+                "                       \"S\": \"1\"\n" +
+                "                    }\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"Id\": {\n" +
+                "                       \"S\": \"2\"\n" +
+                "                    }\n" +
+                "                }\n" +
+                "            ],\n" +
+                "            \"ProjectionExpression\":\"City\"\n" +
+                "        }\n" +
+                "    },\n" +
+                "    \"ReturnConsumedCapacity\": \"TOTAL\"\n" +
+                "}";
+
+        StepVerifier.create(execute("BatchGetItem", body))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    final Map<String, ?> response = (Map) result.getBody();
+                    assertEquals(
+                            Collections.emptyMap(),
+                            response.remove("UnprocessedKeys")
+                    );
+                    final List<Map<String, Map<String, String>>> items = (List<Map<String, Map<String, String>>>) ((Map) response.get("Responses")).get("cities");
+                    assertEquals("New Delhi", items.get(0).get("City").get("S"));
+                    assertEquals("Bengaluru", items.get(1).get("City").get("S"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testTransactGetItems() {
+        final String body =
+                "{\n" +
+                "  \"ReturnConsumedCapacity\": \"NONE\",\n" +
+                "  \"TransactItems\": [\n" +
+                "    {\n" +
+                "      \"Get\": {\n" +
+                "        \"Key\": {\n" +
+                "          \"Id\": {\n" +
+                "            \"S\": \"1\"\n" +
+                "          }\n" +
+                "        },\n" +
+                "        \"TableName\": \"cities\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+
+        StepVerifier.create(execute("TransactGetItems", body))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    final Map<String, ?> response = (Map) result.getBody();
+                    assertEquals("New Delhi", ((List<Map<String, Map<String, Map<String, String>>>>) response.get("Responses")).get(0).get("Item").get("City").get("S"));
                 })
                 .verifyComplete();
     }
