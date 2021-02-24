@@ -38,6 +38,10 @@ export const homePageIcon = (
   <Icon icon="home" iconSize={ENTITY_ICON_SIZE} color={Colors.JUNGLE_GREEN} />
 );
 
+export const hiddenPageIcon = (
+  <Icon icon="eye-off" iconSize={ENTITY_ICON_SIZE} color={Colors.ALTO} />
+);
+
 const WidgetIcon = MenuIcons.WIDGETS_COLORED_ICON;
 export const widgetIcon = (
   <WidgetIcon width={ENTITY_ICON_SIZE} height={ENTITY_ICON_SIZE} keepColors />
