@@ -71,6 +71,10 @@ import DatePickerWidget, {
   DatePickerWidgetProps,
   ProfiledDatePickerWidget,
 } from "widgets/DatePickerWidget";
+import DatePickerWidget2, {
+  DatePickerWidget2Props,
+  ProfiledDatePickerWidget2,
+} from "widgets/DatePickerWidget2";
 import FormWidget, { ProfiledFormWidget } from "widgets/FormWidget";
 import FormButtonWidget, {
   FormButtonWidgetProps,
@@ -287,6 +291,20 @@ export default class WidgetBuilderRegistry {
       DatePickerWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
+      "DATE_PICKER_WIDGET2",
+      {
+        buildWidget(widgetData: DatePickerWidget2Props): JSX.Element {
+          return <ProfiledDatePickerWidget2 {...widgetData} />;
+        },
+      },
+      DatePickerWidget2.getPropertyValidationMap(),
+      DatePickerWidget2.getDerivedPropertiesMap(),
+      DatePickerWidget2.getTriggerPropertyMap(),
+      DatePickerWidget2.getDefaultPropertiesMap(),
+      DatePickerWidget2.getMetaPropertiesMap(),
+      DatePickerWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
       "TABS_WIDGET",
       {
         buildWidget(
@@ -434,6 +452,21 @@ export default class WidgetBuilderRegistry {
       SkeletonWidget.getTriggerPropertyMap(),
       SkeletonWidget.getDefaultPropertiesMap(),
       SkeletonWidget.getMetaPropertiesMap(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MODAL_WIDGET,
+      {
+        buildWidget(widgetData: ModalWidgetProps): JSX.Element {
+          return <ProfiledModalWidget {...widgetData} />;
+        },
+      },
+      ModalWidget.getPropertyValidationMap(),
+      ModalWidget.getDerivedPropertiesMap(),
+      ModalWidget.getTriggerPropertyMap(),
+      ModalWidget.getDefaultPropertiesMap(),
+      ModalWidget.getMetaPropertiesMap(),
+      ModalWidget.getPropertyPaneConfig(),
     );
   }
 }

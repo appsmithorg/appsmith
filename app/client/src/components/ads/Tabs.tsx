@@ -8,6 +8,7 @@ import { Classes, CommonComponentProps } from "./common";
 export type TabProp = {
   key: string;
   title: string;
+  count?: number;
   panelComponent: JSX.Element;
   icon?: IconName;
 };
@@ -100,11 +101,26 @@ const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   }
 `;
 
+const TabTitleWrapper = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const TabTitle = styled.span`
   font-size: ${(props) => props.theme.typography.h5.fontSize}px;
   font-weight: ${(props) => props.theme.typography.h5.fontWeight};
   line-height: ${(props) => props.theme.typography.h5.lineHeight - 3}px;
   letter-spacing: ${(props) => props.theme.typography.h5.letterSpacing}px;
+  margin: 0 5px;
+`;
+
+const TabCount = styled.div`
+  background-color: ${(props) => props.theme.colors.tabs.countBg};
+  border-radius: 8px;
+  width: 17px;
+  height: 14px;
+  font-size: 9px;
+  line-height: 14px;
 `;
 
 type TabbedViewComponentType = CommonComponentProps & {
@@ -129,8 +145,15 @@ export const TabComponent = (props: TabbedViewComponentType) => {
         <TabList>
           {props.tabs.map((tab) => (
             <Tab key={tab.key}>
-              {tab.icon ? <Icon name={tab.icon} size={IconSize.XXXL} /> : null}
-              <TabTitle>{tab.title}</TabTitle>
+              <TabTitleWrapper>
+                {tab.icon ? (
+                  <Icon name={tab.icon} size={IconSize.XXXL} />
+                ) : null}
+                <TabTitle>{tab.title}</TabTitle>
+                {tab.count && tab.count > 0 ? (
+                  <TabCount>{tab.count}</TabCount>
+                ) : null}
+              </TabTitleWrapper>
             </Tab>
           ))}
         </TabList>

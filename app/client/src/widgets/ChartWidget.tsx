@@ -3,9 +3,12 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
+import { EventType } from "constants/ActionConstants";
+import withMeta, { WithMeta } from "./MetaHOC";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -23,6 +26,17 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       chartName: VALIDATION_TYPES.TEXT,
       isVisible: VALIDATION_TYPES.BOOLEAN,
       chartData: VALIDATION_TYPES.CHART_DATA,
+    };
+  }
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {
+      onDataPointClick: true,
+    };
+  }
+
+  static getMetaPropertiesMap(): Record<string, undefined> {
+    return {
+      selectedDataPoint: undefined,
     };
   }
 
@@ -140,8 +154,35 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           },
         ],
       },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when the chart data point is clicked",
+            propertyName: "onDataPointClick",
+            label: "onDataPointClick",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
     ];
   }
+
+  onDataPointClick = (selectedDataPoint: { x: any; y: any }) => {
+    this.props.updateWidgetMetaProperty(
+      "selectedDataPoint",
+      selectedDataPoint,
+      {
+        dynamicString: this.props.onDataPointClick,
+        event: {
+          type: EventType.ON_DATA_POINT_CLICK,
+        },
+      },
+    );
+  };
 
   getPageView() {
     return (
@@ -155,6 +196,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           chartName={this.props.chartName}
           chartData={this.props.chartData}
           widgetId={this.props.widgetId}
+          onDataPointClick={this.onDataPointClick}
           allowHorizontalScroll={this.props.allowHorizontalScroll}
         />
       </Suspense>
@@ -184,7 +226,7 @@ export interface ChartData {
   data: ChartDataPoint[];
 }
 
-export interface ChartWidgetProps extends WidgetProps {
+export interface ChartWidgetProps extends WidgetProps, WithMeta {
   chartType: ChartType;
   chartData: ChartData[];
   xAxisName: string;
@@ -192,7 +234,9 @@ export interface ChartWidgetProps extends WidgetProps {
   chartName: string;
   isVisible?: boolean;
   allowHorizontalScroll: boolean;
+  onDataPointClick?: string;
+  selectedDataPoint?: ChartDataPoint;
 }
 
 export default ChartWidget;
-export const ProfiledChartWidget = Sentry.withProfiler(ChartWidget);
+export const ProfiledChartWidget = Sentry.withProfiler(withMeta(ChartWidget));

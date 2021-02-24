@@ -242,11 +242,17 @@ public class MongoPlugin extends BasePlugin {
 
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication != null) {
-                builder
-                        .append(urlEncode(authentication.getUsername()))
-                        .append(':')
-                        .append(urlEncode(authentication.getPassword()))
-                        .append('@');
+                final boolean hasUsername = StringUtils.hasText(authentication.getUsername());
+                final boolean hasPassword = StringUtils.hasText(authentication.getPassword());
+                if (hasUsername)  {
+                    builder.append(urlEncode(authentication.getUsername()));
+                }
+                if (hasPassword)  {
+                    builder.append(':').append(urlEncode(authentication.getPassword()));
+                }
+                if (hasUsername || hasPassword)  {
+                    builder.append('@');
+                }
             }
 
             for (Endpoint endpoint : endpoints) {
@@ -313,25 +319,11 @@ public class MongoPlugin extends BasePlugin {
             }
 
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            if (authentication == null) {
-                invalids.add("Missing authentication details.");
-
-            } else {
+            if (authentication != null) {
                 DBAuth.Type authType = authentication.getAuthType();
 
-                if (authType != null && VALID_AUTH_TYPES.contains(authType)) {
-
-                    if (StringUtils.isEmpty(authentication.getUsername())) {
-                        invalids.add("Missing username for authentication. Needed because authType is " + authType + ".");
-                    }
-
-                    if (StringUtils.isEmpty(authentication.getPassword())) {
-                        invalids.add("Missing password for authentication. Needed because authType is " + authType + ".");
-                    }
-
-                } else {
+                if (authType == null || !VALID_AUTH_TYPES.contains(authType)) {
                     invalids.add("Invalid authType. Must be one of " + VALID_AUTH_TYPES_STR);
-
                 }
 
                 if (StringUtils.isEmpty(authentication.getDatabaseName())) {
