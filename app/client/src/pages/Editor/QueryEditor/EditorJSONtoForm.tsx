@@ -433,7 +433,6 @@ export const EditorJSONtoForm: React.FC<Props> = (props: Props) => {
                 portalClassName="helper-tooltip"
               >
                 <ActionButton
-                  className="t--run-query"
                   text="Run"
                   filled
                   loading={isRunning}
