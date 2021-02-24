@@ -217,6 +217,25 @@ export function* setDefaultApplicationPageSaga(
   }
 }
 
+function* updateApplicationLayout(
+  action: ReduxAction<UpdateApplicationRequest>,
+) {
+  try {
+    yield call(updateApplicationSaga, action);
+    yield put({
+      type: ReduxActionTypes.CURRENT_APPLICATION_LAYOUT_UPDATE,
+      payload: action.payload.appLayout,
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_APP_LAYOUT_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export function* updateApplicationSaga(
   action: ReduxAction<UpdateApplicationRequest>,
 ) {
@@ -437,6 +456,7 @@ export default function* applicationSagas() {
       ReduxActionTypes.PUBLISH_APPLICATION_INIT,
       publishApplicationSaga,
     ),
+    takeLatest(ReduxActionTypes.UPDATE_APP_LAYOUT, updateApplicationLayout),
     takeLatest(ReduxActionTypes.UPDATE_APPLICATION, updateApplicationSaga),
     takeLatest(
       ReduxActionTypes.CHANGE_APPVIEW_ACCESS_INIT,

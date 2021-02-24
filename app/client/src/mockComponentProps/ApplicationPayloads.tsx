@@ -1,4 +1,5 @@
 import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { AppsmithDefaultLayout } from "pages/Editor/MainContainerLayoutControl";
 import { generateReactKey } from "utils/generators";
 export const getApplicationPayload = (): ApplicationPayload => ({
   id: generateReactKey(),
@@ -6,6 +7,7 @@ export const getApplicationPayload = (): ApplicationPayload => ({
   organizationId: generateReactKey(),
   appIsExample: false,
   pageCount: 4,
+  appLayout: AppsmithDefaultLayout,
 });
 
 export const getApplicationPayloads = (count: number): ApplicationPayload[] => {

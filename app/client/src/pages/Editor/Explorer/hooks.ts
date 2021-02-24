@@ -5,7 +5,7 @@ import {
   useMemo,
   useCallback,
 } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { compact, groupBy } from "lodash";
 import { Datasource } from "entities/Datasource";
@@ -15,6 +15,17 @@ import { WidgetProps } from "widgets/BaseWidget";
 import log from "loglevel";
 import produce from "immer";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
+import { useWindowSizeHooks } from "utils/hooks/dragResizeHooks";
+import {
+  getCurrentApplicationLayout,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { getWidget } from "sagas/selectors";
+import { AppsmithDefaultLayout } from "../MainContainerLayoutControl";
+import { theme } from "constants/DefaultTheme";
+import { updateWidget } from "actions/pageActions";
+import { getAppMode } from "selectors/applicationSelectors";
+import defaultTemplate from "templates/default";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -235,4 +246,61 @@ export const useEntityEditState = (entityId: string) => {
   return useSelector(
     (state: AppState) => state.ui.explorer.editingEntityName === entityId,
   );
+};
+
+export const useDynamicAppLayout = () => {
+  const { width: screenWidth } = useWindowSizeHooks();
+  const mainContainer = useSelector((state: AppState) => getWidget(state, "0"));
+  const currentPageId = useSelector(getCurrentPageId);
+  const appMode = useSelector(getAppMode);
+  const appLayout = useSelector(getCurrentApplicationLayout);
+  const dispatch = useDispatch();
+
+  const calculateFluidMaxWidth = (
+    screenWidth: number,
+    layoutMaxWidth: number,
+  ) => {
+    const widthToFill =
+      appMode === "EDIT"
+        ? screenWidth - parseInt(theme.sidebarWidth)
+        : screenWidth;
+    if (layoutMaxWidth < 0) {
+      return 0.95 * widthToFill;
+    } else {
+      return widthToFill < layoutMaxWidth ? widthToFill : layoutMaxWidth;
+    }
+  };
+
+  const resizeToLayout = (
+    screenWidth: number,
+    appLayout = AppsmithDefaultLayout,
+  ) => {
+    const { type, width: layoutMaxWidth } = appLayout;
+    const layoutWidth =
+      type === "FLUID"
+        ? calculateFluidMaxWidth(screenWidth, layoutMaxWidth)
+        : layoutMaxWidth;
+    const { leftColumn, topRow, bottomRow } = mainContainer;
+    dispatch(
+      updateWidget("RESIZE", defaultTemplate.widgetId, {
+        rightColumn: layoutWidth,
+        leftColumn,
+        topRow,
+        bottomRow,
+      }),
+    );
+  };
+
+  const debouncedResize = useCallback(debounce(resizeToLayout, 250), []);
+
+  useEffect(() => {
+    debouncedResize(screenWidth, appLayout);
+  }, [screenWidth]);
+
+  useEffect(() => {
+    resizeToLayout(screenWidth, appLayout);
+  }, [appLayout, currentPageId]);
+  return {
+    appLayout,
+  };
 };
