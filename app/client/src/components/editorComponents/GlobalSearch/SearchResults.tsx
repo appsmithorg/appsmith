@@ -24,6 +24,7 @@ import { HelpIcons } from "icons/HelpIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { AppState } from "reducers";
 import { keyBy, noop } from "lodash";
+import { getPageList } from "selectors/editorSelectors";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 
@@ -101,6 +102,12 @@ const WidgetIconWrapper = styled.span`
   display: flex;
 `;
 
+const usePageName = (pageId: string) => {
+  const pages = useSelector(getPageList);
+  const page = pages.find((page) => page.pageId === pageId);
+  return page?.pageName;
+};
+
 const WidgetItem = (props: {
   query: string;
   item: SearchItem;
@@ -108,7 +115,9 @@ const WidgetItem = (props: {
 }) => {
   const { query, item } = props;
   const { type } = item || {};
-  const title = getItemTitle(item);
+  let title = getItemTitle(item);
+  const pageName = usePageName(item.pageId);
+  title = `${pageName} / ${title}`;
 
   return (
     <>
@@ -135,7 +144,6 @@ const ActionItem = (props: {
 }) => {
   const { item, query } = props;
   const { config } = item || {};
-  const title = getItemTitle(item);
   const { pluginType } = config;
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
@@ -145,6 +153,11 @@ const ActionItem = (props: {
     item.config,
     pluginGroups[item.config.datasource.pluginId],
   );
+
+  let title = getItemTitle(item);
+  const pageName = usePageName(config.pageId);
+  title = `${pageName} / ${title}`;
+
   return (
     <>
       <ActionIconWrapper>{icon}</ActionIconWrapper>
@@ -168,7 +181,6 @@ const DatasourceItem = (props: {
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const icon = getPluginIcon(pluginGroups[item.pluginId]);
   const title = getItemTitle(item);
-
   return (
     <>
       {icon}
