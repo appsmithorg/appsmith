@@ -2,11 +2,15 @@ import { HTTP_METHODS } from "constants/ApiEditorConstants";
 import { ApiAction } from "entities/Action";
 import _ from "lodash";
 
-export const transformRestAction = (data: ApiAction): ApiAction => {
-  let action = { ...data };
+export const transformRestAction = (
+  data: ApiAction,
+): { action: ApiAction; deletedFields: string[] } => {
+  let action = _.cloneDeep(data);
+  const deletedFields = [];
   // GET actions should not save body
   if (action.actionConfiguration.httpMethod === HTTP_METHODS[0]) {
     delete action.actionConfiguration.body;
+    deletedFields.push("body");
   }
   // Paths should not have query params
   if (
@@ -41,5 +45,5 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
     };
   }
 
-  return action;
+  return { action, deletedFields };
 };

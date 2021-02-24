@@ -26,12 +26,14 @@ import {
   FetchActionsPayload,
   moveActionError,
   moveActionSuccess,
+  setActionProperty,
   SetActionPropertyPayload,
   updateAction,
   updateActionProperty,
   updateActionSuccess,
 } from "actions/actionActions";
 import {
+  isChildPropertyPath,
   isDynamicValue,
   removeBindingsFromActionObject,
 } from "utils/DynamicBindingUtils";
@@ -40,6 +42,7 @@ import { transformRestAction } from "transformers/RestActionTransformer";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getDataSources,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
@@ -48,24 +51,23 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getCurrentPageNameByActionId,
+  getEditorConfig,
   getPageNameByPageId,
   getSettingConfig,
 } from "selectors/entitiesSelector";
-import { getDataSources } from "selectors/editorSelectors";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
-  API_EDITOR_URL,
-  QUERIES_EDITOR_URL,
-  QUERIES_EDITOR_ID_URL,
   API_EDITOR_ID_URL,
+  API_EDITOR_URL,
+  QUERIES_EDITOR_ID_URL,
+  QUERIES_EDITOR_URL,
 } from "constants/routes";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getEditorConfig } from "selectors/entitiesSelector";
 import PluginsApi from "api/PluginApi";
 import _, { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
@@ -269,7 +271,19 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
     const isApi = action.pluginType === "API";
 
     if (isApi) {
-      action = transformRestAction(action);
+      const result = yield call(transformRestAction, action);
+      action = result.action;
+      if (result.deletedFields) {
+        for (const field of result.deletedFields) {
+          yield put(
+            setActionProperty({
+              actionId: actionPayload.payload.id,
+              propertyName: field,
+              value: undefined,
+            }),
+          );
+        }
+      }
     }
 
     const response: GenericApiResponse<Action> = yield ActionAPI.updateAPI(
@@ -553,13 +567,21 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
 
 function getDynamicBindingsChangesSaga(
   action: Action,
-  value: string,
+  value: string | undefined,
   field: string,
 ) {
   const bindingField = field.replace("actionConfiguration.", "");
-  const isDynamic = isDynamicValue(value);
   let dynamicBindings: Property[] = action.dynamicBindingPathList || [];
   const fieldExists = _.some(dynamicBindings, { key: bindingField });
+
+  if (!value) {
+    // if no value is passed, a parent field was deleted
+    // We will remove any binding paths that are children of this path
+    return dynamicBindings.filter(
+      ({ key }) => !isChildPropertyPath(bindingField, key),
+    );
+  }
+  const isDynamic = isDynamicValue(value);
 
   if (!isDynamic && fieldExists) {
     dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);

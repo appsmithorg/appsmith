@@ -269,9 +269,12 @@ function* updateFormFields(
 }
 
 function* formValueChangeSaga(
-  actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
+  actionPayload: ReduxActionWithMeta<
+    string,
+    { field: string; form: string; index: number }
+  >,
 ) {
-  const { form, field } = actionPayload.meta;
+  const { form, field, index } = actionPayload.meta;
   if (form !== API_EDITOR_FORM_NAME) return;
   if (field === "dynamicBindingPathList" || field === "name") return;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
@@ -280,11 +283,12 @@ function* formValueChangeSaga(
     actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
     actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
   ) {
-    const value = get(values, field);
+    const arrayField = `${field}[${index}]`;
+    const value = get(values, arrayField);
     yield put(
       setActionProperty({
         actionId: values.id,
-        propertyName: field,
+        propertyName: arrayField,
         value,
       }),
     );

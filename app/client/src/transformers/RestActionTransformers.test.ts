@@ -59,7 +59,7 @@ describe("Api action transformer", () => {
       },
     };
     const result = transformRestAction(input);
-    expect(result).toEqual(output);
+    expect(result.action).toEqual(output);
   });
 
   it("removes body for GET calls", () => {
@@ -79,7 +79,7 @@ describe("Api action transformer", () => {
       },
     };
     const result = transformRestAction(input);
-    expect(result).toEqual(output);
+    expect(result.action).toEqual(output);
   });
 
   it("Sets the correct body for JSON display type", () => {
@@ -102,7 +102,7 @@ describe("Api action transformer", () => {
       },
     };
     const result = transformRestAction(input);
-    expect(result).toEqual(output);
+    expect(result.action).toEqual(output);
   });
 
   it("bodyFormData should not be reset for non xxx-form-encoded-data type", () => {
@@ -145,7 +145,7 @@ describe("Api action transformer", () => {
       },
     };
     const result = transformRestAction(input);
-    expect(result).toEqual(output);
+    expect(result.action).toEqual(output);
   });
 
   it("body should not be reset for xxx-form-encoded-data type", () => {
@@ -192,7 +192,7 @@ describe("Api action transformer", () => {
       },
     };
     const result = transformRestAction(input);
-    expect(result).toEqual(output);
+    expect(result.action).toEqual(output);
   });
 
   it("Sets the correct body for xxx-form-encoded-data display type", () => {
@@ -238,7 +238,7 @@ describe("Api action transformer", () => {
       },
     };
     const result = transformRestAction(input);
-    expect(result).toEqual(output);
+    expect(result.action).toEqual(output);
   });
 
   it("Sets the correct body for custom/raw display type", () => {
@@ -261,6 +261,6 @@ describe("Api action transformer", () => {
       },
     };
     const result = transformRestAction(input);
-    expect(result).toEqual(output);
+    expect(result.action).toEqual(output);
   });
 });
