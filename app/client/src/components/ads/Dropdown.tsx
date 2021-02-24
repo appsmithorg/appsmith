@@ -18,6 +18,8 @@ type DropdownProps = CommonComponentProps & {
   selected: DropdownOption;
   onSelect?: (value?: string) => void;
   width?: number;
+  showDropIcon?: boolean;
+  SelectedValueNode?: typeof DefaultDropDownValueNode;
 };
 
 const DropdownContainer = styled.div<{ width?: number }>`
@@ -124,8 +126,18 @@ const LabelWrapper = styled.div<{ label?: string }>`
   }
 `;
 
+const DefaultDropDownValueNode = ({
+  selected,
+}: {
+  selected: DropdownOption;
+}) => <Text type={TextType.P1}>{selected.value}</Text>;
+
 export default function Dropdown(props: DropdownProps) {
-  const { onSelect } = { ...props };
+  const {
+    onSelect,
+    showDropIcon = true,
+    SelectedValueNode = DefaultDropDownValueNode,
+  } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -159,6 +171,7 @@ export default function Dropdown(props: DropdownProps) {
     >
       <Popover
         minimal
+        popoverClassName={props.className}
         position={Position.BOTTOM_RIGHT}
         isOpen={isOpen && !props.disabled}
         onInteraction={(state) => setIsOpen(state)}
@@ -170,8 +183,8 @@ export default function Dropdown(props: DropdownProps) {
           onClick={() => setIsOpen(!isOpen)}
           className={props.className}
         >
-          <Text type={TextType.P1}>{selected.value}</Text>
-          <Icon name="downArrow" size={IconSize.XXS} />
+          <SelectedValueNode selected={selected} />
+          {showDropIcon && <Icon name="downArrow" size={IconSize.XXS} />}
         </Selected>
         <DropdownWrapper width={containerWidth}>
           {props.options.map((option: DropdownOption, index: number) => {

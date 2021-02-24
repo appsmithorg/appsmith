@@ -86,6 +86,10 @@ div.bp3-popover-arrow {
   margin-top: 8px !important;
 }
 
+.layout-control.bp3-popover.bp3-minimal{
+  margin-top: unset !important;
+}
+
 .bp3-datepicker {
   border-radius: 0 !important;
 }
