@@ -139,6 +139,7 @@ export const tableWidgetPropertyPaneMigrations = (
           key: `primaryColumns.${columnPrefix}${index + 1}.onClick`,
         });
         updatedDerivedColumns[column.id] = column;
+        child.primaryColumns[column.id] = column;
       });
 
       if (Object.keys(updatedDerivedColumns).length) {
