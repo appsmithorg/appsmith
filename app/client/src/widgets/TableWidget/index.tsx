@@ -927,17 +927,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         selectedRowIndices,
       );
     } else {
-      let selectedRowIndex = isNumber(this.props.selectedRowIndex)
+      const selectedRowIndex = isNumber(this.props.selectedRowIndex)
         ? this.props.selectedRowIndex
         : -1;
 
-      if (selectedRowIndex === index) {
-        selectedRowIndex = -1;
-        this.props.updateWidgetMetaProperty(
-          "selectedRowIndex",
-          selectedRowIndex,
-        );
-      } else {
+      if (selectedRowIndex !== index) {
         this.props.updateWidgetMetaProperty("selectedRowIndex", index, {
           dynamicString: this.props.onRowSelected,
           event: {
