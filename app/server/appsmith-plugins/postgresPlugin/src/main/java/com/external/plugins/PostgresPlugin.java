@@ -150,10 +150,13 @@ public class PostgresPlugin extends BasePlugin {
             Boolean isPreparedStatement;
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            if (properties.get(PREPARED_STATEMENT_INDEX) == null) {
-                // If the configuration does not exist, default to true
-                // Note this is not possible today since the query editor sets a default value for this field.
-                isPreparedStatement = true;
+            if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
+                /**
+                 * TODO :
+                 * In case the prepared statement configuration is missing, default to true once PreparedStatement
+                 * is no longer in beta.
+                 */
+                isPreparedStatement = false;
             } else {
                 isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
             }

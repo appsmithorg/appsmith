@@ -45,7 +45,6 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       icon={props.icon}
       name={props.action.config.name}
       action={switchToAction}
-      isDefaultExpanded={props.active}
       active={props.active}
       entityId={props.action.config.id}
       step={props.step}

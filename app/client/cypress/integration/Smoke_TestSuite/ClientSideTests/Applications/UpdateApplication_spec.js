@@ -14,6 +14,7 @@ describe("Update Application", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
     appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).type(appname);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
 
     cy.get(homePage.applicationCard)
@@ -53,6 +54,7 @@ describe("Update Application", function() {
   it("Check for errors in updating application name", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(homePage.searchInput).type(appname);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.applicationCard)
       .first()
@@ -61,6 +63,7 @@ describe("Update Application", function() {
       .first()
       .click({ force: true });
     cy.get("#loading").should("not.exist");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.applicationName).type("  ");
     cy.get(homePage.toastMessage).should(
@@ -79,6 +82,7 @@ describe("Update Application", function() {
   it("Updates the name of first application to very long name and checks whether update is reflected in the application card with a popover", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(homePage.searchInput).clear();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
 
     cy.get(homePage.applicationCard)
@@ -94,6 +98,7 @@ describe("Update Application", function() {
       "response.body.responseMeta.status",
       200,
     );
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
 
     cy.get(homePage.applicationCard)

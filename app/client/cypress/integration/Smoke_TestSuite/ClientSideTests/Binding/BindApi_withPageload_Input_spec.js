@@ -15,7 +15,7 @@ describe("Binding the API with pageOnLoad and input Widgets", function() {
   it("Will load an api on load", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("PageLoadApi");
-    cy.enterDatasourceAndPath("https://reqres.in/api/", "users");
+    cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
     cy.WaitAutoSave();
     cy.get(apiwidget.settings).click({ force: true });
     cy.get(apiwidget.onPageLoad).click({ force: true });
@@ -25,9 +25,7 @@ describe("Binding the API with pageOnLoad and input Widgets", function() {
 
   it("Input widget updated with deafult data", function() {
     cy.SearchEntityandOpen("Input1");
-    cy.get(widgetsPage.defaultInput)
-      .type(testdata.command)
-      .type("3");
+    cy.get(widgetsPage.defaultInput).type("3");
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -53,13 +51,13 @@ describe("Binding the API with pageOnLoad and input Widgets", function() {
     );
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input")
-      .last()
+      .first()
       .invoke("attr", "value")
       .should("contain", "3");
     cy.get(publish.inputWidget + " " + "input")
       .last()
       .invoke("attr", "value")
-      .should("contain", "2");
+      .should("contain", "23");
     cy.get(publish.backToEditor)
       .first()
       .click();

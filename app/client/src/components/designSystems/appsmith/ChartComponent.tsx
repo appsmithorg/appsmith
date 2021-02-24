@@ -28,6 +28,7 @@ export interface ChartComponentProps {
   widgetId: string;
   isVisible?: boolean;
   allowHorizontalScroll: boolean;
+  onDataPointClick: (selectedDataPoint: { x: any; y: any }) => void;
 }
 
 const CanvasContainer = styled.div<ChartComponentProps>`
@@ -241,6 +242,15 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       height: "100%",
       dataFormat: "json",
       dataSource: dataSource,
+      events: {
+        dataPlotClick: (evt: any) => {
+          const data = evt.data;
+          this.props.onDataPointClick({
+            x: data.categoryLabel,
+            y: data.dataValue,
+          });
+        },
+      },
     };
     this.chartInstance = new FusionCharts(chartConfig);
   };

@@ -1,5 +1,6 @@
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+const testdata = require("../../../../fixtures/testdata.json");
 
 describe("API Panel Test Functionality", function() {
   before(() => {
@@ -8,7 +9,7 @@ describe("API Panel Test Functionality", function() {
   it("Will load an api on load", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("PageLoadApi");
-    cy.enterDatasourceAndPath("https://reqres.in/api/", "users");
+    cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
     cy.WaitAutoSave();
     cy.get("li:contains('Settings')").click({ force: true });
     cy.get("[data-cy=executeOnLoad]").click({ force: true });

@@ -22,6 +22,7 @@ describe("Add widget", function() {
       .first()
       .focus()
       .type("select * from configs");
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.get(queryEditor.runQuery).click();
     cy.wait("@postExecute").should(

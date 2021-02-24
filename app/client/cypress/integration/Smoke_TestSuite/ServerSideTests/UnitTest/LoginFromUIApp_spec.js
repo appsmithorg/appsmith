@@ -26,8 +26,10 @@ describe("Login from UI and check the functionality", function() {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.get(homePage.headerAppSmithLogo).click();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.url().should("include", "user/login");
   });
