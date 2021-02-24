@@ -63,8 +63,44 @@
           "initialValue": "orderBy"
         },
         {
-          "label": "Order By",
+          "label": "Order By (JSON array of field names to order by)",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+          "controlType": "INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET_COLLECTION"
+          },
+          "initialValue": ""
+        },
+        {
+          "label": "Start After Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "limit"
+        },
+        {
+          "label": "Start After",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
+          "controlType": "INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET_COLLECTION"
+          },
+          "initialValue": ""
+        },
+        {
+          "label": "End Before Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "limit"
+        },
+        {
+          "label": "End Before",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
           "controlType": "INPUT_TEXT",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
