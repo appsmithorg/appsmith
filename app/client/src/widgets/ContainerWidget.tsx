@@ -113,7 +113,7 @@ class ContainerWidget extends BaseWidget<
     const isVirtualized = this.props.virtualizedEnabled;
 
     // if container is virtualized, render a virtualized list
-    if (isVirtualized) {
+    if (isVirtualized && false) {
       if (this.props.renderMode !== RenderModes.CANVAS) {
         return this.renderVirtualizedContainer();
       } else {
@@ -162,7 +162,6 @@ class ContainerWidget extends BaseWidget<
         (child.bottomRow - child.topRow + (isLast ? 0 : parseInt(child.gap))) *
         snapSpaces.snapRowSpace;
 
-      console.log({ itemSize, index });
       return itemSize;
     };
 

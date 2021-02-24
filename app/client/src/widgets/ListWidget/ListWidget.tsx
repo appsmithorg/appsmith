@@ -87,9 +87,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const { componentWidth, componentHeight } = this.getComponentDimensions();
 
     childWidgetData.parentId = this.props.widgetId;
-    childWidgetData.shouldScrollContents = false;
+    childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
     childWidgetData.canExtend =
-      childWidgetData.virtualizedEnabled ?? this.props.shouldScrollContents;
+      childWidgetData.virtualizedEnabled && false
+        ? true
+        : this.props.shouldScrollContents;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.minHeight = componentHeight;
     childWidgetData.rightColumn = componentWidth;
