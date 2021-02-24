@@ -224,6 +224,7 @@ const ActionType = {
   storeValue: "storeValue",
   download: "download",
   copyToClipboard: "copyToClipboard",
+  resetWidget: "resetWidget",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
