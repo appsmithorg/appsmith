@@ -21,7 +21,7 @@ import {
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { getEditorURL } from "selectors/appViewSelectors";
-import { getPageList } from "selectors/editorSelectors";
+import { getIsCurrentPageHidden, getPageList } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
@@ -132,10 +132,11 @@ type AppViewerHeaderProps = {
   currentOrgId: string;
   currentUser?: User;
   lightTheme: Theme;
+  isCurrentPageHidden?: boolean;
 };
 
 export const AppViewerHeader = (props: AppViewerHeaderProps) => {
-  const { currentApplicationDetails, pages, currentOrgId, currentUser } = props;
+  const { currentApplicationDetails, currentOrgId, currentUser } = props;
   const isExampleApp = currentApplicationDetails?.appIsExample;
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
@@ -144,7 +145,9 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const hideHeader = !!isEmbed;
-  const filteredPages = pages.filter((page) => !page.isHidden);
+  const filteredPages = !!props.isCurrentPageHidden
+    ? []
+    : props.pages.filter((page) => !page.isHidden);
 
   const HtmlTitle = () => {
     if (!currentApplicationDetails?.name) return null;
@@ -256,6 +259,7 @@ const mapStateToProps = (state: AppState): AppViewerHeaderProps => ({
   currentOrgId: getCurrentOrgId(state),
   currentUser: getCurrentUser(state),
   lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
+  isCurrentPageHidden: getIsCurrentPageHidden(state),
 });
 
 export default connect(mapStateToProps)(AppViewerHeader);

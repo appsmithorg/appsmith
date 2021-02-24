@@ -14,7 +14,6 @@ import AppPage from "./AppPage";
 import {
   getCanvasWidgetDsl,
   getCurrentPageName,
-  getIsCurrentPageHidden,
 } from "selectors/editorSelectors";
 import EndTourHelper from "components/editorComponents/Onboarding/EndTourHelper";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
@@ -99,13 +98,12 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
     if (this.props.isFetchingPage) {
       return pageLoading;
     } else if (
-      !!this.props.isCurrentPageHidden ||
-      (!this.props.isFetchingPage &&
-        !(
-          this.props.widgets &&
-          this.props.widgets.children &&
-          this.props.widgets.children.length > 0
-        ))
+      !this.props.isFetchingPage &&
+      !(
+        this.props.widgets &&
+        this.props.widgets.children &&
+        this.props.widgets.children.length > 0
+      )
     ) {
       return pageNotFound;
     } else if (!this.props.isFetchingPage && this.props.widgets) {
@@ -133,7 +131,6 @@ const mapStateToProps = (state: AppState) => {
     currentPageName: getCurrentPageName(state),
     currentAppName: currentApp?.name,
     currentAppPermissions: currentApp?.userPermissions,
-    isCurrentPageHidden: getIsCurrentPageHidden(state),
   };
   return props;
 };
