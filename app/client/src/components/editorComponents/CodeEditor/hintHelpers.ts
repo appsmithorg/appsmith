@@ -6,9 +6,9 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
-export const bindingHint: HintHelper = (editor, data) => {
-  const ternServer = new TernServer(data);
+//TODO : add currentRow to data ?? currentRow: Object of columns ie first row
+export const bindingHint: HintHelper = (editor, data, additionalData) => {
+  const ternServer = new TernServer(data, additionalData);
   editor.setOption("extraKeys", {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: No types available

@@ -97,10 +97,38 @@ export const BlueprintControlTransform = css`
         background: none;
         border: 2px solid ${Colors.SLATE_GRAY};
       }
+      &.${Classes.SWITCH}
+        input:checked:disabled
+        ~ .${Classes.CONTROL_INDICATOR} {
+        opacity: 0.5;
+      }
     }
 
     .${Classes.CHECKBOX} .${Classes.CONTROL_INDICATOR} {
       border-radius: 0;
+    }
+
+    .${Classes.SWITCH} {
+      input:checked ~ .${Classes.CONTROL_INDICATOR} {
+        &::before {
+          left: calc(105% - 1em);
+        }
+      }
+
+      & .${Classes.CONTROL_INDICATOR} {
+        background: #d0d7dd;
+        border: 2px solid #d0d7dd;
+        &::before {
+          box-shadow: -2px 2px 5px rgba(67, 86, 100, 0.1);
+        }
+      }
+      & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
+        background: ${(props) => props.theme.colors.primaryOld};
+      }
+      &:hover .${Classes.CONTROL_INDICATOR} {
+        background: #d0d7dd;
+        border: 2px solid #d0d7dd;
+      }
     }
 
     .${Classes.CONTROL_INDICATOR} {
@@ -479,6 +507,7 @@ const darkShades = [
   "#D4D4D4",
   "#E9E9E9",
   "#FFFFFF",
+  "#157A96",
 ] as const;
 
 const lightShades = [
@@ -494,6 +523,7 @@ const lightShades = [
   "#302D2D",
   "#090707",
   "#FFFFFF",
+  "#6A86CE",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -576,6 +606,11 @@ type ColorType = {
       bg: ShadeColor;
       icon: ShadeColor;
     };
+    hovered: {
+      text: ShadeColor;
+      bg: ShadeColor;
+      icon: ShadeColor;
+    };
     icon: ShadeColor;
   };
   toggle: {
@@ -644,6 +679,7 @@ type ColorType = {
     normal: ShadeColor;
     hover: ShadeColor;
     border: ShadeColor;
+    countBg: ShadeColor;
   };
   settingHeading: ShadeColor;
   table: {
@@ -765,6 +801,7 @@ type ColorType = {
     text: ShadeColor;
     dividerBg: ShadeColor;
     iconHoverBg: ShadeColor;
+    tabBg: ShadeColor;
     requestTree: {
       bg: string;
       header: {
@@ -991,6 +1028,11 @@ export const dark: ColorType = {
       bg: darkShades[4],
       icon: darkShades[8],
     },
+    hovered: {
+      text: darkShades[9],
+      bg: darkShades[10],
+      icon: darkShades[8],
+    },
     icon: darkShades[6],
   },
   toggle: {
@@ -1059,6 +1101,7 @@ export const dark: ColorType = {
     normal: darkShades[6],
     hover: darkShades[7],
     border: darkShades[3],
+    countBg: darkShades[4],
   },
   settingHeading: darkShades[9],
   table: {
@@ -1177,6 +1220,7 @@ export const dark: ColorType = {
   },
   apiPane: {
     bg: darkShades[0],
+    tabBg: lightShades[10],
     text: darkShades[6],
     dividerBg: darkShades[4],
     iconHoverBg: darkShades[1],
@@ -1234,7 +1278,7 @@ export const dark: ColorType = {
   codeMirror: {
     background: {
       defaultState: "#262626",
-      hoverState: "#1A191C",
+      hoverState: darkShades[10],
     },
     text: "#FFFFFF",
     dataType: {
@@ -1370,6 +1414,11 @@ export const light: ColorType = {
       bg: lightShades[2],
       icon: lightShades[8],
     },
+    hovered: {
+      text: lightShades[11],
+      bg: lightShades[12],
+      icon: lightShades[8],
+    },
     icon: lightShades[7],
   },
   toggle: {
@@ -1438,6 +1487,7 @@ export const light: ColorType = {
     normal: lightShades[6],
     hover: lightShades[10],
     border: lightShades[3],
+    countBg: lightShades[3],
   },
   settingHeading: lightShades[9],
   table: {
@@ -1555,7 +1605,8 @@ export const light: ColorType = {
     border: "#E0DEDE",
   },
   apiPane: {
-    bg: lightShades[11],
+    bg: lightShades[0],
+    tabBg: lightShades[11],
     text: lightShades[6],
     dividerBg: lightShades[3],
     iconHoverBg: lightShades[1],
@@ -1612,8 +1663,8 @@ export const light: ColorType = {
   },
   codeMirror: {
     background: {
-      defaultState: "#EBEBEB",
-      hoverState: "#FAFAFA",
+      defaultState: lightShades[0],
+      hoverState: lightShades[12],
     },
     text: "#090707",
     dataType: {
@@ -1847,7 +1898,7 @@ export const theme: Theme = {
       color: Colors.MYSTIC,
     },
   ],
-  sidebarWidth: "320px",
+  sidebarWidth: "250px",
   homePage: {
     header: 52,
     leftPane: {

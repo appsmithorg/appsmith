@@ -15,7 +15,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.MustacheHelper;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
-import static com.appsmith.server.helpers.BeanCopyUtils.copyNestedNonNullProperties;
+import static com.appsmith.external.helpers.BeanCopyUtils.copyNestedNonNullProperties;
 
 @Slf4j
 @Service
@@ -163,7 +163,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         return datasourceMono
                 .map(dbDatasource -> {
                     copyNestedNonNullProperties(datasource, dbDatasource);
-                    if (datasource.getDatasourceConfiguration() == null || datasource.getDatasourceConfiguration().getAuthentication() == null) {
+                    if (datasource.getDatasourceConfiguration() != null && datasource.getDatasourceConfiguration().getAuthentication() == null) {
                         if (dbDatasource.getDatasourceConfiguration() != null) {
                             dbDatasource.getDatasourceConfiguration().setAuthentication(null);
                         }

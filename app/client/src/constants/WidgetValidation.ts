@@ -24,6 +24,7 @@ export const VALIDATION_TYPES = {
   SELECTED_TAB: "SELECTED_TAB",
   DEFAULT_OPTION_VALUE: "DEFAULT_OPTION_VALUE",
   DEFAULT_SELECTED_ROW: "DEFAULT_SELECTED_ROW",
+  COLUMN_PROPERTIES_ARRAY: "COLUMN_PROPERTIES_ARRAY",
   LAT_LONG: "LAT_LONG",
 };
 
@@ -41,7 +42,7 @@ export type Validator = (
   dataTree?: DataTree,
 ) => ValidationResponse;
 
-export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.Z";
+export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.sssZ";
 
 export const JAVASCRIPT_KEYWORDS = {
   true: "true",

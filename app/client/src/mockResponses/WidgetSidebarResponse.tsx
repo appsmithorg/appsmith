@@ -19,12 +19,17 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     key: generateReactKey(),
   },
   {
+    type: "SWITCH_WIDGET",
+    widgetCardName: "Switch",
+    key: generateReactKey(),
+  },
+  {
     type: "CONTAINER_WIDGET",
     widgetCardName: "Container",
     key: generateReactKey(),
   },
   {
-    type: "DATE_PICKER_WIDGET",
+    type: "DATE_PICKER_WIDGET2",
     widgetCardName: "DatePicker",
     key: generateReactKey(),
   },
@@ -86,6 +91,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
   {
     type: "VIDEO_WIDGET",
     widgetCardName: "Video",
+    key: generateReactKey(),
+  },
+  {
+    type: "MODAL_WIDGET",
+    widgetCardName: "Modal",
     key: generateReactKey(),
   },
 ];

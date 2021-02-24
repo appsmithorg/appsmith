@@ -83,6 +83,7 @@ const EntityExplorer = (props: IPanelProps) => {
     },
     [openPanel, applicationId],
   );
+
   return (
     <Wrapper ref={explorerRef}>
       <Search ref={searchInputRef} clear={clearSearch} />

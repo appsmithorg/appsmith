@@ -51,5 +51,6 @@
   "propertyList": ".t--entity-property",
   "actionlist": ".action div div",
   "settings": "li:contains('Settings')",
-  "onPageLoad": "[data-cy=executeOnLoad]"
+  "onPageLoad": "[data-cy=executeOnLoad]",
+  "renameEntity": ".single-select >div:contains('Edit Name')"
 }

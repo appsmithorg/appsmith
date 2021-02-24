@@ -48,6 +48,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const state = yield select();
   const editorConfigs = state.entities.plugins.editorConfigs;
+  const settingConfigs = state.entities.plugins.settingConfigs;
   let configInitialValues = {};
   // // Typescript says Element does not have blur function but it does;
   // document.activeElement &&
@@ -82,6 +83,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
       currentEditorConfig = success.payload.editor;
     }
   }
+  const currentSettingConfig = settingConfigs[action.datasource.pluginId];
 
   // If config exists
   if (currentEditorConfig) {
@@ -90,6 +92,14 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
       getConfigInitialValues,
       currentEditorConfig,
     );
+  }
+
+  if (currentSettingConfig) {
+    const settingInitialValues = yield call(
+      getConfigInitialValues,
+      currentSettingConfig,
+    );
+    configInitialValues = merge(configInitialValues, settingInitialValues);
   }
 
   // Merge the initial values and action.

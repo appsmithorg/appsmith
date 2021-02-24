@@ -22,6 +22,7 @@ import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { isString } from "lodash";
 import log from "loglevel";
+import { tableWidgetPropertyPaneMigrations } from "utils/migrations/TableWidget";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -258,6 +259,18 @@ const dynamicPathListMigration = (
   return currentDSL;
 };
 
+const addVersionNumberMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map(addVersionNumberMigration);
+  }
+  if (currentDSL.version === undefined) {
+    currentDSL.version = 1;
+  }
+  return currentDSL;
+};
+
 const canvasNameConflictMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
   props = { counter: 1 },
@@ -359,6 +372,16 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   if (currentDSL.version === 8) {
     currentDSL = renamedCanvasNameConflictMigration(currentDSL);
     currentDSL.version = 9;
+  }
+
+  if (currentDSL.version === 9) {
+    currentDSL = tableWidgetPropertyPaneMigrations(currentDSL);
+    currentDSL.version = 10;
+  }
+
+  if (currentDSL.version === 10) {
+    currentDSL = addVersionNumberMigration(currentDSL);
+    currentDSL.version = 11;
   }
 
   return currentDSL;
@@ -584,6 +607,7 @@ export const generateWidgetProps = (
     widgetId: string;
     renderMode: RenderMode;
   } & Partial<WidgetProps>,
+  version: number,
 ): ContainerWidgetProps<WidgetProps> => {
   if (parent) {
     const sizes = {
@@ -605,6 +629,7 @@ export const generateWidgetProps = (
       ...sizes,
       ...others,
       parentId: parent.widgetId,
+      version,
     };
     delete props.rows;
     delete props.columns;

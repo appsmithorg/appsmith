@@ -191,7 +191,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         className={option.className || "single-select"}
         active={isSelected}
         key={option.value}
-        icon={option.id === "create" ? "plus" : undefined}
+        icon={option.icon}
         onClick={
           option.children
             ? noop

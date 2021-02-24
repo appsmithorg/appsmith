@@ -46,7 +46,6 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   color: white;
   flex-direction: column;
   .${Classes.TEXT} {
-    max-width: 194px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -73,6 +72,10 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   & ${Profile} {
     width: 24px;
     height: 24px;
+  }
+
+  & .current-app-name {
+    overflow: auto;
   }
 `;
 
@@ -115,6 +118,11 @@ const HeaderRightItemContainer = styled.div`
   align-items: center;
   margin-right: ${(props) => props.theme.spaces[7]}px;
   height: 100%;
+`;
+
+const PrimaryLogoLink = styled(Link)`
+  display: flex;
+  align-items: center;
 `;
 
 type AppViewerHeaderProps = {
@@ -183,9 +191,9 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
         <HtmlTitle />
         <HeaderRow justify={"space-between"}>
           <HeaderSection justify={"flex-start"}>
-            <Link to={APPLICATIONS_URL} style={{ display: "flex" }}>
+            <PrimaryLogoLink to={APPLICATIONS_URL}>
               <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
-            </Link>
+            </PrimaryLogoLink>
           </HeaderSection>
           <HeaderSection justify={"center"} className="current-app-name">
             {currentApplicationDetails && (
