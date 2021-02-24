@@ -38,7 +38,6 @@ type AppViewerPageContainerProps = {
   currentPageName?: string;
   currentAppName?: string;
   fetchPage: (pageId: string, bustCache?: boolean) => void;
-  isCurrentPageHidden?: boolean;
   currentAppPermissions?: string[];
 } & RouteComponentProps<AppViewerRouteParams>;
 

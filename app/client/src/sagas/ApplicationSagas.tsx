@@ -85,9 +85,6 @@ export function* publishApplicationSaga(
 
       const applicationId = yield select(getCurrentApplicationId);
       const currentPageId = yield select(getCurrentPageId);
-      // const visiblePage = pageList.find((page: Page) => !page.isHidden);
-      // const pageId =
-      //   isCurrentPageHidden && visiblePage ? visiblePage.pageId : currentPageId;
 
       let appicationViewPageUrl = getApplicationViewerPageURL(
         applicationId,
