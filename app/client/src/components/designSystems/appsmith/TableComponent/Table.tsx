@@ -37,10 +37,10 @@ interface TableProps {
   editMode: boolean;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
-  selectTableRow: (
-    row: { original: Record<string, unknown>; index: number },
-    isSelected: boolean,
-  ) => void;
+  selectTableRow: (row: {
+    original: Record<string, unknown>;
+    index: number;
+  }) => void;
   pageNo: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   nextPageClick: () => void;
@@ -235,11 +235,7 @@ export const Table = (props: TableProps) => {
                   }
                   onClick={(e) => {
                     row.toggleRowSelected();
-                    props.selectTableRow(
-                      row,
-                      row.index === selectedRowIndex ||
-                        selectedRowIndices.includes(row.index),
-                    );
+                    props.selectTableRow(row);
                     e.stopPropagation();
                   }}
                   key={rowIndex}

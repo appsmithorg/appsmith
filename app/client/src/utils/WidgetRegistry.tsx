@@ -438,6 +438,7 @@ export default class WidgetBuilderRegistry {
       IconWidget.getTriggerPropertyMap(),
       IconWidget.getDefaultPropertiesMap(),
       IconWidget.getMetaPropertiesMap(),
+      IconWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -452,6 +453,7 @@ export default class WidgetBuilderRegistry {
       SkeletonWidget.getTriggerPropertyMap(),
       SkeletonWidget.getDefaultPropertiesMap(),
       SkeletonWidget.getMetaPropertiesMap(),
+      SkeletonWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
