@@ -26,6 +26,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QDatasource;
+import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Role;
@@ -81,11 +82,11 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -1622,7 +1623,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "051", id = "add-amazons3-plugin", author = "")
-    public void addAmazonS3Plugin (MongoTemplate mongoTemplate) {
+    public void addAmazonS3Plugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Amazon S3");
         plugin.setType(PluginType.DB);
@@ -1666,50 +1667,92 @@ public class DatabaseChangelog {
         }
 
     }
-  
-  @ChangeSet(order = "053", id = "update-plugin-datasource-form-components", author = "")
-    public void updatePluginDatasourceFormComponents(MongoTemplate mongoTemplate) {
-      for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
-          switch (plugin.getPackageName()) {
-              case "postgres-plugin":
-              case "mongo-plugin":
-              case "elasticsearch-plugin":
-              case "dynamo-plugin":
-              case "redis-plugin":
-              case "mssql-plugin":
-              case "firestore-plugin":
-              case "redshift-plugin":
-              case "mysql-plugin":
-              case "amazons3-plugin":
-                  plugin.setDatasourceComponent("AutoForm");
-                  break;
-              case "restapi-plugin":
-                  plugin.setDatasourceComponent("RestAPIDatasourceForm");
-                  break;
-              default:
-                  continue;
-          }
 
-          mongoTemplate.save(plugin);
-      }
-  }
+    @ChangeSet(order = "053", id = "update-plugin-datasource-form-components", author = "")
+    public void updatePluginDatasourceFormComponents(MongoTemplate mongoTemplate) {
+        for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
+            switch (plugin.getPackageName()) {
+                case "postgres-plugin":
+                case "mongo-plugin":
+                case "elasticsearch-plugin":
+                case "dynamo-plugin":
+                case "redis-plugin":
+                case "mssql-plugin":
+                case "firestore-plugin":
+                case "redshift-plugin":
+                case "mysql-plugin":
+                case "amazons3-plugin":
+                    plugin.setDatasourceComponent("AutoForm");
+                    break;
+                case "restapi-plugin":
+                    plugin.setDatasourceComponent("RestAPIDatasourceForm");
+                    break;
+                default:
+                    continue;
+            }
+
+            mongoTemplate.save(plugin);
+        }
+    }
 
     @ChangeSet(order = "054", id = "update-database-encode-params-toggle", author = "")
     public void updateEncodeParamsToggle(MongoTemplate mongoTemplate) {
+
         for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
-            if(action.getPluginType() != null && action.getPluginType().equals("API")) {
-                if(action.getUnpublishedAction() != null
-                        && action.getUnpublishedAction().getActionConfiguration() != null) {
-                    action.getUnpublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
-                }
+            if (action.getPluginType() != null && action.getPluginType().equals("API")) {
 
-                if(action.getPublishedAction() != null
-                        && action.getPublishedAction().getActionConfiguration() != null) {
-                    action.getPublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
-                }
-
-                mongoTemplate.save(action);
             }
+            if (action.getUnpublishedAction() != null
+                    && action.getUnpublishedAction().getActionConfiguration() != null) {
+                action.getUnpublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+            }
+
+            if (action.getPublishedAction() != null
+                    && action.getPublishedAction().getActionConfiguration() != null) {
+                action.getPublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+            }
+
+            mongoTemplate.save(action);
+        }
+    }
+
+    @ChangeSet(order = "055", id = "update-postgres-plugin-preparedStatement-config", author = "")
+    public void updatePostgresActionsSetPreparedStatementConfiguration(MongoTemplate mongoTemplate) {
+
+        List<Plugin> plugins = mongoTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QPlugin.plugin.packageName)).is("postgres-plugin")
+                )),
+                Plugin.class);
+
+        if (plugins.size() < 1) {
+            return;
+        }
+
+        Plugin postgresPlugin = plugins.get(0);
+
+        // Fetch all the actions built on top of a postgres database
+        List<NewAction> postgresActions = mongoTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(postgresPlugin.getId())
+                )),
+                NewAction.class
+        );
+
+        for (NewAction action : postgresActions) {
+            List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+            pluginSpecifiedTemplates.add(new Property("preparedStatement", "false"));
+
+            // We have found an action of postgres plugin type
+            if (action.getUnpublishedAction().getActionConfiguration() != null) {
+                action.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            }
+
+            if (action.getPublishedAction() != null && action.getPublishedAction().getActionConfiguration() != null) {
+                action.getPublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            }
+
+            mongoTemplate.save(action);
         }
     }
 }

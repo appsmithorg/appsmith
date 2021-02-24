@@ -9,6 +9,7 @@ import { ImageWidgetProps } from "widgets/ImageWidget";
 import { InputWidgetProps } from "widgets/InputWidget";
 import { RichTextEditorWidgetProps } from "widgets/RichTextEditorWidget";
 import { DatePickerWidgetProps } from "../../widgets/DatePickerWidget";
+import { DatePickerWidget2Props } from "../../widgets/DatePickerWidget2";
 import { TableWidgetProps } from "../../widgets/TableWidget/TableWidgetConstants";
 import { DropdownWidgetProps } from "../../widgets/DropdownWidget";
 import { CheckboxWidgetProps } from "../../widgets/CheckboxWidget";
@@ -59,6 +60,7 @@ export interface WidgetConfigReducerState {
     CONTAINER_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> &
       WidgetConfigProps;
     DATE_PICKER_WIDGET: Partial<DatePickerWidgetProps> & WidgetConfigProps;
+    DATE_PICKER_WIDGET2: Partial<DatePickerWidget2Props> & WidgetConfigProps;
     TABLE_WIDGET: Partial<TableWidgetProps> & WidgetConfigProps;
     VIDEO_WIDGET: Partial<VideoWidgetProps> & WidgetConfigProps;
     DROP_DOWN_WIDGET: Partial<DropdownWidgetProps> & WidgetConfigProps;

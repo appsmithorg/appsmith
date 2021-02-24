@@ -547,6 +547,12 @@ if confirm y "Is this a fresh installation?"; then
     # Since the mongo was automatically setup, this must be the first time installation. Generate encryption credentials for this scenario
     auto_generate_encryption="true"
 else
+   curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
+    --header 'Content-Type: text/plain' \
+    --data-raw '{
+        "userId": "'"$APPSMITH_INSTALLATION_ID"'",
+        "event": "Existing Installation"
+    }' > /dev/null
     echo 'You are trying to connect to an existing appsmith database. Abort if you want to install appsmith using the default database'
     read -rp 'Enter your existing appsmith mongo db host: ' mongo_host
     read -rp 'Enter your existing appsmith mongo root user: ' mongo_root_user

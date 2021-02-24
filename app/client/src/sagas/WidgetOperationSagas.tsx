@@ -87,7 +87,6 @@ import {
 } from "selectors/editorSelectors";
 import { forceOpenPropertyPane } from "actions/widgetActions";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import {
   clearEvalPropertyCacheOfWidget,
   validateProperty,
@@ -144,6 +143,7 @@ function* getChildWidgetProps(
     parentColumnSpace,
     widgetName,
     widgetProps,
+    restDefaultConfig.version,
   );
 
   widget.widgetId = newWidgetId;
@@ -240,7 +240,6 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     const start = performance.now();
     Toaster.clear();
     const { widgetId } = addChildAction.payload;
-
     // Get the current parent widget whose child will be the new widget.
     const stateParent: FlattenedWidgetProps = yield select(getWidget, widgetId);
     // const parent = Object.assign({}, stateParent);
@@ -263,6 +262,13 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
 
     widgets[parent.widgetId] = parent;
     log.debug("add child computations took", performance.now() - start, "ms");
+    yield put({
+      type: ReduxActionTypes.WIDGET_CHILD_ADDED,
+      payload: {
+        widgetId: childWidgetPayload.widgetId,
+        type: addChildAction.payload.type,
+      },
+    });
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
     yield put({
@@ -998,43 +1004,6 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
     const childId = childrenIds[childIndex];
     yield put(resetWidgetMetaProperty(childId));
   }
-  yield call(resetEvaluatedWidgetMetaProperties, childrenIds);
-}
-
-// This is needed because evaluation takes some time and we can reset the props
-// in the evaluated value much faster like this
-function* resetEvaluatedWidgetMetaProperties(widgetIds: string[]) {
-  const evaluatedDataTree = yield select(getDataTree);
-  const updates: Record<string, DataTreeWidget> = {};
-  for (const index in widgetIds) {
-    const widgetId = widgetIds[index];
-    const widget = _.find(evaluatedDataTree, { widgetId }) as DataTreeWidget;
-
-    // the widget was not found in the data tree, so don't do anything
-    if (!widget) continue;
-
-    const widgetToUpdate = { ...widget };
-    const metaPropsMap = WidgetFactory.getWidgetMetaPropertiesMap(widget.type);
-    const defaultPropertiesMap = WidgetFactory.getWidgetDefaultPropertiesMap(
-      widget.type,
-    );
-    Object.keys(metaPropsMap).forEach((metaProp) => {
-      if (metaProp in defaultPropertiesMap) {
-        widgetToUpdate[metaProp] = widget[defaultPropertiesMap[metaProp]];
-      } else {
-        widgetToUpdate[metaProp] = metaPropsMap[metaProp];
-      }
-    });
-    updates[widget.widgetName] = widgetToUpdate;
-  }
-  const newEvaluatedDataTree = {
-    ...evaluatedDataTree,
-    ...updates,
-  };
-  yield put({
-    type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: newEvaluatedDataTree,
-  });
 }
 
 function* updateCanvasSize(
@@ -1443,6 +1412,7 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       parentColumnSpace: 1,
       isLoading: false,
+      version: 1,
       props: {
         tableData: `{{${queryName}.data}}`,
         dynamicBindingPathList: [{ key: "tableData" }],

@@ -138,6 +138,8 @@ export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = "Back to Sign In";
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = "Api added to page.";
 export const INPUT_WIDGET_DEFAULT_VALIDATION_ERROR = "Invalid input";
 
+export const DATE_WIDGET_DEFAULT_VALIDATION_ERROR = "Date out of range";
+
 export const AUTOFIT_ALL_COLUMNS = "Autofit all columns";
 export const AUTOFIT_THIS_COLUMN = "Autofit this column";
 export const AUTOFIT_COLUMN = "Autofit column";
@@ -159,7 +161,7 @@ export const LIGHTNING_MENU_API_CREATE_NEW = "Create new API";
 export const LIGHTNING_MENU_OPTION_TEXT = "Plain Text";
 export const LIGHTNING_MENU_OPTION_JS = "Write JS";
 export const LIGHTNING_MENU_OPTION_HTML = "Write HTML";
-export const CHECK_REQUEST_BODY = "Please check request body to debug?";
+export const CHECK_REQUEST_BODY = "Please check request body to debug";
 export const DONT_SHOW_THIS_AGAIN = "Don't show this again";
 export const SHOW_REQUEST = "Show Request";
 

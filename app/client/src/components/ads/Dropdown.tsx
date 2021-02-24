@@ -95,6 +95,8 @@ const OptionWrapper = styled.div<{ selected: boolean }>`
   }
 
   &:hover {
+    background: ${(props) => props.theme.colors.dropdown.hovered.bg};
+    color: ${(props) => props.theme.colors.dropdown.hovered.text};
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.dropdown.selected.text};
     }
