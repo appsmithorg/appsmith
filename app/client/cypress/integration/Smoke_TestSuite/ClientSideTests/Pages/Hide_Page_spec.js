@@ -8,7 +8,7 @@ describe("Hide page", function() {
     cy.Createpage(pageOne);
     cy.Createpage(pageTwo);
 
-    cy.SearchEntityandOpen(pageOne);
+    cy.GlobalSearchEntity(pageOne);
     cy.xpath(pages.popover)
       .last()
       .click({ force: true });
