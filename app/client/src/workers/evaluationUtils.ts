@@ -375,7 +375,7 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   Object.keys(withFunction).forEach((entityName) => {
     const entity = withFunction[entityName];
     if (isAction(entity)) {
-      const runFunction = function(
+      const runFunction = function (
         this: DataTreeAction,
         onSuccess: string,
         onError: string,
@@ -396,7 +396,7 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
         withFunction.actionPaths.push(`${entityName}.run`);
     }
   });
-  withFunction.navigateTo = function(
+  withFunction.navigateTo = function (
     pageNameOrUrl: string,
     params: Record<string, string>,
     target?: string,
@@ -408,7 +408,7 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   };
   withFunction.actionPaths.push("navigateTo");
 
-  withFunction.showAlert = function(message: string, style: string) {
+  withFunction.showAlert = function (message: string, style: string) {
     return {
       type: "SHOW_ALERT",
       payload: { message, style },
@@ -416,7 +416,7 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   };
   withFunction.actionPaths.push("showAlert");
 
-  withFunction.showModal = function(modalName: string) {
+  withFunction.showModal = function (modalName: string) {
     return {
       type: "SHOW_MODAL_BY_NAME",
       payload: { modalName },
@@ -424,7 +424,7 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   };
   withFunction.actionPaths.push("showModal");
 
-  withFunction.closeModal = function(modalName: string) {
+  withFunction.closeModal = function (modalName: string) {
     return {
       type: "CLOSE_MODAL",
       payload: { modalName },
@@ -432,7 +432,7 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   };
   withFunction.actionPaths.push("closeModal");
 
-  withFunction.storeValue = function(key: string, value: string) {
+  withFunction.storeValue = function (key: string, value: string) {
     return {
       type: "STORE_VALUE",
       payload: { key, value },
@@ -440,7 +440,7 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   };
   withFunction.actionPaths.push("storeValue");
 
-  withFunction.download = function(data: string, name: string, type: string) {
+  withFunction.download = function (data: string, name: string, type: string) {
     return {
       type: "DOWNLOAD",
       payload: { data, name, type },
@@ -448,7 +448,7 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   };
   withFunction.actionPaths.push("download");
 
-  withFunction.copyToClipboard = function(
+  withFunction.copyToClipboard = function (
     data: string,
     options?: { debug?: boolean; format?: string },
   ) {
@@ -462,7 +462,7 @@ export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
   };
   withFunction.actionPaths.push("copyToClipboard");
 
-  withFunction.resetWidget = function(
+  withFunction.resetWidget = function (
     widgetName: string,
     resetChildren = false,
   ) {
