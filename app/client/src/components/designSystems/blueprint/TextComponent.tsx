@@ -96,11 +96,6 @@ class TextComponent extends React.Component<TextComponentProps> {
         >
           <Interweave
             content={text}
-            onBeforeParse={(source) => {
-              if (isString(source)) return source;
-
-              return JSON.stringify(source);
-            }}
             matchers={[new UrlMatcher("url"), new EmailMatcher("email")]}
           />
         </StyledText>
