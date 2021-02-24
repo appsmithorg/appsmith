@@ -23,5 +23,11 @@
   "MsSQL": ".t--plugin-name:contains('MsSQL')",
   "Firestore": ".t--plugin-name:contains('Firestore')",
   "Redshift": ".t--plugin-name:contains('Redshift')",
-  "AmazonS3": ".t--plugin-name:contains('Amazon S3')"
+  "AmazonS3": ".t--plugin-name:contains('Amazon S3')",
+  "authType": "[data-cy=authType]",
+  "OAuth2": "//div[contains(@class,'option') and text()='OAuth 2.0']",
+  "accessTokenUrl": "[data-cy='authentication.accessTokenUrl'] input",
+  "clienID": "[data-cy='authentication.clientId'] input",
+  "clientSecret": "[data-cy='authentication.clientSecret'] input"
+
 }
