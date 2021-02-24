@@ -43,7 +43,7 @@ const PropertyPaneConfig = [
         placeholderText: "0",
         propertyName: "gridGap",
         label: "Grid Gap",
-        controlType: "NUMBER_INPUT",
+        controlType: "INPUT_TEXT",
         isBindProperty: false,
         isTriggerProperty: false,
       },

@@ -156,8 +156,10 @@ class ContainerWidget extends BaseWidget<
 
     const getItemSize = (index: number) => {
       const child = children[index];
+      const isLast = children.length === index + 1;
+
       const itemSize =
-        (child.bottomRow - child.topRow + parseInt(child.gap)) *
+        (child.bottomRow - child.topRow + (isLast ? 0 : parseInt(child.gap))) *
         snapSpaces.snapRowSpace;
 
       console.log({ itemSize, index });
