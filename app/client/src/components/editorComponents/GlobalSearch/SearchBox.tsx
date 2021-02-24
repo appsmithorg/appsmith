@@ -8,12 +8,6 @@ import Icon from "components/ads/Icon";
 import { AppState } from "reducers";
 import { OMNIBAR_PLACEHOLDER } from "constants/messages";
 
-const Separator = styled.div`
-  height: 1px;
-  background: ${(props) => props.theme.colors.globalSearch.separator};
-  width: 100%;
-`;
-
 const Container = styled.div`
   padding: ${(props) => `0 ${props.theme.spaces[11]}px`};
   & input {
@@ -77,7 +71,6 @@ const SearchBox = ({ query, setQuery }: SearchBoxProps) => {
         />
         {query && <Icon name="close" onClick={() => updateSearchQuery("")} />}
       </InputContainer>
-      <Separator />
     </Container>
   );
 };

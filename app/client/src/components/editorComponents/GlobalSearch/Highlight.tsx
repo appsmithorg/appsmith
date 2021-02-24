@@ -1,6 +1,8 @@
 import React from "react";
 
 const Highlight = ({ match, text }: { match: string; text: string }) => {
+  if (!match) return <span>{text}</span>;
+
   const regEx = new RegExp(match, "ig");
   const parts = text?.split(regEx);
   if (parts?.length === 1) return <span>{text}</span>;

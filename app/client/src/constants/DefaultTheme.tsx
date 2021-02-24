@@ -880,6 +880,9 @@ type ColorType = {
     searchItemHighlight: string;
     searchItemText: string;
     highlightedTextUnderline: string;
+    documentationCtaBackground: string;
+    documentationCtaText: string;
+    emptyStateText: string;
   };
   gif: {
     overlay: string;
@@ -925,9 +928,12 @@ const globalSearch = {
   separator: "#424242",
   searchItemHighlight: "#fff",
   searchItemText: "rgba(255, 255, 255, 0.6)",
-  highlightedTextUnderline: "#F15A24",
+  highlightedTextUnderline: "#03B365",
   helpBarBorder: "#F15A24",
   helpBarText: "#C2C2C2",
+  documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
+  documentationCtaText: "#03B365",
+  emptyStateText: "#ABABAB",
 };
 
 export const dark: ColorType = {
@@ -1791,6 +1797,18 @@ export const theme: Theme = {
       fontWeight: "normal",
       fontSize: 15,
       lineHeight: 20,
+    },
+    largeH1: {
+      fontStyle: "normal",
+      fontWeight: "bold",
+      fontSize: 28,
+      lineHeight: 36,
+    },
+    spacedOutP1: {
+      fontStyle: "normal",
+      fontWeight: "normal",
+      fontSize: 14,
+      lineHeight: 24,
     },
   },
   iconSizes: {

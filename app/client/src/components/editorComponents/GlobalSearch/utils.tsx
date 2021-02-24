@@ -102,3 +102,5 @@ export const getDefaultDocumentationResults = async () => {
 
   return data;
 };
+
+export const algoliaHighlightTag = "ais-highlight-0000000000";

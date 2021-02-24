@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { Highlight as AlgoliaHighlight } from "react-instantsearch-dom";
 import { Hit as IHit } from "react-instantsearch-core";
 import styled from "styled-components";
-import { getTypographyByKey, scrollbarDark } from "constants/DefaultTheme";
+import { getTypographyByKey } from "constants/DefaultTheme";
 import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
 import scrollIntoView from "scroll-into-view-if-needed";
@@ -28,34 +28,29 @@ import { keyBy, noop } from "lodash";
 const DocumentIcon = HelpIcons.DOCUMENT;
 
 export const SearchItemContainer = styled.div<{ isActiveItem: boolean }>`
-  ${(props) => getTypographyByKey(props, "p3")};
-  [class^="ais-"] {
-    ${(props) => getTypographyByKey(props, "p3")};
-  }
+  display: flex;
+  align-items: center;
+  padding: ${(props) =>
+    `${props.theme.spaces[4]}px ${props.theme.spaces[4]}px`};
+  border-radius: ${(props) => props.theme.radii[2]}px;
+  color: ${(props) => props.theme.colors.globalSearch.searchItemText};
+  margin: ${(props) => props.theme.spaces[1]}px 0;
   background-color: ${(props) =>
     props.isActiveItem
       ? props.theme.colors.globalSearch.activeSearchItemBackground
       : "unset"};
+
   &:hover {
     background-color: ${(props) =>
       props.theme.colors.globalSearch.activeSearchItemBackground};
+    ${StyledActionLink} {
+      visibility: visible;
+    }
   }
-  display: flex;
-  padding: ${(props) =>
-    `${props.theme.spaces[3]}px ${props.theme.spaces[4]}px`};
-  border-radius: ${(props) => props.theme.radii[2]}px;
-  color: ${(props) => props.theme.colors.globalSearch.searchItemText};
-  & .ais-Highlight-highlighted,
-  & .search-highlighted {
-    background: unset;
-    color: ${(props) => props.theme.colors.globalSearch.searchItemHighlight};
-    font-style: normal;
-    text-decoration: underline;
-    text-decoration-color: ${(props) =>
-      props.theme.colors.globalSearch.highlightedTextUnderline};
-  }
-  &:hover ${StyledActionLink} {
-    visibility: visible;
+
+  ${(props) => getTypographyByKey(props, "p3")};
+  [class^="ais-"] {
+    ${(props) => getTypographyByKey(props, "p3")};
   }
 `;
 
@@ -65,16 +60,21 @@ const ItemTitle = styled.div`
   justify-content: space-between;
   flex: 1;
   align-items: center;
+  ${(props) => getTypographyByKey(props, "p3")};
+  font-w [class^="ais-"] {
+    ${(props) => getTypographyByKey(props, "p3")};
+  }
 `;
 
 const StyledDocumentIcon = styled(DocumentIcon)`
   svg {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     path {
       fill: transparent;
     }
   }
+  display: flex;
 `;
 
 const DocumentationItem = (props: {
@@ -83,9 +83,7 @@ const DocumentationItem = (props: {
 }) => {
   return (
     <>
-      <span>
-        <StyledDocumentIcon />
-      </span>
+      <StyledDocumentIcon />
       <ItemTitle>
         <span>
           <AlgoliaHighlight attribute="title" hit={props.item} />
@@ -95,6 +93,13 @@ const DocumentationItem = (props: {
     </>
   );
 };
+
+const WidgetIconWrapper = styled.span`
+  svg {
+    height: 14px;
+  }
+  display: flex;
+`;
 
 const WidgetItem = (props: {
   query: string;
@@ -107,7 +112,7 @@ const WidgetItem = (props: {
 
   return (
     <>
-      <span>{getWidgetIcon(type)}</span>
+      <WidgetIconWrapper>{getWidgetIcon(type)}</WidgetIconWrapper>
       <ItemTitle>
         <Highlight match={query} text={title} />
         <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
@@ -115,6 +120,13 @@ const WidgetItem = (props: {
     </>
   );
 };
+
+const ActionIconWrapper = styled.div`
+  & > div {
+    display: flex;
+    align-items: center;
+  }
+`;
 
 const ActionItem = (props: {
   query: string;
@@ -135,7 +147,7 @@ const ActionItem = (props: {
   );
   return (
     <>
-      <span>{icon}</span>
+      <ActionIconWrapper>{icon}</ActionIconWrapper>
       <ItemTitle>
         <Highlight match={query} text={title} />
         <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
@@ -159,7 +171,7 @@ const DatasourceItem = (props: {
 
   return (
     <>
-      <span>{icon}</span>
+      {icon}
       <ItemTitle>
         <Highlight match={query} text={title} />
         <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
@@ -179,7 +191,7 @@ const PageItem = (props: {
 
   return (
     <>
-      <span>{icon}</span>
+      {icon}
       <ItemTitle>
         <Highlight match={query} text={title} />
         <ActionLink item={props.item} isActiveItem={props.isActiveItem} />
@@ -236,7 +248,6 @@ const SearchResultsContainer = styled.div`
   padding: 0 ${(props) => props.theme.spaces[6]}px;
   overflow: auto;
   width: 250px;
-  ${scrollbarDark}
 `;
 
 const SearchResults = ({

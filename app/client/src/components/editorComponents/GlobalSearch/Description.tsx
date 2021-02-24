@@ -6,15 +6,14 @@ import { getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import marked from "marked";
 import { HelpBaseURL } from "constants/HelpConstants";
-import { SearchItem } from "./utils";
+import { SearchItem, algoliaHighlightTag } from "./utils";
+import { htmlToElement } from "utils/helpers";
 
 type Props = {
   activeItem: SearchItem;
   activeItemType?: SEARCH_ITEM_TYPES;
   query: string;
 };
-
-const algoliaHighlightTag = "ais-highlight-0000000000";
 
 /**
  * strip:
@@ -32,29 +31,104 @@ const Container = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: ${(props) => props.theme.spaces[12]}px;
-  ${(props) => getTypographyByKey(props, "p1")};
-  [class^="ais-"] {
-    ${(props) => getTypographyByKey(props, "p1")};
-  }
-  padding: ${(props) =>
-    `${props.theme.spaces[3]}px ${props.theme.spaces[4]}px`};
+  padding: ${(props) => `0 ${props.theme.spaces[7]}px`};
   border-radius: ${(props) => props.theme.radii[2]}px;
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
-  & ${algoliaHighlightTag}, & .ais-Highlight-highlighted,
-  & .search-highlighted {
-    background: unset;
-    color: ${(props) => props.theme.colors.globalSearch.searchItemHighlight};
-    font-style: normal;
-    text-decoration: underline;
-    text-decoration-color: ${(props) =>
-      props.theme.colors.globalSearch.highlightedTextUnderline};
-  }
   overflow: auto;
-  & img {
+
+  ${(props) => getTypographyByKey(props, "spacedOutP1")};
+  [class^="ais-"] {
+    ${(props) => getTypographyByKey(props, "spacedOutP1")};
+  }
+
+  img {
     max-width: 100%;
   }
+
+  h1 {
+    ${(props) => getTypographyByKey(props, "largeH1")};
+    word-break: break-word;
+  }
+
+  h1,
+  h2,
+  h3,
+  strong {
+    color: #fff;
+  }
+
+  .documentation-cta {
+    ${(props) => getTypographyByKey(props, "p3")}
+    white-space: nowrap;
+    background: ${(props) =>
+      props.theme.colors.globalSearch.documentationCtaBackground};
+    color: ${(props) => props.theme.colors.globalSearch.documentationCtaText};
+    padding: ${(props) => props.theme.spaces[2]}px;
+    margin: 0 ${(props) => props.theme.spaces[2]}px;
+    border-radius: 4px;
+
+    position: relative;
+    bottom: 3px;
+  }
+
+  & a {
+    color: #54a9fb;
+  }
+
+  pre {
+    white-space: pre-wrap;
+  }
+
+  code {
+    word-break: break-word;
+  }
 `;
+
+const getDocumentationCTA = (item: any) => {
+  const href = item.path.replace("master", HelpBaseURL);
+  const htmlString = `<a class="documentation-cta" href="${href}" target="_blank">Open Documentation</a>`;
+  return htmlToElement(htmlString);
+};
+
+/**
+ * Replace all H1s with H2s
+ * Check first child of body
+ *   if exact match as title -> replace with h1
+ *   else prepend h1
+ * Append open documentation button to title
+ */
+const updateDocumentDescriptionTitle = (
+  documentObj: Document,
+  activeItem: SearchItem,
+) => {
+  Array.from(documentObj.querySelectorAll("h1")).forEach((match: any) => {
+    match.outerHTML = `<h2>${match.innerHTML}</h2>`;
+  });
+
+  let firstChild = documentObj.querySelector("body")
+    ?.firstChild as HTMLElement | null;
+
+  const title = activeItem?._highlightResult?.title?.value;
+  const matchesExactly = title === firstChild?.innerHTML;
+
+  // additional space for word-break
+  if (matchesExactly && firstChild) {
+    firstChild.outerHTML = `<h1>${firstChild?.innerHTML} </h1>`;
+  } else {
+    const h = document.createElement("h1");
+    h.innerHTML = `${title} `;
+    firstChild?.parentNode?.insertBefore(h, firstChild);
+  }
+
+  firstChild = documentObj.querySelector("body")
+    ?.firstChild as HTMLElement | null;
+
+  if (firstChild) {
+    // append documentation button after title:
+    const ctaElement = getDocumentationCTA(activeItem) as Node;
+    firstChild.appendChild(ctaElement);
+  }
+};
 
 const getDocumentationPreviewContent = (
   activeItem: SearchItem,
@@ -66,7 +140,7 @@ const getDocumentationPreviewContent = (
     const domparser = new DOMParser();
     const documentObj = domparser.parseFromString(parsedDocument, "text/html");
 
-    // remove algolia highlight within from code sections
+    // remove algolia highlight within code sections
     const aisTag = new RegExp(
       `&lt;${algoliaHighlightTag}&gt;|&lt;/${algoliaHighlightTag}&gt;`,
       "g",
@@ -92,7 +166,7 @@ const getDocumentationPreviewContent = (
       } catch (e) {}
     });
 
-    //replace hints with code tags
+    // replace hints with code tags
     documentObj.body.innerHTML = documentObj.body.innerHTML.replace(
       /{% hint .*?%}/,
       "<code>",
@@ -101,6 +175,9 @@ const getDocumentationPreviewContent = (
       /{% endhint .*?%}/,
       "</code>",
     );
+
+    // update description title
+    updateDocumentDescriptionTitle(documentObj, activeItem);
 
     const content = strip(documentObj.body.innerHTML).trim();
     return content;

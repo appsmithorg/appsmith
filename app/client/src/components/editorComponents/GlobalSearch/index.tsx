@@ -12,6 +12,7 @@ import SetSearchResults from "./SetSearchResults";
 import GlobalSearchHotKeys from "./GlobalSearchHotKeys";
 import SearchContext from "./GlobalSearchContext";
 import Description from "./Description";
+import ResultsNotFound from "./ResultsNotFound";
 import { getActions, getAllPageWidgets } from "selectors/entitiesSelector";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity";
 import {
@@ -24,6 +25,7 @@ import {
   getDefaultDocumentationResults,
   DocSearchItem,
   SearchItem,
+  algoliaHighlightTag,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -46,6 +48,17 @@ const StyledContainer = styled.div`
     display: flex;
     flex: 1;
     overflow: hidden;
+    background-color: #383838;
+  }
+  ${algoliaHighlightTag},
+  & .ais-Highlight-highlighted,
+  & .search-highlighted {
+    background: unset;
+    color: ${(props) => props.theme.colors.globalSearch.searchItemHighlight};
+    font-style: normal;
+    text-decoration: underline;
+    text-decoration-color: ${(props) =>
+      props.theme.colors.globalSearch.highlightedTextUnderline};
   }
 `;
 
@@ -268,6 +281,18 @@ const GlobalSearch = () => {
     return activeItem ? getItemType(activeItem) : undefined;
   }, [activeItem]);
 
+  const SearchContent = () => (
+    <>
+      <SearchResults searchResults={searchResults} query={query} />
+      <Separator />
+      <Description
+        activeItem={activeItem}
+        activeItemType={activeItemType}
+        query={query}
+      />
+    </>
+  );
+
   return (
     <SearchContext.Provider value={searchContext}>
       <GlobalSearchHotKeys {...hotKeyProps}>
@@ -279,13 +304,11 @@ const GlobalSearch = () => {
                 <SetSearchResults
                   setDocumentationSearchResults={setDocumentationSearchResults}
                 />
-                <SearchResults searchResults={searchResults} query={query} />
-                <Separator />
-                <Description
-                  activeItem={activeItem}
-                  activeItemType={activeItemType}
-                  query={query}
-                />
+                {searchResults.length > 0 ? (
+                  <SearchContent />
+                ) : (
+                  <ResultsNotFound />
+                )}
               </div>
             </StyledContainer>
           </AlgoliaSearchWrapper>
