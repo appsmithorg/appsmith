@@ -14,10 +14,11 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 public class ActionExecutionRequest {
-    Object query;
-
+    String query;
+    Object body;
     JsonNode headers;
     HttpMethod httpMethod;
     String url;
+    List<Param> properties;
     List<String> executionParameters;
 }
