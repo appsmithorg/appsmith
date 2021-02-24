@@ -7,16 +7,17 @@ const Highlight = ({ match, text }: { match: string; text: string }) => {
   const parts = text?.split(regEx);
   if (parts?.length === 1) return <span>{text}</span>;
   let lastIndex = 0;
+
   return (
     <span>
       {parts?.map((part, index) => {
-        lastIndex += part.length;
+        lastIndex += Math.max(part.length, 0);
         const result = (
           <React.Fragment key={index}>
             {part}
             {index !== parts.length - 1 && (
               <span className="search-highlighted">
-                {text.slice(lastIndex, match.length)}
+                {text.slice(lastIndex, lastIndex + match.length)}
               </span>
             )}
           </React.Fragment>
