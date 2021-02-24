@@ -82,6 +82,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getChartData = () => {
     const chartData: ChartData[] = this.props.chartData;
+
     if (chartData.length === 0) {
       return [
         {
@@ -235,6 +236,8 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       this.props.allowHorizontalScroll && this.props.chartType !== "PIE_CHART"
         ? this.getScrollChartDataSource()
         : this.getChartDataSource();
+
+    console.log({ dataSource });
     const chartConfig = {
       type: this.getChartType(),
       renderAt: this.props.widgetId + "chart-container",
@@ -245,10 +248,10 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       events: {
         dataPlotClick: (evt: any) => {
           const data = evt.data;
-          this.props.onDataPointClick({
-            x: data.categoryLabel,
-            y: data.dataValue,
-          });
+          // this.props.onDataPointClick({
+          //   x: data.categoryLabel,
+          //   y: data.dataValue,
+          // });
         },
       },
     };
