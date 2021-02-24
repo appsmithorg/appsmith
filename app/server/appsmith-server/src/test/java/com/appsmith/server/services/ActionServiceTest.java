@@ -3,6 +3,8 @@ package com.appsmith.server.services;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.AppsmithEventContext;
+import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -975,6 +977,55 @@ public class ActionServiceTest {
                     // Check that the action used in the app contains public execute permission
                     assertThat(actionFromDb.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
 
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testExecuteOnLoadParamOnActionCreateWithDefaultContext() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("testAction");
+        action.setPageId(testPage.getId());
+        action.setExecuteOnLoad(true);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<ActionDTO> actionMono = newActionService.createAction(action);
+        StepVerifier
+                .create(actionMono)
+                .assertNext(createdAction -> {
+                    // executeOnLoad is expected to be set to false in case of default context
+                    assertThat(createdAction.getExecuteOnLoad()).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testExecuteOnLoadParamOnActionCreateWithClonePageContext() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("testAction");
+        action.setPageId(testPage.getId());
+        action.setExecuteOnLoad(true);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
+        Mono<ActionDTO> actionMono = newActionService.createAction(action, eventContext);
+        StepVerifier
+                .create(actionMono)
+                .assertNext(createdAction -> {
+                    // executeOnLoad is expected to be set to false in case of default context
+                    assertThat(createdAction.getExecuteOnLoad()).isTrue();
                 })
                 .verifyComplete();
     }
