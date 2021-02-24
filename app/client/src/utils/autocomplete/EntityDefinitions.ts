@@ -191,7 +191,6 @@ export const entityDefinitions = {
   },
   MAP_WIDGET: {
     isVisible: isVisible,
-    mapCenter: "latLong",
     center: "latLong",
     markers: "[mapMarker]",
     selectedMarker: "mapMarker",
