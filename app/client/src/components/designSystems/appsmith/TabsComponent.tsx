@@ -15,6 +15,7 @@ interface TabsComponentProps extends ComponentProps {
     id: string;
     label: string;
     widgetId: string;
+    isVisible?: boolean;
   }>;
 }
 
@@ -119,24 +120,28 @@ const TabsComponent = (props: TabsComponentProps) => {
       tabContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [props.shouldScrollContents]);
+  const visibleTabs = props.tabs
+    ? props.tabs.filter(
+        (tab) => tab.isVisible === undefined || tab.isVisible === true,
+      )
+    : [];
   return (
     <TabsContainerWrapper ref={tabContainerRef}>
       {props.shouldShowTabs ? (
         <TabsContainer>
-          {props.tabs &&
-            props.tabs.map((tab, index) => (
-              <StyledText
-                className={`t--tab-${tab.label}`}
-                onClick={(event: React.MouseEvent<HTMLDivElement>) => {
-                  onTabChange(tab.widgetId);
-                  event.stopPropagation();
-                }}
-                selected={props.selectedTabWidgetId === tab.widgetId}
-                key={index}
-              >
-                {tab.label}
-              </StyledText>
-            ))}
+          {visibleTabs.map((tab, index) => (
+            <StyledText
+              className={`t--tab-${tab.label}`}
+              onClick={(event: React.MouseEvent<HTMLDivElement>) => {
+                onTabChange(tab.widgetId);
+                event.stopPropagation();
+              }}
+              selected={props.selectedTabWidgetId === tab.widgetId}
+              key={index}
+            >
+              {tab.label}
+            </StyledText>
+          ))}
           <StyledTab />
         </TabsContainer>
       ) : (
