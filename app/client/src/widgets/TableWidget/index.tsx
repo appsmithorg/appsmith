@@ -601,7 +601,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           propertiesToAdd["migrated"] = true;
         }
 
-        super.batchUpdateWidgetProperty(propertiesToAdd);
         if (previousColumnIds.length > newColumnIds.length) {
           const columnsIdsToDelete = without(
             previousColumnIds,
@@ -610,13 +609,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columnsIdsToDelete.forEach((id: string) => {
             pathsToDelete.push(`primaryColumns.${id}`);
           });
-          // We need to wait for the above updates to finish
-          // Todo(abhinav): This is not correct. The platform should accept multiple types of updates
-          // That approach should be performant.
-          setTimeout(() => {
-            super.deleteWidgetProperty(pathsToDelete);
-          }, 1000);
+
+          super.deleteWidgetProperty(pathsToDelete);
         }
+
+        setTimeout(() => {
+          super.batchUpdateWidgetProperty(propertiesToAdd);
+        }, 1000);
       }
     }
   };
@@ -643,27 +642,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidUpdate(prevProps: TableWidgetProps) {
     const { primaryColumns = {} } = this.props;
-
     // Check if data is modifed by comparing the stringified versions of the previous and next tableData
     const tableDataModified =
       JSON.stringify(this.props.tableData) !==
       JSON.stringify(prevProps.tableData);
 
-    // let hasPrimaryColumnsComputedValueChanged = false;
-    // const oldComputedValues = Object.values(
-    //   prevProps.primaryColumns || {},
-    // )?.map((column: ColumnProperties) => column.computedValue);
-    // const newComputedValues = Object.values(
-    //   this.props.primaryColumns || {},
-    // )?.map((column: ColumnProperties) => column.computedValue);
-    // if (!isEqual(oldComputedValues, newComputedValues)) {
-    //   hasPrimaryColumnsComputedValueChanged = true;
-    // }
-
     let hasPrimaryColumnsChanged = false;
     // If the user has changed the tableData OR
     // The binding has returned a new value
-    if (tableDataModified) {
+    if (tableDataModified && this.props.renderMode === RenderModes.CANVAS) {
       // Get columns keys from this.props.tableData
       const columnIds: string[] = getAllTableColumnKeys(this.props.tableData);
       // Get column keys from columns except for derivedColumns
@@ -694,21 +681,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           JSON.stringify(prevProps.sortedColumn) ||
         JSON.stringify(this.props.primaryColumns) !==
           JSON.stringify(prevProps.primaryColumns) ||
-        this.props.filteredTableData === undefined)
+        this.props.filteredTableData === undefined ||
+        this.props.filteredTableData.length === 0)
     ) {
-      if (this.props.primaryColumns && Object.keys(primaryColumns).length > 0) {
-        const filteredTableData = this.filterTableData();
-
-        if (
-          JSON.stringify(filteredTableData) !==
-          JSON.stringify(this.props.filteredTableData)
-        ) {
-          // Update filteredTableData meta property
-          this.props.updateWidgetMetaProperty(
-            "filteredTableData",
-            filteredTableData,
-          );
-        }
+      const filteredTableData = this.filterTableData();
+      if (
+        JSON.stringify(filteredTableData) !==
+        JSON.stringify(this.props.filteredTableData)
+      ) {
+        // Update filteredTableData meta property
+        this.props.updateWidgetMetaProperty(
+          "filteredTableData",
+          filteredTableData,
+        );
       }
     }
 
@@ -941,33 +926,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         "selectedRowIndices",
         selectedRowIndices,
       );
-      this.props.updateWidgetMetaProperty(
-        "selectedRows",
-        this.props.filteredTableData.filter(
-          (item: Record<string, unknown>, i: number) => {
-            return selectedRowIndices.includes(i);
-          },
-        ),
-      );
     } else {
       const selectedRowIndex = isNumber(this.props.selectedRowIndex)
         ? this.props.selectedRowIndex
         : -1;
-      if (selectedRowIndex === index) {
-        index = -1;
-      } else {
-        this.props.updateWidgetMetaProperty(
-          "selectedRow",
-          this.props.filteredTableData[index],
-          {
-            dynamicString: this.props.onRowSelected,
-            event: {
-              type: EventType.ON_ROW_SELECTED,
-            },
+
+      if (selectedRowIndex !== index) {
+        this.props.updateWidgetMetaProperty("selectedRowIndex", index, {
+          dynamicString: this.props.onRowSelected,
+          event: {
+            type: EventType.ON_ROW_SELECTED,
           },
-        );
+        });
       }
-      this.props.updateWidgetMetaProperty("selectedRowIndex", index);
     }
   };
 
