@@ -144,7 +144,6 @@ class ContainerWidget extends BaseWidget<
     const { componentWidth } = this.getComponentDimensions();
     const snapSpaces = this.getSnapSpaces();
     const children = get(this.props, "children", []);
-    const firstChild = get(this.props, "children[0]");
 
     const Row = (childProps: ListChildComponentProps) => {
       const row = this.renderChildWidget(children[childProps.index]);
