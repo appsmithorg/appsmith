@@ -132,11 +132,10 @@ type AppViewerHeaderProps = {
   currentOrgId: string;
   currentUser?: User;
   lightTheme: Theme;
-  isCurrentPageHidden?: boolean;
 };
 
 export const AppViewerHeader = (props: AppViewerHeaderProps) => {
-  const { currentApplicationDetails, currentOrgId, currentUser } = props;
+  const { currentApplicationDetails, currentOrgId, currentUser, pages } = props;
   const isExampleApp = currentApplicationDetails?.appIsExample;
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
@@ -145,7 +144,6 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const hideHeader = !!isEmbed;
-  const filteredPages = props.pages;
 
   const HtmlTitle = () => {
     if (!currentApplicationDetails?.name) return null;
@@ -189,7 +187,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
 
   return (
     <ThemeProvider theme={props.lightTheme}>
-      <HeaderWrapper hasPages={filteredPages.length > 1}>
+      <HeaderWrapper hasPages={pages.length > 1}>
         <HtmlTitle />
         <HeaderRow justify={"space-between"}>
           <HeaderSection justify={"flex-start"}>
@@ -233,7 +231,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
                   modifiers={{
                     offset: {
                       enabled: true,
-                      offset: `0, ${filteredPages.length > 1 ? 35 : 0}`,
+                      offset: `0, ${pages.length > 1 ? 35 : 0}`,
                     },
                   }}
                 />
@@ -242,7 +240,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
           </HeaderSection>
         </HeaderRow>
         <PageTabsContainer
-          pages={filteredPages}
+          pages={pages}
           currentApplicationDetails={currentApplicationDetails}
         />
       </HeaderWrapper>
