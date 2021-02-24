@@ -251,12 +251,19 @@ export default class DataTreeEvaluator {
     this.sortedDependencies.forEach((path) => {
       if (uniqueKeysInSortOrder.has(path)) {
         sortOrderPropertyPaths.push(path);
+        // remove from the uniqueKeysInSortOrder
+        uniqueKeysInSortOrder.delete(path);
       }
     });
+    // Add any remaining paths in the uniqueKeysInSortOrder
+    const completeSortOrder = [
+      ...Array.from(uniqueKeysInSortOrder),
+      ...sortOrderPropertyPaths,
+    ];
 
     //Trim this list to now remove the property paths which are simply entity names
     const finalSortOrderArray: Array<string> = [];
-    sortOrderPropertyPaths.forEach((propertyPath) => {
+    completeSortOrder.forEach((propertyPath) => {
       const lastIndexOfDot = propertyPath.lastIndexOf(".");
       // Only do this for property paths and not the entity themselves
       if (lastIndexOfDot !== -1) {
