@@ -319,6 +319,7 @@ export interface WidgetBaseProps {
   widgetName: string;
   parentId: string;
   renderMode: RenderMode;
+  version: number;
 }
 
 export type WidgetRowCols = {

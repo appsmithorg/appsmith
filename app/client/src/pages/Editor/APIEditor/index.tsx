@@ -25,7 +25,7 @@ import { Plugin } from "api/PluginApi";
 import { Action, PaginationType, RapidApiAction } from "entities/Action";
 import { getApiName } from "selectors/formSelectors";
 import Spinner from "components/editorComponents/Spinner";
-import styled, { ThemeProvider } from "styled-components";
+import styled from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeApi } from "actions/apiPaneActions";
 import PerformanceTracker, {
@@ -178,55 +178,53 @@ class ApiEditor extends React.Component<Props> {
       />
     );
     return (
-      <ThemeProvider theme={this.props.lightTheme}>
-        <div
-          style={{
-            position: "relative",
-            height: "100%",
-          }}
-        >
-          {apiId ? (
-            <>
-              {formUiComponent === "ApiEditorForm" && (
-                <ApiEditorForm
-                  pluginId={pluginId}
-                  paginationType={paginationType}
-                  isRunning={isRunning}
-                  isDeleting={isDeleting}
-                  onDeleteClick={this.handleDeleteClick}
-                  onRunClick={this.handleRunClick}
-                  appName={
-                    this.props.currentApplication
-                      ? this.props.currentApplication.name
-                      : ""
-                  }
-                  apiName={this.props.apiName}
-                />
-              )}
+      <div
+        style={{
+          position: "relative",
+          height: "100%",
+        }}
+      >
+        {apiId ? (
+          <>
+            {formUiComponent === "ApiEditorForm" && (
+              <ApiEditorForm
+                pluginId={pluginId}
+                paginationType={paginationType}
+                isRunning={isRunning}
+                isDeleting={isDeleting}
+                onDeleteClick={this.handleDeleteClick}
+                onRunClick={this.handleRunClick}
+                appName={
+                  this.props.currentApplication
+                    ? this.props.currentApplication.name
+                    : ""
+                }
+                apiName={this.props.apiName}
+              />
+            )}
 
-              {formUiComponent === "RapidApiEditorForm" && (
-                <RapidApiEditorForm
-                  apiName={this.props.apiName}
-                  apiId={this.props.match.params.apiId}
-                  paginationType={paginationType}
-                  isRunning={isRunning}
-                  isDeleting={isDeleting}
-                  onDeleteClick={this.handleDeleteClick}
-                  onRunClick={this.handleRunClick}
-                  appName={
-                    this.props.currentApplication
-                      ? this.props.currentApplication.name
-                      : ""
-                  }
-                  location={this.props.location}
-                />
-              )}
-            </>
-          ) : (
-            apiHomeScreen
-          )}
-        </div>
-      </ThemeProvider>
+            {formUiComponent === "RapidApiEditorForm" && (
+              <RapidApiEditorForm
+                apiName={this.props.apiName}
+                apiId={this.props.match.params.apiId}
+                paginationType={paginationType}
+                isRunning={isRunning}
+                isDeleting={isDeleting}
+                onDeleteClick={this.handleDeleteClick}
+                onRunClick={this.handleRunClick}
+                appName={
+                  this.props.currentApplication
+                    ? this.props.currentApplication.name
+                    : ""
+                }
+                location={this.props.location}
+              />
+            )}
+          </>
+        ) : (
+          apiHomeScreen
+        )}
+      </div>
     );
   }
 }

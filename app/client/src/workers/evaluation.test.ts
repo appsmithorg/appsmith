@@ -289,6 +289,33 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     metaProperties: {},
   },
+  DATE_PICKER_WIDGET2: {
+    validations: {
+      isLoading: "BOOLEAN",
+      isVisible: "BOOLEAN",
+      isDisabled: "BOOLEAN",
+      defaultDate: "DATE",
+      timezone: "TEXT",
+      enableTimePicker: "BOOLEAN",
+      dateFormat: "TEXT",
+      label: "TEXT",
+      datePickerType: "TEXT",
+      maxDate: "DATE",
+      minDate: "DATE",
+      isRequired: "BOOLEAN",
+    },
+    defaultProperties: {
+      selectedDate: "defaultDate",
+    },
+    derivedProperties: {
+      isValid: "{{ this.isRequired ? !!this.selectedDate : true }}",
+      value: "{{ this.selectedDate }}",
+    },
+    triggerProperties: {
+      onDateSelected: true,
+    },
+    metaProperties: {},
+  },
   TABS_WIDGET: {
     validations: {
       tabs: "TABS_DATA",
@@ -447,6 +474,7 @@ const BASE_WIDGET: DataTreeWidget = {
   topRow: 0,
   type: WidgetTypes.SKELETON_WIDGET,
   parentId: "0",
+  version: 1,
   bindingPaths: {},
   triggerPaths: {},
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,

@@ -143,6 +143,7 @@ function* getChildWidgetProps(
     parentColumnSpace,
     widgetName,
     widgetProps,
+    restDefaultConfig.version,
   );
 
   widget.widgetId = newWidgetId;
@@ -1411,6 +1412,7 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       parentColumnSpace: 1,
       isLoading: false,
+      version: 1,
       props: {
         tableData: `{{${queryName}.data}}`,
         dynamicBindingPathList: [{ key: "tableData" }],

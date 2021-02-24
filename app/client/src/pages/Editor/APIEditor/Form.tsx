@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { connect, useSelector } from "react-redux";
-import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
+import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
   HTTP_METHODS,
@@ -11,8 +11,8 @@ import FormRow from "components/editorComponents/FormRow";
 import { PaginationField } from "api/ActionAPI";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import Pagination from "./Pagination";
-import { PaginationType, Action } from "entities/Action";
-import { HelpMap, HelpBaseURL } from "constants/HelpConstants";
+import { Action, PaginationType } from "entities/Action";
+import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
@@ -255,8 +255,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     e.stopPropagation();
     history.replace(BUILDER_PAGE_URL(applicationId, pageId));
   };
-
-  // Enforcing the light theme
   const theme = EditorTheme.LIGHT;
 
   return (
