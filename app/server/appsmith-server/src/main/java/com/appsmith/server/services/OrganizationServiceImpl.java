@@ -19,8 +19,6 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -28,6 +26,7 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -55,6 +54,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     private final UserRepository userRepository;
     private final RoleGraph roleGraph;
     private final AssetRepository assetRepository;
+    private final AssetService assetService;
 
     @Autowired
     public OrganizationServiceImpl(Scheduler scheduler,
@@ -68,7 +68,8 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    UserOrganizationService userOrganizationService,
                                    UserRepository userRepository,
                                    RoleGraph roleGraph,
-                                   AssetRepository assetRepository) {
+                                   AssetRepository assetRepository,
+                                   AssetService assetService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pluginRepository = pluginRepository;
         this.sessionUserService = sessionUserService;
@@ -76,6 +77,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         this.userRepository = userRepository;
         this.roleGraph = roleGraph;
         this.assetRepository = assetRepository;
+        this.assetService = assetService;
     }
 
     @Override
@@ -290,50 +292,26 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
     @Override
     public Mono<Organization> uploadLogo(String organizationId, Part filePart) {
-        return repository
-                .findById(organizationId, MANAGE_ORGANIZATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)))
-                .flatMap(organization -> {
-                    if (filePart != null && filePart.headers().getContentType() != null) {
-                        // Default implementation for the BufferFactory used breaks down the FilePart into chunks of 4KB
-                        // To limit file size to 250KB, we only allow 63 (250/4 = 62.5) such chunks to be derived from the incoming FilePart
-                        return filePart.content().count().flatMap(count -> {
-                            if (count > (int) Math.ceil(Constraint.ORGANIZATION_LOGO_SIZE_KB / 4.0)) {
-                                return Mono.error(new AppsmithException(AppsmithError.PAYLOAD_TOO_LARGE, Constraint.ORGANIZATION_LOGO_SIZE_KB));
-                            } else {
-                                return Mono.zip(Mono.just(organization), DataBufferUtils.join(filePart.content()));
-                            }
-                        });
-                    } else {
-                        return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image."));
-                    }
-                })
+        final Mono<Organization> findOrganizationMono = repository.findById(organizationId, MANAGE_ORGANIZATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)));
+
+        // We don't execute the upload Mono if we don't find the organization.
+        final Mono<Asset> uploadAssetMono = assetService.upload(filePart, Constraint.ORGANIZATION_LOGO_SIZE_KB);
+
+        return findOrganizationMono
+                .flatMap(organization -> Mono.zip(Mono.just(organization), uploadAssetMono))
                 .flatMap(tuple -> {
                     final Organization organization = tuple.getT1();
-                    final DataBuffer dataBuffer = tuple.getT2();
+                    final Asset uploadedAsset = tuple.getT2();
                     final String prevAssetId = organization.getLogoAssetId();
 
-                    byte[] data = new byte[dataBuffer.readableByteCount()];
-                    dataBuffer.read(data);
-                    DataBufferUtils.release(dataBuffer);
-
-                    return assetRepository
-                            .save(new Asset(filePart.headers().getContentType(), data))
-                            .flatMap(asset -> {
-                                organization.setLogoAssetId(asset.getId());
-                                Mono<Organization> savedOrganization = repository.save(organization);
-                                Mono<Asset> createdAsset = analyticsService.sendCreateEvent(asset);
-                                return savedOrganization.zipWith(createdAsset);
-                            })
-                            .flatMap(savedTuple -> {
-                                Organization savedOrganization = savedTuple.getT1();
-                                if (prevAssetId != null) {
-                                    return assetRepository.findById(prevAssetId)
-                                            .flatMap(asset -> assetRepository.delete(asset).thenReturn(asset))
-                                            .flatMap(analyticsService::sendDeleteEvent)
-                                            .thenReturn(savedOrganization);
-                                } else {
+                    organization.setLogoAssetId(uploadedAsset.getId());
+                    return repository.save(organization)
+                            .flatMap(savedOrganization -> {
+                                if (StringUtils.isEmpty(prevAssetId)) {
                                     return Mono.just(savedOrganization);
+                                } else {
+                                    return assetService.remove(prevAssetId).thenReturn(savedOrganization);
                                 }
                             });
                 });
