@@ -28,6 +28,9 @@
   "OAuth2": "//div[contains(@class,'option') and text()='OAuth 2.0']",
   "accessTokenUrl": "[data-cy='authentication.accessTokenUrl'] input",
   "clienID": "[data-cy='authentication.clientId'] input",
-  "clientSecret": "[data-cy='authentication.clientSecret'] input"
+  "clientSecret": "[data-cy='authentication.clientSecret'] input",
+  "datasourceConfigUrl": "[data-cy='datasourceConfiguration.url'] input",
+  "projectID": "[data-cy='datasourceConfiguration.authentication.username'] input",
+  "serviceAccCredential": "[data-cy='datasourceConfiguration.authentication.password'] input"
 
 }

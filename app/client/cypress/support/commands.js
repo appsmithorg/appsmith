@@ -1791,6 +1791,23 @@ Cypress.Commands.add("fillPostgresDatasourceForm", () => {
   );
 });
 
+Cypress.Commands.add("firestoreDatasourceForm", () => {
+  cy.get(datasourceEditor.datasourceConfigUrl).type(
+    datasourceFormData["database-url"],
+  );
+  cy.get(datasourceEditor.projectID).type(datasourceFormData["projectID"]);
+  cy.get(datasourceEditor.serviceAccCredential)
+    .clear()
+    .type(datasourceFormData["serviceAccCredentials"]);
+});
+
+Cypress.Commands.add("amazonDatasourceForm", () => {
+  cy.get(datasourceEditor.projectID).type(datasourceFormData["access_key"]);
+  cy.get(datasourceEditor.serviceAccCredential)
+    .clear()
+    .type(datasourceFormData["secret_key"]);
+});
+
 Cypress.Commands.add("createPostgresDatasource", () => {
   cy.NavigateToDatasourceEditor();
   cy.get(datasourceEditor.PostgreSQL).click();
