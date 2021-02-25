@@ -27,7 +27,6 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           width="100%"
           showLabelOnly={true}
           optionWidth="187px"
-          allowPropertyPaneStyling={true}
         />
       </StyledDropDownContainer>
     );

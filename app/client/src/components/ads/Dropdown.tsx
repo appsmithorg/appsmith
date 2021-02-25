@@ -20,7 +20,6 @@ type DropdownProps = CommonComponentProps & {
   width?: string;
   showLabelOnly?: boolean;
   optionWidth?: string;
-  allowPropertyPaneStyling?: boolean;
 };
 
 const DropdownContainer = styled.div<{ width?: string }>`
@@ -63,33 +62,18 @@ const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
 
 const DropdownWrapper = styled.div<{
   width?: string;
-  allowPropertyPaneStyling?: boolean;
 }>`
   width: ${(props) => props.width || "260px"};
   z-index: 1;
-  background-color: ${(props) =>
-    props.allowPropertyPaneStyling
-      ? props.theme.colors.propertyPane.radioGroupBg
-      : props.theme.colors.dropdown.menuBg};
-
+  background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
   box-shadow: ${(props) =>
-    props.allowPropertyPaneStyling
-      ? `0px 2px 4px rgba(67, 70, 74, 0.14)`
-      : `0px 12px 28px ${props.theme.colors.dropdown.menuShadow}`};
-
-  margin-top: ${(props) =>
-    props.allowPropertyPaneStyling
-      ? -props.theme.spaces[3]
-      : props.theme.spaces[2] - 1}px;
-
-  padding: ${(props) =>
-      props.allowPropertyPaneStyling ? props.theme.spaces[3] : 0}px
-    0;
+    `0px 2px 4px ${props.theme.colors.dropdown.menuShadow}`};
+  margin-top: ${(props) => -props.theme.spaces[3]}px;
+  padding: ${(props) => props.theme.spaces[3]}px 0;
 `;
 
 const OptionWrapper = styled.div<{
   selected: boolean;
-  allowPropertyPaneStyling?: boolean;
 }>`
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[6]}px;
@@ -98,19 +82,10 @@ const OptionWrapper = styled.div<{
   align-items: center;
 
   background-color: ${(props) =>
-    props.selected
-      ? props.allowPropertyPaneStyling
-        ? props.theme.colors.propertyPane.dropdownSelectBg
-        : props.theme.colors.dropdown.selected.bg
-      : null};
+    props.selected ? props.theme.colors.propertyPane.dropdownSelectBg : null};
 
   .${Classes.TEXT} {
-    color: ${(props) =>
-      props.allowPropertyPaneStyling
-        ? props.theme.colors.propertyPane.label
-        : props.selected
-        ? props.theme.colors.dropdown.selected.text
-        : null};
+    color: ${(props) => props.theme.colors.propertyPane.label};
   }
 
   .${Classes.ICON} {
@@ -126,16 +101,10 @@ const OptionWrapper = styled.div<{
   }
 
   &:hover {
-    background-color: ${(props) =>
-      props.allowPropertyPaneStyling
-        ? props.theme.colors.propertyPane.dropdownSelectHoverBg
-        : props.theme.colors.dropdown.hovered.bg};
+    background-color: ${(props) => props.theme.colors.dropdown.hovered.bg};
 
     .${Classes.TEXT} {
-      color: ${(props) =>
-        props.allowPropertyPaneStyling
-          ? props.theme.colors.textOnDarkBG
-          : props.theme.colors.dropdown.selected.text};
+      color: ${(props) => props.theme.colors.textOnDarkBG};
     }
 
     .${Classes.ICON} {
@@ -197,11 +166,7 @@ export default function Dropdown(props: DropdownProps) {
     >
       <Popover
         minimal
-        position={
-          props.allowPropertyPaneStyling
-            ? Position.TOP_LEFT
-            : Position.TOP_RIGHT
-        }
+        position={Position.TOP_LEFT}
         isOpen={isOpen && !props.disabled}
         onInteraction={(state) => setIsOpen(state)}
         boundary="scrollParent"
@@ -219,7 +184,6 @@ export default function Dropdown(props: DropdownProps) {
         </Selected>
         <DropdownWrapper
           width={props.optionWidth ? props.optionWidth : containerWidth}
-          allowPropertyPaneStyling={props.allowPropertyPaneStyling}
         >
           {props.options.map((option: DropdownOption, index: number) => {
             return (
@@ -228,7 +192,6 @@ export default function Dropdown(props: DropdownProps) {
                 selected={selected.value === option.value}
                 onClick={() => optionClickHandler(option)}
                 className="t--dropdown-option"
-                allowPropertyPaneStyling={props.allowPropertyPaneStyling}
               >
                 {option.icon ? (
                   <Icon name={option.icon} size={IconSize.LARGE} />
