@@ -26,6 +26,7 @@ const StyledContainerComponent = styled.div<
 
   ${(props) => (!props.isVisible ? invisible : "")};
   opacity: ${(props) => (props.resizeDisabled ? "0.5" : "1")};
+  pointer-events: ${(props) => (props.resizeDisabled ? "none" : "inherit")};
   overflow: hidden;
   ${(props) => (props.shouldScrollContents ? scrollContents : "")}
 }`;

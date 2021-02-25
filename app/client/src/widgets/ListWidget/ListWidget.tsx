@@ -6,7 +6,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import { removeFalsyEntries } from "utils/helpers";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { GridDefaults } from "constants/WidgetConstants";
+import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import {
@@ -119,7 +119,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         backgroundColor: this.props.itemBackgroundColor,
         topRow: index * children[0].bottomRow + index * gap,
         bottomRow: (index + 1) * children[0].bottomRow + index * gap,
-        resizeDisabled: index > 0,
+        resizeDisabled:
+          index > 0 && this.props.renderMode === RenderModes.CANVAS,
         widgetId: index > 0 ? `list-item-${index}` : child.widgetId,
       };
     });
@@ -161,7 +162,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
                   }
 
                   // disabled config options for items other than template
-                  if (i > 0) {
+                  if (i > 0 && this.props.renderMode === RenderModes.CANVAS) {
                     set(
                       children[i],
                       `children.[${j}].children[${k}].widgetId`,

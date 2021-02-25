@@ -14,11 +14,6 @@ interface GridComponentProps extends ComponentProps {
   items: Array<Record<string, unknown>>;
 }
 
-const scrollContents = css`
-  overflow-y: auto;
-  position: absolute;
-`;
-
 const GridContainer = styled.div<GridComponentProps>`
   height: 100%;
   width: 100%;
@@ -34,7 +29,7 @@ const ScrollableCanvasWrapper = styled.div<
   width: 100%;
   height: 100%;
   overflow: hidden;
-  ${(props) => (props.shouldScrollContents ? scrollContents : "")}
+  overflow-y: ${(props) => (props.shouldScrollContents ? "scroll" : "inherit")};
 `;
 
 const ListComponent = (props: GridComponentProps) => {
