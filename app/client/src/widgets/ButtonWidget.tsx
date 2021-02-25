@@ -10,7 +10,6 @@ import {
   BASE_WIDGET_VALIDATION,
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
@@ -114,12 +113,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       text: VALIDATION_TYPES.TEXT,
       buttonStyle: VALIDATION_TYPES.TEXT,
       // onClick: VALIDATION_TYPES.ACTION_SELECTOR,
-    };
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onClick: true,
     };
   }
   static getMetaPropertiesMap(): Record<string, any> {
