@@ -28,10 +28,7 @@ import {
   BASE_WIDGET_VALIDATION,
   WidgetPropertyValidationType,
 } from "utils/WidgetValidation";
-import {
-  DerivedPropertiesMap,
-  TriggerPropertiesMap,
-} from "utils/WidgetFactory";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   WidgetDynamicPathListProps,
   WidgetEvaluatedProps,
@@ -62,10 +59,6 @@ abstract class BaseWidget<
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {};
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {};
   }
 

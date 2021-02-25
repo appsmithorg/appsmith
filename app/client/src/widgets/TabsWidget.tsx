@@ -2,7 +2,7 @@ import React from "react";
 import TabsComponent from "components/designSystems/appsmith/TabsComponent";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import WidgetFactory, { TriggerPropertiesMap } from "utils/WidgetFactory";
+import WidgetFactory from "utils/WidgetFactory";
 import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import _ from "lodash";
@@ -112,12 +112,6 @@ class TabsWidget extends BaseWidget<
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {};
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onTabSelected: true,
-    };
   }
 
   getPageView() {

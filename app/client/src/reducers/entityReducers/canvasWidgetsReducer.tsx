@@ -31,13 +31,25 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateWidgetPropertyPayload>,
   ) => {
+    const { dynamicUpdates, updates, widgetId } = action.payload;
     // We loop over all updates
-    Object.entries(action.payload.updates).forEach(
-      ([propertyPath, propertyValue]) => {
-        // since property paths could be nested, we use lodash set method
-        set(state[action.payload.widgetId], propertyPath, propertyValue);
-      },
-    );
+    Object.entries(updates).forEach(([propertyPath, propertyValue]) => {
+      // since property paths could be nested, we use lodash set method
+      set(state[widgetId], propertyPath, propertyValue);
+    });
+
+    if (dynamicUpdates && dynamicUpdates.dynamicBindingPathList.length) {
+      const currentList = state[widgetId].dynamicBindingPathList || [];
+      state[widgetId].dynamicBindingPathList = Array.from(
+        new Set(currentList.concat(dynamicUpdates.dynamicBindingPathList)),
+      );
+    }
+    if (dynamicUpdates && dynamicUpdates.dynamicTriggerPathList.length) {
+      const currentList = state[widgetId].dynamicTriggerPathList || [];
+      state[widgetId].dynamicTriggerPathList = Array.from(
+        new Set(currentList.concat(dynamicUpdates.dynamicTriggerPathList)),
+      );
+    }
   },
 });
 
