@@ -25,6 +25,7 @@ describe("Moment basic test with input Widget", function() {
   it("Binding second input widget with first input widget and validating", function() {
     cy.SearchEntityandOpen("Input2");
     cy.get(widgetsPage.defaultInput).type(testdata.momentInput);
+    cy.wait(300);
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",

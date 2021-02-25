@@ -25,6 +25,7 @@ describe("Binding the multiple input Widget", function() {
   it("Binding second input widget with first input widget and validating", function() {
     cy.SearchEntityandOpen("Input2");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultMoustacheData);
+    cy.wait(300);
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",

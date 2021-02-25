@@ -25,6 +25,7 @@ describe("aTob and bToa library tests ", function() {
   it("Input widget test with default value for btoa method", function() {
     cy.SearchEntityandOpen("Input2");
     cy.get(widgetsPage.defaultInput).type(testdata.btoaInput);
+    cy.wait(300);
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",
