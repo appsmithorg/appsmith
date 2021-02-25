@@ -793,6 +793,7 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
     .type(apiname, { delay: 300 }, { force: true })
     .should("have.value", apiname)
     .focus();
+  cy.WaitAutoSave();
   cy.get(".error-message").should(($x) => {
     console.log($x);
     expect($x).contain(apiname.concat(" is already being used."));

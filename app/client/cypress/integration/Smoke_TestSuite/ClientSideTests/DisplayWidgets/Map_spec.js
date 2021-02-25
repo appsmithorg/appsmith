@@ -128,7 +128,6 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
     });
 
     it("Map-Check Visible field Validation", function() {
-      cy.openPropertyPane("mapwidget");
       //Check the disableed checkbox and Validate
       cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
       cy.PublishtheApp();
