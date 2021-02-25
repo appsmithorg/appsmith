@@ -23,9 +23,8 @@ import {
 import { getWidget } from "sagas/selectors";
 import { AppsmithDefaultLayout } from "../MainContainerLayoutControl";
 import { theme } from "constants/DefaultTheme";
-import { updateWidget } from "actions/pageActions";
 import { getAppMode } from "selectors/applicationSelectors";
-import defaultTemplate from "templates/default";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -260,12 +259,13 @@ export const useDynamicAppLayout = () => {
     screenWidth: number,
     layoutMaxWidth: number,
   ) => {
+    const screenWidthWithBuffer = 0.95 * screenWidth;
     const widthToFill =
       appMode === "EDIT"
-        ? screenWidth - parseInt(theme.sidebarWidth)
+        ? screenWidthWithBuffer - parseInt(theme.sidebarWidth)
         : screenWidth;
     if (layoutMaxWidth < 0) {
-      return 0.95 * widthToFill;
+      return widthToFill;
     } else {
       return widthToFill < layoutMaxWidth ? widthToFill : layoutMaxWidth;
     }
@@ -280,15 +280,15 @@ export const useDynamicAppLayout = () => {
       type === "FLUID"
         ? calculateFluidMaxWidth(screenWidth, layoutMaxWidth)
         : layoutMaxWidth;
-    const { leftColumn, topRow, bottomRow } = mainContainer;
-    dispatch(
-      updateWidget("RESIZE", defaultTemplate.widgetId, {
-        rightColumn: layoutWidth,
-        leftColumn,
-        topRow,
-        bottomRow,
-      }),
-    );
+    const { rightColumn } = mainContainer;
+    if (rightColumn !== layoutWidth) {
+      dispatch({
+        type: ReduxActionTypes.UPDATE_CANVAS_LAYOUT,
+        payload: {
+          width: layoutWidth,
+        },
+      });
+    }
   };
 
   const debouncedResize = useCallback(debounce(resizeToLayout, 250), []);
@@ -300,7 +300,4 @@ export const useDynamicAppLayout = () => {
   useEffect(() => {
     resizeToLayout(screenWidth, appLayout);
   }, [appLayout, currentPageId]);
-  return {
-    appLayout,
-  };
 };

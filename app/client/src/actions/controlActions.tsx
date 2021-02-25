@@ -91,6 +91,10 @@ export interface UpdateWidgetPropertyPayload {
   };
 }
 
+export interface UpdateCanvasLayout {
+  width: number;
+}
+
 export interface SetWidgetDynamicPropertyPayload {
   widgetId: string;
   propertyPath: string;

@@ -5,8 +5,12 @@ import {
   ReduxAction,
 } from "constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import {
+  UpdateCanvasLayout,
+  UpdateWidgetPropertyPayload,
+} from "actions/controlActions";
 import { set } from "lodash";
+import defaultTemplate from "templates/default";
 
 const initialState: CanvasWidgetsReduxState = {};
 
@@ -26,6 +30,12 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     return action.payload.widgets;
+  },
+  [ReduxActionTypes.UPDATE_CANVAS_LAYOUT]: (
+    state: CanvasWidgetsReduxState,
+    action: ReduxAction<UpdateCanvasLayout>,
+  ) => {
+    set(state[defaultTemplate.widgetId], "rightColumn", action.payload.width);
   },
   [ReduxActionTypes.UPDATE_WIDGET_PROPERTY]: (
     state: CanvasWidgetsReduxState,
