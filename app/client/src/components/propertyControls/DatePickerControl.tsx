@@ -80,6 +80,8 @@ class DatePickerControl extends BaseControl<
         <StyledDatePicker
           formatDate={this.formatDate}
           parseDate={this.parseDate}
+          maxDate={this.maxDate}
+          minDate={this.minDate}
           placeholder="DD/MM/YYYY HH:mm"
           showActionsBar
           timePrecision={TimePrecision.MINUTE}
