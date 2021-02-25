@@ -892,6 +892,7 @@ type ColorType = {
     documentationCtaBackground: string;
     documentationCtaText: string;
     emptyStateText: string;
+    navigateUsingEnterSection: string;
   };
   gif: {
     overlay: string;
@@ -943,6 +944,7 @@ const globalSearch = {
   documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
   documentationCtaText: "#03B365",
   emptyStateText: "#ABABAB",
+  navigateUsingEnterSection: "#154E6B",
 };
 
 export const dark: ColorType = {

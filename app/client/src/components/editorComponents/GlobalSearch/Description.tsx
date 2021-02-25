@@ -31,7 +31,8 @@ const Container = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: ${(props) => `0 ${props.theme.spaces[7]}px`};
+  padding: ${(props) =>
+    `${props.theme.spaces[5]}px ${props.theme.spaces[7]}px 0`};
   border-radius: ${(props) => props.theme.radii[2]}px;
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
   overflow: auto;
@@ -81,6 +82,11 @@ const Container = styled.div`
 
   code {
     word-break: break-word;
+  }
+
+  pre {
+    background: #090707;
+    padding: ${(props) => props.theme.spaces[2]}px;
   }
 `;
 
@@ -191,6 +197,15 @@ const DocumentationDescription = ({ item }: { item: SearchItem }) => {
   return content ? <div dangerouslySetInnerHTML={{ __html: content }} /> : null;
 };
 
+const StyledHitEnterMessageContainer = styled.div`
+  background: ${(props) =>
+    props.theme.colors.globalSearch.navigateUsingEnterSection};
+  padding: ${(props) =>
+    `${props.theme.spaces[6]}px ${props.theme.spaces[3]}px`};
+  border-radius: ${(props) => props.theme.radii[1]}px;
+  ${(props) => getTypographyByKey(props, "p3")}
+`;
+
 const HitEnterMessage = withTheme(
   ({
     item,
@@ -204,12 +219,18 @@ const HitEnterMessage = withTheme(
     const title = getItemTitle(item);
 
     return (
-      <span style={{ display: "flex", alignItems: "center" }}>
-        Hit{" "}
+      <StyledHitEnterMessageContainer
+        style={{ display: "flex", alignItems: "center" }}
+      >
+        ✨ Press{" "}
         <kbd
-          style={{ marginLeft: theme.spaces[1], marginRight: theme.spaces[1] }}
+          style={{
+            marginLeft: theme.spaces[1],
+            marginRight: theme.spaces[1],
+            color: "#3DA5D9",
+          }}
         >
-          ↵ Return
+          ↵
         </kbd>{" "}
         to navigate to
         <span
@@ -218,7 +239,7 @@ const HitEnterMessage = withTheme(
           <Highlight match={query} text={title} />
         </span>
         <ActionLink item={item} isActiveItem={true} />
-      </span>
+      </StyledHitEnterMessageContainer>
     );
   },
 );
