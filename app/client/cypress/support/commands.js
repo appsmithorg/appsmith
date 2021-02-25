@@ -439,6 +439,71 @@ Cypress.Commands.add("ResponseCheck", (textTocheck) => {
   cy.get(apiwidget.responseText).should("be.visible");
 });
 
+Cypress.Commands.add("RenameEntity", (value) => {
+  cy.xpath(apiwidget.popover)
+    .last()
+    .click({ force: true });
+  cy.get(apiwidget.renameEntity).click({ force: true });
+  cy.wait(2000);
+  cy.get(explorer.editEntity)
+    .last()
+    .type(value, { force: true });
+  cy.wait(3000);
+});
+
+Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
+  cy.get(apiwidget.createapi).click({ force: true });
+  cy.wait("@createNewApi");
+  cy.get(apiwidget.resourceUrl).should("be.visible");
+  cy.get(apiwidget.ApiName).click({ force: true });
+  cy.get(apiwidget.apiTxt)
+    .clear()
+    .type(apiname, { force: true })
+    .should("have.value", apiname);
+  cy.get(".t--nameOfApi .error-message").should(($x) => {
+    console.log($x);
+    expect($x).contain(apiname.concat(" is already being used."));
+  });
+});
+
+Cypress.Commands.add("validateMessage", (value) => {
+  cy.get(".bp3-popover-content").should(($x) => {
+    console.log($x);
+    expect($x).contain(value.concat(" is already being used."));
+  });
+});
+
+Cypress.Commands.add("selectDateFormat", (value) => {
+  cy.get(".t--property-control-dateformat button")
+    .first()
+    .click({ force: true });
+  cy.get("ul.bp3-menu")
+    .children()
+    .contains(value)
+    .click();
+});
+
+Cypress.Commands.add("assertDateFormat", () => {
+  cy.get(".t--draggable-datepickerwidget2 input")
+    .first()
+    .invoke("attr", "value")
+    .then((text) => {
+      const firstTxt = text;
+      cy.log("date time : ", firstTxt);
+      cy.get(commonlocators.labelTextStyle)
+        .first()
+        .should("contain", firstTxt);
+      cy.get(commonlocators.labelTextStyle)
+        .last()
+        .invoke("text")
+        .then((text) => {
+          const secondText = text;
+          cy.log("date time : ", secondText);
+          expect(firstTxt).not.to.equal(secondText);
+        });
+    });
+});
+
 Cypress.Commands.add("NavigateToAPI_Panel", () => {
   cy.get(pages.addEntityAPI)
     .should("be.visible")
@@ -1928,6 +1993,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/logout").as("postLogout");
 
   cy.route("GET", "/api/v1/datasources").as("getDataSources");
+  cy.route("GET", "/api/v1/datasources?organizationId=*").as("getDataSources");
   cy.route("GET", "/api/v1/pages/application/*").as("getPagesForCreateApp");
   cy.route("GET", "/api/v1/applications/view/*").as("getPagesForViewApp");
 
