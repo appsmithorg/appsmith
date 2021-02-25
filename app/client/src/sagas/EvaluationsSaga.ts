@@ -61,14 +61,20 @@ const evalErrorHandler = (errors: EvalError[]) => {
         break;
       }
       case EvalErrorTypes.EVAL_TRIGGER_ERROR: {
+        log.debug(error);
         Toaster.show({
           text: `Error occurred when executing trigger: ${error.message}`,
           variant: Variant.danger,
         });
         break;
       }
+      case EvalErrorTypes.EVAL_ERROR: {
+        log.debug(error);
+        break;
+      }
       default: {
         Sentry.captureException(error);
+        log.debug(error);
       }
     }
   });
