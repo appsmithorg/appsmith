@@ -11,17 +11,9 @@ abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,
   S
 > {
-  updateProperty(
-    propertyName: string,
-    propertyValue: any,
-    isDynamicTrigger?: boolean,
-  ) {
+  updateProperty(propertyName: string, propertyValue: any) {
     if (!_.isNil(this.props.onPropertyChange))
-      this.props.onPropertyChange(
-        propertyName,
-        propertyValue,
-        isDynamicTrigger,
-      );
+      this.props.onPropertyChange(propertyName, propertyValue);
   }
   deleteProperties(propertyPaths: string[]) {
     if (this.props.deleteProperties) {
@@ -49,11 +41,7 @@ export interface ControlData
   widgetProperties: any;
 }
 export interface ControlFunctions {
-  onPropertyChange?: (
-    propertyName: string,
-    propertyValue: string,
-    isDynamicTrigger?: boolean,
-  ) => void;
+  onPropertyChange?: (propertyName: string, propertyValue: string) => void;
   openNextPanel: (props: any) => void;
   deleteProperties: (propertyPaths: string[]) => void;
 }
