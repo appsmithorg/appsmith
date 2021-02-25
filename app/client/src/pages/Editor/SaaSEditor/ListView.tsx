@@ -8,10 +8,7 @@ import {
 } from "selectors/entitiesSelector";
 import NotFound from "pages/common/NotFound";
 import { AppState } from "reducers";
-import {
-  createDatasourceFromForm,
-  selectPlugin,
-} from "actions/datasourceActions";
+import { createDatasourceFromForm } from "actions/datasourceActions";
 import { SaaSAction } from "entities/Action";
 import { createActionRequest } from "actions/actionActions";
 import { Datasource } from "entities/Datasource";
@@ -68,7 +65,6 @@ interface StateProps {
 
 interface DispatchFunctions {
   createDatasource: (data: any) => void;
-  selectPlugin: (pluginId: string) => void;
   createAction: (data: Partial<SaaSAction>) => void;
   fetchPluginForm: (id: string) => void;
 }
@@ -97,7 +93,6 @@ class ListView extends React.Component<Props> {
   }
 
   handleCreateNewDatasource = (pluginId: string) => {
-    this.props.selectPlugin(pluginId);
     this.props.createDatasource({ pluginId });
   };
 
@@ -220,7 +215,6 @@ const mapStateToProps = (state: AppState, props: RouteProps): StateProps => {
 
 const mapDispatchToProps = (dispatch: any): DispatchFunctions => {
   return {
-    selectPlugin: (pluginId: string) => dispatch(selectPlugin(pluginId)),
     createDatasource: (data: any) => dispatch(createDatasourceFromForm(data)),
     fetchPluginForm: (id: string) => dispatch(fetchPluginForm({ id })),
     createAction: (data: Partial<SaaSAction>) => {

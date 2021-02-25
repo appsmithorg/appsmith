@@ -27,7 +27,6 @@ import {
   getDatasourceDraft,
 } from "selectors/entitiesSelector";
 import {
-  selectPlugin,
   changeDatasource,
   setDatsourceEditorMode,
   expandDatasourceEntity,
@@ -334,7 +333,8 @@ function* createDatasourceFromFormSaga(
         type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
         payload: response.data,
       });
-      // Todo: refactor later
+      // Todo: Refactor later.
+      // If we move this `put` over to QueryPaneSaga->handleDatasourceCreatedSaga, onboarding tests start failing.
       yield put(
         setDatsourceEditorMode({
           id: response.data.id,
@@ -390,7 +390,6 @@ function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   }
 
   yield put(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
-  yield put(selectPlugin(pluginId));
 
   if (!formConfigs[pluginId]) {
     yield put(fetchPluginForm({ id: pluginId }));

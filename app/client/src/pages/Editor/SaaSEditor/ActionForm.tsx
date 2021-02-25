@@ -38,7 +38,7 @@ type StateAndRouteProps = EditorJSONtoFormProps &
 
 type Props = StateAndRouteProps & InjectedFormProps<Action, StateAndRouteProps>;
 
-const QueryEditorForm: React.FC<Props> = (props: Props) => {
+const ActionForm: React.FC<Props> = (props: Props) => {
   const {
     match: {
       params: { pageId, applicationId, apiId },
@@ -140,5 +140,5 @@ export default connect(mapStateToProps)(
   reduxForm<Action, StateAndRouteProps>({
     form: SAAS_EDITOR_FORM,
     enableReinitialize: true,
-  })(QueryEditorForm),
+  })(ActionForm),
 );
