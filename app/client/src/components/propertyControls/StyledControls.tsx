@@ -1,6 +1,4 @@
-import { MultiSelect } from "@blueprintjs/select";
 import { Switch, Classes, Popover, MenuItem, Menu } from "@blueprintjs/core";
-import { DropdownOption } from "widgets/DropdownWidget";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput, DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
@@ -10,6 +8,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import Button from "components/ads/Button";
 import TextInput from "components/ads/TextInput";
 import Dropdown from "components/ads/Dropdown";
+import MultiSelectDropdown from "components/ads/MultiselectDropdown";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -112,6 +111,12 @@ export const StyledDropDown = styled(Dropdown)`
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
 `;
 
+export const StyledMultiSelectDropDown = styled(MultiSelectDropdown)`
+  padding: 6px 8px;
+  height: auto;
+  background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
+`;
+
 export const StyledMenu = styled(Menu)`
   && {
     background: ${(props) => props.theme.dropdown[Skin.DARK].background};
@@ -188,15 +193,6 @@ export const StyledMenuItem = styled(MenuItem)`
     &&&& .${Classes.MENU} {
       background: ${(props) => props.theme.dropdown[Skin.DARK].inActiveBG};
     }
-  }
-`;
-
-const MultiSelectDropDown = MultiSelect.ofType<DropdownOption>();
-export const StyledMultiSelectDropDown = styled(MultiSelectDropDown)`
-  &&& button {
-    background: ${(props) => props.theme.colors.paneInputBG};
-    color: ${(props) => props.theme.colors.textOnDarkBG};
-    box-shadow: none;
   }
 `;
 

@@ -22,12 +22,12 @@ type DropdownProps = CommonComponentProps & {
   optionWidth?: string;
 };
 
-const DropdownContainer = styled.div<{ width?: string }>`
+export const DropdownContainer = styled.div<{ width?: string }>`
   width: ${(props) => props.width || "260px"};
   position: relative;
 `;
 
-const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
+export const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
   height: 38px;
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[6]}px;
@@ -60,7 +60,7 @@ const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
   }
 `;
 
-const DropdownWrapper = styled.div<{
+export const DropdownWrapper = styled.div<{
   width?: string;
 }>`
   width: ${(props) => props.width || "260px"};
@@ -72,7 +72,7 @@ const DropdownWrapper = styled.div<{
   padding: ${(props) => props.theme.spaces[3]}px 0;
 `;
 
-const OptionWrapper = styled.div<{
+export const OptionWrapper = styled.div<{
   selected: boolean;
 }>`
   padding: ${(props) => props.theme.spaces[4]}px
@@ -117,7 +117,7 @@ const OptionWrapper = styled.div<{
   }
 `;
 
-const LabelWrapper = styled.div<{ label?: string }>`
+export const LabelWrapper = styled.div<{ label?: string }>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
