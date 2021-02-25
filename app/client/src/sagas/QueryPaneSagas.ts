@@ -69,9 +69,6 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
     return;
   }
 
-  // Update current page
-  yield put(updateCurrentPage(action.pageId));
-
   let currentEditorConfig = editorConfigs[action.datasource.pluginId];
 
   if (!currentEditorConfig) {

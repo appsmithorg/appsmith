@@ -178,9 +178,6 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   const action = yield select(getAction, id);
   if (!action) return;
 
-  // Update current page
-  yield put(updateCurrentPage(action.pageId));
-
   yield put(initialize(API_EDITOR_FORM_NAME, action));
 
   yield call(initializeExtraFormDataSaga);
