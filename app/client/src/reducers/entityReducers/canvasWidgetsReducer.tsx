@@ -9,8 +9,8 @@ import {
   UpdateCanvasLayout,
   UpdateWidgetPropertyPayload,
 } from "actions/controlActions";
-import { set } from "lodash";
 import defaultTemplate from "templates/default";
+import { set, uniqBy } from "lodash";
 
 const initialState: CanvasWidgetsReduxState = {};
 
@@ -50,14 +50,16 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
 
     if (dynamicUpdates && dynamicUpdates.dynamicBindingPathList.length) {
       const currentList = state[widgetId].dynamicBindingPathList || [];
-      state[widgetId].dynamicBindingPathList = Array.from(
-        new Set(currentList.concat(dynamicUpdates.dynamicBindingPathList)),
+      state[widgetId].dynamicBindingPathList = uniqBy(
+        [...currentList, ...dynamicUpdates.dynamicBindingPathList],
+        "key",
       );
     }
     if (dynamicUpdates && dynamicUpdates.dynamicTriggerPathList.length) {
       const currentList = state[widgetId].dynamicTriggerPathList || [];
-      state[widgetId].dynamicTriggerPathList = Array.from(
-        new Set(currentList.concat(dynamicUpdates.dynamicTriggerPathList)),
+      state[widgetId].dynamicTriggerPathList = uniqBy(
+        [...currentList, ...dynamicUpdates.dynamicTriggerPathList],
+        "key",
       );
     }
   },
