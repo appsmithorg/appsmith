@@ -448,15 +448,6 @@ function* handleApiNameChangeSuccessSaga(
     });
     return;
   }
-  if (actionObj.pluginType === PLUGIN_TYPE_API) {
-    const params = getQueryParams();
-    if (params.editName) {
-      params.editName = "false";
-    }
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
-    history.push(API_EDITOR_ID_URL(applicationId, pageId, actionId, params));
-  }
 }
 
 function* handleApiNameChangeFailureSaga(

@@ -209,17 +209,6 @@ function* handleNameChangeSuccessSaga(
     });
     return;
   }
-  if (actionObj.pluginType === QUERY_CONSTANT) {
-    const params = getQueryParams();
-    if (params.editName) {
-      params.editName = "false";
-    }
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
-    history.replace(
-      QUERIES_EDITOR_ID_URL(applicationId, pageId, actionId, params),
-    );
-  }
 }
 
 function* handleNameChangeFailureSaga(
