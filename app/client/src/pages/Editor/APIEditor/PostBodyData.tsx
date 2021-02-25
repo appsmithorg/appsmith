@@ -21,6 +21,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import MultiSwitch from "components/ads/MultiSwitch";
+import { BodyFormData } from "entities/Action";
 
 const PostBodyContainer = styled.div`
   padding: 12px 0px 0px;
@@ -49,6 +50,8 @@ interface PostDataProps {
   ) => void;
   dataTreePath: string;
   theme?: EditorTheme;
+  bodyFormData?: BodyFormData[];
+  addBodyFormData: () => void;
 }
 
 type Props = PostDataProps;
@@ -61,6 +64,8 @@ const PostBodyData = (props: Props) => {
     setDisplayFormat,
     apiId,
     dataTreePath,
+    bodyFormData,
+    addBodyFormData,
   } = props;
 
   return (
@@ -95,7 +100,6 @@ const PostBodyData = (props: Props) => {
                 name="actionConfiguration.bodyFormData"
                 dataTreePath={`${dataTreePath}.bodyFormData`}
                 label=""
-                pushFields
                 theme={props.theme}
               />
             );
@@ -123,29 +127,40 @@ const PostBodyData = (props: Props) => {
             displayFormatObject &&
             displayFormatObject.value === POST_BODY_FORMATS[3]
           ) {
+            // Dont update the content type header if raw has been selected
             setDisplayFormat(apiId, POST_BODY_FORMAT_OPTIONS[3]);
             return;
           }
 
-          const elementsIndex = actionConfigurationHeaders.findIndex(
+          const contentTypeHeaderIndex = actionConfigurationHeaders.findIndex(
             (element: { key: string; value: string }) =>
               element &&
               element.key &&
               element.key.trim().toLowerCase() === CONTENT_TYPE,
           );
 
-          if (elementsIndex >= 0 && displayFormatObject) {
-            const updatedHeaders = [...actionConfigurationHeaders];
+          // If there is an existing header with content type, use that or
+          // create a new header
+          const indexToUpdate =
+            contentTypeHeaderIndex > -1
+              ? contentTypeHeaderIndex
+              : actionConfigurationHeaders.length;
 
-            updatedHeaders[elementsIndex] = {
-              ...updatedHeaders[elementsIndex],
-              key: CONTENT_TYPE,
-              value: displayFormatObject.value,
-            };
+          const updatedHeaders = [...actionConfigurationHeaders];
 
-            onDisplayFormatChange(updatedHeaders);
-          } else {
-            setDisplayFormat(apiId, POST_BODY_FORMAT_OPTIONS[3]);
+          updatedHeaders[indexToUpdate] = {
+            key: CONTENT_TYPE,
+            value: displayFormatObject.value,
+          };
+
+          onDisplayFormatChange(updatedHeaders);
+          if (
+            displayFormatObject &&
+            displayFormatObject.value === POST_BODY_FORMATS[1]
+          ) {
+            if (!bodyFormData) {
+              addBodyFormData();
+            }
           }
         }}
       />
@@ -167,6 +182,13 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(
       change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", value),
     ),
+  addBodyFormData: () =>
+    dispatch(
+      change(API_EDITOR_FORM_NAME, "actionConfiguration.bodyFormData", [
+        { key: "", value: "" },
+        { key: "", value: "" },
+      ]),
+    ),
   setDisplayFormat: (
     id: string,
     displayFormat: { label: string; value: string },
@@ -187,6 +209,7 @@ export default connect((state: AppState) => {
   const apiId = selector(state, "id");
   const extraFormData = state.ui.apiPane.extraformData[apiId] || {};
   const headers = selector(state, "actionConfiguration.headers");
+  const bodyFormData = selector(state, "actionConfiguration.bodyFormData");
   let contentType;
   if (headers) {
     contentType = headers.find(
@@ -200,5 +223,6 @@ export default connect((state: AppState) => {
       extraFormData["displayFormat"] || POST_BODY_FORMAT_OPTIONS[3],
     contentType,
     apiId,
+    bodyFormData,
   };
 }, mapDispatchToProps)(PostBodyData);

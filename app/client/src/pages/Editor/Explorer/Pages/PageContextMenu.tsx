@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { ReactNode, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import TreeDropdown, {
   TreeDropdownOption,
@@ -9,7 +9,15 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { clonePageInit } from "actions/pageActions";
+import { clonePageInit, updatePage } from "actions/pageActions";
+import styled from "styled-components";
+import { Icon } from "@blueprintjs/core";
+
+const CustomLabel = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
 
 export const PageContextMenu = (props: {
   pageId: string;
@@ -17,6 +25,7 @@ export const PageContextMenu = (props: {
   applicationId: string;
   className?: string;
   isDefaultPage: boolean;
+  isHidden: boolean;
 }) => {
   const dispatch = useDispatch();
 
@@ -58,6 +67,11 @@ export const PageContextMenu = (props: {
     props.pageId,
   ]);
 
+  const setHiddenField = useCallback(
+    () => dispatch(updatePage(props.pageId, props.name, !props.isHidden)),
+    [dispatch, props.pageId, props.name, props.isHidden],
+  );
+
   const optionTree: TreeDropdownOption[] = [
     {
       value: "rename",
@@ -68,6 +82,17 @@ export const PageContextMenu = (props: {
       value: "clone",
       onSelect: clonePage,
       label: "Clone",
+    },
+    {
+      value: "visibility",
+      onSelect: setHiddenField,
+      // Possibly support ReactNode in TreeOption
+      label: ((
+        <CustomLabel>
+          {props.isHidden ? "Show" : "Hide"}
+          <Icon icon={props.isHidden ? "eye-open" : "eye-off"} iconSize={14} />
+        </CustomLabel>
+      ) as ReactNode) as string,
     },
   ];
   if (!props.isDefaultPage) {

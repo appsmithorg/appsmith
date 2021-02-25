@@ -47,6 +47,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   SAVE_PAGE_SUCCESS: "SAVE_PAGE_SUCCESS",
   UPDATE_LAYOUT: "UPDATE_LAYOUT",
   WIDGET_ADD_CHILD: "WIDGET_ADD_CHILD",
+  WIDGET_CHILD_ADDED: "WIDGET_CHILD_ADDED",
   WIDGET_REMOVE_CHILD: "WIDGET_REMOVE_CHILD",
   WIDGET_MOVE: "WIDGET_MOVE",
   WIDGET_RESIZE: "WIDGET_RESIZE",
@@ -502,6 +503,7 @@ export interface Page {
   pageId: string;
   isDefault: boolean;
   latest?: boolean;
+  isHidden?: boolean;
 }
 
 export interface ClonePageSuccessPayload {

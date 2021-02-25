@@ -101,7 +101,7 @@ export const tableWidgetPropertyPaneMigrations = (
               ? columnNameMap[accessor]
               : accessor,
           // Generate computed value
-          computedValue: `{{${child.widgetName}.map((currentRow) => { return currentRow.${accessor}})}}`,
+          computedValue: `{{${child.widgetName}.tableData.map((currentRow) => { return currentRow.${accessor}})}}`,
         };
         // copy inputForma nd outputFormat for date column types
         if (columnTypeMap && columnTypeMap[accessor]) {
@@ -135,7 +135,11 @@ export const tableWidgetPropertyPaneMigrations = (
           onClick: action.dynamicTrigger,
           computedValue: "",
         };
+        dynamicTriggerPathList.push({
+          key: `primaryColumns.${columnPrefix}${index + 1}.onClick`,
+        });
         updatedDerivedColumns[column.id] = column;
+        child.primaryColumns[column.id] = column;
       });
 
       if (Object.keys(updatedDerivedColumns).length) {

@@ -143,6 +143,7 @@ function* getChildWidgetProps(
     parentColumnSpace,
     widgetName,
     widgetProps,
+    restDefaultConfig.version,
   );
 
   widget.widgetId = newWidgetId;
@@ -239,7 +240,6 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     const start = performance.now();
     Toaster.clear();
     const { widgetId } = addChildAction.payload;
-
     // Get the current parent widget whose child will be the new widget.
     const stateParent: FlattenedWidgetProps = yield select(getWidget, widgetId);
     // const parent = Object.assign({}, stateParent);
@@ -262,6 +262,13 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
 
     widgets[parent.widgetId] = parent;
     log.debug("add child computations took", performance.now() - start, "ms");
+    yield put({
+      type: ReduxActionTypes.WIDGET_CHILD_ADDED,
+      payload: {
+        widgetId: childWidgetPayload.widgetId,
+        type: addChildAction.payload.type,
+      },
+    });
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
     yield put({
@@ -1405,6 +1412,7 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       parentColumnSpace: 1,
       isLoading: false,
+      version: 1,
       props: {
         tableData: `{{${queryName}.data}}`,
         dynamicBindingPathList: [{ key: "tableData" }],

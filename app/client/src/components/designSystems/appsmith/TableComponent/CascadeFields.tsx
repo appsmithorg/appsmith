@@ -8,7 +8,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import { Skin } from "constants/DefaultTheme";
 import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
-import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
+import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent2";
 import {
   OperatorTypes,
   Condition,
