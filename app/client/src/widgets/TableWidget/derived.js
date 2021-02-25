@@ -5,7 +5,8 @@ export default {
       Number.isNaN(parseInt(props.selectedRowIndex))
         ? -1
         : parseInt(props.selectedRowIndex);
-    const filteredTableData = props.filteredTableData || props.tableData || [];
+    const filteredTableData =
+      props.filteredTableData || props.sanitizedTableData || [];
     if (selectedRowIndex === -1) {
       const emptyRow = { ...filteredTableData[0] };
       Object.keys(emptyRow).forEach((key) => {
@@ -19,7 +20,8 @@ export default {
   //
   getSelectedRows: (props) => {
     const selectedRowIndices = props.selectedRowIndices || [];
-    const filteredTableData = props.filteredTableData || props.tableData || [];
+    const filteredTableData =
+      props.filteredTableData || props.sanitizedTableData || [];
 
     const selectedRows = selectedRowIndices.map(
       (ind) => filteredTableData[ind],
