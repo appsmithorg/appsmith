@@ -19,7 +19,6 @@ import {
   REST_PLUGIN_PACKAGE_NAME,
   POST_BODY_FORMATS,
   CONTENT_TYPE,
-  PLUGIN_TYPE_API,
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
@@ -35,11 +34,7 @@ import {
 } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
-import {
-  createNewApiName,
-  getNextEntityName,
-  getQueryParams,
-} from "utils/AppsmithUtils";
+import { createNewApiName, getNextEntityName } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugins } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
