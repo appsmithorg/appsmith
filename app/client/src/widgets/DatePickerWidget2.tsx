@@ -8,10 +8,7 @@ import {
   BASE_WIDGET_VALIDATION,
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import {
-  DerivedPropertiesMap,
-  TriggerPropertiesMap,
-} from "utils/WidgetFactory";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
@@ -148,12 +145,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
       isValid: `{{ this.isRequired ? !!this.selectedDate : true }}`,
       selectedDate: `{{ this.value ? moment(this.value).toISOString() : (this.defaultDate ? moment(this.defaultDate).toISOString() : "")}}`,
       formattedDate: `{{ this.value ? moment(this.value).format(this.dateFormat) : (this.defaultDate ? moment(this.defaultDate).format(this.dateFormat) : "")}}`,
-    };
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onDateSelected: true,
     };
   }
 

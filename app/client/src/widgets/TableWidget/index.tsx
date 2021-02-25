@@ -18,7 +18,6 @@ import {
   BASE_WIDGET_VALIDATION,
   WidgetPropertyValidationType,
 } from "utils/WidgetValidation";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
 import { isNumber, isString, isUndefined, isEqual, xor, without } from "lodash";
@@ -95,15 +94,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: "defaultSearchText",
       selectedRowIndex: "defaultSelectedRow",
       selectedRowIndices: "defaultSelectedRow",
-    };
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onRowSelected: true,
-      onPageChange: true,
-      onSearchTextChanged: true,
-      onPageSizeChange: true,
     };
   }
 

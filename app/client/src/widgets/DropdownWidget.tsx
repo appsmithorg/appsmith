@@ -9,7 +9,6 @@ import {
   BASE_WIDGET_VALIDATION,
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
@@ -127,12 +126,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       selectedIndexArr: `{{ this.selectedOptionValueArr.map(o => _.findIndex(this.options, { value: o })) }}`,
       value: `{{ this.selectionType === 'SINGLE_SELECT' ? this.selectedOptionValue : this.selectedOptionValueArr }}`,
       selectedOptionValues: `{{ this.selectedOptionValueArr }}`,
-    };
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onOptionChange: true,
     };
   }
 
