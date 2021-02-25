@@ -8,10 +8,7 @@ import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
 } from "utils/WidgetValidation";
-import {
-  TriggerPropertiesMap,
-  DerivedPropertiesMap,
-} from "utils/WidgetFactory";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { AlignWidget } from "./SwitchWidget";
@@ -110,12 +107,6 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
       label: VALIDATION_TYPES.TEXT,
       defaultCheckedState: VALIDATION_TYPES.BOOLEAN,
       // onCheckChange: VALIDATION_TYPES.ACTION_SELECTOR,
-    };
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onCheckChange: true,
     };
   }
 
