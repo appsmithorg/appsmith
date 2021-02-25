@@ -1,4 +1,5 @@
 import React from "react";
+import log from "loglevel";
 import { get, set, xor } from "lodash";
 import * as Sentry from "@sentry/react";
 
@@ -6,9 +7,12 @@ import WidgetFactory from "utils/WidgetFactory";
 import { removeFalsyEntries } from "utils/helpers";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
+import {
+  RenderModes,
+  WidgetType,
+  WidgetTypes,
+} from "constants/WidgetConstants";
 import {
   BASE_WIDGET_VALIDATION,
   WidgetPropertyValidationType,
@@ -17,6 +21,8 @@ import ListComponent from "./ListComponent";
 import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
 import { ContainerWidgetProps } from "../ContainerWidget";
 import propertyPaneConfig from "./ListPropertyPaneConfig";
+import { EventType } from "constants/ActionConstants";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -37,6 +43,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return {};
   }
 
+  /**
+   * creates object of keys
+   *
+   * @param items
+   */
   getCurrentItemStructure = (items: Array<Record<string, unknown>>) => {
     return Array.isArray(items) && items.length > 0
       ? Object.assign(
@@ -83,6 +94,40 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return {};
   }
 
+  /**
+   * on click item action
+   *
+   * @param rowIndex
+   * @param action
+   * @param onComplete
+   */
+  onItemClick = (
+    rowIndex: number,
+    action: string | undefined,
+    onComplete: () => void,
+  ) => {
+    if (!action) return;
+
+    try {
+      const rowData = [this.props.items[rowIndex]];
+      const { jsSnippets } = getDynamicBindings(action);
+      const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
+        return prev + `{{(currentItem) => { ${next} }}} `;
+      }, "");
+
+      super.executeAction({
+        dynamicString: modifiedAction,
+        event: {
+          type: EventType.ON_CLICK,
+          callback: onComplete,
+        },
+        responseData: rowData,
+      });
+    } catch (error) {
+      log.debug("Error parsing row action", error);
+    }
+  };
+
   renderChild = (childWidgetData: WidgetProps) => {
     const { componentWidth, componentHeight } = this.getComponentDimensions();
 
@@ -122,6 +167,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         resizeDisabled:
           index > 0 && this.props.renderMode === RenderModes.CANVAS,
         widgetId: index > 0 ? `list-item-${index}` : child.widgetId,
+        onClick: () =>
+          this.onItemClick(index, this.props.onListItemClick, () => {
+            //
+          }),
       };
     });
   };

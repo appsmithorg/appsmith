@@ -1,3 +1,7 @@
+import { get } from "lodash";
+import { WidgetProps } from "widgets/BaseWidget";
+import { ListWidgetProps } from "./ListWidget";
+
 const PropertyPaneConfig = [
   {
     sectionName: "General",
@@ -56,12 +60,24 @@ const PropertyPaneConfig = [
       },
       {
         helpText: "Triggers an action when a grid list item is clicked",
-        propertyName: "onGridItemClick",
-        label: "onGridItemClick",
+        propertyName: "onListItemClick",
+        label: "onListItemClick",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
-        isBindProperty: false,
-        isTriggerProperty: false,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        additionalAutoComplete: (props: ListWidgetProps<WidgetProps>) => {
+          return {
+            currentItem: Object.assign(
+              {},
+              ...Object.keys(get(props, "evaluatedValues.items.0", {})).map(
+                (key) => ({
+                  [key]: "",
+                }),
+              ),
+            ),
+          };
+        },
       },
     ],
   },
