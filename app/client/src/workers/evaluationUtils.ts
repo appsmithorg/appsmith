@@ -1,11 +1,11 @@
 import {
   DependencyMap,
-  isDynamicValue,
   isChildPropertyPath,
-} from "../utils/DynamicBindingUtils";
-import { WidgetType } from "../constants/WidgetConstants";
-import { WidgetProps } from "../widgets/BaseWidget";
-import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
+  isDynamicValue,
+} from "utils/DynamicBindingUtils";
+import { WidgetType } from "constants/WidgetConstants";
+import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { VALIDATORS } from "./validations";
 import { Diff } from "deep-diff";
 import {
@@ -14,7 +14,7 @@ import {
   DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
-} from "../entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
@@ -42,17 +42,24 @@ export class CrashingError extends Error {}
 export const convertPathToString = (arrPath: Array<string | number>) => {
   let string = "";
   arrPath.forEach((segment) => {
-    if (typeof segment === "string") {
+    if (isInt(segment)) {
+      string = string + "[" + segment + "]";
+    } else {
       if (string.length !== 0) {
         string = string + ".";
       }
       string = string + segment;
-    } else {
-      string = string + "[" + segment + "]";
     }
   });
   return string;
 };
+
+// Todo: improve the logic here
+// Right now NaN, Infinity, floats, everything works
+function isInt(val: string | number): boolean {
+  if (typeof val === "number") return true;
+  return !isNaN(parseInt(val));
+}
 
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
@@ -116,7 +123,10 @@ export const translateDiffEventToDataTreeDiffEvent = (
       break;
     }
     case "A": {
-      break;
+      return translateDiffEventToDataTreeDiffEvent({
+        ...difference.item,
+        path: [...difference.path, difference.index],
+      });
     }
     default: {
       break;
@@ -133,7 +143,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
 export const addDependantsOfNestedPropertyPaths = (
   parentPaths: Array<string>,
   inverseMap: DependencyMap,
-): Array<string> => {
+): Set<string> => {
   const withNestedPaths: Set<string> = new Set();
   const dependantNodes = Object.keys(inverseMap);
   parentPaths.forEach((propertyPath) => {
@@ -148,7 +158,7 @@ export const addDependantsOfNestedPropertyPaths = (
         });
       });
   });
-  return [...withNestedPaths.values()];
+  return withNestedPaths;
 };
 
 export function isWidget(entity: DataTreeEntity): entity is DataTreeWidget {
@@ -335,4 +345,122 @@ export const getAllPaths = (
     }
   }
   return result;
+};
+export const trimDependantChangePaths = (
+  changePaths: Set<string>,
+  dependencyMap: DependencyMap,
+): Array<string> => {
+  const trimmedPaths = [];
+  for (const path of changePaths) {
+    let foundADependant = false;
+    if (path in dependencyMap) {
+      const dependants = dependencyMap[path];
+      for (const dependantPath of dependants) {
+        if (changePaths.has(dependantPath)) {
+          foundADependant = true;
+          break;
+        }
+      }
+    }
+    if (!foundADependant) {
+      trimmedPaths.push(path);
+    }
+  }
+  return trimmedPaths;
+};
+
+export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
+  const withFunction: DataTree = _.cloneDeep(dataTree);
+  withFunction.actionPaths = [];
+  Object.keys(withFunction).forEach((entityName) => {
+    const entity = withFunction[entityName];
+    if (isAction(entity)) {
+      const runFunction = function(
+        this: DataTreeAction,
+        onSuccess: string,
+        onError: string,
+        params = "",
+      ) {
+        return {
+          type: "RUN_ACTION",
+          payload: {
+            actionId: this.actionId,
+            onSuccess: onSuccess ? `{{${onSuccess.toString()}}}` : "",
+            onError: onError ? `{{${onError.toString()}}}` : "",
+            params,
+          },
+        };
+      };
+      _.set(withFunction, `${entityName}.run`, runFunction);
+      withFunction.actionPaths &&
+        withFunction.actionPaths.push(`${entityName}.run`);
+    }
+  });
+  withFunction.navigateTo = function(
+    pageNameOrUrl: string,
+    params: Record<string, string>,
+    target?: string,
+  ) {
+    return {
+      type: "NAVIGATE_TO",
+      payload: { pageNameOrUrl, params, target },
+    };
+  };
+  withFunction.actionPaths.push("navigateTo");
+
+  withFunction.showAlert = function(message: string, style: string) {
+    return {
+      type: "SHOW_ALERT",
+      payload: { message, style },
+    };
+  };
+  withFunction.actionPaths.push("showAlert");
+
+  withFunction.showModal = function(modalName: string) {
+    return {
+      type: "SHOW_MODAL_BY_NAME",
+      payload: { modalName },
+    };
+  };
+  withFunction.actionPaths.push("showModal");
+
+  withFunction.closeModal = function(modalName: string) {
+    return {
+      type: "CLOSE_MODAL",
+      payload: { modalName },
+    };
+  };
+  withFunction.actionPaths.push("closeModal");
+
+  withFunction.storeValue = function(key: string, value: string) {
+    return {
+      type: "STORE_VALUE",
+      payload: { key, value },
+    };
+  };
+  withFunction.actionPaths.push("storeValue");
+
+  withFunction.download = function(data: string, name: string, type: string) {
+    return {
+      type: "DOWNLOAD",
+      payload: { data, name, type },
+    };
+  };
+  withFunction.actionPaths.push("download");
+
+  withFunction.copyToClipboard = function(
+    data: string,
+    options?: { debug?: boolean; format?: string },
+  ) {
+    return {
+      type: "COPY_TO_CLIPBOARD",
+      payload: {
+        data,
+        options: { debug: options?.debug, format: options?.format },
+      },
+    };
+  };
+  withFunction.actionPaths.push("copyToClipboard");
+
+  return withFunction;
 };

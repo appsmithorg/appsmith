@@ -138,6 +138,8 @@ export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = "Back to Sign In";
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = "Api added to page.";
 export const INPUT_WIDGET_DEFAULT_VALIDATION_ERROR = "Invalid input";
 
+export const DATE_WIDGET_DEFAULT_VALIDATION_ERROR = "Date out of range";
+
 export const AUTOFIT_ALL_COLUMNS = "Autofit all columns";
 export const AUTOFIT_THIS_COLUMN = "Autofit this column";
 export const AUTOFIT_COLUMN = "Autofit column";
@@ -159,7 +161,7 @@ export const LIGHTNING_MENU_API_CREATE_NEW = "Create new API";
 export const LIGHTNING_MENU_OPTION_TEXT = "Plain Text";
 export const LIGHTNING_MENU_OPTION_JS = "Write JS";
 export const LIGHTNING_MENU_OPTION_HTML = "Write HTML";
-export const CHECK_REQUEST_BODY = "Please check request body to debug?";
+export const CHECK_REQUEST_BODY = "Please check request body to debug";
 export const DONT_SHOW_THIS_AGAIN = "Don't show this again";
 export const SHOW_REQUEST = "Show Request";
 
@@ -167,8 +169,7 @@ export const TABLE_FILTER_COLUMN_TYPE_CALLOUT =
   "Change column datatype to see filter operators";
 
 export const WIDGET_SIDEBAR_TITLE = "Widgets";
-export const WIDGET_SIDEBAR_CAPTION =
-  "To add a widget, please click + and add widget to the canvas.";
+export const WIDGET_SIDEBAR_CAPTION = "Drag and drop a widget onto the canvas.";
 export const GOOGLE_RECAPTCHA_KEY_ERROR =
   "Google Re-Captcha Token Generation failed! Please check the Re-captcha Site Key.";
 export const GOOGLE_RECAPTCHA_DOMAIN_ERROR =
@@ -177,3 +178,15 @@ export const GOOGLE_RECAPTCHA_DOMAIN_ERROR =
 export const SERVER_API_TIMEOUT_ERROR =
   "Appsmith server is taking too long to respond. Please try again after some time";
 export const DEFAULT_ERROR_MESSAGE = "There was an unexpected error";
+
+export const REST_API_AUTHORIZATION_SUCCESSFUL =
+  "Authorization was successful!";
+export const REST_API_AUTHORIZATION_FAILED =
+  "Authorization failed. Please check your details or try again.";
+// Todo: improve this for appsmith_error error message
+export const REST_API_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
+
+export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE =
+  "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
+export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE =
+  "Error saving a key in localStorage. You have run out of disk space";

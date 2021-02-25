@@ -28,8 +28,12 @@ import {
   getWidgetMetaProps,
 } from "sagas/selectors";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { updateWidgetMetaProperty } from "actions/metaActions";
+import {
+  resetChildrenMetaProperty,
+  updateWidgetMetaProperty,
+} from "actions/metaActions";
 import { focusWidget } from "actions/widgetActions";
+import { flatten } from "lodash";
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
   try {
@@ -81,6 +85,17 @@ export function* showModalByNameSaga(
       payload: {
         modalId: modal.widgetId,
       },
+    });
+  }
+}
+
+export function* showIfModalSaga(
+  action: ReduxAction<{ widgetId: string; type: string }>,
+) {
+  if (action.payload.type === "MODAL_WIDGET") {
+    yield put({
+      type: ReduxActionTypes.SHOW_MODAL,
+      payload: { modalId: action.payload.widgetId },
     });
   }
 }
@@ -159,8 +174,13 @@ export function* closeModalSaga(
     // If we have modals to close, set its isVisible to false to close.
     if (widgetIds) {
       yield all(
-        widgetIds.map((widgetId: string) =>
-          put(updateWidgetMetaProperty(widgetId, "isVisible", false)),
+        flatten(
+          widgetIds.map((widgetId: string) => {
+            return [
+              put(updateWidgetMetaProperty(widgetId, "isVisible", false)),
+              put(resetChildrenMetaProperty(widgetId)),
+            ];
+          }),
         ),
       );
     }
@@ -175,5 +195,6 @@ export default function* modalSagas() {
     takeLatest(ReduxActionTypes.CREATE_MODAL_INIT, createModalSaga),
     takeLatest(ReduxActionTypes.SHOW_MODAL, showModalSaga),
     takeLatest(ReduxActionTypes.SHOW_MODAL_BY_NAME, showModalByNameSaga),
+    takeLatest(ReduxActionTypes.WIDGET_CHILD_ADDED, showIfModalSaga),
   ]);
 }

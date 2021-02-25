@@ -9,7 +9,7 @@ import {
   OptionTypeBase,
   SingleValueProps,
 } from "react-select";
-import { isString } from "lodash";
+import { isString, isArray } from "lodash";
 import history from "utils/history";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
@@ -35,7 +35,6 @@ import {
 import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
 import { addTableWidgetFromQuery } from "actions/widgetActions";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
@@ -270,6 +269,7 @@ type QueryFormProps = {
   DATASOURCES_OPTIONS: any;
   executedQueryData: {
     body: Record<string, any>[] | string;
+    isExecutionSuccess: boolean;
   };
   applicationId: string;
   runErrorMessage: string | undefined;
@@ -278,6 +278,7 @@ type QueryFormProps = {
     state: any;
   };
   editorConfig?: any;
+  settingConfig: any;
   loadingFormConfigs: boolean;
 };
 
@@ -314,16 +315,32 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
 
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
+  let displayMessage = "";
 
   if (executedQueryData) {
-    if (isString(executedQueryData.body)) {
-      error = executedQueryData.body;
+    if (!executedQueryData.isExecutionSuccess) {
+      error = String(executedQueryData.body);
+    } else if (isString(executedQueryData.body)) {
+      output = JSON.parse(executedQueryData.body);
     } else {
       output = executedQueryData.body;
     }
   }
 
-  const isSQL = responseType === "TABLE";
+  // Constructing the header of the response based on the response
+  if (!output) {
+    displayMessage = "No data records to display";
+  } else if (isArray(output)) {
+    // The returned output is an array
+    displayMessage = output.length
+      ? "Query response"
+      : "No data records to display";
+  } else {
+    // Output is a JSON object. We can display a single object
+    displayMessage = "Query response";
+  }
+
+  const isTableResponse = responseType === "TABLE";
 
   const dispatch = useDispatch();
   const onAddWidget = () => {
@@ -534,11 +551,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                   {!error && output && dataSources.length && (
                     <OutputWrapper>
                       <OutputHeader>
-                        <p className="statementTextArea">
-                          {output.length
-                            ? "Query response"
-                            : "No data records to display"}
-                        </p>
+                        <p className="statementTextArea">{displayMessage}</p>
                         {!!output.length && (
                           <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
                             <AddWidgetButton
@@ -550,7 +563,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                           </Boxed>
                         )}
                       </OutputHeader>
-                      {isSQL ? (
+                      {isTableResponse ? (
                         <Table data={output} />
                       ) : (
                         <JSONViewer src={output} />
@@ -566,7 +579,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               panelComponent: (
                 <SettingsWrapper>
                   <ActionSettings
-                    actionSettingsConfig={queryActionSettingsConfig}
+                    actionSettingsConfig={props.settingConfig}
                     formName={QUERY_EDITOR_FORM_NAME}
                   />
                 </SettingsWrapper>

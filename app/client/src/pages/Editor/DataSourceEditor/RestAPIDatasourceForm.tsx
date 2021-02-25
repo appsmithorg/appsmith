@@ -1,56 +1,82 @@
 import React from "react";
 import styled from "styled-components";
-import _ from "lodash";
-import { DATASOURCE_DB_FORM } from "constants/forms";
+import { createNewApiName } from "utils/AppsmithUtils";
+import { DATASOURCE_REST_API_FORM } from "constants/forms";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
-import FormControl from "../FormControl";
-import Collapsible from "./Collapsible";
 import history from "utils/history";
 import FormTitle from "./FormTitle";
-import { ControlProps } from "components/formControls/BaseControl";
-import Connected from "./Connected";
 import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
-import { reduxForm, InjectedFormProps } from "redux-form";
+import {
+  reduxForm,
+  InjectedFormProps,
+  getFormValues,
+  getFormMeta,
+} from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import BackButton from "./BackButton";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import { isHidden } from "components/formControls/utils";
-import log from "loglevel";
-import { Spinner } from "@blueprintjs/core";
+import InputTextControl from "components/formControls/InputTextControl";
+import KeyValueInputControl from "components/formControls/KeyValueInputControl";
+import DropDownControl from "components/formControls/DropDownControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import { connect } from "react-redux";
+import { AppState } from "reducers";
+import { ApiActionConfig } from "entities/Action";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import { createActionRequest } from "actions/actionActions";
+import {
+  deleteDatasource,
+  redirectAuthorizationCode,
+  updateDatasource,
+} from "actions/datasourceActions";
+import { ReduxAction } from "constants/ReduxActionConstants";
+import {
+  datasourceToFormValues,
+  formValuesToDatasource,
+} from "transformers/RestAPIDatasourceFormTransformer";
+import {
+  ApiDatasourceForm,
+  AuthType,
+  GrantType,
+} from "entities/Datasource/RestAPIForm";
+import {
+  REST_API_AUTHORIZATION_SUCCESSFUL,
+  REST_API_AUTHORIZATION_FAILED,
+  REST_API_AUTHORIZATION_APPSMITH_ERROR,
+} from "constants/messages";
+import Collapsible from "./Collapsible";
+import _ from "lodash";
 
-interface DatasourceDBEditorProps {
-  onSave: (formValues: Datasource) => void;
-  onTest: (formValus: Datasource) => void;
-  handleDelete: (id: string) => void;
-  setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
-  selectedPluginPackage: string;
+interface DatasourceRestApiEditorProps {
+  updateDatasource: (
+    formValues: Datasource,
+    onSuccess?: ReduxAction<unknown>,
+  ) => void;
+  deleteDatasource: (id: string) => void;
   isSaving: boolean;
   isDeleting: boolean;
-  datasourceId: string;
-  loadingFormConfigs: boolean;
   applicationId: string;
+  datasourceId: string;
   pageId: string;
-  formData: Datasource;
-  isTesting: boolean;
-  formConfig: any[];
   isNewDatasource: boolean;
   pluginImage: string;
-  viewMode: boolean;
-  pluginType: string;
+  location: {
+    search: string;
+  };
+  datasource: Datasource;
+  formData: ApiDatasourceForm;
+  actions: ActionDataState;
+  formMeta: any;
 }
 
-interface DatasourceDBEditorState {
-  viewMode: boolean;
-}
+type Props = DatasourceRestApiEditorProps &
+  InjectedFormProps<ApiDatasourceForm, DatasourceRestApiEditorProps>;
 
-type Props = DatasourceDBEditorProps &
-  InjectedFormProps<Datasource, DatasourceDBEditorProps>;
-
-const DBForm = styled.div`
+const RestApiForm = styled.div`
   padding: 20px;
   margin-left: 10px;
   margin-right: 0px;
@@ -65,6 +91,10 @@ const DBForm = styled.div`
     font-weight: 500;
     cursor: pointer;
   }
+`;
+
+const FormInputContainer = styled.div`
+  margin-top: 16px;
 `;
 
 export const LoadingContainer = styled(CenteredWrapper)`
@@ -104,6 +134,15 @@ const ActionButton = styled(BaseButton)`
   }
 `;
 
+const CreateApiButton = styled(BaseButton)`
+  &&& {
+    max-width: 120px;
+    margin-right: 9px;
+    align-self: center;
+    min-height: 32px;
+  }
+`;
+
 const StyledButton = styled(Button)`
   &&&& {
     width: 87px;
@@ -111,201 +150,163 @@ const StyledButton = styled(Button)`
   }
 `;
 
-class DatasourceDBEditor extends React.Component<
-  Props,
-  DatasourceDBEditorState
-> {
-  requiredFields: Record<string, any>;
-  configDetails: Record<string, any>;
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      viewMode: true,
-    };
-    this.requiredFields = {};
-    this.configDetails = {};
+const AuthorizeButton = styled(StyledButton)`
+  &&&& {
+    width: 180px;
   }
+`;
 
-  componentDidMount() {
-    this.requiredFields = {};
-    this.configDetails = {};
-  }
+const COMMON_INPUT_PROPS: any = {
+  name: "",
+  formName: DATASOURCE_REST_API_FORM,
+  id: "",
+  isValid: false,
+  controlType: "",
+};
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.datasourceId !== this.props.datasourceId) {
-      this.requiredFields = {};
-      this.configDetails = {};
-      this.props.setDatasourceEditorMode(this.props.datasourceId, true);
-    }
-  }
+class DatasourceRestAPIEditor extends React.Component<Props> {
+  componentDidMount = () => {
+    const search = new URLSearchParams(this.props.location.search);
+    const status = search.get("response_status");
 
-  validate = () => {
-    const errors = {} as any;
-    const requiredFields = Object.keys(this.requiredFields);
-    const values = this.props.formData;
-
-    requiredFields.forEach((fieldConfigProperty) => {
-      const fieldConfig = this.requiredFields[fieldConfigProperty];
-      if (fieldConfig.controlType === "KEYVALUE_ARRAY") {
-        const configProperty = fieldConfig.configProperty.split("[*].");
-        const arrayValues = _.get(values, configProperty[0]);
-        const keyValueArrayErrors: Record<string, string>[] = [];
-
-        arrayValues.forEach((value: any, index: number) => {
-          const objectKeys = Object.keys(value);
-          const keyValueErrors: Record<string, string> = {};
-
-          if (!value[objectKeys[0]]) {
-            keyValueErrors[objectKeys[0]] = "This field is required";
-            keyValueArrayErrors[index] = keyValueErrors;
-          }
-          if (!value[objectKeys[1]]) {
-            keyValueErrors[objectKeys[1]] = "This field is required";
-            keyValueArrayErrors[index] = keyValueErrors;
-          }
-        });
-
-        if (keyValueArrayErrors.length) {
-          _.set(errors, configProperty[0], keyValueArrayErrors);
-        }
-      } else if (fieldConfig.controlType === "KEY_VAL_INPUT") {
-        const value = _.get(values, fieldConfigProperty, []);
-
-        if (value.length) {
-          const values = Object.values(value[0]);
-          const isNotBlank = values.every((value) => value);
-
-          if (!isNotBlank) {
-            _.set(errors, fieldConfigProperty, "This field is required");
-          }
-        }
-      } else {
-        const value = _.get(values, fieldConfigProperty);
-
-        if (!value) {
-          _.set(errors, fieldConfigProperty, "This field is required");
-        }
+    if (status) {
+      const display_message = search.get("display_message");
+      // Set default error message
+      let message = REST_API_AUTHORIZATION_FAILED;
+      let variant = Variant.danger;
+      if (status === "success") {
+        message = REST_API_AUTHORIZATION_SUCCESSFUL;
+        variant = Variant.success;
+      } else if (status === "appsmith_error") {
+        message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
       }
-    });
-
-    return !_.isEmpty(errors) || this.props.invalid;
+      Toaster.show({ text: display_message || message, variant });
+    }
   };
 
-  render() {
-    const { loadingFormConfigs, formConfig } = this.props;
-    if (loadingFormConfigs) {
-      return (
-        <LoadingContainer>
-          <Spinner size={30} />
-        </LoadingContainer>
+  componentDidUpdate() {
+    this.ensureOAuthDefaultsAreCorrect();
+  }
+
+  isDirty(prop: any) {
+    const { formMeta } = this.props;
+    return _.get(formMeta, prop + ".visited", false);
+  }
+
+  ensureOAuthDefaultsAreCorrect = () => {
+    const { authentication } = this.props.formData;
+
+    if (!authentication || !authentication.grantType) {
+      this.props.change(
+        "authentication.grantType",
+        GrantType.ClientCredentials,
       );
+      return false;
     }
-    const content = this.renderDataSourceConfigForm(formConfig);
-    return <DBForm>{content}</DBForm>;
-  }
+    if (_.get(authentication, "isTokenHeader") === undefined) {
+      this.props.change("authentication.isTokenHeader", true);
+      return false;
+    }
+    if (
+      !this.isDirty("authentication.headerPrefix") &&
+      _.get(authentication, "headerPrefix") === undefined
+    ) {
+      this.props.change("authentication.headerPrefix", "Bearer ");
+      return false;
+    }
 
-  isNewDatasource = () => {
-    const { datasourceId } = this.props;
-
-    return datasourceId.includes(":");
-  };
-
-  normalizeValues = () => {
-    let { formData } = this.props;
-    const checked: Record<string, any> = {};
-    const configProperties = Object.keys(this.configDetails);
-
-    for (const configProperty of configProperties) {
-      const controlType = this.configDetails[configProperty];
-
-      if (controlType === "KEYVALUE_ARRAY") {
-        const properties = configProperty.split("[*].");
-
-        if (checked[properties[0]]) continue;
-
-        checked[properties[0]] = 1;
-        const values = _.get(formData, properties[0]);
-        const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
-
-        values.forEach(
-          (object: { [s: string]: unknown } | ArrayLike<unknown>) => {
-            const isEmpty = Object.values(object).every((x) => x === "");
-
-            if (!isEmpty) {
-              newValues.push(object);
-            }
-          },
-        );
-
-        if (newValues.length) {
-          formData = _.set(formData, properties[0], newValues);
-        } else {
-          formData = _.set(formData, properties[0], []);
-        }
-      } else if (controlType === "KEY_VAL_INPUT") {
-        if (checked[configProperty]) continue;
-
-        const values = _.get(formData, configProperty);
-        const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
-
-        values.forEach(
-          (object: { [s: string]: unknown } | ArrayLike<unknown>) => {
-            const isEmpty = Object.values(object).every((x) => x === "");
-
-            if (!isEmpty) {
-              newValues.push(object);
-            }
-          },
-        );
-
-        if (newValues.length) {
-          formData = _.set(formData, configProperty, newValues);
-        } else {
-          formData = _.set(formData, configProperty, []);
-        }
+    if (authentication.grantType === GrantType.AuthorizationCode) {
+      if (_.get(authentication, "isAuthorizationHeader") === undefined) {
+        this.props.change("authentication.isAuthorizationHeader", true);
+        return false;
       }
     }
-
-    return formData;
+    return true;
   };
 
-  save = () => {
-    const normalizedValues = this.normalizeValues();
+  disableSave = () => {
+    const { formData } = this.props;
+    if (!formData) return true;
+    if (!formData.url) return true;
+    return false;
+  };
+
+  save = (onSuccess?: ReduxAction<unknown>) => {
+    const normalizedValues = formValuesToDatasource(
+      this.props.datasource,
+      this.props.formData,
+    );
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
     });
-    this.props.onSave(normalizedValues);
+    this.props.updateDatasource(normalizedValues, onSuccess);
   };
 
-  test = () => {
-    const normalizedValues = this.normalizeValues();
-    AnalyticsUtil.logEvent("TEST_DATA_SOURCE_CLICK", {
-      pageId: this.props.pageId,
-      appId: this.props.applicationId,
-    });
-    this.props.onTest(normalizedValues);
+  createApiAction = () => {
+    const { datasource, actions, pageId } = this.props;
+    if (
+      !datasource ||
+      !datasource.datasourceConfiguration ||
+      !datasource.datasourceConfiguration.url
+    ) {
+      Toaster.show({
+        text: "Unable to create API. Try adding a url to the datasource",
+        variant: Variant.danger,
+      });
+    }
+    const newApiName = createNewApiName(actions, pageId || "");
+
+    const headers =
+      this.props.datasource?.datasourceConfiguration?.headers ?? [];
+    const defaultApiActionConfig: ApiActionConfig = {
+      ...DEFAULT_API_ACTION_CONFIG,
+      headers: headers.length ? headers : DEFAULT_API_ACTION_CONFIG.headers,
+    };
+
+    this.save(
+      createActionRequest({
+        name: newApiName,
+        pageId: pageId,
+        pluginId: datasource.pluginId,
+        datasource: {
+          id: datasource.id,
+        },
+        eventData: {
+          actionType: "API",
+          from: "datasource-pane",
+        },
+        actionConfiguration: defaultApiActionConfig,
+      }),
+    );
   };
 
-  renderDataSourceConfigForm = (sections: any) => {
+  render = () => {
+    return (
+      <RestApiForm>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
+          {this.renderHeader()}
+          {this.renderEditor()}
+          {this.renderSave()}
+        </form>
+      </RestApiForm>
+    );
+  };
+
+  renderHeader = () => {
     const {
       isSaving,
+      isNewDatasource,
+      pluginImage,
       applicationId,
       pageId,
-      isTesting,
-      isDeleting,
-      datasourceId,
-      handleDelete,
     } = this.props;
-    const { viewMode } = this.props;
-
     return (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-      >
+      <>
         <BackButton
           onClick={() =>
             history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId))
@@ -314,143 +315,344 @@ class DatasourceDBEditor extends React.Component<
         <br />
         <Header>
           <FormTitleContainer>
-            <PluginImage src={this.props.pluginImage} alt="Datasource" />
-            <FormTitle focusOnMount={this.props.isNewDatasource} />
+            <PluginImage src={pluginImage} alt="Datasource" />
+            <FormTitle focusOnMount={isNewDatasource} />
           </FormTitleContainer>
-          {viewMode && (
-            <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
-              <ActionButton
-                className="t--edit-datasource"
-                text="EDIT"
-                accent="secondary"
-                onClick={() => {
-                  this.props.setDatasourceEditorMode(
-                    this.props.datasourceId,
-                    false,
-                  );
-                }}
-              />
-            </Boxed>
-          )}
-        </Header>
-        {!viewMode ? (
-          <>
-            {!_.isNil(sections)
-              ? _.map(sections, this.renderMainSection)
-              : undefined}
-            <SaveButtonContainer>
-              <ActionButton
-                className="t--delete-datasource"
-                text="Delete"
-                accent="error"
-                loading={isDeleting}
-                onClick={() => handleDelete(datasourceId)}
-              />
 
-              <ActionButton
-                className="t--test-datasource"
-                text="Test"
-                loading={isTesting}
-                accent="secondary"
-                onClick={this.test}
-              />
-              <StyledButton
-                className="t--save-datasource"
-                onClick={this.save}
-                text="Save"
-                disabled={this.validate()}
-                loading={isSaving}
-                intent="primary"
-                filled
-                size="small"
-              />
-            </SaveButtonContainer>
-          </>
-        ) : (
-          <Connected />
-        )}
-      </form>
-    );
-  };
-
-  renderMainSection = (section: any, index: number) => {
-    if (isHidden(this.props.formData, section.hidden)) return null;
-    return (
-      <Collapsible title={section.sectionName} defaultIsOpen={index === 0}>
-        {this.renderEachConfig(section)}
-      </Collapsible>
-    );
-  };
-
-  renderSingleConfig = (
-    config: ControlProps,
-    multipleConfig?: ControlProps[],
-  ) => {
-    multipleConfig = multipleConfig || [];
-    try {
-      this.setupConfig(config);
-      return (
-        <div key={config.configProperty} style={{ marginTop: "16px" }}>
-          <FormControl
-            config={config}
-            formName={DATASOURCE_DB_FORM}
-            multipleConfig={multipleConfig}
+          <CreateApiButton
+            className="t--create-query"
+            icon={"plus"}
+            text="New API"
+            filled
+            accent="primary"
+            disabled={this.disableSave()}
+            loading={isSaving}
+            onClick={() => this.createApiAction()}
           />
-        </div>
-      );
-    } catch (e) {
-      log.error(e);
-    }
-  };
-
-  setupConfig = (config: ControlProps) => {
-    const { controlType, isRequired, configProperty } = config;
-    this.configDetails[configProperty] = controlType;
-
-    if (isRequired) {
-      this.requiredFields[configProperty] = config;
-    }
-  };
-
-  isKVArray = (children: Array<ControlProps>) => {
-    if (!Array.isArray(children) || children.length < 2) return false;
-    return (
-      children[0].controlType && children[0].controlType === "KEYVALUE_ARRAY"
+        </Header>
+      </>
     );
   };
 
-  renderKVArray = (children: Array<ControlProps>) => {
-    try {
-      // setup config for each child
-      children.forEach((c) => this.setupConfig(c));
-      // We pass last child for legacy reasons, to keep the logic here exactly same as before.
-      return this.renderSingleConfig(children[children.length - 1], children);
-    } catch (e) {
-      log.error(e);
+  renderSave = () => {
+    const { isDeleting, isSaving, datasourceId, deleteDatasource } = this.props;
+    return (
+      <SaveButtonContainer>
+        <ActionButton
+          className="t--delete-datasource"
+          text="Delete"
+          accent="error"
+          loading={isDeleting}
+          onClick={() => deleteDatasource(datasourceId)}
+        />
+
+        <StyledButton
+          className="t--save-datasource"
+          onClick={() => this.save()}
+          text="Save"
+          disabled={this.disableSave()}
+          loading={isSaving}
+          intent="primary"
+          filled
+          size="small"
+        />
+      </SaveButtonContainer>
+    );
+  };
+
+  renderEditor = () => {
+    const { formData } = this.props;
+    if (!formData) return;
+    return (
+      <>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            label="URL"
+            configProperty="url"
+            isRequired={true}
+            placeholderText="https://example.com"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <KeyValueInputControl
+            {...COMMON_INPUT_PROPS}
+            label="Headers"
+            configProperty="headers"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <DropDownControl
+            {...COMMON_INPUT_PROPS}
+            label="Send Appsmith signature header (X-APPSMITH-SIGNATURE)"
+            configProperty="isSendSessionEnabled"
+            isRequired={true}
+            placeholderText=""
+            propertyValue=""
+            options={[
+              {
+                label: "Yes",
+                value: true,
+              },
+              {
+                label: "No",
+                value: false,
+              },
+            ]}
+          />
+        </FormInputContainer>
+        {formData.isSendSessionEnabled && (
+          <FormInputContainer>
+            <InputTextControl
+              {...COMMON_INPUT_PROPS}
+              label="Session Details Signature Key"
+              configProperty="sessionSignatureKey"
+              placeholderText=""
+            />
+          </FormInputContainer>
+        )}
+        <FormInputContainer>
+          <DropDownControl
+            {...COMMON_INPUT_PROPS}
+            label="Authentication Type"
+            configProperty="authType"
+            placeholderText=""
+            propertyValue=""
+            options={[
+              {
+                label: "None",
+                value: AuthType.NONE,
+              },
+              {
+                label: "OAuth 2.0",
+                value: AuthType.OAuth2,
+              },
+            ]}
+          />
+        </FormInputContainer>
+        {this.renderAuthFields()}
+      </>
+    );
+  };
+
+  renderAuthFields = () => {
+    const { authType } = this.props.formData;
+
+    let content;
+    if (authType === AuthType.OAuth2) {
+      content = this.renderOauth2();
+    }
+    if (content) {
+      return (
+        <Collapsible title="Authentication" defaultIsOpen={true}>
+          {content}
+        </Collapsible>
+      );
     }
   };
 
-  renderEachConfig = (section: any) => {
+  renderOauth2 = () => {
+    const { authentication } = this.props.formData;
+    if (!authentication) return;
+    let content;
+    switch (authentication?.grantType) {
+      case GrantType.AuthorizationCode:
+        content = this.renderOauth2AuthorizationCode();
+        break;
+      case GrantType.ClientCredentials:
+        content = this.renderOauth2ClientCredentials();
+        break;
+    }
+
     return (
-      <div key={section.sectionName}>
-        {_.map(section.children, (propertyControlOrSection: ControlProps) => {
-          // If the section is hidden, skip rendering
-          if (isHidden(this.props.formData, section.hidden)) return null;
-          if ("children" in propertyControlOrSection) {
-            const { children } = propertyControlOrSection;
-            if (this.isKVArray(children)) {
-              return this.renderKVArray(children);
+      <>
+        <FormInputContainer>
+          <DropDownControl
+            {...COMMON_INPUT_PROPS}
+            label="Grant Type"
+            configProperty="authentication.grantType"
+            placeholderText=""
+            propertyValue=""
+            options={[
+              {
+                label: "Client Credentials",
+                value: GrantType.ClientCredentials,
+              },
+              {
+                label: "Authorization Code",
+                value: GrantType.AuthorizationCode,
+              },
+            ]}
+          />
+        </FormInputContainer>
+        {content}
+      </>
+    );
+  };
+
+  renderOauth2Common = () => {
+    const { formData } = this.props;
+    return (
+      <>
+        <FormInputContainer>
+          <DropDownControl
+            {...COMMON_INPUT_PROPS}
+            label="Add Access Token To"
+            configProperty="authentication.isTokenHeader"
+            options={[
+              {
+                label: "Request Header",
+                value: true,
+              },
+              {
+                label: "Request URL",
+                value: false,
+              },
+            ]}
+          />
+        </FormInputContainer>
+        {formData.authentication?.isTokenHeader && (
+          <FormInputContainer>
+            <InputTextControl
+              {...COMMON_INPUT_PROPS}
+              label="Header Prefix"
+              configProperty="authentication.headerPrefix"
+              placeholderText="eg: Bearer "
+            />
+          </FormInputContainer>
+        )}
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            label="Access Token URL"
+            configProperty="authentication.accessTokenUrl"
+            placeholderText="https://example.com/login/oauth/access_token"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            label="Client ID"
+            configProperty="authentication.clientId"
+            placeholderText="Client ID"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            label="Client Secret"
+            dataType="PASSWORD"
+            encrypted={true}
+            configProperty="authentication.clientSecret"
+            placeholderText="Client Secret"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            label="Scope(s)"
+            configProperty="authentication.scopeString"
+            placeholderText="e.g. read, write"
+          />
+        </FormInputContainer>
+      </>
+    );
+  };
+
+  renderOauth2ClientCredentials = () => {
+    return this.renderOauth2Common();
+  };
+
+  renderOauth2AuthorizationCode = () => {
+    const { pageId, datasourceId, isSaving, datasource } = this.props;
+    const isAuthorized = _.get(
+      datasource,
+      "datasourceConfiguration.authentication.isAuthorized",
+      false,
+    );
+    return (
+      <>
+        {this.renderOauth2Common()}
+        <FormInputContainer>
+          <InputTextControl
+            {...COMMON_INPUT_PROPS}
+            label="Authorization URL"
+            configProperty="authentication.authorizationUrl"
+            placeholderText="https://example.com/login/oauth/authorize"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <KeyValueInputControl
+            {...COMMON_INPUT_PROPS}
+            label="Custom Authentication Parameters"
+            configProperty="authentication.customAuthenticationParameters"
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <DropDownControl
+            {...COMMON_INPUT_PROPS}
+            label="Client Authentication"
+            configProperty="authentication.isAuthorizationHeader"
+            options={[
+              {
+                label: "Send as Basic Auth header",
+                value: true,
+              },
+              {
+                label: "Send client credentials in body",
+                value: false,
+              },
+            ]}
+          />
+        </FormInputContainer>
+        <FormInputContainer>
+          <AuthorizeButton
+            onClick={() =>
+              this.save(redirectAuthorizationCode(pageId, datasourceId))
             }
-            return this.renderEachConfig(propertyControlOrSection);
-          } else {
-            return this.renderSingleConfig(propertyControlOrSection);
-          }
-        })}
-      </div>
+            text={isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
+            intent="primary"
+            loading={isSaving}
+            disabled={this.disableSave()}
+            filled
+            size="small"
+          />
+        </FormInputContainer>
+      </>
     );
   };
 }
 
-export default reduxForm<Datasource, DatasourceDBEditorProps>({
-  form: DATASOURCE_DB_FORM,
-})(DatasourceDBEditor);
+const mapStateToProps = (state: AppState, props: any) => {
+  const datasource = state.entities.datasources.list.find(
+    (e) => e.id === props.datasourceId,
+  ) as Datasource;
+
+  return {
+    initialValues: datasourceToFormValues(datasource),
+    datasource: datasource,
+    actions: state.entities.actions,
+    formData: getFormValues(DATASOURCE_REST_API_FORM)(
+      state,
+    ) as ApiDatasourceForm,
+    formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
+      dispatch(updateDatasource(formData, onSuccess)),
+    deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(
+  reduxForm<ApiDatasourceForm, DatasourceRestApiEditorProps>({
+    form: DATASOURCE_REST_API_FORM,
+    enableReinitialize: true,
+  })(DatasourceRestAPIEditor),
+);

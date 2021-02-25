@@ -25,5 +25,6 @@
     "addWidget":".widgets .t--entity-add-btn",
     "dropHere":".appsmith_widget_0",
     "closeWidgets":".t--close-widgets-sidebar",
-    "addDBQueryEntity": ".dbqueries .t--entity-add-btn"
+    "addDBQueryEntity": ".dbqueries .t--entity-add-btn",
+    "editEntity": ".t--entity-name input"
 }

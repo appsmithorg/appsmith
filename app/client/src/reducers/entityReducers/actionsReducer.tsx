@@ -339,12 +339,20 @@ const actionsReducer = createReducer(initialState, {
     }),
   [ReduxActionTypes.SET_ACTION_TO_EXECUTE_ON_PAGELOAD]: (
     state: ActionDataState,
-    actionIds: ReduxAction<string[]>,
+    action: ReduxAction<
+      Array<{
+        executeOnLoad: boolean;
+        id: string;
+        name: string;
+      }>
+    >,
   ) => {
     return produce(state, (draft) => {
+      const actionUpdateSearch = _.keyBy(action.payload, "id");
       draft.forEach((action, index) => {
-        if (actionIds.payload.indexOf(action.config.id) > -1) {
-          draft[index].config.executeOnLoad = true;
+        if (action.config.id in actionUpdateSearch) {
+          draft[index].config.executeOnLoad =
+            actionUpdateSearch[action.config.id].executeOnLoad;
         }
       });
     });

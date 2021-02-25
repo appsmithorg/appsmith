@@ -70,6 +70,7 @@ On your development machine, please ensure that:
 
 - By default your client app points to the local api server - `http://host.docker.internal:8080` for MacOS or `http://localhost:8080` for Linux. Your page will load with errors if you don't have the api server running on your local system. To setup the api server on your local system please follow the instructions [here](https://github.com/appsmithorg/appsmith/blob/release/contributions/ServerSetup.md)
 - In case you are unable to setup the api server on your local system, you can also [use Appsmith's staging API server](#if-you-would-like-to-hit-a-different-appsmith-server).
+- In case you are using a M1 chip Macbook please run the client with `yarn start-m1`.
 
 #### If yarn start throws mismatch node version error
 

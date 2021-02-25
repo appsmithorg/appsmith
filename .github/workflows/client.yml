@@ -260,7 +260,7 @@ jobs:
           install: false
           parallel: true
           group: "Electrons on Github Action"
-          spec: "cypress/integration/Smoke_TestSuite/*/*"
+          spec: "cypress/integration/Smoke_TestSuite/**/*.js"
           working-directory: app/client
           # tag will be either "push" or "pull_request_target"
           tag: ${{ github.event_name }}
@@ -312,7 +312,7 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}} .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
       - name: Push production image to Docker Hub with commit tag
@@ -321,4 +321,5 @@ jobs:
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA} .
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly

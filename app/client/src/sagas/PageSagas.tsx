@@ -77,6 +77,8 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { WidgetTypes } from "constants/WidgetConstants";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -101,6 +103,7 @@ export function* fetchPageListSaga(
         pageName: page.name,
         pageId: page.id,
         isDefault: page.isDefault,
+        isHidden: !!page.isHidden,
       }));
       yield put({
         type: ReduxActionTypes.SET_CURRENT_ORG_ID,
@@ -323,13 +326,19 @@ function* savePageSaga() {
     );
     const isValidResponse = yield validateResponse(savePageResponse);
     if (isValidResponse) {
-      if (
-        savePageResponse.data.layoutOnLoadActions &&
-        savePageResponse.data.layoutOnLoadActions.length > 0
-      ) {
-        for (const actionSet of savePageResponse.data.layoutOnLoadActions) {
-          yield put(setActionsToExecuteOnPageLoad(actionSet.map((a) => a.id)));
-        }
+      const { messages, actionUpdates } = savePageResponse.data;
+      // Show toast messages from the server
+      if (messages && messages.length) {
+        savePageResponse.data.messages.forEach((message) => {
+          Toaster.show({
+            text: message,
+            type: Variant.info,
+          });
+        });
+      }
+      // Update actions
+      if (actionUpdates && actionUpdates.length > 0) {
+        yield put(setActionsToExecuteOnPageLoad(actionUpdates));
       }
       yield put(savePageSuccess(savePageResponse));
       PerformanceTracker.stopAsyncTracking(

@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 
 @Service
 @Slf4j
@@ -223,8 +223,10 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                                         FieldName.PAGE, pageFromDb.getId()));
                             }
                             pageNameIdDTO.setName(pageFromDb.getPublishedPage().getName());
+                            pageNameIdDTO.setIsHidden(pageFromDb.getPublishedPage().getIsHidden());
                         } else {
                             pageNameIdDTO.setName(pageFromDb.getUnpublishedPage().getName());
+                            pageNameIdDTO.setIsHidden(pageFromDb.getUnpublishedPage().getIsHidden());
                         }
 
                         if (pageNameIdDTO.getId().equals(defaultPageId)) {

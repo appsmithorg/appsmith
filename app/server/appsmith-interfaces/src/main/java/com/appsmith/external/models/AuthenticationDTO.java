@@ -1,11 +1,12 @@
 package com.appsmith.external.models;
 
-import com.appsmith.external.constants.AuthType;
+import com.appsmith.external.constants.Authentication;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.Transient;
 
 import java.util.Collections;
 import java.util.Map;
@@ -15,21 +16,30 @@ import java.util.Set;
 @Setter
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.EXISTING_PROPERTY,
         visible = true,
-        property = "type",
+        property = "authenticationType",
         defaultImpl = DBAuth.class)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = DBAuth.class, name = AuthType.DB_AUTH),
-        @JsonSubTypes.Type(value = OAuth2.class, name = AuthType.OAUTH2)
+        @JsonSubTypes.Type(value = DBAuth.class, name = Authentication.DB_AUTH),
+        @JsonSubTypes.Type(value = OAuth2.class, name = Authentication.OAUTH2)
 })
 public class AuthenticationDTO {
     // In principle, this class should've been abstract. However, when this class is abstract, Spring's deserialization
     // routines choke on identifying the correct class to instantiate and ends up trying to instantiate this abstract
     // class and fails.
 
+    @Transient
+    String authenticationType;
+
+    Set<Property> customAuthenticationParameters;
+
     @JsonIgnore
-    private Boolean isEncrypted = false;
+    private Boolean isEncrypted;
+
+    private Boolean isAuthorized;
+
+    @JsonIgnore
+    AuthenticationResponse authenticationResponse;
 
     @JsonIgnore
     public Map<String, String> getEncryptionFields() {
@@ -46,8 +56,8 @@ public class AuthenticationDTO {
     }
 
     @JsonIgnore
-    public boolean isEncrypted() {
-        return Boolean.TRUE.equals(isEncrypted);
+    public Boolean isEncrypted() {
+        return this.isEncrypted;
     }
 
 }
