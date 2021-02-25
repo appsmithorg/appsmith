@@ -70,4 +70,24 @@ export default {
     return pageSize;
   },
   //
+  getSanitizedTableData: (props) => {
+    const separatorRegex = /\W+/;
+
+    if (props.tableData && Array.isArray(props.tableData)) {
+      return props.tableData.map((entry) => {
+        const sanitizedData = {};
+
+        for (const [key, value] of Object.entries(entry)) {
+          const sanitizedKey = key
+            .split(separatorRegex)
+            .join("_")
+            .slice(0, 200);
+          sanitizedData[sanitizedKey] = value;
+        }
+        return sanitizedData;
+      });
+    }
+    return [];
+  },
+  //
 };
