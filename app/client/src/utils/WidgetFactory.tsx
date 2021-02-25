@@ -18,7 +18,7 @@ import { generateReactKey } from "./generators";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
-export type TriggerPropertiesMap = Record<string, true | RegExp[]>;
+export type TriggerPropertiesMap = Record<string, true>;
 
 // TODO (abhinav): To enforce the property pane config structure in this function
 // Throw an error if the config is not of the desired format.
