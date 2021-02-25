@@ -1322,6 +1322,17 @@ Cypress.Commands.add("evaluateErrorMessage", (value) => {
     });
 });
 
+Cypress.Commands.add("addAction", (value) => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .last()
+    .click();
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Show Message")
+    .click();
+  cy.enterActionValue(value);
+});
+
 Cypress.Commands.add("selectShowMsg", (value) => {
   cy.get(commonlocators.chooseAction)
     .children()
@@ -1339,6 +1350,7 @@ Cypress.Commands.add("addSuccessMessage", (value) => {
     .click();
   cy.enterActionValue(value);
 });
+
 Cypress.Commands.add("SetDateToToday", () => {
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Today")

@@ -118,5 +118,7 @@
   "clientID": "169444434892406",
   "clientSecret": "505dac16a21681f277b5fde97445be18",
   "accessTokenUrl": "https://graph.facebook.com/oauth/access_token",
-  "oauthResponse": "169444434892406"
+  "oauthResponse": "169444434892406",
+  "bindingDataPoint": "{{JSON.stringify(Chart1.selectedDataPoint)}}",
+  "bindChardData": "{{Chart1.selectedDataPoint"
 }
