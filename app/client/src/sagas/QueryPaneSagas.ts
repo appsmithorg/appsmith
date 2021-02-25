@@ -43,6 +43,7 @@ import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import { updateCurrentPage } from "actions/pageActions";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
@@ -67,6 +68,10 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
     history.push(QUERIES_EDITOR_URL(applicationId, pageId));
     return;
   }
+
+  // Update current page
+  yield put(updateCurrentPage(action.pageId));
+
   let currentEditorConfig = editorConfigs[action.datasource.pluginId];
 
   if (!currentEditorConfig) {

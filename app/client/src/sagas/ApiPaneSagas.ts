@@ -58,6 +58,7 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { checkCurrentStep } from "./OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import { updateCurrentPage } from "actions/pageActions";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -176,6 +177,9 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const action = yield select(getAction, id);
   if (!action) return;
+
+  // Update current page
+  yield put(updateCurrentPage(action.pageId));
 
   yield put(initialize(API_EDITOR_FORM_NAME, action));
 
