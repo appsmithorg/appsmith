@@ -574,6 +574,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
 
     const newColumnIds = Object.keys(tableColumns);
+
     if (xor(previousColumnIds, newColumnIds).length > 0) return tableColumns;
     else return;
   };
@@ -607,11 +608,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           propertiesToAdd["migrated"] = true;
         }
 
-        if (previousColumnIds.length > newColumnIds.length) {
-          const columnsIdsToDelete = without(
-            previousColumnIds,
-            ...newColumnIds,
-          );
+        const columnsIdsToDelete = without(previousColumnIds, ...newColumnIds);
+        if (columnsIdsToDelete.length > 0) {
           columnsIdsToDelete.forEach((id: string) => {
             pathsToDelete.push(`primaryColumns.${id}`);
           });
