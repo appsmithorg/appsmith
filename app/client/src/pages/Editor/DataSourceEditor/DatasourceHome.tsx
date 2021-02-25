@@ -7,10 +7,7 @@ import { getDBPlugins, getPluginImages } from "selectors/entitiesSelector";
 import history from "utils/history";
 import { Plugin } from "api/PluginApi";
 import { DATASOURCE_DB_FORM } from "constants/forms";
-import {
-  selectPlugin,
-  createDatasourceFromForm,
-} from "actions/datasourceActions";
+import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -102,7 +99,6 @@ interface DatasourceHomeScreenProps {
     replace: (data: string) => void;
     push: (data: string) => void;
   };
-  selectPlugin: (pluginType: string) => void;
 }
 
 interface ReduxDispatchProps {
@@ -127,7 +123,6 @@ class DatasourceHomeScreen extends React.Component<Props> {
       plugin: pluginName,
     });
 
-    this.props.selectPlugin(pluginId);
     this.props.createDatasource({
       pluginId,
     });
@@ -202,7 +197,6 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    selectPlugin: (pluginId: string) => dispatch(selectPlugin(pluginId)),
     initializeForm: (data: Record<string, any>) =>
       dispatch(initialize(DATASOURCE_DB_FORM, data)),
     createDatasource: (data: any) => dispatch(createDatasourceFromForm(data)),

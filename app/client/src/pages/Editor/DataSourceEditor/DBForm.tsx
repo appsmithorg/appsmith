@@ -40,7 +40,6 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   onTest: (formValus: Datasource) => void;
   handleDelete: (id: string) => void;
   setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
-  selectedPluginPackage: string;
   isSaving: boolean;
   isDeleting: boolean;
   datasourceId: string;
