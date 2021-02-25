@@ -9,20 +9,20 @@ import {
 } from "actions/globalSearchActions";
 import { getSelectedWidget } from "sagas/selectors";
 import { Theme } from "constants/DefaultTheme";
+import { widgetSidebarConfig } from "mockResponses/WidgetSidebarResponse";
 
 type Props = {
   theme: Theme;
 };
 
-const formatType = (type: string) => type.split("_")[0].toLowerCase();
-
 const PropertyPaneHelpButton = withTheme(({ theme }: Props) => {
   const selectedWidget = useSelector(getSelectedWidget);
   const selectedWidgetType = selectedWidget?.type;
   const dispatch = useDispatch();
+  const config = selectedWidgetType && widgetSidebarConfig[selectedWidgetType];
 
   const openHelpModal = useCallback(() => {
-    dispatch(setGlobalSearchQuery(formatType(selectedWidgetType || "")));
+    dispatch(setGlobalSearchQuery(config?.widgetCardName || ""));
     dispatch(toggleShowGlobalSearchModal());
   }, [selectedWidgetType]);
 
