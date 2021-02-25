@@ -120,16 +120,11 @@ const TabsComponent = (props: TabsComponentProps) => {
       tabContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [props.shouldScrollContents]);
-  const visibleTabs = props.tabs
-    ? props.tabs.filter(
-        (tab) => tab.isVisible === undefined || tab.isVisible === true,
-      )
-    : [];
   return (
     <TabsContainerWrapper ref={tabContainerRef}>
       {props.shouldShowTabs ? (
         <TabsContainer>
-          {visibleTabs.map((tab, index) => (
+          {props.tabs.map((tab, index) => (
             <StyledText
               className={`t--tab-${tab.label}`}
               onClick={(event: React.MouseEvent<HTMLDivElement>) => {

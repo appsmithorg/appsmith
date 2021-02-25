@@ -177,6 +177,7 @@ class TabControl extends BaseControl<ControlProps> {
       id: string;
       label: string;
       isVisible: boolean;
+      widgetId: string;
     }> = this.props.propertyValue.slice();
     const isVisible = tabs[index].isVisible === true ? false : true;
     const updatedTabs = tabs.map((tab, tabIndex) => {

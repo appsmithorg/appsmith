@@ -121,8 +121,12 @@ class TabsWidget extends BaseWidget<
   }
 
   getPageView() {
+    const tabsComponentProps = {
+      ...this.props,
+      tabs: this.getVisibleTabs(),
+    };
     return (
-      <TabsComponent {...this.props} onTabChange={this.onTabChange}>
+      <TabsComponent {...tabsComponentProps} onTabChange={this.onTabChange}>
         {this.renderComponent()}
       </TabsComponent>
     );
