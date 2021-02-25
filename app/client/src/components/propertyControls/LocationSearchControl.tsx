@@ -1,24 +1,10 @@
 import React, { useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import styled from "styled-components";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 import StandaloneSearchBox from "react-google-maps/lib/components/places/StandaloneSearchBox";
 import { getAppsmithConfigs } from "configs";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
-
-const StyledInput = styled.input`
-  box-sizing: border-box;
-  border: 1px solid transparent;
-  width: 100%;
-  height: 32px;
-  padding: 0 5px;
-  border-radius: 3px;
-  font-size: 14px;
-  outline: none;
-  text-overflow: ellipses;
-  background: #272821;
-  color: ${(props) => props.theme.colors.textOnDarkBG};
-`;
+import { StyledInputGroup } from "./StyledControls";
 
 const { google } = getAppsmithConfigs();
 
@@ -87,17 +73,16 @@ const MapScriptWrapper = (props: MapScriptWrapperProps) => {
             setTitle("");
           }}
         >
-          <StyledInput
-            type="text"
+          <StyledInputGroup
+            dataType="text"
             placeholder="Enter location"
-            value={title || props.propertyValue?.title}
-            onChange={(ev) => {
-              const val = ev.target.value;
-              if (val === "") {
+            onChange={(value: string) => {
+              if (value === "") {
                 props.clearLocation();
               }
-              setTitle(val);
+              setTitle(value);
             }}
+            defaultValue={title || props.propertyValue?.title}
           />
         </StandaloneSearchBox>
       )}
