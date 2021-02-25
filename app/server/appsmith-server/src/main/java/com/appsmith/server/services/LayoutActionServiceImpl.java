@@ -302,20 +302,17 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 // For nested fields, the parent dsl to search in would shift by one level every iteration
                 Object parent = dsl;
                 Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
-                Boolean isLeafNode = true;
+                Boolean isLeafNode = false;
                 // This loop will end at either a leaf node, or the last identified JSON field (by throwing an exception)
                 // Valid forms of the fieldPath for this search could be:
                 // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
                 while (fieldsIterator.hasNext()) {
                     String nextKey = fieldsIterator.next();
                     if (parent instanceof JSONObject) {
-                        isLeafNode = false;
                         parent = ((JSONObject) parent).get(nextKey);
                     } else if (parent instanceof LinkedHashMap) {
-                        isLeafNode = false;
                         parent = new JSONObject((Map<String, ?>) ((Map<String, ?>) parent).get(nextKey));
                     } else if (parent instanceof List) {
-                        isLeafNode = false;
                         if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
                             parent = ((List) parent).get(Integer.parseInt(nextKey));
                         } else {
