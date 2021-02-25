@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
-import styled from "styled-components";
 import Text, { TextType } from "./Text";
 import { Popover, Position } from "@blueprintjs/core";
+import styled from "constants/DefaultTheme";
 
-type DropdownOption = {
+export type DropdownOption = {
   label?: string;
   value?: string;
   id?: string;
@@ -17,11 +17,13 @@ type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
   selected: DropdownOption;
   onSelect?: (value?: string) => void;
-  width?: number;
+  width?: string;
+  showLabelOnly?: boolean;
+  optionWidth?: string;
 };
 
-const DropdownContainer = styled.div<{ width?: number }>`
-  width: ${(props) => props.width || 260}px;
+const DropdownContainer = styled.div<{ width?: string }>`
+  width: ${(props) => props.width || "260px"};
   position: relative;
 `;
 
@@ -58,30 +60,34 @@ const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
   }
 `;
 
-const DropdownWrapper = styled.div<{ width?: number }>`
-  width: ${(props) => props.width || 260}px;
+const DropdownWrapper = styled.div<{
+  width?: string;
+}>`
+  width: ${(props) => props.width || "260px"};
   z-index: 1;
-  margin-top: ${(props) => props.theme.spaces[2] - 1}px;
-  background: ${(props) => props.theme.colors.dropdown.menuBg};
-  box-shadow: 0px 12px 28px ${(props) => props.theme.colors.dropdown.menuShadow};
+  background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
+  box-shadow: ${(props) =>
+    `0px 2px 4px ${props.theme.colors.dropdown.menuShadow}`};
+  margin-top: ${(props) => -props.theme.spaces[3]}px;
+  padding: ${(props) => props.theme.spaces[3]}px 0;
 `;
 
-const OptionWrapper = styled.div<{ selected: boolean }>`
+const OptionWrapper = styled.div<{
+  selected: boolean;
+}>`
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[6]}px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  ${(props) =>
-    props.selected
-      ? `background: ${props.theme.colors.dropdown.selected.bg}`
-      : null};
+
+  background-color: ${(props) =>
+    props.selected ? props.theme.colors.propertyPane.dropdownSelectBg : null};
+
   .${Classes.TEXT} {
-    ${(props) =>
-      props.selected
-        ? `color: ${props.theme.colors.dropdown.selected.text}`
-        : null};
+    color: ${(props) => props.theme.colors.propertyPane.label};
   }
+
   .${Classes.ICON} {
     margin-right: ${(props) => props.theme.spaces[5]}px;
     svg {
@@ -95,11 +101,12 @@ const OptionWrapper = styled.div<{ selected: boolean }>`
   }
 
   &:hover {
-    background: ${(props) => props.theme.colors.dropdown.hovered.bg};
-    color: ${(props) => props.theme.colors.dropdown.hovered.text};
+    background-color: ${(props) => props.theme.colors.dropdown.hovered.bg};
+
     .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.dropdown.selected.text};
+      color: ${(props) => props.theme.colors.textOnDarkBG};
     }
+
     .${Classes.ICON} {
       svg {
         path {
@@ -128,7 +135,7 @@ export default function Dropdown(props: DropdownProps) {
   const { onSelect } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
-  const [containerWidth, setContainerWidth] = useState(0);
+  const [containerWidth, setContainerWidth] = useState<string>("0px");
 
   useEffect(() => {
     setSelected(props.selected);
@@ -145,8 +152,8 @@ export default function Dropdown(props: DropdownProps) {
   );
 
   const measuredRef = useCallback((node) => {
-    if (node !== null) {
-      setContainerWidth(node.getBoundingClientRect().width);
+    if (node !== null && !props.optionWidth) {
+      setContainerWidth(`${node.getBoundingClientRect().width}px`);
     }
   }, []);
 
@@ -159,10 +166,10 @@ export default function Dropdown(props: DropdownProps) {
     >
       <Popover
         minimal
-        position={Position.BOTTOM_RIGHT}
+        position={Position.TOP_LEFT}
         isOpen={isOpen && !props.disabled}
         onInteraction={(state) => setIsOpen(state)}
-        boundary="viewport"
+        boundary="scrollParent"
       >
         <Selected
           isOpen={isOpen}
@@ -170,10 +177,14 @@ export default function Dropdown(props: DropdownProps) {
           onClick={() => setIsOpen(!isOpen)}
           className={props.className}
         >
-          <Text type={TextType.P1}>{selected.value}</Text>
+          <Text type={TextType.P1}>
+            {props.showLabelOnly ? selected.label : selected.value}
+          </Text>
           <Icon name="downArrow" size={IconSize.XXS} />
         </Selected>
-        <DropdownWrapper width={containerWidth}>
+        <DropdownWrapper
+          width={props.optionWidth ? props.optionWidth : containerWidth}
+        >
           {props.options.map((option: DropdownOption, index: number) => {
             return (
               <OptionWrapper
@@ -185,7 +196,9 @@ export default function Dropdown(props: DropdownProps) {
                 {option.icon ? (
                   <Icon name={option.icon} size={IconSize.LARGE} />
                 ) : null}
-                {option.label && option.value ? (
+                {props.showLabelOnly ? (
+                  <Text type={TextType.P1}>{option.label}</Text>
+                ) : option.label && option.value ? (
                   <LabelWrapper className="label-container">
                     <Text type={TextType.H5}>{option.value}</Text>
                     <Text type={TextType.P3}>{option.label}</Text>
