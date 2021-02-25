@@ -14,6 +14,9 @@ const IconWrapper = styled.div`
   justify-content: flex-end;
 `;
 class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
+  static getPropertyPaneConfig() {
+    return [];
+  }
   static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {
       onClick: true,
