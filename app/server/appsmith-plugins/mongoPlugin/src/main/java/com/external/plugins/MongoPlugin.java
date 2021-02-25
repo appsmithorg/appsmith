@@ -1,5 +1,8 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Connection;
@@ -9,9 +12,6 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.mongodb.MongoCommandException;
@@ -84,7 +84,7 @@ public class MongoPlugin extends BasePlugin {
          * https://docs.huihoo.com/mongodb/3.4/reference/command/index.html
          *
          * @param mongoClient             : This is the connection that is established to the data source. This connection is according
-         *                                  to the parameters in Datasource Configuration
+         *                                to the parameters in Datasource Configuration
          * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
          * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
          * @return Result data from executing the action's query.
@@ -105,9 +105,17 @@ public class MongoPlugin extends BasePlugin {
             ActionExecutionResult result = new ActionExecutionResult();
 
             return mongoOutputMono
+                    .onErrorMap(
+                            MongoCommandException.class,
+                            error -> new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    error.getErrorMessage()
+                            )
+                    )
                     .flatMap(mongoOutput -> {
                         try {
                             JSONObject outputJson = new JSONObject(mongoOutput.toJson());
+
                             //The output json contains the key "ok". This is the status of the command
                             BigInteger status = outputJson.getBigInteger("ok");
                             JSONArray headerArray = new JSONArray();
@@ -206,7 +214,7 @@ public class MongoPlugin extends BasePlugin {
                                     )
                     )
                     .onErrorMap(e -> {
-                        if(!(e instanceof AppsmithPluginException)) {
+                        if (!(e instanceof AppsmithPluginException)) {
                             return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
                         }
 
@@ -234,11 +242,17 @@ public class MongoPlugin extends BasePlugin {
 
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication != null) {
-                builder
-                        .append(urlEncode(authentication.getUsername()))
-                        .append(':')
-                        .append(urlEncode(authentication.getPassword()))
-                        .append('@');
+                final boolean hasUsername = StringUtils.hasText(authentication.getUsername());
+                final boolean hasPassword = StringUtils.hasText(authentication.getPassword());
+                if (hasUsername)  {
+                    builder.append(urlEncode(authentication.getUsername()));
+                }
+                if (hasPassword)  {
+                    builder.append(':').append(urlEncode(authentication.getPassword()));
+                }
+                if (hasUsername || hasPassword)  {
+                    builder.append('@');
+                }
             }
 
             for (Endpoint endpoint : endpoints) {
@@ -305,25 +319,11 @@ public class MongoPlugin extends BasePlugin {
             }
 
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            if (authentication == null) {
-                invalids.add("Missing authentication details.");
-
-            } else {
+            if (authentication != null) {
                 DBAuth.Type authType = authentication.getAuthType();
 
-                if (authType != null && VALID_AUTH_TYPES.contains(authType)) {
-
-                    if (StringUtils.isEmpty(authentication.getUsername())) {
-                        invalids.add("Missing username for authentication. Needed because authType is " + authType + ".");
-                    }
-
-                    if (StringUtils.isEmpty(authentication.getPassword())) {
-                        invalids.add("Missing password for authentication. Needed because authType is " + authType + ".");
-                    }
-
-                } else {
+                if (authType == null || !VALID_AUTH_TYPES.contains(authType)) {
                     invalids.add("Invalid authType. Must be one of " + VALID_AUTH_TYPES_STR);
-
                 }
 
                 if (StringUtils.isEmpty(authentication.getDatabaseName())) {
@@ -341,12 +341,12 @@ public class MongoPlugin extends BasePlugin {
                     .flatMap(mongoClient -> {
                         return Mono.zip(Mono.just(mongoClient),
                                 Mono.from(mongoClient.getDatabase("admin").runCommand(new Document(
-                                "listDatabases", 1))));
+                                        "listDatabases", 1))));
                     })
                     .doOnSuccess(tuple -> {
                         MongoClient mongoClient = tuple.getT1();
 
-                        if(mongoClient != null) {
+                        if (mongoClient != null) {
                             mongoClient.close();
                         }
                     })
@@ -358,7 +358,7 @@ public class MongoPlugin extends BasePlugin {
                          *    the MongoDB instance is valid. It also means we don't have access to the admin database,
                          *    but that's okay for our purposes here.
                          */
-                        if(error instanceof MongoCommandException &&
+                        if (error instanceof MongoCommandException &&
                                 ((MongoCommandException) error).getErrorCodeName().equals("Unauthorized")) {
                             return Mono.just(new DatasourceTestResult());
                         }

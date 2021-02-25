@@ -1,0 +1,164 @@
+{
+  "editor": [
+    {
+      "sectionName": "",
+      "id": 1,
+      "children": [
+        {
+          "label": "Action",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "LIST",
+          "options": [
+            {
+              "label": "-- Select --",
+              "value": ""
+            },
+            {
+              "label": "List files in bucket",
+              "value": "LIST"
+            },
+            {
+              "label": "Create a new file",
+              "value": "UPLOAD_FILE_FROM_BODY"
+            },
+            {
+              "label": "Read file",
+              "value": "READ_FILE"
+            },
+            {
+              "label": "Delete file",
+              "value": "DELETE_FILE"
+            }
+          ]
+        },
+        {
+          "label": "Bucket Name",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+          "controlType": "INPUT_TEXT",
+          "isRequired": true,
+          "initialValue": ""
+        },
+        {
+          "label": "File Path",
+          "configProperty": "actionConfiguration.path",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "EQUALS",
+            "value": "LIST"
+          }
+        },
+        {
+          "label": "File Data Type: Base64/Text",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
+          "controlType": "DROP_DOWN",
+          "initialValue": "NO",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "YES"
+            },
+            {
+              "label": "No",
+              "value": "NO"
+            }
+          ],
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "UPLOAD_FILE_FROM_BODY"
+          }
+        },
+        {
+          "label": "Expiry Duration of Signed URL (Minutes)",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "10080",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "UPLOAD_FILE_FROM_BODY"
+          }
+        },
+        {
+          "label": "Content",
+          "configProperty": "actionConfiguration.body",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "initialValue": "",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "UPLOAD_FILE_FROM_BODY"
+          }
+        },
+        {
+          "label": "Prefix",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "LIST"
+          }
+        },
+        {
+          "label": "Generate Signed URL",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+          "controlType": "DROP_DOWN",
+          "initialValue": "NO",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "YES"
+            },
+            {
+              "label": "No",
+              "value": "NO"
+            }
+          ],
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "LIST"
+          }
+        },
+        {
+          "label": "Expiry Duration of Signed URL (Minutes)",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "5",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+            "comparison": "NOT_EQUALS",
+            "value": "YES"
+          }
+        },
+        {
+          "label": "Base64 Encode File - Yes/No",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
+          "controlType": "DROP_DOWN",
+          "initialValue": "NO",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "YES"
+            },
+            {
+              "label": "No",
+              "value": "NO"
+            }
+          ],
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "READ_FILE"
+          }
+        }
+      ]
+    }
+  ]
+}

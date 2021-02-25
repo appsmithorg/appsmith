@@ -38,6 +38,9 @@ import { isMac } from "utils/helpers";
 import { getSelectedWidget } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import Welcome from "./Welcome";
+import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+import { Theme } from "constants/DefaultTheme";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -55,6 +58,7 @@ type EditorProps = {
   cutSelectedWidget: () => void;
   user?: User;
   selectedWidget?: string;
+  lightTheme: Theme;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -200,21 +204,23 @@ class Editor extends Component<Props> {
       );
     }
     return (
-      <DndProvider
-        backend={TouchBackend}
-        options={{
-          enableMouseEvents: true,
-        }}
-      >
-        <div>
-          <Helmet>
-            <meta charSet="utf-8" />
-            <title>Editor | Appsmith</title>
-          </Helmet>
-          <MainContainer />
-        </div>
-        <ConfirmRunModal />
-      </DndProvider>
+      <ThemeProvider theme={this.props.lightTheme}>
+        <DndProvider
+          backend={TouchBackend}
+          options={{
+            enableMouseEvents: true,
+          }}
+        >
+          <div>
+            <Helmet>
+              <meta charSet="utf-8" />
+              <title>Editor | Appsmith</title>
+            </Helmet>
+            <MainContainer />
+          </div>
+          <ConfirmRunModal />
+        </DndProvider>
+      </ThemeProvider>
     );
   }
 }
@@ -229,6 +235,7 @@ const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),
   selectedWidget: getSelectedWidget(state),
   creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
+  lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

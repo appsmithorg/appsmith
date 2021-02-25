@@ -112,6 +112,12 @@ export const updateAndSaveLayout = (widgets: CanvasWidgetsReduxState) => {
   };
 };
 
+export const saveLayout = () => {
+  return {
+    type: ReduxActionTypes.SAVE_PAGE_INIT,
+  };
+};
+
 export const createPage = (applicationId: string, pageName: string) => {
   AnalyticsUtil.logEvent("CREATE_PAGE", {
     pageName,
@@ -149,12 +155,13 @@ export const clonePageSuccess = (
   };
 };
 
-export const updatePage = (id: string, name: string) => {
+export const updatePage = (id: string, name: string, isHidden: boolean) => {
   return {
     type: ReduxActionTypes.UPDATE_PAGE_INIT,
     payload: {
       id,
       name,
+      isHidden,
     },
   };
 };

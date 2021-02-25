@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -8,6 +9,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -59,6 +61,14 @@ import java.util.stream.StreamSupport;
  */
 public class FirestorePlugin extends BasePlugin {
 
+    private static final int ORDER_PROPERTY_INDEX = 1;
+    private static final int LIMIT_PROPERTY_INDEX = 2;
+    private static final int QUERY_PROPERTY_INDEX = 3;
+    private static final int OPERATOR_PROPERTY_INDEX = 4;
+    private static final int QUERY_VALUE_PROPERTY_INDEX = 5;
+    private static final int START_AFTER_PROPERTY_INDEX = 6;
+    private static final int END_BEFORE_PROPERTY_INDEX = 7;
+
     public FirestorePlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -70,9 +80,22 @@ public class FirestorePlugin extends BasePlugin {
         private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
+        @Deprecated
         public Mono<ActionExecutionResult> execute(Firestore connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+        }
+
+        @Override
+        public Mono<ActionExecutionResult> executeParameterized(
+                Firestore connection,
+                ExecuteActionDTO executeActionDTO,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
+
+            // Do the template substitutions.
+            prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
             final String path = actionConfiguration.getPath();
 
@@ -101,6 +124,8 @@ public class FirestorePlugin extends BasePlugin {
                         "Missing Firestore method."
                 ));
             }
+
+            final PaginationField paginationField = executeActionDTO == null ? null : executeActionDTO.getPaginationField();
 
             return Mono
                     .justOrEmpty(actionConfiguration.getBody())
@@ -132,7 +157,7 @@ public class FirestorePlugin extends BasePlugin {
                         if (method.isDocumentLevel()) {
                             return handleDocumentLevelMethod(connection, path, method, mapBody);
                         } else {
-                            return handleCollectionLevelMethod(connection, path, method, properties, mapBody);
+                            return handleCollectionLevelMethod(connection, path, method, properties, mapBody, paginationField);
                         }
                     })
                     .subscribeOn(scheduler);
@@ -220,14 +245,15 @@ public class FirestorePlugin extends BasePlugin {
         public Mono<ActionExecutionResult> handleCollectionLevelMethod(
                 Firestore connection,
                 String path,
-                com.external.plugins.Method method,
+                Method method,
                 List<Property> properties,
-                Map<String, Object> mapBody
-        ) {
+                Map<String, Object> mapBody,
+                PaginationField paginationField) {
+
             final CollectionReference collection = connection.collection(path);
 
             if (method == Method.GET_COLLECTION) {
-                return methodGetCollection(collection, properties);
+                return methodGetCollection(collection, properties, paginationField);
 
             } else if (method == Method.ADD_TO_COLLECTION) {
                 return methodAddToCollection(collection, mapBody);
@@ -240,16 +266,92 @@ public class FirestorePlugin extends BasePlugin {
             ));
         }
 
-        private Mono<ActionExecutionResult> methodGetCollection(CollectionReference query, List<Property> properties) {
-            final String orderBy = properties.size() > 1 && properties.get(1) != null ? properties.get(1).getValue() : null;
-            final int limit = properties.size() > 2 && properties.get(2) != null ? Integer.parseInt(properties.get(2).getValue()) : 10;
-            final String queryFieldPath = properties.size() > 3 && properties.get(3) != null ? properties.get(3).getValue() : null;
-            final Op operator = properties.size() > 4 && properties.get(4) != null ? Op.valueOf(properties.get(4).getValue()) : null;
-            final String queryValue = properties.size() > 5 && properties.get(5) != null ? properties.get(5).getValue() : null;
+        private String getPropertyAt(List<Property> properties, int index, String defaultValue) {
+            if (properties.size() <= index) {
+                return defaultValue;
+            }
+
+            final Property property = properties.get(index);
+            if (property == null) {
+                return defaultValue;
+            }
+
+            final String value = property.getValue();
+            return value != null ? value : defaultValue;
+        }
+
+        private Mono<ActionExecutionResult> methodGetCollection(CollectionReference query, List<Property> properties, PaginationField paginationField) {
+            final String limitString = getPropertyAt(properties, LIMIT_PROPERTY_INDEX, "10");
+            final int limit = StringUtils.isEmpty(limitString) ? 10 : Integer.parseInt(limitString);
+
+            final String queryFieldPath = getPropertyAt(properties, QUERY_PROPERTY_INDEX, null);
+
+            final String operatorString = getPropertyAt(properties, OPERATOR_PROPERTY_INDEX, null);
+            final Op operator = StringUtils.isEmpty(operatorString) ? null : Op.valueOf(operatorString);
+
+            final String queryValue = getPropertyAt(properties, QUERY_VALUE_PROPERTY_INDEX, null);
+
+            final String orderByString = getPropertyAt(properties, ORDER_PROPERTY_INDEX, "");
+            final List<String> orderings;
+            try {
+                orderings = StringUtils.isEmpty(orderByString) ? Collections.emptyList() : objectMapper.readValue(orderByString, List.class);
+            } catch (IOException e) {
+                // TODO: Investigate how many actions are using this today on prod.
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, orderByString, e));
+            }
+
+            Map<String, Object> startAfterTemp = null;
+            if (PaginationField.NEXT.equals(paginationField)) {
+                final String startAfterJson = getPropertyAt(properties, START_AFTER_PROPERTY_INDEX, "{}");
+                try {
+                    startAfterTemp = StringUtils.isEmpty(startAfterJson) ? Collections.emptyMap() : objectMapper.readValue(startAfterJson, Map.class);
+                } catch (IOException e) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, startAfterJson, e));
+                }
+            }
+
+            Map<String, Object> endBeforeTemp = null;
+            if (PaginationField.PREV.equals(paginationField)) {
+                final String endBeforeJson = getPropertyAt(properties, END_BEFORE_PROPERTY_INDEX, "{}");
+                try {
+                    endBeforeTemp = StringUtils.isEmpty(endBeforeJson) ? Collections.emptyMap() : objectMapper.readValue(endBeforeJson, Map.class);
+                } catch (IOException e) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, endBeforeJson, e));
+                }
+            }
+
+            final Map<String, Object> startAfter = startAfterTemp;
+            final Map<String, Object> endBefore = endBeforeTemp;
+
+            if (paginationField != null && CollectionUtils.isEmpty(orderings)) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Cannot do pagination without specifying an ordering."
+                ));
+            }
 
             return Mono.just(query)
                     // Apply ordering, if provided.
-                    .map(query1 -> StringUtils.isEmpty(orderBy) ? query1 : query1.orderBy(orderBy))
+                    .map(query1 -> {
+                        Query q = query1;
+                        final List<Object> startAfterValues = new ArrayList<>();
+                        final List<Object> endBeforeValues = new ArrayList<>();
+                        for (final String field : orderings) {
+                            q = q.orderBy(field);
+                            if (startAfter != null) {
+                                startAfterValues.add(startAfter.get(field));
+                            }
+                            if (endBefore != null) {
+                                endBeforeValues.add(endBefore.get(field));
+                            }
+                        }
+                        if (PaginationField.NEXT.equals(paginationField) && !CollectionUtils.isEmpty(startAfter)) {
+                            q = q.startAfter(startAfterValues.toArray());
+                        } else if (PaginationField.PREV.equals(paginationField) && !CollectionUtils.isEmpty(endBefore)) {
+                            q = q.endBefore(endBeforeValues.toArray());
+                        }
+                        return q;
+                    })
                     // Apply where condition, if provided.
                     .flatMap(query1 -> {
                         if (StringUtils.isEmpty(queryFieldPath) || operator == null || queryValue == null) {

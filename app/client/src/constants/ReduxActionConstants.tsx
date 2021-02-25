@@ -47,6 +47,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   SAVE_PAGE_SUCCESS: "SAVE_PAGE_SUCCESS",
   UPDATE_LAYOUT: "UPDATE_LAYOUT",
   WIDGET_ADD_CHILD: "WIDGET_ADD_CHILD",
+  WIDGET_CHILD_ADDED: "WIDGET_CHILD_ADDED",
   WIDGET_REMOVE_CHILD: "WIDGET_REMOVE_CHILD",
   WIDGET_MOVE: "WIDGET_MOVE",
   WIDGET_RESIZE: "WIDGET_RESIZE",
@@ -126,6 +127,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   LISTEN_ADD_INPUT_WIDGET: "LISTEN_ADD_INPUT_WIDGET",
   FETCH_PUBLISHED_PAGE_INIT: "FETCH_PUBLISHED_PAGE_INIT",
   FETCH_PUBLISHED_PAGE_SUCCESS: "FETCH_PUBLISHED_PAGE_SUCCESS",
+  REDIRECT_AUTHORIZATION_CODE: "REDIRECT_AUTHORIZATION_CODE",
   DELETE_DATASOURCE_INIT: "DELETE_DATASOURCE_INIT",
   DELETE_DATASOURCE_SUCCESS: "DELETE_DATASOURCE_SUCCESS",
   STORE_AS_DATASOURCE_INIT: "STORE_AS_DATASOURCE_INIT",
@@ -457,6 +459,11 @@ export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
   meta: M;
 }
 
+export interface ReduxActionWithCallbacks<T, S, E> extends ReduxAction<T> {
+  onSuccess?: ReduxAction<S>;
+  onError?: ReduxAction<E>;
+}
+
 export interface EvaluationReduxAction<T> extends ReduxAction<T> {
   postEvalActions?: ReduxAction<any>[];
 }
@@ -496,6 +503,7 @@ export interface Page {
   pageId: string;
   isDefault: boolean;
   latest?: boolean;
+  isHidden?: boolean;
 }
 
 export interface ClonePageSuccessPayload {

@@ -8,7 +8,7 @@ import { SelectComponentsConfig } from "react-select/src/components";
 export type DropdownProps = {
   options: Array<{
     value: string;
-    label: string;
+    label?: string;
   }>;
   input: WrappedFieldInputProps;
   placeholder: string;

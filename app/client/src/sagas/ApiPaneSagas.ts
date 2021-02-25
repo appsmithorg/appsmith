@@ -338,6 +338,8 @@ function* handleCreateNewApiActionSaga(
       (a: ActionData) => a.config.pageId === pageId,
     );
     const newActionName = createNewApiName(pageActions, pageId);
+    // Note: Do NOT send pluginId on top level here.
+    // It breaks embedded rest datasource flow.
     yield put(
       createActionRequest({
         actionConfiguration: DEFAULT_API_ACTION_CONFIG,
