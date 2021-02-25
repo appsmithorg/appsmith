@@ -865,17 +865,22 @@ function* batchUpdateWidgetPropertySaga(
     }
   });
 
-  propertyUpdates.dynamicTriggerPathList = dynamicTriggerPathListUpdates.reduce(
+  const dynamicTriggerPathList = dynamicTriggerPathListUpdates.reduce(
     applyDynamicPathUpdates,
     currentDynamicTriggerPathList,
   );
-  propertyUpdates.dynamicBindingPathList = dynamicBindingPathListUpdates.reduce(
+  const dynamicBindingPathList = dynamicBindingPathListUpdates.reduce(
     applyDynamicPathUpdates,
     currentDynamicBindingPathList,
   );
 
   // Send the updates
-  yield put(updateWidgetProperty(widgetId, propertyUpdates));
+  yield put(
+    updateWidgetProperty(widgetId, propertyUpdates, {
+      dynamicTriggerPathList,
+      dynamicBindingPathList,
+    }),
+  );
 
   // Save the layout
   yield put(saveLayout());
