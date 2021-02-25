@@ -1,4 +1,10 @@
-import { removeSpecialChars } from "utils/helpers";
+const removeSpecialChars = (value: string, limit?: number) => {
+  const separatorRegex = /\W+/;
+  return value
+    .split(separatorRegex)
+    .join("_")
+    .slice(0, limit || 30);
+};
 
 export const getAllTableColumnKeys = (
   tableData: Array<Record<string, unknown>>,

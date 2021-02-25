@@ -13,7 +13,6 @@ import {
 import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { cloneDeep, isString } from "lodash";
-import { removeSpecialChars } from "utils/helpers";
 
 export const tableWidgetPropertyPaneMigrations = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
@@ -163,6 +162,14 @@ export const tableWidgetPropertyPaneMigrations = (
     return child;
   });
   return currentDSL;
+};
+
+const removeSpecialChars = (value: string, limit?: number) => {
+  const separatorRegex = /\W+/;
+  return value
+    .split(separatorRegex)
+    .join("_")
+    .slice(0, limit || 30);
 };
 
 export const migrateTablePrimaryColumnsBindings = (
