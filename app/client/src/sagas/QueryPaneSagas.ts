@@ -43,7 +43,6 @@ import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
-import { updateCurrentPage } from "actions/pageActions";
 
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;

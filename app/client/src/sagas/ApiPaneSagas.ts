@@ -58,7 +58,6 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { checkCurrentStep } from "./OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
-import { updateCurrentPage } from "actions/pageActions";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
