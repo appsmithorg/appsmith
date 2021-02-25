@@ -74,7 +74,6 @@ public class DynamoPlugin extends BasePlugin {
     private static final String DYNAMO_TYPE_BINARY_SET_LABEL = "BS";
     private static final String DYNAMO_TYPE_MAP_LABEL = "M";
     private static final String DYNAMO_TYPE_LIST_LABEL = "L";
-    private static final String RAW_RESPONSE_LABEL = "raw";
 
     public DynamoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -196,11 +195,6 @@ public class DynamoPlugin extends BasePlugin {
                     && !TRANSACT_GET_ITEMS_ACTION_VALUE.equals(action)) {
                 return rawResponse;
             }
-
-            /*
-             * - Transformed response has section "raw", under which raw response appears.
-             */
-            transformedResponse.put(RAW_RESPONSE_LABEL, rawResponse);
 
             /*
              * - Transform response based on action.
