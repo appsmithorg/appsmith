@@ -1,6 +1,10 @@
 import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetState } from "../BaseWidget";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import {
+  BatchPropertyUpdatePayload,
+  RenderModes,
+  WidgetType,
+} from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import {
   compare,
@@ -607,19 +611,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         if (migrated === false) {
           propertiesToAdd["migrated"] = true;
         }
+        const propertiesToUpdate: BatchPropertyUpdatePayload = {
+          modify: propertiesToAdd,
+        };
 
         const columnsIdsToDelete = without(previousColumnIds, ...newColumnIds);
         if (columnsIdsToDelete.length > 0) {
           columnsIdsToDelete.forEach((id: string) => {
             pathsToDelete.push(`primaryColumns.${id}`);
           });
-
-          super.deleteWidgetProperty(pathsToDelete);
+          propertiesToUpdate.remove = pathsToDelete;
         }
 
-        setTimeout(() => {
-          super.batchUpdateWidgetProperty(propertiesToAdd);
-        }, 1000);
+        super.batchUpdateWidgetProperty(propertiesToUpdate);
       }
     }
   };

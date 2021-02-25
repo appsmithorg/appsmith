@@ -8,6 +8,7 @@ import {
   RenderMode,
   RenderModes,
   CSSUnits,
+  BatchPropertyUpdatePayload,
 } from "constants/WidgetConstants";
 import React, { Component, ReactNode } from "react";
 import {
@@ -111,7 +112,7 @@ abstract class BaseWidget<
     }
   }
 
-  batchUpdateWidgetProperty(updates: Record<string, unknown>): void {
+  batchUpdateWidgetProperty(updates: BatchPropertyUpdatePayload): void {
     const { batchUpdateWidgetProperty } = this.context;
     const { widgetId } = this.props;
     if (batchUpdateWidgetProperty && widgetId) {
