@@ -1,5 +1,4 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/inputBindingdsl.json");
 const pages = require("../../../../locators/Pages.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
@@ -25,6 +24,7 @@ describe("Loadash basic test with input Widget", function() {
   it("Input widget test with default value for loadash function", function() {
     cy.SearchEntityandOpen("Input2");
     cy.get(widgetsPage.defaultInput).type(testdata.loadashInput);
+    cy.wait(300);
     cy.get(commonlocators.editPropCrossButton).click();
     cy.wait("@updateLayout").should(
       "have.nested.property",

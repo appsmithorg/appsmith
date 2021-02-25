@@ -291,8 +291,10 @@ export const useDynamicAppLayout = () => {
     );
   };
 
+  const debouncedResize = useCallback(debounce(resizeToLayout, 250), []);
+
   useEffect(() => {
-    resizeToLayout(screenWidth, appLayout);
+    debouncedResize(screenWidth, appLayout);
   }, [screenWidth]);
 
   useEffect(() => {

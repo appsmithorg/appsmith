@@ -259,6 +259,8 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
     "response.body.responseMeta.status",
     200,
   );
+  //For layout to fit to the device width
+  cy.wait(1000);
 });
 
 Cypress.Commands.add("DeleteApp", (appName) => {

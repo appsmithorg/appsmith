@@ -96,7 +96,7 @@ export const MainContainerLayoutControl: React.FC<any> = () => {
       ...each,
       value: each.name,
       onSelect: () =>
-        updateLayout({
+        updateAppLayout({
           type: each.type,
           width: each.width,
         }),
@@ -113,7 +113,7 @@ export const MainContainerLayoutControl: React.FC<any> = () => {
     getThemeDetails(state, ThemeMode.LIGHT),
   );
 
-  const updateLayout = (layoutConfig: AppLayoutConfig) => {
+  const updateAppLayout = (layoutConfig: AppLayoutConfig) => {
     const { type, width } = layoutConfig;
     dispatch(
       updateApplicationLayout(appId || "", {
