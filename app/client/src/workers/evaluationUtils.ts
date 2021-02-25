@@ -1,16 +1,26 @@
-import { DependencyMap, isDynamicValue } from "../utils/DynamicBindingUtils";
-import { WidgetType } from "../constants/WidgetConstants";
-import { WidgetProps } from "../widgets/BaseWidget";
-import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
+import {
+  DependencyMap,
+  isChildPropertyPath,
+  isDynamicValue,
+} from "utils/DynamicBindingUtils";
+import { WidgetType } from "constants/WidgetConstants";
+import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { VALIDATORS } from "./validations";
 import { Diff } from "deep-diff";
 import {
   DataTree,
+  DataTreeAction,
   DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
-} from "../entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
+
+// Dropdown1.options[1].value -> Dropdown1.options[1]
+// Dropdown1.options[1] -> Dropdown1.options
+// Dropdown1.options -> Dropdown1
+export const IMMEDIATE_PARENT_REGEX = /^(.*)(\..*|\[.*\])$/;
 
 export enum DataTreeDiffEvent {
   NEW = "NEW",
@@ -32,17 +42,24 @@ export class CrashingError extends Error {}
 export const convertPathToString = (arrPath: Array<string | number>) => {
   let string = "";
   arrPath.forEach((segment) => {
-    if (typeof segment === "string") {
+    if (isInt(segment)) {
+      string = string + "[" + segment + "]";
+    } else {
       if (string.length !== 0) {
         string = string + ".";
       }
       string = string + segment;
-    } else {
-      string = string + "[" + segment + "]";
     }
   });
   return string;
 };
+
+// Todo: improve the logic here
+// Right now NaN, Infinity, floats, everything works
+function isInt(val: string | number): boolean {
+  if (typeof val === "number") return true;
+  return !isNaN(parseInt(val));
+}
 
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
@@ -106,20 +123,16 @@ export const translateDiffEventToDataTreeDiffEvent = (
       break;
     }
     case "A": {
-      break;
+      return translateDiffEventToDataTreeDiffEvent({
+        ...difference.item,
+        path: [...difference.path, difference.index],
+      });
     }
     default: {
       break;
     }
   }
   return result;
-};
-
-export const isPropertyPathOrNestedPath = (
-  path: string,
-  comparePath: string,
-): boolean => {
-  return path === comparePath || comparePath.startsWith(`${path}.`);
 };
 
 /*
@@ -130,14 +143,14 @@ export const isPropertyPathOrNestedPath = (
 export const addDependantsOfNestedPropertyPaths = (
   parentPaths: Array<string>,
   inverseMap: DependencyMap,
-): Array<string> => {
+): Set<string> => {
   const withNestedPaths: Set<string> = new Set();
   const dependantNodes = Object.keys(inverseMap);
   parentPaths.forEach((propertyPath) => {
     withNestedPaths.add(propertyPath);
     dependantNodes
       .filter((dependantNodePath) =>
-        isPropertyPathOrNestedPath(propertyPath, dependantNodePath),
+        isChildPropertyPath(propertyPath, dependantNodePath),
       )
       .forEach((dependantNodePath) => {
         inverseMap[dependantNodePath].forEach((path) => {
@@ -145,10 +158,10 @@ export const addDependantsOfNestedPropertyPaths = (
         });
       });
   });
-  return [...withNestedPaths.values()];
+  return withNestedPaths;
 };
 
-export function isWidget(entity: DataTreeEntity): boolean {
+export function isWidget(entity: DataTreeEntity): entity is DataTreeWidget {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -156,7 +169,7 @@ export function isWidget(entity: DataTreeEntity): boolean {
   );
 }
 
-export function isAction(entity: DataTreeEntity): boolean {
+export function isAction(entity: DataTreeEntity): entity is DataTreeAction {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -169,7 +182,7 @@ export function isAction(entity: DataTreeEntity): boolean {
 export const removeFunctions = (value: any) => {
   if (_.isFunction(value)) {
     return "Function call";
-  } else if (_.isObject(value) && _.some(value, _.isFunction)) {
+  } else if (_.isObject(value)) {
     return JSON.parse(JSON.stringify(value));
   } else {
     return value;
@@ -197,17 +210,18 @@ export const makeParentsDependOnChildren = (
   });
   return depMap;
 };
+
 export const makeParentsDependOnChild = (
   depMap: DependencyMap,
   child: string,
 ): DependencyMap => {
   const result: DependencyMap = depMap;
   let curKey = child;
-  const rgx = /^(.*)\..*$/;
+
   let matches: Array<string> | null;
   // Note: The `=` is intentional
   // Stops looping when match is null
-  while ((matches = curKey.match(rgx)) !== null) {
+  while ((matches = curKey.match(IMMEDIATE_PARENT_REGEX)) !== null) {
     const parentKey = matches[1];
     // Todo: switch everything to set.
     const existing = new Set(result[parentKey] || []);
@@ -216,6 +230,25 @@ export const makeParentsDependOnChild = (
     curKey = parentKey;
   }
   return result;
+};
+
+// The idea is to find the immediate parents of the property paths
+// e.g. For Table1.selectedRow.email, the parent is Table1.selectedRow
+export const getImmediateParentsOfPropertyPaths = (
+  propertyPaths: Array<string>,
+): Array<string> => {
+  // Use a set to ensure that we dont have duplicates
+  const parents: Set<string> = new Set();
+
+  propertyPaths.forEach((path) => {
+    const matches = path.match(IMMEDIATE_PARENT_REGEX);
+
+    if (matches !== null) {
+      parents.add(matches[1]);
+    }
+  });
+
+  return Array.from(parents);
 };
 
 export function validateWidgetProperty(
@@ -245,14 +278,8 @@ export function validateWidgetProperty(
 export function getValidatedTree(
   widgetConfigMap: WidgetTypeConfigMap,
   tree: DataTree,
-  only?: Set<string>,
 ) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
-    if (only && only.size) {
-      if (!only.has(entityKey)) {
-        return tree;
-      }
-    }
     const entity = tree[entityKey] as DataTreeWidget;
     if (!isWidget(entity)) {
       return tree;
@@ -298,12 +325,142 @@ export function getValidatedTree(
   }, tree);
 }
 
-export const isChildPropertyPath = (
-  parentPropertyPath: string,
-  childPropertyPath: string,
-): boolean => {
-  const regexTest = new RegExp(
-    `^${parentPropertyPath.replace(".", "\\.")}(\\.\\S+)?$`,
-  );
-  return regexTest.test(childPropertyPath);
+export const getAllPaths = (
+  records: any,
+  curKey = "",
+  result: Record<string, true> = {},
+): Record<string, true> => {
+  // Add the key if it exists
+  if (curKey) result[curKey] = true;
+
+  if (Array.isArray(records)) {
+    for (let i = 0; i < records.length; i++) {
+      const tempKey = curKey ? `${curKey}[${i}]` : `${i}`;
+      getAllPaths(records[i], tempKey, result);
+    }
+  } else if (typeof records === "object") {
+    for (const key in records) {
+      const tempKey = curKey ? `${curKey}.${key}` : `${key}`;
+      getAllPaths(records[key], tempKey, result);
+    }
+  }
+  return result;
+};
+export const trimDependantChangePaths = (
+  changePaths: Set<string>,
+  dependencyMap: DependencyMap,
+): Array<string> => {
+  const trimmedPaths = [];
+  for (const path of changePaths) {
+    let foundADependant = false;
+    if (path in dependencyMap) {
+      const dependants = dependencyMap[path];
+      for (const dependantPath of dependants) {
+        if (changePaths.has(dependantPath)) {
+          foundADependant = true;
+          break;
+        }
+      }
+    }
+    if (!foundADependant) {
+      trimmedPaths.push(path);
+    }
+  }
+  return trimmedPaths;
+};
+
+export const addFunctions = (dataTree: Readonly<DataTree>): DataTree => {
+  const withFunction: DataTree = _.cloneDeep(dataTree);
+  withFunction.actionPaths = [];
+  Object.keys(withFunction).forEach((entityName) => {
+    const entity = withFunction[entityName];
+    if (isAction(entity)) {
+      const runFunction = function(
+        this: DataTreeAction,
+        onSuccess: string,
+        onError: string,
+        params = "",
+      ) {
+        return {
+          type: "RUN_ACTION",
+          payload: {
+            actionId: this.actionId,
+            onSuccess: onSuccess ? `{{${onSuccess.toString()}}}` : "",
+            onError: onError ? `{{${onError.toString()}}}` : "",
+            params,
+          },
+        };
+      };
+      _.set(withFunction, `${entityName}.run`, runFunction);
+      withFunction.actionPaths &&
+        withFunction.actionPaths.push(`${entityName}.run`);
+    }
+  });
+  withFunction.navigateTo = function(
+    pageNameOrUrl: string,
+    params: Record<string, string>,
+    target?: string,
+  ) {
+    return {
+      type: "NAVIGATE_TO",
+      payload: { pageNameOrUrl, params, target },
+    };
+  };
+  withFunction.actionPaths.push("navigateTo");
+
+  withFunction.showAlert = function(message: string, style: string) {
+    return {
+      type: "SHOW_ALERT",
+      payload: { message, style },
+    };
+  };
+  withFunction.actionPaths.push("showAlert");
+
+  withFunction.showModal = function(modalName: string) {
+    return {
+      type: "SHOW_MODAL_BY_NAME",
+      payload: { modalName },
+    };
+  };
+  withFunction.actionPaths.push("showModal");
+
+  withFunction.closeModal = function(modalName: string) {
+    return {
+      type: "CLOSE_MODAL",
+      payload: { modalName },
+    };
+  };
+  withFunction.actionPaths.push("closeModal");
+
+  withFunction.storeValue = function(key: string, value: string) {
+    return {
+      type: "STORE_VALUE",
+      payload: { key, value },
+    };
+  };
+  withFunction.actionPaths.push("storeValue");
+
+  withFunction.download = function(data: string, name: string, type: string) {
+    return {
+      type: "DOWNLOAD",
+      payload: { data, name, type },
+    };
+  };
+  withFunction.actionPaths.push("download");
+
+  withFunction.copyToClipboard = function(
+    data: string,
+    options?: { debug?: boolean; format?: string },
+  ) {
+    return {
+      type: "COPY_TO_CLIPBOARD",
+      payload: {
+        data,
+        options: { debug: options?.debug, format: options?.format },
+      },
+    };
+  };
+  withFunction.actionPaths.push("copyToClipboard");
+
+  return withFunction;
 };

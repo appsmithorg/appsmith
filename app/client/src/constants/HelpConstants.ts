@@ -27,6 +27,10 @@ export const HelpMap = {
     path: "/widget-reference/datepicker",
     searchKey: "DatePicker",
   },
+  DATE_PICKER_WIDGET2: {
+    path: "/widget-reference/datepicker",
+    searchKey: "DatePicker",
+  },
   TABLE_WIDGET: {
     path: "/widget-reference/table",
     searchKey: "Table",
@@ -92,12 +96,16 @@ export const HelpMap = {
     searchKey: "Apis",
   },
   API_BINDING: {
-    path: "/core-concepts/apis/taking-inputs-from-widgets",
+    path: "/core-concepts/capturing-data-write",
     searchKey: "Taking Inputs from Widgets",
   },
   DATASOURCE_FORM: {
     path: "/core-concepts/connecting-to-databases",
     searchKey: "Connecting to databases",
+  },
+  SWITCH_WIDGET: {
+    path: "/widget-reference/switch",
+    searchKey: "Switch",
   },
 };
 

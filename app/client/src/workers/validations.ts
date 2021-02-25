@@ -11,6 +11,7 @@ import _, {
   isBoolean,
   isNumber,
   isObject,
+  isPlainObject,
   isString,
   isUndefined,
   toNumber,
@@ -238,7 +239,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     const isValidTableData = every(parsed, (datum) => {
       return (
-        isObject(datum) &&
+        isPlainObject(datum) &&
         Object.keys(datum).filter((key) => isString(key) && key.length === 0)
           .length === 0
       );
@@ -423,14 +424,11 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
-    const today = moment()
-      .hour(0)
-      .minute(0)
-      .second(0)
-      .millisecond(0);
-    const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
+    const dateFormat =
+      props.version === 2
+        ? ISO_DATE_FORMAT
+        : props.dateFormat || ISO_DATE_FORMAT;
 
-    const todayDateString = today.format(dateFormat);
     if (dateString === undefined) {
       return {
         isValid: false,
@@ -442,10 +440,16 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
     const isValid = moment(dateString, dateFormat).isValid();
-    const parsed = isValid ? dateString : todayDateString;
+    if (!isValid) {
+      return {
+        isValid: isValid,
+        parsed: "",
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
+      };
+    }
     return {
       isValid,
-      parsed,
+      parsed: dateString,
       message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
     };
   },
@@ -453,53 +457,131 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     dateString: string,
     props: WidgetProps,
   ): ValidationResponse => {
-    const today = moment()
-      .hour(0)
-      .minute(0)
-      .second(0)
-      .millisecond(0);
-    const dateFormat = props.dateFormat ? props.dateFormat : ISO_DATE_FORMAT;
-
-    const todayDateString = today.format(dateFormat);
+    const dateFormat =
+      props.version === 2
+        ? ISO_DATE_FORMAT
+        : props.dateFormat || ISO_DATE_FORMAT;
     if (dateString === undefined) {
       return {
         isValid: false,
         parsed: "",
         message:
-          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + props.dateFormat
-            ? props.dateFormat
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + dateFormat
+            ? dateFormat
             : "",
       };
     }
     const parsedCurrentDate = moment(dateString, dateFormat);
-    let isValid = parsedCurrentDate.isValid();
-    const parsedMinDate = moment(props.minDate, dateFormat);
-    const parsedMaxDate = moment(props.maxDate, dateFormat);
-
-    // checking for max/min date range
-    if (isValid) {
-      if (
-        parsedMinDate.isValid() &&
-        parsedCurrentDate.isBefore(parsedMinDate)
-      ) {
-        isValid = false;
-      }
-
-      if (
-        isValid &&
-        parsedMaxDate.isValid() &&
-        parsedCurrentDate.isAfter(parsedMaxDate)
-      ) {
-        isValid = false;
-      }
+    const isValid = parsedCurrentDate.isValid();
+    if (!isValid) {
+      return {
+        isValid: isValid,
+        parsed: "",
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+      };
     }
-
-    const parsed = isValid ? dateString : todayDateString;
-
     return {
-      isValid,
-      parsed,
-      message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+      isValid: isValid,
+      parsed: dateString,
+      message: "",
+    };
+  },
+  [VALIDATION_TYPES.MIN_DATE]: (
+    dateString: string,
+    props: WidgetProps,
+  ): ValidationResponse => {
+    const dateFormat =
+      props.version === 2
+        ? ISO_DATE_FORMAT
+        : props.dateFormat || ISO_DATE_FORMAT;
+    if (dateString === undefined) {
+      return {
+        isValid: false,
+        parsed: "",
+        message:
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + dateFormat
+            ? dateFormat
+            : "",
+      };
+    }
+    const parsedMinDate = moment(dateString, dateFormat);
+    let isValid = parsedMinDate.isValid();
+    if (!props.defaultDate) {
+      return {
+        isValid: isValid,
+        parsed: dateString,
+        message: "",
+      };
+    }
+    const parsedDefaultDate = moment(props.defaultDate, dateFormat);
+
+    if (
+      isValid &&
+      parsedDefaultDate.isValid() &&
+      parsedDefaultDate.isBefore(parsedMinDate)
+    ) {
+      isValid = false;
+    }
+    if (!isValid) {
+      return {
+        isValid: isValid,
+        parsed: "",
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+      };
+    }
+    return {
+      isValid: isValid,
+      parsed: dateString,
+      message: "",
+    };
+  },
+  [VALIDATION_TYPES.MAX_DATE]: (
+    dateString: string,
+    props: WidgetProps,
+  ): ValidationResponse => {
+    const dateFormat =
+      props.version === 2
+        ? ISO_DATE_FORMAT
+        : props.dateFormat || ISO_DATE_FORMAT;
+    if (dateString === undefined) {
+      return {
+        isValid: false,
+        parsed: "",
+        message:
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + dateFormat
+            ? dateFormat
+            : "",
+      };
+    }
+    const parsedMaxDate = moment(dateString, dateFormat);
+    let isValid = parsedMaxDate.isValid();
+    if (!props.defaultDate) {
+      return {
+        isValid: isValid,
+        parsed: dateString,
+        message: "",
+      };
+    }
+    const parsedDefaultDate = moment(props.defaultDate, dateFormat);
+
+    if (
+      isValid &&
+      parsedDefaultDate.isValid() &&
+      parsedDefaultDate.isAfter(parsedMaxDate)
+    ) {
+      isValid = false;
+    }
+    if (!isValid) {
+      return {
+        isValid: isValid,
+        parsed: "",
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date R`,
+      };
+    }
+    return {
+      isValid: isValid,
+      parsed: dateString,
+      message: "",
     };
   },
   [VALIDATION_TYPES.ACTION_SELECTOR]: (value: any): ValidationResponse => {
@@ -663,6 +745,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         }
       } else {
         try {
+          if (value === "") {
+            return {
+              isValid: true,
+              parsed: -1,
+            };
+          }
           const parsed = toNumber(value);
           return {
             isValid: true,
@@ -680,6 +768,61 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       isValid: true,
       parsed: values,
     };
+  },
+  [VALIDATION_TYPES.COLUMN_PROPERTIES_ARRAY]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ) => {
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+      value,
+      props,
+      dataTree,
+    );
+    if (!isValid) {
+      return {
+        isValid,
+        parsed,
+        transformed: parsed,
+        message: "",
+      };
+    }
+    const isValidProperty = (data: any) =>
+      isString(data) || isNumber(data) || isBoolean(data);
+    const isValidColumns = every(parsed, (datum: any) => {
+      const validatedResponse: {
+        isValid: boolean;
+        parsed: Record<string, unknown>;
+        message?: string;
+      } = VALIDATORS[VALIDATION_TYPES.OBJECT](datum, props, dataTree);
+      const isValidColumn = validatedResponse.isValid;
+      if (isValidColumn) {
+        for (const key in validatedResponse.parsed) {
+          const columnProperty = validatedResponse.parsed[key];
+          let isValidColumnProperty = true;
+          if (Array.isArray(columnProperty)) {
+            isValidColumnProperty = every(columnProperty, (data: any) => {
+              return isValidProperty(data);
+            });
+          } else if (!isObject(columnProperty)) {
+            isValidColumnProperty = isValidProperty(columnProperty);
+          }
+          if (!isValidColumnProperty) {
+            validatedResponse.parsed[key] = "";
+          }
+        }
+      }
+      return isValidColumn;
+    });
+    if (!isValidColumns) {
+      return {
+        isValid: isValidColumns,
+        parsed: [],
+        transformed: parsed,
+        message: "",
+      };
+    }
+    return { isValid, parsed, transformed: parsed };
   },
   [VALIDATION_TYPES.LAT_LONG]: (unparsedValue: {
     lat?: number;

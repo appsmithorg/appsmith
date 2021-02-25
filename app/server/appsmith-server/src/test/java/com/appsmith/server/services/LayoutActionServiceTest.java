@@ -11,6 +11,8 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
+import com.appsmith.server.dtos.LayoutActionUpdateDTO;
+import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -37,7 +39,10 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -162,6 +167,7 @@ public class LayoutActionServiceTest {
                     updates.setExecuteOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
+                    updates.setDatasource(datasource);
                     return layoutActionService.updateAction(savedAction.getId(), updates);
                 })
                 .flatMap(savedAction -> newActionService.createAction(unreferencedAction))
@@ -179,10 +185,10 @@ public class LayoutActionServiceTest {
                 .create(resultMono)
                 .assertNext(page -> {
                     assertThat(page.getLayouts()).hasSize(1);
-                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(2);
-                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(0)).hasSize(1);
-                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(0).stream().anyMatch(x -> x.getName().equalsIgnoreCase("query2"))).isTrue();
-                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions().get(1).stream().anyMatch(x -> x.getName().equalsIgnoreCase("query1"))).isTrue();
+                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(1);
+                    Set<DslActionDTO> dslActionDTOS = page.getLayouts().get(0).getLayoutOnLoadActions().get(0);
+                    assertThat(dslActionDTOS).hasSize(2);
+                    assertThat(dslActionDTOS.stream().map(dto -> dto.getName()).collect(Collectors.toSet())).containsAll(Set.of("query1", "query2"));
                 })
                 .verifyComplete();
     }
@@ -213,7 +219,7 @@ public class LayoutActionServiceTest {
 
         ActionDTO createdAction = newActionService.createAction(action).block();
 
-        Layout firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 
 
         RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
@@ -222,7 +228,7 @@ public class LayoutActionServiceTest {
         refactorNameDTO.setOldName("beforeNameChange");
         refactorNameDTO.setNewName("PostNameChange");
 
-        Layout postNameChangeLayout = layoutActionService.refactorActionName(refactorNameDTO).block();
+        LayoutDTO postNameChangeLayout = layoutActionService.refactorActionName(refactorNameDTO).block();
 
         Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), READ_ACTIONS);
 
@@ -235,11 +241,152 @@ public class LayoutActionServiceTest {
                     DslActionDTO actionDTO = postNameChangeLayout.getLayoutOnLoadActions().get(0).iterator().next();
                     assertThat(actionDTO.getName()).isEqualTo("PostNameChange");
 
-//                    JSONObject newDsl = new JSONObject(Map.of("widgetName", "firstWidget", "mustacheProp", "{{ PostNameChange.data }}"));
                     dsl.put("testField", "{{ PostNameChange.data }}");
                     assertThat(postNameChangeLayout.getDsl()).isEqualTo(dsl);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void refactorActionNameToDeletedName() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("Query1");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Layout layout = testPage.getLayouts().get(0);
+
+        ActionDTO firstAction = newActionService.createAction(action).block();
+
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+        applicationPageService.publish(testPage.getApplicationId()).block();
+
+        newActionService.deleteUnpublishedAction(firstAction.getId()).block();
+
+        // Create another action with the same name as the erstwhile deleted action
+        action.setId(null);
+        ActionDTO secondAction = newActionService.createAction(action).block();
+
+        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
+        refactorNameDTO.setPageId(testPage.getId());
+        refactorNameDTO.setLayoutId(firstLayout.getId());
+        refactorNameDTO.setOldName("Query1");
+        refactorNameDTO.setNewName("NewActionName");
+
+        layoutActionService.refactorActionName(refactorNameDTO).block();
+
+        Mono<NewAction> postNameChangeActionMono = newActionService.findById(secondAction.getId(), READ_ACTIONS);
+
+        StepVerifier
+                .create(postNameChangeActionMono)
+                .assertNext(updatedAction -> {
+
+                    assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("NewActionName");
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void actionExecuteOnLoadChangeOnUpdateLayout() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("firstAction");
+        action1.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration1 = new ActionConfiguration();
+        actionConfiguration1.setHttpMethod(HttpMethod.GET);
+        action1.setActionConfiguration(actionConfiguration1);
+        action1.setDatasource(datasource);
+
+        ActionDTO action2 = new ActionDTO();
+        action2.setName("secondAction");
+        action2.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration2 = new ActionConfiguration();
+        actionConfiguration2.setHttpMethod(HttpMethod.GET);
+        action2.setActionConfiguration(actionConfiguration2);
+        action2.setDatasource(datasource);
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        dsl.put("dynamicBindingPathList", temp);
+        dsl.put("testField", "{{ firstAction.data }}");
+
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+
+        ActionDTO createdAction1 = newActionService.createAction(action1).block();
+        ActionDTO createdAction2 = newActionService.createAction(action2).block();
+
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+
+        StepVerifier.create(updateLayoutMono)
+                .assertNext(updatedLayout -> {
+                    log.debug("{}", updatedLayout.getMessages());
+                    DslActionDTO actionDTO = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
+                    assertThat(actionDTO.getName()).isEqualTo("firstAction");
+
+                    List<LayoutActionUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
+                    assertThat(actionUpdates.size()).isEqualTo(1);
+                    assertThat(actionUpdates.get(0).getName()).isEqualTo("firstAction");
+                    assertThat(actionUpdates.get(0).getExecuteOnLoad()).isTrue();
+                })
+                .verifyComplete();
+
+        StepVerifier.create(newActionService.findById(createdAction1.getId()))
+                .assertNext(newAction -> assertThat(newAction.getUnpublishedAction().getExecuteOnLoad()).isTrue());
+
+        StepVerifier.create(newActionService.findById(createdAction2.getId()))
+                .assertNext(newAction -> assertThat(newAction.getUnpublishedAction().getExecuteOnLoad()).isFalse());
+
+        dsl = new JSONObject();
+        dsl.put("widgetName", "firstWidget");
+        temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        dsl.put("dynamicBindingPathList", temp);
+        dsl.put("testField", "{{ secondAction.data }}");
+
+        layout.setDsl(dsl);
+
+        updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+
+        StepVerifier.create(updateLayoutMono)
+                .assertNext(updatedLayout -> {
+                    log.debug("{}", updatedLayout.getMessages());
+                    DslActionDTO actionDTO = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
+                    assertThat(actionDTO.getName()).isEqualTo("secondAction");
+
+                    List<LayoutActionUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
+                    assertThat(actionUpdates.size()).isEqualTo(2);
+
+                    Optional<LayoutActionUpdateDTO> firstActionUpdateOptional = actionUpdates.stream().filter(actionUpdate -> actionUpdate.getName().equals("firstAction")).findFirst();
+                    LayoutActionUpdateDTO firstActionUpdate = firstActionUpdateOptional.get();
+                    assertThat(firstActionUpdate).isNotNull();
+                    assertThat(firstActionUpdate.getExecuteOnLoad()).isFalse();
+
+                    Optional<LayoutActionUpdateDTO> secondActionUpdateOptional = actionUpdates.stream().filter(actionUpdate -> actionUpdate.getName().equals("secondAction")).findFirst();
+                    LayoutActionUpdateDTO secondActionUpdate = secondActionUpdateOptional.get();
+                    assertThat(secondActionUpdate).isNotNull();
+                    assertThat(secondActionUpdate.getExecuteOnLoad()).isTrue();
+                })
+                .verifyComplete();
+
+        StepVerifier.create(newActionService.findById(createdAction1.getId()))
+                .assertNext(newAction -> assertThat(newAction.getUnpublishedAction().getExecuteOnLoad()).isFalse());
+
+        StepVerifier.create(newActionService.findById(createdAction2.getId()))
+                .assertNext(newAction -> assertThat(newAction.getUnpublishedAction().getExecuteOnLoad()).isTrue());
 
     }
+
 }

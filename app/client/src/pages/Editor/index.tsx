@@ -37,6 +37,10 @@ import {
 import { isMac } from "utils/helpers";
 import { getSelectedWidget } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import Welcome from "./Welcome";
+import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+import { Theme } from "constants/DefaultTheme";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -47,12 +51,14 @@ type EditorProps = {
   isEditorInitialized: boolean;
   isEditorInitializeError: boolean;
   errorPublishing: boolean;
+  creatingOnboardingDatabase: boolean;
   copySelectedWidget: () => void;
   pasteCopiedWidget: () => void;
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
   user?: User;
   selectedWidget?: string;
+  lightTheme: Theme;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -179,34 +185,42 @@ class Editor extends Component<Props> {
       nextProps.errorPublishing !== this.props.errorPublishing ||
       nextProps.isEditorInitializeError !==
         this.props.isEditorInitializeError ||
+      nextProps.creatingOnboardingDatabase !==
+        this.props.creatingOnboardingDatabase ||
       nextState.registered !== this.state.registered
     );
   }
 
   public render() {
+    if (this.props.creatingOnboardingDatabase) {
+      return <Welcome />;
+    }
+
     if (!this.props.isEditorInitialized || !this.state.registered) {
       return (
-        <CenteredWrapper style={{ height: "calc(100vh - 48px)" }}>
+        <CenteredWrapper style={{ height: "calc(100vh - 35px)" }}>
           <Spinner />
         </CenteredWrapper>
       );
     }
     return (
-      <DndProvider
-        backend={TouchBackend}
-        options={{
-          enableMouseEvents: true,
-        }}
-      >
-        <div>
-          <Helmet>
-            <meta charSet="utf-8" />
-            <title>Editor | Appsmith</title>
-          </Helmet>
-          <MainContainer />
-        </div>
-        <ConfirmRunModal />
-      </DndProvider>
+      <ThemeProvider theme={this.props.lightTheme}>
+        <DndProvider
+          backend={TouchBackend}
+          options={{
+            enableMouseEvents: true,
+          }}
+        >
+          <div>
+            <Helmet>
+              <meta charSet="utf-8" />
+              <title>Editor | Appsmith</title>
+            </Helmet>
+            <MainContainer />
+          </div>
+          <ConfirmRunModal />
+        </DndProvider>
+      </ThemeProvider>
     );
   }
 }
@@ -220,6 +234,8 @@ const mapStateToProps = (state: AppState) => ({
   isEditorInitialized: getIsEditorInitialized(state),
   user: getCurrentUser(state),
   selectedWidget: getSelectedWidget(state),
+  creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
+  lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

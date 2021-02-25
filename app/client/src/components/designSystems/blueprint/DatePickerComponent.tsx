@@ -1,31 +1,46 @@
 import React from "react";
 import styled from "styled-components";
-import { labelStyle } from "constants/DefaultTheme";
+import {
+  getBorderCSSShorthand,
+  labelStyle,
+  IntentColors,
+} from "constants/DefaultTheme";
 import { ControlGroup, Classes, Label } from "@blueprintjs/core";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
-import { DateInput, DateRangeInput } from "@blueprintjs/datetime";
+import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import { DatePickerType } from "widgets/DatePickerWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { TimePrecision } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
+import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
+import ErrorTooltip from "components/editorComponents/ErrorTooltip";
+import { DATE_WIDGET_DEFAULT_VALIDATION_ERROR } from "constants/messages";
 
-const StyledControlGroup = styled(ControlGroup)`
+const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {
     .${Classes.INPUT} {
       box-shadow: none;
-      border: 1px solid;
-      border-color: ${Colors.GEYSER_LIGHT};
-      border-radius: ${(props) => props.theme.radii[1]}px;
+      color: ${Colors.OXFORD_BLUE};
+      font-size: ${(props) => props.theme.fontSizes[3]}px;
+      border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+      border-color: ${(props) =>
+        !props.isValid ? IntentColors.danger : Colors.GEYSER_LIGHT};
+      border-radius: 0;
       width: 100%;
       height: inherit;
       align-items: center;
       &:active {
-        border-color: ${Colors.HIT_GRAY};
+        border-color: ${(props) =>
+          !props.isValid ? IntentColors.danger : Colors.HIT_GRAY};
       }
       &:focus {
-        border-color: ${Colors.MYSTIC};
+        border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+        border-color: ${(props) =>
+          !props.isValid ? IntentColors.danger : "#80bdff"};
+        outline: 0;
+        box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
       }
     }
     .${Classes.INPUT_GROUP} {
@@ -44,15 +59,6 @@ const StyledControlGroup = styled(ControlGroup)`
       max-width: calc(30% - ${WIDGET_PADDING}px);
     }
   }
-  &&& {
-    input {
-      border: 1px solid ${Colors.HIT_GRAY};
-      border-radius: ${(props) => props.theme.radii[1]}px;
-      box-shadow: none;
-      color: ${Colors.OXFORD_BLUE};
-      font-size: ${(props) => props.theme.fontSizes[3]}px;
-    }
-  }
 `;
 
 class DatePickerComponent extends React.Component<
@@ -67,30 +73,49 @@ class DatePickerComponent extends React.Component<
   }
 
   componentDidUpdate(prevProps: DatePickerComponentProps) {
+    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
     if (
       this.props.selectedDate !== this.state.selectedDate &&
-      !moment(this.props.selectedDate, this.props.dateFormat).isSame(
-        moment(prevProps.selectedDate, this.props.dateFormat),
+      !moment(this.props.selectedDate, dateFormat).isSame(
+        moment(prevProps.selectedDate, dateFormat),
         "seconds",
       )
     ) {
       this.setState({ selectedDate: this.props.selectedDate });
     }
   }
+  getValidDate = (date: string, format: string) => {
+    const _date = moment(date, format);
+    return _date.isValid() ? _date.toDate() : undefined;
+  };
 
   render() {
     const now = moment();
     const year = now.get("year");
+    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
     const minDate = this.props.minDate
-      ? moment(this.props.minDate)
-      : now.clone().set({ month: 0, date: 1, year: year - 100 });
+      ? this.getValidDate(this.props.minDate, dateFormat)
+      : now
+          .clone()
+          .set({ month: 0, date: 1, year: year - 100 })
+          .toDate();
     const maxDate = this.props.maxDate
-      ? moment(this.props.maxDate)
-      : now.clone().set({ month: 11, date: 31, year: year + 20 });
-
+      ? this.getValidDate(this.props.maxDate, dateFormat)
+      : now
+          .clone()
+          .set({ month: 11, date: 31, year: year + 20 })
+          .toDate();
+    const isValid = this.state.selectedDate
+      ? this.isValidDate(this.parseDate(this.state.selectedDate))
+      : true;
+    const value =
+      isValid && this.state.selectedDate
+        ? this.parseDate(this.state.selectedDate)
+        : null;
     return (
       <StyledControlGroup
         fill
+        isValid={isValid}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
@@ -106,47 +131,70 @@ class DatePickerComponent extends React.Component<
             {this.props.label}
           </Label>
         )}
-        {this.props.datePickerType === "DATE_PICKER" ? (
-          <DateInput
-            className={this.props.isLoading ? "bp3-skeleton" : ""}
-            formatDate={this.formatDate}
-            parseDate={this.parseDate}
-            placeholder={"Select Date"}
-            disabled={this.props.isDisabled}
-            showActionsBar={true}
-            timePrecision={TimePrecision.MINUTE}
-            closeOnSelection
-            onChange={this.onDateSelected}
-            value={
-              this.state.selectedDate
-                ? this.parseDate(this.state.selectedDate)
-                : null
-            }
-            minDate={minDate.toDate()}
-            maxDate={maxDate.toDate()}
-          />
-        ) : (
-          <DateRangeInput
-            className={this.props.isLoading ? "bp3-skeleton" : ""}
-            allowSingleDayRange={true}
-            disabled={this.props.isDisabled}
-            contiguousCalendarMonths={false}
-            formatDate={this.formatDate}
-            minDate={minDate.toDate()}
-            maxDate={maxDate.toDate()}
-            closeOnSelection={true}
-          />
-        )}
+        {
+          <ErrorTooltip
+            isOpen={!isValid}
+            message={DATE_WIDGET_DEFAULT_VALIDATION_ERROR}
+          >
+            <DateInput
+              className={this.props.isLoading ? "bp3-skeleton" : ""}
+              formatDate={this.formatDate}
+              parseDate={this.parseDate}
+              placeholder={"Select Date"}
+              disabled={this.props.isDisabled}
+              showActionsBar={true}
+              timePrecision={TimePrecision.MINUTE}
+              closeOnSelection
+              onChange={this.onDateSelected}
+              value={value}
+              minDate={minDate}
+              maxDate={maxDate}
+            />
+          </ErrorTooltip>
+        }
       </StyledControlGroup>
     );
   }
 
+  isValidDate = (date: Date): boolean => {
+    let isValid = true;
+    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
+    const parsedCurrentDate = moment(date);
+    if (this.props.minDate) {
+      const parsedMinDate = moment(this.props.minDate, dateFormat);
+      if (
+        this.props.minDate &&
+        parsedMinDate.isValid() &&
+        parsedCurrentDate.isBefore(parsedMinDate)
+      ) {
+        isValid = false;
+      }
+    }
+    if (this.props.maxDate) {
+      const parsedMaxDate = moment(this.props.maxDate, dateFormat);
+      if (
+        isValid &&
+        this.props.maxDate &&
+        parsedMaxDate.isValid() &&
+        parsedCurrentDate.isAfter(parsedMaxDate)
+      ) {
+        isValid = false;
+      }
+    }
+    return isValid;
+  };
+
   formatDate = (date: Date): string => {
-    return moment(date).format(this.props.dateFormat);
+    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
+    return moment(date).format(dateFormat);
   };
 
   parseDate = (dateStr: string): Date => {
-    return moment(dateStr, this.props.dateFormat).toDate();
+    const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
+    const date = moment(dateStr, dateFormat);
+
+    if (date.isValid()) return moment(dateStr, dateFormat).toDate();
+    else return moment().toDate();
   };
 
   /**
@@ -156,16 +204,15 @@ class DatePickerComponent extends React.Component<
    *
    * @param selectedDate
    */
-  onDateSelected = (selectedDate: Date) => {
-    const { onDateSelected } = this.props;
+  onDateSelected = (selectedDate: Date, isUserChange: boolean) => {
+    if (isUserChange) {
+      const { onDateSelected } = this.props;
 
-    const date = selectedDate ? this.formatDate(selectedDate) : "";
-    this.setState({ selectedDate: date });
+      const date = selectedDate ? this.formatDate(selectedDate) : "";
+      this.setState({ selectedDate: date });
 
-    // if date is null ( if date is cleared ), don't call onDateSelected
-    if (!selectedDate) return false;
-
-    onDateSelected(date);
+      onDateSelected(date);
+    }
   };
 }
 

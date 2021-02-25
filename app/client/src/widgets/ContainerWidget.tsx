@@ -19,6 +19,11 @@ class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
 > {
+  constructor(props: ContainerWidgetProps<WidgetProps>) {
+    super(props);
+    this.renderChildWidget = this.renderChildWidget.bind(this);
+  }
+
   static getPropertyPaneConfig() {
     return [
       {
@@ -30,6 +35,8 @@ class ContainerWidget extends BaseWidget<
             propertyName: "backgroundColor",
             label: "Background Color",
             controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -37,20 +44,21 @@ class ContainerWidget extends BaseWidget<
             label: "Visible",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "shouldScrollContents",
             label: "Scroll Contents",
             controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
         ],
       },
     ];
   }
-  constructor(props: ContainerWidgetProps<WidgetProps>) {
-    super(props);
-    this.renderChildWidget = this.renderChildWidget.bind(this);
-  }
+
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
     return {

@@ -77,14 +77,14 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
         // Check if the list of configured custom domains match the authenticated principal.
         // This is to provide more control over which accounts can be used to access the application.
         // TODO: This is not a good way to do this. Ideally, we should pass "hd=example.com" to OAuth2 provider to list relevant accounts only
-        if (!commonConfig.getAllowedDomains().isEmpty()) {
+        if (!commonConfig.getOauthAllowedDomains().isEmpty()) {
             String domain = null;
             log.debug("Got the principal class as: {}", principal.getPrincipal().getClass().getName());
             if (principal.getPrincipal() instanceof DefaultOidcUser) {
                 DefaultOidcUser userPrincipal = (DefaultOidcUser) principal.getPrincipal();
                 domain = (String) userPrincipal.getAttributes().getOrDefault("hd", "");
-                if (!commonConfig.getAllowedDomains().contains(domain)) {
-                    return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_DOMAIN));
+                if (!commonConfig.getOauthAllowedDomains().contains(domain)) {
+                    return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_DOMAIN, domain));
                 }
             }
         }

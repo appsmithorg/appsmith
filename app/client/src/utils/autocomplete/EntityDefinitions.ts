@@ -25,7 +25,7 @@ export const entityDefinitions = {
     return {
       "!doc":
         "Actions allow you to connect your widgets to your backend data in a secure manner.",
-      "!url": "https://docs.appsmith.com/quick-start#connect-your-apis",
+      "!url": "https://docs.appsmith.com/v/v1.2.1/framework-reference/run",
       isLoading: "bool",
       data,
       run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
@@ -34,10 +34,10 @@ export const entityDefinitions = {
   CONTAINER_WIDGET: {
     "!doc":
       "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
-    "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+    "!url": "https://docs.appsmith.com/widget-reference/container",
     backgroundColor: {
       "!type": "string",
-      "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+      "!url": "https://docs.appsmith.com/widget-reference/container",
     },
     isVisible: isVisible,
   },
@@ -124,12 +124,29 @@ export const entityDefinitions = {
     selectedDate: "string",
     isDisabled: "bool",
   },
+  DATE_PICKER_WIDGET2: {
+    "!doc":
+      "Datepicker is used to capture the date and time from a user. It can be used to filter data base on the input date range as well as to capture personal information such as date of birth",
+    "!url": "https://docs.appsmith.com/widget-reference/datepicker",
+    isVisible: isVisible,
+    selectedDate: "string",
+    formattedDate: "string",
+    isDisabled: "bool",
+  },
   CHECKBOX_WIDGET: {
     "!doc":
       "Checkbox is a simple UI widget you can use when you want users to make a binary choice",
     "!url": "https://docs.appsmith.com/widget-reference/checkbox",
     isVisible: isVisible,
     isChecked: "bool",
+    isDisabled: "bool",
+  },
+  SWITCH_WIDGET: {
+    "!doc":
+      "Switch is a simple UI widget you can use when you want users to make a binary choice",
+    "!url": "https://docs.appsmith.com/widget-reference/switch",
+    isVisible: isVisible,
+    isSwitchedOn: "bool",
     isDisabled: "bool",
   },
   RADIO_GROUP_WIDGET: {
@@ -163,6 +180,7 @@ export const entityDefinitions = {
     chartData: "chartData",
     xAxisName: "string",
     yAxisName: "string",
+    selectedDataPoint: "chartDataPoint",
   },
   FORM_WIDGET: (widget: any) => ({
     "!doc":
@@ -231,7 +249,7 @@ export const GLOBAL_DEFS = {
 export const GLOBAL_FUNCTIONS = {
   navigateTo: {
     "!doc": "Action to navigate the user to another page or url",
-    "!type": "fn(pageNameOrUrl: string, params: {}) -> void",
+    "!type": "fn(pageNameOrUrl: string, params: {}, target?: string) -> void",
   },
   showAlert: {
     "!doc": "Show a temporary notification style message to the user",

@@ -2,11 +2,11 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
-import com.appsmith.server.dtos.ExecuteActionDTO;
+import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ActionCollectionService;
@@ -82,7 +82,7 @@ public class ActionController {
     }
 
     @PutMapping("/refactor")
-    public Mono<ResponseDTO<Layout>> refactorActionName(@RequestBody RefactorNameDTO refactorNameDTO) {
+    public Mono<ResponseDTO<LayoutDTO>> refactorActionName(@RequestBody RefactorNameDTO refactorNameDTO) {
         return layoutActionService.refactorActionName(refactorNameDTO)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
@@ -119,7 +119,7 @@ public class ActionController {
      */
     @GetMapping("")
     public Mono<ResponseDTO<List<ActionDTO>>> getAllUnpublishedActions(@RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to get all actions");
+        log.debug("Going to get all actions with params : {}", params);
         return newActionService.getUnpublishedActions(params).collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }

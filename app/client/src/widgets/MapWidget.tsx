@@ -11,6 +11,7 @@ import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { DEFAULT_CENTER } from "constants/WidgetConstants";
+import { getBorderCSSShorthand } from "constants/DefaultTheme";
 
 const { google } = getAppsmithConfigs();
 
@@ -20,6 +21,8 @@ const DisabledContainer = styled.div`
   text-align: center;
   display: flex;
   flex-direction: column;
+  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+  border-radius: 0;
   h1 {
     margin-top: 15%;
     margin-bottom: 10%;
@@ -48,6 +51,8 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             label: "Initial location",
             isJSConvertible: true,
             controlType: "LOCATION_SEARCH",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "defaultMarkers",
@@ -56,24 +61,32 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             inputType: "ARRAY",
             helpText: "Sets the default markers on the map",
             placeholderText: 'Enter [{ "lat": "val1", "long": "val2" }]',
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "enableSearch",
             label: "Enable search location",
             helpText: "Enables locaton search",
             controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             propertyName: "enablePickLocation",
             label: "Enable pick location",
             helpText: "Allows a user to pick their location",
             controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             propertyName: "enableCreateMarker",
             label: "Create new marker",
             helpText: "Allows users to mark locations on the map",
             controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             propertyName: "zoomLevel",
@@ -81,6 +94,8 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             controlType: "STEP",
             helpText: "Changes the default zoom of the map",
             stepType: "ZOOM_PERCENTAGE",
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isVisible",
@@ -88,6 +103,8 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             helpText: "Controls the visibility of the widget",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -99,12 +116,16 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             label: "onMarkerClick",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
           {
             propertyName: "onCreateMarker",
             label: "onCreateMarker",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },
@@ -204,6 +225,16 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     return this.props.center || this.props.mapCenter || DefaultCenter;
   }
 
+  componentDidUpdate(prevProps: MapWidgetProps) {
+    //remove selectedMarker when map initial location is updated
+    if (
+      JSON.stringify(prevProps.center) !== JSON.stringify(this.props.center) &&
+      this.props.selectedMarker
+    ) {
+      this.unselectMarker();
+    }
+  }
+
   getPageView() {
     return (
       <>
@@ -216,7 +247,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://docs.appsmith.com/third-party-services/google-maps"
+                href="https://docs.appsmith.com/v/v1.2.1/setup/docker/google-maps"
               >
                 {" documentation "}
               </a>

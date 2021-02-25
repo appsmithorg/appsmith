@@ -13,7 +13,6 @@ import {
 } from "redux-saga/effects";
 import { Datasource } from "entities/Datasource";
 import ActionAPI, { ActionCreateUpdateResponse, Property } from "api/ActionAPI";
-import _ from "lodash";
 import { GenericApiResponse } from "api/ApiResponses";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
@@ -44,12 +43,13 @@ import {
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
-import { Action } from "entities/Action";
+import { Action, ActionViewMode } from "entities/Action";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getCurrentPageNameByActionId,
   getPageNameByPageId,
+  getSettingConfig,
 } from "selectors/entitiesSelector";
 import { getDataSources } from "selectors/editorSelectors";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
@@ -65,13 +65,61 @@ import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { getEditorConfig } from "selectors/entitiesSelector";
+import PluginsApi from "api/PluginApi";
+import _, { merge } from "lodash";
+import { getConfigInitialValues } from "components/formControls/utils";
 
 export function* createActionSaga(
-  actionPayload: ReduxAction<Partial<Action> & { eventData: any }>,
+  actionPayload: ReduxAction<
+    Partial<Action> & { eventData: any; pluginId: string }
+  >,
 ) {
   try {
+    let payload = actionPayload.payload;
+    if (actionPayload.payload.pluginId) {
+      let editorConfig;
+      editorConfig = yield select(
+        getEditorConfig,
+        actionPayload.payload.pluginId,
+      );
+
+      if (!editorConfig) {
+        const formConfigResponse: GenericApiResponse<any> = yield PluginsApi.fetchFormConfig(
+          actionPayload.payload.pluginId,
+        );
+        yield validateResponse(formConfigResponse);
+        yield put({
+          type: ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
+          payload: {
+            id: actionPayload.payload.pluginId,
+            ...formConfigResponse.data,
+          },
+        });
+
+        editorConfig = yield select(
+          getEditorConfig,
+          actionPayload.payload.pluginId,
+        );
+      }
+      const settingConfig = yield select(
+        getSettingConfig,
+        actionPayload.payload.pluginId,
+      );
+
+      let initialValues = yield call(getConfigInitialValues, editorConfig);
+      if (settingConfig) {
+        const settingInitialValues = yield call(
+          getConfigInitialValues,
+          settingConfig,
+        );
+        initialValues = merge(initialValues, settingInitialValues);
+      }
+      payload = merge(initialValues, actionPayload.payload);
+    }
+
     const response: ActionCreateUpdateResponse = yield ActionAPI.createAPI(
-      actionPayload.payload,
+      payload,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -145,14 +193,22 @@ export function* fetchActionsForViewModeSaga(
     { mode: "VIEWER", appId: applicationId },
   );
   try {
-    const response: GenericApiResponse<Action[]> = yield ActionAPI.fetchActionsForViewMode(
+    const response: GenericApiResponse<ActionViewMode[]> = yield ActionAPI.fetchActionsForViewMode(
       applicationId,
     );
+    const correctFormatResponse = response.data.map((action) => {
+      return {
+        ...action,
+        actionConfiguration: {
+          timeoutInMillisecond: action.timeoutInMillisecond,
+        },
+      };
+    });
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
-        payload: response.data,
+        payload: correctFormatResponse,
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_ACTIONS_API,

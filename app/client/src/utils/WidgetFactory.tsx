@@ -18,7 +18,7 @@ import { generateReactKey } from "./generators";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
-export type TriggerPropertiesMap = Record<string, true>;
+export type TriggerPropertiesMap = Record<string, true | RegExp[]>;
 
 // TODO (abhinav): To enforce the property pane config structure in this function
 // Throw an error if the config is not of the desired format.
@@ -42,7 +42,7 @@ const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
 
       (sectionOrControlConfig as PropertyPaneControlConfig) = config;
     }
-    return Object.freeze(sectionOrControlConfig);
+    return sectionOrControlConfig;
   });
 };
 class WidgetFactory {
@@ -73,7 +73,7 @@ class WidgetFactory {
   static metaPropertiesMap: Map<WidgetType, Record<string, any>> = new Map();
   static propertyPaneConfigsMap: Map<
     WidgetType,
-    PropertyPaneConfig[]
+    readonly PropertyPaneConfig[]
   > = new Map();
 
   static registerWidgetBuilder(
@@ -96,7 +96,7 @@ class WidgetFactory {
     propertyPaneConfig &&
       this.propertyPaneConfigsMap.set(
         widgetType,
-        addPropertyConfigIds(propertyPaneConfig),
+        Object.freeze(addPropertyConfigIds(propertyPaneConfig)),
       );
   }
 
@@ -167,7 +167,7 @@ class WidgetFactory {
   ): Record<string, string> {
     const map = this.defaultPropertiesMap.get(widgetType);
     if (!map) {
-      console.error("Widget default properties not defined");
+      console.error("Widget default properties not defined", widgetType);
       return {};
     }
     return map;
@@ -180,6 +180,17 @@ class WidgetFactory {
     if (!map) {
       console.error("Widget meta properties not defined: ", widgetType);
       return {};
+    }
+    return map;
+  }
+
+  static getWidgetPropertyPaneConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const map = this.propertyPaneConfigsMap.get(type);
+    if (!map) {
+      console.error("Widget property pane configs not defined", type);
+      return [];
     }
     return map;
   }

@@ -5,7 +5,7 @@ import {
 } from "constants/BindingsConstants";
 import { Action } from "entities/Action";
 import moment from "moment-timezone";
-import { WidgetProps } from "../widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import parser from "fast-xml-parser";
 
 export type DependencyMap = Record<string, Array<string>>;
@@ -91,6 +91,7 @@ export enum EvalErrorTypes {
   EVAL_ERROR = "EVAL_ERROR",
   UNKNOWN_ERROR = "UNKNOWN_ERROR",
   BAD_UNEVAL_TREE_ERROR = "BAD_UNEVAL_TREE_ERROR",
+  EVAL_TRIGGER_ERROR = "EVAL_TRIGGER_ERROR",
 }
 
 export type EvalError = {
@@ -158,7 +159,7 @@ export interface WidgetEvaluatedProps {
   evaluatedValues?: Record<string, any>;
 }
 
-interface EntityWithBindings {
+export interface EntityWithBindings {
   dynamicBindingPathList?: DynamicPath[];
 }
 
@@ -249,3 +250,11 @@ export const unsafeFunctionForEval = [
   "setInterval",
   "Promise",
 ];
+
+export const isChildPropertyPath = (
+  parentPropertyPath: string,
+  childPropertyPath: string,
+): boolean =>
+  parentPropertyPath === childPropertyPath ||
+  childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
+  childPropertyPath.startsWith(`${parentPropertyPath}[`);

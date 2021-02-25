@@ -85,6 +85,26 @@ export const getCurrentPageId = (state: AppState) =>
 export const getCurrentApplicationId = (state: AppState) =>
   state.entities.pageList.applicationId;
 
+export const getViewModePageList = createSelector(
+  getPageList,
+  getCurrentPageId,
+  (pageList: PageListReduxState["pages"], currentPageId?: string) => {
+    if (currentPageId) {
+      const currentPage = pageList.find(
+        (page) => page.pageId === currentPageId,
+      );
+      if (!!currentPage?.isHidden) {
+        return [currentPage];
+      }
+
+      const visiblePages = pageList.filter((page) => !page.isHidden);
+      return visiblePages;
+    }
+
+    return [];
+  },
+);
+
 export const getCurrentPageName = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>
@@ -241,6 +261,8 @@ const createLoadingWidget = (
     ...widgetStaticProps,
     type: WidgetTypes.SKELETON_WIDGET,
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    bindingPaths: {},
+    triggerPaths: {},
     isLoading: true,
   };
 };

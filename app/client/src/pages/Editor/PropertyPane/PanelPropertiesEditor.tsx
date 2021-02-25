@@ -15,7 +15,7 @@ import {
 } from "constants/PropertyControlConstants";
 import { generatePropertyControl } from "./Generator";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import { get } from "lodash";
+import { get, isNumber, isPlainObject, isString } from "lodash";
 import { IPanelProps } from "@blueprintjs/core";
 
 const PaneTitleWrapper = styled.div`
@@ -103,28 +103,37 @@ export const PanelPropertiesEditor = (
     panelParentPropertyPath,
   } = props;
 
-  // TODO(abhinav): This works for arrays, not for objects
-  // handle scenario where the children are object properties instead of array of objects
+  // This could be the id of the parent to access the path
+  // For example: `someProperty[<thisValue>]`
+  // or the index of the parent to access the path
+  // For example: `someProperty.<thisValue>`
   const currentIndex = useMemo(() => {
     const parentProperty = get(widgetProperties, panelParentPropertyPath);
-    if (parentProperty && Array.isArray(parentProperty)) {
-      const currentIndex = parentProperty.findIndex(
-        (entry) =>
-          panelProps[panelConfig.panelIdPropertyName] ===
-          entry[panelConfig.panelIdPropertyName],
-      );
-      return currentIndex;
+    if (parentProperty) {
+      if (isPlainObject(parentProperty)) {
+        return panelProps[panelConfig.panelIdPropertyName];
+      } else if (Array.isArray(parentProperty)) {
+        const currentIndex = parentProperty.findIndex(
+          (entry) =>
+            panelProps[panelConfig.panelIdPropertyName] ===
+            entry[panelConfig.panelIdPropertyName],
+        );
+        return currentIndex;
+      }
     }
     return;
   }, [widgetProperties, panelParentPropertyPath, panelProps, panelConfig]);
 
   const panelConfigs = useMemo(() => {
-    if (currentIndex !== undefined && currentIndex > -1) {
+    if (currentIndex) {
+      let path: string | undefined = undefined;
+      if (isString(currentIndex)) {
+        path = `${panelParentPropertyPath}.${currentIndex}`;
+      } else if (isNumber(currentIndex)) {
+        path = `${panelParentPropertyPath}[${currentIndex}]`;
+      }
       const configChildren = [...panelConfig.children];
-      return updateConfigPaths(
-        configChildren,
-        `${panelParentPropertyPath}[${currentIndex}]`,
-      );
+      return path ? updateConfigPaths(configChildren, path) : configChildren;
     }
   }, [currentIndex, panelConfig, panelParentPropertyPath]);
   const panel = useMemo(
@@ -136,7 +145,33 @@ export const PanelPropertiesEditor = (
   );
 
   if (!widgetProperties) return null;
-
+  const updatePropertyTitle = (title: string) => {
+    if (panelConfig.titlePropertyName) {
+      const propertiesToUpdate: Record<string, unknown> = {};
+      let path: string | undefined = undefined;
+      if (isString(currentIndex)) {
+        path = `${panelParentPropertyPath}.${currentIndex}.${panelConfig.titlePropertyName}`;
+      } else if (isNumber(currentIndex)) {
+        path = `${panelParentPropertyPath}[${currentIndex}].${panelConfig.titlePropertyName}`;
+      }
+      if (path) {
+        propertiesToUpdate[path] = title;
+        if (panelConfig.updateHook) {
+          const additionalPropertiesToUpdate = panelConfig.updateHook(
+            widgetProperties,
+            path,
+            title,
+          );
+          additionalPropertiesToUpdate?.forEach(
+            ({ propertyPath, propertyValue }) => {
+              propertiesToUpdate[propertyPath] = propertyValue;
+            },
+          );
+        }
+        props.onPropertiesChange(propertiesToUpdate);
+      }
+    }
+  };
   return (
     <>
       <PanelHeader
@@ -145,14 +180,7 @@ export const PanelPropertiesEditor = (
         hidePropertyPane={hidePropertyPane}
         closePanel={closePanel}
         title={panelProps[panelConfig.titlePropertyName]}
-        updatePropertyTitle={(title: string) => {
-          if (panelConfig.titlePropertyName) {
-            props.onPropertyChange(
-              `${panelParentPropertyPath}[${currentIndex}].${panelConfig.titlePropertyName}`,
-              title,
-            );
-          }
-        }}
+        updatePropertyTitle={updatePropertyTitle}
       />
       {panelConfigs &&
         generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
@@ -165,7 +193,7 @@ export const PanelPropertiesEditor = (
 
 interface PanelPropertiesEditorProps {
   panelProps: any;
-  onPropertyChange: (propertyName: string, propertyValue: any) => void;
+  onPropertiesChange: (updates: Record<string, unknown>) => void;
   panelParentPropertyPath: string;
 }
 

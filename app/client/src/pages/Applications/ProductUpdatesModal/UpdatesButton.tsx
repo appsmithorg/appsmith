@@ -56,7 +56,7 @@ const UpdatesIcon = withTheme(({ theme }) => (
 ));
 
 const UpdatesButton = ({ newReleasesCount }: { newReleasesCount: string }) => (
-  <StyledUpdatesButton>
+  <StyledUpdatesButton data-cy="t--product-updates-btn">
     <div style={{ display: "flex" }}>
       <UpdatesIcon />
       <UpdatesButtonTextContainer>What&apos;s New?</UpdatesButtonTextContainer>

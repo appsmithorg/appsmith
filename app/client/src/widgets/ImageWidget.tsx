@@ -12,6 +12,10 @@ import { EventType } from "constants/ActionConstants";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
+  constructor(props: ImageWidgetProps) {
+    super(props);
+    this.onImageClick = this.onImageClick.bind(this);
+  }
   static getPropertyPaneConfig() {
     return [
       {
@@ -23,6 +27,8 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             label: "Image",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter URL / Base64",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Renders the url or Base64 when no image is provided",
@@ -30,6 +36,8 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             label: "Default Image",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter URL / Base64",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -37,6 +45,8 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             label: "Visible",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Controls the max zoom of the widget",
@@ -66,6 +76,8 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
               },
             ],
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -79,14 +91,12 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             label: "onClick",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },
     ];
-  }
-  constructor(props: ImageWidgetProps) {
-    super(props);
-    this.onImageClick = this.onImageClick.bind(this);
   }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {

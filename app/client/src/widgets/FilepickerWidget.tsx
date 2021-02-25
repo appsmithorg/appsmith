@@ -27,6 +27,14 @@ class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
   FilePickerWidgetState
 > {
+  constructor(props: FilePickerWidgetProps) {
+    super(props);
+    this.state = {
+      isLoading: false,
+      uppy: this.initializeUppy(),
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [
       {
@@ -39,6 +47,8 @@ class FilePickerWidget extends BaseWidget<
             helpText: "Sets the label of the button",
             placeholderText: "Enter label text",
             inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "maxNumFiles",
@@ -48,6 +58,8 @@ class FilePickerWidget extends BaseWidget<
             controlType: "INPUT_TEXT",
             placeholderText: "Enter no. of files",
             inputType: "INTEGER",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "maxFileSize",
@@ -56,6 +68,8 @@ class FilePickerWidget extends BaseWidget<
             controlType: "INPUT_TEXT",
             placeholderText: "File size in mb",
             inputType: "INTEGER",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "allowedFileTypes",
@@ -98,6 +112,8 @@ class FilePickerWidget extends BaseWidget<
               },
             ],
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isRequired",
@@ -105,6 +121,8 @@ class FilePickerWidget extends BaseWidget<
             helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isVisible",
@@ -112,6 +130,8 @@ class FilePickerWidget extends BaseWidget<
             helpText: "Controls the visibility of the widget",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "uploadedFileUrlPaths",
@@ -121,6 +141,8 @@ class FilePickerWidget extends BaseWidget<
             controlType: "INPUT_TEXT",
             placeholderText: 'Enter [ "url1", "url2" ]',
             inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isDisabled",
@@ -128,6 +150,8 @@ class FilePickerWidget extends BaseWidget<
             helpText: "Disables input to this widget",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -141,21 +165,13 @@ class FilePickerWidget extends BaseWidget<
             label: "onFilesSelected",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },
     ];
   }
-  uppy: any;
-
-  constructor(props: FilePickerWidgetProps) {
-    super(props);
-    this.state = {
-      version: 0,
-      isLoading: false,
-    };
-  }
-
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -182,9 +198,46 @@ class FilePickerWidget extends BaseWidget<
     };
   }
 
-  refreshUppy = (props: FilePickerWidgetProps) => {
-    this.uppy = Uppy({
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {
+      onFilesSelected: true,
+    };
+  }
+
+  /**
+   * if uppy is not initialized before, initialize it
+   * else setState of uppy instance
+   */
+  initializeUppy = () => {
+    const uppyState = {
       id: this.props.widgetId,
+      autoProceed: false,
+      allowMultipleUploads: true,
+      debug: false,
+      restrictions: {
+        maxFileSize: this.props.maxFileSize
+          ? this.props.maxFileSize * 1024 * 1024
+          : null,
+        maxNumberOfFiles: this.props.maxNumFiles,
+        minNumberOfFiles: null,
+        allowedFileTypes:
+          this.props.allowedFileTypes &&
+          (this.props.allowedFileTypes.includes("*") ||
+            _.isEmpty(this.props.allowedFileTypes))
+            ? null
+            : this.props.allowedFileTypes,
+      },
+    };
+
+    return Uppy(uppyState);
+  };
+
+  /**
+   * set states on the uppy instance with new values
+   */
+  reinitializeUppy = (props: FilePickerWidgetProps) => {
+    const uppyState = {
+      id: props.widgetId,
       autoProceed: false,
       allowMultipleUploads: true,
       debug: false,
@@ -194,12 +247,21 @@ class FilePickerWidget extends BaseWidget<
         minNumberOfFiles: null,
         allowedFileTypes:
           props.allowedFileTypes &&
-          (props.allowedFileTypes.includes("*") ||
+          (this.props.allowedFileTypes.includes("*") ||
             _.isEmpty(props.allowedFileTypes))
             ? null
             : props.allowedFileTypes,
       },
-    })
+    };
+
+    this.state.uppy.setOptions(uppyState);
+  };
+
+  /**
+   * add all uppy events listeners needed
+   */
+  initializeUppyEventListeners = () => {
+    this.state.uppy
       .use(Dashboard, {
         target: "body",
         metaFields: [],
@@ -220,7 +282,11 @@ class FilePickerWidget extends BaseWidget<
         disablePageScrollWhenModalOpen: true,
         proudlyDisplayPoweredByUppy: false,
         onRequestCloseModal: () => {
-          this.uppy.getPlugin("Dashboard").closeModal();
+          const plugin = this.state.uppy.getPlugin("Dashboard");
+
+          if (plugin) {
+            plugin.closeModal();
+          }
         },
         locale: {},
       })
@@ -236,7 +302,8 @@ class FilePickerWidget extends BaseWidget<
         facingMode: "user",
         locale: {},
       });
-    this.uppy.on("file-removed", (file: any) => {
+
+    this.state.uppy.on("file-removed", (file: any) => {
       const updatedFiles = this.props.files
         ? this.props.files.filter((dslFile) => {
             return file.id !== dslFile.id;
@@ -244,39 +311,49 @@ class FilePickerWidget extends BaseWidget<
         : [];
       this.props.updateWidgetMetaProperty("files", updatedFiles);
     });
-    this.uppy.on("file-added", (file: any) => {
-      const dslFiles = [...(this.props.files || [])];
-      const reader = new FileReader();
 
-      reader.readAsDataURL(file.data);
-      reader.onloadend = () => {
-        const base64data = reader.result;
-        const binaryReader = new FileReader();
-        binaryReader.readAsBinaryString(file.data);
-        binaryReader.onloadend = () => {
-          const rawData = binaryReader.result;
-          const newFile = {
-            id: file.id,
-            base64: base64data,
-            blob: file.data,
-            raw: rawData,
+    this.state.uppy.on("files-added", (files: any[]) => {
+      const dslFiles = this.props.files ? [...this.props.files] : [];
+
+      const fileReaderPromises = files.map((file) => {
+        const reader = new FileReader();
+        return new Promise((resolve) => {
+          reader.readAsDataURL(file.data);
+          reader.onloadend = () => {
+            const base64data = reader.result;
+            const binaryReader = new FileReader();
+            binaryReader.readAsBinaryString(file.data);
+            binaryReader.onloadend = () => {
+              const rawData = binaryReader.result;
+              const textReader = new FileReader();
+              textReader.readAsText(file.data);
+              textReader.onloadend = () => {
+                const text = textReader.result;
+                const newFile = {
+                  id: file.id,
+                  base64: base64data,
+                  blob: file.data,
+                  raw: rawData,
+                  text: text,
+                  name: file.meta ? file.meta.name : undefined,
+                };
+
+                resolve(newFile);
+              };
+            };
           };
-          dslFiles.push(newFile);
-          this.props.updateWidgetMetaProperty("files", dslFiles);
-        };
-      };
+        });
+      });
+
+      Promise.all(fileReaderPromises).then((files) => {
+        this.props.updateWidgetMetaProperty("files", dslFiles.concat(files));
+      });
     });
-    this.uppy.on("upload", () => {
+
+    this.state.uppy.on("upload", () => {
       this.onFilesSelected();
     });
-    this.setState({ version: this.state.version + 1 });
   };
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onFilesSelected: true,
-    };
-  }
 
   /**
    * this function is called when user selects the files and it do two things:
@@ -320,29 +397,30 @@ class FilePickerWidget extends BaseWidget<
       prevProps.files.length > 0 &&
       this.props.files === undefined
     ) {
-      this.uppy.reset();
+      this.state.uppy.reset();
     } else if (
       !shallowequal(prevProps.allowedFileTypes, this.props.allowedFileTypes) ||
       prevProps.maxNumFiles !== this.props.maxNumFiles ||
       prevProps.maxFileSize !== this.props.maxFileSize
     ) {
-      this.refreshUppy(this.props);
+      this.reinitializeUppy(this.props);
     }
   }
 
   componentDidMount() {
     super.componentDidMount();
-    this.refreshUppy(this.props);
+
+    this.initializeUppyEventListeners();
   }
 
   componentWillUnmount() {
-    this.uppy.close();
+    this.state.uppy.close();
   }
 
   getPageView() {
     return (
       <FilePickerComponent
-        uppy={this.uppy}
+        uppy={this.state.uppy}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
         label={this.props.label}
@@ -359,8 +437,8 @@ class FilePickerWidget extends BaseWidget<
 }
 
 export interface FilePickerWidgetState extends WidgetState {
-  version: number;
   isLoading: boolean;
+  uppy: any;
 }
 
 export interface FilePickerWidgetProps extends WidgetProps, WithMeta {

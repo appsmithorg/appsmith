@@ -1,30 +1,32 @@
 import React from "react";
-import { Switch, useRouteMatch, useLocation, Route } from "react-router-dom";
+import { Route, Switch, useLocation, useRouteMatch } from "react-router-dom";
 import Login from "./Login";
-import Centered from "components/designSystems/appsmith/CenteredWrapper";
-import { animated, useTransition } from "react-spring";
-import { AuthContainer, AuthCard } from "./StyledComponents";
+import { AuthCard, AuthCardContainer, AuthContainer } from "./StyledComponents";
 import SignUp from "./SignUp";
 import ForgotPassword from "./ForgotPassword";
 import ResetPassword from "./ResetPassword";
 import PageNotFound from "pages/common/PageNotFound";
+import FooterLinks from "./FooterLinks";
 import * as Sentry from "@sentry/react";
+import requiresAuthHOC from "./requiresAuthHOC";
+import { useSelector } from "react-redux";
+import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { AppState } from "reducers";
+import { ThemeProvider } from "styled-components";
+
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-const AnimatedAuthCard = animated(AuthContainer);
 export const UserAuth = () => {
   const { path } = useRouteMatch();
   const location = useLocation();
-  const transitions = useTransition(location, (location) => location.pathname, {
-    from: { opacity: 0, transform: "translate3d(50%,0,0)" },
-    enter: { opacity: 1, transform: "translate3d(0%,0,0)" },
-    leave: { opacity: 0, transform: "translate3d(-50%,0,0)" },
-    reset: true,
-  });
-  const renderTransitions = transitions.map(
-    ({ item: location, props, key }) => (
-      <AnimatedAuthCard key={key} style={props}>
-        <Centered>
+  const darkTheme = useSelector((state: AppState) =>
+    getThemeDetails(state, ThemeMode.DARK),
+  );
+
+  return (
+    <ThemeProvider theme={darkTheme}>
+      <AuthContainer>
+        <AuthCardContainer>
           <AuthCard>
             <Switch location={location}>
               <SentryRoute exact path={`${path}/login`} component={Login} />
@@ -42,11 +44,11 @@ export const UserAuth = () => {
               <SentryRoute component={PageNotFound} />
             </Switch>
           </AuthCard>
-        </Centered>
-      </AnimatedAuthCard>
-    ),
+        </AuthCardContainer>
+        <FooterLinks />
+      </AuthContainer>
+    </ThemeProvider>
   );
-  return <React.Fragment>{renderTransitions}</React.Fragment>;
 };
 
-export default UserAuth;
+export default requiresAuthHOC(UserAuth);

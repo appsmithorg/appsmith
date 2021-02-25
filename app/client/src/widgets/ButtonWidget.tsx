@@ -15,6 +15,17 @@ import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
+  onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
+  clickWithRecaptchaBound: (token: string) => void;
+  constructor(props: ButtonWidgetProps) {
+    super(props);
+    this.onButtonClickBound = this.onButtonClick.bind(this);
+    this.clickWithRecaptchaBound = this.clickWithRecaptcha.bind(this);
+    this.state = {
+      isLoading: false,
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [
       {
@@ -26,6 +37,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             helpText: "Sets the label of the button",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "buttonStyle",
@@ -46,6 +59,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
                 value: "DANGER_BUTTON",
               },
             ],
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isVisible",
@@ -53,6 +68,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             helpText: "Controls the visibility of the widget",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isDisabled",
@@ -60,6 +77,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             controlType: "SWITCH",
             helpText: "Disables clicks to this widget",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "googleRecaptchaKey",
@@ -67,6 +86,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             helpText: "Sets Google Recaptcha v3 site key for button",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter google recaptcha key",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -79,20 +100,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             label: "onClick",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },
     ];
-  }
-  onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
-  clickWithRecaptchaBound: (token: string) => void;
-  constructor(props: ButtonWidgetProps) {
-    super(props);
-    this.onButtonClickBound = this.onButtonClick.bind(this);
-    this.clickWithRecaptchaBound = this.clickWithRecaptcha.bind(this);
-    this.state = {
-      isLoading: false,
-    };
   }
 
   static getPropertyValidationMap(): WidgetPropertyValidationType {

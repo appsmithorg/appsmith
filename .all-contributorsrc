@@ -243,7 +243,7 @@
       "contributions": [
         "code"
       ]
-    }
+    },
     {
       "login": "rishabhsaxena",
       "name": "Rishabh Saxena ",
@@ -289,6 +289,32 @@
         "code"
       ]
     },
+    {
+      "login": "trdillon",
+      "name": "Tim Dillon",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26350151?v=4",
+      "profile": "https://github.com/trdillon",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "zegerhoogeboom",
+      "name": "Zeger Hoogeboom",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5371096?v=4",
+      "profile": "https://github.com/zegerhoogeboom",
+       "contributions": [
+        "code"
+      ]
+    },
+      "login": "Devedunkey",
+      "name": "Young Yoo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/29448764?v=4",
+      "profile": "https://github.com/Devedunkey",
+      "contributions": [
+        "code"
+      ]
+    }
   ],
   "contributorsPerLine": 7,
   "projectName": "appsmith",

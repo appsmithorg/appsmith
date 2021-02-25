@@ -5,7 +5,6 @@ import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import { get } from "lodash";
 
 const SectionWrapper = styled.div`
   position: relative;
@@ -45,7 +44,7 @@ type PropertySectionProps = {
   id: string;
   name: string;
   children?: ReactNode;
-  hidden?: (props: any) => boolean;
+  hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
 };
@@ -57,17 +56,15 @@ const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
 export const PropertySection = memo((props: PropertySectionProps) => {
   const [isOpen, open] = useState(!!props.isDefaultOpen);
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
-  if (props.hidden) {
-    if (
-      props.propertyPath &&
-      props.hidden(get(widgetProps, props.propertyPath))
-    ) {
-      return null;
-    } else if (!props.propertyPath && props.hidden(widgetProps)) {
+  if (props.hidden && props.propertyPath) {
+    if (props.propertyPath && props.hidden(widgetProps, props.propertyPath)) {
       return null;
     }
   }
-  const className = props.name.split(" ").join("").toLowerCase();
+  const className = props.name
+    .split(" ")
+    .join("")
+    .toLowerCase();
   return (
     <SectionWrapper>
       <SectionTitle

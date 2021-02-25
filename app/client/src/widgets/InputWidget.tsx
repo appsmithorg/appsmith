@@ -4,7 +4,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import InputComponent, {
   InputComponentProps,
 } from "components/designSystems/blueprint/InputComponent";
-import { EventType } from "constants/ActionConstants";
+import { EventType, ExecutionResult } from "constants/ActionConstants";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
@@ -19,6 +19,12 @@ import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
+  constructor(props: InputWidgetProps) {
+    super(props);
+    this.state = {
+      text: props.text,
+    };
+  }
   static getPropertyPaneConfig() {
     return [
       {
@@ -47,6 +53,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
                 value: "EMAIL",
               },
             ],
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             helpText:
@@ -55,6 +63,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             label: "Default Text",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter default text",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Sets a placeholder text for the input",
@@ -62,6 +72,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             label: "Placeholder",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter placeholder text",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText:
@@ -71,6 +83,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             controlType: "INPUT_TEXT",
             placeholderText: "^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$",
             inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText:
@@ -80,6 +94,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             controlType: "INPUT_TEXT",
             placeholderText: "Enter error message",
             inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isRequired",
@@ -87,6 +103,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -94,6 +112,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             label: "Visible",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Disables input to this widget",
@@ -101,6 +121,17 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             label: "Disabled",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Clears the input value after submit",
+            propertyName: "resetOnSubmit",
+            label: "Reset on submit",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -113,6 +144,18 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             label: "onTextChanged",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText:
+              "Triggers an action on submit (when the enter key is pressed)",
+            propertyName: "onSubmit",
+            label: "onSubmit",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },
@@ -138,11 +181,13 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       // onTextChanged: VALIDATION_TYPES.ACTION_SELECTOR,
       isRequired: VALIDATION_TYPES.BOOLEAN,
       isValid: VALIDATION_TYPES.BOOLEAN,
+      resetOnSubmit: VALIDATION_TYPES.BOOLEAN,
     };
   }
   static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {
       onTextChanged: true,
+      onSubmit: true,
     };
   }
 
@@ -235,6 +280,35 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("isFocused", focusState);
   };
 
+  onSubmitSuccess = (result: ExecutionResult) => {
+    if (result.success && this.props.resetOnSubmit) {
+      this.props.updateWidgetMetaProperty("text", "", {
+        dynamicString: this.props.onTextChanged,
+        event: {
+          type: EventType.ON_TEXT_CHANGE,
+        },
+      });
+    }
+  };
+
+  handleKeyDown = (
+    e:
+      | React.KeyboardEvent<HTMLTextAreaElement>
+      | React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    const { isValid, onSubmit } = this.props;
+    const isEnterKey = e.key === "Enter" || e.keyCode === 13;
+    if (isEnterKey && onSubmit && isValid) {
+      super.executeAction({
+        dynamicString: onSubmit,
+        event: {
+          type: EventType.ON_SUBMIT,
+          callback: this.onSubmitSuccess,
+        },
+      });
+    }
+  };
+
   getPageView() {
     const value = this.props.text || "";
     const isInvalid =
@@ -248,6 +322,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     if (this.props.maxChars) conditionalProps.maxChars = this.props.maxChars;
     if (this.props.maxNum) conditionalProps.maxNum = this.props.maxNum;
     if (this.props.minNum) conditionalProps.minNum = this.props.minNum;
+
     return (
       <InputComponent
         value={value}
@@ -267,6 +342,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         stepSize={1}
         onFocusChange={this.handleFocusChange}
         showError={!!this.props.isFocused}
+        disableNewLineOnPressEnterKey={!!this.props.onSubmit}
+        onKeyDown={this.handleKeyDown}
         {...conditionalProps}
       />
     );
@@ -314,6 +391,7 @@ export interface InputWidgetProps extends WidgetProps, WithMeta {
   isRequired?: boolean;
   isFocused?: boolean;
   isDirty?: boolean;
+  onSubmit?: string;
 }
 
 export default InputWidget;

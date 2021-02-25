@@ -14,6 +14,7 @@ import {
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { AlignWidget } from "./SwitchWidget";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -27,6 +28,26 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             controlType: "INPUT_TEXT",
             helpText: "Displays a label next to the widget",
             placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "alignWidget",
+            helpText: "Sets the alignment of the widget",
+            label: "Alignment",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Left",
+                value: "LEFT",
+              },
+              {
+                label: "Right",
+                value: "RIGHT",
+              },
+            ],
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "defaultCheckedState",
@@ -35,6 +56,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
               "Checks / un-checks the checkbox by default. Changes to the default selection update the widget state",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isRequired",
@@ -42,6 +65,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isVisible",
@@ -49,6 +74,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             helpText: "Controls the visibility of the widget",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isDisabled",
@@ -56,6 +83,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             controlType: "SWITCH",
             helpText: "Disables input to this widget",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -68,6 +97,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             label: "onCheckChange",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },
@@ -91,12 +122,13 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       isChecked: "defaultCheckedState",
+      alignWidget: "LEFT",
     };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
-      value: `{{this.isChecked}}`,
+      value: `{{!!this.isChecked}}`,
       isValid: `{{ this.isRequired ? !!this.isChecked : true }}`,
     };
   }
@@ -112,6 +144,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
       <CheckboxComponent
         isRequired={this.props.isRequired}
         isChecked={!!this.props.isChecked}
+        alignWidget={this.props.alignWidget}
         label={this.props.label}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
@@ -143,6 +176,7 @@ export interface CheckboxWidgetProps extends WidgetProps, WithMeta {
   isDisabled?: boolean;
   onCheckChange?: string;
   isRequired?: boolean;
+  alignWidget: AlignWidget;
 }
 
 export default CheckboxWidget;

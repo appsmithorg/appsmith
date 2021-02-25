@@ -34,10 +34,8 @@ import ImageWidget, {
   ImageWidgetProps,
   ProfiledImageWidget,
 } from "widgets/ImageWidget";
-import TableWidget, {
-  TableWidgetProps,
-  ProfiledTableWidget,
-} from "widgets/TableWidget";
+import TableWidget, { ProfiledTableWidget } from "widgets/TableWidget";
+import { TableWidgetProps } from "widgets/TableWidget/TableWidgetConstants";
 import VideoWidget, {
   VideoWidgetProps,
   ProfiledVideoWidget,
@@ -73,6 +71,10 @@ import DatePickerWidget, {
   DatePickerWidgetProps,
   ProfiledDatePickerWidget,
 } from "widgets/DatePickerWidget";
+import DatePickerWidget2, {
+  DatePickerWidget2Props,
+  ProfiledDatePickerWidget2,
+} from "widgets/DatePickerWidget2";
 import FormWidget, { ProfiledFormWidget } from "widgets/FormWidget";
 import FormButtonWidget, {
   FormButtonWidgetProps,
@@ -88,6 +90,10 @@ import SkeletonWidget, {
   ProfiledSkeletonWidget,
   SkeletonWidgetProps,
 } from "../widgets/SkeletonWidget";
+import SwitchWidget, {
+  ProfiledSwitchWidget,
+  SwitchWidgetProps,
+} from "widgets/SwitchWidget";
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -165,6 +171,21 @@ export default class WidgetBuilderRegistry {
       CheckboxWidget.getDefaultPropertiesMap(),
       CheckboxWidget.getMetaPropertiesMap(),
       CheckboxWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      "SWITCH_WIDGET",
+      {
+        buildWidget(widgetData: SwitchWidgetProps): JSX.Element {
+          return <ProfiledSwitchWidget {...widgetData} />;
+        },
+      },
+      SwitchWidget.getPropertyValidationMap(),
+      SwitchWidget.getDerivedPropertiesMap(),
+      SwitchWidget.getTriggerPropertyMap(),
+      SwitchWidget.getDefaultPropertiesMap(),
+      SwitchWidget.getMetaPropertiesMap(),
+      SwitchWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -267,6 +288,20 @@ export default class WidgetBuilderRegistry {
       DatePickerWidget.getTriggerPropertyMap(),
       DatePickerWidget.getDefaultPropertiesMap(),
       DatePickerWidget.getMetaPropertiesMap(),
+      DatePickerWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      "DATE_PICKER_WIDGET2",
+      {
+        buildWidget(widgetData: DatePickerWidget2Props): JSX.Element {
+          return <ProfiledDatePickerWidget2 {...widgetData} />;
+        },
+      },
+      DatePickerWidget2.getPropertyValidationMap(),
+      DatePickerWidget2.getDerivedPropertiesMap(),
+      DatePickerWidget2.getTriggerPropertyMap(),
+      DatePickerWidget2.getDefaultPropertiesMap(),
+      DatePickerWidget2.getMetaPropertiesMap(),
       DatePickerWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
@@ -388,6 +423,7 @@ export default class WidgetBuilderRegistry {
       CanvasWidget.getTriggerPropertyMap(),
       CanvasWidget.getDefaultPropertiesMap(),
       CanvasWidget.getMetaPropertiesMap(),
+      CanvasWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -402,6 +438,7 @@ export default class WidgetBuilderRegistry {
       IconWidget.getTriggerPropertyMap(),
       IconWidget.getDefaultPropertiesMap(),
       IconWidget.getMetaPropertiesMap(),
+      IconWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -416,6 +453,22 @@ export default class WidgetBuilderRegistry {
       SkeletonWidget.getTriggerPropertyMap(),
       SkeletonWidget.getDefaultPropertiesMap(),
       SkeletonWidget.getMetaPropertiesMap(),
+      SkeletonWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MODAL_WIDGET,
+      {
+        buildWidget(widgetData: ModalWidgetProps): JSX.Element {
+          return <ProfiledModalWidget {...widgetData} />;
+        },
+      },
+      ModalWidget.getPropertyValidationMap(),
+      ModalWidget.getDerivedPropertiesMap(),
+      ModalWidget.getTriggerPropertyMap(),
+      ModalWidget.getDefaultPropertiesMap(),
+      ModalWidget.getMetaPropertiesMap(),
+      ModalWidget.getPropertyPaneConfig(),
     );
   }
 }

@@ -128,6 +128,7 @@ export default function MemberSettings(props: PageProps) {
     {
       Header: "Delete",
       accessor: "delete",
+      disableSortBy: true,
       Cell: function DeleteCell(cellProps: any) {
         if (
           cellProps.cell.row.values.username ===

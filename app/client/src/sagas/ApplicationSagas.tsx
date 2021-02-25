@@ -34,6 +34,7 @@ import { AppState } from "reducers";
 import {
   FetchApplicationPayload,
   setDefaultApplicationPageSuccess,
+  resetCurrentApplication,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -84,6 +85,7 @@ export function* publishApplicationSaga(
 
       const applicationId = yield select(getCurrentApplicationId);
       const currentPageId = yield select(getCurrentPageId);
+
       let appicationViewPageUrl = getApplicationViewerPageURL(
         applicationId,
         currentPageId,
@@ -98,8 +100,9 @@ export function* publishApplicationSaga(
       if (!windowReference || windowReference.closed) {
         windowReference = window.open(appicationViewPageUrl, "_blank");
       } else {
-        windowReference.location.reload();
         windowReference.focus();
+        windowReference.location.href =
+          windowReference.location.origin + appicationViewPageUrl;
       }
     }
   } catch (error) {
@@ -380,6 +383,8 @@ export function* createApplicationSaga(
         },
       });
     } else {
+      yield put(resetCurrentApplication());
+
       const request: CreateApplicationRequest = {
         name: applicationName,
         icon: icon,

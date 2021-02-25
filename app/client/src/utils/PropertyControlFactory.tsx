@@ -2,8 +2,8 @@ import { ControlType } from "constants/PropertyControlConstants";
 import {
   ControlBuilder,
   ControlProps,
-  ControlData,
   ControlFunctions,
+  ControlData,
 } from "components/propertyControls/BaseControl";
 
 class PropertyControlFactory {
@@ -21,6 +21,7 @@ class PropertyControlFactory {
     controlFunctions: ControlFunctions,
     preferEditor: boolean,
     customEditor?: string,
+    additionalAutoComplete?: Record<string, Record<string, unknown>>,
   ): JSX.Element {
     let controlBuilder = this.controlMap.get(controlData.controlType);
     if (preferEditor) {
@@ -33,6 +34,7 @@ class PropertyControlFactory {
         ...controlFunctions,
         key: controlData.id,
         customJSControl: customEditor,
+        additionalAutoComplete,
       };
       const control = controlBuilder.buildPropertyControl(controlProps);
       return control;

@@ -18,6 +18,18 @@ class FormButtonWidget extends BaseWidget<
   FormButtonWidgetProps,
   FormButtonWidgetState
 > {
+  onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
+  clickWithRecaptchaBound: (token: string) => void;
+
+  constructor(props: FormButtonWidgetProps) {
+    super(props);
+    this.onButtonClickBound = this.onButtonClick.bind(this);
+    this.clickWithRecaptchaBound = this.clickWithRecaptcha.bind(this);
+    this.state = {
+      isLoading: false,
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [
       {
@@ -29,6 +41,8 @@ class FormButtonWidget extends BaseWidget<
             helpText: "Sets the label of the button",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "buttonStyle",
@@ -49,6 +63,8 @@ class FormButtonWidget extends BaseWidget<
                 value: "DANGER_BUTTON",
               },
             ],
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             helpText:
@@ -56,6 +72,8 @@ class FormButtonWidget extends BaseWidget<
             propertyName: "disabledWhenInvalid",
             label: "Disabled Invalid Forms",
             controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             helpText:
@@ -64,6 +82,8 @@ class FormButtonWidget extends BaseWidget<
             label: "Reset Form on Success",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isVisible",
@@ -71,6 +91,8 @@ class FormButtonWidget extends BaseWidget<
             helpText: "Controls the visibility of the widget",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "googleRecaptchaKey",
@@ -78,6 +100,8 @@ class FormButtonWidget extends BaseWidget<
             helpText: "Sets Google Recaptcha v3 site key for button",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter google recaptcha key",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -90,21 +114,12 @@ class FormButtonWidget extends BaseWidget<
             label: "onClick",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },
     ];
-  }
-  onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
-  clickWithRecaptchaBound: (token: string) => void;
-
-  constructor(props: FormButtonWidgetProps) {
-    super(props);
-    this.onButtonClickBound = this.onButtonClick.bind(this);
-    this.clickWithRecaptchaBound = this.clickWithRecaptcha.bind(this);
-    this.state = {
-      isLoading: false,
-    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {

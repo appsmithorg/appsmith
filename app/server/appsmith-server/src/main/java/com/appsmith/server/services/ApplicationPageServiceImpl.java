@@ -1,5 +1,7 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.AppsmithEventContext;
+import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -97,7 +99,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         }
 
         Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), AclPermission.MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, page.getApplicationId())))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, page.getApplicationId())))
                 .cache();
 
         Mono<PageDTO> pageMono = applicationMono
@@ -158,9 +160,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         return applicationService
                 .findByName(applicationName, appPermission)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + "by application name", applicationName)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + " by application name", applicationName)))
                 .flatMap(application -> newPageService.findByNameAndApplicationIdAndViewMode(pageName, application.getId(), pagePermission, viewMode))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + "by page name", pageName)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + " by page name", pageName)));
     }
 
     @Override
@@ -182,7 +184,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     return Mono.error(new AppsmithException(AppsmithError.PAGE_DOESNT_BELONG_TO_APPLICATION, page.getName(), applicationId));
                 })
                 .then(applicationService.findById(applicationId, MANAGE_APPLICATIONS))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .flatMap(application ->
                         applicationRepository
                                 .setDefaultPage(applicationId, pageId)
@@ -291,7 +293,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         log.debug("Archiving application with id: {}", id);
 
         Mono<Application> applicationMono = applicationService.findById(id, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", id)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .flatMap(application -> {
                     log.debug("Archiving pages for applicationId: {}", id);
                     return newPageService.archivePagesByApplicationId(id, MANAGE_PAGES)
@@ -307,7 +309,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<PageDTO> clonePage(String pageId) {
 
         return newPageService.findById(pageId, MANAGE_PAGES)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Clone Page")))
                 .flatMap(page -> clonePageGivenApplicationId(pageId, page.getApplicationId(), " Copy"));
     }
 
@@ -376,8 +378,17 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 // Set new page id in the actionDTO
                                 action.getUnpublishedAction().setPageId(newPageId);
 
-                                // Now create the new action from the template of the source action.
-                                return newActionService.createAction(action.getUnpublishedAction());
+                                /*
+                                 * - Now create the new action from the template of the source action.
+                                 * - Use CLONE_PAGE context to make sure that page / application clone quirks are
+                                 *   taken care of - e.g. onPageLoad setting is copied from action setting instead of
+                                 *   being set to off by default.
+                                 */
+                                AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
+                                return newActionService.createAction(
+                                        action.getUnpublishedAction(),
+                                        eventContext
+                                );
                             })
                             .collectList()
                             .thenReturn(clonedPage);
@@ -413,7 +424,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<Application> cloneApplication(String applicationId) {
 
         Mono<Application> applicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Clone Application")))
                 .cache();
 
         // Find the name for the cloned application which wouldn't lead to duplicate key exception
@@ -496,7 +507,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<PageDTO> deleteUnpublishedPage(String id) {
 
         return newPageService.findById(id, AclPermission.MANAGE_PAGES)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, id)))
                 .flatMap(page -> {
                     log.debug("Going to archive pageId: {} for applicationId: {}", page.getId(), page.getApplicationId());
                     Mono<Application> applicationMono = applicationService.getById(page.getApplicationId())
@@ -549,7 +560,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     @Override
     public Mono<Boolean> publish(String applicationId) {
         Mono<Application> applicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
 
         Flux<NewPage> publishApplicationAndPages = applicationMono
                 //Return all the pages in the Application
@@ -600,7 +611,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 //In each page, copy each layout's dsl to publishedDsl field
                 .flatMap(applicationPage -> newPageService
                         .findById(applicationPage.getId(), MANAGE_PAGES)
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page", applicationPage.getId())))
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, applicationPage.getId())))
                         .map(page -> {
                             page.setPublishedPage(page.getUnpublishedPage());
                             return page;

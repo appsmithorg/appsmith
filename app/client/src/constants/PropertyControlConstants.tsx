@@ -6,7 +6,7 @@ export type PropertyPaneSectionConfig = {
   sectionName: string;
   id?: string;
   children: PropertyPaneConfig[];
-  hidden?: (props: any) => boolean;
+  hidden?: (props: any, propertyPath: string) => boolean;
   propertySectionPath?: string;
 };
 
@@ -15,6 +15,11 @@ export type PanelConfig = {
   titlePropertyName: string;
   panelIdPropertyName: string;
   children: PropertyPaneConfig[];
+  updateHook: (
+    props: any,
+    propertyPath: string,
+    propertyValue: any,
+  ) => Array<{ propertyPath: string; propertyValue: any }> | undefined;
 };
 
 export type PropertyPaneControlConfig = {
@@ -34,7 +39,12 @@ export type PropertyPaneControlConfig = {
     propertyName: string,
     propertyValue: any,
   ) => Array<{ propertyPath: string; propertyValue: any }> | undefined;
-  hidden?: (props: any) => boolean;
+  hidden?: (props: any, propertyPath: string) => boolean;
+  isBindProperty: boolean;
+  isTriggerProperty: boolean;
+  additionalAutoComplete?: (
+    props: any,
+  ) => Record<string, Record<string, unknown>>;
 };
 
 export type PropertyPaneConfig =

@@ -13,6 +13,7 @@ import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { IconName } from "@blueprintjs/icons";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -36,6 +37,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
                 value: "MULTI_SELECT",
               },
             ],
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             helpText:
@@ -44,6 +47,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             label: "Options",
             controlType: "INPUT_TEXT",
             placeholderText: 'Enter [{label: "label1", value: "value2"}]',
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Selects the option with value by default",
@@ -51,6 +56,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             label: "Default Option",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter option value",
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isRequired",
@@ -58,6 +65,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -65,6 +74,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             label: "Visible",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isDisabled",
@@ -72,6 +83,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             helpText: "Disables input to this widget",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -84,6 +97,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             label: "onOptionChange",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },
@@ -246,6 +261,8 @@ export type SelectionType = "SINGLE_SELECT" | "MULTI_SELECT";
 export interface DropdownOption {
   label: string;
   value: string;
+  icon?: IconName;
+  subText?: string;
   id?: string;
   onSelect?: (option: DropdownOption) => void;
   children?: DropdownOption[];

@@ -14,6 +14,7 @@ import {
 } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import moment from "moment";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -29,6 +30,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             controlType: "DATE_PICKER",
             placeholderText: "Enter Default Date",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             helpText: "Sets the format of the selected date",
@@ -58,6 +61,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
                 value: "DD/MM/YYYY HH:mm",
               },
             ],
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isRequired",
@@ -65,6 +70,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isVisible",
@@ -72,6 +79,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             helpText: "Controls the visibility of the widget",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isDisabled",
@@ -79,6 +88,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             helpText: "Disables input to this widget",
             controlType: "SWITCH",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "minDate",
@@ -86,6 +97,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             helpText: "Defines the min date for this widget",
             controlType: "DATE_PICKER",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
           {
             propertyName: "maxDate",
@@ -93,6 +106,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             helpText: "Defines the max date for this widget",
             controlType: "DATE_PICKER",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -104,6 +119,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             label: "onDateSelected",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },
@@ -118,8 +135,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
       dateFormat: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
       datePickerType: VALIDATION_TYPES.TEXT,
-      maxDate: VALIDATION_TYPES.DATE,
-      minDate: VALIDATION_TYPES.DATE,
+      maxDate: VALIDATION_TYPES.MAX_DATE,
+      minDate: VALIDATION_TYPES.MIN_DATE,
       isRequired: VALIDATION_TYPES.BOOLEAN,
       // onDateSelected: VALIDATION_TYPES.ACTION_SELECTOR,
       // onDateRangeSelected: VALIDATION_TYPES.ACTION_SELECTOR,
@@ -149,6 +166,33 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
     return {
       selectedDate: undefined,
     };
+  }
+
+  componentDidUpdate(prevProps: DatePickerWidgetProps) {
+    if (this.props.dateFormat !== prevProps.dateFormat) {
+      if (this.props.defaultDate) {
+        const defaultDate = moment(
+          this.props.defaultDate,
+          this.props.dateFormat,
+        );
+        if (!defaultDate.isValid()) {
+          super.updateWidgetProperty("defaultDate", "");
+        } else {
+          if (this.props.minDate) {
+            const minDate = moment(this.props.minDate, this.props.dateFormat);
+            if (!minDate.isValid() || defaultDate.isBefore(minDate)) {
+              super.updateWidgetProperty("defaultDate", "");
+            }
+          }
+          if (this.props.maxDate) {
+            const maxDate = moment(this.props.maxDate, this.props.dateFormat);
+            if (!maxDate.isValid() || defaultDate.isAfter(maxDate)) {
+              super.updateWidgetProperty("defaultDate", "");
+            }
+          }
+        }
+      }
+    }
   }
 
   getPageView() {

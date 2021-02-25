@@ -23,6 +23,11 @@ abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
         isDynamicTrigger,
       );
   }
+  deleteProperties(propertyPaths: string[]) {
+    if (this.props.deleteProperties) {
+      this.props.deleteProperties(propertyPaths);
+    }
+  }
 }
 
 export interface ControlBuilder<T extends ControlProps> {
@@ -31,9 +36,10 @@ export interface ControlBuilder<T extends ControlProps> {
 
 export interface ControlProps extends ControlData, ControlFunctions {
   key?: string;
+  additionalAutoComplete?: Record<string, Record<string, unknown>>;
 }
-
-export interface ControlData extends PropertyPaneControlConfig {
+export interface ControlData
+  extends Omit<PropertyPaneControlConfig, "additionalAutoComplete"> {
   propertyValue?: any;
   isValid: boolean;
   errorMessage?: string;
@@ -42,7 +48,6 @@ export interface ControlData extends PropertyPaneControlConfig {
   validationMessage?: string;
   widgetProperties: any;
 }
-
 export interface ControlFunctions {
   onPropertyChange?: (
     propertyName: string,
@@ -50,6 +55,7 @@ export interface ControlFunctions {
     isDynamicTrigger?: boolean,
   ) => void;
   openNextPanel: (props: any) => void;
+  deleteProperties: (propertyPaths: string[]) => void;
 }
 
 export default BaseControl;
