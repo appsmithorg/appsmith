@@ -21,11 +21,7 @@ import styled, { ThemeProvider } from "styled-components";
 import { noop } from "utils/AppsmithUtils";
 import { CanvasLayoutType } from "./WidgetsEditor";
 
-type SupportedLayouts =
-  | "Default Device"
-  | "Tablet"
-  | "Mobile Device"
-  | "Fluid Width";
+type SupportedLayouts = "Desktop" | "Tablet" | "Mobile Device" | "Fluid Width";
 interface AppsmithLayoutConfigOption {
   name: SupportedLayouts;
   type: CanvasLayoutType;
@@ -40,7 +36,7 @@ export const AppsmithDefaultLayout: AppLayoutConfig = {
 
 const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
   {
-    name: "Default Device",
+    name: "Desktop",
     ...AppsmithDefaultLayout,
     icon: "desktop",
   },
