@@ -119,15 +119,6 @@ export const fetchDatasources = () => {
   };
 };
 
-export const selectPlugin = (pluginId: string) => {
-  return {
-    type: ReduxActionTypes.SELECT_PLUGIN,
-    payload: {
-      pluginId,
-    },
-  };
-};
-
 export const initDatasourcePane = (
   pluginType: string,
   urlId?: string,
@@ -147,5 +138,4 @@ export const storeAsDatasource = () => {
 export default {
   fetchDatasources,
   initDatasourcePane,
-  selectPlugin,
 };

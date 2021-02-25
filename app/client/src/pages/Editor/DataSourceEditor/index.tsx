@@ -4,7 +4,6 @@ import { getFormValues, submit } from "redux-form";
 import { AppState } from "reducers";
 import _ from "lodash";
 import {
-  getPluginPackageFromId,
   getPluginImages,
   getDatasource,
   getPlugin,
@@ -24,14 +23,10 @@ import { Datasource } from "entities/Datasource";
 import { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { ReduxAction } from "constants/ReduxActionConstants";
-import {
-  SAAS_EDITOR_DATASOURCE_ID_URL,
-  SAAS_EDITOR_URL,
-} from "../SaaSEditor/constants";
+import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 
 interface ReduxStateProps {
   formData: Datasource;
-  selectedPluginPackage: string;
   isSaving: boolean;
   isTesting: boolean;
   formConfig: any[];
@@ -82,7 +77,6 @@ class DataSourceEditor extends React.Component<Props> {
       match: {
         params: { datasourceId },
       },
-      selectedPluginPackage,
       isSaving,
       formData,
       isTesting,
@@ -110,7 +104,6 @@ class DataSourceEditor extends React.Component<Props> {
         onSubmit={this.handleSubmit}
         onSave={this.handleSave}
         onTest={this.props.testDatasource}
-        selectedPluginPackage={selectedPluginPackage}
         datasourceId={datasourceId}
         loadingFormConfigs={loadingFormConfigs}
         formData={formData}
@@ -137,10 +130,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginImages: getPluginImages(state),
     formData,
     pluginId,
-    selectedPluginPackage: getPluginPackageFromId(
-      state,
-      datasourcePane.selectedPlugin,
-    ),
     isSaving: datasources.loading,
     isDeleting: datasources.isDeleting,
     isTesting: datasources.isTesting,
@@ -196,10 +185,6 @@ class DatasourceEditorRouter extends React.Component<Props> {
       return <EntityNotFoundPane />;
     }
     if (!datasourceId) {
-      if (pluginDatasourceForm === "SaaSDatasourceForm") {
-        history.push(SAAS_EDITOR_URL(applicationId, pageId, pluginPackageName));
-        return;
-      }
       return (
         <DatasourceHome
           isSaving={isSaving}
