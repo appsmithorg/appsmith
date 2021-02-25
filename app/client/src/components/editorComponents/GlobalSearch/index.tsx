@@ -26,6 +26,7 @@ import {
   DocSearchItem,
   SearchItem,
   algoliaHighlightTag,
+  attachKind,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -36,6 +37,7 @@ import { getSelectedWidget } from "selectors/ui";
 import { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
+import useRecentEntities from "./useRecentEntities";
 
 const StyledContainer = styled.div`
   width: 750px;
@@ -72,13 +74,6 @@ const isModalOpenSelector = (state: AppState) =>
   state.ui.globalSearch.modalOpen;
 
 const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
-
-const attachKind = (source: any[], kind: string) => {
-  return source.map((s) => ({
-    ...s,
-    kind,
-  }));
-};
 
 const GlobalSearch = () => {
   const [defaultDocs, setDefaultDocs] = useState<DocSearchItem[]>([]);
@@ -119,9 +114,16 @@ const GlobalSearch = () => {
     [allWidgets],
   );
   const actions = useSelector(getActions);
-  const datasourcesMap = useFilteredDatasources(query);
   const modalOpen = useSelector(isModalOpenSelector);
   const pages = useSelector(getPageList) || [];
+  const datasourcesMap = useFilteredDatasources(query);
+  const datasourcesList = useMemo(() => {
+    return Object.entries(datasourcesMap).reduce((res: Datasource[], curr) => {
+      const [, value] = curr;
+      return [...res, ...value];
+    }, []);
+  }, [datasourcesMap]);
+  const recentEntities = useRecentEntities(searchableWidgets, datasourcesList);
 
   const resetSearchQuery = useSelector(searchQuerySelector);
   const selectedWidgetId = useSelector(getSelectedWidget);
@@ -135,13 +137,6 @@ const GlobalSearch = () => {
       dispatch(setGlobalSearchQuery(""));
     }
   }, [modalOpen]);
-
-  const datasourcesList = useMemo(() => {
-    return Object.entries(datasourcesMap).reduce((res: Datasource[], curr) => {
-      const [, value] = curr;
-      return [...res, ...value];
-    }, []);
-  }, [datasourcesMap]);
 
   const filteredWidgets = useMemo(() => {
     if (!query) return searchableWidgets;
@@ -174,18 +169,23 @@ const GlobalSearch = () => {
   }, [pages, query]);
 
   const searchResults = useMemo(() => {
+    if (!query) {
+      return [...recentEntities, ...defaultDocs];
+    }
     return [
       ...filteredPages,
       ...filteredWidgets,
       ...filteredActions,
       ...datasourcesList,
-      ...(query ? documentationSearchResults : defaultDocs),
+      ...documentationSearchResults,
     ];
   }, [
     filteredWidgets,
     filteredActions,
     documentationSearchResults,
     datasourcesList,
+    query,
+    recentEntities,
   ]);
 
   const activeItem = useMemo(() => {

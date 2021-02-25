@@ -79,6 +79,7 @@
     "nanoid": "^2.0.4",
     "node-sass": "^4.11.0",
     "normalizr": "^3.3.0",
+    "path-to-regexp": "^6.2.0",
     "popper.js": "^1.15.0",
     "prettier": "^1.18.2",
     "prismjs": "^1.21.0",

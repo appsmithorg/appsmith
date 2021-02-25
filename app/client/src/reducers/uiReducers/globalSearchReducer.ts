@@ -4,6 +4,8 @@ import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 const initialState: GlobalSearchReduxState = {
   query: "", // used to prefill when opened via contextual help links
   modalOpen: false,
+  recentEntities: [],
+  recentEntitiesRestored: false,
 };
 
 const globalSearchReducer = createReducer(initialState, {
@@ -14,11 +16,33 @@ const globalSearchReducer = createReducer(initialState, {
   [ReduxActionTypes.TOGGLE_SHOW_GLOBAL_SEARCH_MODAL]: (
     state: GlobalSearchReduxState,
   ) => ({ ...state, modalOpen: !state.modalOpen }),
+  [ReduxActionTypes.SET_RECENT_ENTITIES]: (
+    state: GlobalSearchReduxState,
+    action: ReduxAction<Array<{ type: string; id: string }>>,
+  ) => ({
+    ...state,
+    recentEntities: action.payload,
+  }),
+  [ReduxActionTypes.RESET_RECENT_ENTITIES]: (
+    state: GlobalSearchReduxState,
+  ) => ({
+    ...state,
+    recentEntities: [],
+    recentEntitiesRestored: false,
+  }),
+  [ReduxActionTypes.RESTORE_RECENT_ENTITIES_SUCCESS]: (
+    state: GlobalSearchReduxState,
+  ) => ({
+    ...state,
+    recentEntitiesRestored: true,
+  }),
 });
 
 export interface GlobalSearchReduxState {
   query: string;
   modalOpen: boolean;
+  recentEntities: Array<{ type: string; id: string }>;
+  recentEntitiesRestored: boolean;
 }
 
 export default globalSearchReducer;

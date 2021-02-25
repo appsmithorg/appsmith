@@ -104,3 +104,10 @@ export const getDefaultDocumentationResults = async () => {
 };
 
 export const algoliaHighlightTag = "ais-highlight-0000000000";
+
+export const attachKind = (source: any[], kind: string) => {
+  return source.map((s) => ({
+    ...s,
+    kind,
+  }));
+};
