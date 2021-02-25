@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -310,8 +309,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     String nextKey = fieldsIterator.next();
                     if (parent instanceof JSONObject) {
                         parent = ((JSONObject) parent).get(nextKey);
-                    } else if (parent instanceof LinkedHashMap) {
-                        parent = new JSONObject((Map<String, ?>) ((Map<String, ?>) parent).get(nextKey));
+                    } else if (parent instanceof Map) {
+                        parent = ((Map<String, ?>) parent).get(nextKey);
                     } else if (parent instanceof List) {
                         if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
                             parent = ((List) parent).get(Integer.parseInt(nextKey));
