@@ -1,5 +1,11 @@
 import { Datasource } from "entities/Datasource";
 
+export type RecentEntity = {
+  type: string;
+  id: string;
+  params?: Record<string, string | undefined>;
+};
+
 export enum SEARCH_ITEM_TYPES {
   documentation = "documentation",
   action = "action",

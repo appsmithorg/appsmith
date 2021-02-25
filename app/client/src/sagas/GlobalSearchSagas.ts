@@ -83,8 +83,3 @@ export default function* globalSearchSagas() {
     ),
   ]);
 }
-
-/**
- * start listening to recent entity updates
- * take
- */

@@ -1,36 +1,45 @@
-import { Datasource } from "entities/Datasource";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getPageList } from "selectors/editorSelectors";
 import { getActions } from "selectors/entitiesSelector";
 import { SEARCH_ITEM_TYPES } from "./utils";
+import { get } from "lodash";
+import { useFilteredDatasources } from "pages/Editor/Explorer/hooks";
 
 const recentEntitiesSelector = (state: AppState) =>
   state.ui.globalSearch.recentEntities;
 
-const useResentEntities = (searchableWidgets: any, datasourcesList: any) => {
+const useResentEntities = () => {
+  const widgetsByPage = useSelector((state: AppState) => state.ui.pageWidgets);
   const recentEntities = useSelector(recentEntitiesSelector);
   const actions = useSelector(getActions);
+  const datasourcesMap = useFilteredDatasources("");
 
   const pages = useSelector(getPageList) || [];
 
-  // lookup by keys, handle edge cases
   const populatedRecentEntities = recentEntities
     .map((entity) => {
-      const { type, id } = entity;
-      if (type === "page")
-        return {
-          ...pages.find((page) => page.pageId === id),
-          kind: SEARCH_ITEM_TYPES.page,
-        };
-      else if (type === "datasource")
-        return datasourcesList.find(
-          (datasource: Datasource) => datasource.id === id,
-        );
-      else if (type === "action")
+      const { type, id, params } = entity;
+      if (type === "page") {
+        const result = pages.find((page) => page.pageId === id);
+        if (result) {
+          return {
+            ...result,
+            kind: SEARCH_ITEM_TYPES.page,
+          };
+        } else {
+          return null;
+        }
+      } else if (type === "datasource" && params?.pageId) {
+        return get(datasourcesMap, `${params?.pageId}.${id}`);
+      } else if (type === "action")
         return actions.find((action) => action?.config?.id === id);
-      else if (type === "widget")
-        return searchableWidgets.find((widget: any) => widget.widgetId === id);
+      else if (type === "widget" && params?.pageId) {
+        return {
+          ...get(widgetsByPage, `${params?.pageId}.${id}`),
+          pageId: params?.pageId,
+        };
+      }
     })
     .filter(Boolean);
 

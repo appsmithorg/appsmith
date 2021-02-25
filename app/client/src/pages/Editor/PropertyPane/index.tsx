@@ -84,7 +84,6 @@ const PropertyPaneView = (
 class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   private panelWrapperRef = React.createRef<HTMLDivElement>();
   render() {
-    console.log(this.props, "props");
     if (this.props.isVisible) {
       log.debug("Property pane rendered");
       const content = this.renderPropertyPane();

@@ -123,7 +123,7 @@ const GlobalSearch = () => {
       return [...res, ...value];
     }, []);
   }, [datasourcesMap]);
-  const recentEntities = useRecentEntities(searchableWidgets, datasourcesList);
+  const recentEntities = useRecentEntities();
 
   const resetSearchQuery = useSelector(searchQuerySelector);
   const selectedWidgetId = useSelector(getSelectedWidget);

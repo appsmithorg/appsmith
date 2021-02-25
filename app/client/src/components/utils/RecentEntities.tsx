@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useLocation } from "react-router";
 import { getSelectedWidget } from "selectors/ui";
+import { getCurrentPageId } from "selectors/editorSelectors";
 // const { pathToRegexp, match, parse, compile } = require("path-to-regexp");
 import {
   match_api_path,
@@ -14,17 +15,36 @@ import { updateRecentEntity } from "actions/globalSearchActions";
 
 const getRecentEntity = (pathName: string) => {
   const builderMatch = match_builder_path(pathName);
-  if (builderMatch) return { type: "page", id: builderMatch?.params?.pageId };
+  if (builderMatch)
+    return {
+      type: "page",
+      id: builderMatch?.params?.pageId,
+      params: builderMatch?.params,
+    };
 
   const apiMatch = match_api_path(pathName);
-  if (apiMatch) return { type: "action", id: apiMatch?.params?.apiId };
+  if (apiMatch)
+    return {
+      type: "action",
+      id: apiMatch?.params?.apiId,
+      params: apiMatch?.params,
+    };
 
   const queryMatch = match_query_path(pathName);
-  if (queryMatch) return { type: "action", id: queryMatch.params?.queryId };
+  if (queryMatch)
+    return {
+      type: "action",
+      id: queryMatch.params?.queryId,
+      params: queryMatch?.params,
+    };
 
   const datasourceMatch = match_datasource_path(pathName);
   if (datasourceMatch)
-    return { type: "page", id: datasourceMatch?.params?.datasourceId };
+    return {
+      type: "page",
+      id: datasourceMatch?.params?.datasourceId,
+      params: datasourceMatch?.params,
+    };
 
   return {};
 };
@@ -33,10 +53,17 @@ const RecentEntities = () => {
   const location = useLocation();
   const selectedWidget = useSelector(getSelectedWidget);
   const dispatch = useDispatch();
+  const pageId = useSelector(getCurrentPageId);
 
   useEffect(() => {
     if (selectedWidget && selectedWidget !== MAIN_CONTAINER_WIDGET_ID)
-      dispatch(updateRecentEntity({ type: "widget", id: selectedWidget }));
+      dispatch(
+        updateRecentEntity({
+          type: "widget",
+          id: selectedWidget,
+          params: { pageId }, // this helps in looking up the widget without looping the entire list
+        }),
+      );
   }, [selectedWidget]);
 
   useEffect(() => {
