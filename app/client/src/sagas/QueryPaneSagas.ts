@@ -35,6 +35,7 @@ import {
   getDatasource,
   getPluginTemplates,
   getPlugin,
+  getEditorConfig,
 } from "selectors/entitiesSelector";
 import { PluginType, QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
@@ -161,11 +162,10 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   } = actionPayload.payload;
   const action = yield select(getAction, id);
   const data = { ...action };
-  if (pluginType === "DB") {
-    const state = yield select();
-    const editorConfigs = state.entities.plugins.editorConfigs;
+  if (pluginType === PluginType.DB) {
+    const editorConfig = yield select(getEditorConfig, pluginId);
 
-    if (!editorConfigs[pluginId]) {
+    if (!editorConfig) {
       yield put(fetchPluginForm({ id: pluginId }));
     }
 
