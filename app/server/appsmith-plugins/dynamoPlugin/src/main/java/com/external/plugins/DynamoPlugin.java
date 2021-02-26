@@ -399,14 +399,28 @@ public class DynamoPlugin extends BasePlugin {
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             return datasourceCreate(datasourceConfiguration)
                     .map(client -> {
-                        client.close();
+
+                        /*
+                         * - Creating a connection with false credentials does not throw an error. Hence,
+                         *   calling listTables() method to check validity.
+                         */
+                        client.listTables();
+
+                        try {
+                            client.close();
+                        } catch (Exception e) {
+                            System.out.println("Error closing Dynamodb connection that was made for testing." + e);
+                            return false;
+                        }
+
                         return true;
                     })
                     .defaultIfEmpty(false)
                     .map(isValid -> BooleanUtils.isTrue(isValid)
                             ? new DatasourceTestResult()
-                            : new DatasourceTestResult("Unable to create DynamoDB Client.")
+                            : new DatasourceTestResult("Invalid Access Key / Secret Key / Region")
                     )
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
                     .subscribeOn(scheduler);
         }
 
