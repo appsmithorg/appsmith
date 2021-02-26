@@ -889,33 +889,39 @@ function* batchUpdateWidgetPropertySaga(
 
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
   let widget = cloneDeep(stateWidget);
-  if (Object.keys(modify).length > 0) {
-    const {
-      propertyUpdates,
-      dynamicTriggerPathList,
-      dynamicBindingPathList,
-    } = yield getPropertiesToUpdate(widgetId, modify);
+  try {
+    if (Object.keys(modify).length > 0) {
+      const {
+        propertyUpdates,
+        dynamicTriggerPathList,
+        dynamicBindingPathList,
+      } = yield getPropertiesToUpdate(widgetId, modify);
 
-    // We loop over all updates
-    Object.entries(propertyUpdates).forEach(([propertyPath, propertyValue]) => {
-      // since property paths could be nested, we use lodash set method
-      widget = set(widget, propertyPath, propertyValue);
-    });
+      // We loop over all updates
+      Object.entries(propertyUpdates).forEach(
+        ([propertyPath, propertyValue]) => {
+          // since property paths could be nested, we use lodash set method
+          widget = set(widget, propertyPath, propertyValue);
+        },
+      );
 
-    if (dynamicBindingPathList?.length) {
-      const currentList = widget.dynamicBindingPathList || [];
-      widget.dynamicBindingPathList = uniqBy(
-        [...currentList, ...dynamicBindingPathList],
-        "key",
-      );
+      if (dynamicBindingPathList?.length) {
+        const currentList = widget.dynamicBindingPathList || [];
+        widget.dynamicBindingPathList = uniqBy(
+          [...currentList, ...dynamicBindingPathList],
+          "key",
+        );
+      }
+      if (dynamicTriggerPathList?.length) {
+        const currentList = widget.dynamicTriggerPathList || [];
+        widget.dynamicTriggerPathList = uniqBy(
+          [...currentList, ...dynamicTriggerPathList],
+          "key",
+        );
+      }
     }
-    if (dynamicTriggerPathList?.length) {
-      const currentList = widget.dynamicTriggerPathList || [];
-      widget.dynamicTriggerPathList = uniqBy(
-        [...currentList, ...dynamicTriggerPathList],
-        "key",
-      );
-    }
+  } catch (e) {
+    log.debug("Error updating property paths: ", { e });
   }
 
   if (Array.isArray(remove) && remove.length > 0) {
@@ -935,28 +941,32 @@ function* batchUpdateWidgetPropertySaga(
 }
 
 function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
-  let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
-    widget,
-  );
-  let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
-    widget,
-  );
+  try {
+    let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
+      widget,
+    );
+    let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
+      widget,
+    );
 
-  paths.forEach((propertyPath) => {
-    dynamicTriggerPathList = dynamicTriggerPathList.filter((dynamicPath) => {
-      return !isChildPropertyPath(propertyPath, dynamicPath.key);
+    paths.forEach((propertyPath) => {
+      dynamicTriggerPathList = dynamicTriggerPathList.filter((dynamicPath) => {
+        return !isChildPropertyPath(propertyPath, dynamicPath.key);
+      });
+
+      dynamicBindingPathList = dynamicBindingPathList.filter((dynamicPath) => {
+        return !isChildPropertyPath(propertyPath, dynamicPath.key);
+      });
     });
 
-    dynamicBindingPathList = dynamicBindingPathList.filter((dynamicPath) => {
-      return !isChildPropertyPath(propertyPath, dynamicPath.key);
+    widget.dynamicBindingPathList = dynamicBindingPathList;
+    widget.dynamicTriggerPathList = dynamicTriggerPathList;
+    paths.forEach((propertyPath) => {
+      widget = unsetPropertyPath(widget, propertyPath) as WidgetProps;
     });
-  });
-
-  widget.dynamicBindingPathList = dynamicBindingPathList;
-  widget.dynamicTriggerPathList = dynamicTriggerPathList;
-  paths.forEach((propertyPath) => {
-    widget = unsetPropertyPath(widget, propertyPath) as WidgetProps;
-  });
+  } catch (e) {
+    log.debug("Error removing propertyPaths: ", { e });
+  }
 
   return widget;
 }
@@ -970,16 +980,7 @@ function* deleteWidgetPropertySaga(
     return;
   }
 
-  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
-  const widget = yield removeWidgetProperties(
-    cloneDeep(stateWidget),
-    propertyPaths,
-  );
-
-  const stateWidgets = yield select(getWidgets);
-  const widgets = { ...stateWidgets, [widgetId]: widget };
-  // Save the layout
-  yield put(updateAndSaveLayout(widgets));
+  yield put(batchUpdateWidgetProperty(widgetId, { remove: propertyPaths }));
 }
 
 //TODO(abhinav): Move this to helpers and add tests

@@ -92,8 +92,3 @@ export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
 export const WIDGET_DELETE_UNDO_TIMEOUT = 7000;
 
 export const DEFAULT_CENTER = { lat: -34.397, lng: 150.644 };
-
-export interface BatchPropertyUpdatePayload {
-  modify?: Record<string, unknown>; //Key value pairs of paths and values to update
-  remove?: string[]; //Array of paths to delete
-}

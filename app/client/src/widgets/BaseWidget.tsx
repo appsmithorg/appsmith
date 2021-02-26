@@ -8,7 +8,6 @@ import {
   RenderMode,
   RenderModes,
   CSSUnits,
-  BatchPropertyUpdatePayload,
 } from "constants/WidgetConstants";
 import React, { Component, ReactNode } from "react";
 import {
@@ -34,6 +33,7 @@ import {
   WidgetDynamicPathListProps,
   WidgetEvaluatedProps,
 } from "../utils/DynamicBindingUtils";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
 
 /***
  * BaseWidget

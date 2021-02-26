@@ -1,8 +1,5 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
-import {
-  BatchPropertyUpdatePayload,
-  RenderMode,
-} from "constants/WidgetConstants";
+import { RenderMode } from "constants/WidgetConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 
@@ -40,6 +37,11 @@ export const updateWidgetProperty = (
     },
   });
 };
+
+export interface BatchPropertyUpdatePayload {
+  modify?: Record<string, unknown>; //Key value pairs of paths and values to update
+  remove?: string[]; //Array of paths to delete
+}
 
 export const batchUpdateWidgetProperty = (
   widgetId: string,

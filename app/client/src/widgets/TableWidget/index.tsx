@@ -1,10 +1,6 @@
 import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetState } from "../BaseWidget";
-import {
-  BatchPropertyUpdatePayload,
-  RenderModes,
-  WidgetType,
-} from "constants/WidgetConstants";
+import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import {
   compare,
@@ -45,6 +41,7 @@ import {
   CompactMode,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import tablePropertyPaneConfig from "./TablePropertyPaneConfig";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
     import("components/designSystems/appsmith/TableComponent"),

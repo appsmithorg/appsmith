@@ -152,6 +152,7 @@ function* listenForWidgetAdditions() {
               avatar: 20,
               name: 30,
             },
+            migrated: false,
             ...getStandupTableDimensions(),
           }),
         );

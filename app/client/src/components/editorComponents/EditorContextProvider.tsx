@@ -9,13 +9,11 @@ import {
   updateWidgetPropertyRequest,
   deleteWidgetProperty as deletePropertyAction,
   batchUpdateWidgetProperty as batchUpdatePropertyAction,
+  BatchPropertyUpdatePayload,
 } from "actions/controlActions";
 
 import { ExecuteActionPayload } from "constants/ActionConstants";
-import {
-  BatchPropertyUpdatePayload,
-  RenderModes,
-} from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { OccupiedSpace } from "constants/editorConstants";
 
 import {
