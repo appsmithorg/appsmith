@@ -18,7 +18,6 @@ import { generateReactKey } from "./generators";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
-export type TriggerPropertiesMap = Record<string, true | RegExp[]>;
 
 // TODO (abhinav): To enforce the property pane config structure in this function
 // Throw an error if the config is not of the desired format.
@@ -62,10 +61,6 @@ class WidgetFactory {
     WidgetType,
     DerivedPropertiesMap
   > = new Map();
-  static triggerPropertiesMap: Map<
-    WidgetType,
-    TriggerPropertiesMap
-  > = new Map();
   static defaultPropertiesMap: Map<
     WidgetType,
     Record<string, string>
@@ -81,7 +76,6 @@ class WidgetFactory {
     widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
     widgetPropertyValidation: WidgetPropertyValidationType,
     derivedPropertiesMap: DerivedPropertiesMap,
-    triggerPropertiesMap: TriggerPropertiesMap,
     defaultPropertiesMap: Record<string, string>,
     metaPropertiesMap: Record<string, any>,
     propertyPaneConfig?: PropertyPaneConfig[],
@@ -89,7 +83,6 @@ class WidgetFactory {
     this.widgetMap.set(widgetType, widgetBuilder);
     this.widgetPropValidationMap.set(widgetType, widgetPropertyValidation);
     this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
-    this.triggerPropertiesMap.set(widgetType, triggerPropertiesMap);
     this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
     this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
 
@@ -151,17 +144,6 @@ class WidgetFactory {
     return map;
   }
 
-  static getWidgetTriggerPropertiesMap(
-    widgetType: WidgetType,
-  ): TriggerPropertiesMap {
-    const map = this.triggerPropertiesMap.get(widgetType);
-    if (!map) {
-      console.error("Widget trigger map is not defined");
-      return {};
-    }
-    return map;
-  }
-
   static getWidgetDefaultPropertiesMap(
     widgetType: WidgetType,
   ): Record<string, string> {
@@ -202,7 +184,6 @@ class WidgetFactory {
         validations: WidgetFactory.getWidgetPropertyValidationMap(type),
         defaultProperties: WidgetFactory.getWidgetDefaultPropertiesMap(type),
         derivedProperties: WidgetFactory.getWidgetDerivedPropertiesMap(type),
-        triggerProperties: WidgetFactory.getWidgetTriggerPropertiesMap(type),
         metaProperties: WidgetFactory.getWidgetMetaPropertiesMap(type),
       };
     });
@@ -215,7 +196,6 @@ export type WidgetTypeConfigMap = Record<
   {
     validations: WidgetPropertyValidationType;
     derivedProperties: WidgetDerivedPropertyType;
-    triggerProperties: TriggerPropertiesMap;
     defaultProperties: Record<string, string>;
     metaProperties: Record<string, any>;
   }

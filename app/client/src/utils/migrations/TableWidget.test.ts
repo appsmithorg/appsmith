@@ -44,6 +44,7 @@ const input1: ContainerWidgetProps<WidgetProps> = {
       widgetId: "fs785w9gcy",
       dynamicBindingPathList: [],
       renderMode: "CANVAS",
+      version: 1,
     },
   ],
 };
@@ -105,6 +106,7 @@ const input2: ContainerWidgetProps<WidgetProps> = {
         },
       ],
       renderMode: "CANVAS",
+      version: 1,
     },
   ],
 };
@@ -157,6 +159,7 @@ const input3: ContainerWidgetProps<WidgetProps> = {
       onRowSelected: "{{showAlert('test','success')}}",
       onSearchTextChanged: "{{showAlert('fail','error')}}",
       renderMode: "CANVAS",
+      version: 1,
     },
   ],
 };
@@ -293,6 +296,7 @@ const output1 = {
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
       renderMode: "CANVAS",
+      version: 1,
     },
   ],
 };
@@ -474,6 +478,7 @@ const output2 = {
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
       renderMode: "CANVAS",
+      version: 1,
     },
   ],
 };
@@ -616,6 +621,7 @@ const output3 = {
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
       renderMode: "CANVAS",
+      version: 1,
     },
   ],
 };

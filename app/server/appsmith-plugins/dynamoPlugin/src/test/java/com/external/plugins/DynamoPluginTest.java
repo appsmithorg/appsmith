@@ -210,10 +210,6 @@ public class DynamoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     Map<String, Object> resultBody = (Map<String, Object>) result.getBody();
-                    Map<String, Object> rawResponse = (Map<String, Object>) resultBody.get("raw");
-                    Map<String, Map<String, String>> rawItem = (Map<String, Map<String, String>>) rawResponse.get("Item");
-                    assertEquals("New Delhi", rawItem.get("City").get("S"));
-
                     Map<String, String> transformedItem = (Map<String, String>) resultBody.get("Item");
                     assertEquals("New Delhi", transformedItem.get("City"));
                 })
@@ -268,11 +264,6 @@ public class DynamoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     Map<String, Object> resultBody = (Map<String, Object>) result.getBody();
-                    Map<String, Object> rawResponse = (Map<String, Object>) resultBody.get("raw");
-                    Map<String, Map<String, Object>> rawItem = (Map<String, Map<String, Object>>) rawResponse.get(
-                            "Attributes");
-                    assertEquals("Bengaluru", rawItem.get("City").get("S"));
-
                     Map<String, String> transformedItem = (Map<String, String>) resultBody.get("Attributes");
                     assertEquals("Bengaluru", transformedItem.get("City"));
                 })
@@ -291,20 +282,9 @@ public class DynamoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
 
-                    List<Map<String, Object>> items = (List<Map<String, Object>>)
-                            ((Map<String, Object>)((Map<String, Object>) result.getBody()).get("raw")).get("Items");
+                    List<Map<String, Object>> items =
+                            (List<Map<String, Object>>) ((Map<String, Object>) result.getBody()).get("Items");
                     assertEquals(2, items.size());
-
-                    for (int i=0; i<items.size(); i++) {
-                        Map<String, Object> item = items.get(i);
-                        for (Map.Entry<String, Object> entry: item.entrySet()) {
-                            Object rawValue = ((Map<String, Object>) entry.getValue()).get("S");
-                            Object transformedValue =
-                                    ((List<Map<String, Object>>)((Map<String, Object>) result.getBody()).get("Items"))
-                                            .get(i).get(entry.getKey());
-                            assertTrue(rawValue.equals(transformedValue));
-                        }
-                    }
                 })
                 .verifyComplete();
     }
@@ -342,13 +322,6 @@ public class DynamoPluginTest {
                             response.remove("UnprocessedKeys")
                     );
 
-                    // Test raw response
-                    Map<String, Object> rawResponse =
-                            (Map<String, Object>) ((Map<String, Object>) response.get("raw")).get(
-                                    "Responses");
-                    ArrayList<Map<String, Object>> rawCitiesList = (ArrayList<Map<String, Object>>) rawResponse.get("cities");
-                    assertEquals("New Delhi", ((Map<String, Object>)(rawCitiesList.get(0)).get("City")).get("S"));
-
                     // Test transformed response
                     Map<String, Object> transformedResponse = (Map<String, Object>) response.get("Responses");
                     ArrayList<Map<String, Object>> transformedCitiesList = (ArrayList<Map<String, Object>>) transformedResponse.get("cities");
@@ -382,13 +355,6 @@ public class DynamoPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
 
                     final Map<String, ?> response = (Map) result.getBody();
-
-                    // Test raw response
-                    ArrayList<Map<String, Object>> rawResponse =
-                            (ArrayList<Map<String, Object>>) ((Map<String, Object>) response.get("raw")).get(
-                            "Responses");
-                    assertEquals("New Delhi",
-                            ((Map<String, Map<String, Object>>)rawResponse.get(0).get("Item")).get("City").get("S"));
 
                     // Test transformed response
                     ArrayList<Map<String, Object>> transformedResponse = (ArrayList<Map<String, Object>>) response.get("Responses");
@@ -441,31 +407,6 @@ public class DynamoPluginTest {
 
                     Map<String, Object> resultBody = (Map<String, Object>) result.getBody();
                     Map<String, Object> rawResponse = (Map<String, Object>) resultBody.get("raw");
-
-                    /*
-                     * - Check if data under the "raw" section i.e. non-transformed data is correct.
-                     */
-                    ArrayList<Map<String, Object>> rawItems = (ArrayList<Map<String, Object>>) rawResponse.get(
-                            "Items");
-                    Map<String, Object> rawItemMap = rawItems.get(0);
-                    assertEquals("1", ((Map<String, Object>)rawItemMap.get("Id")).get("N"));
-                    assertEquals("str", ((Map<String, Object>)rawItemMap.get("StringType")).get("S"));
-                    assertEquals("true", ((Map<String, Object>)rawItemMap.get("BooleanType")).get("BOOL").toString());
-                    assertEquals("payload1", ((Map<String, Object>)rawItemMap.get("BinaryType")).get("B"));
-                    assertEquals("true", ((Map<String, Object>)rawItemMap.get("NullType")).get("NUL").toString());
-                    assertArrayEquals(new String[]{"str1", "str2"},
-                            ((ArrayList<String>)((Map<String, Object>)rawItemMap.get("StringSetType")).get("SS")).toArray());
-                    assertArrayEquals(new String[]{"payload1", "payload2"},
-                            ((ArrayList<String>)((Map<String, Object>)rawItemMap.get("BinarySetType")).get("BS")).toArray());
-                    assertArrayEquals(new String[]{"1", "2"},
-                            ((ArrayList<String>)((Map<String, Object>)rawItemMap.get("NumberSetType")).get("NS")).toArray());
-                    assertEquals("mapValue",
-                            ((Map<String, Map<String, Map<String, Object>>>)rawItemMap.get("MapType")).get("M")
-                                    .get("mapKey").get("S").toString());
-                    assertEquals("listValue1",
-                            ((HashMap<String, ArrayList<HashMap<String, Object>>>)rawItemMap.get("ListType")).get("L").get(0).get("S"));
-                    assertEquals("listValue2",
-                            ((HashMap<String, ArrayList<HashMap<String, Object>>>)rawItemMap.get("ListType")).get("L").get(1).get("S"));
 
                     /*
                      * - Check if the transformed data is correct.

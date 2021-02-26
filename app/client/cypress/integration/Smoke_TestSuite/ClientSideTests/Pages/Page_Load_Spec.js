@@ -7,6 +7,7 @@ describe("Page Load tests", () => {
     cy.get("div")
       .contains("Pages")
       .next()
+      .next()
       .click();
     cy.get("h2").contains("Drag and drop a widget here");
     cy.addDsl(dsl);

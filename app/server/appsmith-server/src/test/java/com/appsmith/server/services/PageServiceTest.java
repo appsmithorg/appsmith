@@ -225,6 +225,7 @@ public class PageServiceTest {
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         action.setDatasource(datasource);
+        action.setExecuteOnLoad(true);
 
         Mono<PageDTO> pageMono = applicationPageService.createPage(testPage)
                 .flatMap(page -> {
@@ -262,6 +263,9 @@ public class PageServiceTest {
                     List<NewAction> actions = tuple.getT2();
                     assertThat(actions.size()).isEqualTo(1);
                     assertThat(actions.get(0).getUnpublishedAction().getName()).isEqualTo("Page Action");
+
+                    // Confirm that executeOnLoad is cloned as well.
+                    assertThat(Boolean.TRUE.equals(actions.get(0).getUnpublishedAction().getExecuteOnLoad()));
                 })
                 .verifyComplete();
     }

@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from "react";
+import React, { useCallback } from "react";
 import { Page } from "constants/ReduxActionConstants";
 import Entity, { EntityClassNames } from "../Entity";
 import { useParams } from "react-router";
@@ -10,7 +10,7 @@ import PageContextMenu from "./PageContextMenu";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
-import { homePageIcon, pageIcon } from "../ExplorerIcons";
+import { hiddenPageIcon, homePageIcon, pageIcon } from "../ExplorerIcons";
 import { getPluginGroups } from "../Actions/helpers";
 import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
 import { resolveAsSpaceChar } from "utils/helpers";
@@ -28,7 +28,8 @@ type ExplorerPageEntityProps = {
   searchKeyword?: string;
   showWidgetsSidebar: (pageId: string) => void;
 };
-export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
+
+export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
   const params = useParams<ExplorerURLParams>();
 
   const currentPageId = useSelector((state: AppState) => {
@@ -50,10 +51,12 @@ export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
       name={props.page.pageName}
       className={EntityClassNames.CONTEXT_MENU}
       isDefaultPage={props.page.isDefault}
+      isHidden={!!props.page.isHidden}
     />
   );
 
   const icon = props.page.isDefault ? homePageIcon : pageIcon;
+  const rightIcon = !!props.page.isHidden ? hiddenPageIcon : null;
 
   const addWidgetsFn = useCallback(
     () => props.showWidgetsSidebar(props.page.pageId),
@@ -70,9 +73,12 @@ export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
       entityId={props.page.pageId}
       active={isCurrentPage}
       isDefaultExpanded={isCurrentPage || !!props.searchKeyword}
-      updateEntityName={updatePage}
+      updateEntityName={(id, name) =>
+        updatePage(id, name, !!props.page.isHidden)
+      }
       contextMenu={contextMenu}
       onNameEdit={resolveAsSpaceChar}
+      rightIcon={rightIcon}
       searchKeyword={props.searchKeyword}
     >
       <ExplorerWidgetGroup
@@ -93,7 +99,7 @@ export const ExplorerPageEntity = memo((props: ExplorerPageEntityProps) => {
       )}
     </Entity>
   );
-});
+};
 
 ExplorerPageEntity.displayName = "ExplorerPageEntity";
 (ExplorerPageEntity as any).whyDidYouRender = {

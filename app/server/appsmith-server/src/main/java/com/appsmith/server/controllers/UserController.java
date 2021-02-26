@@ -68,6 +68,12 @@ public class UserController extends BaseController<UserService, User, String> {
         return userSignup.signupAndLoginFromFormData(exchange);
     }
 
+    @PutMapping()
+    public Mono<ResponseDTO<User>> update(@RequestBody User resource, ServerWebExchange exchange) {
+        return service.updateCurrentUser(resource, exchange)
+                .map(updatedUser -> new ResponseDTO<>(HttpStatus.OK.value(), updatedUser, null));
+    }
+
     @PutMapping("/switchOrganization/{orgId}")
     public Mono<ResponseDTO<User>> setCurrentOrganization(@PathVariable String orgId) {
         return service.switchCurrentOrganization(orgId)
