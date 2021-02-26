@@ -160,8 +160,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     pluginId,
     actionConfiguration,
   } = actionPayload.payload;
-  const action = yield select(getAction, id);
-  const data = { ...action };
+
   if (pluginType === PluginType.DB) {
     const editorConfig = yield select(getEditorConfig, pluginId);
 
@@ -169,11 +168,11 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
       yield put(fetchPluginForm({ id: pluginId }));
     }
 
-    yield put(initialize(QUERY_EDITOR_FORM_NAME, data));
+    yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
     const pluginTemplates = yield select(getPluginTemplates);
-    const queryTemplate = pluginTemplates[action.pluginId];
+    const queryTemplate = pluginTemplates[pluginId];
     // Do not show template view if the query has body(code) or if there are no templates
     const showTemplate = !(
       !!actionConfiguration.body || isEmpty(queryTemplate)
