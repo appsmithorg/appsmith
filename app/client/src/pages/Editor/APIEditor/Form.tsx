@@ -41,7 +41,7 @@ import { useLocalStorage } from "utils/hooks/localstorage";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
 
-const Form = styled.div`
+const Form = styled.form`
   display: flex;
   flex-direction: column;
   height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
@@ -292,6 +292,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               text="Run"
               tag="button"
               size={Size.medium}
+              type="button"
               onClick={() => {
                 onRunClick();
               }}
