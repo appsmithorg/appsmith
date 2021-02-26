@@ -302,7 +302,7 @@ class TabsWidget extends BaseWidget<
 
   componentDidMount() {
     // If we have a defaultTab
-    if (this.props.defaultTab) {
+    if (this.props.defaultTab && this.props.tabs.length) {
       // Find the default Tab object
       const selectedTab = _.find(this.props.tabs, {
         label: this.props.defaultTab,
@@ -322,7 +322,7 @@ class TabsWidget extends BaseWidget<
           selectedTabWidgetId,
         );
       }
-    } else if (!this.props.selectedTabWidgetId) {
+    } else if (!this.props.selectedTabWidgetId && this.props.tabs.length) {
       // If no tab is selected
       // Select the first tab in the tabs list.
       this.props.updateWidgetMetaProperty(
