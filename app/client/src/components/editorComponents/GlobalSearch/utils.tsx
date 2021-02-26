@@ -89,6 +89,9 @@ const defaultDocsConfig = [
   },
 ];
 
+const githubDocsAssetsPath =
+  "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.2.1/.gitbook";
+
 export const useDefaultDocumentationResults = () => {
   const [defaultDocs, setDefaultDocs] = useState<DocSearchItem[]>([]);
 
@@ -97,7 +100,9 @@ export const useDefaultDocumentationResults = () => {
       const data = await Promise.all(
         defaultDocsConfig.map(async (doc: any) => {
           const response = await fetch(doc.link);
-          const document = await response.text();
+          let document = await response.text();
+          const assetRegex = new RegExp("[../]*?/.gitbook", "g");
+          document = document.replaceAll(assetRegex, githubDocsAssetsPath);
           return {
             _highlightResult: {
               document: {
