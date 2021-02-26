@@ -67,6 +67,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
     history.push(QUERIES_EDITOR_URL(applicationId, pageId));
     return;
   }
+
   let currentEditorConfig = editorConfigs[action.datasource.pluginId];
 
   if (!currentEditorConfig) {
