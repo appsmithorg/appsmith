@@ -37,8 +37,6 @@ import {
 import { QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
 import { fetchPluginForm } from "actions/pluginActions";
-import { getQueryParams } from "utils/AppsmithUtils";
-import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { Variant } from "components/ads/common";
@@ -209,17 +207,6 @@ function* handleNameChangeSuccessSaga(
       },
     });
     return;
-  }
-  if (actionObj.pluginType === QUERY_CONSTANT) {
-    const params = getQueryParams();
-    if (params.editName) {
-      params.editName = "false";
-    }
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
-    history.replace(
-      QUERIES_EDITOR_ID_URL(applicationId, pageId, actionId, params),
-    );
   }
 }
 

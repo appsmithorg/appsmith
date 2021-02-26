@@ -102,6 +102,9 @@ export const EditableText = (props: EditableTextProps) => {
 
   useEffect(() => {
     setValue(props.defaultValue);
+  }, [props.defaultValue]);
+
+  useEffect(() => {
     setIsEditing(!!props.isEditingDefault);
   }, [props.defaultValue, props.isEditingDefault, setValue]);
 
