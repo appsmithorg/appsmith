@@ -84,9 +84,19 @@ export const entityDefinitions = {
       "!doc": "The value selected in a single select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
+    selectedOptionLabel: {
+      "!type": "string",
+      "!doc": "The selected option label in a single select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
     selectedOptionValues: {
       "!type": "[string]",
       "!doc": "The array of values selected in a multi select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    selectedOptionLabels: {
+      "!type": "[string]",
+      "!doc": "The array of selected option labels in a multi select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
     isDisabled: "bool",
