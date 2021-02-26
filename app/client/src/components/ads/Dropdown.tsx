@@ -27,7 +27,7 @@ export const DropdownContainer = styled.div<{ width?: string }>`
   position: relative;
 `;
 
-export const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
+const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
   height: 38px;
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[6]}px;
@@ -60,7 +60,7 @@ export const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
   }
 `;
 
-export const DropdownWrapper = styled.div<{
+const DropdownWrapper = styled.div<{
   width?: string;
 }>`
   width: ${(props) => props.width || "260px"};
@@ -72,7 +72,7 @@ export const DropdownWrapper = styled.div<{
   padding: ${(props) => props.theme.spaces[3]}px 0;
 `;
 
-export const OptionWrapper = styled.div<{
+const OptionWrapper = styled.div<{
   selected: boolean;
 }>`
   padding: ${(props) => props.theme.spaces[4]}px
@@ -117,7 +117,7 @@ export const OptionWrapper = styled.div<{
   }
 `;
 
-export const LabelWrapper = styled.div<{ label?: string }>`
+const LabelWrapper = styled.div<{ label?: string }>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;

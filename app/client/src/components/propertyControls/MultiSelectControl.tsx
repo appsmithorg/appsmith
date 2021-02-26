@@ -24,25 +24,14 @@ class MultiSelectControl extends BaseControl<MultiSelectControlProps> {
         width="100%"
         showLabelOnly={true}
         optionWidth="187px"
+        selectAll={true}
+        selectAllQuantifier="*"
       />
     );
   }
 
   onItemSelect = (value: string[]): void => {
-    const isStarPresent = this.props.propertyValue.includes("*");
-    const isStarSelected = value.includes("*");
-    if (isStarPresent && !isStarSelected) {
-      this.updateProperty(this.props.propertyName, []);
-    } else if (!isStarPresent && isStarSelected) {
-      const selectedValue = _.map(this.props.options, (item) => item.value);
-      this.updateProperty(this.props.propertyName, selectedValue);
-    } else {
-      let selectedValue = [...value];
-      if (isStarSelected) {
-        selectedValue = value.filter((item) => item !== "*");
-      }
-      this.updateProperty(this.props.propertyName, selectedValue);
-    }
+    this.updateProperty(this.props.propertyName, value);
   };
 
   static getControlType() {
