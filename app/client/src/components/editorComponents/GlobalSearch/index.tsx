@@ -22,7 +22,7 @@ import {
 import {
   getItemType,
   SEARCH_ITEM_TYPES,
-  getDefaultDocumentationResults,
+  useDefaultDocumentationResults,
   DocSearchItem,
   SearchItem,
   algoliaHighlightTag,
@@ -76,15 +76,7 @@ const isModalOpenSelector = (state: AppState) =>
 const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
 
 const GlobalSearch = () => {
-  const [defaultDocs, setDefaultDocs] = useState<DocSearchItem[]>([]);
-
-  if (defaultDocs.length === 0) {
-    (async () => {
-      const defaultDocs = await getDefaultDocumentationResults();
-      setDefaultDocs(defaultDocs);
-    })();
-  }
-
+  const defaultDocs = useDefaultDocumentationResults();
   const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
   const toggleShow = () => dispatch(toggleShowGlobalSearchModal());

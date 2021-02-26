@@ -19,24 +19,29 @@ class GlobalSearchHotKeys extends React.Component<Props> {
     return [
       {
         combo: "mod + k",
-        onKeyDown: () => {
+        onKeyDown: (e: KeyboardEvent) => {
+          e.preventDefault();
           this.props.toggleShow();
           AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
         },
         hideWhenModalClosed: false,
         allowInInput: false,
+        label: "Show omnibar",
+        global: true,
       },
       {
         combo: "up",
         onKeyDown: this.props.handleUpKey,
         hideWhenModalClosed: true,
         allowInInput: true,
+        group: "Omnibar",
       },
       {
         combo: "down",
         onKeyDown: this.props.handleDownKey,
         hideWhenModalClosed: true,
         allowInInput: true,
+        group: "Omnibar",
       },
       {
         combo: "return",
@@ -47,6 +52,7 @@ class GlobalSearchHotKeys extends React.Component<Props> {
         },
         hideWhenModalClosed: true,
         allowInInput: true,
+        group: "Omnibar",
       },
     ].filter(
       ({ hideWhenModalClosed }) =>
@@ -57,16 +63,18 @@ class GlobalSearchHotKeys extends React.Component<Props> {
   renderHotkeys() {
     return (
       <Hotkeys>
-        {this.hotKeysConfig.map(({ combo, onKeyDown, allowInInput }, index) => (
-          <Hotkey
-            key={index}
-            global={true}
-            combo={combo}
-            onKeyDown={onKeyDown}
-            label=""
-            allowInInput={allowInInput}
-          />
-        ))}
+        {this.hotKeysConfig.map(
+          ({ combo, onKeyDown, allowInInput, label, global }, index) => (
+            <Hotkey
+              key={index}
+              global={global}
+              combo={combo}
+              onKeyDown={onKeyDown}
+              label={label}
+              allowInInput={allowInInput}
+            />
+          ),
+        )}
       </Hotkeys>
     );
   }

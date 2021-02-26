@@ -30,7 +30,10 @@ type Props = {
 
 const HelpBar = ({ toggleShowModal }: Props) => {
   return (
-    <StyledHelpBar onClick={toggleShowModal}>
+    <StyledHelpBar
+      onClick={toggleShowModal}
+      className="t--global-search-modal-trigger"
+    >
       <Text type={TextType.P2}>{HELPBAR_PLACEHOLDER}</Text>
       <Text type={TextType.P3} italic>
         {comboText}

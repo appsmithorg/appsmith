@@ -1,4 +1,5 @@
 import { Datasource } from "entities/Datasource";
+import { useEffect, useState } from "react";
 
 export type RecentEntity = {
   type: string;
@@ -56,7 +57,7 @@ export const getItemTitle = (item: SearchItem): string => {
   }
 };
 
-const defaultDocs = [
+const defaultDocsConfig = [
   {
     link:
       "https://raw.githubusercontent.com/appsmithorg/appsmith-docs/v1.2.1/tutorial-1/README.md",
@@ -87,26 +88,33 @@ const defaultDocs = [
   },
 ];
 
-export const getDefaultDocumentationResults = async () => {
-  const data = await Promise.all(
-    defaultDocs.map(async (doc) => {
-      const response = await fetch(doc.link);
-      const document = await response.text();
-      return {
-        _highlightResult: {
-          document: {
-            value: document,
-          },
-          title: {
-            value: doc.title,
-          },
-        },
-        ...doc,
-      } as DocSearchItem;
-    }),
-  );
+export const useDefaultDocumentationResults = () => {
+  const [defaultDocs, setDefaultDocs] = useState<DocSearchItem[]>([]);
 
-  return data;
+  useEffect(() => {
+    (async () => {
+      const data = await Promise.all(
+        defaultDocsConfig.map(async (doc: any) => {
+          const response = await fetch(doc.link);
+          const document = await response.text();
+          return {
+            _highlightResult: {
+              document: {
+                value: document,
+              },
+              title: {
+                value: doc.title,
+              },
+            },
+            ...doc,
+          } as DocSearchItem;
+        }),
+      );
+      setDefaultDocs(data);
+    })();
+  }, []);
+
+  return defaultDocs;
 };
 
 export const algoliaHighlightTag = "ais-highlight-0000000000";

@@ -68,6 +68,7 @@ const SearchBox = ({ query, setQuery }: SearchBoxProps) => {
           autoFocus
           onKeyDown={handleKeyDown}
           placeholder={OMNIBAR_PLACEHOLDER}
+          className="t--global-search-input"
         />
         {query && <Icon name="close" onClick={() => updateSearchQuery("")} />}
       </InputContainer>
