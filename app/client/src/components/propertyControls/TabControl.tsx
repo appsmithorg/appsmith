@@ -1,6 +1,11 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledInputGroup, StyledPropertyPaneButton } from "./StyledControls";
+import {
+  StyledHiddenIcon,
+  StyledInputGroup,
+  StyledPropertyPaneButton,
+  StyledVisibleIcon,
+} from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
@@ -8,6 +13,9 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import _ from "lodash";
 import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
+import { FormIcons } from "icons/FormIcons";
+import { ControlIcons } from "icons/ControlIcons";
+import { AnyStyledComponent } from "styled-components";
 
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   padding: 0;

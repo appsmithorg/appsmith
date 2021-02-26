@@ -7,7 +7,6 @@ import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import { StyledInputGroup } from "./StyledControls";
 import log from "loglevel";
 
-
 const { google } = getAppsmithConfigs();
 
 class LocationSearchControl extends BaseControl<ControlProps> {
