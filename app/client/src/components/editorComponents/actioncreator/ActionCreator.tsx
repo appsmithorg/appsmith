@@ -29,6 +29,7 @@ import { NavigationTargetType } from "../../../sagas/ActionExecutionSagas";
 import { checkCurrentStep } from "sagas/OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { getWidgets } from "sagas/selectors";
+import { PluginType } from "entities/Action";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -1163,7 +1164,7 @@ function useQueryOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
 
   const queries = useSelector(getActionsForCurrentPage).filter(
-    (action) => action.config.pluginType === "DB",
+    (action) => action.config.pluginType === PluginType.DB,
   );
   const queryOptionTree = getQueryOptionsWithChildren(baseOptions, queries, {
     label: "Create Query",
