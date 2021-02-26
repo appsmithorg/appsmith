@@ -24,6 +24,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     );
     cy.get("body").click();
     cy.get("body").type(`{${modifierKey}}c`);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.get(commonlocators.toastBody)
       .first()

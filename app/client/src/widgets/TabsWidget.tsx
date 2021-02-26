@@ -2,7 +2,7 @@ import React from "react";
 import TabsComponent from "components/designSystems/appsmith/TabsComponent";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import WidgetFactory, { TriggerPropertiesMap } from "utils/WidgetFactory";
+import WidgetFactory from "utils/WidgetFactory";
 import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import _ from "lodash";
@@ -114,15 +114,13 @@ class TabsWidget extends BaseWidget<
     return {};
   }
 
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onTabSelected: true,
-    };
-  }
-
   getPageView() {
+    const tabsComponentProps = {
+      ...this.props,
+      tabs: this.getVisibleTabs(),
+    };
     return (
-      <TabsComponent {...this.props} onTabChange={this.onTabChange}>
+      <TabsComponent {...tabsComponentProps} onTabChange={this.onTabChange}>
         {this.renderComponent()}
       </TabsComponent>
     );
@@ -200,10 +198,7 @@ class TabsWidget extends BaseWidget<
   };
 
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
-    if (
-      this.props.tabs.length !== prevProps.tabs.length &&
-      this.props.children.length !== this.props.tabs.length
-    ) {
+    if (JSON.stringify(this.props.tabs) !== JSON.stringify(prevProps.tabs)) {
       const tabWidgetIds = this.props.tabs.map((tab) => tab.widgetId);
       const childWidgetIds = this.props.children
         .filter(Boolean)
@@ -235,9 +230,10 @@ class TabsWidget extends BaseWidget<
         }
       }
     }
+    const visibleTabs = this.getVisibleTabs();
     if (this.props.defaultTab) {
       if (this.props.defaultTab !== prevProps.defaultTab) {
-        const selectedTab = _.find(this.props.tabs, {
+        const selectedTab = _.find(visibleTabs, {
           label: this.props.defaultTab,
         });
         const selectedTabWidgetId = selectedTab
@@ -249,22 +245,31 @@ class TabsWidget extends BaseWidget<
         );
       }
     }
-
     // if selected tab is deleted
-    if (this.props.selectedTabWidgetId && this.props.tabs.length > 0) {
-      const selectedTabWithinTabs = _.find(this.props.tabs, {
-        widgetId: this.props.selectedTabWidgetId,
-      });
-
-      if (!selectedTabWithinTabs) {
-        // try to select default else select first
-        const defaultTab = _.find(this.props.tabs, {
-          label: this.props.defaultTab,
+    if (this.props.selectedTabWidgetId) {
+      if (visibleTabs.length > 0) {
+        const selectedTabWithinTabs = _.find(visibleTabs, {
+          widgetId: this.props.selectedTabWidgetId,
         });
+        if (!selectedTabWithinTabs) {
+          // try to select default else select first
+          const defaultTab = _.find(visibleTabs, {
+            label: this.props.defaultTab,
+          });
 
+          this.props.updateWidgetMetaProperty(
+            "selectedTabWidgetId",
+            (defaultTab && defaultTab.widgetId) || visibleTabs[0].widgetId,
+          );
+        }
+      } else {
+        this.props.updateWidgetMetaProperty("selectedTabWidgetId", undefined);
+      }
+    } else if (!this.props.selectedTabWidgetId) {
+      if (visibleTabs.length > 0) {
         this.props.updateWidgetMetaProperty(
           "selectedTabWidgetId",
-          (defaultTab && defaultTab.widgetId) || this.props.tabs[0].widgetId,
+          visibleTabs[0].widgetId,
         );
       }
     }
@@ -306,17 +311,26 @@ class TabsWidget extends BaseWidget<
     });
   };
 
+  getVisibleTabs = () => {
+    return this.props.tabs.filter(
+      (tab) => tab.isVisible === undefined || tab.isVisible === true,
+    );
+  };
+
   componentDidMount() {
+    const visibleTabs = this.getVisibleTabs();
     // If we have a defaultTab
     if (this.props.defaultTab) {
       // Find the default Tab object
-      const selectedTab = _.find(this.props.tabs, {
+      const selectedTab = _.find(visibleTabs, {
         label: this.props.defaultTab,
       });
       // Find the default Tab id
       const selectedTabWidgetId = selectedTab
         ? selectedTab.widgetId
-        : this.props.tabs[0].widgetId; // in case the default tab is deleted
+        : visibleTabs.length
+        ? visibleTabs[0].widgetId
+        : undefined; // in case the default tab is deleted
       // If we have a legitimate default tab Id and it is not already the selected Tab
       if (
         selectedTabWidgetId &&
@@ -333,7 +347,7 @@ class TabsWidget extends BaseWidget<
       // Select the first tab in the tabs list.
       this.props.updateWidgetMetaProperty(
         "selectedTabWidgetId",
-        this.props.tabs[0].widgetId,
+        visibleTabs.length ? visibleTabs[0].widgetId : undefined,
       );
     }
     this.generateTabContainers();
@@ -353,6 +367,7 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
     id: string;
     label: string;
     widgetId: string;
+    isVisible?: boolean;
   }>;
   shouldShowTabs: boolean;
   children: T[];

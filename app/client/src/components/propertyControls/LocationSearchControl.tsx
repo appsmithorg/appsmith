@@ -5,6 +5,8 @@ import StandaloneSearchBox from "react-google-maps/lib/components/places/Standal
 import { getAppsmithConfigs } from "configs";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import { StyledInputGroup } from "./StyledControls";
+import log from "loglevel";
+
 
 const { google } = getAppsmithConfigs();
 
@@ -20,13 +22,22 @@ class LocationSearchControl extends BaseControl<ControlProps> {
   };
 
   onLocationSelection = () => {
-    const places = this.searchBox.getPlaces();
-    const location = places[0].geometry.location;
-    const title = places[0].formatted_address;
-    const lat = location.lat();
-    const long = location.lng();
-    const value = { lat, long, title };
-    this.updateProperty(this.props.propertyName, value);
+    try {
+      // For some places, the length is zero
+      const places = this.searchBox.getPlaces();
+      const location = places[0].geometry.location;
+      const title = places[0].formatted_address;
+      const lat = location.lat();
+      const long = location.lng();
+      const value = { lat, long, title };
+      this.updateProperty(this.props.propertyName, value);
+    } catch (e) {
+      if (this.searchBox && this.searchBox.getPlaces)
+        log.debug("Error selecting location:", this.searchBox.getPlaces());
+      else {
+        log.debug("Error selecting location - searchBox not found");
+      }
+    }
   };
 
   onSearchBoxMounted = (ref: SearchBox) => {

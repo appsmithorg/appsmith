@@ -24,6 +24,7 @@ describe("Update Organization", function() {
       localStorage.setItem("OrgName", orgid);
       cy.get(homePage.orgNameInput).clear();
       cy.get(homePage.orgNameInput).type(orgid);
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(2000);
       cy.get(homePage.orgHeaderName).should("have.text", orgid);
     });

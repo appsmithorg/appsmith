@@ -296,7 +296,7 @@ export const StyledDeleteIcon = styled(
   position: absolute;
   margin-left: 15px;
   cursor: pointer;
-  right: 16px;
+  right: ${(props) => props.marginRight ?? 16}px;
   svg {
     width: 24px;
     height: 24px;
@@ -319,7 +319,7 @@ export const StyledVisibleIcon = styled(
   position: absolute;
   margin-left: 15px;
   cursor: pointer;
-  right: 16px;
+  right: ${(props) => props.marginRight ?? 12}px;
   svg {
     width: 24px;
     height: 24px;
@@ -338,7 +338,7 @@ export const StyledHiddenIcon = styled(
   position: absolute;
   margin-left: 15px;
   cursor: pointer;
-  right: 16px;
+  right: ${(props) => props.marginRight ?? 12}px;
   svg {
     width: 14px;
     top: 3px;
