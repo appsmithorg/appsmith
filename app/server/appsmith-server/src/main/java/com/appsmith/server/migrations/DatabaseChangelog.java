@@ -1722,14 +1722,6 @@ public class DatabaseChangelog {
                         && action.getPublishedAction().getActionConfiguration() != null) {
                     action.getPublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
                 }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
->>>>>>> 717e2931a... Safety net
-=======
-
->>>>>>> af638b0d8... Merge branch 'release' into feature/google-sheets
                 mongoTemplate.save(action);
             }
         }
@@ -1774,7 +1766,7 @@ public class DatabaseChangelog {
             mongoTemplate.save(action);
         }
     }
-
+    
     @ChangeSet(order = "056", id = "fix-dynamicBindingPathListForActions", author = "")
     public void fixDynamicBindingPathListForExistingActions(MongoTemplate mongoTemplate) {
 
