@@ -271,7 +271,7 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
     const isApi = action.pluginType === "API";
 
     if (isApi) {
-      const result = yield call(transformRestAction, action);
+      const result = transformRestAction(action);
       action = result.action;
       if (result.deletedFields) {
         for (const field of result.deletedFields) {
