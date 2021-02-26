@@ -1,9 +1,9 @@
 package com.appsmith.server.exceptions;
 
+import com.appsmith.external.exceptions.AppsmithErrorAction;
 import lombok.Getter;
 
 import java.text.MessageFormat;
-import com.appsmith.external.exceptions.AppsmithErrorAction;
 
 @Getter
 public enum AppsmithError {
@@ -67,6 +67,7 @@ public enum AppsmithError {
     MARKETPLACE_NOT_CONFIGURED(500, 5007, "Marketplace is not configured.", AppsmithErrorAction.DEFAULT),
     PAYLOAD_TOO_LARGE(413, 4028, "The request payload is too large. Max allowed size for request payload is {0} KB", AppsmithErrorAction.DEFAULT),
     SIGNUP_DISABLED(403, 4033, "Signup is restricted on this instance of Appsmith. Please contact the administrator to get an invite.", AppsmithErrorAction.DEFAULT),
+    FAIL_UPDATE_USER_IN_SESSION(500, 5008, "Unable to update user in session.", AppsmithErrorAction.LOG_EXTERNALLY),
     ;
 
 

@@ -204,7 +204,9 @@ public class MongoPlugin extends BasePlugin {
              * Ref: https://api.mongodb.com/java/2.13/com/mongodb/DB.html#setReadOnly-java.lang.Boolean-
              */
 
-            return Mono.just(MongoClients.create(buildClientURI(datasourceConfiguration)))
+            return Mono.just(datasourceConfiguration)
+                    .map(MongoPluginExecutor::buildClientURI)
+                    .map(MongoClients::create)
                     .onErrorMap(
                             IllegalArgumentException.class,
                             error ->

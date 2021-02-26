@@ -1309,6 +1309,17 @@ Cypress.Commands.add("evaluateErrorMessage", (value) => {
     });
 });
 
+Cypress.Commands.add("addAction", (value) => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .last()
+    .click();
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Show Message")
+    .click();
+  cy.enterActionValue(value);
+});
+
 Cypress.Commands.add("selectShowMsg", (value) => {
   cy.get(commonlocators.chooseAction)
     .children()
@@ -1326,6 +1337,7 @@ Cypress.Commands.add("addSuccessMessage", (value) => {
     .click();
   cy.enterActionValue(value);
 });
+
 Cypress.Commands.add("SetDateToToday", () => {
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Today")
@@ -1978,7 +1990,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/plugins").as("getPlugins");
   cy.route("POST", "/api/v1/logout").as("postLogout");
 
-  cy.route("GET", "/api/v1/datasources").as("getDataSources");
+  cy.route("GET", "/api/v1/datasources?organizationId=*").as("getDataSources");
   cy.route("GET", "/api/v1/pages/application/*").as("getPagesForCreateApp");
   cy.route("GET", "/api/v1/applications/view/*").as("getPagesForViewApp");
 

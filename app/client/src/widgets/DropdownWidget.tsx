@@ -9,7 +9,6 @@ import {
   BASE_WIDGET_VALIDATION,
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { Intent as BlueprintIntent } from "@blueprintjs/core";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
@@ -114,6 +113,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       isRequired: VALIDATION_TYPES.BOOLEAN,
       // onOptionChange: VALIDATION_TYPES.ACTION_SELECTOR,
       selectedOptionValues: VALIDATION_TYPES.ARRAY,
+      selectedOptionLabels: VALIDATION_TYPES.ARRAY,
+      selectedOptionLabel: VALIDATION_TYPES.TEXT,
       defaultOptionValue: VALIDATION_TYPES.DEFAULT_OPTION_VALUE,
     };
   }
@@ -127,12 +128,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       selectedIndexArr: `{{ this.selectedOptionValueArr.map(o => _.findIndex(this.options, { value: o })) }}`,
       value: `{{ this.selectionType === 'SINGLE_SELECT' ? this.selectedOptionValue : this.selectedOptionValueArr }}`,
       selectedOptionValues: `{{ this.selectedOptionValueArr }}`,
-    };
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onOptionChange: true,
+      selectedOptionLabels: `{{ this.selectionType === "MULTI_SELECT" ? this.selectedOptionValueArr.map(o => { const index = _.findIndex(this.options, { value: o }); return this.options[index]?.label; }) : [] }}`,
+      selectedOptionLabel: `{{(()=>{const index = _.findIndex(this.options, { value: this.selectedOptionValue }); return this.selectionType === "SINGLE_SELECT" ? this.options[index]?.label : ""; })()}}`,
     };
   }
 
@@ -282,6 +279,8 @@ export interface DropdownWidgetProps extends WidgetProps, WithMeta {
   isRequired: boolean;
   selectedOptionValue: string;
   selectedOptionValueArr: string[];
+  selectedOptionLabels: string[];
+  selectedOptionLabel: string;
 }
 
 export default DropdownWidget;

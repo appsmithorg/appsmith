@@ -243,13 +243,27 @@ export default class DataTreeEvaluator {
 
     // Remove duplicates from this list. Since we explicitly walk down the tree and implicitly (by fetching parents) walk
     // up the tree, there are bound to be many duplicates.
-    const uniqueKeysInSortOrder = [...new Set(finalSortOrder)];
+    const uniqueKeysInSortOrder = new Set(finalSortOrder);
 
-    const sortOrderPropertyPaths = Array.from(uniqueKeysInSortOrder);
+    // if a property path evaluation gets triggered by diff top order changes
+    // this could lead to incorrect sort order in spite of the bfs traversal
+    const sortOrderPropertyPaths: string[] = [];
+    this.sortedDependencies.forEach((path) => {
+      if (uniqueKeysInSortOrder.has(path)) {
+        sortOrderPropertyPaths.push(path);
+        // remove from the uniqueKeysInSortOrder
+        uniqueKeysInSortOrder.delete(path);
+      }
+    });
+    // Add any remaining paths in the uniqueKeysInSortOrder
+    const completeSortOrder = [
+      ...Array.from(uniqueKeysInSortOrder),
+      ...sortOrderPropertyPaths,
+    ];
 
     //Trim this list to now remove the property paths which are simply entity names
     const finalSortOrderArray: Array<string> = [];
-    sortOrderPropertyPaths.forEach((propertyPath) => {
+    completeSortOrder.forEach((propertyPath) => {
       const lastIndexOfDot = propertyPath.lastIndexOf(".");
       // Only do this for property paths and not the entity themselves
       if (lastIndexOfDot !== -1) {
@@ -286,30 +300,6 @@ export default class DataTreeEvaluator {
     }
     return sortOrder;
   }
-
-  // getValidationPaths(unevalDataTree: DataTree): Record<string, Set<string>> {
-  //   const result: Record<string, Set<string>> = {};
-  //   for (const key in unevalDataTree) {
-  //     const entity = unevalDataTree[key];
-  //     if (isAction(entity)) {
-  //       // TODO: add the properties to a global map somewhere
-  //       result[entity.name] = new Set(
-  //         ["config", "isLoading", "data"].map((e) => `${entity.name}.${e}`),
-  //       );
-  //     } else if (isWidget(entity)) {
-  //       if (!this.widgetConfigMap[entity.type])
-  //         throw new CrashingError(
-  //           `${entity.widgetName} has unrecognised entity type: ${entity.type}`,
-  //         );
-  //       const { validations } = this.widgetConfigMap[entity.type];
-  //
-  //       result[entity.widgetName] = new Set(
-  //         Object.keys(validations).map((e) => `${entity.widgetName}.${e}`),
-  //       );
-  //     }
-  //   }
-  //   return result;
-  // }
 
   createDependencyMap(unEvalTree: DataTree): DependencyMap {
     let dependencyMap: DependencyMap = {};

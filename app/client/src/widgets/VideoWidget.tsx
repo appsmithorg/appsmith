@@ -7,7 +7,6 @@ import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
 } from "utils/WidgetValidation";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
@@ -112,14 +111,6 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {};
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onEnd: true,
-      onPlay: true,
-      onPause: true,
-    };
   }
 
   shouldComponentUpdate(nextProps: VideoWidgetProps) {
