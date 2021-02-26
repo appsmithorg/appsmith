@@ -73,20 +73,19 @@ const Container = styled.div`
   }
 
   & a {
-    color: #54a9fb;
-  }
-
-  pre {
-    white-space: pre-wrap;
+    color: ${(props) => props.theme.colors.globalSearch.documentLink};
   }
 
   code {
     word-break: break-word;
+    background: ${(props) => props.theme.colors.globalSearch.codeBackground};
+    padding: ${(props) => props.theme.spaces[2]}px;
   }
 
   pre {
-    background: #090707;
-    padding: ${(props) => props.theme.spaces[2]}px;
+    background: ${(props) => props.theme.colors.globalSearch.codeBackground};
+    white-space: pre-wrap;
+    overflow: hidden;
   }
 `;
 
