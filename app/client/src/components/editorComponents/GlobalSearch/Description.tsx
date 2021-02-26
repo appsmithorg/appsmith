@@ -135,11 +135,20 @@ const updateDocumentDescriptionTitle = (
   }
 };
 
+const replaceHintTagsWithCode = (text: string) => {
+  let result;
+  result = text.replace(/{% hint .*?%}/, "<code>");
+  result = result.replace(/{% endhint .*?%}/, "</code>");
+
+  return result;
+};
+
 const getDocumentationPreviewContent = (
   activeItem: SearchItem,
 ): string | undefined => {
   try {
     let { value } = activeItem?._highlightResult?.document;
+
     value = stripMarkdown(value);
     const parsedDocument = marked(value);
     const domparser = new DOMParser();
@@ -171,14 +180,8 @@ const getDocumentationPreviewContent = (
       } catch (e) {}
     });
 
-    // replace hints with code tags
-    documentObj.body.innerHTML = documentObj.body.innerHTML.replace(
-      /{% hint .*?%}/,
-      "<code>",
-    );
-    documentObj.body.innerHTML = documentObj.body.innerHTML.replace(
-      /{% endhint .*?%}/,
-      "</code>",
+    documentObj.body.innerHTML = replaceHintTagsWithCode(
+      documentObj.body.innerHTML,
     );
 
     // update description title

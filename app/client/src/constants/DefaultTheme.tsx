@@ -947,7 +947,7 @@ const globalSearch = {
   documentationCtaText: "#03B365",
   emptyStateText: "#ABABAB",
   navigateUsingEnterSection: "#154E6B",
-  codeBackground: "#090707",
+  codeBackground: "#494949",
   documentLink: "#54a9fb",
 };
 
