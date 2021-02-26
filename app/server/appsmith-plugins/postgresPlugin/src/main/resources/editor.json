@@ -5,13 +5,6 @@
       "id": 1,
       "children": [
         {
-          "label": "Use Prepared Statement",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-          "controlType": "SWITCH",
-          "isRequired": true,
-          "initialValue": true
-        },
-        {
           "label": "",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT"

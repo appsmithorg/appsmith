@@ -1,4 +1,3 @@
-import { DataTreeEvaluator } from "./evaluation.worker";
 import {
   DataTreeAction,
   DataTreeWidget,
@@ -7,6 +6,7 @@ import {
 import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { RenderModes, WidgetTypes } from "../constants/WidgetConstants";
 import { PluginType } from "../entities/Action";
+import DataTreeEvaluator from "workers/DataTreeEvaluator";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -17,7 +17,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     defaultProperties: {},
     derivedProperties: {},
-    triggerProperties: {},
     metaProperties: {},
   },
   TEXT_WIDGET: {
@@ -33,7 +32,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     derivedProperties: {
       value: "{{ this.text }}",
     },
-    triggerProperties: {},
     metaProperties: {},
   },
   BUTTON_WIDGET: {
@@ -46,9 +44,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     defaultProperties: {},
     derivedProperties: {},
-    triggerProperties: {
-      onClick: true,
-    },
     metaProperties: {},
   },
   INPUT_WIDGET: {
@@ -80,9 +75,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
         '{{\n        function(){\n          let parsedRegex = null;\n          if (this.regex) {\n            /*\n            * break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags\n            * Example /test/i will be split into ["/test/gi", "/", "test", "gi"]\n            */\n            const regexParts = this.regex.match(/(\\/?)(.+)\\1([a-z]*)/i);\n            if (!regexParts) {\n              parsedRegex = new RegExp(this.regex);\n            } else {\n              /*\n              * if we don\'t have a regex flags (gmisuy), convert provided string into regexp directly\n              /*\n              if (regexParts[3] && !/^(?!.*?(.).*?\\1)[gmisuy]+$/.test(regexParts[3])) {\n                parsedRegex = RegExp(this.regex);\n              }\n              /*\n              * if we have a regex flags, use it to form regexp\n              */\n              parsedRegex = new RegExp(regexParts[2], regexParts[3]);\n            }\n          }\n          if (this.inputType === "EMAIL") {\n            const emailRegex = new RegExp(/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/);\n            return emailRegex.test(this.text);\n          }\n          else if (this.inputType === "NUMBER") {\n            return !isNaN(this.text)\n          }\n          else if (this.isRequired) {\n            if(this.text && this.text.length) {\n              if (parsedRegex) {\n                return parsedRegex.test(this.text)\n              } else {\n                return true;\n              }\n            } else {\n              return false;\n            }\n          } if (parsedRegex) {\n            return parsedRegex.test(this.text)\n          } else {\n            return true;\n          }\n        }()\n      }}',
       value: "{{this.text}}",
     },
-    triggerProperties: {
-      onTextChanged: true,
-    },
     metaProperties: {
       isFocused: false,
       isDirty: false,
@@ -101,9 +93,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     derivedProperties: {
       value: "{{this.isChecked}}",
-    },
-    triggerProperties: {
-      onCheckChange: true,
     },
     metaProperties: {},
   },
@@ -139,9 +128,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
         "{{ this.selectionType === 'SINGLE_SELECT' ? this.selectedOptionValue : this.selectedOptionValueArr }}",
       selectedOptionValues: "{{ this.selectedOptionValueArr }}",
     },
-    triggerProperties: {
-      onOptionChange: true,
-    },
     metaProperties: {},
   },
   RADIO_GROUP_WIDGET: {
@@ -164,9 +150,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
       isValid: "{{ this.isRequired ? !!this.selectedOptionValue : true }}",
       value: "{{this.selectedOptionValue}}",
     },
-    triggerProperties: {
-      onSelectionChange: true,
-    },
     metaProperties: {},
   },
   IMAGE_WIDGET: {
@@ -181,9 +164,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     defaultProperties: {},
     derivedProperties: {},
-    triggerProperties: {
-      onClick: true,
-    },
     metaProperties: {},
   },
   TABLE_WIDGET: {
@@ -208,12 +188,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
       selectedRow: `{{ _.get(this.filteredTableData, this.selectedRowIndex, _.mapValues(this.filteredTableData[0], () => undefined)) }}`,
       selectedRows: `{{ this.filteredTableData.filter((item, i) => selectedRowIndices.includes(i) }); }}`,
     },
-    triggerProperties: {
-      onRowSelected: true,
-      onPageChange: true,
-      onSearchTextChanged: true,
-      columnActions: true,
-    },
     metaProperties: {
       pageNo: 1,
       selectedRow: {},
@@ -229,11 +203,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     defaultProperties: {},
     derivedProperties: {},
-    triggerProperties: {
-      onEnd: true,
-      onPlay: true,
-      onPause: true,
-    },
     metaProperties: {
       playState: "NOT_STARTED",
     },
@@ -253,9 +222,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     derivedProperties: {
       isValid: "{{ this.isRequired ? this.files.length > 0 : true }}",
       value: "{{this.files}}",
-    },
-    triggerProperties: {
-      onFilesSelected: true,
     },
     metaProperties: {
       files: [],
@@ -284,8 +250,29 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
       isValid: "{{ this.isRequired ? !!this.selectedDate : true }}",
       value: "{{ this.selectedDate }}",
     },
-    triggerProperties: {
-      onDateSelected: true,
+    metaProperties: {},
+  },
+  DATE_PICKER_WIDGET2: {
+    validations: {
+      isLoading: "BOOLEAN",
+      isVisible: "BOOLEAN",
+      isDisabled: "BOOLEAN",
+      defaultDate: "DATE",
+      timezone: "TEXT",
+      enableTimePicker: "BOOLEAN",
+      dateFormat: "TEXT",
+      label: "TEXT",
+      datePickerType: "TEXT",
+      maxDate: "DATE",
+      minDate: "DATE",
+      isRequired: "BOOLEAN",
+    },
+    defaultProperties: {
+      selectedDate: "defaultDate",
+    },
+    derivedProperties: {
+      isValid: "{{ this.isRequired ? !!this.selectedDate : true }}",
+      value: "{{ this.selectedDate }}",
     },
     metaProperties: {},
   },
@@ -326,9 +313,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
       selectedTab:
         "{{_.find(this.tabs, { widgetId: this.selectedTabWidgetId }).label}}",
     },
-    triggerProperties: {
-      onTabSelected: true,
-    },
     metaProperties: {},
   },
   MODAL_WIDGET: {
@@ -339,7 +323,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     defaultProperties: {},
     derivedProperties: {},
-    triggerProperties: {},
     metaProperties: {},
   },
   RICH_TEXT_EDITOR_WIDGET: {
@@ -356,9 +339,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     derivedProperties: {
       value: "{{this.text}}",
     },
-    triggerProperties: {
-      onTextChange: true,
-    },
     metaProperties: {},
   },
   CHART_WIDGET: {
@@ -371,7 +351,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     defaultProperties: {},
     derivedProperties: {},
-    triggerProperties: {},
     metaProperties: {},
   },
   FORM_WIDGET: {
@@ -382,7 +361,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     defaultProperties: {},
     derivedProperties: {},
-    triggerProperties: {},
     metaProperties: {},
   },
   FORM_BUTTON_WIDGET: {
@@ -397,9 +375,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     defaultProperties: {},
     derivedProperties: {},
-    triggerProperties: {
-      onClick: true,
-    },
     metaProperties: {},
   },
   MAP_WIDGET: {
@@ -418,10 +393,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
       center: "mapCenter",
     },
     derivedProperties: {},
-    triggerProperties: {
-      onMarkerClick: true,
-      onCreateMarker: true,
-    },
     metaProperties: {},
   },
   CANVAS_WIDGET: {
@@ -432,7 +403,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     defaultProperties: {},
     derivedProperties: {},
-    triggerProperties: {},
     metaProperties: {},
   },
   ICON_WIDGET: {
@@ -443,9 +413,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     defaultProperties: {},
     derivedProperties: {},
-    triggerProperties: {
-      onClick: true,
-    },
     metaProperties: {},
   },
   SKELETON_WIDGET: {
@@ -456,7 +423,6 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     defaultProperties: {},
     derivedProperties: {},
-    triggerProperties: {},
     metaProperties: {},
   },
 };

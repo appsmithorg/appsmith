@@ -856,6 +856,40 @@ Cypress.Commands.add("CopyAPIToHome", () => {
   );
 });
 
+Cypress.Commands.add("RenameEntity", (value) => {
+  cy.xpath(apiwidget.popover)
+    .last()
+    .click({ force: true });
+  cy.get(apiwidget.renameEntity).click({ force: true });
+  cy.wait(2000);
+  cy.get(explorer.editEntity)
+    .last()
+    .type(value, { force: true });
+  cy.wait(3000);
+});
+
+Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
+  cy.get(apiwidget.createapi).click({ force: true });
+  cy.wait("@createNewApi");
+  cy.get(apiwidget.resourceUrl).should("be.visible");
+  cy.get(apiwidget.ApiName).click({ force: true });
+  cy.get(apiwidget.apiTxt)
+    .clear()
+    .type(apiname, { force: true })
+    .should("have.value", apiname);
+  cy.get(".t--nameOfApi .error-message").should(($x) => {
+    console.log($x);
+    expect($x).contain(apiname.concat(" is already being used."));
+  });
+});
+
+Cypress.Commands.add("validateMessage", (value) => {
+  cy.get(".bp3-popover-content").should(($x) => {
+    console.log($x);
+    expect($x).contain(value.concat(" is already being used."));
+  });
+});
+
 Cypress.Commands.add("DeleteAPIFromSideBar", () => {
   cy.deleteEntity();
   cy.wait("@deleteAction").should(
@@ -1275,6 +1309,17 @@ Cypress.Commands.add("evaluateErrorMessage", (value) => {
     });
 });
 
+Cypress.Commands.add("addAction", (value) => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .last()
+    .click();
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Show Message")
+    .click();
+  cy.enterActionValue(value);
+});
+
 Cypress.Commands.add("selectShowMsg", (value) => {
   cy.get(commonlocators.chooseAction)
     .children()
@@ -1292,6 +1337,7 @@ Cypress.Commands.add("addSuccessMessage", (value) => {
     .click();
   cy.enterActionValue(value);
 });
+
 Cypress.Commands.add("SetDateToToday", () => {
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Today")
@@ -1370,7 +1416,6 @@ Cypress.Commands.add("DeleteModal", () => {
 });
 
 Cypress.Commands.add("Createpage", (Pagename) => {
-  cy.get(pages.pagesIcon).click({ force: true });
   cy.get(pages.AddPage)
     .first()
     .click();
@@ -1945,7 +1990,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/plugins").as("getPlugins");
   cy.route("POST", "/api/v1/logout").as("postLogout");
 
-  cy.route("GET", "/api/v1/datasources").as("getDataSources");
+  cy.route("GET", "/api/v1/datasources?organizationId=*").as("getDataSources");
   cy.route("GET", "/api/v1/pages/application/*").as("getPagesForCreateApp");
   cy.route("GET", "/api/v1/applications/view/*").as("getPagesForViewApp");
 

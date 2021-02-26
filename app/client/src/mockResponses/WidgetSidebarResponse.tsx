@@ -93,6 +93,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Video",
     key: generateReactKey(),
   },
+  {
+    type: "MODAL_WIDGET",
+    widgetCardName: "Modal",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;

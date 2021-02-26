@@ -21,7 +21,7 @@ import {
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { getEditorURL } from "selectors/appViewSelectors";
-import { getPageList } from "selectors/editorSelectors";
+import { getViewModePageList } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
@@ -46,7 +46,6 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   color: white;
   flex-direction: column;
   .${Classes.TEXT} {
-    max-width: 194px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -73,6 +72,10 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   & ${Profile} {
     width: 24px;
     height: 24px;
+  }
+
+  & .current-app-name {
+    overflow: auto;
   }
 `;
 
@@ -117,6 +120,11 @@ const HeaderRightItemContainer = styled.div`
   height: 100%;
 `;
 
+const PrimaryLogoLink = styled(Link)`
+  display: flex;
+  align-items: center;
+`;
+
 type AppViewerHeaderProps = {
   url?: string;
   currentApplicationDetails?: ApplicationPayload;
@@ -127,7 +135,7 @@ type AppViewerHeaderProps = {
 };
 
 export const AppViewerHeader = (props: AppViewerHeaderProps) => {
-  const { currentApplicationDetails, pages, currentOrgId, currentUser } = props;
+  const { currentApplicationDetails, currentOrgId, currentUser, pages } = props;
   const isExampleApp = currentApplicationDetails?.appIsExample;
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
@@ -183,9 +191,9 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
         <HtmlTitle />
         <HeaderRow justify={"space-between"}>
           <HeaderSection justify={"flex-start"}>
-            <Link to={APPLICATIONS_URL} style={{ display: "flex" }}>
+            <PrimaryLogoLink to={APPLICATIONS_URL}>
               <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
-            </Link>
+            </PrimaryLogoLink>
           </HeaderSection>
           <HeaderSection justify={"center"} className="current-app-name">
             {currentApplicationDetails && (
@@ -241,7 +249,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
 };
 
 const mapStateToProps = (state: AppState): AppViewerHeaderProps => ({
-  pages: getPageList(state),
+  pages: getViewModePageList(state),
   url: getEditorURL(state),
   currentApplicationDetails: state.ui.applications.currentApplication,
   currentOrgId: getCurrentOrgId(state),
