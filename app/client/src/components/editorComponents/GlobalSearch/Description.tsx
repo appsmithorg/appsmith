@@ -19,7 +19,7 @@ type Props = {
  * strip:
  * gitbook plugin tags
  */
-const strip = (text: string) => text.replaceAll(/{% .*?%}|\\n/gm, "");
+const strip = (text: string) => text.replaceAll(/{% .*?%}/gm, "");
 
 /**
  * strip: description tag from the top
@@ -136,10 +136,9 @@ const updateDocumentDescriptionTitle = (
 };
 
 const replaceHintTagsWithCode = (text: string) => {
-  let result;
-  result = text.replace(/{% hint .*?%}/, "<code>");
-  result = result.replace(/{% endhint .*?%}/, "</code>");
-
+  let result = text.replace(/{% hint .*?%}/, "```");
+  result = result.replace(/{% endhint .*?%}/, "```");
+  result = marked(result);
   return result;
 };
 
@@ -148,9 +147,13 @@ const getDocumentationPreviewContent = (
 ): string | undefined => {
   try {
     let { value } = activeItem?._highlightResult?.document;
+    if (!value) return;
 
     value = stripMarkdown(value);
+    value = replaceHintTagsWithCode(value);
+
     const parsedDocument = marked(value);
+
     const domparser = new DOMParser();
     const documentObj = domparser.parseFromString(parsedDocument, "text/html");
 
@@ -179,10 +182,6 @@ const getDocumentationPreviewContent = (
         match.href = match.href.replace(aisTagEncoded, "");
       } catch (e) {}
     });
-
-    documentObj.body.innerHTML = replaceHintTagsWithCode(
-      documentObj.body.innerHTML,
-    );
 
     // update description title
     updateDocumentDescriptionTitle(documentObj, activeItem);
