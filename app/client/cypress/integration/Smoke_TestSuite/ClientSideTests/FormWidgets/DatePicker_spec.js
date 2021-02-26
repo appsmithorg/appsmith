@@ -63,43 +63,45 @@ describe("DatePicker Widget Functionality", function() {
     );
   });
 
-  it("Datepicker min/max date validation", function() {
-    cy.get(formWidgetsPage.defaultDate).click({ force: true });
-    cy.SetDateToToday();
+  // it("Datepicker min/max date validation", function() {
+  //   cy.get(formWidgetsPage.defaultDate).click({ force: true });
+  //   cy.SetDateToToday();
 
-    cy.get(formWidgetsPage.minDate)
-      .first()
-      .click();
-    cy.wait(1000);
-    cy.setDate(-1, "ddd MMM DD YYYY");
+  //   cy.get(formWidgetsPage.minDate)
+  //     .first()
+  //     .click();
+  //   // eslint-disable-next-line cypress/no-unnecessary-waiting
+  //   cy.wait(1000);
+  //   cy.setDate(-1, "ddd MMM DD YYYY");
 
-    cy.get(formWidgetsPage.maxDate)
-      .first()
-      .click();
-    cy.wait(1000);
-    cy.setDate(1, "ddd MMM DD YYYY");
+  //   cy.get(formWidgetsPage.maxDate)
+  //     .first()
+  //     .click();
+  //   // eslint-disable-next-line cypress/no-unnecessary-waiting
+  //   cy.wait(1000);
+  //   cy.setDate(1, "ddd MMM DD YYYY");
 
-    cy.PublishtheApp();
-    cy.get(publishPage.datepickerWidget + " .bp3-input").click();
+  //   cy.PublishtheApp();
+  //   cy.get(publishPage.datepickerWidget + " .bp3-input").click();
 
-    const minDate = Cypress.moment()
-      .add(2, "days")
-      .format("ddd MMM DD YYYY");
-    const maxDate = Cypress.moment()
-      .add(2, "days")
-      .format("ddd MMM DD YYYY");
+  //   const minDate = Cypress.moment()
+  //     .add(2, "days")
+  //     .format("ddd MMM DD YYYY");
+  //   const maxDate = Cypress.moment()
+  //     .add(2, "days")
+  //     .format("ddd MMM DD YYYY");
 
-    cy.get(`.DayPicker-Day[aria-label=\"${minDate}\"]`).should(
-      "have.attr",
-      "aria-disabled",
-      "true",
-    );
-    cy.get(`.DayPicker-Day[aria-label=\"${maxDate}\"]`).should(
-      "have.attr",
-      "aria-disabled",
-      "true",
-    );
-  });
+  //   cy.get(`.DayPicker-Day[aria-label=\"${minDate}\"]`).should(
+  //     "have.attr",
+  //     "aria-disabled",
+  //     "true",
+  //   );
+  //   cy.get(`.DayPicker-Day[aria-label=\"${maxDate}\"]`).should(
+  //     "have.attr",
+  //     "aria-disabled",
+  //     "true",
+  //   );
+  // });
 
   // it("Datepicker default date validation", function() {
   //   cy.get(formWidgetsPage.defaultDate).click();

@@ -6,7 +6,7 @@ import { ActionCreator } from "components/editorComponents/actioncreator/ActionC
 class ActionSelectorControl extends BaseControl<ControlProps> {
   handleValueUpdate = (newValue: string) => {
     const { propertyName } = this.props;
-    this.updateProperty(propertyName, newValue, true);
+    this.updateProperty(propertyName, newValue);
   };
 
   render() {

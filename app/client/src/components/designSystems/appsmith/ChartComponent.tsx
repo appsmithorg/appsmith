@@ -28,6 +28,7 @@ export interface ChartComponentProps {
   widgetId: string;
   isVisible?: boolean;
   allowHorizontalScroll: boolean;
+  onDataPointClick: (selectedDataPoint: { x: any; y: any }) => void;
 }
 
 const CanvasContainer = styled.div<ChartComponentProps>`
@@ -81,6 +82,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getChartData = () => {
     const chartData: ChartData[] = this.props.chartData;
+
     if (chartData.length === 0) {
       return [
         {
@@ -131,9 +133,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   getChartCategories = (chartData: ChartData[]) => {
     const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
     if (categories.length === 0) {
-      return {
-        label: "",
-      };
+      return [
+        {
+          label: "",
+        },
+      ];
     }
     return categories.map((item) => {
       return {
@@ -212,6 +216,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getScrollChartDataSource = () => {
     const chartConfig = this.getChartConfig();
+
     return {
       chart: {
         ...chartConfig,
@@ -225,6 +230,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
           category: this.getChartCategories(this.props.chartData),
         },
       ],
+      data: this.getChartData(),
       dataset: this.getChartDataset(this.props.chartData),
     };
   };
@@ -234,6 +240,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       this.props.allowHorizontalScroll && this.props.chartType !== "PIE_CHART"
         ? this.getScrollChartDataSource()
         : this.getChartDataSource();
+
     const chartConfig = {
       type: this.getChartType(),
       renderAt: this.props.widgetId + "chart-container",
@@ -241,7 +248,17 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       height: "100%",
       dataFormat: "json",
       dataSource: dataSource,
+      events: {
+        dataPlotClick: (evt: any) => {
+          const data = evt.data;
+          this.props.onDataPointClick({
+            x: data.categoryLabel,
+            y: data.dataValue,
+          });
+        },
+      },
     };
+
     this.chartInstance = new FusionCharts(chartConfig);
   };
 

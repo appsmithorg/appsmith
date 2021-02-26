@@ -10,6 +10,7 @@ export interface PluginFormPayload {
   id: string;
   form: any[];
   editor: any[];
+  setting: any[];
 }
 
 export interface PluginDataState {
@@ -17,6 +18,7 @@ export interface PluginDataState {
   loading: boolean;
   formConfigs: Record<string, any[]>;
   editorConfigs: Record<string, any[]>;
+  settingConfigs: Record<string, any[]>;
   loadingFormConfigs: boolean;
   loadingDBFormConfigs: boolean;
 }
@@ -26,6 +28,7 @@ const initialState: PluginDataState = {
   loading: false,
   formConfigs: {},
   editorConfigs: {},
+  settingConfigs: {},
   loadingFormConfigs: false,
   loadingDBFormConfigs: false,
 };
@@ -70,6 +73,10 @@ const pluginsReducer = createReducer(initialState, {
       editorConfigs: {
         ...state.editorConfigs,
         [action.payload.id]: action.payload.editor,
+      },
+      settingConfigs: {
+        ...state.settingConfigs,
+        [action.payload.id]: action.payload.setting,
       },
     };
   },

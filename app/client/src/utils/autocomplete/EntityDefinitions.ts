@@ -84,9 +84,19 @@ export const entityDefinitions = {
       "!doc": "The value selected in a single select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
+    selectedOptionLabel: {
+      "!type": "string",
+      "!doc": "The selected option label in a single select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
     selectedOptionValues: {
       "!type": "[string]",
       "!doc": "The array of values selected in a multi select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    selectedOptionLabels: {
+      "!type": "[string]",
+      "!doc": "The array of selected option labels in a multi select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
     isDisabled: "bool",
@@ -122,6 +132,15 @@ export const entityDefinitions = {
     "!url": "https://docs.appsmith.com/widget-reference/datepicker",
     isVisible: isVisible,
     selectedDate: "string",
+    isDisabled: "bool",
+  },
+  DATE_PICKER_WIDGET2: {
+    "!doc":
+      "Datepicker is used to capture the date and time from a user. It can be used to filter data base on the input date range as well as to capture personal information such as date of birth",
+    "!url": "https://docs.appsmith.com/widget-reference/datepicker",
+    isVisible: isVisible,
+    selectedDate: "string",
+    formattedDate: "string",
     isDisabled: "bool",
   },
   CHECKBOX_WIDGET: {
@@ -171,6 +190,7 @@ export const entityDefinitions = {
     chartData: "chartData",
     xAxisName: "string",
     yAxisName: "string",
+    selectedDataPoint: "chartDataPoint",
   },
   FORM_WIDGET: (widget: any) => ({
     "!doc":

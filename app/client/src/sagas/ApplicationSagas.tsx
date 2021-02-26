@@ -85,6 +85,7 @@ export function* publishApplicationSaga(
 
       const applicationId = yield select(getCurrentApplicationId);
       const currentPageId = yield select(getCurrentPageId);
+
       let appicationViewPageUrl = getApplicationViewerPageURL(
         applicationId,
         currentPageId,
@@ -99,8 +100,9 @@ export function* publishApplicationSaga(
       if (!windowReference || windowReference.closed) {
         windowReference = window.open(appicationViewPageUrl, "_blank");
       } else {
-        windowReference.location.reload();
         windowReference.focus();
+        windowReference.location.href =
+          windowReference.location.origin + appicationViewPageUrl;
       }
     }
   } catch (error) {
