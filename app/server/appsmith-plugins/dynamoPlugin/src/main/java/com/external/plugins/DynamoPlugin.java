@@ -418,9 +418,9 @@ public class DynamoPlugin extends BasePlugin {
                     .defaultIfEmpty(false)
                     .map(isValid -> BooleanUtils.isTrue(isValid)
                             ? new DatasourceTestResult()
-                            : new DatasourceTestResult("Invalid Access Key / Secret Key")
+                            : new DatasourceTestResult("Invalid Access Key / Secret Key / Region")
                     )
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult("Invalid Access Key / Secret Key")))
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
                     .subscribeOn(scheduler);
         }
 

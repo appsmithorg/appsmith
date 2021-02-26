@@ -448,7 +448,7 @@ public class DynamoPluginTest {
                     assertEquals(1, datasourceTestResult.getInvalids().size());
 
                     List<String> errorList = new ArrayList<>(datasourceTestResult.getInvalids());
-                    assertTrue(errorList.get(0).contains("Invalid Access Key / Secret Key"));
+                    assertTrue(errorList.get(0).contains("The security token included in the request is invalid."));
                 })
                 .verifyComplete();
     }
