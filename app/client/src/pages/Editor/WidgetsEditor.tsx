@@ -23,7 +23,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
-import { useDynamicAppLayout } from "./Explorer/hooks";
+import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -49,8 +49,6 @@ const CanvasContainer = styled.section`
     pointer-events: none;
   }
 `;
-
-export type CanvasLayoutType = "FIXED" | "FLUID";
 
 /* eslint-disable react/display-name */
 const WidgetsEditor = () => {

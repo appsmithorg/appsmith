@@ -105,7 +105,7 @@ export const pageListReducer = createReducer(initialState, {
   },
 });
 
-type AppLayoutType = "FIXED" | "FLUID";
+export type AppLayoutType = "FIXED" | "FLUID";
 export interface AppLayoutConfig {
   type: AppLayoutType;
   width: number;

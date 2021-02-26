@@ -217,7 +217,7 @@ export function* setDefaultApplicationPageSaga(
   }
 }
 
-function* updateApplicationLayout(
+function* updateApplicationLayoutSaga(
   action: ReduxAction<UpdateApplicationRequest>,
 ) {
   try {
@@ -456,7 +456,7 @@ export default function* applicationSagas() {
       ReduxActionTypes.PUBLISH_APPLICATION_INIT,
       publishApplicationSaga,
     ),
-    takeLatest(ReduxActionTypes.UPDATE_APP_LAYOUT, updateApplicationLayout),
+    takeLatest(ReduxActionTypes.UPDATE_APP_LAYOUT, updateApplicationLayoutSaga),
     takeLatest(ReduxActionTypes.UPDATE_APPLICATION, updateApplicationSaga),
     takeLatest(
       ReduxActionTypes.CHANGE_APPVIEW_ACCESS_INIT,

@@ -5,7 +5,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useDynamicAppLayout } from "pages/Editor/Explorer/hooks";
+import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 
 const PageView = styled.div<{ width: number }>`
   height: 100%;

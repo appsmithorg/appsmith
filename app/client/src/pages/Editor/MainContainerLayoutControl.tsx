@@ -10,7 +10,10 @@ import { Colors } from "constants/Colors";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { AppState } from "reducers";
-import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import {
+  AppLayoutConfig,
+  AppLayoutType,
+} from "reducers/entityReducers/pageListReducer";
 import {
   getCurrentApplicationId,
   getCurrentApplicationLayout,
@@ -19,12 +22,11 @@ import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { useSelector } from "store";
 import styled, { ThemeProvider } from "styled-components";
 import { noop } from "utils/AppsmithUtils";
-import { CanvasLayoutType } from "./WidgetsEditor";
 
 type SupportedLayouts = "Desktop" | "Tablet" | "Mobile Device" | "Fluid Width";
 interface AppsmithLayoutConfigOption {
   name: SupportedLayouts;
-  type: CanvasLayoutType;
+  type: AppLayoutType;
   width: number;
   icon?: IconName;
 }

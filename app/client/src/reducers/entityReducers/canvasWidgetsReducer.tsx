@@ -9,8 +9,8 @@ import {
   UpdateCanvasLayout,
   UpdateWidgetPropertyPayload,
 } from "actions/controlActions";
-import defaultTemplate from "templates/default";
 import { set, uniqBy } from "lodash";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const initialState: CanvasWidgetsReduxState = {};
 
@@ -35,7 +35,7 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasLayout>,
   ) => {
-    set(state[defaultTemplate.widgetId], "rightColumn", action.payload.width);
+    set(state[MAIN_CONTAINER_WIDGET_ID], "rightColumn", action.payload.width);
   },
   [ReduxActionTypes.UPDATE_WIDGET_PROPERTY]: (
     state: CanvasWidgetsReduxState,
