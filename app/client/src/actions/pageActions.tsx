@@ -57,19 +57,12 @@ export const fetchPageSuccess = (
   };
 };
 
-export type FetchPublishedPageSuccessPayload = {
-  pageId: string;
-  dsl: ContainerWidgetProps<WidgetProps>;
-  pageWidgetId: string;
-};
-
 export const fetchPublishedPageSuccess = (
-  payload: FetchPublishedPageSuccessPayload,
   postEvalActions: ReduxAction<unknown>[],
-): EvaluationReduxAction<FetchPublishedPageSuccessPayload> => ({
+): EvaluationReduxAction<undefined> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
-  payload,
   postEvalActions,
+  payload: undefined,
 });
 
 export const updateCurrentPage = (id: string) => ({
