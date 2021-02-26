@@ -503,6 +503,7 @@ export interface Page {
   pageId: string;
   isDefault: boolean;
   latest?: boolean;
+  isHidden?: boolean;
 }
 
 export interface ClonePageSuccessPayload {

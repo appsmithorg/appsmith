@@ -28,7 +28,7 @@ export const HintStyles = createGlobalStyle<{
     max-height: 20em;
     overflow-y: auto;
     background: ${(props) =>
-      props.theme.colors.codeMirror.background.defaultState};
+      props.editorTheme === EditorTheme.LIGHT ? "#FAFAFA" : "#262626"};
     box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
     border-radius: 0px;
     ${(props) =>
@@ -37,7 +37,8 @@ export const HintStyles = createGlobalStyle<{
 
   .CodeMirror-hint {
     height: 24px;
-    color: ${(props) => props.theme.colors.codeMirror.text};
+    color: ${(props) =>
+      props.editorTheme === EditorTheme.LIGHT ? "#090707" : "#FFFFFF"};
     cursor: pointer;
     display: flex;
     width: 220px;
@@ -47,7 +48,7 @@ export const HintStyles = createGlobalStyle<{
     letter-spacing: -0.24px;
     &:hover {
       background: ${(props) =>
-        props.theme.colors.codeMirror.background.hoverState};
+        props.editorTheme === EditorTheme.LIGHT ? "#6A86CE" : "#157A96"};
       border-radius: 0px;
       color: #fff;
       &:after {
@@ -69,7 +70,7 @@ export const HintStyles = createGlobalStyle<{
     padding-left: ${(props) => props.theme.spaces[11]}px !important;
     &:hover{
       background: ${(props) =>
-        props.theme.colors.codeMirror.background.hoverState};
+        props.editorTheme === EditorTheme.LIGHT ? "#6A86CE" : "#157A96"};
     }
   }
   .CodeMirror-Tern-completion:before {
@@ -281,9 +282,7 @@ export const EditorWrapper = styled.div<{
           ? `border-bottom: 1px solid ${Colors.MERCURY}`
           : `border: 1px solid ${Colors.MERCURY}`};
       background: ${(props) =>
-        props.isFocused || props.fill
-          ? Colors.MERCURY
-          : props.theme.colors.codeMirror.background.defaultState};
+        props.isFocused || props.fill ? Colors.MERCURY : "#FAFAFA"};
       color: ${Colors.CHARCOAL};
       & {
         span.cm-operator {
@@ -303,9 +302,7 @@ export const EditorWrapper = styled.div<{
           ? `border-bottom: 1px solid ${Colors.NERO}`
           : `border: 1px solid ${Colors.NERO}`};
       background: ${(props) =>
-        props.isFocused || props.fill
-          ? Colors.NERO
-          : props.theme.colors.codeMirror.background.defaultState};
+        props.isFocused || props.fill ? Colors.NERO : "#262626"};
       color: ${Colors.LIGHT_GREY};
     }
     .cm-s-duotone-light .CodeMirror-linenumber,

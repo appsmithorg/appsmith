@@ -29,6 +29,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       isLoading: false,
       horizontalAlignment: "LEFT",
       parentColumnSpace: 74,
+      version: 1,
       dynamicTriggerPathList: [
         {
           key: "primaryColumns.status.onClick",

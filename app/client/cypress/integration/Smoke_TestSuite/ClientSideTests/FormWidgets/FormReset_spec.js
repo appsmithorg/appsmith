@@ -19,7 +19,7 @@ describe("Form reset functionality", function() {
     cy.get(widgetsPage.formButtonWidget)
       .contains("Reset")
       .click();
-
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
 
     cy.get(".tr")

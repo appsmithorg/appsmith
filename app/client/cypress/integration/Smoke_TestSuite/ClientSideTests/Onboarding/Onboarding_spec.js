@@ -14,6 +14,7 @@ describe("Onboarding", function() {
       "response.body.responseMeta.status",
       201,
     );
+    cy.wait("@getDataSources");
     cy.get(".t--start-building").click();
 
     // Create and run query
