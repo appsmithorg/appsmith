@@ -213,7 +213,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     } else if (
       !every(
         parsed,
-        (datum: { id: string; label: string; widgetId: string }) =>
+        (datum: {
+          id: string;
+          label: string;
+          widgetId: string;
+          isVisible?: boolean;
+        }) =>
           isObject(datum) &&
           !isUndefined(datum.id) &&
           !isUndefined(datum.label) &&
