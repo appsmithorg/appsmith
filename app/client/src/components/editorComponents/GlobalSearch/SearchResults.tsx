@@ -213,7 +213,7 @@ const PageItem = (props: {
 };
 
 const SearchItemByType = {
-  [SEARCH_ITEM_TYPES.documentation]: DocumentationItem,
+  [SEARCH_ITEM_TYPES.document]: DocumentationItem,
   [SEARCH_ITEM_TYPES.widget]: WidgetItem,
   [SEARCH_ITEM_TYPES.action]: ActionItem,
   [SEARCH_ITEM_TYPES.datasource]: DatasourceItem,

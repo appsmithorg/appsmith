@@ -6,6 +6,7 @@ import Text, { TextType } from "components/ads/Text";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { HELPBAR_PLACEHOLDER } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { isMac } from "utils/helpers";
 
 const StyledHelpBar = styled.div`
   padding: 0 ${(props) => props.theme.spaces[4]}px;
@@ -22,7 +23,8 @@ const StyledHelpBar = styled.div`
   max-width: 350px;
 `;
 
-const comboText = <>(⌘ / ctrl) + k</>;
+const modText = () => (isMac() ? `⌘` : "ctrl");
+const comboText = <>{modText()} + K</>;
 
 type Props = {
   toggleShowModal: () => void;

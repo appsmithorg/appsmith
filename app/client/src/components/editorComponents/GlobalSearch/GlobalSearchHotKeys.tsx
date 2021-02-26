@@ -35,6 +35,7 @@ class GlobalSearchHotKeys extends React.Component<Props> {
         hideWhenModalClosed: true,
         allowInInput: true,
         group: "Omnibar",
+        label: "Move up the list",
       },
       {
         combo: "down",
@@ -42,6 +43,7 @@ class GlobalSearchHotKeys extends React.Component<Props> {
         hideWhenModalClosed: true,
         allowInInput: true,
         group: "Omnibar",
+        label: "Move down the list",
       },
       {
         combo: "return",
@@ -53,6 +55,7 @@ class GlobalSearchHotKeys extends React.Component<Props> {
         hideWhenModalClosed: true,
         allowInInput: true,
         group: "Omnibar",
+        label: "Navigate",
       },
     ].filter(
       ({ hideWhenModalClosed }) =>
@@ -64,7 +67,7 @@ class GlobalSearchHotKeys extends React.Component<Props> {
     return (
       <Hotkeys>
         {this.hotKeysConfig.map(
-          ({ combo, onKeyDown, allowInInput, label, global }, index) => (
+          ({ combo, onKeyDown, allowInInput, label, global, group }, index) => (
             <Hotkey
               key={index}
               global={global}
@@ -72,6 +75,7 @@ class GlobalSearchHotKeys extends React.Component<Props> {
               onKeyDown={onKeyDown}
               label={label}
               allowInInput={allowInInput}
+              group={group}
             />
           ),
         )}

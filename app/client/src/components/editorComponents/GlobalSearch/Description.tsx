@@ -245,7 +245,7 @@ const HitEnterMessage = withTheme(
 );
 
 const descriptionByType = {
-  [SEARCH_ITEM_TYPES.documentation]: DocumentationDescription,
+  [SEARCH_ITEM_TYPES.document]: DocumentationDescription,
   [SEARCH_ITEM_TYPES.action]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.widget]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.datasource]: HitEnterMessage,

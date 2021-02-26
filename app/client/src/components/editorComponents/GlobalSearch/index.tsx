@@ -38,6 +38,7 @@ import { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
+import { keyBy } from "lodash";
 
 const StyledContainer = styled.div`
   width: 750px;
@@ -75,6 +76,9 @@ const isModalOpenSelector = (state: AppState) =>
 
 const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
 
+const isMatching = (text = "", query = "") =>
+  text?.toLowerCase().indexOf(query?.toLowerCase()) > -1;
+
 const GlobalSearch = () => {
   const defaultDocs = useDefaultDocumentationResults();
   const params = useParams<ExplorerURLParams>();
@@ -108,6 +112,7 @@ const GlobalSearch = () => {
   const actions = useSelector(getActions);
   const modalOpen = useSelector(isModalOpenSelector);
   const pages = useSelector(getPageList) || [];
+  const pageMap = keyBy(pages, "pageId");
   const datasourcesMap = useFilteredDatasources(query);
   const datasourcesList = useMemo(() => {
     return Object.entries(datasourcesMap).reduce((res: Datasource[], curr) => {
@@ -133,20 +138,24 @@ const GlobalSearch = () => {
   const filteredWidgets = useMemo(() => {
     if (!query) return searchableWidgets;
 
-    return searchableWidgets.filter(
-      (widget: any) =>
-        widget.widgetName.toLowerCase().indexOf(query?.toLocaleLowerCase()) >
-        -1,
-    );
+    return searchableWidgets.filter((widget: any) => {
+      const page = pageMap[widget.pageId];
+      const isPageNameMatching = isMatching(page?.pageName, query);
+      const isWidgetNameMatching = isMatching(widget?.widgetName, query);
+
+      return isWidgetNameMatching || isPageNameMatching;
+    });
   }, [allWidgets, query]);
   const filteredActions = useMemo(() => {
     if (!query) return actions;
 
-    return actions.filter(
-      (action: any) =>
-        action.config.name.toLowerCase().indexOf(query?.toLocaleLowerCase()) >
-        -1,
-    );
+    return actions.filter((action: any) => {
+      const page = pageMap[action?.config?.pageId];
+      const isPageNameMatching = isMatching(page?.pageName, query);
+      const isActionNameMatching = isMatching(action?.config?.name, query);
+
+      return isActionNameMatching || isPageNameMatching;
+    });
   }, [actions, query]);
   const filteredPages = useMemo(() => {
     if (!query) return attachKind(pages, SEARCH_ITEM_TYPES.page);
@@ -154,7 +163,7 @@ const GlobalSearch = () => {
     return attachKind(
       pages.filter(
         (page: any) =>
-          page.pageName.toLowerCase().indexOf(query?.toLocaleLowerCase()) > -1,
+          page.pageName.toLowerCase().indexOf(query?.toLowerCase()) > -1,
       ),
       SEARCH_ITEM_TYPES.page,
     );
@@ -236,7 +245,7 @@ const GlobalSearch = () => {
   };
 
   const itemClickHandlerByType = {
-    [SEARCH_ITEM_TYPES.documentation]: handleDocumentationItemClick,
+    [SEARCH_ITEM_TYPES.document]: handleDocumentationItemClick,
     [SEARCH_ITEM_TYPES.widget]: handleWidgetClick,
     [SEARCH_ITEM_TYPES.action]: handleActionClick,
     [SEARCH_ITEM_TYPES.datasource]: handleDatasourceClick,
