@@ -132,10 +132,7 @@ const TextContainer = styled.div<{
 
   &&& .${BlueprintClasses.EDITABLE_TEXT} {
     overflow: hidden;
-    height: ${(props) => props.theme.spaces[14] + 1}px;
-    padding: ${(props) => props.theme.spaces[4]}px
-      ${(props) => props.theme.spaces[5]}px;
-    width: calc(100% - 40px);
+    width: 100%;
     background-color: ${(props) => props.bgColor};
   }
 
@@ -147,7 +144,6 @@ const TextContainer = styled.div<{
 const IconWrapper = styled.div`
   width: ${(props) => props.theme.spaces[15]}px;
   padding-right: ${(props) => props.theme.spaces[5]}px;
-  height: ${(props) => props.theme.spaces[14] + 1}px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -242,7 +238,7 @@ export const EditableText = (props: EditableTextProps) => {
       const error = errorMessage ? errorMessage : false;
       if (!error && finalVal !== "") {
         setLastValidValue(finalVal);
-        onTextChanged && onTextChanged(finalVal);
+        // onTextChanged && onTextChanged(finalVal);
       }
       setValue(finalVal);
       setIsInvalid(error);

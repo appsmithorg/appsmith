@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
-import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import EditableText, {
   EditInteractionKind,
@@ -7,7 +6,6 @@ import EditableText, {
 } from "components/ads/EditableText";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import { AppState } from "reducers";
-import Spinner from "components/editorComponents/Spinner";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
@@ -16,19 +14,21 @@ import { BindingText } from "pages/Editor/APIEditor/Form";
 
 import { Classes, Icon, Position, Tooltip } from "@blueprintjs/core";
 import { WidgetType } from "constants/WidgetConstants";
-import { theme } from "constants/DefaultTheme";
+import styled, { theme } from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import { copyWidget, deleteSelectedWidget } from "actions/widgetActions";
+import { AnyStyledComponent } from "styled-components";
 
 const CopyIcon = ControlIcons.COPY_CONTROL;
 const DeleteIcon = FormIcons.DELETE_ICON;
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ isPropertyTitle: boolean }>`
   justify-content: center;
   align-items: center;
   display: grid;
   width: 100%;
-  grid-template-columns: 146px 25px 25px 25px 25px;
+  grid-template-columns: ${(props) =>
+    props.isPropertyTitle ? "1fr 25px 25px" : "1fr 25px 25px 25px 25px"};
   justify-items: center;
   align-items: center;
   justify-content: stretch;
@@ -37,25 +37,47 @@ const Wrapper = styled.div`
   z-index: 3;
   background-color: ${(props) => props.theme.colors.propertyPane.bg};
   margin-top: -1px;
+  border-bottom: 1px solid
+    ${(props) => props.theme.colors.propertyPane.zoomButtonBG};
+  padding-top: ${(props) => `${props.theme.spaces[1] + 1}px`};
+  padding-bottom: ${(props) => `${props.theme.spaces[5]}px`};
+
   & span.${Classes.POPOVER_TARGET} {
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
   }
+
   && svg path {
     fill: ${(props) => props.theme.colors.propertyPane.label};
   }
 `;
 
-const NameWrapper = styled.div`
-  max-width: 100%;
-  display: flex;
-  flex: 0 0 auto;
-  display: grid;
-  grid-template-columns: 126px 20px;
+const NameWrapper = styled.div<{ isPropertyTitle: boolean }>`
+  display: ${(props) => (props.isPropertyTitle ? "flex" : "block")};
+  align-items: center;
+  min-width: 100%;
+  padding-right: 25px;
+  max-width: 134px;
+
   &&&&&&& > * {
     overflow: hidden;
+  }
+`;
+
+const StyledBackIcon = styled(ControlIcons.BACK_CONTROL as AnyStyledComponent)`
+  padding: 0;
+  position: relative;
+  cursor: pointer;
+  top: 3px;
+  margin-right: 8px;
+  && svg {
+    width: 16px;
+    height: 16px;
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.label};
+    }
   }
 `;
 
@@ -64,6 +86,8 @@ type PropertyPaneTitleProps = {
   widgetId?: string;
   widgetType?: WidgetType;
   onClose: () => void;
+  updatePropertyTitle?: (title: string) => void;
+  onBackClick?: () => void;
 };
 
 /* eslint-disable react/display-name */
@@ -77,6 +101,18 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   const toggleEditWidgetName = useToggleEditWidgetName();
   const [name, setName] = useState(props.title);
   const valueRef = useRef("");
+
+  // Update Property Title State
+  const { title, updatePropertyTitle } = props;
+  const updateNewTitle = useCallback(
+    (value: string) => {
+      if (value && value.trim().length > 0 && value.trim() !== title.trim()) {
+        updatePropertyTitle && updatePropertyTitle(value.trim());
+      }
+    },
+    [updatePropertyTitle, title],
+  );
+  // End
 
   const updateTitle = useCallback(
     (value?: string) => {
@@ -97,6 +133,7 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
     },
     [dispatch, widgets, setName, props.widgetId, props.title],
   );
+
   useEffect(() => {
     setName(props.title);
   }, [props.title]);
@@ -107,50 +144,70 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   );
   const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
 
-  return props.widgetId ? (
-    <Wrapper>
-      <NameWrapper>
-        <EditableText
-          valueTransform={removeSpecialChars}
-          defaultValue={name}
-          placeholder={props.title}
-          editInteractionKind={EditInteractionKind.SINGLE}
-          isEditingDefault={isNew}
-          onBlur={updateTitle}
-          hideEditIcon
-          className="t--propery-page-title"
-          savingState={updating ? SavingState.STARTED : SavingState.NOT_STARTED}
-          fill
-          underline
-        />
-        {updating && <Spinner size={16} />}
+  return props.widgetId || props.updatePropertyTitle ? (
+    <Wrapper isPropertyTitle={!!props.updatePropertyTitle}>
+      <NameWrapper isPropertyTitle={!!props.updatePropertyTitle}>
+        <>
+          {props.updatePropertyTitle && (
+            <StyledBackIcon
+              onClick={props.onBackClick}
+              className="t--property-pane-back-btn"
+            />
+          )}
+
+          <EditableText
+            valueTransform={removeSpecialChars}
+            defaultValue={name}
+            placeholder={props.title}
+            editInteractionKind={EditInteractionKind.SINGLE}
+            isEditingDefault={!props.updatePropertyTitle ? isNew : undefined}
+            onBlur={!props.updatePropertyTitle ? updateTitle : undefined}
+            onTextChanged={
+              !props.updatePropertyTitle ? undefined : updateNewTitle
+            }
+            hideEditIcon
+            className="t--propery-page-title"
+            savingState={
+              updating ? SavingState.STARTED : SavingState.NOT_STARTED
+            }
+            fill
+            underline
+          />
+        </>
       </NameWrapper>
-      <Tooltip
-        content="Copy Widget"
-        position={Position.TOP}
-        hoverOpenDelay={200}
-      >
-        <CopyIcon
-          className="t--copy-widget"
-          width={14}
-          height={14}
-          color={theme.colors.paneSectionLabel}
-          onClick={handleCopy}
-        />
-      </Tooltip>
-      <Tooltip
-        content="Delete Widget"
-        position={Position.TOP}
-        hoverOpenDelay={200}
-      >
-        <DeleteIcon
-          className="t--delete-widget"
-          width={16}
-          height={16}
-          color={theme.colors.paneSectionLabel}
-          onClick={handleDelete}
-        />
-      </Tooltip>
+
+      {!props.updatePropertyTitle && (
+        <Tooltip
+          content="Copy Widget"
+          position={Position.TOP}
+          hoverOpenDelay={200}
+        >
+          <CopyIcon
+            className="t--copy-widget"
+            width={14}
+            height={14}
+            color={theme.colors.paneSectionLabel}
+            onClick={handleCopy}
+          />
+        </Tooltip>
+      )}
+
+      {!props.updatePropertyTitle && (
+        <Tooltip
+          content="Delete Widget"
+          position={Position.TOP}
+          hoverOpenDelay={200}
+        >
+          <DeleteIcon
+            className="t--delete-widget"
+            width={16}
+            height={16}
+            color={theme.colors.paneSectionLabel}
+            onClick={handleDelete}
+          />
+        </Tooltip>
+      )}
+
       <Tooltip
         content={
           <div>
@@ -165,6 +222,7 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
       >
         <Icon color={theme.colors.paneSectionLabel} icon="help" iconSize={16} />
       </Tooltip>
+
       <Tooltip content="Close" position={Position.TOP} hoverOpenDelay={200}>
         <Icon
           onClick={(e: any) => {

@@ -1,12 +1,9 @@
 import React, { useCallback, useMemo } from "react";
-import styled, { AnyStyledComponent } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import PropertyTitleEditor from "pages/Editor/PropertyPane/PropertyTitleEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { ControlIcons } from "icons/ControlIcons";
 import {
   PanelConfig,
   PropertyPaneConfig,
@@ -18,48 +15,22 @@ import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { get, isNumber, isPlainObject, isString } from "lodash";
 import { IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-
-const PaneTitleWrapper = styled.div`
-  align-items: center;
-  background-color: ${(props) => props.theme.colors.paneBG};
-  color: ${(props) => props.theme.colors.textOnDarkBG};
-  padding-bottom: 12px;
-  display: grid;
-  grid-template-columns: 20px 1fr;
-`;
-
-const StyledBackIcon = styled(ControlIcons.BACK_CONTROL as AnyStyledComponent)`
-  padding: 0;
-  position: relative;
-  cursor: pointer;
-  top: 3px;
-  margin-right: 8px;
-  & svg {
-    width: 16px;
-    height: 16px;
-    path {
-      fill: ${(props) => props.theme.colors.paneText};
-    }
-  }
-`;
+import PropertyPaneTitle from "../PropertyPaneTitle";
 
 const PanelHeader = (props: PanelHeaderProps) => {
   return (
-    <PaneTitleWrapper
+    <div
       onClick={(e: any) => {
         e.stopPropagation();
       }}
     >
-      <StyledBackIcon
-        onClick={props.closePanel}
-        className="t--property-pane-back-btn"
-      />
-      <PropertyTitleEditor
+      <PropertyPaneTitle
         title={props.title}
-        updatePropertyTitle={props.updatePropertyTitle}
         onClose={props.hidePropertyPane}
+        updatePropertyTitle={props.updatePropertyTitle}
+        onBackClick={props.closePanel}
       />
-    </PaneTitleWrapper>
+    </div>
   );
 };
 
