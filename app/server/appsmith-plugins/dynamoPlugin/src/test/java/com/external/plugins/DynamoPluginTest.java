@@ -38,6 +38,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -428,6 +429,26 @@ public class DynamoPluginTest {
                             ((Map<String, Object>)transformedItemMap.get("MapType")).get("mapKey").toString());
                     assertEquals("listValue1", ((ArrayList<String>)transformedItemMap.get("ListType")).get(0));
                     assertEquals("listValue2", ((ArrayList<String>)transformedItemMap.get("ListType")).get(1));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testTestDatasourceWithFalseCredentials() {
+        DBAuth auth = new DBAuth();
+        auth.setUsername("dummy");
+        auth.setPassword("dummy");
+        auth.setDatabaseName(Region.AP_SOUTH_1.toString());
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setAuthentication(auth);
+
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> {
+                    assertEquals(1, datasourceTestResult.getInvalids().size());
+
+                    List<String> errorList = new ArrayList<>(datasourceTestResult.getInvalids());
+                    assertTrue(errorList.get(0).contains("Invalid Access Key / Secret Key"));
                 })
                 .verifyComplete();
     }
