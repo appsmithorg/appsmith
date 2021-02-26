@@ -168,7 +168,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
     const pluginTemplates = yield select(getPluginTemplates);
-    const queryTemplate = pluginTemplates[action.pluginId];
+    const queryTemplate = pluginTemplates[pluginId];
     // Do not show template view if the query has body(code) or if there are no templates
     const showTemplate = !(
       !!actionConfiguration.body || isEmpty(queryTemplate)
