@@ -16,7 +16,7 @@ describe("JS Toggle tests", () => {
       .should("have.class", "is-active");
 
     cy.testJsontext("visible", "false");
-
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
 
     cy.get(".t--property-control-visible")

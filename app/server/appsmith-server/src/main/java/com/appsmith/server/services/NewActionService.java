@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
@@ -21,6 +22,8 @@ public interface NewActionService extends CrudService<NewAction, String> {
     Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode);
 
     Mono<ActionDTO> createAction(ActionDTO action);
+
+    Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext appsmithEventContext);
 
     NewAction extractAndSetJsonPathKeys(NewAction newAction);
 
