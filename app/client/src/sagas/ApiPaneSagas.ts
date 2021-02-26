@@ -34,11 +34,7 @@ import {
 } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
-import {
-  createNewApiName,
-  getNextEntityName,
-  getQueryParams,
-} from "utils/AppsmithUtils";
+import { createNewApiName, getNextEntityName } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import {
   getAction,
@@ -465,15 +461,6 @@ function* handleApiNameChangeSuccessSaga(
       },
     });
     return;
-  }
-  if (actionObj.pluginType === PluginType.API) {
-    const params = getQueryParams();
-    if (params.editName) {
-      params.editName = "false";
-    }
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
-    history.push(API_EDITOR_ID_URL(applicationId, pageId, actionId, params));
   }
 }
 

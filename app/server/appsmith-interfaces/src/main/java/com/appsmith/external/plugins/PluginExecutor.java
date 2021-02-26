@@ -140,7 +140,6 @@ public interface PluginExecutor<C> extends ExtensionPoint {
 
         variableSubstitution(actionConfiguration, datasourceConfiguration, executeActionDTO);
 
-        return;
     }
 
     /**
@@ -151,7 +150,7 @@ public interface PluginExecutor<C> extends ExtensionPoint {
                                       ExecuteActionDTO executeActionDTO) {
         //Do variable substitution
         //Do this only if params have been provided in the execute command
-        if (executeActionDTO.getParams() != null && !executeActionDTO.getParams().isEmpty()) {
+        if (executeActionDTO != null && !CollectionUtils.isEmpty(executeActionDTO.getParams())) {
             Map<String, String> replaceParamsMap = executeActionDTO
                     .getParams()
                     .stream()

@@ -31,6 +31,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     /**Validate Table data on current page(page1) */
     cy.ValidateTableData("1");
     cy.get(commonlocators.tableNextPage).click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(5000);
     /*
     cy.wait("@postExecute").should(

@@ -1,7 +1,7 @@
 <p align="center">
     <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/appsmith_logo_white.png" alt="Appsmith.com logo" width="400"/>
     <br>
-    <i>Appsmith is a JavaScript-based visual development platform to build internal tools.</i>
+    <i> Build and self-host all your internal apps.</i>
   <br>
 </p>
 
@@ -13,6 +13,8 @@
   <a href="https://docs.appsmith.com/">Documentation</a>
   ·
   <a href="https://discord.gg/rBTTVJp">Discord</a>
+  ·
+  <a href="https://app.appsmith.com/applications/602b8aef12ba0d29d3ec151c/pages/602b8aef12ba0d29d3ec151e">Office Hours</a>  
   <br>
   <br>
 </p>

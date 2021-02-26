@@ -84,7 +84,7 @@ const HeaderWrapper = styled(StyledHeader)`
 const HeaderSection = styled.div`
   display: flex;
   flex: 1;
-  overflow: auto;
+  overflow: hidden;
   align-items: center;
   :nth-child(1) {
     justify-content: flex-start;

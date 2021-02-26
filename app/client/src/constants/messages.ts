@@ -138,6 +138,8 @@ export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = "Back to Sign In";
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = "Api added to page.";
 export const INPUT_WIDGET_DEFAULT_VALIDATION_ERROR = "Invalid input";
 
+export const DATE_WIDGET_DEFAULT_VALIDATION_ERROR = "Date out of range";
+
 export const AUTOFIT_ALL_COLUMNS = "Autofit all columns";
 export const AUTOFIT_THIS_COLUMN = "Autofit this column";
 export const AUTOFIT_COLUMN = "Autofit column";

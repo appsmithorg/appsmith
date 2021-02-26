@@ -4,6 +4,8 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.AppsmithEventContext;
+import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -63,6 +65,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -187,7 +190,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     @Override
-    public Mono<ActionDTO> createAction(ActionDTO action) {
+    public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext) {
         if (action.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
@@ -224,14 +227,23 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         newAction.setOrganizationId(datasource.getOrganizationId());
                     }
 
-                    // New actions will never be set to auto-magical execution
-                    action.setExecuteOnLoad(false);
+                    // New actions will never be set to auto-magical execution, unless it is triggered via a
+                    // page or application clone event.
+                    if (!AppsmithEventContextType.CLONE_PAGE.equals(eventContext.getAppsmithEventContextType())) {
+                        action.setExecuteOnLoad(false);
+                    }
 
                     newAction.setUnpublishedAction(action);
 
                     return Mono.just(newAction);
                 })
                 .flatMap(this::validateAndSaveActionToRepository);
+    }
+
+    @Override
+    public Mono<ActionDTO> createAction(ActionDTO action) {
+        AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
+        return createAction(action, eventContext);
     }
 
     private Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
@@ -712,8 +724,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 "properties", actionConfiguration.getPluginSpecifiedTemplates() == null
                                         ? Collections.emptyMap()
                                         : actionConfiguration.getPluginSpecifiedTemplates()
-                                        .stream()
-                                        .collect(Collectors.toMap(Property::getKey, Property::getValue))
+                                            .stream()
+                                            .filter(Objects::nonNull)
+                                            .collect(Collectors.toMap(
+                                                    p -> ObjectUtils.defaultIfNull(p.getKey(), ""),
+                                                    p -> ObjectUtils.defaultIfNull(p.getValue(), "")
+                                            ))
                         ));
                     }
 
