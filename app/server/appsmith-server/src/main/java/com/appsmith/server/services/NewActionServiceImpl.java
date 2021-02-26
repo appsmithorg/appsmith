@@ -39,6 +39,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
@@ -781,11 +782,31 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .then();
     }
 
-    private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(NewAction action, ActionDTO actionDTO, Datasource datasource, Boolean viewMode, ActionExecutionRequest request) {
+    private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(NewAction action, ActionDTO actionDTO, Datasource datasource, Boolean viewMode, ActionExecutionRequest actionExecutionRequest) {
         // Since we're loading the application from DB *only* for analytics, we check if analytics is
         // active before making the call to DB.
         if (!analyticsService.isActive()) {
             return Mono.empty();
+        }
+
+        // Do a deep copy of request to not edit
+        ActionExecutionRequest request = new ActionExecutionRequest(actionExecutionRequest.getQuery(),
+                actionExecutionRequest.getBody(),
+                actionExecutionRequest.getHeaders(),
+                actionExecutionRequest.getHttpMethod(),
+                actionExecutionRequest.getUrl(),
+                actionExecutionRequest.getProperties(),
+                actionExecutionRequest.getExecutionParameters()
+        );
+
+        if (request.getHeaders() != null) {
+            JsonNode headers = (JsonNode) request.getHeaders();
+            try {
+                String headersAsString = objectMapper.writeValueAsString(headers);
+                request.setHeaders(headersAsString);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
         }
 
         return Mono.justOrEmpty(action.getApplicationId())
