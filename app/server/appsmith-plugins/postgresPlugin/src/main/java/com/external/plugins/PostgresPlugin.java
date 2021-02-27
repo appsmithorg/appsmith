@@ -186,11 +186,11 @@ public class PostgresPlugin extends BasePlugin {
                                                           ExecuteActionDTO executeActionDTO) {
 
             final Map<String, Object> requestData = new HashMap<>();
+            requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
+
+            String query = actionConfiguration.getBody();
 
             return Mono.fromCallable(() -> {
-
-                String query = actionConfiguration.getBody();
-                requestData.put("query", query);
 
                 Connection connectionFromPool;
 
@@ -369,7 +369,8 @@ public class PostgresPlugin extends BasePlugin {
                     // Now set the request in the result to be returned back to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
-                        request.setBody(requestData);
+                        request.setQuery(query);
+                        request.setProperties(requestData);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;

@@ -8,6 +8,7 @@ import lombok.ToString;
 import org.springframework.http.HttpMethod;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -20,6 +21,6 @@ public class ActionExecutionRequest {
     Object headers;
     HttpMethod httpMethod;
     String url;
-    List<Param> properties;
+    Map<String, Object> properties;
     List<String> executionParameters;
 }
