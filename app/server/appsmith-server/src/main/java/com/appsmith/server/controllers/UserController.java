@@ -5,6 +5,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.services.GoogleRecaptchaService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserOrganizationService;
@@ -39,18 +40,21 @@ public class UserController extends BaseController<UserService, User, String> {
     private final UserOrganizationService userOrganizationService;
     private final UserSignup userSignup;
     private final UserDataService userDataService;
+    private final GoogleRecaptchaService googleRecaptchaService;
 
     @Autowired
     public UserController(UserService service,
                           SessionUserService sessionUserService,
                           UserOrganizationService userOrganizationService,
                           UserSignup userSignup,
-                          UserDataService userDataService) {
+                          UserDataService userDataService,
+                          GoogleRecaptchaService googleRecaptchaService) {
         super(service);
         this.sessionUserService = sessionUserService;
         this.userOrganizationService = userOrganizationService;
         this.userSignup = userSignup;
         this.userDataService = userDataService;
+        this.googleRecaptchaService = googleRecaptchaService;
     }
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
@@ -58,6 +62,8 @@ public class UserController extends BaseController<UserService, User, String> {
     public Mono<ResponseDTO<User>> create(@Valid @RequestBody User resource,
                                           @RequestHeader(name = "Origin", required = false) String originHeader,
                                           ServerWebExchange exchange) {
+        // TODO: implement verfify method
+        googleRecaptchaService.verify("recaptchaResp");
         return userSignup.signupAndLogin(resource, exchange)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
