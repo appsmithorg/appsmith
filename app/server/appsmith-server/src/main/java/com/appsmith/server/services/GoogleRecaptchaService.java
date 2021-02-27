@@ -1,5 +1,7 @@
 package com.appsmith.server.services;
 
+import reactor.core.publisher.Mono;
+
 public interface GoogleRecaptchaService {
-  boolean verify(String recaptchaResp);
+  Mono<Boolean> verify(String recaptchaResponse);
 }
