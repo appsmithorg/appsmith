@@ -32,6 +32,7 @@ import {
   updateActionSuccess,
 } from "actions/actionActions";
 import {
+  DynamicPath,
   isChildPropertyPath,
   isDynamicValue,
   removeBindingsFromActionObject,
@@ -70,6 +71,7 @@ import PerformanceTracker, {
 import PluginsApi from "api/PluginApi";
 import _, { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
+import { getAllPaths } from "workers/evaluationUtils";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -554,32 +556,33 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
 
 function getDynamicBindingsChangesSaga(
   action: Action,
-  value: string | undefined,
+  value: unknown,
   field: string,
 ) {
   const bindingField = field.replace("actionConfiguration.", "");
-  let dynamicBindings: Property[] = action.dynamicBindingPathList || [];
-  const fieldExists = _.some(dynamicBindings, { key: bindingField });
+  let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
 
-  if (!value) {
-    // if no value is passed, a parent field was deleted
-    // We will remove any binding paths that are children of this path
-    return dynamicBindings.filter(
-      ({ key }) => !isChildPropertyPath(bindingField, key),
-    );
-  }
-  const isDynamic = isDynamicValue(value);
+  if (typeof value === "object") {
+    dynamicBindings = dynamicBindings.filter((dynamicPath) => {
+      if (isChildPropertyPath(bindingField, dynamicPath.key)) {
+        const childPropertyValue = _.get(value, dynamicPath.key);
+        return isDynamicValue(childPropertyValue);
+      }
+    });
+  } else if (typeof value === "string") {
+    const fieldExists = _.some(dynamicBindings, { key: bindingField });
 
-  if (!isDynamic && fieldExists) {
-    dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
+    const isDynamic = isDynamicValue(value);
+
+    if (!isDynamic && fieldExists) {
+      dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
+    }
+    if (isDynamic && !fieldExists) {
+      dynamicBindings.push({ key: bindingField });
+    }
   }
-  if (isDynamic && !fieldExists) {
-    dynamicBindings.push({ key: bindingField });
-  }
-  if (dynamicBindings !== action.dynamicBindingPathList) {
-    return dynamicBindings;
-  }
-  return action.dynamicBindingPathList;
+
+  return dynamicBindings;
 }
 
 function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
