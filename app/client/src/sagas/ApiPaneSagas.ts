@@ -344,10 +344,7 @@ function* updateFormFields(
 }
 
 function* formValueChangeSaga(
-  actionPayload: ReduxActionWithMeta<
-    string,
-    { field: string; form: string; index: number }
-  >,
+  actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
   const { form, field } = actionPayload.meta;
   if (form !== API_EDITOR_FORM_NAME) return;

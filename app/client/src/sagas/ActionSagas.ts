@@ -12,7 +12,7 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import { Datasource } from "entities/Datasource";
-import ActionAPI, { ActionCreateUpdateResponse, Property } from "api/ActionAPI";
+import ActionAPI, { ActionCreateUpdateResponse } from "api/ActionAPI";
 import { GenericApiResponse } from "api/ApiResponses";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
@@ -71,7 +71,6 @@ import PerformanceTracker, {
 import PluginsApi from "api/PluginApi";
 import _, { merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { getAllPaths } from "workers/evaluationUtils";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
