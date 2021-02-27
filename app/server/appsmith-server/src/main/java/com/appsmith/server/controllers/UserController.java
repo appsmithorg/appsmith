@@ -5,6 +5,8 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.GoogleRecaptchaService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -62,10 +64,14 @@ public class UserController extends BaseController<UserService, User, String> {
     public Mono<ResponseDTO<User>> create(@Valid @RequestBody User resource,
                                           @RequestHeader(name = "Origin", required = false) String originHeader,
                                           ServerWebExchange exchange) {
-        // TODO: implement verfify method
-        googleRecaptchaService.verify("recaptchaResp");
-        return userSignup.signupAndLogin(resource, exchange)
+        return googleRecaptchaService.verify("recaptchaResp").flatMap(verified -> {
+          if(verified) {
+            return userSignup.signupAndLogin(resource, exchange)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+          } else {
+            return Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_TIMEOUT));
+          }
+        });
     }
 
     @PostMapping(consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
