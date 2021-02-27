@@ -10,13 +10,10 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.client.utils.URIBuilder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.web.server.DefaultServerRedirectStrategy;
-import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -24,8 +21,6 @@ import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import static com.appsmith.server.helpers.ValidationUtils.validateEmail;
 import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
@@ -37,8 +32,6 @@ public class UserSignup {
 
     private final UserService userService;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
-
-    private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
     private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
 
@@ -105,20 +98,7 @@ public class UserSignup {
                     }
                     return user;
                 })
-                .flatMap(user -> signupAndLogin(user, exchange))
-                .then()
-                .onErrorResume(error -> {
-                    final String referer = exchange.getRequest().getHeaders().getFirst("referer");
-                    final URIBuilder redirectUriBuilder = new URIBuilder(URI.create(referer)).setParameter("error", error.getMessage());
-                    URI redirectUri;
-                    try {
-                        redirectUri = redirectUriBuilder.build();
-                    } catch (URISyntaxException e) {
-                        log.error("Error building redirect URI with error for signup, {}.", e.getMessage(), error);
-                        redirectUri = URI.create(referer);
-                    }
-                    return redirectStrategy.sendRedirect(exchange, redirectUri);
-                });
+                .flatMap(user -> signupAndLogin(user, exchange));
     }
 
 }

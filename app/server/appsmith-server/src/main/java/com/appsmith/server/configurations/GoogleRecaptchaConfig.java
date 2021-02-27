@@ -8,6 +8,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GoogleRecaptchaConfig {
 
+    @Value("${google.recaptcha.enabled}")
+    private boolean isEnabled;
+    
     @Value("${google.recaptcha.key.site}")
     private String siteKey;
 
