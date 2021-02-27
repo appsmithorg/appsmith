@@ -28,8 +28,6 @@ public class GoogleRecaptchaServiceImpl implements GoogleRecaptchaService {
   private static String VERIFY_PATH = "/siteverify";
 
   private final ObjectMapper objectMapper;
-
-  private final String secretKey;
   
   private final Long timeoutInMillis = Long.valueOf(10000);
 
@@ -38,15 +36,14 @@ public class GoogleRecaptchaServiceImpl implements GoogleRecaptchaService {
                                     GoogleRecaptchaConfig googleRecaptchaConfig, ObjectMapper objectMapper) {
       this.webClient = webClientBuilder.baseUrl(BASE_URL).build();
       this.googleRecaptchaConfig = googleRecaptchaConfig;
-      this.secretKey = googleRecaptchaConfig.getSecretKey();
       this.objectMapper = objectMapper;
   }
 
   @Override
   public Mono<Boolean> verify(String recaptchaResponse){
     
-    // if secret key is not configured, abort verification.
-    if (secretKey == "") {
+    // if not enabled or secret key is not configured, abort verification.
+    if (!googleRecaptchaConfig.isEnabled() || googleRecaptchaConfig.getSecretKey() == "") {
       return Mono.just(true);
     }
 
@@ -58,17 +55,17 @@ public class GoogleRecaptchaServiceImpl implements GoogleRecaptchaService {
   // API Docs: https://developers.google.com/recaptcha/docs/v3
   private Mono<HashMap<String,Object>> doVerfiy(String recaptchaResponse) {
     return webClient
-      .post()
-      .uri(VERIFY_PATH)
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(Map.of(
-              "secret", secretKey,
-              "response", recaptchaResponse
-      )))
+      .get()
+      .uri(uriBuilder -> uriBuilder.path(VERIFY_PATH)
+        .queryParam("response", recaptchaResponse)
+        .queryParam("secret", googleRecaptchaConfig.getSecretKey())
+        .build()
+      )
       .retrieve()
       .bodyToMono(String.class)
       .flatMap(stringBody -> {
         HashMap<String,Object> response = null;
+        System.out.println(stringBody);
         try {
           response = objectMapper.readValue(stringBody, HashMap.class);
         } catch (JsonProcessingException e) {

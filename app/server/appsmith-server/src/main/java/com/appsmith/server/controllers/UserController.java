@@ -30,6 +30,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.web.server.DefaultServerRedirectStrategy;
+import org.springframework.security.web.server.ServerRedirectStrategy;
+import org.apache.http.client.utils.URIBuilder;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import javax.validation.Valid;
 import java.util.List;
 
@@ -64,20 +70,34 @@ public class UserController extends BaseController<UserService, User, String> {
     public Mono<ResponseDTO<User>> create(@Valid @RequestBody User resource,
                                           @RequestHeader(name = "Origin", required = false) String originHeader,
                                           ServerWebExchange exchange) {
-        return googleRecaptchaService.verify("recaptchaResp").flatMap(verified -> {
-          if(verified) {
-            return userSignup.signupAndLogin(resource, exchange)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
-          } else {
-            return Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_TIMEOUT));
-          }
-        });
+          return userSignup.signupAndLogin(resource, exchange)
+                    .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @PostMapping(consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Void> createFormEncoded(ServerWebExchange exchange) {
-        return userSignup.signupAndLoginFromFormData(exchange);
+      String recaptchaToken = exchange.getRequest().getQueryParams().getFirst("recaptchaToken");
+
+      return googleRecaptchaService.verify(recaptchaToken).flatMap(verified -> {
+        if (verified) {
+          return userSignup.signupAndLoginFromFormData(exchange);
+        } else {
+          return Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_FAILED));
+        }
+      }).onErrorResume(error -> {
+        final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
+        final String referer = exchange.getRequest().getHeaders().getFirst("referer");
+        final URIBuilder redirectUriBuilder = new URIBuilder(URI.create(referer)).setParameter("error", error.getMessage());
+        URI redirectUri;
+        try {
+            redirectUri = redirectUriBuilder.build();
+        } catch (URISyntaxException e) {
+            log.error("Error building redirect URI with error for signup, {}.", e.getMessage(), error);
+            redirectUri = URI.create(referer);
+        }
+        return redirectStrategy.sendRedirect(exchange, redirectUri);
+      });
     }
 
     @PutMapping()
