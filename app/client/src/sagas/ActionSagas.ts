@@ -26,7 +26,6 @@ import {
   FetchActionsPayload,
   moveActionError,
   moveActionSuccess,
-  setActionProperty,
   SetActionPropertyPayload,
   updateAction,
   updateActionProperty,
@@ -271,19 +270,7 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
     const isApi = action.pluginType === "API";
 
     if (isApi) {
-      const result = transformRestAction(action);
-      action = result.action;
-      if (result.deletedFields) {
-        for (const field of result.deletedFields) {
-          yield put(
-            setActionProperty({
-              actionId: actionPayload.payload.id,
-              propertyName: field,
-              value: undefined,
-            }),
-          );
-        }
-      }
+      action = transformRestAction(action);
     }
 
     const response: GenericApiResponse<Action> = yield ActionAPI.updateAPI(
