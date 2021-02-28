@@ -13,10 +13,7 @@ import {
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EventType, ExecutionResult } from "constants/ActionConstants";
-import {
-  DerivedPropertiesMap,
-  TriggerPropertiesMap,
-} from "utils/WidgetFactory";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
 import _ from "lodash";
@@ -195,12 +192,6 @@ class FilePickerWidget extends BaseWidget<
     return {
       files: [],
       uploadedFileData: {},
-    };
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onFilesSelected: true,
     };
   }
 

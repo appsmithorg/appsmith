@@ -697,6 +697,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Publish Application";
         testApplication.setName(appName);
+        testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.FIXED, 1024));
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application -> applicationPageService.publish(application.getId()))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
@@ -726,6 +727,8 @@ public class ApplicationServiceTest {
                     assertThat(newPage.getUnpublishedPage().getName()).isEqualTo(newPage.getPublishedPage().getName());
                     assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getId()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getId());
                     assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getDsl());
+
+                    assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
                 })
                 .verifyComplete();
     }

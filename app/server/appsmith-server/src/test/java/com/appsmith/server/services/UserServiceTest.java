@@ -43,6 +43,7 @@ import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.USER_READ_ORGANIZATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -395,4 +396,21 @@ public class UserServiceTest {
                     .expectErrorMessage(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.EMAIL));
         }
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateNameOfUser() {
+        User updateUser = new User();
+        updateUser.setEmail("api_user");
+        updateUser.setName("New name of api_user");
+
+        StepVerifier.create(userService.updateCurrentUser(updateUser, null))
+                .assertNext(user -> {
+                    assertNotNull(user);
+                    assertThat(user.getEmail()).isEqualTo("api_user");
+                    assertThat(user.getName()).isEqualTo("New name of api_user");
+                })
+                .verifyComplete();
+    }
+
 }
