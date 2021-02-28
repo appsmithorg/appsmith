@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -74,7 +75,13 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
     @Override
     public Mono<UserData> getForCurrentUser() {
         return sessionUserService.getCurrentUser()
-                .flatMap(user -> userService.findByEmail(user.getEmail()))
+                .map(User::getEmail)
+                .flatMap(this::getForUserEmail);
+    }
+
+    @Override
+    public Mono<UserData> getForUserEmail(String email) {
+        return userService.findByEmail(email)
                 .flatMap(this::getForUser);
     }
 
@@ -172,6 +179,30 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                         return assetService.remove(oldAssetId).then(updateMono);
                     }
                 });
+    }
+
+    @Override
+    public Mono<Void> deleteProfilePhoto() {
+        return getForCurrentUser()
+                .flatMap(userData -> Mono.justOrEmpty(userData.getProfilePhotoAssetId()))
+                .flatMap(assetService::remove);
+    }
+
+    @Override
+    public Mono<Void> makeProfilePhotoResponse(ServerWebExchange exchange, String email) {
+        return getForUserEmail(email)
+                .flatMap(userData -> makeProfilePhotoResponse(exchange, userData));
+    }
+
+    @Override
+    public Mono<Void> makeProfilePhotoResponse(ServerWebExchange exchange) {
+        return getForCurrentUser()
+                .flatMap(userData -> makeProfilePhotoResponse(exchange, userData));
+    }
+
+    private Mono<Void> makeProfilePhotoResponse(ServerWebExchange exchange, UserData userData) {
+        return Mono.justOrEmpty(userData.getProfilePhotoAssetId())
+                .flatMap(assetId -> assetService.makeImageResponse(exchange, assetId));
     }
 
 }

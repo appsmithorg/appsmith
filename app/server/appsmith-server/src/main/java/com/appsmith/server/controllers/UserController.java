@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -144,6 +145,29 @@ public class UserController extends BaseController<UserService, User, String> {
         return fileMono
                 .flatMap(userDataService::saveProfilePhoto)
                 .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null));
+    }
+
+    @DeleteMapping("/photo")
+    public Mono<ResponseDTO<Void>> deleteProfilePhoto() {
+        return userDataService
+                .deleteProfilePhoto()
+                .map(ignored -> new ResponseDTO<>(HttpStatus.OK.value(), null, null));
+    }
+
+    @GetMapping("/photo")
+    public Mono<Void> getProfilePhoto(ServerWebExchange exchange) {
+        return userDataService.makeProfilePhotoResponse(exchange)
+                .switchIfEmpty(Mono.fromRunnable(() -> {
+                    exchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
+                }));
+    }
+
+    @GetMapping("/photo/{email}")
+    public Mono<Void> getProfilePhoto(ServerWebExchange exchange, @PathVariable String email) {
+        return userDataService.makeProfilePhotoResponse(exchange, email)
+                .switchIfEmpty(Mono.fromRunnable(() -> {
+                    exchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
+                }));
     }
 
 }
