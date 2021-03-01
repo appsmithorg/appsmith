@@ -140,7 +140,7 @@ class CurlImportForm extends React.Component<Props> {
               <label className="inputLabel">{"Paste CURL Code Here"}</label>
               <CurlLabel>
                 {
-                  "Hint: Try typing in the following curl cmd and then click on the 'Import' button: curl -X GET https://mock-api.appsmith.com/users"
+                  "Hint: Try typing in the following curl command and then click on the 'Import' button: curl -X GET https://mock-api.appsmith.com/users"
                 }
               </CurlLabel>
               <CurlImportFormContainer>
