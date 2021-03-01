@@ -305,7 +305,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
 
             AmazonS3Action s3Action = AmazonS3Action.valueOf(properties.get(ACTION_PROPERTY_INDEX).getValue());
-            requestProperties.put("action", s3Action.name());
+            String query = s3Action.name();
 
             if ((s3Action == AmazonS3Action.UPLOAD_FILE_FROM_BODY || s3Action == AmazonS3Action.READ_FILE ||
                     s3Action == AmazonS3Action.DELETE_FILE) && StringUtils.isBlank(path)) {
@@ -534,6 +534,7 @@ public class AmazonS3Plugin extends BasePlugin {
                     // Now set the request in the result to be returned back to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
+                        actionExecutionRequest.setQuery(query);
                         actionExecutionRequest.setProperties(requestProperties);
                         actionExecutionResult.setRequest(actionExecutionRequest);
                         return actionExecutionResult;
