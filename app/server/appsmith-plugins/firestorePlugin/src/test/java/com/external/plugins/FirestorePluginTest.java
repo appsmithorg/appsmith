@@ -1,6 +1,8 @@
 package com.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.AppsmithErrorAction;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -481,6 +483,32 @@ public class FirestorePluginTest {
 
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testDatasourceCreateErrorOnBadServiceAccountCredentials() {
+        DBAuth dbAuth = new DBAuth();
+        dbAuth.setUsername("username");
+        dbAuth.setPassword("password");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(dbAuth);
+        datasourceConfiguration.setUrl("https://url");
+
+        StepVerifier.create(pluginExecutor.datasourceCreate(datasourceConfiguration))
+                .expectErrorSatisfies(error -> {
+                    // Check that error is caught and returned as plugin error.
+                    assertTrue(error instanceof AppsmithPluginException);
+
+                    // Check error message.
+                    assertEquals(
+                            "Validation failed for field 'Service Account Credentials'. Please check the " +
+                                    "value provided in the 'Service Account Credentials' field.",
+                            error.getMessage());
+
+                    // Check that the error does not get logged externally.
+                    assertFalse(AppsmithErrorAction.LOG_EXTERNALLY.equals(((AppsmithPluginException)error).getError().getErrorAction()));
+                })
+                .verify();
     }
 
 }
