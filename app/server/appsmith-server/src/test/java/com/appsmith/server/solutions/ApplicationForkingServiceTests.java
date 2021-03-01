@@ -144,18 +144,10 @@ public class ApplicationForkingServiceTests {
                     app1.setName("1 - public app");
                     app1.setOrganizationId(organizationId);
 
-                    Application app2 = new Application();
-                    app2.setOrganizationId(organizationId);
-                    app2.setName("2 - private app");
-
-                    return Mono
-                            .zip(
-                                    applicationPageService.createApplication(app1),
-                                    applicationPageService.createApplication(app2)
-                            )
-                            .flatMap(tuple1 ->
+                    return applicationPageService.createApplication(app1)
+                            .flatMap(app ->
                                     applicationForkingService.forkApplicationToOrganization(
-                                            tuple1.getT1().getId(),
+                                            app.getId(),
                                             tuple.getT2()
                                     )
                             );
