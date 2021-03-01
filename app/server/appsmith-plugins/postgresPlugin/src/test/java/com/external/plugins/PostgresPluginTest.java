@@ -89,18 +89,18 @@ public class PostgresPluginTest {
             try (Statement statement = connection.createStatement()) {
                 statement.execute("CREATE TABLE users (\n" +
                         "    id serial PRIMARY KEY,\n" +
-                        "    username VARCHAR (50) UNIQUE NOT NULL,\n" +
-                        "    password VARCHAR (50) NOT NULL,\n" +
-                        "    email VARCHAR (355) UNIQUE NOT NULL,\n" +
+                        "    username VARCHAR (50) UNIQUE,\n" +
+                        "    password VARCHAR (50) ,\n" +
+                        "    email VARCHAR (355) UNIQUE ,\n" +
                         "    spouse_dob DATE,\n" +
-                        "    dob DATE NOT NULL,\n" +
-                        "    time1 TIME NOT NULL,\n" +
-                        "    time_tz TIME WITH TIME ZONE NOT NULL,\n" +
-                        "    created_on TIMESTAMP NOT NULL,\n" +
-                        "    created_on_tz TIMESTAMP WITH TIME ZONE NOT NULL,\n" +
-                        "    interval1 INTERVAL HOUR NOT NULL,\n" +
-                        "    numbers INTEGER[3] NOT NULL,\n" +
-                        "    texts VARCHAR[2] NOT NULL\n" +
+                        "    dob DATE ,\n" +
+                        "    time1 TIME ,\n" +
+                        "    time_tz TIME WITH TIME ZONE ,\n" +
+                        "    created_on TIMESTAMP ,\n" +
+                        "    created_on_tz TIMESTAMP WITH TIME ZONE ,\n" +
+                        "    interval1 INTERVAL HOUR ,\n" +
+                        "    numbers INTEGER[3] ,\n" +
+                        "    texts VARCHAR[2] \n" +
                         ")");
 
                 statement.execute("CREATE TABLE possessions (\n" +
@@ -135,6 +135,17 @@ public class PostgresPluginTest {
                                 " '15:45:30', '04:05:06 PST'," +
                                 " TIMESTAMP '2019-11-30 23:59:59', TIMESTAMP WITH TIME ZONE '2019-11-30 23:59:59 CET'," +
                                 " '2 years'," +
+                                " '{1, 2, 3}', '{\"a\", \"b\"}'" +
+                                ")");
+            }
+
+            try (Statement statement = connection.createStatement()) {
+                statement.execute(
+                        "INSERT INTO users VALUES (" +
+                                "3, 'MiniJackJill', 'jaji', 'jaji@exemplars.com', NULL, '2021-01-31'," +
+                                " '15:45:30', '04:05:06 PST'," +
+                                " TIMESTAMP '2021-01-31 23:59:59', TIMESTAMP WITH TIME ZONE '2021-01-31 23:59:59 CET'," +
+                                " '0 years'," +
                                 " '{1, 2, 3}', '{\"a\", \"b\"}'" +
                                 ")");
             }
@@ -625,6 +636,134 @@ public class PostgresPluginTest {
                                     .toArray()
                     );
 
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testPreparedStatementWithNullStringValue() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("UPDATE public.\"users\" set " +
+                "username = {{binding1}}, " +
+                "password = {{binding1}},\n" +
+                "email = {{binding1}},\n" +
+                "spouse_dob = {{binding1}},\n" +
+                "dob = {{binding1}},\n" +
+                "time1 = {{binding1}},\n" +
+                "time_tz = {{binding1}},\n" +
+                "created_on = {{binding1}},\n" +
+                "created_on_tz = {{binding1}},\n" +
+                "interval1 = {{binding1}},\n" +
+                "numbers = {{binding1}},\n" +
+                "texts = {{binding1}}" +
+                "  where id = 2;");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param = new Param();
+        param.setKey("binding1");
+        param.setValue("null");
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                })
+                .verifyComplete();
+
+        actionConfiguration.setBody("SELECT * FROM public.\"users\" where id = 2;");
+        resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertTrue(node.get("dob").isNull());
+                    assertTrue(node.get("time1").isNull());
+                    assertTrue(node.get("time_tz").isNull());
+                    assertTrue(node.get("created_on").isNull());
+                    assertTrue(node.get("created_on_tz").isNull());
+                    assertTrue(node.get("interval1").isNull());
+                    assertTrue(node.get("spouse_dob").isNull());
+                    assertTrue(node.get("username").isNull());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testPreparedStatementWithNullValue() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("UPDATE public.\"users\" set " +
+                "username = {{binding1}}, " +
+                "password = {{binding1}},\n" +
+                "email = {{binding1}},\n" +
+                "spouse_dob = {{binding1}},\n" +
+                "dob = {{binding1}},\n" +
+                "time1 = {{binding1}},\n" +
+                "time_tz = {{binding1}},\n" +
+                "created_on = {{binding1}},\n" +
+                "created_on_tz = {{binding1}},\n" +
+                "interval1 = {{binding1}},\n" +
+                "numbers = {{binding1}},\n" +
+                "texts = {{binding1}}" +
+                "  where id = 3;");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param = new Param();
+        param.setKey("binding1");
+        param.setValue(null);
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                })
+                .verifyComplete();
+
+        actionConfiguration.setBody("SELECT * FROM public.\"users\" where id = 3;");
+        resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertTrue(node.get("dob").isNull());
+                    assertTrue(node.get("time1").isNull());
+                    assertTrue(node.get("time_tz").isNull());
+                    assertTrue(node.get("created_on").isNull());
+                    assertTrue(node.get("created_on_tz").isNull());
+                    assertTrue(node.get("interval1").isNull());
+                    assertTrue(node.get("spouse_dob").isNull());
+                    assertTrue(node.get("username").isNull());
                 })
                 .verifyComplete();
     }
