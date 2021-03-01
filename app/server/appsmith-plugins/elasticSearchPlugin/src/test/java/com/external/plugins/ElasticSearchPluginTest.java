@@ -109,7 +109,6 @@ public class ElasticSearchPluginTest {
                 "}";
         StepVerifier.create(execute(HttpMethod.GET, "/planets/_mget", contentJson))
                 .assertNext(result -> {
-                    System.out.println(result);
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
@@ -124,7 +123,6 @@ public class ElasticSearchPluginTest {
         final String contentJson = "{\"name\": \"Pluto\"}";
         StepVerifier.create(execute(HttpMethod.PUT, "/planets/doc/id9", contentJson))
                 .assertNext(result -> {
-                    System.out.println(result);
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
@@ -140,7 +138,6 @@ public class ElasticSearchPluginTest {
         final String contentJson = "{\"name\": \"New Venus\"}";
         StepVerifier.create(execute(HttpMethod.PUT, "/planets/doc/id2", contentJson))
                 .assertNext(result -> {
-                    System.out.println(result);
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
@@ -202,7 +199,6 @@ public class ElasticSearchPluginTest {
 
         StepVerifier.create(execute(HttpMethod.POST, "/_bulk", contentJson))
                 .assertNext(result -> {
-                    System.out.println(result);
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
