@@ -11,7 +11,6 @@ import { getExistingWidgetNames } from "sagas/selectors";
 import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { BindingText } from "pages/Editor/APIEditor/Form";
 import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 
 import { Icon, Tooltip, Position, Classes } from "@blueprintjs/core";

@@ -7,7 +7,8 @@ import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { HELPBAR_PLACEHOLDER } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { isMac } from "utils/helpers";
-
+// border: 1px solid ${(props) =>
+// props.theme.colors.globalSearch.helpBarBorder};
 const StyledHelpBar = styled.div`
   padding: 0 ${(props) => props.theme.spaces[4]}px;
   .placeholder-text {
@@ -16,8 +17,8 @@ const StyledHelpBar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid ${(props) => props.theme.colors.globalSearch.helpBarBorder};
   color: ${(props) => props.theme.colors.globalSearch.helpBarText};
+  background: ${(props) => props.theme.colors.globalSearch.helpBarBackground};
   height: 28px;
   flex: 1;
   max-width: 350px;

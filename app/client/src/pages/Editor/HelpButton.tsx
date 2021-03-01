@@ -18,11 +18,12 @@ const StyledTrigger = styled.div`
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  border: 1px solid #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: ${(props) => props.theme.spaces[2]}px;
+  background: ${(props) =>
+    props.theme.colors.globalSearch.helpButtonBackground};
 `;
 
 const Trigger = () => (

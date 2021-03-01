@@ -10,7 +10,6 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetType } from "constants/WidgetConstants";
-import HelpControl from "./HelpControl";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";

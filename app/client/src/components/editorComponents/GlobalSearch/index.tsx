@@ -33,7 +33,6 @@ import { HelpBaseURL } from "constants/HelpConstants";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { BUILDER_PAGE_URL, DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { getSelectedWidget } from "selectors/ui";
-import { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
