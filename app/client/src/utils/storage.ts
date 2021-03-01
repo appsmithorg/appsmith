@@ -165,3 +165,19 @@ export const fetchRecentAppEntities = async (appId: string) => {
     console.log("An error occurred while fetching recent entities", error);
   }
 };
+
+export const deleteRecentAppEntities = async (appId: string) => {
+  try {
+    const recentEntities =
+      ((await store.getItem(STORAGE_KEYS.RECENT_ENTITIES)) as Record<
+        string,
+        any
+      >) || {};
+    if (typeof recentEntities === "object") {
+      delete recentEntities[appId];
+    }
+    await store.setItem(STORAGE_KEYS.RECENT_ENTITIES, recentEntities);
+  } catch (error) {
+    console.log("An error occurred while saving recent entities", error);
+  }
+};
