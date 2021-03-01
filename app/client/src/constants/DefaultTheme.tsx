@@ -962,6 +962,7 @@ type ColorType = {
     activeButtonText: ShadeColor;
     jsButtonHoverBG: ShadeColor;
     dropdownSelectBg: ShadeColor;
+    multiDropdownBoxHoverBg: ShadeColor;
   };
 };
 
@@ -1397,6 +1398,7 @@ export const dark: ColorType = {
     activeButtonText: lightShades[12],
     jsButtonHoverBG: darkShades[2],
     dropdownSelectBg: darkShades[2],
+    multiDropdownBoxHoverBg: darkShades[0],
   },
 };
 
@@ -1805,6 +1807,7 @@ export const light: ColorType = {
     activeButtonText: lightShades[12],
     jsButtonHoverBG: lightShades[2],
     dropdownSelectBg: lightShades[14],
+    multiDropdownBoxHoverBg: lightShades[11],
   },
 };
 

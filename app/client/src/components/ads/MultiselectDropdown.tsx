@@ -1,28 +1,12 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import Icon, { IconName, IconSize } from "./Icon";
-import { CommonComponentProps, Classes } from "./common";
+import { Classes, CommonComponentProps } from "./common";
 import Text, { TextType } from "./Text";
 import { Popover, Position } from "@blueprintjs/core";
 import styled from "constants/DefaultTheme";
+import _ from "lodash";
 
-export type DropdownOption = {
-  label?: string;
-  value?: string;
-  id?: string;
-  icon?: IconName;
-  onSelect?: (value?: string) => void;
-};
-
-type DropdownProps = CommonComponentProps & {
-  options: DropdownOption[];
-  selected: DropdownOption;
-  onSelect?: (value?: string) => void;
-  width?: string;
-  showLabelOnly?: boolean;
-  optionWidth?: string;
-};
-
-export const DropdownContainer = styled.div<{ width?: string }>`
+const DropdownContainer = styled.div<{ width?: string }>`
   width: ${(props) => props.width || "260px"};
   position: relative;
 `;
@@ -131,31 +115,117 @@ const LabelWrapper = styled.div<{ label?: string }>`
   }
 `;
 
-export default function Dropdown(props: DropdownProps) {
-  const { onSelect } = { ...props };
+const MultiOptionWrapper = styled(OptionWrapper)`
+  background-color: transparent;
+  .${Classes.MULTI_SELECT_BOX} {
+    background-color: ${(props) =>
+      props.selected ? props.theme.colors.dropdown.hovered.bg : "transparent"};
+    border-color: ${(props) =>
+      props.selected
+        ? props.theme.colors.dropdown.hovered.bg
+        : props.theme.colors.propertyPane.jsIconBg};
+  }
+
+  &:hover {
+    .${Classes.MULTI_SELECT_BOX} {
+      border-color: ${(props) =>
+        props.selected
+          ? props.theme.colors.propertyPane.multiDropdownBoxHoverBg
+          : props.theme.colors.textOnDarkBG};
+      background-color: ${(props) =>
+        props.selected
+          ? props.theme.colors.propertyPane.multiDropdownBoxHoverBg
+          : "transparent"};
+    }
+  }
+`;
+
+const SquareBox = styled.div`
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  border: 1px solid;
+  box-sizing: border-box;
+`;
+
+export type DropdownOption = {
+  label?: string;
+  value?: string;
+  id?: string;
+  icon?: IconName;
+};
+
+type DropdownProps = CommonComponentProps & {
+  options: DropdownOption[];
+  selected: string[];
+  onSelect: (value: string[]) => void;
+  width?: string;
+  showLabelOnly?: boolean;
+  optionWidth?: string;
+  selectAll?: boolean;
+  selectAllQuantifier?: string;
+};
+
+const MultiSelectDropdown = (props: DropdownProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selected, setSelected] = useState<DropdownOption>(props.selected);
   const [containerWidth, setContainerWidth] = useState<string>("0px");
-
-  useEffect(() => {
-    setSelected(props.selected);
-  }, [props.selected]);
-
-  const optionClickHandler = useCallback(
-    (option: DropdownOption) => {
-      setSelected(option);
-      setIsOpen(false);
-      onSelect && onSelect(option.value);
-      option.onSelect && option.onSelect(option.value);
-    },
-    [onSelect],
-  );
 
   const measuredRef = useCallback((node) => {
     if (node !== null && !props.optionWidth) {
       setContainerWidth(`${node.getBoundingClientRect().width}px`);
     }
   }, []);
+
+  const optionClickHandler = (option: string) => {
+    const currentIndex = _.findIndex(props.selected, (value) => {
+      return value === option;
+    });
+
+    let selectedOption = [...props.selected];
+
+    if (currentIndex === -1) {
+      selectedOption.push(option);
+    } else {
+      selectedOption.splice(currentIndex, 1);
+    }
+
+    if (props.selectAll) {
+      const isAllSelectorPresent = props.selected.includes(
+        props.selectAllQuantifier as string,
+      );
+      const isAllSelectorSelected =
+        props.selectAllQuantifier && option === props.selectAllQuantifier;
+
+      if (isAllSelectorSelected) {
+        if (isAllSelectorPresent) {
+          selectedOption = [];
+        } else {
+          selectedOption = _.map(
+            props.options,
+            (item) => item.value,
+          ) as string[];
+        }
+      } else if (isAllSelectorPresent) {
+        selectedOption = selectedOption.filter(
+          (item) => item !== props.selectAllQuantifier,
+        );
+      } else if (
+        !isAllSelectorPresent &&
+        selectedOption.length === props.options.length - 1
+      ) {
+        selectedOption = _.map(props.options, (item) => item.value) as string[];
+      }
+    }
+
+    props.onSelect && props.onSelect([...selectedOption]);
+  };
+
+  const isItemSelected = (item?: string) => {
+    if (!item) {
+      return false;
+    }
+    return props.selected.includes(item);
+  };
 
   return (
     <DropdownContainer
@@ -178,7 +248,9 @@ export default function Dropdown(props: DropdownProps) {
           className={props.className}
         >
           <Text type={TextType.P1}>
-            {props.showLabelOnly ? selected.label : selected.value}
+            {props.selected.length
+              ? `${props.selected.length} Selected`
+              : "Select file types"}
           </Text>
           <Icon name="downArrow" size={IconSize.XXS} />
         </Selected>
@@ -187,12 +259,15 @@ export default function Dropdown(props: DropdownProps) {
         >
           {props.options.map((option: DropdownOption, index: number) => {
             return (
-              <OptionWrapper
+              <MultiOptionWrapper
                 key={index}
-                selected={selected.value === option.value}
-                onClick={() => optionClickHandler(option)}
-                className="t--dropdown-option"
+                selected={isItemSelected(option.value)}
+                onClick={() => {
+                  optionClickHandler(option.value as string);
+                }}
+                className="t--multi-dropdown-option"
               >
+                <SquareBox className={Classes.MULTI_SELECT_BOX} />
                 {option.icon ? (
                   <Icon name={option.icon} size={IconSize.LARGE} />
                 ) : null}
@@ -206,11 +281,13 @@ export default function Dropdown(props: DropdownProps) {
                 ) : (
                   <Text type={TextType.P1}>{option.value}</Text>
                 )}
-              </OptionWrapper>
+              </MultiOptionWrapper>
             );
           })}
         </DropdownWrapper>
       </Popover>
     </DropdownContainer>
   );
-}
+};
+
+export default MultiSelectDropdown;
