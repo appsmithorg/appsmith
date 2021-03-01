@@ -328,6 +328,7 @@ export const getAllPageWidgets = createSelector(
   getAllWidgetsMap,
   (widgetsMap) => {
     return Object.entries(widgetsMap).reduce(
+      // eslint-disable-next-line
       (res: any[], [widgetId, widget]: any) => [...res, widget],
       [],
     );

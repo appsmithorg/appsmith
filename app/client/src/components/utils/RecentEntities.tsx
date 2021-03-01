@@ -2,8 +2,6 @@ import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useLocation } from "react-router";
 import { getSelectedWidget } from "selectors/ui";
-import { getCurrentPageId } from "selectors/editorSelectors";
-// const { pathToRegexp, match, parse, compile } = require("path-to-regexp");
 import {
   match_api_path,
   match_datasource_path,

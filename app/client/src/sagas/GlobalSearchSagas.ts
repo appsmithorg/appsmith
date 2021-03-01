@@ -59,7 +59,6 @@ export function* updateRecentEntity(
       recentEntities.splice(existingIndex, 1);
       recentEntities.unshift(entity);
     }
-
     yield put(setRecentEntities(recentEntities));
     yield call(setRecentAppEntities, recentEntities, currentApplication?.id);
   } catch (e) {
