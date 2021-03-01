@@ -536,7 +536,7 @@ function* createApplication() {
   const currentOrganizationId = currentUser.currentOrganizationId;
   let organization;
 
-  if (!organization) {
+  if (!currentOrganizationId) {
     organization = userOrgs[0];
   } else {
     const filteredOrganizations = userOrgs.filter(
@@ -544,26 +544,30 @@ function* createApplication() {
     );
     organization = filteredOrganizations[0];
   }
-  const applicationList = organization.applications;
 
-  const applicationName = getNextEntityName(
-    "Super Standup ",
-    applicationList.map((el: any) => el.name),
-    true,
-  );
+  // Organization could be undefined for unknown reason
+  if (organization) {
+    const applicationList = organization.applications;
 
-  yield put({
-    type: ReduxActionTypes.CREATE_APPLICATION_INIT,
-    payload: {
-      applicationName,
-      orgId: organization.organization.id,
-      icon,
-      color,
-    },
-  });
+    const applicationName = getNextEntityName(
+      "Super Standup ",
+      applicationList.map((el: any) => el.name),
+      true,
+    );
 
-  yield take(ReduxActionTypes.CREATE_APPLICATION_SUCCESS);
-  yield call(initiateOnboarding);
+    yield put({
+      type: ReduxActionTypes.CREATE_APPLICATION_INIT,
+      payload: {
+        applicationName,
+        orgId: organization.organization.id,
+        icon,
+        color,
+      },
+    });
+
+    yield take(ReduxActionTypes.CREATE_APPLICATION_SUCCESS);
+    yield call(initiateOnboarding);
+  }
 }
 
 function* createQuery() {
