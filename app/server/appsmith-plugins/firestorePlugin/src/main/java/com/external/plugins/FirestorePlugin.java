@@ -542,7 +542,7 @@ public class FirestorePlugin extends BasePlugin {
                             credentials = GoogleCredentials.fromStream(serviceAccount);
                         } catch (IOException e) {
                             throw Exceptions.propagate(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                     e.getMessage()
                             ));
                         }
