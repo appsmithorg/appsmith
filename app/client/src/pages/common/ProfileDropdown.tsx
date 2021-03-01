@@ -18,6 +18,7 @@ import { PopperModifiers } from "@blueprintjs/core";
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
   userName?: string;
+  name: string;
   hideThemeSwitch?: boolean;
   modifiers?: PopperModifiers;
 };
@@ -38,13 +39,23 @@ const UserInformation = styled.div`
   display: flex;
   align-items: center;
 
-  .user-name {
+  .user-username {
     flex-basis: 80%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.profileDropdown.userName};
+    }
+  }
+
+  .user-name {
+    flex-basis: 80%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    .${Classes.TEXT} {
+      color: ${(props) => props.theme.colors.profileDropdown.name};
     }
   }
 
@@ -70,10 +81,17 @@ export default function ProfileDropdown(props: TagProps) {
       >
         <UserInformation>
           <div className="user-image">{Profile}</div>
-          <div className="user-name">
-            <Text type={TextType.P1} highlight>
-              {props.userName}
-            </Text>
+          <div>
+            <div className="user-name">
+              <Text type={TextType.P1} highlight>
+                {props.name}
+              </Text>
+            </div>
+            <div className="user-username">
+              <Text type={TextType.P3} highlight>
+                {props.userName}
+              </Text>
+            </div>
           </div>
         </UserInformation>
         <MenuDivider />
