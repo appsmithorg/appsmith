@@ -14,6 +14,7 @@ import {
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import ProfileImage from "./ProfileImage";
 import { PopperModifiers } from "@blueprintjs/core";
+import { PROFILE } from "constants/routes";
 
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
@@ -101,6 +102,16 @@ export default function ProfileDropdown(props: TagProps) {
             <MenuDivider />
           </>
         )}
+        <MenuItem
+          icon="edit"
+          text="Edit Profile"
+          className="t--edit-profile"
+          onSelect={() => {
+            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+              path: PROFILE,
+            });
+          }}
+        />
         <MenuItem
           icon="logout"
           text="Sign Out"
