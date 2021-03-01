@@ -247,116 +247,124 @@ public class AmazonS3Plugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(AmazonS3 connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
-            /*
-             * - AmazonS3 API collection does not seem to provide any API to test connection validity or staleness.
-             *   Hence, unable to do stale connection check explicitly.
-             * - If connection object is null, then assume stale connection.
-             */
-            if (connection == null) {
-                return Mono.error(new StaleConnectionException());
-            }
 
-            if (datasourceConfiguration == null) {
-                return Mono.error(
-                        new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "At least one of the mandatory fields in S3 datasource creation form is empty - " +
-                                        "'Access Key'/'Secret Key'/'Region'. Please fill all the mandatory fields and try again."
-                        )
-                );
-            }
-
-            if (actionConfiguration == null) {
-                return Mono.error(
-                        new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "At least one of the mandatory fields in S3 query creation form is empty - 'Action'/" +
-                                        "'Bucket Name'/'File Path'/'Content'. Please fill all the mandatory fields and try " +
-                                        "again."
-                        )
-                );
-            }
-
+            final String[] query = new String[1];
             Map<String, Object> requestProperties = new HashMap<>();
 
-            final String path = actionConfiguration.getPath();
-            requestProperties.put("path", path);
-
-            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            if (CollectionUtils.isEmpty(properties)) {
-                return Mono.error(
-                        new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Mandatory parameters 'Action' and 'Bucket Name' are missing. Did you forget to edit " +
-                                        "the 'Action' and 'Bucket Name' fields in the query form ?"
-                        )
-                );
-            }
-
-            if (properties.get(ACTION_PROPERTY_INDEX) == null) {
-                return Mono.error(
-                        new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Mandatory parameter 'Action' is missing. Did you forget to select one of the actions" +
-                                        " from the Action dropdown ?"
-                        )
-                );
-            }
-
-
-            AmazonS3Action s3Action = AmazonS3Action.valueOf(properties.get(ACTION_PROPERTY_INDEX).getValue());
-            String query = s3Action.name();
-
-            if ((s3Action == AmazonS3Action.UPLOAD_FILE_FROM_BODY || s3Action == AmazonS3Action.READ_FILE ||
-                    s3Action == AmazonS3Action.DELETE_FILE) && StringUtils.isBlank(path)) {
-                return Mono.error(
-                        new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Required parameter 'File Path' is missing. Did you forget to edit the 'File Path' field " +
-                                        "in the query form ? This field cannot be left empty with the chosen action."
-                        )
-                );
-            }
-
-            if (properties.size() < (1 + BUCKET_NAME_PROPERTY_INDEX)
-                    || properties.get(BUCKET_NAME_PROPERTY_INDEX) == null) {
-                return Mono.error(
-                        new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Mandatory parameter 'Bucket Name' is missing. Did you forget to edit the 'Bucket " +
-                                        "Name' field in the query form ?"
-                        )
-                );
-            }
-
-            final String bucketName = properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
-            if (StringUtils.isEmpty(bucketName)) {
-                return Mono.error(
-                        new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Mandatory parameter 'Bucket Name' is missing. Did you forget to edit the 'Bucket " +
-                                        "Name' field in the query form ?"
-                        )
-                );
-            }
-            requestProperties.put("bucket", bucketName);
-
-            /*
-             * - Allow users to upload empty file. Hence, only check for null value.
-             */
-            final String body = actionConfiguration.getBody();
-            if (s3Action == AmazonS3Action.UPLOAD_FILE_FROM_BODY && body == null) {
-                return Mono.error(
-                        new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Mandatory parameter 'Content' is missing. Did you forget to edit the 'Content' " +
-                                        "field in the query form ?"
-                        )
-                );
-            }
-            requestProperties.put("upload file body", body);
 
             return Mono.fromCallable(() -> {
+
+                /*
+                 * - AmazonS3 API collection does not seem to provide any API to test connection validity or staleness.
+                 *   Hence, unable to do stale connection check explicitly.
+                 * - If connection object is null, then assume stale connection.
+                 */
+                if (connection == null) {
+                    return Mono.error(new StaleConnectionException());
+                }
+
+                if (datasourceConfiguration == null) {
+                    return Mono.error(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "At least one of the mandatory fields in S3 datasource creation form is empty - " +
+                                            "'Access Key'/'Secret Key'/'Region'. Please fill all the mandatory fields and try again."
+                            )
+                    );
+                }
+
+                if (actionConfiguration == null) {
+                    return Mono.error(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "At least one of the mandatory fields in S3 query creation form is empty - 'Action'/" +
+                                            "'Bucket Name'/'File Path'/'Content'. Please fill all the mandatory fields and try " +
+                                            "again."
+                            )
+                    );
+                }
+
+                final String path = actionConfiguration.getPath();
+                requestProperties.put("path", path == null ? "" : path);
+
+                final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+                if (CollectionUtils.isEmpty(properties)) {
+                    return Mono.error(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Mandatory parameters 'Action' and 'Bucket Name' are missing. Did you forget to edit " +
+                                            "the 'Action' and 'Bucket Name' fields in the query form ?"
+                            )
+                    );
+                }
+
+                if (properties.get(ACTION_PROPERTY_INDEX) == null) {
+                    return Mono.error(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Mandatory parameter 'Action' is missing. Did you forget to select one of the actions" +
+                                            " from the Action dropdown ?"
+                            )
+                    );
+                }
+
+
+                AmazonS3Action s3Action = AmazonS3Action.valueOf(properties.get(ACTION_PROPERTY_INDEX).getValue());
+                query[0] = s3Action.name();
+
+                if (properties.size() < (1 + BUCKET_NAME_PROPERTY_INDEX)
+                        || properties.get(BUCKET_NAME_PROPERTY_INDEX) == null) {
+                    return Mono.error(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Mandatory parameter 'Bucket Name' is missing. Did you forget to edit the 'Bucket " +
+                                            "Name' field in the query form ?"
+                            )
+                    );
+                }
+
+                final String bucketName = properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
+                requestProperties.put("bucket", bucketName == null ? "" : bucketName);
+
+                if (StringUtils.isEmpty(bucketName)) {
+                    return Mono.error(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Mandatory parameter 'Bucket Name' is missing. Did you forget to edit the 'Bucket " +
+                                            "Name' field in the query form ?"
+                            )
+                    );
+                }
+
+                /*
+                 * - Allow users to upload empty file. Hence, only check for null value.
+                 */
+                final String body = actionConfiguration.getBody();
+                requestProperties.put("content", body == null ? "null" : body);
+
+                if (s3Action == AmazonS3Action.UPLOAD_FILE_FROM_BODY && body == null) {
+                    return Mono.error(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Mandatory parameter 'Content' is missing. Did you forget to edit the 'Content' " +
+                                            "field in the query form ?"
+                            )
+                    );
+                }
+
+
+                if ((s3Action == AmazonS3Action.UPLOAD_FILE_FROM_BODY || s3Action == AmazonS3Action.READ_FILE ||
+                        s3Action == AmazonS3Action.DELETE_FILE) && StringUtils.isBlank(path)) {
+                    return Mono.error(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Required parameter 'File Path' is missing. Did you forget to edit the 'File Path' field " +
+                                            "in the query form ? This field cannot be left empty with the chosen action."
+                            )
+                    );
+                }
+
+
                 Object actionResult;
                 switch (s3Action) {
                     case LIST:
@@ -387,13 +395,13 @@ public class AmazonS3Plugin extends BasePlugin {
                                                             .getValue()
                                             );
                                 } catch (NumberFormatException e) {
-                                    throw new AppsmithPluginException(
+                                    return Mono.error(new AppsmithPluginException(
                                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                             "Parameter 'Expiry Duration of Signed URL' is NOT a number. Please ensure that the " +
                                                     "input to 'Expiry Duration of Signed URL' field is a valid number - i.e. " +
                                                     "any non-negative integer. Please note that the maximum expiry " +
                                                     "duration supported by Amazon S3 is 7 days i.e. 10080 minutes."
-                                    );
+                                    ));
                                 }
                             }
 
@@ -408,12 +416,12 @@ public class AmazonS3Plugin extends BasePlugin {
                                     listOfFiles,
                                     expiryDateTime);
                             if (listOfFiles.size() != listOfSignedUrls.size()) {
-                                throw new AppsmithPluginException(
+                                return Mono.error(new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_ERROR,
                                         "Appsmith server has encountered an unexpected error when getting " +
                                                 "list of files from AWS S3 server. Please reach out to Appsmith customer " +
                                                 "support to resolve this."
-                                );
+                                ));
                             }
 
                             actionResult = new ArrayList<>();
@@ -448,13 +456,13 @@ public class AmazonS3Plugin extends BasePlugin {
                                                         .getValue()
                                         );
                             } catch (NumberFormatException e) {
-                                throw new AppsmithPluginException(
+                                return Mono.error(new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                         "Parameter 'Expiry Duration of Signed URL' is NOT a number. Please ensure that the " +
                                                 "Expiry Duration of Signed URL' field is a valid number - i.e. any " +
                                                 "non-negative integer. Please note that the maximum expiry duration supported" +
                                                 " by Amazon S3 is 7 days i.e. 10080 minutes."
-                                );
+                                ));
                             }
                         }
                         requestProperties.put("expiry duration in minutes", String.valueOf(durationInMinutes));
@@ -497,14 +505,15 @@ public class AmazonS3Plugin extends BasePlugin {
                         actionResult = Map.of("status", "File deleted successfully");
                         break;
                     default:
-                        throw new AppsmithPluginException(
+                        return Mono.error(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
-                                "It seems that the query has requested an unsupported action: " + s3Action +
+                                "It seems that the query has requested an unsupported action: " + query[0] +
                                         ". Please reach out to Appsmith customer support to resolve this."
-                        );
+                        ));
                 }
-                return actionResult;
+                return Mono.just(actionResult);
             })
+                    .flatMap(obj -> obj)
                     .flatMap(result -> {
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setBody(result);
@@ -520,7 +529,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         return Mono.error(
                                 new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_ERROR,
-                                        "Query failed when executing " + s3Action + " action: " + e.getMessage()
+                                        "Query failed when executing " + query[0] + " action: " + e.getMessage()
                                 )
                         );
                     })
@@ -534,7 +543,7 @@ public class AmazonS3Plugin extends BasePlugin {
                     // Now set the request in the result to be returned back to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
-                        actionExecutionRequest.setQuery(query);
+                        actionExecutionRequest.setQuery(query[0]);
                         actionExecutionRequest.setProperties(requestProperties);
                         actionExecutionResult.setRequest(actionExecutionRequest);
                         return actionExecutionResult;
