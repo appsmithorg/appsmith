@@ -405,7 +405,7 @@ const getTextContent = (props: ButtonProps) =>
 const getButtonContent = (props: ButtonProps) => (
   <>
     {getIconContent(props)}
-    <span>{getTextContent(props)}</span>
+    {getTextContent(props)}
     {props.isLoading ? <Spinner size={IconSizeProp(props.size)} /> : null}
   </>
 );
