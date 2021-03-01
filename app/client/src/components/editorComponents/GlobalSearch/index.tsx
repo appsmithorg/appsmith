@@ -101,6 +101,7 @@ const GlobalSearch = () => {
 
   const [activeItemIndex, setActiveItemIndex] = useState(0);
   const allWidgets = useSelector(getAllPageWidgets);
+
   const searchableWidgets = useMemo(
     () =>
       allWidgets.filter(

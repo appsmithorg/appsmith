@@ -285,30 +285,51 @@ export const getAppData = (state: AppState) => state.entities.app;
 export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
-export const getAllPageWidgets = (state: AppState): any => {
-  const widgetsByPage = state.ui.pageWidgets;
-  return Object.entries(widgetsByPage).reduce(
-    (res: any[], [pageId, pageWidgets]: any) => {
-      const pageWidgetsArr = Object.entries(
-        pageWidgets,
-        // eslint-disable-next-line
-      ).map(([widgetId, widget]: any) => {
-        let parentModalId;
-        let { parentId } = widget;
-        let parentWidget = pageWidgets[parentId];
-        while (parentId && parentId !== MAIN_CONTAINER_WIDGET_ID) {
-          if (parentWidget?.type === "MODAL_WIDGET") {
-            parentModalId = parentId;
-            break;
-          }
-          parentId = parentWidget?.parentId;
-          parentWidget = pageWidgets[parentId];
-        }
+const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
 
-        return { ...widget, pageId, parentModalId };
-      });
-      return [...pageWidgetsArr, ...res];
-    },
-    [],
-  );
-};
+export const getAllWidgetsMap = createSelector(
+  getPageWidgets,
+  (widgetsByPage) => {
+    return Object.entries(widgetsByPage).reduce(
+      (res: any, [pageId, pageWidgets]: any) => {
+        const widgetsMap = Object.entries(pageWidgets).reduce(
+          (res, [widgetId, widget]: any) => {
+            let parentModalId;
+            let { parentId } = widget;
+            let parentWidget = pageWidgets[parentId];
+            while (parentId && parentId !== MAIN_CONTAINER_WIDGET_ID) {
+              if (parentWidget?.type === "MODAL_WIDGET") {
+                parentModalId = parentId;
+                break;
+              }
+              parentId = parentWidget?.parentId;
+              parentWidget = pageWidgets[parentId];
+            }
+
+            return {
+              ...res,
+              [widgetId]: { ...widget, pageId, parentModalId },
+            };
+          },
+          {},
+        );
+
+        return {
+          ...res,
+          ...widgetsMap,
+        };
+      },
+      {},
+    );
+  },
+);
+
+export const getAllPageWidgets = createSelector(
+  getAllWidgetsMap,
+  (widgetsMap) => {
+    return Object.entries(widgetsMap).reduce(
+      (res: any[], [widgetId, widget]: any) => [...res, widget],
+      [],
+    );
+  },
+);

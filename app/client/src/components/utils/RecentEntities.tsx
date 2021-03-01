@@ -53,7 +53,6 @@ const RecentEntities = () => {
   const location = useLocation();
   const selectedWidget = useSelector(getSelectedWidget);
   const dispatch = useDispatch();
-  const pageId = useSelector(getCurrentPageId);
 
   useEffect(() => {
     if (selectedWidget && selectedWidget !== MAIN_CONTAINER_WIDGET_ID)
@@ -61,15 +60,14 @@ const RecentEntities = () => {
         updateRecentEntity({
           type: "widget",
           id: selectedWidget,
-          params: { pageId }, // this helps in looking up the widget without looping the entire list
         }),
       );
   }, [selectedWidget]);
 
   useEffect(() => {
-    const { type, id } = getRecentEntity(location.pathname);
+    const { type, id, params } = getRecentEntity(location.pathname);
     if (type && id && id.indexOf(":") === -1) {
-      dispatch(updateRecentEntity({ type, id }));
+      dispatch(updateRecentEntity({ type, id, params }));
     }
   }, [location.pathname]);
   return null;
