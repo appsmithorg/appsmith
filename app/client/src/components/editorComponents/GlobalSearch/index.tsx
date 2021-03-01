@@ -31,7 +31,6 @@ import {
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
-import { useFilteredDatasources } from "pages/Editor/Explorer/hooks";
 import { BUILDER_PAGE_URL, DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { getSelectedWidget } from "selectors/ui";
 import { Datasource } from "entities/Datasource";
@@ -114,13 +113,16 @@ const GlobalSearch = () => {
   const modalOpen = useSelector(isModalOpenSelector);
   const pages = useSelector(getPageList) || [];
   const pageMap = keyBy(pages, "pageId");
-  const datasourcesMap = useFilteredDatasources(query);
-  const datasourcesList = useMemo(() => {
-    return Object.entries(datasourcesMap).reduce((res: Datasource[], curr) => {
-      const [, value] = curr;
-      return [...res, ...value];
-    }, []);
-  }, [datasourcesMap]);
+
+  const reducerDatasources = useSelector((state: AppState) => {
+    return state.entities.datasources.list;
+  });
+  const filteredDatasources = useMemo(() => {
+    return reducerDatasources.map((datasource) => ({
+      ...datasource,
+      pageId: params?.pageId,
+    }));
+  }, [reducerDatasources]);
   const recentEntities = useRecentEntities();
 
   const resetSearchQuery = useSelector(searchQuerySelector);
@@ -178,14 +180,14 @@ const GlobalSearch = () => {
       ...filteredPages,
       ...filteredWidgets,
       ...filteredActions,
-      ...datasourcesList,
+      ...filteredDatasources,
       ...documentationSearchResults,
     ];
   }, [
     filteredWidgets,
     filteredActions,
     documentationSearchResults,
-    datasourcesList,
+    filteredDatasources,
     query,
     recentEntities,
   ]);
@@ -236,7 +238,7 @@ const GlobalSearch = () => {
   const handleDatasourceClick = (item: SearchItem) => {
     toggleShow();
     history.push(
-      DATA_SOURCES_EDITOR_ID_URL(params.applicationId, params.pageId, item.id),
+      DATA_SOURCES_EDITOR_ID_URL(params.applicationId, item.pageId, item.id),
     );
   };
 
