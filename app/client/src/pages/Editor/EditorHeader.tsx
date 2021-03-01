@@ -92,7 +92,7 @@ const HeaderSection = styled.div`
     justify-content: flex-start;
   }
   :nth-child(2) {
-    justify-content: flex-start;
+    justify-content: center;
   }
   :nth-child(3) {
     justify-content: flex-end;
