@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -38,6 +39,8 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.EncryptionService;
 import com.appsmith.server.services.OrganizationService;
 import com.github.cloudyrock.mongock.ChangeLog;
@@ -64,22 +67,24 @@ import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
@@ -87,10 +92,12 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
 @ChangeLog(order = "001")
@@ -158,7 +165,7 @@ public class DatabaseChangelog {
 
     private void installPluginToAllOrganizations(MongoTemplate mongoTemplate, String pluginId) {
         for (Organization organization : mongoTemplate.findAll(Organization.class)) {
-            if (CollectionUtils.isEmpty(organization.getPlugins())) {
+            if (isEmpty(organization.getPlugins())) {
                 organization.setPlugins(new ArrayList<>());
             }
 
@@ -409,7 +416,7 @@ public class DatabaseChangelog {
     @ChangeSet(order = "010", id = "add-delete-datasource-perm-existing-groups", author = "")
     public void addDeleteDatasourcePermToExistingGroups(MongoTemplate mongoTemplate) {
         for (Group group : mongoTemplate.findAll(Group.class)) {
-            if (CollectionUtils.isEmpty(group.getPermissions())) {
+            if (isEmpty(group.getPermissions())) {
                 group.setPermissions(new HashSet<>());
             }
             group.getPermissions().add("delete:datasources");
@@ -427,7 +434,7 @@ public class DatabaseChangelog {
         mongoTemplate.findAll(Plugin.class);
 
         for (Organization organization : mongoTemplate.findAll(Organization.class)) {
-            if (CollectionUtils.isEmpty(organization.getPlugins())) {
+            if (isEmpty(organization.getPlugins())) {
                 organization.setPlugins(new ArrayList<>());
             }
 
@@ -527,7 +534,7 @@ public class DatabaseChangelog {
 
         for (final Action action : actions) {
             final Set<String> keys = action.getJsonPathKeys();
-            if (CollectionUtils.isEmpty(keys)) {
+            if (isEmpty(keys)) {
                 continue;
             }
 
@@ -1700,19 +1707,17 @@ public class DatabaseChangelog {
 
         for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
             if (action.getPluginType() != null && action.getPluginType().equals("API")) {
+                if (action.getUnpublishedAction() != null
+                        && action.getUnpublishedAction().getActionConfiguration() != null) {
+                    action.getUnpublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+                }
 
+                if (action.getPublishedAction() != null
+                        && action.getPublishedAction().getActionConfiguration() != null) {
+                    action.getPublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+                }
+                mongoTemplate.save(action);
             }
-            if (action.getUnpublishedAction() != null
-                    && action.getUnpublishedAction().getActionConfiguration() != null) {
-                action.getUnpublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
-            }
-
-            if (action.getPublishedAction() != null
-                    && action.getPublishedAction().getActionConfiguration() != null) {
-                action.getPublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
-            }
-
-            mongoTemplate.save(action);
         }
     }
 
@@ -1754,5 +1759,54 @@ public class DatabaseChangelog {
 
             mongoTemplate.save(action);
         }
+    }
+
+    @ChangeSet(order = "056", id = "fix-dynamicBindingPathListForActions", author = "")
+    public void fixDynamicBindingPathListForExistingActions(MongoTemplate mongoTemplate) {
+
+        for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
+
+            // We have found an action with dynamic binding path list set by the client.
+            if (action.getUnpublishedAction().getActionConfiguration() != null && !isNullOrEmpty(action.getUnpublishedAction().getDynamicBindingPathList())) {
+                for (Property property : action.getUnpublishedAction().getDynamicBindingPathList()) {
+                    String path = property.getKey();
+                    if (path != null) {
+                        String[] fields = path.split("[].\\[]");
+                        Object parent = action.getUnpublishedAction().getActionConfiguration();
+                        Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
+                        Boolean isLeafNode = false;
+                        while (fieldsIterator.hasNext()) {
+                            String nextKey = fieldsIterator.next();
+                            if (parent instanceof JSONObject) {
+                                parent = ((JSONObject) parent).get(nextKey);
+                            } else if (parent instanceof Map) {
+                                parent = ((Map<String, ?>) parent).get(nextKey);
+                            } else if (parent instanceof List) {
+                                if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
+                                    parent = ((List) parent).get(Integer.parseInt(nextKey));
+                                } else {
+                                    throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, nextKey);
+                                }
+                            }
+                            // After updating the parent, check for the types
+                            if (parent == null) {
+                                log.error("Unable to find dynamically bound key {} for the widget with id {}", nextKey, dsl.get(FieldName.WIDGET_ID));
+                                break;
+                            } else if(parent instanceof String) {
+                                // If we get String value, then this is a leaf node
+                                isLeafNode = true;
+                            }
+                        }
+                        // Only extract mustache keys from leaf nodes
+                        if (parent != null && isLeafNode) {
+                            Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+                            dynamicBindings.addAll(mustacheKeysFromFields);
+                        }
+                    }
+
+                }
+            }
+        }
+
     }
 }
