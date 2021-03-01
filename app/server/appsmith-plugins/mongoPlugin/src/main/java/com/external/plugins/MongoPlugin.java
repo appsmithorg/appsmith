@@ -15,6 +15,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.mongodb.MongoCommandException;
+import com.mongodb.MongoTimeoutException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
@@ -215,6 +216,16 @@ public class MongoPlugin extends BasePlugin {
                                             error.getMessage()
                                     )
                     )
+                    .onErrorMap(
+                            MongoTimeoutException.class,
+                            error ->
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                            "Mongodb driver timed out while waiting for a Mongodb server with the " +
+                                                    "matching datasource credentials. Please check if the credentials" +
+                                                    " are correct."
+                                    )
+                    )
                     .onErrorMap(e -> {
                         if (!(e instanceof AppsmithPluginException)) {
                             return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
@@ -339,7 +350,8 @@ public class MongoPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return datasourceCreate(datasourceConfiguration)
+            return Mono.just(datasourceConfiguration)
+                    .flatMap(dsConfig -> datasourceCreate(dsConfig))
                     .flatMap(mongoClient -> {
                         return Mono.zip(Mono.just(mongoClient),
                                 Mono.from(mongoClient.getDatabase("admin").runCommand(new Document(
