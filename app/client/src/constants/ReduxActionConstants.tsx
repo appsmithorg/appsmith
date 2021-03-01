@@ -345,6 +345,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   RESTORE_RECENT_ENTITIES_SUCCESS: "RESTORE_RECENT_ENTITIES_SUCCESS",
   SET_RECENT_ENTITIES: "SET_RECENT_ENTITIES",
   RESET_RECENT_ENTITIES: "RESET_RECENT_ENTITIES",
+  UPDATE_API_ACTION_BODY_CONTENT_TYPE: "UPDATE_API_ACTION_BODY_CONTENT_TYPE",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
