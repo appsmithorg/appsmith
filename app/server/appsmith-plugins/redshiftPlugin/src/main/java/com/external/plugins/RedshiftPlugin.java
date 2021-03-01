@@ -217,8 +217,6 @@ public class RedshiftPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
-            final Map<String, Object> requestData = new HashMap<>();
-
             String query = actionConfiguration.getBody();
 
             if (query == null) {
@@ -229,7 +227,6 @@ public class RedshiftPlugin extends BasePlugin {
                         )
                 );
             }
-            requestData.put("query", query);
 
             return Mono.fromCallable(() -> {
                 /*
@@ -311,7 +308,7 @@ public class RedshiftPlugin extends BasePlugin {
             // Now set the request in the result to be returned back to the server
             .map(actionExecutionResult -> {
                 ActionExecutionRequest request = new ActionExecutionRequest();
-                request.setBody(requestData);
+                request.setQuery(query);
                 ActionExecutionResult result = actionExecutionResult;
                 result.setRequest(request);
                 return result;

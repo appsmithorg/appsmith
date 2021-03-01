@@ -34,7 +34,6 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -70,7 +69,7 @@ public class MssqlPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
-            final Map<String, Object> requestData = new HashMap<>();
+            String query = actionConfiguration.getBody();
 
             return Mono.fromCallable(() -> {
                 try {
@@ -84,14 +83,10 @@ public class MssqlPlugin extends BasePlugin {
                     log.error("Error checking validity of MsSQL connection.", error);
                 }
 
-                String query = actionConfiguration.getBody();
-
                 if (query == null) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
                             "parameter: Query."));
                 }
-
-                requestData.put("query", query);
 
                 List<Map<String, Object>> rowsList = new ArrayList<>(50);
 
@@ -198,7 +193,7 @@ public class MssqlPlugin extends BasePlugin {
                     // Now set the request in the result to be returned back to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
-                        request.setBody(requestData);
+                        request.setQuery(query);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;

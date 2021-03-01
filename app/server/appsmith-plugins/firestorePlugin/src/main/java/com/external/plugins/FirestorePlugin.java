@@ -100,6 +100,8 @@ public class FirestorePlugin extends BasePlugin {
 
             final Map<String, Object> requestData = new HashMap<>();
 
+            String query = actionConfiguration.getBody();
+
             final String path = actionConfiguration.getPath();
             requestData.put("path", path);
 
@@ -136,8 +138,6 @@ public class FirestorePlugin extends BasePlugin {
                     .justOrEmpty(actionConfiguration.getBody())
                     .defaultIfEmpty("")
                     .flatMap(strBody -> {
-
-                        requestData.put("query", strBody);
 
                         if (StringUtils.isBlank(strBody)) {
                             return Mono.just(Collections.emptyMap());
@@ -178,7 +178,8 @@ public class FirestorePlugin extends BasePlugin {
                     // Now set the request in the result to be returned back to the server
                     .map(result -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
-                        request.setBody(requestData);
+                        request.setProperties(requestData);
+                        request.setQuery(query);
                         result.setRequest(request);
                         return result;
                     })

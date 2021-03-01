@@ -26,7 +26,6 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.util.SafeEncoder;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -51,19 +50,16 @@ public class RedisPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
-            final Map<String, Object> requestData = new HashMap<>();
+            String query = actionConfiguration.getBody();
 
             return Mono.fromCallable(() -> {
-                String body = actionConfiguration.getBody();
-                if (StringUtils.isNullOrEmpty(body)) {
+                if (StringUtils.isNullOrEmpty(query)) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            String.format("Body is null or empty [%s]", body)));
+                            String.format("Body is null or empty [%s]", query)));
                 }
 
-                requestData.put("query", body);
-
                 // First value will be the redis command and others are arguments for that command
-                String[] bodySplitted = body.trim().split("\\s+");
+                String[] bodySplitted = query.trim().split("\\s+");
 
                 Protocol.Command command;
                 try {
@@ -100,7 +96,7 @@ public class RedisPlugin extends BasePlugin {
                     // Now set the request in the result to be returned back to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
-                        request.setBody(requestData);
+                        request.setQuery(query);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;

@@ -45,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -101,12 +100,10 @@ public class MongoPlugin extends BasePlugin {
                 throw new StaleConnectionException();
             }
 
-            final Map<String, Object> requestData = new HashMap<>();
-
             MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
 
-            Bson command = Document.parse(actionConfiguration.getBody());
-            requestData.put("query", actionConfiguration.getBody());
+            String query = actionConfiguration.getBody();
+            Bson command = Document.parse(query);
 
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
             ActionExecutionResult result = new ActionExecutionResult();
@@ -197,7 +194,7 @@ public class MongoPlugin extends BasePlugin {
                     // Now set the request in the result to be returned back to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
-                        request.setBody(requestData);
+                        request.setQuery(query);
                         actionExecutionResult.setRequest(request);
                         return actionExecutionResult;
                     })

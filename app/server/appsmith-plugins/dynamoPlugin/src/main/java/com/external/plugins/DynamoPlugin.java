@@ -279,6 +279,7 @@ public class DynamoPlugin extends BasePlugin {
                                                    ActionConfiguration actionConfiguration) {
 
             final Map<String, Object> requestData = new HashMap<>();
+            final String body = actionConfiguration.getBody();
 
             return Mono.fromCallable(() -> {
                 ActionExecutionResult result = new ActionExecutionResult();
@@ -292,8 +293,6 @@ public class DynamoPlugin extends BasePlugin {
                 }
                 requestData.put("action", action);
 
-                final String body = actionConfiguration.getBody();
-                requestData.put("query", body);
 
                 Map<String, Object> parameters = null;
                 try {
@@ -348,7 +347,8 @@ public class DynamoPlugin extends BasePlugin {
                     // Now set the request in the result to be returned back to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
-                        actionExecutionRequest.setBody(requestData);
+                        actionExecutionRequest.setProperties(requestData);
+                        actionExecutionRequest.setQuery(body);
                         actionExecutionResult.setRequest(actionExecutionRequest);
                         return actionExecutionResult;
                     })

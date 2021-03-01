@@ -177,15 +177,12 @@ public class MySqlPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
-            final Map<String, Object> requestData = new HashMap<>();
-
             String query = actionConfiguration.getBody().trim();
 
             if (query == null) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
                         "parameter: Query."));
             }
-            requestData.put("query", query);
 
             boolean isSelectOrShowQuery = getIsSelectOrShowQuery(query);
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
@@ -247,7 +244,7 @@ public class MySqlPlugin extends BasePlugin {
                     // Now set the request in the result to be returned back to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
-                        request.setBody(requestData);
+                        request.setQuery(query);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;

@@ -64,11 +64,12 @@ public class ElasticSearchPlugin extends BasePlugin {
 
             final Map<String, Object> requestData = new HashMap<>();
 
-            return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
+            String query = actionConfiguration.getBody();
+
+            return Mono.fromCallable(() -> {
                 final ActionExecutionResult result = new ActionExecutionResult();
 
-                String body = actionConfiguration.getBody();
-                requestData.put("query", body);
+                String body = query;
 
                 final String path = actionConfiguration.getPath();
                 requestData.put("path", path);
@@ -129,8 +130,9 @@ public class ElasticSearchPlugin extends BasePlugin {
                     // Now set the request in the result to be returned back to the server
                     .map(result -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
-                        request.setBody(requestData);
-                        ActionExecutionResult actionExecutionResult = (ActionExecutionResult) result;
+                        request.setProperties(requestData);
+                        request.setQuery(query);
+                        ActionExecutionResult actionExecutionResult = result;
                         actionExecutionResult.setRequest(request);
                         return actionExecutionResult;
                     })
