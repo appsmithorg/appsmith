@@ -103,34 +103,13 @@ public class FirestorePlugin extends BasePlugin {
             String query = actionConfiguration.getBody();
 
             final String path = actionConfiguration.getPath();
-            requestData.put("path", path);
-
-            if (StringUtils.isBlank(path)) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Document/Collection path cannot be empty"
-                ));
-            }
-
-            if (path.startsWith("/") || path.endsWith("/")) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Firestore paths should not begin or end with `/` character."
-                ));
-            }
+            requestData.put("path", path == null ? "" : path);
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             final com.external.plugins.Method method = CollectionUtils.isEmpty(properties)
                     ? null
                     : com.external.plugins.Method.valueOf(properties.get(0).getValue());
-
-            if (method == null) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Missing Firestore method."
-                ));
-            }
-            requestData.put("method", method.toString());
+            requestData.put("method", method == null ? "" : method.toString());
 
             final PaginationField paginationField = executeActionDTO == null ? null : executeActionDTO.getPaginationField();
 
@@ -138,6 +117,27 @@ public class FirestorePlugin extends BasePlugin {
                     .justOrEmpty(actionConfiguration.getBody())
                     .defaultIfEmpty("")
                     .flatMap(strBody -> {
+
+                        if (StringUtils.isBlank(path)) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Document/Collection path cannot be empty"
+                            ));
+                        }
+
+                        if (path.startsWith("/") || path.endsWith("/")) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Firestore paths should not begin or end with `/` character."
+                            ));
+                        }
+
+                        if (method == null) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Missing Firestore method."
+                            ));
+                        }
 
                         if (StringUtils.isBlank(strBody)) {
                             return Mono.just(Collections.emptyMap());
