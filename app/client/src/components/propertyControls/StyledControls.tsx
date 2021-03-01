@@ -1,21 +1,14 @@
-import styled from "styled-components";
-import { Select, MultiSelect } from "@blueprintjs/select";
-import {
-  Switch,
-  InputGroup,
-  Button,
-  Classes,
-  Popover,
-  MenuItem,
-  Menu,
-} from "@blueprintjs/core";
-import { DropdownOption } from "widgets/DropdownWidget";
+import { Switch, Classes, Popover, MenuItem, Menu } from "@blueprintjs/core";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput, DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
-import { Skin, createGlobalStyle } from "constants/DefaultTheme";
+import styled, { Skin } from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
+import Button from "components/ads/Button";
+import TextInput from "components/ads/TextInput";
+import Dropdown from "components/ads/Dropdown";
+import MultiSelectDropdown from "components/ads/MultiselectDropdown";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -47,7 +40,7 @@ export const ControlPropertyLabelContainer = styled.div`
   display: flex;
   align-items: center;
   label {
-    color: ${(props) => props.theme.colors.paneText};
+    color: ${(props) => props.theme.colors.propertyPane.label};
     margin-bottom: ${(props) => props.theme.spaces[1]}px;
     font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
@@ -57,82 +50,71 @@ export const ControlPropertyLabelContainer = styled.div`
 `;
 
 export const JSToggleButton = styled.span<{ active: boolean }>`
-  margin: 0 3px;
+  margin: 0 4px;
   cursor: pointer;
-  height: 24px;
-  svg {
-    height: 24px;
+  border-radius: 4px;
+  height: auto;
+  width: 28px;
+  height: 16px;
+  border: 0.5px solid
+    ${(props) => props.theme.colors.propertyPane.activeButtonText};
+  background-color: ${(props) =>
+    props.active
+      ? props.theme.colors.propertyPane.activeButtonText
+      : props.theme.colors.propertyPane.buttonText};
+
+  &:hover {
+    background-color: ${(props) =>
+      props.theme.colors.propertyPane.jsButtonHoverBG};
+
+    &&& svg {
+      path {
+        fill: ${(props) =>
+          props.active
+            ? props.theme.colors.propertyPane.activeButtonText
+            : props.theme.colors.propertyPane.activeButtonText};
+      }
+    }
+  }
+
+  & > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &&& svg {
+    width: 28px;
+    height: 16px;
+    transform: scale(1.6);
+
     rect {
+      fill: transparent;
+    }
+
+    path {
       fill: ${(props) =>
         props.active
-          ? props.theme.colors.primaryOld
-          : props.theme.colors.paneIcon};
+          ? props.theme.colors.WHITE
+          : props.theme.colors.propertyPane.activeButtonText};
     }
   }
 `;
 
 export const StyledDropDownContainer = styled.div`
-  &&&& .${Classes.BUTTON} {
-    box-shadow: none;
-    border-radius: 4px;
-    background-color: ${Colors.SHARK};
-    color: ${Colors.CADET_BLUE};
-    background-image: none;
-    &.code-highlight {
-      .language-javascript {
-        border: none;
-        box-shadow: none;
-        background: transparent;
-        white-space: normal;
-        word-break: break-word;
-      }
-      .bp3-button-text {
-        white-space: normal;
-        word-break: break-word;
-        display: block;
-        overflow: auto;
-        overflow-y: hidden;
-      }
-    }
-  }
   width: 100%;
 `;
 
-export const DropdownStyles = createGlobalStyle`
-  .select-popover-wrapper {
-    width: 100%;
-    border-radius: ${(props) => props.theme.radii[1]}px;
-    box-shadow:  0px 2px 4px rgba(67, 70, 74, 0.14);
-    padding: ${(props) => props.theme.spaces[3]}px;
-    background: white;
-    && .${Classes.MENU} {
-      max-width: 100%;
-      max-height: auto;
-    }
-    &&&& .${Classes.MENU_ITEM} {
-      border-radius: ${(props) => props.theme.radii[1]}px;
-      &:hover {
-        background: ${Colors.POLAR};
-      }
-      &.${Classes.ACTIVE} {
-        background: ${Colors.POLAR};
-        color: ${(props) => props.theme.colors.textDefault};
-        position: relative;
-        &.single-select {
-          &:before {
-            left: 0;
-            top: -2px;
-            position: absolute;
-            content: "";
-            background: ${(props) => props.theme.colors.primaryOld};
-            border-radius: 4px 0 0 4px;
-            width: 4px;
-            height: 100%;
-          }
-        }
-      }
-    }    
-  }
+export const StyledDropDown = styled(Dropdown)`
+  padding: 6px 8px;
+  height: auto;
+  background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
+`;
+
+export const StyledMultiSelectDropDown = styled(MultiSelectDropdown)`
+  padding: 6px 8px;
+  height: auto;
+  background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
 `;
 
 export const StyledMenu = styled(Menu)`
@@ -142,37 +124,6 @@ export const StyledMenu = styled(Menu)`
   }
   .bp3-submenu .bp3-menu {
     background: ${(props) => props.theme.dropdown[Skin.DARK].background};
-  }
-`;
-
-const DropDown = Select.ofType<DropdownOption>();
-export const StyledDropDown = styled(DropDown)`
-  div {
-    flex: 1 1 auto;
-  }
-  span {
-    width: 100%;
-    position: relative;
-  }
-  .${Classes.BUTTON} {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .${Classes.BUTTON_TEXT} {
-    text-overflow: ellipsis;
-    text-align: left;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-  }
-  && {
-    .${Classes.ICON} {
-      width: fit-content;
-      color: ${Colors.SLATE_GRAY};
-    }
   }
 `;
 
@@ -245,15 +196,6 @@ export const StyledMenuItem = styled(MenuItem)`
   }
 `;
 
-const MultiSelectDropDown = MultiSelect.ofType<DropdownOption>();
-export const StyledMultiSelectDropDown = styled(MultiSelectDropDown)`
-  &&& button {
-    background: ${(props) => props.theme.colors.paneInputBG};
-    color: ${(props) => props.theme.colors.textOnDarkBG};
-    box-shadow: none;
-  }
-`;
-
 export const StyledSwitch = styled(Switch)`
   &&&&& input:checked ~ span {
     background: ${(props) => props.theme.colors.primaryOld};
@@ -276,12 +218,11 @@ export const StyledDynamicInput = styled.div`
   }
 `;
 
-export const StyledInputGroup = styled(InputGroup)`
-  & > input {
-    placeholder-text: ${(props) => props.placeholder};
-    color: ${(props) => props.theme.colors.textOnDarkBG};
-    background: ${(props) => props.theme.colors.paneInputBG};
-  }
+export const StyledInputGroup = styled(TextInput)`
+  width: 100%;
+  border-radius: 4px;
+  background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
+  color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
 `;
 
 export const StyledDatePicker = styled(DateInput)`
@@ -297,22 +238,6 @@ export const StyledDateRangePicker = styled(DateRangeInput)`
     color: ${(props) => props.theme.colors.textOnDarkBG};
     background: ${(props) => props.theme.colors.paneInputBG};
     border: 1px solid green;
-  }
-`;
-
-export const StyledPropertyPaneButton = styled(Button)`
-  &&&& {
-    background-color: ${(props) => props.theme.colors.infoOld};
-    color: #ffffff;
-    margin-top: 4px;
-    .bp3-icon {
-      color: #ffffff;
-      margin-right: 4px;
-    }
-    svg {
-      width: 14px;
-      height: 14px;
-    }
   }
 `;
 
@@ -418,6 +343,30 @@ export const StyledHiddenIcon = styled(
     position: relative;
     path {
       fill: ${(props) => props.theme.colors.paneSectionLabel};
+    }
+  }
+`;
+
+export const StyledPropertyPaneButton = styled(Button)`
+  margin-top: 4px;
+  margin-left: auto;
+  display: flex;
+  justify-content: flex-end;
+
+  &,
+  &:active,
+  &:hover {
+    border-color: transparent;
+    color: ${(props) => props.theme.colors.propertyPane.buttonText};
+    background-color: ${(props) => props.theme.colors.propertyPane.buttonBg};
+  }
+
+  &&& svg {
+    width: 14px;
+    height: 14px;
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.buttonText};
+      stroke: ${(props) => props.theme.colors.propertyPane.buttonText};
     }
   }
 `;

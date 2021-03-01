@@ -17,6 +17,7 @@ import { generatePropertyControl } from "./Generator";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { get, isNumber, isPlainObject, isString } from "lodash";
 import { IPanelProps } from "@blueprintjs/core";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 const PaneTitleWrapper = styled.div`
   align-items: center;
@@ -101,6 +102,7 @@ export const PanelPropertiesEditor = (
     panelProps,
     closePanel,
     panelParentPropertyPath,
+    theme,
   } = props;
 
   // This could be the id of the parent to access the path
@@ -186,6 +188,7 @@ export const PanelPropertiesEditor = (
         generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
           type: widgetProperties.type,
           panel,
+          theme,
         })}
     </>
   );
@@ -195,6 +198,7 @@ interface PanelPropertiesEditorProps {
   panelProps: any;
   onPropertiesChange: (updates: Record<string, unknown>) => void;
   panelParentPropertyPath: string;
+  theme: EditorTheme;
 }
 
 interface PanelPropertiesEditorPanelProps {

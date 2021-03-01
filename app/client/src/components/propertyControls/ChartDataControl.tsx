@@ -13,6 +13,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import * as Sentry from "@sentry/react";
+import { Size, Category } from "components/ads/Button";
 
 const StyledOptionControlWrapper = styled(ControlWrapper)`
   display: flex;
@@ -255,12 +256,15 @@ class ChartDataControl extends BaseControl<ControlProps> {
             />
           );
         })}
+
         <StyledPropertyPaneButton
-          text="Add Series"
           icon="plus"
-          color="#FFFFFF"
-          minimal
+          tag="button"
+          type="button"
+          text="Add Series"
           onClick={this.addOption}
+          size={Size.medium}
+          category={Category.tertiary}
         />
       </React.Fragment>
     );

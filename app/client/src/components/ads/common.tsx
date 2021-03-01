@@ -21,6 +21,7 @@ export enum Classes {
   BP3_POPOVER_ARROW_BORDER = "bp3-popover-arrow-border",
   BP3_POPOVER_ARROW_FILL = "bp3-popover-arrow-fill",
   SPINNER = "cs-spinner",
+  MULTI_SELECT_BOX = "cs-multi-select-box",
 }
 
 export const hexToRgb = (

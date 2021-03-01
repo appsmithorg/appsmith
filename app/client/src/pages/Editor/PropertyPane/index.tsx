@@ -11,7 +11,7 @@ import { PanelStack, IPanel, Classes, IPanelProps } from "@blueprintjs/core";
 import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { scrollbarDark } from "constants/DefaultTheme";
+import { scrollbarDark, scrollbarLight } from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -21,21 +21,23 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import PropertyControlsGenerator from "./Generator";
 import PaneWrapper from "components/editorComponents/PaneWrapper";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
 
-const PropertyPaneWrapper = styled(PaneWrapper)`
+const PropertyPaneWrapper = styled(PaneWrapper)<{ themeMode?: EditorTheme }>`
   width: 100%;
   max-height: ${(props) => props.theme.propertyPane.height}px;
   width: ${(props) => props.theme.propertyPane.width}px;
   margin: ${(props) => props.theme.spaces[2]}px;
-  box-shadow: 0px 0px 10px ${(props) => props.theme.colors.paneCard};
   border: ${(props) => props.theme.spaces[5]}px solid
-    ${(props) => props.theme.colors.paneBG};
+    ${(props) => props.theme.colors.propertyPane.bg};
   border-right: 0;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0 ${(props) => props.theme.spaces[5]}px 0 0;
   text-transform: none;
-  ${scrollbarDark};
+  ${(props) =>
+    props.themeMode === EditorTheme.DARK ? scrollbarDark : scrollbarLight};
 `;
 
 const StyledPanelStack = styled(PanelStack)`
@@ -62,9 +64,10 @@ interface PropertyPaneState {
 const PropertyPaneView = (
   props: {
     hidePropertyPane: () => void;
+    theme: EditorTheme;
   } & IPanelProps,
 ) => {
-  const { hidePropertyPane, ...panel } = props;
+  const { hidePropertyPane, theme, ...panel } = props;
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
 
   return (
@@ -76,13 +79,25 @@ const PropertyPaneView = (
         widgetType={widgetProperties?.type}
         onClose={hidePropertyPane}
       />
-      <PropertyControlsGenerator type={widgetProperties.type} panel={panel} />
+      <PropertyControlsGenerator
+        type={widgetProperties.type}
+        panel={panel}
+        theme={theme}
+      />
     </>
   );
 };
 
 class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   private panelWrapperRef = React.createRef<HTMLDivElement>();
+
+  getTheme() {
+    if (this.props.themeMode === "LIGHT") {
+      return EditorTheme.LIGHT;
+    }
+    return EditorTheme.DARK;
+  }
+
   render() {
     if (this.props.isVisible) {
       log.debug("Property pane rendered");
@@ -107,9 +122,11 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
 
   renderPropertyPane() {
     const { widgetProperties } = this.props;
-    if (!widgetProperties) return <PropertyPaneWrapper />;
+    if (!widgetProperties)
+      return <PropertyPaneWrapper themeMode={this.getTheme()} />;
     return (
       <PropertyPaneWrapper
+        themeMode={this.getTheme()}
         ref={this.panelWrapperRef}
         onClick={(e: any) => {
           e.stopPropagation();
@@ -124,6 +141,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
             component: PropertyPaneView,
             props: {
               hidePropertyPane: this.props.hidePropertyPane,
+              theme: this.getTheme(),
             },
           }}
           showPanelHeader={false}
@@ -182,6 +200,7 @@ const mapStateToProps = (state: AppState) => {
   return {
     widgetProperties: getWidgetPropsForPropertyPane(state),
     isVisible: getIsPropertyPaneVisible(state),
+    themeMode: getCurrentThemeMode(state),
   };
 };
 
@@ -197,6 +216,7 @@ const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
 export interface PropertyPaneProps extends PropertyPaneFunctions {
   widgetProperties?: WidgetProps;
   isVisible: boolean;
+  themeMode: ThemeMode;
 }
 
 export interface PropertyPaneFunctions {

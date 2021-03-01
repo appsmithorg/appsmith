@@ -50,22 +50,75 @@ export const hideScrollbar = css`
   }
 `;
 
-export const scrollbarDark = css`
-  scrollbar-color: ${(props) => props.theme.colors.paneCard}
-    ${(props) => props.theme.colors.paneBG};
+export const scrollbarDark = css<{
+  backgroundColor?: Color;
+  barColor?: Color;
+}>`
   scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
 
-  &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${(props) => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
+  &::-webkit-scrollbar {
+    width: 12px;
+    height: 4px;
+    background-color: ${(props) =>
+      props.backgroundColor
+        ? props.backgroundColor
+        : getColorWithOpacity(props.theme.colors.scrollbarDarkBG, 0.5)};
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.paneCard};
-    border-radius: ${(props) => props.theme.radii[1]}px;
+    background-color: ${(props) =>
+      props.barColor
+        ? props.barColor
+        : getColorWithOpacity(props.theme.colors.scrollbarDark, 0.5)};
+    border-radius: ${(props) => props.theme.radii[3]}px;
+    border: 4px solid transparent;
+    background-clip: padding-box;
+  }
+
+  &::-webkit-scrollbar-button {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background-color: transparent;
+  }
+`;
+
+export const scrollbarLight = css<{
+  backgroundColor?: Color;
+  barColor?: Color;
+}>`
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    width: 12px;
+    height: 4px;
+    background-color: ${(props) =>
+      props.backgroundColor
+        ? props.backgroundColor
+        : getColorWithOpacity(props.theme.colors.textOnDarkBG, 0.5)};
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: ${(props) =>
+      props.barColor
+        ? props.barColor
+        : getColorWithOpacity(props.theme.colors.scrollbarLight, 0.5)};
+    border-radius: ${(props) => props.theme.radii[3]}px;
+    border: 4px solid transparent;
+    background-clip: padding-box;
+  }
+
+  &::-webkit-scrollbar-button {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background-color: transparent;
   }
 `;
 
@@ -524,6 +577,8 @@ const lightShades = [
   "#090707",
   "#FFFFFF",
   "#6A86CE",
+  "#E0DEDE",
+  "#EBEBEB",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -815,22 +870,6 @@ type ColorType = {
         value: string;
       };
     };
-    moreActions: {
-      targetBg: string;
-      targetIcon: {
-        normal: string;
-        hover: string;
-      };
-      menuShadow: string;
-      menuBg: {
-        normal: ShadeColor;
-        hover: ShadeColor;
-      };
-      menuText: {
-        normal: ShadeColor;
-        hover: ShadeColor;
-      };
-    };
     closeIcon: ShadeColor;
     responseBody: {
       bg: ShadeColor;
@@ -885,6 +924,45 @@ type ColorType = {
     text: string;
     iconPath: string;
     iconCircle: string;
+  };
+  treeDropdown: {
+    targetBg: string;
+    targetIcon: {
+      normal: string;
+      hover: string;
+    };
+    menuShadow: string;
+    menuBg: {
+      normal: ShadeColor;
+      hover: ShadeColor;
+    };
+    darkMenuBg: {
+      normal: ShadeColor;
+      hover: ShadeColor;
+    };
+    menuText: {
+      normal: ShadeColor;
+      hover: ShadeColor;
+    };
+    darkMenuText: {
+      normal: ShadeColor;
+      hover: ShadeColor;
+    };
+  };
+  propertyPane: {
+    bg: ShadeColor;
+    label: ShadeColor;
+    jsIconBg: ShadeColor;
+    buttonBg: ShadeColor;
+    buttonText: ShadeColor;
+    radioGroupBg: ShadeColor;
+    radioGroupText: ShadeColor;
+    deleteIconColor: string;
+    zoomButtonBG: ShadeColor;
+    activeButtonText: ShadeColor;
+    jsButtonHoverBG: ShadeColor;
+    dropdownSelectBg: ShadeColor;
+    multiDropdownBoxHoverBg: ShadeColor;
   };
 };
 
@@ -1237,22 +1315,6 @@ export const dark: ColorType = {
         value: darkShades[7],
       },
     },
-    moreActions: {
-      targetBg: "#090707",
-      targetIcon: {
-        normal: "#9F9F9F",
-        hover: "#9F9F9F",
-      },
-      menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
-      menuBg: {
-        normal: darkShades[3],
-        hover: darkShades[4],
-      },
-      menuText: {
-        normal: darkShades[7],
-        hover: darkShades[9],
-      },
-    },
     closeIcon: darkShades[9],
     responseBody: {
       bg: "#090707",
@@ -1298,6 +1360,45 @@ export const dark: ColorType = {
     text: "#d4d4d4",
     iconPath: "#2b2b2b",
     iconCircle: "#d4d4d4",
+  },
+  treeDropdown: {
+    targetBg: "#090707",
+    targetIcon: {
+      normal: "#9F9F9F",
+      hover: "#9F9F9F",
+    },
+    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
+    menuBg: {
+      normal: darkShades[3],
+      hover: darkShades[4],
+    },
+    darkMenuBg: {
+      normal: darkShades[0],
+      hover: darkShades[3],
+    },
+    menuText: {
+      normal: darkShades[7],
+      hover: darkShades[9],
+    },
+    darkMenuText: {
+      normal: darkShades[8],
+      hover: darkShades[9],
+    },
+  },
+  propertyPane: {
+    bg: darkShades[1],
+    label: darkShades[7],
+    jsIconBg: darkShades[5],
+    buttonBg: darkShades[7],
+    buttonText: lightShades[10],
+    radioGroupBg: darkShades[0],
+    radioGroupText: darkShades[7],
+    deleteIconColor: "#A3B3BF",
+    zoomButtonBG: darkShades[3],
+    activeButtonText: lightShades[12],
+    jsButtonHoverBG: darkShades[2],
+    dropdownSelectBg: darkShades[2],
+    multiDropdownBoxHoverBg: darkShades[0],
   },
 };
 
@@ -1623,22 +1724,6 @@ export const light: ColorType = {
         value: lightShades[8],
       },
     },
-    moreActions: {
-      targetBg: "#E8E8E8",
-      targetIcon: {
-        normal: "#939090",
-        hover: "#4B4848",
-      },
-      menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.32)",
-      menuBg: {
-        normal: lightShades[11],
-        hover: lightShades[2],
-      },
-      menuText: {
-        normal: lightShades[6],
-        hover: lightShades[8],
-      },
-    },
     closeIcon: lightShades[10],
     responseBody: {
       bg: lightShades[11],
@@ -1684,6 +1769,45 @@ export const light: ColorType = {
     text: "#6f6f6f",
     iconPath: "#c4c4c4",
     iconCircle: "#090707",
+  },
+  treeDropdown: {
+    targetBg: "#FFFFFF",
+    targetIcon: {
+      normal: "#939090",
+      hover: "#4B4848",
+    },
+    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.32)",
+    menuBg: {
+      normal: lightShades[11],
+      hover: lightShades[2],
+    },
+    darkMenuBg: {
+      normal: lightShades[0],
+      hover: lightShades[3],
+    },
+    menuText: {
+      normal: lightShades[6],
+      hover: lightShades[8],
+    },
+    darkMenuText: {
+      normal: lightShades[8],
+      hover: lightShades[9],
+    },
+  },
+  propertyPane: {
+    bg: lightShades[2],
+    label: lightShades[8],
+    jsIconBg: lightShades[5],
+    buttonBg: lightShades[8],
+    buttonText: lightShades[11],
+    radioGroupBg: lightShades[0],
+    radioGroupText: lightShades[8],
+    deleteIconColor: "#A3B3BF",
+    zoomButtonBG: lightShades[13],
+    activeButtonText: lightShades[12],
+    jsButtonHoverBG: lightShades[2],
+    dropdownSelectBg: lightShades[14],
+    multiDropdownBoxHoverBg: lightShades[11],
   },
 };
 
@@ -1865,6 +1989,9 @@ export const theme: Theme = {
       array: "#CDFFA5",
       number: "#FFB2B2",
     },
+    scrollbarLight: Colors.CHARCOAL,
+    scrollbarDark: Colors.LIGHT_GREY,
+    scrollbarDarkBG: Colors.CODE_GRAY,
   },
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: {
@@ -2020,27 +2147,6 @@ export const theme: Theme = {
     },
   },
 };
-
-export const scrollbarLight = css<{ backgroundColor?: Color }>`
-  scrollbar-color: ${(props) => props.theme.colors.paneText};
-
-  scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-  &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${(props) =>
-        props.backgroundColor
-          ? props.backgroundColor
-          : getColorWithOpacity(props.theme.colors.paneText, 0.3)};
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.paneText};
-    border-radius: ${(props) => props.theme.radii[1]}px;
-  }
-`;
 
 export { css, createGlobalStyle, keyframes, ThemeProvider };
 

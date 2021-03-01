@@ -1,9 +1,12 @@
-import { Position, Tooltip } from "@blueprintjs/core";
+import { Position } from "@blueprintjs/core";
+import Tooltip from "components/ads/Tooltip";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import React from "react";
 
 type Props = {
   tooltip?: string;
   label: string;
+  theme?: EditorTheme;
 };
 
 const PropertyHelpLabel = (props: Props) => {
@@ -11,9 +14,10 @@ const PropertyHelpLabel = (props: Props) => {
   return (
     <Tooltip
       disabled={!toolTipDefined}
-      content={props.tooltip}
+      content={props.tooltip || ""}
       position={Position.TOP}
       hoverOpenDelay={200}
+      variant={props.theme === EditorTheme.DARK ? "dark" : "light"}
     >
       <div
         style={{

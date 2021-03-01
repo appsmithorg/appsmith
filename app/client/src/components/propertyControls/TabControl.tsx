@@ -1,18 +1,43 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledInputGroup, StyledPropertyPaneButton } from "./StyledControls";
+import {
+  StyledHiddenIcon,
+  StyledInputGroup,
+  StyledPropertyPaneButton,
+  StyledVisibleIcon,
+} from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
-import { DroppableComponent } from "../designSystems/appsmith/DraggableListComponent";
+import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import _ from "lodash";
 import * as Sentry from "@sentry/react";
-import {
-  StyledDeleteIcon,
-  StyledDragIcon,
-  StyledVisibleIcon,
-  StyledHiddenIcon,
-} from "./StyledControls";
+import { Category, Size } from "components/ads/Button";
+import { FormIcons } from "icons/FormIcons";
+import { ControlIcons } from "icons/ControlIcons";
+import { AnyStyledComponent } from "styled-components";
+
+const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
+  padding: 0;
+  position: relative;
+  margin-left: 15px;
+  cursor: pointer;
+  && svg path {
+    fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
+  }
+`;
+
+const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL as AnyStyledComponent)`
+  padding: 0;
+  position: relative;
+  margin-right: 15px;
+  cursor: move;
+  && svg {
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
+    }
+  }
+`;
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -39,9 +64,8 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   &&& {
     input {
       border: none;
-      padding-left: 24px;
-      color: ${(props) => props.theme.colors.textOnDarkBG};
-      background: ${(props) => props.theme.colors.paneInputBG};
+      color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
+      background: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
       &:focus {
         border: none;
         color: ${(props) => props.theme.colors.textOnDarkBG};
@@ -68,10 +92,10 @@ function TabControlComponent(props: RenderComponentProps) {
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
-        type="text"
+        dataType="text"
         placeholder="Tab Title"
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          updateOption(index, event.target.value);
+        onChange={(value: string) => {
+          updateOption(index, value);
         }}
         defaultValue={item.label}
       />
@@ -162,10 +186,13 @@ class TabControl extends BaseControl<ControlProps> {
         />
         <StyledPropertyPaneButtonWrapper>
           <StyledPropertyPaneButton
+            icon="plus"
+            tag="button"
+            type="button"
             text="Add a Tab"
-            color="#FFFFFF"
-            minimal
             onClick={this.addOption}
+            size={Size.medium}
+            category={Category.tertiary}
           />
         </StyledPropertyPaneButtonWrapper>
       </TabsWrapper>
