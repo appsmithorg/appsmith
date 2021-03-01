@@ -143,6 +143,7 @@ public class ApplicationForkingServiceTests {
                     Application app1 = new Application();
                     app1.setName("1 - public app");
                     app1.setOrganizationId(organizationId);
+                    app1.setForkingEnabled(true);
 
                     return applicationPageService.createApplication(app1)
                             .flatMap(app ->

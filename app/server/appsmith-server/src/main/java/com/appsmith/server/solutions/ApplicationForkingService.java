@@ -33,6 +33,9 @@ public class ApplicationForkingService {
                 .flatMap(tuple -> {
                     final Application application = tuple.getT1();
                     final Organization targetOrganization = tuple.getT2();
+                    if (!Boolean.TRUE.equals(application.getForkingEnabled())) {
+                        return Mono.error(new AppsmithException(AppsmithError.APPLICATION_FORKING_NOT_ALLOWED));
+                    }
                     return examplesOrganizationCloner.cloneApplications(
                             application.getOrganizationId(),
                             targetOrganization.getId(),
