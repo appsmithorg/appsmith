@@ -39,10 +39,9 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.EncryptionService;
 import com.appsmith.server.services.OrganizationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.google.gson.Gson;
@@ -94,6 +93,7 @@ import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static java.lang.Boolean.*;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
@@ -794,7 +794,7 @@ public class DatabaseChangelog {
                     final Map<String, Object> datasource = (Map) action.get("datasource");
                     datasource.put("pluginId", plugins.get(datasource.remove("$pluginPackageName")));
                     datasource.put(FieldName.ORGANIZATION_ID, organizationId);
-                    if (Boolean.FALSE.equals(datasource.remove("$isEmbedded"))) {
+                    if (FALSE.equals(datasource.remove("$isEmbedded"))) {
                         datasource.put("_id", new ObjectId(datasourceIdsByName.get(datasource.get("name"))));
                     }
                     action.put(FieldName.ORGANIZATION_ID, organizationId);
@@ -1764,15 +1764,29 @@ public class DatabaseChangelog {
     @ChangeSet(order = "056", id = "fix-dynamicBindingPathListForActions", author = "")
     public void fixDynamicBindingPathListForExistingActions(MongoTemplate mongoTemplate) {
 
+        ObjectMapper mapper = new ObjectMapper();
         for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
 
             // We have found an action with dynamic binding path list set by the client.
-            if (action.getUnpublishedAction().getActionConfiguration() != null && !isNullOrEmpty(action.getUnpublishedAction().getDynamicBindingPathList())) {
-                for (Property property : action.getUnpublishedAction().getDynamicBindingPathList()) {
-                    String path = property.getKey();
+            List<Property> dynamicBindingPaths = action.getUnpublishedAction().getDynamicBindingPathList();
+
+
+            if (action.getUnpublishedAction().getActionConfiguration() != null && !isNullOrEmpty(dynamicBindingPaths)) {
+                List<String> dynamicBindingPathNames = dynamicBindingPaths
+                        .stream()
+                        .map(property -> property.getKey())
+                        .collect(Collectors.toList());
+
+                List<String> copyDynamicBindingPathList = new ArrayList<>();
+                copyDynamicBindingPathList.addAll(dynamicBindingPathNames);
+                Set<String> pathsToRemove = new HashSet<>();
+
+                for (String path : dynamicBindingPathNames) {
                     if (path != null) {
                         String[] fields = path.split("[].\\[]");
-                        Object parent = action.getUnpublishedAction().getActionConfiguration();
+
+                        Map<String,Object> actionConfigurationMap = mapper.convertValue(action.getUnpublishedAction().getActionConfiguration(), Map.class);
+                        Object parent = new JSONObject(actionConfigurationMap);
                         Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
                         Boolean isLeafNode = false;
                         while (fieldsIterator.hasNext()) {
@@ -1783,14 +1797,19 @@ public class DatabaseChangelog {
                                 parent = ((Map<String, ?>) parent).get(nextKey);
                             } else if (parent instanceof List) {
                                 if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
-                                    parent = ((List) parent).get(Integer.parseInt(nextKey));
+                                    try {
+                                        parent = ((List) parent).get(Integer.parseInt(nextKey));
+                                    } catch (IndexOutOfBoundsException e) {
+                                        pathsToRemove.add(path);
+                                    }
                                 } else {
-                                    throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, nextKey);
+                                    pathsToRemove.add(path);
+                                    break;
                                 }
                             }
                             // After updating the parent, check for the types
                             if (parent == null) {
-                                log.error("Unable to find dynamically bound key {} for the widget with id {}", nextKey, dsl.get(FieldName.WIDGET_ID));
+                                pathsToRemove.add(path);
                                 break;
                             } else if(parent instanceof String) {
                                 // If we get String value, then this is a leaf node
@@ -1800,10 +1819,35 @@ public class DatabaseChangelog {
                         // Only extract mustache keys from leaf nodes
                         if (parent != null && isLeafNode) {
                             Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
-                            dynamicBindings.addAll(mustacheKeysFromFields);
+                            if (mustacheKeysFromFields.isEmpty()) {
+                                pathsToRemove.add(path);
+                            }
                         }
                     }
 
+                }
+
+                Boolean actionEdited = pathsToRemove.size() > 0 ? TRUE : FALSE;
+
+                if (actionEdited) {
+                    // We have walked all the dynamic binding paths which either dont exist or they exist but don't contain any mustache bindings
+                    for (String path : dynamicBindingPathNames) {
+                        if (pathsToRemove.contains(path)) {
+                            copyDynamicBindingPathList.remove(path);
+                        }
+                    }
+
+                    List<Property> finalDynamicBindingPathList = copyDynamicBindingPathList
+                            .stream()
+                            .map(path -> {
+                                Property property = new Property();
+                                property.setKey(path);
+                                return property;
+                            })
+                            .collect(Collectors.toList());
+
+                    action.getUnpublishedAction().setDynamicBindingPathList(finalDynamicBindingPathList);
+                    mongoTemplate.save(action);
                 }
             }
         }
