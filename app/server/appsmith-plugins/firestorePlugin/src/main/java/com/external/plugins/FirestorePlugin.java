@@ -543,7 +543,8 @@ public class FirestorePlugin extends BasePlugin {
                         } catch (IOException e) {
                             throw Exceptions.propagate(new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    e.getMessage()
+                                    "Validation failed for field 'Service Account Credentials'. Please check the " +
+                                            "value provided in the 'Service Account Credentials' field."
                             ));
                         }
 
