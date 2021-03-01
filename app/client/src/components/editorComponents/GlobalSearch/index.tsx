@@ -122,12 +122,19 @@ const GlobalSearch = () => {
   const reducerDatasources = useSelector((state: AppState) => {
     return state.entities.datasources.list;
   });
-  const filteredDatasources = useMemo(() => {
+  const datasourcesList = useMemo(() => {
     return reducerDatasources.map((datasource) => ({
       ...datasource,
       pageId: params?.pageId,
     }));
   }, [reducerDatasources]);
+
+  const filteredDatasources = useMemo(() => {
+    if (!query) return datasourcesList;
+    return datasourcesList.filter((datasource) =>
+      isMatching(datasource.name, query),
+    );
+  }, [reducerDatasources, query]);
   const recentEntities = useRecentEntities();
 
   const resetSearchQuery = useSelector(searchQuerySelector);
