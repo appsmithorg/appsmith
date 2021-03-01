@@ -694,7 +694,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         JSON.stringify(this.props.filteredTableData)
       ) {
         // Update filteredTableData meta property
-        this.props.syncUpdateWidgetMetaProperty(
+        this.props.updateWidgetMetaProperty(
           "filteredTableData",
           filteredTableData,
         );
