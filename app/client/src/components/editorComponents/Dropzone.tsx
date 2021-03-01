@@ -76,7 +76,10 @@ const getSnappedXY = (
 
 export const DropZone = forwardRef(
   (props: DropZoneProps, ref: Ref<HTMLDivElement>) => {
-    const [{ X, Y }, setXY] = useSpring<{ X: number; Y: number }>(() => ({
+    const [{ X, Y }, setXY] = useSpring<{
+      X: number;
+      Y: number;
+    }>(() => ({
       X: props.currentOffset.x - props.parentOffset.x,
       Y: props.currentOffset.y - props.parentOffset.y,
       config: SPRING_CONFIG,

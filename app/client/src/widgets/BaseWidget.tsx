@@ -28,14 +28,12 @@ import {
   BASE_WIDGET_VALIDATION,
   WidgetPropertyValidationType,
 } from "utils/WidgetValidation";
-import {
-  DerivedPropertiesMap,
-  TriggerPropertiesMap,
-} from "utils/WidgetFactory";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   WidgetDynamicPathListProps,
   WidgetEvaluatedProps,
 } from "../utils/DynamicBindingUtils";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { ControlType } from "constants/PropertyControlConstants";
 
 /***
@@ -63,10 +61,6 @@ abstract class BaseWidget<
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {};
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {};
   }
 
@@ -119,7 +113,7 @@ abstract class BaseWidget<
     }
   }
 
-  batchUpdateWidgetProperty(updates: Record<string, unknown>): void {
+  batchUpdateWidgetProperty(updates: BatchPropertyUpdatePayload): void {
     const { batchUpdateWidgetProperty } = this.context;
     const { widgetId } = this.props;
     if (batchUpdateWidgetProperty && widgetId) {
@@ -356,6 +350,7 @@ export interface WidgetBaseProps {
   widgetName: string;
   parentId: string;
   renderMode: RenderMode;
+  version: number;
 }
 
 export type WidgetRowCols = {

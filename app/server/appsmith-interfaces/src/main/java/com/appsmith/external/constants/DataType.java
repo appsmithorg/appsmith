@@ -11,5 +11,6 @@ public enum DataType {
     ASCII,
     BINARY,
     BYTES,
-    STRING
+    STRING,
+    NULL
 }

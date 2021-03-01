@@ -150,10 +150,13 @@ public class PostgresPlugin extends BasePlugin {
             Boolean isPreparedStatement;
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            if (properties.get(PREPARED_STATEMENT_INDEX) == null) {
-                // If the configuration does not exist, default to true
-                // Note this is not possible today since the query editor sets a default value for this field.
-                isPreparedStatement = true;
+            if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
+                /**
+                 * TODO :
+                 * In case the prepared statement configuration is missing, default to true once PreparedStatement
+                 * is no longer in beta.
+                 */
+                isPreparedStatement = false;
             } else {
                 isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
             }
@@ -200,6 +203,7 @@ public class PostgresPlugin extends BasePlugin {
 
                 Statement statement = null;
                 ResultSet resultSet = null;
+                PreparedStatement preparedQuery = null;
                 boolean isResultSet;
 
                 HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
@@ -220,7 +224,7 @@ public class PostgresPlugin extends BasePlugin {
                         isResultSet = statement.execute(query);
                         resultSet = statement.getResultSet();
                     } else {
-                        PreparedStatement preparedQuery = connectionFromPool.prepareStatement(query);
+                        preparedQuery = connectionFromPool.prepareStatement(query);
                         if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
                             List<Param> params = executeActionDTO.getParams();
                             for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
@@ -233,12 +237,19 @@ public class PostgresPlugin extends BasePlugin {
                                 }
                             }
                         }
-                        System.out.println("Prepared query is : " + preparedQuery.toString());
                         isResultSet = preparedQuery.execute();
                         resultSet = preparedQuery.getResultSet();
                     }
 
-                    if (isResultSet) {
+                    if (!isResultSet) {
+
+                        Object updateCount = FALSE.equals(preparedStatement) ?
+                                ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0) :
+                                ObjectUtils.defaultIfNull(preparedQuery.getUpdateCount(), 0);
+
+                        rowsList.add(Map.of("affectedRows", updateCount));
+
+                    } else {
 
                         ResultSetMetaData metaData = resultSet.getMetaData();
                         int colCount = metaData.getColumnCount();
@@ -289,13 +300,6 @@ public class PostgresPlugin extends BasePlugin {
 
                             rowsList.add(row);
                         }
-
-                    } else {
-                        rowsList.add(Map.of(
-                                "affectedRows",
-                                ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0))
-                        );
-
                     }
 
                 } catch (SQLException e) {

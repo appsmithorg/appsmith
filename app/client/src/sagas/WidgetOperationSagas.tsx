@@ -4,7 +4,6 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
-  saveLayout,
   updateAndSaveLayout,
   WidgetAddChild,
   WidgetAddChildren,
@@ -36,6 +35,7 @@ import {
 } from "redux-saga/effects";
 import { convertToString, getNextEntityName } from "utils/AppsmithUtils";
 import {
+  batchUpdateWidgetProperty,
   DeleteWidgetPropertyPayload,
   SetWidgetDynamicPropertyPayload,
   updateWidgetProperty,
@@ -53,7 +53,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, isString, get, remove } from "lodash";
+import _, { cloneDeep, get, isString, set, uniqBy, remove } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   BlueprintOperationTypes,
@@ -101,6 +101,8 @@ import { getEnhancementsMap } from "selectors/propertyPaneSelectors";
 import { hydrateEnhancementsMap } from "sagas/PageSagas";
 import { PropertyPaneEnhancementsDataState } from "reducers/uiReducers/propertyPaneEnhancementsReducer";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
+import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
+import { getAllPaths } from "workers/evaluationUtils";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -149,6 +151,7 @@ function* getChildWidgetProps(
     parentColumnSpace,
     widgetName,
     widgetProps,
+    restDefaultConfig.version,
   );
 
   widget.widgetId = newWidgetId;
@@ -859,12 +862,8 @@ function getDynamicTriggerPathListUpdate(
   widget: WidgetProps,
   propertyPath: string,
   propertyValue: string,
-  isDynamicTrigger?: boolean,
 ): DynamicPathUpdate {
-  if (
-    (propertyValue && !isPathADynamicTrigger(widget, propertyPath)) ||
-    isDynamicTrigger
-  ) {
+  if (propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
     return {
       propertyPath,
       effect: DynamicPathUpdateEffectEnum.ADD,
@@ -933,69 +932,35 @@ function applyDynamicPathUpdates(
   return currentList;
 }
 
+const isPropertyATriggerPath = (
+  widget: WidgetProps,
+  propertyPath: string,
+): boolean => {
+  const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(widget.type);
+  const { triggerPaths } = getAllPathsFromPropertyConfig(
+    widget,
+    widgetConfig,
+    {},
+  );
+  return propertyPath in triggerPaths;
+};
+
 function* updateWidgetPropertySaga(
   updateAction: ReduxAction<UpdateWidgetPropertyRequestPayload>,
 ) {
   const {
-    payload: { propertyValue, propertyPath, widgetId, isDynamicTrigger },
+    payload: { propertyValue, propertyPath, widgetId },
   } = updateAction;
-  if (!widgetId) {
-    // Handling the case where sometimes widget id is not passed through here
-    return;
-  }
-  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
-  const widget = { ...stateWidget };
 
   // Holder object to collect all updates
   const updates: Record<string, unknown> = {
     [propertyPath]: propertyValue,
   };
-
-  // Check if the path is a of a dynamic trigger property
-  const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
-    widget.type,
+  // Push these updates via the batch update
+  yield call(
+    batchUpdateWidgetPropertySaga,
+    batchUpdateWidgetProperty(widgetId, { modify: updates }),
   );
-  const isTriggerProperty =
-    propertyPath in triggerProperties || isDynamicTrigger;
-  // If it is a trigger property, it will go in a different list than the general
-  // dynamicBindingPathList.
-  if (isTriggerProperty) {
-    const currentDynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
-      widget,
-    );
-    const effect = getDynamicTriggerPathListUpdate(
-      widget,
-      propertyPath,
-      propertyValue,
-      isDynamicTrigger,
-    );
-    updates.dynamicTriggerPathList = applyDynamicPathUpdates(
-      currentDynamicTriggerPathList,
-      effect,
-    );
-  } else {
-    const currentDynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
-      widget,
-    );
-    const effect = getDynamicBindingPathListUpdate(
-      widget,
-      propertyPath,
-      propertyValue,
-    );
-    updates.dynamicBindingPathList = applyDynamicPathUpdates(
-      currentDynamicBindingPathList,
-      effect,
-    );
-  }
-
-  // Send the updates
-  yield put(updateWidgetProperty(widgetId, updates));
-
-  const stateWidgets = yield select(getWidgets);
-  const widgets = { ...stateWidgets, [widgetId]: widget };
-
-  // Save the layout
-  yield put(updateAndSaveLayout(widgets));
 }
 
 function* setWidgetDynamicPropertySaga(
@@ -1035,19 +1000,24 @@ function* setWidgetDynamicPropertySaga(
   yield put(updateAndSaveLayout(widgets));
 }
 
-function* batchUpdateWidgetPropertySaga(
-  action: ReduxAction<UpdateWidgetPropertyPayload>,
+function* getPropertiesToUpdate(
+  widgetId: string,
+  updates: Record<string, unknown>,
 ) {
-  const { updates, widgetId } = action.payload;
-  if (!widgetId) {
-    // Handling the case where sometimes widget id is not passed through here
-    return;
-  }
   const widget: WidgetProps = yield select(getWidget, widgetId);
-  const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
-    widget.type,
-  );
-  const propertyUpdates: Record<string, unknown> = {};
+
+  // Create a
+  const widgetWithUpdates = _.cloneDeep(widget);
+  Object.entries(updates).forEach(([propertyPath, propertyValue]) => {
+    set(widgetWithUpdates, propertyPath, propertyValue);
+  });
+
+  // get the flat list of all updates (in case values are objects)
+  const updatePaths = getAllPaths(updates);
+
+  const propertyUpdates: Record<string, unknown> = {
+    ...updates,
+  };
   const currentDynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
     widget,
   );
@@ -1056,16 +1026,23 @@ function* batchUpdateWidgetPropertySaga(
   );
   const dynamicTriggerPathListUpdates: DynamicPathUpdate[] = [];
   const dynamicBindingPathListUpdates: DynamicPathUpdate[] = [];
-  Object.entries(updates).forEach(([propertyPath, propertyValue]) => {
-    // Set the actual property update
-    propertyUpdates[propertyPath] = propertyValue;
+
+  Object.keys(updatePaths).forEach((propertyPath) => {
+    const propertyValue = _.get(updates, propertyPath);
+    // only check if
+    if (!_.isString(propertyValue)) {
+      return;
+    }
 
     // Check if the path is a of a dynamic trigger property
-    const isTriggerProperty = propertyPath in triggerProperties;
+    const isTriggerProperty = isPropertyATriggerPath(
+      widgetWithUpdates,
+      propertyPath,
+    );
 
     // If it is a trigger property, it will go in a different list than the general
     // dynamicBindingPathList.
-    if (isTriggerProperty && _.isString(propertyValue)) {
+    if (isTriggerProperty) {
       dynamicTriggerPathListUpdates.push(
         getDynamicTriggerPathListUpdate(widget, propertyPath, propertyValue),
       );
@@ -1076,20 +1053,115 @@ function* batchUpdateWidgetPropertySaga(
     }
   });
 
-  propertyUpdates.dynamicTriggerPathList = dynamicTriggerPathListUpdates.reduce(
+  const dynamicTriggerPathList = dynamicTriggerPathListUpdates.reduce(
     applyDynamicPathUpdates,
     currentDynamicTriggerPathList,
   );
-  propertyUpdates.dynamicBindingPathList = dynamicBindingPathListUpdates.reduce(
+  const dynamicBindingPathList = dynamicBindingPathListUpdates.reduce(
     applyDynamicPathUpdates,
     currentDynamicBindingPathList,
   );
 
-  // Send the updates
-  yield put(updateWidgetProperty(widgetId, propertyUpdates));
+  return {
+    propertyUpdates,
+    dynamicTriggerPathList,
+    dynamicBindingPathList,
+  };
+}
 
+function* batchUpdateWidgetPropertySaga(
+  action: ReduxAction<UpdateWidgetPropertyPayload>,
+) {
+  const start = performance.now();
+  const { updates, widgetId } = action.payload;
+  if (!widgetId) {
+    // Handling the case where sometimes widget id is not passed through here
+    return;
+  }
+  const { modify = {}, remove = [] } = updates;
+
+  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
+  let widget = cloneDeep(stateWidget);
+  try {
+    if (Object.keys(modify).length > 0) {
+      const {
+        propertyUpdates,
+        dynamicTriggerPathList,
+        dynamicBindingPathList,
+      } = yield getPropertiesToUpdate(widgetId, modify);
+
+      // We loop over all updates
+      Object.entries(propertyUpdates).forEach(
+        ([propertyPath, propertyValue]) => {
+          // since property paths could be nested, we use lodash set method
+          widget = set(widget, propertyPath, propertyValue);
+        },
+      );
+
+      if (dynamicBindingPathList?.length) {
+        const currentList = widget.dynamicBindingPathList || [];
+        widget.dynamicBindingPathList = uniqBy(
+          [...currentList, ...dynamicBindingPathList],
+          "key",
+        );
+      }
+      if (dynamicTriggerPathList?.length) {
+        const currentList = widget.dynamicTriggerPathList || [];
+        widget.dynamicTriggerPathList = uniqBy(
+          [...currentList, ...dynamicTriggerPathList],
+          "key",
+        );
+      }
+    }
+  } catch (e) {
+    log.debug("Error updating property paths: ", { e });
+  }
+
+  if (Array.isArray(remove) && remove.length > 0) {
+    widget = yield removeWidgetProperties(widget, remove);
+  }
+
+  const stateWidgets = yield select(getWidgets);
+  const widgets = { ...stateWidgets, [widgetId]: widget };
+
+  log.debug(
+    "Batch widget property update calculations took: ",
+    performance.now() - start,
+    "ms",
+  );
   // Save the layout
-  yield put(saveLayout());
+  yield put(updateAndSaveLayout(widgets));
+}
+
+function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
+  try {
+    let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
+      widget,
+    );
+    let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
+      widget,
+    );
+
+    paths.forEach((propertyPath) => {
+      dynamicTriggerPathList = dynamicTriggerPathList.filter((dynamicPath) => {
+        return !isChildPropertyPath(propertyPath, dynamicPath.key);
+      });
+
+      dynamicBindingPathList = dynamicBindingPathList.filter((dynamicPath) => {
+        return !isChildPropertyPath(propertyPath, dynamicPath.key);
+      });
+    });
+
+    widget.dynamicBindingPathList = dynamicBindingPathList;
+    widget.dynamicTriggerPathList = dynamicTriggerPathList;
+    paths.forEach((propertyPath) => {
+      widget = unsetPropertyPath(widget, propertyPath) as WidgetProps;
+    });
+  } catch (e) {
+    log.debug("Error removing propertyPaths: ", { e });
+  }
+
+  return widget;
 }
 
 function* deleteWidgetPropertySaga(
@@ -1100,45 +1172,8 @@ function* deleteWidgetPropertySaga(
     // Handling the case where sometimes widget id is not passed through here
     return;
   }
-  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
-  let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
-    stateWidget,
-  );
-  let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
-    stateWidget,
-  );
 
-  propertyPaths.forEach((propertyPath) => {
-    dynamicTriggerPathList = dynamicTriggerPathList.filter((dynamicPath) => {
-      return !isChildPropertyPath(propertyPath, dynamicPath.key);
-    });
-
-    dynamicBindingPathList = dynamicBindingPathList.filter((dynamicPath) => {
-      return !isChildPropertyPath(propertyPath, dynamicPath.key);
-    });
-  });
-
-  // yield put(
-  //   updateWidgetProperty(widgetId, {
-  //     dynamicTriggerPathList,
-  //     dynamicBindingPathList,
-  //   }),
-  // );
-
-  const stateWidgets = yield select(getWidgets);
-  // Cloning because we probably froze the properties earlier
-  // TODO(abhinav): Check if we need to use immer to handle this.
-  let widget = _.cloneDeep(stateWidget);
-  widget.dynamicBindingPathList = dynamicBindingPathList;
-  widget.dynamicTriggerPathList = dynamicTriggerPathList;
-  propertyPaths.forEach((propertyPath) => {
-    widget = unsetPropertyPath(widget, propertyPath) as WidgetProps;
-  });
-
-  const widgets = { ...stateWidgets, [widgetId]: widget };
-
-  // Save the layout
-  yield put(updateAndSaveLayout(widgets));
+  yield put(batchUpdateWidgetProperty(widgetId, { remove: propertyPaths }));
 }
 
 //TODO(abhinav): Move this to helpers and add tests
@@ -1681,6 +1716,7 @@ function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
       parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       parentColumnSpace: 1,
       isLoading: false,
+      version: 1,
       props: {
         tableData: `{{${queryName}.data}}`,
         dynamicBindingPathList: [{ key: "tableData" }],

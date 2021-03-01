@@ -27,6 +27,10 @@ export const HelpMap = {
     path: "/widget-reference/datepicker",
     searchKey: "DatePicker",
   },
+  DATE_PICKER_WIDGET2: {
+    path: "/widget-reference/datepicker",
+    searchKey: "DatePicker",
+  },
   TABLE_WIDGET: {
     path: "/widget-reference/table",
     searchKey: "Table",

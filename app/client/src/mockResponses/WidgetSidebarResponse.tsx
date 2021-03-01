@@ -29,7 +29,7 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     key: generateReactKey(),
   },
   {
-    type: "DATE_PICKER_WIDGET",
+    type: "DATE_PICKER_WIDGET2",
     widgetCardName: "DatePicker",
     key: generateReactKey(),
   },

@@ -5,7 +5,6 @@ import * as Sentry from "@sentry/react";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { removeFalsyEntries } from "utils/helpers";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
 import {
@@ -87,10 +86,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
-    return {};
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {};
   }
 

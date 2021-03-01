@@ -138,6 +138,19 @@ export const ActionNameEditor = (props: ActionNameEditorProps) => {
       setForceUpdate(true);
     } else if (saveStatus.isSaving === true) {
       setForceUpdate(false);
+    } else if (saveStatus.isSaving === false && saveStatus.error === false) {
+      // Construct URLSearchParams object instance from current URL querystring.
+      const queryParams = new URLSearchParams(window.location.search);
+
+      if (
+        queryParams.has("editName") &&
+        queryParams.get("editName") === "true"
+      ) {
+        // Set new or modify existing parameter value.
+        queryParams.set("editName", "false");
+        // Replace current querystring with the new one.
+        history.replaceState({}, "", "?" + queryParams.toString());
+      }
     }
   }, [saveStatus.isSaving, saveStatus.error]);
 

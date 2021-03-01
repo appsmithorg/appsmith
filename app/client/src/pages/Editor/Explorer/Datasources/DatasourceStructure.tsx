@@ -29,7 +29,7 @@ const Wrapper = styled(EntityTogglesWrapper)`
 
 const StyledEntity = styled(Entity)`
   & > div {
-    grid-template-columns: 20px auto 1fr auto;
+    grid-template-columns: 20px auto 1fr auto auto;
   }
 `;
 

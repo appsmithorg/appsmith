@@ -31,6 +31,12 @@ interface Props {
 const ScrollIndicator = ({ containerRef }: Props) => {
   const [{ thumbPosition }, setThumbPosition] = useSpring<{
     thumbPosition: number;
+    config: {
+      clamp: boolean;
+      friction: number;
+      precision: number;
+      tension: number;
+    };
   }>(() => ({
     thumbPosition: 0,
     config: {

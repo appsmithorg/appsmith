@@ -35,7 +35,6 @@ import {
 import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { queryActionSettingsConfig } from "mockResponses/ActionSettings";
 import { addTableWidgetFromQuery } from "actions/widgetActions";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
@@ -279,6 +278,7 @@ type QueryFormProps = {
     state: any;
   };
   editorConfig?: any;
+  settingConfig: any;
   loadingFormConfigs: boolean;
 };
 
@@ -579,7 +579,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               panelComponent: (
                 <SettingsWrapper>
                   <ActionSettings
-                    actionSettingsConfig={queryActionSettingsConfig}
+                    actionSettingsConfig={props.settingConfig}
                     formName={QUERY_EDITOR_FORM_NAME}
                   />
                 </SettingsWrapper>

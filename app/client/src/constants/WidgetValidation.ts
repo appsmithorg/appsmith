@@ -43,7 +43,7 @@ export type Validator = (
   dataTree?: DataTree,
 ) => ValidationResponse;
 
-export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.Z";
+export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.sssZ";
 
 export const JAVASCRIPT_KEYWORDS = {
   true: "true",
