@@ -6,6 +6,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -521,24 +522,23 @@ public class AmazonS3Plugin extends BasePlugin {
                         System.out.println(Thread.currentThread().getName() + ": In the S3 Plugin, got action execution result");
                         return Mono.just(actionExecutionResult);
                     })
+                    // Transform AmazonS3Exception to AppsmithPluginException
+                    .onErrorResume(e -> {
+                        if (e instanceof AmazonS3Exception) {
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                        }
+                        return Mono.error(e);
+                    })
                     .onErrorResume(e -> {
                         if (e instanceof AppsmithPluginException) {
-                            return Mono.error(e);
+                            ActionExecutionResult result = new ActionExecutionResult();
+                            result.setIsExecutionSuccess(false);
+                            result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
+                            result.setBody(e.getMessage());
+                            return Mono.just(result);
                         }
 
-                        return Mono.error(
-                                new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_ERROR,
-                                        "Query failed when executing " + query[0] + " action: " + e.getMessage()
-                                )
-                        );
-                    })
-                    .onErrorResume(AppsmithPluginException.class, error  -> {
-                        ActionExecutionResult result = new ActionExecutionResult();
-                        result.setIsExecutionSuccess(false);
-                        result.setStatusCode(error.getAppErrorCode().toString());
-                        result.setBody(error.getMessage());
-                        return Mono.just(result);
+                        return Mono.error(e);
                     })
                     // Now set the request in the result to be returned back to the server
                     .map(actionExecutionResult -> {
