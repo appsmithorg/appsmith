@@ -17,7 +17,7 @@ import {
 } from "selectors/editorSelectors";
 import { Hotkey, Hotkeys, Spinner } from "@blueprintjs/core";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
-import { initEditor } from "actions/initActions";
+import { initEditor, resetEditorRequest } from "actions/initActions";
 import { editorInitializer } from "utils/EditorUtils";
 import {
   ENTITY_EXPLORER_SEARCH_ID,
@@ -59,6 +59,7 @@ type EditorProps = {
   user?: User;
   selectedWidget?: string;
   lightTheme: Theme;
+  resetEditorRequest: () => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -191,6 +192,10 @@ class Editor extends Component<Props> {
     );
   }
 
+  componentWillUnmount() {
+    this.props.resetEditorRequest();
+  }
+
   public render() {
     if (this.props.creatingOnboardingDatabase) {
       return <Welcome />;
@@ -246,6 +251,7 @@ const mapDispatchToProps = (dispatch: any) => {
     pasteCopiedWidget: () => dispatch(pasteWidget()),
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
+    resetEditorRequest: () => dispatch(resetEditorRequest()),
   };
 };
 

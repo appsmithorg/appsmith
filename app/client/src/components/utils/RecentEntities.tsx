@@ -3,16 +3,16 @@ import { useSelector, useDispatch } from "react-redux";
 import { useLocation } from "react-router";
 import { getSelectedWidget } from "selectors/ui";
 import {
-  match_api_path,
-  match_datasource_path,
-  match_query_path,
-  match_builder_path,
+  matchApiPath,
+  matchDatasourcePath,
+  matchQueryPath,
+  matchBuilderPath,
 } from "constants/routes";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { updateRecentEntity } from "actions/globalSearchActions";
 
 const getRecentEntity = (pathName: string) => {
-  const builderMatch = match_builder_path(pathName);
+  const builderMatch = matchBuilderPath(pathName);
   if (builderMatch)
     return {
       type: "page",
@@ -20,7 +20,7 @@ const getRecentEntity = (pathName: string) => {
       params: builderMatch?.params,
     };
 
-  const apiMatch = match_api_path(pathName);
+  const apiMatch = matchApiPath(pathName);
   if (apiMatch)
     return {
       type: "action",
@@ -28,7 +28,7 @@ const getRecentEntity = (pathName: string) => {
       params: apiMatch?.params,
     };
 
-  const queryMatch = match_query_path(pathName);
+  const queryMatch = matchQueryPath(pathName);
   if (queryMatch)
     return {
       type: "action",
@@ -36,10 +36,10 @@ const getRecentEntity = (pathName: string) => {
       params: queryMatch?.params,
     };
 
-  const datasourceMatch = match_datasource_path(pathName);
+  const datasourceMatch = matchDatasourcePath(pathName);
   if (datasourceMatch)
     return {
-      type: "page",
+      type: "datasource",
       id: datasourceMatch?.params?.datasourceId,
       params: datasourceMatch?.params,
     };
@@ -53,11 +53,13 @@ const RecentEntities = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    const builderMatch = matchBuilderPath(window.location.pathname);
     if (selectedWidget && selectedWidget !== MAIN_CONTAINER_WIDGET_ID)
       dispatch(
         updateRecentEntity({
           type: "widget",
           id: selectedWidget,
+          params: builderMatch?.params,
         }),
       );
   }, [selectedWidget]);

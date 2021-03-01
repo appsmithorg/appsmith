@@ -40,13 +40,13 @@ import {
   restoreRecentEntitiesRequest,
   resetRecentEntities,
 } from "actions/globalSearchActions";
+import { resetEditorSuccess } from "actions/initActions";
 
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
 ) {
   const { applicationId, pageId } = initializeEditorAction.payload;
   try {
-    yield put(resetRecentEntities());
     yield put(setAppMode(APP_MODE.EDIT));
     yield put({ type: ReduxActionTypes.START_EVALUATION });
     yield all([
@@ -225,6 +225,11 @@ export function* initializeAppViewerSaga(
   }
 }
 
+function* resetEditorSaga() {
+  yield put(resetEditorSuccess());
+  yield put(resetRecentEntities());
+}
+
 export default function* watchInitSagas() {
   yield all([
     takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, initializeEditorSaga),
@@ -232,5 +237,6 @@ export default function* watchInitSagas() {
       ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
       initializeAppViewerSaga,
     ),
+    takeLatest(ReduxActionTypes.RESET_EDITOR_REQUEST, resetEditorSaga),
   ]);
 }

@@ -178,7 +178,7 @@ export const AUTH_LOGIN_URL = `${USER_AUTH_URL}/login`;
 export const ORG_INVITE_USERS_PAGE_URL = `${ORG_URL}/invite`;
 export const ORG_SETTINGS_PAGE_URL = `${ORG_URL}/settings`;
 
-export const match_api_path = match(API_EDITOR_ID_URL());
-export const match_datasource_path = match(DATA_SOURCES_EDITOR_ID_URL());
-export const match_query_path = match(QUERIES_EDITOR_ID_URL());
-export const match_builder_path = match(BUILDER_URL);
+export const matchApiPath = match(API_EDITOR_ID_URL());
+export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_URL());
+export const matchQueryPath = match(QUERIES_EDITOR_ID_URL());
+export const matchBuilderPath = match(BUILDER_URL);

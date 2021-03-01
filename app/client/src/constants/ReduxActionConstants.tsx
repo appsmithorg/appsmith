@@ -4,6 +4,8 @@ import { Org } from "./orgConstants";
 import { ERROR_CODES } from "constants/ApiConstants";
 
 export const ReduxActionTypes: { [key: string]: string } = {
+  RESET_EDITOR_REQUEST: "RESET_EDITOR_REQUEST",
+  RESET_EDITOR_SUCCESS: "RESET_EDITOR_SUCCESS",
   INITIALIZE_EDITOR: "INITIALIZE_EDITOR",
   INITIALIZE_EDITOR_SUCCESS: "INITIALIZE_EDITOR_SUCCESS",
   REPORT_ERROR: "REPORT_ERROR",

@@ -14,12 +14,10 @@ import {
   setRecentEntities,
 } from "actions/globalSearchActions";
 import { AppState } from "reducers";
-import { getCurrentApplication } from "selectors/applicationSelectors";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
+import { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
 
-export function* updateRecentEntity(
-  actionPayload: ReduxAction<{ type: string; id: string }>,
-) {
+export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
   try {
     const recentEntitiesRestored = yield select(
       (state: AppState) => state.ui.globalSearch.recentEntitiesRestored,
@@ -40,11 +38,11 @@ export function* updateRecentEntity(
 
     yield all(waitForEffects);
 
-    const currentApplication = yield select(getCurrentApplication);
     const { payload: entity } = actionPayload;
     let recentEntities = yield select(
       (state: AppState) => state.ui.globalSearch.recentEntities,
     );
+
     recentEntities = recentEntities.slice();
 
     const existingIndex = recentEntities.findIndex(
@@ -59,8 +57,15 @@ export function* updateRecentEntity(
       recentEntities.splice(existingIndex, 1);
       recentEntities.unshift(entity);
     }
+
     yield put(setRecentEntities(recentEntities));
-    yield call(setRecentAppEntities, recentEntities, currentApplication?.id);
+    if (entity?.params?.applicationId) {
+      yield call(
+        setRecentAppEntities,
+        recentEntities,
+        entity?.params?.applicationId,
+      );
+    }
   } catch (e) {
     console.log(e, "error");
   }
