@@ -6,11 +6,6 @@ describe("Test curl import flow", function() {
     localStorage.setItem("ApiPaneV2", "ApiPaneV2");
     cy.NavigateToApiEditor();
     cy.get(ApiEditor.curlImage).click({ force: true });
-    cy.get("textarea").should(
-      "have.attr",
-      "placeholder",
-      "Hint: Try typing in the following curl cmd and then click on the 'Import' button: curl -X GET https://mock-api.appsmith.com/users",
-    );
     cy.get("textarea").type("curl -X GET https://mock-api.appsmith.com/users");
     cy.importCurl();
     cy.get("@curlImport").then((response) => {
