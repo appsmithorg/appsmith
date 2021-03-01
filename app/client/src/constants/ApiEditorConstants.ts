@@ -31,8 +31,8 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
   encodeParamsToggle: true,
   httpMethod: HTTP_METHODS[0],
-  headers: EMPTY_KEY_VALUE_PAIRS,
-  queryParameters: EMPTY_KEY_VALUE_PAIRS,
+  headers: EMPTY_KEY_VALUE_PAIRS.slice(),
+  queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
 };
 
 export const PLUGIN_TYPE_API = "API";

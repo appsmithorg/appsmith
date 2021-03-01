@@ -136,13 +136,14 @@ function* handleUpdateBodyContentType(
 ) {
   const { title, apiId } = action.payload;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
-  const displayFormatObject = POST_BODY_FORMAT_OPTIONS.filter(
+  const displayFormatObject = POST_BODY_FORMAT_OPTIONS.find(
     (el) => el.label === title,
-  )[0];
-  if (
-    displayFormatObject &&
-    displayFormatObject.value === POST_BODY_FORMATS[3]
-  ) {
+  );
+  if (!displayFormatObject) {
+    log.error("Display format not supported", title);
+    return;
+  }
+  if (displayFormatObject.value === POST_BODY_FORMATS[3]) {
     // Dont update the content type header if raw has been selected
     yield put({
       type: ReduxActionTypes.SET_EXTRA_FORMDATA,
@@ -158,7 +159,6 @@ function* handleUpdateBodyContentType(
 
   const headers = cloneDeep(values.actionConfiguration.headers);
   const bodyFormData = cloneDeep(values.actionConfiguration.bodyFormData);
-  console.log({ bodyFormData, headers });
 
   const contentTypeHeaderIndex = headers.findIndex(
     (element: { key: string; value: string }) =>
@@ -189,16 +189,13 @@ function* handleUpdateBodyContentType(
     change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
   );
 
-  if (
-    displayFormatObject &&
-    displayFormatObject.value === POST_BODY_FORMATS[1]
-  ) {
+  if (displayFormatObject.value === POST_BODY_FORMATS[1]) {
     if (!bodyFormData || bodyFormData.length === 0) {
       yield put(
         change(
           API_EDITOR_FORM_NAME,
           "actionConfiguration.bodyFormData",
-          EMPTY_KEY_VALUE_PAIRS,
+          EMPTY_KEY_VALUE_PAIRS.slice(),
         ),
       );
     }

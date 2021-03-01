@@ -599,7 +599,6 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
     value,
     propertyName,
   );
-  console.log({ effects });
   yield all(
     Object.keys(effects).map((field) =>
       put(updateActionProperty({ id: actionId, field, value: effects[field] })),
