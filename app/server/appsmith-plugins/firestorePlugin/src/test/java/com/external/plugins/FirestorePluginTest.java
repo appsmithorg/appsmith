@@ -506,7 +506,7 @@ public class FirestorePluginTest {
                             error.getMessage());
 
                     // Check that the error does not get logged externally.
-                    assertTrue(((AppsmithPluginException)error).getError().getErrorAction().equals(AppsmithErrorAction.DEFAULT));
+                    assertFalse(AppsmithErrorAction.LOG_EXTERNALLY.equals(((AppsmithPluginException)error).getError().getErrorAction()));
                 })
                 .verify();
     }
