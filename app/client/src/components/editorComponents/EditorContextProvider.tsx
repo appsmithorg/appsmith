@@ -9,6 +9,7 @@ import {
   updateWidgetPropertyRequest,
   deleteWidgetProperty as deletePropertyAction,
   batchUpdateWidgetProperty as batchUpdatePropertyAction,
+  BatchPropertyUpdatePayload,
 } from "actions/controlActions";
 
 import { ExecuteActionPayload } from "constants/ActionConstants";
@@ -43,7 +44,7 @@ export type EditorContextType = {
   deleteWidgetProperty?: (widgetId: string, propertyPaths: string[]) => void;
   batchUpdateWidgetProperty?: (
     widgetId: string,
-    updates: Record<string, unknown>,
+    updates: BatchPropertyUpdatePayload,
   ) => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
@@ -119,7 +120,7 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(deletePropertyAction(widgetId, propertyPaths)),
     batchUpdateWidgetProperty: (
       widgetId: string,
-      updates: Record<string, unknown>,
+      updates: BatchPropertyUpdatePayload,
     ) => {
       dispatch(batchUpdatePropertyAction(widgetId, updates));
     },
