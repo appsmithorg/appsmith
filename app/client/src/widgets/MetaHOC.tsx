@@ -92,6 +92,8 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       );
     };
 
+    // To be used when there is a race condition noticed on updating different
+    // properties from a widget in quick succession
     syncUpdateWidgetMetaProperty = (
       propertyName: string,
       propertyValue: any,
