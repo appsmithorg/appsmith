@@ -3,7 +3,6 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
@@ -26,11 +25,6 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       chartName: VALIDATION_TYPES.TEXT,
       isVisible: VALIDATION_TYPES.BOOLEAN,
       chartData: VALIDATION_TYPES.CHART_DATA,
-    };
-  }
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onDataPointClick: true,
     };
   }
 

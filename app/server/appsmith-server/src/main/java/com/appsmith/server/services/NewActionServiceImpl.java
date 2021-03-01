@@ -1,11 +1,11 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.helpers.AppsmithEventContext;
-import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.AppsmithEventContext;
+import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -65,6 +65,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -723,8 +724,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 "properties", actionConfiguration.getPluginSpecifiedTemplates() == null
                                         ? Collections.emptyMap()
                                         : actionConfiguration.getPluginSpecifiedTemplates()
-                                        .stream()
-                                        .collect(Collectors.toMap(Property::getKey, Property::getValue))
+                                            .stream()
+                                            .filter(Objects::nonNull)
+                                            .collect(Collectors.toMap(
+                                                    p -> ObjectUtils.defaultIfNull(p.getKey(), ""),
+                                                    p -> ObjectUtils.defaultIfNull(p.getValue(), "")
+                                            ))
                         ));
                     }
 

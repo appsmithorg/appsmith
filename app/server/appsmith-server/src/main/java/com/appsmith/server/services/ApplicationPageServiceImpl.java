@@ -451,7 +451,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     // Create a new clone application object without the pages using the parametrized Application constructor
                     Application newApplication = new Application(sourceApplication);
                     newApplication.setName(newName);
-                    
+
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
                     return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
@@ -601,6 +601,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     }
 
                     application.setPublishedPages(pages);
+
+                    application.setPublishedAppLayout(application.getUnpublishedAppLayout());
 
                     // Archive the deleted pages and save the application changes and then return the pages so that
                     // the pages can also be published

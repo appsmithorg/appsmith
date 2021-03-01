@@ -11,10 +11,7 @@ import {
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { FIELD_REQUIRED_ERROR } from "constants/messages";
-import {
-  DerivedPropertiesMap,
-  TriggerPropertiesMap,
-} from "utils/WidgetFactory";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
@@ -182,12 +179,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       isRequired: VALIDATION_TYPES.BOOLEAN,
       isValid: VALIDATION_TYPES.BOOLEAN,
       resetOnSubmit: VALIDATION_TYPES.BOOLEAN,
-    };
-  }
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onTextChanged: true,
-      onSubmit: true,
     };
   }
 
