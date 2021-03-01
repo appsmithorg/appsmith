@@ -9,9 +9,11 @@ describe("Test curl import flow", function() {
     cy.get("textarea").should(
       "have.attr",
       "placeholder",
-      "curl -X GET https://mock-api.appsmith.com/users",
+      "Hint: Try typing in the following curl cmd and then click on the 'Import' button: curl -X GET https://mock-api.appsmith.com/users",
     );
-    cy.get("textarea").type("curl -X GET https://mock-api.appsmith.com/users");
+    cy.get("textarea").type(
+      "Hint: Try typing in the following curl cmd and then click on the 'Import' button: curl -X GET https://mock-api.appsmith.com/users",
+    );
     cy.importCurl();
     cy.get("@curlImport").then((response) => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);

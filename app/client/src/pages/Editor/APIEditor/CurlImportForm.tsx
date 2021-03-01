@@ -138,7 +138,7 @@ class CurlImportForm extends React.Component<Props> {
                   name="curl"
                   component="textarea"
                   className="textAreaStyles"
-                  placeholder="curl -X GET https://mock-api.appsmith.com/users"
+                  placeholder="Hint: Try typing in the following curl cmd and then click on the 'Import' button: curl -X GET https://mock-api.appsmith.com/users"
                 />
                 <Field type="hidden" name="pageId" component="input" />
                 <Field type="hidden" name="name" component="input" />
