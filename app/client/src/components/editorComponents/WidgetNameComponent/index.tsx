@@ -110,10 +110,6 @@ export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
   return showWidgetName ? (
     <PositionStyle>
       <ControlGroup>
-        <HelpControl
-          type={props.type}
-          show={selectedWidget === props.widgetId}
-        />
         <SettingsControl
           toggleSettings={togglePropertyEditor}
           activity={currentActivity}

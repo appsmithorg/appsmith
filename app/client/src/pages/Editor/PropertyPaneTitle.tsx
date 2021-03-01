@@ -153,13 +153,7 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
         />
       </Tooltip>
       <Tooltip
-        content={
-          <div>
-            <span>You can connect data from your API by adding </span>
-            <BindingText>{`{{apiName.data}}`}</BindingText>
-            <span> to a widget property</span>
-          </div>
-        }
+        content={<span>Explore widget related docs</span>}
         position={Position.TOP}
         hoverOpenDelay={200}
         boundary="window"
