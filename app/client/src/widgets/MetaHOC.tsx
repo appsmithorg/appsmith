@@ -18,6 +18,10 @@ export interface WithMeta {
     propertyValue: any,
     actionExecution?: DebouncedExecuteActionPayload,
   ) => void;
+  syncUpdateWidgetMetaProperty: (
+    propertyName: string,
+    propertyValue: any,
+  ) => void;
 }
 
 const withMeta = (WrappedWidget: typeof BaseWidget) => {
@@ -30,7 +34,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       this.handleUpdateWidgetMetaProperty.bind(this),
       200,
       {
-        leading: true,
+        leading: false,
         trailing: true,
       },
     );
@@ -88,6 +92,19 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       );
     };
 
+    syncUpdateWidgetMetaProperty = (
+      propertyName: string,
+      propertyValue: any,
+    ): void => {
+      const { updateWidgetMetaProperty } = this.context;
+      const { widgetId, widgetName } = this.props;
+      this.setState({
+        [propertyName]: propertyValue,
+      });
+      clearEvalPropertyCache(`${widgetName}.${propertyName}`);
+      updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
+    };
+
     handleUpdateWidgetMetaProperty() {
       const { updateWidgetMetaProperty, executeAction } = this.context;
       const { widgetId, widgetName } = this.props;
@@ -122,6 +139,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
         ...this.props,
         ...this.state,
         updateWidgetMetaProperty: this.updateWidgetMetaProperty,
+        syncUpdateWidgetMetaProperty: this.syncUpdateWidgetMetaProperty,
       };
     };
 
