@@ -54,6 +54,14 @@ export const Wrapper = styled.div`
   }
 `;
 
+export const BetaLabel = styled.div`
+  font-size: 10px;
+  background: ${Colors.TUNDORA};
+  margin-top: 3px;
+  padding: 2px 4px;
+  border-radius: 3px;
+`;
+
 export const IconLabel = styled.h5`
   text-align: center;
   margin: 0;
@@ -116,6 +124,7 @@ const WidgetCard = (props: CardProps) => {
         <div>
           <Icon />
           <IconLabel>{props.details.widgetCardName}</IconLabel>
+          {props.details.isBeta && <BetaLabel>Beta</BetaLabel>}
         </div>
       </Wrapper>
     </React.Fragment>

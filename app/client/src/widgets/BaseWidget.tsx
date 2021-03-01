@@ -431,6 +431,7 @@ export interface WidgetCardProps {
   type: WidgetType;
   key?: string;
   widgetCardName: string;
+  isBeta?: boolean;
 }
 
 export const WidgetOperations = {
