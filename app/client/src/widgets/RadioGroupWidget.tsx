@@ -8,7 +8,6 @@ import {
   BASE_WIDGET_VALIDATION,
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
@@ -100,11 +99,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         "{{_.find(this.options, { value: this.selectedOptionValue })}}",
       isValid: `{{ this.isRequired ? !!this.selectedOptionValue : true }}`,
       value: `{{this.selectedOptionValue}}`,
-    };
-  }
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onSelectionChange: true,
     };
   }
 

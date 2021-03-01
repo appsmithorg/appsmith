@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
@@ -8,12 +9,11 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
+import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
-import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,9 +39,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.appsmith.external.helpers.MustacheHelper.extractWordsAndAddToSet;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.external.helpers.MustacheHelper.extractWordsAndAddToSet;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -301,6 +301,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 // For nested fields, the parent dsl to search in would shift by one level every iteration
                 Object parent = dsl;
                 Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
+                Boolean isLeafNode = false;
                 // This loop will end at either a leaf node, or the last identified JSON field (by throwing an exception)
                 // Valid forms of the fieldPath for this search could be:
                 // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
@@ -308,6 +309,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     String nextKey = fieldsIterator.next();
                     if (parent instanceof JSONObject) {
                         parent = ((JSONObject) parent).get(nextKey);
+                    } else if (parent instanceof Map) {
+                        parent = ((Map<String, ?>) parent).get(nextKey);
                     } else if (parent instanceof List) {
                         if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
                             parent = ((List) parent).get(Integer.parseInt(nextKey));
@@ -315,13 +318,19 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, nextKey);
                         }
                     }
+                    // After updating the parent, check for the types
                     if (parent == null) {
                         log.error("Unable to find dynamically bound key {} for the widget with id {}", nextKey, dsl.get(FieldName.WIDGET_ID));
                         break;
+                    } else if(parent instanceof String) {
+                        // If we get String value, then this is a leaf node
+                        isLeafNode = true;
                     }
                 }
-                if (parent != null) {
-                    dynamicBindings.addAll(MustacheHelper.extractMustacheKeysFromFields(parent));
+                // Only extract mustache keys from leaf nodes
+                if (parent != null && isLeafNode) {
+                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+                    dynamicBindings.addAll(mustacheKeysFromFields);
                 }
             }
         }

@@ -74,7 +74,6 @@ public class DynamoPlugin extends BasePlugin {
     private static final String DYNAMO_TYPE_BINARY_SET_LABEL = "BS";
     private static final String DYNAMO_TYPE_MAP_LABEL = "M";
     private static final String DYNAMO_TYPE_LIST_LABEL = "L";
-    private static final String RAW_RESPONSE_LABEL = "raw";
 
     public DynamoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -196,11 +195,6 @@ public class DynamoPlugin extends BasePlugin {
                     && !TRANSACT_GET_ITEMS_ACTION_VALUE.equals(action)) {
                 return rawResponse;
             }
-
-            /*
-             * - Transformed response has section "raw", under which raw response appears.
-             */
-            transformedResponse.put(RAW_RESPONSE_LABEL, rawResponse);
 
             /*
              * - Transform response based on action.
@@ -405,14 +399,28 @@ public class DynamoPlugin extends BasePlugin {
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             return datasourceCreate(datasourceConfiguration)
                     .map(client -> {
-                        client.close();
+
+                        /*
+                         * - Creating a connection with false credentials does not throw an error. Hence,
+                         *   calling listTables() method to check validity.
+                         */
+                        client.listTables();
+
+                        try {
+                            client.close();
+                        } catch (Exception e) {
+                            System.out.println("Error closing Dynamodb connection that was made for testing." + e);
+                            return false;
+                        }
+
                         return true;
                     })
                     .defaultIfEmpty(false)
                     .map(isValid -> BooleanUtils.isTrue(isValid)
                             ? new DatasourceTestResult()
-                            : new DatasourceTestResult("Unable to create DynamoDB Client.")
+                            : new DatasourceTestResult("Invalid Access Key / Secret Key / Region")
                     )
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
                     .subscribeOn(scheduler);
         }
 

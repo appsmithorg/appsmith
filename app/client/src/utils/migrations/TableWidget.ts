@@ -101,7 +101,7 @@ export const tableWidgetPropertyPaneMigrations = (
               ? columnNameMap[accessor]
               : accessor,
           // Generate computed value
-          computedValue: `{{${child.widgetName}.tableData.map((currentRow) => { return currentRow.${accessor}})}}`,
+          computedValue: `{{${child.widgetName}.sanitizedTableData.map((currentRow) => { return currentRow.${accessor}})}}`,
         };
         // copy inputForma nd outputFormat for date column types
         if (columnTypeMap && columnTypeMap[accessor]) {
@@ -139,6 +139,7 @@ export const tableWidgetPropertyPaneMigrations = (
           key: `primaryColumns.${columnPrefix}${index + 1}.onClick`,
         });
         updatedDerivedColumns[column.id] = column;
+        child.primaryColumns[column.id] = column;
       });
 
       if (Object.keys(updatedDerivedColumns).length) {
@@ -157,6 +158,55 @@ export const tableWidgetPropertyPaneMigrations = (
       child.derivedColumns = updatedDerivedColumns;
     } else if (child.children && child.children.length > 0) {
       child = tableWidgetPropertyPaneMigrations(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+const removeSpecialChars = (value: string, limit?: number) => {
+  const separatorRegex = /\W+/;
+  return value
+    .split(separatorRegex)
+    .join("_")
+    .slice(0, limit || 30);
+};
+
+export const migrateTablePrimaryColumnsBindings = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.TABLE_WIDGET) {
+      if (
+        child.primaryColumns &&
+        Object.keys(child.primaryColumns).length > 0
+      ) {
+        const newPrimaryColumns: Record<string, ColumnProperties> = {};
+        for (const [key, value] of Object.entries(
+          child.primaryColumns as Record<string, ColumnProperties>,
+        )) {
+          const sanitizedKey = removeSpecialChars(key, 200);
+          const newComputedValue = value.computedValue
+            ? value.computedValue.replace(
+                `${child.widgetName}.tableData.map`,
+                `${child.widgetName}.sanitizedTableData.map`,
+              )
+            : "";
+          newPrimaryColumns[sanitizedKey] = {
+            ...value,
+            computedValue: newComputedValue,
+          };
+        }
+        child.primaryColumns = newPrimaryColumns;
+        child.dynamicBindingPathList = child.dynamicBindingPathList?.map(
+          (path) => {
+            path.key = path.key.split(" ").join("_");
+            return path;
+          },
+        );
+      }
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTablePrimaryColumnsBindings(child);
     }
     return child;
   });

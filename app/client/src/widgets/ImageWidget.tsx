@@ -9,7 +9,6 @@ import {
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import { EventType } from "constants/ActionConstants";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   constructor(props: ImageWidgetProps) {
@@ -105,11 +104,6 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
       imageShape: VALIDATION_TYPES.TEXT,
       defaultImage: VALIDATION_TYPES.TEXT,
       maxZoomLevel: VALIDATION_TYPES.NUMBER,
-    };
-  }
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onClick: true,
     };
   }
   getPageView() {

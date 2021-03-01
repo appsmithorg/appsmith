@@ -292,6 +292,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               text="Run"
               tag="button"
               size={Size.medium}
+              type="button"
               onClick={() => {
                 onRunClick();
               }}
