@@ -71,13 +71,15 @@ const PropertyControl = memo((props: Props) => {
   const onBatchUpdateProperties = useCallback(
     (allUpdates: Record<string, unknown>) =>
       dispatch(
-        batchUpdateWidgetProperty(widgetProperties.widgetId, allUpdates),
+        batchUpdateWidgetProperty(widgetProperties.widgetId, {
+          modify: allUpdates,
+        }),
       ),
     [widgetProperties.widgetId, dispatch],
   );
 
   const onPropertyChange = useCallback(
-    (propertyName: string, propertyValue: any, isDynamicTrigger?: boolean) => {
+    (propertyName: string, propertyValue: any) => {
       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
         widgetType: widgetProperties.type,
         widgetName: widgetProperties.widgetName,
@@ -103,17 +105,16 @@ const PropertyControl = memo((props: Props) => {
         propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
           allUpdates[propertyPath] = propertyValue;
         });
-        if (!isDynamicTrigger) allUpdates[propertyName] = propertyValue;
+        allUpdates[propertyName] = propertyValue;
         onBatchUpdateProperties(allUpdates);
       }
-      if (!propertiesToUpdate || isDynamicTrigger) {
+      if (!propertiesToUpdate) {
         dispatch(
           updateWidgetPropertyRequest(
             widgetProperties.widgetId,
             propertyName,
             propertyValue,
             RenderModes.CANVAS, // This seems to be not needed anymore.
-            isDynamicTrigger,
           ),
         );
       }

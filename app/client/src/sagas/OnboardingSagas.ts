@@ -152,6 +152,7 @@ function* listenForWidgetAdditions() {
               avatar: 20,
               name: 30,
             },
+            migrated: false,
             ...getStandupTableDimensions(),
           }),
         );
@@ -238,29 +239,33 @@ function* listenForAddInputWidget() {
       const dataTree = yield select(getDataTree);
 
       const updatedInputWidget = dataTree["Standup_Input"];
-      const dynamicTriggerPathList = updatedInputWidget.dynamicTriggerPathList;
-      const hasOnSubmitHandler =
-        dynamicTriggerPathList &&
-        dynamicTriggerPathList.length &&
-        dynamicTriggerPathList.some(
-          (trigger: any) => trigger.key === "onSubmit",
-        );
 
-      if (hasOnSubmitHandler) {
-        yield put(
-          updateWidgetPropertyRequest(
-            inputWidget.widgetId,
-            "onSubmit",
-            "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
-            RenderModes.CANVAS,
-          ),
-        );
-        AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
+      if (updatedInputWidget) {
+        const dynamicTriggerPathList =
+          updatedInputWidget.dynamicTriggerPathList;
+        const hasOnSubmitHandler =
+          dynamicTriggerPathList &&
+          dynamicTriggerPathList.length &&
+          dynamicTriggerPathList.some(
+            (trigger: any) => trigger.key === "onSubmit",
+          );
 
-        yield put(setCurrentStep(OnboardingStep.DEPLOY));
-        yield put(setHelperConfig(getHelperConfig(OnboardingStep.DEPLOY)));
+        if (hasOnSubmitHandler) {
+          yield put(
+            updateWidgetPropertyRequest(
+              inputWidget.widgetId,
+              "onSubmit",
+              "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
+              RenderModes.CANVAS,
+            ),
+          );
+          AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
 
-        return;
+          yield put(setCurrentStep(OnboardingStep.DEPLOY));
+          yield put(setHelperConfig(getHelperConfig(OnboardingStep.DEPLOY)));
+
+          return;
+        }
       }
     }
   }
@@ -531,7 +536,7 @@ function* createApplication() {
   const currentOrganizationId = currentUser.currentOrganizationId;
   let organization;
 
-  if (!organization) {
+  if (!currentOrganizationId) {
     organization = userOrgs[0];
   } else {
     const filteredOrganizations = userOrgs.filter(
@@ -539,26 +544,30 @@ function* createApplication() {
     );
     organization = filteredOrganizations[0];
   }
-  const applicationList = organization.applications;
 
-  const applicationName = getNextEntityName(
-    "Super Standup ",
-    applicationList.map((el: any) => el.name),
-    true,
-  );
+  // Organization could be undefined for unknown reason
+  if (organization) {
+    const applicationList = organization.applications;
 
-  yield put({
-    type: ReduxActionTypes.CREATE_APPLICATION_INIT,
-    payload: {
-      applicationName,
-      orgId: organization.organization.id,
-      icon,
-      color,
-    },
-  });
+    const applicationName = getNextEntityName(
+      "Super Standup ",
+      applicationList.map((el: any) => el.name),
+      true,
+    );
 
-  yield take(ReduxActionTypes.CREATE_APPLICATION_SUCCESS);
-  yield call(initiateOnboarding);
+    yield put({
+      type: ReduxActionTypes.CREATE_APPLICATION_INIT,
+      payload: {
+        applicationName,
+        orgId: organization.organization.id,
+        icon,
+        color,
+      },
+    });
+
+    yield take(ReduxActionTypes.CREATE_APPLICATION_SUCCESS);
+    yield call(initiateOnboarding);
+  }
 }
 
 function* createQuery() {

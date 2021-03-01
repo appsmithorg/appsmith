@@ -13,6 +13,7 @@ describe("Duplicate application", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
     const appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).type(appname);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
 
     cy.get(homePage.applicationCard)

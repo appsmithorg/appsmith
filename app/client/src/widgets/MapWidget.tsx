@@ -5,7 +5,6 @@ import MapComponent from "components/designSystems/appsmith/MapComponent";
 import { WidgetPropertyValidationType } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EventType } from "constants/ActionConstants";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { getAppsmithConfigs } from "configs";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
@@ -142,13 +141,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       allowZoom: VALIDATION_TYPES.BOOLEAN,
       zoomLevel: VALIDATION_TYPES.NUMBER,
       mapCenter: VALIDATION_TYPES.LAT_LONG,
-    };
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onMarkerClick: true,
-      onCreateMarker: true,
     };
   }
 

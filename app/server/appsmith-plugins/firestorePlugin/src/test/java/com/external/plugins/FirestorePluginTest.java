@@ -1,13 +1,20 @@
 package com.external.plugins;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.AppsmithErrorAction;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Property;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.NoCredentials;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.firestore.Blob;
+import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
@@ -21,6 +28,7 @@ import org.testcontainers.containers.FirestoreEmulatorContainer;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple3;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -28,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -86,8 +95,26 @@ public class FirestorePluginTest {
                         firestoreConnection.document("initial/two")
                 )
         )).get();
+
         firestoreConnection.document("changing/to-update").set(Map.of("value", 1)).get();
         firestoreConnection.document("changing/to-delete").set(Map.of("value", 1)).get();
+
+        final CollectionReference paginationCol = firestoreConnection.collection("pagination");
+        paginationCol.add(Map.of("n", 1, "name", "Michele Cole", "firm", "Appsmith")).get();
+        paginationCol.add(Map.of("n", 2, "name", "Meghan Steele", "firm", "Google")).get();
+        paginationCol.add(Map.of("n", 3, "name", "Della Moore", "firm", "Facebook")).get();
+        paginationCol.add(Map.of("n", 4, "name", "Eunice Hines", "firm", "Microsoft")).get();
+        paginationCol.add(Map.of("n", 5, "name", "Harriet Myers", "firm", "Netflix")).get();
+        paginationCol.add(Map.of("n", 6, "name", "Lowell Reese", "firm", "Apple")).get();
+        paginationCol.add(Map.of("n", 7, "name", "Gerard Neal", "firm", "Oracle")).get();
+        paginationCol.add(Map.of("n", 8, "name", "Allen Arnold", "firm", "IBM")).get();
+        paginationCol.add(Map.of("n", 9, "name", "Josefina Perkins", "firm", "Google")).get();
+        paginationCol.add(Map.of("n", 10, "name", "Alvin Zimmerman", "firm", "Facebook")).get();
+        paginationCol.add(Map.of("n", 11, "name", "Israel Broc", "firm", "Microsoft")).get();
+        paginationCol.add(Map.of("n", 12, "name", "Larry Frazie", "firm", "Netflix")).get();
+        paginationCol.add(Map.of("n", 13, "name", "Rufus Green", "firm", "Apple")).get();
+        paginationCol.add(Map.of("n", 14, "name", "Marco Murra", "firm", "Oracle")).get();
+        paginationCol.add(Map.of("n", 15, "name", "Jeremy Mille", "firm", "IBM")).get();
 
         dsConfig.setUrl(emulator.getEmulatorEndpoint());
         DBAuth auth = new DBAuth();
@@ -103,7 +130,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_DOCUMENT")));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -125,7 +152,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_DOCUMENT")));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -152,7 +179,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_DOCUMENT")));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -181,7 +208,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_COLLECTION")));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -241,7 +268,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "SET_DOCUMENT")));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -262,7 +289,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "CREATE_DOCUMENT")));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -282,7 +309,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "UPDATE_DOCUMENT")));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -306,7 +333,7 @@ public class FirestorePluginTest {
         actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "DELETE_DOCUMENT")));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -334,7 +361,7 @@ public class FirestorePluginTest {
                 "}");
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
-                .execute(firestoreConnection, dsConfig, actionConfiguration);
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -342,6 +369,146 @@ public class FirestorePluginTest {
                     assertNotNull(firestoreConnection.document("changing/" + ((Map) result.getBody()).get("id")));
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testPagination() {
+        final ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("pagination");
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(
+                new Property("method", "GET_COLLECTION"),
+                new Property("order", "[\"n\"]"),
+                new Property("limit", "5")
+        ));
+
+        final ObjectMapper objectMapper = new ObjectMapper();
+
+        Mono<Tuple3<ActionExecutionResult, ActionExecutionResult, ActionExecutionResult>> pagesMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration)
+                .flatMap(result -> {
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    final Map<String, Object> first = results.get(0);
+                    final Map<String, Object> last = results.get(results.size() - 1);
+
+                    final ExecuteActionDTO execDetails = new ExecuteActionDTO();
+                    execDetails.setPaginationField(PaginationField.NEXT);
+
+                    final ActionConfiguration actionConfiguration1 = new ActionConfiguration();
+                    actionConfiguration1.setPath(actionConfiguration.getPath());
+                    try {
+                        actionConfiguration1.setPluginSpecifiedTemplates(List.of(
+                                new Property("method", "GET_COLLECTION"),
+                                new Property("order", "[\"n\"]"),
+                                new Property("limit", "5"),
+                                new Property(),
+                                new Property(),
+                                new Property(),
+                                new Property("startAfter", objectMapper.writeValueAsString(last)),
+                                new Property("endBefore", objectMapper.writeValueAsString(first))
+                        ));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                        return Mono.error(e);
+                    }
+
+                    return Mono.zip(
+                            Mono.just(result),
+                            pluginExecutor.executeParameterized(firestoreConnection, execDetails, dsConfig, actionConfiguration1)
+                    );
+                })
+                .flatMap(twoPagesMono -> {
+                    final ActionExecutionResult page1 = twoPagesMono.getT1();
+                    final ActionExecutionResult page2 = twoPagesMono.getT2();
+
+                    List<Map<String, Object>> results = (List) page2.getBody();
+                    final Map<String, Object> first = results.get(0);
+                    final Map<String, Object> last = results.get(results.size() - 1);
+
+                    final ExecuteActionDTO execDetails = new ExecuteActionDTO();
+                    execDetails.setPaginationField(PaginationField.PREV);
+
+                    final ActionConfiguration actionConfiguration1 = new ActionConfiguration();
+                    actionConfiguration1.setPath(actionConfiguration.getPath());
+                    try {
+                        actionConfiguration1.setPluginSpecifiedTemplates(List.of(
+                                new Property("method", "GET_COLLECTION"),
+                                new Property("order", "[\"n\"]"),
+                                new Property("limit", "5"),
+                                new Property(),
+                                new Property(),
+                                new Property(),
+                                new Property("startAfter", objectMapper.writeValueAsString(last)),
+                                new Property("endBefore", objectMapper.writeValueAsString(first))
+                        ));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                        return Mono.error(e);
+                    }
+
+                    return Mono.zip(
+                            Mono.just(page1),
+                            Mono.just(page2),
+                            pluginExecutor.executeParameterized(firestoreConnection, execDetails, dsConfig, actionConfiguration1)
+                    );
+                });
+
+        StepVerifier.create(pagesMono)
+                .assertNext(resultPages -> {
+                    final ActionExecutionResult firstPageResult = resultPages.getT1();
+                    final ActionExecutionResult secondPageResult = resultPages.getT2();
+                    final ActionExecutionResult firstPageResultAgain = resultPages.getT3();
+
+                    assertTrue(firstPageResult.getIsExecutionSuccess());
+
+                    List<Map<String, Object>> firstResults = (List) firstPageResult.getBody();
+                    assertEquals(5, firstResults.size());
+                    assertEquals(
+                            "[1, 2, 3, 4, 5]",
+                            firstResults.stream().map(m -> m.get("n").toString()).collect(Collectors.toList()).toString()
+                    );
+
+                    List<Map<String, Object>> secondResults = (List) secondPageResult.getBody();
+                    assertEquals(5, secondResults.size());
+                    assertEquals(
+                            "[6, 7, 8, 9, 10]",
+                            secondResults.stream().map(m -> m.get("n").toString()).collect(Collectors.toList()).toString()
+                    );
+
+                    List<Map<String, Object>> firstResultsAgain = (List) firstPageResultAgain.getBody();
+                    assertEquals(5, firstResultsAgain.size());
+                    assertEquals(
+                            "[1, 2, 3, 4, 5]",
+                            firstResultsAgain.stream().map(m -> m.get("n").toString()).collect(Collectors.toList()).toString()
+                    );
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDatasourceCreateErrorOnBadServiceAccountCredentials() {
+        DBAuth dbAuth = new DBAuth();
+        dbAuth.setUsername("username");
+        dbAuth.setPassword("password");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(dbAuth);
+        datasourceConfiguration.setUrl("https://url");
+
+        StepVerifier.create(pluginExecutor.datasourceCreate(datasourceConfiguration))
+                .expectErrorSatisfies(error -> {
+                    // Check that error is caught and returned as plugin error.
+                    assertTrue(error instanceof AppsmithPluginException);
+
+                    // Check error message.
+                    assertEquals(
+                            "Validation failed for field 'Service Account Credentials'. Please check the " +
+                                    "value provided in the 'Service Account Credentials' field.",
+                            error.getMessage());
+
+                    // Check that the error does not get logged externally.
+                    assertFalse(AppsmithErrorAction.LOG_EXTERNALLY.equals(((AppsmithPluginException)error).getError().getErrorAction()));
+                })
+                .verify();
     }
 
 }
