@@ -44,7 +44,7 @@ const HelpButton = () => {
         },
       }}
       minimal
-      position={Position.BOTTOM}
+      position={Position.BOTTOM_RIGHT}
       onOpened={onOpened}
       popoverClassName="navbar-help-popover"
     >

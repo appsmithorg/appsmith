@@ -37,7 +37,7 @@ import { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
-import { keyBy } from "lodash";
+import { keyBy, noop } from "lodash";
 
 const StyledContainer = styled.div`
   width: 750px;
@@ -78,6 +78,11 @@ const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
 const isMatching = (text = "", query = "") =>
   text?.toLowerCase().indexOf(query?.toLowerCase()) > -1;
 
+const getSectionTitle = (title: string) => ({
+  kind: SEARCH_ITEM_TYPES.sectionTitle,
+  title,
+});
+
 const GlobalSearch = () => {
   const defaultDocs = useDefaultDocumentationResults();
   const params = useParams<ExplorerURLParams>();
@@ -98,7 +103,7 @@ const GlobalSearch = () => {
     setDocumentationSearchResultsInState(res);
   }, []);
 
-  const [activeItemIndex, setActiveItemIndex] = useState(0);
+  const [activeItemIndex, setActiveItemIndex] = useState(1);
   const allWidgets = useSelector(getAllPageWidgets);
 
   const searchableWidgets = useMemo(
@@ -131,10 +136,12 @@ const GlobalSearch = () => {
   // keeping query in component state until we can figure out fixed for the perf issues
   // this is used to update query from outside the component, for ex. using the help button within prop. pane
   useEffect(() => {
-    if (modalOpen) {
+    if (modalOpen && resetSearchQuery) {
       setQuery(resetSearchQuery);
     } else {
       dispatch(setGlobalSearchQuery(""));
+      setQuery("");
+      setActiveItemIndex(1);
     }
   }, [modalOpen]);
 
@@ -172,9 +179,17 @@ const GlobalSearch = () => {
     );
   }, [pages, query]);
 
+  const recentsSectionTitle = getSectionTitle("Recents");
+  const docsSectionTitle = getSectionTitle("Documentation Links");
+
   const searchResults = useMemo(() => {
     if (!query) {
-      return [...recentEntities, ...defaultDocs];
+      return [
+        recentsSectionTitle,
+        ...recentEntities,
+        docsSectionTitle,
+        ...defaultDocs,
+      ];
     }
     return [
       ...filteredPages,
@@ -203,11 +218,23 @@ const GlobalSearch = () => {
     else return nextIndex;
   };
 
-  const handleUpKey = () =>
-    setActiveItemIndex(getNextActiveItem(activeItemIndex - 1));
+  const handleUpKey = () => {
+    let nextIndex = getNextActiveItem(activeItemIndex - 1);
+    const activeItem = searchResults[nextIndex];
+    if (activeItem && activeItem?.kind === SEARCH_ITEM_TYPES.sectionTitle) {
+      nextIndex = getNextActiveItem(nextIndex - 1);
+    }
+    setActiveItemIndex(nextIndex);
+  };
 
-  const handleDownKey = () =>
-    setActiveItemIndex(getNextActiveItem(activeItemIndex + 1));
+  const handleDownKey = () => {
+    let nextIndex = getNextActiveItem(activeItemIndex + 1);
+    const activeItem = searchResults[nextIndex];
+    if (activeItem && activeItem?.kind === SEARCH_ITEM_TYPES.sectionTitle) {
+      nextIndex = getNextActiveItem(nextIndex + 1);
+    }
+    setActiveItemIndex(nextIndex);
+  };
 
   const { navigateToWidget } = useNavigateToWidget();
 
@@ -253,6 +280,7 @@ const GlobalSearch = () => {
     [SEARCH_ITEM_TYPES.action]: handleActionClick,
     [SEARCH_ITEM_TYPES.datasource]: handleDatasourceClick,
     [SEARCH_ITEM_TYPES.page]: handlePageClick,
+    [SEARCH_ITEM_TYPES.sectionTitle]: noop,
   };
 
   const handleItemLinkClick = (itemArg?: SearchItem, source?: string) => {

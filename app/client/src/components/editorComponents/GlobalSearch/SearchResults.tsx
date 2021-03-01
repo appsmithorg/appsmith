@@ -28,7 +28,10 @@ import { getPageList } from "selectors/editorSelectors";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 
-export const SearchItemContainer = styled.div<{ isActiveItem: boolean }>`
+export const SearchItemContainer = styled.div<{
+  isActiveItem: boolean;
+  itemType: SEARCH_ITEM_TYPES;
+}>`
   display: flex;
   align-items: center;
   padding: ${(props) =>
@@ -37,13 +40,15 @@ export const SearchItemContainer = styled.div<{ isActiveItem: boolean }>`
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
   margin: ${(props) => props.theme.spaces[1]}px 0;
   background-color: ${(props) =>
-    props.isActiveItem
+    props.isActiveItem && props.itemType !== SEARCH_ITEM_TYPES.sectionTitle
       ? props.theme.colors.globalSearch.activeSearchItemBackground
       : "unset"};
 
   &:hover {
     background-color: ${(props) =>
-      props.theme.colors.globalSearch.activeSearchItemBackground};
+      props.itemType !== SEARCH_ITEM_TYPES.sectionTitle
+        ? props.theme.colors.globalSearch.activeSearchItemBackground
+        : "unset"};
     ${StyledActionLink} {
       visibility: visible;
     }
@@ -212,12 +217,17 @@ const PageItem = (props: {
   );
 };
 
+const SectionTitle = ({ item }: { item: SearchItem }) => (
+  <span>{item.title}</span>
+);
+
 const SearchItemByType = {
   [SEARCH_ITEM_TYPES.document]: DocumentationItem,
   [SEARCH_ITEM_TYPES.widget]: WidgetItem,
   [SEARCH_ITEM_TYPES.action]: ActionItem,
   [SEARCH_ITEM_TYPES.datasource]: DatasourceItem,
   [SEARCH_ITEM_TYPES.page]: PageItem,
+  [SEARCH_ITEM_TYPES.sectionTitle]: SectionTitle,
 };
 
 type ItemProps = {
@@ -247,9 +257,13 @@ const SearchItemComponent = (props: ItemProps) => {
   return (
     <SearchItemContainer
       ref={itemRef}
-      onClick={() => setActiveItemIndex(index)}
+      onClick={() => {
+        if (itemType !== SEARCH_ITEM_TYPES.sectionTitle)
+          setActiveItemIndex(index);
+      }}
       className="t--docHit"
       isActiveItem={isActiveItem}
+      itemType={itemType}
     >
       <Item item={item} query={query} isActiveItem={isActiveItem} />
     </SearchItemContainer>

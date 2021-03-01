@@ -13,6 +13,7 @@ export enum SEARCH_ITEM_TYPES {
   widget = "widget",
   datasource = "datasource",
   page = "page",
+  sectionTitle = "sectionTitle",
 }
 
 export type DocSearchItem = {
@@ -32,8 +33,12 @@ export type SearchItem = DocSearchItem | Datasource | any;
 export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
   let type: SEARCH_ITEM_TYPES;
   if (item.widgetName) type = SEARCH_ITEM_TYPES.widget;
-  else if (item.kind === SEARCH_ITEM_TYPES.document)
-    type = SEARCH_ITEM_TYPES.document;
+  else if (
+    item.kind === SEARCH_ITEM_TYPES.document ||
+    item.kind === SEARCH_ITEM_TYPES.page ||
+    item.kind === SEARCH_ITEM_TYPES.sectionTitle
+  )
+    type = item.kind;
   else if (item.kind === SEARCH_ITEM_TYPES.page) type = SEARCH_ITEM_TYPES.page;
   else if (item.config?.name) type = SEARCH_ITEM_TYPES.action;
   else type = SEARCH_ITEM_TYPES.datasource;
@@ -53,6 +58,8 @@ export const getItemTitle = (item: SearchItem): string => {
       return item?.name;
     case SEARCH_ITEM_TYPES.page:
       return item?.pageName;
+    case SEARCH_ITEM_TYPES.sectionTitle:
+      return item?.title;
     default:
       return "";
   }
