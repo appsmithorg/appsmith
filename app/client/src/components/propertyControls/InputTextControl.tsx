@@ -47,7 +47,7 @@ export function InputText(props: {
           error: isValid ? "" : errorMessage,
           touched: true,
         }}
-        theme={props.theme || EditorTheme.DARK}
+        theme={props.theme || EditorTheme.LIGHT}
         mode={EditorModes.TEXT_WITH_BINDING}
         tabBehaviour={TabBehaviour.INDENT}
         size={EditorSize.EXTENDED}

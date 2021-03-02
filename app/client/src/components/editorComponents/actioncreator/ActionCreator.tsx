@@ -8,11 +8,11 @@ import {
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DropdownOption } from "widgets/DropdownWidget";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import TreeDropdown, { TreeDropdownOption } from "components/ads/TreeDropdown";
 import {
-  FieldWrapper,
   ControlWrapper,
+  FieldWrapper,
 } from "components/propertyControls/StyledControls";
 import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
 import { InputText } from "components/propertyControls/InputTextControl";
@@ -28,6 +28,7 @@ import {
 import { NavigationTargetType } from "../../../sagas/ActionExecutionSagas";
 import { checkCurrentStep } from "sagas/OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import { Skin } from "constants/DefaultTheme";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -775,9 +776,16 @@ function renderField(props: {
             option.type === ActionType.api ||
             option.type === ActionType.query
           ) {
-            return <HightlightedCode codeText={`{{${option.label}.run()}}`} />;
+            return (
+              <HightlightedCode
+                codeText={`{{${option.label}.run()}}`}
+                skin={Skin.LIGHT}
+              />
+            );
           } else if (displayValue) {
-            return <HightlightedCode codeText={displayValue} />;
+            return (
+              <HightlightedCode codeText={displayValue} skin={Skin.LIGHT} />
+            );
           }
           return <span>{option.label}</span>;
         };
