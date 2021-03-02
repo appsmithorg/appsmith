@@ -43,6 +43,23 @@ const PropertyPaneConfig = [
         isTriggerProperty: false,
       },
       {
+        propertyName: "allowPagination",
+        label: "Allow Pagination",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+      },
+      {
+        propertyName: "paginationPerPage",
+        label: "Items per page?",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        hidden: (props: ListWidgetProps<WidgetProps>) => {
+          return !props.allowPagination;
+        },
+      },
+      {
         helpText: "Gap between rows and columns",
         placeholderText: "0",
         propertyName: "gridGap",

@@ -92,8 +92,13 @@ const PropertyControl = memo((props: Props) => {
   );
   // this function updates the properties of widget passed
   const onBatchUpdatePropertiesOfWidget = useCallback(
-    (allUpdates: Record<string, unknown>, widgetId: string) =>
-      dispatch(batchUpdateWidgetProperty(widgetId, allUpdates)),
+    (allUpdates: Record<string, unknown>, widgetId: string) => {
+      dispatch(
+        batchUpdateWidgetProperty(widgetId, {
+          modify: allUpdates,
+        }),
+      );
+    },
     [dispatch],
   );
 

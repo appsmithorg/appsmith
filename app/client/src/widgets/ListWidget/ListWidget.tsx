@@ -22,6 +22,7 @@ import { ContainerWidgetProps } from "../ContainerWidget";
 import propertyPaneConfig from "./ListPropertyPaneConfig";
 import { EventType } from "constants/ActionConstants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import ListPagination from "./ListPagination";
 
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -30,6 +31,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       items: VALIDATION_TYPES.LIST_DATA,
     };
   }
+
+  state = {
+    page: 1,
+    perPage: this.props.paginationPerPage,
+  };
 
   /**
    * returns the property pane config of the widget
@@ -83,10 +89,16 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         currentItem: newRowStructure,
       });
     }
+
+    if (prevProps.paginationPerPage !== this.props.paginationPerPage) {
+      this.setState({ perPage: this.props.paginationPerPage });
+    }
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
-    return {};
+    return {
+      itemBackgroundColor: "#FFFFFF",
+    };
   }
 
   /**
@@ -161,7 +173,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         bottomRow: (index + 1) * children[0].bottomRow + index * gap,
         resizeDisabled:
           index > 0 && this.props.renderMode === RenderModes.CANVAS,
-        widgetId: index > 0 ? `list-item-${index}` : child.widgetId,
         onClick: () =>
           this.onItemClick(index, this.props.onListItemClick, () => {
             //
@@ -204,34 +215,34 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
                       get(template, `${child.widgetName}.${key}.[${i}]`),
                     );
                   }
-
-                  // disabled config options for items other than template
-                  if (i > 0 && this.props.renderMode === RenderModes.CANVAS) {
-                    set(
-                      children[i],
-                      `children.[${j}].children[${k}].widgetId`,
-                      `list-widget-child-id-${i}`,
-                    );
-
-                    set(
-                      children[i],
-                      `children.[${j}].children[${k}].resizeDisabled`,
-                      true,
-                    );
-
-                    set(
-                      children[i],
-                      `children.[${j}].children[${k}].settingsControlDisabled`,
-                      true,
-                    );
-
-                    set(
-                      children[i],
-                      `children.[${j}].children[${k}].dragDisabled`,
-                      true,
-                    );
-                  }
                 }
+              }
+
+              // disabled config options for items other than template
+              if (i > 0 && this.props.renderMode === RenderModes.CANVAS) {
+                set(
+                  children[i],
+                  `children.[${j}].children[${k}].widgetId`,
+                  `list-widget-child-id-${i}`,
+                );
+
+                set(
+                  children[i],
+                  `children.[${j}].children[${k}].resizeDisabled`,
+                  true,
+                );
+
+                set(
+                  children[i],
+                  `children.[${j}].children[${k}].settingsControlDisabled`,
+                  true,
+                );
+
+                set(
+                  children[i],
+                  `children.[${j}].children[${k}].dragDisabled`,
+                  true,
+                );
               }
             }
           }
@@ -243,11 +254,26 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   updateGridChildrenProps = (children: ContainerWidgetProps<WidgetProps>[]) => {
-    let updatedChildren = this.updatePosition(children);
-
-    updatedChildren = this.useNewValues(updatedChildren);
+    let updatedChildren = this.useNewValues(children);
+    updatedChildren = this.paginateItems(updatedChildren);
+    updatedChildren = this.updatePosition(updatedChildren);
 
     return updatedChildren;
+  };
+
+  /**
+   * paginate items
+   *
+   * @param children
+   */
+  paginateItems = (children: ContainerWidgetProps<WidgetProps>[]) => {
+    const { page, perPage } = this.state;
+
+    if (this.canPaginate()) {
+      return children.slice((page - 1) * perPage, page * perPage);
+    }
+
+    return children;
   };
 
   // {
@@ -314,12 +340,36 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   /**
+   * can data be paginated
+   */
+  canPaginate = () => {
+    return this.props.allowPagination && !isNaN(this.props.paginationPerPage);
+  };
+
+  /**
    * view that is rendered in editor
    */
   getPageView() {
     const children = this.renderChildren();
 
-    return <ListComponent {...this.props}>{children}</ListComponent>;
+    if (Array.isArray(this.props.items) && this.props.items.length === 0) {
+      return <>Nothing to display</>;
+    }
+
+    return (
+      <ListComponent {...this.props}>
+        <div>{children}</div>
+
+        {this.canPaginate() && (
+          <ListPagination
+            total={this.props.items.length}
+            current={this.state.page}
+            perPage={this.state.perPage}
+            onChange={(page: number) => this.setState({ page })}
+          />
+        )}
+      </ListComponent>
+    );
   }
 
   /**

@@ -1090,6 +1090,7 @@ function* batchUpdateWidgetPropertySaga(
         dynamicBindingPathList,
       } = yield getPropertiesToUpdate(widgetId, modify);
 
+      console.log({ propertyUpdates });
       // We loop over all updates
       Object.entries(propertyUpdates).forEach(
         ([propertyPath, propertyValue]) => {
