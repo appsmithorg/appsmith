@@ -205,7 +205,7 @@ export const EntityName = forwardRef(
         </Wrapper>
       );
     return (
-      <Wrapper ref={ref}>
+      <Wrapper>
         <EditableText
           type="text"
           className={`${props.className} editing`}

@@ -1,5 +1,5 @@
 import { FetchPageRequest, SavePageResponse } from "api/PageApi";
-import { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
+import { WidgetOperation } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import {
   EvaluationReduxAction,
@@ -8,7 +8,6 @@ import {
   UpdateCanvasPayload,
 } from "constants/ReduxActionConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
 
@@ -57,19 +56,12 @@ export const fetchPageSuccess = (
   };
 };
 
-export type FetchPublishedPageSuccessPayload = {
-  pageId: string;
-  dsl: ContainerWidgetProps<WidgetProps>;
-  pageWidgetId: string;
-};
-
 export const fetchPublishedPageSuccess = (
-  payload: FetchPublishedPageSuccessPayload,
   postEvalActions: ReduxAction<unknown>[],
-): EvaluationReduxAction<FetchPublishedPageSuccessPayload> => ({
+): EvaluationReduxAction<undefined> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
-  payload,
   postEvalActions,
+  payload: undefined,
 });
 
 export const updateCurrentPage = (id: string) => ({

@@ -224,7 +224,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
     const tableStyles = getTableStyles(this.props.widgetProperties);
     const column = {
       ...columnProps,
-      buttonStyle: "#29CCA3",
+      buttonStyle: "rgb(3, 179, 101)",
       buttonLabelColor: "#FFFFFF",
       ...tableStyles,
     };
