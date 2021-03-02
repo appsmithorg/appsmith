@@ -92,10 +92,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   private panelWrapperRef = React.createRef<HTMLDivElement>();
 
   getTheme() {
-    if (this.props.themeMode === "LIGHT") {
-      return EditorTheme.LIGHT;
-    }
-    return EditorTheme.DARK;
+    return EditorTheme.LIGHT;
   }
 
   render() {
