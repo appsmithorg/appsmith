@@ -89,6 +89,11 @@ import copy from "copy-to-clipboard";
 import { EMPTY_RESPONSE } from "../components/editorComponents/ApiResponseView";
 
 import localStorage from "utils/localStorage";
+import { getWidgetByName } from "./selectors";
+import {
+  resetChildrenMetaProperty,
+  resetWidgetMetaProperty,
+} from "actions/metaActions";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -225,6 +230,30 @@ function* copySaga(
       event.callback({ success: result });
     }
   }
+}
+
+function* resetWidgetMetaByNameRecursiveSaga(
+  payload: { widgetName: string; resetChildren: boolean },
+  event: ExecuteActionPayloadEvent,
+) {
+  const fail = (msg: string) => {
+    console.error(msg);
+    if (event.callback) event.callback({ success: false });
+  };
+  if (typeof payload.widgetName !== "string") {
+    return fail("widgetName needs to be a string");
+  }
+
+  const widget = yield select(getWidgetByName, payload.widgetName);
+  if (!widget) {
+    return fail(`widget ${payload.widgetName} not found`);
+  }
+
+  yield put(resetWidgetMetaProperty(widget.widgetId));
+  if (payload.resetChildren) {
+    yield put(resetChildrenMetaProperty(widget.widgetId));
+  }
+  if (event.callback) event.callback({ success: true });
 }
 
 function* showAlertSaga(
@@ -542,6 +571,9 @@ function* executeActionTriggers(
         break;
       case "COPY_TO_CLIPBOARD":
         yield call(copySaga, trigger.payload, event);
+        break;
+      case "RESET_WIDGET_META_RECURSIVE_BY_NAME":
+        yield call(resetWidgetMetaByNameRecursiveSaga, trigger.payload, event);
         break;
       default:
         log.error("Trigger type unknown", trigger.type);
