@@ -601,6 +601,7 @@ type ColorType = {
   warning: buttonVariant;
   danger: buttonVariant;
   homepageBackground: string;
+  selected: ShadeColor;
   card: {
     hoverBG: Color;
     hoverBGOpacity: number;
@@ -994,6 +995,7 @@ const formMessage = {
 };
 
 export const dark: ColorType = {
+  selected: darkShades[10],
   header: {
     separator: darkShades[4],
     appName: darkShades[7],
@@ -1403,6 +1405,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
     appName: lightShades[8],

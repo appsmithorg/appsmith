@@ -1,4 +1,4 @@
-import { Switch, Classes, Popover, MenuItem, Menu } from "@blueprintjs/core";
+import { Classes, Popover, MenuItem, Menu } from "@blueprintjs/core";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
@@ -193,12 +193,6 @@ export const StyledMenuItem = styled(MenuItem)`
     &&&& .${Classes.MENU} {
       background: ${(props) => props.theme.dropdown[Skin.DARK].inActiveBG};
     }
-  }
-`;
-
-export const StyledSwitch = styled(Switch)`
-  &&&&& input:checked ~ span {
-    background: ${(props) => props.theme.colors.primaryOld};
   }
 `;
 
