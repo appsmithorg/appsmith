@@ -173,10 +173,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         bottomRow: (index + 1) * children[0].bottomRow + index * gap,
         resizeDisabled:
           index > 0 && this.props.renderMode === RenderModes.CANVAS,
-        onClick: () =>
-          this.onItemClick(index, this.props.onListItemClick, () => {
-            //
-          }),
       };
     });
   };
@@ -255,10 +251,23 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   updateGridChildrenProps = (children: ContainerWidgetProps<WidgetProps>[]) => {
     let updatedChildren = this.useNewValues(children);
+    updatedChildren = this.updateActions(updatedChildren);
     updatedChildren = this.paginateItems(updatedChildren);
     updatedChildren = this.updatePosition(updatedChildren);
 
     return updatedChildren;
+  };
+
+  updateActions = (children: ContainerWidgetProps<WidgetProps>[]) => {
+    return children.map((child: ContainerWidgetProps<WidgetProps>, index) => {
+      return {
+        ...child,
+        onClick: () =>
+          this.onItemClick(index, this.props.onListItemClick, () => {
+            //
+          }),
+      };
+    });
   };
 
   /**
