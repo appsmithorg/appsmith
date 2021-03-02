@@ -63,12 +63,6 @@ div.bp3-popover-arrow {
   z-index: 10;
 }
 
-.bp3-popover.bp3-dateinput-popover  {
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2) !important;
-  border-radius: 0;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-}
-
 .bp3-popover .bp3-input {
   outline: 0;
   box-shadow: none;

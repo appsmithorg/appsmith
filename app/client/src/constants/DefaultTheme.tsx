@@ -601,6 +601,7 @@ type ColorType = {
   warning: buttonVariant;
   danger: buttonVariant;
   homepageBackground: string;
+  selected: ShadeColor;
   card: {
     hoverBG: Color;
     hoverBGOpacity: number;
@@ -995,6 +996,7 @@ const formMessage = {
 };
 
 export const dark: ColorType = {
+  selected: darkShades[10],
   header: {
     separator: darkShades[4],
     appName: darkShades[7],
@@ -1405,6 +1407,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
     appName: lightShades[8],
@@ -1940,7 +1943,9 @@ export const theme: Theme = {
   colors: {
     tooltip: {
       lightBg: lightShades[0],
+      lightText: lightShades[10],
       darkBg: lightShades[10],
+      darkText: lightShades[0],
     },
     appBackground: "#EDEDED",
     artboard: "#F6F6F6",
