@@ -1,8 +1,12 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.DataType;
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.SqlStringUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -11,6 +15,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -21,6 +26,7 @@ import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
+import io.r2dbc.spi.Statement;
 import io.r2dbc.spi.ValidationDepth;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
@@ -45,8 +51,12 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 public class MySqlPlugin extends BasePlugin {
 
@@ -115,6 +125,199 @@ public class MySqlPlugin extends BasePlugin {
     public static class MySqlPluginExecutor implements PluginExecutor<Connection> {
         private final Scheduler scheduler = Schedulers.elastic();
 
+        private static final int PREPARED_STATEMENT_INDEX = 0;
+
+        /**
+         * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
+         * to use PreparedStatement (if configured) which requires the variable substitution, etc. to happen in a particular format
+         * supported by PreparedStatement. In case of PreparedStatement turned off, the action and datasource configurations are
+         * prepared (binding replacement) using PluginExecutor.variableSubstitution
+         *
+         * @param connection              : This is the connection that is established to the data source. This connection is according
+         *                                to the parameters in Datasource Configuration
+         * @param executeActionDTO        : This is the data structure sent by the client during execute. This contains the params
+         *                                which would be used for substitution
+         * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
+         * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
+         * @return
+         */
+        @Override
+        public Mono<ActionExecutionResult> executeParameterized(Connection connection,
+                                                                ExecuteActionDTO executeActionDTO,
+                                                                DatasourceConfiguration datasourceConfiguration,
+                                                                ActionConfiguration actionConfiguration) {
+
+            String query = actionConfiguration.getBody();
+            // Check for query parameter before performing the probably expensive fetch connection from the pool op.
+            if (query == null) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
+                        "parameter: Query."));
+            }
+
+            actionConfiguration.setBody(query.trim());
+
+            Boolean isPreparedStatement;
+
+            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
+                /**
+                 * TODO :
+                 * In case the prepared statement configuration is missing, default to true once PreparedStatement
+                 * is no longer in beta.
+                 */
+                isPreparedStatement = false;
+            } else {
+                isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
+            }
+
+            // In case of non prepared statement, simply do binding replacement and execute
+            if (FALSE.equals(isPreparedStatement)) {
+                prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+                return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null);
+            }
+
+            //Prepared Statement
+            // First extract all the bindings in order
+            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+            // Replace all the bindings with a ? as expected in a prepared statement.
+            String updatedQuery = SqlStringUtils.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
+            actionConfiguration.setBody(updatedQuery);
+            return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
+        }
+
+        public Mono<ActionExecutionResult> executeCommon(Connection connection,
+                                                         DatasourceConfiguration datasourceConfiguration,
+                                                         ActionConfiguration actionConfiguration,
+                                                         Boolean preparedStatement,
+                                                         List<String> mustacheValuesInOrder,
+                                                         ExecuteActionDTO executeActionDTO) {
+
+            final Map<String, Object> requestData = new HashMap<>();
+            requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
+
+            String query = actionConfiguration.getBody();
+
+            if (query == null) {
+                ActionExecutionResult errorResult = new ActionExecutionResult();
+                errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                errorResult.setIsExecutionSuccess(false);
+                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Missing required " +
+                        "parameter: Query."));
+                ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
+                actionExecutionRequest.setProperties(requestData);
+                errorResult.setRequest(actionExecutionRequest);
+                return Mono.just(errorResult);
+            }
+
+            boolean isSelectOrShowQuery = getIsSelectOrShowQuery(query);
+            final List<Map<String, Object>> rowsList = new ArrayList<>(50);
+            Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
+                    .flatMapMany(isValid -> {
+                        if (isValid) {
+                            return createAndExecuteQueryFromConnection(query,
+                                    connection,
+                                    preparedStatement,
+                                    mustacheValuesInOrder,
+                                    executeActionDTO,
+                                    requestData);
+                        } else {
+                            return Flux.error(new StaleConnectionException());
+                        }
+                    });
+
+            Mono<List<Map<String, Object>>> resultMono = null;
+
+            if (isSelectOrShowQuery) {
+                resultMono = resultFlux
+                        .flatMap(result -> result.map((row, meta) -> {
+                            rowsList.add(getRow(row, meta));
+                            return result;
+                        }))
+                        .collectList()
+                        .flatMap(execResult -> Mono.just(rowsList));
+            } else {
+                resultMono = resultFlux
+                        .flatMap(result -> result.getRowsUpdated())
+                        .collectList()
+                        .flatMap(list -> Mono.just(list.get(list.size() - 1)))
+                        .flatMap(rowsUpdated -> {
+                            rowsList.add(
+                                    Map.of(
+                                            "affectedRows",
+                                            ObjectUtils.defaultIfNull(rowsUpdated, 0)
+                                    )
+                            );
+                            return Mono.just(rowsList);
+                        });
+            }
+
+            return resultMono
+                    .map(res -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setBody(objectMapper.valueToTree(rowsList));
+                        result.setIsExecutionSuccess(true);
+                        System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action " +
+                                "execution result");
+                        return result;
+                    })
+                    .onErrorResume(AppsmithPluginException.class, error  -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        result.setStatusCode(error.getAppErrorCode().toString());
+                        result.setBody(error.getMessage());
+                        return Mono.just(result);
+                    })
+                    // Now set the request in the result to be returned back to the server
+                    .map(actionExecutionResult -> {
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setQuery(query);
+                        ActionExecutionResult result = actionExecutionResult;
+                        result.setRequest(request);
+                        return result;
+                    })
+                    .subscribeOn(scheduler);
+
+        }
+
+        private Flux<Result> createAndExecuteQueryFromConnection(String query,
+                                                                 Connection connection,
+                                                                 Boolean preparedStatement,
+                                                                 List<String> mustacheValuesInOrder,
+                                                                 ExecuteActionDTO executeActionDTO,
+                                                                 Map<String, Object> requestData) {
+
+            if (FALSE.equals(preparedStatement)) {
+                return Flux.from(connection.createStatement(query).execute());
+            } else {
+                System.out.println("Query : " + query);
+                Statement connectionStatement = connection.createStatement(query);
+                if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
+                    List<Param> params = executeActionDTO.getParams();
+                    List<String> parameters = new ArrayList<>();
+                    for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
+                        String key = mustacheValuesInOrder.get(i);
+                        Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
+                        if (matchingParam.isPresent()) {
+                            String value = matchingParam.get().getValue();
+                            parameters.add(value);
+                            DataType valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
+                            if (DataType.NULL.equals(valueType)) {
+                                try {
+                                    connectionStatement.bindNull(i, Object.class);
+                                } catch (UnsupportedOperationException e) {
+                                    // Do nothing. Move on
+                                }
+                            } else {
+                                connectionStatement.bind(i, value);
+                            }
+                        }
+                    }
+                    requestData.put("parameters", parameters);
+                }
+                return Flux.from(connectionStatement.execute());
+            }
+        }
+
         /**
          * 1. Parse the actual row objects returned by r2dbc driver for mysql statements.
          * 2. Return the row as a map {column_name -> column_value}.
@@ -168,89 +371,17 @@ public class MySqlPlugin extends BasePlugin {
          */
         private boolean getIsSelectOrShowQuery(String query) {
             String[] queries = query.split(";");
-            return (queries[queries.length - 1].trim().split(" ")[0].equalsIgnoreCase("select")
-                    || queries[queries.length - 1].trim().split(" ")[0].equalsIgnoreCase("show"));
+
+            String lastQuery = queries[queries.length - 1].trim();
+
+            return (lastQuery.trim().split(" ")[0].equalsIgnoreCase("select")
+                    || lastQuery.trim().split(" ")[0].equalsIgnoreCase("show"));
         }
 
         @Override
-        public Mono<ActionExecutionResult> execute(Connection connection,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
-
-            String query = actionConfiguration.getBody().trim();
-
-            if (query == null) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
-                        "parameter: Query."));
-            }
-
-            boolean isSelectOrShowQuery = getIsSelectOrShowQuery(query);
-            final List<Map<String, Object>> rowsList = new ArrayList<>(50);
-            Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
-                    .flatMapMany(isValid -> {
-                        if (isValid) {
-                            return connection.createStatement(query).execute();
-                        } else {
-                            return Flux.error(new StaleConnectionException());
-                        }
-                    });
-
-            Mono<List<Map<String, Object>>> resultMono = null;
-
-            if (isSelectOrShowQuery) {
-                resultMono = resultFlux
-                        .flatMap(result -> {
-                            return result.map((row, meta) -> {
-                                rowsList.add(getRow(row, meta));
-                                return result;
-                            });
-                        })
-                        .collectList()
-                        .flatMap(execResult -> {
-                            return Mono.just(rowsList);
-                        });
-            } else {
-                resultMono = resultFlux
-                        .flatMap(result -> result.getRowsUpdated())
-                        .collectList()
-                        .flatMap(list -> Mono.just(list.get(list.size() - 1)))
-                        .flatMap(rowsUpdated -> {
-                            rowsList.add(
-                                    Map.of(
-                                            "affectedRows",
-                                            ObjectUtils.defaultIfNull(rowsUpdated, 0)
-                                    )
-                            );
-                            return Mono.just(rowsList);
-                        });
-            }
-
-            return resultMono
-                    .map(res -> {
-                        ActionExecutionResult result = new ActionExecutionResult();
-                        result.setBody(objectMapper.valueToTree(rowsList));
-                        result.setIsExecutionSuccess(true);
-                        System.out.println(Thread.currentThread().getName() + " In the MySqlPlugin, got action " +
-                                "execution result");
-                        return result;
-                    })
-                    .onErrorResume(AppsmithPluginException.class, error  -> {
-                        ActionExecutionResult result = new ActionExecutionResult();
-                        result.setIsExecutionSuccess(false);
-                        result.setStatusCode(error.getAppErrorCode().toString());
-                        result.setBody(error.getMessage());
-                        return Mono.just(result);
-                    })
-                    // Now set the request in the result to be returned back to the server
-                    .map(actionExecutionResult -> {
-                        ActionExecutionRequest request = new ActionExecutionRequest();
-                        request.setQuery(query);
-                        ActionExecutionResult result = actionExecutionResult;
-                        result.setRequest(request);
-                        return result;
-                    })
-                    .subscribeOn(scheduler);
-
+        public Mono<ActionExecutionResult> execute(Connection connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+            // Unused function
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
 
         @Override
