@@ -7,7 +7,7 @@
   
 -----------------
   
-Appsmith office hours are conducted by the appsmith team every week for 1 hour at 10am CET on Tuesday and 10am PST on Fridays. The office hours are a dedicated time slot in which our team will be available to help our users real time. The office hours also give us an opportunity to interact with the community, understand your concerns and communicate our thinking to you. 
+Appsmith office hours are a dedicated time slot in which our team will be available to help our users real time. It also gives us an opportunity to interact with the community, understand your concerns and communicate our thinking to you. Office hours are conducted by the appsmith team every week for 1 hour at 10am CET on Tuesday and 10am PST on Fridays. 
 
 The office hours broadly covers the following topics:
 
