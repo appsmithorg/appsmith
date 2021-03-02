@@ -30,7 +30,7 @@ const buttonStyles = css<Partial<ButtonProps>>`
       props.filled || props.outline
         ? props.theme.spaces[2] + "px " + props.theme.spaces[3] + "px"
         : 0};
-
+    border-radius: 0;
     background: ${(props) =>
       props.filled || props.outline ? "inherit" : "transparent"};
 

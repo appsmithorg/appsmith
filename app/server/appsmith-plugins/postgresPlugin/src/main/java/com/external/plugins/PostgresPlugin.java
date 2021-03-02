@@ -7,6 +7,7 @@ import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionExceptio
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.SqlStringUtils;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -41,6 +42,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -183,9 +185,12 @@ public class PostgresPlugin extends BasePlugin {
                                                           List<String> mustacheValuesInOrder,
                                                           ExecuteActionDTO executeActionDTO) {
 
-            return Mono.fromCallable(() -> {
+            final Map<String, Object> requestData = new HashMap<>();
+            requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
 
-                String query = actionConfiguration.getBody();
+            String query = actionConfiguration.getBody();
+
+            return Mono.fromCallable(() -> {
 
                 Connection connectionFromPool;
 
@@ -227,15 +232,18 @@ public class PostgresPlugin extends BasePlugin {
                         preparedQuery = connectionFromPool.prepareStatement(query);
                         if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
                             List<Param> params = executeActionDTO.getParams();
+                            List<String> parameters = new ArrayList<>();
                             for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
                                 String key = mustacheValuesInOrder.get(i);
                                 Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
                                 if (matchingParam.isPresent()) {
                                     String value = matchingParam.get().getValue();
+                                    parameters.add(value);
                                     preparedQuery = SqlStringUtils.setValueInPreparedStatement(i + 1, key,
                                             value, preparedQuery);
                                 }
                             }
+                            requestData.put("parameters", parameters);
                         }
                         isResultSet = preparedQuery.execute();
                         resultSet = preparedQuery.getResultSet();
@@ -351,8 +359,21 @@ public class PostgresPlugin extends BasePlugin {
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
-                    .map(obj -> {
-                        ActionExecutionResult result = (ActionExecutionResult) obj;
+                    .map(obj -> (ActionExecutionResult) obj)
+                    .onErrorResume(AppsmithPluginException.class, error  -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        result.setStatusCode(error.getAppErrorCode().toString());
+                        result.setBody(error.getMessage());
+                        return Mono.just(result);
+                    })
+                    // Now set the request in the result to be returned back to the server
+                    .map(actionExecutionResult -> {
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setQuery(query);
+                        request.setProperties(requestData);
+                        ActionExecutionResult result = actionExecutionResult;
+                        result.setRequest(request);
                         return result;
                     })
                     .subscribeOn(scheduler);
