@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.util.Collections;
 import java.util.Map;
@@ -28,6 +29,7 @@ public class SegmentConfig {
 
     @Bean
     @ConditionalOnExpression(value = "!'${segment.writeKey:}'.isEmpty()")
+    @Profile("!test")
     public Analytics analyticsRunner() {
         final LogProcessor logProcessor = new LogProcessor();
         Analytics analyticsOnAnalytics = Analytics.builder(writeKey).log(logProcessor).build();
@@ -47,6 +49,12 @@ public class SegmentConfig {
         });
 
         return analytics;
+    }
+
+    @Bean
+    @Profile("test")
+    public Analytics mockAnalytics() {
+        return Analytics.builder("dummy-write-key").messageInterceptor(m -> null).build();
     }
 
     public String getCeKey() {
