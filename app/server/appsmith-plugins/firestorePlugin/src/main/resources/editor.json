@@ -139,7 +139,7 @@
               "initialValue": "fieldPath"
             },
             {
-              "label": "Where Condition: Field Path (leave emtpy to not apply any conditions)",
+              "label": "Where Condition: Field Path (leave empty to not apply any conditions)",
               "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
               "controlType": "INPUT_TEXT",
               "hidden": {
