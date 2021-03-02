@@ -1,6 +1,5 @@
 package com.external.plugins;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Connection;
@@ -213,11 +212,14 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
-                .expectErrorMatches(throwable ->
-                        throwable instanceof AppsmithPluginException &&
-                        throwable.getMessage().equals("unknown top level operator: $is")
-                )
-                .verify();
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals("unknown top level operator: $is", result.getBody());
+                })
+                .verifyComplete();
     }
 
     @Test
