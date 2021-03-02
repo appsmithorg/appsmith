@@ -98,7 +98,8 @@ public class UserSignup {
                     }
                     return user;
                 })
-                .flatMap(user -> signupAndLogin(user, exchange));
+                .flatMap(user -> signupAndLogin(user, exchange))
+                .then();
     }
 
 }
