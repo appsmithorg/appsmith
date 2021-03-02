@@ -208,7 +208,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isSelected: !!props.row.isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
-              backgroundColor: cellProperties.buttonStyle || "#29CCA3",
+              backgroundColor: cellProperties.buttonStyle || "rgb(3, 179, 101)",
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               columnActions: [
                 {

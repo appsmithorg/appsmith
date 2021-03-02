@@ -130,7 +130,7 @@ export const tableWidgetPropertyPaneMigrations = (
           isVisible: true,
           isDerived: true,
           buttonLabel: action.label,
-          buttonStyle: "#29CCA3",
+          buttonStyle: "rgb(3, 179, 101)",
           buttonLabelColor: "#FFFFFF",
           onClick: action.dynamicTrigger,
           computedValue: "",
