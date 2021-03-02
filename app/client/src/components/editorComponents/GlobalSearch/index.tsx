@@ -1,4 +1,10 @@
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { useParams } from "react-router";
@@ -37,6 +43,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { keyBy, noop } from "lodash";
+import EntitiesIcon from "assets/icons/ads/entities.svg";
+import DocsIcon from "assets/icons/ads/docs.svg";
+import RecentIcon from "assets/icons/ads/recent.svg";
 
 const StyledContainer = styled.div`
   width: 750px;
@@ -77,9 +86,10 @@ const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
 const isMatching = (text = "", query = "") =>
   text?.toLowerCase().indexOf(query?.toLowerCase()) > -1;
 
-const getSectionTitle = (title: string) => ({
+const getSectionTitle = (title: string, icon: any) => ({
   kind: SEARCH_ITEM_TYPES.sectionTitle,
   title,
+  icon,
 });
 
 const GlobalSearch = () => {
@@ -90,8 +100,8 @@ const GlobalSearch = () => {
   const [query, setQueryInState] = useState("");
   const setQuery = useCallback((query: string) => {
     setQueryInState(query);
-    setActiveItemIndex(0);
   }, []);
+  const scrollPositionRef = useRef(0);
 
   const [
     documentationSearchResults,
@@ -102,7 +112,12 @@ const GlobalSearch = () => {
     setDocumentationSearchResultsInState(res);
   }, []);
 
-  const [activeItemIndex, setActiveItemIndex] = useState(1);
+  const [activeItemIndex, setActiveItemIndexInState] = useState(1);
+  const setActiveItemIndex = useCallback((index) => {
+    scrollPositionRef.current = 0;
+    setActiveItemIndexInState(index);
+  }, []);
+
   const allWidgets = useSelector(getAllPageWidgets);
 
   const searchableWidgets = useMemo(
@@ -146,10 +161,13 @@ const GlobalSearch = () => {
       setQuery(resetSearchQuery);
     } else {
       dispatch(setGlobalSearchQuery(""));
-      setQuery("");
-      setActiveItemIndex(1);
+      if (!query) setActiveItemIndex(1);
     }
   }, [modalOpen]);
+
+  useEffect(() => {
+    setActiveItemIndex(1);
+  }, [query]);
 
   const filteredWidgets = useMemo(() => {
     if (!query) return searchableWidgets;
@@ -185,8 +203,9 @@ const GlobalSearch = () => {
     );
   }, [pages, query]);
 
-  const recentsSectionTitle = getSectionTitle("Recents");
-  const docsSectionTitle = getSectionTitle("Documentation Links");
+  const recentsSectionTitle = getSectionTitle("Recents", RecentIcon);
+  const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
+  const entitiesSectionTitle = getSectionTitle("Entities", EntitiesIcon);
 
   const searchResults = useMemo(() => {
     if (!query) {
@@ -197,13 +216,26 @@ const GlobalSearch = () => {
         ...defaultDocs,
       ];
     }
-    return [
+
+    const results = [];
+
+    const entities = [
+      entitiesSectionTitle,
       ...filteredPages,
       ...filteredWidgets,
       ...filteredActions,
       ...filteredDatasources,
-      ...documentationSearchResults,
     ];
+
+    if (entities.length > 1) {
+      results.push(...entities);
+    }
+
+    if (documentationSearchResults.length > 0) {
+      results.push(docsSectionTitle, ...documentationSearchResults);
+    }
+
+    return results;
   }, [
     filteredWidgets,
     filteredActions,
@@ -319,18 +351,6 @@ const GlobalSearch = () => {
     return activeItem ? getItemType(activeItem) : undefined;
   }, [activeItem]);
 
-  const SearchContent = () => (
-    <>
-      <SearchResults searchResults={searchResults} query={query} />
-      <Separator />
-      <Description
-        activeItem={activeItem}
-        activeItemType={activeItemType}
-        query={query}
-      />
-    </>
-  );
-
   return (
     <SearchContext.Provider value={searchContext}>
       <GlobalSearchHotKeys {...hotKeyProps}>
@@ -343,7 +363,19 @@ const GlobalSearch = () => {
                   setDocumentationSearchResults={setDocumentationSearchResults}
                 />
                 {searchResults.length > 0 ? (
-                  <SearchContent />
+                  <>
+                    <SearchResults
+                      searchResults={searchResults}
+                      query={query}
+                    />
+                    <Separator />
+                    <Description
+                      activeItem={activeItem}
+                      activeItemType={activeItemType}
+                      query={query}
+                      scrollPositionRef={scrollPositionRef}
+                    />
+                  </>
                 ) : (
                   <ResultsNotFound />
                 )}

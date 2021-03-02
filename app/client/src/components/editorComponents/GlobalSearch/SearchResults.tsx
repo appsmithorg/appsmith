@@ -217,8 +217,24 @@ const PageItem = (props: {
   );
 };
 
+const StyledSectionTitleContainer = styled.div`
+  display: flex;
+  align-items: center;
+  & .section-title__icon {
+    width: 14px;
+    height: 14px;
+    margin-right: ${(props) => props.theme.spaces[5]}px;
+  }
+  & .section-title__text {
+    color: ${(props) => props.theme.colors.globalSearch.sectionTitle};
+  }
+`;
+
 const SectionTitle = ({ item }: { item: SearchItem }) => (
-  <span>{item.title}</span>
+  <StyledSectionTitleContainer>
+    <img className="section-title__icon" src={item.icon} />
+    <span className="section-title__text">{item.title}</span>
+  </StyledSectionTitleContainer>
 );
 
 const SearchItemByType = {
@@ -258,8 +274,12 @@ const SearchItemComponent = (props: ItemProps) => {
     <SearchItemContainer
       ref={itemRef}
       onClick={() => {
-        if (itemType !== SEARCH_ITEM_TYPES.sectionTitle)
+        if (itemType !== SEARCH_ITEM_TYPES.sectionTitle) {
           setActiveItemIndex(index);
+          if (itemType !== SEARCH_ITEM_TYPES.document) {
+            searchContext?.handleItemLinkClick(item, "SEARCH_ITEM");
+          }
+        }
       }}
       className="t--docHit"
       isActiveItem={isActiveItem}

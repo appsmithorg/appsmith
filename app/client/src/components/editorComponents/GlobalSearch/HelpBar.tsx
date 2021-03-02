@@ -19,6 +19,8 @@ const StyledHelpBar = styled.div`
   align-items: center;
   color: ${(props) => props.theme.colors.globalSearch.helpBarText};
   background: ${(props) => props.theme.colors.globalSearch.helpBarBackground};
+  border: 1px solid ${(props) => props.theme.colors.globalSearch.helpBarBorder};
+  border-radius: ${(props) => props.theme.radii[1]}px;
   height: 28px;
   flex: 1;
   max-width: 350px;

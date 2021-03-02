@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import styled, { withTheme } from "styled-components";
 import ActionLink from "./ActionLink";
 import Highlight from "./Highlight";
@@ -13,6 +13,7 @@ type Props = {
   activeItem: SearchItem;
   activeItemType?: SEARCH_ITEM_TYPES;
   query: string;
+  scrollPositionRef: React.MutableRefObject<number>;
 };
 
 /**
@@ -86,6 +87,7 @@ const Container = styled.div`
     background: ${(props) => props.theme.colors.globalSearch.codeBackground};
     white-space: pre-wrap;
     overflow: hidden;
+    padding: ${(props) => props.theme.spaces[6]}px;
   }
 `;
 
@@ -195,7 +197,14 @@ const getDocumentationPreviewContent = (
 
 const DocumentationDescription = ({ item }: { item: SearchItem }) => {
   const content = getDocumentationPreviewContent(item);
-  return content ? <div dangerouslySetInnerHTML={{ __html: content }} /> : null;
+  return content ? (
+    <div
+      onKeyDown={(e) => {
+        e.stopPropagation();
+      }}
+      dangerouslySetInnerHTML={{ __html: content }}
+    />
+  ) : null;
 };
 
 const StyledHitEnterMessageContainer = styled.div`
@@ -256,13 +265,28 @@ const descriptionByType = {
 
 const Description = (props: Props) => {
   const { activeItem, activeItemType } = props;
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  const onScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    if (
+      props.scrollPositionRef?.current ||
+      props.scrollPositionRef?.current === 0
+    ) {
+      props.scrollPositionRef.current = (e.target as HTMLDivElement).scrollTop;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = props.scrollPositionRef?.current;
+    }
+  }, [containerRef.current, activeItem]);
 
   if (!activeItemType || !activeItem) return null;
-
   const Component = descriptionByType[activeItemType];
 
   return (
-    <Container>
+    <Container onScroll={onScroll} ref={containerRef}>
       <Component item={activeItem} query={props.query} />
     </Container>
   );

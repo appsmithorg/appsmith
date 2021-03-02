@@ -897,6 +897,8 @@ type ColorType = {
     documentLink: string;
     helpBarBackground: string;
     helpButtonBackground: string;
+    helpBarBorder: string;
+    sectionTitle: string;
   };
   gif: {
     overlay: string;
@@ -943,7 +945,6 @@ const globalSearch = {
   searchItemHighlight: "#fff",
   searchItemText: "rgba(255, 255, 255, 0.6)",
   highlightedTextUnderline: "#03B365",
-  helpBarBorder: "#F15A24",
   helpBarText: "#C2C2C2",
   documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
   documentationCtaText: "#03B365",
@@ -952,7 +953,10 @@ const globalSearch = {
   codeBackground: "#494949",
   documentLink: "#54a9fb",
   helpBarBackground: "#000",
-  helpButtonBackground: "#404040",
+  helpButtonBackground: "#000",
+  helpBarBorder: "#404040",
+  helpButtonBorder: "#404040",
+  sectionTitle: "#D4D4D4",
 };
 
 export const dark: ColorType = {
