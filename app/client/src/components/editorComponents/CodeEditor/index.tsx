@@ -33,11 +33,11 @@ import {
 import {
   DynamicAutocompleteInputWrapper,
   EditorWrapper,
-  // HintStyles,
+  HintStyles,
   IconContainer,
 } from "components/editorComponents/CodeEditor/styledComponents";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
-// import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
+import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import { retryPromise } from "utils/AppsmithUtils";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
@@ -98,7 +98,7 @@ type State = {
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker],
-    hinting: [],
+    hinting: [bindingHint],
   };
 
   textArea = React.createRef<HTMLTextAreaElement>();
@@ -170,7 +170,7 @@ class CodeEditor extends Component<Props, State> {
       this.editor.setValue(inputValue);
       this.updateMarkings();
 
-      // this.startAutocomplete();
+      this.startAutocomplete();
     }
   }
 
@@ -426,6 +426,7 @@ class CodeEditor extends Component<Props, State> {
               promptMessage={this.props.promptMessage}
               editorTheme={this.props.theme}
             />
+            <HintStyles editorTheme={theme} />
           </EditorWrapper>
         </EvaluatedValuePopup>
       </DynamicAutocompleteInputWrapper>

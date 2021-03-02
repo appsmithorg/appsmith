@@ -53,6 +53,12 @@ type ArgHints = {
   doc: CodeMirror.Doc;
 };
 
+const SERVER = new tern.Server({
+  async: true,
+  // @ts-ignore
+  defs: DEFS,
+});
+
 class TernServer {
   server: Server;
   docs: TernDocs = Object.create(null);
@@ -67,12 +73,7 @@ class TernServer {
     if (additionalDataTree) {
       customDataTreeDef = customTreeTypeDefCreator(additionalDataTree);
     }
-    this.server = new tern.Server({
-      async: true,
-      defs: customDataTreeDef
-        ? [...DEFS, dataTreeDef, customDataTreeDef]
-        : [...DEFS, dataTreeDef],
-    });
+    this.server = SERVER;
   }
 
   complete(cm: CodeMirror.Editor) {
