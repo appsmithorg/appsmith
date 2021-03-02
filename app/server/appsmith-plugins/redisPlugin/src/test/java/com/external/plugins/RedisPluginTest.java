@@ -6,7 +6,6 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
@@ -153,8 +152,11 @@ public class RedisPluginTest {
                 .flatMap(jedis -> pluginExecutor.execute(jedis, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(actionExecutionResultMono)
-                .expectError(AppsmithPluginException.class)
-                .verify();
+                .assertNext(result -> {
+                    Assert.assertNotNull(result);
+                    Assert.assertFalse(result.getIsExecutionSuccess());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -169,8 +171,11 @@ public class RedisPluginTest {
                 .flatMap(jedis -> pluginExecutor.execute(jedis, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(actionExecutionResultMono)
-                .expectError(AppsmithPluginException.class)
-                .verify();
+                .assertNext(result -> {
+                    Assert.assertNotNull(result);
+                    Assert.assertFalse(result.getIsExecutionSuccess());
+                })
+                .verifyComplete();
     }
 
     @Test
