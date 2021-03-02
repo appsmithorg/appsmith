@@ -17,7 +17,6 @@ const PropertyHelpLabel = (props: Props) => {
       content={props.tooltip || ""}
       position={Position.TOP}
       hoverOpenDelay={200}
-      variant={props.theme === EditorTheme.DARK ? "dark" : "light"}
     >
       <div
         style={{

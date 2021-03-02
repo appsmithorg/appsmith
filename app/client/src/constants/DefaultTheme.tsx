@@ -1940,7 +1940,9 @@ export const theme: Theme = {
   colors: {
     tooltip: {
       lightBg: lightShades[0],
+      lightText: lightShades[10],
       darkBg: lightShades[10],
+      darkText: lightShades[0],
     },
     appBackground: "#EDEDED",
     artboard: "#F6F6F6",
