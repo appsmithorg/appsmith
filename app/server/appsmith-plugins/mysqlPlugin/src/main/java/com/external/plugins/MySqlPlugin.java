@@ -123,6 +123,7 @@ public class MySqlPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class MySqlPluginExecutor implements PluginExecutor<Connection> {
+
         private final Scheduler scheduler = Schedulers.elastic();
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
@@ -147,14 +148,7 @@ public class MySqlPlugin extends BasePlugin {
                                                                 DatasourceConfiguration datasourceConfiguration,
                                                                 ActionConfiguration actionConfiguration) {
 
-            String query = actionConfiguration.getBody();
-            // Check for query parameter before performing the probably expensive fetch connection from the pool op.
-            if (query == null) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
-                        "parameter: Query."));
-            }
-
-            actionConfiguration.setBody(query.trim());
+            final Map<String, Object> requestData = new HashMap<>();
 
             Boolean isPreparedStatement;
 
@@ -169,34 +163,10 @@ public class MySqlPlugin extends BasePlugin {
             } else {
                 isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
             }
-
-            // In case of non prepared statement, simply do binding replacement and execute
-            if (FALSE.equals(isPreparedStatement)) {
-                prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
-                return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null);
-            }
-
-            //Prepared Statement
-            // First extract all the bindings in order
-            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
-            // Replace all the bindings with a ? as expected in a prepared statement.
-            String updatedQuery = SqlStringUtils.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
-            actionConfiguration.setBody(updatedQuery);
-            return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
-        }
-
-        public Mono<ActionExecutionResult> executeCommon(Connection connection,
-                                                         DatasourceConfiguration datasourceConfiguration,
-                                                         ActionConfiguration actionConfiguration,
-                                                         Boolean preparedStatement,
-                                                         List<String> mustacheValuesInOrder,
-                                                         ExecuteActionDTO executeActionDTO) {
-
-            final Map<String, Object> requestData = new HashMap<>();
-            requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
+            requestData.put("preparedStatement", TRUE.equals(isPreparedStatement) ? true : false);
 
             String query = actionConfiguration.getBody();
-
+            // Check for query parameter before performing the probably expensive fetch connection from the pool op.
             if (query == null) {
                 ActionExecutionResult errorResult = new ActionExecutionResult();
                 errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
@@ -209,8 +179,37 @@ public class MySqlPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
+            actionConfiguration.setBody(query.trim());
+
+            // In case of non prepared statement, simply do binding replacement and execute
+            if (FALSE.equals(isPreparedStatement)) {
+                prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+                return executeCommon(connection, actionConfiguration, FALSE, null, null, requestData);
+            }
+
+            //This has to be executed as Prepared Statement
+            // First extract all the bindings in order
+            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+            // Replace all the bindings with a ? as expected in a prepared statement.
+            String updatedQuery = SqlStringUtils.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
+            // Set the query with bindings extracted and replaced with '?' back in config
+            actionConfiguration.setBody(updatedQuery);
+            return executeCommon(connection, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO, requestData);
+        }
+
+        public Mono<ActionExecutionResult> executeCommon(Connection connection,
+                                                         ActionConfiguration actionConfiguration,
+                                                         Boolean preparedStatement,
+                                                         List<String> mustacheValuesInOrder,
+                                                         ExecuteActionDTO executeActionDTO,
+                                                         Map<String, Object> requestData) {
+
+            String query = actionConfiguration.getBody();
+
             boolean isSelectOrShowQuery = getIsSelectOrShowQuery(query);
+
             final List<Map<String, Object>> rowsList = new ArrayList<>(50);
+
             Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
                     .flatMapMany(isValid -> {
                         if (isValid) {
@@ -225,29 +224,35 @@ public class MySqlPlugin extends BasePlugin {
                         }
                     });
 
-            Mono<List<Map<String, Object>>> resultMono = null;
+            Mono<List<Map<String, Object>>> resultMono;
 
             if (isSelectOrShowQuery) {
+
                 resultMono = resultFlux
-                        .flatMap(result -> result.map((row, meta) -> {
-                            rowsList.add(getRow(row, meta));
-                            return result;
-                        }))
+                        .flatMap(result ->
+                                result.map((row, meta) -> {
+                                            rowsList.add(getRow(row, meta));
+                                            return result;
+                                        }
+                                )
+                        )
                         .collectList()
-                        .flatMap(execResult -> Mono.just(rowsList));
+                        .thenReturn(rowsList);
             } else {
+
                 resultMono = resultFlux
                         .flatMap(result -> result.getRowsUpdated())
                         .collectList()
                         .flatMap(list -> Mono.just(list.get(list.size() - 1)))
-                        .flatMap(rowsUpdated -> {
-                            rowsList.add(
-                                    Map.of(
-                                            "affectedRows",
-                                            ObjectUtils.defaultIfNull(rowsUpdated, 0)
-                                    )
-                            );
-                            return Mono.just(rowsList);
+                        .map(rowsUpdated -> {
+                            rowsList
+                                    .add(
+                                            Map.of(
+                                                    "affectedRows",
+                                                    ObjectUtils.defaultIfNull(rowsUpdated, 0)
+                                            )
+                                    );
+                            return rowsList;
                         });
             }
 
@@ -260,7 +265,7 @@ public class MySqlPlugin extends BasePlugin {
                                 "execution result");
                         return result;
                     })
-                    .onErrorResume(AppsmithPluginException.class, error  -> {
+                    .onErrorResume(AppsmithPluginException.class, error -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
                         result.setStatusCode(error.getAppErrorCode().toString());
@@ -271,6 +276,7 @@ public class MySqlPlugin extends BasePlugin {
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
+                        request.setProperties(requestData);
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
