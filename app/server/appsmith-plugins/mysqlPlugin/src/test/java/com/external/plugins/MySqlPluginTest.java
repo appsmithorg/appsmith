@@ -1,21 +1,21 @@
 package com.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
+import io.r2dbc.spi.ConnectionFactoryOptions;
 import lombok.extern.log4j.Log4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -27,15 +27,16 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertArrayEquals;
 
 @Log4j
 public class MySqlPluginTest {
@@ -116,6 +117,14 @@ public class MySqlPluginTest {
                                     "2, 'Jill', 'jack', 'jill@exemplars.com', NULL, '2019-12-31', 2019," +
                                     " '15:45:30'," +
                                     " '2019-11-30 23:59:59', '2019-11-30 23:59:59'" +
+                                    ")"
+                            )
+                            .add("INSERT INTO users VALUES (" +
+                                    "3, 'MiniJackJill', 'jaji', 'jaji@exemplars.com', NULL, '2021-01-31'," +
+                                    " '15:45:30', '04:05:06 PST'," +
+                                    " TIMESTAMP '2021-01-31 23:59:59', TIMESTAMP WITH TIME ZONE '2021-01-31 23:59:59 CET'," +
+                                    " '0 years'," +
+                                    " '{1, 2, 3}', '{\"a\", \"b\"}'" +
                                     ")"
                             );
                 })
@@ -547,6 +556,330 @@ public class MySqlPluginTest {
                             },
                             usersTable.getTemplates().toArray()
                     );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testPreparedStatementWithoutQuotes() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        // First test with the binding not surrounded with quotes
+        actionConfiguration.setBody("SELECT * FROM users where id = {{binding1}};");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param = new Param();
+        param.setKey("binding1");
+        param.setValue("1");
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<Connection> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals("2018-12-31", node.get("dob").asText());
+                    assertEquals("18:32:45", node.get("time1").asText());
+                    assertEquals("04:05:06-08", node.get("time_tz").asText());
+                    assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
+                    assertEquals("2018-11-30T19:45:15Z", node.get("created_on_tz").asText());
+                    assertEquals("1 years 5 mons 0 days 2 hours 0 mins 0.0 secs", node.get("interval1").asText());
+                    assertTrue(node.get("spouse_dob").isNull());
+
+                    // Check the order of the columns.
+                    assertArrayEquals(
+                            new String[]{
+                                    "id",
+                                    "username",
+                                    "password",
+                                    "email",
+                                    "spouse_dob",
+                                    "dob",
+                                    "time1",
+                                    "time_tz",
+                                    "created_on",
+                                    "created_on_tz",
+                                    "interval1",
+                                    "numbers",
+                                    "texts",
+                            },
+                            new ObjectMapper()
+                                    .convertValue(node, LinkedHashMap.class)
+                                    .keySet()
+                                    .toArray()
+                    );
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testPreparedStatementWithDoubleQuotes() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT * FROM users where id = {{binding1}};");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param = new Param();
+        param.setKey("binding1");
+        param.setValue("1");
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<Connection> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals("2018-12-31", node.get("dob").asText());
+                    assertEquals("18:32:45", node.get("time1").asText());
+                    assertEquals("04:05:06-08", node.get("time_tz").asText());
+                    assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
+                    assertEquals("2018-11-30T19:45:15Z", node.get("created_on_tz").asText());
+                    assertEquals("1 years 5 mons 0 days 2 hours 0 mins 0.0 secs", node.get("interval1").asText());
+                    assertTrue(node.get("spouse_dob").isNull());
+
+                    // Check the order of the columns.
+                    assertArrayEquals(
+                            new String[]{
+                                    "id",
+                                    "username",
+                                    "password",
+                                    "email",
+                                    "spouse_dob",
+                                    "dob",
+                                    "time1",
+                                    "time_tz",
+                                    "created_on",
+                                    "created_on_tz",
+                                    "interval1",
+                                    "numbers",
+                                    "texts",
+                            },
+                            new ObjectMapper()
+                                    .convertValue(node, LinkedHashMap.class)
+                                    .keySet()
+                                    .toArray()
+                    );
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testPreparedStatementWithSingleQuotes() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT * FROM users where id = {{binding1}};");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param = new Param();
+        param.setKey("binding1");
+        param.setValue("1");
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<Connection> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals("2018-12-31", node.get("dob").asText());
+                    assertEquals("18:32:45", node.get("time1").asText());
+                    assertEquals("04:05:06-08", node.get("time_tz").asText());
+                    assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
+                    assertEquals("2018-11-30T19:45:15Z", node.get("created_on_tz").asText());
+                    assertEquals("1 years 5 mons 0 days 2 hours 0 mins 0.0 secs", node.get("interval1").asText());
+                    assertTrue(node.get("spouse_dob").isNull());
+
+                    // Check the order of the columns.
+                    assertArrayEquals(
+                            new String[]{
+                                    "id",
+                                    "username",
+                                    "password",
+                                    "email",
+                                    "spouse_dob",
+                                    "dob",
+                                    "time1",
+                                    "time_tz",
+                                    "created_on",
+                                    "created_on_tz",
+                                    "interval1",
+                                    "numbers",
+                                    "texts",
+                            },
+                            new ObjectMapper()
+                                    .convertValue(node, LinkedHashMap.class)
+                                    .keySet()
+                                    .toArray()
+                    );
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testPreparedStatementWithNullStringValue() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("UPDATE users set " +
+                "username = {{binding1}}, " +
+                "password = {{binding1}},\n" +
+                "email = {{binding1}},\n" +
+                "spouse_dob = {{binding1}},\n" +
+                "dob = {{binding1}},\n" +
+                "time1 = {{binding1}},\n" +
+                "time_tz = {{binding1}},\n" +
+                "created_on = {{binding1}},\n" +
+                "created_on_tz = {{binding1}},\n" +
+                "interval1 = {{binding1}},\n" +
+                "numbers = {{binding1}},\n" +
+                "texts = {{binding1}}" +
+                "  where id = 2;");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param = new Param();
+        param.setKey("binding1");
+        param.setValue("null");
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<Connection> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                })
+                .verifyComplete();
+
+        actionConfiguration.setBody("SELECT * FROM users where id = 2;");
+        resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertTrue(node.get("dob").isNull());
+                    assertTrue(node.get("time1").isNull());
+                    assertTrue(node.get("time_tz").isNull());
+                    assertTrue(node.get("created_on").isNull());
+                    assertTrue(node.get("created_on_tz").isNull());
+                    assertTrue(node.get("interval1").isNull());
+                    assertTrue(node.get("spouse_dob").isNull());
+                    assertTrue(node.get("username").isNull());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testPreparedStatementWithNullValue() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("UPDATE users set " +
+                "username = {{binding1}}, " +
+                "password = {{binding1}},\n" +
+                "email = {{binding1}},\n" +
+                "spouse_dob = {{binding1}},\n" +
+                "dob = {{binding1}},\n" +
+                "time1 = {{binding1}},\n" +
+                "time_tz = {{binding1}},\n" +
+                "created_on = {{binding1}},\n" +
+                "created_on_tz = {{binding1}},\n" +
+                "interval1 = {{binding1}},\n" +
+                "numbers = {{binding1}},\n" +
+                "texts = {{binding1}}" +
+                "  where id = 3;");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param = new Param();
+        param.setKey("binding1");
+        param.setValue(null);
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<Connection> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                })
+                .verifyComplete();
+
+        actionConfiguration.setBody("SELECT * FROM users where id = 3;");
+        resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertTrue(node.get("dob").isNull());
+                    assertTrue(node.get("time1").isNull());
+                    assertTrue(node.get("time_tz").isNull());
+                    assertTrue(node.get("created_on").isNull());
+                    assertTrue(node.get("created_on_tz").isNull());
+                    assertTrue(node.get("interval1").isNull());
+                    assertTrue(node.get("spouse_dob").isNull());
+                    assertTrue(node.get("username").isNull());
                 })
                 .verifyComplete();
     }
