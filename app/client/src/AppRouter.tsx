@@ -46,7 +46,8 @@ const loadingIndicator = <PageLoadingBar />;
 function changeAppBackground(currentTheme: any) {
   if (
     trimTrailingSlash(window.location.pathname) === "/applications" ||
-    window.location.pathname.indexOf("/settings/") !== -1
+    window.location.pathname.indexOf("/settings/") !== -1 ||
+    trimTrailingSlash(window.location.pathname) === "/profile"
   ) {
     document.body.style.backgroundColor =
       currentTheme.colors.homepageBackground;
