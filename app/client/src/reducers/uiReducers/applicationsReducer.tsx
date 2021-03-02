@@ -301,7 +301,6 @@ export interface Application {
   isPublic: boolean;
   appIsExample: boolean;
   new: boolean;
-  pageCount: number;
   defaultPageId: string;
   pages: Array<{ id: string; isDefault: boolean; default: boolean }>;
   userPermissions: string[];
