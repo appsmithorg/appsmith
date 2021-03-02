@@ -3,8 +3,13 @@ import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import TextInput, { notEmptyValidator } from "components/ads/TextInput";
 import FilePicker from "components/ads/FilePicker";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getCurrentError } from "selectors/organizationSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+import { FORGOT_PASSWORD_SUCCESS_TEXT } from "constants/messages";
 
 const Wrapper = styled.div`
   & > div {
@@ -38,7 +43,23 @@ const ForgotPassword = styled.a`
 `;
 
 const General = () => {
+  const user = useSelector(getCurrentUser);
+  const dispatch = useDispatch();
   const DeleteLogo = () => null;
+  const forgotPassword = async () => {
+    try {
+      await forgotPasswordSubmitHandler({ email: user?.email }, dispatch);
+      Toaster.show({
+        text: `${FORGOT_PASSWORD_SUCCESS_TEXT} ${user?.email}`,
+        variant: Variant.success,
+      });
+    } catch (error) {
+      Toaster.show({
+        text: error._error,
+        variant: Variant.success,
+      });
+    }
+  };
 
   const logoUploadError = useSelector(getCurrentError);
 
@@ -52,7 +73,7 @@ const General = () => {
           validator={notEmptyValidator}
           placeholder="Display name"
           onChange={() => null}
-          defaultValue={"Display name"}
+          defaultValue={user?.name}
           cypressSelector="t--display-name"
         ></TextInput>
       </InputWrapper>
@@ -61,9 +82,11 @@ const General = () => {
           <Text type={TextType.H4}>Email</Text>
         </LabelWrapper>
         <div style={{ flexDirection: "column", display: "flex" }}>
-          <Text type={TextType.P1}>test@appsmith.com</Text>
+          <Text type={TextType.P1}>{user?.email}</Text>
 
-          <ForgotPassword>Reset Password</ForgotPassword>
+          <ForgotPassword onClick={forgotPassword}>
+            Reset Password
+          </ForgotPassword>
         </div>
       </FieldWrapper>
       <FieldWrapper>
@@ -81,7 +104,7 @@ const General = () => {
           <Text type={TextType.H4}>Website</Text>
         </LabelWrapper>
         <TextInput
-          placeholder=""
+          placeholder="Your website"
           onChange={() => null}
           defaultValue={""}
           cypressSelector="t--profile-website"
