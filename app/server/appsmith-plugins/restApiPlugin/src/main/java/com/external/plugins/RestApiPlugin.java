@@ -195,7 +195,7 @@ public class RestApiPlugin extends BasePlugin {
             String requestBodyAsString = "";
 
             // Add request body only for non GET calls.
-            if (!httpMethod.equals(HttpMethod.GET)) {
+            if (!HttpMethod.GET.equals(httpMethod)) {
                 // Adding request body
                 requestBodyAsString = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
 
