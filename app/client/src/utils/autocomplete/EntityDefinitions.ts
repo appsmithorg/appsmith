@@ -284,4 +284,8 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Copy text to clipboard",
     "!type": "fn(data: string, options: object) -> void",
   },
+  resetWidget: {
+    "!doc": "Reset widget values",
+    "!type": "fn(widgetName: string, resetChildren: boolean) -> void",
+  },
 };
