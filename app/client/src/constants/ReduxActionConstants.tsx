@@ -531,7 +531,6 @@ export type ApplicationPayload = {
   color?: string;
   icon?: string;
   organizationId: string;
-  pageCount: number;
   defaultPageId?: string;
   isPublic?: boolean;
   userPermissions?: string[];

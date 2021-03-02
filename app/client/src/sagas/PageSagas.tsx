@@ -253,11 +253,6 @@ export function* fetchPublishedPageSaga(
       // dispatch fetch page success
       yield put(
         fetchPublishedPageSuccess(
-          {
-            dsl: response.data.layouts[0].dsl,
-            pageId: request.pageId,
-            pageWidgetId: canvasWidgetsPayload.pageWidgetId,
-          },
           // Execute page load actions post published page eval
           [executePageLoadActions(canvasWidgetsPayload.pageActions)],
         ),
