@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -277,6 +278,9 @@ public class DynamoPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
+            final Map<String, Object> requestData = new HashMap<>();
+            final String body = actionConfiguration.getBody();
+
             return Mono.fromCallable(() -> {
                 ActionExecutionResult result = new ActionExecutionResult();
 
@@ -287,8 +291,9 @@ public class DynamoPlugin extends BasePlugin {
                             "Missing action name (like `ListTables`, `GetItem` etc.)."
                     );
                 }
+                requestData.put("action", action);
 
-                final String body = actionConfiguration.getBody();
+
                 Map<String, Object> parameters = null;
                 try {
                     if (!StringUtils.isEmpty(body)) {
@@ -299,6 +304,7 @@ public class DynamoPlugin extends BasePlugin {
                     log.warn(message, e);
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
                 }
+                requestData.put("parameters", parameters);
 
                 final Class<?> requestClass;
                 try {
@@ -331,6 +337,21 @@ public class DynamoPlugin extends BasePlugin {
                 System.out.println(Thread.currentThread().getName() + ": In the DynamoPlugin, got action execution result");
                 return result;
             })
+                    .onErrorResume(AppsmithPluginException.class, error  -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        result.setStatusCode(error.getAppErrorCode().toString());
+                        result.setBody(error.getMessage());
+                        return Mono.just(result);
+                    })
+                    // Now set the request in the result to be returned back to the server
+                    .map(actionExecutionResult -> {
+                        ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
+                        actionExecutionRequest.setProperties(requestData);
+                        actionExecutionRequest.setQuery(body);
+                        actionExecutionResult.setRequest(actionExecutionRequest);
+                        return actionExecutionResult;
+                    })
                     .subscribeOn(scheduler);
         }
 

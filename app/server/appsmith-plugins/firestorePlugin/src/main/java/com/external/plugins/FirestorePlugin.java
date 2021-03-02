@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -97,33 +98,18 @@ public class FirestorePlugin extends BasePlugin {
             // Do the template substitutions.
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
+            final Map<String, Object> requestData = new HashMap<>();
+
+            String query = actionConfiguration.getBody();
+
             final String path = actionConfiguration.getPath();
-
-            if (StringUtils.isBlank(path)) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Document/Collection path cannot be empty"
-                ));
-            }
-
-            if (path.startsWith("/") || path.endsWith("/")) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Firestore paths should not begin or end with `/` character."
-                ));
-            }
+            requestData.put("path", path == null ? "" : path);
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             final com.external.plugins.Method method = CollectionUtils.isEmpty(properties)
                     ? null
                     : com.external.plugins.Method.valueOf(properties.get(0).getValue());
-
-            if (method == null) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Missing Firestore method."
-                ));
-            }
+            requestData.put("method", method == null ? "" : method.toString());
 
             final PaginationField paginationField = executeActionDTO == null ? null : executeActionDTO.getPaginationField();
 
@@ -131,6 +117,28 @@ public class FirestorePlugin extends BasePlugin {
                     .justOrEmpty(actionConfiguration.getBody())
                     .defaultIfEmpty("")
                     .flatMap(strBody -> {
+
+                        if (StringUtils.isBlank(path)) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Document/Collection path cannot be empty"
+                            ));
+                        }
+
+                        if (path.startsWith("/") || path.endsWith("/")) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Firestore paths should not begin or end with `/` character."
+                            ));
+                        }
+
+                        if (method == null) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Missing Firestore method."
+                            ));
+                        }
+
                         if (StringUtils.isBlank(strBody)) {
                             return Mono.just(Collections.emptyMap());
                         }
@@ -159,6 +167,21 @@ public class FirestorePlugin extends BasePlugin {
                         } else {
                             return handleCollectionLevelMethod(connection, path, method, properties, mapBody, paginationField);
                         }
+                    })
+                    .onErrorResume(AppsmithPluginException.class, error  -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        result.setStatusCode(error.getAppErrorCode().toString());
+                        result.setBody(error.getMessage());
+                        return Mono.just(result);
+                    })
+                    // Now set the request in the result to be returned back to the server
+                    .map(result -> {
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setProperties(requestData);
+                        request.setQuery(query);
+                        result.setRequest(request);
+                        return result;
                     })
                     .subscribeOn(scheduler);
         }
