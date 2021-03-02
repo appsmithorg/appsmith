@@ -36,8 +36,8 @@ const TabsWrapper = styled.div`
 
 const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-right: 2px;
-  width: 150px;
-  margin-left: 30px;
+  width: 100%;
+  padding-left: 30px;
   &&& {
     input {
       padding-left: 24px;
