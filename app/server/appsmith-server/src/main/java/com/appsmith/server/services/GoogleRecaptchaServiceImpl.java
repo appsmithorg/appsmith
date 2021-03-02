@@ -65,7 +65,6 @@ public class GoogleRecaptchaServiceImpl implements GoogleRecaptchaService {
       .bodyToMono(String.class)
       .flatMap(stringBody -> {
         HashMap<String,Object> response = null;
-        System.out.println(stringBody);
         try {
           response = objectMapper.readValue(stringBody, HashMap.class);
         } catch (JsonProcessingException e) {
