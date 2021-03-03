@@ -15,6 +15,7 @@ const HelpPopoverStyle = createGlobalStyle`
 `;
 
 const StyledTrigger = styled.div`
+  cursor: pointer;
   width: 25px;
   height: 25px;
   border-radius: 50%;
@@ -24,8 +25,6 @@ const StyledTrigger = styled.div`
   margin: ${(props) => props.theme.spaces[2]}px;
   background: ${(props) =>
     props.theme.colors.globalSearch.helpButtonBackground};
-  border: 1px solid
-    ${(props) => props.theme.colors.globalSearch.helpButtonBorder};
 `;
 
 const Trigger = () => (

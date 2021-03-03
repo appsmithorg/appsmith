@@ -33,12 +33,11 @@ export const SearchItemContainer = styled.div<{
   itemType: SEARCH_ITEM_TYPES;
 }>`
   cursor: ${(props) =>
-    props.itemType !== SEARCH_ITEM_TYPES.sectionTitle ? "pointer" : "normal"};
+    props.itemType !== SEARCH_ITEM_TYPES.sectionTitle ? "pointer" : "default"};
   display: flex;
   align-items: center;
   padding: ${(props) =>
     `${props.theme.spaces[4]}px ${props.theme.spaces[4]}px`};
-  border-radius: ${(props) => props.theme.radii[2]}px;
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
   margin: ${(props) => props.theme.spaces[1]}px 0;
   background-color: ${(props) =>
@@ -230,6 +229,7 @@ const StyledSectionTitleContainer = styled.div`
   & .section-title__text {
     color: ${(props) => props.theme.colors.globalSearch.sectionTitle};
   }
+  margin-left: -${(props) => props.theme.spaces[3]}px;
 `;
 
 const SectionTitle = ({ item }: { item: SearchItem }) => (

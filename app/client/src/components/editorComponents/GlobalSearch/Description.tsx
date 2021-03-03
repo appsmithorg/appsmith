@@ -20,7 +20,6 @@ const Container = styled.div`
   flex-direction: column;
   padding: ${(props) =>
     `${props.theme.spaces[5]}px ${props.theme.spaces[7]}px 0`};
-  border-radius: ${(props) => props.theme.radii[2]}px;
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
   overflow: auto;
 
@@ -53,8 +52,6 @@ const Container = styled.div`
     color: ${(props) => props.theme.colors.globalSearch.documentationCtaText};
     padding: ${(props) => props.theme.spaces[2]}px;
     margin: 0 ${(props) => props.theme.spaces[2]}px;
-    border-radius: 4px;
-
     position: relative;
     bottom: 3px;
   }
@@ -104,7 +101,6 @@ const StyledHitEnterMessageContainer = styled.div`
     props.theme.colors.globalSearch.navigateUsingEnterSection};
   padding: ${(props) =>
     `${props.theme.spaces[6]}px ${props.theme.spaces[3]}px`};
-  border-radius: ${(props) => props.theme.radii[1]}px;
   ${(props) => getTypographyByKey(props, "p3")}
 `;
 
@@ -131,7 +127,7 @@ const HitEnterMessage = ({
     <StyledHitEnterMessageContainer
       style={{ display: "flex", alignItems: "center" }}
     >
-      Press <StyledKey>&#8629;</StyledKey> to navigate to
+      &#10024; Press <StyledKey>&#8629;</StyledKey> to navigate to
       <StyledHighlightWrapper>
         <Highlight match={query} text={title} />
       </StyledHighlightWrapper>
