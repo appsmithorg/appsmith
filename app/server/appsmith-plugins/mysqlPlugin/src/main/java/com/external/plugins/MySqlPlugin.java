@@ -219,15 +219,13 @@ public class MySqlPlugin extends BasePlugin {
                                     mustacheValuesInOrder,
                                     executeActionDTO,
                                     requestData);
-                        } else {
-                            return Flux.error(new StaleConnectionException());
                         }
+                        return Flux.error(new StaleConnectionException());
                     });
 
             Mono<List<Map<String, Object>>> resultMono;
 
             if (isSelectOrShowQuery) {
-
                 resultMono = resultFlux
                         .flatMap(result ->
                                 result.map((row, meta) -> {
@@ -239,19 +237,17 @@ public class MySqlPlugin extends BasePlugin {
                         .collectList()
                         .thenReturn(rowsList);
             } else {
-
                 resultMono = resultFlux
                         .flatMap(result -> result.getRowsUpdated())
                         .collectList()
                         .flatMap(list -> Mono.just(list.get(list.size() - 1)))
                         .map(rowsUpdated -> {
-                            rowsList
-                                    .add(
-                                            Map.of(
-                                                    "affectedRows",
-                                                    ObjectUtils.defaultIfNull(rowsUpdated, 0)
-                                            )
-                                    );
+                            rowsList.add(
+                                    Map.of(
+                                            "affectedRows",
+                                            ObjectUtils.defaultIfNull(rowsUpdated, 0)
+                                    )
+                            );
                             return rowsList;
                         });
             }
@@ -292,36 +288,41 @@ public class MySqlPlugin extends BasePlugin {
                                                                  ExecuteActionDTO executeActionDTO,
                                                                  Map<String, Object> requestData) {
 
-            if (FALSE.equals(preparedStatement)) {
-                return Flux.from(connection.createStatement(query).execute());
-            } else {
-                System.out.println("Query : " + query);
-                Statement connectionStatement = connection.createStatement(query);
-                if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
-                    List<Param> params = executeActionDTO.getParams();
-                    List<String> parameters = new ArrayList<>();
-                    for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
-                        String key = mustacheValuesInOrder.get(i);
-                        Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
-                        if (matchingParam.isPresent()) {
-                            String value = matchingParam.get().getValue();
-                            parameters.add(value);
-                            DataType valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
-                            if (DataType.NULL.equals(valueType)) {
-                                try {
-                                    connectionStatement.bindNull(i, Object.class);
-                                } catch (UnsupportedOperationException e) {
-                                    // Do nothing. Move on
-                                }
-                            } else {
-                                connectionStatement.bind(i, value);
-                            }
-                        }
-                    }
-                    requestData.put("parameters", parameters);
-                }
+            Statement connectionStatement = connection.createStatement(query);
+            if (FALSE.equals(preparedStatement) || mustacheValuesInOrder == null || mustacheValuesInOrder.isEmpty()) {
                 return Flux.from(connectionStatement.execute());
             }
+
+            System.out.println("Query : " + query);
+
+            List<Param> params = executeActionDTO.getParams();
+            List<String> parameters = new ArrayList<>();
+
+            for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
+                String key = mustacheValuesInOrder.get(i);
+                Optional<Param> matchingParam = params
+                        .stream()
+                        .filter(param -> param.getKey().trim().equals(key))
+                        .findFirst();
+                if (matchingParam.isPresent()) {
+                    String value = matchingParam.get().getValue();
+                    parameters.add(value);
+                    DataType valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
+                    if (DataType.NULL.equals(valueType)) {
+                        try {
+                            connectionStatement.bindNull(i, Object.class);
+                        } catch (UnsupportedOperationException e) {
+                            // Do nothing. Move on
+                        }
+                    } else {
+                        connectionStatement.bind(i, value);
+                    }
+                }
+            }
+            requestData.put("parameters", parameters);
+
+            return Flux.from(connectionStatement.execute());
+
         }
 
         /**
@@ -338,24 +339,19 @@ public class MySqlPlugin extends BasePlugin {
                 String typeName = metaData.getJavaType().toString();
                 Object columnValue = row.get(columnName);
 
-                if (java.time.LocalDate.class.toString().equalsIgnoreCase(typeName)
-                        && columnValue != null) {
-                    columnValue = DateTimeFormatter.ISO_DATE.format(row.get(columnName,
-                            LocalDate.class));
-                } else if ((java.time.LocalDateTime.class.toString().equalsIgnoreCase(typeName))
-                        && columnValue != null) {
+                if (java.time.LocalDate.class.toString().equalsIgnoreCase(typeName) && columnValue != null) {
+                    columnValue = DateTimeFormatter.ISO_DATE.format(row.get(columnName, LocalDate.class));
+                } else if ((java.time.LocalDateTime.class.toString().equalsIgnoreCase(typeName)) && columnValue != null) {
                     columnValue = DateTimeFormatter.ISO_DATE_TIME.format(
                             LocalDateTime.of(
                                     row.get(columnName, LocalDateTime.class).toLocalDate(),
                                     row.get(columnName, LocalDateTime.class).toLocalTime()
                             )
                     ) + "Z";
-                } else if (java.time.LocalTime.class.toString().equalsIgnoreCase(typeName)
-                        && columnValue != null) {
+                } else if (java.time.LocalTime.class.toString().equalsIgnoreCase(typeName) && columnValue != null) {
                     columnValue = DateTimeFormatter.ISO_TIME.format(row.get(columnName,
                             LocalTime.class));
-                } else if (java.time.Year.class.toString().equalsIgnoreCase(typeName)
-                        && columnValue != null) {
+                } else if (java.time.Year.class.toString().equalsIgnoreCase(typeName) && columnValue != null) {
                     columnValue = row.get(columnName, LocalDate.class).getYear();
                 } else {
                     columnValue = row.get(columnName);
@@ -431,12 +427,10 @@ public class MySqlPlugin extends BasePlugin {
             ob = ob.option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
 
             return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
-                    .onErrorResume(exception -> {
-                        return Mono.error(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                exception
-                        ));
-                    })
+                    .onErrorResume(exception -> Mono.error(new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            exception
+                    )))
                     .subscribeOn(scheduler);
         }
 
