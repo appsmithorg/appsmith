@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
+import { debounce } from "lodash";
 import TextInput, { notEmptyValidator } from "components/ads/TextInput";
 import FilePicker from "components/ads/FilePicker";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,6 +11,7 @@ import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { FORGOT_PASSWORD_SUCCESS_TEXT } from "constants/messages";
+import { updateUserDetails } from "actions/userActions";
 
 const Wrapper = styled.div`
   & > div {
@@ -61,6 +63,15 @@ const General = () => {
     }
   };
 
+  const timeout = 1000;
+  const onNameChange = debounce((newName: string) => {
+    dispatch(
+      updateUserDetails({
+        name: newName,
+      }),
+    );
+  }, timeout);
+
   const logoUploadError = useSelector(getCurrentError);
 
   return (
@@ -72,7 +83,7 @@ const General = () => {
         <TextInput
           validator={notEmptyValidator}
           placeholder="Display name"
-          onChange={() => null}
+          onChange={onNameChange}
           defaultValue={user?.name}
           cypressSelector="t--display-name"
         ></TextInput>
