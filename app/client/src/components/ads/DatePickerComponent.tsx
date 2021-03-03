@@ -64,6 +64,7 @@ const StyledDateInput = styled(DateInput)`
       border: none;
       background-color: ${(props) =>
         props.theme.colors.propertyPane.zoomButtonBG};
+      margin-bottom: 5px;
 
       .bp3-timepicker-input {
         color: inherit;
