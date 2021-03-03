@@ -23,6 +23,7 @@ export const Wrapper = styled.div`
   padding: 10px 5px 10px 5px;
   border-radius: 0px;
   border: none;
+  position: relative;
   color: ${Colors.ALTO};
   height: 72px;
   display: flex;
@@ -60,6 +61,9 @@ export const BetaLabel = styled.div`
   margin-top: 3px;
   padding: 2px 4px;
   border-radius: 3px;
+  position: absolute;
+  top: 0;
+  right: -2%;
 `;
 
 export const IconLabel = styled.h5`
