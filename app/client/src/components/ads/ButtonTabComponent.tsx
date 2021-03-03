@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import { ControlIcons, ControlIconName } from "icons/ControlIcons";
-import { Colors } from "constants/Colors";
 
 const ItemWrapper = styled.div<{ selected: boolean }>`
   width: 32px;
