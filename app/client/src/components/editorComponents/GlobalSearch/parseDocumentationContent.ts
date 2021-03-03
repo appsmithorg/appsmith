@@ -1,6 +1,6 @@
 import marked from "marked";
 import { HelpBaseURL } from "constants/HelpConstants";
-import { SearchItem, algoliaHighlightTag } from "./utils";
+import { algoliaHighlightTag } from "./utils";
 
 /**
  * @param {String} HTML representing a single element
@@ -39,7 +39,7 @@ const getDocumentationCTA = (path: any) => {
  * Append open documentation button to title
  */
 const updateDocumentDescriptionTitle = (documentObj: any, item: any) => {
-  const { rawDocument, rawTitle, path } = item;
+  const { rawTitle, path } = item;
 
   Array.from(documentObj.querySelectorAll("h1")).forEach((match: any) => {
     match.outerHTML = `<h2>${match.innerHTML}</h2>`;
@@ -78,7 +78,7 @@ const replaceHintTagsWithCode = (text: string) => {
 
 const parseDocumentationContent = (item: any): string | undefined => {
   try {
-    const { rawDocument, rawTitle, path } = item;
+    const { rawDocument } = item;
     let value = rawDocument;
     if (!value) return;
 

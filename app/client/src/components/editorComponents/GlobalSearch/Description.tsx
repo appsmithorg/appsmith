@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect } from "react";
-import styled, { withTheme } from "styled-components";
+import styled from "styled-components";
 import ActionLink from "./ActionLink";
 import Highlight from "./Highlight";
 import { getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
-import { getTypographyByKey, Theme } from "constants/DefaultTheme";
+import { getTypographyByKey } from "constants/DefaultTheme";
 import { SearchItem } from "./utils";
 import parseDocumentationContent from "./parseDocumentationContent";
 
@@ -118,31 +118,27 @@ const StyledHighlightWrapper = styled.span`
   margin: 0 ${(props) => props.theme.spaces[1]}px;
 `;
 
-const HitEnterMessage = withTheme(
-  ({
-    item,
-    query,
-    theme,
-  }: {
-    item: SearchItem;
-    query: string;
-    theme: Theme;
-  }) => {
-    const title = getItemTitle(item);
+const HitEnterMessage = ({
+  item,
+  query,
+}: {
+  item: SearchItem;
+  query: string;
+}) => {
+  const title = getItemTitle(item);
 
-    return (
-      <StyledHitEnterMessageContainer
-        style={{ display: "flex", alignItems: "center" }}
-      >
-        Press <StyledKey>&#8629;</StyledKey> to navigate to
-        <StyledHighlightWrapper>
-          <Highlight match={query} text={title} />
-        </StyledHighlightWrapper>
-        <ActionLink item={item} isActiveItem={true} />
-      </StyledHitEnterMessageContainer>
-    );
-  },
-);
+  return (
+    <StyledHitEnterMessageContainer
+      style={{ display: "flex", alignItems: "center" }}
+    >
+      Press <StyledKey>&#8629;</StyledKey> to navigate to
+      <StyledHighlightWrapper>
+        <Highlight match={query} text={title} />
+      </StyledHighlightWrapper>
+      <ActionLink item={item} isActiveItem={true} />
+    </StyledHitEnterMessageContainer>
+  );
+};
 
 const descriptionByType = {
   [SEARCH_ITEM_TYPES.document]: DocumentationDescription,
