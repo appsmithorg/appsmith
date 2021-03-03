@@ -41,7 +41,7 @@ const UserInformation = styled.div`
   align-items: center;
 
   .user-username {
-    flex-basis: 80%;
+    flex-basis: 60%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -51,7 +51,7 @@ const UserInformation = styled.div`
   }
 
   .user-name {
-    flex-basis: 80%;
+    flex-basis: 60%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
