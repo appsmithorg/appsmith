@@ -32,12 +32,12 @@ public enum AppsmithError {
             AppsmithErrorAction.LOG_EXTERNALLY),
     INVALID_DYNAMIC_BINDING_REFERENCE(400, 4022,
             "  \"message\" : \"Binding path in the widget not found. Please reach out to Appsmith customer support to resolve this.\"," +
-            "  \"widgetType\" : {0}," +
-            "  \"widgetName\" : {1}," +
-            "  \"widgetId\" : {2}," +
-            "  \"bindingPath\" : {3}," +
-            "  \"pageId\" : {4}," +
-            "  \"layoutId\" : {5}",
+            "  \"widgetType\" : \"{0}\"," +
+            "  \"widgetName\" : \"{1}\"," +
+            "  \"widgetId\" : \"{2}\"," +
+            "  \"bindingPath\" : \"{3}\"," +
+            "  \"pageId\" : \"{4}\"," +
+            "  \"layoutId\" : \"{5}\"",
             AppsmithErrorAction.LOG_EXTERNALLY),
     USER_ALREADY_EXISTS_IN_ORGANIZATION(400, 4021, "The user {0} has already been added to the organization with role {1}. To change the role, please navigate to `Manage Users` page.", AppsmithErrorAction.DEFAULT),
     UNAUTHORIZED_DOMAIN(401, 4019, "Invalid email domain {0} used for sign in/sign up. Please contact the administrator to configure this domain if this is unexpected.", AppsmithErrorAction.DEFAULT),
