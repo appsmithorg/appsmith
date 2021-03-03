@@ -324,12 +324,14 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
                             parent = ((List) parent).get(Integer.parseInt(nextKey));
                         } else {
-                            throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType, widgetName, widgetId, fieldPath, pageId, layoutId);
+                            throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
+                                    widgetName, widgetId, fieldPath, pageId, layoutId);
                         }
                     }
                     // After updating the parent, check for the types
                     if (parent == null) {
-                        throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType, widgetName, widgetId, fieldPath, pageId, layoutId);
+                        throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
+                                widgetName, widgetId, fieldPath, pageId, layoutId);
                     } else if (parent instanceof String) {
                         // If we get String value, then this is a leaf node
                         isLeafNode = true;
