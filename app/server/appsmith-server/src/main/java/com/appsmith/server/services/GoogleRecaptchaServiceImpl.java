@@ -18,7 +18,7 @@ import java.util.Map;
 import java.time.Duration;
 
 @Service
-public class GoogleRecaptchaServiceImpl implements GoogleRecaptchaService {
+public class GoogleRecaptchaServiceImpl implements CaptchaService {
   private final WebClient webClient;
 
   private final GoogleRecaptchaConfig googleRecaptchaConfig;
@@ -47,13 +47,13 @@ public class GoogleRecaptchaServiceImpl implements GoogleRecaptchaService {
       return Mono.just(true);
     }
 
-    return doVerfiy(recaptchaResponse).flatMap(mapBody -> {
+    return doVerify(recaptchaResponse).flatMap(mapBody -> {
       return Mono.just((Boolean) mapBody.get("success"));
     });
   }
 
   // API Docs: https://developers.google.com/recaptcha/docs/v3
-  private Mono<HashMap<String,Object>> doVerfiy(String recaptchaResponse) {
+  private Mono<Map<String,Object>> doVerify(String recaptchaResponse) {
     return webClient
       .get()
       .uri(uriBuilder -> uriBuilder.path(VERIFY_PATH)
@@ -64,13 +64,12 @@ public class GoogleRecaptchaServiceImpl implements GoogleRecaptchaService {
       .retrieve()
       .bodyToMono(String.class)
       .flatMap(stringBody -> {
-        HashMap<String,Object> response = null;
         try {
-          response = objectMapper.readValue(stringBody, HashMap.class);
+          Map<String,Object> response = objectMapper.readValue(stringBody, HashMap.class);
+          return Mono.just(response);
         } catch (JsonProcessingException e) {
           return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e));
         }
-        return Mono.just(response);
       })
       .timeout(Duration.ofMillis(timeoutInMillis))
       .doOnError(error -> Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_TIMEOUT)));
