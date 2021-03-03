@@ -2,7 +2,7 @@ import React, { Fragment } from "react";
 import { CommonComponentProps, Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import styled, { createGlobalStyle } from "styled-components";
-import { Position } from "@blueprintjs/core";
+import { Position, Classes as BlueprintClasses } from "@blueprintjs/core";
 import Menu from "components/ads/Menu";
 import ThemeSwitcher from "./ThemeSwitcher";
 import MenuDivider from "components/ads/MenuDivider";
@@ -68,6 +68,15 @@ const UserInformation = styled.div`
   }
 `;
 
+const UserNameWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const FlexWrapper = styled.div`
+  display: flex;
+`;
+
 export default function ProfileDropdown(props: TagProps) {
   const Profile = <ProfileImage userName={props.userName} />;
 
@@ -82,18 +91,22 @@ export default function ProfileDropdown(props: TagProps) {
       >
         <UserInformation>
           <div className="user-image">{Profile}</div>
-          <div>
-            <div className="user-name">
-              <Text type={TextType.P1} highlight>
-                {props.name}
-              </Text>
-            </div>
-            <div className="user-username">
-              <Text type={TextType.P3} highlight>
-                {props.userName}
-              </Text>
-            </div>
-          </div>
+          <UserNameWrapper>
+            <FlexWrapper>
+              <div className="user-name">
+                <Text type={TextType.P1} highlight>
+                  {props.name}
+                </Text>
+              </div>
+            </FlexWrapper>
+            <FlexWrapper>
+              <div className="user-username">
+                <Text type={TextType.P3} highlight>
+                  {props.userName}
+                </Text>
+              </div>
+            </FlexWrapper>
+          </UserNameWrapper>
         </UserInformation>
         <MenuDivider />
         {!props.hideThemeSwitch && (
@@ -105,7 +118,7 @@ export default function ProfileDropdown(props: TagProps) {
         <MenuItem
           icon="edit"
           text="Edit Profile"
-          className="t--edit-profile"
+          className={`t--edit-profile ${BlueprintClasses.POPOVER_DISMISS}`}
           onSelect={() => {
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
               path: PROFILE,

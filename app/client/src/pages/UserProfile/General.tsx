@@ -5,6 +5,7 @@ import { debounce } from "lodash";
 import TextInput, { notEmptyValidator } from "components/ads/TextInput";
 import FilePicker from "components/ads/FilePicker";
 import { useDispatch, useSelector } from "react-redux";
+import { Classes } from "@blueprintjs/core";
 import { getCurrentError } from "selectors/organizationSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
@@ -12,6 +13,7 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { FORGOT_PASSWORD_SUCCESS_TEXT } from "constants/messages";
 import { updateUserDetails } from "actions/userActions";
+import { AppState } from "reducers";
 
 const Wrapper = styled.div`
   & > div {
@@ -44,6 +46,18 @@ const ForgotPassword = styled.a`
   display: inline-block;
 `;
 
+const Loader = styled.div`
+  height: 38px;
+  width: 320px;
+  border-radius: 0;
+`;
+
+const TextLoader = styled.div`
+  height: 15px;
+  width: 320px;
+  border-radius: 0;
+`;
+
 const General = () => {
   const user = useSelector(getCurrentUser);
   const dispatch = useDispatch();
@@ -74,26 +88,34 @@ const General = () => {
 
   const logoUploadError = useSelector(getCurrentError);
 
+  const isFetchingUser = useSelector(
+    (state: AppState) => state.ui.users.loadingStates.fetchingUser,
+  );
+
   return (
     <Wrapper>
       <InputWrapper>
         <LabelWrapper>
           <Text type={TextType.H4}>Display name</Text>
         </LabelWrapper>
-        <TextInput
-          validator={notEmptyValidator}
-          placeholder="Display name"
-          onChange={onNameChange}
-          defaultValue={user?.name}
-          cypressSelector="t--display-name"
-        ></TextInput>
+        {isFetchingUser && <Loader className={Classes.SKELETON}></Loader>}
+        {!isFetchingUser && (
+          <TextInput
+            validator={notEmptyValidator}
+            placeholder="Display name"
+            onChange={onNameChange}
+            defaultValue={user?.name}
+            cypressSelector="t--display-name"
+          ></TextInput>
+        )}
       </InputWrapper>
       <FieldWrapper>
         <LabelWrapper>
           <Text type={TextType.H4}>Email</Text>
         </LabelWrapper>
         <div style={{ flexDirection: "column", display: "flex" }}>
-          <Text type={TextType.P1}>{user?.email}</Text>
+          {isFetchingUser && <TextLoader className={Classes.SKELETON} />}
+          {!isFetchingUser && <Text type={TextType.P1}>{user?.email}</Text>}
 
           <ForgotPassword onClick={forgotPassword}>
             Reset Password
