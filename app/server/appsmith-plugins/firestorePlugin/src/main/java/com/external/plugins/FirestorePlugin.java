@@ -360,7 +360,10 @@ public class FirestorePlugin extends BasePlugin {
                         final List<Object> startAfterValues = new ArrayList<>();
                         final List<Object> endBeforeValues = new ArrayList<>();
                         for (final String field : orderings) {
-                            q = q.orderBy(field);
+                            q = q.orderBy(
+                                    field.replaceAll("^-", ""),
+                                    field.startsWith("-") ? Query.Direction.DESCENDING : Query.Direction.ASCENDING
+                            );
                             if (startAfter != null) {
                                 startAfterValues.add(startAfter.get(field));
                             }

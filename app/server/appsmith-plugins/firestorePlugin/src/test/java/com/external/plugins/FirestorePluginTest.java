@@ -113,7 +113,7 @@ public class FirestorePluginTest {
         paginationCol.add(Map.of("n", 11, "name", "Israel Broc", "firm", "Microsoft")).get();
         paginationCol.add(Map.of("n", 12, "name", "Larry Frazie", "firm", "Netflix")).get();
         paginationCol.add(Map.of("n", 13, "name", "Rufus Green", "firm", "Apple")).get();
-        paginationCol.add(Map.of("n", 14, "name", "Marco Murra", "firm", "Oracle")).get();
+        paginationCol.add(Map.of("n", 14, "name", "Marco Murray", "firm", "Oracle")).get();
         paginationCol.add(Map.of("n", 15, "name", "Jeremy Mille", "firm", "IBM")).get();
 
         dsConfig.setUrl(emulator.getEmulatorEndpoint());
@@ -509,6 +509,98 @@ public class FirestorePluginTest {
                     assertFalse(AppsmithErrorAction.LOG_EXTERNALLY.equals(((AppsmithPluginException)error).getError().getErrorAction()));
                 })
                 .verify();
+    }
+
+    @Test
+    public void testGetDocumentsInCollectionOrdering() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("pagination");
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(
+                new Property("method", "GET_COLLECTION"),
+                new Property("order", "[\"firm\", \"name\"]"),
+                new Property("limit", "15")
+        ));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    assertEquals(15, results.size());
+
+                    final List<Object> names = results.stream().map(d -> d.get("name")).collect(Collectors.toList());
+                    assertEquals(
+                            List.of(
+                                    "Lowell Reese",
+                                    "Rufus Green",
+                                    "Michele Cole",
+                                    "Alvin Zimmerman",
+                                    "Della Moore",
+                                    "Josefina Perkins",
+                                    "Meghan Steele",
+                                    "Allen Arnold",
+                                    "Jeremy Mille",
+                                    "Eunice Hines",
+                                    "Israel Broc",
+                                    "Harriet Myers",
+                                    "Larry Frazie",
+                                    "Gerard Neal",
+                                    "Marco Murray"
+                            ),
+                            names
+                    );
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetDocumentsInCollectionOrdering2() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("pagination");
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(
+                new Property("method", "GET_COLLECTION"),
+                new Property("order", "[\"firm\", \"-name\"]"),
+                new Property("limit", "15")
+        ));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    assertEquals(15, results.size());
+
+                    final List<Object> names = results.stream().map(d -> d.get("name")).collect(Collectors.toList());
+                    assertEquals(
+                            List.of(
+                                    "Rufus Green",
+                                    "Lowell Reese",
+                                    "Michele Cole",
+                                    "Della Moore",
+                                    "Alvin Zimmerman",
+                                    "Meghan Steele",
+                                    "Josefina Perkins",
+                                    "Jeremy Mille",
+                                    "Allen Arnold",
+                                    "Israel Broc",
+                                    "Eunice Hines",
+                                    "Larry Frazie",
+                                    "Harriet Myers",
+                                    "Marco Murray",
+                                    "Gerard Neal"
+                            ),
+                            names
+                    );
+
+                })
+                .verifyComplete();
     }
 
 }
