@@ -41,6 +41,7 @@ import {
   CompactMode,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import tablePropertyPaneConfig from "./TablePropertyPaneConfig";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
     import("components/designSystems/appsmith/TableComponent"),
@@ -207,7 +208,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isSelected: !!props.row.isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
-              backgroundColor: cellProperties.buttonStyle || "#29CCA3",
+              backgroundColor: cellProperties.buttonStyle || "rgb(3, 179, 101)",
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               columnActions: [
                 {
@@ -607,19 +608,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         if (migrated === false) {
           propertiesToAdd["migrated"] = true;
         }
+        const propertiesToUpdate: BatchPropertyUpdatePayload = {
+          modify: propertiesToAdd,
+        };
 
         const columnsIdsToDelete = without(previousColumnIds, ...newColumnIds);
         if (columnsIdsToDelete.length > 0) {
           columnsIdsToDelete.forEach((id: string) => {
             pathsToDelete.push(`primaryColumns.${id}`);
           });
-
-          super.deleteWidgetProperty(pathsToDelete);
+          propertiesToUpdate.remove = pathsToDelete;
         }
 
-        setTimeout(() => {
-          super.batchUpdateWidgetProperty(propertiesToAdd);
-        }, 1000);
+        super.batchUpdateWidgetProperty(propertiesToUpdate);
       }
     }
   };
@@ -694,7 +695,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         JSON.stringify(this.props.filteredTableData)
       ) {
         // Update filteredTableData meta property
-        this.props.updateWidgetMetaProperty(
+        this.props.syncUpdateWidgetMetaProperty(
           "filteredTableData",
           filteredTableData,
         );
