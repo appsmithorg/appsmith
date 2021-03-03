@@ -4,10 +4,8 @@ import ActionLink from "./ActionLink";
 import Highlight from "./Highlight";
 import { getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
-import marked from "marked";
-import { HelpBaseURL } from "constants/HelpConstants";
-import { SearchItem, algoliaHighlightTag } from "./utils";
-import { htmlToElement } from "utils/helpers";
+import { SearchItem } from "./utils";
+import parseDocumentationContent from "./parseDocumentationContent";
 
 type Props = {
   activeItem: SearchItem;
@@ -15,18 +13,6 @@ type Props = {
   query: string;
   scrollPositionRef: React.MutableRefObject<number>;
 };
-
-/**
- * strip:
- * gitbook plugin tags
- */
-const strip = (text: string) => text.replaceAll(/{% .*?%}/gm, "");
-
-/**
- * strip: description tag from the top
- */
-const stripMarkdown = (text: string) =>
-  text.replaceAll(/---\n[description]([\S\s]*?)---/gm, "");
 
 const Container = styled.div`
   flex: 1;
@@ -91,120 +77,26 @@ const Container = styled.div`
   }
 `;
 
-const getDocumentationCTA = (item: any) => {
-  const href = item.path.replace("master", HelpBaseURL);
-  const htmlString = `<a class="documentation-cta" href="${href}" target="_blank">Open Documentation</a>`;
-  return htmlToElement(htmlString);
-};
-
-/**
- * Replace all H1s with H2s
- * Check first child of body
- *   if exact match as title -> replace with h1
- *   else prepend h1
- * Append open documentation button to title
- */
-const updateDocumentDescriptionTitle = (
-  documentObj: Document,
-  activeItem: SearchItem,
-) => {
-  Array.from(documentObj.querySelectorAll("h1")).forEach((match: any) => {
-    match.outerHTML = `<h2>${match.innerHTML}</h2>`;
-  });
-
-  let firstChild = documentObj.querySelector("body")
-    ?.firstChild as HTMLElement | null;
-
-  const title = activeItem?._highlightResult?.title?.value;
-  const matchesExactly = title === firstChild?.innerHTML;
-
-  // additional space for word-break
-  if (matchesExactly && firstChild) {
-    firstChild.outerHTML = `<h1>${firstChild?.innerHTML} </h1>`;
-  } else {
-    const h = document.createElement("h1");
-    h.innerHTML = `${title} `;
-    firstChild?.parentNode?.insertBefore(h, firstChild);
-  }
-
-  firstChild = documentObj.querySelector("body")
-    ?.firstChild as HTMLElement | null;
-
-  if (firstChild) {
-    // append documentation button after title:
-    const ctaElement = getDocumentationCTA(activeItem) as Node;
-    firstChild.appendChild(ctaElement);
-  }
-};
-
-const replaceHintTagsWithCode = (text: string) => {
-  let result = text.replace(/{% hint .*?%}/, "```");
-  result = result.replace(/{% endhint .*?%}/, "```");
-  result = marked(result);
-  return result;
-};
-
-const getDocumentationPreviewContent = (
-  activeItem: SearchItem,
-): string | undefined => {
-  try {
-    let { value } = activeItem?._highlightResult?.document;
-    if (!value) return;
-
-    value = stripMarkdown(value);
-    value = replaceHintTagsWithCode(value);
-
-    const parsedDocument = marked(value);
-
-    const domparser = new DOMParser();
-    const documentObj = domparser.parseFromString(parsedDocument, "text/html");
-
-    // remove algolia highlight within code sections
-    const aisTag = new RegExp(
-      `&lt;${algoliaHighlightTag}&gt;|&lt;/${algoliaHighlightTag}&gt;`,
-      "g",
-    );
-    Array.from(documentObj.querySelectorAll("code")).forEach((match) => {
-      match.innerHTML = match.innerHTML.replace(aisTag, "");
-    });
-
-    // update link hrefs and target
-    const aisTagEncoded = new RegExp(
-      `%3C${algoliaHighlightTag}%3E|%3C/${algoliaHighlightTag}%3E`,
-      "g",
-    );
-    Array.from(documentObj.querySelectorAll("a")).forEach((match) => {
-      match.target = "_blank";
-      try {
-        const hrefURL = new URL(match.href);
-        const isRelativeURL = hrefURL.hostname === window.location.hostname;
-        match.href = !isRelativeURL
-          ? match.href
-          : `${HelpBaseURL}/${match.getAttribute("href")}`;
-        match.href = match.href.replace(aisTagEncoded, "");
-      } catch (e) {}
-    });
-
-    // update description title
-    updateDocumentDescriptionTitle(documentObj, activeItem);
-
-    const content = strip(documentObj.body.innerHTML).trim();
-    return content;
-  } catch (e) {
-    return;
-  }
-};
-
 const DocumentationDescription = ({ item }: { item: SearchItem }) => {
-  const content = getDocumentationPreviewContent(item);
-  return content ? (
-    <div
-      onKeyDown={(e) => {
-        e.stopPropagation();
-      }}
-      dangerouslySetInnerHTML={{ __html: content }}
-    />
-  ) : null;
+  try {
+    const {
+      _highlightResult: {
+        document: { value: rawDocument },
+        title: { value: rawTitle },
+      },
+    } = item;
+    const content = parseDocumentationContent({
+      rawDocument: rawDocument,
+      rawTitle: rawTitle,
+      path: item.path,
+    });
+
+    return content ? (
+      <div dangerouslySetInnerHTML={{ __html: content }} />
+    ) : null;
+  } catch (e) {
+    return null;
+  }
 };
 
 const StyledHitEnterMessageContainer = styled.div`
