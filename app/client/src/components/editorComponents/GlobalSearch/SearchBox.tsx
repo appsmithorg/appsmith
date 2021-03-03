@@ -35,9 +35,25 @@ type SearchBoxProps = SearchBoxProvided & {
   setQuery: (query: string) => void;
 };
 
-const SearchBox = ({ query, setQuery }: SearchBoxProps) => {
+const useListenToChange = (modalOpen: boolean) => {
   const [listenToChange, setListenToChange] = useState(false);
+
+  useEffect(() => {
+    setListenToChange(false);
+    let timer: number;
+    if (modalOpen) {
+      timer = setTimeout(() => setListenToChange(true), 100);
+    }
+    return () => clearTimeout(timer);
+  }, [modalOpen]);
+
+  return listenToChange;
+};
+
+const SearchBox = ({ query, setQuery }: SearchBoxProps) => {
   const { modalOpen } = useSelector((state: AppState) => state.ui.globalSearch);
+  const listenToChange = useListenToChange(modalOpen);
+
   const updateSearchQuery = useCallback(
     (query) => {
       // to prevent key combo to open modal from trigging query update
@@ -46,18 +62,6 @@ const SearchBox = ({ query, setQuery }: SearchBoxProps) => {
     },
     [listenToChange],
   );
-
-  useEffect(() => {
-    let timer: number;
-    if (modalOpen) {
-      timer = setTimeout(() => setListenToChange(true), 100);
-    }
-
-    return () => {
-      if (timer) clearTimeout(timer);
-      setListenToChange(false);
-    };
-  }, [modalOpen]);
 
   return (
     <Container>
