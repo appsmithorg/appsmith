@@ -221,8 +221,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       shouldScrollContents: false,
       widgetName: "Tabs",
       tabs: [
-        { label: "Tab 1", id: "tab1", widgetId: "" },
-        { label: "Tab 2", id: "tab2", widgetId: "" },
+        { label: "Tab 1", id: "tab1", widgetId: "", isVisible: true },
+        { label: "Tab 2", id: "tab2", widgetId: "", isVisible: true },
       ],
       shouldShowTabs: true,
       defaultTab: "Tab 1",

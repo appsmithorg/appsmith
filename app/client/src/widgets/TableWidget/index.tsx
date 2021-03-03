@@ -18,7 +18,6 @@ import {
   BASE_WIDGET_VALIDATION,
   WidgetPropertyValidationType,
 } from "utils/WidgetValidation";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import moment from "moment";
 import { isNumber, isString, isUndefined, isEqual, xor, without } from "lodash";
@@ -42,6 +41,7 @@ import {
   CompactMode,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import tablePropertyPaneConfig from "./TablePropertyPaneConfig";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
     import("components/designSystems/appsmith/TableComponent"),
@@ -95,15 +95,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: "defaultSearchText",
       selectedRowIndex: "defaultSelectedRow",
       selectedRowIndices: "defaultSelectedRow",
-    };
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onRowSelected: true,
-      onPageChange: true,
-      onSearchTextChanged: true,
-      onPageSizeChange: true,
     };
   }
 
@@ -217,7 +208,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isSelected: !!props.row.isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
-              backgroundColor: cellProperties.buttonStyle || "#29CCA3",
+              backgroundColor: cellProperties.buttonStyle || "rgb(3, 179, 101)",
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               columnActions: [
                 {
@@ -584,6 +575,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
 
     const newColumnIds = Object.keys(tableColumns);
+
     if (xor(previousColumnIds, newColumnIds).length > 0) return tableColumns;
     else return;
   };
@@ -616,22 +608,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         if (migrated === false) {
           propertiesToAdd["migrated"] = true;
         }
+        const propertiesToUpdate: BatchPropertyUpdatePayload = {
+          modify: propertiesToAdd,
+        };
 
-        if (previousColumnIds.length > newColumnIds.length) {
-          const columnsIdsToDelete = without(
-            previousColumnIds,
-            ...newColumnIds,
-          );
+        const columnsIdsToDelete = without(previousColumnIds, ...newColumnIds);
+        if (columnsIdsToDelete.length > 0) {
           columnsIdsToDelete.forEach((id: string) => {
             pathsToDelete.push(`primaryColumns.${id}`);
           });
-
-          super.deleteWidgetProperty(pathsToDelete);
+          propertiesToUpdate.remove = pathsToDelete;
         }
 
-        setTimeout(() => {
-          super.batchUpdateWidgetProperty(propertiesToAdd);
-        }, 1000);
+        super.batchUpdateWidgetProperty(propertiesToUpdate);
       }
     }
   };
@@ -706,7 +695,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         JSON.stringify(this.props.filteredTableData)
       ) {
         // Update filteredTableData meta property
-        this.props.updateWidgetMetaProperty(
+        this.props.syncUpdateWidgetMetaProperty(
           "filteredTableData",
           filteredTableData,
         );

@@ -4,6 +4,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
@@ -100,7 +101,10 @@ public class MongoPlugin extends BasePlugin {
             }
 
             MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
-            Bson command = Document.parse(actionConfiguration.getBody());
+
+            String query = actionConfiguration.getBody();
+            Bson command = Document.parse(query);
+
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
             ActionExecutionResult result = new ActionExecutionResult();
 
@@ -180,6 +184,20 @@ public class MongoPlugin extends BasePlugin {
 
                         return Mono.just(result);
                     })
+                    .onErrorResume(AppsmithPluginException.class, error  -> {
+                        ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
+                        actionExecutionResult.setIsExecutionSuccess(false);
+                        actionExecutionResult.setStatusCode(error.getAppErrorCode().toString());
+                        actionExecutionResult.setBody(error.getMessage());
+                        return Mono.just(actionExecutionResult);
+                    })
+                    // Now set the request in the result to be returned back to the server
+                    .map(actionExecutionResult -> {
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setQuery(query);
+                        actionExecutionResult.setRequest(request);
+                        return actionExecutionResult;
+                    })
                     .subscribeOn(scheduler);
         }
 
@@ -204,7 +222,9 @@ public class MongoPlugin extends BasePlugin {
              * Ref: https://api.mongodb.com/java/2.13/com/mongodb/DB.html#setReadOnly-java.lang.Boolean-
              */
 
-            return Mono.just(MongoClients.create(buildClientURI(datasourceConfiguration)))
+            return Mono.just(datasourceConfiguration)
+                    .map(MongoPluginExecutor::buildClientURI)
+                    .map(MongoClients::create)
                     .onErrorMap(
                             IllegalArgumentException.class,
                             error ->

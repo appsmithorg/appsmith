@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.QLayout;
 import com.appsmith.server.domains.QNewPage;
+import com.appsmith.server.dtos.PageDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -121,6 +122,13 @@ public class CustomNewPageRepositoryImpl extends BaseAppsmithRepositoryImpl<NewP
                 .query(NewPage.class)
                 .matching(Query.query(Criteria.where(fieldName(QNewPage.newPage.id)).is(pageId)))
                 .one()
-                .map((p -> (isPublishedName ? p.getPublishedPage() : p.getUnpublishedPage()).getName()));
+                .map(p -> {
+                    PageDTO page = (isPublishedName ? p.getPublishedPage() : p.getUnpublishedPage());
+                    if (page != null) {
+                        return page.getName();
+                    }
+                    // If the page hasn't been published, just send the unpublished page name
+                    return p.getUnpublishedPage().getName();
+                });
     }
 }

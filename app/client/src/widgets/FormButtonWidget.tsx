@@ -10,7 +10,6 @@ import {
   WidgetPropertyValidationType,
 } from "utils/WidgetValidation";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
@@ -135,13 +134,6 @@ class FormButtonWidget extends BaseWidget<
       disabledWhenInvalid: VALIDATION_TYPES.BOOLEAN,
       buttonStyle: VALIDATION_TYPES.TEXT,
       buttonType: VALIDATION_TYPES.TEXT,
-      // onClick: VALIDATION_TYPES.ACTION_SELECTOR,
-    };
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onClick: true,
     };
   }
 
