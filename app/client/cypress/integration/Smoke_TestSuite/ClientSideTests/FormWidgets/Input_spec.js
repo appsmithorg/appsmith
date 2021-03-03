@@ -116,7 +116,9 @@ describe("Input Widget Functionality", function() {
 
   it("Input Functionality To check number input type with custom regex", function() {
     cy.openPropertyPane("inputwidget");
-    cy.get(commonlocators.dataType).click();
+    cy.get(commonlocators.dataType)
+      .last()
+      .click();
     /*cy.get(
       `${commonlocators.dataType} .single-select:contains("Number")`,
     ).click();*/

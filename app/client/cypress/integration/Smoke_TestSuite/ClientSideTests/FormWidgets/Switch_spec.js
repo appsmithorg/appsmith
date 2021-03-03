@@ -77,7 +77,9 @@ describe("Switch Widget Functionality", function() {
     cy.openPropertyPane("switchwidget");
     cy.get(publish.switchwidget + " " + ".bp3-align-right").should("not.exist");
     cy.get(publish.switchwidget + " " + ".bp3-align-left").should("exist");
-    cy.get(commonlocators.optionalignment).click();
+    cy.get(commonlocators.optionalignment)
+      .last()
+      .click();
     cy.dropdownDynamic("Right");
     cy.PublishtheApp();
     cy.get(publish.switchwidget + " " + ".bp3-align-right").should("exist");

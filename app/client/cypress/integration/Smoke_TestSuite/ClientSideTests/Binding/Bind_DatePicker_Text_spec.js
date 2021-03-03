@@ -25,6 +25,7 @@ describe("Binding the Datepicker and Text Widget", function() {
      */
     cy.openPropertyPane("datepickerwidget");
     cy.get(formWidgetsPage.defaultDate).click();
+    cy.ClearDate();
     cy.SetDateToToday();
 
     cy.getDate(1, "YYYY-MM-DD").then((date) => {
@@ -41,6 +42,7 @@ describe("Binding the Datepicker and Text Widget", function() {
       cy.get(publishPage.datepickerWidget + commonlocators.inputField)
         .eq(0)
         .click();
+      cy.ClearDate();
       cy.setDate(1, "ddd MMM DD YYYY");
       cy.get(commonlocators.labelTextStyle).should("contain", nextDay);
     });
@@ -73,6 +75,7 @@ describe("Binding the Datepicker and Text Widget", function() {
      */
     cy.openPropertyPane("datepickerwidget");
     cy.get(formWidgetsPage.defaultDate).click();
+    cy.ClearDate();
     cy.SetDateToToday();
     cy.setDate(1, "ddd MMM DD YYYY");
     cy.get(commonlocators.onDateSelectedField).click();
@@ -134,6 +137,7 @@ describe("Binding the Datepicker and Text Widget", function() {
     cy.get(formWidgetsPage.datepickerWidget)
       .first()
       .click();
+    cy.ClearDate();
     cy.SetDateToToday();
     cy.get(commonlocators.toastmsg).contains("hello");
 

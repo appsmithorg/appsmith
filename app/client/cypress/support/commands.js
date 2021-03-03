@@ -603,7 +603,9 @@ Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
 });
 
 Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
-  cy.get(commonlocators.changeZoomlevel).click();
+  cy.get(commonlocators.changeZoomlevel)
+    .last()
+    .click();
   cy.get(".t--dropdown-option")
     .children()
     .contains(zoomValue)
@@ -614,7 +616,7 @@ Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
     200,
   );
   cy.get(commonlocators.selectedZoomlevel)
-    .first()
+    .last()
     .invoke("text")
     .then((text) => {
       const someText = text;
@@ -952,9 +954,9 @@ Cypress.Commands.add("DeleteAPI", (apiname) => {
 
 Cypress.Commands.add("createModal", (modalType, ModalName) => {
   cy.get(widgetsPage.buttonOnClick)
-    .get(commonlocators.dropdownSelectButton)
-    .click({ force: true })
-    .get("ul.bp3-menu")
+    .last()
+    .click({ force: true });
+  cy.get("ul.bp3-menu")
     .children()
     .contains("Open Modal")
     .click();
@@ -962,9 +964,9 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
 
   cy.get(modalWidgetPage.controlModalType)
-    .find(".bp3-button")
-    .click({ force: true })
-    .get("ul.bp3-menu")
+    .last()
+    .click({ force: true });
+  cy.get(commonlocators.dropdownmenu)
     .children()
     .contains(modalType)
     .click();
@@ -1352,9 +1354,7 @@ Cypress.Commands.add("addSuccessMessage", (value) => {
 });
 
 Cypress.Commands.add("SetDateToToday", () => {
-  cy.get(formWidgetsPage.datepickerFooter)
-    .contains("Today")
-    .click();
+  cy.get(formWidgetsPage.datepickerFooter).click();
   cy.assertPageSave();
 });
 
@@ -1415,9 +1415,7 @@ Cypress.Commands.add("enterNavigatePageName", (value) => {
 });
 
 Cypress.Commands.add("ClearDate", () => {
-  cy.get(formWidgetsPage.datepickerFooter)
-    .contains("Clear")
-    .click();
+  cy.get(".t--property-control-defaultdate input").clear();
   cy.assertPageSave();
 });
 
@@ -1533,14 +1531,13 @@ Cypress.Commands.add("optionValue", (value, value2) => {
 });
 Cypress.Commands.add("dropdownDynamic", (text) => {
   cy.wait(2000);
-  cy.get("ul[class='bp3-menu']")
-    .first()
+  cy.get(commonlocators.dropdownmenu)
     .contains(text)
     .click({ force: true })
     .should("have.text", text);
 });
 Cypress.Commands.add("selectTextSize", (text) => {
-  cy.get("ul[class='bp3-menu']")
+  cy.get(".t--dropdown-option")
     .first()
     .contains(text)
     .click({ force: true });
