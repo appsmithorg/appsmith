@@ -28,8 +28,10 @@ import Welcome from "./Welcome";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
-import RecentEntities from "components/utils/RecentEntities";
 import GlobalHotKeys from "./GlobalHotKeys";
+import { handlePathUpdated } from "actions/recentEntityActions";
+
+import history from "utils/history";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -45,11 +47,14 @@ type EditorProps = {
   selectedWidget?: string;
   lightTheme: Theme;
   resetEditorRequest: () => void;
+  handlePathUpdated: (pathName: string) => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 
 class Editor extends Component<Props> {
+  unlisten: any;
+
   public state = {
     registered: false,
   };
@@ -62,6 +67,8 @@ class Editor extends Component<Props> {
     if (applicationId && pageId) {
       this.props.initEditor(applicationId, pageId);
     }
+    this.props.handlePathUpdated(window.location.pathname);
+    this.unlisten = history.listen(this.handleHistoryChange);
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
@@ -82,7 +89,12 @@ class Editor extends Component<Props> {
 
   componentWillUnmount() {
     this.props.resetEditorRequest();
+    if (typeof this.unlisten === "function") this.unlisten();
   }
+
+  handleHistoryChange = (location: any) => {
+    this.props.handlePathUpdated(location.pathname);
+  };
 
   public render() {
     if (this.props.creatingOnboardingDatabase) {
@@ -109,7 +121,6 @@ class Editor extends Component<Props> {
               <meta charSet="utf-8" />
               <title>Editor | Appsmith</title>
             </Helmet>
-            <RecentEntities />
             <GlobalHotKeys>
               <MainContainer />
             </GlobalHotKeys>
@@ -139,6 +150,8 @@ const mapDispatchToProps = (dispatch: any) => {
     initEditor: (applicationId: string, pageId: string) =>
       dispatch(initEditor(applicationId, pageId)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
+    handlePathUpdated: (pathName: string) =>
+      dispatch(handlePathUpdated(pathName)),
   };
 };
 

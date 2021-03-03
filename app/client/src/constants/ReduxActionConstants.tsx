@@ -5,6 +5,7 @@ import { ERROR_CODES } from "constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 
 export const ReduxActionTypes: { [key: string]: string } = {
+  HANDLE_PATH_UPDATED: "HANDLE_PATH_UPDATED",
   RESET_EDITOR_REQUEST: "RESET_EDITOR_REQUEST",
   RESET_EDITOR_SUCCESS: "RESET_EDITOR_SUCCESS",
   INITIALIZE_EDITOR: "INITIALIZE_EDITOR",

@@ -23,6 +23,7 @@ import evaluationsSaga from "./EvaluationsSaga";
 import onboardingSaga from "./OnboardingSagas";
 import actionExecutionChangeListeners from "./WidgetLoadingSaga";
 import globalSearchSagas from "./GlobalSearchSagas";
+import recentEntitiesSagas from "./RecentEntitiesSagas";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
 
@@ -52,6 +53,7 @@ export function* rootSaga() {
     onboardingSaga,
     actionExecutionChangeListeners,
     globalSearchSagas,
+    recentEntitiesSagas,
   ];
   yield all(
     sagas.map((saga) =>
