@@ -393,10 +393,10 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = 12;
   }
 
-  if (currentDSL.version === 12) {
-    currentDSL = migrateIncorrectDynamicBindingPathLists(currentDSL);
-    currentDSL.version = 13;
-  }
+  // if (currentDSL.version === 12) {
+  //   currentDSL = migrateIncorrectDynamicBindingPathLists(currentDSL);
+  //   currentDSL.version = 13;
+  // }
 
   return currentDSL;
 };
