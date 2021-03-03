@@ -344,10 +344,8 @@ public class MongoPlugin extends BasePlugin {
                         .anyMatch(endPoint -> endPoint.getHost().contains("mongodb+srv"));
 
                 if (usingSrvUrl) {
-                    invalids.add("Are you using a URL that starts with 'mongodb+srv' ? This URL format is not " +
-                            "supported currently. Please extract the corresponding fields from the SRV URL and add " +
-                            "them to the datasource configuration form. Please check out our documentation for " +
-                            "more info on this.");
+                    invalids.add("MongoDb SRV URLs are not yet supported. Please extract the individual fields from " +
+                            "the SRV URL into the datasource configuration form.");
                 }
             }
 
