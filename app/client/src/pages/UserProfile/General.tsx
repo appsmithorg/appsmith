@@ -3,10 +3,8 @@ import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import { debounce } from "lodash";
 import TextInput, { notEmptyValidator } from "components/ads/TextInput";
-import FilePicker from "components/ads/FilePicker";
 import { useDispatch, useSelector } from "react-redux";
 import { Classes } from "@blueprintjs/core";
-import { getCurrentError } from "selectors/organizationSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
 import { Toaster } from "components/ads/Toast";
@@ -61,7 +59,6 @@ const TextLoader = styled.div`
 const General = () => {
   const user = useSelector(getCurrentUser);
   const dispatch = useDispatch();
-  const DeleteLogo = () => null;
   const forgotPassword = async () => {
     try {
       await forgotPasswordSubmitHandler({ email: user?.email }, dispatch);
@@ -85,8 +82,6 @@ const General = () => {
       }),
     );
   }, timeout);
-
-  const logoUploadError = useSelector(getCurrentError);
 
   const isFetchingUser = useSelector(
     (state: AppState) => state.ui.users.loadingStates.fetchingUser,
@@ -122,7 +117,8 @@ const General = () => {
           </ForgotPassword>
         </div>
       </FieldWrapper>
-      <FieldWrapper>
+      {/* Commenting for now until the image related apis are ready */}
+      {/* <FieldWrapper>
         <LabelWrapper>
           <Text type={TextType.H4}>Display Picture</Text>
         </LabelWrapper>
@@ -142,7 +138,7 @@ const General = () => {
           defaultValue={""}
           cypressSelector="t--profile-website"
         />
-      </InputWrapper>
+      </InputWrapper> */}
     </Wrapper>
   );
 };
