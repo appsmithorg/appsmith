@@ -10,11 +10,13 @@ describe("GlobalSearch", function() {
   it("showsAndHidesUsingKeyboardShortcuts", () => {
     const isMac = Cypress.platform === "darwin";
     if (isMac) {
+      cy.wait(2000);
       cy.get("body").type("{cmd}{k}");
       cy.get(commonlocators.globalSearchModal);
       cy.get("body").type("{esc}");
       cy.get(commonlocators.globalSearchModal).should("not.exist");
     } else {
+      cy.wait(2000);
       cy.get("body").type("{ctrl}{k}");
       cy.get(commonlocators.globalSearchModal);
       cy.get("body").type("{esc}");
@@ -43,11 +45,13 @@ describe("GlobalSearch", function() {
 
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
     cy.wait(1000);
+    cy.get(commonlocators.globalSearchClearInput).click({ force: true });
     cy.get(commonlocators.globalSearchInput).type("Page1");
     cy.get("body").type("{enter}");
 
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
     cy.wait(1000);
+    cy.get(commonlocators.globalSearchClearInput).click({ force: true });
     cy.get(commonlocators.globalSearchInput).type("SomeApi");
     cy.get("body").type("{enter}");
     cy.window()
@@ -82,11 +86,13 @@ describe("GlobalSearch", function() {
 
         cy.get(commonlocators.globalSearchTrigger).click({ force: true });
         cy.wait(1000);
+        cy.get(commonlocators.globalSearchClearInput).click({ force: true });
         cy.get(commonlocators.globalSearchInput).type("Page1");
         cy.get("body").type("{enter}");
 
         cy.get(commonlocators.globalSearchTrigger).click({ force: true });
         cy.wait(1000);
+        cy.get(commonlocators.globalSearchClearInput).click({ force: true });
         cy.get(commonlocators.globalSearchInput).type(expectedDatasource.name);
         cy.get("body").type("{enter}");
         cy.location().should((loc) => {
@@ -99,6 +105,7 @@ describe("GlobalSearch", function() {
     cy.Createpage("NewPage");
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
     cy.wait(1000);
+    cy.get(commonlocators.globalSearchClearInput).click({ force: true });
     cy.get(commonlocators.globalSearchInput).type("Page1");
     cy.get("body").type("{enter}");
     cy.window()

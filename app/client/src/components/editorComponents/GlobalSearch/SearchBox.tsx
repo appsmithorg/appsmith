@@ -74,7 +74,13 @@ const SearchBox = ({ query, setQuery }: SearchBoxProps) => {
           placeholder={OMNIBAR_PLACEHOLDER}
           className="t--global-search-input"
         />
-        {query && <Icon name="close" onClick={() => updateSearchQuery("")} />}
+        {query && (
+          <Icon
+            name="close"
+            className="t--global-clear-input"
+            onClick={() => updateSearchQuery("")}
+          />
+        )}
       </InputContainer>
     </Container>
   );

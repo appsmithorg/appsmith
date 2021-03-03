@@ -103,5 +103,6 @@
   "evaluateMsg": ".t--CodeEditor-evaluatedValue p",
   "globalSearchModal": ".t--global-search-modal",
   "globalSearchInput": ".t--global-search-input",
-  "globalSearchTrigger": ".t--global-search-modal-trigger"
+  "globalSearchTrigger": ".t--global-search-modal-trigger",
+  "globalSearchClearInput": ".t--global-clear-input"
 }
