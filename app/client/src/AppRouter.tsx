@@ -27,7 +27,6 @@ import ErrorPage from "pages/common/ErrorPage";
 import PageNotFound from "pages/common/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
-import RecentEntities from "components/utils/RecentEntities";
 import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { AppState } from "reducers";
 import { setThemeMode } from "actions/themeActions";
@@ -79,7 +78,6 @@ class AppRouter extends React.Component<any, any> {
     return (
       <Router history={history}>
         <Suspense fallback={loadingIndicator}>
-          <RecentEntities />
           {safeCrash ? (
             <>
               <ErrorPageHeader />

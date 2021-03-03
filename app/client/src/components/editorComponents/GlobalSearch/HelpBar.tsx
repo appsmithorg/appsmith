@@ -26,7 +26,7 @@ const StyledHelpBar = styled.div`
   max-width: 350px;
 `;
 
-const modText = () => (isMac() ? `⌘` : "ctrl");
+const modText = () => (isMac() ? <span>&#8984;</span> : "ctrl");
 const comboText = <>{modText()} + K</>;
 
 type Props = {

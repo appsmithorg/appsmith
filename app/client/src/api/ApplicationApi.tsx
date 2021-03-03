@@ -3,6 +3,7 @@ import { ApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
 import { AppColorCode } from "constants/DefaultTheme";
 import { AppIconName } from "components/ads/AppIcon";
+import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 
 export interface PublishApplicationRequest {
   applicationId: string;
@@ -29,6 +30,7 @@ export interface ApplicationResponsePayload {
   organizationId: string;
   pages?: ApplicationPagePayload[];
   appIsExample: boolean;
+  appLayout?: AppLayoutConfig;
 }
 
 // export interface FetchApplicationResponse extends ApiResponse {
@@ -72,6 +74,7 @@ export type UpdateApplicationPayload = {
   color?: string;
   name?: string;
   currentApp?: boolean;
+  appLayout?: AppLayoutConfig;
 };
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {

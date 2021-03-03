@@ -9,6 +9,7 @@ import { Organization } from "constants/orgConstants";
 import { ERROR_MESSAGE_CREATE_APPLICATION } from "constants/messages";
 import { UpdateApplicationRequest } from "api/ApplicationApi";
 import { CreateApplicationFormValues } from "pages/Applications/helpers";
+import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -112,6 +113,16 @@ const applicationsReducer = createReducer(initialState, {
     currentApplication: {
       ...state.currentApplication,
       name: action.payload,
+    },
+  }),
+  [ReduxActionTypes.CURRENT_APPLICATION_LAYOUT_UPDATE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ appLayout: AppLayoutConfig }>,
+  ) => ({
+    ...state,
+    currentApplication: {
+      ...state.currentApplication,
+      appLayout: action.payload,
     },
   }),
   [ReduxActionTypes.CREATE_APPLICATION_INIT]: (

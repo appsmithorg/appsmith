@@ -216,6 +216,16 @@ const StyledHitEnterMessageContainer = styled.div`
   ${(props) => getTypographyByKey(props, "p3")}
 `;
 
+const StyledKey = styled.span`
+  margin: 0 ${(props) => props.theme.spaces[1]}px;
+  color: ${(props) => props.theme.colors.globalSearch.navigateToEntityEnterkey};
+  font-weight: bold;
+`;
+
+const StyledHighlightWrapper = styled.span`
+  margin: 0 ${(props) => props.theme.spaces[1]}px;
+`;
+
 const HitEnterMessage = withTheme(
   ({
     item,
@@ -232,22 +242,10 @@ const HitEnterMessage = withTheme(
       <StyledHitEnterMessageContainer
         style={{ display: "flex", alignItems: "center" }}
       >
-        ✨ Press{" "}
-        <kbd
-          style={{
-            marginLeft: theme.spaces[1],
-            marginRight: theme.spaces[1],
-            color: "#3DA5D9",
-          }}
-        >
-          ↵
-        </kbd>{" "}
-        to navigate to
-        <span
-          style={{ marginLeft: theme.spaces[1], marginRight: theme.spaces[1] }}
-        >
+        Press <StyledKey>&#8629;</StyledKey> to navigate to
+        <StyledHighlightWrapper>
           <Highlight match={query} text={title} />
-        </span>
+        </StyledHighlightWrapper>
         <ActionLink item={item} isActiveItem={true} />
       </StyledHitEnterMessageContainer>
     );

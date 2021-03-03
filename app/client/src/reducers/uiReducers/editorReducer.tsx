@@ -28,7 +28,7 @@ const initialState: EditorReduxState = {
 };
 
 const editorReducer = createReducer(initialState, {
-  [ReduxActionTypes.RESET_EDITOR]: (state: EditorReduxState) => {
+  [ReduxActionTypes.RESET_EDITOR_SUCCESS]: (state: EditorReduxState) => {
     return { ...state, initialized: false };
   },
   [ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS]: (state: EditorReduxState) => {

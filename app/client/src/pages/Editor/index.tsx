@@ -41,6 +41,7 @@ import Welcome from "./Welcome";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
+import RecentEntities from "components/utils/RecentEntities";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -221,6 +222,7 @@ class Editor extends Component<Props> {
               <meta charSet="utf-8" />
               <title>Editor | Appsmith</title>
             </Helmet>
+            <RecentEntities />
             <MainContainer />
           </div>
           <ConfirmRunModal />

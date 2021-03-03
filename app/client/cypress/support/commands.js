@@ -1166,7 +1166,7 @@ Cypress.Commands.add("testCodeMirrorLast", (value) => {
     });
 });
 
-Cypress.Commands.add("testJsontext", (endp, value) => {
+Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
@@ -1186,9 +1186,16 @@ Cypress.Commands.add("testJsontext", (endp, value) => {
     cy.wait(500);
     cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
       .first()
-      .type(value, {
-        force: true,
-        parseSpecialCharSequences: false,
+      .then((el) => {
+        const input = cy.get(el);
+        if (paste) {
+          input.invoke("val", value);
+        } else {
+          input.type(value, {
+            force: true,
+            parseSpecialCharSequences: false,
+          });
+        }
       });
   });
   cy.wait(1000);

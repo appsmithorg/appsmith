@@ -210,7 +210,21 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Tabs Data`,
       };
-    } else if (!every(parsed, (datum) => isObject(datum))) {
+    } else if (
+      !every(
+        parsed,
+        (datum: {
+          id: string;
+          label: string;
+          widgetId: string;
+          isVisible?: boolean;
+        }) =>
+          isObject(datum) &&
+          !isUndefined(datum.id) &&
+          !isUndefined(datum.label) &&
+          !isUndefined(datum.widgetId),
+      )
+    ) {
       return {
         isValid: false,
         parsed: [],

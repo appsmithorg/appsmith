@@ -899,6 +899,7 @@ type ColorType = {
     helpButtonBackground: string;
     helpBarBorder: string;
     sectionTitle: string;
+    navigateToEntityEnterkey: string;
   };
   gif: {
     overlay: string;
@@ -957,6 +958,7 @@ const globalSearch = {
   helpBarBorder: "#404040",
   helpButtonBorder: "#404040",
   sectionTitle: "#D4D4D4",
+  navigateToEntityEnterkey: "#3DA5D9",
 };
 
 export const dark: ColorType = {
