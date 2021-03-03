@@ -2,6 +2,7 @@ import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import { PageAction } from "constants/ActionConstants";
 import { Org } from "./orgConstants";
 import { ERROR_CODES } from "constants/ApiConstants";
+import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 
 export const ReduxActionTypes: { [key: string]: string } = {
   INITIALIZE_EDITOR: "INITIALIZE_EDITOR",
@@ -26,6 +27,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   LOAD_WIDGET_CONFIG: "LOAD_WIDGET_CONFIG",
   LOAD_PROPERTY_CONFIG: "LOAD_PROPERTY_CONFIG",
   UPDATE_APPLICATION: "UPDATE_APPLICATION",
+  UPDATE_APP_LAYOUT: "UPDATE_APP_LAYOUT",
   UPDATE_APPLICATION_SUCCESS: "UPDATE_APPLICATION_SUCCESS",
   PUBLISH: "PUBLISH",
   SET_THEME: "SET_THEME",
@@ -53,6 +55,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   WIDGET_RESIZE: "WIDGET_RESIZE",
   WIDGET_DELETE: "WIDGET_DELETE",
   SHOW_PROPERTY_PANE: "SHOW_PROPERTY_PANE",
+  UPDATE_CANVAS_LAYOUT: "UPDATE_CANVAS_LAYOUT",
   UPDATE_WIDGET_PROPERTY_REQUEST: "UPDATE_WIDGET_PROPERTY_REQUEST",
   UPDATE_WIDGET_PROPERTY: "UPDATE_WIDGET_PROPERTY",
   UPDATE_WIDGET_DYNAMIC_PROPERTY: "UPDATE_WIDGET_DYNAMIC_PROPERTY",
@@ -331,6 +334,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   SET_SELECTED_WIDGET_ANCESTORY: "SET_SELECTED_WIDGET_ANCESTORY",
   START_EVALUATION: "START_EVALUATION",
   CURRENT_APPLICATION_NAME_UPDATE: "CURRENT_APPLICATION_NAME_UPDATE",
+  CURRENT_APPLICATION_LAYOUT_UPDATE: "CURRENT_APPLICATION_LAYOUT_UPDATE",
   SET_WIDGET_LOADING: "SET_WIDGET_LOADING",
   FETCH_RELEASES_SUCCESS: "FETCH_RELEASES_SUCCESS",
   RESET_UNREAD_RELEASES_COUNT: "RESET_UNREAD_RELEASES_COUNT",
@@ -346,6 +350,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   API_ERROR: "API_ERROR",
   WIDGET_DELETE_ERROR: "WIDGET_DELETE_ERROR",
   UPDATE_APPLICATION_ERROR: "UPDATE_APPLICATION_ERROR",
+  UPDATE_APP_LAYOUT_ERROR: "UPDATE_APP_LAYOUT_ERROR",
   WIDGET_MOVE_ERROR: "WIDGET_MOVE_ERROR",
   WIDGET_RESIZE_ERROR: "WIDGET_RESIZE_ERROR",
   WIDGET_REMOVE_CHILD_ERROR: "WIDGET_REMOVE_CHILD_ERROR",
@@ -526,6 +531,7 @@ export type ApplicationPayload = {
   isPublic?: boolean;
   userPermissions?: string[];
   appIsExample: boolean;
+  appLayout?: AppLayoutConfig;
 };
 
 export type OrganizationDetails = {
