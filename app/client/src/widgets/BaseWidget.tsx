@@ -311,8 +311,8 @@ export interface WidgetBaseProps {
   widgetId: string;
   type: WidgetType;
   widgetName: string;
-  parentId: string;
-  renderMode: RenderMode;
+  parentId?: string;
+  renderMode?: RenderMode;
   version: number;
 }
 
@@ -355,7 +355,7 @@ export const WIDGET_STATIC_PROPS = {
 export interface WidgetDisplayProps {
   //TODO(abhinav): Some of these props are mandatory
   isVisible?: boolean;
-  isLoading: boolean;
+  isLoading?: boolean;
   isDisabled?: boolean;
   backgroundColor?: string;
 }

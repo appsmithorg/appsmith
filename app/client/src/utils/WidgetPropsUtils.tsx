@@ -26,6 +26,7 @@ import {
   migrateTablePrimaryColumnsBindings,
   tableWidgetPropertyPaneMigrations,
 } from "utils/migrations/TableWidget";
+import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -390,6 +391,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   if (currentDSL.version === 11) {
     currentDSL = migrateTablePrimaryColumnsBindings(currentDSL);
     currentDSL.version = 12;
+  }
+
+  if (currentDSL.version === 12) {
+    currentDSL = migrateIncorrectDynamicBindingPathLists(currentDSL);
+    currentDSL.version = 13;
   }
 
   return currentDSL;

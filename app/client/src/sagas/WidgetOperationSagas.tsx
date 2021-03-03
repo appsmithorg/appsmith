@@ -813,7 +813,7 @@ function* getPropertiesToUpdate(
 ) {
   const widget: WidgetProps = yield select(getWidget, widgetId);
 
-  // Create a
+  // Create a clone
   const widgetWithUpdates = _.cloneDeep(widget);
   Object.entries(updates).forEach(([propertyPath, propertyValue]) => {
     set(widgetWithUpdates, propertyPath, propertyValue);

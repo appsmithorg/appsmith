@@ -79,37 +79,32 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
           },
-          // {
-          //   helpText: "Populates the chart with the data",
-          //   propertyName: "chartData",
-          //   placeholderText: 'Enter [{ "x": "val", "y": "val" }]',
-          //   label: "Chart Data",
-          //   controlType: "CONTROL_GROUP_LIST",
-          //   hidden: (props: ChartWidgetProps) =>
-          //     props && props.chartType === "PIE_CHART",
-          //   children: [
-          //     {
-          //       helpText: "Series Name",
-          //       propertyName: "seriesName",
-          //       label: "Series Name",
-          //       controlType: "INPUT_TEXT",
-          //     },
-          //     {
-          //       helpText: "Series data",
-          //       propertyName: "data",
-          //       label: "Series Data",
-          //       controlType: "INPUT_TEXT_AREA",
-          //     },
-          //   ],
-          // },
           {
             helpText: "Populates the chart with the data",
             propertyName: "chartData",
             placeholderText: 'Enter [{ "x": "val", "y": "val" }]',
             label: "Chart Data",
             controlType: "CHART_DATA",
-            isBindProperty: true,
-            isTriggerProperty: false,
+            hidden: (props: ChartWidgetProps) =>
+              props && props.chartType === "PIE_CHART",
+            children: [
+              {
+                helpText: "Series Name",
+                propertyName: "seriesName",
+                label: "Series Name",
+                controlType: "INPUT_TEXT",
+                isBindProperty: true,
+                isTriggerProperty: false,
+              },
+              {
+                helpText: "Series data",
+                propertyName: "data",
+                label: "Series Data",
+                controlType: "INPUT_TEXT_AREA",
+                isBindProperty: true,
+                isTriggerProperty: false,
+              },
+            ],
           },
           {
             helpText: "Specifies the label of the x-axis",
