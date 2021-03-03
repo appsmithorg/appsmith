@@ -342,10 +342,15 @@ public class MongoPlugin extends BasePlugin {
                     .stream()
                     .anyMatch(endPoint -> endPoint.getHost().contains("mongodb+srv"));
 
-            if(!Connection.Type.REPLICA_SET.equals(datasourceConfiguration.getConnection().getType())
-            && Boolean.TRUE.equals(usingSrvUrl)) {
+            if(Boolean.TRUE.equals(usingSrvUrl)) {
                 invalids.add("Are you using a URL that starts with \"mongodb+srv\" ? This url format is not currently" +
-                        " supported. Instead, please do the following: if your srv url is \"\"");
+                        " supported. Instead, please do the following: (1) Set 'Connection Type' field to Replica " +
+                        "set (2) Srv URL is expected to be of the format " +
+                        "'mongodb+srv://<your_username>:<your_password>@<connection_url>/<defaultDbName>?authSource" +
+                        "=<authDbName>…' . Please extract and copy <connection_url> to the 'Host Address field', " +
+                        "<defaultDbName> to the 'Default Database Name' field, <your_username> to the 'Username' " +
+                        "field, <your_password> to the 'Password' field and <authDbName> to the 'Database Name' field" +
+                        ".");
             }
 
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
