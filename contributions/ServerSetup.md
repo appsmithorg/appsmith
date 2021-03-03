@@ -104,8 +104,6 @@ For being able to run or debug plugins, two are especially important:
 
 Please note when setting **Working directory** option. If the path is not correct, plugins will fail to load and cannot fetch data from mongo, redis
 
-example:
-
 3. Load your env file by going to the EnvFile Tab in the Run/Debug configuration settings for your server.
 <img width="1067" alt="Screenshot 2021-03-03 at 1 49 17 PM" src="https://user-images.githubusercontent.com/458946/109775238-451c8d80-7c27-11eb-98ad-61fc33082b63.png">
 
