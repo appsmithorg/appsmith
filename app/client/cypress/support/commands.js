@@ -604,7 +604,7 @@ Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
 
 Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
   cy.get(commonlocators.changeZoomlevel).click();
-  cy.get("ul.bp3-menu")
+  cy.get(".t--dropdown-option")
     .children()
     .contains(zoomValue)
     .click();
@@ -623,8 +623,10 @@ Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
 });
 
 Cypress.Commands.add("changeColumnType", (dataType) => {
-  cy.get(commonlocators.changeColType).click();
-  cy.get("ul.bp3-menu")
+  cy.get(commonlocators.changeColType)
+    .last()
+    .click();
+  cy.get(".t--dropdown-option")
     .children()
     .contains(dataType)
     .click();
@@ -633,6 +635,7 @@ Cypress.Commands.add("changeColumnType", (dataType) => {
     "response.body.responseMeta.status",
     200,
   );
+  /*
   cy.get(commonlocators.selectedColType)
     .first()
     .invoke("text")
@@ -640,6 +643,7 @@ Cypress.Commands.add("changeColumnType", (dataType) => {
       const someText = text;
       expect(someText).to.equal(dataType);
     });
+    */
 });
 
 Cypress.Commands.add(
@@ -691,10 +695,10 @@ Cypress.Commands.add("switchToAPIInputTab", () => {
 });
 
 Cypress.Commands.add("selectDateFormat", (value) => {
-  cy.get(".t--property-control-dateformat button")
-    .first()
+  cy.get(".t--property-control-dateformat .bp3-popover-target")
+    .last()
     .click({ force: true });
-  cy.get("ul.bp3-menu")
+  cy.get(".t--dropdown-option")
     .children()
     .contains(value)
     .click();
@@ -1006,8 +1010,10 @@ Cypress.Commands.add("UncheckWidgetProperties", (checkboxCss) => {
 Cypress.Commands.add(
   "ChangeTextStyle",
   (dropDownValue, textStylecss, labelName) => {
-    cy.get(commonlocators.dropDownIcon).click();
-    cy.get("ul.bp3-menu")
+    cy.get(commonlocators.dropDownIcon)
+      .last()
+      .click();
+    cy.get(".t--dropdown-option")
       .children()
       .contains(dropDownValue)
       .click();

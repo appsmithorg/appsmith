@@ -34,7 +34,7 @@
   "bodyTextStyle": ".bp3-running-text span",
   "headingTextStyle": ".bp3-heading span",
   "editWidgetName": ".t--propery-page-title",
-  "dropDownIcon": ".t--property-control-textstyle span.bp3-icon-chevron-down",
+  "dropDownIcon": ".t--property-control-textstyle .bp3-popover-target",
   "onDateSelectedField": ".t--property-control-ondateselected",
   "TableRow": ".t--draggable-tablewidget .tbody",
   "Disablejs": ".t--property-control-disabled",
@@ -85,7 +85,7 @@
   "imgWidget": "div[data-testid='styledImage']",
   "editColTitle": ".t--property-pane-edit-title",
   "editColText": ".t--property-pane-edit-title span",
-  "changeColType": ".t--property-control-columntype .bp3-button",
+  "changeColType": ".t--property-control-columntype .bp3-popover-target",
   "selectedColType": ".t--property-control-columntype button span",
   "collapsesection": ".t--property-pane-section-collapse-general",
   "selectTab": ".t--tab-Tab",
@@ -99,6 +99,6 @@
   "filePickerInput": ".uppy-Dashboard-input",
   "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",
   "filePickerOnFilesSelected": ".t--property-control-onfilesselected",
-  "dataType": ".t--property-control-datatype",
+  "dataType": ".t--property-control-datatype .bp3-popover-target",
   "evaluateMsg": ".t--CodeEditor-evaluatedValue p"
 }
