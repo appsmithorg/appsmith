@@ -5,21 +5,15 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserOrganizationService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.client.utils.URIBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.web.server.DefaultServerRedirectStrategy;
-import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,8 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -47,21 +39,18 @@ public class UserController extends BaseController<UserService, User, String> {
     private final UserOrganizationService userOrganizationService;
     private final UserSignup userSignup;
     private final UserDataService userDataService;
-    private final CaptchaService captchaService;
 
     @Autowired
     public UserController(UserService service,
                           SessionUserService sessionUserService,
                           UserOrganizationService userOrganizationService,
                           UserSignup userSignup,
-                          UserDataService userDataService,
-                          CaptchaService captchaService) {
+                          UserDataService userDataService) {
         super(service);
         this.sessionUserService = sessionUserService;
         this.userOrganizationService = userOrganizationService;
         this.userSignup = userSignup;
         this.userDataService = userDataService;
-        this.captchaService = captchaService;
     }
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
@@ -76,27 +65,7 @@ public class UserController extends BaseController<UserService, User, String> {
     @PostMapping(consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Void> createFormEncoded(ServerWebExchange exchange) {
-      String recaptchaToken = exchange.getRequest().getQueryParams().getFirst("recaptchaToken");
-
-      return captchaService.verify(recaptchaToken).flatMap(verified -> {
-        if (verified) {
-          return userSignup.signupAndLoginFromFormData(exchange);
-        } else {
-          return Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_FAILED));
-        }
-      }).onErrorResume(error -> {
-        final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
-        final String referer = exchange.getRequest().getHeaders().getFirst("referer");
-        final URIBuilder redirectUriBuilder = new URIBuilder(URI.create(referer)).setParameter("error", error.getMessage());
-        URI redirectUri;
-        try {
-            redirectUri = redirectUriBuilder.build();
-        } catch (URISyntaxException e) {
-            log.error("Error building redirect URI with error for signup, {}.", e.getMessage(), error);
-            redirectUri = URI.create(referer);
-        }
-        return redirectStrategy.sendRedirect(exchange, redirectUri);
-      });
+        return userSignup.signupAndLoginFromFormData(exchange);
     }
 
     @PutMapping()
