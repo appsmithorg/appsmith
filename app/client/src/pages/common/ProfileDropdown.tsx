@@ -84,7 +84,7 @@ export default function ProfileDropdown(props: TagProps) {
     <Fragment>
       <ProfileMenuStyle />
       <Menu
-        className="profile-menu"
+        className="profile-menu t--profile-menu"
         position={Position.BOTTOM}
         target={Profile}
         modifiers={props.modifiers}
@@ -93,7 +93,7 @@ export default function ProfileDropdown(props: TagProps) {
           <div className="user-image">{Profile}</div>
           <UserNameWrapper>
             <FlexWrapper>
-              <div className="user-name">
+              <div className="user-name t--user-name">
                 <Text type={TextType.P1} highlight>
                   {props.name}
                 </Text>

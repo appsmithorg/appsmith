@@ -38,7 +38,7 @@ const UserProfile = () => {
   return (
     <PageWrapper displayName={"Profile"}>
       <ProfileWrapper>
-        <LinkToApplications to={"/applications"}>
+        <LinkToApplications to={"/applications"} className="t--back">
           <IconComponent
             iconName="chevron-left"
             color="#9F9F9F"
