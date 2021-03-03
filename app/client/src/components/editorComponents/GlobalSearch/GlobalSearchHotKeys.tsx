@@ -1,7 +1,6 @@
 import React from "react";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import { Hotkey, Hotkeys } from "@blueprintjs/core";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { SearchItem } from "./utils";
 
 type Props = {
@@ -12,23 +11,10 @@ type Props = {
   handleItemLinkClick: (item?: SearchItem, source?: string) => void;
   children: React.ReactNode;
 };
-
 @HotkeysTarget
 class GlobalSearchHotKeys extends React.Component<Props> {
   get hotKeysConfig() {
     return [
-      {
-        combo: "mod + k",
-        onKeyDown: (e: KeyboardEvent) => {
-          e.preventDefault();
-          this.props.toggleShow();
-          AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
-        },
-        hideWhenModalClosed: false,
-        allowInInput: false,
-        label: "Show omnibar",
-        global: true,
-      },
       {
         combo: "up",
         onKeyDown: this.props.handleUpKey,
@@ -67,10 +53,10 @@ class GlobalSearchHotKeys extends React.Component<Props> {
     return (
       <Hotkeys>
         {this.hotKeysConfig.map(
-          ({ combo, onKeyDown, allowInInput, label, global, group }, index) => (
+          ({ combo, onKeyDown, allowInInput, label, group }, index) => (
             <Hotkey
               key={index}
-              global={global}
+              global={false}
               combo={combo}
               onKeyDown={onKeyDown}
               label={label}
