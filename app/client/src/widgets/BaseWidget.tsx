@@ -286,6 +286,8 @@ abstract class BaseWidget<
     parentColumnSpace: 1,
     topRow: 0,
     leftColumn: 0,
+    isLoading: false,
+    renderMode: RenderModes.CANVAS,
   };
 }
 
@@ -312,7 +314,7 @@ export interface WidgetBaseProps {
   type: WidgetType;
   widgetName: string;
   parentId?: string;
-  renderMode?: RenderMode;
+  renderMode: RenderMode;
   version: number;
 }
 
@@ -355,7 +357,7 @@ export const WIDGET_STATIC_PROPS = {
 export interface WidgetDisplayProps {
   //TODO(abhinav): Some of these props are mandatory
   isVisible?: boolean;
-  isLoading?: boolean;
+  isLoading: boolean;
   isDisabled?: boolean;
   backgroundColor?: string;
 }

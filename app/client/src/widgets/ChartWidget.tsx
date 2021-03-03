@@ -87,6 +87,8 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             controlType: "CHART_DATA",
             hidden: (props: ChartWidgetProps) =>
               props && props.chartType === "PIE_CHART",
+            isBindProperty: false,
+            isTriggerProperty: false,
             children: [
               {
                 helpText: "Series Name",
