@@ -28,9 +28,10 @@ export const ActionLink = withTheme(
           name="link"
           size={IconSize.LARGE}
           fillColor={theme.colors.globalSearch.searchItemText}
-          onClick={() =>
-            searchContext?.handleItemLinkClick(item, "SEARCH_ITEM_ICON_CLICK")
-          }
+          onClick={(e) => {
+            e.stopPropagation(); // to prevent toggleModal getting called twice
+            searchContext?.handleItemLinkClick(item, "SEARCH_ITEM_ICON_CLICK");
+          }}
         />
       </StyledActionLink>
     );

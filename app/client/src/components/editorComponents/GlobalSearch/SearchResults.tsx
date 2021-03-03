@@ -32,6 +32,8 @@ export const SearchItemContainer = styled.div<{
   isActiveItem: boolean;
   itemType: SEARCH_ITEM_TYPES;
 }>`
+  cursor: ${(props) =>
+    props.itemType !== SEARCH_ITEM_TYPES.sectionTitle ? "pointer" : "normal"};
   display: flex;
   align-items: center;
   padding: ${(props) =>
