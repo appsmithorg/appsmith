@@ -322,7 +322,13 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         parent = ((Map<String, ?>) parent).get(nextKey);
                     } else if (parent instanceof List) {
                         if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
-                            parent = ((List) parent).get(Integer.parseInt(nextKey));
+                            try {
+                                parent = ((List) parent).get(Integer.parseInt(nextKey));
+                            } catch (IndexOutOfBoundsException e) {
+                                // The index being referred does not exist. Hence the path would not exist.
+                                throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
+                                        widgetName, widgetId, fieldPath, pageId, layoutId);
+                            }
                         } else {
                             throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
                                     widgetName, widgetId, fieldPath, pageId, layoutId);
