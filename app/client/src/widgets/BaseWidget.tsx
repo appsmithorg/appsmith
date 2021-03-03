@@ -33,6 +33,7 @@ import {
   WidgetDynamicPathListProps,
   WidgetEvaluatedProps,
 } from "../utils/DynamicBindingUtils";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
 
 /***
  * BaseWidget
@@ -111,7 +112,7 @@ abstract class BaseWidget<
     }
   }
 
-  batchUpdateWidgetProperty(updates: Record<string, unknown>): void {
+  batchUpdateWidgetProperty(updates: BatchPropertyUpdatePayload): void {
     const { batchUpdateWidgetProperty } = this.context;
     const { widgetId } = this.props;
     if (batchUpdateWidgetProperty && widgetId) {
