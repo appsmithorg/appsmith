@@ -38,9 +38,14 @@ export const updateWidgetProperty = (
   });
 };
 
+export interface BatchPropertyUpdatePayload {
+  modify?: Record<string, unknown>; //Key value pairs of paths and values to update
+  remove?: string[]; //Array of paths to delete
+}
+
 export const batchUpdateWidgetProperty = (
   widgetId: string,
-  updates: Record<string, unknown>,
+  updates: BatchPropertyUpdatePayload,
 ): ReduxAction<UpdateWidgetPropertyPayload> => ({
   type: ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,
   payload: {
@@ -84,7 +89,7 @@ export interface UpdateWidgetPropertyRequestPayload {
 
 export interface UpdateWidgetPropertyPayload {
   widgetId: string;
-  updates: Record<string, unknown>;
+  updates: BatchPropertyUpdatePayload;
   dynamicUpdates?: {
     dynamicBindingPathList: DynamicPath[];
     dynamicTriggerPathList: DynamicPath[];

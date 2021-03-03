@@ -6,7 +6,6 @@ export const getApplicationPayload = (): ApplicationPayload => ({
   name: generateReactKey(),
   organizationId: generateReactKey(),
   appIsExample: false,
-  pageCount: 4,
   appLayout: AppsmithDefaultLayout,
 });
 

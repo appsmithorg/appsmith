@@ -340,6 +340,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   RESET_UNREAD_RELEASES_COUNT: "RESET_UNREAD_RELEASES_COUNT",
   SET_LOADING_ENTITIES: "SET_LOADING_ENTITIES",
   RESET_CURRENT_APPLICATION: "RESET_CURRENT_APPLICATION",
+  UPDATE_API_ACTION_BODY_CONTENT_TYPE: "UPDATE_API_ACTION_BODY_CONTENT_TYPE",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -526,7 +527,6 @@ export type ApplicationPayload = {
   color?: string;
   icon?: string;
   organizationId: string;
-  pageCount: number;
   defaultPageId?: string;
   isPublic?: boolean;
   userPermissions?: string[];

@@ -1,6 +1,10 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -8,9 +12,6 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.SSLDetails;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.NonNull;
@@ -33,15 +34,15 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
-import java.util.LinkedHashMap;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
@@ -215,6 +216,7 @@ public class RedshiftPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(Connection connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
+
             String query = actionConfiguration.getBody();
 
             if (query == null) {
@@ -226,7 +228,7 @@ public class RedshiftPlugin extends BasePlugin {
                 );
             }
 
-            return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
+            return Mono.fromCallable(() -> {
                 /*
                  * 1. If there is any issue with checking connection validity then assume that the connection is stale.
                  */
@@ -288,12 +290,28 @@ public class RedshiftPlugin extends BasePlugin {
                 return Mono.just(result);
             })
             .flatMap(obj -> obj)
+            .map(obj -> (ActionExecutionResult) obj)
             .onErrorMap(e -> {
                 if(!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
                     return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
                 }
 
                 return e;
+            })
+            .onErrorResume(AppsmithPluginException.class, error  -> {
+                ActionExecutionResult result = new ActionExecutionResult();
+                result.setIsExecutionSuccess(false);
+                result.setStatusCode(error.getAppErrorCode().toString());
+                result.setBody(error.getMessage());
+                return Mono.just(result);
+            })
+            // Now set the request in the result to be returned back to the server
+            .map(actionExecutionResult -> {
+                ActionExecutionRequest request = new ActionExecutionRequest();
+                request.setQuery(query);
+                ActionExecutionResult result = actionExecutionResult;
+                result.setRequest(request);
+                return result;
             })
             .subscribeOn(scheduler);
         }

@@ -3,11 +3,11 @@ import { ApiAction } from "entities/Action";
 import _ from "lodash";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
-  let action = { ...data };
-  // GET actions should not save body
-  if (action.actionConfiguration.httpMethod === HTTP_METHODS[0]) {
-    delete action.actionConfiguration.body;
-  }
+  let action = _.cloneDeep(data);
+  // // GET actions should not save body
+  // if (action.actionConfiguration.httpMethod === HTTP_METHODS[0]) {
+  //   delete action.actionConfiguration.body;
+  // }
   // Paths should not have query params
   if (
     action.actionConfiguration.queryParameters &&
