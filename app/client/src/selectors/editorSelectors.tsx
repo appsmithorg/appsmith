@@ -125,9 +125,9 @@ export const getWidgetCards = createSelector(
         const {
           rows,
           columns,
-          overlayWidget = false,
+          detachFromLayout = false,
         }: any = widgetConfigs.config[widget.type];
-        return { ...widget, rows, columns, overlayWidget };
+        return { ...widget, rows, columns, detachFromLayout };
       })
       .sort(
         (

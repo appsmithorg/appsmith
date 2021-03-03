@@ -257,9 +257,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 6,
       size: "MODAL_SMALL",
       canEscapeKeyClose: true,
+      // detachFromLayout is set true for widgets that are not bound to the widgets within the layout.
+      // setting it to true will only render the widgets(from sidebar) on the main container without any collision check.
       detachFromLayout: true,
       canOutsideClickClose: true,
-      overlayWidget: true,
       shouldScrollContents: true,
       widgetName: "Modal",
       children: [],
