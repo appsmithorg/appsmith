@@ -2,12 +2,12 @@ import React from "react";
 import styled from "constants/DefaultTheme";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 const ItemWrapper = styled.div`
-  padding-right: 16px;
+  padding-right: 0;
   margin: 8px 0 0 0;
 `;
 
 const DroppableWrapper = styled.div`
-  width: 250px;
+  width: 100%;
 `;
 
 type RenderComponentProps = {

@@ -136,6 +136,7 @@ const InputWrapper = styled.div`
   flex-direction: column;
   align-items: flex-start;
   position: relative;
+  width: 100%;
 
   .${Classes.TEXT} {
     color: ${(props) => props.theme.colors.danger.main};

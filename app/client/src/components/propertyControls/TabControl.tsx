@@ -5,6 +5,8 @@ import {
   StyledInputGroup,
   StyledPropertyPaneButton,
   StyledVisibleIcon,
+  StyledDragIcon,
+  StyledDeleteIcon,
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
@@ -13,31 +15,6 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import _ from "lodash";
 import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
-import { FormIcons } from "icons/FormIcons";
-import { ControlIcons } from "icons/ControlIcons";
-import { AnyStyledComponent } from "styled-components";
-
-const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
-  padding: 0;
-  position: relative;
-  margin-left: 15px;
-  cursor: pointer;
-  && svg path {
-    fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
-  }
-`;
-
-const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL as AnyStyledComponent)`
-  padding: 0;
-  position: relative;
-  margin-right: 15px;
-  cursor: move;
-  && svg {
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
-    }
-  }
-`;
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -61,6 +38,7 @@ const TabsWrapper = styled.div`
 const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-right: 2px;
   width: 100%;
+  padding-left: 30px;
   &&& {
     input {
       border: none;
