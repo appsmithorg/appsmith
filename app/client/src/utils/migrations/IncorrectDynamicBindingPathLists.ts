@@ -1,12 +1,9 @@
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetProps } from "widgets/BaseWidget";
-import WidgetBuilderRegistry from "utils/WidgetRegistry";
 import WidgetFactory from "utils/WidgetFactory";
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
 import _ from "lodash";
 import { DynamicPath, isDynamicValue } from "utils/DynamicBindingUtils";
-
-WidgetBuilderRegistry.registerWidgetBuilders();
 
 export const migrateIncorrectDynamicBindingPathLists = (
   currentDSL: Readonly<ContainerWidgetProps<WidgetProps>>,
