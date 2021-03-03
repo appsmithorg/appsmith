@@ -7,6 +7,7 @@ import {
   useActions,
   useFilteredDatasources,
 } from "./hooks";
+import Search from "./ExplorerSearch";
 import ExplorerPageGroup from "./Pages/PageGroup";
 import { NonIdealState, Classes, IPanelProps } from "@blueprintjs/core";
 import WidgetSidebar from "../WidgetSidebar";
@@ -54,7 +55,7 @@ const EntityExplorer = (props: IPanelProps) => {
     PerformanceTracker.stopTracking();
   });
   const explorerRef = useRef<HTMLDivElement | null>(null);
-  const { searchKeyword } = useFilteredEntities(searchInputRef);
+  const { searchKeyword, clearSearch } = useFilteredEntities(searchInputRef);
   const datasources = useFilteredDatasources(searchKeyword);
 
   const plugins = useSelector(getPlugins);
@@ -85,6 +86,7 @@ const EntityExplorer = (props: IPanelProps) => {
 
   return (
     <Wrapper ref={explorerRef}>
+      <Search ref={searchInputRef} clear={clearSearch} />
       <ExplorerPageGroup
         searchKeyword={searchKeyword}
         step={0}
