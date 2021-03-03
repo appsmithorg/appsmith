@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
 
@@ -14,18 +14,29 @@ import {
 
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { ContextMenuPopoverModifiers } from "../helpers";
-import { noop } from "lodash";
+import { groupBy, noop } from "lodash";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
 
 const useNewAPIName = () => {
   // This takes into consideration only the current page widgets
   // If we're moving to a different page, there could be a widget
   // with the same name as the generated API name
   // TODO: Figure out how to handle this scenario
-  const apiNames = useSelector((state: AppState) =>
-    state.entities.actions.map((action) => action.config.name),
-  );
-  return (name: string) =>
-    apiNames.indexOf(name) > -1 ? getNextEntityName(name, apiNames) : name;
+  const actions = useSelector((state: AppState) => state.entities.actions);
+  const groupedActions = useMemo(() => {
+    return groupBy(actions, "config.pageId");
+  }, [actions]);
+  return (name: string, destinationPageId: string) => {
+    const pageActions = groupedActions[destinationPageId];
+    // Get action names of the destination page only
+    const actionNames = pageActions
+      ? pageActions.map((action: ActionData) => action.config.name)
+      : [];
+
+    return actionNames.indexOf(name) > -1
+      ? getNextEntityName(name, actionNames)
+      : name;
+  };
 };
 
 type EntityContextMenuProps = {
@@ -44,7 +55,7 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
         copyActionRequest({
           id: actionId,
           destinationPageId: pageId,
-          name: nextEntityName(`${actionName}Copy`),
+          name: nextEntityName(`${actionName}Copy`, pageId),
         }),
       ),
     [dispatch, nextEntityName],
@@ -56,7 +67,7 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
           id: actionId,
           destinationPageId,
           originalPageId: props.pageId,
-          name: nextEntityName(actionName),
+          name: nextEntityName(actionName, destinationPageId),
         }),
       ),
     [dispatch, nextEntityName, props.pageId],
