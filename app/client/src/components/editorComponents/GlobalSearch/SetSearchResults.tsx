@@ -1,5 +1,4 @@
-// eslint-disable-next-line
-import React, { useEffect, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import { connectHits } from "react-instantsearch-dom";
 import { Hit as IHit } from "react-instantsearch-core";
 import { debounce } from "lodash";

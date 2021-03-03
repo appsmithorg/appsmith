@@ -7,8 +7,7 @@ import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { HELPBAR_PLACEHOLDER } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { isMac } from "utils/helpers";
-// border: 1px solid ${(props) =>
-// props.theme.colors.globalSearch.helpBarBorder};
+
 const StyledHelpBar = styled.div`
   padding: 0 ${(props) => props.theme.spaces[4]}px;
   .placeholder-text {

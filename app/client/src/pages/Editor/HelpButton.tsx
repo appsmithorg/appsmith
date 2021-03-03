@@ -22,7 +22,7 @@ const StyledTrigger = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: ${(props) => props.theme.spaces[2]}px;
+  margin: 0 ${(props) => props.theme.spaces[2]}px;
   background: ${(props) =>
     props.theme.colors.globalSearch.helpButtonBackground};
 `;
