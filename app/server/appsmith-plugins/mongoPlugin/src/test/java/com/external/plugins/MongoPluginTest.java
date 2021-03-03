@@ -416,7 +416,7 @@ public class MongoPluginTest {
                 .assertNext(invalids -> {
                     assertTrue(invalids
                             .stream()
-                            .anyMatch(error -> error.contains("Are you using a URL that starts with 'mongodb+srv'")));
+                            .anyMatch(error -> error.contains("MongoDb SRV URLs are not yet supported")));
                 })
                 .verifyComplete();
     }
