@@ -122,8 +122,12 @@ export const getWidgetCards = createSelector(
     const cards = widgetCards.cards;
     return cards
       .map((widget: WidgetCardProps) => {
-        const { rows, columns } = widgetConfigs.config[widget.type];
-        return { ...widget, rows, columns };
+        const {
+          rows,
+          columns,
+          overlayWidget = false,
+        }: any = widgetConfigs.config[widget.type];
+        return { ...widget, rows, columns, overlayWidget };
       })
       .sort(
         (
