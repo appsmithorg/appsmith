@@ -743,7 +743,7 @@ const isPropertyATriggerPath = (
   widget: WidgetProps,
   propertyPath: string,
 ): boolean => {
-  const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(widget.type);
+  const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(widget?.type);
   const { triggerPaths } = getAllPathsFromPropertyConfig(
     widget,
     widgetConfig,
