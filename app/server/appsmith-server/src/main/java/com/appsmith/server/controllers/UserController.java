@@ -7,7 +7,7 @@ import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.services.GoogleRecaptchaService;
+import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserOrganizationService;
@@ -47,7 +47,7 @@ public class UserController extends BaseController<UserService, User, String> {
     private final UserOrganizationService userOrganizationService;
     private final UserSignup userSignup;
     private final UserDataService userDataService;
-    private final GoogleRecaptchaService googleRecaptchaService;
+    private final CaptchaService captchaService;
 
     @Autowired
     public UserController(UserService service,
@@ -55,13 +55,13 @@ public class UserController extends BaseController<UserService, User, String> {
                           UserOrganizationService userOrganizationService,
                           UserSignup userSignup,
                           UserDataService userDataService,
-                          GoogleRecaptchaService googleRecaptchaService) {
+                          CaptchaService captchaService) {
         super(service);
         this.sessionUserService = sessionUserService;
         this.userOrganizationService = userOrganizationService;
         this.userSignup = userSignup;
         this.userDataService = userDataService;
-        this.googleRecaptchaService = googleRecaptchaService;
+        this.captchaService = captchaService;
     }
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
@@ -78,7 +78,7 @@ public class UserController extends BaseController<UserService, User, String> {
     public Mono<Void> createFormEncoded(ServerWebExchange exchange) {
       String recaptchaToken = exchange.getRequest().getQueryParams().getFirst("recaptchaToken");
 
-      return googleRecaptchaService.verify(recaptchaToken).flatMap(verified -> {
+      return captchaService.verify(recaptchaToken).flatMap(verified -> {
         if (verified) {
           return userSignup.signupAndLoginFromFormData(exchange);
         } else {
