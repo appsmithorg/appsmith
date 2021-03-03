@@ -561,6 +561,7 @@ const darkShades = [
   "#E9E9E9",
   "#FFFFFF",
   "#157A96",
+  "#090707",
 ] as const;
 
 const lightShades = [
