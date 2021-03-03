@@ -8,11 +8,11 @@ import {
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DropdownOption } from "widgets/DropdownWidget";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import TreeDropdown, { TreeDropdownOption } from "components/ads/TreeDropdown";
 import {
-  FieldWrapper,
   ControlWrapper,
+  FieldWrapper,
 } from "components/propertyControls/StyledControls";
 import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
 import { InputText } from "components/propertyControls/InputTextControl";
@@ -28,6 +28,8 @@ import {
 import { NavigationTargetType } from "../../../sagas/ActionExecutionSagas";
 import { checkCurrentStep } from "sagas/OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import { getWidgets } from "sagas/selectors";
+import { Skin } from "constants/DefaultTheme";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -37,6 +39,11 @@ const ALERT_STYLE_OPTIONS = [
   { label: "Success", value: "'success'", id: "success" },
   { label: "Error", value: "'error'", id: "error" },
   { label: "Warning", value: "'warning'", id: "warning" },
+];
+
+const RESET_CHILDREN_OPTIONS = [
+  { label: "Yes", value: "true", id: "true" },
+  { label: "No", value: "false", id: "false" },
 ];
 
 const FILE_TYPE_OPTIONS = [
@@ -224,6 +231,7 @@ const ActionType = {
   storeValue: "storeValue",
   download: "download",
   copyToClipboard: "copyToClipboard",
+  resetWidget: "resetWidget",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
@@ -231,6 +239,7 @@ const ViewTypes = {
   SELECTOR_VIEW: "SELECTOR_VIEW",
   KEY_VALUE_VIEW: "KEY_VALUE_VIEW",
   TEXT_VIEW: "TEXT_VIEW",
+  BOOL_VIEW: "BOOL_VIEW",
 };
 type ViewTypes = typeof ViewTypes[keyof typeof ViewTypes];
 
@@ -337,6 +346,8 @@ const FieldType = {
   DOWNLOAD_FILE_TYPE_FIELD: "DOWNLOAD_FILE_TYPE_FIELD",
   COPY_TEXT_FIELD: "COPY_TEXT_FIELD",
   NAVIGATION_TARGET_FIELD: "NAVIGATION_TARGET_FIELD",
+  WIDGET_NAME_FIELD: "WIDGET_NAME_FIELD",
+  RESET_CHILDREN_FIELD: "RESET_CHILDREN_FIELD",
 };
 type FieldType = typeof FieldType[keyof typeof FieldType];
 
@@ -516,6 +527,24 @@ const fieldConfigs: FieldConfigs = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
+  [FieldType.WIDGET_NAME_FIELD]: {
+    getter: (value: any) => {
+      return enumTypeGetter(value, 0);
+    },
+    setter: (option: any, currentValue: string) => {
+      return enumTypeSetter(option.value, currentValue, 0);
+    },
+    view: ViewTypes.SELECTOR_VIEW,
+  },
+  [FieldType.RESET_CHILDREN_FIELD]: {
+    getter: (value: any) => {
+      return enumTypeGetter(value, 1);
+    },
+    setter: (option: any, currentValue: string) => {
+      return enumTypeSetter(option.value, currentValue, 1);
+    },
+    view: ViewTypes.SELECTOR_VIEW,
+  },
 };
 
 const baseOptions: any = [
@@ -558,6 +587,10 @@ const baseOptions: any = [
   {
     label: "Copy to Clipboard",
     value: ActionType.copyToClipboard,
+  },
+  {
+    label: "Reset Widget",
+    value: ActionType.resetWidget,
   },
 ];
 function getOptionsWithChildren(
@@ -692,6 +725,16 @@ function getFieldFromValue(
       },
     );
   }
+  if (value.indexOf("resetWidget") !== -1) {
+    fields.push(
+      {
+        field: FieldType.WIDGET_NAME_FIELD,
+      },
+      {
+        field: FieldType.RESET_CHILDREN_FIELD,
+      },
+    );
+  }
   if (value.indexOf("download") !== -1) {
     fields.push(
       {
@@ -729,6 +772,7 @@ function renderField(props: {
   isValid: boolean;
   validationMessage?: string;
   apiOptionTree: TreeDropdownOption[];
+  widgetOptionTree: TreeDropdownOption[];
   queryOptionTree: TreeDropdownOption[];
   modalDropdownList: TreeDropdownOption[];
   pageDropdownOptions: TreeDropdownOption[];
@@ -752,6 +796,8 @@ function renderField(props: {
     case FieldType.ALERT_TYPE_SELECTOR_FIELD:
     case FieldType.DOWNLOAD_FILE_TYPE_FIELD:
     case FieldType.NAVIGATION_TARGET_FIELD:
+    case FieldType.RESET_CHILDREN_FIELD:
+    case FieldType.WIDGET_NAME_FIELD:
       let label = "";
       let defaultText = "Select Action";
       let options = props.apiOptionTree;
@@ -775,9 +821,16 @@ function renderField(props: {
             option.type === ActionType.api ||
             option.type === ActionType.query
           ) {
-            return <HightlightedCode codeText={`{{${option.label}.run()}}`} />;
+            return (
+              <HightlightedCode
+                codeText={`{{${option.label}.run()}}`}
+                skin={Skin.LIGHT}
+              />
+            );
           } else if (displayValue) {
-            return <HightlightedCode codeText={displayValue} />;
+            return (
+              <HightlightedCode codeText={displayValue} skin={Skin.LIGHT} />
+            );
           }
           return <span>{option.label}</span>;
         };
@@ -794,6 +847,16 @@ function renderField(props: {
         label = "Modal Name";
         options = props.modalDropdownList;
         defaultText = "Select Modal";
+      }
+      if (fieldType === FieldType.RESET_CHILDREN_FIELD) {
+        label = "Reset Children";
+        options = RESET_CHILDREN_OPTIONS;
+        defaultText = "false";
+      }
+      if (fieldType === FieldType.WIDGET_NAME_FIELD) {
+        label = "Widget";
+        options = props.widgetOptionTree;
+        defaultText = "";
       }
       if (fieldType === FieldType.PAGE_SELECTOR_FIELD) {
         label = "Page Name";
@@ -901,6 +964,7 @@ function Fields(props: {
   isValid: boolean;
   validationMessage?: string;
   apiOptionTree: TreeDropdownOption[];
+  widgetOptionTree: TreeDropdownOption[];
   queryOptionTree: TreeDropdownOption[];
   modalDropdownList: TreeDropdownOption[];
   pageDropdownOptions: TreeDropdownOption[];
@@ -933,6 +997,7 @@ function Fields(props: {
                     isValid={props.isValid}
                     validationMessage={props.validationMessage}
                     apiOptionTree={props.apiOptionTree}
+                    widgetOptionTree={props.widgetOptionTree}
                     queryOptionTree={props.queryOptionTree}
                     modalDropdownList={props.modalDropdownList}
                     pageDropdownOptions={props.pageDropdownOptions}
@@ -978,6 +1043,7 @@ function Fields(props: {
             isValid={props.isValid}
             validationMessage={props.validationMessage}
             apiOptionTree={props.apiOptionTree}
+            widgetOptionTree={props.widgetOptionTree}
             queryOptionTree={props.queryOptionTree}
             modalDropdownList={props.modalDropdownList}
             pageDropdownOptions={props.pageDropdownOptions}
@@ -1069,6 +1135,18 @@ function useApiOptionTree() {
   return apiOptionTree;
 }
 
+function useWidgetOptionTree() {
+  const widgets = useSelector(getWidgets) || {};
+  return Object.values(widgets)
+    .filter((w) => w.type !== "CANVAS_WIDGET" && w.type !== "BUTTON_WIDGET")
+    .map((w) => {
+      return {
+        label: w.widgetName,
+        id: w.widgetName,
+        value: `"${w.widgetName}"`,
+      };
+    });
+}
 function getQueryOptionsWithChildren(
   options: TreeDropdownOption[],
   queries: ActionDataState,
@@ -1117,6 +1195,7 @@ function useQueryOptionTree() {
 
 export function ActionCreator(props: ActionCreatorProps) {
   const apiOptionTree = useApiOptionTree();
+  const widgetOptionTree = useWidgetOptionTree();
   const queryOptionTree = useQueryOptionTree();
   const modalDropdownList = useModalDropdownList();
   const pageDropdownOptions = useSelector(getPageDropdownOptions);
@@ -1129,6 +1208,7 @@ export function ActionCreator(props: ActionCreatorProps) {
         isValid={props.isValid}
         validationMessage={props.validationMessage}
         apiOptionTree={apiOptionTree}
+        widgetOptionTree={widgetOptionTree}
         queryOptionTree={queryOptionTree}
         modalDropdownList={modalDropdownList}
         pageDropdownOptions={pageDropdownOptions}

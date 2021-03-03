@@ -29,7 +29,6 @@ import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
@@ -428,6 +427,26 @@ public class DynamoPluginTest {
                             ((Map<String, Object>)transformedItemMap.get("MapType")).get("mapKey").toString());
                     assertEquals("listValue1", ((ArrayList<String>)transformedItemMap.get("ListType")).get(0));
                     assertEquals("listValue2", ((ArrayList<String>)transformedItemMap.get("ListType")).get(1));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testTestDatasourceWithFalseCredentials() {
+        DBAuth auth = new DBAuth();
+        auth.setUsername("dummy");
+        auth.setPassword("dummy");
+        auth.setDatabaseName(Region.AP_SOUTH_1.toString());
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setAuthentication(auth);
+
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> {
+                    assertEquals(1, datasourceTestResult.getInvalids().size());
+
+                    List<String> errorList = new ArrayList<>(datasourceTestResult.getInvalids());
+                    assertTrue(errorList.get(0).contains("The security token included in the request is invalid."));
                 })
                 .verifyComplete();
     }

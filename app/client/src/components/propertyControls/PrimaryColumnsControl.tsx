@@ -36,8 +36,8 @@ const TabsWrapper = styled.div`
 
 const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-right: 2px;
-  width: 150px;
-  margin-left: 30px;
+  width: 100%;
+  padding-left: 30px;
   &&& {
     input {
       padding-left: 24px;
@@ -231,7 +231,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
     const tableStyles = getTableStyles(this.props.widgetProperties);
     const column = {
       ...columnProps,
-      buttonStyle: "#29CCA3",
+      buttonStyle: "rgb(3, 179, 101)",
       buttonLabelColor: "#FFFFFF",
       ...tableStyles,
     };

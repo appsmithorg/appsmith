@@ -240,13 +240,13 @@ export const StyledEditIcon = styled(
   margin-left: 0;
   cursor: pointer;
   right: 35px;
-  & svg {
+  && svg {
     width: 12px;
     height: 12px;
     position: relative;
     top: 2px;
     path {
-      fill: ${(props) => props.theme.colors.paneSectionLabel};
+      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
     }
   }
 `;
@@ -260,13 +260,13 @@ export const StyledDragIcon = styled(
   cursor: move;
   z-index: 1;
   left: 4px;
-  svg {
+  && svg {
     width: 16px;
     height: 16px;
     position: relative;
     top: 2px;
     path {
-      fill: ${(props) => props.theme.colors.paneSectionLabel};
+      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
     }
   }
 `;
@@ -279,13 +279,13 @@ export const StyledDeleteIcon = styled(
   margin-left: 15px;
   cursor: pointer;
   right: ${(props) => props.marginRight ?? 16}px;
-  svg {
+  && svg {
     width: 24px;
     height: 24px;
     top: -2px;
     position: relative;
     path {
-      fill: ${(props) => props.theme.colors.paneSectionLabel};
+      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
     }
   }
 `;
@@ -302,13 +302,13 @@ export const StyledVisibleIcon = styled(
   margin-left: 15px;
   cursor: pointer;
   right: ${(props) => props.marginRight ?? 12}px;
-  svg {
+  && svg {
     width: 24px;
     height: 24px;
     top: -2px;
     position: relative;
     path {
-      fill: ${(props) => props.theme.colors.paneSectionLabel};
+      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
     }
   }
 `;
@@ -321,14 +321,14 @@ export const StyledHiddenIcon = styled(
   margin-left: 15px;
   cursor: pointer;
   right: ${(props) => props.marginRight ?? 12}px;
-  svg {
+  && svg {
     width: 14px;
     top: 3px;
     height: 14px;
     left: 3px;
     position: relative;
     path {
-      fill: ${(props) => props.theme.colors.paneSectionLabel};
+      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
     }
   }
 `;

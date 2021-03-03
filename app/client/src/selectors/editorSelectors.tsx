@@ -105,6 +105,9 @@ export const getViewModePageList = createSelector(
   },
 );
 
+export const getCurrentApplicationLayout = (state: AppState) =>
+  state.ui.applications.currentApplication?.appLayout;
+
 export const getCurrentPageName = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>

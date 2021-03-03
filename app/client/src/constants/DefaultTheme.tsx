@@ -965,6 +965,7 @@ type ColorType = {
     jsButtonHoverBG: ShadeColor;
     dropdownSelectBg: ShadeColor;
     multiDropdownBoxHoverBg: ShadeColor;
+    iconColor: ShadeColor;
   };
 };
 
@@ -1402,6 +1403,7 @@ export const dark: ColorType = {
     jsButtonHoverBG: darkShades[2],
     dropdownSelectBg: darkShades[2],
     multiDropdownBoxHoverBg: darkShades[0],
+    iconColor: darkShades[5],
   },
 };
 
@@ -1812,6 +1814,7 @@ export const light: ColorType = {
     jsButtonHoverBG: lightShades[2],
     dropdownSelectBg: lightShades[14],
     multiDropdownBoxHoverBg: lightShades[11],
+    iconColor: lightShades[5],
   },
 };
 
@@ -2067,8 +2070,8 @@ export const theme: Theme = {
   },
   dropdown: {
     [Skin.LIGHT]: {
-      hoverBG: lightShades[0],
-      hoverText: lightShades[10],
+      hoverBG: lightShades[12],
+      hoverText: lightShades[0],
       inActiveBG: lightShades[3],
       inActiveText: lightShades[8],
     },

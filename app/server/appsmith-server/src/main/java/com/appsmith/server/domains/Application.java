@@ -53,7 +53,11 @@ public class Application extends BaseDomain {
 
     String icon;
 
-    AppLayout appLayout;
+    @JsonIgnore
+    AppLayout unpublishedAppLayout;
+
+    @JsonIgnore
+    AppLayout publishedAppLayout;
 
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
@@ -65,12 +69,26 @@ public class Application extends BaseDomain {
         this.clonedFromApplicationId = application.getId();
         this.color = application.getColor();
         this.icon = application.getIcon();
-        this.appLayout = application.getAppLayout() == null ? null
-                : new AppLayout(application.getAppLayout().type, application.getAppLayout().getWidth());
+        this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null
+                : new AppLayout(application.getUnpublishedAppLayout().type, application.getUnpublishedAppLayout().getWidth());
+        this.publishedAppLayout = application.getPublishedAppLayout() == null ? null
+                : new AppLayout(application.getPublishedAppLayout().type, application.getPublishedAppLayout().getWidth());
     }
 
     public List<ApplicationPage> getPages() {
         return Boolean.TRUE.equals(viewMode) ? publishedPages : pages;
+    }
+
+    public AppLayout getAppLayout() {
+        return Boolean.TRUE.equals(viewMode) ? publishedAppLayout : unpublishedAppLayout;
+    }
+
+    public void setAppLayout(AppLayout appLayout) {
+        if (Boolean.TRUE.equals(viewMode)) {
+            publishedAppLayout = appLayout;
+        } else {
+            unpublishedAppLayout = appLayout;
+        }
     }
 
     @Data

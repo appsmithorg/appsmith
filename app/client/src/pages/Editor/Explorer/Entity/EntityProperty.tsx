@@ -1,19 +1,19 @@
-import React, { useRef, MutableRefObject, memo } from "react";
+import React, { memo, MutableRefObject, useRef } from "react";
 import styled from "styled-components";
 import HighlightedCode, {
   SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES,
 } from "components/editorComponents/HighlightedCode";
 import {
-  Popover,
-  PopoverInteractionKind,
   Classes,
   Icon,
+  Popover,
+  PopoverInteractionKind,
 } from "@blueprintjs/core";
 import { CurrentValueViewer } from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useClipboard from "utils/hooks/useClipboard";
 import { Colors } from "constants/Colors";
-import { scrollbarDark } from "constants/DefaultTheme";
+import { scrollbarDark, Skin } from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 
 import { ContextMenuPopoverModifiers } from "../helpers";
@@ -217,6 +217,7 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
   return (
     <Wrapper step={props.step} className={`${EntityClassNames.PROPERTY}`}>
       <HighlightedCode
+        skin={Skin.DARK}
         className="binding"
         ref={propertyRef}
         onClick={copyBindingToClipboard}
