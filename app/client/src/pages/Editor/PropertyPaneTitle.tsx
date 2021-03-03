@@ -92,6 +92,7 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
           setName(props.title);
         }
         dispatch(updateWidgetName(props.widgetId, value.trim()));
+        toggleEditWidgetName(props.widgetId, false);
       }
     },
     [dispatch, widgets, setName, props.widgetId, props.title],
@@ -106,22 +107,16 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   );
   const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
 
-  const exitEditMode = useCallback(() => {
-    props.widgetId && toggleEditWidgetName(props.widgetId, false);
-  }, [toggleEditWidgetName, props.widgetId]);
-
   return props.widgetId ? (
     <Wrapper>
       <NameWrapper>
         <EditableText
           valueTransform={removeSpecialChars}
           defaultValue={name}
-          onTextChanged={updateTitle}
           placeholder={props.title}
-          updating={updating}
           editInteractionKind={EditInteractionKind.SINGLE}
           isEditingDefault={isNew}
-          onBlur={exitEditMode}
+          onBlur={updateTitle}
           hideEditIcon
           className="t--propery-page-title"
           savingState={updating ? SavingState.STARTED : SavingState.NOT_STARTED}
