@@ -42,8 +42,8 @@ public class GoogleRecaptchaServiceImpl implements CaptchaService {
   @Override
   public Mono<Boolean> verify(String recaptchaResponse){
     
-    // if not enabled or secret key is not configured, abort verification.
-    if (!googleRecaptchaConfig.isEnabled() || googleRecaptchaConfig.getSecretKey() == "") {
+    // if secret key is not configured, abort verification.
+    if (googleRecaptchaConfig.getSecretKey() == "") {
       return Mono.just(true);
     }
 
