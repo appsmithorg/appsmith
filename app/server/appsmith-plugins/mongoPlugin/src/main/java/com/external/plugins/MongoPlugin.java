@@ -342,7 +342,7 @@ public class MongoPlugin extends BasePlugin {
                     .stream()
                     .anyMatch(endPoint -> endPoint.getHost().contains("mongodb+srv"));
 
-            if(Boolean.TRUE.equals(usingSrvUrl)) {
+            if(usingSrvUrl) {
                 invalids.add("Are you using a URL that starts with 'mongodb+srv' ? This url format is not currently" +
                         " supported. Instead, please do the following: (1) Set 'Connection Type' field to Replica " +
                         "set (2) Srv URL is expected to be of the format " +
