@@ -338,6 +338,16 @@ public class MongoPlugin extends BasePlugin {
 
             }
 
+            boolean usingSrvUrl = endpoints
+                    .stream()
+                    .anyMatch(endPoint -> endPoint.getHost().contains("mongodb+srv"));
+
+            if(!Connection.Type.REPLICA_SET.equals(datasourceConfiguration.getConnection().getType())
+            && Boolean.TRUE.equals(usingSrvUrl)) {
+                invalids.add("Are you using a URL that starts with \"mongodb+srv\" ? This url format is not currently" +
+                        " supported. Instead, please do the following: if your srv url is \"\"");
+            }
+
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication != null) {
                 DBAuth.Type authType = authentication.getAuthType();
