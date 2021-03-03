@@ -5,6 +5,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 
 const PageView = styled.div<{ width: number }>`
   height: 100%;
@@ -21,6 +22,7 @@ type AppPageProps = {
 };
 
 export const AppPage = (props: AppPageProps) => {
+  useDynamicAppLayout();
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGE_LOAD", {
       pageName: props.pageName,
