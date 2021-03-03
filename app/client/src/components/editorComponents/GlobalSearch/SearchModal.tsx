@@ -36,6 +36,7 @@ const DocsSearchModal = ({ modalOpen, toggleShow, children }: Props) => (
       onClosing={() => {
         AnalyticsUtil.logEvent("CLOSE_OMNIBAR");
       }}
+      transitionDuration={25}
     >
       <div className={`${Classes.OVERLAY_CONTENT} t--global-search-modal`}>
         {children}
