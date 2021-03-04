@@ -55,6 +55,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.tableColumnDataValidation("customColumn1");
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInputUpdate));
     cy.wait("@updateLayout");
+    cy.wait(3000);
     cy.tableColumnDataValidation("id");
     cy.tableColumnDataValidation("email");
     cy.tableColumnDataValidation("userName");
