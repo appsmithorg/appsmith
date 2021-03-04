@@ -439,10 +439,13 @@ Cypress.Commands.add(
       .then((text) => {
         const firstTxt = text;
         cy.log("date time : ", firstTxt);
-        const expectedvalue = Cypress.config().baseUrl.concat('api/v1/datasources/authorize');
+        const expectedvalue = Cypress.config().baseUrl.concat(
+          "api/v1/datasources/authorize",
+        );
         expect(firstTxt).to.equal(expectedvalue);
       });
-    });
+  },
+);
 
 Cypress.Commands.add("ResponseCheck", (textTocheck) => {
   //Explicit assert
