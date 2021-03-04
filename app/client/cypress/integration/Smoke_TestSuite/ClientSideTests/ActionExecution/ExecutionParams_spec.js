@@ -20,7 +20,7 @@ describe("API Panel Test Functionality", function() {
 
     // Bind the table
     cy.SearchEntityandOpen("Table1");
-    cy.testJsontext("tabledata", "{{MultiApi.data");
+    cy.testJsontext("tabledata", "{{MultiApi.data", false);
     // Assert 'posts' data (default)
     cy.readTabledataPublish("0", "2").then((cellData) => {
       expect(cellData).to.be.equal(
@@ -38,6 +38,7 @@ describe("API Panel Test Functionality", function() {
     cy.testJsontext(
       "onclick",
       "{{MultiApi.run(undefined, undefined, { endpoint: 'users",
+      false,
     );
     cy.get(commonlocators.editPropCrossButton).click();
 
@@ -51,6 +52,7 @@ describe("API Panel Test Functionality", function() {
     cy.testJsontext(
       "onclick",
       "{{MultiApi.run(undefined, undefined, { endpoint: EndpointInput.text",
+      false,
     );
 
     // Publish the app
