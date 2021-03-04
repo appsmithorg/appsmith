@@ -11,7 +11,7 @@ const ItemWrapper = styled.div<{ selected: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${(props) => (props.selected ? "#29CCA3" : "#21282C")};
+  background: ${(props) => (props.selected ? "rgb(3, 179, 101)" : "#21282C")};
   cursor: pointer;
   &:first-of-type {
     border-top-left-radius: 4px;

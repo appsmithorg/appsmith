@@ -1,6 +1,8 @@
 package com.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.AppsmithErrorAction;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -111,7 +113,7 @@ public class FirestorePluginTest {
         paginationCol.add(Map.of("n", 11, "name", "Israel Broc", "firm", "Microsoft")).get();
         paginationCol.add(Map.of("n", 12, "name", "Larry Frazie", "firm", "Netflix")).get();
         paginationCol.add(Map.of("n", 13, "name", "Rufus Green", "firm", "Apple")).get();
-        paginationCol.add(Map.of("n", 14, "name", "Marco Murra", "firm", "Oracle")).get();
+        paginationCol.add(Map.of("n", 14, "name", "Marco Murray", "firm", "Oracle")).get();
         paginationCol.add(Map.of("n", 15, "name", "Jeremy Mille", "firm", "IBM")).get();
 
         dsConfig.setUrl(emulator.getEmulatorEndpoint());
@@ -477,6 +479,124 @@ public class FirestorePluginTest {
                     assertEquals(
                             "[1, 2, 3, 4, 5]",
                             firstResultsAgain.stream().map(m -> m.get("n").toString()).collect(Collectors.toList()).toString()
+                    );
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDatasourceCreateErrorOnBadServiceAccountCredentials() {
+        DBAuth dbAuth = new DBAuth();
+        dbAuth.setUsername("username");
+        dbAuth.setPassword("password");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(dbAuth);
+        datasourceConfiguration.setUrl("https://url");
+
+        StepVerifier.create(pluginExecutor.datasourceCreate(datasourceConfiguration))
+                .expectErrorSatisfies(error -> {
+                    // Check that error is caught and returned as plugin error.
+                    assertTrue(error instanceof AppsmithPluginException);
+
+                    // Check error message.
+                    assertEquals(
+                            "Validation failed for field 'Service Account Credentials'. Please check the " +
+                                    "value provided in the 'Service Account Credentials' field.",
+                            error.getMessage());
+
+                    // Check that the error does not get logged externally.
+                    assertFalse(AppsmithErrorAction.LOG_EXTERNALLY.equals(((AppsmithPluginException)error).getError().getErrorAction()));
+                })
+                .verify();
+    }
+
+    @Test
+    public void testGetDocumentsInCollectionOrdering() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("pagination");
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(
+                new Property("method", "GET_COLLECTION"),
+                new Property("order", "[\"firm\", \"name\"]"),
+                new Property("limit", "15")
+        ));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    assertEquals(15, results.size());
+
+                    final List<Object> names = results.stream().map(d -> d.get("name")).collect(Collectors.toList());
+                    assertEquals(
+                            List.of(
+                                    "Lowell Reese",
+                                    "Rufus Green",
+                                    "Michele Cole",
+                                    "Alvin Zimmerman",
+                                    "Della Moore",
+                                    "Josefina Perkins",
+                                    "Meghan Steele",
+                                    "Allen Arnold",
+                                    "Jeremy Mille",
+                                    "Eunice Hines",
+                                    "Israel Broc",
+                                    "Harriet Myers",
+                                    "Larry Frazie",
+                                    "Gerard Neal",
+                                    "Marco Murray"
+                            ),
+                            names
+                    );
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetDocumentsInCollectionOrdering2() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("pagination");
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(
+                new Property("method", "GET_COLLECTION"),
+                new Property("order", "[\"firm\", \"-name\"]"),
+                new Property("limit", "15")
+        ));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    assertEquals(15, results.size());
+
+                    final List<Object> names = results.stream().map(d -> d.get("name")).collect(Collectors.toList());
+                    assertEquals(
+                            List.of(
+                                    "Rufus Green",
+                                    "Lowell Reese",
+                                    "Michele Cole",
+                                    "Della Moore",
+                                    "Alvin Zimmerman",
+                                    "Meghan Steele",
+                                    "Josefina Perkins",
+                                    "Jeremy Mille",
+                                    "Allen Arnold",
+                                    "Israel Broc",
+                                    "Eunice Hines",
+                                    "Larry Frazie",
+                                    "Harriet Myers",
+                                    "Marco Murray",
+                                    "Gerard Neal"
+                            ),
+                            names
                     );
 
                 })

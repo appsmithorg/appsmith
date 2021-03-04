@@ -210,7 +210,21 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Tabs Data`,
       };
-    } else if (!every(parsed, (datum) => isObject(datum))) {
+    } else if (
+      !every(
+        parsed,
+        (datum: {
+          id: string;
+          label: string;
+          widgetId: string;
+          isVisible?: boolean;
+        }) =>
+          isObject(datum) &&
+          !isUndefined(datum.id) &&
+          !isUndefined(datum.label) &&
+          !isUndefined(datum.widgetId),
+      )
+    ) {
       return {
         isValid: false,
         parsed: [],
@@ -276,26 +290,31 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     let index = 0;
     const isValidChartData = every(
       parsed,
-      (datum: { name: string; data: any }) => {
-        const validatedResponse: {
-          isValid: boolean;
-          parsed: Array<unknown>;
-          message?: string;
-        } = VALIDATORS[VALIDATION_TYPES.ARRAY](datum.data, props, dataTree);
+      (datum: { seriesName: string; data: any }) => {
+        let isValidChart = false;
         validationMessage = `${index}##${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
-        let isValidChart = validatedResponse.isValid;
-        if (validatedResponse.isValid) {
-          datum.data = validatedResponse.parsed;
-          isValidChart = every(
-            datum.data,
-            (chartPoint: { x: string; y: any }) => {
-              return (
-                isObject(chartPoint) &&
-                isString(chartPoint.x) &&
-                !isUndefined(chartPoint.y)
-              );
-            },
-          );
+        try {
+          const validatedResponse: {
+            isValid: boolean;
+            parsed: Array<unknown>;
+            message?: string;
+          } = VALIDATORS[VALIDATION_TYPES.ARRAY](datum.data, props, dataTree);
+          isValidChart = validatedResponse.isValid;
+          if (validatedResponse.isValid) {
+            datum.data = validatedResponse.parsed;
+            isValidChart = every(
+              datum.data,
+              (chartPoint: { x: string; y: any }) => {
+                return (
+                  isObject(chartPoint) &&
+                  isString(chartPoint.x) &&
+                  !isUndefined(chartPoint.y)
+                );
+              },
+            );
+          }
+        } catch (e) {
+          console.error(e);
         }
         index++;
         return isValidChart;

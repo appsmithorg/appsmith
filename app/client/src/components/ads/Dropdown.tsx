@@ -17,9 +17,9 @@ type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
   selected: DropdownOption;
   onSelect?: (value?: string) => void;
-  width?: string;
-  showLabelOnly?: boolean;
-  optionWidth?: string;
+  width?: number;
+  showDropIcon?: boolean;
+  SelectedValueNode?: typeof DefaultDropDownValueNode;
 };
 
 export const DropdownContainer = styled.div<{ width?: string }>`
@@ -131,8 +131,18 @@ const LabelWrapper = styled.div<{ label?: string }>`
   }
 `;
 
+const DefaultDropDownValueNode = ({
+  selected,
+}: {
+  selected: DropdownOption;
+}) => <Text type={TextType.P1}>{selected.value}</Text>;
+
 export default function Dropdown(props: DropdownProps) {
-  const { onSelect } = { ...props };
+  const {
+    onSelect,
+    showDropIcon = true,
+    SelectedValueNode = DefaultDropDownValueNode,
+  } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
   const [containerWidth, setContainerWidth] = useState<string>("0px");
@@ -166,7 +176,12 @@ export default function Dropdown(props: DropdownProps) {
     >
       <Popover
         minimal
+<<<<<<< HEAD
         position={Position.TOP_LEFT}
+=======
+        popoverClassName={props.className}
+        position={Position.BOTTOM_RIGHT}
+>>>>>>> release
         isOpen={isOpen && !props.disabled}
         onInteraction={(state) => setIsOpen(state)}
         boundary="scrollParent"
@@ -177,10 +192,15 @@ export default function Dropdown(props: DropdownProps) {
           onClick={() => setIsOpen(!isOpen)}
           className={props.className}
         >
+<<<<<<< HEAD
           <Text type={TextType.P1}>
             {props.showLabelOnly ? selected.label : selected.value}
           </Text>
           <Icon name="downArrow" size={IconSize.XXS} />
+=======
+          <SelectedValueNode selected={selected} />
+          {showDropIcon && <Icon name="downArrow" size={IconSize.XXS} />}
+>>>>>>> release
         </Selected>
         <DropdownWrapper
           width={props.optionWidth ? props.optionWidth : containerWidth}

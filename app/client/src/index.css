@@ -51,7 +51,7 @@ div.bp3-popover-arrow {
 }
 
 .Toastify__progress-bar--default {
-  background: #29CCA3 !important;
+  background: rgb(3, 179, 101) !important;
 }
 
 #header-root {
@@ -84,6 +84,14 @@ div.bp3-popover-arrow {
 
 .bp3-popover.bp3-minimal {
   margin-top: 8px !important;
+}
+
+.layout-control.bp3-popover.bp3-minimal{
+  margin-top: unset !important;
+}
+
+.layout-control .t--dropdown-option:hover{
+  background: #F0F0F0;
 }
 
 .bp3-datepicker {
