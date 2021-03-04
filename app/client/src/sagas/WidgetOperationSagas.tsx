@@ -40,7 +40,6 @@ import {
   SetWidgetDynamicPropertyPayload,
   updateWidgetProperty,
   UpdateWidgetPropertyPayload,
-  updateWidgetPropertyRequest,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
 import {
@@ -54,7 +53,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, isString, set, uniqBy } from "lodash";
+import _, { cloneDeep, isString, set } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   buildWidgetBlueprint,
@@ -434,23 +433,6 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       // SPECIAL HANDLING FOR TABS IN A TABS WIDGET
       if (parent.type === WidgetTypes.TABS_WIDGET && widget.tabName) {
         widgetName = widget.tabName;
-        // Deleting a tab from the explorer doesn't remove the same
-        // from the "tabs" property of the widget.
-        // So updating the widget property here when the children length doesn't match
-        // `tabs` length
-        if (parent.children?.length !== parent.tabs.length) {
-          const filteredTabs = parent.tabs.filter(
-            (tab: any) => tab.widgetId !== widgetId,
-          );
-          yield put(
-            updateWidgetPropertyRequest(
-              parentId,
-              "tabs",
-              filteredTabs,
-              RenderModes.CANVAS,
-            ),
-          );
-        }
       }
       if (saveStatus && !disallowUndo) {
         Toaster.show({
@@ -758,7 +740,7 @@ function applyDynamicPathUpdates(
       key: update.propertyPath,
     });
   } else if (update.effect === DynamicPathUpdateEffectEnum.REMOVE) {
-    _.reject(currentList, { key: update.propertyPath });
+    currentList = _.reject(currentList, { key: update.propertyPath });
   }
   return currentList;
 }
@@ -831,12 +813,14 @@ function* setWidgetDynamicPropertySaga(
   yield put(updateAndSaveLayout(widgets));
 }
 
-function* getPropertiesToUpdate(
-  widgetId: string,
+function getPropertiesToUpdate(
+  widget: WidgetProps,
   updates: Record<string, unknown>,
-) {
-  const widget: WidgetProps = yield select(getWidget, widgetId);
-
+): {
+  propertyUpdates: Record<string, unknown>;
+  dynamicTriggerPathList: DynamicPath[];
+  dynamicBindingPathList: DynamicPath[];
+} {
   // Create a
   const widgetWithUpdates = _.cloneDeep(widget);
   Object.entries(updates).forEach(([propertyPath, propertyValue]) => {
@@ -919,7 +903,7 @@ function* batchUpdateWidgetPropertySaga(
         propertyUpdates,
         dynamicTriggerPathList,
         dynamicBindingPathList,
-      } = yield getPropertiesToUpdate(widgetId, modify);
+      } = getPropertiesToUpdate(widget, modify);
 
       // We loop over all updates
       Object.entries(propertyUpdates).forEach(
@@ -928,21 +912,8 @@ function* batchUpdateWidgetPropertySaga(
           widget = set(widget, propertyPath, propertyValue);
         },
       );
-
-      if (dynamicBindingPathList?.length) {
-        const currentList = widget.dynamicBindingPathList || [];
-        widget.dynamicBindingPathList = uniqBy(
-          [...currentList, ...dynamicBindingPathList],
-          "key",
-        );
-      }
-      if (dynamicTriggerPathList?.length) {
-        const currentList = widget.dynamicTriggerPathList || [];
-        widget.dynamicTriggerPathList = uniqBy(
-          [...currentList, ...dynamicTriggerPathList],
-          "key",
-        );
-      }
+      widget.dynamicBindingPathList = dynamicBindingPathList;
+      widget.dynamicTriggerPathList = dynamicTriggerPathList;
     }
   } catch (e) {
     log.debug("Error updating property paths: ", { e });

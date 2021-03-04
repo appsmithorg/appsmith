@@ -288,47 +288,60 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     let validationMessage = "";
     let index = 0;
-    const isValidChartData = every(
-      parsed,
-      (datum: { seriesName: string; data: any }) => {
-        let isValidChart = false;
-        validationMessage = `${index}##${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
-        try {
-          const validatedResponse: {
-            isValid: boolean;
-            parsed: Array<unknown>;
-            message?: string;
-          } = VALIDATORS[VALIDATION_TYPES.ARRAY](datum.data, props, dataTree);
-          isValidChart = validatedResponse.isValid;
-          if (validatedResponse.isValid) {
-            datum.data = validatedResponse.parsed;
-            isValidChart = every(
-              datum.data,
-              (chartPoint: { x: string; y: any }) => {
-                return (
-                  isObject(chartPoint) &&
-                  isString(chartPoint.x) &&
-                  !isUndefined(chartPoint.y)
-                );
-              },
-            );
-          }
-        } catch (e) {
-          console.error(e);
+    const parsedChartData = [];
+    let isValidChart = true;
+
+    for (const seriesData of parsed) {
+      let isValidSeries = false;
+      try {
+        const validatedResponse: {
+          isValid: boolean;
+          parsed: Array<unknown>;
+          message?: string;
+        } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+          seriesData.data,
+          props,
+          dataTree,
+        );
+        if (validatedResponse.isValid) {
+          isValidSeries = every(
+            validatedResponse.parsed,
+            (chartPoint: { x: string; y: any }) => {
+              return (
+                isObject(chartPoint) &&
+                isString(chartPoint.x) &&
+                !isUndefined(chartPoint.y)
+              );
+            },
+          );
         }
-        index++;
-        return isValidChart;
-      },
-    );
-    if (!isValidChartData) {
+        if (!isValidSeries) {
+          isValidChart = false;
+          parsedChartData.push({
+            ...seriesData,
+            data: [],
+          });
+          validationMessage = `${index}##${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
+        } else {
+          parsedChartData.push({
+            ...seriesData,
+            data: validatedResponse.parsed,
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      index++;
+    }
+    if (!isValidChart) {
       return {
         isValid: false,
-        parsed: [],
+        parsed: parsedChartData,
         transformed: parsed,
         message: validationMessage,
       };
     }
-    return { isValid, parsed, transformed: parsed };
+    return { isValid, parsed: parsedChartData, transformed: parsedChartData };
   },
   [VALIDATION_TYPES.MARKERS]: (
     value: any,
