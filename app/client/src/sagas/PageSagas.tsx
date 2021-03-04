@@ -57,7 +57,7 @@ import {
   getWidgets,
 } from "./selectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { validateResponse } from "./ErrorSagas";
+import { IncorrectBindingError, validateResponse } from "./ErrorSagas";
 import { executePageLoadActions } from "actions/widgetActions";
 import { ApiResponse } from "api/ApiResponses";
 import {
@@ -79,6 +79,9 @@ import PerformanceTracker, {
 import { WidgetTypes } from "constants/WidgetConstants";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
+import * as Sentry from "@sentry/react";
+import { ERROR_CODES } from "constants/ApiConstants";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -290,7 +293,7 @@ export function* fetchAllPublishedPagesSaga() {
   }
 }
 
-function* savePageSaga() {
+function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   const widgets = yield select(getWidgets);
   const editorConfigs = yield select(getEditorConfigs) as any;
   const savePageRequest = getLayoutSavePayload(widgets, editorConfigs);
@@ -355,6 +358,32 @@ function* savePageSaga() {
         show: false,
       },
     });
+
+    if (error instanceof IncorrectBindingError) {
+      const { isRetry } = action.payload;
+      const incorrectBindingError = JSON.parse(error.message);
+      const { widgetId, message } = incorrectBindingError;
+      if (isRetry) {
+        Sentry.captureException(new Error("Failed to correct binding paths"));
+        yield put({
+          type: ReduxActionErrorTypes.FAILED_CORRECTING_BINDING_PATHS,
+          payload: {
+            error: {
+              message,
+              code: ERROR_CODES.FAILED_TO_CORRECT_BINDING,
+              crash: true,
+            },
+          },
+        });
+      } else {
+        const correctWidget = migrateIncorrectDynamicBindingPathLists(
+          widgets[widgetId],
+        );
+        yield put(
+          updateAndSaveLayout({ ...widgets, [widgetId]: correctWidget }, true),
+        );
+      }
+    }
   }
 }
 
@@ -374,10 +403,11 @@ function getLayoutSavePayload(
   };
 }
 
-export function* saveLayoutSaga() {
+export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   try {
     yield put({
       type: ReduxActionTypes.SAVE_PAGE_INIT,
+      payload: action.payload,
     });
   } catch (error) {
     yield put({
