@@ -10,7 +10,7 @@ import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { FORGOT_PASSWORD_SUCCESS_TEXT } from "constants/messages";
-import { updateUserDetails } from "actions/userActions";
+import { logoutUser, updateUserDetails } from "actions/userActions";
 import { AppState } from "reducers";
 
 const Wrapper = styled.div`
@@ -66,6 +66,7 @@ const General = () => {
         text: `${FORGOT_PASSWORD_SUCCESS_TEXT} ${user?.email}`,
         variant: Variant.success,
       });
+      dispatch(logoutUser());
     } catch (error) {
       Toaster.show({
         text: error._error,

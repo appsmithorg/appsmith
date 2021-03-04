@@ -9,6 +9,10 @@ import {
   VerifyTokenRequest,
 } from "api/UserApi";
 
+export const logoutUser = () => ({
+  type: ReduxActionTypes.LOGOUT_USER_INIT,
+});
+
 export const logoutUserSuccess = () => ({
   type: ReduxActionTypes.LOGOUT_USER_SUCCESS,
 });
