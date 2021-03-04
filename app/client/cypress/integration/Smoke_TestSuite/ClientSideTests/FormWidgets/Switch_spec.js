@@ -80,7 +80,7 @@ describe("Switch Widget Functionality", function() {
     cy.get(commonlocators.optionalignment)
       .last()
       .click();
-    cy.dropdownDynamic("Right");
+    cy.dropdownDynamicUpdated("Right");
     cy.PublishtheApp();
     cy.get(publish.switchwidget + " " + ".bp3-align-right").should("exist");
     cy.get(publish.switchwidget + " " + ".bp3-align-left").should("not.exist");

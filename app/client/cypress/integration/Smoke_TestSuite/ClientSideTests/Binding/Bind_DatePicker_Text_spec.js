@@ -50,7 +50,7 @@ describe("Binding the Datepicker and Text Widget", function() {
     cy.get(commonlocators.backToEditor).click();
   });
 
-  it("DatePicker1-text: Change the date in DatePicker1 and Validate the same in text widget", function() {
+  it.skip("DatePicker1-text: Change the date in DatePicker1 and Validate the same in text widget", function() {
     cy.openPropertyPane("textwidget");
 
     /**

@@ -1589,6 +1589,15 @@ Cypress.Commands.add("dropdownDynamic", (text) => {
     .click({ force: true })
     .should("have.text", text);
 });
+
+Cypress.Commands.add("dropdownDynamicUpdated", (text) => {
+  cy.wait(2000);
+  cy.get(commonlocators.dropdownmenu)
+    .contains(text)
+    .click({ force: true })
+    .should("have.text", text);
+});
+
 Cypress.Commands.add("selectTextSize", (text) => {
   cy.get(".t--dropdown-option")
     .first()

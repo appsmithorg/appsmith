@@ -99,7 +99,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.get(commonlocators.optionalignment)
       .last()
       .click();
-    cy.dropdownDynamic("Right");
+    cy.dropdownDynamicUpdated("Right");
     cy.PublishtheApp();
     cy.get(publish.checkboxWidget + " " + ".bp3-align-right").should("exist");
     cy.get(publish.checkboxWidget + " " + ".bp3-align-left").should(
