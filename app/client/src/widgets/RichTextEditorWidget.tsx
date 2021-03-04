@@ -78,6 +78,7 @@ class RichTextEditorWidget extends BaseWidget<
       text: VALIDATION_TYPES.TEXT,
       placeholder: VALIDATION_TYPES.TEXT,
       defaultValue: VALIDATION_TYPES.TEXT,
+      defaultText: VALIDATION_TYPES.TEXT,
       isDisabled: VALIDATION_TYPES.BOOLEAN,
       isVisible: VALIDATION_TYPES.BOOLEAN,
     };
