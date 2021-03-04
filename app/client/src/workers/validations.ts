@@ -290,7 +290,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     let index = 0;
     const isValidChartData = every(
       parsed,
-      (datum: { name: string; data: any }) => {
+      (datum: { seriesName: string; data: any }) => {
         const validatedResponse: {
           isValid: boolean;
           parsed: Array<unknown>;
