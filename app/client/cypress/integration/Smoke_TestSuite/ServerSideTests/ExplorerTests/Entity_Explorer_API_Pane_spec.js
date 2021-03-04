@@ -36,15 +36,24 @@ describe("Entity explorer API pane related testcases", function() {
       .contains(testdata.Get)
       .should("be.visible");
     cy.Createpage(pageid);
-    cy.GlobalSearchEntity("FirstAPI");
-    cy.EditApiNameFromExplorer("SecondAPI");
-    cy.GlobalSearchEntity("SecondAPI");
-    cy.xpath(apiwidget.popover)
+    // cy.GlobalSearchEntity("FirstAPI");
+    cy.ExpandAllExplorerEntities();
+    cy.get(`.t--entity.action:contains(SecondAPI)`)
       .last()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
-    cy.MoveAPIToPage(pageid);
+      .EditApiNameFromExplorer("SecondAPI");
+    // cy.EditApiNameFromExplorer("SecondAPI");
+    // cy.GlobalSearchEntity("SecondAPI");
+    cy.ExpandAllExplorerEntities();
+    cy.get(`.t--entity.action:contains(SecondAPI)`)
+      .last()
+      .ShowExplorerContextMenu()
+      .MoveAPIToPage(pageid);
+    // cy.xpath(apiwidget.popover)
+    //   .last()
+    //   .should("be.hidden")
+    //   .invoke("show")
+    //   .click({ force: true });
+    // cy.MoveAPIToPage(pageid);
     cy.SearchEntityandOpen("SecondAPI");
     /*To be enabled once the bug is fixed
     cy.get(apiwidget.propertyList).then(function($lis) {

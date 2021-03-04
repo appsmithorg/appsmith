@@ -92,26 +92,38 @@ describe("Entity explorer tests related to query and datasource", function() {
       .type("select * from users");
 
     cy.EvaluateCurrentValue("select * from users");
+    cy.ExpandAllExplorerEntities();
+    // cy.get('.t--entity.action:contains(Query1)')
+    //   .find(explorer.collapse)
+    //   .click();
 
-    cy.get(`.t--entity.action:contains(Query1)`)
-      .find(explorer.collapse)
-      .click();
-    cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(3);
-      expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
-      expect($lis.eq(1)).to.contain("{{Query1.data}}");
-      expect($lis.eq(2)).to.contain("{{Query1.run()}}");
+    cy.get(`.t--entity.action:contains(Query1)`).within(() => {
+      cy.get(apiwidget.propertyList).then(function($lis) {
+        expect($lis).to.have.length(3);
+        expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
+        expect($lis.eq(1)).to.contain("{{Query1.data}}");
+        expect($lis.eq(2)).to.contain("{{Query1.run()}}");
+      });
     });
+
     cy.Createpage(pageid);
-    cy.GlobalSearchEntity("Query1");
-    cy.EditApiNameFromExplorer("MyQuery");
-    cy.GlobalSearchEntity("MyQuery");
-    cy.xpath(apiwidget.popover)
+    // cy.GlobalSearchEntity("Query1");
+    cy.ExpandAllExplorerEntities();
+    cy.get(`.t--entity.action:contains(Query1)`)
+      .EditApiNameFromExplorer("MyQuery");
+    // cy.GlobalSearchEntity("MyQuery");
+    cy.ExpandAllExplorerEntities();
+
+    cy.get(`.t--entity.action:contains(MyQuery)`)
       .last()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
-    cy.MoveAPIToPage(pageid);
+      .ShowExplorerContextMenu()
+      .MoveAPIToPage(pageid);
+    // cy.xpath(apiwidget.popover)
+    //   .last()
+    //   .should("be.hidden")
+    //   .invoke("show")
+    //   .click({ force: true });
+    // cy.MoveAPIToPage(pageid);
     cy.SearchEntityandOpen("MyQuery");
     cy.runQuery();
 

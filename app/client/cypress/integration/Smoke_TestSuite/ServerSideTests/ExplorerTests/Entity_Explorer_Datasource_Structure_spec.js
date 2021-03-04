@@ -33,7 +33,8 @@ describe("Entity explorer datasource structure", function() {
       .blur();
     cy.WaitAutoSave();
 
-    cy.GlobalSearchEntity(datasourceName);
+    // cy.GlobalSearchEntity(datasourceName);
+    cy.ExpandAllExplorerEntities();
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -69,8 +70,9 @@ describe("Entity explorer datasource structure", function() {
       200,
     );
 
-    cy.GlobalSearchEntity("MyQuery");
-    cy.get(`.t--entity-name:contains(MyQuery)`).click();
+    // cy.GlobalSearchEntity("MyQuery");
+    cy.ExpandAllExplorerEntities();
+    cy.get(".t--entity-name:contains(MyQuery)").click();
     cy.get(queryEditor.deleteQuery).click();
     cy.wait("@deleteAction").should(
       "have.nested.property",
@@ -78,7 +80,7 @@ describe("Entity explorer datasource structure", function() {
       200,
     );
 
-    cy.get(commonlocators.entityExplorersearch).clear();
+    // cy.get(commonlocators.entityExplorersearch).clear();
 
     cy.deleteDatasource(datasourceName);
   });
@@ -90,7 +92,8 @@ describe("Entity explorer datasource structure", function() {
       .click();
     cy.get(queryLocators.templateMenu).click();
 
-    cy.GlobalSearchEntity(datasourceName);
+    // cy.GlobalSearchEntity(datasourceName);
+    cy.ExpandAllExplorerEntities();
     cy.get(`.t--entity.datasource:contains(${datasourceName})`)
       .find(explorer.collapse)
       .as("datasourceEntityCollapse");
@@ -101,7 +104,7 @@ describe("Entity explorer datasource structure", function() {
       200,
     );
 
-    cy.get(commonlocators.entityExplorersearch).clear();
+    // cy.get(commonlocators.entityExplorersearch).clear();
 
     const tableName = Math.random()
       .toString(36)
@@ -118,13 +121,17 @@ describe("Entity explorer datasource structure", function() {
       200,
     );
 
-    cy.GlobalSearchEntity(datasourceName);
+    // cy.GlobalSearchEntity(datasourceName);
+    cy.ExpandAllExplorerEntities();
     cy.get("@datasourceEntityCollapse")
       .first()
       .click();
-    cy.xpath(explorer.datsourceEntityPopover)
-      .last()
-      .click({ force: true });
+    
+    cy.get(`.t--entity.datasource:contains(${datasourceName})`)
+      .ShowExplorerContextMenu();
+    // cy.xpath(explorer.datsourceEntityPopover)
+    //   .last()
+    //   .click({ force: true });
 
     cy.get(explorer.refreshStructure).click({ force: true });
     cy.wait("@getDatasourceStructure").should(
@@ -157,7 +164,7 @@ describe("Entity explorer datasource structure", function() {
           200,
         );
 
-        cy.get(commonlocators.entityExplorersearch).clear();
+        // cy.get(commonlocators.entityExplorersearch).clear();
         cy.deleteDatasource(datasourceName);
       });
   });

@@ -8,10 +8,13 @@ describe("Hide page", function() {
     cy.Createpage(pageOne);
     cy.Createpage(pageTwo);
 
-    cy.GlobalSearchEntity(pageOne);
-    cy.xpath(pages.popover)
-      .last()
-      .click({ force: true });
+    // cy.GlobalSearchEntity(pageOne);
+    cy.ExpandAllExplorerEntities();
+    cy.get(`.t--entity.page:contains(pageOne)`)
+      .ShowExplorerContextMenu();
+    // cy.xpath(pages.popover)
+    //   .last()
+    //   .click({ force: true });
     cy.get(pages.hidePage).click({ force: true });
     cy.ClearSearch();
 

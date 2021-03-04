@@ -12,6 +12,8 @@ describe("API Panel Test Functionality ", function() {
     cy.CreateAPI("SecondAPI");
     cy.RunAPI();
     cy.log("Creation of SecondAPI Action successful");
-    cy.SearchEntity("SecondAPI", "FirstAPI");
+    cy.ExpandAllExplorerEntities();
+    // todo add tests for search within omnibar
+    // cy.SearchEntity("SecondAPI", "FirstAPI");
   });
 });

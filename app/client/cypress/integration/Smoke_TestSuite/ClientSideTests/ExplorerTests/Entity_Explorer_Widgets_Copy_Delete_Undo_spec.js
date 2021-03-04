@@ -30,16 +30,32 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
   });
 
   it("Delete Widget from sidebar and Undo action validation", function() {
-    cy.GlobalSearchEntity("FormTest");
-    cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(2);
-      expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");
-      expect($lis.eq(1)).to.contain("{{FormTest.data}}");
+    // cy.GlobalSearchEntity("FormTest");
+    cy.ExpandAllExplorerEntities();
+    // cy.get(apiwidget.propertyList).then(function($lis) {
+    //   expect($lis).to.have.length(2);
+    //   expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");
+    //   expect($lis.eq(1)).to.contain("{{FormTest.data}}");
+    // });
+
+    cy.get(".t--entity.widget:contains(FormTest)").within(() => {
+      cy.get(apiwidget.propertyList).then(function($lis) {
+        expect($lis).to.have.length(2);
+        expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");
+        expect($lis.eq(1)).to.contain("{{FormTest.data}}");
+      });
     });
-    cy.DeleteWidgetFromSideBar();
+
+    cy.get(".t--entity.widget:contains(FormTest)")
+      .DeleteWidgetFromSideBar();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.get(apiwidget.propertyList).should("not.exist");
+    // cy.get(apiwidget.propertyList).should("not.exist");
+
+    cy.get(".t--entity.widget:contains(FormTest)").within(() => {
+      cy.get(apiwidget.propertyList).should("not.exist");
+    });
+
     /*
     To be enabled once widget delete click works
     cy.get('.t--delete-widget')
@@ -57,10 +73,13 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     );
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(2);
-      expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");
-      expect($lis.eq(1)).to.contain("{{FormTest.data}}");
+
+    cy.get(".t--entity.widget:contains(FormTest)").within(() => {
+      cy.get(apiwidget.propertyList).then(function($lis) {
+        expect($lis).to.have.length(2);
+        expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");
+        expect($lis.eq(1)).to.contain("{{FormTest.data}}");
+      });
     });
   });
 });

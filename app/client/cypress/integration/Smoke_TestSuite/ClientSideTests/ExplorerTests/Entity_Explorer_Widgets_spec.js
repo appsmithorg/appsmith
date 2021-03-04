@@ -15,22 +15,47 @@ describe("Entity explorer tests related to widgets and validation", function() {
     cy.get(explorer.property)
       .last()
       .click({ force: true });
-    cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(2);
-      expect($lis.eq(0)).to.contain("{{Text1.isVisible}}");
-      expect($lis.eq(1)).to.contain("{{Text1.text}}");
+
+    cy.get(".t--entity.widget:contains(Text1)").within(() => {
+      cy.get(apiwidget.propertyList).then(function($lis) {
+        expect($lis).to.have.length(2);
+        expect($lis.eq(0)).to.contain("{{Text1.isVisible}}");
+        expect($lis.eq(1)).to.contain("{{Text1.text}}");
+      });
     });
-    cy.GlobalSearchEntity("Text1");
+
+    // cy.get(apiwidget.propertyList).then(function($lis) {
+    //   expect($lis).to.have.length(2);
+    //   expect($lis.eq(0)).to.contain("{{Text1.isVisible}}");
+    //   expect($lis.eq(1)).to.contain("{{Text1.text}}");
+    // });
+    // cy.GlobalSearchEntity("Text1");
+    cy.ExpandAllExplorerEntities();
     cy.EditApiNameFromExplorer("TextUpdated");
-    cy.GlobalSearchEntity("TextUpdated");
-    cy.get(".t--entity-collapse-toggle")
+    cy.get(".t--entity.widget:contains(TextUpdated)")
+      .EditApiNameFromExplorer()
+      .get(".t--entity-collapse-toggle")
       .last()
-      .click();
-    cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(2);
-      expect($lis.eq(0)).to.contain("{{TextUpdated.isVisible}}");
-      expect($lis.eq(1)).to.contain("{{TextUpdated.text}}");
-    });
-    cy.DeleteWidgetFromSideBar();
+      .click()
+      .within(() => {
+        cy.get(apiwidget.propertyList).then(function($lis) {
+          expect($lis).to.have.length(2);
+          expect($lis.eq(0)).to.contain("{{TextUpdated.isVisible}}");
+          expect($lis.eq(1)).to.contain("{{TextUpdated.text}}");
+        });
+      })
+      .DeleteWidgetFromSideBar();
+
+    // cy.GlobalSearchEntity("TextUpdated");
+    // cy.ExpandAllExplorerEntities();
+    // cy.get(".t--entity-collapse-toggle")
+    //   .last()
+    //   .click();
+    // cy.get(apiwidget.propertyList).then(function($lis) {
+    //   expect($lis).to.have.length(2);
+    //   expect($lis.eq(0)).to.contain("{{TextUpdated.isVisible}}");
+    //   expect($lis.eq(1)).to.contain("{{TextUpdated.text}}");
+    // });
+    // cy.DeleteWidgetFromSideBar();
   });
 });

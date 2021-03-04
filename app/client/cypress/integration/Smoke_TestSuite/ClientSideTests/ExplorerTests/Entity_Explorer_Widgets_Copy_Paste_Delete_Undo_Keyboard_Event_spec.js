@@ -45,11 +45,20 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
     cy.get(commonlocators.toastAction)
       .contains("UNDO")
       .click({ force: true });
-    cy.GlobalSearchEntity("Form1");
-    cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(2);
-      expect($lis.eq(0)).to.contain("{{Form1.isVisible}}");
-      expect($lis.eq(1)).to.contain("{{Form1.data}}");
+    // cy.GlobalSearchEntity("Form1");
+    cy.ExpandAllExplorerEntities();
+    // cy.get(apiwidget.propertyList).then(function($lis) {
+    //   expect($lis).to.have.length(2);
+    //   expect($lis.eq(0)).to.contain("{{Form1.isVisible}}");
+    //   expect($lis.eq(1)).to.contain("{{Form1.data}}");
+    // });
+
+    cy.get(`.t--entity.widget:contains(Form1)`).within(() => {
+      cy.get(apiwidget.propertyList).then(function($lis) {
+        expect($lis).to.have.length(2);
+        expect($lis.eq(0)).to.contain("{{Form1.isVisible}}");
+        expect($lis.eq(1)).to.contain("{{Form1.data}}");
+      });
     });
   });
 });

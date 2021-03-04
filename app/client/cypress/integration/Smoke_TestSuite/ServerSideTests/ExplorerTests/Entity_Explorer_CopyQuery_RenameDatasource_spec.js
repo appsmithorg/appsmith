@@ -60,30 +60,31 @@ describe("Entity explorer tests related to copy query", function() {
 
   it("Create a page and copy query in explorer", function() {
     cy.Createpage(pageid);
-    cy.GlobalSearchEntity("Query1");
-    cy.xpath(apiwidget.popover)
+    // cy.GlobalSearchEntity();
+    cy.ExpandAllExplorerEntities();
+    cy.get(`.t--entity.action:contains(Query1)`)
       .last()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
+      .ShowExplorerContextMenu();
     cy.copyEntityToPage(pageid);
     cy.SearchEntityandOpen("Query1Copy");
     cy.runQuery();
     cy.get(`.t--entity.action:contains(Query1Copy)`)
       .find(explorer.collapse)
       .click();
-    cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(3);
-      expect($lis.eq(0)).to.contain("{{Query1Copy.isLoading}}");
-      expect($lis.eq(1)).to.contain("{{Query1Copy.data}}");
-      expect($lis.eq(2)).to.contain("{{Query1Copy.run()}}");
+    cy.get(`.t--entity.action:contains(Query1Copy)`).within(() => {
+      cy.get(apiwidget.propertyList).then(function($lis) {
+        expect($lis).to.have.length(3);
+        expect($lis.eq(0)).to.contain("{{Query1Copy.isLoading}}");
+        expect($lis.eq(1)).to.contain("{{Query1Copy.data}}");
+        expect($lis.eq(2)).to.contain("{{Query1Copy.run()}}");
+      });
     });
   });
 
   it("Delete query and rename datasource in explorer", function() {
-    cy.get(commonlocators.entityExplorersearch).clear();
     cy.NavigateToDatasourceEditor();
-    cy.GlobalSearchEntity(`${datasourceName}`);
+    // cy.GlobalSearchEntity();
+    cy.ExpandAllExplorerEntities();
     cy.get(`.t--entity-name:contains(${datasourceName})`)
       .last()
       .click();
@@ -95,7 +96,10 @@ describe("Entity explorer tests related to copy query", function() {
       cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
       cy.SearchEntityandOpen(updatedName);
       cy.testSaveDatasource();
-      cy.hoverAndClick();
+      cy.ExpandAllExplorerEntities();
+      cy.get(`.t--entity.datasource:contains(${updatedName})`)
+        .last()
+        .ShowExplorerContextMenu();
       cy.get(apiwidget.delete).click({ force: true });
       //This is check to make sure if a datasource is active 409
       cy.wait("@deleteDatasource").should(
@@ -105,7 +109,6 @@ describe("Entity explorer tests related to copy query", function() {
       );
     });
 
-    cy.SearchEntityandOpen("Query1Copy");
-    cy.deleteQuery();
+    cy.deleteQuery("Query1Copy");
   });
 });

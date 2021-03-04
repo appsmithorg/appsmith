@@ -7,14 +7,23 @@ describe("API Panel Test Functionality ", function() {
     cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("FirstAPI");
     cy.log("Creation of FirstAPI Action successful");
-    cy.GlobalSearchEntity("FirstAPI");
-    cy.xpath('//*[local-name()="g" and @id="Icon/Outline/more-vertical"]')
+    cy.ExpandAllExplorerEntities();
+
+    cy.get(`.t--entity.action:contains(FirstAPI)`)
       .last()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
-    cy.CopyAPIToHome();
-    cy.GlobalSearchEntity("FirstAPICopy");
-    cy.DeleteAPIFromSideBar();
+      .ShowExplorerContextMenu()
+      .CopyAPIToHome();
+    // cy.GlobalSearchEntity("FirstAPI");
+    // cy.xpath('//*[local-name()="g" and @id="Icon/Outline/more-vertical"]')
+    //   .last()
+    //   .should("be.hidden")
+    //   .invoke("show")
+    //   .click({ force: true });
+    // cy.CopyAPIToHome();
+    cy.ExpandAllExplorerEntities();
+    // cy.GlobalSearchEntity("FirstAPICopy");
+    cy.get(`.t--entity.action:contains(FirstAPI)`)
+      .last()
+      .DeleteAPIFromSideBar();
   });
 });

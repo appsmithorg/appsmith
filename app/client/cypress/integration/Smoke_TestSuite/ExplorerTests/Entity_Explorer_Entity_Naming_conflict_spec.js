@@ -21,8 +21,11 @@ describe("Tab widget test", function() {
   });
 
   it("Rename Table widget with api name validation test", function() {
-    cy.GlobalSearchEntity("Table1");
-    cy.RenameEntity(tableName);
+    // cy.GlobalSearchEntity("Table1");
+    cy.ExpandAllExplorerEntities();
+    cy.get(".t--entity.widget:contains(Table1)")
+      .RenameEntity(tableName);
+    // cy.RenameEntity(tableName);
     cy.validateMessage(tableName);
   });
 });

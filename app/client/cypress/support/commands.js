@@ -405,16 +405,20 @@ Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
   ).should("not.exist");
 });
 
-Cypress.Commands.add("GlobalSearchEntity", (apiname1) => {
-  cy.get(commonlocators.entityExplorersearch).should("be.visible");
-  cy.get(commonlocators.entityExplorersearch)
-    .clear()
-    .type(apiname1);
-  cy.wait(500);
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).should("be.visible");
+// expands all explor erentities
+// todo replace all calls with expand all entities
+Cypress.Commands.add("ExpandAllExplorerEntities", () => {
+  cy.get("body").then($body => {
+    if ($body.find(`${explorer.collapse}.bp3-icon-caret-right`).length > 0) {   //evaluates as true
+      cy.get(`${explorer.collapse}.bp3-icon-caret-right`).click({
+        multiple: true,
+        force: true,
+      });
+      cy.ExpandAllExplorerEntities();
+    }
+  });
 });
+
 
 Cypress.Commands.add("ResponseStatusCheck", (statusCode) => {
   cy.xpath(apiwidget.responseStatus).should("be.visible");
@@ -478,10 +482,12 @@ Cypress.Commands.add("EditApiName", (apiname) => {
   cy.WaitAutoSave();
 });
 
-Cypress.Commands.add("EditApiNameFromExplorer", (apiname) => {
-  cy.xpath(apiwidget.popover)
-    .last()
-    .click({ force: true });
+Cypress.Commands.add("EditApiNameFromExplorer", { prevSubject: true }, (subject, apiname) => {
+  cy.wrap(subject)
+    .ShowExplorerContextMenu();
+  // cy.xpath(apiwidget.popover)
+  //   .last()
+  //   .click({ force: true });
   cy.get(apiwidget.editName).click({ force: true });
   cy.get(explorer.editNameField)
     .clear()
@@ -489,6 +495,8 @@ Cypress.Commands.add("EditApiNameFromExplorer", (apiname) => {
     .should("have.value", apiname)
     .blur();
   cy.wait(3000);
+
+  return subject;
 });
 
 Cypress.Commands.add(
@@ -551,6 +559,20 @@ Cypress.Commands.add("ClearSearch", () => {
   // cy.get(commonlocators.entityExplorersearch).clear();
 });
 
+Cypress.Commands.add("collapseAllEntities", () => {
+  cy.get(`.${explorer.collapse}.bp3-icon-caret-down`).click({
+    multiple: true,
+    force: true,
+  });
+});
+
+Cypress.Commands.add("triggerContextMenu", () => {});
+
+/**
+ * Crude way of expanding nested elements upto 3 levels
+ */
+Cypress.Commands.add("expandAllEntities", () => {});
+
 Cypress.Commands.add(
   "paste",
   {
@@ -577,6 +599,7 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
   cy.get(commonlocators.globalSearchInput)
     .clear()
     .type(apiname1);
+  cy.wait(2000);
   cy.get(commonlocators.globalSearchEntityResult)
     .contains(apiname1)
     .last()
@@ -810,10 +833,11 @@ Cypress.Commands.add("MoveAPIToHome", (apiname) => {
   );
 });
 
-Cypress.Commands.add("MoveAPIToPage", (pageName) => {
-  cy.xpath(apiwidget.popover)
-    .last()
-    .click({ force: true });
+Cypress.Commands.add("MoveAPIToPage", { prevSubject: true }, (subject, pageName) => {
+  cy.wrap(subject).ShowExplorerContextMenu();
+  // cy.xpath(apiwidget.popover)
+  //   .last()
+  //   .click({ force: true });
   cy.get(apiwidget.moveTo).click({ force: true });
   cy.get(apiwidget.page)
     .contains(pageName)
@@ -823,6 +847,8 @@ Cypress.Commands.add("MoveAPIToPage", (pageName) => {
     "response.body.responseMeta.status",
     200,
   );
+
+  return subject;
 });
 
 Cypress.Commands.add("copyEntityToPage", (pageName) => {
@@ -832,7 +858,7 @@ Cypress.Commands.add("copyEntityToPage", (pageName) => {
   cy.get(apiwidget.copyTo).click({ force: true });
   cy.get(apiwidget.page)
     .contains(pageName)
-    .click();
+    .click({ force: true });
   cy.wait("@createNewApi").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -840,10 +866,11 @@ Cypress.Commands.add("copyEntityToPage", (pageName) => {
   );
 });
 
-Cypress.Commands.add("CopyAPIToHome", () => {
-  cy.xpath(apiwidget.popover)
-    .last()
-    .click({ force: true });
+Cypress.Commands.add("CopyAPIToHome", { prevSubject: true } , (subject) => {
+  cy.wrap(subject).ShowExplorerContextMenu();
+  // cy.xpath(apiwidget.popover)
+  //   .last()
+  //   .click({ force: true });
   cy.get(apiwidget.copyTo).click({ force: true });
   cy.get(apiwidget.home).click({ force: true });
   cy.wait("@createNewApi").should(
@@ -853,10 +880,11 @@ Cypress.Commands.add("CopyAPIToHome", () => {
   );
 });
 
-Cypress.Commands.add("RenameEntity", (value) => {
-  cy.xpath(apiwidget.popover)
-    .last()
-    .click({ force: true });
+Cypress.Commands.add("RenameEntity", (subject, value) => {
+  cy.wrap(subject).ShowExplorerContextMenu();
+  // cy.xpath(apiwidget.popover)
+  //   .last()
+  //   .click({ force: true });
   cy.get(apiwidget.renameEntity).click({ force: true });
   cy.wait(2000);
   cy.get(explorer.editEntity)
@@ -887,29 +915,36 @@ Cypress.Commands.add("validateMessage", (value) => {
   });
 });
 
-Cypress.Commands.add("DeleteAPIFromSideBar", () => {
-  cy.deleteEntity();
+Cypress.Commands.add("DeleteAPIFromSideBar", { prevSubject: true }, (subject) => {
+  cy.wrap(subject).deleteEntity();
   cy.wait("@deleteAction").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
+
+  return subject;
 });
 
-Cypress.Commands.add("DeleteWidgetFromSideBar", () => {
-  cy.deleteEntity();
+Cypress.Commands.add("DeleteWidgetFromSideBar", { prevSubject: true }, (subject) => {
+  cy.wrap(subject).deleteEntity();
   cy.wait("@updateLayout").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
+
+  return subject;
 });
 
-Cypress.Commands.add("deleteEntity", () => {
-  cy.xpath(apiwidget.popover)
-    .last()
-    .click({ force: true });
+Cypress.Commands.add("deleteEntity", { prevSubject: true }, (subject) => {
+  cy.wrap(subject).ShowExplorerContextMenu();
+  // cy.xpath(apiwidget.popover)
+  //   .last()
+  //   .click({ force: true });
   cy.get(apiwidget.delete).click({ force: true });
+
+  return subject;
 });
 
 Cypress.Commands.add("DeleteAPI", (apiname) => {
@@ -1816,18 +1851,37 @@ Cypress.Commands.add("runQuery", () => {
 });
 
 Cypress.Commands.add("hoverAndClick", () => {
-  cy.xpath(apiwidget.popover)
+  // cy.xpath(apiwidget.popover)
+  //   .last()
+  //   .should("be.hidden")
+  //   .invoke("show")
+  //   .click({ force: true });
+  // cy.xpath(apiwidget.popover)
+  //   .last()
+  //   .click({ force: true });
+});
+
+Cypress.Commands.add("ShowExplorerContextMenu", {
+  prevSubject: true
+}, (subject) => {
+  cy.wrap(subject)
+    .xpath(`.${apiwidget.popover}`)
     .last()
     .should("be.hidden")
     .invoke("show")
     .click({ force: true });
-  cy.xpath(apiwidget.popover)
-    .last()
-    .click({ force: true });
+
+  return subject;
 });
 
-Cypress.Commands.add("deleteQuery", () => {
-  cy.hoverAndClick();
+Cypress.Commands.add("deleteQuery", (query) => {
+  cy.get(`.t--entity.action:contains(${query})`)
+    .last()
+    .xpath(`.${apiwidget.popover}`)
+    .last()
+    .should("be.hidden")
+    .invoke("show")
+    .click({ force: true });
   cy.get(apiwidget.delete).click({ force: true });
   cy.wait("@deleteAction").should(
     "have.nested.property",

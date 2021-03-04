@@ -18,12 +18,15 @@ describe("Datasource form related tests", function() {
   it("Check if saved api as a datasource does not fail on cloning", function() {
     cy.NavigateToAPI_Panel();
 
-    cy.GlobalSearchEntity("Testapi");
-    cy.xpath('//*[local-name()="g" and @id="Icon/Outline/more-vertical"]')
-      .last()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
+    // cy.GlobalSearchEntity("Testapi");
+    cy.ExpandAllExplorerEntities();
+    cy.get(".t--entity.action:contains(Testapi)")
+      .ShowExplorerContextMenu();
+    // cy.xpath('//*[local-name()="g" and @id="Icon/Outline/more-vertical"]')
+    //   .last()
+    //   .should("be.hidden")
+    //   .invoke("show")
+    //   .click({ force: true });
 
     cy.get('.single-select:contains("Copy to page")').click();
     cy.get('.single-select:contains("Page1")').click();

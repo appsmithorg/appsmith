@@ -13,8 +13,11 @@ describe("Tab widget test", function() {
   });
 
   it("Tab Widget Functionality To rename Tabs from entity explorer", function() {
-    cy.GlobalSearchEntity("Tab 1");
-    cy.RenameEntity(tabname);
+    // cy.GlobalSearchEntity("Tab 1");
+    cy.ExpandAllExplorerEntities();
+    cy.get(".t--entity.widget:contains(Tab 1)")
+      .RenameEntity(tabname);
+    // cy.RenameEntity(tabname);
   });
 
   it("Tab name validation in properties and widget ", function() {
@@ -27,10 +30,15 @@ describe("Tab widget test", function() {
   });
 
   it("Tab Widget Functionality To delete Tabs from entity explorer", function() {
-    cy.GlobalSearchEntity("Tab 2");
-    cy.RenameEntity(tabname);
+    // cy.GlobalSearchEntity("Tab 2");
+    cy.ExpandAllExplorerEntities();
+    cy.ExpandAllExplorerEntities();
+    cy.get(".t--entity.widget:contains(Tab 2)")
+      .RenameEntity(tabname);
+    // cy.RenameEntity(tabname);
     cy.validateMessage(tabname);
-    cy.deleteEntity();
+    cy.get(".t--entity.widget:contains(Tab 2)")
+      .deleteEntity();
     cy.get(commonlocators.entityExplorersearch).should("be.visible");
     cy.get(commonlocators.entityExplorersearch)
       .clear()
