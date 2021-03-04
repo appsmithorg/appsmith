@@ -547,8 +547,8 @@ Cypress.Commands.add("SelectAction", (action) => {
 });
 
 Cypress.Commands.add("ClearSearch", () => {
-  cy.get(commonlocators.entityExplorersearch).should("be.visible");
-  cy.get(commonlocators.entityExplorersearch).clear();
+  // cy.get(commonlocators.entityExplorersearch).should("be.visible");
+  // cy.get(commonlocators.entityExplorersearch).clear();
 });
 
 Cypress.Commands.add(
