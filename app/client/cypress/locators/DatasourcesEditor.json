@@ -31,6 +31,9 @@
   "clientSecret": "[data-cy='authentication.clientSecret'] input",
   "datasourceConfigUrl": "[data-cy='datasourceConfiguration.url'] input",
   "projectID": "[data-cy='datasourceConfiguration.authentication.username'] input",
-  "serviceAccCredential": "[data-cy='datasourceConfiguration.authentication.password'] input"
-
+  "serviceAccCredential": "[data-cy='datasourceConfiguration.authentication.password'] input",
+  "grantType": "[data-cy='authentication.grantType']",
+  "authorizationURL":"[data-cy='authentication.authorizationUrl'] input",
+  "authorisecode": "//div[contains(@class,'option') and text()='Authorization Code']",
+  "saveAndAuthorize": "button:contains('Save and Authorize')"
 }

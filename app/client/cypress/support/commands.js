@@ -424,15 +424,25 @@ Cypress.Commands.add("ResponseStatusCheck", (statusCode) => {
 
 Cypress.Commands.add(
   "addOauthAuthDetails",
-  (accessTokenUrl, clientId, clientSecret) => {
+  (accessTokenUrl, clientId, clientSecret, authURL) => {
     cy.get(datasource.authType).click();
     cy.xpath(datasource.OAuth2).click();
+    cy.get(datasource.grantType).click();
+    cy.xpath(datasource.authorisecode).click();
     cy.get(datasource.accessTokenUrl).type(accessTokenUrl);
     cy.get(datasource.clienID).type(clientId);
     cy.get(datasource.clientSecret).type(clientSecret);
-    cy.get(".t--save-datasource").click({ force: true });
-  },
-);
+    cy.get(datasource.authorizationURL).type(authURL);
+    cy.xpath('//input[contains(@value,"api/v1/datasources/authorize")]')
+      .first()
+      .invoke("attr", "value")
+      .then((text) => {
+        const firstTxt = text;
+        cy.log("date time : ", firstTxt);
+        const expectedvalue = Cypress.config().baseUrl.concat('api/v1/datasources/authorize');
+        expect(firstTxt).to.equal(expectedvalue);
+      });
+    });
 
 Cypress.Commands.add("ResponseCheck", (textTocheck) => {
   //Explicit assert

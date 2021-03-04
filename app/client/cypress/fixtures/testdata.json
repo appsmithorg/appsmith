@@ -114,11 +114,12 @@
   "defaultdataBinding": "{'Test','This'}",
   "dropdownErrorMsg": "This value does not evaluate to type \"Array<{ label: string, value: string }>\". Transform it using JS inside '{{ }}'",
   "tableWidgetErrorMsg": "This value does not evaluate to type \"Array<Object>\". Transform it using JS inside '{{ }}'",
-  "appUrl": "https://graph.facebook.com/v9.0/app",
+  "appUrl": "https://oauth.mocklab.io/userinfo",
   "clientID": "169444434892406",
   "clientSecret": "505dac16a21681f277b5fde97445be18",
-  "accessTokenUrl": "https://graph.facebook.com/oauth/access_token",
+  "accessTokenUrl": "https://oauth.mocklab.io/oauth/token",
   "oauthResponse": "169444434892406",
   "bindingDataPoint": "{{JSON.stringify(Chart1.selectedDataPoint)}}",
-  "bindChardData": "{{Chart1.selectedDataPoint"
+  "bindChardData": "{{Chart1.selectedDataPoint",
+  "authorizationURL": "https://oauth.mocklab.io/oauth/authorize"
 }
