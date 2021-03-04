@@ -1,4 +1,11 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  memo,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import EditableText, {
   EditInteractionKind,
@@ -9,27 +16,20 @@ import { AppState } from "reducers";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { BindingText } from "pages/Editor/APIEditor/Form";
 
-import { Classes, Icon, Position, Tooltip } from "@blueprintjs/core";
+import { Classes, Position, Tooltip } from "@blueprintjs/core";
 import { WidgetType } from "constants/WidgetConstants";
-import styled, { theme } from "constants/DefaultTheme";
+import styled from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
-import { FormIcons } from "icons/FormIcons";
-import { copyWidget, deleteSelectedWidget } from "actions/widgetActions";
 import { AnyStyledComponent } from "styled-components";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 
-const CopyIcon = ControlIcons.COPY_CONTROL;
-const DeleteIcon = FormIcons.DELETE_ICON;
-const Wrapper = styled.div<{ isPanelTitle?: boolean }>`
+const Wrapper = styled.div<{ iconCount: number }>`
   justify-content: center;
   align-items: center;
   display: grid;
   width: 100%;
-  grid-template-columns: ${(props) =>
-    props.isPanelTitle ? "1fr 25px 25px" : "1fr 25px 25px 25px 25px"};
+  grid-template-columns: 1fr repeat(${(props) => props.iconCount}, 25px);
   justify-items: center;
   align-items: center;
   justify-content: stretch;
@@ -92,14 +92,13 @@ type PropertyPaneTitleProps = {
   title: string;
   widgetId?: string;
   widgetType?: WidgetType;
-  onClose: () => void;
   updatePropertyTitle?: (title: string) => void;
   onBackClick?: () => void;
-  hideCopyIcon?: boolean;
-  hideDeleteIcon?: boolean;
-  hideHelpIcon?: boolean;
-  hideCloseIcon?: boolean;
   isPanelTitle?: boolean;
+  actions: Array<{
+    tooltipContent: any;
+    icon: ReactNode;
+  }>;
 };
 
 /* eslint-disable react/display-name */
@@ -150,14 +149,8 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
     setName(props.title);
   }, [props.title]);
 
-  const handleDelete = useCallback(
-    () => dispatch(deleteSelectedWidget(false)),
-    [dispatch],
-  );
-  const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
-
   return props.widgetId || props.isPanelTitle ? (
-    <Wrapper isPanelTitle={props.isPanelTitle}>
+    <Wrapper iconCount={props.actions.length}>
       <NameWrapper isPanelTitle={props.isPanelTitle}>
         <>
           {props.isPanelTitle && (
@@ -186,77 +179,16 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
         </>
       </NameWrapper>
 
-      {!props.hideCopyIcon && (
+      {props.actions.map((value, index) => (
         <Tooltip
-          content="Copy Widget"
+          content={value.tooltipContent}
           position={Position.TOP}
           hoverOpenDelay={200}
+          key={index}
         >
-          <CopyIcon
-            className="t--copy-widget"
-            width={14}
-            height={14}
-            color={theme.colors.paneSectionLabel}
-            onClick={handleCopy}
-          />
+          {value.icon}
         </Tooltip>
-      )}
-
-      {!props.hideDeleteIcon && (
-        <Tooltip
-          content="Delete Widget"
-          position={Position.TOP}
-          hoverOpenDelay={200}
-        >
-          <DeleteIcon
-            className="t--delete-widget"
-            width={16}
-            height={16}
-            color={theme.colors.paneSectionLabel}
-            onClick={handleDelete}
-          />
-        </Tooltip>
-      )}
-
-      {!props.hideHelpIcon && (
-        <Tooltip
-          content={
-            <div>
-              <span>You can connect data from your API by adding </span>
-              <BindingText>{`{{apiName.data}}`}</BindingText>
-              <span> to a widget property</span>
-            </div>
-          }
-          position={Position.TOP}
-          hoverOpenDelay={200}
-          boundary="window"
-        >
-          <Icon
-            color={theme.colors.paneSectionLabel}
-            icon="help"
-            iconSize={16}
-          />
-        </Tooltip>
-      )}
-      {!props.hideCloseIcon && (
-        <Tooltip content="Close" position={Position.TOP} hoverOpenDelay={200}>
-          <Icon
-            onClick={(e: any) => {
-              AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
-                widgetType: props.widgetType || "",
-                widgetId: props.widgetId,
-              });
-              props.onClose();
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            iconSize={16}
-            color={theme.colors.paneSectionLabel}
-            icon="cross"
-            className={"t--property-pane-close-btn"}
-          />
-        </Tooltip>
-      )}
+      ))}
     </Wrapper>
   ) : null;
 });

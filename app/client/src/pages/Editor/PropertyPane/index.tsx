@@ -1,17 +1,22 @@
-import React, { Component } from "react";
-import styled from "styled-components";
-import { connect, useSelector } from "react-redux";
+import React, { Component, useCallback } from "react";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
   getIsPropertyPaneVisible,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
-import { PanelStack, IPanel, Classes, IPanelProps } from "@blueprintjs/core";
+import {
+  PanelStack,
+  IPanel,
+  Classes,
+  IPanelProps,
+  Icon,
+} from "@blueprintjs/core";
 
 import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { scrollbarDark, scrollbarLight } from "constants/DefaultTheme";
+import styled, { scrollbarDark, scrollbarLight } from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -23,6 +28,10 @@ import PropertyControlsGenerator from "./Generator";
 import PaneWrapper from "components/editorComponents/PaneWrapper";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
+import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
+import { ControlIcons } from "icons/ControlIcons";
+import { FormIcons } from "icons/FormIcons";
+import { BindingText } from "../APIEditor/Form";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{ themeMode?: EditorTheme }>`
   width: 100%;
@@ -57,6 +66,8 @@ const StyledPanelStack = styled(PanelStack)`
   }
 `;
 
+const CopyIcon = ControlIcons.COPY_CONTROL;
+const DeleteIcon = FormIcons.DELETE_ICON;
 interface PropertyPaneState {
   currentPanelStack: IPanel[];
 }
@@ -70,6 +81,13 @@ const PropertyPaneView = (
   const { hidePropertyPane, theme, ...panel } = props;
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
 
+  const dispatch = useDispatch();
+  const handleDelete = useCallback(
+    () => dispatch(deleteSelectedWidget(false)),
+    [dispatch],
+  );
+  const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
+
   return (
     <>
       <PropertyPaneTitle
@@ -77,7 +95,59 @@ const PropertyPaneView = (
         title={widgetProperties.widgetName}
         widgetId={widgetProperties.widgetId}
         widgetType={widgetProperties?.type}
-        onClose={hidePropertyPane}
+        actions={[
+          {
+            tooltipContent: "Copy Widget",
+            icon: (
+              <CopyIcon
+                className="t--copy-widget"
+                width={14}
+                height={14}
+                onClick={handleCopy}
+              />
+            ),
+          },
+          {
+            tooltipContent: "Delete Widget",
+            icon: (
+              <DeleteIcon
+                className="t--delete-widget"
+                width={16}
+                height={16}
+                onClick={handleDelete}
+              />
+            ),
+          },
+          {
+            tooltipContent: (
+              <div>
+                <span>You can connect data from your API by adding </span>
+                <BindingText>{`{{apiName.data}}`}</BindingText>
+                <span> to a widget property</span>
+              </div>
+            ),
+            icon: <Icon icon="help" iconSize={16} />,
+          },
+          {
+            tooltipContent: "Close",
+            icon: (
+              <Icon
+                onClick={(e: any) => {
+                  AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
+                    widgetType: widgetProperties.widgetType,
+                    widgetId: widgetProperties.widgetId,
+                  });
+                  hidePropertyPane();
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                iconSize={16}
+                icon="cross"
+                className={"t--property-pane-close-btn"}
+              />
+            ),
+          },
+        ]}
       />
       <PropertyControlsGenerator
         type={widgetProperties.type}

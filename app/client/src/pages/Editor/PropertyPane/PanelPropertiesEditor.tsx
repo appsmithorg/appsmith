@@ -13,9 +13,10 @@ import {
 import { generatePropertyControl } from "./Generator";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { get, isNumber, isPlainObject, isString } from "lodash";
-import { IPanelProps } from "@blueprintjs/core";
+import { Icon, IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import PropertyPaneTitle from "../PropertyPaneTitle";
+import { BindingText } from "../APIEditor/Form";
 
 const PanelHeader = (props: PanelHeaderProps) => {
   return (
@@ -26,12 +27,36 @@ const PanelHeader = (props: PanelHeaderProps) => {
     >
       <PropertyPaneTitle
         title={props.title}
-        onClose={props.hidePropertyPane}
         updatePropertyTitle={props.updatePropertyTitle}
         onBackClick={props.closePanel}
-        hideCopyIcon={true}
-        hideDeleteIcon={true}
         isPanelTitle={true}
+        actions={[
+          {
+            tooltipContent: (
+              <div>
+                <span>You can connect data from your API by adding </span>
+                <BindingText>{`{{apiName.data}}`}</BindingText>
+                <span> to a widget property</span>
+              </div>
+            ),
+            icon: <Icon icon="help" iconSize={16} />,
+          },
+          {
+            tooltipContent: "Close",
+            icon: (
+              <Icon
+                onClick={(e: any) => {
+                  props.hidePropertyPane();
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                iconSize={16}
+                icon="cross"
+                className={"t--property-pane-close-btn"}
+              />
+            ),
+          },
+        ]}
       />
     </div>
   );
