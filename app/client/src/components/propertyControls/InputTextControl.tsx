@@ -78,8 +78,8 @@ class InputTextControl extends BaseControl<InputControlProps> {
         isValid={isValid}
         errorMessage={validationMessage}
         expected={expected}
-        placeholder={placeholderText}
         dataTreePath={dataTreePath}
+        placeholder={placeholderText}
         theme={this.props.theme}
       />
     );
