@@ -15,6 +15,10 @@ import { getSelectedWidget } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getSelectedText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  ENTITY_EXPLORER_SEARCH_ID,
+  WIDGETS_SEARCH_ID,
+} from "constants/Explorer";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -44,7 +48,7 @@ class GlobalHotKeys extends React.Component<Props> {
   public renderHotkeys() {
     return (
       <Hotkeys>
-        {/* <Hotkey
+        <Hotkey
           global={true}
           combo="mod + f"
           label="Search entities"
@@ -60,7 +64,7 @@ class GlobalHotKeys extends React.Component<Props> {
             e.preventDefault();
             e.stopPropagation();
           }}
-        /> */}
+        />
         <Hotkey
           combo="mod + k"
           onKeyDown={(e: KeyboardEvent) => {
