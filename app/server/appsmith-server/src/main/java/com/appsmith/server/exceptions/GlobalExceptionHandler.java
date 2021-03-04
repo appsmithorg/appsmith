@@ -174,6 +174,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     @ResponseBody
     public Mono<ResponseDTO<ErrorDTO>> catchException(Exception e, ServerWebExchange exchange) {
+        //TODO: remove it.
+        System.out.println("devtest: no handler for exception");
         AppsmithError appsmithError = AppsmithError.INTERNAL_SERVER_ERROR;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);

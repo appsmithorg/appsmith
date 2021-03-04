@@ -207,7 +207,11 @@ public class MongoPlugin extends BasePlugin {
 
             return Mono.just(datasourceConfiguration)
                     .map(MongoPluginExecutor::buildClientURI)
-                    .map(MongoClients::create)
+                    .map(uri -> {
+                        //TODO: remove it.
+                        System.out.println("devtest: going to create mongo client");
+                        return MongoClients.create(uri);
+                    })
                     .onErrorMap(
                             IllegalArgumentException.class,
                             error ->
@@ -353,11 +357,20 @@ public class MongoPlugin extends BasePlugin {
             return Mono.just(datasourceConfiguration)
                     .flatMap(dsConfig -> datasourceCreate(dsConfig))
                     .flatMap(mongoClient -> {
+                        //TODO: remove it.
+                        System.out.println("=============================================");
+                        System.out.println("devtest: got mongoClient, calling listDb");
+                        System.out.println("=============================================");
                         return Mono.zip(Mono.just(mongoClient),
                                 Mono.from(mongoClient.getDatabase("admin").runCommand(new Document(
                                         "listDatabases", 1))));
                     })
                     .doOnSuccess(tuple -> {
+                        //TODO: remove it.
+                        System.out.println("=============================================");
+                        System.out.println("devtest: closing conn");
+                        System.out.println("=============================================");
+
                         MongoClient mongoClient = tuple.getT1();
 
                         if (mongoClient != null) {
@@ -366,6 +379,10 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .then(Mono.just(new DatasourceTestResult()))
                     .onErrorResume(error -> {
+                        //TODO: remove it.
+                        System.out.println("=============================================");
+                        System.out.println("devtest: got error");
+                        System.out.println("=============================================");
                         /**
                          * 1. Return OK response on "Unauthorized" exception.
                          * 2. If we get an exception with error code "Unauthorized" then it means that the connection to
