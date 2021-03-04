@@ -346,6 +346,13 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 // Only extract mustache keys from leaf nodes
                 if (parent != null && isLeafNode) {
                     Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+
+                    // We found the path. But if the path does not have any mustache bindings, throw the error
+                    if (mustacheKeysFromFields.isEmpty()) {
+                        throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
+                                widgetName, widgetId, fieldPath, pageId, layoutId);
+                    }
+
                     dynamicBindings.addAll(mustacheKeysFromFields);
                 }
             }
