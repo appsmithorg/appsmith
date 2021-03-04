@@ -301,6 +301,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               <ProfileDropdown
                 userName={user?.username || ""}
                 hideThemeSwitch
+                name={user.name}
               />
             </ProfileDropdownContainer>
           )}

@@ -79,7 +79,7 @@ export const ErrorPageHeader = (props: ErrorPageHeaderProps) => {
               }}
             />
           ) : (
-            <ProfileDropdown userName={user.username} />
+            <ProfileDropdown userName={user.username} name={user.name} />
           )}
         </StyledDropDownContainer>
       )}
