@@ -40,7 +40,6 @@ import {
   SetWidgetDynamicPropertyPayload,
   updateWidgetProperty,
   UpdateWidgetPropertyPayload,
-  updateWidgetPropertyRequest,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
 import {
@@ -434,23 +433,6 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       // SPECIAL HANDLING FOR TABS IN A TABS WIDGET
       if (parent.type === WidgetTypes.TABS_WIDGET && widget.tabName) {
         widgetName = widget.tabName;
-        // Deleting a tab from the explorer doesn't remove the same
-        // from the "tabs" property of the widget.
-        // So updating the widget property here when the children length doesn't match
-        // `tabs` length
-        if (parent.children?.length !== parent.tabs.length) {
-          const filteredTabs = parent.tabs.filter(
-            (tab: any) => tab.widgetId !== widgetId,
-          );
-          yield put(
-            updateWidgetPropertyRequest(
-              parentId,
-              "tabs",
-              filteredTabs,
-              RenderModes.CANVAS,
-            ),
-          );
-        }
       }
       if (saveStatus && !disallowUndo) {
         Toaster.show({
