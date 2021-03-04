@@ -450,6 +450,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
               RenderModes.CANVAS,
             ),
           );
+          return;
         }
       }
       if (saveStatus && !disallowUndo) {
