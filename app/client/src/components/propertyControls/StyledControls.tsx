@@ -278,7 +278,7 @@ export const StyledDeleteIcon = styled(
   position: absolute;
   margin-left: 15px;
   cursor: pointer;
-  right: ${(props) => props.marginRight ?? 16}px;
+  right: ${(props) => props.marginRight ?? 12}px;
   && svg {
     width: 24px;
     height: 24px;
