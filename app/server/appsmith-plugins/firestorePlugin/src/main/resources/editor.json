@@ -71,6 +71,7 @@
             "comparison": "NOT_EQUALS",
             "value": "GET_COLLECTION"
           },
+          "placeholderText": "[\"ascendingField\", \"-descendingField\", \"nestedObj.field\"]",
           "initialValue": ""
         },
         {

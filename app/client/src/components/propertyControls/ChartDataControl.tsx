@@ -267,12 +267,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
   }
 
   deleteOption = (index: number) => {
-    const chartData: Array<{
-      seriesName: string;
-      data: string;
-    }> = this.props.propertyValue;
-    chartData.splice(index, 1);
-    this.updateProperty(this.props.propertyName, chartData);
+    this.deleteProperties([`${this.props.propertyName}[${index}]`]);
   };
 
   updateOption = (
@@ -280,20 +275,10 @@ class ChartDataControl extends BaseControl<ControlProps> {
     propertyName: string,
     updatedValue: string,
   ) => {
-    const chartData: Array<{
-      seriesName: string;
-      data: string;
-    }> = this.props.propertyValue;
-    const updatedChartData = chartData.map((item, i) => {
-      if (index === i) {
-        return {
-          ...item,
-          [propertyName]: updatedValue,
-        };
-      }
-      return item;
-    });
-    this.updateProperty(this.props.propertyName, updatedChartData);
+    this.updateProperty(
+      `${this.props.propertyName}[${index}].${propertyName}`,
+      updatedValue,
+    );
   };
 
   addOption = () => {
@@ -301,14 +286,10 @@ class ChartDataControl extends BaseControl<ControlProps> {
       seriesName: string;
       data: string;
     }> = this.props.propertyValue;
-    const updatedChartData = [
-      ...chartData,
-      {
-        seriesName: "",
-        data: JSON.stringify([{ x: "label", y: 50 }]),
-      },
-    ];
-    this.updateProperty(this.props.propertyName, updatedChartData);
+    this.updateProperty(`${this.props.propertyName}[${chartData.length}]`, {
+      seriesName: "",
+      data: JSON.stringify([{ x: "label", y: 50 }]),
+    });
   };
 
   static getControlType() {

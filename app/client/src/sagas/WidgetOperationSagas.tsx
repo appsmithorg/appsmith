@@ -40,6 +40,7 @@ import {
   SetWidgetDynamicPropertyPayload,
   updateWidgetProperty,
   UpdateWidgetPropertyPayload,
+  updateWidgetPropertyRequest,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
 import {
@@ -433,6 +434,23 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       // SPECIAL HANDLING FOR TABS IN A TABS WIDGET
       if (parent.type === WidgetTypes.TABS_WIDGET && widget.tabName) {
         widgetName = widget.tabName;
+        // Deleting a tab from the explorer doesn't remove the same
+        // from the "tabs" property of the widget.
+        // So updating the widget property here when the children length doesn't match
+        // `tabs` length
+        if (parent.children?.length !== parent.tabs.length) {
+          const filteredTabs = parent.tabs.filter(
+            (tab: any) => tab.widgetId !== widgetId,
+          );
+          yield put(
+            updateWidgetPropertyRequest(
+              parentId,
+              "tabs",
+              filteredTabs,
+              RenderModes.CANVAS,
+            ),
+          );
+        }
       }
       if (saveStatus && !disallowUndo) {
         Toaster.show({
@@ -504,7 +522,11 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
       // If the widget in question is the deleted widget
       if (widget.widgetId === action.payload.widgetId) {
         //SPECIAL HANDLING FOR TAB IN A TABS WIDGET
-        if (widget.tabId && widget.type === WidgetTypes.CANVAS_WIDGET) {
+        if (
+          widget.tabId &&
+          widget.type === WidgetTypes.CANVAS_WIDGET &&
+          widget.parentId
+        ) {
           const parent = { ...widgets[widget.parentId] };
           if (parent.tabs) {
             parent.tabs = parent.tabs.slice();
@@ -539,17 +561,19 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
           }
         }
         let newChildren = [widget.widgetId];
-        if (widgets[widget.parentId].children) {
+        if (widget.parentId && widgets[widget.parentId].children) {
           // Concatenate the list of parents children with the current widgetId
           newChildren = newChildren.concat(widgets[widget.parentId].children);
         }
-        widgets = {
-          ...widgets,
-          [widget.parentId]: {
-            ...widgets[widget.parentId],
-            children: newChildren,
-          },
-        };
+        if (widget.parentId) {
+          widgets = {
+            ...widgets,
+            [widget.parentId]: {
+              ...widgets[widget.parentId],
+              children: newChildren,
+            },
+          };
+        }
       }
     });
 
@@ -1364,8 +1388,10 @@ function* pasteWidgetSaga() {
         // (These widgets will be descendants of the copied widget)
         // This means, that their parents will also be newly copied widgets
         // Update widget's parent widget ids with the new parent widget ids
-        const newParentId = newWidgetList.find(
-          (newWidget) => newWidget.widgetId === widgetIdMap[widget.parentId],
+        const newParentId = newWidgetList.find((newWidget) =>
+          widget.parentId
+            ? newWidget.widgetId === widgetIdMap[widget.parentId]
+            : false,
         )?.widgetId;
         if (newParentId) widget.parentId = newParentId;
       }
