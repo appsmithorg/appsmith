@@ -271,6 +271,10 @@ const SearchItemComponent = (props: ItemProps) => {
 
   const itemType = getItemType(item);
   const Item = SearchItemByType[itemType];
+  const testClassname =
+    itemType !== SEARCH_ITEM_TYPES.document
+      ? "t--omnibar-entity-search-item"
+      : "t--omnibar-doc-search-item";
 
   return (
     <SearchItemContainer
@@ -283,7 +287,7 @@ const SearchItemComponent = (props: ItemProps) => {
           }
         }
       }}
-      className="t--docHit"
+      className={`t--docHit ${testClassname}`}
       isActiveItem={isActiveItem}
       itemType={itemType}
     >

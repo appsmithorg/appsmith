@@ -104,5 +104,7 @@
   "globalSearchModal": ".t--global-search-modal",
   "globalSearchInput": ".t--global-search-input",
   "globalSearchTrigger": ".t--global-search-modal-trigger",
-  "globalSearchClearInput": ".t--global-clear-input"
+  "globalSearchClearInput": ".t--global-clear-input",
+  "globalSearchEntityResult": ".t--omnibar-entity-search-item",
+  "globalSearchDocResult": ".t--omnibar-doc-search-item"
 }

@@ -573,15 +573,12 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
-  cy.get(commonlocators.entityExplorersearch).should("be.visible");
-  cy.get(commonlocators.entityExplorersearch)
+  cy.get(commonlocators.globalSearchTrigger).click({ force: true });
+  cy.get(commonlocators.globalSearchInput)
     .clear()
     .type(apiname1);
-  cy.wait(500);
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).should("be.visible");
-  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
+  cy.get(commonlocators.globalSearchEntityResult)
+    .contains(apiname1)
     .last()
     .click({ force: true });
 });
