@@ -6,6 +6,7 @@ import Text, { TextType } from "components/ads/Text";
 import IconComponent from "components/designSystems/appsmith/IconComponent";
 import { Link } from "react-router-dom";
 import General from "./General";
+import { Colors } from "constants/Colors";
 
 const ProfileWrapper = styled.div`
   width: ${(props) => props.theme.pageContentWidth}px;
@@ -41,7 +42,7 @@ const UserProfile = () => {
         <LinkToApplications to={"/applications"} className="t--back">
           <IconComponent
             iconName="chevron-left"
-            color="#9F9F9F"
+            color={Colors.SILVER_CHALICE}
           ></IconComponent>
           <Text type={TextType.H1}>Profile</Text>
         </LinkToApplications>

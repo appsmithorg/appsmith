@@ -71,10 +71,8 @@ const UserInformation = styled.div`
 const UserNameWrapper = styled.div`
   display: flex;
   flex-direction: column;
-`;
-
-const FlexWrapper = styled.div`
-  display: flex;
+  // To make flex child fit in container
+  min-width: 0;
 `;
 
 export default function ProfileDropdown(props: TagProps) {
@@ -92,20 +90,17 @@ export default function ProfileDropdown(props: TagProps) {
         <UserInformation>
           <div className="user-image">{Profile}</div>
           <UserNameWrapper>
-            <FlexWrapper>
-              <div className="user-name t--user-name">
-                <Text type={TextType.P1} highlight>
-                  {props.name}
-                </Text>
-              </div>
-            </FlexWrapper>
-            <FlexWrapper>
-              <div className="user-username">
-                <Text type={TextType.P3} highlight>
-                  {props.userName}
-                </Text>
-              </div>
-            </FlexWrapper>
+            <div className="user-name t--user-name">
+              <Text type={TextType.P1} highlight>
+                {props.name}
+              </Text>
+            </div>
+
+            <div className="user-username">
+              <Text type={TextType.P3} highlight>
+                {props.userName}
+              </Text>
+            </div>
           </UserNameWrapper>
         </UserInformation>
         <MenuDivider />
