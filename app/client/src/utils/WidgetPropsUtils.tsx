@@ -470,6 +470,9 @@ export const noCollision = (
   cols?: number,
 ): boolean => {
   if (clientOffset && dropTargetOffset && widget) {
+    if (widget.detachFromLayout) {
+      return true;
+    }
     const [left, top] = getDropZoneOffsets(
       colWidth,
       rowHeight,
