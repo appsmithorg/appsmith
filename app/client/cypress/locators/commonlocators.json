@@ -43,7 +43,7 @@
   "tableInner": ".t--draggable-tablewidget span.t--widget-name",
   "pdfSupport": ".t--property-control-pdfexport input",
   "ExcelSupport": ".t--property-control-excelexport input",
-  "dropDownBtn": ".bp3-icon-chevron-down",
+  "dropDownBtn": ".bp3-popover-target",
   "disabledField": " .bp3-disabled",
   "disabledBtn": " button[disabled='disabled']",
   "inputField": " .bp3-input",

@@ -42,7 +42,7 @@ describe("Binding the Datepicker and Text Widget", function() {
       cy.get(publishPage.datepickerWidget + commonlocators.inputField)
         .eq(0)
         .click();
-      cy.ClearDate();
+      cy.ClearDateFooter();
       cy.setDate(1, "ddd MMM DD YYYY");
       cy.get(commonlocators.labelTextStyle).should("contain", nextDay);
     });

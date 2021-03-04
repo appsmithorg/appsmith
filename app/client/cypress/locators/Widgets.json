@@ -54,7 +54,7 @@
     "addColumn": ".t--add-column-btn",
     "deleteColumn": ".t--delete-column-btn",
     "editCreatedColumn": ".t--property-control-createdcolumns input",
-    "alignOpt": ".select-popover-wrapper .single-select",
+    "alignOpt": ".t--dropdown-option",
     "tableCol": ".draggable-header ",
     "centerAlign": ".t--icon-tab-CENTER",
     "rightAlign": ".t--icon-tab-RIGHT",

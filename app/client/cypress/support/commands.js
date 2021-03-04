@@ -987,7 +987,9 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
 
   cy.get(widgetsPage.textWidget + " " + commonlocators.editIcon).click();
   cy.testCodeMirror(ModalName);
-  cy.get(widgetsPage.textAlign + " " + commonlocators.dropDownBtn).click();
+  cy.get(widgetsPage.textAlign + " " + commonlocators.dropDownBtn)
+    .last()
+    .click();
   cy.get(widgetsPage.alignOpt)
     .contains("Center")
     .click();
@@ -995,6 +997,50 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
   cy.get(".bp3-overlay-backdrop").click({ force: true });
 });
 
+Cypress.Commands.add("updateModal", (modalType, ModalName) => {
+  cy.get(".t--open-dropdown-Select-Action")
+    .first()
+    .click({ force: true });
+  cy.get("ul.bp3-menu")
+    .children()
+    .contains("Open Modal")
+    .click();
+  cy.get(modalWidgetPage.selectModal).click();
+  cy.get(modalWidgetPage.createModalButton).click({ force: true });
+
+  cy.get(modalWidgetPage.controlModalType)
+    .last()
+    .click({ force: true });
+  cy.get(commonlocators.dropdownmenu)
+    .children()
+    .contains(modalType)
+    .click();
+  cy.assertPageSave();
+
+  // changing the model name verify
+  cy.widgetText(
+    ModalName,
+    modalWidgetPage.modalName,
+    modalWidgetPage.modalName,
+  );
+  cy.get(commonlocators.editPropCrossButton).click();
+
+  //changing the Model label
+  cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
+    .first()
+    .trigger("mouseover");
+
+  cy.get(widgetsPage.textWidget + " " + commonlocators.editIcon).click();
+  cy.testCodeMirror(ModalName);
+  cy.get(widgetsPage.textAlign + " " + commonlocators.dropDownBtn)
+    .last()
+    .click();
+  cy.get(widgetsPage.alignOpt)
+    .contains("Center")
+    .click();
+  cy.assertPageSave();
+  cy.get(".bp3-overlay-backdrop").click({ force: true });
+});
 Cypress.Commands.add("CheckWidgetProperties", (checkboxCss) => {
   cy.get(checkboxCss).check({
     force: true,
@@ -1419,6 +1465,13 @@ Cypress.Commands.add("ClearDate", () => {
   cy.assertPageSave();
 });
 
+Cypress.Commands.add("ClearDateFooter", () => {
+  cy.get(formWidgetsPage.datepickerFooterPublish)
+    .contains("Clear")
+    .click();
+  //cy.assertPageSave();
+});
+
 Cypress.Commands.add("DeleteModal", () => {
   cy.get(widgetsPage.textbuttonWidget).dblclick("topRight", { force: true });
   cy.get(widgetsPage.deleteWidget)
@@ -1531,7 +1584,7 @@ Cypress.Commands.add("optionValue", (value, value2) => {
 });
 Cypress.Commands.add("dropdownDynamic", (text) => {
   cy.wait(2000);
-  cy.get(commonlocators.dropdownmenu)
+  cy.get("ul.bp3-menu")
     .contains(text)
     .click({ force: true })
     .should("have.text", text);

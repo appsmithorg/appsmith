@@ -28,6 +28,7 @@
   "radioAddButton": ".t--property-control-options button",
   "formD": "div[type='FORM_WIDGET']",
   "datepickerFooter": ".DayPicker-Day--today",
+  "datepickerFooterPublish": ".bp3-datepicker-footer span",
   "disableJs": ".t--property-control-disable input[type='checkbox']",
   "switchWidget": ".t--draggable-switchwidget",
   "toggleJsDefaultDate": ".t--property-control-defaultdate .t--js-toggle",
