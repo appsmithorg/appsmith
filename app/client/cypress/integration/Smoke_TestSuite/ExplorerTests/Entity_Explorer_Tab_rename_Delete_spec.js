@@ -31,7 +31,12 @@ describe("Tab widget test", function() {
     cy.RenameEntity(tabname);
     cy.validateMessage(tabname);
     cy.deleteEntity();
-    cy.get(commonlocators.entityExplorersearch).should("be.visible");
+    cy.wait(1000);
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
     cy.get(commonlocators.entityExplorersearch)
       .clear()
       .type("Tab 2");
