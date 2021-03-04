@@ -132,7 +132,10 @@ const TextContainer = styled.div<{
 
   &&& .${BlueprintClasses.EDITABLE_TEXT} {
     overflow: hidden;
-    width: 100%;
+    height: ${(props) => props.theme.spaces[14] + 1}px;
+    padding: ${(props) => props.theme.spaces[4]}px
+      ${(props) => props.theme.spaces[5]}px;
+    width: calc(100% - 40px);
     background-color: ${(props) => props.bgColor};
   }
 
@@ -238,7 +241,7 @@ export const EditableText = (props: EditableTextProps) => {
       const error = errorMessage ? errorMessage : false;
       if (!error && finalVal !== "") {
         setLastValidValue(finalVal);
-        // onTextChanged && onTextChanged(finalVal);
+        onTextChanged && onTextChanged(finalVal);
       }
       setValue(finalVal);
       setIsInvalid(error);

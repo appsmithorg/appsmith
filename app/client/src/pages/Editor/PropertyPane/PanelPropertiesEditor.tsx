@@ -29,6 +29,9 @@ const PanelHeader = (props: PanelHeaderProps) => {
         onClose={props.hidePropertyPane}
         updatePropertyTitle={props.updatePropertyTitle}
         onBackClick={props.closePanel}
+        hideCopyIcon={true}
+        hideDeleteIcon={true}
+        isPanelTitle={true}
       />
     </div>
   );

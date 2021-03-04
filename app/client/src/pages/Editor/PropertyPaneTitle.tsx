@@ -19,16 +19,17 @@ import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import { copyWidget, deleteSelectedWidget } from "actions/widgetActions";
 import { AnyStyledComponent } from "styled-components";
+import { Classes as BlueprintClasses } from "@blueprintjs/core";
 
 const CopyIcon = ControlIcons.COPY_CONTROL;
 const DeleteIcon = FormIcons.DELETE_ICON;
-const Wrapper = styled.div<{ isPropertyTitle: boolean }>`
+const Wrapper = styled.div<{ isPanelTitle?: boolean }>`
   justify-content: center;
   align-items: center;
   display: grid;
   width: 100%;
   grid-template-columns: ${(props) =>
-    props.isPropertyTitle ? "1fr 25px 25px" : "1fr 25px 25px 25px 25px"};
+    props.isPanelTitle ? "1fr 25px 25px" : "1fr 25px 25px 25px 25px"};
   justify-items: center;
   align-items: center;
   justify-content: stretch;
@@ -49,13 +50,19 @@ const Wrapper = styled.div<{ isPropertyTitle: boolean }>`
     justify-content: center;
   }
 
+  &&& .${BlueprintClasses.EDITABLE_TEXT} {
+    height: auto;
+    padding: 0;
+    width: 100%;
+  }
+
   && svg path {
     fill: ${(props) => props.theme.colors.propertyPane.label};
   }
 `;
 
-const NameWrapper = styled.div<{ isPropertyTitle: boolean }>`
-  display: ${(props) => (props.isPropertyTitle ? "flex" : "block")};
+const NameWrapper = styled.div<{ isPanelTitle?: boolean }>`
+  display: ${(props) => (props.isPanelTitle ? "flex" : "block")};
   align-items: center;
   min-width: 100%;
   padding-right: 25px;
@@ -88,6 +95,11 @@ type PropertyPaneTitleProps = {
   onClose: () => void;
   updatePropertyTitle?: (title: string) => void;
   onBackClick?: () => void;
+  hideCopyIcon?: boolean;
+  hideDeleteIcon?: boolean;
+  hideHelpIcon?: boolean;
+  hideCloseIcon?: boolean;
+  isPanelTitle?: boolean;
 };
 
 /* eslint-disable react/display-name */
@@ -144,11 +156,11 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   );
   const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
 
-  return props.widgetId || props.updatePropertyTitle ? (
-    <Wrapper isPropertyTitle={!!props.updatePropertyTitle}>
-      <NameWrapper isPropertyTitle={!!props.updatePropertyTitle}>
+  return props.widgetId || props.isPanelTitle ? (
+    <Wrapper isPanelTitle={props.isPanelTitle}>
+      <NameWrapper isPanelTitle={props.isPanelTitle}>
         <>
-          {props.updatePropertyTitle && (
+          {props.isPanelTitle && (
             <StyledBackIcon
               onClick={props.onBackClick}
               className="t--property-pane-back-btn"
@@ -160,11 +172,9 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
             defaultValue={name}
             placeholder={props.title}
             editInteractionKind={EditInteractionKind.SINGLE}
-            isEditingDefault={!props.updatePropertyTitle ? isNew : undefined}
-            onBlur={!props.updatePropertyTitle ? updateTitle : undefined}
-            onTextChanged={
-              !props.updatePropertyTitle ? undefined : updateNewTitle
-            }
+            isEditingDefault={!props.isPanelTitle ? isNew : undefined}
+            onBlur={!props.isPanelTitle ? updateTitle : undefined}
+            onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
             hideEditIcon
             className="t--propery-page-title"
             savingState={
@@ -176,7 +186,7 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
         </>
       </NameWrapper>
 
-      {!props.updatePropertyTitle && (
+      {!props.hideCopyIcon && (
         <Tooltip
           content="Copy Widget"
           position={Position.TOP}
@@ -192,7 +202,7 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
         </Tooltip>
       )}
 
-      {!props.updatePropertyTitle && (
+      {!props.hideDeleteIcon && (
         <Tooltip
           content="Delete Widget"
           position={Position.TOP}
@@ -208,38 +218,45 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
         </Tooltip>
       )}
 
-      <Tooltip
-        content={
-          <div>
-            <span>You can connect data from your API by adding </span>
-            <BindingText>{`{{apiName.data}}`}</BindingText>
-            <span> to a widget property</span>
-          </div>
-        }
-        position={Position.TOP}
-        hoverOpenDelay={200}
-        boundary="window"
-      >
-        <Icon color={theme.colors.paneSectionLabel} icon="help" iconSize={16} />
-      </Tooltip>
-
-      <Tooltip content="Close" position={Position.TOP} hoverOpenDelay={200}>
-        <Icon
-          onClick={(e: any) => {
-            AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
-              widgetType: props.widgetType || "",
-              widgetId: props.widgetId,
-            });
-            props.onClose();
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          iconSize={16}
-          color={theme.colors.paneSectionLabel}
-          icon="cross"
-          className={"t--property-pane-close-btn"}
-        />
-      </Tooltip>
+      {!props.hideHelpIcon && (
+        <Tooltip
+          content={
+            <div>
+              <span>You can connect data from your API by adding </span>
+              <BindingText>{`{{apiName.data}}`}</BindingText>
+              <span> to a widget property</span>
+            </div>
+          }
+          position={Position.TOP}
+          hoverOpenDelay={200}
+          boundary="window"
+        >
+          <Icon
+            color={theme.colors.paneSectionLabel}
+            icon="help"
+            iconSize={16}
+          />
+        </Tooltip>
+      )}
+      {!props.hideCloseIcon && (
+        <Tooltip content="Close" position={Position.TOP} hoverOpenDelay={200}>
+          <Icon
+            onClick={(e: any) => {
+              AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
+                widgetType: props.widgetType || "",
+                widgetId: props.widgetId,
+              });
+              props.onClose();
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            iconSize={16}
+            color={theme.colors.paneSectionLabel}
+            icon="cross"
+            className={"t--property-pane-close-btn"}
+          />
+        </Tooltip>
+      )}
     </Wrapper>
   ) : null;
 });
