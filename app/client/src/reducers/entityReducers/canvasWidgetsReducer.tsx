@@ -5,11 +5,8 @@ import {
   ReduxAction,
 } from "constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import {
-  UpdateCanvasLayout,
-  UpdateWidgetPropertyPayload,
-} from "actions/controlActions";
-import { set, uniqBy } from "lodash";
+import { UpdateCanvasLayout } from "actions/controlActions";
+import { set } from "lodash";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const initialState: CanvasWidgetsReduxState = {};
@@ -36,32 +33,6 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     action: ReduxAction<UpdateCanvasLayout>,
   ) => {
     set(state[MAIN_CONTAINER_WIDGET_ID], "rightColumn", action.payload.width);
-  },
-  [ReduxActionTypes.UPDATE_WIDGET_PROPERTY]: (
-    state: CanvasWidgetsReduxState,
-    action: ReduxAction<UpdateWidgetPropertyPayload>,
-  ) => {
-    const { dynamicUpdates, updates, widgetId } = action.payload;
-    // We loop over all updates
-    Object.entries(updates).forEach(([propertyPath, propertyValue]) => {
-      // since property paths could be nested, we use lodash set method
-      set(state[widgetId], propertyPath, propertyValue);
-    });
-
-    if (dynamicUpdates && dynamicUpdates.dynamicBindingPathList.length) {
-      const currentList = state[widgetId].dynamicBindingPathList || [];
-      state[widgetId].dynamicBindingPathList = uniqBy(
-        [...currentList, ...dynamicUpdates.dynamicBindingPathList],
-        "key",
-      );
-    }
-    if (dynamicUpdates && dynamicUpdates.dynamicTriggerPathList.length) {
-      const currentList = state[widgetId].dynamicTriggerPathList || [];
-      state[widgetId].dynamicTriggerPathList = uniqBy(
-        [...currentList, ...dynamicUpdates.dynamicTriggerPathList],
-        "key",
-      );
-    }
   },
 });
 

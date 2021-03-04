@@ -38,7 +38,6 @@ import {
   batchUpdateWidgetProperty,
   DeleteWidgetPropertyPayload,
   SetWidgetDynamicPropertyPayload,
-  updateWidgetProperty,
   UpdateWidgetPropertyPayload,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
@@ -804,7 +803,7 @@ function* setWidgetDynamicPropertySaga(
   }
   propertyUpdates.dynamicPropertyPathList = dynamicPropertyPathList;
 
-  yield put(updateWidgetProperty(widgetId, propertyUpdates));
+  yield put(batchUpdateWidgetProperty(widgetId, propertyUpdates));
 
   const stateWidgets = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
@@ -1063,7 +1062,9 @@ function* updateCanvasSize(
     // Check this out when non canvas widgets are updating snapRows
     // erstwhile: Math.round((rows * props.snapRowSpace) / props.parentRowSpace),
     yield put(
-      updateWidgetProperty(canvasWidgetId, { bottomRow: newBottomRow }),
+      batchUpdateWidgetProperty(canvasWidgetId, {
+        modify: { bottomRow: newBottomRow },
+      }),
     );
   }
 }
