@@ -21,6 +21,26 @@ import { WidgetProps } from "../widgets/BaseWidget";
 import { WIDGET_TYPE_VALIDATION_ERROR } from "../constants/messages";
 import moment from "moment";
 
+function validateDateString(
+  dateString: string,
+  dateFormat: string,
+  version: number,
+) {
+  let isValid = true;
+  if (version === 2) {
+    if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(dateString)) {
+      isValid = false;
+    } else {
+      const d = new Date(dateString);
+      isValid = d.toISOString() === dateString;
+    }
+  } else {
+    const parsedDate = moment(dateString, dateFormat);
+    isValid = parsedDate.isValid();
+  }
+  return isValid;
+}
+
 export const VALIDATORS: Record<ValidationType, Validator> = {
   [VALIDATION_TYPES.TEXT]: (value: any): ValidationResponse => {
     let parsed = value;
@@ -406,7 +426,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
             : "",
       };
     }
-    const isValid = moment(dateString, dateFormat).isValid();
+    const isValid = validateDateString(dateString, dateFormat, props.version);
     if (!isValid) {
       return {
         isValid: isValid,
@@ -438,8 +458,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
             : "",
       };
     }
-    const parsedCurrentDate = moment(dateString, dateFormat);
-    const isValid = parsedCurrentDate.isValid();
+    const isValid = validateDateString(dateString, dateFormat, props.version);
     if (!isValid) {
       return {
         isValid: isValid,
@@ -472,7 +491,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
     const parsedMinDate = moment(dateString, dateFormat);
-    let isValid = parsedMinDate.isValid();
+    let isValid = validateDateString(dateString, dateFormat, props.version);
     if (!props.defaultDate) {
       return {
         isValid: isValid,
@@ -521,7 +540,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
     const parsedMaxDate = moment(dateString, dateFormat);
-    let isValid = parsedMaxDate.isValid();
+    let isValid = validateDateString(dateString, dateFormat, props.version);
     if (!props.defaultDate) {
       return {
         isValid: isValid,
