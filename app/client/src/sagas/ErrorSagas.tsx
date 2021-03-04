@@ -11,7 +11,7 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { flushErrors } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
-import { ERROR_CODES } from "constants/ApiConstants";
+import { ERROR_CODES, SERVER_ERROR_CODES } from "constants/ApiConstants";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
@@ -55,6 +55,8 @@ const getErrorMessage = (code: number) => {
   }
 };
 
+export class IncorrectBindingError extends Error {}
+
 /**
  * validates if response does have any errors
  *
@@ -74,14 +76,21 @@ export function* validateResponse(response: ApiResponse | any, show = true) {
   if (response.responseMeta.success) {
     return true;
   } else {
-    yield put({
-      type: ReduxActionErrorTypes.API_ERROR,
-      payload: {
-        error: response.responseMeta.error,
-        show,
-      },
-    });
-    throw Error(response.responseMeta.error.message);
+    if (
+      response.responseMeta.error.code ===
+      SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET
+    ) {
+      throw new IncorrectBindingError(response.responseMeta.error.message);
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.API_ERROR,
+        payload: {
+          error: response.responseMeta.error,
+          show,
+        },
+      });
+      throw Error(response.responseMeta.error.message);
+    }
   }
 }
 
@@ -158,7 +167,7 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
         break;
       }
       case ErrorEffectTypes.SAFE_CRASH: {
-        yield call(crashAppSaga);
+        yield call(crashAppSaga, error);
         break;
       }
     }
@@ -182,9 +191,10 @@ function showAlertAboutError(message: string) {
   Toaster.show({ text: message, variant: Variant.danger });
 }
 
-function* crashAppSaga() {
+function* crashAppSaga(error: ErrorPayloadType) {
   yield put({
     type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+    payload: error,
   });
 }
 
