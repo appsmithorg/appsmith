@@ -291,25 +291,30 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     const isValidChartData = every(
       parsed,
       (datum: { seriesName: string; data: any }) => {
-        const validatedResponse: {
-          isValid: boolean;
-          parsed: Array<unknown>;
-          message?: string;
-        } = VALIDATORS[VALIDATION_TYPES.ARRAY](datum.data, props, dataTree);
+        let isValidChart = false;
         validationMessage = `${index}##${WIDGET_TYPE_VALIDATION_ERROR}: [{ "x": "val", "y": "val" }]`;
-        let isValidChart = validatedResponse.isValid;
-        if (validatedResponse.isValid) {
-          datum.data = validatedResponse.parsed;
-          isValidChart = every(
-            datum.data,
-            (chartPoint: { x: string; y: any }) => {
-              return (
-                isObject(chartPoint) &&
-                isString(chartPoint.x) &&
-                !isUndefined(chartPoint.y)
-              );
-            },
-          );
+        try {
+          const validatedResponse: {
+            isValid: boolean;
+            parsed: Array<unknown>;
+            message?: string;
+          } = VALIDATORS[VALIDATION_TYPES.ARRAY](datum.data, props, dataTree);
+          isValidChart = validatedResponse.isValid;
+          if (validatedResponse.isValid) {
+            datum.data = validatedResponse.parsed;
+            isValidChart = every(
+              datum.data,
+              (chartPoint: { x: string; y: any }) => {
+                return (
+                  isObject(chartPoint) &&
+                  isString(chartPoint.x) &&
+                  !isUndefined(chartPoint.y)
+                );
+              },
+            );
+          }
+        } catch (e) {
+          console.error(e);
         }
         index++;
         return isValidChart;
