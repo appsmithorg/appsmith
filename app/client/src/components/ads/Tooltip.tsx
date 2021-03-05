@@ -12,9 +12,9 @@ type TooltipProps = CommonComponentProps & {
   position?: Position;
   children: JSX.Element;
   variant?: Variant;
-  maxWidth?: number;
+  maxWidth?: any;
   boundary?: PopperBoundary;
-  minWidth?: number;
+  minWidth?: any;
   openOnTargetFocus?: boolean;
   autoFocus?: boolean;
   hoverOpenDelay?: number;
@@ -23,8 +23,8 @@ type TooltipProps = CommonComponentProps & {
 
 const TooltipStyles = createGlobalStyle<{
   variant?: Variant;
-  maxWidth?: number;
-  minWidth?: number;
+  maxWidth?: any;
+  minWidth?: any;
   theme: Theme;
 }>`
   .${Classes.PORTAL} {
@@ -55,8 +55,8 @@ const TooltipStyles = createGlobalStyle<{
     }
     .${Classes.TOOLTIP} {
       box-shadow: 0px 12px 20px rgba(0, 0, 0, 0.35);
-      max-width: ${(props) => (props.maxWidth ? `${props.maxWidth}px` : null)};
-      min-width: ${(props) => (props.minWidth ? `${props.minWidth}px` : null)};
+      max-width: ${(props) => (props.maxWidth ? props.maxWidth : null)};
+      min-width: ${(props) => (props.minWidth ? props.minWidth : null)};
     }
     .${Classes.TOOLTIP}
       .${CsClasses.BP3_POPOVER_ARROW_BORDER},
