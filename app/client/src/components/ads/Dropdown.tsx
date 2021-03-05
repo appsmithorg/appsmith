@@ -30,9 +30,8 @@ export const DropdownContainer = styled.div<{ width?: string }>`
 `;
 
 const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
-  height: 38px;
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[6]}px;
+  padding: ${(props) => props.theme.spaces[2]}px
+    ${(props) => props.theme.spaces[3]}px;
   background: ${(props) =>
     props.disabled
       ? props.theme.colors.dropdown.header.disabledBg
@@ -77,7 +76,7 @@ const DropdownWrapper = styled.div<{
 const OptionWrapper = styled.div<{
   selected: boolean;
 }>`
-  padding: ${(props) => props.theme.spaces[4]}px
+  padding: ${(props) => props.theme.spaces[4] - 1}px
     ${(props) => props.theme.spaces[6]}px;
   cursor: pointer;
   display: flex;

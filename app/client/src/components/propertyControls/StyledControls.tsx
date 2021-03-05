@@ -106,13 +106,11 @@ export const StyledDropDownContainer = styled.div`
 `;
 
 export const StyledDropDown = styled(Dropdown)`
-  padding: 6px 8px;
   height: auto;
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
 `;
 
 export const StyledMultiSelectDropDown = styled(MultiSelectDropdown)`
-  padding: 6px 8px;
   height: auto;
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
 `;
