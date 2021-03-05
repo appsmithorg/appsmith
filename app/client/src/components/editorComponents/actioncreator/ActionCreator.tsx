@@ -28,6 +28,7 @@ import {
 import { NavigationTargetType } from "../../../sagas/ActionExecutionSagas";
 import { checkCurrentStep } from "sagas/OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import { PluginType } from "entities/Action";
 import { getWidgets } from "sagas/selectors";
 import { PluginType } from "entities/Action";
 
