@@ -13,6 +13,8 @@ import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
 import TreeDropdown from "components/ads/TreeDropdown";
 import { useNewActionName } from "./helpers";
+import styled from "styled-components";
+import Icon, { IconSize } from "components/ads/Icon";
 
 type EntityContextMenuProps = {
   id: string;
@@ -59,6 +61,7 @@ export const MoreActionablesContainer = styled.div<{ isOpen?: boolean }>`
 `;
 
 export const MoreActionsMenu = (props: EntityContextMenuProps) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const nextEntityName = useNewActionName();
 
   const dispatch = useDispatch();
