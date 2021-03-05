@@ -286,6 +286,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     .flatMap(savedAction -> generateActionByViewMode(savedAction, false));
         }
 
+        // Validate actionConfiguration
+        ActionConfiguration actionConfig = action.getActionConfiguration();
+        if(actionConfig != null) {
+            validator.validate(actionConfig)
+                    .stream()
+                    .forEach(x -> invalids.add(x.getMessage()));
+        }
+
         Mono<Datasource> datasourceMono;
         if (action.getDatasource().getId() == null) {
             if (action.getDatasource().getDatasourceConfiguration() != null &&
