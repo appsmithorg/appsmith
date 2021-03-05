@@ -87,6 +87,7 @@ class DatePickerControl extends BaseControl<
           closeOnSelection={true}
           onChange={this.onDateSelected}
           value={value}
+          showActionsBar={true}
         />
       </DatePickerControlWrapper>
     );
