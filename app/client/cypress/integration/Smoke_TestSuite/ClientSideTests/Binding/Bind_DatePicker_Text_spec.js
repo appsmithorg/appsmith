@@ -25,7 +25,7 @@ describe("Binding the Datepicker and Text Widget", function() {
      */
     cy.openPropertyPane("datepickerwidget");
     cy.get(formWidgetsPage.defaultDate).click();
-    cy.ClearDate();
+    cy.ClearDateFooter();
     cy.SetDateToToday();
 
     cy.getDate(1, "YYYY-MM-DD").then((date) => {
@@ -50,7 +50,7 @@ describe("Binding the Datepicker and Text Widget", function() {
     cy.get(commonlocators.backToEditor).click();
   });
 
-  it.skip("DatePicker1-text: Change the date in DatePicker1 and Validate the same in text widget", function() {
+  it("DatePicker1-text: Change the date in DatePicker1 and Validate the same in text widget", function() {
     cy.openPropertyPane("textwidget");
 
     /**
@@ -75,8 +75,7 @@ describe("Binding the Datepicker and Text Widget", function() {
      */
     cy.openPropertyPane("datepickerwidget");
     cy.get(formWidgetsPage.defaultDate).click();
-    cy.ClearDate();
-    cy.SetDateToToday();
+    cy.ClearDateFooter();
     cy.setDate(1, "ddd MMM DD YYYY");
     cy.get(commonlocators.onDateSelectedField).click();
     cy.get(commonlocators.editPropCrossButton).click();
@@ -137,7 +136,7 @@ describe("Binding the Datepicker and Text Widget", function() {
     cy.get(formWidgetsPage.datepickerWidget)
       .first()
       .click();
-    cy.ClearDate();
+    cy.ClearDateFooter();
     cy.SetDateToToday();
     cy.get(commonlocators.toastmsg).contains("hello");
 
@@ -145,6 +144,9 @@ describe("Binding the Datepicker and Text Widget", function() {
      * checking if on deselecting the date triggers the message or not.
      * It should not trigger any message on deselection
      */
+    cy.get(formWidgetsPage.datepickerWidget)
+      .first()
+      .click();
     cy.get(formWidgetsPage.datepickerFooter)
       .contains("Clear")
       .click();

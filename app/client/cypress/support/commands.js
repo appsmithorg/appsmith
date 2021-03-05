@@ -1400,7 +1400,9 @@ Cypress.Commands.add("addSuccessMessage", (value) => {
 });
 
 Cypress.Commands.add("SetDateToToday", () => {
-  cy.get(formWidgetsPage.datepickerFooter).click();
+  cy.get(formWidgetsPage.datepickerFooterPublish)
+    .contains("Today")
+    .click({ force: true });
   cy.assertPageSave();
 });
 
@@ -1468,7 +1470,7 @@ Cypress.Commands.add("ClearDate", () => {
 Cypress.Commands.add("ClearDateFooter", () => {
   cy.get(formWidgetsPage.datepickerFooterPublish)
     .contains("Clear")
-    .click();
+    .click({ force: true });
   //cy.assertPageSave();
 });
 
