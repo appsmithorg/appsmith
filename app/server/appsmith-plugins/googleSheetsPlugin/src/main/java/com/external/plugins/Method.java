@@ -42,7 +42,6 @@ public enum Method {
             } catch (URISyntaxException e) {
                 throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to create URI"));
             }
-            uriBuilder.queryParam("ranges", pluginSpecifiedTemplates.get(2).getValue());
             uriBuilder.queryParam("includeGridData", Boolean.FALSE);
             return webClient.method(HttpMethod.GET)
                     .uri(uriBuilder.build(true).toUri())

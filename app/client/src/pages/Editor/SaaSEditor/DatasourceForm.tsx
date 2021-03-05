@@ -108,7 +108,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
         }
         Toaster.show({ text: display_message || message, variant });
       } else {
-        this.props.getOAuthAccessToken(this.props.datasourceId);
+        debugger;
+        this.props.getOAuthAccessToken(this.props.match.params.datasourceId);
       }
     }
   }

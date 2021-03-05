@@ -110,7 +110,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             // Triggering the actual REST API call
             return Method.valueOf(actionConfiguration.getPluginSpecifiedTemplates().get(0).getValue())
                     .getClient(client, actionConfiguration.getPluginSpecifiedTemplates(), requestBodyAsString)
-                    .headers(headers -> headers.set("Authorization", oauth2.getHeaderPrefix() + " " + oauth2.getAuthenticationResponse().getToken()))
+                    .headers(headers -> headers.set("Authorization", "Bearer " + oauth2.getAuthenticationResponse().getToken()))
                     .exchange()
                     .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(stringResponseEntity -> {

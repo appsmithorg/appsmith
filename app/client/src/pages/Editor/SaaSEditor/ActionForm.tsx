@@ -26,6 +26,7 @@ import {
 } from "../QueryEditor/EditorJSONtoForm";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
+import { Datasource } from "entities/Datasource";
 
 type StateAndRouteProps = EditorJSONtoFormProps &
   RouteComponentProps<{

@@ -245,7 +245,7 @@ public class AuthenticationService {
                                 .map(Plugin::getPackageName));
     }
 
-    public Mono<String> getAppsmithToken(String datasourceId, String pageId) {
+    public Mono<String> getAppsmithToken(String datasourceId, String pageId, ServerHttpRequest request) {
         // Check whether user has access to manage the datasource
         // Validate the datasource according to plugin type as well
         // If successful, then request for appsmithToken
@@ -254,6 +254,8 @@ public class AuthenticationService {
         Mono<Datasource> datasourceMono = datasourceService
                 .findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
                 .cache();
+
+        final String redirectUri = redirectHelper.getRedirectDomain(request.getHeaders());
 
         return datasourceMono
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
@@ -271,6 +273,7 @@ public class AuthenticationService {
                             integrationDTO.setPluginName(tuple.getT3());
                             integrationDTO.setDatasourceId(datasourceId);
                             integrationDTO.setScope(((OAuth2) datasource.getDatasourceConfiguration().getAuthentication()).getScope());
+                            integrationDTO.setRedirectionDomain(redirectUri);
                             return integrationDTO;
                         }))
                 .flatMap(integrationDTO -> {

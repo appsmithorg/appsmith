@@ -231,7 +231,6 @@ function* getOAuthAccessTokenSaga(
     console.error("Token not found");
     return;
   }
-
   const response = yield SaasApi.getAccessToken(datasourceId, appsmithToken);
   console.log({ response });
   // const display_message = search.get("display_message");

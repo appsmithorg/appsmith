@@ -118,7 +118,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                         datasourceContextMap.put(datasourceId, datasourceContext);
                     }
                     log.debug("Using datasource: {}", datasource1.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse());
-                    return authenticationValidator.validateAuthentication(datasource1)
+                    return Mono.just(datasource1)
                             .flatMap(datasource2 -> Mono.zip(
                                     pluginExecutor.datasourceCreate(datasource2.getDatasourceConfiguration()),
                                     Mono.just(datasource2)))
