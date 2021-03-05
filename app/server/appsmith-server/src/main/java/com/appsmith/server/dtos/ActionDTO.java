@@ -15,6 +15,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Transient;
 
+import javax.validation.Valid;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +50,7 @@ public class ActionDTO {
 
     String collectionId;
 
+    @Valid
     ActionConfiguration actionConfiguration;
 
     Boolean executeOnLoad;
