@@ -36,6 +36,7 @@ import reactor.test.StepVerifier;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -165,13 +166,13 @@ public class AuthenticationServiceTest {
         StepVerifier
                 .create(authorizationCodeUrlMono)
                 .assertNext(url -> {
-                    assertThat(url).matches("AuthorizationURL" +
+                    assertThat(url).matches(Pattern.compile("AuthorizationURL" +
                             "\\?client_id=ClientId" +
                             "&response_type=code" +
                             "&redirect_uri=https://mock.origin.com/api/v1/datasources/authorize" +
                             "&state=" + String.join(",", pageDto.getId(), datasourceId1, "https://mock.origin.com") +
-                            "&scope=Scope\\d,Scope\\d" +
-                            "&key=value");
+                            "&scope=Scope\\d%20Scope\\d" +
+                            "&key=value"));
                 })
                 .verifyComplete();
     }
