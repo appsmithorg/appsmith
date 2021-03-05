@@ -17,6 +17,9 @@ public class AuthenticationValidator {
     private final AuthenticationService authenticationService;
 
     public <T extends AuthenticationDTO> Mono<Datasource> validateAuthentication(Datasource datasource) {
+        if (datasource.getDatasourceConfiguration() == null || datasource.getDatasourceConfiguration().getAuthentication() == null) {
+            return Mono.just(datasource);
+        }
         AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
         return authentication.hasExpired()
                 .filter(expired -> expired)
