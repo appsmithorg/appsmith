@@ -31,7 +31,9 @@ export interface ChartComponentProps {
   onDataPointClick: (selectedDataPoint: { x: any; y: any }) => void;
 }
 
-const CanvasContainer = styled.div<ChartComponentProps>`
+const CanvasContainer = styled.div<
+  Omit<ChartComponentProps, "onDataPointClick">
+>`
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
   border-radius: 0;
   height: 100%;
@@ -82,6 +84,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getChartData = () => {
     const chartData: ChartData[] = this.props.chartData;
+
     if (chartData.length === 0) {
       return [
         {
@@ -132,9 +135,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   getChartCategories = (chartData: ChartData[]) => {
     const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
     if (categories.length === 0) {
-      return {
-        label: "",
-      };
+      return [
+        {
+          label: "",
+        },
+      ];
     }
     return categories.map((item) => {
       return {
@@ -213,6 +218,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getScrollChartDataSource = () => {
     const chartConfig = this.getChartConfig();
+
     return {
       chart: {
         ...chartConfig,
@@ -226,6 +232,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
           category: this.getChartCategories(this.props.chartData),
         },
       ],
+      data: this.getChartData(),
       dataset: this.getChartDataset(this.props.chartData),
     };
   };
@@ -235,6 +242,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       this.props.allowHorizontalScroll && this.props.chartType !== "PIE_CHART"
         ? this.getScrollChartDataSource()
         : this.getChartDataSource();
+
     const chartConfig = {
       type: this.getChartType(),
       renderAt: this.props.widgetId + "chart-container",
@@ -252,6 +260,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         },
       },
     };
+
     this.chartInstance = new FusionCharts(chartConfig);
   };
 
@@ -288,11 +297,10 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   }
 
   render() {
+    //eslint-disable-next-line  @typescript-eslint/no-unused-vars
+    const { onDataPointClick, ...rest } = this.props;
     return (
-      <CanvasContainer
-        {...this.props}
-        id={this.props.widgetId + "chart-container"}
-      />
+      <CanvasContainer {...rest} id={this.props.widgetId + "chart-container"} />
     );
   }
 }
