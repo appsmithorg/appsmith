@@ -4,9 +4,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpMethod;
 
+import java.sql.Statement;
 import java.util.List;
 
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
@@ -17,6 +19,10 @@ import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXE
 @NoArgsConstructor
 @Document
 public class ActionConfiguration {
+    private static final int MIN_TIMEOUT_VALUE = 0;     // in Milliseconds
+    private static final int MAX_TIMEOUT_VALUE = 60000; // in Milliseconds
+    private static final String TIMEOUT_OUT_OF_RANGE_MESSAGE = "'Query timeout' field must be an integer between "
+            + MIN_TIMEOUT_VALUE + " and " + MAX_TIMEOUT_VALUE;
     /*
      * Any of the fields mentioned below could be represented in mustache
      * template. If the mustache template is found, it would be replaced
@@ -26,6 +32,9 @@ public class ActionConfiguration {
      * action execution.
      */
 
+    @Range(min=MIN_TIMEOUT_VALUE,
+           max=MAX_TIMEOUT_VALUE,
+           message=TIMEOUT_OUT_OF_RANGE_MESSAGE)
     Integer timeoutInMillisecond;
     PaginationType paginationType = PaginationType.NONE;
 
@@ -55,6 +64,17 @@ public class ActionConfiguration {
      * understands what the keys stand for.
      */
     List<Property> pluginSpecifiedTemplates;
+
+    public void setTimeoutInMillisecond(String timeoutInMillisecond) {
+        try {
+            this.timeoutInMillisecond = Integer.valueOf(timeoutInMillisecond);
+        }
+        catch (NumberFormatException e) {
+            System.out.println("Failed to convert timeout request parameter to Integer. Setting it to max valid " +
+                    "value.");
+            this.timeoutInMillisecond = MAX_TIMEOUT_VALUE;
+        }
+    }
 
     public Integer getTimeoutInMillisecond() {
         return (timeoutInMillisecond == null || timeoutInMillisecond <= 0) ?
