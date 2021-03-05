@@ -21,6 +21,8 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import PropertyControlsGenerator from "./Generator";
 import PaneWrapper from "components/editorComponents/PaneWrapper";
+import { getProppanePreference } from "selectors/usersSelectors";
+import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 
 const PropertyPaneWrapper = styled(PaneWrapper)`
   width: 100%;
@@ -83,6 +85,7 @@ const PropertyPaneView = (
 
 class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   private panelWrapperRef = React.createRef<HTMLDivElement>();
+
   render() {
     if (this.props.isVisible) {
       log.debug("Property pane rendered");
@@ -90,8 +93,13 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
       const el = document.getElementsByClassName(
         generateClassName(this.props.widgetProperties?.widgetId),
       )[0];
+
       return (
         <Popper
+          position={this.props?.propPanePreference?.position}
+          disablePopperEvents={this.props?.propPanePreference?.isMoved}
+          onPositionChange={this.props.setPropPanePoistion}
+          isDraggable={true}
           isOpen={true}
           targetNode={el}
           zIndex={3}
@@ -182,11 +190,23 @@ const mapStateToProps = (state: AppState) => {
   return {
     widgetProperties: getWidgetPropsForPropertyPane(state),
     isVisible: getIsPropertyPaneVisible(state),
+    propPanePreference: getProppanePreference(state),
   };
 };
 
 const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
   return {
+    setPropPanePoistion: (position: any) => {
+      dispatch({
+        type: ReduxActionTypes.PROP_PANE_MOVED,
+        payload: {
+          position: {
+            left: position.left,
+            top: position.top,
+          },
+        },
+      });
+    },
     hidePropertyPane: () =>
       dispatch({
         type: ReduxActionTypes.HIDE_PROPERTY_PANE,
@@ -197,10 +217,12 @@ const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
 export interface PropertyPaneProps extends PropertyPaneFunctions {
   widgetProperties?: WidgetProps;
   isVisible: boolean;
+  propPanePreference?: PropertyPanePositionConfig;
 }
 
 export interface PropertyPaneFunctions {
   hidePropertyPane: () => void;
+  setPropPanePoistion: (position: any) => void;
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PropertyPane);
