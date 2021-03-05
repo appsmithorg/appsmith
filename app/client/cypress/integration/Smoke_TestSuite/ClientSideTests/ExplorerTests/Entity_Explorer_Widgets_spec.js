@@ -10,11 +10,11 @@ describe("Entity explorer tests related to widgets and validation", function() {
   it("Widget edit/delete/copy to clipboard validation", function() {
     cy.SearchEntityandOpen("Text1");
     cy.ExpandAllExplorerEntities();
-    cy.get(`.t--entity.widget:contains(Text1)`)
-      .first()
-      .find(explorer.collapse)
-      .last()
-      .click({ force: true });
+    // cy.get(`.t--entity.widget:contains(Text1)`)
+    //   .first()
+    //   .find(explorer.collapse)
+    //   .last()
+    //   .click({ force: true });
     // cy.get(explorer.collapse)
     //   .last()
     //   .click({ force: true });
@@ -43,9 +43,10 @@ describe("Entity explorer tests related to widgets and validation", function() {
     // });
     // cy.GlobalSearchEntity("Text1");
     cy.ExpandAllExplorerEntities();
-    cy.EditApiNameFromExplorer("TextUpdated");
+    // cy.EditApiNameFromExplorer("TextUpdated");
+    // todo (fix) failing_silently_ref
     cy.get(".t--entity.widget:contains(TextUpdated)")
-      .EditApiNameFromExplorer()
+      .EditApiNameFromExplorer("TextUpdated")
       .get(".t--entity-collapse-toggle")
       .last()
       .click()

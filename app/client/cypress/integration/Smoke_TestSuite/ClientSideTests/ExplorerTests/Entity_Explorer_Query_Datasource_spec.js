@@ -130,7 +130,7 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.SearchEntityandOpen("MyQuery");
     cy.runQuery();
 
-    cy.deleteQuery();
+    cy.deleteQueryFromExplorer("MyQuery");
 
     cy.contains(".t--datasource-name", datasourceName)
       .find(".t--edit-datasource")

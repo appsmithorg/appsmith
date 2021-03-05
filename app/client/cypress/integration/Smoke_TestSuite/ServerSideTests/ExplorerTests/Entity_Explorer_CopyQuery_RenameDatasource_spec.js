@@ -109,6 +109,6 @@ describe("Entity explorer tests related to copy query", function() {
       );
     });
 
-    cy.deleteQuery("Query1Copy");
+    cy.deleteQueryFromExplorer();
   });
 });
