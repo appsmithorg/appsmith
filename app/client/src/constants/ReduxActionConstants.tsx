@@ -337,6 +337,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   RESET_UNREAD_RELEASES_COUNT: "RESET_UNREAD_RELEASES_COUNT",
   SET_LOADING_ENTITIES: "SET_LOADING_ENTITIES",
   RESET_CURRENT_APPLICATION: "RESET_CURRENT_APPLICATION",
+  SAAS_GET_OAUTH_ACCESS_TOKEN: "SAAS_GET_OAUTH_ACCESS_TOKEN",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
