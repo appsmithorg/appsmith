@@ -160,7 +160,6 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     pluginId,
     actionConfiguration,
   } = actionPayload.payload;
-
   if (pluginType === PluginType.DB) {
     const editorConfig = yield select(getEditorConfig, pluginId);
 
