@@ -9,7 +9,6 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Param;
 import org.pf4j.ExtensionPoint;
-import org.springframework.core.env.Environment;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
@@ -81,16 +80,6 @@ public interface PluginExecutor<C> extends ExtensionPoint {
      * @return
      */
     Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration);
-
-    /**
-     * This function adds any plugin specific details to the datasource that may be required before execution
-     *
-     * @param datasourceConfiguration
-     * @return
-     */
-    default Mono<DatasourceConfiguration> enrichDatasource(DatasourceConfiguration datasourceConfiguration, Environment env) {
-        return Mono.just(datasourceConfiguration);
-    }
 
     /**
      * This function fetches the structure of the tables/collections in the datasource. It's used to make query creation

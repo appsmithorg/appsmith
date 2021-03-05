@@ -55,8 +55,6 @@ import net.minidev.json.JSONObject;
 import org.apache.commons.lang.ObjectUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;

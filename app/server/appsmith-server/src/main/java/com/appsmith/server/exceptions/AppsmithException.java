@@ -1,6 +1,6 @@
 package com.appsmith.server.exceptions;
-import com.appsmith.external.exceptions.AppsmithErrorAction;
 
+import com.appsmith.external.exceptions.AppsmithErrorAction;
 import lombok.Getter;
 import lombok.Setter;
 
