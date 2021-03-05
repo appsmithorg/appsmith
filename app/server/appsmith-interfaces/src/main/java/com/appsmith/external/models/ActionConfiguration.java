@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpMethod;
 
@@ -26,6 +27,7 @@ public class ActionConfiguration {
      * action execution.
      */
 
+    @Range(min=0, max=100)
     Integer timeoutInMillisecond;
     PaginationType paginationType = PaginationType.NONE;
 

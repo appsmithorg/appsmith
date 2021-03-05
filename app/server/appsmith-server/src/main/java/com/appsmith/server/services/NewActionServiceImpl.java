@@ -14,6 +14,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
+import com.appsmith.external.models.QActionConfiguration;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -42,6 +43,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -55,6 +57,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.lang.model.SourceVersion;
+import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.time.Duration;
 import java.time.Instant;
@@ -260,6 +263,16 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         if (action.getPageId() == null || action.getPageId().isBlank()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
+
+        //TODO: remove it.
+        ActionConfiguration actionConfig = action.getActionConfiguration();
+        Set<ConstraintViolation<ActionConfiguration>> violations = validator.validate(actionConfig);
+
+        System.out.println("devtest: violations.size: " + violations.size());
+        violations
+                .stream()
+                .forEach(x -> System.out.println("devtest: constraint: " + x.getMessage()));
+
 
         if (!validateActionName(action.getName())) {
             action.setIsValid(false);
