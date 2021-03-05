@@ -8,7 +8,7 @@ import { noop } from "lodash";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { AppState } from "reducers";
 import { updateWidgetPropertyRequest } from "actions/controlActions";
-import { RenderModes } from "constants/WidgetConstants";
+import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
 
 export const WidgetContextMenu = (props: {
   widgetId: string;
@@ -32,18 +32,21 @@ export const WidgetContextMenu = (props: {
   const dispatchDelete = useCallback(() => {
     // If the widget is a tab we are updating the `tabs` of the property of the widget
     // This is similar to deleting a tab from the property pane
-    if (widget.parentId && widget.tabName && parentWidget.tabs) {
+    if (widget.tabName && parentWidget.type === WidgetTypes.TABS_WIDGET) {
       const filteredTabs = parentWidget.tabs.filter(
         (tab: any) => tab.widgetId !== widgetId,
       );
-      dispatch(
-        updateWidgetPropertyRequest(
-          widget.parentId,
-          "tabs",
-          filteredTabs,
-          RenderModes.CANVAS,
-        ),
-      );
+
+      if (widget.parentId && !!filteredTabs.length) {
+        dispatch(
+          updateWidgetPropertyRequest(
+            widget.parentId,
+            "tabs",
+            filteredTabs,
+            RenderModes.CANVAS,
+          ),
+        );
+      }
 
       return;
     }
