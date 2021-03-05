@@ -896,6 +896,10 @@ function* batchUpdateWidgetPropertySaga(
   const { modify = {}, remove = [] } = updates;
 
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
+
+  // if there is no widget in the state, don't do anything
+  if (!stateWidget) return;
+
   let widget = cloneDeep(stateWidget);
   try {
     if (Object.keys(modify).length > 0) {
