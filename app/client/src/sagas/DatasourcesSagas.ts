@@ -34,7 +34,7 @@ import {
   createDatasourceFromForm,
 } from "actions/datasourceActions";
 import { fetchPluginForm } from "actions/pluginActions";
-import { GenericApiResponse } from "api/ApiResponses";
+import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
 import { Datasource } from "entities/Datasource";
 import PluginApi, { DatasourceForm } from "api/PluginApi";
@@ -55,6 +55,12 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/actionActions";
+import SaasApi from "api/SaasApi";
+// import {
+//   SAAS_AUTHORIZATION_APPSMITH_ERROR,
+//   SAAS_AUTHORIZATION_FAILED,
+//   SAAS_AUTHORIZATION_SUCCESSFUL,
+// } from "constants/messages";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -193,10 +199,52 @@ function* updateDatasourceSaga(
   }
 }
 
-function RedirectAuthorizationCodeSaga(
+function* RedirectAuthorizationCodeSaga(
   actionPayload: ReduxAction<{ datasourceId: string; pageId: string }>,
 ) {
-  window.location.href = `/api/v1/datasources/${actionPayload.payload.datasourceId}/pages/${actionPayload.payload.pageId}/code`;
+  const { datasourceId, pageId } = actionPayload.payload;
+  try {
+    const response: ApiResponse = yield SaasApi.getAppsmithToken(
+      datasourceId,
+      pageId,
+    );
+    if (validateResponse(response)) {
+      console.log({ response });
+      const appsmithToken = response.data;
+      localStorage.setItem("APPSMITH_AUTH_TOKEN", appsmithToken);
+      window.location.assign(
+        `https://e0fe547237c8.ngrok.io/api/integrations/oauth/authorize?appsmithToken=${appsmithToken}`,
+      );
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function* getOAuthAccessTokenSaga(
+  actionPayload: ReduxAction<{ datasourceId: string }>,
+) {
+  const { datasourceId } = actionPayload.payload;
+  const appsmithToken = localStorage.getItem("APPSMITH_AUTH_TOKEN");
+  if (!appsmithToken) {
+    // Error out
+    console.error("Token not found");
+    return;
+  }
+
+  const response = yield SaasApi.getAccessToken(datasourceId, appsmithToken);
+  console.log({ response });
+  // const display_message = search.get("display_message");
+  // // Set default error message
+  // let message = SAAS_AUTHORIZATION_FAILED;
+  // let variant = Variant.danger;
+  // if (status === "success") {
+  //   message = SAAS_AUTHORIZATION_SUCCESSFUL;
+  //   variant = Variant.success;
+  // } else if (status === "appsmith_error") {
+  //   message = SAAS_AUTHORIZATION_APPSMITH_ERROR;
+  // }
+  // Toaster.show({ text: display_message || message, variant });
 }
 
 function* saveDatasourceNameSaga(
@@ -563,6 +611,10 @@ export function* watchDatasourcesSagas() {
     takeEvery(
       ReduxActionTypes.REDIRECT_AUTHORIZATION_CODE,
       RedirectAuthorizationCodeSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.SAAS_GET_OAUTH_ACCESS_TOKEN,
+      getOAuthAccessTokenSaga,
     ),
     takeEvery(
       ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,

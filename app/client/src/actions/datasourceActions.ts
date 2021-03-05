@@ -135,6 +135,13 @@ export const storeAsDatasource = () => {
   };
 };
 
+export const getOAuthAccessToken = (datasourceId: string) => {
+  return {
+    type: ReduxActionTypes.SAAS_GET_OAUTH_ACCESS_TOKEN,
+    payload: { datasourceId },
+  };
+};
+
 export default {
   fetchDatasources,
   initDatasourcePane,

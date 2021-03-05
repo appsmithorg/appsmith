@@ -19,19 +19,13 @@ import {
   deleteDatasource,
   redirectAuthorizationCode,
   updateDatasource,
+  getOAuthAccessToken,
 } from "actions/datasourceActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import { historyPush } from "actions/utilActions";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { createActionRequest } from "actions/actionActions";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import {
-  SAAS_AUTHORIZATION_APPSMITH_ERROR,
-  SAAS_AUTHORIZATION_FAILED,
-  SAAS_AUTHORIZATION_SUCCESSFUL,
-} from "constants/messages";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
 import {
   ActionButton,
   FormTitleContainer,
@@ -42,6 +36,12 @@ import {
   SaveButtonContainer,
 } from "../DataSourceEditor/JSONtoForm";
 import { getConfigInitialValues } from "components/formControls/utils";
+import {
+  SAAS_AUTHORIZATION_APPSMITH_ERROR,
+  SAAS_AUTHORIZATION_FAILED,
+} from "constants/messages";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -57,6 +57,7 @@ interface DispatchFunctions {
   fetchPluginForm: (id: string) => void;
   updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => void;
   deleteDatasource: (id: string, onSuccess?: ReduxAction<unknown>) => void;
+  getOAuthAccessToken: (id: string) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -100,14 +101,15 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
       const display_message = search.get("display_message");
       // Set default error message
       let message = SAAS_AUTHORIZATION_FAILED;
-      let variant = Variant.danger;
-      if (status === "success") {
-        message = SAAS_AUTHORIZATION_SUCCESSFUL;
-        variant = Variant.success;
-      } else if (status === "appsmith_error") {
-        message = SAAS_AUTHORIZATION_APPSMITH_ERROR;
+      const variant = Variant.danger;
+      if (status !== "success") {
+        if (status === "appsmith_error") {
+          message = SAAS_AUTHORIZATION_APPSMITH_ERROR;
+        }
+        Toaster.show({ text: display_message || message, variant });
+      } else {
+        this.props.getOAuthAccessToken(this.props.datasourceId);
       }
-      Toaster.show({ text: display_message || message, variant });
     }
   }
 
@@ -270,6 +272,8 @@ const mapDispatchToProps = (dispatch: any): DispatchFunctions => {
     fetchPluginForm: (id: string) => dispatch(fetchPluginForm({ id })),
     updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(updateDatasource(formData, onSuccess)),
+    getOAuthAccessToken: (datasourceId: string) =>
+      dispatch(getOAuthAccessToken(datasourceId)),
   };
 };
 

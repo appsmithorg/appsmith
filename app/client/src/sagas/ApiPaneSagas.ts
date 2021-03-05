@@ -36,7 +36,11 @@ import {
 } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
-import { createNewApiName, getNextEntityName } from "utils/AppsmithUtils";
+import {
+  createNewApiName,
+  getNextEntityName,
+  getQueryParams,
+} from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import {
   getAction,
