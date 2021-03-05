@@ -20,8 +20,6 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
@@ -36,7 +34,6 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.Date;
@@ -775,11 +772,10 @@ public class PostgresPlugin extends BasePlugin {
                                                                 String binding,
                                                                 String value,
                                                                 PreparedStatement preparedStatement,
-                                                                Connection connection) throws UnsupportedEncodingException, AppsmithPluginException {
+                                                                Connection connection) throws AppsmithPluginException {
         DataType valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
 
         try {
-
             switch (valueType) {
                 case NULL: {
                     preparedStatement.setNull(index, Types.NULL);
@@ -823,7 +819,6 @@ public class PostgresPlugin extends BasePlugin {
                 }
                 case ARRAY: {
                     List arrayListFromInput = objectMapper.readValue(value, List.class);
-//                    List arrayListFromInput = new GsonBuilder().create().fromJson(value, List.class);
                     if (arrayListFromInput.isEmpty()) {
                         break;
                     }
@@ -845,17 +840,10 @@ public class PostgresPlugin extends BasePlugin {
                     break;
             }
 
-        } catch (SQLException | IllegalArgumentException e) {
-            e.printStackTrace();
+        } catch (SQLException | IllegalArgumentException | IOException e) {
             String message = "Query preparation failed while inserting value: "
                     + value + " for binding: {{" + binding + "}}. Please check the query again.\nError: " + e.getMessage();
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
-        } catch (JsonParseException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         return preparedStatement;
@@ -880,7 +868,7 @@ public class PostgresPlugin extends BasePlugin {
             case DOUBLE:
                 return "float8";
             default:
-                throw new IllegalStateException("sql type couldn't converted to fieldtype");
+                throw new IllegalArgumentException("Unable to map the computed data type to primitive Postgresql type");
         }
     }
 
