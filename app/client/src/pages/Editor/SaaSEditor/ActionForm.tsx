@@ -24,7 +24,6 @@ import {
   EditorJSONtoForm,
   EditorJSONtoFormProps,
 } from "../QueryEditor/EditorJSONtoForm";
-import { Datasource } from "entities/Datasource";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 
