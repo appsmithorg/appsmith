@@ -1,11 +1,11 @@
 package com.external.connections;
 
 import com.appsmith.external.constants.Authentication;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpHeaders;

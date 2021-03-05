@@ -1,7 +1,7 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.Datasource;
@@ -31,16 +31,18 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final EncryptionService encryptionService;
+    private final AuthenticationValidator authenticationValidator;
 
     @Autowired
     public DatasourceContextServiceImpl(DatasourceService datasourceService,
                                         PluginService pluginService,
                                         PluginExecutorHelper pluginExecutorHelper,
-                                        EncryptionService encryptionService) {
+                                        EncryptionService encryptionService, AuthenticationValidator authenticationValidator) {
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.encryptionService = encryptionService;
+        this.authenticationValidator = authenticationValidator;
         this.datasourceContextMap = new ConcurrentHashMap<>();
     }
 
@@ -86,6 +88,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                 })
                 .flatMap(objects -> {
                     Datasource datasource1 = objects.getT1();
+                    log.debug("Using datasource: {}", datasource1.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse());
 
                     // If authentication exists for the datasource, decrypt the fields
                     if (datasource1.getDatasourceConfiguration() != null &&
@@ -114,19 +117,23 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                         // with the new connection in the context map.
                         datasourceContextMap.put(datasourceId, datasourceContext);
                     }
-
-                    Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource1.getDatasourceConfiguration());
-                    return connectionMono
-                            .flatMap(connection -> {
-                                Mono<Datasource> datasourceMono1 = Mono.just(datasource1);
+                    log.debug("Using datasource: {}", datasource1.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse());
+                    return authenticationValidator.validateAuthentication(datasource1)
+                            .flatMap(datasource2 -> Mono.zip(
+                                    pluginExecutor.datasourceCreate(datasource2.getDatasourceConfiguration()),
+                                    Mono.just(datasource2)))
+                            .flatMap(tuple -> {
+                                Object connection = tuple.getT1();
+                                Datasource datasource2 = tuple.getT2();
+                                Mono<Datasource> datasourceMono1 = Mono.just(datasource2);
                                 if (connection instanceof UpdatableConnection) {
-                                    datasource1.setUpdatedAt(Instant.now());
-                                    datasource1
+                                    datasource2.setUpdatedAt(Instant.now());
+                                    datasource2
                                             .getDatasourceConfiguration()
                                             .setAuthentication(
                                                     ((UpdatableConnection) connection).getAuthenticationDTO(
-                                                            datasource1.getDatasourceConfiguration().getAuthentication()));
-                                    datasourceMono1 = datasourceService.update(datasource1.getId(), datasource1);
+                                                            datasource2.getDatasourceConfiguration().getAuthentication()));
+                                    datasourceMono1 = datasourceService.update(datasource2.getId(), datasource2);
                                 }
                                 return datasourceMono1.thenReturn(connection);
                             })
@@ -189,7 +196,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
     public AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authentication) {
         if (authentication != null && Boolean.TRUE.equals(authentication.isEncrypted())) {
             Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
-                    .filter(e -> e.getValue() != null)
+                    .filter(e -> e.getValue() != null && !e.getValue().isBlank())
                     .collect(Collectors.toMap(
                             Map.Entry::getKey,
                             e -> encryptionService.decryptString(e.getValue())));

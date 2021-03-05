@@ -2,18 +2,23 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
+import com.appsmith.server.dtos.IntegrationDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
@@ -33,7 +38,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
@@ -63,6 +71,10 @@ public class AuthenticationService {
     private final RedirectHelper redirectHelper;
 
     private final NewPageService newPageService;
+
+    private final CloudServicesConfig cloudServicesConfig;
+
+    private final ConfigService configService;
 
     public Mono<String> getAuthorizationCodeURL(String datasourceId, String pageId, ServerHttpRequest httpRequest) {
         // This is the only database access that is controlled by ACL
@@ -104,8 +116,7 @@ public class AuthenticationService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "authentication"));
         }
 
-        return datasourceService.enrichDatasource(datasource)
-                .flatMap(datasourceService::validateDatasource)
+        return datasourceService.validateDatasource(datasource)
                 .flatMap(datasource1 -> {
                     if (!datasource1.getIsValid()) {
                         return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, datasource1.getInvalids().iterator().next()));
@@ -126,7 +137,6 @@ public class AuthenticationService {
 
         Mono<Datasource> datasourceMono = datasourceService
                 .getById(state.split(",")[1])
-                .flatMap(datasourceService::enrichDatasource)
                 .cache();
         // Otherwise, proceed to retrieve the access token from the authorization server
         return datasourceMono
@@ -235,4 +245,158 @@ public class AuthenticationService {
                                 .map(Plugin::getPackageName));
     }
 
+    public Mono<String> getAppsmithToken(String datasourceId, String pageId) {
+        // Check whether user has access to manage the datasource
+        // Validate the datasource according to plugin type as well
+        // If successful, then request for appsmithToken
+        // Set datasource state to intermediate stage
+        // Return the appsmithToken to client
+        Mono<Datasource> datasourceMono = datasourceService
+                .findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+                .cache();
+
+        return datasourceMono
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
+                .flatMap(this::validateRequiredFields)
+                .flatMap(datasource -> Mono.zip(
+                        newPageService.getById(pageId)
+                                .map(page -> List.of(pageId, page.getApplicationId())),
+                        configService.getInstanceId(),
+                        this.getPluginName(Mono.just(datasource)))
+                        .map(tuple -> {
+                            IntegrationDTO integrationDTO = new IntegrationDTO();
+                            integrationDTO.setPageId(tuple.getT1().get(0));
+                            integrationDTO.setApplicationId(tuple.getT1().get(1));
+                            integrationDTO.setInstallationKey(tuple.getT2());
+                            integrationDTO.setPluginName(tuple.getT3());
+                            integrationDTO.setDatasourceId(datasourceId);
+                            integrationDTO.setScope(((OAuth2) datasource.getDatasourceConfiguration().getAuthentication()).getScope());
+                            return integrationDTO;
+                        }))
+                .flatMap(integrationDTO -> {
+                    WebClient.Builder builder = WebClient.builder();
+                    builder.baseUrl(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/appsmith");
+                    return builder.build()
+                            .method(HttpMethod.POST)
+                            .body(BodyInserters.fromValue(integrationDTO))
+                            .exchange()
+                            .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
+                            .flatMap(response -> {
+                                if (response.statusCode().is2xxSuccessful()) {
+                                    return response.bodyToMono(Map.class);
+                                } else {
+                                    log.debug("Unable to retrieve appsmith token with error {}", response.statusCode());
+                                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Unable to retrieve appsmith token with error " + response.statusCode()));
+                                }
+                            })
+                            .map(body -> String.valueOf(body.get("data")))
+                            .zipWith(datasourceMono)
+                            .flatMap(tuple -> {
+                                String appsmithToken = tuple.getT1();
+                                Datasource datasource = tuple.getT2();
+                                datasource
+                                        .getDatasourceConfiguration()
+                                        .getAuthentication()
+                                        .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.IN_PROGRESS);
+                                return datasourceService.update(datasource.getId(), datasource).thenReturn(appsmithToken);
+                            });
+                });
+    }
+
+    public Mono<Datasource> getAccessTokenFromCloud(String datasourceId, String appsmithToken) {
+        // Check if user has access to manage datasource
+        // If yes, check if datasource is in intermediate state
+        // If yes, request for token and store in datasource
+        // Update datasource as being authorized
+        // Return control to client
+        Mono<Datasource> datasourceMono = datasourceService
+                .findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+                .cache();
+
+        return datasourceMono
+                .filter(datasource -> AuthenticationDTO.AuthenticationStatus.IN_PROGRESS.equals(datasource.getDatasourceConfiguration().getAuthentication().getAuthenticationStatus()))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
+                .flatMap(this::validateRequiredFields)
+                .flatMap(datasource -> {
+                    WebClient.Builder builder = WebClient.builder();
+                    UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
+                    try {
+                        uriBuilder.uri(new URI(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/token"))
+                                .queryParam("appsmithToken", appsmithToken);
+                    } catch (URISyntaxException e) {
+                        log.debug("Error while parsing access token URL.", e);
+                    }
+                    return builder.build()
+                            .method(HttpMethod.POST)
+                            .uri(uriBuilder.build(true).toUri())
+                            .exchange()
+                            .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
+                            .flatMap(response -> {
+                                if (response.statusCode().is2xxSuccessful()) {
+                                    return response.bodyToMono(AuthenticationResponse.class);
+                                } else {
+                                    log.debug("Unable to retrieve appsmith token with error {}", response.statusCode());
+                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR, "Unable to retrieve appsmith token with error " + response.statusCode()));
+                                }
+                            })
+                            .flatMap(authenticationResponse -> {
+                                datasource
+                                        .getDatasourceConfiguration()
+                                        .getAuthentication()
+                                        .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
+                                OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
+                                oAuth2.setAuthenticationResponse(authenticationResponse);
+                                oAuth2.setIsEncrypted(null);
+                                datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
+                                return Mono.just(datasource);
+                            });
+                })
+                .flatMap(datasource -> datasourceService.update(datasource.getId(), datasource));
+    }
+
+    public Mono<Datasource> refreshAuthentication(Datasource datasource) {
+        OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
+        assert (!oAuth2.isEncrypted());
+        return pluginService.findById(datasource.getPluginId())
+                .filter(plugin -> PluginType.SAAS.equals(plugin.getType()))
+                .zipWith(configService.getInstanceId())
+                .flatMap(tuple -> {
+                    Plugin plugin = tuple.getT1();
+                    String installationKey = tuple.getT2();
+                    IntegrationDTO integrationDTO = new IntegrationDTO();
+                    integrationDTO.setInstallationKey(installationKey);
+                    integrationDTO.setAuthenticationResponse(oAuth2.getAuthenticationResponse());
+                    integrationDTO.setScope(oAuth2.getScope());
+                    integrationDTO.setPluginName(plugin.getPackageName());
+
+                    WebClient.Builder builder = WebClient
+                            .builder()
+                            .clientConnector(
+                                    new ReactorClientHttpConnector(HttpClient
+                                            .create()
+                                            .wiretap(true)))
+                            .baseUrl(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/refresh");
+
+                    return builder.build()
+                            .method(HttpMethod.POST)
+                            .body(BodyInserters.fromValue(integrationDTO))
+                            .exchange()
+                            .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
+                            .flatMap(response -> {
+                                if (response.statusCode().is2xxSuccessful()) {
+                                    return response.bodyToMono(AuthenticationResponse.class);
+                                } else {
+                                    log.debug("Unable to retrieve appsmith token with error {}", response.statusCode());
+                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR, "Unable to retrieve appsmith token with error " + response.statusCode()));
+                                }
+                            })
+                            .flatMap(authenticationResponse -> {
+                                oAuth2.setAuthenticationResponse(authenticationResponse);
+                                oAuth2.setIsEncrypted(null);
+                                datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
+                                return datasourceService.update(datasource.getId(), datasource);
+                            });
+                })
+                .switchIfEmpty(Mono.just(datasource));
+    }
 }

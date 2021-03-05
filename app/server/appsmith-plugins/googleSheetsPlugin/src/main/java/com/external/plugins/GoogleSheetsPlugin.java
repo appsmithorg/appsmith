@@ -10,8 +10,6 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.external.connections.APIConnection;
-import com.external.connections.APIConnectionFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -19,16 +17,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -54,10 +52,10 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class GoogleSheetsPluginExecutor implements PluginExecutor<APIConnection> {
+    public static class GoogleSheetsPluginExecutor implements PluginExecutor<Void> {
 
         @Override
-        public Mono<ActionExecutionResult> execute(APIConnection apiConnection,
+        public Mono<ActionExecutionResult> execute(Void connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
@@ -97,15 +95,22 @@ public class GoogleSheetsPlugin extends BasePlugin {
             }
 
             // Right before building the webclient object, we populate it with whatever mutation the APIConnection object demands
-            if (apiConnection != null) {
-                webClientBuilder.filter(apiConnection);
-            }
+//            if (apiConnection != null) {
+//                webClientBuilder.filter(apiConnection);
+//            }
 
-            WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).filter(logRequest()).build();
-
+            WebClient client = webClientBuilder
+                    .exchangeStrategies(EXCHANGE_STRATEGIES)
+                    .clientConnector(new ReactorClientHttpConnector(
+                            HttpClient.create().wiretap(true)
+                    ))
+                    .build();
+            final OAuth2 oauth2 = (OAuth2) datasourceConfiguration.getAuthentication();
+            assert (!oauth2.getIsEncrypted() && oauth2.getAuthenticationResponse() != null);
             // Triggering the actual REST API call
             return Method.valueOf(actionConfiguration.getPluginSpecifiedTemplates().get(0).getValue())
                     .getClient(client, actionConfiguration.getPluginSpecifiedTemplates(), requestBodyAsString)
+                    .headers(headers -> headers.set("Authorization", oauth2.getHeaderPrefix() + " " + oauth2.getAuthenticationResponse().getToken()))
                     .exchange()
                     .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(stringResponseEntity -> {
@@ -192,14 +197,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
                     });
         }
 
-        private static ExchangeFilterFunction logRequest() {
-            return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-                log.info("Request: {} {}", clientRequest.method(), clientRequest.url());
-                clientRequest.headers().forEach((name, values) -> values.forEach(value -> System.out.println(name + "=" + value)));
-                return Mono.just(clientRequest);
-            });
-        }
-
         public String convertPropertyListToReqBody(List<Property> bodyFormData,
                                                    String reqContentType,
                                                    Boolean encodeParamsToggle) {
@@ -253,12 +250,12 @@ public class GoogleSheetsPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<APIConnection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return APIConnectionFactory.createConnection(datasourceConfiguration.getAuthentication());
+        public Mono<Void> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            return Mono.empty();
         }
 
         @Override
-        public void datasourceDestroy(APIConnection connection) {
+        public void datasourceDestroy(Void connection) {
             // REST API plugin doesn't have a datasource.
         }
 
@@ -273,26 +270,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
             // and verifying the URL isn't feasible. Since validation happens just before testing, and since validation
             // checks if a URL is present, there's nothing left to do here, but return a successful response.
             return Mono.just(new DatasourceTestResult());
-        }
-
-        @Override
-        public Mono<DatasourceConfiguration> enrichDatasource(DatasourceConfiguration datasourceConfiguration, Environment env) {
-            OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
-            // We expect some data to be present here at this point, in this case the scope
-            if (oAuth2 != null) {
-                datasourceConfiguration.setUrl("https://sheets.googleapis.com/v4/spreadsheets");
-                oAuth2.setGrantType(OAuth2.Type.AUTHORIZATION_CODE);
-                oAuth2.setAccessTokenUrl("https://oauth2.googleapis.com/token");
-                oAuth2.setCustomAuthenticationParameters(Set.of(new Property("access_type", "offline"), new Property("prompt", "consent")));
-                oAuth2.setClientId(env.getProperty("plugin.authentication.google-sheets.client-id"));
-                oAuth2.setClientSecret(env.getProperty("plugin.authentication.google-sheets.client-secret"));
-                oAuth2.setAuthorizationUrl("https://accounts.google.com/o/oauth2/v2/auth");
-                oAuth2.setIsTokenHeader(true);
-                oAuth2.setHeaderPrefix("Bearer");
-                oAuth2.setIsAuthorizationHeader(true);
-            }
-
-            return Mono.just(datasourceConfiguration);
         }
     }
 
