@@ -39,18 +39,33 @@ describe("Table Widget Functionality", function() {
     cy.get(commonlocators.editPropCrossButton).click();
     cy.PublishtheApp();
   });
+
   it("Table Widget Functionality To Verify The Data", function() {
     cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "2").then((tabData) => {
+    cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
       cy.log("the value is" + tabValue);
     });
   });
 
+  it("Table Widget Functionality To Show a Base64 Image", function() {
+    cy.get(publish.backToEditor).click();
+    cy.openPropertyPane("tablewidget");
+    cy.editColumn("image");
+    cy.changeColumnType("Image");
+    cy.isSelectRow(1);
+
+    const index = 1;
+    const imageVal = this.data.TableInput[index].image;
+    cy.readTableLinkPublish(index, "1").then((hrefVal) => {
+      expect(hrefVal).to.be.equal(imageVal);
+    });
+  });
+
   it("Table Widget Functionality To Search The Data", function() {
     cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "2").then((tabData) => {
+    cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
       cy.log("the value is" + tabValue);
@@ -58,7 +73,7 @@ describe("Table Widget Functionality", function() {
         .first()
         .type(tabData);
       cy.wait(500);
-      cy.readTabledataPublish("0", "2").then((tabData) => {
+      cy.readTabledataPublish("1", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
@@ -69,7 +84,7 @@ describe("Table Widget Functionality", function() {
         .clear()
         .type("7434532");
       cy.wait(1000);
-      cy.readTabledataPublish("0", "2").then((tabData) => {
+      cy.readTabledataPublish("3", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Byron Fields");
       });
@@ -82,7 +97,7 @@ describe("Table Widget Functionality", function() {
       .clear();
     cy.wait(1000);
     cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "2").then((tabData) => {
+    cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
       cy.log("the value is" + tabValue);
@@ -100,14 +115,14 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.canvas)
         .first()
         .click();
-      cy.readTabledataPublish("0", "2").then((tabData) => {
+      cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
       cy.wait(500);
-      cy.readTabledataPublish("0", "2").then((tabData) => {
+      cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Michael Lawson");
       });
@@ -119,7 +134,7 @@ describe("Table Widget Functionality", function() {
 
   it("Table Widget Functionality To Filter The Data using contains", function() {
     cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "2").then((tabData) => {
+    cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
       cy.log("the value is" + tabValue);
@@ -137,14 +152,14 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.canvas)
         .first()
         .click();
-      cy.readTabledataPublish("0", "2").then((tabData) => {
+      cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
       cy.wait(500);
-      cy.readTabledataPublish("0", "2").then((tabData) => {
+      cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Michael Lawson");
       });
@@ -156,7 +171,7 @@ describe("Table Widget Functionality", function() {
 
   it("Table Widget Functionality To Filter The Data using starts with ", function() {
     cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "2").then((tabData) => {
+    cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
       cy.log("the value is" + tabValue);
@@ -174,14 +189,14 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.canvas)
         .first()
         .click();
-      cy.readTabledataPublish("0", "2").then((tabData) => {
+      cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
       cy.wait(500);
-      cy.readTabledataPublish("0", "2").then((tabData) => {
+      cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Michael Lawson");
       });
@@ -193,7 +208,7 @@ describe("Table Widget Functionality", function() {
 
   it("Table Widget Functionality To Filter The Data using ends with ", function() {
     cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "2").then((tabData) => {
+    cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
       cy.log("the value is" + tabValue);
@@ -211,14 +226,14 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.canvas)
         .first()
         .click();
-      cy.readTabledataPublish("0", "2").then((tabData) => {
+      cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
       cy.wait(500);
-      cy.readTabledataPublish("0", "2").then((tabData) => {
+      cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Michael Lawson");
       });
@@ -230,7 +245,7 @@ describe("Table Widget Functionality", function() {
 
   it("Table Widget Functionality To Check Compact Mode", function() {
     cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "2").then((tabData) => {
+    cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
       cy.log("the value is" + tabValue);
@@ -238,7 +253,7 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.compactOpt)
         .contains("Tall")
         .click();
-      cy.scrollTabledataPublish("3", "2").then((tabData) => {
+      cy.scrollTabledataPublish("3", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Byron Fields");
       });
@@ -246,7 +261,7 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.compactOpt)
         .contains("Short")
         .click();
-      cy.readTabledataPublish("4", "2").then((tabData) => {
+      cy.readTabledataPublish("4", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Ryan Holmes");
       });
@@ -261,7 +276,7 @@ describe("Table Widget Functionality", function() {
       .first()
       .click();
     cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "2").then(tabData => {
+    cy.readTabledataPublish("1", "3").then(tabData => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
       cy.log("the value is" + tabValue);
@@ -270,7 +285,7 @@ describe("Table Widget Functionality", function() {
         .contains("userName")
         .click();
       cy.get(publish.containerWidget).click();
-      cy.readTabledataPublish("1", "2").then(tabData => {
+      cy.readTabledataPublish("1", "3").then(tabData => {
         const tabValue = tabData;
         expect(tabValue).to.not.equal("Lindsay Ferguson");
       });
@@ -279,7 +294,7 @@ describe("Table Widget Functionality", function() {
         .contains("userName")
         .click();
       cy.get(publish.containerWidget).click();
-      cy.readTabledataPublish("1", "2").then(tabData => {
+      cy.readTabledataPublish("1", "3").then(tabData => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
