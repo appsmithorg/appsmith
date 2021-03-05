@@ -2,9 +2,9 @@ import { Classes, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import React, { memo, ReactNode, useState } from "react";
 import { Collapse } from "@blueprintjs/core";
-import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import styled from "constants/DefaultTheme";
 
 const SectionWrapper = styled.div`
   position: relative;
