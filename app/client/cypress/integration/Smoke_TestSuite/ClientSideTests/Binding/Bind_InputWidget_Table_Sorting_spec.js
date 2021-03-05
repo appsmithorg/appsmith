@@ -51,4 +51,3 @@ describe("Binding the Table and input Widget", function() {
     });
   });
 });
-
