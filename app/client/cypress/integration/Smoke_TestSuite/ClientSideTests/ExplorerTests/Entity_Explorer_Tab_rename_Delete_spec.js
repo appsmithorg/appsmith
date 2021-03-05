@@ -36,19 +36,18 @@ describe("Tab widget test", function() {
   it("Tab Widget Functionality To delete Tabs from entity explorer", function() {
     // cy.GlobalSearchEntity("Tab 2");
     cy.ExpandAllExplorerEntities();
-    cy.get(".t--entity.widget:contains(Tab 2)")
-      .last()
-      .RenameEntity(tabname);
+    // cy.get(".t--entity.widget:contains(Tab 2)")
+    //   .last()
+    //   .RenameEntity(tabname);
     // cy.RenameEntity(tabname);
-    cy.validateMessage(tabname);
+    // cy.validateMessage(tabname);
     cy.get(".t--entity.widget:contains(Tab 2)").last().deleteEntity();
     // cy.get(commonlocators.entityExplorersearch).should("be.visible");
     // cy.get(commonlocators.entityExplorersearch)
     //   .clear()
     //   .type("Tab 2");
-    cy.get(
-      commonlocators.entitySearchResult.concat("Tab 2").concat("')"),
-    ).should("not.exist");
+    cy.get(".t--entity.widget:contains(Tab 2)")
+    .should("not.exist");
   });
 
   /* To be enabled once the bug is fixed

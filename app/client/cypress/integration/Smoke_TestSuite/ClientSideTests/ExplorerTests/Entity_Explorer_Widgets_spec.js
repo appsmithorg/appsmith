@@ -19,11 +19,11 @@ describe("Entity explorer tests related to widgets and validation", function() {
     //   .last()
     //   .click({ force: true });
 
-    cy.get(`.t--entity.widget:contains(Text1)`)
-      .first()
-      .find(explorer.property)
-      .last()
-      .click({ force: true });
+    // cy.get(`.t--entity.widget:contains(Text1)`)
+    //   .first()
+    //   .find(explorer.property)
+    //   .last()
+    //   .click({ force: true });
     // cy.get(explorer.property)
     //   .last()
     //   .click({ force: true });
@@ -44,12 +44,12 @@ describe("Entity explorer tests related to widgets and validation", function() {
     // cy.GlobalSearchEntity("Text1");
     cy.ExpandAllExplorerEntities();
     // cy.EditApiNameFromExplorer("TextUpdated");
-    // todo (fix) failing_silently_ref
-    cy.get(".t--entity.widget:contains(TextUpdated)")
-      .EditApiNameFromExplorer("TextUpdated")
-      .get(".t--entity-collapse-toggle")
+    cy.get(".t--entity.widget:contains(Text1)")
       .last()
-      .click()
+      .EditApiNameFromExplorer("TextUpdated");
+
+    cy.get(".t--entity.widget:contains(TextUpdated)")
+      .last()
       .within(() => {
         cy.get(apiwidget.propertyList).then(function($lis) {
           expect($lis).to.have.length(2);
