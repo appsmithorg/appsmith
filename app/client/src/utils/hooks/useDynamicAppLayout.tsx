@@ -22,6 +22,10 @@ import { useWindowSizeHooks } from "./dragResizeHooks";
 // Tablet: Old - 1024, New 650 - 800
 // Mobile: Old - 720, New 350 - 450
 const widthConfig: any = {
+  960: {
+    minWidth: 960,
+    maxWidth: 1080,
+  },
   720: {
     minWidth: 350,
     maxWidth: 450,
@@ -62,12 +66,14 @@ export const useDynamicAppLayout = () => {
       layoutMaxWidth > 0
         ? widthConfig[layoutMaxWidth] || widthConfig[1224]
         : {};
+    const calculatedMinWidth =
+      appMode === "EDIT" ? minWidth - parseInt(theme.sidebarWidth) : minWidth;
     const layoutWidth =
       type === "FLUID"
         ? calculateFluidMaxWidth(screenWidth, maxWidth)
         : maxWidth;
     const { rightColumn } = mainContainer;
-    if (layoutWidth > minWidth && rightColumn !== layoutWidth) {
+    if (calculatedMinWidth && rightColumn !== layoutWidth) {
       dispatch({
         type: ReduxActionTypes.UPDATE_CANVAS_LAYOUT,
         payload: {

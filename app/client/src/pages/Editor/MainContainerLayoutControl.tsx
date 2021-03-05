@@ -23,7 +23,12 @@ import { useSelector } from "store";
 import styled, { ThemeProvider } from "styled-components";
 import { noop } from "utils/AppsmithUtils";
 
-type SupportedLayouts = "Desktop" | "Tablet" | "Mobile Device" | "Fluid Width";
+type SupportedLayouts =
+  | "Desktop"
+  | "Tablet(Large)"
+  | "Tablet"
+  | "Mobile Device"
+  | "Fluid Width";
 interface AppsmithLayoutConfigOption {
   name: SupportedLayouts;
   type: AppLayoutType;
@@ -41,6 +46,12 @@ const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
     name: "Desktop",
     ...AppsmithDefaultLayout,
     icon: "desktop",
+  },
+  {
+    name: "Tablet(Large)",
+    type: "FLUID",
+    width: 960,
+    icon: "tablet",
   },
   {
     name: "Tablet",
