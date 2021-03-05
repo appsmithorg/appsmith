@@ -44,7 +44,7 @@ describe("Entity explorer API pane related testcases", function() {
     // cy.EditApiNameFromExplorer("SecondAPI");
     // cy.GlobalSearchEntity("SecondAPI");
     cy.ExpandAllExplorerEntities();
-    cy.get(`.t--entity.action:contains(SecondAPI)`)
+    cy.get(".t--entity.action:contains(SecondAPI)")
       .last()
       .ShowExplorerContextMenu()
       .MoveAPIToPage(pageid);
