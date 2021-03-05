@@ -34,6 +34,11 @@ import { ReactComponent as AddMoreIcon } from "assets/icons/ads/add-more.svg";
 import { ReactComponent as RightArrowIcon } from "assets/icons/ads/right-arrow.svg";
 import { ReactComponent as DatasourceIcon } from "assets/icons/ads/datasource.svg";
 import { ReactComponent as PlayIcon } from "assets/icons/ads/play.svg";
+import { ReactComponent as DesktopIcon } from "assets/icons/ads/desktop.svg";
+import { ReactComponent as MobileIcon } from "assets/icons/ads/mobile.svg";
+import { ReactComponent as TabletIcon } from "assets/icons/ads/tablet.svg";
+import { ReactComponent as FluidIcon } from "assets/icons/ads/fluid.svg";
+
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -122,6 +127,10 @@ export const IconCollection = [
   "right-arrow",
   "datasource",
   "play",
+  "desktop",
+  "mobile",
+  "tablet",
+  "fluid",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -277,6 +286,19 @@ const Icon = forwardRef(
       case "play":
         returnIcon = <PlayIcon />;
         break;
+      case "desktop":
+        returnIcon = <DesktopIcon />;
+        break;
+      case "mobile":
+        returnIcon = <MobileIcon />;
+        break;
+      case "tablet":
+        returnIcon = <TabletIcon />;
+        break;
+      case "fluid":
+        returnIcon = <FluidIcon />;
+        break;
+
       default:
         returnIcon = null;
         break;

@@ -363,7 +363,7 @@ describe("Immutable Canvas structures", () => {
     }
     console.log("Time taken for 100 runs: ", performance.now() - start, "ms");
     const timeTaken = performance.now() - start;
-    expect(timeTaken).toBeLessThanOrEqual(30);
+    expect(timeTaken).toBeLessThanOrEqual(100);
   });
   it("updates the diff appropriately", () => {
     const dsl: any = {

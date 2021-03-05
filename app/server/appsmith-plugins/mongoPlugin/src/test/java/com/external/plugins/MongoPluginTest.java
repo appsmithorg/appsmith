@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -401,6 +402,21 @@ public class MongoPluginTest {
                             },
                             possessionsTable.getTemplates().toArray()
                     );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testErrorMessageOnSrvUrl() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getEndpoints().get(0).setHost("mongodb+srv:://url.net");
+        Mono<Set<String>> invalidsMono = Mono.just(pluginExecutor.validateDatasource(dsConfig));
+
+        StepVerifier.create(invalidsMono)
+                .assertNext(invalids -> {
+                    assertTrue(invalids
+                            .stream()
+                            .anyMatch(error -> error.contains("MongoDb SRV URLs are not yet supported")));
                 })
                 .verifyComplete();
     }

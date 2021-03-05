@@ -44,7 +44,7 @@
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
               "validationRegex": "^((?![/:]).)*$",
-              "placeholder": "myapp.abcde.mongodb.net"
+              "placeholderText": "myapp.abcde.mongodb.net"
             },
             {
               "label": "Port",
@@ -56,7 +56,7 @@
         },
         {
           "label": "Default Database Name",
-          "placeholder": "(Optional)",
+          "placeholderText": "(Optional)",
           "configProperty": "datasourceConfiguration.connection.defaultDatabaseName",
           "controlType": "INPUT_TEXT"
         }

@@ -105,6 +105,9 @@ export const getViewModePageList = createSelector(
   },
 );
 
+export const getCurrentApplicationLayout = (state: AppState) =>
+  state.ui.applications.currentApplication?.appLayout;
+
 export const getCurrentPageName = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>
@@ -122,8 +125,12 @@ export const getWidgetCards = createSelector(
     const cards = widgetCards.cards;
     return cards
       .map((widget: WidgetCardProps) => {
-        const { rows, columns } = widgetConfigs.config[widget.type];
-        return { ...widget, rows, columns };
+        const {
+          rows,
+          columns,
+          detachFromLayout = false,
+        }: any = widgetConfigs.config[widget.type];
+        return { ...widget, rows, columns, detachFromLayout };
       })
       .sort(
         (

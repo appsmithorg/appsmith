@@ -338,6 +338,17 @@ public class MongoPlugin extends BasePlugin {
 
             }
 
+            if(!CollectionUtils.isEmpty(endpoints)) {
+                boolean usingSrvUrl = endpoints
+                        .stream()
+                        .anyMatch(endPoint -> endPoint.getHost().contains("mongodb+srv"));
+
+                if (usingSrvUrl) {
+                    invalids.add("MongoDb SRV URLs are not yet supported. Please extract the individual fields from " +
+                            "the SRV URL into the datasource configuration form.");
+                }
+            }
+
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication != null) {
                 DBAuth.Type authType = authentication.getAuthType();
