@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -40,6 +41,7 @@ import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.services.EncryptionService;
 import com.appsmith.server.services.OrganizationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.google.gson.Gson;
@@ -71,15 +73,18 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
@@ -87,7 +92,10 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
@@ -787,7 +795,7 @@ public class DatabaseChangelog {
                     final Map<String, Object> datasource = (Map) action.get("datasource");
                     datasource.put("pluginId", plugins.get(datasource.remove("$pluginPackageName")));
                     datasource.put(FieldName.ORGANIZATION_ID, organizationId);
-                    if (Boolean.FALSE.equals(datasource.remove("$isEmbedded"))) {
+                    if (FALSE.equals(datasource.remove("$isEmbedded"))) {
                         datasource.put("_id", new ObjectId(datasourceIdsByName.get(datasource.get("name"))));
                     }
                     action.put(FieldName.ORGANIZATION_ID, organizationId);
@@ -1700,19 +1708,17 @@ public class DatabaseChangelog {
 
         for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
             if (action.getPluginType() != null && action.getPluginType().equals("API")) {
+                if (action.getUnpublishedAction() != null
+                        && action.getUnpublishedAction().getActionConfiguration() != null) {
+                    action.getUnpublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+                }
 
+                if (action.getPublishedAction() != null
+                        && action.getPublishedAction().getActionConfiguration() != null) {
+                    action.getPublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
+                }
+                mongoTemplate.save(action);
             }
-            if (action.getUnpublishedAction() != null
-                    && action.getUnpublishedAction().getActionConfiguration() != null) {
-                action.getUnpublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
-            }
-
-            if (action.getPublishedAction() != null
-                    && action.getPublishedAction().getActionConfiguration() != null) {
-                action.getPublishedAction().getActionConfiguration().setEncodeParamsToggle(true);
-            }
-
-            mongoTemplate.save(action);
         }
     }
 
@@ -1753,6 +1759,111 @@ public class DatabaseChangelog {
             }
 
             mongoTemplate.save(action);
+        }
+    }
+
+    @ChangeSet(order = "056", id = "fix-dynamicBindingPathListForActions", author = "")
+    public void fixDynamicBindingPathListForExistingActions(MongoTemplate mongoTemplate) {
+
+        ObjectMapper mapper = new ObjectMapper();
+        for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
+
+            // We have found an action with dynamic binding path list set by the client.
+            List<Property> dynamicBindingPaths = action.getUnpublishedAction().getDynamicBindingPathList();
+
+            // Only investigate actions which have atleast one dynamic binding path list
+            if (action.getUnpublishedAction().getActionConfiguration() != null && !isNullOrEmpty(dynamicBindingPaths)) {
+
+                List<String> dynamicBindingPathNames = dynamicBindingPaths
+                        .stream()
+                        .map(property -> property.getKey())
+                        .collect(Collectors.toList());
+
+                // Initialize the final updated binding path list with the existing path names.
+                List<String> finalDynamicBindingPathList = new ArrayList<>();
+                finalDynamicBindingPathList.addAll(dynamicBindingPathNames);
+
+                Set<String> pathsToRemove = new HashSet<>();
+
+                for (String path : dynamicBindingPathNames) {
+
+                    if (path != null) {
+
+                        String[] fields = path.split("[].\\[]");
+
+                        // Convert actionConfiguration into JSON Object and then walk till we reach the path specified.
+                        Map<String, Object> actionConfigurationMap = mapper.convertValue(action.getUnpublishedAction().getActionConfiguration(), Map.class);
+                        Object parent = new JSONObject(actionConfigurationMap);
+                        Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
+                        Boolean isLeafNode = false;
+
+                        while (fieldsIterator.hasNext()) {
+                            String nextKey = fieldsIterator.next();
+                            if (parent instanceof JSONObject) {
+                                parent = ((JSONObject) parent).get(nextKey);
+                            } else if (parent instanceof Map) {
+                                parent = ((Map<String, ?>) parent).get(nextKey);
+                            } else if (parent instanceof List) {
+                                if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
+                                    try {
+                                        parent = ((List) parent).get(Integer.parseInt(nextKey));
+                                    } catch (IndexOutOfBoundsException e) {
+                                        // The index being referred does not exist. Hence the path would not exist.
+                                        pathsToRemove.add(path);
+                                    }
+                                } else {
+                                    // Parent is a list but does not match the pattern. Hence the path would not exist.
+                                    pathsToRemove.add(path);
+                                    break;
+                                }
+                            }
+
+                            // After updating the parent, check for the types
+                            if (parent == null) {
+                                pathsToRemove.add(path);
+                                break;
+                            } else if (parent instanceof String) {
+                                // If we get String value, then this is a leaf node
+                                isLeafNode = true;
+                            }
+                        }
+                        // Only extract mustache keys from leaf nodes
+                        if (parent != null && isLeafNode) {
+                            Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+
+                            // We found the path. But if the path does not have any mustache bindings, remove it from the path list
+                            if (mustacheKeysFromFields.isEmpty()) {
+                                pathsToRemove.add(path);
+                            }
+                        }
+                    }
+
+                }
+
+                Boolean actionEdited = pathsToRemove.size() > 0 ? TRUE : FALSE;
+
+                // Only update the action if required
+                if (actionEdited) {
+                    // We have walked all the dynamic binding paths which either dont exist or they exist but don't contain any mustache bindings
+                    for (String path : dynamicBindingPathNames) {
+                        if (pathsToRemove.contains(path)) {
+                            finalDynamicBindingPathList.remove(path);
+                        }
+                    }
+
+                    List<Property> updatedDynamicBindingPathList = finalDynamicBindingPathList
+                            .stream()
+                            .map(path -> {
+                                Property property = new Property();
+                                property.setKey(path);
+                                return property;
+                            })
+                            .collect(Collectors.toList());
+
+                    action.getUnpublishedAction().setDynamicBindingPathList(updatedDynamicBindingPathList);
+                    mongoTemplate.save(action);
+                }
+            }
         }
     }
 }

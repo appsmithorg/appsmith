@@ -147,7 +147,7 @@ public class ExamplesOrganizationCloner {
                 .doOnError(error -> log.error("Error cloning examples organization.", error));
     }
 
-    private Mono<Void> cloneApplications(String fromOrganizationId, String toOrganizationId) {
+    private Mono<List<String>> cloneApplications(String fromOrganizationId, String toOrganizationId) {
         return cloneApplications(fromOrganizationId, toOrganizationId, configService.getTemplateApplications());
     }
 
@@ -159,7 +159,7 @@ public class ExamplesOrganizationCloner {
      * @param toOrganizationId   ID of the organization that is the target to copy objects to.
      * @return Empty Mono.
      */
-    private Mono<Void> cloneApplications(String fromOrganizationId, String toOrganizationId, Flux<Application> applicationsFlux) {
+    public Mono<List<String>> cloneApplications(String fromOrganizationId, String toOrganizationId, Flux<Application> applicationsFlux) {
         final Mono<Map<String, Datasource>> cloneDatasourcesMono = cloneDatasources(fromOrganizationId, toOrganizationId).cache();
         final List<NewPage> clonedPages = new ArrayList<>();
         final List<String> newApplicationIds = new ArrayList<>();
@@ -252,9 +252,8 @@ public class ExamplesOrganizationCloner {
                 // view mode for the newly created user.
                 .then(Mono.just(newApplicationIds))
                 .flatMapMany(applicationIds -> Flux.fromIterable(applicationIds))
-                .flatMap(appId -> applicationPageService.publish(appId))
-                .collectList()
-                .then();
+                .flatMap(appId -> applicationPageService.publish(appId).thenReturn(appId))
+                .collectList();
     }
 
     private Flux<NewPage> updateActionIdsInClonedPages(List<NewPage> clonedPages, Map<String, String> actionIdsMap) {
@@ -304,7 +303,7 @@ public class ExamplesOrganizationCloner {
     /**
      * This function simply creates a clone of the Application object without cloning its children (page and actions)
      * Once the new application object is created, it adds the new application's id into the list applicationIds
-     * 
+     *
      * @param application : Application to be cloned
      * @param applicationIds : List where the cloned new application's id would be stored
      * @return

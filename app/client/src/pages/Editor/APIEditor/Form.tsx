@@ -172,7 +172,6 @@ interface APIFormProps {
   paginationType: PaginationType;
   appName: string;
   httpMethodFromForm: string;
-  actionConfigurationBody: Record<string, unknown> | string;
   actionConfigurationHeaders?: any;
   actionName: string;
   apiId: string;
@@ -226,7 +225,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     handleSubmit,
     isRunning,
     actionConfigurationHeaders,
-    actionConfigurationBody,
     httpMethodFromForm,
     actionName,
     headersCount,
@@ -387,9 +385,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                   <>
                     {allowPostBody ? (
                       <PostBodyData
-                        actionConfigurationHeaders={actionConfigurationHeaders}
-                        actionConfiguration={actionConfigurationBody}
-                        change={props.change}
                         dataTreePath={`${actionName}.config`}
                         theme={theme}
                       />
@@ -443,7 +438,6 @@ const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
 export default connect((state: AppState) => {
   const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
-  const actionConfigurationBody = selector(state, "actionConfiguration.body");
   const actionConfigurationHeaders = selector(
     state,
     "actionConfiguration.headers",
@@ -460,7 +454,6 @@ export default connect((state: AppState) => {
     actionName,
     apiId,
     httpMethodFromForm,
-    actionConfigurationBody,
     actionConfigurationHeaders,
     headersCount,
     paramsCount,
