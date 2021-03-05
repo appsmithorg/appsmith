@@ -27,7 +27,8 @@ public class ActionConfiguration {
      * action execution.
      */
 
-    @Range(min=0, max=100)
+    //TODO: fix range, message
+    @Range(min=0, max=100, message="Test message")
     Integer timeoutInMillisecond;
     PaginationType paginationType = PaginationType.NONE;
 
