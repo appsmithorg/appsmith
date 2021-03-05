@@ -1871,12 +1871,14 @@ public class DatabaseChangelog {
     public void updateActionConfigurationTimeout(MongoTemplate mongoTemplate) {
 
         for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
-            
+            boolean updateTimeout = false;
+
             if (action.getUnpublishedAction() != null
                     && action.getUnpublishedAction().getActionConfiguration() != null
                     && action.getUnpublishedAction().getActionConfiguration().getTimeoutInMillisecond() != null
                     && action.getUnpublishedAction().getActionConfiguration().getTimeoutInMillisecond() > 60000) {
                 action.getUnpublishedAction().getActionConfiguration().setTimeoutInMillisecond("60000");
+                updateTimeout = true;
             }
 
             if (action.getPublishedAction() != null
@@ -1884,9 +1886,12 @@ public class DatabaseChangelog {
                     && action.getPublishedAction().getActionConfiguration().getTimeoutInMillisecond() != null
                     && action.getPublishedAction().getActionConfiguration().getTimeoutInMillisecond() > 60000) {
                 action.getPublishedAction().getActionConfiguration().setTimeoutInMillisecond("60000");
+                updateTimeout = true;
             }
-            
-            mongoTemplate.save(action);
+
+            if(updateTimeout) {
+                mongoTemplate.save(action);
+            }
         }
     }
 }
