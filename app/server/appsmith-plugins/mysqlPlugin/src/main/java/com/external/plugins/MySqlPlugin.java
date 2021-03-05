@@ -39,6 +39,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -307,15 +308,12 @@ public class MySqlPlugin extends BasePlugin {
                 if (matchingParam.isPresent()) {
                     String value = matchingParam.get().getValue();
                     parameters.add(value);
-                    DataType valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
-                    if (DataType.NULL.equals(valueType)) {
-                        try {
-                            connectionStatement.bindNull(i, Object.class);
-                        } catch (UnsupportedOperationException e) {
-                            // Do nothing. Move on
-                        }
-                    } else {
-                        connectionStatement.bind(i, value);
+                    try {
+                        connectionStatement = setValueInPreparedStatement(i, value, connectionStatement);
+                    } catch (IOException e) {
+                        String message = "Query preparation failed while inserting value: "
+                                + value + " for binding: {{" + key + "}}. Please check the query again.\nError: " + e.getMessage();
+                        return Flux.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message));
                     }
                 }
             }
@@ -700,6 +698,41 @@ public class MySqlPlugin extends BasePlugin {
                         return e;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private static Statement setValueInPreparedStatement(int index, String value, Statement preparedStatement) throws IOException {
+            DataType valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
+
+            switch (valueType) {
+                case NULL: {
+                    try {
+                        preparedStatement.bindNull(index, Object.class);
+                    } catch (UnsupportedOperationException e) {
+                        // Do nothing. Move on
+                    }
+                    break;
+                }
+                case ARRAY: {
+                    List arrayListFromInput = objectMapper.readValue(value, List.class);
+                    if (arrayListFromInput.isEmpty()) {
+                        break;
+                    }
+
+                    SqlStringUtils.stringToKnownDataTypeConverter(String.valueOf(arrayListFromInput.get(0)));
+
+                    Integer[] objects = (Integer[]) arrayListFromInput.toArray();
+
+
+                    preparedStatement.bind(index, objects);
+                    break;
+                }
+                default: {
+                    preparedStatement.bind(index, value);
+                    break;
+                }
+            }
+
+            return preparedStatement;
         }
     }
 }

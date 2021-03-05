@@ -64,6 +64,17 @@ public class SqlStringUtils {
             return DataType.NULL;
         }
 
+        input = input.trim();
+
+        if (input.startsWith("[") && input.endsWith("]")) {
+            String betweenBraces = input.substring(1, input.length() - 1);
+            String trimmedInputBetweenBraces = betweenBraces.trim();
+            if (trimmedInputBetweenBraces.isEmpty()) {
+                return DataType.NULL;
+            }
+            return DataType.ARRAY;
+        }
+
         try {
             Integer.parseInt(input);
             return DataType.INTEGER;
