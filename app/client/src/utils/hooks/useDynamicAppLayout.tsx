@@ -13,6 +13,22 @@ import {
 } from "selectors/editorSelectors";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 
+// export const CANVAS_DEFAULT_WIDTH_PX = 1224;
+// export const CANVAS_TABLET_WIDTH_PX = 1024;
+// export const CANVAS_MOBILE_WIDTH_PX = 720;
+// export const CANVAS_DEFAULT_HEIGHT_PX = 1292;
+// Desktop: Old - 1224, New 1160 - 1280
+// Tablet L: Old - NA, New 960 - 1080
+// Tablet: Old - 1024, New 650 - 800
+// Mobile: Old - 720, New 350 - 450
+const widthConfig: any = {
+  720: {
+    minWidth: 350,
+    maxWidth: 450,
+  },
+  1224: { minWidth: 1160, maxWidth: 1280 },
+  1024: { minWidth: 650, maxWidth: 800 },
+};
 export const useDynamicAppLayout = () => {
   const { width: screenWidth } = useWindowSizeHooks();
   const mainContainer = useSelector((state: AppState) => getWidget(state, "0"));
@@ -42,12 +58,16 @@ export const useDynamicAppLayout = () => {
     appLayout = AppsmithDefaultLayout,
   ) => {
     const { type, width: layoutMaxWidth } = appLayout;
+    const { minWidth = -1, maxWidth = -1 } =
+      layoutMaxWidth > 0
+        ? widthConfig[layoutMaxWidth] || widthConfig[1224]
+        : {};
     const layoutWidth =
       type === "FLUID"
-        ? calculateFluidMaxWidth(screenWidth, layoutMaxWidth)
-        : layoutMaxWidth;
+        ? calculateFluidMaxWidth(screenWidth, maxWidth)
+        : maxWidth;
     const { rightColumn } = mainContainer;
-    if (rightColumn !== layoutWidth) {
+    if (layoutWidth > minWidth && rightColumn !== layoutWidth) {
       dispatch({
         type: ReduxActionTypes.UPDATE_CANVAS_LAYOUT,
         payload: {
