@@ -40,7 +40,6 @@ import {
   SetWidgetDynamicPropertyPayload,
   updateWidgetProperty,
   UpdateWidgetPropertyPayload,
-  updateWidgetPropertyRequest,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
 import {
