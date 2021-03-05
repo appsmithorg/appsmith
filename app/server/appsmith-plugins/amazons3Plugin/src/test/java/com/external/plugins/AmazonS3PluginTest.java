@@ -8,12 +8,12 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.util.Base64;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -24,14 +24,15 @@ import reactor.test.StepVerifier;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.net.URL;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -264,11 +265,13 @@ public class AmazonS3PluginTest {
                                                                     actionConfiguration);
 
         StepVerifier.create(resultMono)
-                .verifyErrorSatisfies(e -> {
-                    assertTrue(e instanceof AppsmithPluginException);
-                    assertTrue(e.getMessage().contains("The AWS Access Key Id you provided does not exist in " +
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    String message = (String) result.getBody();
+                    assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                });
+                })
+                .verifyComplete();
     }
 
     /*
@@ -308,11 +311,13 @@ public class AmazonS3PluginTest {
                 actionConfiguration);
 
         StepVerifier.create(resultMono)
-                .verifyErrorSatisfies(e -> {
-                    assertTrue(e instanceof AppsmithPluginException);
-                    assertTrue(e.getMessage().contains("The AWS Access Key Id you provided does not exist in " +
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    String message = (String) result.getBody();
+                    assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                });
+                })
+                .verifyComplete();
     }
 
 
@@ -347,10 +352,12 @@ public class AmazonS3PluginTest {
                                                                     actionConfiguration);
 
         StepVerifier.create(resultMono)
-                .verifyErrorSatisfies(e -> {
-                    assertTrue(e instanceof AppsmithPluginException);
-                    assertTrue(e.getMessage().contains("File content is not base64 encoded"));
-                });
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    String message = (String) result.getBody();
+                    assertTrue(message.contains("File content is not base64 encoded"));
+                })
+                .verifyComplete();
     }
 
     @Test

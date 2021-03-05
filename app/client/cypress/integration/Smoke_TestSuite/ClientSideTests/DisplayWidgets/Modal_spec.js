@@ -1,5 +1,5 @@
-const dsl = require("../../../fixtures/ModalDsl.json");
-const explorer = require("../../../locators/explorerlocators.json");
+const dsl = require("../../../../fixtures/ModalDsl.json");
+const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("Modal Widget Functionality", function() {
   beforeEach(() => {

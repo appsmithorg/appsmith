@@ -8,12 +8,12 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
@@ -39,10 +39,10 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -60,13 +60,11 @@ import javax.validation.Validator;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -707,23 +705,23 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         // Do a deep copy of request to not edit
         ActionExecutionRequest request = new ActionExecutionRequest(actionExecutionRequest.getQuery(),
-                                actionExecutionRequest.getBody(),
-                                actionExecutionRequest.getHeaders(),
-                                actionExecutionRequest.getHttpMethod(),
-                                actionExecutionRequest.getUrl(),
-                                actionExecutionRequest.getProperties(),
-                                actionExecutionRequest.getExecutionParameters()
-                                );
+                actionExecutionRequest.getBody(),
+                actionExecutionRequest.getHeaders(),
+                actionExecutionRequest.getHttpMethod(),
+                actionExecutionRequest.getUrl(),
+                actionExecutionRequest.getProperties(),
+                actionExecutionRequest.getExecutionParameters()
+        );
 
-                        if (request.getHeaders() != null) {
-                        JsonNode headers = (JsonNode) request.getHeaders();
-                        try {
-                                String headersAsString = objectMapper.writeValueAsString(headers);
-                                request.setHeaders(headersAsString);
-                            } catch (JsonProcessingException e) {
-                                log.error(e.getMessage());
-                            }
-                    }
+        if (request.getHeaders() != null) {
+            JsonNode headers = (JsonNode) request.getHeaders();
+            try {
+                String headersAsString = objectMapper.writeValueAsString(headers);
+                request.setHeaders(headersAsString);
+            } catch (JsonProcessingException e) {
+                log.error(e.getMessage());
+            }
+        }
 
         return Mono.justOrEmpty(action.getApplicationId())
                 .flatMap(applicationService::findById)
@@ -739,7 +737,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     final String pageName = tuple.getT3();
 
                     final PluginType pluginType = action.getPluginType();
-
                     final Map<String, Object> data = new HashMap<>();
 
                     data.putAll(Map.of(
@@ -767,7 +764,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 })
                 .onErrorResume(error -> {
                     log.warn("Error sending action execution data point", error);
-                    return Mono.empty();
+                    return Mono.just(request);
                 });
     }
 

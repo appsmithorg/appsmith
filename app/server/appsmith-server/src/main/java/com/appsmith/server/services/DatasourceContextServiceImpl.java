@@ -31,18 +31,16 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final EncryptionService encryptionService;
-    private final AuthenticationValidator authenticationValidator;
 
     @Autowired
     public DatasourceContextServiceImpl(DatasourceService datasourceService,
                                         PluginService pluginService,
                                         PluginExecutorHelper pluginExecutorHelper,
-                                        EncryptionService encryptionService, AuthenticationValidator authenticationValidator) {
+                                        EncryptionService encryptionService) {
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.encryptionService = encryptionService;
-        this.authenticationValidator = authenticationValidator;
         this.datasourceContextMap = new ConcurrentHashMap<>();
     }
 
@@ -118,7 +116,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                         datasourceContextMap.put(datasourceId, datasourceContext);
                     }
                     log.debug("Using datasource: {}", datasource1.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse());
-                    return authenticationValidator.validateAuthentication(datasource1)
+                    return Mono.just(datasource1)
                             .flatMap(datasource2 -> Mono.zip(
                                     pluginExecutor.datasourceCreate(datasource2.getDatasourceConfiguration()),
                                     Mono.just(datasource2)))

@@ -33,9 +33,7 @@ public class AuthenticationDTO {
         NONE,
         IN_PROGRESS,
         SUCCESS
-    }
-
-    ;
+    };
 
     @Transient
     String authenticationType;

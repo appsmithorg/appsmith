@@ -28,10 +28,10 @@ public class SaasController {
     }
 
     @PostMapping("/{datasourceId}/pages/{pageId}/oauth")
-    public Mono<ResponseDTO<String>> getAppsmithToken(@PathVariable String datasourceId, @PathVariable String pageId) {
+    public Mono<ResponseDTO<String>> getAppsmithToken(@PathVariable String datasourceId, @PathVariable String pageId, ServerWebExchange serverWebExchange) {
 
         log.debug("Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
-        return authenticationService.getAppsmithToken(datasourceId, pageId)
+        return authenticationService.getAppsmithToken(datasourceId, pageId, serverWebExchange.getRequest())
                 .map(token -> new ResponseDTO<>(HttpStatus.OK.value(), token, null));
     }
 

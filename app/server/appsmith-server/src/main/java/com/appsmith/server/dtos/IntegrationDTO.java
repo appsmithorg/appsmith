@@ -31,6 +31,8 @@ public class IntegrationDTO {
 
     AuthenticationResponse authenticationResponse;
 
+    String redirectionDomain;
+
     public enum Type {
         @JsonProperty("oAuth2")
         OAUTH2

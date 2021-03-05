@@ -213,7 +213,7 @@ function* RedirectAuthorizationCodeSaga(
       const appsmithToken = response.data;
       localStorage.setItem("APPSMITH_AUTH_TOKEN", appsmithToken);
       window.location.assign(
-        `https://e0fe547237c8.ngrok.io/api/integrations/oauth/authorize?appsmithToken=${appsmithToken}`,
+        `http://localhost:8090/api/v1/integrations/oauth/authorize?appsmithToken=${appsmithToken}`,
       );
     }
   } catch (e) {
@@ -231,7 +231,7 @@ function* getOAuthAccessTokenSaga(
     console.error("Token not found");
     return;
   }
-
+  debugger;
   const response = yield SaasApi.getAccessToken(datasourceId, appsmithToken);
   console.log({ response });
   // const display_message = search.get("display_message");

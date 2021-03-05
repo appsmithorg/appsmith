@@ -13,11 +13,14 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
+import java.sql.Types;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -57,6 +60,10 @@ public class SqlStringUtils {
 
     public static DataType stringToKnownDataTypeConverter(String input) {
 
+        if (input == null) {
+            return DataType.NULL;
+        }
+
         try {
             Integer.parseInt(input);
             return DataType.INTEGER;
@@ -92,7 +99,7 @@ public class SqlStringUtils {
         }
 
         if (copyInput.equals("null")) {
-            return null;
+            return DataType.NULL;
         }
 
         DateValidator dateValidator = new DateValidatorUsingDateFormat("yyyy-mm-dd");
@@ -138,17 +145,13 @@ public class SqlStringUtils {
     public static PreparedStatement setValueInPreparedStatement(int index, String binding, String value, PreparedStatement preparedStatement) throws UnsupportedEncodingException, AppsmithPluginException {
         DataType valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
 
-        /**
-         * TODO : Parse the column name for which the value is null and if the column name exists in the
-         * database structure, find the column field type and use PreparedStatement.setNull() function.
-         */
-        // If the value being set is null, return without setting.
-        if (valueType == null) {
-            return preparedStatement;
-        }
-
         try {
+
             switch (valueType) {
+                case NULL: {
+                    preparedStatement.setNull(index, Types.NULL);
+                    break;
+                }
                 case BINARY: {
                     preparedStatement.setBinaryStream(index, IOUtils.toInputStream(value));
                     break;
@@ -219,7 +222,10 @@ public class SqlStringUtils {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody(query);
 
-        Map<String, String> replaceParamsMap = mustacheBindings
+        Set<String> mustacheSet = new HashSet<>();
+        mustacheSet.addAll(mustacheBindings);
+
+        Map<String, String> replaceParamsMap = mustacheSet
                 .stream()
                 .collect(Collectors.toMap(Function.identity(), v -> "?"));
 
