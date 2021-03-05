@@ -4,6 +4,7 @@ import {
   API_REQUEST_HEADERS,
   API_STATUS_CODES,
   ERROR_CODES,
+  SERVER_ERROR_CODES,
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
 import { AUTH_LOGIN_URL } from "constants/routes";
@@ -116,7 +117,7 @@ axiosInstance.interceptors.response.use(
         const errorData = error.response.data.responseMeta;
         if (
           errorData.status === API_STATUS_CODES.RESOURCE_NOT_FOUND &&
-          errorData.error.code === 4028
+          errorData.error.code === SERVER_ERROR_CODES.RESOURCE_NOT_FOUND
         ) {
           return Promise.reject({
             code: ERROR_CODES.PAGE_NOT_FOUND,

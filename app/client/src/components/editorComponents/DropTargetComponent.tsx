@@ -165,7 +165,7 @@ export const DropTargetComponent = memo((props: DropTargetComponentProps) => {
           dropTargetOffset,
           props.snapColumnSpace,
           props.snapRowSpace,
-          props.widgetId,
+          widget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : props.widgetId,
         );
 
         // const widgetBottomRow = getWidgetBottomRow(widget, updateWidgetParams);
