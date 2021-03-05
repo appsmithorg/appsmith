@@ -15,6 +15,7 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Provider;
+import com.appsmith.external.models.QActionConfiguration;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -284,6 +285,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             action.setInvalids(invalids);
             return super.create(newAction)
                     .flatMap(savedAction -> generateActionByViewMode(savedAction, false));
+        }
+
+        // Validate actionConfiguration
+        ActionConfiguration actionConfig = action.getActionConfiguration();
+        if(actionConfig != null) {
+            validator.validate(actionConfig)
+                    .stream()
+                    .forEach(x -> invalids.add(x.getMessage()));
         }
 
         Mono<Datasource> datasourceMono;

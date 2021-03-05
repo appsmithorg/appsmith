@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -115,6 +116,14 @@ public class MySqlPluginTest {
                                     " '15:45:30'," +
                                     " '2019-11-30 23:59:59', '2019-11-30 23:59:59'" +
                                     ")"
+                            )
+                            .add("INSERT INTO users VALUES (" +
+                                    "3, 'MiniJackJill', 'jaji', 'jaji@exemplars.com', NULL, '2021-01-31'," +
+                                    " '15:45:30', '04:05:06 PST'," +
+                                    " TIMESTAMP '2021-01-31 23:59:59', TIMESTAMP WITH TIME ZONE '2021-01-31 23:59:59 CET'," +
+                                    " '0 years'," +
+                                    " '{1, 2, 3}', '{\"a\", \"b\"}'" +
+                                    ")"
                             );
                 })
                 .flatMap(batch -> Mono.from(batch.execute()))
@@ -204,7 +213,7 @@ public class MySqlPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("show databases");
 
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
@@ -222,7 +231,7 @@ public class MySqlPluginTest {
         Connection connection = pluginExecutor.datasourceCreate(dsConfig).block();
 
         Flux<ActionExecutionResult> resultFlux = Mono.from(connection.close())
-                .thenMany(pluginExecutor.execute(connection, dsConfig, actionConfiguration));
+                .thenMany(pluginExecutor.executeParameterized(connection, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(resultFlux)
                 .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
@@ -286,7 +295,7 @@ public class MySqlPluginTest {
         actionConfiguration.setBody("SELECT id as user_id FROM users WHERE id = 1");
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
@@ -315,7 +324,7 @@ public class MySqlPluginTest {
         actionConfiguration.setBody("SELECT * FROM users WHERE id = 1");
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
-                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
                 .assertNext(result -> {
@@ -432,7 +441,7 @@ public class MySqlPluginTest {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody(query);
-        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
