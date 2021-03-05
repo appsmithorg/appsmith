@@ -496,7 +496,7 @@ Cypress.Commands.add("EditApiNameFromExplorer", { prevSubject: true }, (subject,
     .blur();
   cy.wait(3000);
 
-  return subject;
+  // return subject;
 });
 
 Cypress.Commands.add(
@@ -848,7 +848,7 @@ Cypress.Commands.add("MoveAPIToPage", { prevSubject: true }, (subject, pageName)
     200,
   );
 
-  return subject;
+  // return subject;
 });
 
 Cypress.Commands.add("copyEntityToPage", (pageName) => {
@@ -866,7 +866,7 @@ Cypress.Commands.add("copyEntityToPage", (pageName) => {
   );
 });
 
-Cypress.Commands.add("CopyAPIToHome", { prevSubject: true } , (subject) => {
+Cypress.Commands.add("CopyAPIToHome", { prevSubject: true }, (subject) => {
   cy.wrap(subject).ShowExplorerContextMenu();
   // cy.xpath(apiwidget.popover)
   //   .last()
@@ -880,7 +880,7 @@ Cypress.Commands.add("CopyAPIToHome", { prevSubject: true } , (subject) => {
   );
 });
 
-Cypress.Commands.add("RenameEntity", (subject, value) => {
+Cypress.Commands.add("RenameEntity", { prevSubject: true }, (subject, value) => {
   cy.wrap(subject).ShowExplorerContextMenu();
   // cy.xpath(apiwidget.popover)
   //   .last()
@@ -923,7 +923,7 @@ Cypress.Commands.add("DeleteAPIFromSideBar", { prevSubject: true }, (subject) =>
     200,
   );
 
-  return subject;
+  // return subject;
 });
 
 Cypress.Commands.add("DeleteWidgetFromSideBar", { prevSubject: true }, (subject) => {
@@ -934,7 +934,7 @@ Cypress.Commands.add("DeleteWidgetFromSideBar", { prevSubject: true }, (subject)
     200,
   );
 
-  return subject;
+  // return subject;
 });
 
 Cypress.Commands.add("deleteEntity", { prevSubject: true }, (subject) => {
@@ -944,7 +944,7 @@ Cypress.Commands.add("deleteEntity", { prevSubject: true }, (subject) => {
   //   .click({ force: true });
   cy.get(apiwidget.delete).click({ force: true });
 
-  return subject;
+  // return subject;
 });
 
 Cypress.Commands.add("DeleteAPI", (apiname) => {
@@ -1870,8 +1870,7 @@ Cypress.Commands.add("ShowExplorerContextMenu", {
     .should("be.hidden")
     .invoke("show")
     .click({ force: true });
-
-  return subject;
+  // return subject;
 });
 
 Cypress.Commands.add("deleteQuery", (query) => {

@@ -116,7 +116,10 @@ describe("Entity explorer tests related to query and datasource", function() {
 
     cy.get(`.t--entity.action:contains(MyQuery)`)
       .last()
-      .ShowExplorerContextMenu()
+      .ShowExplorerContextMenu();
+
+    cy.get(`.t--entity.action:contains(MyQuery)`)
+      .last()
       .MoveAPIToPage(pageid);
     // cy.xpath(apiwidget.popover)
     //   .last()

@@ -26,6 +26,9 @@ describe("Entity explorer datasource structure", function() {
       201,
     );
 
+    cy.get(apiwidget.apiTxt).clear();
+
+    cy.wait(1000);
     cy.get(apiwidget.apiTxt)
       .clear()
       .type("MyQuery", { force: true })
@@ -41,14 +44,16 @@ describe("Entity explorer datasource structure", function() {
       200,
     );
 
-    cy.get(explorer.datasourceStructure)
-      .first()
-      .find(explorer.collapse)
-      .click();
+    // cy.get(explorer.datasourceStructure)
+    //   .first()
+    //   .find(explorer.collapse)
+    //   .click({ force: true });
     cy.get(explorer.datasourceColumn)
       .first()
-      .click();
+      .click({ force: true });
     cy.get(".bp3-popover-content").should("be.visible");
+
+    cy.wait(2000);
 
     cy.get(explorer.templateMenuIcon)
       .first()
@@ -123,10 +128,10 @@ describe("Entity explorer datasource structure", function() {
 
     // cy.GlobalSearchEntity(datasourceName);
     cy.ExpandAllExplorerEntities();
-    cy.get("@datasourceEntityCollapse")
-      .first()
-      .click();
-    
+    // cy.get("@datasourceEntityCollapse")
+    //   .first()
+    //   .click();
+
     cy.get(`.t--entity.datasource:contains(${datasourceName})`)
       .ShowExplorerContextMenu();
     // cy.xpath(explorer.datsourceEntityPopover)

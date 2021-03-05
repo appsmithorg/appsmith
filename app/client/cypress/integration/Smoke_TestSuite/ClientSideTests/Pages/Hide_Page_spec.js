@@ -10,7 +10,7 @@ describe("Hide page", function() {
 
     // cy.GlobalSearchEntity(pageOne);
     cy.ExpandAllExplorerEntities();
-    cy.get(`.t--entity.page:contains(pageOne)`)
+    cy.get(`.t--entity.page:contains(${pageOne})`)
       .ShowExplorerContextMenu();
     // cy.xpath(pages.popover)
     //   .last()

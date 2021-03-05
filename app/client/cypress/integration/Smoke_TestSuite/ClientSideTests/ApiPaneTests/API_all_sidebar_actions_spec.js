@@ -11,7 +11,10 @@ describe("API Panel Test Functionality ", function() {
 
     cy.get(`.t--entity.action:contains(FirstAPI)`)
       .last()
-      .ShowExplorerContextMenu()
+      .ShowExplorerContextMenu();
+
+    cy.get(`.t--entity.action:contains(FirstAPI)`)
+      .last()
       .CopyAPIToHome();
     // cy.GlobalSearchEntity("FirstAPI");
     // cy.xpath('//*[local-name()="g" and @id="Icon/Outline/more-vertical"]')
