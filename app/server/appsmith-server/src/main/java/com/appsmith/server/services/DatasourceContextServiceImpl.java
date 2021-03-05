@@ -86,7 +86,6 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                 })
                 .flatMap(objects -> {
                     Datasource datasource1 = objects.getT1();
-                    log.debug("Using datasource: {}", datasource1.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse());
 
                     // If authentication exists for the datasource, decrypt the fields
                     if (datasource1.getDatasourceConfiguration() != null &&
@@ -115,7 +114,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                         // with the new connection in the context map.
                         datasourceContextMap.put(datasourceId, datasourceContext);
                     }
-                    log.debug("Using datasource: {}", datasource1.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse());
+                    
                     return Mono.just(datasource1)
                             .flatMap(datasource2 -> Mono.zip(
                                     pluginExecutor.datasourceCreate(datasource2.getDatasourceConfiguration()),
