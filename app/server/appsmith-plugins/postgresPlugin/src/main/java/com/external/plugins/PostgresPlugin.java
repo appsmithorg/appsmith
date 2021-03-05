@@ -238,11 +238,15 @@ public class PostgresPlugin extends BasePlugin {
                     } else {
                         preparedQuery = connectionFromPool.prepareStatement(query);
                         if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
+
                             List<Param> params = executeActionDTO.getParams();
                             List<String> parameters = new ArrayList<>();
+
                             for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
                                 String key = mustacheValuesInOrder.get(i);
                                 Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
+
+                                // If the evaluated value of the mustache binding is present, set it in the prepared statement
                                 if (matchingParam.isPresent()) {
                                     String value = matchingParam.get().getValue();
                                     parameters.add(value);
