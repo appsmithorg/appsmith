@@ -589,7 +589,7 @@ public class ActionServiceTest {
                 new Property("random-header-key", "random-header-value"),
                 new Property("", "")
         ));
-        actionConfiguration.setTimeoutInMillisecond(1000);
+        actionConfiguration.setTimeoutInMillisecond(String.valueOf(1000));
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteSecondaryStaleConnection");
@@ -630,7 +630,7 @@ public class ActionServiceTest {
                 new Property("random-header-key", "random-header-value"),
                 new Property("", "")
         ));
-        actionConfiguration.setTimeoutInMillisecond(10);
+        actionConfiguration.setTimeoutInMillisecond(String.valueOf(10));
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteTimeout");
@@ -676,7 +676,7 @@ public class ActionServiceTest {
         action1.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration1 = new ActionConfiguration();
         actionConfiguration1.setHttpMethod(HttpMethod.GET);
-        actionConfiguration1.setTimeoutInMillisecond(20000);
+        actionConfiguration1.setTimeoutInMillisecond(String.valueOf(20000));
         action1.setActionConfiguration(actionConfiguration1);
         action1.setDatasource(datasource);
 

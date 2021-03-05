@@ -264,16 +264,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
 
-        //TODO: remove it.
-        ActionConfiguration actionConfig = action.getActionConfiguration();
-        Set<ConstraintViolation<ActionConfiguration>> violations = validator.validate(actionConfig);
-
-        System.out.println("devtest: violations.size: " + violations.size());
-        violations
-                .stream()
-                .forEach(x -> System.out.println("devtest: constraint: " + x.getMessage()));
-
-
         if (!validateActionName(action.getName())) {
             action.setIsValid(false);
             invalids.add(AppsmithError.INVALID_ACTION_NAME.getMessage());
