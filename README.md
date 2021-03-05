@@ -14,7 +14,7 @@
   ·
   <a href="https://discord.gg/rBTTVJp">Discord</a>
   ·
-  <a href="https://app.appsmith.com/applications/602b8aef12ba0d29d3ec151c/pages/602b8aef12ba0d29d3ec151e">Office Hours</a>  
+  <a href="./office_hours.md">Office Hours</a>  
   <br>
   <br>
 </p>
