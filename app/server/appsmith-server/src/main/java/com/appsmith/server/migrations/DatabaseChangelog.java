@@ -1869,6 +1869,8 @@ public class DatabaseChangelog {
             }
 
         }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "057", id = "add-google-sheets-plugin", author = "")
@@ -2034,19 +2036,5 @@ public class DatabaseChangelog {
         }
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
-    }
-
-    @ChangeSet(order = "057", id = "add-plugin-setting-test", author = "")
-    public void addRandomPluginSetting(MongoTemplate mongoTemplate,
-                                       Environment env) {
-        for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
-            if ("google-sheets-plugin".equals(plugin.getPackageName())) {
-                plugin.setDocumentationLink(env.getProperty("plugin.test"));
-            } else {
-                continue;
-            }
-
-            mongoTemplate.save(plugin);
-        }
     }
 }
