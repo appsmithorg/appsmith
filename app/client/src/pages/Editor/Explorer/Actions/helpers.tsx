@@ -24,10 +24,6 @@ import { AppState } from "reducers";
 import { groupBy } from "lodash";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import {
-  SAAS_BASE_URL,
-  SAAS_EDITOR_API_ID_URL,
-} from "pages/Editor/SaaSEditor/constants";
 
 export type ActionGroupConfig = {
   groupName: string;
