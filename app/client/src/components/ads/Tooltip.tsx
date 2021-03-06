@@ -12,9 +12,9 @@ type TooltipProps = CommonComponentProps & {
   position?: Position;
   children: JSX.Element;
   variant?: Variant;
-  maxWidth?: any;
+  maxWidth?: string;
   boundary?: PopperBoundary;
-  minWidth?: any;
+  minWidth?: string;
   openOnTargetFocus?: boolean;
   autoFocus?: boolean;
   hoverOpenDelay?: number;
@@ -23,8 +23,8 @@ type TooltipProps = CommonComponentProps & {
 
 const TooltipStyles = createGlobalStyle<{
   variant?: Variant;
-  maxWidth?: any;
-  minWidth?: any;
+  maxWidth?: string;
+  minWidth?: string;
   theme: Theme;
 }>`
   .${Classes.PORTAL} {
