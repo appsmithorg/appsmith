@@ -22,10 +22,12 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { getCurrentApplication } from "selectors/applicationSelectors";
+import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
+import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 
 const EditorWrapper = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
   overflow: hidden;
@@ -60,7 +62,7 @@ const WidgetsEditor = () => {
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
-
+  useDynamicAppLayout();
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.EDITOR_MOUNT);
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -109,6 +111,7 @@ const WidgetsEditor = () => {
   if (isFetchingPage) {
     node = pageLoading;
   }
+
   if (!isFetchingPage && widgets) {
     node = <Canvas dsl={widgets} />;
   }
@@ -118,6 +121,7 @@ const WidgetsEditor = () => {
   return (
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>
+        <MainContainerLayoutControl />
         <CanvasContainer key={currentPageId} className={getCanvasClassName()}>
           {node}
         </CanvasContainer>

@@ -22,7 +22,11 @@ import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { isString } from "lodash";
 import log from "loglevel";
-import { tableWidgetPropertyPaneMigrations } from "utils/migrations/TableWidget";
+import {
+  migrateTablePrimaryColumnsBindings,
+  tableWidgetPropertyPaneMigrations,
+} from "utils/migrations/TableWidget";
+import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -384,6 +388,16 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = 11;
   }
 
+  if (currentDSL.version === 11) {
+    currentDSL = migrateTablePrimaryColumnsBindings(currentDSL);
+    currentDSL.version = 12;
+  }
+
+  if (currentDSL.version === 12) {
+    currentDSL = migrateIncorrectDynamicBindingPathLists(currentDSL);
+    currentDSL.version = 13;
+  }
+
   return currentDSL;
 };
 
@@ -462,6 +476,9 @@ export const noCollision = (
   cols?: number,
 ): boolean => {
   if (clientOffset && dropTargetOffset && widget) {
+    if (widget.detachFromLayout) {
+      return true;
+    }
     const [left, top] = getDropZoneOffsets(
       colWidth,
       rowHeight,

@@ -1,9 +1,10 @@
 import { getAllPathsFromPropertyConfig } from "./utils";
 import { RenderModes, WidgetTypes } from "../../constants/WidgetConstants";
 import tablePropertyPaneConfig from "widgets/TableWidget/TablePropertyPaneConfig";
+import chartPorpertyConfig from "widgets/ChartWidget/propertyConfig";
 
 describe("getAllPathsFromPropertyConfig", () => {
-  it("works as expected", () => {
+  it("works as expected for table widget", () => {
     const widget = {
       renderMode: RenderModes.CANVAS,
       derivedColumns: [],
@@ -150,6 +151,60 @@ describe("getAllPathsFromPropertyConfig", () => {
       selectedRow: true,
       selectedRows: true,
     });
+
+    expect(result).toStrictEqual(expected);
+  });
+  it("works as expected for chart widget", () => {
+    const widget = {
+      renderMode: RenderModes.CANVAS,
+      isVisible: true,
+      widgetName: "Chart1",
+      chartType: "LINE_CHART",
+      chartName: "Sales on working days",
+      allowHorizontalScroll: false,
+      version: 1,
+      chartData: [
+        {
+          seriesName: "",
+          data: "{{Api1.data}}",
+        },
+      ],
+      xAxisName: "Last Week",
+      yAxisName: "Total Order Revenue $",
+      type: WidgetTypes.CHART_WIDGET,
+      isLoading: false,
+      parentColumnSpace: 74,
+      parentRowSpace: 40,
+      leftColumn: 4,
+      rightColumn: 10,
+      topRow: 6,
+      bottomRow: 14,
+      parentId: "0",
+      widgetId: "x1naz9is2b",
+      dynamicBindingPathList: [
+        {
+          key: "chartData[0].data",
+        },
+      ],
+    };
+    const config = chartPorpertyConfig;
+
+    const expected = {
+      bindingPaths: {
+        chartType: true,
+        chartName: true,
+        "chartData[0].seriesName": true,
+        "chartData[0].data": true,
+        xAxisName: true,
+        yAxisName: true,
+        isVisible: true,
+      },
+      triggerPaths: {
+        onDataPointClick: true,
+      },
+    };
+
+    const result = getAllPathsFromPropertyConfig(widget, config, {});
 
     expect(result).toStrictEqual(expected);
   });

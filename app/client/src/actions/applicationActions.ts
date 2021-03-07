@@ -33,6 +33,19 @@ export const fetchApplication = (
   };
 };
 
+export const updateApplicationLayout = (
+  id: string,
+  data: UpdateApplicationPayload,
+) => {
+  return {
+    type: ReduxActionTypes.UPDATE_APP_LAYOUT,
+    payload: {
+      id,
+      ...data,
+    },
+  };
+};
+
 export const updateApplication = (
   id: string,
   data: UpdateApplicationPayload,

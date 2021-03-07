@@ -38,7 +38,8 @@ const OptionWrapper = styled.div<{ selected?: boolean }>`
   cursor: pointer;
   margin-bottom: 4px;
   background: ${(props) => (props.selected ? Colors.POLAR : Colors.WHITE)};
-  border-left: ${(props) => (props.selected ? "4px solid #29CCA3" : "none")};
+  border-left: ${(props) =>
+    props.selected ? "4px solid rgb(3, 179, 101)" : "none"};
   border-radius: 4px;
   .option-title {
     font-weight: 500;

@@ -301,30 +301,6 @@ export default class DataTreeEvaluator {
     return sortOrder;
   }
 
-  // getValidationPaths(unevalDataTree: DataTree): Record<string, Set<string>> {
-  //   const result: Record<string, Set<string>> = {};
-  //   for (const key in unevalDataTree) {
-  //     const entity = unevalDataTree[key];
-  //     if (isAction(entity)) {
-  //       // TODO: add the properties to a global map somewhere
-  //       result[entity.name] = new Set(
-  //         ["config", "isLoading", "data"].map((e) => `${entity.name}.${e}`),
-  //       );
-  //     } else if (isWidget(entity)) {
-  //       if (!this.widgetConfigMap[entity.type])
-  //         throw new CrashingError(
-  //           `${entity.widgetName} has unrecognised entity type: ${entity.type}`,
-  //         );
-  //       const { validations } = this.widgetConfigMap[entity.type];
-  //
-  //       result[entity.widgetName] = new Set(
-  //         Object.keys(validations).map((e) => `${entity.widgetName}.${e}`),
-  //       );
-  //     }
-  //   }
-  //   return result;
-  // }
-
   createDependencyMap(unEvalTree: DataTree): DependencyMap {
     let dependencyMap: DependencyMap = {};
     this.allKeys = getAllPaths(unEvalTree);
