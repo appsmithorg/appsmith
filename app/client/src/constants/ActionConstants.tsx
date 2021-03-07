@@ -11,6 +11,7 @@ export type ExecutionResult = {
 };
 
 export type ExecuteActionPayload = {
+  callerWidgetId?: string;
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
   responseData?: Array<any>;

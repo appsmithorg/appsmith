@@ -87,6 +87,8 @@ abstract class BaseWidget<
    */
   executeAction(actionPayload: ExecuteActionPayload): void {
     const { executeAction } = this.context;
+    const { widgetId } = this.props;
+    actionPayload.callerWidgetId = widgetId;
     executeAction && executeAction(actionPayload);
   }
 

@@ -94,6 +94,10 @@ import {
   resetChildrenMetaProperty,
   resetWidgetMetaProperty,
 } from "actions/metaActions";
+import {
+  getChildWidgetEnhancementFn,
+  WidgetEnhancementType,
+} from "./WidgetEnhancementHelpers";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -583,11 +587,42 @@ function* executeActionTriggers(
   }
 }
 
+function* getModifiedAction(
+  callerWidgetId: string,
+  dynamicString: string,
+  responseData?: any[],
+) {
+  // Get the enhancement function for WIDGET_ACTION enhancement type
+  const enhancementFn: (
+    action: string,
+    responseData?: any[],
+  ) => {
+    actionString: string;
+    dataToApply?: any[];
+  } = yield getChildWidgetEnhancementFn(
+    callerWidgetId,
+    WidgetEnhancementType.WIDGET_ACTION,
+  );
+  return enhancementFn(dynamicString, responseData);
+}
+
 function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
-  const { dynamicString, event, responseData } = action.payload;
+  const { callerWidgetId, event } = action.payload;
+  let { dynamicString, responseData } = action.payload;
+
+  if (callerWidgetId !== undefined) {
+    // Enhance the action if needed
+    const { actionString = "", dataToApply } = yield getModifiedAction(
+      callerWidgetId,
+      dynamicString,
+      responseData,
+    );
+    dynamicString = actionString;
+    responseData = dataToApply;
+  }
   log.debug({ dynamicString, responseData });
 
-  const triggers = yield call(
+  const triggers: Array<ActionDescription<any>> = yield call(
     evaluateDynamicTrigger,
     dynamicString,
     responseData,
