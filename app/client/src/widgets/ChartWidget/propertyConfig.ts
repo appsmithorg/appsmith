@@ -39,6 +39,10 @@ export default [
             label: "Area Chart",
             value: "AREA_CHART",
           },
+          {
+            label: "Custom Chart",
+            value: "CUSTOM_FUSION_CHART",
+          },
         ],
         isJSConvertible: true,
         isBindProperty: true,

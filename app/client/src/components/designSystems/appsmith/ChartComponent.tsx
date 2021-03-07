@@ -13,13 +13,29 @@ import {
 import log from "loglevel";
 
 const FusionCharts = require("fusioncharts");
-const Charts = require("fusioncharts/fusioncharts.charts");
-const FusionTheme = require("fusioncharts/themes/fusioncharts.theme.fusion");
+const plugins: Record<string, any> = {
+  Charts: require("fusioncharts/fusioncharts.charts"),
+  FusionTheme: require("fusioncharts/themes/fusioncharts.theme.fusion"),
+  Widgets: require("fusioncharts/fusioncharts.widgets"),
+  ZoomScatter: require("fusioncharts/fusioncharts.zoomscatter"),
+  ZoomLine: require("fusioncharts/fusioncharts.zoomline"),
+  PowerCharts: require("fusioncharts/fusioncharts.powercharts"),
+  TimeSeries: require("fusioncharts/fusioncharts.timeseries"),
+  OverlappedColumn: require("fusioncharts/fusioncharts.overlappedcolumn2d"),
+  OverlappedBar: require("fusioncharts/fusioncharts.overlappedbar2d"),
+  TreeMap: require("fusioncharts/fusioncharts.treemap"),
+  Maps: require("fusioncharts/fusioncharts.maps"),
+  Gantt: require("fusioncharts/fusioncharts.gantt"),
+  VML: require("fusioncharts/fusioncharts.vml"),
+};
+
+// Enable all plugins.
+// This is needed to support custom chart configs
+Object.keys(plugins).forEach((key: string) =>
+  (plugins[key] as any)(FusionCharts),
+);
 
 const { fusioncharts } = getAppsmithConfigs();
-Charts(FusionCharts);
-FusionTheme(FusionCharts);
-
 FusionCharts.options.license({
   key: fusioncharts.licenseKey,
   creditLabel: false,
