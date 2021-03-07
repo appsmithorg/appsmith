@@ -10,6 +10,7 @@ import {
   ChartType,
   CustomFusionChartConfig,
 } from "widgets/ChartWidget";
+import log from "loglevel";
 
 const FusionCharts = require("fusioncharts");
 const Charts = require("fusioncharts/fusioncharts.charts");
@@ -307,7 +308,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         try {
           this.chartInstance.render();
         } catch (e) {
-          console.log(e);
+          log.debug(e);
         }
       }
     });

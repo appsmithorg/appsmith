@@ -51,7 +51,7 @@ export default [
         label: "Chart Data",
         controlType: "CHART_DATA",
         hidden: (props: ChartWidgetProps) =>
-          (props && props.chartType === "PIE_CHART") ||
+          props.chartType === "PIE_CHART" ||
           props.chartType === "CUSTOM_FUSION_CHART",
         isBindProperty: false,
         isTriggerProperty: false,
