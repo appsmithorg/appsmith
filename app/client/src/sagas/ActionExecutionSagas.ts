@@ -603,7 +603,9 @@ function* getModifiedAction(
     callerWidgetId,
     WidgetEnhancementType.WIDGET_ACTION,
   );
-  return enhancementFn(dynamicString, responseData);
+
+  if (enhancementFn) return enhancementFn(dynamicString, responseData);
+  else return { actionString: dynamicString, dataToApply: responseData };
 }
 
 function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
