@@ -13,6 +13,32 @@ describe("Chart Widget Functionality", function() {
     cy.openPropertyPane("chartwidget");
   });
 
+  it("Chart Widget Custom Config Feature", function() {
+    // Note: This only checks for crashes in custom config
+    cy.get(viewWidgetsPage.chartType)
+      .find(commonlocators.dropdownbuttonclick)
+      .click({ force: true })
+      .get(commonlocators.dropdownmenu)
+      .children()
+      .contains("Custom Chart")
+      .click();
+    cy.get(viewWidgetsPage.chartType)
+      .find(commonlocators.menuSelection)
+      .should("have.text", "Custom Chart");
+    cy.testJsontext(
+      "customfusionchartconfiguration",
+      `{{${JSON.stringify(this.data.ChartCustomConfig)}}}`,
+    );
+    cy.get(viewWidgetsPage.chartWidget)
+      .should("be.visible")
+      .and((chart) => {
+        expect(chart.height()).to.be.greaterThan(200);
+      });
+    cy.get(viewWidgetsPage.chartWidget).should("have.css", "opacity", "1");
+    //Close edit prop
+    cy.get(commonlocators.editPropCrossButton).click();
+  });
+
   it("Chart Widget Functionality", function() {
     /**
      * @param{Text} Random Text
@@ -66,9 +92,11 @@ describe("Chart Widget Functionality", function() {
       .click({ force: true })
       .type(this.data.command)
       .type(this.data.ylabel);
+
     //Close edit prop
     cy.get(commonlocators.editPropCrossButton).click();
   });
+
   it("Chart Widget Functionality To Unchecked Visible Widget", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
