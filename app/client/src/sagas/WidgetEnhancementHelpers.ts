@@ -72,6 +72,8 @@ export function getWidgetEnhancementFn(
   return get(enhancements, enhancementType, undefined);
 }
 
+// TODO(abhinav): Getting data from the tree may not be needed
+// confirm this.
 export const getPropsFromTree = (
   state: AppState,
   widgetName: string,
