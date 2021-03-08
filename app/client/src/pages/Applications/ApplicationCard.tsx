@@ -529,7 +529,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           className={isFetchingApplications ? Classes.SKELETON : ""}
         >
           {isEllipsisActive(appNameWrapperRef?.current) ? (
-            <TooltipComponent maxWidth={400} content={props.application.name}>
+            <TooltipComponent maxWidth="400px" content={props.application.name}>
               {appNameText}
             </TooltipComponent>
           ) : (

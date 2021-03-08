@@ -268,6 +268,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                   Close
                 </Text>
               }
+              minWidth="auto !important"
             >
               <IconContainer onClick={handleClose}>
                 <Icon
