@@ -22,8 +22,4 @@ class SaasApi extends Api {
   }
 }
 
-// export const saasAuthorization = (token: string) => {
-//   return CloudServices.post(`integrations/oauth/authorize?appsmithToken=${token}`)
-// }
-
 export default SaasApi;
