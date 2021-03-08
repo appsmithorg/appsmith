@@ -120,7 +120,7 @@ public class MssqlPlugin extends BasePlugin {
             // In case of non prepared statement, simply do binding replacement and execute
             if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
-                return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null);
+                return executeCommon(connection, actionConfiguration, FALSE, null, null);
             }
 
             //Prepared Statement
@@ -129,11 +129,10 @@ public class MssqlPlugin extends BasePlugin {
             // Replace all the bindings with a ? as expected in a prepared statement.
             String updatedQuery = SqlStringUtils.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
             actionConfiguration.setBody(updatedQuery);
-            return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
+            return executeCommon(connection, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
         }
 
         public Mono<ActionExecutionResult> executeCommon(Connection connection,
-                                                         DatasourceConfiguration datasourceConfiguration,
                                                          ActionConfiguration actionConfiguration,
                                                          Boolean preparedStatement,
                                                          List<String> mustacheValuesInOrder,
