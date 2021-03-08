@@ -25,14 +25,11 @@ describe("Datasource form related tests", function() {
 
   it("validate save and Authorise", function() {
     cy.get(datasource.saveAndAuthorize).click();
-    cy.wait("@saveDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.wait(10000);
-    cy.xpath('//input[@name="email"]').type("Test");
+    cy.contains("#login-submit", "Login");
+    cy.url().should("include", "oauth.mocklab.io/oauth/authorize");
+    cy.xpath('//input[@name="email"]').type("Test@email.com");
     cy.xpath("//input[@name='password']").type("Test@123");
     cy.xpath("//input[@id='login-submit']").click();
+    cy.url().should("include", "oauth.mocklab.io/oauth/authorize");
   });
 });
