@@ -580,6 +580,7 @@ const lightShades = [
   "#6A86CE",
   "#E0DEDE",
   "#EBEBEB",
+  "#858282",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -1717,7 +1718,7 @@ export const light: ColorType = {
   apiPane: {
     bg: lightShades[0],
     tabBg: lightShades[11],
-    text: lightShades[6],
+    text: lightShades[15],
     dividerBg: lightShades[3],
     iconHoverBg: lightShades[1],
     requestTree: {

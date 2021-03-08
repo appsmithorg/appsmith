@@ -255,7 +255,7 @@ export const EditorWrapper = styled.div<{
         border-radius: 0px;
         background: ${
           !props.isNotHover
-            ? Colors.WHITE_SNOW
+            ? Colors.Gallery
             : props.isFocused
             ? Colors.MERCURY
             : Colors.WHITE
@@ -435,7 +435,7 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
         ? Colors.ALABASTER
         : "transparent"};
     .lightning-menu {
-      background: ${(props) => (!props.isNotHover ? "#716E6E" : "")};
+      background: ${(props) => (!props.isNotHover ? "#090707" : "")};
       svg {
         path,
         circle {
@@ -443,7 +443,7 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
             !props.isNotHover
               ? props.skin === Skin.DARK
                 ? Colors.BLUE_CHARCOAL
-                : Colors.WHITE
+                : Colors.ALTO2
               : ""};
         }
       }
