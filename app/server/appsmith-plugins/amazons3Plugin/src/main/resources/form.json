@@ -100,6 +100,32 @@
           ]
         }
       ]
+    },
+    {
+      "sectionName": "Custom Endpoint",
+      "id": 2,
+      "children": [
+        {
+          "label": "Endpoint",
+          "configProperty": "datasourceConfiguration.endpoints[0].host",
+          "controlType": "INPUT_TEXT",
+          "initialValue": ""
+        },
+        {
+          "label": "Region Key",
+          "configProperty": "datasourceConfiguration.properties[0].value",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "",
+          "hidden": true
+
+        },
+        {
+          "label": "Region",
+          "configProperty": "datasourceConfiguration.properties[0].value",
+          "controlType": "INPUT_TEXT",
+          "initialValue": ""
+        }
+      ]
     }
   ]
 }
