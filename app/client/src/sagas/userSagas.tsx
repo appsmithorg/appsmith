@@ -12,6 +12,7 @@ import UserApi, {
   ForgotPasswordRequest,
   VerifyTokenRequest,
   TokenPasswordUpdateRequest,
+  UpdateUserRequest,
 } from "api/UserApi";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL, BASE_URL } from "constants/routes";
 import history from "utils/history";
@@ -270,6 +271,28 @@ export function* inviteUsers(
   }
 }
 
+export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
+  try {
+    const { name } = action.payload;
+    const response: ApiResponse = yield callAPI(UserApi.updateUser, {
+      name,
+    });
+    const isValidResponse = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_USER_DETAILS_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_USER_DETAILS_ERROR,
+      payload: error.message,
+    });
+  }
+}
+
 export function* verifyResetPasswordTokenSaga(
   action: ReduxAction<VerifyTokenRequest>,
 ) {
@@ -339,6 +362,10 @@ export default function* userSagas() {
     takeLatest(
       ReduxActionTypes.INVITED_USER_SIGNUP_INIT,
       invitedUserSignupSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_USER_DETAILS_INIT,
+      updateUserDetailsSaga,
     ),
   ]);
 }

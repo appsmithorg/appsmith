@@ -150,6 +150,11 @@
       "color": "8de8ad",
       "description": ""
     },
+    "In App Comms": {
+      "name": "In App Comms",
+      "color": "56C8E3",
+      "description": ""
+    },
     "Input Widget": {
       "name": "Input Widget",
       "color": "ae65d8",
@@ -667,6 +672,11 @@
               {
                 "type": "hasLabel",
                 "label": "Home Page",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "In App Comms",
                 "value": true
               },
               {

@@ -589,7 +589,7 @@ public class ActionServiceTest {
                 new Property("random-header-key", "random-header-value"),
                 new Property("", "")
         ));
-        actionConfiguration.setTimeoutInMillisecond(1000);
+        actionConfiguration.setTimeoutInMillisecond(String.valueOf(1000));
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteSecondaryStaleConnection");
@@ -630,7 +630,7 @@ public class ActionServiceTest {
                 new Property("random-header-key", "random-header-value"),
                 new Property("", "")
         ));
-        actionConfiguration.setTimeoutInMillisecond(10);
+        actionConfiguration.setTimeoutInMillisecond(String.valueOf(10));
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteTimeout");
@@ -676,7 +676,7 @@ public class ActionServiceTest {
         action1.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration1 = new ActionConfiguration();
         actionConfiguration1.setHttpMethod(HttpMethod.GET);
-        actionConfiguration1.setTimeoutInMillisecond(20000);
+        actionConfiguration1.setTimeoutInMillisecond(String.valueOf(20000));
         action1.setActionConfiguration(actionConfiguration1);
         action1.setDatasource(datasource);
 
@@ -1026,6 +1026,144 @@ public class ActionServiceTest {
                 .assertNext(createdAction -> {
                     // executeOnLoad is expected to be set to false in case of default context
                     assertThat(createdAction.getExecuteOnLoad()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateActionWithOutOfRangeTimeout() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("testAction");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setTimeoutInMillisecond("60001");
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<ActionDTO> newActionMono = newActionService
+                .createAction(action);
+
+        Mono<ActionDTO> updateActionMono = newActionMono
+                .flatMap(preUpdateAction -> {
+                    ActionDTO actionUpdate = action;
+                    actionUpdate.getActionConfiguration().setBody("New Body");
+                    return actionCollectionService.updateAction(preUpdateAction.getId(), actionUpdate);
+                });
+
+        StepVerifier
+                .create(updateActionMono)
+                .assertNext(updatedAction -> {
+                    assertThat(updatedAction).isNotNull();
+                    assertThat(updatedAction
+                            .getInvalids()
+                            .stream()
+                            .anyMatch(errorMsg -> errorMsg.contains("'Query timeout' field must be an integer between" +
+                                    " 0 and 60000"))
+                    ).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateActionWithValidRangeTimeout() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("testAction");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setTimeoutInMillisecond("6000");
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<ActionDTO> newActionMono = newActionService
+                .createAction(action);
+
+        Mono<ActionDTO> updateActionMono = newActionMono
+                .flatMap(preUpdateAction -> {
+                    ActionDTO actionUpdate = action;
+                    actionUpdate.getActionConfiguration().setBody("New Body");
+                    return actionCollectionService.updateAction(preUpdateAction.getId(), actionUpdate);
+                });
+
+        StepVerifier
+                .create(updateActionMono)
+                .assertNext(updatedAction -> {
+                    assertThat(updatedAction).isNotNull();
+                    assertThat(updatedAction
+                            .getInvalids()
+                            .stream()
+                            .anyMatch(errorMsg -> errorMsg.contains("'Query timeout' field must be an integer between"))
+                    ).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testCreateActionWithOutOfRangeTimeout() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("validAction");
+        action.setPageId(testPage.getId());
+        action.setExecuteOnLoad(true);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionConfiguration.setTimeoutInMillisecond("60001");
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<ActionDTO> actionMono = newActionService.createAction(action)
+                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
+                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
+
+        StepVerifier
+                .create(actionMono)
+                .assertNext(createdAction -> {
+                    assertThat(createdAction).isNotNull();
+                    assertThat(createdAction
+                            .getInvalids()
+                            .stream()
+                            .anyMatch(errorMsg -> errorMsg.contains("'Query timeout' field must be an integer between" +
+                                    " 0 and 60000"))
+                    ).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testCreateActionWithValidRangeTimeout() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("validAction");
+        action.setPageId(testPage.getId());
+        action.setExecuteOnLoad(true);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionConfiguration.setTimeoutInMillisecond("6000");
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<ActionDTO> actionMono = newActionService.createAction(action)
+                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
+                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
+
+        StepVerifier
+                .create(actionMono)
+                .assertNext(createdAction -> {
+                    assertThat(createdAction).isNotNull();
+                    assertThat(createdAction
+                            .getInvalids()
+                            .stream()
+                            .anyMatch(errorMsg -> errorMsg.contains("'Query timeout' field must be an integer between"))
+                    ).isFalse();
                 })
                 .verifyComplete();
     }
