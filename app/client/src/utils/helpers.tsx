@@ -253,3 +253,10 @@ const playLottieAnimation = (
     container.removeChild(el);
   }, duration);
 };
+
+export const getSelectedText = () => {
+  if (typeof window.getSelection === "function") {
+    const selectionObj = window.getSelection();
+    return selectionObj && selectionObj.toString();
+  }
+};

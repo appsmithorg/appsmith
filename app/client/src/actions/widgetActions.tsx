@@ -66,6 +66,13 @@ export const focusWidget = (
   payload: { widgetId },
 });
 
+export const selectWidget = (
+  widgetId?: string,
+): ReduxAction<{ widgetId?: string }> => ({
+  type: ReduxActionTypes.SELECT_WIDGET,
+  payload: { widgetId },
+});
+
 export const showModal = (id: string) => {
   return {
     type: ReduxActionTypes.SHOW_MODAL,
