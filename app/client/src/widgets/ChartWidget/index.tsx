@@ -9,6 +9,7 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/ActionConstants";
 import withMeta, { WithMeta } from "widgets/MetaHOC";
 import propertyConfig from "widgets/ChartWidget/propertyConfig";
+import { CustomFusionChartConfig } from "components/designSystems/appsmith/ChartComponent";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -97,17 +98,10 @@ export interface ChartData {
   data: ChartDataPoint[];
 }
 
-export interface CustomFusionChartConfig {
-  config: {
-    type: string;
-    dataSource?: any;
-  };
-}
-
 export interface ChartWidgetProps extends WidgetProps, WithMeta {
   chartType: ChartType;
   chartData: ChartData[];
-  customFusionChartConfig: CustomFusionChartConfig;
+  customFusionChartConfig: { config: CustomFusionChartConfig };
   xAxisName: string;
   yAxisName: string;
   chartName: string;

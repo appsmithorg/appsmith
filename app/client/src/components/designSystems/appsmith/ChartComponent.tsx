@@ -4,13 +4,13 @@ import styled from "styled-components";
 
 import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "configs";
-import {
-  ChartData,
-  ChartDataPoint,
-  ChartType,
-  CustomFusionChartConfig,
-} from "widgets/ChartWidget";
+import { ChartData, ChartDataPoint, ChartType } from "widgets/ChartWidget";
 import log from "loglevel";
+
+export interface CustomFusionChartConfig {
+  type: string;
+  dataSource?: any;
+}
 
 const FusionCharts = require("fusioncharts");
 const plugins: Record<string, any> = {
@@ -241,7 +241,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   getCustomFusionChartDataSource = () => {
-    let config = this.props.customFusionChartConfig as any;
+    let config = this.props.customFusionChartConfig as CustomFusionChartConfig;
     if (config && config.dataSource) {
       config = {
         ...config,
@@ -340,7 +340,6 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     if (!_.isEqual(prevProps, this.props)) {
       if (this.props.chartType === "CUSTOM_FUSION_CHART") {
         const chartConfig = {
-          type: this.getChartType(),
           renderAt: this.props.widgetId + "chart-container",
           width: "100%",
           height: "100%",
