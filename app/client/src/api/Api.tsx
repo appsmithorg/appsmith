@@ -203,8 +203,3 @@ class Api {
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
 export default Api;
-
-export const CloudServices = axios.create({
-  baseURL: "https://e0fe547237c8.ngrok.io/api/",
-  timeout: REQUEST_TIMEOUT_MS,
-});
