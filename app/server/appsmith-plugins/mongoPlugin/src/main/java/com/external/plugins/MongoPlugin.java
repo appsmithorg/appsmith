@@ -229,9 +229,7 @@ public class MongoPlugin extends BasePlugin {
 
             return Mono.just(datasourceConfiguration)
                     .map(MongoPluginExecutor::buildClientURI)
-                    .map(uri -> {
-                        return MongoClients.create(uri);
-                    })
+                    .map(MongoClients::create)
                     .onErrorMap(
                             IllegalArgumentException.class,
                             error ->
@@ -385,8 +383,7 @@ public class MongoPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.just(datasourceConfiguration)
-                    .flatMap(dsConfig -> datasourceCreate(dsConfig))
+            return datasourceCreate(datasourceConfiguration)
                     .flatMap(mongoClient -> {
                         return Mono.zip(Mono.just(mongoClient),
                                 Mono.from(mongoClient.getDatabase("admin").runCommand(new Document(
