@@ -38,6 +38,7 @@ import { EvaluatedTreeState } from "./evaluationReducers/treeReducer";
 import { EvaluationDependencyState } from "./evaluationReducers/dependencyReducer";
 import { PageWidgetsReduxState } from "./uiReducers/pageWidgetsReducer";
 import { OnboardingState } from "./uiReducers/onBoardingReducer";
+import { GlobalSearchReduxState } from "./uiReducers/globalSearchReducer";
 import { ReleasesState } from "./uiReducers/releasesReducer";
 import { LoadingEntitiesState } from "./evaluationReducers/loadingEntitiesReducer";
 
@@ -77,6 +78,7 @@ export interface AppState {
     datasourceName: DatasourceNameReduxState;
     theme: ThemeState;
     onBoarding: OnboardingState;
+    globalSearch: GlobalSearchReduxState;
     releases: ReleasesState;
   };
   entities: {
