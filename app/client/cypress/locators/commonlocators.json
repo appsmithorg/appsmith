@@ -100,5 +100,9 @@
   "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",
   "filePickerOnFilesSelected": ".t--property-control-onfilesselected",
   "dataType": ".t--property-control-datatype",
-  "evaluateMsg": ".t--CodeEditor-evaluatedValue p"
+  "evaluateMsg": ".t--CodeEditor-evaluatedValue p",
+  "globalSearchModal": ".t--global-search-modal",
+  "globalSearchInput": ".t--global-search-input",
+  "globalSearchTrigger": ".t--global-search-modal-trigger",
+  "globalSearchClearInput": ".t--global-clear-input"
 }

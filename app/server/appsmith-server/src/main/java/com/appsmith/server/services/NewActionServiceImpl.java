@@ -14,7 +14,6 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Provider;
-import com.appsmith.external.models.QActionConfiguration;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -667,6 +666,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     result.setStatusCode(error.getAppErrorCode().toString());
                     result.setBody(error.getMessage());
                     return Mono.just(result);
+                })
+                .map(result -> {
+                    // In case the action was executed in view mode, do not return the request object
+                    if (TRUE.equals(executeActionDTO.getViewMode())) {
+                        result.setRequest(null);
+                    }
+                    return result;
                 })
                 .elapsed()
                 .map(tuple -> {

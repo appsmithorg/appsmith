@@ -12,14 +12,18 @@ import { getExistingWidgetNames } from "sagas/selectors";
 import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { BindingText } from "pages/Editor/APIEditor/Form";
+import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 
 import { Classes, Icon, Position, Tooltip } from "@blueprintjs/core";
 import { WidgetType } from "constants/WidgetConstants";
 import { theme } from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
+<<<<<<< HEAD
 import { copyWidget, deleteSelectedWidget } from "actions/widgetActions";
+=======
+import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
+>>>>>>> release
 
 const CopyIcon = ControlIcons.COPY_CONTROL;
 const DeleteIcon = FormIcons.DELETE_ICON;
@@ -157,18 +161,12 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
         />
       </Tooltip>
       <Tooltip
-        content={
-          <div>
-            <span>You can connect data from your API by adding </span>
-            <BindingText>{`{{apiName.data}}`}</BindingText>
-            <span> to a widget property</span>
-          </div>
-        }
+        content={<span>Explore widget related docs</span>}
         position={Position.TOP}
         hoverOpenDelay={200}
         boundary="window"
       >
-        <Icon color={theme.colors.paneSectionLabel} icon="help" iconSize={16} />
+        <PropertyPaneHelpButton />
       </Tooltip>
       <Tooltip content="Close" position={Position.TOP} hoverOpenDelay={200}>
         <Icon
