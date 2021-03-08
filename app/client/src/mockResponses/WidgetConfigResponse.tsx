@@ -503,6 +503,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     [WidgetTypes.LIST_WIDGET]: {
       backgroundColor: "transparent",
+      itemBackgroundColor: "white",
       rows: 10,
       columns: 8,
       gridType: "vertical",
