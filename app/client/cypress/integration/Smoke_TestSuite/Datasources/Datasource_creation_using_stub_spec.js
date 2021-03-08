@@ -1,4 +1,7 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
+const queryLocators = require("../../../locators/QueryEditor.json");
+const plugins = require("../../../fixtures/plugins.json");
+let datasourceName;
 
 describe("Create, test, save then delete a mongo datasource", function() {
   it("Create, test, save then delete a mongo datasource", function() {
@@ -20,8 +23,36 @@ describe("Create, test, save then delete a mongo datasource", function() {
       "response.body.responseMeta.status",
       200,
     );
+
+    cy.NavigateToQueryEditor();
+
+    cy.get("@createDatasource").then((httpResponse) => {
+      datasourceName = "Untitled Datasource 5213";
+
+      cy.contains(".t--datasource-name", datasourceName)
+        .find(queryLocators.createQuery)
+        .click();
+    });
+
+    cy.get("@getPluginForm").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+
+    cy.get(queryLocators.templateMenu).click();
+    cy.get(".CodeMirror textarea")
+      .first()
+      .focus()
+      .type(`{"find": "listingsAndReviews","limit": 10}`, {
+        parseSpecialCharSequences: false,
+      });
+
+    cy.EvaluateCurrentValue(`{"find": "listingsAndReviews","limit": 10}`);
+    cy.runAndDeleteQuery();
   });
 
+  /*
   it("Create, test, save then delete a firestore datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.Firestore).click();
@@ -63,4 +94,5 @@ describe("Create, test, save then delete a mongo datasource", function() {
       200,
     );
   });
+  */
 });
