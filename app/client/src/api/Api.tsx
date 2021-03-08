@@ -203,8 +203,3 @@ class Api {
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
 export default Api;
-
-export const CloudServices = axios.create({
-  baseURL: "http://localhost:8090/api/",
-  timeout: REQUEST_TIMEOUT_MS,
-});
