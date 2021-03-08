@@ -871,6 +871,8 @@ public class PostgresPlugin extends BasePlugin {
                 return "time";
             case DOUBLE:
                 return "float8";
+            case ARRAY:
+                throw new IllegalArgumentException("Array of Array datatype is not supported.");
             default:
                 throw new IllegalArgumentException("Unable to map the computed data type to primitive Postgresql type");
         }
