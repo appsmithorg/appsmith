@@ -8,6 +8,7 @@ const STORAGE_KEYS: { [id: string]: string } = {
   DELETED_WIDGET_PREFIX: "DeletedWidget-",
   ONBOARDING_STATE: "OnboardingState",
   ONBOARDING_WELCOME_STATE: "OnboardingWelcomeState",
+  RECENT_ENTITIES: "RecentEntities",
 };
 
 const store = localforage.createInstance({
@@ -137,5 +138,46 @@ export const getOnboardingWelcomeState = async () => {
       "An error occurred when getting onboarding welcome state: ",
       error,
     );
+  }
+};
+
+export const setRecentAppEntities = async (entities: any, appId: string) => {
+  try {
+    const recentEntities =
+      ((await store.getItem(STORAGE_KEYS.RECENT_ENTITIES)) as Record<
+        string,
+        any
+      >) || {};
+    recentEntities[appId] = entities;
+    await store.setItem(STORAGE_KEYS.RECENT_ENTITIES, recentEntities);
+  } catch (error) {
+    console.log("An error occurred while saving recent entities", error);
+  }
+};
+
+export const fetchRecentAppEntities = async (appId: string) => {
+  try {
+    const recentEntities = (await store.getItem(
+      STORAGE_KEYS.RECENT_ENTITIES,
+    )) as Record<string, any>;
+    return (recentEntities && recentEntities[appId]) || [];
+  } catch (error) {
+    console.log("An error occurred while fetching recent entities", error);
+  }
+};
+
+export const deleteRecentAppEntities = async (appId: string) => {
+  try {
+    const recentEntities =
+      ((await store.getItem(STORAGE_KEYS.RECENT_ENTITIES)) as Record<
+        string,
+        any
+      >) || {};
+    if (typeof recentEntities === "object") {
+      delete recentEntities[appId];
+    }
+    await store.setItem(STORAGE_KEYS.RECENT_ENTITIES, recentEntities);
+  } catch (error) {
+    console.log("An error occurred while saving recent entities", error);
   }
 };
