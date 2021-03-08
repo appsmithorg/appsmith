@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public enum Method {
+    // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
     GET {
         public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, List<Property> pluginSpecifiedTemplates, String body) {
             UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
@@ -33,6 +34,8 @@ public enum Method {
                     .body(BodyInserters.empty());
         }
     },
+
+    // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/get
     INFO {
         public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, List<Property> pluginSpecifiedTemplates, String body) {
             UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
@@ -48,6 +51,8 @@ public enum Method {
                     .body(BodyInserters.empty());
         }
     },
+
+    //https://developers.google.com/sheets/api/guides/migration#list_spreadsheets_for_the_authenticated_user
     LIST {
         public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, List<Property> pluginSpecifiedTemplates, String body) {
             UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
@@ -62,6 +67,8 @@ public enum Method {
                     .body(BodyInserters.empty());
         }
     },
+
+    // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/append
     APPEND {
         public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, List<Property> pluginSpecifiedTemplates, String body) {
             UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
@@ -83,6 +90,8 @@ public enum Method {
                     .body(BodyInserters.fromObject(body));
         }
     },
+
+    // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
     UPDATE {
         public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, List<Property> pluginSpecifiedTemplates, String body) {
             UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
@@ -99,6 +108,8 @@ public enum Method {
                     .body(BodyInserters.fromObject(body));
         }
     },
+
+    // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/batchUpdate
     BULK_UPDATE {
         public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, List<Property> pluginSpecifiedTemplates, String body) {
             UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
@@ -113,6 +124,8 @@ public enum Method {
                     .body(BodyInserters.fromObject(body));
         }
     },
+
+    // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/clear
     CLEAR {
         public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, List<Property> pluginSpecifiedTemplates, String body) {
             UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
@@ -131,6 +144,8 @@ public enum Method {
                     .body(BodyInserters.empty());
         }
     },
+
+    // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/create
     CREATE {
         public WebClient.RequestHeadersSpec<?> getClient(WebClient
                                                                  webClient, List<Property> pluginSpecifiedTemplates, String body) {
@@ -147,6 +162,7 @@ public enum Method {
         }
     },
 
+    // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.sheets/copyTo
     COPY {
         public WebClient.RequestHeadersSpec<?> getClient(WebClient
                                                                  webClient, List<Property> pluginSpecifiedTemplates, String body) {
@@ -167,6 +183,7 @@ public enum Method {
         }
     },
 
+    // https://developers.google.com/sheets/api/guides/migration#delete_a_sheet
     DELETE {
         public WebClient.RequestHeadersSpec<?> getClient(WebClient
                                                                  webClient, List<Property> pluginSpecifiedTemplates, String body) {

@@ -116,23 +116,19 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                         // with the new connection in the context map.
                         datasourceContextMap.put(datasourceId, datasourceContext);
                     }
-                    
-                    return Mono.just(datasource1)
-                            .flatMap(datasource2 -> Mono.zip(
-                                    pluginExecutor.datasourceCreate(datasource2.getDatasourceConfiguration()),
-                                    Mono.just(datasource2)))
-                            .flatMap(tuple -> {
-                                Object connection = tuple.getT1();
-                                Datasource datasource2 = tuple.getT2();
-                                Mono<Datasource> datasourceMono1 = Mono.just(datasource2);
+
+                    Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource1.getDatasourceConfiguration());
+                    return connectionMono
+                            .flatMap(connection -> {
+                                Mono<Datasource> datasourceMono1 = Mono.just(datasource1);
                                 if (connection instanceof UpdatableConnection) {
-                                    datasource2.setUpdatedAt(Instant.now());
-                                    datasource2
+                                    datasource1.setUpdatedAt(Instant.now());
+                                    datasource1
                                             .getDatasourceConfiguration()
                                             .setAuthentication(
                                                     ((UpdatableConnection) connection).getAuthenticationDTO(
-                                                            datasource2.getDatasourceConfiguration().getAuthentication()));
-                                    datasourceMono1 = datasourceService.update(datasource2.getId(), datasource2);
+                                                            datasource1.getDatasourceConfiguration().getAuthentication()));
+                                    datasourceMono1 = datasourceService.update(datasource1.getId(), datasource1);
                                 }
                                 return datasourceMono1.thenReturn(connection);
                             })

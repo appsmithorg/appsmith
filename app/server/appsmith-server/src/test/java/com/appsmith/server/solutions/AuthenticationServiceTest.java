@@ -70,7 +70,7 @@ public class AuthenticationServiceTest {
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_missingDatasource() {
         Mono<String> authorizationCodeUrlMono = authenticationService
-                .getAuthorizationCodeURL("invalidId", "irrelevantPageId", null);
+                .getAuthorizationCodeURLForGenericOauth2("invalidId", "irrelevantPageId", null);
 
         StepVerifier
                 .create(authorizationCodeUrlMono)
@@ -102,7 +102,7 @@ public class AuthenticationServiceTest {
         }).flatMap(datasourceService::create).cache();
 
         Mono<String> authorizationCodeUrlMono = datasourceMono.map(BaseDomain::getId)
-                .flatMap(datasourceId -> authenticationService.getAuthorizationCodeURL(datasourceId, "irrelevantPageId", null));
+                .flatMap(datasourceId -> authenticationService.getAuthorizationCodeURLForGenericOauth2(datasourceId, "irrelevantPageId", null));
 
         StepVerifier
                 .create(authorizationCodeUrlMono)
@@ -161,7 +161,7 @@ public class AuthenticationServiceTest {
 
         final String datasourceId1 = datasourceMono.map(BaseDomain::getId).block();
 
-        Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURL(datasourceId1, pageDto.getId(), httpRequest);
+        Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOauth2(datasourceId1, pageDto.getId(), httpRequest);
 
         StepVerifier
                 .create(authorizationCodeUrlMono)

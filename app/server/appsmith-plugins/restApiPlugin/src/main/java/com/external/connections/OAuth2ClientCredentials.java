@@ -95,7 +95,6 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
                 .flatMap(response -> response.body(BodyExtractors.toMono(Map.class)))
                 // Receive and parse response
                 .map(mappedResponse -> {
-                    System.out.println(mappedResponse);
                     AuthenticationResponse authenticationResponse = new AuthenticationResponse();
                     // Store received response as is for reference
                     authenticationResponse.setTokenResponse(mappedResponse);

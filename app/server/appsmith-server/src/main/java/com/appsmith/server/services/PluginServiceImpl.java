@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Plugin;
@@ -250,6 +251,14 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     @Override
     public Mono<Plugin> findById(String id) {
         return repository.findById(id);
+    }
+
+    @Override
+    public Mono<String> getPluginName(Mono<Datasource> datasourceMono) {
+        return
+                datasourceMono
+                        .flatMap(datasource -> this.findById(datasource.getPluginId())
+                                .map(Plugin::getPackageName));
     }
 
     @Override

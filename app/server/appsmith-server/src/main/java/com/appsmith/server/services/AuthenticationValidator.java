@@ -16,7 +16,7 @@ public class AuthenticationValidator {
 
     private final AuthenticationService authenticationService;
 
-    public <T extends AuthenticationDTO> Mono<Datasource> validateAuthentication(Datasource datasource) {
+    public Mono<Datasource> validateAuthentication(Datasource datasource) {
         if (datasource.getDatasourceConfiguration() == null || datasource.getDatasourceConfiguration().getAuthentication() == null) {
             return Mono.just(datasource);
         }
@@ -26,7 +26,8 @@ public class AuthenticationValidator {
                 .flatMap(expired -> {
                     if (authentication instanceof OAuth2) {
                         return authenticationService.refreshAuthentication(datasource);
-                    } else return Mono.just(datasource);
+                    }
+                    return Mono.just(datasource);
                 })
                 .switchIfEmpty(Mono.just(datasource));
     }
