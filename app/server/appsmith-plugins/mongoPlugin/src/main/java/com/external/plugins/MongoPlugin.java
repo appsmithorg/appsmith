@@ -238,16 +238,6 @@ public class MongoPlugin extends BasePlugin {
                                             error.getMessage()
                                     )
                     )
-                    .onErrorMap(
-                            MongoTimeoutException.class,
-                            error ->
-                                    new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                            "Mongodb driver timed out while waiting for a Mongodb server with the " +
-                                                    "matching datasource credentials. Please check if the credentials" +
-                                                    " are correct."
-                                    )
-                    )
                     .onErrorMap(e -> {
                         if (!(e instanceof AppsmithPluginException)) {
                             return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
