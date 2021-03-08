@@ -76,12 +76,21 @@ public class AuthenticationService {
 
     private final ConfigService configService;
 
-    public Mono<String> getAuthorizationCodeURL(String datasourceId, String pageId, ServerHttpRequest httpRequest) {
+    /**
+     * This method is used by the generic OAuth2 implementation that is used by REST APIs. Here, we only populate all the required fields
+     * when hitting the authorization url and redirect to it from the controller.
+     *
+     * @param datasourceId required to validate the details in the request and populate redirect url
+     * @param pageId       Required to populate redirect url
+     * @param httpRequest  Used to find the redirect domain
+     * @return a url String to continue the authorization flow
+     */
+    public Mono<String> getAuthorizationCodeURLForGenericOauth2(String datasourceId, String pageId, ServerHttpRequest httpRequest) {
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
         return datasourceService.findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
-                .flatMap(this::validateRequiredFields)
+                .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap((datasource -> {
                     OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                     final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
@@ -109,7 +118,7 @@ public class AuthenticationService {
                 }));
     }
 
-    private Mono<Datasource> validateRequiredFields(Datasource datasource) {
+    private Mono<Datasource> validateRequiredFieldsForGenericOAuth2(Datasource datasource) {
         // Since validation takes take of checking for fields that are present
         // We just need to make sure that the datasource has the right authentication type
         if (datasource.getDatasourceConfiguration() == null || !(datasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2)) {
@@ -125,14 +134,21 @@ public class AuthenticationService {
                 });
     }
 
-    public Mono<String> getAccessToken(AuthorizationCodeCallbackDTO callbackDTO) {
+    /**
+     * This is the method that handles callback for generic OAuth2. We will be retrieving and storing token information here
+     * and redirecting back to a sensible url for clients to see the response in
+     *
+     * @param callbackDTO OAuth2 details including short lived code and state
+     * @return url for redirecting client to including a response_status
+     */
+    public Mono<String> getAccessTokenForGenericOAuth2(AuthorizationCodeCallbackDTO callbackDTO) {
         final String error = callbackDTO.getError();
         String code = callbackDTO.getCode();
         final String state = callbackDTO.getState();
         String scope = callbackDTO.getScope();
         // If there is an error code, return with that code to the client
         if (!StringUtils.isEmpty(error)) {
-            return this.getPageRedirectUrl(state, null, error);
+            return this.getPageRedirectUrl(state, error);
         }
 
         Mono<Datasource> datasourceMono = datasourceService
@@ -142,12 +158,7 @@ public class AuthenticationService {
         return datasourceMono
                 .flatMap(datasource -> {
                     OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
-                    WebClient.Builder builder = WebClient.builder();
-                    builder
-                            .baseUrl(oAuth2.getAccessTokenUrl())
-                            .clientConnector(new ReactorClientHttpConnector(
-                                    HttpClient.create().wiretap(true)
-                            ));
+                    WebClient.Builder builder = WebClient.builder().baseUrl(oAuth2.getAccessTokenUrl());
 
                     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 
@@ -155,8 +166,9 @@ public class AuthenticationService {
                     map.add(GRANT_TYPE, AUTHORIZATION_CODE);
                     map.add(CODE, code);
                     map.add(REDIRECT_URI, state.split(",")[2] + Url.DATASOURCE_URL + "/authorize");
-                    if (!oAuth2.getScope().isEmpty()) {
-                        map.add(SCOPE, StringUtils.collectionToDelimitedString(oAuth2.getScope(), " "));
+                    // We us the returned scope instead because users may have authorized fewer scopes than requested
+                    if (scope != null && !scope.isBlank()) {
+                        map.add(SCOPE, scope);
                     }
 
                     // Add client credentials to header or body, as configured
@@ -181,7 +193,9 @@ public class AuthenticationService {
                                     return response.bodyToMono(Map.class);
                                 } else {
                                     log.debug("Unable to retrieve access token for datasource {} with error {}", datasource.getId(), response.statusCode());
-                                    return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE_CONFIGURATION));
+                                    return Mono.error(new AppsmithException(
+                                            AppsmithError.INTERNAL_SERVER_ERROR,
+                                            "Unable to retrieve access token for datasource {} with error {}", datasource.getId(), response.statusCode()));
                                 }
                             })
                             .flatMap(response -> {
@@ -190,23 +204,28 @@ public class AuthenticationService {
                                 authenticationResponse.setToken((String) response.get(ACCESS_TOKEN));
                                 authenticationResponse.setRefreshToken((String) response.get(REFRESH_TOKEN));
                                 authenticationResponse.setExpiresAt(Instant.now().plusSeconds(Long.valueOf((Integer) response.get(EXPIRES_IN))));
+                                // Replacing with returned scope instead
+                                if (scope != null && !scope.isBlank()) {
+                                    oAuth2.setScopeString(String.join(",", scope.split(" ")));
+                                } else {
+                                    oAuth2.setScopeString("");
+                                }
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
+                                // Resetting encryption
                                 oAuth2.setIsEncrypted(null);
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 return datasourceService.update(datasource.getId(), datasource);
                             });
                 })
-                .flatMap(datasource -> pluginService.findById(datasource.getPluginId()))
-                .map(Plugin::getPackageName)
                 // We have no use of the datasource object during redirection, we merely send the response as a success state
-                .flatMap((pluginName -> this.getPageRedirectUrl(state, pluginName, null)))
+                .flatMap((datasource -> this.getPageRedirectUrl(state, null)))
                 .onErrorResume(e -> {
                     log.debug("Error while retrieving access token: ", e);
-                    return this.getPageRedirectUrl(state, null, "appsmith_error");
+                    return this.getPageRedirectUrl(state, "appsmith_error");
                 });
     }
 
-    private Mono<String> getPageRedirectUrl(String state, String pluginName, String error) {
+    private Mono<String> getPageRedirectUrl(String state, String error) {
         final String[] splitState = state.split(",");
 
         final String pageId = splitState[0];
@@ -218,31 +237,19 @@ public class AuthenticationService {
         }
         final String responseStatus = response;
         return newPageService.getById(pageId)
-                .map(newPage -> {
-                    return redirectOrigin + Entity.SLASH +
-                            Entity.APPLICATIONS + Entity.SLASH +
-                            newPage.getApplicationId() + Entity.SLASH +
-                            Entity.PAGES + Entity.SLASH +
-                            newPage.getId() + Entity.SLASH +
-                            "edit" + Entity.SLASH +
-                            (pluginName != null && !pluginName.equals("restapi-plugin") ? "saas" + Entity.SLASH + pluginName + Entity.SLASH : "") +
-                            Entity.DATASOURCES + Entity.SLASH +
-                            datasourceId +
-                            "?response_status=" + responseStatus;
-                })
-                .onErrorResume(e -> {
-                    return Mono.just(
-                            redirectOrigin + Entity.SLASH +
-                                    Entity.APPLICATIONS +
-                                    "?response_status=" + responseStatus);
-                });
-    }
-
-    private Mono<String> getPluginName(Mono<Datasource> datasourceMono) {
-        return
-                datasourceMono
-                        .flatMap(datasource -> pluginService.findById(datasource.getPluginId())
-                                .map(Plugin::getPackageName));
+                .map(newPage -> redirectOrigin + Entity.SLASH +
+                        Entity.APPLICATIONS + Entity.SLASH +
+                        newPage.getApplicationId() + Entity.SLASH +
+                        Entity.PAGES + Entity.SLASH +
+                        newPage.getId() + Entity.SLASH +
+                        "edit" + Entity.SLASH +
+                        Entity.DATASOURCES + Entity.SLASH +
+                        datasourceId +
+                        "?response_status=" + responseStatus)
+                .onErrorResume(e -> Mono.just(
+                        redirectOrigin + Entity.SLASH +
+                                Entity.APPLICATIONS +
+                                "?response_status=" + responseStatus));
     }
 
     public Mono<String> getAppsmithToken(String datasourceId, String pageId, ServerHttpRequest request) {
@@ -259,12 +266,12 @@ public class AuthenticationService {
 
         return datasourceMono
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
-                .flatMap(this::validateRequiredFields)
+                .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap(datasource -> Mono.zip(
                         newPageService.getById(pageId)
                                 .map(page -> List.of(pageId, page.getApplicationId())),
                         configService.getInstanceId(),
-                        this.getPluginName(Mono.just(datasource)))
+                        pluginService.getPluginName(Mono.just(datasource)))
                         .map(tuple -> {
                             IntegrationDTO integrationDTO = new IntegrationDTO();
                             integrationDTO.setPageId(tuple.getT1().get(0));
@@ -319,7 +326,7 @@ public class AuthenticationService {
         return datasourceMono
                 .filter(datasource -> AuthenticationDTO.AuthenticationStatus.IN_PROGRESS.equals(datasource.getDatasourceConfiguration().getAuthentication().getAuthenticationStatus()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
-                .flatMap(this::validateRequiredFields)
+                .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap(datasource -> {
                     WebClient.Builder builder = WebClient.builder();
                     UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
@@ -339,7 +346,8 @@ public class AuthenticationService {
                                     return response.bodyToMono(AuthenticationResponse.class);
                                 } else {
                                     log.debug("Unable to retrieve appsmith token with error {}", response.statusCode());
-                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR, "Unable to retrieve appsmith token with error " + response.statusCode()));
+                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR,
+                                            "Unable to retrieve appsmith token with error " + response.statusCode()));
                                 }
                             })
                             .flatMap(authenticationResponse -> {
@@ -374,10 +382,6 @@ public class AuthenticationService {
 
                     WebClient.Builder builder = WebClient
                             .builder()
-                            .clientConnector(
-                                    new ReactorClientHttpConnector(HttpClient
-                                            .create()
-                                            .wiretap(true)))
                             .baseUrl(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/refresh");
 
                     return builder.build()
@@ -390,7 +394,8 @@ public class AuthenticationService {
                                     return response.bodyToMono(AuthenticationResponse.class);
                                 } else {
                                     log.debug("Unable to retrieve appsmith token with error {}", response.statusCode());
-                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR, "Unable to retrieve appsmith token with error " + response.statusCode()));
+                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR,
+                                            "Unable to retrieve appsmith token with error " + response.statusCode()));
                                 }
                             })
                             .flatMap(authenticationResponse -> {
