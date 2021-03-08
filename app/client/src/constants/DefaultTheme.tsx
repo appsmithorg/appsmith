@@ -775,6 +775,7 @@ type ColorType = {
     color: ShadeColor;
   };
   profileDropdown: {
+    name: ShadeColor;
     userName: ShadeColor;
   };
   modal: {
@@ -1220,7 +1221,8 @@ export const dark: ColorType = {
     color: darkShades[7],
   },
   profileDropdown: {
-    userName: darkShades[9],
+    name: darkShades[10],
+    userName: darkShades[7],
   },
   modal: {
     bg: darkShades[1],
@@ -1629,7 +1631,8 @@ export const light: ColorType = {
     color: lightShades[7],
   },
   profileDropdown: {
-    userName: lightShades[9],
+    name: lightShades[10],
+    userName: lightShades[7],
   },
   modal: {
     bg: lightShades[11],
