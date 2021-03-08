@@ -52,6 +52,7 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { showCompletionDialog } from "./OnboardingSagas";
+import { deleteRecentAppEntities } from "utils/storage";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -288,6 +289,7 @@ export function* deleteApplicationSaga(
         type: ReduxActionTypes.DELETE_APPLICATION_SUCCESS,
         payload: response.data,
       });
+      yield call(deleteRecentAppEntities, request.applicationId);
     }
   } catch (error) {
     yield put({
