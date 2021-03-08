@@ -27,6 +27,9 @@ confirm() {
 
 install_dir="/home/ubuntu/appsmith"
 domain="$1"
+email_arg="$2"
+staging_arg="$3"
+
 echo "Creating certificate for '$domain'."
 
 rsa_key_size=4096
@@ -50,19 +53,6 @@ if ! [[ -e "$data_path/conf/options-ssl-nginx.conf" && -e "$data_path/conf/ssl-d
 fi
 
 echo "### Requesting Let's Encrypt certificate for '$domain'..."
-
-read -rp 'Enter email address to create SSL certificate: (Optional, but strongly recommended): ' email
-if [[ -z $email ]]; then
-    email_arg="--register-unsafely-without-email"
-else
-    email_arg="--email $email --no-eff-email"
-fi
-
-if confirm n 'Do you want to create certificate in staging mode (which is used for dev purposes and is not subject to rate limits)?'; then
-    staging_arg="--staging"
-else
-    staging_arg=""
-fi
 
 echo "### Generating OpenSSL key for '$domain'..."
 live_path="/etc/letsencrypt/live/$domain"

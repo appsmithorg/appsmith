@@ -1,0 +1,8 @@
+- hosts: local
+  tasks:
+    - name: Terminate ami
+      import_role:
+        name: terminate_ami
+    - name: Terminate instance
+      import_role:
+        name: terminate_instance

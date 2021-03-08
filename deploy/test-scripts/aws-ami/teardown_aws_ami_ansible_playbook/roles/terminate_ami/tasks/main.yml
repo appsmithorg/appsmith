@@ -1,0 +1,6 @@
+---
+    - name: Terminate ami
+      ec2_ami:
+        state: absent
+        region: "{{ default_region_id }}"
+        image_id: "{{ ami_id }}"

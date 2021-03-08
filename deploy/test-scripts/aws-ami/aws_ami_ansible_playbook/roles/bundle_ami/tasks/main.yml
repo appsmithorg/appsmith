@@ -1,0 +1,12 @@
+---
+- name: Register AMI
+  ec2_ami:
+    instance_id: "{{ new_created_instance_id }}"
+    region: "{{ default_region_id }}"
+    state: present
+    description: Register AMI for auto scaling group
+    name: "{{ ami_name }}"
+    wait: yes
+  register: ami_output
+
+- copy: content="{{ ami_output.image_id }}" dest={{ ci_project_dir }}/deploy/test-scripts/aws-ami/ami_id.txt

@@ -25,17 +25,9 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: appsmith/appsmith-editor
+        image:  appsmith/appsmith-editor
         ports:
           - containerPort: 80
         envFrom:
           - configMapRef:
               name: application-config
-        volumeMounts:
-          - name: nginx-config-template
-            mountPath: /nginx.conf.template
-            subPath: nginx.conf.template
-      volumes:
-      - name: nginx-config-template
-        configMap:
-          name: nginx-config-template
