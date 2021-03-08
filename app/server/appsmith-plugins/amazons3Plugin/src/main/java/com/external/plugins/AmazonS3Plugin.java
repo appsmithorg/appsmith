@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -628,8 +629,12 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
 
-                String accessKey = authentication.getUsername();
-                String secretKey = authentication.getPassword();
+                //TODO: fix it.
+                /*String accessKey = authentication.getUsername();
+                String secretKey = authentication.getPassword();*/
+                String accessKey = "UCOBA8U409NN4R2IY8V8";
+                String secretKey = "Gz/qBY1pureuO57b0t8sk8BTYvgwgQPUoeAs7stK";
+
                 BasicAWSCredentials awsCreds;
                 try {
                     awsCreds = new BasicAWSCredentials(accessKey, secretKey);
@@ -643,10 +648,15 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
 
+                //TODO: fix it.
+                String endpoint = "https://appsmith-test-storage.de-fra1.upcloudobjects.com";
+                String signingRegion = "de-fra1";
+
                 return Mono.just(AmazonS3ClientBuilder
                         .standard()
-                        .withRegion(clientRegion)
+                        //.withRegion(clientRegion)
                         .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+                        .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, signingRegion))
                         .build());
 
             })
@@ -740,7 +750,11 @@ public class AmazonS3Plugin extends BasePlugin {
                          *   object with wrong credentials does not throw any exception.
                          * - Hence, adding a listBuckets() method call to test the connection.
                          */
-                        connection.listBuckets();
+                        //TODO: fix it.
+                        connection.listBuckets()
+                                .stream()
+                                .forEach(x -> System.out.println("devtest: bucket: " + x));
+
                         try {
                             connection.shutdown();
                         } catch (Exception e) {
