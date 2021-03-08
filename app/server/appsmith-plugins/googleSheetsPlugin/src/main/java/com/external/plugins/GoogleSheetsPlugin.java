@@ -20,22 +20,16 @@ import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
-import reactor.netty.http.client.HttpClient;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class GoogleSheetsPlugin extends BasePlugin {
 
@@ -77,13 +71,13 @@ public class GoogleSheetsPlugin extends BasePlugin {
                 ));
             }
 
-
             // Initializing webClient to be used for http call
             WebClient.Builder webClientBuilder = WebClient.builder();
 
-
             // Adding request body
             String requestBodyAsString = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+
+            // Validating request body
             try {
                 objectFromJson(requestBodyAsString);
             } catch (JsonSyntaxException e) {
@@ -94,21 +88,17 @@ public class GoogleSheetsPlugin extends BasePlugin {
                 ));
             }
 
-            // Right before building the webclient object, we populate it with whatever mutation the APIConnection object demands
-//            if (apiConnection != null) {
-//                webClientBuilder.filter(apiConnection);
-//            }
-
             WebClient client = webClientBuilder
                     .exchangeStrategies(EXCHANGE_STRATEGIES)
-                    .clientConnector(new ReactorClientHttpConnector(
-                            HttpClient.create().wiretap(true)
-                    ))
                     .build();
+
+            // Authentication will already be valid at this point
             final OAuth2 oauth2 = (OAuth2) datasourceConfiguration.getAuthentication();
             assert (!oauth2.getIsEncrypted() && oauth2.getAuthenticationResponse() != null);
+
             // Triggering the actual REST API call
             return Method.valueOf(actionConfiguration.getPluginSpecifiedTemplates().get(0).getValue())
+                    // This method call will populate the request with all the configurations it needs for a particular method
                     .getClient(client, actionConfiguration.getPluginSpecifiedTemplates(), requestBodyAsString)
                     .headers(headers -> headers.set("Authorization", "Bearer " + oauth2.getAuthenticationResponse().getToken()))
                     .exchange()
@@ -121,10 +111,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                 HttpStatus statusCode = stringResponseEntity.getStatusCode();
 
                                 ActionExecutionResult result = new ActionExecutionResult();
-
-                                System.out.println("Here after response: " + stringResponseEntity.getStatusCodeValue() + " " + headers.getContentType());
-                                // Set the request fields
-//                        result.setRequest(actionExecutionRequest);
 
                                 result.setStatusCode(statusCode.toString());
                                 result.setIsExecutionSuccess(statusCode.is2xxSuccessful());
@@ -152,10 +138,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
 
                                 if (body != null) {
-                                    /**TODO
-                                     * Handle XML response. Currently we only handle JSON & Image responses. The other kind of responses
-                                     * are kept as is and returned as a string.
-                                     */
                                     if (MediaType.APPLICATION_JSON.equals(contentType) ||
                                             MediaType.APPLICATION_JSON_UTF8.equals(contentType)) {
                                         try {
@@ -185,44 +167,14 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                         result.setBody(bodyString.trim());
                                     }
                                 }
-
-
                                 return result;
                             }
                     )
                     .onErrorResume(e -> {
                         errorResult.setBody(Exceptions.unwrap(e).getMessage());
-//                        errorResult.setRequest(actionExecutionRequest);
                         return Mono.just(errorResult);
                     });
         }
-
-        public String convertPropertyListToReqBody(List<Property> bodyFormData,
-                                                   String reqContentType,
-                                                   Boolean encodeParamsToggle) {
-            if (bodyFormData == null || bodyFormData.isEmpty()) {
-                return "";
-            }
-
-            return bodyFormData.stream()
-                    .map(property -> {
-                        String key = property.getKey();
-                        String value = property.getValue();
-
-                        if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
-                                && encodeParamsToggle) {
-                            try {
-                                value = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
-                            } catch (UnsupportedEncodingException e) {
-                                throw new UnsupportedOperationException(e);
-                            }
-                        }
-
-                        return key + "=" + value;
-                    })
-                    .collect(Collectors.joining("&"));
-        }
-
 
         /**
          * Given a JSON string, we infer the top-level type of the object it represents and then parse it into that
@@ -256,7 +208,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(Void connection) {
-            // REST API plugin doesn't have a datasource.
+            // This plugin doesn't have a connection to destroy
         }
 
         @Override
@@ -266,9 +218,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            // At this point, the URL can be invalid because of mustache template keys inside it. Hence, connecting to
-            // and verifying the URL isn't feasible. Since validation happens just before testing, and since validation
-            // checks if a URL is present, there's nothing left to do here, but return a successful response.
+            // This plugin would not have the option to test
             return Mono.just(new DatasourceTestResult());
         }
     }

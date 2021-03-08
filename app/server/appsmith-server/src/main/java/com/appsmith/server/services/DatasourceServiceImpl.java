@@ -21,7 +21,6 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -57,9 +56,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     private final SequenceService sequenceService;
     private final NewActionRepository newActionRepository;
     private final EncryptionService encryptionService;
-
-    @Autowired
-    Environment env;
 
     @Autowired
     public DatasourceServiceImpl(Scheduler scheduler,
