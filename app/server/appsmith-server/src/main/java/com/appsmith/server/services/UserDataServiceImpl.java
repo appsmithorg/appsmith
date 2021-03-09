@@ -39,6 +39,8 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
 
     private final ReleaseNotesService releaseNotesService;
 
+    private static final int MAX_PROFILE_PHOTO_SIZE_KB = 250;
+
     @Autowired
     public UserDataServiceImpl(Scheduler scheduler,
                                Validator validator,
@@ -164,7 +166,7 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
         final Mono<String> prevAssetIdMono = getForCurrentUser()
                 .map(userData -> ObjectUtils.defaultIfNull(userData.getProfilePhotoAssetId(), ""));
 
-        final Mono<Asset> uploaderMono = assetService.upload(filePart, 250);
+        final Mono<Asset> uploaderMono = assetService.upload(filePart, MAX_PROFILE_PHOTO_SIZE_KB);
 
         return Mono.zip(prevAssetIdMono, uploaderMono)
                 .flatMap(tuple -> {

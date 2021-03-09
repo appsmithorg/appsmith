@@ -1,9 +1,9 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.AssetRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,8 +95,8 @@ public class UserDataServiceTest {
     public void testUploadAndDeleteProfilePhoto_validImage() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096).cache();
-        assertThat(dataBufferFlux.count().block()).isLessThanOrEqualTo((int) Math.ceil(Constraint.ORGANIZATION_LOGO_SIZE_KB/4.0));
+                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096)
+                .cache();
 
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
         Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
@@ -129,4 +129,42 @@ public class UserDataServiceTest {
                 // Should be empty since the profile photo has been deleted.
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUploadProfilePhoto_invalidImageFormat() {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
+                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096)
+                .cache();
+
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_GIF);
+
+        final Mono<UserData> saveMono = userDataService.saveProfilePhoto(filepart).cache();
+
+        StepVerifier.create(saveMono)
+                .expectErrorMatches(error -> error instanceof AppsmithException)
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUploadProfilePhoto_invalidImageSize() {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
+                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096)
+                .repeat(70)  // So the file size looks like it's much larger than what it actually is.
+                .cache();
+
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
+
+        final Mono<UserData> saveMono = userDataService.saveProfilePhoto(filepart).cache();
+
+        StepVerifier.create(saveMono)
+                .expectErrorMatches(error -> error instanceof AppsmithException)
+                .verify();
+    }
+
 }
