@@ -687,19 +687,18 @@ public class AmazonS3Plugin extends BasePlugin {
 
                 if(!usingCustomEndpoint) {
                     Regions clientRegion = null;
-                    if(!usingCustomEndpoint) {
-                        try {
-                            clientRegion = Regions.fromName(region);
-                        } catch (IllegalArgumentException e) {
-                            return Mono.error(
-                                    new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                            "Appsmith server has encountered an error when " +
-                                                    "parsing AWS S3 instance region from the AWS S3 datasource configuration " +
-                                                    "provided: " + e.getMessage()
-                                    )
-                            );
-                        }
+
+                    try {
+                        clientRegion = Regions.fromName(region);
+                    } catch (IllegalArgumentException e) {
+                        return Mono.error(
+                                new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                        "Appsmith server has encountered an error when " +
+                                                "parsing AWS S3 instance region from the AWS S3 datasource configuration " +
+                                                "provided: " + e.getMessage()
+                                )
+                        );
                     }
 
                     s3ClientBuilder = s3ClientBuilder.withRegion(clientRegion);
