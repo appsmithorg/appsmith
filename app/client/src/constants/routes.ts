@@ -1,3 +1,5 @@
+const { match } = require("path-to-regexp");
+
 export const BASE_URL = "/";
 export const ORG_URL = "/org";
 export const PAGE_NOT_FOUND_URL = "/404";
@@ -176,3 +178,8 @@ export const AUTH_LOGIN_URL = `${USER_AUTH_URL}/login`;
 
 export const ORG_INVITE_USERS_PAGE_URL = `${ORG_URL}/invite`;
 export const ORG_SETTINGS_PAGE_URL = `${ORG_URL}/settings`;
+
+export const matchApiPath = match(API_EDITOR_ID_URL());
+export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_URL());
+export const matchQueryPath = match(QUERIES_EDITOR_ID_URL());
+export const matchBuilderPath = match(BUILDER_URL);

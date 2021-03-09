@@ -84,7 +84,7 @@ import { generateReactKey } from "utils/generators";
 import { forceOpenPropertyPane } from "actions/widgetActions";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/WidgetEntity";
 import {
-  updateWidgetProperty,
+  batchUpdateWidgetProperty,
   updateWidgetPropertyRequest,
 } from "../actions/controlActions";
 import OnSubmitGif from "assets/gifs/onsubmit.gif";
@@ -146,14 +146,16 @@ function* listenForWidgetAdditions() {
         selectedWidget.tableData === initialTableData
       ) {
         yield put(
-          updateWidgetProperty(selectedWidget.widgetId, {
-            tableData: [],
-            columnSizeMap: {
-              avatar: 20,
-              name: 30,
+          batchUpdateWidgetProperty(selectedWidget.widgetId, {
+            modify: {
+              tableData: [],
+              columnSizeMap: {
+                avatar: 20,
+                name: 30,
+              },
+              migrated: false,
+              ...getStandupTableDimensions(),
             },
-            migrated: false,
-            ...getStandupTableDimensions(),
           }),
         );
       }
@@ -209,9 +211,11 @@ function* listenForAddInputWidget() {
           ),
         );
         yield put(
-          updateWidgetProperty(inputWidget.widgetId, {
-            ...getStandupInputDimensions(),
-            ...getStandupInputProps(),
+          batchUpdateWidgetProperty(inputWidget.widgetId, {
+            modify: {
+              ...getStandupInputDimensions(),
+              ...getStandupInputProps(),
+            },
           }),
         );
         yield put(setCurrentSubstep(2));
@@ -306,11 +310,13 @@ function* listenForSuccessfulBinding() {
 
         if (bindSuccessful) {
           yield put(
-            updateWidgetProperty(selectedWidget.widgetId, {
-              columnTypeMap: {
-                avatar: {
-                  type: "image",
-                  format: "",
+            batchUpdateWidgetProperty(selectedWidget.widgetId, {
+              modify: {
+                columnTypeMap: {
+                  avatar: {
+                    type: "image",
+                    format: "",
+                  },
                 },
               },
             }),

@@ -283,6 +283,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     .flatMap(savedAction -> generateActionByViewMode(savedAction, false));
         }
 
+        // Validate actionConfiguration
+        ActionConfiguration actionConfig = action.getActionConfiguration();
+        if(actionConfig != null) {
+            validator.validate(actionConfig)
+                    .stream()
+                    .forEach(x -> invalids.add(x.getMessage()));
+        }
+
         Mono<Datasource> datasourceMono;
         if (action.getDatasource().getId() == null) {
             if (action.getDatasource().getDatasourceConfiguration() != null &&
@@ -658,6 +666,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     result.setStatusCode(error.getAppErrorCode().toString());
                     result.setBody(error.getMessage());
                     return Mono.just(result);
+                })
+                .map(result -> {
+                    // In case the action was executed in view mode, do not return the request object
+                    if (TRUE.equals(executeActionDTO.getViewMode())) {
+                        result.setRequest(null);
+                    }
+                    return result;
                 })
                 .elapsed()
                 .map(tuple -> {

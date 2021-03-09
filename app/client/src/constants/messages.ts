@@ -190,3 +190,7 @@ export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE =
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
 export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE =
   "Error saving a key in localStorage. You have run out of disk space";
+
+export const OMNIBAR_PLACEHOLDER = "Search Widgets, Queries, Documentation";
+export const HELPBAR_PLACEHOLDER = "Quick search & navigation";
+export const NO_SEARCH_DATA_TEXT = "Search you must meaningful but";
