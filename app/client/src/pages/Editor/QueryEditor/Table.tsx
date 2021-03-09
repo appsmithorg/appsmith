@@ -7,6 +7,8 @@ import { getType, Types } from "utils/TypeHelpers";
 import { Colors } from "constants/Colors";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 
+import { FixedSizeList } from "react-window";
+
 interface TableProps {
   data: Record<string, any>[];
 }
@@ -16,6 +18,18 @@ const TABLE_SIZES = {
   TABLE_HEADER_HEIGHT: 42,
   ROW_HEIGHT: 40,
   ROW_FONT_SIZE: 14,
+};
+
+const scrollbarWidth = () => {
+  const scrollDiv = document.createElement("div");
+  scrollDiv.setAttribute(
+    "style",
+    "width: 100px; height: 100px; overflow: scroll; position:absolute; top:-9999px;",
+  );
+  document.body.appendChild(scrollDiv);
+  const scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+  document.body.removeChild(scrollDiv);
+  return scrollbarWidth;
 };
 
 export const TableWrapper = styled.div`
@@ -203,6 +217,7 @@ const Table = (props: TableProps) => {
     headerGroups,
     rows,
     prepareRow,
+    totalColumnsWidth,
   } = useTable(
     {
       columns,
@@ -210,6 +225,36 @@ const Table = (props: TableProps) => {
       manualPagination: true,
     },
     useFlexLayout,
+  );
+
+  const scrollBarSize = React.useMemo(() => scrollbarWidth(), []);
+
+  const RenderRow = React.useCallback(
+    ({ index, style }) => {
+      const row = rows[index];
+      prepareRow(row);
+      return (
+        <div
+          {...row.getRowProps({
+            style,
+          })}
+          className="tr"
+        >
+          {row.cells.map((cell) => {
+            return (
+              <div
+                {...cell.getCellProps()}
+                key={cell.column.index}
+                className="td"
+              >
+                {cell.render("Cell")}
+              </div>
+            );
+          })}
+        </div>
+      );
+    },
+    [prepareRow, rows],
   );
 
   if (rows.length === 0 || headerGroups.length === 0) return null;
@@ -242,29 +287,16 @@ const Table = (props: TableProps) => {
                 ))}
               </div>
             ))}
+
             <div {...getTableBodyProps()} className="tbody">
-              {rows.map((row: any, index: number) => {
-                prepareRow(row);
-                return (
-                  <div key={index} {...row.getRowProps()} className={"tr"}>
-                    {row.cells.map((cell: any, cellIndex: number) => {
-                      return (
-                        <div
-                          key={cellIndex}
-                          {...cell.getCellProps()}
-                          className="td"
-                          data-rowindex={index}
-                          data-colindex={cellIndex}
-                        >
-                          <CellWrapper isHidden={false}>
-                            {cell.render("Cell")}
-                          </CellWrapper>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
+              <FixedSizeList
+                height={400}
+                itemCount={rows.length}
+                itemSize={35}
+                width={totalColumnsWidth + scrollBarSize}
+              >
+                {RenderRow}
+              </FixedSizeList>
             </div>
           </div>
         </div>
