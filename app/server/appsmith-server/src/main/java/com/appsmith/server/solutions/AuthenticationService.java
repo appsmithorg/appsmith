@@ -26,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -36,8 +35,8 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
-import reactor.netty.http.client.HttpClient;
 
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
@@ -290,13 +289,13 @@ public class AuthenticationService {
                             .method(HttpMethod.POST)
                             .body(BodyInserters.fromValue(integrationDTO))
                             .exchange()
-                            .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
                             .flatMap(response -> {
                                 if (response.statusCode().is2xxSuccessful()) {
                                     return response.bodyToMono(Map.class);
                                 } else {
                                     log.debug("Unable to retrieve appsmith token with error {}", response.statusCode());
-                                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Unable to retrieve appsmith token with error " + response.statusCode()));
+                                    return Mono.error(new AppsmithException(AppsmithError.AUTHENTICATION_FAILURE,
+                                            "Unable to retrieve appsmith token with error " + response.statusCode()));
                                 }
                             })
                             .map(body -> String.valueOf(body.get("data")))
@@ -309,7 +308,12 @@ public class AuthenticationService {
                                         .getAuthentication()
                                         .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.IN_PROGRESS);
                                 return datasourceService.update(datasource.getId(), datasource).thenReturn(appsmithToken);
-                            });
+                            })
+                            .onErrorMap(ConnectException.class,
+                                    error -> new AppsmithException(
+                                            AppsmithError.AUTHENTICATION_FAILURE,
+                                            "Unable to connect to Appsmith authentication server."
+                                    ));
                 });
     }
 
@@ -346,7 +350,7 @@ public class AuthenticationService {
                                     return response.bodyToMono(AuthenticationResponse.class);
                                 } else {
                                     log.debug("Unable to retrieve appsmith token with error {}", response.statusCode());
-                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR,
+                                    return Mono.error(new AppsmithException(AppsmithError.AUTHENTICATION_FAILURE,
                                             "Unable to retrieve appsmith token with error " + response.statusCode()));
                                 }
                             })
@@ -362,10 +366,19 @@ public class AuthenticationService {
                                 return Mono.just(datasource);
                             });
                 })
-                .flatMap(datasource -> datasourceService.update(datasource.getId(), datasource));
+                .flatMap(datasource -> datasourceService.update(datasource.getId(), datasource))
+                .onErrorMap(ConnectException.class,
+                        error -> new AppsmithException(
+                                AppsmithError.AUTHENTICATION_FAILURE,
+                                "Unable to connect to Appsmith authentication server."
+                        ));
     }
 
     public Mono<Datasource> refreshAuthentication(Datasource datasource) {
+        // This method will always be called from a point where these validations have been performed
+        assert (datasource != null &&
+                datasource.getDatasourceConfiguration() != null &&
+                datasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2);
         OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
         assert (!oAuth2.isEncrypted());
         return pluginService.findById(datasource.getPluginId())
@@ -405,6 +418,11 @@ public class AuthenticationService {
                                 return datasourceService.update(datasource.getId(), datasource);
                             });
                 })
-                .switchIfEmpty(Mono.just(datasource));
+                .switchIfEmpty(Mono.just(datasource))
+                .onErrorMap(ConnectException.class,
+                        error -> new AppsmithException(
+                                AppsmithError.AUTHENTICATION_FAILURE,
+                                "Unable to connect to Appsmith authentication server."
+                        ));
     }
 }
