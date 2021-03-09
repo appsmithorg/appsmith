@@ -360,16 +360,17 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   getPageView() {
     const children = this.renderChildren();
+    const hasPagination = this.canPaginate();
 
     if (Array.isArray(this.props.items) && this.props.items.length === 0) {
       return <>Nothing to display</>;
     }
 
     return (
-      <ListComponent {...this.props}>
+      <ListComponent {...this.props} hasPagination={hasPagination}>
         {children}
 
-        {this.canPaginate() && (
+        {hasPagination && (
           <ListPagination
             total={this.props.items.length}
             current={this.state.page}

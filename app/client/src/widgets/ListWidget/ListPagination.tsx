@@ -8,6 +8,10 @@ const StyledPagination = styled(Pagination)`
   font-size: 14px;
   display: flex;
   justify-content: center;
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
 
   .rc-pagination::after {
     display: block;

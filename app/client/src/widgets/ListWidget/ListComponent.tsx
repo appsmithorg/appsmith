@@ -12,12 +12,14 @@ interface GridComponentProps extends ComponentProps {
   shouldScrollContents?: boolean;
   backgroundColor?: Color;
   items: Array<Record<string, unknown>>;
+  hasPagination?: boolean;
 }
 
 const GridContainer = styled.div<GridComponentProps>`
   height: 100%;
   width: 100%;
   position: relative;
+  padding-bottom: ${(props) => (props.hasPagination ? "40px" : 0)};
   background: ${(props) => props.backgroundColor};
 `;
 
