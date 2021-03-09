@@ -278,6 +278,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   paginateItems = (children: ContainerWidgetProps<WidgetProps>[]) => {
     const { page, perPage } = this.state;
 
+    console.log({ page, perPage });
+
     if (this.canPaginate()) {
       return children.slice((page - 1) * perPage, page * perPage);
     }
@@ -326,23 +328,27 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   renderChildren = () => {
     const numberOfItemsInGrid = this.props.items.length;
 
+    console.log({ props: this.props });
+
     if (this.props.children && this.props.children.length > 0) {
       const children = removeFalsyEntries(this.props.children);
-
       const childCanvas = children[0];
       let canvasChildren = childCanvas.children;
 
-      // here we are duplicating the template for each items in the data array
-      // first item of the canvasChildren acts as a template
-      const template = canvasChildren.slice(0, 1).shift();
+      try {
+        // here we are duplicating the template for each items in the data array
+        // first item of the canvasChildren acts as a template
+        const template = canvasChildren.slice(0, 1).shift();
 
-      for (let i = 0; i < numberOfItemsInGrid; i++) {
-        canvasChildren[i] = JSON.parse(JSON.stringify(template));
-      }
+        console.log({ template });
+        for (let i = 0; i < numberOfItemsInGrid; i++) {
+          canvasChildren[i] = JSON.parse(JSON.stringify(template));
+        }
 
-      canvasChildren = this.updateGridChildrenProps(canvasChildren);
+        canvasChildren = this.updateGridChildrenProps(canvasChildren);
 
-      childCanvas.children = canvasChildren;
+        childCanvas.children = canvasChildren;
+      } catch {}
 
       return this.renderChild(childCanvas);
     }
@@ -352,7 +358,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * can data be paginated
    */
   canPaginate = () => {
-    return this.props.allowPagination && !isNaN(this.props.paginationPerPage);
+    const { perPage } = this.state;
+
+    return (
+      Array.isArray(this.props.items) && this.props.allowPagination && perPage
+    );
   };
 
   /**
