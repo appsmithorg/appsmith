@@ -217,7 +217,7 @@ function* redirectAuthorizationCodeSaga(
     if (validateResponse(response)) {
       const appsmithToken = response.data;
       // Save the token for later use once we come back from the auth flow
-      localStorage.setItem("APPSMITH_AUTH_TOKEN", appsmithToken);
+      localStorage.setItem(APPSMITH_TOKEN_STORAGE_KEY, appsmithToken);
       // Redirect to the cloud services to authorise
       window.location.assign(authorizeSaasWithAppsmithToken(appsmithToken));
     }
@@ -256,7 +256,7 @@ function* getOAuthAccessTokenSaga(
       });
       Toaster.show({
         text: SAAS_AUTHORIZATION_SUCCESSFUL,
-        variant: Variant.danger,
+        variant: Variant.success,
       });
       // Remove the token because it is supposed to be short lived
       localStorage.removeItem(APPSMITH_TOKEN_STORAGE_KEY);
