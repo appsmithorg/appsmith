@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.DataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -20,6 +21,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -29,13 +31,17 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.IOException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -183,7 +189,7 @@ public class MssqlPlugin extends BasePlugin {
                                 if (matchingParam.isPresent()) {
                                     String value = matchingParam.get().getValue();
                                     parameters.add(value);
-                                    preparedQuery = SqlStringUtils.setValueInPreparedStatement(i + 1, key,
+                                    preparedQuery = setValueInPreparedStatement(i + 1, key,
                                             value, preparedQuery);
                                 }
                             }
@@ -287,7 +293,7 @@ public class MssqlPlugin extends BasePlugin {
             })
                     .flatMap(obj -> obj)
                     .map(obj -> (ActionExecutionResult) obj)
-                    .onErrorResume(AppsmithPluginException.class, error  -> {
+                    .onErrorResume(AppsmithPluginException.class, error -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
                         result.setStatusCode(error.getAppErrorCode().toString());
@@ -444,6 +450,74 @@ public class MssqlPlugin extends BasePlugin {
                                                    ActionConfiguration actionConfiguration) {
             // Unused function
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+        }
+
+        private static PreparedStatement setValueInPreparedStatement(int index,
+                                                                     String binding,
+                                                                     String value,
+                                                                     PreparedStatement preparedStatement) throws AppsmithPluginException {
+            DataType valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
+
+            try {
+                switch (valueType) {
+                    case NULL: {
+                        preparedStatement.setNull(index, Types.NULL);
+                        break;
+                    }
+                    case BINARY: {
+                        preparedStatement.setBinaryStream(index, IOUtils.toInputStream(value));
+                        break;
+                    }
+                    case BYTES: {
+                        preparedStatement.setBytes(index, value.getBytes("UTF-8"));
+                        break;
+                    }
+                    case INTEGER: {
+                        preparedStatement.setInt(index, Integer.parseInt(value));
+                        break;
+                    }
+                    case LONG: {
+                        preparedStatement.setLong(index, Long.parseLong(value));
+                        break;
+                    }
+                    case FLOAT: {
+                        preparedStatement.setFloat(index, Float.parseFloat(value));
+                        break;
+                    }
+                    case DOUBLE: {
+                        preparedStatement.setDouble(index, Double.parseDouble(value));
+                        break;
+                    }
+                    case BOOLEAN: {
+                        preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
+                        break;
+                    }
+                    case DATE: {
+                        preparedStatement.setDate(index, Date.valueOf(value));
+                        break;
+                    }
+                    case TIME: {
+                        preparedStatement.setTime(index, Time.valueOf(value));
+                        break;
+                    }
+                    case ARRAY: {
+                        throw new IllegalArgumentException("Array datatype is not supported in MS SQL");
+                    }
+                    case STRING: {
+                        preparedStatement.setString(index, value);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+            } catch (SQLException | IllegalArgumentException | IOException e) {
+                String message = "Query preparation failed while inserting value: "
+                        + value + " for binding: {{" + binding + "}}. Please check the query again.\nError: " + e.getMessage();
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
+            }
+
+            return preparedStatement;
         }
 
     }
