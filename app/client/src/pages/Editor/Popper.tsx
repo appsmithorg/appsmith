@@ -33,12 +33,12 @@ const PopperWrapper = styled.div<{ zIndex: number }>`
 `;
 
 const DragHandleBlock = styled.div`
-  margin-left: -14px;
   padding: 6px;
   margin-top: 6px;
   height: 28px;
-  background: ${(props) =>
+  background-color: ${(props) =>
     props.theme.colors?.propertyPane?.bg || Colors.BLACK};
+  cursor: grab;
 `;
 
 export const PopperDragHandle: React.FC<any> = () => {
