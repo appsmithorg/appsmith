@@ -5,6 +5,7 @@ let datasourceName;
 
 describe("Add widget", function() {
   beforeEach(() => {
+    cy.startRoutesForDatasource();
     cy.createPostgresDatasource();
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;

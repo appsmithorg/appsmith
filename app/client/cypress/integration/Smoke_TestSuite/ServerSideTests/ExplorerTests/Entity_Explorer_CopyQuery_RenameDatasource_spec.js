@@ -9,6 +9,10 @@ let updatedName;
 let datasourceName;
 
 describe("Entity explorer tests related to copy query", function() {
+  beforeEach(() => {
+    cy.startRoutesForDatasource();
+  });
+
   it("Create a query with dataSource in explorer", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
