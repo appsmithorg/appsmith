@@ -1,19 +1,10 @@
 package com.appsmith.external.helpers;
 
 import com.appsmith.external.constants.DataType;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.validator.routines.DateValidator;
 
-import java.io.UnsupportedEncodingException;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Time;
-import java.sql.Types;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -62,6 +53,17 @@ public class SqlStringUtils {
 
         if (input == null) {
             return DataType.NULL;
+        }
+
+        input = input.trim();
+
+        if (input.startsWith("[") && input.endsWith("]")) {
+            String betweenBraces = input.substring(1, input.length() - 1);
+            String trimmedInputBetweenBraces = betweenBraces.trim();
+            if (trimmedInputBetweenBraces.isEmpty()) {
+                return DataType.NULL;
+            }
+            return DataType.ARRAY;
         }
 
         try {
@@ -137,72 +139,8 @@ public class SqlStringUtils {
 //            // Not byte
 //        }
 
-
         // default return type if none of the above matches.
         return DataType.STRING;
-    }
-
-    public static PreparedStatement setValueInPreparedStatement(int index, String binding, String value, PreparedStatement preparedStatement) throws UnsupportedEncodingException, AppsmithPluginException {
-        DataType valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
-
-        try {
-
-            switch (valueType) {
-                case NULL: {
-                    preparedStatement.setNull(index, Types.NULL);
-                    break;
-                }
-                case BINARY: {
-                    preparedStatement.setBinaryStream(index, IOUtils.toInputStream(value));
-                    break;
-                }
-                case BYTES: {
-                    preparedStatement.setBytes(index, value.getBytes("UTF-8"));
-                    break;
-                }
-                case INTEGER: {
-                    preparedStatement.setInt(index, Integer.parseInt(value));
-                    break;
-                }
-                case LONG: {
-                    preparedStatement.setLong(index, Long.parseLong(value));
-                    break;
-                }
-                case FLOAT: {
-                    preparedStatement.setFloat(index, Float.parseFloat(value));
-                    break;
-                }
-                case DOUBLE: {
-                    preparedStatement.setDouble(index, Double.parseDouble(value));
-                    break;
-                }
-                case BOOLEAN: {
-                    preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
-                    break;
-                }
-                case DATE: {
-                    preparedStatement.setDate(index, Date.valueOf(value));
-                    break;
-                }
-                case TIME: {
-                    preparedStatement.setTime(index, Time.valueOf(value));
-                    break;
-                }
-                case STRING: {
-                    preparedStatement.setString(index, value);
-                    break;
-                }
-                default:
-                    break;
-            }
-
-        } catch (SQLException | IllegalArgumentException e) {
-            String message = "Query preparation failed while inserting value: "
-                    + value + " for binding: {{" + binding + "}}. Please check the query again.\nError: " + e.getMessage();
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
-        }
-
-        return preparedStatement;
     }
 
     private static boolean isBinary(String input) {
