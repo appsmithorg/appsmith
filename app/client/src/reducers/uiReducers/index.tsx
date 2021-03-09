@@ -21,7 +21,7 @@ import explorerReducer from "./explorerReducer";
 import confirmRunActionReducer from "./confirmRunActionReducer";
 import themeReducer from "./themeReducer";
 import datasourceNameReducer from "./datasourceNameReducer";
-import pageCanvasStructureReducer from "./pageCanvasStructure";
+import pageCanvasStructureReducer from "reducers/uiReducers/pageCanvasStructureReducer";
 import pageWidgetsReducer from "./pageWidgetsReducer";
 import onBoardingReducer from "./onBoardingReducer";
 import globalSearchReducer from "./globalSearchReducer";
