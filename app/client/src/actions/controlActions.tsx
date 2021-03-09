@@ -1,6 +1,5 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { RenderMode } from "constants/WidgetConstants";
-import { BatchAction, batchAction } from "actions/batchActions";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 
 export const updateWidgetPropertyRequest = (
@@ -18,24 +17,6 @@ export const updateWidgetPropertyRequest = (
       renderMode,
     },
   };
-};
-
-export const updateWidgetProperty = (
-  widgetId: string,
-  updates: Record<string, unknown>,
-  dynamicUpdates?: {
-    dynamicBindingPathList: DynamicPath[];
-    dynamicTriggerPathList: DynamicPath[];
-  },
-): BatchAction<UpdateWidgetPropertyPayload> => {
-  return batchAction({
-    type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
-    payload: {
-      widgetId,
-      updates,
-      dynamicUpdates,
-    },
-  });
 };
 
 export interface BatchPropertyUpdatePayload {
