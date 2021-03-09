@@ -1,5 +1,3 @@
-import { ChartWidgetProps } from "widgets/ChartWidget/index";
-
 export default [
   {
     sectionName: "General",
