@@ -68,6 +68,12 @@ public class AnalyticsService {
         TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userId);
 
         if (!CollectionUtils.isEmpty(properties)) {
+            // Segment throws an NPE if any value in `properties` is null.
+            for (final Map.Entry<String, Object> entry : properties.entrySet()) {
+                if (entry.getValue() == null) {
+                    properties.put(entry.getKey(), "");
+                }
+            }
             messageBuilder = messageBuilder.properties(properties);
         }
 
