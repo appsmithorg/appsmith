@@ -43,6 +43,7 @@ export interface ControlData {
   dataType?: InputType;
   isRequired?: boolean;
   hidden?: HiddenType;
+  placeholderText?: string;
 }
 
 export interface ControlFunctions {
