@@ -98,6 +98,23 @@
               "value": "ca-central-1"
             }
           ]
+        },
+        {
+          "label": "Use Custom Endpoint",
+          "configProperty": "datasourceConfiguration.properties[1].value",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "NO",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "YES"
+            },
+            {
+              "label": "No",
+              "value": "NO"
+            }
+          ]
         }
       ]
     },
@@ -113,15 +130,15 @@
         },
         {
           "label": "Region Key",
-          "configProperty": "datasourceConfiguration.properties[0].value",
+          "configProperty": "datasourceConfiguration.properties[1].key",
           "controlType": "INPUT_TEXT",
-          "initialValue": "",
+          "initialValue": "Region",
           "hidden": true
 
         },
         {
           "label": "Region",
-          "configProperty": "datasourceConfiguration.properties[0].value",
+          "configProperty": "datasourceConfiguration.properties[1].value",
           "controlType": "INPUT_TEXT",
           "initialValue": ""
         }
