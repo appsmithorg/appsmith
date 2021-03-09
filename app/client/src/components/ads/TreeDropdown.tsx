@@ -63,10 +63,10 @@ const StyledMenu = styled(Menu)<{ variant: TreeDropdownVariant }>`
   }
   .${Classes.MENU_ITEM} {
     border-radius: 0px;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: -0.24px;
-    padding: 10px 15px;
+    font-size: 12px;
+    line-height: 14px;
+    padding: 5px 12px;
+    height: 25px;
     color: ${(props) =>
       props.variant === "dark"
         ? props.theme.colors.treeDropdown.menuText.normal
@@ -111,7 +111,7 @@ const DropdownTarget = styled.div`
     background-image: none;
     display: flex;
     justify-content: space-between;
-    padding: 8px 10px;
+    padding: 5px 12px;
   }
   &&&& .${Classes.ICON} {
     color: ${(props) => props.theme.colors.treeDropdown.menuText.normal};

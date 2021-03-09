@@ -13,8 +13,8 @@ const DropdownContainer = styled.div<{ width?: string }>`
 
 const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
   height: 38px;
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[6]}px;
+  padding: ${(props) => props.theme.spaces[2]}px
+    ${(props) => props.theme.spaces[3]}px;
   background: ${(props) =>
     props.disabled
       ? props.theme.colors.dropdown.header.disabledBg
@@ -59,8 +59,8 @@ const DropdownWrapper = styled.div<{
 const OptionWrapper = styled.div<{
   selected: boolean;
 }>`
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[6]}px;
+  padding: ${(props) => props.theme.spaces[2] - 1}px
+    ${(props) => props.theme.spaces[5]}px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -141,8 +141,8 @@ const MultiOptionWrapper = styled(OptionWrapper)`
 `;
 
 const SquareBox = styled.div`
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   margin-right: 8px;
   border: 1px solid;
   box-sizing: border-box;
@@ -272,14 +272,14 @@ const MultiSelectDropdown = (props: DropdownProps) => {
                   <Icon name={option.icon} size={IconSize.LARGE} />
                 ) : null}
                 {props.showLabelOnly ? (
-                  <Text type={TextType.P1}>{option.label}</Text>
+                  <Text type={TextType.P3}>{option.label}</Text>
                 ) : option.label && option.value ? (
                   <LabelWrapper className="label-container">
                     <Text type={TextType.H5}>{option.value}</Text>
                     <Text type={TextType.P3}>{option.label}</Text>
                   </LabelWrapper>
                 ) : (
-                  <Text type={TextType.P1}>{option.value}</Text>
+                  <Text type={TextType.P3}>{option.value}</Text>
                 )}
               </MultiOptionWrapper>
             );
