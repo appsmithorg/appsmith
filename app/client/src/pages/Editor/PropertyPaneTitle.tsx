@@ -19,11 +19,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import { theme } from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
-<<<<<<< HEAD
-import { copyWidget, deleteSelectedWidget } from "actions/widgetActions";
-=======
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
->>>>>>> release
 
 const CopyIcon = ControlIcons.COPY_CONTROL;
 const DeleteIcon = FormIcons.DELETE_ICON;
