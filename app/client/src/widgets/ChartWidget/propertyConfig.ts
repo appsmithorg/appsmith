@@ -50,8 +50,6 @@ export default [
         placeholderText: 'Enter [{ "x": "val", "y": "val" }]',
         label: "Chart Data",
         controlType: "CHART_DATA",
-        hidden: (props: ChartWidgetProps) =>
-          props && props.chartType === "PIE_CHART",
         isBindProperty: false,
         isTriggerProperty: false,
         children: [
