@@ -16,9 +16,11 @@ const SectionWrapper = styled.div`
 const SectionTitle = styled.div`
   display: grid;
   grid-template-columns: 1fr 30px;
+  color: ${(props) => props.theme.colors.editableText.color};
   cursor: pointer;
   & span {
-    color: ${(props) => props.theme.colors.propertyPane.label};
+    /* color: ${(props) => props.theme.colors.propertyPane.label}; */
+    color: ${(props) => props.theme.colors.editableText.color};
     padding: ${(props) => props.theme.spaces[2]}px 0;
     font-size: ${(props) => props.theme.fontSizes[3]}px;
     display: flex;
