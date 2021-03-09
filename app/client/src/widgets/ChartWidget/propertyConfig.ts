@@ -44,11 +44,16 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
       },
+    ],
+  },
+  {
+    sectionName: "Chart Data",
+    children: [
       {
         helpText: "Populates the chart with the data",
         propertyName: "chartData",
         placeholderText: 'Enter [{ "x": "val", "y": "val" }]',
-        label: "Chart Data",
+        label: "",
         controlType: "CHART_DATA",
         hidden: (props: ChartWidgetProps) =>
           props && props.chartType === "PIE_CHART",
@@ -73,6 +78,11 @@ export default [
           },
         ],
       },
+    ],
+  },
+  {
+    sectionName: "Axis",
+    children: [
       {
         helpText: "Specifies the label of the x-axis",
         propertyName: "xAxisName",

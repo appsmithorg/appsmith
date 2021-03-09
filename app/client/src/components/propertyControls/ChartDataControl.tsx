@@ -15,6 +15,12 @@ import {
 import * as Sentry from "@sentry/react";
 import { Size, Category } from "components/ads/Button";
 
+const Wrapper = styled.div`
+  background-color: ${(props) =>
+    props.theme.colors.propertyPane.dropdownSelectBg};
+  padding: 0 8px;
+`;
+
 const StyledOptionControlWrapper = styled(ControlWrapper)`
   display: flex;
   justify-content: flex-start;
@@ -43,6 +49,31 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   position: relative;
   margin-left: 15px;
   cursor: pointer;
+
+  &&& svg {
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.jsIconBg};
+    }
+  }
+`;
+
+const ActionHolder = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+`;
+
+const StyledLabel = styled.label`
+  margin: 8px auto 8px 0;
+
+  && {
+    color: ${(props) => props.theme.colors.propertyPane.label};
+  }
+`;
+
+const Box = styled.div`
+  height: 16px;
 `;
 
 type RenderComponentProps = {
@@ -60,6 +91,7 @@ type RenderComponentProps = {
     seriesName: string;
     data: Array<{ x: string; y: string }> | any;
   };
+  theme: EditorTheme;
 };
 
 function DataControlComponent(props: RenderComponentProps) {
@@ -74,6 +106,18 @@ function DataControlComponent(props: RenderComponentProps) {
   } = props;
   return (
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
+      <ActionHolder>
+        <StyledLabel>Series Tittle</StyledLabel>
+        {length > 1 && (
+          <StyledDeleteIcon
+            height={20}
+            width={20}
+            onClick={() => {
+              deleteOption(index);
+            }}
+          />
+        )}
+      </ActionHolder>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
         <CodeEditor
           expected={"string"}
@@ -90,22 +134,14 @@ function DataControlComponent(props: RenderComponentProps) {
             },
           }}
           evaluatedValue={evaluated?.seriesName}
-          theme={EditorTheme.DARK}
+          theme={props.theme}
           size={EditorSize.EXTENDED}
           mode={EditorModes.TEXT_WITH_BINDING}
           tabBehaviour={TabBehaviour.INPUT}
           placeholder="Series Name"
         />
-        {length > 1 && (
-          <StyledDeleteIcon
-            height={20}
-            width={20}
-            onClick={() => {
-              deleteOption(index);
-            }}
-          />
-        )}
       </StyledOptionControlWrapper>
+      <StyledLabel>Series Data</StyledLabel>
       <StyledDynamicInput
         className={"t--property-control-chart-series-data-control"}
       >
@@ -128,13 +164,14 @@ function DataControlComponent(props: RenderComponentProps) {
             error: isValid ? "" : "There is an error",
             touched: true,
           }}
-          theme={EditorTheme.DARK}
+          theme={props.theme}
           size={EditorSize.EXTENDED}
           mode={EditorModes.JSON_WITH_BINDING}
           tabBehaviour={TabBehaviour.INPUT}
           placeholder=""
         />
       </StyledDynamicInput>
+      <Box></Box>
     </StyledOptionControlWrapper>
   );
 }
@@ -236,26 +273,30 @@ class ChartDataControl extends BaseControl<ControlProps> {
           isValid={validations[0].isValid}
           validationMessage={validations[0].validationMessage}
           evaluated={evaluatedValue[0]}
+          theme={this.props.theme}
         />
       );
     }
     return (
       <React.Fragment>
-        {chartData.map((data, index) => {
-          return (
-            <DataControlComponent
-              key={index}
-              index={index}
-              item={data}
-              length={dataLength}
-              deleteOption={this.deleteOption}
-              updateOption={this.updateOption}
-              isValid={validations[index].isValid}
-              validationMessage={validations[index].validationMessage}
-              evaluated={evaluatedValue[index]}
-            />
-          );
-        })}
+        <Wrapper>
+          {chartData.map((data, index) => {
+            return (
+              <DataControlComponent
+                key={index}
+                index={index}
+                item={data}
+                length={dataLength}
+                deleteOption={this.deleteOption}
+                updateOption={this.updateOption}
+                isValid={validations[index].isValid}
+                validationMessage={validations[index].validationMessage}
+                evaluated={evaluatedValue[index]}
+                theme={this.props.theme}
+              />
+            );
+          })}
+        </Wrapper>
 
         <StyledPropertyPaneButton
           icon="plus"
