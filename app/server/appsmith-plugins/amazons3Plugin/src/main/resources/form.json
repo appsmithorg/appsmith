@@ -5,6 +5,39 @@
       "id": 1,
       "children": [
         {
+          "label": "S3 Service Provider",
+          "configProperty": "datasourceConfiguration.properties[1].value",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "amazon-s3",
+          "options": [
+            {
+              "label": "Amazon S3",
+              "value": "amazon-s3"
+            },
+            {
+              "label": "Upcloud",
+              "value": "upcloud"
+            },
+            {
+              "label": "Digital Ocean Spaces",
+              "value": "digital-ocean-spaces"
+            },
+            {
+              "label": "Wasabi",
+              "value": "wasabi"
+            },
+            {
+              "label": "DreamObjects",
+              "value": "dream-objects"
+            },
+            {
+              "label": "Other",
+              "value": "other"
+            }
+          ]
+        },
+        {
           "label": "Access Key",
           "configProperty": "datasourceConfiguration.authentication.username",
           "controlType": "INPUT_TEXT",
@@ -19,31 +52,14 @@
           "encrypted": true
         },
         {
-          "label": "Use Custom Endpoint",
-          "configProperty": "datasourceConfiguration.properties[1].value",
-          "controlType": "DROP_DOWN",
-          "isRequired": true,
-          "initialValue": "NO",
-          "options": [
-            {
-              "label": "Yes",
-              "value": "YES"
-            },
-            {
-              "label": "No",
-              "value": "NO"
-            }
-          ]
-        },
-        {
           "label": "Region",
           "configProperty": "datasourceConfiguration.properties[0].value",
           "controlType": "DROP_DOWN",
           "isRequired": true,
           "hidden": {
             "path": "datasourceConfiguration.properties[1].value",
-            "comparison": "EQUALS",
-            "value": "YES"
+            "comparison": "NOT_EQUALS",
+            "value": "amazon-s3"
           },
           "initialValue": "ap-south-1",
           "options": [
@@ -130,7 +146,7 @@
           "hidden": {
             "path": "datasourceConfiguration.properties[1].value",
             "comparison": "EQUALS",
-            "value": "NO"
+            "value": "amazon-s3"
           }
         },
         {
@@ -142,7 +158,7 @@
           "hidden": {
             "path": "datasourceConfiguration.properties[1].value",
             "comparison": "EQUALS",
-            "value": "NO"
+            "value": "amazon-s3"
           }
         }
       ]

@@ -68,12 +68,13 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final int USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX = 6;
     private static final int URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX = 7;
     private static final int AWS_S3_REGION_PROPERTY_INDEX = 0;
-    private static final int USE_CUSTOM_ENDPOINT_PROPERTY_INDEX = 1;
+    private static final int S3_SERVICE_PROVIDER_PROPERTY_INDEX = 1;
     private static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 2;
     private static final int CUSTOM_ENDPOINT_INDEX = 0;
     private static final int DEFAULT_URL_EXPIRY_IN_MINUTES = 5; // max 7 days is possible
     private static final String YES = "YES";
     private static final String BASE64_DELIMITER = ";base64,";
+    private static final String AMAZON_S3_SERVICE_PROVIDER = "amazon-s3";
 
     public AmazonS3Plugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -590,18 +591,19 @@ public class AmazonS3Plugin extends BasePlugin {
                  *   `Use Custom Endpoint` dropdown has a default value.
                  */
                 if(properties == null 
-                        || properties.get(USE_CUSTOM_ENDPOINT_PROPERTY_INDEX) == null 
-                        || StringUtils.isEmpty(properties.get(USE_CUSTOM_ENDPOINT_PROPERTY_INDEX).getValue())) {
+                        || properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) == null
+                        || StringUtils.isEmpty(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue())) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    "Appsmith has failed to fetch datasource form properties. Please reach out to " +
-                                            "Appsmith customer support to resolve this."
+                                    "Appsmith has failed to fetch the 'S3 Service Provider' field properties. Please " +
+                                            "reach out to Appsmith customer support to resolve this."
                             )
                     ); 
                 }
 
-                final boolean usingCustomEndpoint = YES.equals(properties.get(USE_CUSTOM_ENDPOINT_PROPERTY_INDEX).getValue());
+                final boolean usingCustomEndpoint =
+                        !AMAZON_S3_SERVICE_PROVIDER.equals(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
 
                 if (!usingCustomEndpoint 
                         && (properties.size() < (AWS_S3_REGION_PROPERTY_INDEX + 1)
