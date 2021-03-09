@@ -47,7 +47,9 @@ const evalErrorHandler = (errors: EvalError[]) => {
           text: error.message,
           variant: Variant.danger,
         });
-        Sentry.captureException(new Error(error.message));
+        Sentry.captureException(new Error(error.message), {
+          level: Sentry.Severity.Warning,
+        });
         break;
       }
       case EvalErrorTypes.EVAL_TREE_ERROR: {

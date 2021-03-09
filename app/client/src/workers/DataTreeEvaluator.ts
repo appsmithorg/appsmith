@@ -460,9 +460,11 @@ export default class DataTreeEvaluator {
         .reverse()
         .filter((d) => !!d);
     } catch (e) {
-      this.errors.push({
+      // Cyclic dependency found. Extract all info
+      const [message, node] = e.message.split(", node was:");
+      const widgetName = this.errors.push({
         type: EvalErrorTypes.DEPENDENCY_ERROR,
-        message: e.message,
+        message,
       });
       console.error("CYCLICAL DEPENDENCY MAP", dependencyMap);
       throw new CrashingError(e.message);
