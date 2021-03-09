@@ -351,6 +351,15 @@ public class PostgresPlugin extends BasePlugin {
                         }
                     }
 
+                    if (preparedQuery != null) {
+                        try {
+                            preparedQuery.close();
+                        } catch (SQLException e) {
+                            System.out.println(Thread.currentThread().getName() +
+                                    ": Execute Error closing Postgres Statement" + e.getMessage());
+                        }
+                    }
+
                     if (connectionFromPool != null) {
                         try {
                             // Return the connetion back to the pool
