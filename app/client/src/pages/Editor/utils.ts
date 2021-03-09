@@ -13,8 +13,8 @@ export const draggableElement = (
   let dragHandler = element;
 
   const setElementPosition = () => {
-    element.style.top = element.offsetTop - initPostion.top + "px";
-    element.style.left = element.offsetLeft - initPostion.left + "px";
+    element.style.top = initPostion.top + "px";
+    element.style.left = initPostion.left + "px";
   };
   if (dragHandle) {
     dragHandler = createDragHandler(element, dragHandle);
@@ -33,25 +33,14 @@ export const draggableElement = (
   };
   dragHandler.onmousedown = dragMouseDown;
 
-  const elementDrag = (e: MouseEvent) => {
-    e = e || window.event;
-    e.preventDefault();
-    newXPos = oldXPos - e.clientX;
-    newYPos = oldYPos - e.clientY;
-    oldXPos = e.clientX;
-    oldYPos = e.clientY;
-    let calculatedTop = element.offsetTop - newYPos;
-    let calculatedLeft = element.offsetLeft - newXPos;
+  const calculateBoundaryConfinedPosition = (
+    calculatedLeft: number,
+    calculatedTop: number,
+  ) => {
     if (calculatedLeft <= 0) {
       calculatedLeft = 15;
     }
-    if (calculatedTop <= 0) {
-      calculatedTop = 30;
-    }
-    if (calculatedLeft <= 0) {
-      calculatedLeft = 15;
-    }
-    if (calculatedTop <= 0) {
+    if (calculatedTop <= 30) {
       calculatedTop = 30;
     }
     if (calculatedLeft >= window.innerWidth - element.clientWidth) {
@@ -60,10 +49,27 @@ export const draggableElement = (
     if (calculatedTop >= window.innerHeight - element.clientHeight) {
       calculatedTop = window.innerHeight - element.clientHeight;
     }
-    element.style.top = calculatedTop + "px";
-    element.style.left = calculatedLeft + "px";
-    console.log(`offsetTop: ${element.offsetTop}`, `newYPos: ${newYPos}`);
-    console.log(`offsetLeft: ${element.offsetLeft}`, `newXPos: ${newXPos}`);
+    return {
+      left: calculatedLeft,
+      top: calculatedTop,
+    };
+  };
+
+  const elementDrag = (e: MouseEvent) => {
+    e = e || window.event;
+    e.preventDefault();
+    newXPos = oldXPos - e.clientX;
+    newYPos = oldYPos - e.clientY;
+    oldXPos = e.clientX;
+    oldYPos = e.clientY;
+    const calculatedTop = element.offsetTop - newYPos;
+    const calculatedLeft = element.offsetLeft - newXPos;
+    const { left, top } = calculateBoundaryConfinedPosition(
+      calculatedLeft,
+      calculatedTop,
+    );
+    element.style.top = top + "px";
+    element.style.left = left + "px";
   };
 
   const closeDragElement = () => {
