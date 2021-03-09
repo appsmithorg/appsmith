@@ -26,9 +26,10 @@ describe("Create, test, save then delete a mongo datasource", function() {
     cy.NavigateToQueryEditor();
 
     cy.get("@createDatasource").then((httpResponse) => {
-      datasourceName = "Untitled Datasource 5213";
+      datasourceName = "Untitled Datasource";
 
       cy.contains(".t--datasource-name", datasourceName)
+        .first()
         .find(queryLocators.createQuery)
         .click();
     });
