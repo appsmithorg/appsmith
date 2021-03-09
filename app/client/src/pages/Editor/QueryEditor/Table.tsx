@@ -1,13 +1,14 @@
 import React from "react";
-import { CellWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
-import { useTable, useFlexLayout } from "react-table";
 import styled from "styled-components";
-import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
-import { getType, Types } from "utils/TypeHelpers";
-import { Colors } from "constants/Colors";
-import ErrorBoundary from "components/editorComponents/ErrorBoundry";
-
 import { FixedSizeList } from "react-window";
+import { useTable, useFlexLayout } from "react-table";
+
+import { Colors } from "constants/Colors";
+import { scrollbarWidth } from "utils/helpers";
+import { getType, Types } from "utils/TypeHelpers";
+import ErrorBoundary from "components/editorComponents/ErrorBoundry";
+import { CellWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
+import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
 
 interface TableProps {
   data: Record<string, any>[];
@@ -18,18 +19,6 @@ const TABLE_SIZES = {
   TABLE_HEADER_HEIGHT: 42,
   ROW_HEIGHT: 40,
   ROW_FONT_SIZE: 14,
-};
-
-const scrollbarWidth = () => {
-  const scrollDiv = document.createElement("div");
-  scrollDiv.setAttribute(
-    "style",
-    "width: 100px; height: 100px; overflow: scroll; position:absolute; top:-9999px;",
-  );
-  document.body.appendChild(scrollDiv);
-  const scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
-  document.body.removeChild(scrollDiv);
-  return scrollbarWidth;
 };
 
 export const TableWrapper = styled.div`
@@ -232,6 +221,7 @@ const Table = (props: TableProps) => {
   const RenderRow = React.useCallback(
     ({ index, style }) => {
       const row = rows[index];
+
       prepareRow(row);
       return (
         <div
@@ -240,14 +230,18 @@ const Table = (props: TableProps) => {
           })}
           className="tr"
         >
-          {row.cells.map((cell) => {
+          {row.cells.map((cell: any, cellIndex: number) => {
             return (
               <div
+                key={cellIndex}
                 {...cell.getCellProps()}
-                key={cell.column.index}
                 className="td"
+                data-rowindex={index}
+                data-colindex={cellIndex}
               >
-                {cell.render("Cell")}
+                <CellWrapper isHidden={false}>
+                  {cell.render("Cell")}
+                </CellWrapper>
               </div>
             );
           })}
