@@ -367,7 +367,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     return (
       <ListComponent {...this.props}>
-        <div>{children}</div>
+        {children}
 
         {this.canPaginate() && (
           <ListPagination
