@@ -19,6 +19,7 @@ const ApiEditor = require("../locators/ApiEditor.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../locators/DynamicInput.json");
 const explorer = require("../locators/explorerlocators.json");
+const datasource = require("../locators/DatasourcesEditor.json");
 
 let pageidcopy = " ";
 
@@ -259,6 +260,48 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
     "response.body.responseMeta.status",
     200,
   );
+});
+
+Cypress.Commands.add(
+  "addOauthAuthDetails",
+  (accessTokenUrl, clientId, clientSecret, authURL) => {
+    cy.get(datasource.authType).click();
+    cy.xpath(datasource.OAuth2).click();
+    cy.get(datasource.grantType).click();
+    cy.xpath(datasource.authorisecode).click();
+    cy.get(datasource.accessTokenUrl).type(accessTokenUrl);
+    cy.get(datasource.clienID).type(clientId);
+    cy.get(datasource.clientSecret).type(clientSecret);
+    cy.get(datasource.authorizationURL).type(authURL);
+    cy.xpath('//input[contains(@value,"api/v1/datasources/authorize")]')
+      .first()
+      .invoke("attr", "value")
+      .then((text) => {
+        const firstTxt = text;
+        cy.log("date time : ", firstTxt);
+        const expectedvalue = Cypress.config().baseUrl.concat(
+          "api/v1/datasources/authorize",
+        );
+        expect(firstTxt).to.equal(expectedvalue);
+      });
+  },
+);
+
+Cypress.Commands.add("firestoreDatasourceForm", () => {
+  cy.get(datasourceEditor.datasourceConfigUrl).type(
+    datasourceFormData["database-url"],
+  );
+  cy.get(datasourceEditor.projectID).type(datasourceFormData["projectID"]);
+  cy.get(datasourceEditor.serviceAccCredential)
+    .clear()
+    .type(datasourceFormData["serviceAccCredentials"]);
+});
+
+Cypress.Commands.add("amazonDatasourceForm", () => {
+  cy.get(datasourceEditor.projectID).type(datasourceFormData["access_key"]);
+  cy.get(datasourceEditor.serviceAccCredential)
+    .clear()
+    .type(datasourceFormData["secret_key"]);
 });
 
 Cypress.Commands.add("DeleteApp", (appName) => {
@@ -1989,6 +2032,12 @@ Cypress.Commands.add("validateHTMLText", (widgetCss, htmlTag, value) => {
   });
 });
 
+Cypress.Commands.add("startRoutesForDatasource", () => {
+  cy.server();
+  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
+  cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
+});
+
 Cypress.Commands.add("startServerAndRoutes", () => {
   //To update route with intercept after working on alias wrt wait and alias
   cy.server();
@@ -2013,7 +2062,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("DELETE", "/api/v1/actions/*").as("deleteAction");
   cy.route("DELETE", "/api/v1/pages/*").as("deletePage");
   cy.route("POST", "/api/v1/datasources").as("createDatasource");
-  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
     "getDatasourceStructure",
@@ -2043,8 +2091,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("GET", "/api/v1/plugins/*/form").as("getPluginForm");
   cy.route("POST", "/api/v1/datasources").as("createDatasource");
-  cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
-  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
   cy.route("POST", "/api/v1/applications/?orgId=*").as("createNewApplication");

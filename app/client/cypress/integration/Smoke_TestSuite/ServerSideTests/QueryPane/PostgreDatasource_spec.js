@@ -4,6 +4,10 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 let datasourceName;
 
 describe("Create a query with a postgres datasource, run, save and then delete the query", function() {
+  beforeEach(() => {
+    cy.startRoutesForDatasource();
+  });
+
   it("Create a postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();

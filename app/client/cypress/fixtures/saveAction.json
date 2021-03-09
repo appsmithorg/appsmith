@@ -1,0 +1,40 @@
+{
+  "responseMeta": {
+    "status": 200,
+    "success": true
+  },
+  "data": {
+    "id": "602d5150be5b8626c2dad9e0",
+    "userPermissions": [
+      "execute:datasources",
+      "manage:datasources",
+      "read:datasources"
+    ],
+    "name": "Untitled Datasource 5213",
+    "pluginId": "5e687c18fb01e64e6a3f873f",
+    "organizationId": "5fd639aceb554e031ee61fef",
+    "datasourceConfiguration": {
+      "connection": {
+        "mode": "READ_WRITE",
+        "type": "REPLICA_SET",
+        "defaultDatabaseName": "sample_airbnb"
+      },
+      "endpoints": [
+        {
+          "host": "cypress-test.zljea.mongodb.net"
+        }
+      ],
+      "authentication": {
+        "authenticationType": "dbAuth",
+        "authenticationType": "dbAuth",
+        "authType": "SCRAM_SHA_1",
+        "username": "cypress-test",
+        "databaseName": "admin"
+      },
+      "sshProxyEnabled": false
+    },
+    "invalids": [],
+    "isValid": true,
+    "new": false
+  }
+} 

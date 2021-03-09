@@ -1,6 +1,10 @@
 const testdata = require("../../../../fixtures/testdata.json");
 
 describe("Datasource form related tests", function() {
+  beforeEach(() => {
+    cy.startRoutesForDatasource();
+  });
+
   it("Check whether the delete button has the right color", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("Testapi");
