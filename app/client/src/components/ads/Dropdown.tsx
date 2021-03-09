@@ -176,12 +176,8 @@ export default function Dropdown(props: DropdownProps) {
     >
       <Popover
         minimal
-<<<<<<< HEAD
-        position={Position.TOP_LEFT}
-=======
         popoverClassName={props.className}
         position={Position.BOTTOM_RIGHT}
->>>>>>> release
         isOpen={isOpen && !props.disabled}
         onInteraction={(state) => setIsOpen(state)}
         boundary="scrollParent"
@@ -192,15 +188,8 @@ export default function Dropdown(props: DropdownProps) {
           onClick={() => setIsOpen(!isOpen)}
           className={props.className}
         >
-<<<<<<< HEAD
-          <Text type={TextType.P1}>
-            {props.showLabelOnly ? selected.label : selected.value}
-          </Text>
-          <Icon name="downArrow" size={IconSize.XXS} />
-=======
           <SelectedValueNode selected={selected} />
           {showDropIcon && <Icon name="downArrow" size={IconSize.XXS} />}
->>>>>>> release
         </Selected>
         <DropdownWrapper
           width={props.optionWidth ? props.optionWidth : containerWidth}
