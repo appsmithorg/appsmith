@@ -12,7 +12,6 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import * as Sentry from "@sentry/react";
 import { Size, Category } from "components/ads/Button";
 
 const Wrapper = styled.div`
@@ -211,32 +210,6 @@ class ChartDataControl extends BaseControl<ControlProps> {
     }
     return [];
   };
-
-  componentDidMount() {
-    this.migrateChartData(this.props.propertyValue);
-  }
-
-  migrateChartData(chartData: Array<{ seriesName: string; data: string }>) {
-    // Added a migration script for older chart data that was strings
-    // deprecate after enough charts have moved to the new format
-    if (_.isString(chartData)) {
-      try {
-        const parsedData: Array<{
-          seriesName: string;
-          data: string;
-        }> = JSON.parse(chartData);
-        this.updateProperty(this.props.propertyName, parsedData);
-        return parsedData;
-      } catch (error) {
-        Sentry.captureException({
-          message: "Chart Migration Failed",
-          oldData: this.props.propertyValue,
-        });
-      }
-    } else {
-      return this.props.propertyValue;
-    }
-  }
 
   render() {
     const chartData: Array<{ seriesName: string; data: string }> = _.isString(
