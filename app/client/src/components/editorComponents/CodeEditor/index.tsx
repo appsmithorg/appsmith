@@ -350,7 +350,7 @@ class CodeEditor extends Component<Props, State> {
         isActive={(this.state.isFocused && !hasError) || this.state.isOpened}
         isNotHover={this.state.isFocused || this.state.isOpened}
       >
-        {showLightningMenu !== false && (
+        {showLightningMenu !== false && !this.state.isFocused && (
           <Suspense fallback={<div />}>
             <LightningMenu
               skin={
