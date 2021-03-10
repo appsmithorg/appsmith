@@ -70,18 +70,21 @@ export const draggableElement = (
   };
 
   const closeDragElement = () => {
-    const { left, top } = calculateBoundaryConfinedPosition(
-      element.getBoundingClientRect().left,
-      element.getBoundingClientRect().top,
-    );
-    onPositionChange({
-      left: left,
-      top: top,
-    });
-    element.style.top = top + "px";
-    element.style.left = left + "px";
-    document.onmouseup = null;
-    document.onmousemove = null;
+    const elementBounds = element.getBoundingClientRect();
+    if (elementBounds.height && elementBounds.width) {
+      const { left, top } = calculateBoundaryConfinedPosition(
+        elementBounds.left,
+        elementBounds.top,
+      );
+      onPositionChange({
+        left: left,
+        top: top,
+      });
+      element.style.top = top + "px";
+      element.style.left = left + "px";
+      document.onmouseup = null;
+      document.onmousemove = null;
+    }
   };
   const debouncedClose = debounce(closeDragElement, 50);
 
