@@ -97,11 +97,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         if (layoutList.isEmpty()) {
             layoutList.add(newPageService.createDefaultLayout());
             page.setLayouts(layoutList);
-        } else {
-            for (final Layout layout : layoutList) {
-                if (StringUtils.isEmpty(layout.getId())) {
-                    layout.setId(new ObjectId().toString());
-                }
+        }
+
+        for (final Layout layout : layoutList) {
+            if (StringUtils.isEmpty(layout.getId())) {
+                layout.setId(new ObjectId().toString());
             }
         }
 
