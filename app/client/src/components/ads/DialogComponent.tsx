@@ -90,6 +90,7 @@ type DialogComponentProps = {
   showHeaderUnderline?: boolean;
   getHeader?: () => ReactNode;
   canEscapeKeyClose?: boolean;
+  className?: string;
 };
 
 export const DialogComponent = (props: DialogComponentProps) => {
@@ -108,6 +109,7 @@ export const DialogComponent = (props: DialogComponentProps) => {
   return (
     <React.Fragment>
       <TriggerWrapper
+        className="ads-dialog-trigger"
         onClick={() => {
           setIsOpen(true);
         }}
@@ -126,6 +128,7 @@ export const DialogComponent = (props: DialogComponentProps) => {
         maxHeight={props.maxHeight}
         onOpening={props.onOpening}
         showHeaderUnderline={props.showHeaderUnderline}
+        className={props.className}
       >
         {getHeader && getHeader()}
         <div className={Classes.DIALOG_BODY}>{props.children}</div>

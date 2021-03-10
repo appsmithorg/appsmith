@@ -38,7 +38,6 @@ import {
   batchUpdateWidgetProperty,
   DeleteWidgetPropertyPayload,
   SetWidgetDynamicPropertyPayload,
-  updateWidgetProperty,
   UpdateWidgetPropertyPayload,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
@@ -780,15 +779,20 @@ function* setWidgetDynamicPropertySaga(
   action: ReduxAction<SetWidgetDynamicPropertyPayload>,
 ) {
   const { isDynamic, propertyPath, widgetId } = action.payload;
-  const widget: WidgetProps = yield select(getWidget, widgetId);
+  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
+  let widget = { ...stateWidget };
   const propertyValue = _.get(widget, propertyPath);
   let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
-  const propertyUpdates: Record<string, unknown> = {};
   if (isDynamic) {
-    dynamicPropertyPathList.push({
-      key: propertyPath,
-    });
-    propertyUpdates[propertyPath] = convertToString(propertyValue);
+    const keyExists =
+      dynamicPropertyPathList.findIndex((path) => path.key === propertyPath) >
+      -1;
+    if (!keyExists) {
+      dynamicPropertyPathList.push({
+        key: propertyPath,
+      });
+    }
+    widget = set(widget, propertyPath, convertToString(propertyValue));
   } else {
     dynamicPropertyPathList = _.reject(dynamicPropertyPathList, {
       key: propertyPath,
@@ -800,11 +804,9 @@ function* setWidgetDynamicPropertySaga(
       propertyValue,
       widget,
     );
-    propertyUpdates[propertyPath] = parsed;
+    widget = set(widget, propertyPath, parsed);
   }
-  propertyUpdates.dynamicPropertyPathList = dynamicPropertyPathList;
-
-  yield put(updateWidgetProperty(widgetId, propertyUpdates));
+  widget.dynamicPropertyPathList = dynamicPropertyPathList;
 
   const stateWidgets = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
@@ -929,7 +931,6 @@ function* batchUpdateWidgetPropertySaga(
 
   const stateWidgets = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
-
   log.debug(
     "Batch widget property update calculations took: ",
     performance.now() - start,
@@ -1056,7 +1057,9 @@ function* updateCanvasSize(
     // Check this out when non canvas widgets are updating snapRows
     // erstwhile: Math.round((rows * props.snapRowSpace) / props.parentRowSpace),
     yield put(
-      updateWidgetProperty(canvasWidgetId, { bottomRow: newBottomRow }),
+      batchUpdateWidgetProperty(canvasWidgetId, {
+        modify: { bottomRow: newBottomRow },
+      }),
     );
   }
 }

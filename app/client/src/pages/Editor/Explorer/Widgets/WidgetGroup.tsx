@@ -10,7 +10,7 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { AppState } from "reducers";
-import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 
 type ExplorerWidgetGroupProps = {
   pageId: string;

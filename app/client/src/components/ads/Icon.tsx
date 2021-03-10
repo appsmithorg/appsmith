@@ -27,6 +27,8 @@ import { ReactComponent as ArrowLeft } from "assets/icons/ads/arrow-left.svg";
 import { ReactComponent as Fork } from "assets/icons/ads/fork.svg";
 import { ReactComponent as ChevronLeft } from "assets/icons/ads/chevron_left.svg";
 import { ReactComponent as ChevronRight } from "assets/icons/ads/chevron_right.svg";
+import { ReactComponent as LinkIcon } from "assets/icons/ads/link.svg";
+import { ReactComponent as HelpIcon } from "assets/icons/help/help.svg";
 import { ReactComponent as CloseModalIcon } from "assets/icons/ads/close-modal.svg";
 import { ReactComponent as NoResponseIcon } from "assets/icons/ads/no-response.svg";
 import { ReactComponent as LightningIcon } from "assets/icons/ads/lightning.svg";
@@ -120,6 +122,8 @@ export const IconCollection = [
   "fork",
   "chevron-left",
   "chevron-right",
+  "link",
+  "help",
   "close-modal",
   "no-response",
   "lightning",
@@ -264,6 +268,12 @@ const Icon = forwardRef(
         break;
       case "chevron-right":
         returnIcon = <ChevronRight />;
+        break;
+      case "link":
+        returnIcon = <LinkIcon />;
+        break;
+      case "help":
+        returnIcon = <HelpIcon />;
         break;
       case "close-modal":
         returnIcon = <CloseModalIcon />;
