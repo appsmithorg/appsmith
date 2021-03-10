@@ -6,7 +6,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.helpers.SqlStringUtils;
+import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -191,7 +191,7 @@ public class MySqlPlugin extends BasePlugin {
             // First extract all the bindings in order
             List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a ? as expected in a prepared statement.
-            String updatedQuery = SqlStringUtils.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
+            String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
             // Set the query with bindings extracted and replaced with '?' back in config
             actionConfiguration.setBody(updatedQuery);
             return executeCommon(connection, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO, requestData);
@@ -307,7 +307,7 @@ public class MySqlPlugin extends BasePlugin {
                 if (matchingParam.isPresent()) {
                     String value = matchingParam.get().getValue();
                     parameters.add(value);
-                    DataType valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
+                    DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
                     if (DataType.NULL.equals(valueType)) {
                         try {
                             connectionStatement.bindNull(i, Object.class);

@@ -1,11 +1,10 @@
 package com.external.plugins;
 
-import com.appsmith.external.constants.DataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.helpers.SqlStringUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -65,7 +64,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class RestApiPlugin extends BasePlugin {
@@ -77,11 +75,6 @@ public class RestApiPlugin extends BasePlugin {
             .builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
             .build();
-
-    private static String regexForQuestionMark = "\\?";
-
-    private static Pattern questionPattern = Pattern.compile(regexForQuestionMark);
-
 
     public RestApiPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -113,11 +106,12 @@ public class RestApiPlugin extends BasePlugin {
                                                                 DatasourceConfiguration datasourceConfiguration,
                                                                 ActionConfiguration actionConfiguration) {
 
+            // Do smart replacements in JSON body
             if (actionConfiguration.getBody() != null) {
                 // First extract all the bindings in order
                 List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
                 // Replace all the bindings with a ? as expected in a prepared statement.
-                String updatedBody = SqlStringUtils.replaceMustacheWithQuestionMark(actionConfiguration.getBody(), mustacheKeysInOrder);
+                String updatedBody = MustacheHelper.replaceMustacheWithQuestionMark(actionConfiguration.getBody(), mustacheKeysInOrder);
 
                 if (mustacheKeysInOrder != null && !mustacheKeysInOrder.isEmpty()) {
 
@@ -132,49 +126,13 @@ public class RestApiPlugin extends BasePlugin {
                         if (matchingParam.isPresent()) {
                             String value = matchingParam.get().getValue();
                             parameters.add(value);
-                            DataType dataType = SqlStringUtils.stringToKnownDataTypeConverter(value);
-                            switch (dataType) {
-                                case INTEGER:
-//                                    break;
-                                case LONG:
-//                                    break;
-                                case FLOAT:
-//                                    break;
-                                case DOUBLE:
-//                                    break;
-                                case NULL:
-//                                    break;
-                                case BOOLEAN:
-                                    updatedBody = questionPattern.matcher(updatedBody).replaceFirst(String.valueOf(value));
-//                                    updatedBody.replaceFirst("\\?", String.valueOf(value));
-                                    break;
-                                case DATE:
-//                                    break;
-                                case TIME:
-//                                    break;
-                                case ASCII:
-//                                    break;
-                                case BINARY:
-//                                    break;
-                                case BYTES:
-//                                    break;
-                                case STRING:
-//                                    break;
-                                default:
-                                    try {
-                                        updatedBody = questionPattern.matcher(updatedBody).replaceFirst(objectMapper.writeValueAsString(value));
-                                    } catch (JsonProcessingException e) {
-                                        e.printStackTrace();
-                                    }
-//                                case ARRAY:
-//                                    break;
-                            }
+                            updatedBody = DataTypeStringUtils.jsonSmartReplacementQuestionWithValue(updatedBody, value);
                         }
                     }
-//                    requestData.put("parameters", parameters);
                 }
                 actionConfiguration.setBody(updatedBody);
             }
+
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
             // If the action is paginated, update the configurations to update the correct URL.
