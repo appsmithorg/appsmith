@@ -69,8 +69,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.lang.Boolean.TRUE;
+
 public class RestApiPlugin extends BasePlugin {
     private static final int MAX_REDIRECTS = 5;
+
+    private static final int SMART_JSON_SUBSTITUTION_INDEX = 0;
 
     // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
     // `WebClient` instance was loaded as an auto-wired bean.
@@ -109,31 +113,48 @@ public class RestApiPlugin extends BasePlugin {
                                                                 DatasourceConfiguration datasourceConfiguration,
                                                                 ActionConfiguration actionConfiguration) {
 
-            // Do smart replacements in JSON body
-            if (actionConfiguration.getBody() != null) {
-                // First extract all the bindings in order
-                List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
-                // Replace all the bindings with a ? as expected in a prepared statement.
-                String updatedBody = MustacheHelper.replaceMustacheWithQuestionMark(actionConfiguration.getBody(), mustacheKeysInOrder);
+            Boolean smartJsonSubstitution;
 
-                if (mustacheKeysInOrder != null && !mustacheKeysInOrder.isEmpty()) {
+            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            if (properties == null || properties.get(SMART_JSON_SUBSTITUTION_INDEX) == null) {
+                /**
+                 * TODO :
+                 * In case the smart json substitution configuration is missing, default to true once smart json
+                 * substitution is no longer in beta.
+                 */
+                smartJsonSubstitution = false;
+            } else {
+                smartJsonSubstitution = Boolean.parseBoolean(properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue());
+            }
 
-                    List<Param> params = executeActionDTO.getParams();
-                    List<String> parameters = new ArrayList<>();
+            // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
+            if (TRUE.equals(smartJsonSubstitution)) {
+                // Do smart replacements in JSON body
+                if (actionConfiguration.getBody() != null) {
+                    // First extract all the bindings in order
+                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
+                    // Replace all the bindings with a ? as expected in a prepared statement.
+                    String updatedBody = MustacheHelper.replaceMustacheWithQuestionMark(actionConfiguration.getBody(), mustacheKeysInOrder);
 
-                    for (int i = 0; i < mustacheKeysInOrder.size(); i++) {
-                        String key = mustacheKeysInOrder.get(i);
-                        Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
+                    if (mustacheKeysInOrder != null && !mustacheKeysInOrder.isEmpty()) {
 
-                        // If the evaluated value of the mustache binding is present, set it in the prepared statement
-                        if (matchingParam.isPresent()) {
-                            String value = matchingParam.get().getValue();
-                            parameters.add(value);
-                            updatedBody = DataTypeStringUtils.jsonSmartReplacementQuestionWithValue(updatedBody, value);
+                        List<Param> params = executeActionDTO.getParams();
+                        List<String> parameters = new ArrayList<>();
+
+                        for (int i = 0; i < mustacheKeysInOrder.size(); i++) {
+                            String key = mustacheKeysInOrder.get(i);
+                            Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
+
+                            // If the evaluated value of the mustache binding is present, set it in the prepared statement
+                            if (matchingParam.isPresent()) {
+                                String value = matchingParam.get().getValue();
+                                parameters.add(value);
+                                updatedBody = DataTypeStringUtils.jsonSmartReplacementQuestionWithValue(updatedBody, value);
+                            }
                         }
                     }
+                    actionConfiguration.setBody(updatedBody);
                 }
-                actionConfiguration.setBody(updatedBody);
             }
 
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
