@@ -12,10 +12,6 @@
           "initialValue": "LIST",
           "options": [
             {
-              "label": "-- Select --",
-              "value": ""
-            },
-            {
               "label": "List files in bucket",
               "value": "LIST"
             },
@@ -76,7 +72,7 @@
           "label": "Expiry Duration of Signed URL (Minutes)",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
           "controlType": "INPUT_TEXT",
-          "initialValue": "10080",
+          "initialValue": "5",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_EQUALS",

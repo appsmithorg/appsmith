@@ -11,6 +11,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -45,12 +46,14 @@ public class AmazonS3PluginTest {
     private static String accessKey;
     private static String secretKey;
     private static String region;
+    private static String serviceProvider;
 
     @BeforeClass
     public static void setUp() {
         accessKey   = "access_key";
         secretKey   = "secret_key";
         region      = "ap-south-1";
+        serviceProvider = "amazon-s3";
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -62,8 +65,11 @@ public class AmazonS3PluginTest {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setAuthentication(authDTO);
         ArrayList<Property> properties = new ArrayList<>();
-        properties.add(new Property("region", region));
+        properties.add(new Property("amazon s3 region", region));
+        properties.add(new Property("s3 service provider", serviceProvider));
+        properties.add(new Property("custom endpoint region", region));
         dsConfig.setProperties(properties);
+        dsConfig.setEndpoints(List.of(new Endpoint("s3-connection-url", 0L)));
         return dsConfig;
     }
 
@@ -116,11 +122,9 @@ public class AmazonS3PluginTest {
     }
 
     @Test
-    public void testValidateDatasourceWithMissingRegion() {
+    public void testValidateDatasourceWithMissingRegionWithAmazonS3() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        ArrayList<Property> properties = new ArrayList<>();
-        properties.add(new Property("region", ""));
-        datasourceConfiguration.setProperties(properties);
+        datasourceConfiguration.getProperties().get(0).setValue("");
 
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
         Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
@@ -128,10 +132,57 @@ public class AmazonS3PluginTest {
         StepVerifier.create(pluginExecutorMono)
                 .assertNext(executor -> {
                     Set<String> res = executor.validateDatasource(datasourceConfiguration);
-                    Assert.assertNotEquals(0, res.size());
+                    assertNotEquals(0, res.size());
 
                     List<String> errorList = new ArrayList<>(res);
-                    assertTrue(errorList.get(0).contains("Mandatory parameter 'Region' is empty"));
+                    assertTrue(errorList.get(0).contains("Required parameter 'Region' is empty. Did you forget to " +
+                            "edit the 'Region' field in the datasource creation form ? You need to fill it with the " +
+                            "region where your AWS S3 instance is hosted."));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testValidateDatasourceWithMissingRegionWithNonAmazonProvider() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.getProperties().get(1).setValue("upcloud");
+        datasourceConfiguration.getProperties().get(2).setValue("");
+
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
+
+        StepVerifier.create(pluginExecutorMono)
+                .assertNext(executor -> {
+                    Set<String> res = executor.validateDatasource(datasourceConfiguration);
+                    assertNotEquals(0, res.size());
+
+                    List<String> errorList = new ArrayList<>(res);
+                    assertTrue(errorList.get(0).contains("Required parameter 'Region' is empty. Did you forget to " +
+                            "edit the 'Region' field in the datasource creation form ? You need to fill it with the " +
+                            "region where your S3 instance is hosted."));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testValidateDatasourceWithMissingUrlWithNonAmazonProvider() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.getProperties().get(1).setValue("upcloud");
+        datasourceConfiguration.getProperties().get(2).setValue("");
+        datasourceConfiguration.getEndpoints().get(0).setHost("");
+
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
+
+        StepVerifier.create(pluginExecutorMono)
+                .assertNext(executor -> {
+                    Set<String> res = executor.validateDatasource(datasourceConfiguration);
+                    assertNotEquals(0, res.size());
+
+                    List<String> errorList = new ArrayList<>(res);
+                    assertTrue(errorList.get(0).contains("Required parameter 'Endpoint URL' is empty. Did you forget " +
+                            "to edit the 'Endpoint URL' field in the datasource creation form ? You need to fill it " +
+                            "with the endpoint URL of your S3 instance."));
                 })
                 .verifyComplete();
     }
