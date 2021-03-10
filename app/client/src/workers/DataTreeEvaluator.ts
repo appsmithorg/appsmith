@@ -460,9 +460,26 @@ export default class DataTreeEvaluator {
         .reverse()
         .filter((d) => !!d);
     } catch (e) {
+      // Cyclic dependency found. Extract all node and entity type
+      const node = e.message.match(
+        new RegExp('Cyclic dependency, node was:"(.*)"'),
+      )[1];
+
+      let entityType = "UNKNOWN";
+      const entityName = node.split(".")[0];
+      const entity = _.find(this.oldUnEvalTree, { name: entityName });
+      if (entity && isWidget(entity)) {
+        entityType = entity.type;
+      } else if (entity && isAction(entity)) {
+        entityType = entity.pluginType;
+      }
       this.errors.push({
         type: EvalErrorTypes.DEPENDENCY_ERROR,
-        message: e.message,
+        message: "Cyclic dependency found while evaluating.",
+        context: {
+          node,
+          entityType,
+        },
       });
       console.error("CYCLICAL DEPENDENCY MAP", dependencyMap);
       throw new CrashingError(e.message);
