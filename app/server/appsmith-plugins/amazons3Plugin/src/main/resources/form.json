@@ -5,6 +5,13 @@
       "id": 1,
       "children": [
         {
+          "label": "S3 Service Provider Key",
+          "configProperty": "datasourceConfiguration.properties[1].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "s3Provider",
+          "hidden": true
+        },
+        {
           "label": "S3 Service Provider",
           "configProperty": "datasourceConfiguration.properties[1].value",
           "controlType": "DROP_DOWN",
@@ -148,6 +155,13 @@
             "comparison": "EQUALS",
             "value": "amazon-s3"
           }
+        },
+        {
+          "label": "Custom Endpoint URL Key",
+          "configProperty": "datasourceConfiguration.properties[2].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "customRegion",
+          "hidden": true
         },
         {
           "label": "Region",
