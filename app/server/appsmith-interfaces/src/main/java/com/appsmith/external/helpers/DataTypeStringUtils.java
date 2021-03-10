@@ -4,8 +4,12 @@ import com.appsmith.external.constants.DataType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
 import org.apache.commons.validator.routines.DateValidator;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,7 +22,9 @@ public class DataTypeStringUtils {
 
     private static Pattern questionPattern = Pattern.compile(regexForQuestionMark);
 
-    protected static final ObjectMapper objectMapper = new ObjectMapper();
+    private static  ObjectMapper objectMapper = new ObjectMapper();
+
+    private static JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
     public static class DateValidatorUsingDateFormat extends DateValidator {
         private String dateFormat;
@@ -110,6 +116,12 @@ public class DataTypeStringUtils {
             return DataType.TIME;
         }
 
+        try {
+            objectMapper.readValue(input, Object.class);
+            return DataType.JSON_OBJECT;
+        } catch (IOException e) {
+            // Not a JSON object
+        }
         /**
          * TODO : Timestamp, ASCII, Binary and Bytes Array
          */
@@ -144,6 +156,22 @@ public class DataTypeStringUtils {
             case NULL:
             case BOOLEAN:
                 input = questionPattern.matcher(input).replaceFirst(String.valueOf(replacement));
+                break;
+            case ARRAY:
+                try {
+                    JSONArray jsonArray = (JSONArray) parser.parse(replacement);
+                    input = questionPattern.matcher(input).replaceFirst(String.valueOf(objectMapper.writeValueAsString(jsonArray)));
+                } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case JSON_OBJECT:
+                try {
+                    JSONObject jsonObject = (JSONObject) parser.parse(replacement);
+                    input = questionPattern.matcher(input).replaceFirst(String.valueOf(objectMapper.writeValueAsString(jsonObject)));
+                } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
+                    e.printStackTrace();
+                }
                 break;
             case DATE:
             case TIME:

@@ -20,11 +20,14 @@ import com.external.connections.APIConnection;
 import com.external.connections.APIConnectionFactory;
 import com.external.helpers.DatasourceValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.apache.commons.lang.StringUtils;
 import org.bson.internal.Base64;
 import org.pf4j.Extension;
@@ -504,12 +507,23 @@ public class RestApiPlugin extends BasePlugin {
             } else if (trimmed.startsWith("[")) {
                 type = List.class;
             } else {
-                // The JSON body is likely a literal boolean or number or string. For our purposes here, we don't have
-                // to parse this JSON.
                 return null;
             }
 
-            return new GsonBuilder().create().fromJson(jsonString, type);
+            JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
+            Object parsedJson = null;
+            try {
+                if (type.equals(List.class)) {
+                    parsedJson = (JSONArray) jsonParser.parse(jsonString);
+                } else {
+                    parsedJson = (JSONObject) jsonParser.parse(jsonString);
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            return parsedJson;
+
         }
 
         @Override
