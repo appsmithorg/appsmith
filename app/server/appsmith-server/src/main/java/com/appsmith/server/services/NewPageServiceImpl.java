@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -137,11 +138,13 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     @Override
     public Layout createDefaultLayout() {
         Layout layout = new Layout();
+        String id = new ObjectId().toString();
+        layout.setId(id);
         try {
             layout.setDsl((JSONObject) new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT));
             layout.setWidgetNames(Set.of(FieldName.DEFAULT_WIDGET_NAME));
         } catch (ParseException e) {
-            log.error("Unable to set the default page layout");
+            log.error("Unable to set the default page layout for generated id: {}", id);
         }
         return layout;
     }
