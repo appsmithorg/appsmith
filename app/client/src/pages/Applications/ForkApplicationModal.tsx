@@ -74,6 +74,11 @@ const ForkApplicationModal = (props: any) => {
       );
       return permitted;
     });
+
+    if (filteredUserOrgs.length) {
+      selectOrganizationId(filteredUserOrgs[0].organization.id);
+    }
+
     return filteredUserOrgs.map((org) => {
       return {
         label: org.organization.name,
@@ -108,7 +113,12 @@ const ForkApplicationModal = (props: any) => {
           />
         </OrganizationList>
       )}
-      <ForkButton text={"FORK"} onClick={forkApplication} size={Size.large} />
+      <ForkButton
+        disabled={!organizationId}
+        text={"FORK"}
+        onClick={forkApplication}
+        size={Size.large}
+      />
     </StyledDialog>
   );
 };
