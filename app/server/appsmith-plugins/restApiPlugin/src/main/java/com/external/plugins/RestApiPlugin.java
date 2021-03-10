@@ -439,7 +439,7 @@ public class RestApiPlugin extends BasePlugin {
             return null;
         }
 
-        private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, String requestBodyAsString,
+        private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, Object requestBody,
                                               int iteration, String contentType) {
             if (iteration == MAX_REDIRECTS) {
                 return Mono.error(new AppsmithPluginException(
@@ -450,20 +450,27 @@ public class RestApiPlugin extends BasePlugin {
 
             if (MediaType.APPLICATION_JSON_VALUE.equals(contentType)) {
                 try {
-                    objectFromJson(requestBodyAsString);
+                    if (requestBody instanceof String) {
+                        Object objectFromJson = objectFromJson((String) requestBody);
+                        if (objectFromJson != null) {
+                            requestBody = objectFromJson;
+                        }
+                    }
                 } catch (JsonSyntaxException e) {
                     return Mono.error(new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
-                            requestBodyAsString,
+                            requestBody,
                             "Malformed JSON: " + e.getMessage()
                     ));
                 }
             }
 
+            Object finalRequestBody = requestBody;
+
             return webClient
                     .method(httpMethod)
                     .uri(uri)
-                    .body(BodyInserters.fromObject(requestBodyAsString))
+                    .body(BodyInserters.fromObject(requestBody))
                     .exchange()
                     .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
                     .flatMap(response -> {
@@ -482,7 +489,7 @@ public class RestApiPlugin extends BasePlugin {
                             } catch (URISyntaxException e) {
                                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                             }
-                            return httpCall(webClient, httpMethod, redirectUri, requestBodyAsString, iteration + 1,
+                            return httpCall(webClient, httpMethod, redirectUri, finalRequestBody, iteration + 1,
                                     contentType);
                         }
                         return Mono.just(response);
