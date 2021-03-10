@@ -27,7 +27,7 @@ const StyledInputGroup = styled(InputGroup)`
     border-radius: 0;
     &:focus {
       border: 1px solid ${(props) => props.theme.colors.info.main};
-      box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18);
+      box-shadow: none;
     }
   }
   &&& input {

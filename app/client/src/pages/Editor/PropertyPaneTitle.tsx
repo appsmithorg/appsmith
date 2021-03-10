@@ -38,8 +38,6 @@ const Wrapper = styled.div<{ iconCount: number }>`
   z-index: 3;
   background-color: ${(props) => props.theme.colors.propertyPane.bg};
   margin-top: -1px;
-  border-bottom: 1px solid
-    ${(props) => props.theme.colors.propertyPane.zoomButtonBG};
   padding-top: ${(props) => `${props.theme.spaces[1] + 1}px`};
   padding-bottom: ${(props) => `${props.theme.spaces[5]}px`};
 
@@ -54,6 +52,14 @@ const Wrapper = styled.div<{ iconCount: number }>`
     height: auto;
     padding: 0;
     width: 100%;
+  }
+
+  &&&
+    .${BlueprintClasses.EDITABLE_TEXT_CONTENT},
+    &&&
+    .${BlueprintClasses.EDITABLE_TEXT_INPUT} {
+    color: #090707;
+    font-size: 16px;
   }
 
   && svg path {

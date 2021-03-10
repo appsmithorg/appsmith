@@ -38,12 +38,11 @@ const PropertyPaneWrapper = styled(PaneWrapper)<{ themeMode?: EditorTheme }>`
   max-height: ${(props) => props.theme.propertyPane.height}px;
   width: ${(props) => props.theme.propertyPane.width}px;
   margin: ${(props) => props.theme.spaces[2]}px;
-  border: ${(props) => props.theme.spaces[5]}px solid
-    ${(props) => props.theme.colors.propertyPane.bg};
+  padding: ${(props) => props.theme.spaces[5]}px;
+  padding-right: ${(props) => props.theme.spaces[5]}px;
   border-right: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0 ${(props) => props.theme.spaces[5]}px 0 0;
   text-transform: none;
   ${(props) =>
     props.themeMode === EditorTheme.DARK ? scrollbarDark : scrollbarLight};

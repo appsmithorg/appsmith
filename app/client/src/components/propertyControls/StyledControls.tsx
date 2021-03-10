@@ -108,6 +108,7 @@ export const StyledDropDownContainer = styled.div`
 export const StyledDropDown = styled(Dropdown)`
   height: auto;
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
+  box-shadow: none;
 `;
 
 export const StyledMultiSelectDropDown = styled(MultiSelectDropdown)`
@@ -215,6 +216,9 @@ export const StyledInputGroup = styled(TextInput)`
   border-radius: 4px;
   background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
   color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
+  &:focus {
+    box-shadow: none;
+  }
 `;
 
 export const StyledDateRangePicker = styled(DateRangeInput)`
