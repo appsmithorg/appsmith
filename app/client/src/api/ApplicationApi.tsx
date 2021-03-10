@@ -65,6 +65,11 @@ export interface DuplicateApplicationRequest {
   applicationId: string;
 }
 
+export interface ForkApplicationRequest {
+  applicationId: string;
+  organizationId: string;
+}
+
 export interface GetAllApplicationResponse extends ApiResponse {
   data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
 }
@@ -195,6 +200,17 @@ class ApplicationApi extends Api {
     request: DuplicateApplicationRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.post(ApplicationApi.baseURL + "clone/" + request.applicationId);
+  }
+
+  static forkApplication(
+    request: ForkApplicationRequest,
+  ): AxiosPromise<ApiResponse> {
+    return Api.post(
+      "v1/applications/" +
+        request.applicationId +
+        "/fork/" +
+        request.organizationId,
+    );
   }
 }
 
