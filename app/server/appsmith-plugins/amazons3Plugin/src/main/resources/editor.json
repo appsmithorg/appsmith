@@ -32,14 +32,14 @@
         {
           "label": "Bucket Name",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "isRequired": true,
           "initialValue": ""
         },
         {
           "label": "File Path",
           "configProperty": "actionConfiguration.path",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
@@ -71,7 +71,7 @@
         {
           "label": "Expiry Duration of Signed URL (Minutes)",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "5",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
@@ -93,7 +93,7 @@
         {
           "label": "Prefix",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
@@ -125,7 +125,7 @@
         {
           "label": "Expiry Duration of Signed URL (Minutes)",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "5",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
