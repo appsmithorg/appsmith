@@ -1,8 +1,11 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.DataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.SqlStringUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -10,6 +13,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -52,13 +56,16 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class RestApiPlugin extends BasePlugin {
@@ -70,6 +77,11 @@ public class RestApiPlugin extends BasePlugin {
             .builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
             .build();
+
+    private static String regexForQuestionMark = "\\?";
+
+    private static Pattern questionPattern = Pattern.compile(regexForQuestionMark);
+
 
     public RestApiPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -101,6 +113,68 @@ public class RestApiPlugin extends BasePlugin {
                                                                 DatasourceConfiguration datasourceConfiguration,
                                                                 ActionConfiguration actionConfiguration) {
 
+            if (actionConfiguration.getBody() != null) {
+                // First extract all the bindings in order
+                List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
+                // Replace all the bindings with a ? as expected in a prepared statement.
+                String updatedBody = SqlStringUtils.replaceMustacheWithQuestionMark(actionConfiguration.getBody(), mustacheKeysInOrder);
+
+                if (mustacheKeysInOrder != null && !mustacheKeysInOrder.isEmpty()) {
+
+                    List<Param> params = executeActionDTO.getParams();
+                    List<String> parameters = new ArrayList<>();
+
+                    for (int i = 0; i < mustacheKeysInOrder.size(); i++) {
+                        String key = mustacheKeysInOrder.get(i);
+                        Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
+
+                        // If the evaluated value of the mustache binding is present, set it in the prepared statement
+                        if (matchingParam.isPresent()) {
+                            String value = matchingParam.get().getValue();
+                            parameters.add(value);
+                            DataType dataType = SqlStringUtils.stringToKnownDataTypeConverter(value);
+                            switch (dataType) {
+                                case INTEGER:
+//                                    break;
+                                case LONG:
+//                                    break;
+                                case FLOAT:
+//                                    break;
+                                case DOUBLE:
+//                                    break;
+                                case NULL:
+//                                    break;
+                                case BOOLEAN:
+                                    updatedBody = questionPattern.matcher(updatedBody).replaceFirst(String.valueOf(value));
+//                                    updatedBody.replaceFirst("\\?", String.valueOf(value));
+                                    break;
+                                case DATE:
+//                                    break;
+                                case TIME:
+//                                    break;
+                                case ASCII:
+//                                    break;
+                                case BINARY:
+//                                    break;
+                                case BYTES:
+//                                    break;
+                                case STRING:
+//                                    break;
+                                default:
+                                    try {
+                                        updatedBody = questionPattern.matcher(updatedBody).replaceFirst(objectMapper.writeValueAsString(value));
+                                    } catch (JsonProcessingException e) {
+                                        e.printStackTrace();
+                                    }
+//                                case ARRAY:
+//                                    break;
+                            }
+                        }
+                    }
+//                    requestData.put("parameters", parameters);
+                }
+                actionConfiguration.setBody(updatedBody);
+            }
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
             // If the action is paginated, update the configurations to update the correct URL.
