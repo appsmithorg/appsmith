@@ -38,7 +38,7 @@ export const draggableElement = (
     calculatedTop: number,
   ) => {
     if (calculatedLeft <= 0) {
-      calculatedLeft = 15;
+      calculatedLeft = 0;
     }
     if (calculatedTop <= 30) {
       calculatedTop = 30;
@@ -64,19 +64,21 @@ export const draggableElement = (
     oldYPos = e.clientY;
     const calculatedTop = element.offsetTop - newYPos;
     const calculatedLeft = element.offsetLeft - newXPos;
-    const { left, top } = calculateBoundaryConfinedPosition(
-      calculatedLeft,
-      calculatedTop,
-    );
-    element.style.top = top + "px";
-    element.style.left = left + "px";
+    element.style.top = calculatedTop + "px";
+    element.style.left = calculatedLeft + "px";
   };
 
   const closeDragElement = () => {
+    const { left, top } = calculateBoundaryConfinedPosition(
+      element.getBoundingClientRect().left,
+      element.getBoundingClientRect().top,
+    );
     onPositionChange({
-      left: element.getBoundingClientRect().left,
-      top: element.getBoundingClientRect().top,
+      left: left,
+      top: top,
     });
+    element.style.top = top + "px";
+    element.style.left = left + "px";
     document.onmouseup = null;
     document.onmousemove = null;
   };
