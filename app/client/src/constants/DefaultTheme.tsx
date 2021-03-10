@@ -974,6 +974,7 @@ type ColorType = {
     };
   };
   propertyPane: {
+    title: ShadeColor;
     bg: ShadeColor;
     label: ShadeColor;
     jsIconBg: ShadeColor;
@@ -1439,6 +1440,7 @@ export const dark: ColorType = {
     },
   },
   propertyPane: {
+    title: darkShades[11],
     bg: darkShades[1],
     label: darkShades[7],
     jsIconBg: darkShades[5],
@@ -1852,6 +1854,7 @@ export const light: ColorType = {
     },
   },
   propertyPane: {
+    title: darkShades[11],
     bg: lightShades[2],
     label: lightShades[8],
     jsIconBg: lightShades[5],

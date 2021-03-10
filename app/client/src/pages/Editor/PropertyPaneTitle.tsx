@@ -24,22 +24,27 @@ import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 
+const StaticSpaceWrapper = styled.div`
+  height: 25px;
+  width: 100%;
+`;
 const Wrapper = styled.div<{ iconCount: number }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  margin: ${(props) => props.theme.spaces[2]}px;
+  padding: ${(props) => `${props.theme.spaces[5]}px`};
+  padding-right: 0;
   justify-content: center;
   align-items: center;
   display: grid;
-  width: 100%;
+  width: ${(props) => props.theme.propertyPane.width - props.theme.spaces[5]}px;
   grid-template-columns: 1fr repeat(${(props) => props.iconCount}, 25px);
   justify-items: center;
   align-items: center;
   justify-content: stretch;
-  position: sticky;
-  top: 0;
   z-index: 3;
   background-color: ${(props) => props.theme.colors.propertyPane.bg};
-  margin-top: -1px;
-  padding-top: ${(props) => `${props.theme.spaces[1] + 1}px`};
-  padding-bottom: ${(props) => `${props.theme.spaces[5]}px`};
 
   & span.${Classes.POPOVER_TARGET} {
     cursor: pointer;
@@ -58,8 +63,8 @@ const Wrapper = styled.div<{ iconCount: number }>`
     .${BlueprintClasses.EDITABLE_TEXT_CONTENT},
     &&&
     .${BlueprintClasses.EDITABLE_TEXT_INPUT} {
-    color: #090707;
-    font-size: 16px;
+    color: ${(props) => props.theme.colors.propertyPane.title};
+    font-size: ${(props) => props.theme.fontSizes[4]}px;
   }
 
   && svg path {
@@ -156,46 +161,48 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   }, [props.title]);
 
   return props.widgetId || props.isPanelTitle ? (
-    <Wrapper iconCount={props.actions.length}>
-      <NameWrapper isPanelTitle={props.isPanelTitle}>
-        <>
-          {props.isPanelTitle && (
-            <StyledBackIcon
-              onClick={props.onBackClick}
-              className="t--property-pane-back-btn"
+    <StaticSpaceWrapper>
+      <Wrapper iconCount={props.actions.length}>
+        <NameWrapper isPanelTitle={props.isPanelTitle}>
+          <>
+            {props.isPanelTitle && (
+              <StyledBackIcon
+                onClick={props.onBackClick}
+                className="t--property-pane-back-btn"
+              />
+            )}
+
+            <EditableText
+              valueTransform={removeSpecialChars}
+              defaultValue={name}
+              placeholder={props.title}
+              editInteractionKind={EditInteractionKind.SINGLE}
+              isEditingDefault={!props.isPanelTitle ? isNew : undefined}
+              onBlur={!props.isPanelTitle ? updateTitle : undefined}
+              onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
+              hideEditIcon
+              className="t--propery-page-title"
+              savingState={
+                updating ? SavingState.STARTED : SavingState.NOT_STARTED
+              }
+              fill
+              underline
             />
-          )}
+          </>
+        </NameWrapper>
 
-          <EditableText
-            valueTransform={removeSpecialChars}
-            defaultValue={name}
-            placeholder={props.title}
-            editInteractionKind={EditInteractionKind.SINGLE}
-            isEditingDefault={!props.isPanelTitle ? isNew : undefined}
-            onBlur={!props.isPanelTitle ? updateTitle : undefined}
-            onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
-            hideEditIcon
-            className="t--propery-page-title"
-            savingState={
-              updating ? SavingState.STARTED : SavingState.NOT_STARTED
-            }
-            fill
-            underline
-          />
-        </>
-      </NameWrapper>
-
-      {props.actions.map((value, index) => (
-        <Tooltip
-          content={value.tooltipContent}
-          position={Position.TOP}
-          hoverOpenDelay={200}
-          key={index}
-        >
-          {value.icon}
-        </Tooltip>
-      ))}
-    </Wrapper>
+        {props.actions.map((value, index) => (
+          <Tooltip
+            content={value.tooltipContent}
+            position={Position.TOP}
+            hoverOpenDelay={200}
+            key={index}
+          >
+            {value.icon}
+          </Tooltip>
+        ))}
+      </Wrapper>
+    </StaticSpaceWrapper>
   ) : null;
 });
 
