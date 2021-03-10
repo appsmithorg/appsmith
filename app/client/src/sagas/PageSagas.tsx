@@ -82,6 +82,8 @@ import { Variant } from "components/ads/common";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "constants/ApiConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import DEFAULT_TEMPLATE from "templates/default";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -303,6 +305,7 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       pageId: savePageRequest.pageId,
     },
   );
+  AnalyticsUtil.logEvent("PAGE_SAVE", savePageRequest);
   try {
     // Store the updated DSL in the pageDSLs reducer
     yield put({
@@ -376,11 +379,18 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
           },
         });
       } else {
-        const correctWidget = migrateIncorrectDynamicBindingPathLists(
+        const correctedWidget = migrateIncorrectDynamicBindingPathLists(
           widgets[widgetId],
         );
+        AnalyticsUtil.logEvent("CORRECT_BAD_BINDING", {
+          error: incorrectBindingError,
+          correctWidget: correctedWidget,
+        });
         yield put(
-          updateAndSaveLayout({ ...widgets, [widgetId]: correctWidget }, true),
+          updateAndSaveLayout(
+            { ...widgets, [widgetId]: correctedWidget },
+            true,
+          ),
         );
       }
     }
@@ -744,13 +754,17 @@ function* fetchPageDSLSaga(pageId: string) {
     }
   } catch (error) {
     yield put({
-      type: ReduxActionTypes.FETCH_PAGE_DSL_ERROR,
+      type: ReduxActionErrorTypes.FETCH_PAGE_DSL_ERROR,
       payload: {
         pageId: pageId,
         error,
-        show: false,
+        show: true,
       },
     });
+    return {
+      pageId: pageId,
+      dsl: DEFAULT_TEMPLATE,
+    };
   }
 }
 

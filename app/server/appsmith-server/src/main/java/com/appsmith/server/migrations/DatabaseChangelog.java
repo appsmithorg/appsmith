@@ -1866,4 +1866,32 @@ public class DatabaseChangelog {
             }
         }
     }
+
+    @ChangeSet(order = "057", id = "update-database-action-configuration-timeout", author = "")
+    public void updateActionConfigurationTimeout(MongoTemplate mongoTemplate) {
+
+        for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
+            boolean updateTimeout = false;
+
+            if (action.getUnpublishedAction() != null
+                    && action.getUnpublishedAction().getActionConfiguration() != null
+                    && action.getUnpublishedAction().getActionConfiguration().getTimeoutInMillisecond() != null
+                    && action.getUnpublishedAction().getActionConfiguration().getTimeoutInMillisecond() > 60000) {
+                action.getUnpublishedAction().getActionConfiguration().setTimeoutInMillisecond("60000");
+                updateTimeout = true;
+            }
+
+            if (action.getPublishedAction() != null
+                    && action.getPublishedAction().getActionConfiguration() != null
+                    && action.getPublishedAction().getActionConfiguration().getTimeoutInMillisecond() != null
+                    && action.getPublishedAction().getActionConfiguration().getTimeoutInMillisecond() > 60000) {
+                action.getPublishedAction().getActionConfiguration().setTimeoutInMillisecond("60000");
+                updateTimeout = true;
+            }
+
+            if(updateTimeout) {
+                mongoTemplate.save(action);
+            }
+        }
+    }
 }
