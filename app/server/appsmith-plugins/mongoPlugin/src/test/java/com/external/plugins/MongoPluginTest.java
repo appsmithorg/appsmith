@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -417,6 +418,29 @@ public class MongoPluginTest {
                     assertTrue(invalids
                             .stream()
                             .anyMatch(error -> error.contains("MongoDb SRV URLs are not yet supported")));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testTestDatasourceTimeoutError() {
+        String badHost = "mongo-bad-url.mongodb.net";
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getEndpoints().get(0).setHost(badHost);
+
+        Mono<DatasourceTestResult> datasourceTestResult = pluginExecutor.testDatasource(dsConfig);
+
+        StepVerifier.create(datasourceTestResult)
+                .assertNext(result -> {
+                    assertFalse(result.isSuccess());
+                    assertTrue(result.getInvalids().size() == 1);
+                    assertTrue(result
+                            .getInvalids()
+                            .stream()
+                            .anyMatch(error -> error.contains(
+                                    "Connection timed out. Please check if the datasource configuration fields have " +
+                                            "been filled correctly."
+                            )));
                 })
                 .verifyComplete();
     }
