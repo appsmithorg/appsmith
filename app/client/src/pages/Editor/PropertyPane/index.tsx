@@ -31,7 +31,7 @@ import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
-import { BindingText } from "../APIEditor/Form";
+import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{ themeMode?: EditorTheme }>`
   width: 100%;
@@ -119,14 +119,8 @@ const PropertyPaneView = (
             ),
           },
           {
-            tooltipContent: (
-              <div>
-                <span>You can connect data from your API by adding </span>
-                <BindingText>{`{{apiName.data}}`}</BindingText>
-                <span> to a widget property</span>
-              </div>
-            ),
-            icon: <Icon icon="help" iconSize={16} />,
+            tooltipContent: <span>Explore widget related docs</span>,
+            icon: <PropertyPaneHelpButton />,
           },
           {
             tooltipContent: "Close",
