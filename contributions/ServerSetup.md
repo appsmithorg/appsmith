@@ -93,11 +93,20 @@ When using this command, the value of `APPSMITH_REDIS_URI` should be set to `red
 
 To run the project from within the IDE, you will need to make use of the run configuration that is part of the repository. The run configuration uses the [EnvFile](https://plugins.jetbrains.com/plugin/7861-envfile) plugin to include environment variables in the path. Any and all tests can be run within the IDE by cloning this run configuration.
 
+1. Install the plugin EnvFile from https://plugins.jetbrains.com/plugin/7861-envfile. This is required to load the environment configurations when the server starts. 
+2. Configure the Run/Debug configuration as shown in the screenshot below:
+<img width="1070" alt="Screenshot 2021-03-03 at 1 50 48 PM" src="https://user-images.githubusercontent.com/458946/109775553-a6dcf780-7c27-11eb-8bfe-a5e34e14a3f8.png">
+
+For being able to run or debug plugins, two are especially important:
+
+- VM Options: `-Dpf4j.mode=development -Dpf4j.pluginsDir=appsmith-plugins` .
+- Working Directory: The folder that contains `appsmith-server`, `appsmith-plugins` etc.
+
 Please note when setting **Working directory** option. If the path is not correct, plugins will fail to load and cannot fetch data from mongo, redis
 
-example:
+3. Load your env file by going to the EnvFile Tab in the Run/Debug configuration settings for your server.
+<img width="1067" alt="Screenshot 2021-03-03 at 1 49 17 PM" src="https://user-images.githubusercontent.com/458946/109775238-451c8d80-7c27-11eb-98ad-61fc33082b63.png">
 
-![381611580157_ pic_hd](https://user-images.githubusercontent.com/4025839/105710505-2ead5300-5f52-11eb-9549-531e459e86ea.jpg)
 
 ## Need Assistance
 - If you are unable to resolve any issue while doing the setup, please feel free to ask questions on our [Discord channel](https://discord.com/invite/rBTTVJp) or initiate a [Github discussion](https://github.com/appsmithorg/appsmith/discussions) or send an email to `support@appsmith.com`. We'll be happy to help you. 

@@ -71,7 +71,9 @@ const PropertyControl = memo((props: Props) => {
   const onBatchUpdateProperties = useCallback(
     (allUpdates: Record<string, unknown>) =>
       dispatch(
-        batchUpdateWidgetProperty(widgetProperties.widgetId, allUpdates),
+        batchUpdateWidgetProperty(widgetProperties.widgetId, {
+          modify: allUpdates,
+        }),
       ),
     [widgetProperties.widgetId, dispatch],
   );

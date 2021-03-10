@@ -4,7 +4,6 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
-  saveLayout,
   updateAndSaveLayout,
   WidgetAddChild,
   WidgetAddChildren,
@@ -39,7 +38,6 @@ import {
   batchUpdateWidgetProperty,
   DeleteWidgetPropertyPayload,
   SetWidgetDynamicPropertyPayload,
-  updateWidgetProperty,
   UpdateWidgetPropertyPayload,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
@@ -505,7 +503,11 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
       // If the widget in question is the deleted widget
       if (widget.widgetId === action.payload.widgetId) {
         //SPECIAL HANDLING FOR TAB IN A TABS WIDGET
-        if (widget.tabId && widget.type === WidgetTypes.CANVAS_WIDGET) {
+        if (
+          widget.tabId &&
+          widget.type === WidgetTypes.CANVAS_WIDGET &&
+          widget.parentId
+        ) {
           const parent = { ...widgets[widget.parentId] };
           if (parent.tabs) {
             parent.tabs = parent.tabs.slice();
@@ -540,17 +542,19 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
           }
         }
         let newChildren = [widget.widgetId];
-        if (widgets[widget.parentId].children) {
+        if (widget.parentId && widgets[widget.parentId].children) {
           // Concatenate the list of parents children with the current widgetId
           newChildren = newChildren.concat(widgets[widget.parentId].children);
         }
-        widgets = {
-          ...widgets,
-          [widget.parentId]: {
-            ...widgets[widget.parentId],
-            children: newChildren,
-          },
-        };
+        if (widget.parentId) {
+          widgets = {
+            ...widgets,
+            [widget.parentId]: {
+              ...widgets[widget.parentId],
+              children: newChildren,
+            },
+          };
+        }
       }
     });
 
@@ -735,7 +739,7 @@ function applyDynamicPathUpdates(
       key: update.propertyPath,
     });
   } else if (update.effect === DynamicPathUpdateEffectEnum.REMOVE) {
-    _.reject(currentList, { key: update.propertyPath });
+    currentList = _.reject(currentList, { key: update.propertyPath });
   }
   return currentList;
 }
@@ -767,7 +771,7 @@ function* updateWidgetPropertySaga(
   // Push these updates via the batch update
   yield call(
     batchUpdateWidgetPropertySaga,
-    batchUpdateWidgetProperty(widgetId, updates),
+    batchUpdateWidgetProperty(widgetId, { modify: updates }),
   );
 }
 
@@ -775,15 +779,20 @@ function* setWidgetDynamicPropertySaga(
   action: ReduxAction<SetWidgetDynamicPropertyPayload>,
 ) {
   const { isDynamic, propertyPath, widgetId } = action.payload;
-  const widget: WidgetProps = yield select(getWidget, widgetId);
+  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
+  let widget = { ...stateWidget };
   const propertyValue = _.get(widget, propertyPath);
   let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
-  const propertyUpdates: Record<string, unknown> = {};
   if (isDynamic) {
-    dynamicPropertyPathList.push({
-      key: propertyPath,
-    });
-    propertyUpdates[propertyPath] = convertToString(propertyValue);
+    const keyExists =
+      dynamicPropertyPathList.findIndex((path) => path.key === propertyPath) >
+      -1;
+    if (!keyExists) {
+      dynamicPropertyPathList.push({
+        key: propertyPath,
+      });
+    }
+    widget = set(widget, propertyPath, convertToString(propertyValue));
   } else {
     dynamicPropertyPathList = _.reject(dynamicPropertyPathList, {
       key: propertyPath,
@@ -795,11 +804,9 @@ function* setWidgetDynamicPropertySaga(
       propertyValue,
       widget,
     );
-    propertyUpdates[propertyPath] = parsed;
+    widget = set(widget, propertyPath, parsed);
   }
-  propertyUpdates.dynamicPropertyPathList = dynamicPropertyPathList;
-
-  yield put(updateWidgetProperty(widgetId, propertyUpdates));
+  widget.dynamicPropertyPathList = dynamicPropertyPathList;
 
   const stateWidgets = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
@@ -808,16 +815,14 @@ function* setWidgetDynamicPropertySaga(
   yield put(updateAndSaveLayout(widgets));
 }
 
-function* batchUpdateWidgetPropertySaga(
-  action: ReduxAction<UpdateWidgetPropertyPayload>,
-) {
-  const { updates, widgetId } = action.payload;
-  if (!widgetId) {
-    // Handling the case where sometimes widget id is not passed through here
-    return;
-  }
-  const widget: WidgetProps = yield select(getWidget, widgetId);
-
+function getPropertiesToUpdate(
+  widget: WidgetProps,
+  updates: Record<string, unknown>,
+): {
+  propertyUpdates: Record<string, unknown>;
+  dynamicTriggerPathList: DynamicPath[];
+  dynamicBindingPathList: DynamicPath[];
+} {
   // Create a
   const widgetWithUpdates = _.cloneDeep(widget);
   Object.entries(updates).forEach(([propertyPath, propertyValue]) => {
@@ -874,16 +879,96 @@ function* batchUpdateWidgetPropertySaga(
     currentDynamicBindingPathList,
   );
 
-  // Send the updates
-  yield put(
-    updateWidgetProperty(widgetId, propertyUpdates, {
-      dynamicTriggerPathList,
-      dynamicBindingPathList,
-    }),
-  );
+  return {
+    propertyUpdates,
+    dynamicTriggerPathList,
+    dynamicBindingPathList,
+  };
+}
 
+function* batchUpdateWidgetPropertySaga(
+  action: ReduxAction<UpdateWidgetPropertyPayload>,
+) {
+  const start = performance.now();
+  const { updates, widgetId } = action.payload;
+  if (!widgetId) {
+    // Handling the case where sometimes widget id is not passed through here
+    return;
+  }
+  const { modify = {}, remove = [] } = updates;
+
+  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
+
+  // if there is no widget in the state, don't do anything
+  if (!stateWidget) return;
+
+  let widget = cloneDeep(stateWidget);
+  try {
+    if (Object.keys(modify).length > 0) {
+      const {
+        propertyUpdates,
+        dynamicTriggerPathList,
+        dynamicBindingPathList,
+      } = getPropertiesToUpdate(widget, modify);
+
+      // We loop over all updates
+      Object.entries(propertyUpdates).forEach(
+        ([propertyPath, propertyValue]) => {
+          // since property paths could be nested, we use lodash set method
+          widget = set(widget, propertyPath, propertyValue);
+        },
+      );
+      widget.dynamicBindingPathList = dynamicBindingPathList;
+      widget.dynamicTriggerPathList = dynamicTriggerPathList;
+    }
+  } catch (e) {
+    log.debug("Error updating property paths: ", { e });
+  }
+
+  if (Array.isArray(remove) && remove.length > 0) {
+    widget = yield removeWidgetProperties(widget, remove);
+  }
+
+  const stateWidgets = yield select(getWidgets);
+  const widgets = { ...stateWidgets, [widgetId]: widget };
+  log.debug(
+    "Batch widget property update calculations took: ",
+    performance.now() - start,
+    "ms",
+  );
   // Save the layout
-  yield put(saveLayout());
+  yield put(updateAndSaveLayout(widgets));
+}
+
+function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
+  try {
+    let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
+      widget,
+    );
+    let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
+      widget,
+    );
+
+    paths.forEach((propertyPath) => {
+      dynamicTriggerPathList = dynamicTriggerPathList.filter((dynamicPath) => {
+        return !isChildPropertyPath(propertyPath, dynamicPath.key);
+      });
+
+      dynamicBindingPathList = dynamicBindingPathList.filter((dynamicPath) => {
+        return !isChildPropertyPath(propertyPath, dynamicPath.key);
+      });
+    });
+
+    widget.dynamicBindingPathList = dynamicBindingPathList;
+    widget.dynamicTriggerPathList = dynamicTriggerPathList;
+    paths.forEach((propertyPath) => {
+      widget = unsetPropertyPath(widget, propertyPath) as WidgetProps;
+    });
+  } catch (e) {
+    log.debug("Error removing propertyPaths: ", { e });
+  }
+
+  return widget;
 }
 
 function* deleteWidgetPropertySaga(
@@ -894,45 +979,8 @@ function* deleteWidgetPropertySaga(
     // Handling the case where sometimes widget id is not passed through here
     return;
   }
-  const stateWidget: WidgetProps = yield select(getWidget, widgetId);
-  let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
-    stateWidget,
-  );
-  let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
-    stateWidget,
-  );
 
-  propertyPaths.forEach((propertyPath) => {
-    dynamicTriggerPathList = dynamicTriggerPathList.filter((dynamicPath) => {
-      return !isChildPropertyPath(propertyPath, dynamicPath.key);
-    });
-
-    dynamicBindingPathList = dynamicBindingPathList.filter((dynamicPath) => {
-      return !isChildPropertyPath(propertyPath, dynamicPath.key);
-    });
-  });
-
-  // yield put(
-  //   updateWidgetProperty(widgetId, {
-  //     dynamicTriggerPathList,
-  //     dynamicBindingPathList,
-  //   }),
-  // );
-
-  const stateWidgets = yield select(getWidgets);
-  // Cloning because we probably froze the properties earlier
-  // TODO(abhinav): Check if we need to use immer to handle this.
-  let widget = _.cloneDeep(stateWidget);
-  widget.dynamicBindingPathList = dynamicBindingPathList;
-  widget.dynamicTriggerPathList = dynamicTriggerPathList;
-  propertyPaths.forEach((propertyPath) => {
-    widget = unsetPropertyPath(widget, propertyPath) as WidgetProps;
-  });
-
-  const widgets = { ...stateWidgets, [widgetId]: widget };
-
-  // Save the layout
-  yield put(updateAndSaveLayout(widgets));
+  yield put(batchUpdateWidgetProperty(widgetId, { remove: propertyPaths }));
 }
 
 //TODO(abhinav): Move this to helpers and add tests
@@ -1009,7 +1057,9 @@ function* updateCanvasSize(
     // Check this out when non canvas widgets are updating snapRows
     // erstwhile: Math.round((rows * props.snapRowSpace) / props.parentRowSpace),
     yield put(
-      updateWidgetProperty(canvasWidgetId, { bottomRow: newBottomRow }),
+      batchUpdateWidgetProperty(canvasWidgetId, {
+        modify: { bottomRow: newBottomRow },
+      }),
     );
   }
 }
@@ -1316,8 +1366,10 @@ function* pasteWidgetSaga() {
         // (These widgets will be descendants of the copied widget)
         // This means, that their parents will also be newly copied widgets
         // Update widget's parent widget ids with the new parent widget ids
-        const newParentId = newWidgetList.find(
-          (newWidget) => newWidget.widgetId === widgetIdMap[widget.parentId],
+        const newParentId = newWidgetList.find((newWidget) =>
+          widget.parentId
+            ? newWidget.widgetId === widgetIdMap[widget.parentId]
+            : false,
         )?.widgetId;
         if (newParentId) widget.parentId = newParentId;
       }

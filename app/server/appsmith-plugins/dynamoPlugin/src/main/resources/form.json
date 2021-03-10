@@ -138,24 +138,6 @@
           ]
         },
         {
-          "sectionName": "Endpoint Override (Overrides above region)",
-          "children": [
-            {
-              "label": "Host Address (for overriding endpoint only)",
-              "configProperty": "datasourceConfiguration.endpoints[*].host",
-              "controlType": "KEYVALUE_ARRAY",
-              "validationMessage": "Please enter a valid host",
-              "validationRegex": "^((?![/:]).)*$"
-            },
-            {
-              "label": "Port",
-              "configProperty": "datasourceConfiguration.endpoints[*].port",
-              "dataType": "NUMBER",
-              "controlType": "KEYVALUE_ARRAY"
-            }
-          ]
-        },
-        {
           "label": "AWS Access Key ID",
           "configProperty": "datasourceConfiguration.authentication.username",
           "controlType": "INPUT_TEXT",

@@ -46,6 +46,10 @@ export interface InviteUserRequest {
   status?: string;
 }
 
+export interface UpdateUserRequest {
+  name: string;
+}
+
 class UserApi extends Api {
   static usersURL = "v1/users";
   static forgotPasswordURL = `${UserApi.usersURL}/forgotPassword`;
@@ -62,6 +66,10 @@ class UserApi extends Api {
     request: CreateUserRequest,
   ): AxiosPromise<CreateUserResponse> {
     return Api.post(UserApi.usersURL, request);
+  }
+
+  static updateUser(request: UpdateUserRequest): AxiosPromise<ApiResponse> {
+    return Api.put(UserApi.usersURL, request);
   }
 
   static fetchUser(request: FetchUserRequest): AxiosPromise<FetchUserResponse> {

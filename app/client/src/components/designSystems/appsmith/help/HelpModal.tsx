@@ -16,6 +16,7 @@ import { AppState } from "reducers";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { HELP_MODAL_HEIGHT, HELP_MODAL_WIDTH } from "constants/HelpConstants";
 
 const { algolia, cloudHosting, intercomAppID } = getAppsmithConfigs();
 const HelpButton = styled.button<{
@@ -47,10 +48,10 @@ const HelpButton = styled.button<{
   }
 `;
 
-const MODAL_WIDTH = 240;
-const MODAL_HEIGHT = 206;
-const MODAL_BOTTOM_DISTANCE = 45;
-const MODAL_RIGHT_DISTANCE = 30;
+const MODAL_WIDTH = HELP_MODAL_WIDTH;
+const MODAL_HEIGHT = HELP_MODAL_HEIGHT;
+const MODAL_BOTTOM_DISTANCE = 100;
+const MODAL_RIGHT_DISTANCE = 27;
 
 const HelpIcon = HelpIcons.HELP_ICON;
 const CloseIcon = HelpIcons.CLOSE_ICON;

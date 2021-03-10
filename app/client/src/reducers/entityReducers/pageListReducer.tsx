@@ -105,11 +105,18 @@ export const pageListReducer = createReducer(initialState, {
   },
 });
 
+export type AppLayoutType = "FIXED" | "FLUID";
+export interface AppLayoutConfig {
+  type: AppLayoutType;
+  width: number;
+}
+
 export interface PageListReduxState {
   pages: PageListPayload;
   applicationId?: string;
   defaultPageId?: string;
   currentPageId?: string;
+  appLayout?: AppLayoutConfig;
 }
 
 export default pageListReducer;
