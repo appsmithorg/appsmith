@@ -1,6 +1,8 @@
 package com.appsmith.external.helpers;
 
 import com.appsmith.external.constants.DataType;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +10,7 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import org.apache.commons.validator.routines.DateValidator;
+import reactor.core.Exceptions;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -162,7 +165,13 @@ public class DataTypeStringUtils {
                     JSONArray jsonArray = (JSONArray) parser.parse(replacement);
                     input = questionPattern.matcher(input).replaceFirst(String.valueOf(objectMapper.writeValueAsString(jsonArray)));
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
-                    e.printStackTrace();
+                    throw Exceptions.propagate(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                    replacement,
+                                    e.getMessage()
+                            )
+                    );
                 }
                 break;
             case JSON_OBJECT:
@@ -170,7 +179,13 @@ public class DataTypeStringUtils {
                     JSONObject jsonObject = (JSONObject) parser.parse(replacement);
                     input = questionPattern.matcher(input).replaceFirst(String.valueOf(objectMapper.writeValueAsString(jsonObject)));
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
-                    e.printStackTrace();
+                    throw Exceptions.propagate(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                    replacement,
+                                    e.getMessage()
+                            )
+                    );
                 }
                 break;
             case DATE:
@@ -183,7 +198,13 @@ public class DataTypeStringUtils {
                 try {
                     input = questionPattern.matcher(input).replaceFirst(objectMapper.writeValueAsString(replacement));
                 } catch (JsonProcessingException e) {
-                    e.printStackTrace();
+                    throw Exceptions.propagate(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    replacement,
+                                    e.getMessage()
+                            )
+                    );
                 }
         }
 
