@@ -28,6 +28,15 @@ You can find the archives of the calls below with a brief summary of each sessio
 
 ## Archives
 
+<strong>9th Mar 2021: Update user profile, Hidden tabs, Community contributions</strong>
+
+<a href = "https://youtu.be/xqIwSRA4J34">Video Link</a>
+
+#### Summary
+
+Nikhil from appsmith talks about new features such as user profile updating, responsive canvas and hidden tabs. Sumit from appsmith gives shout-out to our top contributors from the past week.
+
+------------------
 
 <strong>26th Feb 2021: Community feedback, Oauth 2 Integration, Google Sheets Integration, Switch Widget and Prepared Statements</strong>
 
