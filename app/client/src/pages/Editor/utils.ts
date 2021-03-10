@@ -101,5 +101,5 @@ const createDragHandler = (el: any, dragHandle: () => JSX.Element) => {
   dragElement.style.top = "0px";
   el.appendChild(dragElement);
   ReactDOM.render(dragHandle(), dragElement);
-  return dragElement;
+  return el.parentElement;
 };
