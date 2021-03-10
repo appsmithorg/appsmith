@@ -1898,7 +1898,29 @@ public class DatabaseChangelog {
         }
     }
 
-    @ChangeSet(order = "058", id = "change-applayout-type-definition", author = "")
+    @ChangeSet(order = "058", id = "update-s3-datasource-configuration-and-label", author = "")
+    public void updateS3DatasourceConfigurationAndLabel(MongoTemplate mongoTemplate) {
+        Plugin s3Plugin = mongoTemplate
+                .find(query(where("name").is("Amazon S3")), Plugin.class).get(0);
+        s3Plugin.setName("S3");
+        mongoTemplate.save(s3Plugin);
+
+        List<Datasource> s3Datasources = mongoTemplate
+                .find(query(where("pluginId").is(s3Plugin.getId())), Datasource.class);
+
+        s3Datasources
+                .stream()
+                .forEach(datasource -> {
+                    datasource
+                            .getDatasourceConfiguration()
+                            .getProperties()
+                            .add(new Property("s3Provider", "amazon-s3"));
+
+                    mongoTemplate.save(datasource);
+                });
+    }
+
+    @ChangeSet(order = "059", id = "change-applayout-type-definition", author = "")
     public void changeAppLayoutTypeDefinition(MongoOperations mongoOperations, MongoClient mongoClient) {
         // Unset an old version of this field, that is no longer used.
         mongoOperations.updateMulti(
