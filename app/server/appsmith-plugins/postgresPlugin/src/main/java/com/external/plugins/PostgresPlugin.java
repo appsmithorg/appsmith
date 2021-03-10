@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.DataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -22,6 +23,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -31,12 +33,17 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.IOException;
+import java.sql.Array;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -231,16 +238,20 @@ public class PostgresPlugin extends BasePlugin {
                     } else {
                         preparedQuery = connectionFromPool.prepareStatement(query);
                         if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
+
                             List<Param> params = executeActionDTO.getParams();
                             List<String> parameters = new ArrayList<>();
+
                             for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
                                 String key = mustacheValuesInOrder.get(i);
                                 Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
+
+                                // If the evaluated value of the mustache binding is present, set it in the prepared statement
                                 if (matchingParam.isPresent()) {
                                     String value = matchingParam.get().getValue();
                                     parameters.add(value);
-                                    preparedQuery = SqlStringUtils.setValueInPreparedStatement(i + 1, key,
-                                            value, preparedQuery);
+                                    preparedQuery = setValueInPreparedStatement(i + 1, key,
+                                            value, preparedQuery, connectionFromPool);
                                 }
                             }
                             requestData.put("parameters", parameters);
@@ -334,6 +345,15 @@ public class PostgresPlugin extends BasePlugin {
                     if (statement != null) {
                         try {
                             statement.close();
+                        } catch (SQLException e) {
+                            System.out.println(Thread.currentThread().getName() +
+                                    ": Execute Error closing Postgres Statement" + e.getMessage());
+                        }
+                    }
+
+                    if (preparedQuery != null) {
+                        try {
+                            preparedQuery.close();
                         } catch (SQLException e) {
                             System.out.println(Thread.currentThread().getName() +
                                     ": Execute Error closing Postgres Statement" + e.getMessage());
@@ -759,6 +779,112 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         return connection;
+    }
+
+    private static PreparedStatement setValueInPreparedStatement(int index,
+                                                                String binding,
+                                                                String value,
+                                                                PreparedStatement preparedStatement,
+                                                                Connection connection) throws AppsmithPluginException {
+        DataType valueType = SqlStringUtils.stringToKnownDataTypeConverter(value);
+
+        try {
+            switch (valueType) {
+                case NULL: {
+                    preparedStatement.setNull(index, Types.NULL);
+                    break;
+                }
+                case BINARY: {
+                    preparedStatement.setBinaryStream(index, IOUtils.toInputStream(value));
+                    break;
+                }
+                case BYTES: {
+                    preparedStatement.setBytes(index, value.getBytes("UTF-8"));
+                    break;
+                }
+                case INTEGER: {
+                    preparedStatement.setInt(index, Integer.parseInt(value));
+                    break;
+                }
+                case LONG: {
+                    preparedStatement.setLong(index, Long.parseLong(value));
+                    break;
+                }
+                case FLOAT: {
+                    preparedStatement.setFloat(index, Float.parseFloat(value));
+                    break;
+                }
+                case DOUBLE: {
+                    preparedStatement.setDouble(index, Double.parseDouble(value));
+                    break;
+                }
+                case BOOLEAN: {
+                    preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
+                    break;
+                }
+                case DATE: {
+                    preparedStatement.setDate(index, Date.valueOf(value));
+                    break;
+                }
+                case TIME: {
+                    preparedStatement.setTime(index, Time.valueOf(value));
+                    break;
+                }
+                case ARRAY: {
+                    List arrayListFromInput = objectMapper.readValue(value, List.class);
+                    if (arrayListFromInput.isEmpty()) {
+                        break;
+                    }
+                    // Find the type of the entries in the list
+                    Object firstEntry = arrayListFromInput.get(0);
+                    DataType dataType = SqlStringUtils.stringToKnownDataTypeConverter((String.valueOf(firstEntry)));
+                    String typeName = toPostgresqlPrimitiveTypeName(dataType);
+
+                    // Create the Sql Array and set it.
+                    Array inputArray = connection.createArrayOf(typeName, arrayListFromInput.toArray());
+                    preparedStatement.setArray(index, inputArray);
+                    break;
+                }
+                case STRING: {
+                    preparedStatement.setString(index, value);
+                    break;
+                }
+                default:
+                    break;
+            }
+
+        } catch (SQLException | IllegalArgumentException | IOException e) {
+            String message = "Query preparation failed while inserting value: "
+                    + value + " for binding: {{" + binding + "}}. Please check the query again.\nError: " + e.getMessage();
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
+        }
+
+        return preparedStatement;
+    }
+
+    private static String toPostgresqlPrimitiveTypeName(DataType type) {
+        switch (type) {
+            case LONG:
+                return "int8";
+            case INTEGER:
+                return "int4";
+            case FLOAT:
+                return "decimal";
+            case STRING:
+                return "varchar";
+            case BOOLEAN:
+                return "bool";
+            case DATE:
+                return "date";
+            case TIME:
+                return "time";
+            case DOUBLE:
+                return "float8";
+            case ARRAY:
+                throw new IllegalArgumentException("Array of Array datatype is not supported.");
+            default:
+                throw new IllegalArgumentException("Unable to map the computed data type to primitive Postgresql type");
+        }
     }
 
 }

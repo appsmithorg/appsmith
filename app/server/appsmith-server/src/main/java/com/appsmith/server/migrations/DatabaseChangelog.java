@@ -1866,4 +1866,54 @@ public class DatabaseChangelog {
             }
         }
     }
+
+    @ChangeSet(order = "057", id = "update-database-action-configuration-timeout", author = "")
+    public void updateActionConfigurationTimeout(MongoTemplate mongoTemplate) {
+
+        for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
+            boolean updateTimeout = false;
+
+            if (action.getUnpublishedAction() != null
+                    && action.getUnpublishedAction().getActionConfiguration() != null
+                    && action.getUnpublishedAction().getActionConfiguration().getTimeoutInMillisecond() != null
+                    && action.getUnpublishedAction().getActionConfiguration().getTimeoutInMillisecond() > 60000) {
+                action.getUnpublishedAction().getActionConfiguration().setTimeoutInMillisecond("60000");
+                updateTimeout = true;
+            }
+
+            if (action.getPublishedAction() != null
+                    && action.getPublishedAction().getActionConfiguration() != null
+                    && action.getPublishedAction().getActionConfiguration().getTimeoutInMillisecond() != null
+                    && action.getPublishedAction().getActionConfiguration().getTimeoutInMillisecond() > 60000) {
+                action.getPublishedAction().getActionConfiguration().setTimeoutInMillisecond("60000");
+                updateTimeout = true;
+            }
+
+            if(updateTimeout) {
+                mongoTemplate.save(action);
+            }
+        }
+    }
+
+    @ChangeSet(order = "058", id = "update-s3-datasource-configuration-and-label", author = "")
+    public void updateS3DatasourceConfigurationAndLabel(MongoTemplate mongoTemplate) {
+        Plugin s3Plugin = mongoTemplate
+                .find(query(where("name").is("Amazon S3")), Plugin.class).get(0);
+        s3Plugin.setName("S3");
+        mongoTemplate.save(s3Plugin);
+
+        List<Datasource> s3Datasources = mongoTemplate
+                .find(query(where("pluginId").is(s3Plugin.getId())), Datasource.class);
+
+        s3Datasources
+                .stream()
+                .forEach(datasource -> {
+                    datasource
+                            .getDatasourceConfiguration()
+                            .getProperties()
+                            .add(new Property("s3Provider", "amazon-s3"));
+
+                    mongoTemplate.save(datasource);
+                });
+    }
 }

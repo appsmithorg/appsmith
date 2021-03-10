@@ -743,12 +743,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     if (this.props.pageSize !== prevProps.pageSize) {
-      super.executeAction({
-        dynamicString: this.props.onPageSizeChange,
-        event: {
-          type: EventType.ON_PAGE_SIZE_CHANGE,
-        },
-      });
+      if (this.props.onPageSizeChange) {
+        super.executeAction({
+          dynamicString: this.props.onPageSizeChange,
+          event: {
+            type: EventType.ON_PAGE_SIZE_CHANGE,
+          },
+        });
+      }
     }
   }
 
