@@ -89,6 +89,9 @@
   "selectedColType": ".t--property-control-columntype button span",
   "collapsesection": ".t--property-pane-section-collapse-general",
   "selectTab": ".t--tab-Tab",
+  "layoutControl": ".t--layout-control-wrapper",
+  "layoutPopover": ".bp3-popover.bp3-minimal.layout-control",
+  "canvas": ".t--canvas-artboard",
   "deflautSelectedRow": ".t--property-control-defaultselectedrow textarea",
   "defaultSearchText": ".t--property-control-defaultsearchtext textarea",
   "entityName": ".t--entity-name",
@@ -97,5 +100,9 @@
   "filePickerUploadButton": ".uppy-StatusBar-actionBtn--upload",
   "filePickerOnFilesSelected": ".t--property-control-onfilesselected",
   "dataType": ".t--property-control-datatype",
-  "evaluateMsg": ".t--CodeEditor-evaluatedValue p"
+  "evaluateMsg": ".t--CodeEditor-evaluatedValue p",
+  "globalSearchModal": ".t--global-search-modal",
+  "globalSearchInput": ".t--global-search-input",
+  "globalSearchTrigger": ".t--global-search-modal-trigger",
+  "globalSearchClearInput": ".t--global-clear-input"
 }

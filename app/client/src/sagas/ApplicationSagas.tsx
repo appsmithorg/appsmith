@@ -52,6 +52,7 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { showCompletionDialog } from "./OnboardingSagas";
+import { deleteRecentAppEntities } from "utils/storage";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -216,6 +217,25 @@ export function* setDefaultApplicationPageSaga(
   }
 }
 
+function* updateApplicationLayoutSaga(
+  action: ReduxAction<UpdateApplicationRequest>,
+) {
+  try {
+    yield call(updateApplicationSaga, action);
+    yield put({
+      type: ReduxActionTypes.CURRENT_APPLICATION_LAYOUT_UPDATE,
+      payload: action.payload.appLayout,
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_APP_LAYOUT_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export function* updateApplicationSaga(
   action: ReduxAction<UpdateApplicationRequest>,
 ) {
@@ -269,6 +289,7 @@ export function* deleteApplicationSaga(
         type: ReduxActionTypes.DELETE_APPLICATION_SUCCESS,
         payload: response.data,
       });
+      yield call(deleteRecentAppEntities, request.applicationId);
     }
   } catch (error) {
     yield put({
@@ -434,6 +455,7 @@ export default function* applicationSagas() {
       ReduxActionTypes.PUBLISH_APPLICATION_INIT,
       publishApplicationSaga,
     ),
+    takeLatest(ReduxActionTypes.UPDATE_APP_LAYOUT, updateApplicationLayoutSaga),
     takeLatest(ReduxActionTypes.UPDATE_APPLICATION, updateApplicationSaga),
     takeLatest(
       ReduxActionTypes.CHANGE_APPVIEW_ACCESS_INIT,

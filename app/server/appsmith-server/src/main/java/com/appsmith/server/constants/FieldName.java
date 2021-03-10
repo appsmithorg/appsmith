@@ -61,4 +61,6 @@ public class FieldName {
     public static String APPLICATION = "application";
     public static String PUBLISHED_APPLICATION = "deployed application";
     public static final String TOKEN = "token";
+    public static String WIDGET_TYPE = "type";
+    public static String PATH = "path";
 }

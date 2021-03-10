@@ -27,6 +27,8 @@ import { ReactComponent as ArrowLeft } from "assets/icons/ads/arrow-left.svg";
 import { ReactComponent as Fork } from "assets/icons/ads/fork.svg";
 import { ReactComponent as ChevronLeft } from "assets/icons/ads/chevron_left.svg";
 import { ReactComponent as ChevronRight } from "assets/icons/ads/chevron_right.svg";
+import { ReactComponent as LinkIcon } from "assets/icons/ads/link.svg";
+import { ReactComponent as HelpIcon } from "assets/icons/help/help.svg";
 import { ReactComponent as CloseModalIcon } from "assets/icons/ads/close-modal.svg";
 import { ReactComponent as NoResponseIcon } from "assets/icons/ads/no-response.svg";
 import { ReactComponent as LightningIcon } from "assets/icons/ads/lightning.svg";
@@ -34,6 +36,11 @@ import { ReactComponent as AddMoreIcon } from "assets/icons/ads/add-more.svg";
 import { ReactComponent as RightArrowIcon } from "assets/icons/ads/right-arrow.svg";
 import { ReactComponent as DatasourceIcon } from "assets/icons/ads/datasource.svg";
 import { ReactComponent as PlayIcon } from "assets/icons/ads/play.svg";
+import { ReactComponent as DesktopIcon } from "assets/icons/ads/desktop.svg";
+import { ReactComponent as MobileIcon } from "assets/icons/ads/mobile.svg";
+import { ReactComponent as TabletIcon } from "assets/icons/ads/tablet.svg";
+import { ReactComponent as FluidIcon } from "assets/icons/ads/fluid.svg";
+
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -115,6 +122,8 @@ export const IconCollection = [
   "fork",
   "chevron-left",
   "chevron-right",
+  "link",
+  "help",
   "close-modal",
   "no-response",
   "lightning",
@@ -122,6 +131,10 @@ export const IconCollection = [
   "right-arrow",
   "datasource",
   "play",
+  "desktop",
+  "mobile",
+  "tablet",
+  "fluid",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -256,6 +269,12 @@ const Icon = forwardRef(
       case "chevron-right":
         returnIcon = <ChevronRight />;
         break;
+      case "link":
+        returnIcon = <LinkIcon />;
+        break;
+      case "help":
+        returnIcon = <HelpIcon />;
+        break;
       case "close-modal":
         returnIcon = <CloseModalIcon />;
         break;
@@ -277,6 +296,19 @@ const Icon = forwardRef(
       case "play":
         returnIcon = <PlayIcon />;
         break;
+      case "desktop":
+        returnIcon = <DesktopIcon />;
+        break;
+      case "mobile":
+        returnIcon = <MobileIcon />;
+        break;
+      case "tablet":
+        returnIcon = <TabletIcon />;
+        break;
+      case "fluid":
+        returnIcon = <FluidIcon />;
+        break;
+
       default:
         returnIcon = null;
         break;
