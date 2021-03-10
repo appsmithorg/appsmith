@@ -187,8 +187,7 @@ const applicationsReducer = createReducer(initialState, {
     const _organizations = state.userOrgs.map((org: Organization) => {
       if (org.organization.id === action.payload.orgId) {
         const applications = org.applications;
-        applications.push(action.payload.application);
-        org.applications = [...applications];
+        org.applications = [...applications, action.payload.application];
         return {
           ...org,
         };
