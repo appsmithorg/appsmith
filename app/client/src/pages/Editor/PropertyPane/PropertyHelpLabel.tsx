@@ -11,6 +11,9 @@ type Props = {
 
 const PropertyHelpLabel = (props: Props) => {
   const toolTipDefined = props.tooltip !== undefined;
+  if (!props.label) {
+    return <></>;
+  }
   return (
     <Tooltip
       disabled={!toolTipDefined}
