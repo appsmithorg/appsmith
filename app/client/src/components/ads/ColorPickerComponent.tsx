@@ -22,6 +22,14 @@ const ColorIcon = styled.div<{ color: string }>`
 `;
 
 const StyledInputGroup = styled(InputGroup)`
+  .${Classes.INPUT} {
+    box-shadow: none;
+    border-radius: 0;
+    &:focus {
+      border: 1px solid ${(props) => props.theme.colors.info.main};
+      box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18);
+    }
+  }
   &&& input {
     padding-left: 36px;
     background: ${(props) =>
@@ -100,7 +108,7 @@ const ColorBoard = (props: ColorBoardProps) => {
       ))}
       <EmptyColorIconWrapper onClick={() => props.selectColor("")}>
         <NoColorIcon>
-          <div className="line"></div>
+          <div className="line" />
         </NoColorIcon>
       </EmptyColorIconWrapper>
     </ColorsWrapper>
@@ -171,7 +179,7 @@ const ColorPickerComponent = (props: ColorPickerProps) => {
           ) : (
             <NoColorIconWrapper>
               <NoColorIcon>
-                <div className="line"></div>
+                <div className="line" />
               </NoColorIcon>
             </NoColorIconWrapper>
           )
@@ -183,7 +191,6 @@ const ColorPickerComponent = (props: ColorPickerProps) => {
       <ColorBoard
         selectedColor={color}
         selectColor={(color) => {
-          console.log({ color });
           setColor(color);
           props.changeColor(color);
         }}
