@@ -1,4 +1,6 @@
+import { debounce } from "lodash";
 import ReactDOM from "react-dom";
+import ResizeObserver from "resize-observer-polyfill";
 
 export const draggableElement = (
   element: any,
@@ -32,7 +34,6 @@ export const draggableElement = (
     document.onmousemove = elementDrag;
   };
   dragHandler.onmousedown = dragMouseDown;
-
   const calculateBoundaryConfinedPosition = (
     calculatedLeft: number,
     calculatedTop: number,
@@ -82,6 +83,12 @@ export const draggableElement = (
     document.onmouseup = null;
     document.onmousemove = null;
   };
+  const debouncedClose = debounce(closeDragElement, 50);
+
+  const resizeObserver = new ResizeObserver(function() {
+    debouncedClose();
+  });
+  resizeObserver.observe(element);
 };
 
 const createDragHandler = (el: any, dragHandle: () => JSX.Element) => {
