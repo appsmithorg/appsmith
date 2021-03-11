@@ -11,7 +11,7 @@ on:
       - 'app/client/**'
       - '!app/client/cypress/manual_TestSuite/**'
 
-  pull_request_target:
+  pull_request:
     branches: [release, master]
     paths:
       - 'app/client/**'
@@ -33,7 +33,7 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -142,7 +142,7 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         uses: actions/checkout@v2
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
@@ -262,7 +262,7 @@ jobs:
           group: "Electrons on Github Action"
           spec: "cypress/integration/Smoke_TestSuite/**/*.js"
           working-directory: app/client
-          # tag will be either "push" or "pull_request_target"
+          # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
@@ -285,7 +285,7 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         uses: actions/checkout@v2
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
