@@ -77,6 +77,7 @@ public enum AppsmithError {
     SIGNUP_DISABLED(403, 4033, "Signup is restricted on this instance of Appsmith. Please contact the administrator to get an invite.", AppsmithErrorAction.DEFAULT),
     FAIL_UPDATE_USER_IN_SESSION(500, 5008, "Unable to update user in session.", AppsmithErrorAction.LOG_EXTERNALLY),
     APPLICATION_FORKING_NOT_ALLOWED(403, 4034, "Forking this application is not permitted at this time.", AppsmithErrorAction.DEFAULT),
+    AUTHENTICATION_FAILURE(500, 5009, "Authentication failed with error: {0}", AppsmithErrorAction.DEFAULT),
     GOOGLE_RECAPTCHA_TIMEOUT(504, 5042, "Google recaptcha verification timeout. Please try again.", AppsmithErrorAction.DEFAULT),
     GOOGLE_RECAPTCHA_FAILED(401, 4034, "Google recaptcha verification failed. Please try again.", AppsmithErrorAction.DEFAULT),
     AUTHENTICATION_FAILURE(500, 5009, "Authentication failed with error: {0}", AppsmithErrorAction.DEFAULT),
